@@ -19,7 +19,7 @@ class SubjectItem extends ItemView
 {
     use Documented;
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->addDisclaimer();

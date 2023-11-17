@@ -55,7 +55,7 @@ abstract class EditView extends FormView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {

@@ -30,7 +30,7 @@ class Equipment extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

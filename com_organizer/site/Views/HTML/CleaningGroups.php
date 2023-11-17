@@ -20,7 +20,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class CleaningGroups extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -44,7 +44,7 @@ class CleaningGroups extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

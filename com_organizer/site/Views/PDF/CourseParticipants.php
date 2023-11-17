@@ -82,7 +82,7 @@ class CourseParticipants extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize()
     {

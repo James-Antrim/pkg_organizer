@@ -16,7 +16,7 @@ namespace THM\Organizer\Views\HTML;
 class GroupMerge extends MergeView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected string $controller = 'Group';
 }

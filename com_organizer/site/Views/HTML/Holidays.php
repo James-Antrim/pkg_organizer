@@ -21,7 +21,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Holidays extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {

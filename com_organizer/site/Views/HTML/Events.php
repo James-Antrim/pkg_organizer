@@ -22,7 +22,7 @@ class Events extends ListView
     use Merged;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -40,7 +40,7 @@ class Events extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -57,7 +57,7 @@ class Events extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

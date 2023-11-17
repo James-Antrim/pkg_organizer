@@ -28,7 +28,7 @@ class Subjects extends ListView
     private Registry $params;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
@@ -37,7 +37,7 @@ class Subjects extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -69,7 +69,7 @@ class Subjects extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize(): void
     {
@@ -77,7 +77,7 @@ class Subjects extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -118,7 +118,7 @@ class Subjects extends ListView
         $this->items = $structuredItems;
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->addDisclaimer();
@@ -126,7 +126,7 @@ class Subjects extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

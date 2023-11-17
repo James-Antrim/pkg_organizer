@@ -40,7 +40,7 @@ class Participation extends ListLayout
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fill(array $data)
     {

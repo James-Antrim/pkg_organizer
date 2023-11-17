@@ -77,7 +77,7 @@ class ContactTracking extends ListModel
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getItems(): array
     {

@@ -48,7 +48,7 @@ class Statistics extends FormView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {

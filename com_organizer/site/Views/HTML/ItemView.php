@@ -35,7 +35,7 @@ abstract class ItemView extends BaseView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {

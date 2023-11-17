@@ -24,7 +24,7 @@ class Groups extends ListView
     use Merged;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -55,7 +55,7 @@ class Groups extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -90,7 +90,7 @@ class Groups extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {
@@ -101,7 +101,7 @@ class Groups extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function initializeColumns(): void
     {

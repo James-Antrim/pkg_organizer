@@ -21,7 +21,7 @@ abstract class PoolsView extends ListView
     protected array $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link'];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -33,7 +33,7 @@ abstract class PoolsView extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -51,7 +51,7 @@ abstract class PoolsView extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

@@ -20,7 +20,7 @@ use THM\Organizer\Helpers\Can;
 class FieldColors extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -42,7 +42,7 @@ class FieldColors extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -61,7 +61,7 @@ class FieldColors extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

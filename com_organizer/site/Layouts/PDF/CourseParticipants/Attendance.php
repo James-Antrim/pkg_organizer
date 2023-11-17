@@ -59,7 +59,7 @@ class Attendance extends ListLayout
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fill(array $data)
     {

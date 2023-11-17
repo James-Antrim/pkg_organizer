@@ -25,7 +25,7 @@ class Rooms extends ListView
     use Merged;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -54,7 +54,7 @@ class Rooms extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
@@ -64,7 +64,7 @@ class Rooms extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

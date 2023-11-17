@@ -23,7 +23,7 @@ class Organizations extends ListModel
     protected string $defaultOrdering = 'shortName';
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addAccess(QueryInterface $query): void
     {

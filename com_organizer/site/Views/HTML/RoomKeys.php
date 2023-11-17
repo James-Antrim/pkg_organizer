@@ -19,7 +19,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class RoomKeys extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

@@ -28,7 +28,7 @@ class Export extends FormView
     public string $url;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {

@@ -19,7 +19,7 @@ use THM\Organizer\Adapters\Text;
 class Highlander extends StandardButton
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function _getCommand(): string
     {

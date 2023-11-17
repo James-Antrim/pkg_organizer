@@ -75,7 +75,7 @@ class HTML extends HTMLHelper
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      * Link text key is automatically prefaced and localized.
      */
     public static function link($url, $text, $attribs = null): string

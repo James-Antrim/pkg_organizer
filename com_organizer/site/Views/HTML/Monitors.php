@@ -21,7 +21,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Monitors extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -33,7 +33,7 @@ class Monitors extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
@@ -49,7 +49,7 @@ class Monitors extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(array $options = []): void
     {
@@ -71,7 +71,7 @@ class Monitors extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

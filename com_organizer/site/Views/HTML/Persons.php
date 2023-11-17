@@ -23,7 +23,7 @@ class Persons extends ListView
     use Activated;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -40,7 +40,7 @@ class Persons extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
@@ -64,7 +64,7 @@ class Persons extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

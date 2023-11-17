@@ -51,7 +51,7 @@ abstract class BaseView extends HtmlView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      * Does not dump the responsibility for exception handling onto inheriting classes.
      */
     public function display($tpl = null): void

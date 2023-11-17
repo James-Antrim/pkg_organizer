@@ -32,7 +32,7 @@ class Instances extends ListView
     public BaseModel $model;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize(): void
     {

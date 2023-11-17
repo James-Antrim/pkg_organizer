@@ -32,7 +32,7 @@ class Terms extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
@@ -41,7 +41,7 @@ class Terms extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

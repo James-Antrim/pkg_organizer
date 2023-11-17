@@ -22,12 +22,12 @@ use THM\Organizer\Controllers\Controller;
 class Dispatcher extends ComponentDispatcher
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected $mvcFactory;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected $option = 'com_organizer';
 

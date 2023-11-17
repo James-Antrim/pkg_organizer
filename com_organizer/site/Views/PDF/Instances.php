@@ -45,7 +45,7 @@ class Instances extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize()
     {

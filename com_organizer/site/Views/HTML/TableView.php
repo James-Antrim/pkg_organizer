@@ -45,7 +45,7 @@ abstract class TableView extends BaseView
     abstract protected function addToolBar(): void;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {

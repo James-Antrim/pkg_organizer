@@ -61,7 +61,7 @@ class ContactTracking extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize()
     {

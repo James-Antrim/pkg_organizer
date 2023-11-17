@@ -368,7 +368,7 @@ class Instances extends ListModel
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function populateState($ordering = null, $direction = null): void
     {

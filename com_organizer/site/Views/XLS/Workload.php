@@ -16,7 +16,7 @@ namespace THM\Organizer\Views\XLS;
 class Workload extends BaseView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function __construct()
     {

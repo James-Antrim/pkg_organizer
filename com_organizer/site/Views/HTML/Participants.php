@@ -23,7 +23,7 @@ class Participants extends ListView
     use Merged;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -44,7 +44,7 @@ class Participants extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function initializeColumns(): void
     {

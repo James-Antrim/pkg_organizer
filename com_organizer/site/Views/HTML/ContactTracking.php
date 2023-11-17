@@ -22,7 +22,7 @@ class ContactTracking extends ListView
     private const BY_DAY = 1, BY_EVENT = 2;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
@@ -50,7 +50,7 @@ class ContactTracking extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -66,7 +66,7 @@ class ContactTracking extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize(): void
     {
@@ -80,7 +80,7 @@ class ContactTracking extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems()
     {
@@ -161,7 +161,7 @@ class ContactTracking extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns()
     {

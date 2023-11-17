@@ -16,7 +16,7 @@ namespace THM\Organizer\Views\HTML;
 class EventMerge extends MergeView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected string $controller = 'Event';
 }

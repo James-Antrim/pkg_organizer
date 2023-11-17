@@ -28,7 +28,7 @@ class Booking extends ListLayout
     protected $widths = [];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fill(array $data)
     {

@@ -42,7 +42,7 @@ class Organizer extends HtmlView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {

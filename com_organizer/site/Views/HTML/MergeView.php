@@ -37,7 +37,7 @@ abstract class MergeView extends FormView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {

@@ -112,7 +112,7 @@ class Search extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {

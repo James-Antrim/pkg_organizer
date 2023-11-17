@@ -21,7 +21,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Campuses extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -105,7 +105,7 @@ class Campuses extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

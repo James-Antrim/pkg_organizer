@@ -21,7 +21,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Fields extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -40,7 +40,7 @@ class Fields extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(array $options = []): void
     {
@@ -49,7 +49,7 @@ class Fields extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

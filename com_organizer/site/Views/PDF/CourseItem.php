@@ -106,7 +106,7 @@ class CourseItem extends BaseView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($destination = self::DOWNLOAD)
     {

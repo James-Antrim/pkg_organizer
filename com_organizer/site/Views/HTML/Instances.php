@@ -50,7 +50,7 @@ class Instances extends ListView
     protected bool $structureEmpty = true;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
@@ -59,7 +59,7 @@ class Instances extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -146,7 +146,7 @@ class Instances extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize(): void
     {
@@ -168,7 +168,7 @@ class Instances extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -522,7 +522,7 @@ class Instances extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

@@ -20,7 +20,7 @@ use THM\Organizer\Helpers;
 class CourseParticipants extends Participants
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function setSubTitle(): void
     {
@@ -39,7 +39,7 @@ class CourseParticipants extends Participants
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -82,7 +82,7 @@ class CourseParticipants extends Participants
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize(): void
     {
@@ -100,7 +100,7 @@ class CourseParticipants extends Participants
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -171,7 +171,7 @@ class CourseParticipants extends Participants
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($tpl = null): void
     {
@@ -182,7 +182,7 @@ class CourseParticipants extends Participants
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function initializeColumns(): void
     {

@@ -165,7 +165,7 @@ class Text extends Base
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      * Two Joomla\CMS\Language\Text exist the real one (Text.php) uses $string the dummy (finalisation.php) uses $text.
      * @noinspection PhpParameterNameChangedDuringInheritanceInspection
      */

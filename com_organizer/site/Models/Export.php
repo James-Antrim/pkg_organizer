@@ -148,7 +148,7 @@ class Export extends FormModel
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function loadFormData(): array
     {

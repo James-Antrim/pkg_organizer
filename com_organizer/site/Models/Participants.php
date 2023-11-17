@@ -38,7 +38,7 @@ class Participants extends ListModel
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addAccess(QueryInterface $query): void
     {

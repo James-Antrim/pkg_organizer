@@ -19,7 +19,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Methods extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -31,7 +31,7 @@ class Methods extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

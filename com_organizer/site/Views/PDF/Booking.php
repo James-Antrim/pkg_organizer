@@ -69,7 +69,7 @@ class Booking extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize()
     {

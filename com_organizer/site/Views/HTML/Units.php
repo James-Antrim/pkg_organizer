@@ -21,7 +21,7 @@ class Units extends ListView
     private $statusDate;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
@@ -30,7 +30,7 @@ class Units extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -42,7 +42,7 @@ class Units extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -97,7 +97,7 @@ class Units extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

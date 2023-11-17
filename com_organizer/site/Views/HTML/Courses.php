@@ -25,7 +25,7 @@ class Courses extends ListView
     private bool $manages = false;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function __construct($config = [])
     {

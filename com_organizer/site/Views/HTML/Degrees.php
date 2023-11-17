@@ -20,7 +20,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Degrees extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -31,7 +31,7 @@ class Degrees extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

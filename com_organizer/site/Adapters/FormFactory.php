@@ -21,7 +21,7 @@ class FormFactory implements FormFactoryInterface
     use DatabaseAwareTrait;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createForm(string $name, array $options = []): Form
     {

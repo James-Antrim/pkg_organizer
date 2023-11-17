@@ -19,7 +19,7 @@ use THM\Organizer\Adapters\{Document, Text};
 class FormTarget extends StandardButton
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function _getCommand(): string
     {

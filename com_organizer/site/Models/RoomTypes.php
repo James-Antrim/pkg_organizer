@@ -22,7 +22,7 @@ class RoomTypes extends ListModel
     protected $filter_fields = ['cleaningID', 'keyID', 'useID'];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function getListQuery(): DatabaseQuery
     {

@@ -21,7 +21,7 @@ class SubjectSelection extends ListView
     protected string $layout = 'list_modal';
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -30,7 +30,7 @@ class SubjectSelection extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {
@@ -57,7 +57,7 @@ class SubjectSelection extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function initializeColumns(): void
     {

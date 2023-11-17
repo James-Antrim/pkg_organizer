@@ -21,7 +21,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Colors extends ListView
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -40,7 +40,7 @@ class Colors extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

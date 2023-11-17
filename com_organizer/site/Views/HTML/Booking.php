@@ -127,7 +127,7 @@ class Booking extends Participants
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {

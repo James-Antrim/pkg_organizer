@@ -23,7 +23,7 @@ class Buildings extends ListView
     private const OWNED = 1, RENTED = 2, USED = 3;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -34,7 +34,7 @@ class Buildings extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize(): void
     {
@@ -44,7 +44,7 @@ class Buildings extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
@@ -58,7 +58,7 @@ class Buildings extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {

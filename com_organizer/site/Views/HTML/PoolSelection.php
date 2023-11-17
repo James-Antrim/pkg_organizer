@@ -23,7 +23,7 @@ class PoolSelection extends PoolsView
     protected array $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {

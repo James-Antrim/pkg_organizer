@@ -61,7 +61,7 @@ abstract class ListView extends Base
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      * ListView adds the title and configuration button if user has access. Inheriting classes are responsible for
      * their own buttons.
      */

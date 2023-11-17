@@ -44,7 +44,7 @@ class Badges extends BadgeLayout
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fill(array $data)
     {

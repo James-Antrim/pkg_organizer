@@ -25,7 +25,7 @@ class Curriculum extends ItemView
 
     public array $fields = [];
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->addDisclaimer();

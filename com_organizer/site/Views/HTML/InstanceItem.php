@@ -37,7 +37,7 @@ class InstanceItem extends ListView
     private string $referrer = '';
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
@@ -137,7 +137,7 @@ class InstanceItem extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function authorize(): void
     {
@@ -389,7 +389,7 @@ class InstanceItem extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function initializeColumns(): void
     {
@@ -652,7 +652,7 @@ class InstanceItem extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function completeItems(): void
     {

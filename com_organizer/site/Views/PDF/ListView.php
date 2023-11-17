@@ -40,7 +40,7 @@ abstract class ListView extends BaseView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function display($destination = self::DOWNLOAD)
     {

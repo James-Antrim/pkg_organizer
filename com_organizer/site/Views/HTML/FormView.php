@@ -26,7 +26,7 @@ abstract class FormView extends BaseView
     public $form = null;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected string $layout = 'form';
 

@@ -21,7 +21,7 @@ class CourseItem extends ItemView
     private $manages = false;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
