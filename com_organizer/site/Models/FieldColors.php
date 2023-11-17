@@ -11,8 +11,9 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of fields (of expertise).
@@ -28,7 +29,7 @@ class FieldColors extends ListModel
      */
     protected function filterFilterForm(Form $form): void
     {
-        if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
+        if (count(Can::documentTheseOrganizations()) === 1) {
             $form->removeField('organizationID', 'filter');
             unset($this->filter_fields['organizationID']);
         }
@@ -37,19 +38,25 @@ class FieldColors extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
-        $query = $this->_db->getQuery(true);
+        $query = DB::getQuery();
+        $url   = 'index.php?option=com_organizer&view=FieldColor&id=';
 
-        $query->select("DISTINCT fc.id, fc.*")
-            ->select("c.name_$tag AS color")
-            ->select("f.name_$tag AS field")
-            ->select("o.shortName_$tag AS organization")
-            ->from('#__organizer_field_colors AS fc')
-            ->innerJoin('#__organizer_colors AS c ON c.id = fc.colorID')
-            ->innerJoin('#__organizer_fields AS f ON f.id = fc.fieldID')
-            ->innerJoin('#__organizer_organizations AS o ON o.id = fc.organizationID');
+        $aliased = DB::qn(["c.name_$tag", "f.name_$tag", "o.shortName_$tag"], ['color', 'field', 'organization']);
+        $select  = [
+            'DISTINCT ' . DB::qn('fc.id'),
+            DB::qn('fc') . '.*',
+            DB::quote(1) . ' AS ' . DB::qn('access'),
+            $query->concatenate([DB::quote($url), DB::qn('fc.id')], '') . ' AS ' . DB::qn('url'),
+        ];
+
+        $query->select(array_merge($select, $aliased))
+            ->from(DB::qn('#__organizer_field_colors', 'fc'))
+            ->innerJoin(DB::qn('#__organizer_colors', 'c'), DB::qc('c.id', 'fc.colorID'))
+            ->innerJoin(DB::qn('#__organizer_fields', 'f'), DB::qc('f.id', 'fc.fieldID'))
+            ->innerJoin(DB::qn('#__organizer_organizations', 'o'), DB::qc('o.id', 'fc.organizationID'));
 
         // Explicitly set via request
         $this->filterID($query, 'c.id', 'filter.colorID');
@@ -72,7 +79,7 @@ class FieldColors extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $documentable = Helpers\Can::documentTheseOrganizations();
+        $documentable = Can::documentTheseOrganizations();
 
         if (count($documentable) === 1) {
             $this->setState('filter.organizationID', $documentable[0]);

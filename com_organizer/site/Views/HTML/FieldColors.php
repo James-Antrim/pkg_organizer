@@ -10,9 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Can;
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\{Can, Colors};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of fields (of expertise) into the display context.
@@ -44,20 +45,9 @@ class FieldColors extends ListView
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=field_color_edit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $item->color = Helpers\Colors::getListDisplay($item->color, $item->colorID);
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $item->color = Colors::getListDisplay($item->color, $item->colorID);
     }
 
     /**
@@ -67,13 +57,26 @@ class FieldColors extends ListView
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'     => '',
-            'field'        => HTML::sort('FIELD', 'field', $direction, $ordering),
-            'organization' => HTML::sort('ORGANIZATION', 'organization', $direction, $ordering),
-            'color'        => Text::_('COLOR')
-        ];
 
-        $this->headers = $headers;
+        $this->headers = [
+            'check'        => ['type' => 'check'],
+            'field'        => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('FIELD', 'field', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'organization' => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('ORGANIZATION', 'organization', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'color'        => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('COLOR'),
+                'type'       => 'value'
+            ],
+        ];
     }
 }
