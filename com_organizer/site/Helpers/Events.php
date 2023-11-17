@@ -17,9 +17,11 @@ use THM\Organizer\Adapters\{Application, Database};
  */
 class Events extends ResourceHelper
 {
-    use Planned, Suppressed;
+    use Active;
+    use Planned;
+    use Suppressed;
 
-    protected static $resource = 'event';
+    protected static string $resource = 'event';
 
     /**
      * Check if user is a subject coordinator.
@@ -29,7 +31,7 @@ class Events extends ResourceHelper
      *
      * @return bool true if the user is a coordinator, otherwise false
      */
-    public static function coordinates($eventIDs = 0, int $personID = 0): bool
+    public static function coordinates(array|int $eventIDs = 0, int $personID = 0): bool
     {
         $personID = $personID ?: Persons::getIDByUserID(Users::getID());
         $query    = Database::getQuery();

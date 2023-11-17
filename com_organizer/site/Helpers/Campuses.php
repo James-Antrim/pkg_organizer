@@ -18,6 +18,8 @@ use THM\Organizer\Tables;
  */
 class Campuses extends ResourceHelper implements Selectable
 {
+    use Active;
+
     /**
      * Retrieves the default grid id for the given campus
      *

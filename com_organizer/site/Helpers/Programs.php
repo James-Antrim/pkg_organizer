@@ -21,6 +21,8 @@ use THM\Organizer\Tables\{Participants, Programs as Table};
  */
 class Programs extends Curricula implements Selectable
 {
+    use Active;
+
     protected static $resource = 'program';
 
     /**
@@ -205,18 +207,21 @@ class Programs extends Curricula implements Selectable
      */
     public static function query(): DatabaseQuery
     {
+        $query = DB::getQuery();
         $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Program&id=';
+
         $start = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation')];
         $end   = self::useCurrent() ? ["')'"] : ["', '", DB::qn('p.accredited'), "')'"];
         $parts = array_merge($start, $end);
+        $url   = [$query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')];
 
-        $query  = DB::getQuery();
         $select = [
             'DISTINCT ' . DB::qn('p.id', 'id'),
             $query->concatenate($parts, '') . ' AS ' . DB::qn('name'),
             DB::qn('p.active')
         ];
-        $query->select($select)
+        $query->select(array_merge($select, $url))
             ->from(DB::qn('#__organizer_programs', 'p'))
             ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qn('d.id') . ' = ' . DB::qn('p.degreeID'));
 

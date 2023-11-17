@@ -13,7 +13,6 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\ParameterType;
-use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of campuses.
@@ -56,12 +55,11 @@ class Campuses extends ListModel
             "g2.name_$tag"
         ];
 
-        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn($columns, $aliases);
         $select  = DB::qn(['c1.id', 'c1.address', 'c1.city', 'c1.zipCode', 'c1.location']);
         $url     = [$query->concatenate([DB::quote($url), DB::qn('c1.id')], '') . ' AS ' . DB::qn('url')];
 
-        $query->select(array_merge($select, $access, $aliased, $url))
+        $query->select(array_merge($select, $aliased, $url))
             ->from(DB::qn('#__organizer_campuses', 'c1'))
             ->leftJoin(DB::qn('#__organizer_grids', 'g1'), DB::qc('g1.id', 'c1.gridID'))
             ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'))

@@ -19,6 +19,7 @@ use THM\Organizer\Tables;
  */
 class Organizations extends ResourceHelper implements Selectable
 {
+    use Active;
     use Numbered;
 
     /**

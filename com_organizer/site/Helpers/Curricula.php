@@ -93,8 +93,12 @@ abstract class Curricula extends Associated implements Selectable
         $query = DB::getQuery();
         $query->select("DISTINCT $resourceID")
             ->from('#__organizer_associations')
-            ->where("$resourceID IS NOT NULL")
-            ->whereIn($organizationID, $organizationIDs);
+            ->where("$resourceID IS NOT NULL");
+
+        if (!Can::administrate()) {
+            $query->whereIn($organizationID, $organizationIDs);
+        }
+
         DB::setQuery($query);
 
         return DB::loadIntColumn();

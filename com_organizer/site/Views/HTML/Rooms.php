@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 use stdClass;
 use THM\Organizer\Buttons\FormTarget;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Campuses, Can, Rooms as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -33,16 +33,16 @@ class Rooms extends ListView
 
         if ($campusID = Input::getInt('campusID')) {
             $title .= ': ' . Text::_('CAMPUS');
-            $title .= ' ' . Helpers\Campuses::getName($campusID);
+            $title .= ' ' . Campuses::getName($campusID);
         }
         $this->setTitle($title);
 
-        if (Helpers\Can::manage('facilities')) {
+        if (Can::manage('facilities')) {
             $toolbar = Toolbar::getInstance();
             $toolbar->addNew('Room.add');
             $this->addActa();
 
-            if (Helpers\Can::administrate()) {
+            if (Can::administrate()) {
                 $this->addMerge();
                 $toolbar->delete('Rooms.delete')->message(Text::_('DELETE_CONFIRM'));
             }
@@ -58,9 +58,7 @@ class Rooms extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $tip = $item->active ? 'CLICK_TO_DEACTIVATE' : 'CLICK_TO_ACTIVATE';
-
-        $item->active = $this->getToggle('rooms', $item->id, $item->active, $tip, 'active');
+        $item->active = HTML::toggle($index, Helper::activeStates[$item->active], 'Rooms');
     }
 
     /**

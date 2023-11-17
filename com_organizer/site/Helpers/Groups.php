@@ -19,6 +19,7 @@ use THM\Organizer\Tables\Groups as Group;
  */
 class Groups extends Associated implements Selectable
 {
+    use Active;
     use Filtered;
     use Planned;
     use Suppressed;

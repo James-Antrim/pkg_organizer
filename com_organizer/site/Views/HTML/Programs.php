@@ -11,7 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers\Can;
+use stdClass;
+use THM\Organizer\Helpers\{Can, Programs as Helper};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of degree programs into the display context.
@@ -27,13 +29,13 @@ class Programs extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        if ($this->documentAccess) {
+        if (Can::documentTheseOrganizations()) {
             $toolbar = Toolbar::getInstance();
 
             $toolbar->addNew('Program.add');
             $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Programs.import')->listCheck(true)->icon('fa fa-upload');
-            $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'),
-                'Programs.update')->listCheck(true)->icon('fa fa-sync');
+            $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'), 'Programs.update')
+                ->listCheck(true)->icon('fa fa-sync');
 
             if (Can::administrate()) {
                 $toolbar->delete('Programs.delete')->message(Text::_('DELETE_CONFIRM'));
@@ -49,60 +51,34 @@ class Programs extends ListView
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $editLink = 'index.php?option=com_organizer&view=program_edit&id=';
-        $itemLink = 'index.php?option=com_organizer&view=program_item&id=';
-        $links    = '';
-
-        if (!Application::backend()) {
-            $template = "<a class=\"hasTooltip\" href=\"URL\" target=\"_blank\" title=\"TIP\">ICON</a>";
-
-            $icon  = "<span class=\"icon-grid-2\"></span>";
-            $tip   = Text::_('ORGANIZER_CURRICULUM');
-            $url   = 'index.php?option=com_organizer&view=curriculum&programID=XXXX';
-            $links .= str_replace('URL', $url, str_replace('TIP', $tip, str_replace('ICON', $icon, $template)));
-
-            $icon  = "<span class=\"icon-list\"></span>";
-            $tip   = Text::_('ORGANIZER_SUBJECTS');
-            $url   = 'index.php?option=com_organizer&view=subjects&programID=XXXX';
-            $links .= str_replace('URL', $url, str_replace('TIP', $tip, str_replace('ICON', $icon, $template)));
+        if (Application::backend()) {
+            $item->active = HTML::toggle($index, Helper::activeStates[$item->active], 'Programs');
         }
+        else {
+            $item->links = '';
 
-        $index           = 0;
-        $structuredItems = [];
-        foreach ($this->items as $program) {
-            // The backend entries have been prefiltered for access
-            if (Application::backend()) {
-                $checkbox = HTML::checkBox($index, $program->id);
-                $thisLink = $editLink . $program->id;
+            foreach ($options['links'] as $view => $icon) {
+                $context     = strtolower($view) . "-$item->id";
+                $tip         = strtoupper($view);
+                $url         = "index.php?option=com_organizer&view=$view&programID=$item->id";
+                $item->links .= HTML::tip($icon, $context, $tip, [], $url, true);
             }
-            else {
-                $access   = Can::document('program', (int) $program->id);
-                $checkbox = $access ? HTML::checkBox($index, $program->id) : '';
-                $thisLink = $itemLink . $program->id;
-            }
-
-
-            $structuredItems[$index]             = [];
-            $structuredItems[$index]['checkbox'] = $checkbox;
-            $structuredItems[$index]['name']     = HTML::link($thisLink, $program->name);
-
-            if (Application::backend()) {
-                $tip    = $program->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
-                $toggle = $this->getToggle('programs', $program->id, $program->active, $tip, 'active');
-
-                $structuredItems[$index]['active'] = $toggle;
-            }
-
-            if ($links) {
-                $structuredItems[$index]['links'] = str_replace('XXXX', $program->id, $links);
-            }
-
-            $index++;
         }
+    }
 
-        $this->items = $structuredItems;
+    /**
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $options['links'] = [
+            'Curriculum' => HTML::icon('fa fa-th'),
+            'Subjects'   => HTML::icon('fa fa-list'),
+        ];
+
+        parent::completeItems($options);
     }
 
     /**
@@ -110,19 +86,31 @@ class Programs extends ListView
      */
     public function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
 
         $headers = [
-            'checkbox' => '',
-            'name'     => HTML::sort('NAME', 'name', $direction, $ordering)
+            'check' => ['type' => 'check'],
+            'name'  => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'type'       => 'text'
+            ],
         ];
 
         if (!Application::backend()) {
-            $headers['links'] = '';
+            $headers['links'] = [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => '',
+                'type'       => 'value'
+            ];
         }
         else {
-            $headers['active'] = Text::_('ACTIVE');
+            $headers['active'] = [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ACTIVE'),
+                'type'       => 'value'
+            ];
         }
 
         $this->headers = $headers;

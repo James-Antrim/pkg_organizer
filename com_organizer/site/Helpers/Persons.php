@@ -20,6 +20,7 @@ use stdClass;
  */
 class Persons extends Associated implements Selectable
 {
+    use Active;
     use Suppressed;
 
     // TODO move all person related constants here and use this class instead of redefining them
@@ -84,7 +85,7 @@ class Persons extends Associated implements Selectable
      *
      * @return void  removes duplicate list entries dependent on role
      */
-    private static function ensureUnique(array &$list)
+    private static function ensureUnique(array &$list): void
     {
         $keysToIds = [];
         foreach ($list as $key => $item) {
@@ -366,8 +367,10 @@ class Persons extends Associated implements Selectable
      * Function to sort persons by their surnames and forenames.
      *
      * @param   array &$persons  the persons array to sort.
+     *
+     * @return void
      */
-    public static function nameSort(array &$persons)
+    public static function nameSort(array &$persons): void
     {
         uasort($persons, function ($personOne, $personTwo) {
             if ($personOne['surname'] > $personTwo['surname']) {
@@ -401,7 +404,7 @@ class Persons extends Associated implements Selectable
      *
      * @param   array &$persons  the persons array to sort.
      */
-    public static function roleSort(array &$persons)
+    public static function roleSort(array &$persons): void
     {
         uasort($persons, function ($personOne, $personTwo) {
             $roleOne = isset($personOne['role'][self::COORDINATES]);

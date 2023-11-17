@@ -20,6 +20,7 @@ class Rooms extends ResourceHelper implements Selectable
 {
     private const ALL = -1;
 
+    use Active;
     use Filtered;
 
     /**

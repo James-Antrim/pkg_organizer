@@ -12,8 +12,8 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\{Can, Programs as Helper};
 
 /**
  * Class retrieves information for a filtered set of (degree) programs.
@@ -32,7 +32,7 @@ class Programs extends ListModel
         parent::filterFilterForm($form);
 
         if (Application::backend()) {
-            if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
+            if (count(Can::documentTheseOrganizations()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
             }
@@ -45,7 +45,14 @@ class Programs extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $query = Helpers\Programs::query();
+        $query = Helper::query();
+
+        if ($ids = Helper::documentable()) {
+            $query->select(DB::qn('p.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access'));
+        }
+        else {
+            $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
+        }
 
         $this->filterActive($query, 'p');
         $this->filterOrganizations($query, 'program', 'p');
@@ -68,7 +75,7 @@ class Programs extends ListModel
         parent::populateState($ordering, $direction);
 
         if (Application::backend()) {
-            $authorized = Helpers\Can::documentTheseOrganizations();
+            $authorized = Can::documentTheseOrganizations();
             if (count($authorized) === 1) {
                 $this->state->set('filter.organizationID', $authorized[0]);
             }

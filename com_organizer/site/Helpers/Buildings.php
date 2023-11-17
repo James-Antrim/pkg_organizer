@@ -19,6 +19,7 @@ use THM\Organizer\Tables;
  */
 class Buildings extends ResourceHelper implements Selectable
 {
+    use Active;
     use Filtered;
 
     /**

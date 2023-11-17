@@ -17,6 +17,7 @@ use THM\Organizer\Adapters\{Application, Database, HTML, Text};
  */
 class Categories extends Associated implements Selectable
 {
+    use Active;
     use Filtered;
     use Numbered;
     use Suppressed;
