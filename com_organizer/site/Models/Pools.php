@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 
@@ -20,11 +20,7 @@ use THM\Organizer\Helpers;
  */
 class Pools extends ListModel
 {
-    protected $filter_fields = [
-        'organizationID' => 'organizationID',
-        'fieldID'        => 'fieldID',
-        'programID'      => 'programID'
-    ];
+    protected $filter_fields = ['organizationID', 'fieldID', 'programID'];
 
     /**
      * @inheritDoc
@@ -39,22 +35,25 @@ class Pools extends ListModel
 
     /**
      * @inheritDoc
+     * @todo get the program name here as part of the query
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
 
-        $query = Database::getQuery();
-        $query->select("DISTINCT p.id, p.fullName_$tag AS name, p.fieldID")->from('pools AS p');
+        $select = [
+            'DISTINCT ' . DB::qn('p.id'),
+            DB::quote(1) . ' AS ' . DB::qn('access'),
+            DB::qn('p.fieldID'),
+            DB::qn("p.fullName_$tag", 'name'),
+        ];
+
+        $query->select($select)->from(DB::qn('#__organizer_pools', 'p'));
 
         $this->filterOrganizations($query, 'pool', 'p');
 
-        $searchColumns = [
-            'p.fullName_de',
-            'p.abbreviation_de',
-            'p.fullName_en',
-            'p.abbreviation_en'
-        ];
+        $searchColumns = ['p.fullName_de', 'p.abbreviation_de', 'p.fullName_en', 'p.abbreviation_en'];
         $this->filterSearch($query, $searchColumns);
         $this->filterValues($query, ['fieldID']);
 

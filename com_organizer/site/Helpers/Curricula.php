@@ -472,7 +472,7 @@ abstract class Curricula extends Associated implements Selectable
         $resource = get_called_class();
 
         /** @noinspection PhpUndefinedMethodInspection */
-        return Programs::ranges($resource::getRanges($identifiers));
+        return Programs::ranges($resource::ranges($identifiers));
     }
 
     /**

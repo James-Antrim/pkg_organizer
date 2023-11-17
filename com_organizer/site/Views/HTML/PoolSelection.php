@@ -10,17 +10,14 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Text, Toolbar};
+use THM\Organizer\Adapters\Toolbar;
 
 /**
  * Class loads pool information into the display context.
  */
-class PoolSelection extends PoolsView
+class PoolSelection extends Pools
 {
     protected string $layout = 'list_modal';
-
-    protected array $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 
     /**
      * @inheritDoc
