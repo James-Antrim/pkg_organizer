@@ -80,46 +80,46 @@ class CourseItem extends ItemModel
         $option = 'ORGANIZER_';
 
         return [
-            'id' => 0,
-            'name' => ['label' => Text::_($option . 'NAME'), 'type' => 'text', 'value' => ''],
-            'fee' => ['label' => Text::_($option . 'FEE'), 'type' => 'text', 'value' => ''],
-            'campusID' => 0,
-            'campus' => ['label' => Text::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
-            'organization' => [
+            'id'                 => 0,
+            'name'               => ['label' => Text::_($option . 'NAME'), 'type' => 'text', 'value' => ''],
+            'fee'                => ['label' => Text::_($option . 'FEE'), 'type' => 'text', 'value' => ''],
+            'campusID'           => 0,
+            'campus'             => ['label' => Text::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
+            'organization'       => [
                 'label' => Text::_($option . 'ORGANIZATIONAL'),
-                'type' => 'text',
+                'type'  => 'text',
                 'value' => ''
             ],
-            'speakers' => ['label' => Text::_($option . 'SPEAKERS'), 'type' => 'list', 'value' => []],
-            'teachers' => ['label' => Text::_($option . 'TEACHERS'), 'type' => 'list', 'value' => []],
-            'tutors' => ['label' => Text::_($option . 'TUTORS'), 'type' => 'list', 'value' => []],
-            'description' => [
+            'speakers'           => ['label' => Text::_($option . 'SPEAKERS'), 'type' => 'list', 'value' => []],
+            'teachers'           => ['label' => Text::_($option . 'TEACHERS'), 'type' => 'list', 'value' => []],
+            'tutors'             => ['label' => Text::_($option . 'TUTORS'), 'type' => 'list', 'value' => []],
+            'description'        => [
                 'label' => Text::_($option . 'SHORT_DESCRIPTION'),
-                'type' => 'text',
+                'type'  => 'text',
                 'value' => ''
             ],
-            'content' => ['label' => Text::_($option . 'CONTENT'), 'type' => 'text', 'value' => ''],
-            'registration' => [
+            'content'            => ['label' => Text::_($option . 'CONTENT'), 'type' => 'text', 'value' => ''],
+            'registration'       => [
                 'label' => Text::_($option . 'REGISTRATION'),
-                'type' => 'text',
+                'type'  => 'text',
                 'value' => ''
             ],
-            'pretests' => ['label' => Text::_($option . 'PRETESTS'), 'type' => 'text', 'value' => ''],
-            'courseContact' => [
+            'pretests'           => ['label' => Text::_($option . 'PRETESTS'), 'type' => 'text', 'value' => ''],
+            'courseContact'      => [
                 'label' => Text::_($option . 'COURSE_POC'),
-                'type' => 'text',
+                'type'  => 'text',
                 'value' => ''
             ],
-            'contact' => ['label' => Text::_($option . 'POC'), 'type' => 'text', 'value' => ''],
-            'courseStatus' => null,
-            'courseText' => null,
-            'deadline' => null,
-            'events' => [],
-            'maxParticipants' => 0,
-            'participants' => 0,
-            'preparatory' => false,
+            'contact'            => ['label' => Text::_($option . 'POC'), 'type' => 'text', 'value' => ''],
+            'courseStatus'       => null,
+            'courseText'         => null,
+            'deadline'           => null,
+            'events'             => [],
+            'maxParticipants'    => 0,
+            'participants'       => 0,
+            'preparatory'        => false,
             'registrationStatus' => null,
-            'termID' => null,
+            'termID'             => null,
         ];
     }
 
@@ -134,7 +134,7 @@ class CourseItem extends ItemModel
     /**
      * Sets event information for the course.
      *
-     * @param array &$course the course to be modified
+     * @param   array &$course  the course to be modified
      *
      * @return void modifies the course
      */
@@ -159,7 +159,8 @@ class CourseItem extends ItemModel
 
                     if ($course['name']['value'] and strpos($course['name']['value'], $value) === false) {
                         $course['name']['value'] .= " / $value";
-                    } elseif (empty($course['name']['value'])) {
+                    }
+                    elseif (empty($course['name']['value'])) {
                         $course['name']['value'] .= $value;
                     }
 
@@ -181,9 +182,11 @@ class CourseItem extends ItemModel
                 if ($course[$name]['value'] !== $value) {
                     if (is_string($value) and $course[$name]['value'] === '') {
                         $course[$name]['value'] = $value;
-                    } elseif (is_array($value) and $course[$name]['value'] === []) {
+                    }
+                    elseif (is_array($value) and $course[$name]['value'] === []) {
                         $course[$name]['value'] = $value;
-                    } else {
+                    }
+                    else {
                         $course[$name]['value'] = null;
                     }
                 }
@@ -202,7 +205,8 @@ class CourseItem extends ItemModel
 
                 if ($course[$name]['value'] or empty($value)) {
                     unset($attributes[$name]);
-                } else {
+                }
+                else {
                     unset($course[$name]);
                 }
             }
@@ -219,7 +223,8 @@ class CourseItem extends ItemModel
 
                 if (is_array($event[$attribute])) {
                     $event[$attribute]['value'] = $attributes[$attribute];
-                } else {
+                }
+                else {
                     $event[$attribute] = $attributes[$attribute];
                 }
             }
@@ -235,7 +240,7 @@ class CourseItem extends ItemModel
     /**
      * Sets texts pertaining to the registration process.
      *
-     * @param array $course the course to modify
+     * @param   array  $course  the course to modify
      *
      * @return void
      */
@@ -251,7 +256,8 @@ class CourseItem extends ItemModel
 
         if ($course['deadline']) {
             $deadline = date('Y-m-d', strtotime("-{$course['deadline']} Days", strtotime($course['startDate'])));
-        } else {
+        }
+        else {
             $deadline = $course['startDate'];
         }
 
@@ -279,11 +285,13 @@ class CourseItem extends ItemModel
             if ($full) {
                 $texts['cRegistration'] = Text::_('ORGANIZER_COURSE_FULL');
             }
-        } elseif ($closed or $ninety) {
+        }
+        elseif ($closed or $ninety) {
             $course['courseStatus'] = 'yellow';
             if ($closed) {
                 $texts['cRegistration'] = Text::_('ORGANIZER_DEADLINE_EXPIRED');
-            } elseif ($ninety) {
+            }
+            elseif ($ninety) {
                 $texts['cRegistration'] = Text::_('ORGANIZER_COURSE_LIMITED');
             }
         }
@@ -302,17 +310,20 @@ class CourseItem extends ItemModel
                 }
 
                 $texts['deadline'] = $deadlineText;
-            } else {
+            }
+            else {
                 unset($texts['course'], $texts['cRegistration']);
                 if ($course['registrationStatus']) {
                     $course['courseStatus'] = 'green';
                     $texts['pRegistration'] = Text::_('ORGANIZER_COURSE_ACCEPTED');
-                } else {
+                }
+                else {
                     $course['courseStatus'] = 'blue';
                     $texts['pRegistration'] = Text::_('ORGANIZER_COURSE_WAITLIST');
                 }
             }
-        } else {
+        }
+        else {
             $currentURL = Uri::getInstance()->toString() . '#login-anchor';
 
             $course['registrationStatus'] = null;

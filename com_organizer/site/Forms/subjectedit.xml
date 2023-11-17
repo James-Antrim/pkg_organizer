@@ -3,15 +3,14 @@
     <fieldset name="details" label="ATTRIBUTES_SUBJECT_DETAILS">
         <field name="id" type="hidden"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
-        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" table="organizer_fields"
-               textcolumn="name" valuecolumn="id">
+        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" table="organizer_fields" textcolumn="name"
+               valuecolumn="id">
             <option value="">NO_FIELD</option>
         </field>
         <field name="lsfID" type="Blank" label="LSF_ID" maxlength="11"/>
         <field name="code" type="Blank" label="MODULE_ID" maxlength="60"/>
         <field name="spacer1" type="spacer" hr="true"/>
-        <field name="coordinators" type="SubjectPersons" label="SUBJECT_COORDINATORS" multiple="multiple" role="1"
-               size="12">
+        <field name="coordinators" type="SubjectPersons" label="SUBJECT_COORDINATORS" multiple="multiple" role="1" size="12">
             <option value="">NO_INPUT</option>
         </field>
         <field name="persons" type="SubjectPersons" label="TEACHERS" multiple="multiple" role="2" size="12">
@@ -75,8 +74,7 @@
         <field name="socialCompetence_de" type="Wiz" label="SOCIAL_COMPETENCE_DE"/>
         <field name="selfCompetence_de" type="Wiz" label="SELF_COMPETENCE_DE"/>
         <field name="method_de" type="Blank" label="METHOD_DE" hint="2 SWS Vorlesung, 2 SWS Übung"/>
-        <field name="preliminaryWork_de" type="Blank" label="PRELIMINARY_WORK_DE"
-               hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
+        <field name="preliminaryWork_de" type="Blank" label="PRELIMINARY_WORK_DE" hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
         <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur"/>
     </fieldset>
     <fieldset name="en_texts" label="ATTRIBUTES_EN">

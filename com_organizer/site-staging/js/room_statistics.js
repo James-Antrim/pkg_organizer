@@ -7,7 +7,8 @@ $(document).ready(function () {
  *
  * @param  {object}  categories   the categories received
  */
-function addCategories(categories) {
+function addCategories(categories)
+{
     'use strict';
 
     var categorySelection = $('#categoryIDs'), selectedCategories = categorySelection.val(), selected;
@@ -29,7 +30,8 @@ function addCategories(categories) {
  *
  * @param  {object}  terms   the terms received
  */
-function addTerms(terms) {
+function addTerms(terms)
+{
     'use strict';
 
     var ppSelection = $('#termIDs'), selectedPP = ppSelection.val(), selected;
@@ -50,7 +52,8 @@ function addTerms(terms) {
  *
  * @param  {object}  rooms   the rooms received
  */
-function addRooms(rooms) {
+function addRooms(rooms)
+{
     'use strict';
 
     var roomSelection = $('#roomIDs'), selectedRooms = roomSelection.val(), selected;
@@ -69,11 +72,13 @@ function addRooms(rooms) {
 /**
  * Changes the displayed form fields dependent on the date restriction
  */
-function handleInterval() {
+function handleInterval()
+{
     var drValue = $('#interval').find(':selected').val(), dateContainer = $('#date-container'),
         periodsContainer = $('#termIDs-container'), useInput = $('input[name=use]');
 
-    switch (drValue) {
+    switch (drValue)
+    {
         case 'term':
             dateContainer.hide();
             periodsContainer.show();
@@ -92,7 +97,8 @@ function handleInterval() {
 /**
  * Load rooms dependent on the selected organizations and categories
  */
-function repopulateRooms() {
+function repopulateRooms()
+{
     'use strict';
 
     var organizations = $('#organizationIDs').val(),
@@ -107,15 +113,18 @@ function repopulateRooms() {
 
     componentParameters = 'index.php?option=com_organizer&view=room_options&format=raw';
 
-    if (validOrganizations) {
+    if (validOrganizations)
+    {
         componentParameters += '&organizationIDs=' + organizations;
     }
 
-    if (validCategories) {
+    if (validCategories)
+    {
         componentParameters += '&categoryIDs=' + categories;
     }
 
-    if (validRoomtypes) {
+    if (validRoomtypes)
+    {
         componentParameters += '&roomtypeIDs=' + roomtypes;
     }
 
@@ -127,7 +136,8 @@ function repopulateRooms() {
             addRooms(data);
         },
         error: function (xhr, textStatus, errorThrown) {
-            if (xhr.status === 404 || xhr.status === 500) {
+            if (xhr.status === 404 || xhr.status === 500)
+            {
                 $.ajax(repopulateRooms());
             }
         }
@@ -137,13 +147,15 @@ function repopulateRooms() {
 /**
  * Load categories dependent on the selected organizations
  */
-function repopulateCategories() {
+function repopulateCategories()
+{
     'use strict';
 
     var componentParameters, organizations = $('#organizationIDs').val(), allIndex, selectionParameters;
     componentParameters = '/index.php?option=com_organizer&view=category_options&format=json';
 
-    if (organizations == null) {
+    if (organizations == null)
+    {
         return;
     }
 
@@ -157,7 +169,8 @@ function repopulateCategories() {
             addCategories(data);
         },
         error: function (xhr, textStatus, errorThrown) {
-            if (xhr.status === 404 || xhr.status === 500) {
+            if (xhr.status === 404 || xhr.status === 500)
+            {
                 $.ajax(repopulateCategories());
             }
         }

@@ -47,7 +47,7 @@ class CourseEdit extends EditModel
     /**
      * Method to get a single record.
      *
-     * @param int $pk The id of the primary key.
+     * @param   int  $pk  The id of the primary key.
      *
      * @return mixed    Object on success, false on failure.
      */
@@ -58,7 +58,8 @@ class CourseEdit extends EditModel
         if (empty($this->item->id)) {
             $this->item->name   = Text::_('ORGANIZER_NONE');
             $this->item->termID = Helpers\Terms::getNextID();
-        } else {
+        }
+        else {
             $this->item->name = Helpers\Courses::getName($this->item->id);
         }
 
@@ -68,9 +69,9 @@ class CourseEdit extends EditModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return Tables\Courses A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

@@ -41,7 +41,8 @@ abstract class EditView extends FormView
             $cancel = 'ORGANIZER_CLOSE';
             $save   = 'ORGANIZER_SAVE_CLOSE';
             $title  = "ORGANIZER_{$constant}_EDIT";
-        } else {
+        }
+        else {
             $cancel = 'ORGANIZER_CANCEL';
             $save   = 'ORGANIZER_CREATE_CLOSE';
             $title  = "ORGANIZER_{$constant}_NEW";

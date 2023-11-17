@@ -13,12 +13,12 @@ use Joomla\CMS\Uri\Uri;
 $directory       = Uri::base(true) . '/components/com_organizer/Layouts/HTML/Help/bookings-';
 $imageAttribs    = [
     'height' => "height=\"500px\"",
-    'style' => "style=\"display: block; margin-left: auto; margin-right: auto;\"",
-    'width' => "width=\"700px\""
+    'style'  => "style=\"display: block; margin-left: auto; margin-right: auto;\"",
+    'width'  => "width=\"700px\""
 ];
 $jcePopUpAttribs = [
-    'class' => 'class="jcepopup"',
-    'group' => 'data-mediabox-group="Bookings"',
+    'class'    => 'class="jcepopup"',
+    'group'    => 'data-mediabox-group="Bookings"',
     'mediaBox' => 'data-mediabox="1"'
 ];
 
@@ -41,7 +41,7 @@ $myApptsImageAttribs = [
 $myApptsImageAttribs = array_merge($imageAttribs, $myApptsImageAttribs);
 $myApptsPopUpAttribs = [
     'caption' => "data-mediabox-caption=\"$myApptsCaption\"",
-    'href' => "href=\"{$directory}my-appointments.png\""
+    'href'    => "href=\"{$directory}my-appointments.png\""
 ];
 $myApptsPopUpAttribs = array_merge($jcePopUpAttribs, $myApptsPopUpAttribs);
 
@@ -58,30 +58,30 @@ $ongoingPopUpAttribs = array_merge($jcePopUpAttribs, $ongoingPopUpAttribs);
 $qrcCaption = 'Der QR-Code führt direkt auf die Checkin-Seite und fügt automatisch den Veranstaltungscode ein.';
 
 $qrcImageAttribs = [
-    'alt' => "alt=\"Example: Booking QR Code\"",
-    'src' => "src=\"{$directory}qrcode.png\"",
+    'alt'   => "alt=\"Example: Booking QR Code\"",
+    'src'   => "src=\"{$directory}qrcode.png\"",
     'style' => "style=\"margin-left: 2rem; margin-bottom: 2rem; margin-right: 1rem; float: right;\"",
     'width' => "width=\"200px\""
 ];
 $qrcImageAttribs = array_merge($imageAttribs, $qrcImageAttribs);
 $qrcPopUpAttribs = [
     'caption' => "data-mediabox-caption=\"$qrcCaption\"",
-    'href' => "href=\"{$directory}qrcode.png\""
+    'href'    => "href=\"{$directory}qrcode.png\""
 ];
 $qrcPopUpAttribs = array_merge($jcePopUpAttribs, $qrcPopUpAttribs);
 
 $registerCaption = 'Um einen neuen Account anzulegen, klicken Sie bitte auf den Registrierungslink ganz unten.';
 
 $registerImageAttribs = [
-    'alt' => "alt=\"Screenshot: Registration Link on the Checkin Page\"",
-    'src' => "src=\"{$directory}register.png\"",
+    'alt'   => "alt=\"Screenshot: Registration Link on the Checkin Page\"",
+    'src'   => "src=\"{$directory}register.png\"",
     'style' => "style=\"margin-left: 2rem; margin-bottom: 2rem; margin-right: 1rem; float: right;\"",
     'width' => "width=\"200px\""
 ];
 $registerImageAttribs = array_merge($imageAttribs, $registerImageAttribs);
 $registerPopUpAttribs = [
     'caption' => "data-mediabox-caption=\"$registerCaption\"",
-    'href' => "href=\"{$directory}register.png\""
+    'href'    => "href=\"{$directory}register.png\""
 ];
 $registerPopUpAttribs = array_merge($jcePopUpAttribs, $registerPopUpAttribs);
 

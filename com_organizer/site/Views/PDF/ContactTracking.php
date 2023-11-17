@@ -25,9 +25,9 @@ class ContactTracking extends ListView
     /**
      * Performs initial construction of the TCPDF Object.
      *
-     * @param string $orientation page orientation
-     * @param string $unit        unit of measure
-     * @param mixed  $format      page format; possible values: string - common format name, array - parameters
+     * @param   string  $orientation  page orientation
+     * @param   string  $unit         unit of measure
+     * @param   mixed   $format       page format; possible values: string - common format name, array - parameters
      *
      * @see \TCPDF_STATIC::getPageSizeFromFormat(), setPageFormat()
      */
@@ -41,7 +41,8 @@ class ContactTracking extends ListView
         if ($participantID = $state->get('participantID')) {
             $user = Helpers\Users::getUser($participantID);
             $name = $user->name;
-        } elseif ($personID = $state->get('personID')) {
+        }
+        elseif ($personID = $state->get('personID')) {
             $person = new Persons();
             if ($person->load($personID)) {
                 if ($person->forename) {

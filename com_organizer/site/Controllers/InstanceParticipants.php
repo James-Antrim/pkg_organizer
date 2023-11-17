@@ -31,7 +31,7 @@ class InstanceParticipants extends Controller
     /**
      * Class constructor
      *
-     * @param array $config An optional associative [] of configuration settings.
+     * @param   array  $config  An optional associative [] of configuration settings.
      */
     public function __construct($config = [])
     {
@@ -156,7 +156,8 @@ class InstanceParticipants extends Controller
             Factory::getSession()->set('organizer.participation.referrer', '');
             $referrer = Input::getString('referrer');
             $this->setRedirect(Route::_($referrer, false));
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
     }

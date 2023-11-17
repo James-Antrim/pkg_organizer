@@ -27,7 +27,8 @@ trait Activated
 
         if ($model->activate()) {
             Application::message('ORGANIZER_DEACTIVATION_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_DEACTIVATION_FAIL', Application::ERROR);
         }
 
@@ -46,7 +47,8 @@ trait Activated
 
         if ($model->deactivate()) {
             Application::message('ORGANIZER_DEACTIVATION_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_DEACTIVATION_FAIL', Application::ERROR);
         }
 

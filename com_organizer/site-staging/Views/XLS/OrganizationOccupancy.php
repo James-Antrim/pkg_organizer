@@ -22,8 +22,8 @@ class OrganizationOccupancy extends BaseView
     /**
      * Sets context variables and renders the view.
      *
-     * @param string|null $tpl The name of the template file to parse; automatically searches through the template
-     *                         paths.
+     * @param   string|null  $tpl  The name of the template file to parse; automatically searches through the template
+     *                             paths.
      *
      * @return void
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

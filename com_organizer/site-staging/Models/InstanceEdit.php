@@ -49,8 +49,8 @@ class InstanceEdit extends EditModel
     /**
      * Checks whether the contents of a request field item with a string value are permissible.
      *
-     * @param string $field   the name of the field
-     * @param string $pattern the pattern to match
+     * @param   string  $field    the name of the field
+     * @param   string  $pattern  the pattern to match
      *
      * @return string
      */
@@ -64,7 +64,7 @@ class InstanceEdit extends EditModel
     /**
      * Gets the selection for a given field with a
      *
-     * @param string $field
+     * @param   string  $field
      *
      * @return array|int[]
      */
@@ -150,7 +150,8 @@ class InstanceEdit extends EditModel
         // Suppress conditional fields
         if ($instance['gridID'] === -1) {
             $form->removeField('blockID');
-        } else {
+        }
+        else {
             $form->removeField('startTime');
             $form->removeField('endTime');
         }
@@ -189,7 +190,8 @@ class InstanceEdit extends EditModel
              * individual event/group/person/role/room configurations
              */
 
-        } else {
+        }
+        else {
             $item->date      = date('Y-m-d');
             $item->endTime   = date('H:i', strtotime('+1 hour'));
             $item->eventIDs  = [self::NONE];

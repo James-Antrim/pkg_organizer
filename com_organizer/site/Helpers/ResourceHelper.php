@@ -21,7 +21,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the code of the resource.
      *
-     * @param int $resourceID the id of the resource
+     * @param   int  $resourceID  the id of the resource
      *
      * @return string
      */
@@ -33,7 +33,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the code of the resource.
      *
-     * @param int $resourceID the id of the resource
+     * @param   int  $resourceID  the id of the resource
      *
      * @return string
      */
@@ -45,7 +45,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param int $resourceID the id of the resource
+     * @param   int  $resourceID  the id of the resource
      *
      * @return string
      */
@@ -57,8 +57,8 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param string $columnName the substatiative part of the column name to search for
-     * @param int    $resourceID the id of the resource
+     * @param   string  $columnName  the substatiative part of the column name to search for
+     * @param   int     $resourceID  the id of the resource
      *
      * @return string
      */
@@ -87,7 +87,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param int $resourceID the id of the resource
+     * @param   int  $resourceID  the id of the resource
      *
      * @return string
      */
@@ -99,7 +99,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the plural of the resource.
      *
-     * @param int $resourceID the id of the resource
+     * @param   int  $resourceID  the id of the resource
      *
      * @return string
      */
@@ -111,7 +111,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param int $resourceID the id of the resource
+     * @param   int  $resourceID  the id of the resource
      *
      * @return string
      */

@@ -66,7 +66,8 @@ class Screen extends BaseModel
                         $layout      = 'image';
                         $this->image = $monitor->content;
                         $session->set('layout', 'image');
-                    } else {
+                    }
+                    else {
                         $layout = 'current_instances';
                         $session->set('layout', 'current_instances');
                     }
@@ -83,15 +84,18 @@ class Screen extends BaseModel
                 default:
                     break;
             }
-        } elseif ($name = Input::getCMD('room') and $roomID = Helpers\Rooms::getID($name)) {
+        }
+        elseif ($name = Input::getCMD('room') and $roomID = Helpers\Rooms::getID($name)) {
             if (Application::mobile()) {
                 $layout = 'current_instances';
-            } else {
+            }
+            else {
                 $layouts = ['current_instances', 'image', 'upcoming_instances'];
                 $layout  = Input::getCMD('layout', 'upcoming_instances');
                 $layout  = in_array($layout, $layouts) ? $layout : 'upcoming_instances';
             }
-        } else {
+        }
+        else {
             Application::getApplication()->redirect('index.php', 400);
         }
 
@@ -121,7 +125,8 @@ class Screen extends BaseModel
         $grid = new Tables\Grids();
         if (($gridID and $grid->load($gridID)) or $grid->load(Helpers\Grids::getDefault())) {
             $grid = json_decode($grid->grid, true);
-        } else {
+        }
+        else {
             $grid = [];
         }
 

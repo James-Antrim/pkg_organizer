@@ -21,9 +21,9 @@ class SubjectsLSF
     /**
      * Checks whether the text is without content other than subject module numbers and subject name attributes
      *
-     * @param string $text          the text to be checked
-     * @param array  $attributes    the attributes whose values are to be removed during the search
-     * @param array  $codeGroupings array code (module number) => [curriculumID => subject information]
+     * @param   string  $text           the text to be checked
+     * @param   array   $attributes     the attributes whose values are to be removed during the search
+     * @param   array   $codeGroupings  array code (module number) => [curriculumID => subject information]
      *
      * @return bool
      */
@@ -35,7 +35,8 @@ class SubjectsLSF
                     if ($checkedAttribute == 'code') {
                         $text = str_replace(strtolower($curriculumSubject[$checkedAttribute]), '', $text);
                         $text = str_replace(strtoupper($curriculumSubject[$checkedAttribute]), '', $text);
-                    } elseif (!empty($curriculumSubject[$checkedAttribute])) {
+                    }
+                    elseif (!empty($curriculumSubject[$checkedAttribute])) {
                         $text = str_replace($curriculumSubject[$checkedAttribute], '', $text);
                     }
                 }
@@ -52,7 +53,7 @@ class SubjectsLSF
      * Checks whether proof and method values are valid and set, and filling them with values
      * from other languages if possible
      *
-     * @param Table $table the subject object
+     * @param   Table  $table  the subject object
      *
      * @return void
      */
@@ -74,7 +75,7 @@ class SubjectsLSF
     /**
      * Removes the formatted text tag on a text node
      *
-     * @param string $text the xml node as a string
+     * @param   string  $text  the xml node as a string
      *
      * @return string  the node without its formatted text shell
      */
@@ -125,7 +126,8 @@ class SubjectsLSF
 
             // Remove non-self closing tags containing only white space
             $text = preg_replace('/<[^\/>][^>]*>\s*<\/[^>]+>/', '', $text);
-        } while ($text != $startText);
+        }
+        while ($text != $startText);
 
         return $text;
     }
@@ -133,8 +135,8 @@ class SubjectsLSF
     /**
      * Parses the object and sets subject attributes
      *
-     * @param Table   $table   the subject table object
-     * @param Element $subject an object representing the data from the LSF response
+     * @param   Table    $table    the subject table object
+     * @param   Element  $subject  an object representing the data from the LSF response
      *
      * @return void modifies the Table object
      */
@@ -166,8 +168,8 @@ class SubjectsLSF
     /**
      * Sets attributes dealing with required student expenditure
      *
-     * @param Table  $table the subject data
-     * @param string $text  the expenditure text
+     * @param   Table   $table  the subject data
+     * @param   string  $text   the expenditure text
      *
      * @return void
      */
@@ -213,8 +215,8 @@ class SubjectsLSF
     /**
      * Sets attributes dealing with required student expenditure
      *
-     * @param Table  $table the subject data
-     * @param string $text  the expenditure text
+     * @param   Table   $table  the subject data
+     * @param   string  $text   the expenditure text
      *
      * @return void
      */
@@ -243,8 +245,8 @@ class SubjectsLSF
     /**
      * Sets subject properties according to those of the dynamic lsf properties
      *
-     * @param Table   $table    the subject table object
-     * @param Element $property the object containing a text blob
+     * @param   Table    $table     the subject table object
+     * @param   Element  $property  the object containing a text blob
      *
      * @return void
      */
@@ -261,13 +263,15 @@ class SubjectsLSF
         if (empty($property->de->txt)) {
             $germanText  = '';
             $englishText = '';
-        } else {
+        }
+        else {
             $rawGermanText = (string) $property->de->txt->FormattedText->asXML();
             $germanText    = self::cleanText($rawGermanText);
 
             if (empty($property->en->txt)) {
                 $englishText = '';
-            } else {
+            }
+            else {
                 $rawEnglishText = (string) $property->en->txt->FormattedText->asXML();
                 $englishText    = self::cleanText($rawEnglishText);
             }
@@ -343,8 +347,8 @@ class SubjectsLSF
     /**
      * Checks for the existence and viability of seldom used fields
      *
-     * @param Table   $table   the data object
-     * @param Element $subject the subject object
+     * @param   Table    $table    the data object
+     * @param   Element  $subject  the subject object
      *
      * @return void
      */
@@ -389,7 +393,8 @@ class SubjectsLSF
         if ($subject->praesenzzeit) {
             $presence    = (int) $subject->praesenzzeit;
             $independent = $expenditure - $presence;
-        } elseif ($subject->selbstzeit) {
+        }
+        elseif ($subject->selbstzeit) {
             $independent = (int) $subject->selbstzeit;
             $presence    = $expenditure - $independent;
         }
@@ -401,10 +406,10 @@ class SubjectsLSF
     /**
      * Sets business administration organization start attributes
      *
-     * @param Table  $table     the subject table object
-     * @param string $attribute the attribute's name in the xml response
-     * @param string $deValue   the attribute's German value
-     * @param string $enValue   the attribute's English value
+     * @param   Table   $table      the subject table object
+     * @param   string  $attribute  the attribute's name in the xml response
+     * @param   string  $deValue    the attribute's German value
+     * @param   string  $enValue    the attribute's English value
      *
      * @return void
      */
@@ -450,7 +455,8 @@ class SubjectsLSF
             $scalarValue = (int) $deValue;
             $scalarValue = $scalarValue < 4 ? $scalarValue : 3;
             $scalarValue = max($scalarValue, 0);
-        } elseif (preg_match('/^(\*)+$/', $deValue, $occurences)) {
+        }
+        elseif (preg_match('/^(\*)+$/', $deValue, $occurences)) {
             $scalarValue = count($occurences);
             $scalarValue = $scalarValue < 4 ? $scalarValue : 3;
         }
@@ -487,7 +493,7 @@ class SubjectsLSF
     /**
      * Sanitizes text for more consistent processing
      *
-     * @param string $text the text to be processed
+     * @param   string  $text  the text to be processed
      *
      * @return string
      */

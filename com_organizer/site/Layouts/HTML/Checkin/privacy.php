@@ -154,7 +154,8 @@ $referrer = Factory::getSession()->get('organizer.checkin.referrer');
     Postfach 3163<br>
     65021 Wiesbaden<br>
     <br>
-    E-Mail an HDSB über <a href="https://datenschutz.hessen.de/über-uns/kontakt">https://datenschutz.hessen.de/über-uns/kontakt</a>
+    E-Mail an HDSB über <a
+        href="https://datenschutz.hessen.de/über-uns/kontakt">https://datenschutz.hessen.de/über-uns/kontakt</a>
     <br>
     <br>
     Telefon: +49 611 1408 – 0<br>

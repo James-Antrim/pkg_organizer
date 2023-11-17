@@ -5,15 +5,19 @@
  *
  * @returns {[]} the selected values as an array
  */
-function getMultipleValues(elementID) {
+function getMultipleValues(elementID)
+{
     const selectedOptions = document.getElementById(elementID).selectedOptions;
     let index = 0, selectedValue, selectedValues = [];
 
-    for (index; index < selectedOptions.length; index++) {
-        if (selectedOptions[index].selected) {
+    for (index; index < selectedOptions.length; index++)
+    {
+        if (selectedOptions[index].selected)
+        {
             selectedValue = selectedOptions[index].value;
 
-            if (selectedValue === -1) {
+            if (selectedValue === -1)
+            {
                 selectedValues = [-1];
                 break;
             }
@@ -32,14 +36,19 @@ function getMultipleValues(elementID) {
  *
  * @return {[]} the unique selected values
  */
-function mergeMultipleUnique() {
+function mergeMultipleUnique()
+{
     const uniqueValues = [];
     let argIndex = 0, itemIndex = 0;
 
-    for (argIndex; argIndex < arguments.length; argIndex++) {
-        if (Array.isArray(arguments[argIndex])) {
-            for (itemIndex; itemIndex < arguments[argIndex].length; itemIndex++) {
-                if (uniqueValues.indexOf(arguments[argIndex][itemIndex]) === -1) {
+    for (argIndex; argIndex < arguments.length; argIndex++)
+    {
+        if (Array.isArray(arguments[argIndex]))
+        {
+            for (itemIndex; itemIndex < arguments[argIndex].length; itemIndex++)
+            {
+                if (uniqueValues.indexOf(arguments[argIndex][itemIndex]) === -1)
+                {
                     uniqueValues.push(arguments[argIndex][itemIndex]);
                 }
             }
@@ -57,12 +66,15 @@ function mergeMultipleUnique() {
  *
  * @return void modifies the DOM Element with the given ID
  */
-function setMultipleValues(elementID, values) {
+function setMultipleValues(elementID, values)
+{
     const options = document.getElementById(elementID).options;
     let index = 0;
 
-    for (index; index < options.length; index++) {
-        if (values.indexOf(options[index].value) !== -1) {
+    for (index; index < options.length; index++)
+    {
+        if (values.indexOf(options[index].value) !== -1)
+        {
             options[index].setAttribute('selected', 'selected');
         }
     }

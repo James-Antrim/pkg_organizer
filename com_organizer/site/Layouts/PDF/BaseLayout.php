@@ -28,7 +28,7 @@ abstract class BaseLayout
     /**
      * Performs initial construction of the TCPDF Object.
      *
-     * @param BaseView $view
+     * @param   BaseView  $view
      */
     public function __construct(BaseView $view)
     {
@@ -38,7 +38,7 @@ abstract class BaseLayout
     /**
      * Fills the document with formatted data.
      *
-     * @param array $data the document data
+     * @param   array  $data  the document data
      *
      * @return void
      */

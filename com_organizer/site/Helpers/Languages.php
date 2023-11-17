@@ -21,9 +21,9 @@ class Languages extends Text
     /**
      * Converts a double colon separated string or 2 separate strings to a string ready for bootstrap tooltips
      *
-     * @param string $title   The title of the tooltip (or combined '::' separated string).
-     * @param string $content The content to tooltip.
-     * @param bool   $escape  If true will pass texts through htmlspecialchars.
+     * @param   string  $title    The title of the tooltip (or combined '::' separated string).
+     * @param   string  $content  The content to tooltip.
+     * @param   bool    $escape   If true will pass texts through htmlspecialchars.
      *
      * @return  string  The tooltip string
      */
@@ -39,11 +39,14 @@ class Languages extends Text
 
             if ($title === '') {
                 $result = $content;
-            } elseif ($title === $content) {
+            }
+            elseif ($title === $content) {
                 $result = '<strong>' . $title . '</strong>';
-            } elseif ($content !== '') {
+            }
+            elseif ($content !== '') {
                 $result = '<strong>' . $title . '</strong><br />' . $content;
-            } else {
+            }
+            else {
                 $result = $title;
             }
 

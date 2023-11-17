@@ -43,7 +43,7 @@ class LSF
     /**
      * Method to perform a soap request based on a certain lsf query
      *
-     * @param string $query Query structure
+     * @param   string  $query  Query structure
      *
      * @return SimpleXMLElement|false  SimpleXMLElement if the query was successful, otherwise false
      */
@@ -69,7 +69,7 @@ class LSF
     /**
      * Method to get the module by mni number
      *
-     * @param int $moduleID The module mni number
+     * @param   int  $moduleID  The module mni number
      *
      * @return SimpleXMLElement|false
      */
@@ -86,7 +86,7 @@ class LSF
      * Performs a soap request, in order to get the xml structure of the given
      * configuration
      *
-     * @param array $keys the keys required by LSF to uniquely identify a degree program
+     * @param   array  $keys  the keys required by LSF to uniquely identify a degree program
      *
      * @return SimpleXMLElement|false
      */
@@ -104,7 +104,7 @@ class LSF
     /**
      * Creates the header used by all XML queries
      *
-     * @param string $objectType the LSF object type
+     * @param   string  $objectType  the LSF object type
      *
      * @return string  the header of the XML query
      */

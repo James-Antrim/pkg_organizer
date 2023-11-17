@@ -26,7 +26,8 @@ $model = $this->model;
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload() {
+    function auto_reload()
+    {
         window.location = document.URL;
     }
 
@@ -56,7 +57,8 @@ $model = $this->model;
 
             if (empty($period['comment'])) {
                 $paddingClass = 'fluffy';
-            } else {
+            }
+            else {
                 $paddingClass      = '';
                 $period['comment'] = $this->processComment($period['comment']);
             }

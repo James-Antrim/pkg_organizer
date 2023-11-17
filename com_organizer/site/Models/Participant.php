@@ -139,7 +139,8 @@ class Participant extends MergeModel
 
             if ($lastUsed === 1) {
                 $this->mergeParticipants($firstParticipant, $firstParticipant, $secondParticipant);
-            } else {
+            }
+            else {
                 $this->mergeParticipants($firstParticipant, $secondParticipant, $firstParticipant);
             }
 
@@ -155,7 +156,8 @@ class Participant extends MergeModel
             // Update the first entries with the merged data
             if ($firstParticipant->store() and $firstUser->save()) {
                 $successes++;
-            } else {
+            }
+            else {
                 $failures++;
             }
         }
@@ -217,7 +219,7 @@ class Participant extends MergeModel
     /**
      * Filters names (city, forename, surname) for actual letters and accepted special characters.
      *
-     * @param string $name the raw value
+     * @param   string  $name  the raw value
      *
      * @return string the cleaned value
      */
@@ -231,7 +233,7 @@ class Participant extends MergeModel
     /**
      * Filters names (city, forename, surname) for actual letters and accepted special characters.
      *
-     * @param string $name the raw value
+     * @param   string  $name  the raw value
      *
      * @return string the cleaned value
      */
@@ -245,7 +247,7 @@ class Participant extends MergeModel
     /**
      * Filters out extra spaces.
      *
-     * @param string $string the raw value
+     * @param   string  $string  the raw value
      *
      * @return string the cleaned value
      */
@@ -257,8 +259,8 @@ class Participant extends MergeModel
     /**
      * Compares two string values to determine the presumed correct string based on value, length and capitalization
      *
-     * @param string $string1 the first string
-     * @param string $string2 the second string
+     * @param   string  $string1  the first string
+     * @param   string  $string2  the second string
      *
      * @return string
      */
@@ -394,9 +396,9 @@ class Participant extends MergeModel
     /**
      * Merges the values of two entries into the first
      *
-     * @param Table $table   the table modified by the merge
-     * @param Table $source  the table whose data is prioritized
-     * @param Table $default the table whose data is used as a default
+     * @param   Table  $table    the table modified by the merge
+     * @param   Table  $source   the table whose data is prioritized
+     * @param   Table  $default  the table whose data is used as a default
      *
      * @return void
      */
@@ -490,7 +492,8 @@ class Participant extends MergeModel
             if ($altered) {
                 if ($table->store()) {
                     Application::message('ORGANIZER_CHANGES_SAVED');
-                } else {
+                }
+                else {
                     Application::message('ORGANIZER_CHANGES_NOT_SAVED', Application::ERROR);
                 }
             }
@@ -521,8 +524,8 @@ class Participant extends MergeModel
     /**
      * Adds an organizer participant based on the information in the users table.
      *
-     * @param int  $participantID the id of the participant/user entries
-     * @param bool $force         forces update of the columns derived from information in the user table
+     * @param   int   $participantID  the id of the participant/user entries
+     * @param   bool  $force          forces update of the columns derived from information in the user table
      *
      * @return void
      */
@@ -544,7 +547,8 @@ class Participant extends MergeModel
             $query->insert('#__organizer_participants')
                 ->columns('id, forename, surname')
                 ->values("$participantID, $forename, $surname");
-        } else {
+        }
+        else {
             $query->update('#__organizer_persons')
                 ->set("forename = $forename")
                 ->set("surname = $surname")
@@ -588,11 +592,12 @@ class Participant extends MergeModel
 
             if (empty($instances[$instanceID])) {
                 $instances[$instanceID] = [
-                    'attended' => (int) $entry->attended,
+                    'attended'   => (int) $entry->attended,
                     'bookmarked' => 1,
                     'registered' => (int) $entry->registered
                 ];
-            } else {
+            }
+            else {
                 $instances[$instanceID]['attended']   += (int) $entry->attended;
                 $instances[$instanceID]['bookmarked'] += 1;
                 $instances[$instanceID]['registered'] += (int) $entry->registered;

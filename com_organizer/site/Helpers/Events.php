@@ -24,8 +24,8 @@ class Events extends ResourceHelper
     /**
      * Check if user is a subject coordinator.
      *
-     * @param array|int $eventIDs the optional id of the subject
-     * @param int       $personID the optional id of the person entry
+     * @param   array|int  $eventIDs  the optional id of the subject
+     * @param   int        $personID  the optional id of the person entry
      *
      * @return bool true if the user is a coordinator, otherwise false
      */
@@ -50,7 +50,7 @@ class Events extends ResourceHelper
     /**
      * Looks up the names of categories (or programs) associated with an event.
      *
-     * @param int $eventID the id of the event
+     * @param   int  $eventID  the id of the event
      *
      * @return string[] the names of the categories (or programs)
      */
@@ -86,7 +86,7 @@ class Events extends ResourceHelper
     /**
      * Gets the id of the organization with which an event is associated.
      *
-     * @param int $eventID
+     * @param   int  $eventID
      *
      * @return int the id of the organization associated with an event, or 0
      */
@@ -99,9 +99,9 @@ class Events extends ResourceHelper
     /**
      * Retrieves the units associated with an event.
      *
-     * @param int    $eventID  the id of the referenced event
-     * @param string $date     the date context for the unit search
-     * @param string $interval the interval to use as context for units
+     * @param   int     $eventID   the id of the referenced event
+     * @param   string  $date      the date context for the unit search
+     * @param   string  $interval  the interval to use as context for units
      *
      * @return array[]
      */
@@ -123,8 +123,8 @@ class Events extends ResourceHelper
     /**
      * Check if user is a subject teacher.
      *
-     * @param int $eventID  the optional id of the subject
-     * @param int $personID the optional id of the person entry
+     * @param   int  $eventID   the optional id of the subject
+     * @param   int  $personID  the optional id of the person entry
      *
      * @return bool true if the user is a teacher, otherwise false
      */

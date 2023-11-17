@@ -49,9 +49,9 @@ class Pool extends CurriculumResource
     /**
      * Creates a pool entry if none exists and calls
      *
-     * @param SimpleXMLElement $XMLObject      a SimpleXML object containing rudimentary subject data
-     * @param int              $organizationID the id of the organization to which this data belongs
-     * @param int              $parentID       the id of the parent entry
+     * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary subject data
+     * @param   int               $organizationID  the id of the organization to which this data belongs
+     * @param   int               $parentID        the id of the parent entry
      *
      * @return bool  true on success, otherwise false
      */
@@ -80,7 +80,8 @@ class Pool extends CurriculumResource
             if (!$pool->store()) {
                 return false;
             }
-        } elseif ($blocked or !$validTitle or $noChildren) {
+        }
+        elseif ($blocked or !$validTitle or $noChildren) {
             return $this->deleteSingle($pool->id);
         }
 
@@ -122,11 +123,13 @@ class Pool extends CurriculumResource
             if (!Helpers\Can::documentTheseOrganizations()) {
                 Application::error(403);
             }
-        } elseif (is_numeric($data['id'])) {
+        }
+        elseif (is_numeric($data['id'])) {
             if (!Helpers\Can::document('pool', (int) $data['id'])) {
                 Application::error(403);
             }
-        } else {
+        }
+        else {
             return false;
         }
 

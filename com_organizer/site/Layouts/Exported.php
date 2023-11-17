@@ -47,7 +47,7 @@ trait Exported
     /**
      * Sets flags for global suppression of specific resource displays.
      *
-     * @param array $conditions
+     * @param   array  $conditions
      *
      * @return void
      */

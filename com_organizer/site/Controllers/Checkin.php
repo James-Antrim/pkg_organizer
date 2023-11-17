@@ -43,7 +43,8 @@ class Checkin extends Controller
             // Code was invalid, no reason to keep it.
             $code = $model->checkin() ? $data->get('code') : '';
             $session->set('organizer.checkin.code', $code);
-        } else {
+        }
+        else {
             $session->set('organizer.checkin.code', $data->get('code'));
         }
 

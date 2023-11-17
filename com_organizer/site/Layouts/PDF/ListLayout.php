@@ -73,7 +73,8 @@ abstract class ListLayout extends BaseLayout
                 $view->SetFont('zapfdingbats');
                 $view->renderCell($this->widths[$column], 7, TCPDF_FONTS::unichr($header), $view::CENTER, $border, 1);
                 $view->SetFont($font);
-            } else {
+            }
+            else {
                 $view->renderCell($this->widths[$column], 7, $header, $view::CENTER, $border, 1);
             }
         }
@@ -88,9 +89,9 @@ abstract class ListLayout extends BaseLayout
     /**
      * Formats the line with the set borders.
      *
-     * @param int $startX    the horizontal start of the line
-     * @param int $startY    the vertical start of the line
-     * @param int $maxLength the maximum number of rows of information to be presented on the iterated line
+     * @param   int  $startX     the horizontal start of the line
+     * @param   int  $startY     the vertical start of the line
+     * @param   int  $maxLength  the maximum number of rows of information to be presented on the iterated line
      *
      * @return void
      */

@@ -48,10 +48,10 @@ class Instances extends ListView
     /**
      * Filters out deprecated items and distracting property values.
      *
-     * @param string $key      the resource array key name
-     * @param array  $persons  the person resource structures
-     * @param int    $personID the id of the person being currently iterated
-     * @param array  $container
+     * @param   string  $key       the resource array key name
+     * @param   array   $persons   the person resource structures
+     * @param   int     $personID  the id of the person being currently iterated
+     * @param   array   $container
      *
      * @return void
      */
@@ -80,11 +80,11 @@ class Instances extends ListView
     /**
      * Gets the person resource text for a resource type $key
      *
-     * @param array  $persons  the data for all persons
-     * @param int    $personID the id of the person being currently iterated
-     * @param string $key      the resource key
-     * @param string $oKey     the key of the array index with the display value
-     * @param string $rKey     $rKey the key against which the displayed key is resolved
+     * @param   array   $persons   the data for all persons
+     * @param   int     $personID  the id of the person being currently iterated
+     * @param   string  $key       the resource key
+     * @param   string  $oKey      the key of the array index with the display value
+     * @param   string  $rKey      $rKey the key against which the displayed key is resolved
      *
      * @return string
      */
@@ -108,10 +108,10 @@ class Instances extends ListView
     /**
      * Supplements the person names in a role as necessary.
      *
-     * @param array $container  the container with role persons
-     * @param array $persons    the array with data on all persons
-     * @param bool  $showGroups whether or not groups should be shown for individuals
-     * @param bool  $showRooms  whether or not rooms should be shown for individuals
+     * @param   array  $container   the container with role persons
+     * @param   array  $persons     the array with data on all persons
+     * @param   bool   $showGroups  whether or not groups should be shown for individuals
+     * @param   bool   $showRooms   whether or not rooms should be shown for individuals
      *
      * @return string[]
      */
@@ -142,48 +142,48 @@ class Instances extends ListView
     protected function setHeaders(): void
     {
         $this->headers = [
-            'date' => [
-                'text' => Text::_('ORGANIZER_DATE'),
+            'date'         => [
+                'text'  => Text::_('ORGANIZER_DATE'),
                 'width' => 12.5
             ],
-            'times' => [
-                'text' => Text::_('ORGANIZER_TIME'),
+            'times'        => [
+                'text'  => Text::_('ORGANIZER_TIME'),
                 'width' => 15
             ],
             'organization' => [
-                'text' => Text::_('ORGANIZER_ORGANIZATION'),
+                'text'  => Text::_('ORGANIZER_ORGANIZATION'),
                 'width' => 15
             ],
-            'title' => [
-                'text' => Text::_('ORGANIZER_NAME'),
+            'title'        => [
+                'text'  => Text::_('ORGANIZER_NAME'),
                 'width' => 30
             ],
-            'method' => [
-                'text' => Text::_('ORGANIZER_METHOD'),
+            'method'       => [
+                'text'  => Text::_('ORGANIZER_METHOD'),
                 'width' => 15
             ],
-            'groups' => [
-                'text' => Text::_('ORGANIZER_GROUPS'),
+            'groups'       => [
+                'text'  => Text::_('ORGANIZER_GROUPS'),
                 'width' => 70
             ],
-            'rooms' => [
-                'text' => Text::_('ORGANIZER_ROOMS'),
+            'rooms'        => [
+                'text'  => Text::_('ORGANIZER_ROOMS'),
                 'width' => 12.5
             ],
-            'teachers' => [
-                'text' => Helpers\Roles::getLabel(self::TEACHERS, 2),
+            'teachers'     => [
+                'text'  => Helpers\Roles::getLabel(self::TEACHERS, 2),
                 'width' => 30
             ],
-            'supervisors' => [
-                'text' => Helpers\Roles::getLabel(self::SUPERVISORS, 2),
+            'supervisors'  => [
+                'text'  => Helpers\Roles::getLabel(self::SUPERVISORS, 2),
                 'width' => 30
             ],
-            'tutors' => [
-                'text' => Helpers\Roles::getLabel(self::TUTORS, 2),
+            'tutors'       => [
+                'text'  => Helpers\Roles::getLabel(self::TUTORS, 2),
                 'width' => 30
             ],
-            'speakers' => [
-                'text' => Helpers\Roles::getLabel(self::SPEAKERS, 2),
+            'speakers'     => [
+                'text'  => Helpers\Roles::getLabel(self::SPEAKERS, 2),
                 'width' => 30
             ]
         ];
@@ -301,17 +301,17 @@ class Instances extends ListView
         $showRooms  = count($rooms) > 1;
 
         return [
-            'date' => Helpers\Dates::formatDate($item->date),
-            'groups' => $groupNames,
-            'method' => $item->method,
+            'date'         => Helpers\Dates::formatDate($item->date),
+            'groups'       => $groupNames,
+            'method'       => $item->method,
             'organization' => $this->showOrganizations ? $item->organization : '',
-            'rooms' => $roomNames,
-            'teachers' => $this->getPersonTexts($teachers, $persons, $showGroups, $showRooms),
-            'times' => "$item->startTime - $item->endTime",
-            'title' => $item->name,
-            'speakers' => $this->getPersonTexts($speakers, $persons, $showGroups, $showRooms),
-            'supervisors' => $this->getPersonTexts($supervisors, $persons, $showGroups, $showRooms),
-            'tutors' => $this->getPersonTexts($tutors, $persons, $showGroups, $showRooms)
+            'rooms'        => $roomNames,
+            'teachers'     => $this->getPersonTexts($teachers, $persons, $showGroups, $showRooms),
+            'times'        => "$item->startTime - $item->endTime",
+            'title'        => $item->name,
+            'speakers'     => $this->getPersonTexts($speakers, $persons, $showGroups, $showRooms),
+            'supervisors'  => $this->getPersonTexts($supervisors, $persons, $showGroups, $showRooms),
+            'tutors'       => $this->getPersonTexts($tutors, $persons, $showGroups, $showRooms)
         ];
     }
 }

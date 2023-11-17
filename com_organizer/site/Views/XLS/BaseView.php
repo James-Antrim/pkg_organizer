@@ -62,10 +62,10 @@ abstract class BaseView extends PHPExcel
     /**
      * Adds a range to the active sheet.
      *
-     * @param string     $start the start cell coordinates
-     * @param string     $end   the end cell coordinates
-     * @param array      $style the style to apply to the range
-     * @param int|string $value the value to add to the cell range
+     * @param   string      $start  the start cell coordinates
+     * @param   string      $end    the end cell coordinates
+     * @param   array       $style  the style to apply to the range
+     * @param   int|string  $value  the value to add to the cell range
      *
      * @return void
      * @throws Exception
@@ -115,7 +115,7 @@ abstract class BaseView extends PHPExcel
     /**
      * Set active sheet index
      *
-     * @param int $pIndex Active sheet index
+     * @param   int  $pIndex  Active sheet index
      *
      * @return PHPExcel_Worksheet
      */
@@ -123,7 +123,8 @@ abstract class BaseView extends PHPExcel
     {
         try {
             return parent::setActiveSheetIndex($pIndex);
-        } catch (Exception) {
+        }
+        catch (Exception) {
             return $this->setActiveSheetIndex($pIndex - 1);
         }
     }

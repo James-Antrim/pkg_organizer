@@ -33,9 +33,9 @@ class CleaningGroupEdit extends EditModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return Tables\CleaningGroups  A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

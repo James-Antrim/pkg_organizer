@@ -20,7 +20,8 @@ $rowNumber = 0;
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload() {
+    function auto_reload()
+    {
         window.location = document.URL;
     }
 
@@ -66,7 +67,8 @@ $rowNumber = 0;
 
             if (empty($instance['comment'])) {
                 $paddingClass = 'fluffy';
-            } else {
+            }
+            else {
                 $paddingClass        = '';
                 $instance['comment'] = $this->processComment($instance['comment']);
             }

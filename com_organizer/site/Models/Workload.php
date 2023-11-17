@@ -61,7 +61,7 @@ class Workload extends FormModel
     /**
      * Aggregates by concurrent blocks.
      *
-     * @param array $units
+     * @param   array  $units
      *
      * @return array[]
      */
@@ -106,7 +106,7 @@ class Workload extends FormModel
     /**
      * Aggregates planned blocks by date.
      *
-     * @param array  &$items
+     * @param   array  &$items
      *
      * @return void
      */
@@ -140,7 +140,7 @@ class Workload extends FormModel
     /**
      * Aggregates by event and method identity.
      *
-     * @param array $items
+     * @param   array  $items
      *
      * @return void
      */
@@ -182,7 +182,7 @@ class Workload extends FormModel
     /**
      * Aggregates instances by their unitID
      *
-     * @param array $instances the instances to be aggregated
+     * @param   array  $instances  the instances to be aggregated
      *
      * @return array[]
      */
@@ -218,11 +218,11 @@ class Workload extends FormModel
 
             if (empty($units[$instance['unitID']])) {
                 $units[$instance['unitID']] = [
-                    'blocks' => [],
-                    'events' => [],
-                    'method' => $instance['method'],
+                    'blocks'        => [],
+                    'events'        => [],
+                    'method'        => $instance['method'],
                     'organizations' => $instance['organizations'],
-                    'programs' => $instance['programs']
+                    'programs'      => $instance['programs']
                 ];
             }
 
@@ -230,17 +230,17 @@ class Workload extends FormModel
 
             if (empty($unit['blocks'][$instance['blockID']])) {
                 $unit['blocks'][$instance['blockID']] = [
-                    'date' => $instance['date'],
-                    'dow' => $instance['dow'],
-                    'endTime' => date('H:i:s', strtotime('+1 minute', strtotime($instance['endTime']))),
+                    'date'      => $instance['date'],
+                    'dow'       => $instance['dow'],
+                    'endTime'   => date('H:i:s', strtotime('+1 minute', strtotime($instance['endTime']))),
                     'startTime' => $instance['startTime']
                 ];
             }
 
             if (empty($unit['events'][$instance['eventID']])) {
                 $unit['events'][$instance['eventID']] = [
-                    'code' => $instance['code'],
-                    'name' => $instance['event'],
+                    'code'      => $instance['code'],
+                    'name'      => $instance['event'],
                     'subjectNo' => $instance['subjectNo']
                 ];
             }
@@ -306,16 +306,16 @@ class Workload extends FormModel
     {
         return [
             'organizationID' => $this->organizationID,
-            'personID' => $this->personID,
-            'termID' => $this->termID,
-            'weeks' => $this->weeks
+            'personID'       => $this->personID,
+            'termID'         => $this->termID,
+            'weeks'          => $this->weeks
         ];
     }
 
     /**
      * Turns aggregates into itemized events.
      *
-     * @param array $aggregates
+     * @param   array  $aggregates
      *
      * @return array[]
      */
@@ -343,12 +343,12 @@ class Workload extends FormModel
             $eIndex = implode('-', $names) . "-{$aggregate['method']}";
 
             $items[$eIndex] = [
-                'blocks' => [],
-                'method' => $aggregate['method'],
-                'names' => $names,
+                'blocks'        => [],
+                'method'        => $aggregate['method'],
+                'names'         => $names,
                 'organizations' => $aggregate['organizations'],
-                'programs' => $programs,
-                'subjectNos' => $subjectNos
+                'programs'      => $programs,
+                'subjectNos'    => $subjectNos
             ];
 
             $blocks =& $items[$eIndex]['blocks'];
@@ -360,7 +360,8 @@ class Workload extends FormModel
                 if (empty($blocks[$bIndex])) {
                     unset($block['date']);
                     $blocks[$bIndex] = $block;
-                } else {
+                }
+                else {
                     $blocks[$bIndex]['minutes'] += $block['minutes'];
                 }
 
@@ -517,7 +518,7 @@ class Workload extends FormModel
     /**
      * Turns outlying event items into block event items.
      *
-     * @param array $items
+     * @param   array  $items
      *
      * @return void
      */
@@ -576,8 +577,8 @@ class Workload extends FormModel
     /**
      * Adds associated structure items to the instances results.
      *
-     * @param array $instances the instances results
-     * @param array $structure the structure items associated with the instance results
+     * @param   array  $instances  the instances results
+     * @param   array  $structure  the structure items associated with the instance results
      *
      * @return void
      */
@@ -603,7 +604,8 @@ class Workload extends FormModel
             if (!empty($programs[$program])) {
                 $programs[$program][$data['group']] = $data['group'];
                 ksort($programs[$program]);
-            } else {
+            }
+            else {
                 $programs[$program] = [$data['group'] => $data['group']];
             }
 
@@ -615,7 +617,7 @@ class Workload extends FormModel
     /**
      * Turns outlying event items into block event items.
      *
-     * @param array $items
+     * @param   array  $items
      *
      * @return void
      */

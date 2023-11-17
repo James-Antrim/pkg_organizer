@@ -7,8 +7,7 @@
         <field name="address" type="MergeValues" label="STREET"/>
         <field name="zipCode" type="MergeValues" label="ZIP_CODE"/>
         <field name="city" type="MergeValues" label="CITY"/>
-        <field name="programID" type="MergeAssociations" label="PROGRAM"
-               textcolumn="pg.name,pg.accredited,d.abbreviation"
+        <field name="programID" type="MergeAssociations" label="PROGRAM" textcolumn="pg.name,pg.accredited,d.abbreviation"
                localized="true" glue=", " from="participants AS pa"
                innerJoins="programs AS pg ON pg.id = pa.programID,degrees AS d ON d.id = pg.degreeID"/>
         <field name="ids" type="MergeIDs" hidden="true"/>

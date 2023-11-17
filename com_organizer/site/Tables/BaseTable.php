@@ -40,7 +40,7 @@ abstract class BaseTable extends Table
     /**
      * Binds the table properties with data stored in a registry.
      *
-     * @param Registry $registry the registry object
+     * @param   Registry  $registry  the registry object
      *
      * @return bool
      */
@@ -59,9 +59,9 @@ abstract class BaseTable extends Table
     /**
      * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
      *
-     * @param mixed $keys        An optional primary key value to load the row by, or an array of fields to match.
+     * @param   mixed  $keys     An optional primary key value to load the row by, or an array of fields to match.
      *                           If not set the instance property value is used.
-     * @param bool  $reset       True to reset the default values before loading the new row.
+     * @param   bool   $reset    True to reset the default values before loading the new row.
      *
      * @return  bool  True if successful, otherwise false
      */
@@ -69,7 +69,8 @@ abstract class BaseTable extends Table
     {
         try {
             return parent::load($keys, $reset);
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
@@ -79,9 +80,9 @@ abstract class BaseTable extends Table
     /**
      * Sets a given property from a table, loading the table as necessary.
      *
-     * @param string $column  the name of the property to set
-     * @param mixed  $value   the value to set the property to
-     * @param mixed  $default the default value to use if the value parameter is empty
+     * @param   string  $column   the name of the property to set
+     * @param   mixed   $value    the value to set the property to
+     * @param   mixed   $default  the default value to use if the value parameter is empty
      *
      * @return void modifies the column property value
      */

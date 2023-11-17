@@ -43,8 +43,8 @@ class RoomOverview extends TableView
     /**
      * Gets the cells for an individual day.
      *
-     * @param object $room the room to retrieve the cells for
-     * @param string $date the Y-m-d date to retrieve the cells for
+     * @param   object  $room  the room to retrieve the cells for
+     * @param   string  $date  the Y-m-d date to retrieve the cells for
      *
      * @return array[] the cells for the specific day
      */
@@ -52,16 +52,16 @@ class RoomOverview extends TableView
     {
         $cells      = [];
         $conditions = [
-            'date' => $date,
-            'delta' => false,
-            'endDate' => $date,
-            'interval' => 'day',
-            'my' => false,
-            'roomIDs' => [$room->id],
+            'date'            => $date,
+            'delta'           => false,
+            'endDate'         => $date,
+            'interval'        => 'day',
+            'my'              => false,
+            'roomIDs'         => [$room->id],
             'showUnpublished' => Helpers\Can::administrate(),
-            'startDate' => $date,
-            'status' => 1,
-            'userID' => Helpers\Users::getID()
+            'startDate'       => $date,
+            'status'          => 1,
+            'userID'          => Helpers\Users::getID()
         ];
 
         $instances = Helpers\Instances::getItems($conditions);
@@ -74,10 +74,12 @@ class RoomOverview extends TableView
         if (empty($this->grid['periods'])) {
             if (empty($data['instances'])) {
                 $cells[] = ['text' => ''];
-            } else {
+            }
+            else {
                 $cells[] = $this->getDataCell($data);
             }
-        } else {
+        }
+        else {
             foreach (array_keys($this->grid['periods']) as $blockNo) {
                 if (empty($data['instances'])) {
                     $cells[] = ['text' => ''];
@@ -95,7 +97,7 @@ class RoomOverview extends TableView
     /**
      * Creates an array of blocks.
      *
-     * @param bool $short true if the block labels should be abbreviated
+     * @param   bool  $short  true if the block labels should be abbreviated
      *
      * @return array[] the blocks of the time grid
      */
@@ -131,7 +133,8 @@ class RoomOverview extends TableView
                 $alias = $data[$labelIndex];
                 $text  = $short ? mb_substr($alias, 0, 1) : $alias;
                 $tip   = $short ? "<div class=\"cellTip\">$alias ($timeText)</div>" : '';
-            } else {
+            }
+            else {
                 $text = $short ? $number : $timeText;
                 $tip  = $short ? "<div class=\"cellTip\">$timeText</div>" : '';
             }
@@ -139,7 +142,8 @@ class RoomOverview extends TableView
             if ($tip) {
                 $tip  = htmlentities($tip);
                 $html = "<span class=\"hasTooltip\" title=\"$tip\">$text</span>";
-            } else {
+            }
+            else {
                 $html = $text;
             }
 
@@ -154,7 +158,7 @@ class RoomOverview extends TableView
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param object $resource the resource whose information is displayed in the row
+     * @param   object  $resource  the resource whose information is displayed in the row
      *
      * @return array[] an array of property columns with their values
      */
@@ -171,7 +175,8 @@ class RoomOverview extends TableView
                 $row         = array_merge($row, $dailyCells);
                 $currentDate = date('Y-m-d', strtotime("$currentDate + 1 days"));
             }
-        } else {
+        }
+        else {
             $row = $this->getDailyCells($resource, $date);
         }
 
@@ -184,7 +189,7 @@ class RoomOverview extends TableView
     /**
      * Creates a label with tooltip for the resource row.
      *
-     * @param object $resource the resource to be displayed in the row
+     * @param   object  $resource  the resource to be displayed in the row
      *
      * @return string[]  the label inclusive tooltip to be displayed
      */
@@ -199,7 +204,8 @@ class RoomOverview extends TableView
                 if (!empty($resource->roomDesc)) {
                     $tip .= ":<br>$resource->roomDesc";
                 }
-            } elseif ((int) $resource->roomtypeID !== self::UNKNOWN and !empty($resource->typeDesc)) {
+            }
+            elseif ((int) $resource->roomtypeID !== self::UNKNOWN and !empty($resource->typeDesc)) {
                 $tip .= ":<br>$resource->typeDesc";
             }
             $tip .= $resource->effCapacity ? '<br>' : '';
@@ -220,7 +226,7 @@ class RoomOverview extends TableView
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param array $data the data to be used to generate the cell contents
+     * @param   array  $data  the data to be used to generate the cell contents
      *
      * @return string[] an array of property columns with their values
      */
@@ -231,7 +237,8 @@ class RoomOverview extends TableView
             $dEndTime  = '';
             $endTime   = '';
             $startTime = '';
-        } else {
+        }
+        else {
             $blockNo   = $data['blockNo'];
             $endTime   = $this->grid['periods'][$blockNo]['endTime'];
             $endTime   = Helpers\Dates::formatEndTime($endTime);
@@ -306,7 +313,8 @@ class RoomOverview extends TableView
                 }
 
                 $cell['text'] = implode(' ', $icons);
-            } else {
+            }
+            else {
                 $iconClass    = count($tips) > 1 ? 'grid' : 'square';
                 $date         = Helpers\Dates::formatDate($data['date'], true);
                 $cellTip      = '<div class="cellTip">';
@@ -342,9 +350,11 @@ class RoomOverview extends TableView
                 $headers[$formattedDate] = ['text' => $formattedDate, 'columns' => $blocks];
                 $currentDate             = date('Y-m-d', strtotime("$currentDate + 1 days"));
             }
-        } elseif (empty($this->grid['periods'])) {
+        }
+        elseif (empty($this->grid['periods'])) {
             $headers = [['text' => ''], ['text' => Helpers\Dates::formatDate($date)]];
-        } else {
+        }
+        else {
             $blocks  = $this->getHeaderBlocks();
             $headers = $blocks;
             array_unshift($headers, ['text' => '']);

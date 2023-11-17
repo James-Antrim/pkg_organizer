@@ -38,7 +38,8 @@ class CourseEdit extends EditView
 
                 $title .= ": $name - $campus ($dates)";
             }
-        } else {
+        }
+        else {
             $title = Text::_('ORGANIZER_COURSE_NEW');
         }
 

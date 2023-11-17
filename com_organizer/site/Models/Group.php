@@ -282,7 +282,8 @@ class Group extends MergeModel
             $load['published'] = 0;
 
             return $table->save($load);
-        } elseif ($attribute === 'active') {
+        }
+        elseif ($attribute === 'active') {
             $table = new Tables\Groups();
 
             if (!$table->load($groupID)) {

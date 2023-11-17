@@ -31,7 +31,7 @@ class Com_OrganizerInstallerScript
      * It also seems that under 3.x this function is ignored if the method is upgrade even if no prior installation
      * existed.
      *
-     * @param \stdClass $parent - Parent object calling this method.
+     * @param   \stdClass  $parent  - Parent object calling this method.
      *
      * @return void
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -45,7 +45,8 @@ class Com_OrganizerInstallerScript
             $dirStatus  = 'The directory /images/organizer has been created.';
             $instColor  = 'green';
             $instStatus = 'THM Organizer was successfully installed.';
-        } else {
+        }
+        else {
             $dirColor   = 'red';
             $dirStatus  = 'The directory /images/organizer could not be created.';
             $instColor  = 'yellow';
@@ -92,7 +93,8 @@ class Com_OrganizerInstallerScript
                     <h4>Please ensure that the Organizer component has write access to the directory mentioned
                         above.</h4>
                     <?php
-                } else {
+                }
+                else {
                     ?>
                     <h4>Please ensure that the /images/organizer directory exists.</h4>
                     <?php
@@ -106,8 +108,8 @@ class Com_OrganizerInstallerScript
     /**
      * Removes folder contents before update to ensure removal of deprecated files
      *
-     * @param string $type   the type of action being performed with the component.
-     * @param object $parent the 'parent' running this script
+     * @param   string  $type    the type of action being performed with the component.
+     * @param   object  $parent  the 'parent' running this script
      *
      * @return void
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -164,7 +166,7 @@ class Com_OrganizerInstallerScript
     /**
      * Method to uninstall the component
      *
-     * @param object $parent the class calling this method
+     * @param   object  $parent  the class calling this method
      *
      * @return void
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -179,7 +181,7 @@ class Com_OrganizerInstallerScript
     /**
      * Provides an output once Joomla! has finished the update process.
      *
-     * @param Object $parent \Joomla\CMS\Installer\Adapter\ComponentAdapter
+     * @param   Object  $parent  \Joomla\CMS\Installer\Adapter\ComponentAdapter
      *
      * @return void
      */

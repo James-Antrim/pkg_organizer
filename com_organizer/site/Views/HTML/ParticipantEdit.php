@@ -30,7 +30,8 @@ class ParticipantEdit extends EditView
             $cancel = 'ORGANIZER_CLOSE';
             $save   = 'ORGANIZER_SAVE_CLOSE';
             $title  = $own ? 'ORGANIZER_EDIT_MY_PROFILE' : 'ORGANIZER_PARTICIPANT_EDIT';
-        } else {
+        }
+        else {
             $cancel = 'ORGANIZER_CANCEL';
             $save   = 'ORGANIZER_CREATE_CLOSE';
             $title  = "ORGANIZER_PROFILE_NEW";

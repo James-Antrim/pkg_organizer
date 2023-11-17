@@ -22,8 +22,8 @@ class Holidays
     /**
      * Gets holidays occurring between two dates (inclusive).
      *
-     * @param string $startDate the start date for the range
-     * @param string $endDate   the end date for the range
+     * @param   string  $startDate  the start date for the range
+     * @param   string  $endDate    the end date for the range
      *
      * @return array[]
      */
@@ -57,10 +57,12 @@ class Holidays
                     if ($type === self::HOLIDAY) {
                         $holidays[$date]['name'] = $holiday["name_$tag"];
                         $holidays[$date]['type'] = 'holiday';
-                    } elseif ($type === self::GAP) {
+                    }
+                    elseif ($type === self::GAP) {
                         $holidays[$date]['name'] = Text::_('ORGANIZER_GAP_DAY');
                         $holidays[$date]['type'] = 'gap';
-                    } else {
+                    }
+                    else {
                         $holidays[$date]['name'] = Text::_('ORGANIZER_CLOSED_DAY');
                         $holidays[$date]['type'] = 'closed';
                     }

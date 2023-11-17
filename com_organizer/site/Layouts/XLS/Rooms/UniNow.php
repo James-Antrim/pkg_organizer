@@ -313,7 +313,8 @@ class UniNow extends BaseLayout
                     case 'E':
                         if ($room->campus) {
                             $value = $room->parent ? "$room->parent / $room->campus" : $room->campus;
-                        } else {
+                        }
+                        else {
                             $value = '';
                         }
                         break;
@@ -337,14 +338,17 @@ class UniNow extends BaseLayout
                             $symbols = str_split($matches[1]);
                             if ($symbols[0] === '0') {
                                 $value = 'Erdgeschoss';
-                            } elseif ($symbols[0] === 'U') {
+                            }
+                            elseif ($symbols[0] === 'U') {
                                 $level = implode('', array_splice($symbols, 1));
                                 $value = "$level. Untergeschoss";
-                            } else {
+                            }
+                            else {
                                 $level = implode('', $symbols);
                                 $value = "$level. Etage";
                             }
-                        } else {
+                        }
+                        else {
                             $value = '';
                         }
 

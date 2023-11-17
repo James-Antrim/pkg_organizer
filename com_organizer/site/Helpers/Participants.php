@@ -21,7 +21,7 @@ class Participants extends ResourceHelper
     /**
      * Determines whether the necessary participant properties have been set to register for a course.
      *
-     * @param int $participantID the id of the participant
+     * @param   int  $participantID  the id of the participant
      *
      * @return bool true if the necessary participant information has been set, otherwise false
      */
@@ -45,7 +45,7 @@ class Participants extends ResourceHelper
     /**
      * Checks whether a participant entry already exists for the current user.
      *
-     * @param int $participantID the id of the potential participant to check
+     * @param   int  $participantID  the id of the potential participant to check
      *
      * @return bool true if the user is already associated with a participant, otherwise false
      */
@@ -60,7 +60,7 @@ class Participants extends ResourceHelper
     /**
      * Retrieves the ids of the courses with which the participant is associated.
      *
-     * @param int $participantID the id of the participant
+     * @param   int  $participantID  the id of the participant
      *
      * @return int[] the associated course ids if existent, otherwise empty
      */

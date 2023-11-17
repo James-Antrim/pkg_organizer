@@ -95,9 +95,9 @@ abstract class BaseView extends TCPDF
     /**
      * Performs initial construction of the TCPDF Object.
      *
-     * @param string $orientation page orientation
-     * @param string $unit        unit of measure
-     * @param mixed  $format      page format; possible values: string - common format name, array - parameters
+     * @param   string  $orientation  page orientation
+     * @param   string  $unit         unit of measure
+     * @param   mixed   $format       page format; possible values: string - common format name, array - parameters
      *
      * @see \TCPDF_STATIC::getPageSizeFromFormat(), setPageFormat()
      */
@@ -137,13 +137,15 @@ abstract class BaseView extends TCPDF
     /**
      * Changes the current font settings used for rendering.
      *
-     * @param string $style  the font style abbreviation
-     * @param int    $size   the font size, document default is 12
-     * @param string $family the font family name
+     * @param   string  $style   the font style abbreviation
+     * @param   int     $size    the font size, document default is 12
+     * @param   string  $family  the font family name
      *
      * @return void sets the font attribute values for use in rendering until set otherwise
      */
-    public function changeFont(string $style = self::REGULAR, int $size = self::CURRENT_SIZE, string $family = self::CURRENT_FAMILY)
+    public function changeFont(string $style = self::REGULAR,
+        int $size = self::CURRENT_SIZE,
+        string $family = self::CURRENT_FAMILY)
     {
         $this->SetFont($family, $style, $size);
     }
@@ -152,8 +154,8 @@ abstract class BaseView extends TCPDF
      * Defines the abscissa and ordinate of the current position.
      * If the passed values are negative, they are relative respectively to the right and bottom of the page.
      *
-     * @param int $horizontal the horizontal coordinate
-     * @param int $vertical   the vertical coordinate
+     * @param   int  $horizontal  the horizontal coordinate
+     * @param   int  $vertical    the vertical coordinate
      *
      * @return void repositions the documents point of reference
      */
@@ -165,7 +167,7 @@ abstract class BaseView extends TCPDF
     /**
      * Changes the current font size used for rendering.
      *
-     * @param int $size the font size
+     * @param   int  $size  the font size
      *
      * @return void sets the font size value for use in rendering until set otherwise
      */
@@ -177,8 +179,8 @@ abstract class BaseView extends TCPDF
     /**
      * Method to get data from a registered model or a property of the view.
      *
-     * @param string $property the model function name or view property to access
-     * @param mixed  $default  the optional default value
+     * @param   string  $property  the model function name or view property to access
+     * @param   mixed   $default   the optional default value
      *
      * @return  mixed  The return value of the method
      */
@@ -202,7 +204,7 @@ abstract class BaseView extends TCPDF
     /**
      * Method to generate output. Overwriting functions should place class specific code before the parent call.
      *
-     * @param string $destination
+     * @param   string  $destination
      *
      * @return void
      */
@@ -215,12 +217,12 @@ abstract class BaseView extends TCPDF
     /**
      * Defines the left, top and right margins.
      *
-     * @param int $left   the left margin
-     * @param int $top    the top margin
-     * @param int $right  the right margin (defaults to left value)
-     * @param int $bottom the bottom margin
-     * @param int $header the header margin
-     * @param int $footer the footer margin
+     * @param   int  $left    the left margin
+     * @param   int  $top     the top margin
+     * @param   int  $right   the right margin (defaults to left value)
+     * @param   int  $bottom  the bottom margin
+     * @param   int  $header  the header margin
+     * @param   int  $footer  the footer margin
      *
      * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(),
      *        SetTopMargin()
@@ -236,29 +238,29 @@ abstract class BaseView extends TCPDF
     /**
      * Renders a cell. Borders
      *
-     * @param int    $width      the cell width
-     * @param int    $height     the cell height
-     * @param string $text       the cell text
-     * @param string $hAlign     the cell's horizontal alignment
-     * @param mixed  $border     number 0/1: none/all,
+     * @param   int     $width   the cell width
+     * @param   int     $height  the cell height
+     * @param   string  $text    the cell text
+     * @param   string  $hAlign  the cell's horizontal alignment
+     * @param   mixed   $border  number 0/1: none/all,
      *                           string B/L/R/T: corresponding side
      *                           array border settings coded by side
-     * @param bool   $fill       true if the cell should render a background color, otherwise false
-     * @param string $vAlign     the cell's vertical alignment
-     * @param mixed  $link       URL or identifier returned by AddLink().
+     * @param   bool    $fill    true if the cell should render a background color, otherwise false
+     * @param   string  $vAlign  the cell's vertical alignment
+     * @param   mixed   $link    URL or identifier returned by AddLink().
      *
      * @return void renders the cell
      * @see   AddLink()
      */
     public function renderCell(
-        int    $width,
-        int    $height,
+        int $width,
+        int $height,
         string $text,
         string $hAlign = self::LEFT,
-               $border = self::NONE,
-        bool   $fill = false,
+        $border = self::NONE,
+        bool $fill = false,
         string $vAlign = self::CENTER,
-               $link = ''
+        $link = ''
     )
     {
         $this->Cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
@@ -270,16 +272,16 @@ abstract class BaseView extends TCPDF
      * character). As many cells as necessary are output, one below the other.<br /> Text can be aligned, centered or
      * justified. The cell block can be framed and the background painted.
      *
-     * @param int    $width         the cell width
-     * @param int    $height        the cell height
-     * @param string $text          the cell text
-     * @param string $hAlign        the cell's horizontal alignment
-     * @param mixed  $border        number 0/1: none/all,
+     * @param   int     $width      the cell width
+     * @param   int     $height     the cell height
+     * @param   string  $text       the cell text
+     * @param   string  $hAlign     the cell's horizontal alignment
+     * @param   mixed   $border     number 0/1: none/all,
      *                              string B/L/R/T: corresponding side
      *                              array border settings coded by side
-     * @param bool   $fill          true if the cell should render a background color, otherwise false
-     * @param string $vAlign        the cell's vertical alignment
-     * @param int    $maxHeight     the maximum height, explicitly set to ensure correct line height in a multi-cell
+     * @param   bool    $fill       true if the cell should render a background color, otherwise false
+     * @param   string  $vAlign     the cell's vertical alignment
+     * @param   int     $maxHeight  the maximum height, explicitly set to ensure correct line height in a multi-cell
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
@@ -287,14 +289,14 @@ abstract class BaseView extends TCPDF
      *        SetAutoPageBreak()
      */
     public function renderMultiCell(
-        int    $width,
-        int    $height,
+        int $width,
+        int $height,
         string $text,
         string $hAlign = self::LEFT,
-               $border = self::NONE,
-        bool   $fill = false,
+        $border = self::NONE,
+        bool $fill = false,
         string $vAlign = self::MIDDLE,
-        int    $maxHeight = 0
+        int $maxHeight = 0
     ): int
     {
         return $this->MultiCell(
@@ -320,7 +322,7 @@ abstract class BaseView extends TCPDF
     /**
      * Wraps the protected function setPageFormat to make it publicly accessible.
      *
-     * @param array|string $format the format to set the page to string format constant, [width, height], [options]
+     * @param   array|string  $format  the format to set the page to string format constant, [width, height], [options]
      *
      * @return void
      * @see TCPDF::setPageOrientation(), TCPDF::getPageSizeFromFormat()
@@ -333,8 +335,8 @@ abstract class BaseView extends TCPDF
     /**
      * Sets the document title and file name properties. File name defaults to a safe revision of the document title.
      *
-     * @param string $documentTitle the document title
-     * @param string $fileName      the file name
+     * @param   string  $documentTitle  the document title
+     * @param   string  $fileName       the file name
      */
     public function setNames(string $documentTitle, string $fileName = '')
     {
@@ -347,7 +349,7 @@ abstract class BaseView extends TCPDF
     /**
      * Enables display of the document header and footer.
      *
-     * @param bool $display true if the document should display a header and footer, otherwise false
+     * @param   bool  $display  true if the document should display a header and footer, otherwise false
      *
      * @see SetPrintFooter(), SetPrintHeader()
      */

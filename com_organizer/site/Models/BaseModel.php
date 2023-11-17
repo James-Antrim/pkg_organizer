@@ -28,13 +28,14 @@ abstract class BaseModel extends BaseDatabaseModel
     /**
      * BaseModel constructor.
      *
-     * @param array $config
+     * @param   array  $config
      */
     public function __construct($config = [])
     {
         try {
             parent::__construct($config);
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
 
             return;
@@ -73,7 +74,8 @@ abstract class BaseModel extends BaseDatabaseModel
                 $table   = $this->getTable();
                 $success = ($success and $table->delete($selectedID));
             }
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
@@ -87,7 +89,7 @@ abstract class BaseModel extends BaseDatabaseModel
     /**
      * Attempts to save the resource.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return int|bool int id of the resource on success, otherwise bool false
      */
@@ -100,7 +102,8 @@ abstract class BaseModel extends BaseDatabaseModel
         try {
             /* @var BaseTable $table */
             $table = $this->getTable();
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
@@ -112,7 +115,7 @@ abstract class BaseModel extends BaseDatabaseModel
     /**
      * Method to save an existing resource as a copy
      *
-     * @param array $data the data to be used to create the program when called from the program helper
+     * @param   array  $data  the data to be used to create the program when called from the program helper
      *
      * @return int|bool the id of the resource on success, otherwise bool false
      */

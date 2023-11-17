@@ -21,9 +21,9 @@ abstract class BadgeLayout extends BaseLayout
 {
     protected array $rectangleStyle = [
         'width' => 0.1,
-        'cap' => 'butt',
-        'join' => 'miter',
-        'dash' => 0,
+        'cap'   => 'butt',
+        'join'  => 'miter',
+        'dash'  => 0,
         'color' => [0, 0, 0]
     ];
 
@@ -41,9 +41,9 @@ abstract class BadgeLayout extends BaseLayout
     /**
      * Adds a badge position to the sheet
      *
-     * @param object $participant the participant being iterated
-     * @param int    $xOffset     the reference value for x
-     * @param int    $yOffset     the reference value for y
+     * @param   object  $participant  the participant being iterated
+     * @param   int     $xOffset      the reference value for x
+     * @param   int     $yOffset      the reference value for y
      *
      * @return void modifies the pdf document
      */
@@ -75,7 +75,8 @@ abstract class BadgeLayout extends BaseLayout
             $view->changePosition($left, $yOffset + $titleOffset + 33);
             $view->renderCell(80, 5, $view->campus, $view::CENTER);
             $view->changePosition($left, $yOffset + $titleOffset + 38);
-        } else {
+        }
+        else {
             $view->changePosition($left, $yOffset + $titleOffset + 34);
         }
 
@@ -123,8 +124,8 @@ abstract class BadgeLayout extends BaseLayout
     /**
      * Adds a badge reverse to the sheet reverse
      *
-     * @param int $xOffset the reference x offset for the box
-     * @param int $yOffset the reference y offset for the box
+     * @param   int  $xOffset  the reference x offset for the box
+     * @param   int  $yOffset  the reference y offset for the box
      *
      * @return void modifies the pdf document
      */
@@ -145,7 +146,8 @@ abstract class BadgeLayout extends BaseLayout
             $nameOffset      = 76 + $yOffset;
             $addressOffset   = 80 + $yOffset;
             $contactOffset   = 83 + $yOffset;
-        } else {
+        }
+        else {
             $headerOffset    = 17 + $yOffset;
             $titleOffset     = 29 + $yOffset;
             $labelOffset     = 42 + $yOffset;

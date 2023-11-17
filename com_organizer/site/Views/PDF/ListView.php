@@ -27,9 +27,9 @@ abstract class ListView extends BaseView
     /**
      * Performs initial construction of the TCPDF Object.
      *
-     * @param string $orientation page orientation
-     * @param string $unit        unit of measure
-     * @param mixed  $format      page format; possible values: string - common format name, array - parameters
+     * @param   string  $orientation  page orientation
+     * @param   string  $unit         unit of measure
+     * @param   mixed   $format       page format; possible values: string - common format name, array - parameters
      *
      * @see \TCPDF_STATIC::getPageSizeFromFormat(), setPageFormat()
      */

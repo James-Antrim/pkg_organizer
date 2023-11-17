@@ -41,8 +41,8 @@ class Routing
     /**
      * Generates a link to a controller function.
      *
-     * @param string $task the controller and function to be accessed
-     * @param int    $id   the optional id of the resource to be displayed in the view
+     * @param   string  $task  the controller and function to be accessed
+     * @param   int     $id    the optional id of the resource to be displayed in the view
      *
      * @return string the task url
      */
@@ -60,8 +60,8 @@ class Routing
     /**
      * Generates a link to a view.
      *
-     * @param string $view the view to be accessed
-     * @param int    $id   the optional id of the resource to be displayed in the view
+     * @param   string  $view  the view to be accessed
+     * @param   int     $id    the optional id of the resource to be displayed in the view
      *
      * @return string the view url
      */

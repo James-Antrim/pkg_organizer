@@ -52,8 +52,8 @@ class CategoryUnits extends BaseView
                     }
 
                     $group['events'][$eventID] = [
-                        'code' => $table->code,
-                        'name' => $table->$nameProperty,
+                        'code'  => $table->code,
+                        'name'  => $table->$nameProperty,
                         'units' => []
                     ];
                 }

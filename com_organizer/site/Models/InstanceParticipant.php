@@ -90,7 +90,7 @@ class InstanceParticipant extends BaseModel
     /**
      * Adds instances to the user's personal schedule.
      *
-     * @param int $method the manner in which instances are selected.
+     * @param   int  $method  the manner in which instances are selected.
      *
      * @return void
      */
@@ -134,7 +134,8 @@ class InstanceParticipant extends BaseModel
 
         if ($bookmarked) {
             Application::message('ORGANIZER_SCHEDULE_SUCCESS');
-        } elseif ($responsible) {
+        }
+        elseif ($responsible) {
             Application::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', Application::NOTICE);
         }
 
@@ -257,7 +258,8 @@ class InstanceParticipant extends BaseModel
                 $participation->delete();
                 Application::message('ORGANIZER_EVENT_CONFIRMED');
                 Helpers\Instances::updateNumbers($instanceID);
-            } else {
+            }
+            else {
                 Application::message('ORGANIZER_412', Application::ERROR);
             }
         }
@@ -298,7 +300,7 @@ class InstanceParticipant extends BaseModel
     /**
      * Deregisters participants from instances.
      *
-     * @param int $method the method to be used for resolving the instances to be registered
+     * @param   int  $method  the method to be used for resolving the instances to be registered
      *
      * @return void
      */
@@ -346,9 +348,9 @@ class InstanceParticipant extends BaseModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return  Table  An instance participants table object
      */
@@ -361,8 +363,8 @@ class InstanceParticipant extends BaseModel
      * Finds instances matching the given instance by matching method, inclusive the reference instance. Adds system
      * message if no results were found.
      *
-     * @param int  $method  the method for determining relevant instances
-     * @param bool $virtual whether virtual instances are permissible in the result set
+     * @param   int   $method   the method for determining relevant instances
+     * @param   bool  $virtual  whether virtual instances are permissible in the result set
      *
      * @return int[]
      */
@@ -477,7 +479,7 @@ class InstanceParticipant extends BaseModel
     /**
      * Registers participants to instances.
      *
-     * @param int $method the method to be used for resolving the instances to be registered
+     * @param   int  $method  the method to be used for resolving the instances to be registered
      *
      * @return void
      */
@@ -587,7 +589,8 @@ class InstanceParticipant extends BaseModel
 
         if ($registered) {
             Application::message(Text::_('ORGANIZER_REGISTRATION_SUCCESS'));
-        } elseif ($responsible) {
+        }
+        elseif ($responsible) {
             Application::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', Application::NOTICE);
         }
 
@@ -597,7 +600,7 @@ class InstanceParticipant extends BaseModel
     /**
      * Removes instances from a participant's personal schedule.
      *
-     * @param int $method the manner in which instances are filtered for removal.
+     * @param   int  $method  the manner in which instances are filtered for removal.
      *
      * @return void
      */
@@ -640,7 +643,7 @@ class InstanceParticipant extends BaseModel
     /**
      * Attempts to save the resource.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return bool int id of the resource on success, otherwise bool false
      */

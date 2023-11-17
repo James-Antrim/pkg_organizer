@@ -31,7 +31,8 @@ trait Imported
 
         if ($resourceID = $model->save() and $model->importSingle($resourceID)) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
@@ -50,7 +51,8 @@ trait Imported
 
         if ($model->import()) {
             Application::message('ORGANIZER_IMPORT_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_IMPORT_FAIL', Application::ERROR);
         }
 
@@ -71,7 +73,8 @@ trait Imported
 
         if ($resourceID = $model->save() and $model->importSingle($resourceID)) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 

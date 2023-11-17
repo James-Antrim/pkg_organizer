@@ -83,14 +83,14 @@ class Booking extends ListLayout
     private function setColumns()
     {
         $this->headers = [
-            'checkbox' => '',
-            'index' => '#',
-            'name' => Text::_('ORGANIZER_NAME'),
-            'attended' => '51',
+            'checkbox'   => '',
+            'index'      => '#',
+            'name'       => Text::_('ORGANIZER_NAME'),
+            'attended'   => '51',
             'registered' => '46',
-            'event' => Text::_('ORGANIZER_EVENT'),
-            'room' => Text::_('ORGANIZER_ROOM'),
-            'seat' => Text::_('ORGANIZER_SEAT')
+            'event'      => Text::_('ORGANIZER_EVENT'),
+            'room'       => Text::_('ORGANIZER_ROOM'),
+            'seat'       => Text::_('ORGANIZER_SEAT')
         ];
 
         $view     = $this->view;
@@ -99,47 +99,50 @@ class Booking extends ListLayout
 
         if ($showCR and $showRoom) {
             $this->widths = [
-                'checkbox' => 5,
-                'index' => 10,
-                'name' => 50,
-                'attended' => 7,
+                'checkbox'   => 5,
+                'index'      => 10,
+                'name'       => 50,
+                'attended'   => 7,
                 'registered' => 7,
-                'event' => 76,
-                'room' => 15,
-                'seat' => 10
+                'event'      => 76,
+                'room'       => 15,
+                'seat'       => 10
             ];
-        } elseif ($showCR) {
+        }
+        elseif ($showCR) {
             unset($this->headers['room']);
 
             $this->widths = [
-                'checkbox' => 5,
-                'index' => 10,
-                'name' => 55,
-                'attended' => 8,
+                'checkbox'   => 5,
+                'index'      => 10,
+                'name'       => 55,
+                'attended'   => 8,
                 'registered' => 8,
-                'event' => 90,
-                'seat' => 10
+                'event'      => 90,
+                'seat'       => 10
             ];
-        } elseif ($showRoom) {
+        }
+        elseif ($showRoom) {
             unset($this->headers['attended'], $this->headers['registered']);
 
             $this->widths = [
                 'checkbox' => 5,
-                'index' => 10,
-                'name' => 55,
-                'event' => 85,
-                'room' => 15,
-                'seat' => 10
+                'index'    => 10,
+                'name'     => 55,
+                'event'    => 85,
+                'room'     => 15,
+                'seat'     => 10
             ];
-        } else {
+        }
+        else {
             unset($this->headers['attended'], $this->headers['registered'], $this->headers['room']);
 
             $this->widths = [
                 'checkbox' => 5,
-                'index' => 10,
-                'name' => 60,
-                'event' => 90,
-                'seat' => 15
+                'index'    => 10,
+                'name'     => 60,
+                'event'    => 90,
+                'seat'     => 15
             ];
         }
     }

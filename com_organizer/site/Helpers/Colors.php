@@ -21,7 +21,7 @@ class Colors extends ResourceHelper
     /**
      * Returns the color value for a given colorID.
      *
-     * @param int $colorID the id of the color
+     * @param   int  $colorID  the id of the color
      *
      * @return string the hex value of the color
      */
@@ -35,8 +35,8 @@ class Colors extends ResourceHelper
     /**
      * Creates a container to output text with a system specific color.
      *
-     * @param string $text    the text to display
-     * @param int    $colorID the id of the color
+     * @param   string  $text     the text to display
+     * @param   int     $colorID  the id of the color
      *
      * @return string
      */
@@ -56,7 +56,7 @@ class Colors extends ResourceHelper
     /**
      * Gets an appropriate value for contrasting text color for a given background color.
      *
-     * @param string $bgColor the background color with which do
+     * @param   string  $bgColor  the background color with which do
      *
      * @return string  the hexadecimal value for an appropriate text color
      */
@@ -71,7 +71,8 @@ class Colors extends ResourceHelper
         $brightness         = $relativeBrightness / 1000;
         if ($brightness >= 128) {
             return $params->get('darkTextColor', '#4a5c66');
-        } else {
+        }
+        else {
             return $params->get('lightTextColor', '#ffffff');
         }
     }

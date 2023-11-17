@@ -186,7 +186,7 @@ class Organizations extends BaseTable
      * Removes inherited groups before Joomla erroneously sets the value to 0. Joomla must have something similar, but I
      * don't have time to look for it.
      *
-     * @param array &$rules the rules from the form
+     * @param   array &$rules  the rules from the form
      *
      * @return void  unsets group indexes with a truly empty value
      */
@@ -222,7 +222,8 @@ class Organizations extends BaseTable
         // If a primary key exists update the object, otherwise insert it.
         if ($this->hasPrimaryKey()) {
             $result = $this->_db->updateObject($this->_tbl, $this, $this->_tbl_keys, $updateNulls);
-        } else {
+        }
+        else {
             $result = $this->_db->insertObject($this->_tbl, $this, $this->_tbl_keys[0]);
         }
 

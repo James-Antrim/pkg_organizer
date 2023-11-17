@@ -3,7 +3,8 @@ jQuery(document).ready(function () {
         var match = task.match(/\.cancel$/),
             adminForm = document.getElementById('adminForm');
 
-        if (match !== null || document.formvalidator.isValid(adminForm)) {
+        if (match !== null || document.formvalidator.isValid(adminForm))
+        {
             adminForm.task.value = task;
             adminForm.submit();
         }

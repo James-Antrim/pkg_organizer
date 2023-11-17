@@ -22,8 +22,8 @@ class Units extends ResourceHelper
     /**
      * Gets the campus id to associate with a course based on event documentation and planning data.
      *
-     * @param int      $unitID    the id of the unit
-     * @param int|null $defaultID the id of a campus associated with an event associated with the unit
+     * @param   int       $unitID     the id of the unit
+     * @param   int|null  $defaultID  the id of a campus associated with an event associated with the unit
      *
      * @return int|null the id of the campus to associate with the course
      */
@@ -59,8 +59,8 @@ class Units extends ResourceHelper
     /**
      * Retrieves the group/category contexts for a given unit/event tub
      *
-     * @param int $unitID  the unit id
-     * @param int $eventID the event id
+     * @param   int  $unitID   the unit id
+     * @param   int  $eventID  the event id
      *
      * @return array[]
      */
@@ -83,8 +83,8 @@ class Units extends ResourceHelper
     /**
      * Retrieves the id of events associated with the resource
      *
-     * @param int      $unitID     the id of the unit
-     * @param int|null $instanceID the id of a related instance for temporal restrictions
+     * @param   int       $unitID      the id of the unit
+     * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
      *
      * @return int[] the ids of events associated with the resource
      */
@@ -114,8 +114,8 @@ class Units extends ResourceHelper
      * Gets a list of distinct names associated with the unit, optionally converted to a string for later display
      * output.
      *
-     * @param int    $unitID the id of the unit
-     * @param string $glue   the string to use to concatenate associated names
+     * @param   int     $unitID  the id of the unit
+     * @param   string  $glue    the string to use to concatenate associated names
      *
      * @return string|string[] the names of the associated events
      */
@@ -136,7 +136,7 @@ class Units extends ResourceHelper
     /**
      * Retrieves the grid id for the given unit id.
      *
-     * @param int $unitID the id of the unit
+     * @param   int  $unitID  the id of the unit
      *
      * @return int|null
      */
@@ -151,8 +151,8 @@ class Units extends ResourceHelper
     /**
      * Retrieves the ids of groups associated with the unit
      *
-     * @param int      $unitID     the id of the unit
-     * @param int|null $instanceID the id of a related instance for temporal restrictions
+     * @param   int       $unitID      the id of the unit
+     * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
      *
      * @return int[] the ids of groups associated with the unit
      */
@@ -184,7 +184,7 @@ class Units extends ResourceHelper
     /**
      * Retrieves the ids of organizations associated with the resource
      *
-     * @param int $resourceID the id of the resource for which the associated organizations are requested
+     * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
      *
      * @return int the id of the organization associated with the unit
      */
@@ -206,8 +206,8 @@ class Units extends ResourceHelper
     /**
      * Retrieves the ids of rooms associated with the unit
      *
-     * @param int      $unitID     the id of the unit
-     * @param int|null $instanceID the id of a related instance for temporal restrictions
+     * @param   int       $unitID      the id of the unit
+     * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
      *
      * @return int[] the ids of rooms associated with the unit
      */
@@ -239,8 +239,8 @@ class Units extends ResourceHelper
     /**
      * Check if person is associated with a unit as a teacher.
      *
-     * @param int $unitID   the optional id of the unit
-     * @param int $personID the optional id of the person
+     * @param   int  $unitID    the optional id of the unit
+     * @param   int  $personID  the optional id of the person
      *
      * @return bool true if the person is a unit teacher, otherwise false
      */

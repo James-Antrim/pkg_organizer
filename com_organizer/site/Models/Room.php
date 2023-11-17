@@ -70,7 +70,7 @@ class Room extends MergeModel
      * - Replaces escaped quotes "" and commas in quoted values with HTML entities.
      * - Removes newline carriage return.
      *
-     * @param string $row the row to clean
+     * @param   string  $row  the row to clean
      *
      * @return void modifies the row
      */
@@ -157,15 +157,15 @@ class Room extends MergeModel
         }
 
         $floorings = [
-            1 => 'PVC',
-            2 => 'Betonwerkstein',
-            3 => 'Dielen',
-            4 => 'Estrich',
-            5 => 'Fliesen',
-            6 => 'Gitterrost',
-            7 => 'Holz',
-            8 => 'Kautschuk',
-            9 => 'Linoleum',
+            1  => 'PVC',
+            2  => 'Betonwerkstein',
+            3  => 'Dielen',
+            4  => 'Estrich',
+            5  => 'Fliesen',
+            6  => 'Gitterrost',
+            7  => 'Holz',
+            8  => 'Kautschuk',
+            9  => 'Linoleum',
             10 => 'Parkett (nicht versiegelt)',
             11 => 'Parkett (versiegelt)',
             12 => 'Riffelblech',

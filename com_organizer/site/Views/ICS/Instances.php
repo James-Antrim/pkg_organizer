@@ -137,8 +137,8 @@ class Instances
     /**
      * Provide a grouping of component properties that describe an event.
      *
-     * @param array   &$ics      the output container
-     * @param object   $instance the instance being iterated
+     * @param   array   &$ics       the output container
+     * @param   object   $instance  the instance being iterated
      *
      * @return void modifies $ics
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.1
@@ -181,7 +181,8 @@ class Instances
                         if (!empty($room['location'])) {
                             if (preg_match($pattern, $room['location'])) {
                                 $coordinates[$room['location']] = $room['location'];
-                            } else {
+                            }
+                            else {
                                 $coordinates['invalid'] = true;
                             }
                         }
@@ -189,7 +190,8 @@ class Instances
                         if (!empty($room['campus'])) {
                             if (preg_match($pattern, $room['campus'])) {
                                 $campuses[$room['campus']] = $room['campus'];
-                            } else {
+                            }
+                            else {
                                 $campuses['invalid'] = true;
                             }
                         }
@@ -212,7 +214,8 @@ class Instances
         if ($persons) {
             if (count($persons) === 1) {
                 $description = reset($persons);
-            } else {
+            }
+            else {
                 ksort($persons);
                 $last        = array_pop($persons);
                 $description = implode(', ', $persons) . " & $last";
@@ -229,7 +232,8 @@ class Instances
 
         if (count($coordinates) === 1 and empty($coordinates['invalid'])) {
             $geo = reset($coordinates);
-        } elseif (count($campuses) === 1 and empty($campuses['invalid'])) {
+        }
+        elseif (count($campuses) === 1 and empty($campuses['invalid'])) {
             $geo = reset($campuses);
         }
 
@@ -248,7 +252,8 @@ class Instances
         if ($locations) {
             if (count($locations) === 1) {
                 $location = reset($locations);
-            } else {
+            }
+            else {
                 ksort($locations);
                 $last     = array_pop($locations);
                 $location = implode(', ', $locations) . " & $last";
@@ -307,7 +312,7 @@ class Instances
     /**
      * Enforces the 75 byte line limitation by 'folding'.
      *
-     * @param string $buffer the input string used as a byte buffer during processing
+     * @param   string  $buffer  the input string used as a byte buffer during processing
      *
      * @return string
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.1
@@ -505,7 +510,7 @@ class Instances
     /**
      * Escape special character use in text values.
      *
-     * @param string $text
+     * @param   string  $text
      *
      * @return string
      */
@@ -525,7 +530,7 @@ class Instances
     /**
      * Formats a given date time string (Y-m-d H:i) to a timezone qualified DATE-TIME.
      *
-     * @param string $dateTime
+     * @param   string  $dateTime
      *
      * @return string
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.5
@@ -540,7 +545,7 @@ class Instances
     }
 
     /**
-     * @param string $dateTime
+     * @param   string  $dateTime
      *
      * @return DateTime|null
      * @throws Exception
@@ -553,7 +558,7 @@ class Instances
     /**
      * Gets the offset to UTC as a string.
      *
-     * @param DateTime $dateTime the date at which the UTC offset is to be measured.
+     * @param   DateTime  $dateTime  the date at which the UTC offset is to be measured.
      *
      * @return string the formatted offset
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.3.3
@@ -568,7 +573,8 @@ class Instances
 
             // Have to get rid of the signage for the sprintf formatting later
             $offset *= -1;
-        } else {
+        }
+        else {
             $sign = '+';
         }
 
@@ -585,8 +591,8 @@ class Instances
      * Sets the vevent comment and url, which would otherwise be in the comment. Removes all regexed URLs from the
      * comment. As per RFC only one URL is added, even if multiple were present.
      *
-     * @param array   &$ics     the output container
-     * @param string   $comment the commentary for the vevent
+     * @param   array   &$ics      the output container
+     * @param   string   $comment  the commentary for the vevent
      *
      * @return void
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.4
@@ -780,7 +786,8 @@ class Instances
         try {
             $manifest      = new SimpleXMLElement(file_get_contents($manifest));
             $this->version = (string) $manifest->version;
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             $this->version = "X.X.X";
         }
     }

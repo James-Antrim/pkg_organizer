@@ -31,59 +31,59 @@ class Workload extends BaseLayout
      * @var \array[][] Border definitions
      */
     private array $borders = [
-        'cell' => [
-            'left' => [
+        'cell'      => [
+            'left'   => [
                 'style' => XLConstants::THIN
             ],
-            'right' => [
+            'right'  => [
                 'style' => XLConstants::THIN
             ],
             'bottom' => [
                 'style' => XLConstants::THIN
             ],
-            'top' => [
+            'top'    => [
                 'style' => XLConstants::THIN
             ]
         ],
-        'data' => [
-            'left' => [
+        'data'      => [
+            'left'   => [
                 'style' => XLConstants::MEDIUM
             ],
-            'right' => [
+            'right'  => [
                 'style' => XLConstants::MEDIUM
             ],
             'bottom' => [
                 'style' => XLConstants::THIN
             ],
-            'top' => [
+            'top'    => [
                 'style' => XLConstants::THIN
             ]
         ],
-        'header' => [
-            'left' => [
+        'header'    => [
+            'left'   => [
                 'style' => XLConstants::MEDIUM
             ],
-            'right' => [
+            'right'  => [
                 'style' => XLConstants::MEDIUM
             ],
             'bottom' => [
                 'style' => XLConstants::MEDIUM
             ],
-            'top' => [
+            'top'    => [
                 'style' => XLConstants::MEDIUM
             ]
         ],
         'signature' => [
-            'left' => [
+            'left'   => [
                 'style' => XLConstants::NONE
             ],
-            'right' => [
+            'right'  => [
                 'style' => XLConstants::NONE
             ],
             'bottom' => [
                 'style' => XLConstants::NONE
             ],
-            'top' => [
+            'top'    => [
                 'style' => XLConstants::MEDIUM
             ]
         ]
@@ -94,15 +94,15 @@ class Workload extends BaseLayout
      */
     private array $fills = [
         'header' => [
-            'type' => XLConstants::SOLID,
+            'type'  => XLConstants::SOLID,
             'color' => ['rgb' => '80BA24']
         ],
-        'index' => [
-            'type' => XLConstants::SOLID,
+        'index'  => [
+            'type'  => XLConstants::SOLID,
             'color' => ['rgb' => 'FFFF00']
         ],
-        'data' => [
-            'type' => XLConstants::SOLID,
+        'data'   => [
+            'type'  => XLConstants::SOLID,
             'color' => ['rgb' => 'DFEEC8']
         ]
     ];
@@ -111,11 +111,11 @@ class Workload extends BaseLayout
      * @var string[] Height definitions
      */
     private array $heights = [
-        'basicField' => '18.75',
-        'sectionHead' => '13.5',
+        'basicField'    => '18.75',
+        'sectionHead'   => '13.5',
         'sectionSpacer' => '8.25',
-        'spacer' => '6.25',
-        'sum' => '18.75'
+        'spacer'        => '6.25',
+        'sum'           => '18.75'
     ];
 
     /**
@@ -142,7 +142,7 @@ class Workload extends BaseLayout
     /**
      * Workload constructor.
      *
-     * @param BaseView $view
+     * @param   BaseView  $view
      */
     public function __construct(BaseView $view)
     {
@@ -157,7 +157,7 @@ class Workload extends BaseLayout
     /**
      * Adds the arrow to the end of a function header.
      *
-     * @param string $cell the cell coordinates
+     * @param   string  $cell  the cell coordinates
      *
      * @return void
      * @throws Exception
@@ -178,8 +178,8 @@ class Workload extends BaseLayout
     /**
      * Adds a basic field (label and input box)
      *
-     * @param int    $row   the row where the cells should be edited
-     * @param string $label the field label
+     * @param   int     $row    the row where the cells should be edited
+     * @param   string  $label  the field label
      *
      * @return void
      * @throws Exception
@@ -202,11 +202,11 @@ class Workload extends BaseLayout
     /**
      * Adds a column header to the sheet
      *
-     * @param string $startCell the coordinates of the column headers top left most cell
-     * @param string $endCell   the coordinates of the column header's bottom right most cell
-     * @param string $text      the column header
-     * @param array  $comments  the comments necessary for clarification of the column's contents
-     * @param int    $height    the comment height
+     * @param   string  $startCell  the coordinates of the column headers top left most cell
+     * @param   string  $endCell    the coordinates of the column header's bottom right most cell
+     * @param   string  $text       the column header
+     * @param   array   $comments   the comments necessary for clarification of the column's contents
+     * @param   int     $height     the comment height
      *
      * @return void
      * @throws Exception
@@ -216,9 +216,9 @@ class Workload extends BaseLayout
         $view  = $this->view;
         $style = [
             'alignment' => ['horizontal' => XLConstants::CENTER, 'vertical' => XLConstants::TOP, 'wrap' => true],
-            'borders' => $this->borders['header'],
-            'fill' => $this->fills['header'],
-            'font' => ['bold' => true]
+            'borders'   => $this->borders['header'],
+            'fill'      => $this->fills['header'],
+            'font'      => ['bold' => true]
         ];
         $view->addRange($startCell, $endCell, $style, $text);
 
@@ -232,9 +232,9 @@ class Workload extends BaseLayout
     /**
      * Adds a comment to a specific cell
      *
-     * @param string $cell    the cell coordinates
-     * @param array  $comment an associative array with a title and or text
-     * @param int    $height  the comment height
+     * @param   string  $cell     the cell coordinates
+     * @param   array   $comment  an associative array with a title and or text
+     * @param   int     $height   the comment height
      *
      * @return void
      * @throws Exception
@@ -268,8 +268,8 @@ class Workload extends BaseLayout
     /**
      * Adds an event row at the given row number.
      *
-     * @param int    &$row  the row number
-     * @param array   $item the item to display in the row
+     * @param   int    &$row   the row number
+     * @param   array   $item  the item to display in the row
      *
      * @return void
      * @throws Exception
@@ -292,7 +292,8 @@ class Workload extends BaseLayout
         if ($programs) {
             if ($this->separate) {
                 $groups = $item['programs'][reset($programs)];
-            } else {
+            }
+            else {
                 $groups = [];
 
                 foreach ($item['programs'] as $theseGroups) {
@@ -345,7 +346,8 @@ class Workload extends BaseLayout
                     if ($programs) {
                         if ($this->separate) {
                             $sheet->setCellValue($coords, reset($programs));
-                        } else {
+                        }
+                        else {
                             $count = count($item['programs']);
                             $lines = max($count, $lines);
                             $sheet->setCellValue($coords, implode("\n", array_keys($item['programs'])));
@@ -397,8 +399,8 @@ class Workload extends BaseLayout
     /**
      * Adds an event sub header row at the given row number
      *
-     * @param int    $row  the row number
-     * @param string $text the text for the labeling column
+     * @param   int     $row   the row number
+     * @param   string  $text  the text for the labeling column
      *
      * @return void
      * @throws Exception
@@ -412,7 +414,7 @@ class Workload extends BaseLayout
         for ($current = 'B'; $current <= 'M'; $current++) {
             $sheet->getStyle("$current$row")->applyFromArray([
                 'borders' => $this->borders['data'],
-                'fill' => $this->fills['header']
+                'fill'    => $this->fills['header']
             ]);
 
             if ($current === 'B') {
@@ -426,9 +428,9 @@ class Workload extends BaseLayout
     /**
      * Creates a section header
      *
-     * @param int    $row      the row number
-     * @param string $text     the section header text
-     * @param string $function the function to execute
+     * @param   int     $row       the row number
+     * @param   string  $text      the section header text
+     * @param   string  $function  the function to execute
      *
      * @return void
      * @throws Exception
@@ -440,9 +442,9 @@ class Workload extends BaseLayout
         $sheet->getRowDimension($row)->setRowHeight($this->heights['sum']);
         $style = [
             'alignment' => ['vertical' => XLConstants::CENTER],
-            'borders' => $this->borders['header'],
-            'fill' => $this->fills['header'],
-            'font' => ['bold' => true]
+            'borders'   => $this->borders['header'],
+            'fill'      => $this->fills['header'],
+            'font'      => ['bold' => true]
         ];
         $view->addRange("B$row", "L$row", $style, $text);
 
@@ -456,10 +458,10 @@ class Workload extends BaseLayout
     /**
      * Adds an instruction cell to the active sheet.
      *
-     * @param int    $row    the row number
-     * @param float  $height the row height
-     * @param string $text   the cell text
-     * @param bool   $bold   whether the text should be displayed in a bold font
+     * @param   int     $row     the row number
+     * @param   float   $height  the row height
+     * @param   string  $text    the cell text
+     * @param   bool    $bold    whether the text should be displayed in a bold font
      *
      * @return void
      * @throws Exception
@@ -544,7 +546,7 @@ class Workload extends BaseLayout
     /**
      * Adds the THM Logo to a cell.
      *
-     * @param int $offsetY the offset from the top of the cell
+     * @param   int  $offsetY  the offset from the top of the cell
      *
      * @return void
      * @throws Exception
@@ -564,11 +566,11 @@ class Workload extends BaseLayout
     /**
      * Adds a supplementary row for events held for multiple degree programs.
      *
-     * @param int    $row        the row number
-     * @param string $program    the name of the degree program
-     * @param array  $groups     the names of the program subordinate groups
-     * @param array  $dataStyle  the style to use for date fields
-     * @param array  $indexStyle the style to use for index fields
+     * @param   int     $row         the row number
+     * @param   string  $program     the name of the degree program
+     * @param   array   $groups      the names of the program subordinate groups
+     * @param   array   $dataStyle   the style to use for date fields
+     * @param   array   $indexStyle  the style to use for index fields
      *
      * @return void
      * @throws PHPExcel_Exception
@@ -630,8 +632,8 @@ class Workload extends BaseLayout
 
         $style = [
             'alignment' => ['code' => XLConstants::CENTER],
-            'border' => $this->borders['header'],
-            'fill' => $this->fills['header']
+            'border'    => $this->borders['header'],
+            'fill'      => $this->fills['header']
         ];
 
         $sheet->getStyle('A1:B1')->applyFromArray($style);
@@ -672,8 +674,8 @@ class Workload extends BaseLayout
 
         $style = [
             'alignment' => ['code' => XLConstants::CENTER],
-            'border' => $this->borders['header'],
-            'fill' => $this->fills['header']
+            'border'    => $this->borders['header'],
+            'fill'      => $this->fills['header']
         ];
 
         $sheet->getStyle('A1:D1')->applyFromArray($style);
@@ -722,7 +724,7 @@ class Workload extends BaseLayout
     /**
      * Creates and formats a row to be used for a workload relevant role listing.
      *
-     * @param int $row the row to add
+     * @param   int  $row  the row to add
      *
      * @return void
      * @throws Exception
@@ -743,7 +745,7 @@ class Workload extends BaseLayout
     /**
      * Adds the section which lists held lessons to the worksheet
      *
-     * @param int  &$row the current row number
+     * @param   int  &$row  the current row number
      *
      * @return void
      * @throws Exception
@@ -909,7 +911,7 @@ class Workload extends BaseLayout
     /**
      * Adds the section which lists thesis supervisions
      *
-     * @param int  &$row the current row number
+     * @param   int  &$row  the current row number
      *
      * @return void
      * @throws Exception
@@ -968,7 +970,7 @@ class Workload extends BaseLayout
     /**
      * Adds the section which lists roles for which workload is calculated
      *
-     * @param int  &$row the current row number
+     * @param   int  &$row  the current row number
      *
      * @return void
      * @throws Exception
@@ -1066,11 +1068,11 @@ class Workload extends BaseLayout
     /**
      * Creates a section header
      *
-     * @param int    $row      the row number
-     * @param string $text     the section header text
-     * @param bool   $break    whether or not a break should be displayed
-     * @param array  $comments an array of tips with title and/or text
-     * @param int    $cHeight  the comment height
+     * @param   int     $row       the row number
+     * @param   string  $text      the section header text
+     * @param   bool    $break     whether or not a break should be displayed
+     * @param   array   $comments  an array of tips with title and/or text
+     * @param   int     $cHeight   the comment height
      *
      * @return void
      * @throws Exception
@@ -1082,9 +1084,9 @@ class Workload extends BaseLayout
         $sheet->getRowDimension($row)->setRowHeight($this->heights['sectionHead']);
         $style = [
             'alignment' => ['vertical' => XLConstants::CENTER],
-            'borders' => $this->borders['header'],
-            'fill' => $this->fills['header'],
-            'font' => ['bold' => true]
+            'borders'   => $this->borders['header'],
+            'fill'      => $this->fills['header'],
+            'font'      => ['bold' => true]
         ];
         $view->addRange("B$row", "M$row", $style, $text);
 
@@ -1102,9 +1104,9 @@ class Workload extends BaseLayout
     /**
      * Adds a row summing section values
      *
-     * @param int    $row     the row where the sum will be added
-     * @param string $section the section being summed (used for the label)
-     * @param array  $ranges  the row ranges to be summed
+     * @param   int     $row      the row where the sum will be added
+     * @param   string  $section  the section being summed (used for the label)
+     * @param   array   $ranges   the row ranges to be summed
      *
      * @return void
      * @throws Exception
@@ -1114,8 +1116,8 @@ class Workload extends BaseLayout
         $sheet     = $this->view->getActiveSheet();
         $border    = $this->borders['header'];
         $dataStyle = [
-            'borders' => $border,
-            'fill' => $this->fills['index'],
+            'borders'      => $border,
+            'fill'         => $this->fills['index'],
             'numberformat' => ['code' => XLConstants::NUMBER_00]
         ];
 
@@ -1128,7 +1130,8 @@ class Workload extends BaseLayout
         if (count($ranges) === 1) {
             $rangeSum = $max ? "=IF(SUM(MXXX:MYYY)<=2,SUM(MXXX:MYYY),$max)" : "=SUM(MXXX:MYYY)";
             $formula  = str_replace('YYY', $ranges[0]['end'], str_replace('XXX', $ranges[0]['start'], $rangeSum));
-        } else {
+        }
+        else {
             $sums = [];
             foreach ($ranges as $range) {
                 $sums[] = "SUM(M{$range['start']}:M{$range['end']})";
@@ -1143,8 +1146,8 @@ class Workload extends BaseLayout
     /**
      * Creates a row evaluating the valuation of a type and quantity of supervisions
      *
-     * @param int   $row      the row number
-     * @param array $category an array containing the category text and it's calculation weight
+     * @param   int    $row       the row number
+     * @param   array  $category  an array containing the category text and it's calculation weight
      *
      * @return void
      * @throws Exception
@@ -1188,9 +1191,9 @@ class Workload extends BaseLayout
         $sheet->getRowDimension('2')->setRowHeight('22.5');
         $style = [
             'alignment' => ['horizontal' => XLConstants::CENTER, 'vertical' => XLConstants::CENTER],
-            'borders' => $this->borders['header'],
-            'fill' => $this->fills['header'],
-            'font' => ['bold' => true, 'size' => 14]
+            'borders'   => $this->borders['header'],
+            'fill'      => $this->fills['header'],
+            'font'      => ['bold' => true, 'size' => 14]
         ];
         $text  = 'Bericht über die Erfüllung der Lehrverpflichtung gemäß § 4 (5) LVVO (Version 1.4; Stand 07.02.2018)';
         $view->addRange("B2", "M2", $style, $text);
@@ -1220,13 +1223,13 @@ class Workload extends BaseLayout
         $color = '9C132E';
         $style = [
             'alignment' => ['horizontal' => XLConstants::CENTER, 'vertical' => XLConstants::CENTER, 'wrap' => true],
-            'borders' => [
-                'left' => ['style' => XLConstants::THIN, 'color' => ['rgb' => $color]],
-                'right' => ['style' => XLConstants::THIN, 'color' => ['rgb' => $color]],
+            'borders'   => [
+                'left'   => ['style' => XLConstants::THIN, 'color' => ['rgb' => $color]],
+                'right'  => ['style' => XLConstants::THIN, 'color' => ['rgb' => $color]],
                 'bottom' => ['style' => XLConstants::THIN, 'color' => ['rgb' => $color]],
-                'top' => ['style' => XLConstants::THIN, 'color' => ['rgb' => $color]]
+                'top'    => ['style' => XLConstants::THIN, 'color' => ['rgb' => $color]]
             ],
-            'font' => ['bold' => true, 'color' => ['rgb' => $color]]
+            'font'      => ['bold' => true, 'color' => ['rgb' => $color]]
         ];
         $text  = 'Die Tabelle soll in Excel ausgefüllt werden. Durch Kontakt des Cursors mit der kleinen roten ';
         $text  .= 'Markierung in einem entsprechenden Feld öffntet sich ein Infofeld und Sie erhalten weiterführende ';

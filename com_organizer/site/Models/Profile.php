@@ -54,7 +54,8 @@ class Profile extends FormModel
             $form->removeField('programID');
             $form->setValue('public', null, $person->public);
             $form->setValue('title', null, $person->title);
-        } else {
+        }
+        else {
             $form->removeField('public');
             $form->removeField('title');
         }

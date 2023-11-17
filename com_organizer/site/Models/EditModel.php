@@ -65,9 +65,9 @@ abstract class EditModel extends FormModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    the table name, unused
-     * @param string $prefix  the class prefix, unused
-     * @param array  $options configuration array for model, unused
+     * @param   string  $name     the table name, unused
+     * @param   string  $prefix   the class prefix, unused
+     * @param   array   $options  configuration array for model, unused
      *
      * @return  Table  a table object
      */

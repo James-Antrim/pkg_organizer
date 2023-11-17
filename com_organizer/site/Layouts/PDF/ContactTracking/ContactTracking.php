@@ -25,11 +25,11 @@ class ContactTracking extends ListLayout
 
     protected $widths = [
         'contacts' => 65,
-        'data' => 70,
-        'dates' => 20,
-        'index' => 10,
-        'length' => 25,
-        'person' => 50
+        'data'     => 70,
+        'dates'    => 20,
+        'index'    => 10,
+        'length'   => 25,
+        'person'   => 50
     ];
 
     /**
@@ -41,9 +41,9 @@ class ContactTracking extends ListLayout
         $view->margins(10, 30, -1, 0, 8);
 
         $headers = [
-            'index' => '#',
+            'index'  => '#',
             'person' => Text::_('ORGANIZER_PERSON'),
-            'data' => Text::_('ORGANIZER_CONTACT_INFORMATION')
+            'data'   => Text::_('ORGANIZER_CONTACT_INFORMATION')
         ];
 
         $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);

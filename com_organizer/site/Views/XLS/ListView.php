@@ -59,7 +59,7 @@ abstract class ListView extends BaseView
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param object $item the item to be displayed in a table row
+     * @param   object  $item  the item to be displayed in a table row
      *
      * @return array an array of property columns with their values
      */

@@ -23,8 +23,8 @@ abstract class MergeModel extends BaseModel
     /**
      * Gets the resource ids associated with persons in association tables.
      *
-     * @param string $table    the unique portion of the table name
-     * @param string $fkColumn the name of the fk column referencing the other resource
+     * @param   string  $table     the unique portion of the table name
+     * @param   string  $fkColumn  the name of the fk column referencing the other resource
      *
      * @return int[] the ids of the resources associated
      */
@@ -219,7 +219,8 @@ abstract class MergeModel extends BaseModel
                     $nextIndex++;
                     continue 2;
                 }
-            } while (true);
+            }
+            while (true);
         }
 
         return true;
@@ -234,7 +235,7 @@ abstract class MergeModel extends BaseModel
     /**
      * Updates an association where the associated resource itself has a fk reference to the resource being merged.
      *
-     * @param string $table the unique part of the table name
+     * @param   string  $table  the unique part of the table name
      *
      * @return bool  true on success, otherwise false
      */
@@ -253,8 +254,8 @@ abstract class MergeModel extends BaseModel
     /**
      * Updates resource associations in a schedule instance.
      *
-     * @param array  &$instance the instance being iterated
-     * @param int     $mergeID  the id onto which the entries will be merged
+     * @param   array  &$instance  the instance being iterated
+     * @param   int     $mergeID   the id onto which the entries will be merged
      *
      * @return bool true if the instance has been updated, otherwise false
      */
@@ -289,7 +290,7 @@ abstract class MergeModel extends BaseModel
     /**
      * Updates resource associations in a schedule.
      *
-     * @param int $scheduleID the id of the schedule being iterated
+     * @param   int  $scheduleID  the id of the schedule being iterated
      *
      * @return void
      */

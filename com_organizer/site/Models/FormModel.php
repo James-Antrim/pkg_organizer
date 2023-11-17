@@ -25,10 +25,10 @@ abstract class FormModel extends Base
     /**
      * Constructor
      *
-     * @param array       $config               An array of configuration options (name, state, dbo, table_path,
+     * @param   array        $config            An array of configuration options (name, state, dbo, table_path,
      *                                          ignore_request).
-     * @param MVCFactory  $factory              The factory.
-     * @param FormFactory $formFactory          The form factory.
+     * @param   MVCFactory   $factory           The factory.
+     * @param   FormFactory  $formFactory       The form factory.
      *
      * @throws Exception
      */
@@ -42,7 +42,7 @@ abstract class FormModel extends Base
     /**
      * Filters out form inputs which should not be displayed due to previous selections.
      *
-     * @param Form $form the form to be filtered
+     * @param   Form  $form  the form to be filtered
      *
      * @return void modifies $form
      */
@@ -54,13 +54,14 @@ abstract class FormModel extends Base
     /**
      * @inheritDoc
      */
-    public function getForm($data = array(), $loadData = true): ?FormAlias
+    public function getForm($data = [], $loadData = true): ?FormAlias
     {
         $options = ['control' => '', 'load_data' => $loadData];
 
         try {
             return $this->loadForm($this->context, strtolower($this->name), $options);
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::handleException($exception);
         }
 

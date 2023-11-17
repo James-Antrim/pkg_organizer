@@ -36,9 +36,9 @@ class Run extends BaseModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return Table A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -51,7 +51,7 @@ class Run extends BaseModel
     /**
      * Attempts to save the resource.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return int|bool int id of the resource on success, otherwise bool false
      */

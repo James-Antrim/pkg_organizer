@@ -44,9 +44,9 @@ class THM_OrganizerModelPlan_Program extends THM_OrganizerModelMerge
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return  \JTable  A \JTable object
      */
@@ -72,7 +72,7 @@ class THM_OrganizerModelPlan_Program extends THM_OrganizerModelMerge
     /**
      * Processes the data for an individual schedule
      *
-     * @param object &$schedule the schedule being processed
+     * @param   object &$schedule  the schedule being processed
      *
      * @return void
      */

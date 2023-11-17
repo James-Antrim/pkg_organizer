@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" required="true"
-               table="organizer_fields" textcolumn="name" valuecolumn="id">
+        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" required="true" table="organizer_fields"
+               textcolumn="name" valuecolumn="id">
             <option value="">SELECT_FIELD</option>
         </field>
         <field name="organizationID" type="OrganizationAssociations" label="ORGANIZATION"/>

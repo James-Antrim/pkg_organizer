@@ -80,7 +80,7 @@ class Instance extends BaseModel
     /**
      * Creates/updates an appointment.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return false|int
      */
@@ -125,19 +125,20 @@ class Instance extends BaseModel
             }
 
             $unitID = $instance->unitID;
-        } else {
+        }
+        else {
             $code   = Helpers\Users::getID() . '-1';
             $termID = Helpers\Terms::getCurrentID($date);
             $unit   = new Tables\Units();
             $unit->load(['code' => $code, 'termID' => $termID]);
 
             $uData = [
-                'code' => $code,
-                'endDate' => (!empty($results['endDate']) and $results['endDate'] > $date) ? $results['endDate'] : $date,
-                'modified' => $this->modified,
+                'code'           => $code,
+                'endDate'        => (!empty($results['endDate']) and $results['endDate'] > $date) ? $results['endDate'] : $date,
+                'modified'       => $this->modified,
                 'organizationID' => null,
-                'startDate' => (!empty($results['startDate']) and $results['startDate'] < $date) ? $results['startDate'] : $date,
-                'termID' => $termID
+                'startDate'      => (!empty($results['startDate']) and $results['startDate'] < $date) ? $results['startDate'] : $date,
+                'termID'         => $termID
             ];
 
             $unit->save($uData);
@@ -147,11 +148,11 @@ class Instance extends BaseModel
         }
 
         $iData = [
-            'blockID' => $blockID,
-            'eventID' => null,
+            'blockID'  => $blockID,
+            'eventID'  => null,
             'modified' => $this->modified,
-            'title' => Input::filter($data['title']),
-            'unitID' => $unitID
+            'title'    => Input::filter($data['title']),
+            'unitID'   => $unitID
         ];
         $instance->save($iData);
         $instanceID = $instance->id;
@@ -188,8 +189,8 @@ class Instance extends BaseModel
     /**
      * Validates a time attribute syntactically.
      *
-     * @param string $date the date of the instance
-     * @param string $time the time being standardized
+     * @param   string  $date  the date of the instance
+     * @param   string  $time  the time being standardized
      *
      * @return null|string the H:i standardized value, or false if the value syntax was incorrect.
      */

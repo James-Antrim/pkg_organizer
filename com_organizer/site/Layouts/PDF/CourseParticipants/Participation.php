@@ -18,7 +18,7 @@ use THM\Organizer\Views\PDF\CourseParticipants;
 class Participation extends ListLayout
 {
     protected $widths = [
-        'grouping' => 130,
+        'grouping'     => 130,
         'participants' => 60
     ];
 
@@ -34,7 +34,7 @@ class Participation extends ListLayout
         $groupingHeader .= Text::_('ORGANIZER_PROGRAM');
 
         $this->headers = [
-            'grouping' => $groupingHeader,
+            'grouping'     => $groupingHeader,
             'participants' => Text::_('ORGANIZER_PARTICIPANTS')
         ];
     }

@@ -5,8 +5,8 @@
         <field name="name" type="MergeValues" label="NAME" required="true"/>
         <field name="buildingID" type="MergeAssociations" label="BUILDING" textcolumn="b.name" from="rooms AS rm"
                innerJoins="buildings AS b ON b.id = rm.buildingID"/>
-        <field name="roomtypeID" type="MergeAssociations" label="ROOMTYPE" textcolumn="name" localized="true"
-               from="rooms AS rm" innerJoins="roomtypes AS rt ON rt.id = rm.roomtypeID" required="true"/>
+        <field name="roomtypeID" type="MergeAssociations" label="ROOMTYPE" textcolumn="name" localized="true" from="rooms AS rm"
+               innerJoins="roomtypes AS rt ON rt.id = rm.roomtypeID" required="true"/>
         <field name="maxCapacity" type="MergeValues" label="MAX_CAPACITY"/>
         <field name="effCapacity" type="MergeValues" label="EFF_CAPACITY"/>
         <field name="active" type="Options" label="ACTIVE" default="1">

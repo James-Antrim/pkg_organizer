@@ -29,7 +29,8 @@ class RunEdit extends EditView
             $cancel    = 'ORGANIZER_CLOSE';
             $save      = 'ORGANIZER_SAVE_CLOSE';
             $title     = "ORGANIZER_RUN_EDIT";
-        } else {
+        }
+        else {
             $apply     = 'ORGANIZER_CREATE';
             $applyIcon = 'save-new';
             $cancel    = 'ORGANIZER_CANCEL';

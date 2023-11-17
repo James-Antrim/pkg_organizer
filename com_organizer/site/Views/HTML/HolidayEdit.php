@@ -27,7 +27,8 @@ class HolidayEdit extends EditView
             $cancel = 'ORGANIZER_CLOSE';
             $save   = 'ORGANIZER_SAVE_CLOSE';
             $title  = "ORGANIZER_HOLIDAY_EDIT";
-        } else {
+        }
+        else {
             $cancel = 'ORGANIZER_CANCEL';
             $save   = 'ORGANIZER_CREATE_CLOSE';
             $title  = "ORGANIZER_HOLIDAY_NEW";

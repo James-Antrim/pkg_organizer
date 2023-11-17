@@ -21,8 +21,8 @@ trait Associated
     /**
      * Sets context variables as requested.
      *
-     * @param int   $resourceID      the id of the resource being processed
-     * @param array $organizationIDs the organization ids with which the resource should be associated
+     * @param   int    $resourceID       the id of the resource being processed
+     * @param   array  $organizationIDs  the organization ids with which the resource should be associated
      *
      * @return bool true on success, otherwise false
      */

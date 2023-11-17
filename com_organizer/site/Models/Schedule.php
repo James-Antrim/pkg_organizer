@@ -41,7 +41,7 @@ class Schedule extends BaseModel
      * Cleans bookings according to their current status derived by the state of associated instances, optionally cleans
      * unattended past bookings.
      *
-     * @param bool $cleanUnattended whether unattended bookings in the past should be cleaned as well
+     * @param   bool  $cleanUnattended  whether unattended bookings in the past should be cleaned as well
      *
      * @return void
      */
@@ -139,10 +139,10 @@ class Schedule extends BaseModel
     /**
      * Updates a table associating an instance with a resource.
      *
-     * @param BaseTable $table  the association table to be updated
-     * @param array     $keys   the keys used to identify the association through content
-     * @param string    $delta  the status of the association
-     * @param int       $roleID the id of the role for instance person associations
+     * @param   BaseTable  $table   the association table to be updated
+     * @param   array      $keys    the keys used to identify the association through content
+     * @param   string     $delta   the status of the association
+     * @param   int        $roleID  the id of the role for instance person associations
      *
      * @return void
      */
@@ -191,7 +191,7 @@ class Schedule extends BaseModel
     /**
      * Deletes
      *
-     * @param array $bookingIDs
+     * @param   array  $bookingIDs
      *
      * @return void
      */
@@ -261,9 +261,9 @@ class Schedule extends BaseModel
     /**
      * Retrieves the ids of the resources associated with the given fk values.
      *
-     * @param string $suffix   the specific portion of the table name
-     * @param string $fkColumn the name of the fk column
-     * @param array  $fkValues the fk column values
+     * @param   string  $suffix    the specific portion of the table name
+     * @param   string  $fkColumn  the name of the fk column
+     * @param   array   $fkValues  the fk column values
      *
      * @return int[]
      */
@@ -281,8 +281,8 @@ class Schedule extends BaseModel
     /**
      * Returns the schedule IDs relevant for the context ordered earliest to latest.
      *
-     * @param int $organizationID the id of the organization context
-     * @param int $termID         the id of the term context
+     * @param   int  $organizationID  the id of the organization context
+     * @param   int  $termID          the id of the term context
      *
      * @return int[] the schedule ids
      */
@@ -310,9 +310,9 @@ class Schedule extends BaseModel
     /**
      * Determines whether the instance is temporally relevant to the process.
      *
-     * @param Tables\Instances $instance the instance entry
-     * @param string           $date     the schedule's creation date
-     * @param string           $time     the schedule's creation time
+     * @param   Tables\Instances  $instance  the instance entry
+     * @param   string            $date      the schedule's creation date
+     * @param   string            $time      the schedule's creation time
      *
      * @return bool
      */
@@ -333,9 +333,9 @@ class Schedule extends BaseModel
     /**
      * Creates/updates a 'new' instance person relation.
      *
-     * @param array $instances  the instances of the schedule
-     * @param int   $instanceID the id number of the instance being iterated
-     * @param int   $personID   the id number of the person being iterated
+     * @param   array  $instances   the instances of the schedule
+     * @param   int    $instanceID  the id number of the instance being iterated
+     * @param   int    $personID    the id number of the person being iterated
      *
      * @return void
      */
@@ -347,7 +347,8 @@ class Schedule extends BaseModel
 
         if ($iPerson->load($keys)) {
             $this->updateAssoc($iPerson, 'new', $roleID);
-        } else {
+        }
+        else {
             $this->createAssoc($iPerson, $keys, 'new', $roleID);
 
             if (!$iPerson->id) {
@@ -368,7 +369,8 @@ class Schedule extends BaseModel
 
             if ($table->load($keys)) {
                 $this->updateAssoc($table, 'new');
-            } else {
+            }
+            else {
                 $this->createAssoc($table, $keys, 'new');
             }
         }
@@ -379,7 +381,8 @@ class Schedule extends BaseModel
 
             if ($table->load($keys)) {
                 $this->updateAssoc($table, 'new');
-            } else {
+            }
+            else {
                 $this->createAssoc($table, $keys, 'new');
             }
         }
@@ -465,9 +468,9 @@ class Schedule extends BaseModel
     /**
      * Sets instance person associations and subordinate associations to removed.
      *
-     * @param array $instances  the collection of instances modeling the reference schedule
-     * @param int   $instanceID the id of the instance being currently iterated
-     * @param array $personIDs  the collection/subset of person ids to set as removed
+     * @param   array  $instances   the collection of instances modeling the reference schedule
+     * @param   int    $instanceID  the id of the instance being currently iterated
+     * @param   array  $personIDs   the collection/subset of person ids to set as removed
      *
      * @return void
      */
@@ -498,9 +501,9 @@ class Schedule extends BaseModel
     /**
      * Sets the resource association indicated to removed.
      *
-     * @param string $table      the instance resource table suffix
-     * @param int    $assocID    the id of the instance persons table entry
-     * @param int    $resourceID the id of the associated resource
+     * @param   string  $table       the instance resource table suffix
+     * @param   int     $assocID     the id of the instance persons table entry
+     * @param   int     $resourceID  the id of the associated resource
      *
      * @return void
      */
@@ -521,7 +524,8 @@ class Schedule extends BaseModel
 
         if ($table->load($keys)) {
             $this->updateAssoc($table, 'removed');
-        } else {
+        }
+        else {
             $this->createAssoc($table, $keys, 'removed');
         }
     }
@@ -530,9 +534,9 @@ class Schedule extends BaseModel
      * Resets all associated resources to a removed status with a date of one week before the timestamp of the first
      * schedule.
      *
-     * @param int $organizationID the id of the organization context
-     * @param int $termID         the id of the term context
-     * @param int $baseID         the id if the schedule to be used to generate the reset timestamp
+     * @param   int  $organizationID  the id of the organization context
+     * @param   int  $termID          the id of the term context
+     * @param   int  $baseID          the id if the schedule to be used to generate the reset timestamp
      *
      * @return void
      */
@@ -602,7 +606,7 @@ class Schedule extends BaseModel
     /**
      * Attempts to resolve events to subjects via associations and curriculum mapping.
      *
-     * @param int $organizationID the id of the organization with which the events are associated
+     * @param   int  $organizationID  the id of the organization with which the events are associated
      *
      * @return void
      */
@@ -665,9 +669,9 @@ class Schedule extends BaseModel
     /**
      * Method to retrieve the valid person id after a deprecated one has been deleted through a merge.
      *
-     * @param int   $deprecatedID the deprecated person id
-     * @param int   $instanceID   the id of the instance to which the person was assigned
-     * @param array $personIDs    the person ids assigned to the instance in the JSON file
+     * @param   int    $deprecatedID  the deprecated person id
+     * @param   int    $instanceID    the id of the instance to which the person was assigned
+     * @param   array  $personIDs     the person ids assigned to the instance in the JSON file
      *
      * @return int the id of the superseding person id
      */
@@ -694,8 +698,8 @@ class Schedule extends BaseModel
      * Sets the schedule with the given id as the current one in regard to the status of planned relationships and
      * resources in its organization / term context.
      *
-     * @param int $scheduleID  the id of the schedule to set as current
-     * @param int $referenceID the id of the previously valid schedule
+     * @param   int  $scheduleID   the id of the schedule to set as current
+     * @param   int  $referenceID  the id of the previously valid schedule
      *
      * @return void
      */
@@ -774,7 +778,8 @@ class Schedule extends BaseModel
 
                 if ($iPerson->load($keys)) {
                     $this->updateAssoc($iPerson, '', $roleID);
-                } else {
+                }
+                else {
                     $this->createAssoc($iPerson, $keys, 'new', $roleID);
 
 
@@ -800,7 +805,8 @@ class Schedule extends BaseModel
 
                     if ($table->load($keys)) {
                         $this->updateAssoc($table, 'new');
-                    } else {
+                    }
+                    else {
                         $this->createAssoc($table, $keys, 'new');
                     }
                 }
@@ -812,7 +818,8 @@ class Schedule extends BaseModel
 
                     if ($table->load($keys)) {
                         $this->updateAssoc($table, '');
-                    } else {
+                    }
+                    else {
                         $this->createAssoc($table, $keys, '');
                     }
                 }
@@ -832,7 +839,8 @@ class Schedule extends BaseModel
 
                     if ($table->load($keys)) {
                         $this->updateAssoc($table, 'new');
-                    } else {
+                    }
+                    else {
                         $this->createAssoc($table, $keys, 'new');
                     }
                 }
@@ -844,7 +852,8 @@ class Schedule extends BaseModel
 
                     if ($table->load($keys)) {
                         $this->updateAssoc($table, '');
-                    } else {
+                    }
+                    else {
                         $this->createAssoc($table, $keys, '');
                     }
                 }
@@ -909,9 +918,9 @@ class Schedule extends BaseModel
     /**
      * Updates a table associating an instance with a resource.
      *
-     * @param BaseTable $table  the association table to be updated
-     * @param string    $delta  the status of the association
-     * @param int       $roleID the id of the role for instance person associations
+     * @param   BaseTable  $table   the association table to be updated
+     * @param   string     $delta   the status of the association
+     * @param   int        $roleID  the id of the role for instance person associations
      *
      * @return void
      */
@@ -930,9 +939,9 @@ class Schedule extends BaseModel
     /**
      * Updates entries in the given entry ids in the given table with the given conditions.
      *
-     * @param string $suffix     the specific portion of the table name
-     * @param array  $entryIDs   the ids of the entries to update
-     * @param array  $conditions the set conditions
+     * @param   string  $suffix      the specific portion of the table name
+     * @param   array   $entryIDs    the ids of the entries to update
+     * @param   array   $conditions  the set conditions
      *
      * @return void
      */
@@ -973,12 +982,12 @@ class Schedule extends BaseModel
         unset($validator->schedule);
 
         $data = [
-            'creationDate' => $validator->creationDate,
-            'creationTime' => $validator->creationTime,
+            'creationDate'   => $validator->creationDate,
+            'creationTime'   => $validator->creationTime,
             'organizationID' => $organizationID,
-            'schedule' => json_encode($validator->instances),
-            'termID' => $validator->termID,
-            'userID' => $userID
+            'schedule'       => json_encode($validator->instances),
+            'termID'         => $validator->termID,
+            'userID'         => $userID
         ];
 
         $schedule = new Tables\Schedules();

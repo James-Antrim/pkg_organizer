@@ -49,7 +49,7 @@ class RoomStatistics
     /**
      * OrganizerTemplateRoom_Statistics_XLS constructor.
      *
-     * @param object &$model the model containing the data for the room statistics
+     * @param   object &$model  the model containing the data for the room statistics
      */
     public function __construct(&$model)
     {
@@ -81,13 +81,13 @@ class RoomStatistics
             ->setDescription($description);
 
         $this->headerFill = [
-            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'type'  => PHPExcel_Style_Fill::FILL_SOLID,
             'color' => ['rgb' => 'DFE5E6']
         ];
 
         $this->rightBorder = [
-            'left' => ['style' => PHPExcel_Style_Border::BORDER_NONE],
-            'right' => [
+            'left'   => ['style' => PHPExcel_Style_Border::BORDER_NONE],
+            'right'  => [
                 'style' => PHPExcel_Style_Border::BORDER_THICK,
                 'color' => ['rgb' => '394A59']
             ],
@@ -95,12 +95,12 @@ class RoomStatistics
                 'style' => PHPExcel_Style_Border::BORDER_HAIR,
                 'color' => ['rgb' => 'DFE5E6']
             ],
-            'top' => ['style' => PHPExcel_Style_Border::BORDER_NONE]
+            'top'    => ['style' => PHPExcel_Style_Border::BORDER_NONE]
         ];
 
         $this->lightBorder = [
-            'left' => ['style' => PHPExcel_Style_Border::BORDER_NONE],
-            'right' => [
+            'left'   => ['style' => PHPExcel_Style_Border::BORDER_NONE],
+            'right'  => [
                 'style' => PHPExcel_Style_Border::BORDER_HAIR,
                 'color' => ['rgb' => 'DFE5E6']
             ],
@@ -108,7 +108,7 @@ class RoomStatistics
                 'style' => PHPExcel_Style_Border::BORDER_HAIR,
                 'color' => ['rgb' => 'DFE5E6']
             ],
-            'top' => ['style' => PHPExcel_Style_Border::BORDER_NONE]
+            'top'    => ['style' => PHPExcel_Style_Border::BORDER_NONE]
         ];
 
         $this->spreadSheet->getDefaultStyle()->getAlignment()
@@ -116,8 +116,8 @@ class RoomStatistics
 
         $this->spreadSheet->getDefaultStyle()->applyFromArray([
             'font' => [
-                'name' => 'arial',
-                'size' => 12,
+                'name'  => 'arial',
+                'size'  => 12,
                 'color' => ['rgb' => '394A59']
             ]
         ]);
@@ -174,9 +174,9 @@ class RoomStatistics
     /**
      * Creates a room data summary row
      *
-     * @param int   $rowNo     the row number
-     * @param int   $roomID    the room id
-     * @param array $weeksData the utilization data grouped by week number
+     * @param   int    $rowNo      the row number
+     * @param   int    $roomID     the room id
+     * @param   array  $weeksData  the utilization data grouped by week number
      *
      * @return int[] and array with the total and adjusted totals for the room being iterated
      */
@@ -306,9 +306,9 @@ class RoomStatistics
     /**
      * Creates a room data summary row
      *
-     * @param int   $rowNo     the row number
-     * @param int   $roomID    the room id
-     * @param array $weeksData the utilization data grouped by week number
+     * @param   int    $rowNo      the row number
+     * @param   int    $roomID     the room id
+     * @param   array  $weeksData  the utilization data grouped by week number
      *
      * @return string the last column name
      */
@@ -366,12 +366,12 @@ class RoomStatistics
     /**
      * Adds a header group consisting of a title row of 4 merged cells and a header row consisting of 4 header cells
      *
-     * @param string $startColumn   the first column
-     * @param string $groupTitle    the group header title
-     * @param int    $firstRow      the first data row of the table
-     * @param int    $lastRow       the last data row of the table
-     * @param int    $total         the maximum number of reservable blocks for the given week
-     * @param int    $adjustedTotal the adjusted maximum number of reservable blocks for the given week
+     * @param   string  $startColumn    the first column
+     * @param   string  $groupTitle     the group header title
+     * @param   int     $firstRow       the first data row of the table
+     * @param   int     $lastRow        the last data row of the table
+     * @param   int     $total          the maximum number of reservable blocks for the given week
+     * @param   int     $adjustedTotal  the adjusted maximum number of reservable blocks for the given week
      *
      * @return string the column name currently iterated to
      */

@@ -1,4 +1,5 @@
-function showPostLoader() {
+function showPostLoader()
+{
     const body = document.body,
         background = document.createElement('div'),
         postloader = document.createElement('div');

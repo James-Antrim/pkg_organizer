@@ -308,7 +308,7 @@ class Organizer extends BaseModel
     /**
      * Deletes a user contingent. Will not delete if the user is assigned to groups other than registered.
      *
-     * @param int[] $userIDs the ids of the users to delete
+     * @param   int[]  $userIDs  the ids of the users to delete
      *
      * @return void
      */
@@ -336,7 +336,7 @@ class Organizer extends BaseModel
     /**
      * Re-keys a table
      *
-     * @param string $table The name of the table to be compacted without the component prefix.
+     * @param   string  $table  The name of the table to be compacted without the component prefix.
      *
      * @return void
      */

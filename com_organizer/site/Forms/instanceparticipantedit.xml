@@ -9,7 +9,6 @@
         <field name="roomID" type="ParticipationRooms" label="ROOM" class="input-13" required="true">
             <option value="">SELECT_ROOM</option>
         </field>
-        <field name="seat" type="Blank" label="SEAT" maxlength="60" class="validate-alphanumeric input-12"
-               required="true"/>
+        <field name="seat" type="Blank" label="SEAT" maxlength="60" class="validate-alphanumeric input-12" required="true"/>
     </fieldset>
 </form>

@@ -27,9 +27,11 @@ class Event extends MergeModel
     {
         if ($this->selected and !Helpers\Can::edit('events', $this->selected)) {
             Application::error(403);
-        } elseif ($eventID = Input::getID() and !Helpers\Can::edit('events', $eventID)) {
+        }
+        elseif ($eventID = Input::getID() and !Helpers\Can::edit('events', $eventID)) {
             Application::error(403);
-        } elseif (!Helpers\Can::edit('events')) {
+        }
+        elseif (!Helpers\Can::edit('events')) {
             Application::error(403);
         }
     }
@@ -45,7 +47,7 @@ class Event extends MergeModel
     /**
      * Attempts to save the resource.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return int|bool int id of the resource on success, otherwise bool false
      */

@@ -20,13 +20,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let selectedCurricula = getMultipleValues('jformcurricula'), soURL;
 
-            if (selectedCurricula === null) {
+            if (selectedCurricula === null)
+            {
                 selectedCurricula = '';
-            } else if (Array.isArray(selectedCurricula)) {
+            }
+            else if (Array.isArray(selectedCurricula))
+            {
                 selectedCurricula = selectedCurricula.join(',');
             }
 
-            if (selectedCurricula.includes('-1') !== false) {
+            if (selectedCurricula.includes('-1') !== false)
+            {
                 cInput.find('option').removeAttr('selected');
                 return false;
             }
@@ -38,13 +42,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 const newSOs = getMultipleValues('superordinates');
                 let selectedSOs = [];
 
-                if (newSOs !== null && newSOs.length) {
-                    if (oldSOs !== null && oldSOs.length) {
+                if (newSOs !== null && newSOs.length)
+                {
+                    if (oldSOs !== null && oldSOs.length)
+                    {
                         selectedSOs = mergeMultipleUnique(newSOs, oldSOs);
-                    } else {
+                    }
+                    else
+                    {
                         selectedSOs = newSOs;
                     }
-                } else if (oldSOs !== null && oldSOs.length) {
+                }
+                else if (oldSOs !== null && oldSOs.length)
+                {
                     selectedSOs = oldSOs;
                 }
 

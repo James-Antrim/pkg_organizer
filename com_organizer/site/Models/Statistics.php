@@ -32,8 +32,8 @@ class Statistics extends FormModel
     /**
      * Populates the grid with method use data.
      *
-     * @param array  &$grid      the structure of the data as it will be presented
-     * @param array   $instances the raw data for the appointments
+     * @param   array  &$grid       the structure of the data as it will be presented
+     * @param   array   $instances  the raw data for the appointments
      *
      * @return void
      */
@@ -57,9 +57,11 @@ class Statistics extends FormModel
 
             if ($categoryID) {
                 $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
-            } elseif ($organizationID) {
+            }
+            elseif ($organizationID) {
                 $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
-            } else {
+            }
+            else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
             }
 
@@ -100,8 +102,8 @@ class Statistics extends FormModel
     /**
      * Populates the grid with in-person participation data.
      *
-     * @param array  &$grid      the structure of the data as it will be presented
-     * @param array   $instances the raw data for the appointments
+     * @param   array  &$grid       the structure of the data as it will be presented
+     * @param   array   $instances  the raw data for the appointments
      *
      * @return void
      */
@@ -140,9 +142,11 @@ class Statistics extends FormModel
 
             if ($categoryID) {
                 $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
-            } elseif ($organizationID) {
+            }
+            elseif ($organizationID) {
                 $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
-            } else {
+            }
+            else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
             }
 
@@ -188,8 +192,8 @@ class Statistics extends FormModel
     /**
      * Populates the grid with non-attendance data.
      *
-     * @param array  &$grid      the structure of the data as it will be presented
-     * @param array   $instances the raw data for the appointments
+     * @param   array  &$grid       the structure of the data as it will be presented
+     * @param   array   $instances  the raw data for the appointments
      *
      * @return void
      */
@@ -233,9 +237,11 @@ class Statistics extends FormModel
 
             if ($categoryID) {
                 $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
-            } elseif ($organizationID) {
+            }
+            elseif ($organizationID) {
                 $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
-            } else {
+            }
+            else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
             }
 
@@ -276,8 +282,8 @@ class Statistics extends FormModel
     /**
      * Populates the grid with presence type use data.
      *
-     * @param array  &$grid
-     * @param array   $instances
+     * @param   array  &$grid
+     * @param   array   $instances
      *
      * @return void
      */
@@ -297,9 +303,11 @@ class Statistics extends FormModel
 
             if ($categoryID) {
                 $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
-            } elseif ($organizationID) {
+            }
+            elseif ($organizationID) {
                 $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
-            } else {
+            }
+            else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
             }
 
@@ -328,10 +336,10 @@ class Statistics extends FormModel
     /**
      * Removed grid columns and rows with no data to present.
      *
-     * @param array  &$grid
-     * @param array   $columnKeys
-     * @param array   $usedMondays
-     * @param array   $usedResources
+     * @param   array  &$grid
+     * @param   array   $columnKeys
+     * @param   array   $usedMondays
+     * @param   array   $usedResources
      *
      * @return void
      */
@@ -470,11 +478,13 @@ class Statistics extends FormModel
             foreach (Helpers\Categories::getGroups($categoryID) as $group) {
                 $columns[$group['id']] = $group['name'];
             }
-        } elseif ($organizationID = $state->get('conditions.organizationID')) {
+        }
+        elseif ($organizationID = $state->get('conditions.organizationID')) {
             foreach (Helpers\Organizations::getCategories($organizationID) as $category) {
                 $columns[$category['id']] = $category['name'];
             }
-        } else {
+        }
+        else {
             foreach (Helpers\Organizations::getResources() as $organization) {
                 if (!$organization['active']) {
                     continue;
@@ -492,7 +502,7 @@ class Statistics extends FormModel
         if ($statistic === View::METHOD_USE) {
             $grid['headers'] = [
                 'method' => Text::_('ORGANIZER_METHOD_SIMPLE'),
-                'sum' => Text::_('ORGANIZER_SUM')
+                'sum'    => Text::_('ORGANIZER_SUM')
             ];
             foreach ($columns as $columnID => $columnName) {
                 $grid['headers'][$columnID] = $columnName;
@@ -523,10 +533,11 @@ class Statistics extends FormModel
                     $grid[$methodID][$columnID] = 0;
                 }
             }
-        } else {
+        }
+        else {
             $grid['headers'] = [
                 'week' => Text::_('ORGANIZER_WEEK'),
-                'sum' => $statistic === View::PRESENCE_USE ?
+                'sum'  => $statistic === View::PRESENCE_USE ?
                     Text::_('ORGANIZER_AVERAGE') : Text::_('ORGANIZER_SUM')
             ];
             foreach ($columns as $columnID => $columnName) {
@@ -537,23 +548,25 @@ class Statistics extends FormModel
 
             if ($statistic === View::REGISTRATIONS) {
                 $template = [
-                    'attended' => 0,
-                    'no-shows' => 0,
-                    'registered' => 0,
+                    'attended'     => 0,
+                    'no-shows'     => 0,
+                    'registered'   => 0,
                     'unregistered' => 0
                 ];
-            } elseif ($statistic === View::PLANNED_PRESENCE_TYPE) {
+            }
+            elseif ($statistic === View::PLANNED_PRESENCE_TYPE) {
                 $template = [
-                    Helpers\Instances::HYBRID => 0,
-                    Helpers\Instances::ONLINE => 0,
+                    Helpers\Instances::HYBRID   => 0,
+                    Helpers\Instances::ONLINE   => 0,
                     Helpers\Instances::PRESENCE => 0,
-                    'total' => 0
+                    'total'                     => 0
                 ];
-            } elseif ($statistic === View::PRESENCE_USE) {
+            }
+            elseif ($statistic === View::PRESENCE_USE) {
                 $template = [
                     'attended' => 0,
                     'capacity' => 0,
-                    'total' => 0
+                    'total'    => 0
                 ];
             }
 
@@ -625,10 +638,12 @@ class Statistics extends FormModel
 
                     if (in_array($organizationID, $organizationIDs)) {
                         $form->setValue('categoryID', null, $categoryID);
-                    } else {
+                    }
+                    else {
                         $state->set('conditions.categoryID', 0);
                     }
-                } else {
+                }
+                else {
                     $form->setValue('categoryID', null, $categoryID);
 
                     if (count($organizationIDs) === 1) {
@@ -636,11 +651,13 @@ class Statistics extends FormModel
                         $form->setValue('organizationID', null, $organizationID);
                     }
                 }
-            } elseif ($organizationID) {
+            }
+            elseif ($organizationID) {
                 $state->set('conditions.categoryID', 0);
                 $form->setValue('organizationID', null, $organizationID);
             }
-        } else {
+        }
+        else {
             $state->set('conditions.categoryID', 0);
             $state->set('conditions.organizationID', 0);
         }

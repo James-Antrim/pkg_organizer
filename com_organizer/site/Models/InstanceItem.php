@@ -44,12 +44,12 @@ class InstanceItem extends ListModel
         $startDate  = $tStartDate > $today ? $tStartDate : $today;
 
         $this->conditions = [
-            'delta' => date('Y-m-d 00:00:00', strtotime('-14 days')),
-            'endDate' => $endDate,
-            'eventIDs' => [$instance['eventID']],
+            'delta'           => date('Y-m-d 00:00:00', strtotime('-14 days')),
+            'endDate'         => $endDate,
+            'eventIDs'        => [$instance['eventID']],
             'showUnpublished' => Helpers\Can::manage('instance', $instanceID),
-            'startDate' => $startDate,
-            'status' => self::CURRENT
+            'startDate'       => $startDate,
+            'status'          => self::CURRENT
         ];
 
         Helpers\Instances::fill($instance, $this->conditions);

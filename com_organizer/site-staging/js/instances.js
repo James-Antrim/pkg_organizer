@@ -11,7 +11,8 @@ window.onload = function () {
     oldObj.eventID = eventID.options[eventID.selectedIndex].value;
 }
 
-function disableBtns() {
+function disableBtns()
+{
     const blockID = document.getElementById("jform_blockID"),
         eventID = document.getElementById("jform_eventID"),
         newObj = {},
@@ -20,10 +21,13 @@ function disableBtns() {
     newObj.blockID = blockID.options[blockID.selectedIndex].value;
     newObj.eventID = eventID.options[eventID.selectedIndex].value;
 
-    if (oldObj.eventID !== newObj.eventID || oldObj.blockID !== newObj.blockID) {
+    if (oldObj.eventID !== newObj.eventID || oldObj.blockID !== newObj.blockID)
+    {
         saveBtn[0].disabled = true;
         saveAsCopyBtn[0].disabled = false;
-    } else if (oldObj.eventID === newObj.eventID && oldObj.blockID === newObj.blockID) {
+    }
+    else if (oldObj.eventID === newObj.eventID && oldObj.blockID === newObj.blockID)
+    {
         saveBtn[0].disabled = false;
         saveAsCopyBtn[0].disabled = true;
     }

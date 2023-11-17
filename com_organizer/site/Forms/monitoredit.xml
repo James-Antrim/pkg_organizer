@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="roomID" type="GenericOptions" label="ROOM" required="true" table="organizer_rooms"
-               textcolumn="name" valuecolumn="id">
+        <field name="roomID" type="GenericOptions" label="ROOM" required="true" table="organizer_rooms" textcolumn="name"
+               valuecolumn="id">
             <option value="">SELECT_ROOM</option>
         </field>
         <field name="ip" type="Blank" label="IP" class="required validate-ip" maxlength="15" required="true"/>
@@ -17,10 +17,8 @@
             <option value='2'>MIXED_PLAN</option>
             <option value='3'>CONTENT_DISPLAY</option>
         </field>
-        <field name="scheduleRefresh" type="Integer" label="SCHEDULE_REFRESH_RATE" default="60" first="10" last="990"
-               step="10"/>
-        <field name="contentRefresh" type="Integer" label="CONTENT_REFRESH" default="60" first="10" last="990"
-               step="10"/>
+        <field name="scheduleRefresh" type="Integer" label="SCHEDULE_REFRESH_RATE" default="60" first="10" last="990" step="10"/>
+        <field name="contentRefresh" type="Integer" label="CONTENT_REFRESH" default="60" first="10" last="990" step="10"/>
         <field name="content" type="FileOptions" label="DISPLAY_CONTENT" directory="images/organizer/" exclude=""/>
     </fieldset>
 </form>

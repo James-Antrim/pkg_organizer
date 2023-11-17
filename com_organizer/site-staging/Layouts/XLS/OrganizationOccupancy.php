@@ -47,7 +47,7 @@ class OrganizationOccupancy
     /**
      * OrganizationOccupancy_XLS constructor.
      *
-     * @param object &$model the model containing the data for the room statistics
+     * @param   object &$model  the model containing the data for the room statistics
      */
     public function __construct(&$model)
     {
@@ -74,13 +74,13 @@ class OrganizationOccupancy
             ->setDescription($description);
 
         $this->headerFill = [
-            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'type'  => PHPExcel_Style_Fill::FILL_SOLID,
             'color' => ['rgb' => 'DFE5E6']
         ];
 
         $this->rightBorder = [
-            'left' => ['style' => PHPExcel_Style_Border::BORDER_NONE],
-            'right' => [
+            'left'   => ['style' => PHPExcel_Style_Border::BORDER_NONE],
+            'right'  => [
                 'style' => PHPExcel_Style_Border::BORDER_THICK,
                 'color' => ['rgb' => '394A59']
             ],
@@ -88,12 +88,12 @@ class OrganizationOccupancy
                 'style' => PHPExcel_Style_Border::BORDER_HAIR,
                 'color' => ['rgb' => 'DFE5E6']
             ],
-            'top' => ['style' => PHPExcel_Style_Border::BORDER_NONE]
+            'top'    => ['style' => PHPExcel_Style_Border::BORDER_NONE]
         ];
 
         $this->lightBorder = [
-            'left' => ['style' => PHPExcel_Style_Border::BORDER_NONE],
-            'right' => [
+            'left'   => ['style' => PHPExcel_Style_Border::BORDER_NONE],
+            'right'  => [
                 'style' => PHPExcel_Style_Border::BORDER_HAIR,
                 'color' => ['rgb' => 'DFE5E6']
             ],
@@ -101,7 +101,7 @@ class OrganizationOccupancy
                 'style' => PHPExcel_Style_Border::BORDER_HAIR,
                 'color' => ['rgb' => 'DFE5E6']
             ],
-            'top' => ['style' => PHPExcel_Style_Border::BORDER_NONE]
+            'top'    => ['style' => PHPExcel_Style_Border::BORDER_NONE]
         ];
 
         $this->spreadSheet->getDefaultStyle()->getAlignment()
@@ -109,16 +109,16 @@ class OrganizationOccupancy
 
         $this->spreadSheet->getDefaultStyle()->applyFromArray([
             'font' => [
-                'name' => 'arial',
-                'size' => 12,
+                'name'  => 'arial',
+                'size'  => 12,
                 'color' => ['rgb' => '394A59']
             ]
         ]);
 
         $summaryPP = [
-            'name' => Text::_('ORGANIZER_SUMMARY'),
+            'name'      => Text::_('ORGANIZER_SUMMARY'),
             'startDate' => $this->startDate,
-            'endDate' => $this->endDate
+            'endDate'   => $this->endDate
         ];
         $this->addTermSheet(0, $summaryPP);
 
@@ -139,10 +139,10 @@ class OrganizationOccupancy
     /**
      * Adds a data row (single room use) to the active sheet
      *
-     * @param int    $sheetNo   the sheet number
-     * @param int    $rowNo     the row number
-     * @param string $termIndex the index used for the term being iterated
-     * @param int    $roomID    the id of the room
+     * @param   int     $sheetNo    the sheet number
+     * @param   int     $rowNo      the row number
+     * @param   string  $termIndex  the index used for the term being iterated
+     * @param   int     $roomID     the id of the room
      *
      * @return string
      */
@@ -205,11 +205,11 @@ class OrganizationOccupancy
     /**
      * Adds a header group consisting of a title row of 4 merged cells and a header row consisting of 4 header cells
      *
-     * @param int    $sheetNo     the sheet being iterated
-     * @param string $startColumn the first column
-     * @param string $groupTitle  the group header title
-     * @param int    $firstRow    the first data row of the table
-     * @param int    $lastRow     the last data row of the table
+     * @param   int     $sheetNo      the sheet being iterated
+     * @param   string  $startColumn  the first column
+     * @param   string  $groupTitle   the group header title
+     * @param   int     $firstRow     the first data row of the table
+     * @param   int     $lastRow      the last data row of the table
      *
      * @return string the column name currently iterated to
      */
@@ -270,8 +270,8 @@ class OrganizationOccupancy
     /**
      * Adds a term sheet
      *
-     * @param int   $sheetNumber the number of the sheet being iterated
-     * @param array $term        the term this sheet references
+     * @param   int    $sheetNumber  the number of the sheet being iterated
+     * @param   array  $term         the term this sheet references
      *
      * @return void
      */
@@ -280,7 +280,8 @@ class OrganizationOccupancy
         if ($sheetNumber !== 0) {
             $termIndex = $term['name'];
             $this->spreadSheet->createSheet();
-        } else {
+        }
+        else {
             $termIndex = 'total';
         }
 
@@ -348,11 +349,11 @@ class OrganizationOccupancy
     /**
      * Adds summary column headers
      *
-     * @param int    $sheetNumber the number of the sheet
-     * @param string $column      the header column
-     * @param string $title       the header text
-     * @param int    $lastRow     the last table row
-     * @param string $borderStyle the border style for the column
+     * @param   int     $sheetNumber  the number of the sheet
+     * @param   string  $column       the header column
+     * @param   string  $title        the header text
+     * @param   int     $lastRow      the last table row
+     * @param   string  $borderStyle  the border style for the column
      *
      * @return void
      */

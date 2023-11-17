@@ -22,7 +22,8 @@ $style = [
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload() {
+    function auto_reload()
+    {
         window.location = document.URL;
     }
 

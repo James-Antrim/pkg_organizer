@@ -33,7 +33,7 @@ class CourseParticipant extends BaseModel
     /**
      * Sets the property the given property to the given value for the selected participants.
      *
-     * @param mixed $value the new value for the property
+     * @param   mixed  $value  the new value for the property
      *
      * @return bool true on success, otherwise false
      * @throws Exception

@@ -19,31 +19,31 @@ abstract class ListLayout extends BaseLayout
 {
 
     public array $borders = [
-        'cell' => [
-            'left' => [
+        'cell'   => [
+            'left'   => [
                 'style' => XLConstants::THIN
             ],
-            'right' => [
+            'right'  => [
                 'style' => XLConstants::THIN
             ],
             'bottom' => [
                 'style' => XLConstants::THIN
             ],
-            'top' => [
+            'top'    => [
                 'style' => XLConstants::THIN
             ]
         ],
         'header' => [
-            'left' => [
+            'left'   => [
                 'style' => XLConstants::MEDIUM
             ],
-            'right' => [
+            'right'  => [
                 'style' => XLConstants::MEDIUM
             ],
             'bottom' => [
                 'style' => XLConstants::MEDIUM
             ],
-            'top' => [
+            'top'    => [
                 'style' => XLConstants::MEDIUM
             ]
         ]
@@ -53,16 +53,16 @@ abstract class ListLayout extends BaseLayout
      * @var array[] Fill definitions
      */
     public array $fills = [
-        'even' => [
-            'type' => XLConstants::SOLID,
+        'even'   => [
+            'type'  => XLConstants::SOLID,
             'color' => ['rgb' => 'FFFFFF']
         ],
         'header' => [
-            'type' => XLConstants::SOLID,
+            'type'  => XLConstants::SOLID,
             'color' => ['rgb' => '80BA24']
         ],
-        'odd' => [
-            'type' => XLConstants::SOLID,
+        'odd'    => [
+            'type'  => XLConstants::SOLID,
             'color' => ['rgb' => 'DFEEC8']
         ]
     ];
@@ -75,9 +75,9 @@ abstract class ListLayout extends BaseLayout
     /**
      * Adds the main list sheet
      *
-     * @param string     $name
-     * @param string     $orientation
-     * @param string|int $paper
+     * @param   string      $name
+     * @param   string      $orientation
+     * @param   string|int  $paper
      *
      * @return void
      * @throws Exception
@@ -114,9 +114,9 @@ abstract class ListLayout extends BaseLayout
         $sheet = $view->getActiveSheet();
         $style = [
             'alignment' => ['horizontal' => XLConstants::CENTER, 'vertical' => XLConstants::CENTER],
-            'borders' => $this->borders['header'],
-            'fill' => $this->fills['header'],
-            'font' => ['size' => 12]
+            'borders'   => $this->borders['header'],
+            'fill'      => $this->fills['header'],
+            'font'      => ['size' => 12]
         ];
 
         $column = 'A';
@@ -151,8 +151,8 @@ abstract class ListLayout extends BaseLayout
             $lines = 1;
             $style = [
                 'alignment' => ['horizontal' => XLConstants::CENTER, 'vertical' => XLConstants::CENTER, 'wrap' => true],
-                'borders' => $this->borders['cell'],
-                'fill' => $this->fills[$fill]
+                'borders'   => $this->borders['cell'],
+                'fill'      => $this->fills[$fill]
             ];
 
             foreach ($instance as $property => $value) {

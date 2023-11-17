@@ -21,8 +21,8 @@ class Courses extends ResourceHelper
     /**
      * Check if the user is a course coordinator.
      *
-     * @param int $courseID the optional id of the course
-     * @param int $personID the optional id of the person entry
+     * @param   int  $courseID  the optional id of the course
+     * @param   int  $personID  the optional id of the person entry
      *
      * @return bool true if the user is a coordinator, otherwise false
      */
@@ -56,7 +56,7 @@ class Courses extends ResourceHelper
     /**
      * Retrieves the campus id associated with the course.
      *
-     * @param int $courseID the id of the course
+     * @param   int  $courseID  the id of the course
      *
      * @return int  the id of the associated campus
      */
@@ -70,7 +70,7 @@ class Courses extends ResourceHelper
     /**
      * Creates a display of formatted dates for a course
      *
-     * @param int $courseID the id of the course to be loaded
+     * @param   int  $courseID  the id of the course to be loaded
      *
      * @return string the dates to display
      */
@@ -86,7 +86,7 @@ class Courses extends ResourceHelper
     /**
      * Gets the course start and end dates.
      *
-     * @param int $courseID id of course to be loaded
+     * @param   int  $courseID  id of course to be loaded
      *
      * @return string[]  the start and end date for the given course
      */
@@ -108,7 +108,7 @@ class Courses extends ResourceHelper
     /**
      * Retrieves events associated with the given course.
      *
-     * @param int $courseID the id of the course
+     * @param   int  $courseID  the id of the course
      *
      * @return array[] the events associated with the course
      */
@@ -142,7 +142,7 @@ class Courses extends ResourceHelper
     /**
      * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
      *
-     * @param int $courseID the course id
+     * @param   int  $courseID  the course id
      *
      * @return array[] list of participants in course
      */
@@ -181,7 +181,8 @@ class Courses extends ResourceHelper
                         'participants'      => $programCount['participants'],
                         $programCount['id'] => $programCount
                     ];
-                } else {
+                }
+                else {
                     $results[$organization]['participants']
                         = $results[$organization]['participants'] + $programCount['participants'];
                 }
@@ -198,7 +199,7 @@ class Courses extends ResourceHelper
     /**
      * Gets instances associated with the given course.
      *
-     * @param int $courseID the id of the course
+     * @param   int  $courseID  the id of the course
      *
      * @return int[] the instances which are a part of the course
      */
@@ -218,8 +219,8 @@ class Courses extends ResourceHelper
     /**
      * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
      *
-     * @param int      $courseID the course id
-     * @param int|null $status   the participant status
+     * @param   int       $courseID  the course id
+     * @param   int|null  $status    the participant status
      *
      * @return int [] the participant IDs
      */
@@ -247,9 +248,9 @@ class Courses extends ResourceHelper
     /**
      * Gets persons associated with the given course, optionally filtered by event and role.
      *
-     * @param int   $courseID the id of the course
-     * @param int   $eventID  the id of the event
-     * @param array $roleIDs  the id of the roles the persons should have
+     * @param   int    $courseID  the id of the course
+     * @param   int    $eventID   the id of the event
+     * @param   array  $roleIDs   the id of the roles the persons should have
      *
      * @return string[] the persons matching the search criteria
      */
@@ -286,7 +287,7 @@ class Courses extends ResourceHelper
     /**
      * Retrieves the ids of units associated with the course.
      *
-     * @param int $courseID the id of the course with which the units must be associated
+     * @param   int  $courseID  the id of the course with which the units must be associated
      *
      * @return int[] the ids of the associated units
      */
@@ -302,9 +303,9 @@ class Courses extends ResourceHelper
     /**
      * Check if user has a course responsibility.
      *
-     * @param int $courseID the optional id of the course
-     * @param int $personID the optional id of the person
-     * @param int $roleID   the optional if of the person's role
+     * @param   int  $courseID  the optional id of the course
+     * @param   int  $personID  the optional id of the person
+     * @param   int  $roleID    the optional if of the person's role
      *
      * @return bool true if the user has a course responsibility, otherwise false
      */
@@ -341,7 +342,7 @@ class Courses extends ResourceHelper
     /**
      * Checks if the course is expired
      *
-     * @param int $courseID the id of the course
+     * @param   int  $courseID  the id of the course
      *
      * @return bool true if the course is expired, otherwise false
      */
@@ -357,7 +358,7 @@ class Courses extends ResourceHelper
     /**
      * Checks if the number of active participants is less than the number of max participants
      *
-     * @param int $courseID the id of the course
+     * @param   int  $courseID  the id of the course
      *
      * @return bool true if the course is full, otherwise false
      */
@@ -381,7 +382,7 @@ class Courses extends ResourceHelper
     /**
      * Checks if the course is a preparatory course.
      *
-     * @param int $courseID the id of the course
+     * @param   int  $courseID  the id of the course
      *
      * @return bool true if the course is expired, otherwise false
      */
@@ -403,8 +404,8 @@ class Courses extends ResourceHelper
     /**
      * Check if user is a speaker.
      *
-     * @param int $courseID the optional id of the course
-     * @param int $personID the optional id of the person
+     * @param   int  $courseID  the optional id of the course
+     * @param   int  $personID  the optional id of the person
      *
      * @return bool true if the user is a speaker, otherwise false
      */
@@ -416,8 +417,8 @@ class Courses extends ResourceHelper
     /**
      * Check if user a course supervisor.
      *
-     * @param int $courseID the optional id of the course
-     * @param int $personID the optional id of the person
+     * @param   int  $courseID  the optional id of the course
+     * @param   int  $personID  the optional id of the person
      *
      * @return bool true if the user is a supervisor, otherwise false
      */
@@ -429,8 +430,8 @@ class Courses extends ResourceHelper
     /**
      * Check if user is a course teacher.
      *
-     * @param int $courseID the optional id of the course
-     * @param int $personID the optional id of the person
+     * @param   int  $courseID  the optional id of the course
+     * @param   int  $personID  the optional id of the person
      *
      * @return bool true if the user is a course teacher, otherwise false
      */
@@ -442,8 +443,8 @@ class Courses extends ResourceHelper
     /**
      * Check if user is a course tutor.
      *
-     * @param int $courseID the optional id of the course
-     * @param int $personID the optional id of the person
+     * @param   int  $courseID  the optional id of the course
+     * @param   int  $personID  the optional id of the person
      *
      * @return bool true if the user is a tutor, otherwise false
      */

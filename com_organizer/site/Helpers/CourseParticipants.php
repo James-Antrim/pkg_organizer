@@ -23,8 +23,8 @@ class CourseParticipants extends ResourceHelper
     /**
      * Determines whether the participant has paid for the course.
      *
-     * @param int $courseID      the course id
-     * @param int $participantID the participant id
+     * @param   int  $courseID       the course id
+     * @param   int  $participantID  the participant id
      *
      * @return  bool
      */
@@ -34,7 +34,8 @@ class CourseParticipants extends ResourceHelper
 
         if (!$course->load($courseID)) {
             return false;
-        } elseif (empty($course->fee)) {
+        }
+        elseif (empty($course->fee)) {
             return true;
         }
 
@@ -50,9 +51,9 @@ class CourseParticipants extends ResourceHelper
     /**
      * Retrieves the participant's state for the given course
      *
-     * @param int $courseID      the course id
-     * @param int $participantID the id of the participant
-     * @param int $eventID       the id of the specific course event
+     * @param   int  $courseID       the course id
+     * @param   int  $participantID  the id of the participant
+     * @param   int  $eventID        the id of the specific course event
      *
      * @return  int|null int if the user has a course participant state, otherwise null
      */
@@ -85,8 +86,8 @@ class CourseParticipants extends ResourceHelper
     /**
      * Checks whether all the necessary participant information has been entered.
      *
-     * @param int $courseID      the id of the course to check against
-     * @param int $participantID the id of the participant to validate
+     * @param   int  $courseID       the id of the course to check against
+     * @param   int  $participantID  the id of the participant to validate
      *
      * @return bool true if the participant entry is incomplete, otherwise false
      */

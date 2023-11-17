@@ -24,8 +24,8 @@ class ContactTracking extends ListModel
     /**
      * Adds entries to the items structure.
      *
-     * @param array  &$items the items to be displayed
-     * @param array   $data  the data from the resource
+     * @param   array  &$items  the items to be displayed
+     * @param   array   $data   the data from the resource
      *
      * @return void
      */
@@ -52,7 +52,8 @@ class ContactTracking extends ListModel
             $item->zipCode    = empty($data['zipCode']) ? '' : $data['zipCode'];
 
             $items[$index] = $item;
-        } else {
+        }
+        else {
             $item            = $items[$index];
             $item->instances = $item->instances + $data['instances'];
             $item->rooms     = empty($data['rooms']) ? $item->rooms : $item->rooms + $data['rooms'];
@@ -69,7 +70,8 @@ class ContactTracking extends ListModel
 
         if (empty($item->dates[$date][$data['name']])) {
             $item->dates[$date][$data['name']] = $data['minutes'];
-        } else {
+        }
+        else {
             $item->dates[$date][$data['name']] += $data['minutes'];
         }
     }
@@ -111,15 +113,16 @@ class ContactTracking extends ListModel
                 if (empty($bookings[$index])) {
                     $bookings[$index] = [
                         'bookingID' => $result['bookingID'],
-                        'date' => $date,
-                        'endTime' => $endTime,
+                        'date'      => $date,
+                        'endTime'   => $endTime,
                         'instances' => [$result['instanceID'] => $result['instanceID']],
-                        'name' => Helpers\Bookings::getName($result['bookingID']),
-                        'rooms' => $result['roomID'] ? [$result['roomID'] => $result['roomID']] : [],
-                        'seat' => $result['seat'],
+                        'name'      => Helpers\Bookings::getName($result['bookingID']),
+                        'rooms'     => $result['roomID'] ? [$result['roomID'] => $result['roomID']] : [],
+                        'seat'      => $result['seat'],
                         'startTime' => $startTime,
                     ];
-                } else {
+                }
+                else {
                     $bookings[$index]['instances'][$result['instanceID']] = $result['instanceID'];
 
                     if ($result['roomID']) {
@@ -155,15 +158,16 @@ class ContactTracking extends ListModel
                 if (empty($bookings[$index])) {
                     $bookings[$index] = [
                         'bookingID' => $result['bookingID'],
-                        'date' => $date,
-                        'endTime' => $endTime,
+                        'date'      => $date,
+                        'endTime'   => $endTime,
                         'instances' => [$result['instanceID'] => $result['instanceID']],
-                        'name' => Helpers\Bookings::getName($result['bookingID']),
-                        'rooms' => $result['roomID'] ? [$result['roomID'] => $result['roomID']] : [],
-                        'seat' => null,
+                        'name'      => Helpers\Bookings::getName($result['bookingID']),
+                        'rooms'     => $result['roomID'] ? [$result['roomID'] => $result['roomID']] : [],
+                        'seat'      => null,
                         'startTime' => $startTime,
                     ];
-                } else {
+                }
+                else {
                     $bookings[$index]['instances'][$result['instanceID']] = $result['instanceID'];
 
                     if ($result['roomID']) {
@@ -216,16 +220,16 @@ class ContactTracking extends ListModel
 
             foreach (Database::loadAssocList() as $person) {
                 $data = [
-                    'address' => $person['address'],
-                    'city' => $person['city'],
-                    'email' => $person['email'],
-                    'forename' => $person['forename'],
-                    'rooms' => $person['roomID'] ? [$person['roomID'] => $person['roomID']] : [],
-                    'seat' => $person['seat'],
-                    'surname' => $person['surname'],
+                    'address'   => $person['address'],
+                    'city'      => $person['city'],
+                    'email'     => $person['email'],
+                    'forename'  => $person['forename'],
+                    'rooms'     => $person['roomID'] ? [$person['roomID'] => $person['roomID']] : [],
+                    'seat'      => $person['seat'],
+                    'surname'   => $person['surname'],
                     'telephone' => $person['telephone'],
-                    'username' => $person['username'],
-                    'zipCode' => $person['zipCode']
+                    'username'  => $person['username'],
+                    'zipCode'   => $person['zipCode']
                 ];
 
                 $this->addItem($items, array_merge($booking, $data));
@@ -248,16 +252,16 @@ class ContactTracking extends ListModel
 
             foreach (Database::loadAssocList() as $person) {
                 $data = [
-                    'address' => $person['address'] ?: '',
-                    'city' => $person['city'] ?: '',
-                    'email' => $person['email'] ?: '',
-                    'forename' => $person['forename'] ?: $person['defaultForename'],
-                    'rooms' => $person['roomID'] ? [$person['roomID'] => $person['roomID']] : [],
-                    'seat' => '',
-                    'surname' => $person['surname'] ?: $person['defaultSurname'],
+                    'address'   => $person['address'] ?: '',
+                    'city'      => $person['city'] ?: '',
+                    'email'     => $person['email'] ?: '',
+                    'forename'  => $person['forename'] ?: $person['defaultForename'],
+                    'rooms'     => $person['roomID'] ? [$person['roomID'] => $person['roomID']] : [],
+                    'seat'      => '',
+                    'surname'   => $person['surname'] ?: $person['defaultSurname'],
                     'telephone' => $person['telephone'] ?: '',
-                    'username' => $person['username'] ?: '',
-                    'zipCode' => $person['zipCode'] ?: ''
+                    'username'  => $person['username'] ?: '',
+                    'zipCode'   => $person['zipCode'] ?: ''
                 ];
                 $data = array_merge($booking, $data);
 
@@ -271,7 +275,8 @@ class ContactTracking extends ListModel
 
         if ($items) {
             ksort($items);
-        } elseif ($search = $this->state->get('filter.search')) {
+        }
+        elseif ($search = $this->state->get('filter.search')) {
             $none = Text::sprintf('ORGANIZER_EMPTY_CONTACT_RESULT_SET', $search);
             Application::message($none, Application::NOTICE);
         }
@@ -282,8 +287,8 @@ class ContactTracking extends ListModel
     /**
      * Performs final the final integrity check between the participants and persons result sets.
      *
-     * @param array $participantIDs the participants id results
-     * @param array $personIDs      the persons id results
+     * @param   array  $participantIDs  the participants id results
+     * @param   array  $personIDs       the persons id results
      *
      * @return void
      */

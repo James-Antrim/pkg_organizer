@@ -2,23 +2,28 @@
  * Updates available options for subordinate resources
  */
 
-function updateCategories() {
+function updateCategories()
+{
     const orgInput = document.getElementById('jform_organizationID'),
         catInput = document.getElementById('jform_categoryID'),
         catRequest = new XMLHttpRequest(),
         value = orgInput.value;
     let url = '../index.php?option=com_organizer&format=json';
 
-    if (value) {
+    if (value)
+    {
         catRequest.open('GET', url + '&view=CategoryOptions&organizationID=' + value, true);
         catRequest.onreadystatechange = function () {
 
-            if (catRequest.readyState === 4 && catRequest.status === 200) {
+            if (catRequest.readyState === 4 && catRequest.status === 200)
+            {
                 updateOptions('category', JSON.parse(catRequest.responseText));
             }
         };
         catRequest.send();
-    } else {
+    }
+    else
+    {
         updateOptions('category', []);
     }
 }
@@ -28,7 +33,8 @@ function updateCategories() {
  * @params {string} resource
  * @params {array} request
  */
-function updateOptions(resource, options) {
+function updateOptions(resource, options)
+{
     const input = document.getElementById('jform_' + resource + 'ID');
     let defaultText, key, option, value;
 
@@ -38,8 +44,10 @@ function updateOptions(resource, options) {
 
     input.options[input.options.length] = new Option(defaultText, '');
 
-    for (key in options) {
-        if (options.hasOwnProperty(key)) {
+    for (key in options)
+    {
+        if (options.hasOwnProperty(key))
+        {
             value = options[key].value;
             input.options[input.options.length] = new Option(options[key].text, value);
         }

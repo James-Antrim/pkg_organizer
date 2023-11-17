@@ -36,7 +36,8 @@ foreach ($sums as $key => $sum) {
 
     if ($key === 'week') {
         $class .= ' header-column';
-    } else {
+    }
+    else {
         $class .= $key === 'sum' ? ' sum-column' : '';
         $class .= $key === $lastColumn ? ' row-end' : '';
 
@@ -49,17 +50,20 @@ foreach ($sums as $key => $sum) {
 
             if ($total === $attended) {
                 $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP', $total, $capacity, $percent);
-            } else {
+            }
+            else {
                 $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_LONG', $attended, $total, $capacity, $percent);
             }
 
             $sum = str_replace('VALUE', $percent, $template);
             $sum = str_replace('XTOOLTIPX', $tip, $sum);
-        } elseif ($total) {
+        }
+        elseif ($total) {
             $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_SHORT', $total);
             $sum = str_replace('VALUE', $total, $template);
             $sum = str_replace('XTOOLTIPX', $tip, $sum);
-        } else {
+        }
+        else {
             $sum = '-';
         }
     }
@@ -74,7 +78,8 @@ foreach ($this->grid as $row) {
         if ($key === 'week') {
             $class .= ' header-column';
             Text::unpack($sum);
-        } else {
+        }
+        else {
             $class .= $key === 'sum' ? ' sum-column' : ' data-column';
 
             $attended = empty($sum['attended']) ? 0 : $sum['attended'];
@@ -86,17 +91,20 @@ foreach ($this->grid as $row) {
 
                 if ($total === $attended) {
                     $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP', $total, $capacity, $percent);
-                } else {
+                }
+                else {
                     $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_LONG', $attended, $total, $capacity, $percent);
                 }
 
                 $sum = str_replace('VALUE', $percent, $template);
                 $sum = str_replace('XTOOLTIPX', $tip, $sum);
-            } elseif ($total) {
+            }
+            elseif ($total) {
                 $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_SHORT', $total);
                 $sum = str_replace('VALUE', $total, $template);
                 $sum = str_replace('XTOOLTIPX', $tip, $sum);
-            } else {
+            }
+            else {
                 $sum = '-';
             }
         }

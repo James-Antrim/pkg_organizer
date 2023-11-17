@@ -90,8 +90,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page to the document.
      *
-     * @param string $startDate the page start date
-     * @param string $saturDate the page end date
+     * @param   string  $startDate  the page start date
+     * @param   string  $saturDate  the page end date
      *
      * @return void modifies the document
      */
@@ -104,8 +104,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds an empty page to the document.
      *
-     * @param string $startDate the page start date
-     * @param string $endDate   the page end date
+     * @param   string  $startDate  the page start date
+     * @param   string  $endDate    the page end date
      *
      * @return void modifies the document
      */
@@ -120,8 +120,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page to the document.
      *
-     * @param string $startDate the page start date
-     * @param string $endDate   the page end date
+     * @param   string  $startDate  the page start date
+     * @param   string  $endDate    the page end date
      *
      * @return void modifies the document
      */
@@ -146,8 +146,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds an iterated set of grid pages.
      *
-     * @param string $monDate the start date of the week
-     * @param string $endDate the end date of the week
+     * @param   string  $monDate  the start date of the week
+     * @param   string  $endDate  the end date of the week
      *
      * @return void
      */
@@ -169,9 +169,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page break as necessary.
      *
-     * @param float  $rowHeight the height of the row to be rendered
-     * @param string $monDate   the page start date
-     * @param string $saturDate the page end date
+     * @param   float   $rowHeight  the height of the row to be rendered
+     * @param   string  $monDate    the page start date
+     * @param   string  $saturDate  the page end date
      *
      * @return bool  true if a page was added, otherwise false
      */
@@ -222,7 +222,8 @@ abstract class GridLayout extends BaseLayout
         if (empty($conditions['separate']) or $atomic or $noAggregate) {
             $this->setResourceHeader();
             $this->addPages($monDate, $endDate);
-        } else {
+        }
+        else {
             $groups = $this->scrapeGroups();
 
             uasort($groups, function ($groupOne, $groupTwo) {
@@ -241,9 +242,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Aggregates resource collections of the same type and creates an output text.
      *
-     * @param array  $resources the resources to be aggregated
-     * @param string $key       the name key for the resource type
-     * @param bool   $showCode  whether the resource code should be displayed in lieu of the name
+     * @param   array   $resources  the resources to be aggregated
+     * @param   string  $key        the name key for the resource type
+     * @param   bool    $showCode   whether the resource code should be displayed in lieu of the name
      *
      * @return string
      */
@@ -261,9 +262,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Filters the instances to those planned in the block being iterated.
      *
-     * @param string $date      the block date
-     * @param string $startTime the block start time
-     * @param string $endTime   the block end time
+     * @param   string  $date       the block date
+     * @param   string  $startTime  the block start time
+     * @param   string  $endTime    the block end time
      *
      * @return stdClass[] the relevant instances
      */
@@ -299,8 +300,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets an accurate measurement of a cell's rendered height.
      *
-     * @param float  $width    the width of the column to be rendered
-     * @param string $contents the contents to be rendered
+     * @param   float   $width     the width of the column to be rendered
+     * @param   string  $contents  the contents to be rendered
      *
      * @return float
      */
@@ -319,9 +320,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets the text to be displayed in the row cells
      *
-     * @param string $startDate the page start date
-     * @param string $endDate   the page end date
-     * @param array  $block     the block being iterated
+     * @param   string  $startDate  the page start date
+     * @param   string  $endDate    the page end date
+     * @param   array   $block      the block being iterated
      *
      * @return array
      */
@@ -368,7 +369,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets the text to be displayed for the given block.
      *
-     * @param array $block the block being iterated
+     * @param   array  $block  the block being iterated
      *
      * @return string
      */
@@ -378,7 +379,8 @@ abstract class GridLayout extends BaseLayout
 
         if ($block[$label]) {
             $value = $block[$label];
-        } else {
+        }
+        else {
             $startTime = Helpers\Dates::formatTime($block['startTime']);
 
             // Special case where the block would otherwise bleed into the next day
@@ -395,10 +397,10 @@ abstract class GridLayout extends BaseLayout
     /**
      * Creates a text for an individual person, inclusive their group and room assignments as requested.
      *
-     * @param array $rolePersons the persons of a single role in the form personID => name
-     * @param array $persons     the instance person resources hierarchy
-     * @param bool  $showGroups  whether person specific groups should be displayed
-     * @param bool  $showRooms   whether person specific rooms should be displayed
+     * @param   array  $rolePersons  the persons of a single role in the form personID => name
+     * @param   array  $persons      the instance person resources hierarchy
+     * @param   bool   $showGroups   whether person specific groups should be displayed
+     * @param   bool   $showRooms    whether person specific rooms should be displayed
      *
      * @return string
      */
@@ -422,7 +424,8 @@ abstract class GridLayout extends BaseLayout
 
                 $html .= '<br>';
             }
-        } else {
+        }
+        else {
             $html .= $this->implode($rolePersons) . '<br>';
         }
 
@@ -432,9 +435,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Creates the text to be output for the lesson instance
      *
-     * @param stdClass $instance  the instance information
-     * @param string   $startTime the block start time
-     * @param string   $endTime   the block end time
+     * @param   stdClass  $instance   the instance information
+     * @param   string    $startTime  the block start time
+     * @param   string    $endTime    the block end time
      *
      * @return string the html for the instance text
      */
@@ -576,7 +579,8 @@ abstract class GridLayout extends BaseLayout
             if ($this->showPersons) {
                 if ($roleCount === 1) {
                     $html .= $this->getResourceText($persons, 'person') . '<br>';
-                } else {
+                }
+                else {
                     foreach ($personTexts as $roleID => $rolePersons) {
                         asort($rolePersons);
                         $html .= $this->getRoleText($roleID, $rolePersons);
@@ -604,14 +608,16 @@ abstract class GridLayout extends BaseLayout
                     $rolePersons = array_shift($personTexts);
                     asort($rolePersons);
                     $html .= $this->getIndividualTexts($rolePersons, $persons, false, $this->showRooms);
-                } else {
+                }
+                else {
                     foreach ($personTexts as $roleID => $rolePersons) {
                         asort($rolePersons);
                         $html .= $this->getRoleText($roleID, $rolePersons);
                         $html .= $this->getIndividualTexts($rolePersons, $persons, false, $this->showRooms);
                     }
                 }
-            } elseif ($rooms and $this->showRooms) {
+            }
+            elseif ($rooms and $this->showRooms) {
                 $html .= $this->getAggregated($rooms, 'room');
             }
         } // Status: claustrophobic, all persons are assigned the same rooms or none, groups may vary between persons
@@ -621,14 +627,16 @@ abstract class GridLayout extends BaseLayout
                     $rolePersons = array_shift($personTexts);
                     asort($rolePersons);
                     $html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
-                } else {
+                }
+                else {
                     foreach ($personTexts as $roleID => $rolePersons) {
                         asort($rolePersons);
                         $html .= $this->getRoleText($roleID, $rolePersons);
                         $html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
                     }
                 }
-            } elseif ($groups and $showGroups) {
+            }
+            elseif ($groups and $showGroups) {
                 $html .= $this->getAggregated($groups, 'group', $this->showGroupCodes);
             }
 
@@ -642,14 +650,16 @@ abstract class GridLayout extends BaseLayout
                 $personTexts = array_shift($personTexts);
                 asort($personTexts);
                 $html .= $this->getIndividualTexts($personTexts, $persons, $showGroups, $this->showRooms);
-            } else {
+            }
+            else {
                 foreach ($personTexts as $roleID => $rolePersons) {
                     asort($rolePersons);
                     $html .= $this->getRoleText($roleID, $rolePersons);
                     $html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, $this->showRooms);
                 }
             }
-        } else {
+        }
+        else {
             if ($groups and $showGroups) {
                 $html .= $this->getAggregated($groups, 'group', $this->showGroupCodes);
             }
@@ -673,9 +683,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Generates the text for the given resources.
      *
-     * @param array  $resources the rooms associated with the person or persons
-     * @param string $name      the name and index of the resource within the respective array
-     * @param bool   $code      whether the resource code should be used for the text
+     * @param   array   $resources  the rooms associated with the person or persons
+     * @param   string  $name       the name and index of the resource within the respective array
+     * @param   bool    $code       whether the resource code should be used for the text
      *
      * @return string
      */
@@ -693,8 +703,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Creates the text for the role being currently iterated.
      *
-     * @param int   $roleID      the id of the role being iterated
-     * @param array $rolePersons the persons associated with the role being iterated
+     * @param   int    $roleID       the id of the role being iterated
+     * @param   array  $rolePersons  the persons associated with the role being iterated
      *
      * @return string
      */
@@ -711,7 +721,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Aggregates resources to string with a soft wrap at $this::BREAK characters.
      *
-     * @param array $resources the resources to be aggregated
+     * @param   array  $resources  the resources to be aggregated
      *
      * @return string
      */
@@ -728,14 +738,16 @@ abstract class GridLayout extends BaseLayout
             foreach ($resources as $resource) {
                 if (empty($texts[$index])) {
                     $texts[$index] = $resource;
-                } else {
+                }
+                else {
                     $probe = $texts[$index] . ", $resource";
 
                     if (strlen($probe) > $this::LINE_LENGTH) {
                         $texts[$index] .= ",<br>";
                         $index++;
                         $texts[$index] = $resource;
-                    } else {
+                    }
+                    else {
                         $texts[$index] = $probe;
                     }
                 }
@@ -778,9 +790,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders a row in which no instances are planned.
      *
-     * @param string $label     the label for the row
-     * @param string $monDate   the page start date
-     * @param string $saturDate the page end date
+     * @param   string  $label      the label for the row
+     * @param   string  $monDate    the page start date
+     * @param   string  $saturDate  the page end date
      *
      * @return void  modifies the document
      */
@@ -808,8 +820,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders the grid body.
      *
-     * @param string $monDate   the page start date
-     * @param string $saturDate the page end date
+     * @param   string  $monDate    the page start date
+     * @param   string  $saturDate  the page end date
      *
      * @return void  modifies the document
      */
@@ -839,8 +851,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders the grid headers.
      *
-     * @param string $startDate the page start date
-     * @param string $endDate   the page end date
+     * @param   string  $startDate  the page start date
+     * @param   string  $endDate    the page end date
      *
      * @return void  modifies the document
      */
@@ -874,10 +886,10 @@ abstract class GridLayout extends BaseLayout
     }
 
     /**
-     * @param string $label     the block label
-     * @param array  $cells     the block instance data
-     * @param string $monDate   the page start date
-     * @param string $saturDate the page end date
+     * @param   string  $label      the block label
+     * @param   array   $cells      the block instance data
+     * @param   string  $monDate    the page start date
+     * @param   string  $saturDate  the page end date
      *
      * @return void  modifies the document
      */
@@ -902,9 +914,11 @@ abstract class GridLayout extends BaseLayout
                 /** @noinspection PhpConditionAlreadyCheckedInspection */
                 $yPos = $view->GetY();
                 $view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, $label, $border);
-            } elseif ($rowNumber === 1) {
+            }
+            elseif ($rowNumber === 1) {
                 $view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, $label, $border);
-            } else {
+            }
+            else {
                 $view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, '', $border);
             }
 
@@ -928,7 +942,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Resolves any links/link parameters to links with icons.
      *
-     * @param string $text the text to search
+     * @param   string  $text  the text to search
      *
      * @return string
      */
@@ -1014,8 +1028,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Sets the grid to be used for the current page
      *
-     * @param string $startDate the page start date
-     * @param string $endDate   the page end date
+     * @param   string  $startDate  the page start date
+     * @param   string  $endDate    the page end date
      *
      * @return void  modifies the document
      */
@@ -1041,7 +1055,8 @@ abstract class GridLayout extends BaseLayout
                     $gridIDs[$instance->gridID] = empty($gridIDs[$instance->gridID]) ? 1 : $gridIDs[$instance->gridID] + 1;
                     break;
                 }
-            } else {
+            }
+            else {
                 $gridIDs[$instance->gridID] = empty($gridIDs[$instance->gridID]) ? 1 : $gridIDs[$instance->gridID] + 1;
             }
         }
@@ -1110,7 +1125,8 @@ abstract class GridLayout extends BaseLayout
         if (array_key_exists('groupIDs', $conditions)) {
             if (count($conditions['groupIDs']) === 1) {
                 $resources['group'] = Helpers\Groups::getFullName($conditions['groupIDs'][0]);
-            } else {
+            }
+            else {
                 $groups    = [];
                 $lastID    = array_pop($conditions['groupIDs']);
                 $lastGroup = Helpers\Groups::getName($lastID);
@@ -1129,7 +1145,8 @@ abstract class GridLayout extends BaseLayout
         if (array_key_exists('roomIDs', $conditions)) {
             if (count($conditions['roomIDs']) === 1) {
                 $resources['room'] = Helpers\Rooms::getName($conditions['roomIDs'][0]);
-            } else {
+            }
+            else {
                 $rooms    = [];
                 $lastID   = array_pop($conditions['roomIDs']);
                 $lastRoom = Helpers\Rooms::getName($lastID);

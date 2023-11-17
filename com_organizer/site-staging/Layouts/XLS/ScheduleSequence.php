@@ -27,8 +27,8 @@ class ScheduleSequence
     /**
      * OrganizerTemplateExport_XLS constructor.
      *
-     * @param array $parameters the parameters used for determining the export structure
-     * @param array $lessons    the lessons for the given time frame and chosen resources
+     * @param   array  $parameters  the parameters used for determining the export structure
+     * @param   array  $lessons     the lessons for the given time frame and chosen resources
      */
     public function __construct($parameters, &$lessons)
     {
@@ -75,9 +75,9 @@ class ScheduleSequence
     /**
      * Adds lesson instances to the spreadsheet
      *
-     * @param int    $row            the row number for the event
-     * @param string $date           the date on which the lesson occurs
-     * @param array  $lessonInstance the lesson instance data
+     * @param   int     $row             the row number for the event
+     * @param   string  $date            the date on which the lesson occurs
+     * @param   array   $lessonInstance  the lesson instance data
      *
      * @return void
      */

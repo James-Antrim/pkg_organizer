@@ -150,7 +150,7 @@ class Campuses extends ResourceHelper implements Selectable
         }
 
         $icon = HTML::icon('fa fa-map-marker-alt');
-        $url = "https://www.google.de/maps/place/$location";
+        $url  = "https://www.google.de/maps/place/$location";
         return HTML::link($url, $icon, ['target' => '_blank']);
     }
 }

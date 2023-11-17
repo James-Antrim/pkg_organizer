@@ -25,7 +25,8 @@ foreach ($headers as $key => $header) {
 
     if ($key === 'method') {
         Text::unpack($header);
-    } else {
+    }
+    else {
         $class .= ' header-column';
     }
 
@@ -47,9 +48,11 @@ foreach ($this->grid as $row) {
         if ($key === 'method') {
             $class .= ' header-column';
             Text::unpack($sum);
-        } elseif ($key === 'sum') {
+        }
+        elseif ($key === 'sum') {
             $class .= ' sum-column';
-        } else {
+        }
+        else {
             $class .= ' data-column';
         }
 

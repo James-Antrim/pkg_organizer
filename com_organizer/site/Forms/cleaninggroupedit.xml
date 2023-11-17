@@ -6,8 +6,7 @@
         <field name="name_en" type="Blank" label="NAME_EN" class="required" maxlength="150" required="true"/>
         <field name="maxValuation" type="Integer" label="MAX_SURFACE_PERFORMANCE_VALUE" default="0" first="0" last="300"
                step="10"/>
-        <field name="valuation" type="Blank" label="CALCULATED_SURFACE_PERFORMANCE_VALUE"
-               class="required validate-float"
+        <field name="valuation" type="Blank" label="CALCULATED_SURFACE_PERFORMANCE_VALUE" class="required validate-float"
                default="0.00" required="true"/>
         <field name="days" type="Blank" label="CLEANING_DAYS_PER_MONTH" class="required validate-float" default="0.00"
                required="true"/>

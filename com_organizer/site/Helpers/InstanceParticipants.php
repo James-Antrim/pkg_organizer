@@ -21,7 +21,7 @@ class InstanceParticipants
     /**
      * Returns the color value for a given colorID.
      *
-     * @param int $participationID the id of the color
+     * @param   int  $participationID  the id of the color
      *
      * @return int the id of the booking associated with the participation
      */
@@ -39,9 +39,9 @@ class InstanceParticipants
     /**
      * Checks if the user has a previous engagement in the previous timeframe
      *
-     * @param string $date      the date of the search
-     * @param string $startTime the
-     * @param string $endTime
+     * @param   string  $date       the date of the search
+     * @param   string  $startTime  the
+     * @param   string  $endTime
      *
      * @return bool
      */

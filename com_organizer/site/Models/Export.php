@@ -28,7 +28,8 @@ class Export extends FormModel
         // Resolve potential inconsistencies cause by user choices before the form is initialized.
         if ($task = Input::getTask() and $task === 'export.reset') {
             $form = [];
-        } else {
+        }
+        else {
             $fields = ['categoryID' => 0, 'groupID' => 0, 'organizationID' => 0, 'personID' => 0, 'roomID' => 0];
             $form   = Input::getArray();
 
@@ -36,7 +37,8 @@ class Export extends FormModel
                 foreach (array_keys($fields) as $field) {
                     unset($form[$field]);
                 }
-            } else {
+            }
+            else {
                 $categoryID     = empty($form['categoryID']) ? 0 : $form['categoryID'];
                 $organizationID = empty($form['organizationID']) ? 0 : $form['organizationID'];
                 $groupID        = empty($form['groupID']) ? 0 : $form['groupID'];
@@ -110,18 +112,22 @@ class Export extends FormModel
             $form->removeField('roleID');
             $form->removeField('roomID');
             $form->removeField('separate');
-        } elseif ($organizationID) {
+        }
+        elseif ($organizationID) {
             if (!Helpers\Can::view('organization', $organizationID) or $categoryID) {
                 $form->removeField('instances');
-            } elseif ($instances and $instances !== 'organization') {
+            }
+            elseif ($instances and $instances !== 'organization') {
                 $form->removeField('categoryID');
                 $form->removeField('groupID');
                 $form->removeField('personID');
                 $form->removeField('roomID');
             }
-        } elseif ($categoryID) {
+        }
+        elseif ($categoryID) {
             $form->removeField('instances');
-        } else {
+        }
+        else {
             $form->removeField('groupID');
         }
 

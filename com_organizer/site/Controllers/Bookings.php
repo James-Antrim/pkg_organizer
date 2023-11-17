@@ -28,7 +28,7 @@ class Bookings extends Controller
     /**
      * Class constructor
      *
-     * @param array $config An optional associative [] of configuration settings.
+     * @param   array  $config  An optional associative [] of configuration settings.
      */
     public function __construct($config = [])
     {
@@ -78,7 +78,8 @@ class Bookings extends Controller
 
         if ($model->batch()) {
             Application::message('ORGANIZER_UPDATE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_UPDATE_FAIL', Application::ERROR);
         }
 

@@ -35,7 +35,8 @@ class SubjectEdit extends EditView
             $saveImport  = Text::_('ORGANIZER_CREATE_IMPORT_CLOSE');
             $title       = Text::_('ORGANIZER_SUBJECT_NEW');
 
-        } else {
+        }
+        else {
             $apply       = Text::_('ORGANIZER_APPLY');
             $applyImport = Text::_('ORGANIZER_APPLY_UPDATE');
             $cancel      = Text::_('ORGANIZER_CANCEL');

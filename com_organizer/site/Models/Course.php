@@ -78,9 +78,9 @@ class Course extends BaseModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return Tables\Courses A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -172,7 +172,8 @@ class Course extends BaseModel
                     Application::message(Text::sprintf('ORGANIZER_UNIT_COURSE_CONFLICT', $unitID, $course->$localized));
 
                     return;
-                } elseif (!$course->id) {
+                }
+                elseif (!$course->id) {
                     $course->load($unit->courseID);
                 }
             }
@@ -264,7 +265,7 @@ class Course extends BaseModel
     /**
      * Attempts to save the resource.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return int|bool int id of the resource on success, otherwise bool false
      */

@@ -36,7 +36,8 @@ foreach ($sums as $key => $sum) {
 
     if ($key === 'week') {
         $class .= ' header-column';
-    } else {
+    }
+    else {
         $class .= $key === 'sum' ? ' sum-column' : '';
         $class .= $key === $lastColumn ? ' row-end' : '';
 
@@ -65,7 +66,8 @@ foreach ($sums as $key => $sum) {
 
             $sum = str_replace('VALUE', $registered, $template);
             $sum = str_replace('XTOOLTIPX', $tip, $sum);
-        } else {
+        }
+        else {
             $sum = '-';
         }
     }
@@ -80,7 +82,8 @@ foreach ($this->grid as $row) {
         if ($key === 'week') {
             $class .= ' header-column';
             Text::unpack($sum);
-        } else {
+        }
+        else {
             $class .= $key === 'sum' ? ' sum-column' : ' data-column';
 
             $attended     = empty($sum['attended']) ? 0 : $sum['attended'];
@@ -108,7 +111,8 @@ foreach ($this->grid as $row) {
 
                 $sum = str_replace('VALUE', $registered, $template);
                 $sum = str_replace('XTOOLTIPX', $tip, $sum);
-            } else {
+            }
+            else {
                 $sum = '-';
             }
         }

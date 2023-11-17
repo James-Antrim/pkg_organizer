@@ -25,7 +25,7 @@ abstract class Associated extends ResourceHelper
     /**
      * Retrieves the ids of organizations associated with the resource
      *
-     * @param int $resourceID the id of the resource for which the associated organizations are requested
+     * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
      *
      * @return int[] the ids of organizations associated with the resource
      */
@@ -44,8 +44,8 @@ abstract class Associated extends ResourceHelper
     /**
      * Checks whether a given resource is associated with a given organization.
      *
-     * @param int $organizationID the id of the organization
-     * @param int $resourceID     the id of the resource
+     * @param   int  $organizationID  the id of the organization
+     * @param   int  $resourceID      the id of the resource
      *
      * @return bool true if the resource is associated with the organization, otherwise false
      */

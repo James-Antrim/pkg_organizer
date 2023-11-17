@@ -18,7 +18,8 @@ echo $this->form->renderField('endTime');
 
 if (Input::getBool('advanced')) {
     echo $this->form->renderFieldset('advanced');
-} else {
+}
+else {
     echo $this->form->renderField('eventIDs');
     echo $this->form->renderField('title');
     echo $this->form->renderField('methodID');

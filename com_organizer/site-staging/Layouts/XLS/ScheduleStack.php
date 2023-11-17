@@ -29,8 +29,8 @@ class ScheduleStack
     /**
      * OrganizerTemplateExport_XLS constructor.
      *
-     * @param array $parameters the parameters used for determining the export structure
-     * @param array $lessons    the lessons for the given time frame and chosen resources
+     * @param   array  $parameters  the parameters used for determining the export structure
+     * @param   array  $lessons     the lessons for the given time frame and chosen resources
      */
     public function __construct($parameters, &$lessons)
     {
@@ -82,8 +82,8 @@ class ScheduleStack
     /**
      * Iterates the dates / times and calls the function to add the event data
      *
-     * @param string $startDate the start date for the interval
-     * @param string $breakDate the end date for the interval
+     * @param   string  $startDate  the start date for the interval
+     * @param   string  $breakDate  the end date for the interval
      *
      * @return void
      */
@@ -111,9 +111,9 @@ class ScheduleStack
     /**
      * Adds lesson instances to the spreadsheet
      *
-     * @param int    $row            the row number for the event
-     * @param string $date           the date on which the lesson occurs
-     * @param array  $lessonInstance the lesson instance data
+     * @param   int     $row             the row number for the event
+     * @param   string  $date            the date on which the lesson occurs
+     * @param   array   $lessonInstance  the lesson instance data
      *
      * @return void
      */
@@ -171,8 +171,8 @@ class ScheduleStack
     /**
      * Adds column headers to the sheet
      *
-     * @param int    $sheetNumber  the sheet number to be added
-     * @param string $rawStartDate the start date for the sheet
+     * @param   int     $sheetNumber   the sheet number to be added
+     * @param   string  $rawStartDate  the start date for the sheet
      *
      * @return void
      */

@@ -45,8 +45,8 @@ class UnitEdit extends EditModel
     /**
      * Convert from a table object to a basic object to reduce overhead.
      *
-     * @param stdClass $item  the item modelling the data for the view
-     * @param Table    $table the table modelling the data in the database
+     * @param   stdClass  $item   the item modelling the data for the view
+     * @param   Table     $table  the table modelling the data in the database
      *
      * @return void
      */
@@ -74,7 +74,8 @@ class UnitEdit extends EditModel
 
         if ($this->my) {
             $form->setValue('my', null, 1);
-        } elseif (count($this->items) === 1) {
+        }
+        elseif (count($this->items) === 1) {
             $form->setValue('id', null, $this->items[0]->id);
         }
 
@@ -128,7 +129,7 @@ class UnitEdit extends EditModel
     /**
      * Method to get a single record.
      *
-     * @param int $pk The id of the primary key
+     * @param   int  $pk  The id of the primary key
      *
      * @return object|false Object on success, false on failure
      */
@@ -156,11 +157,11 @@ class UnitEdit extends EditModel
 
                 if (!$table->load($keys)) {
                     $data = [
-                        'code' => $code,
-                        'endDate' => $term['endDate'],
-                        'gridID' => $gridID,
+                        'code'      => $code,
+                        'endDate'   => $term['endDate'],
+                        'gridID'    => $gridID,
                         'startDate' => $term['startDate'],
-                        'termID' => $term['id'],
+                        'termID'    => $term['id'],
                     ];
 
                     $table->save($data);
@@ -170,7 +171,8 @@ class UnitEdit extends EditModel
                 $this->fillItem($item, $table);
                 $this->items[] = $item;
             }
-        } else {
+        }
+        else {
             // No unit creation outside of the my context right now.
             if (empty($pk)) {
                 Application::error(501);
@@ -218,9 +220,9 @@ class UnitEdit extends EditModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return Tables\Units A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -233,7 +235,7 @@ class UnitEdit extends EditModel
     /**
      * Attempts to determine the block to be used for planning the current instance.
      *
-     * @param object $item
+     * @param   object  $item
      *
      * @return void sets the item's block id
      */
@@ -250,7 +252,7 @@ class UnitEdit extends EditModel
     /**
      * Attempts to determine the date to be used for planning the current instance.
      *
-     * @param object $item
+     * @param   object  $item
      *
      * @return void
      */
@@ -258,7 +260,8 @@ class UnitEdit extends EditModel
     {
         if ($date = Input::getFormItems()->get('date') and preg_match('/\d{4}-\d{2}-\d{2}/', $date)) {
             $item->date = $date;
-        } elseif (empty($item->date)) {
+        }
+        elseif (empty($item->date)) {
             $item->date = date('Y-m-d');
         }
     }
@@ -266,7 +269,7 @@ class UnitEdit extends EditModel
     /**
      * Attempts to determine the grid to be used for planning the current instance.
      *
-     * @param object $item
+     * @param   object  $item
      *
      * @return void sets the item's grid id
      */
@@ -278,7 +281,8 @@ class UnitEdit extends EditModel
         // Selected > unit > organization default > 0
         if ($gridID = Input::getFormItems()->get('gridID') and $grid->load($gridID)) {
             $item->gridID = $gridID;
-        } elseif (empty($item->gridID)) {
+        }
+        elseif (empty($item->gridID)) {
             $item->gridID = $default;
         }
     }

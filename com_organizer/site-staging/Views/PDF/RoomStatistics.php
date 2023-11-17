@@ -36,7 +36,7 @@ class RoomStatistics extends BaseView
     /**
      * Sets context variables and renders the view.
      *
-     * @param string $tpl template
+     * @param   string  $tpl  template
      *
      * @return void
      */

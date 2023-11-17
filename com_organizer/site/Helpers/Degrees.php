@@ -19,7 +19,7 @@ class Degrees extends ResourceHelper
     /**
      * Gets the academic level of the degree. (Bachelor|Master)
      *
-     * @param int $degreeID the id of the degree
+     * @param   int  $degreeID  the id of the degree
      *
      * @return string
      */

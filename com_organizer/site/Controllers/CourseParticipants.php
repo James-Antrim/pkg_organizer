@@ -33,7 +33,8 @@ class CourseParticipants extends Participants
 
         if ($model->accept()) {
             Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
         }
 
@@ -63,7 +64,8 @@ class CourseParticipants extends Participants
 
         if ($model->notify()) {
             Application::message('ORGANIZER_NOTIFY_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_NOTIFY_FAIL', Application::ERROR);
         }
 
@@ -105,7 +107,8 @@ class CourseParticipants extends Participants
 
         if ($model->remove()) {
             Application::message('ORGANIZER_REMOVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_REMOVE_FAIL', Application::ERROR);
         }
 
@@ -124,7 +127,8 @@ class CourseParticipants extends Participants
 
         if ($model->toggle()) {
             Application::message('ORGANIZER_TOGGLE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_TOGGLE_FAIL', Application::ERROR);
         }
 
@@ -143,7 +147,8 @@ class CourseParticipants extends Participants
 
         if ($model->waitlist()) {
             Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
         }
 

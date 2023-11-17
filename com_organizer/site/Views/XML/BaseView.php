@@ -56,7 +56,7 @@ abstract class BaseView
     /**
      * Replaces ampersand to avoid any potential "unterminated entity reference" errors.
      *
-     * @param string $string
+     * @param   string  $string
      *
      * @return void
      */

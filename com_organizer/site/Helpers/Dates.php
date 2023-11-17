@@ -21,9 +21,9 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param string $date     the date to be formatted
-     * @param bool   $withText if the day name should be part of the output
-     * @param bool   $short    if the day name output should be abbreviated
+     * @param   string  $date      the date to be formatted
+     * @param   bool    $withText  if the day name should be part of the output
+     * @param   bool    $short     if the day name output should be abbreviated
      *
      * @return string  a formatted date string otherwise false
      */
@@ -45,7 +45,7 @@ class Dates
     /**
      * Converts a raw date time into a formatted date time string.
      *
-     * @param int|string $dateTime the raw date time
+     * @param   int|string  $dateTime  the raw date time
      *
      * @return string the formatted date time
      */
@@ -60,7 +60,7 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param string $time the date to be formatted
+     * @param   string  $time  the date to be formatted
      *
      * @return string  a formatted date string otherwise false
      */
@@ -72,7 +72,7 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param string $time the date to be formatted
+     * @param   string  $time  the date to be formatted
      *
      * @return string  a formatted date string otherwise false
      */
@@ -84,8 +84,8 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param string $startDate the start date of the resource
-     * @param string $endDate   the end date of the resource
+     * @param   string  $startDate  the start date of the resource
+     * @param   string  $endDate    the end date of the resource
      *
      * @return string  a formatted date string otherwise false
      */
@@ -109,7 +109,7 @@ class Dates
     /**
      * Returns the end and start dates of a six-month period beginning with the date given.
      *
-     * @param string $date the date
+     * @param   string  $date  the date
      *
      * @return string[] containing startDate and endDate
      */
@@ -123,7 +123,7 @@ class Dates
     /**
      * Returns the end date and start date of the month for the given date
      *
-     * @param string $date the date
+     * @param   string  $date  the date
      *
      * @return string[] containing startDate and endDate
      */
@@ -141,8 +141,8 @@ class Dates
     /**
      * Returns the end and start dates of a three-month period beginning with the date given.
      *
-     * @param string $date the date
-     * @param int    $startDay
+     * @param   string  $date  the date
+     * @param   int     $startDay
      *
      * @return string[] containing startDate and endDate
      */
@@ -164,7 +164,7 @@ class Dates
     /**
      * Returns the end date and start date of the term for the given date
      *
-     * @param string $date the date in format Y-m-d
+     * @param   string  $date  the date in format Y-m-d
      *
      * @return string[] containing startDate and endDate
      */
@@ -182,9 +182,9 @@ class Dates
     /**
      * Returns the end date and start date of the week for the given date
      *
-     * @param string $date     the date
-     * @param int    $startDay 0-6 number of the starting day of the week
-     * @param int    $endDay   0-6 number of the ending day of the week
+     * @param   string  $date      the date
+     * @param   int     $startDay  0-6 number of the starting day of the week
+     * @param   int     $endDay    0-6 number of the ending day of the week
      *
      * @return string[] containing startDate and endDate
      */
@@ -202,7 +202,7 @@ class Dates
     /**
      * Checks whether a date is a valid date in the standard Y-m-d format.
      *
-     * @param string $date the date to be checked
+     * @param   string  $date  the date to be checked
      *
      * @return bool
      */
@@ -216,7 +216,7 @@ class Dates
     /**
      * Converts a date string from the format in the component settings into the format used by the database
      *
-     * @param string $date the date string
+     * @param   string  $date  the date string
      *
      * @return string  date sting in format Y-m-d
      */

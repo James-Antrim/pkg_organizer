@@ -106,7 +106,7 @@ class Checkin extends FormModel
     /**
      * Gets a query where common statements are already included.
      *
-     * @param int $participantID the id of the participant for which to find checkins
+     * @param   int  $participantID  the id of the participant for which to find checkins
      *
      * @return JDatabaseQuery
      */

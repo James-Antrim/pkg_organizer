@@ -17,7 +17,7 @@ trait Suppressed
     /**
      * Retrieves the suppress attribute of the table.
      *
-     * @param int $resourceID
+     * @param   int  $resourceID
      *
      * @return bool
      */

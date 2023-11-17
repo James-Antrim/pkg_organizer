@@ -47,13 +47,15 @@ class Unit extends BaseModel
 
             if ($course->name_de === null) {
                 $course->name_de = $event->name_de;
-            } elseif (!strpos($course->name_de, $event->name_de)) {
+            }
+            elseif (!strpos($course->name_de, $event->name_de)) {
                 $course->name_de .= ' / ' . $event->name_de;
             }
 
             if ($course->name_en === null) {
                 $course->name_en = $event->name_en;
-            } elseif (!strpos($course->name_en, $event->name_en)) {
+            }
+            elseif (!strpos($course->name_en, $event->name_en)) {
                 $course->name_en .= ' / ' . $event->name_en;
             }
 

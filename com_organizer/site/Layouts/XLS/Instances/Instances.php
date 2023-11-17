@@ -45,9 +45,9 @@ class Instances extends ListLayout
 
         $style = [
             'alignment' => ['horizontal' => XLConstants::CENTER, 'vertical' => XLConstants::CENTER],
-            'borders' => $this->borders['header'],
-            'fill' => $this->fills['header'],
-            'font' => ['size' => 12]
+            'borders'   => $this->borders['header'],
+            'fill'      => $this->fills['header'],
+            'font'      => ['size' => 12]
         ];
         $sheet->getStyle('A1:B1')->applyFromArray($style);
         $sheet->setCellValue("A1", Text::_('ORGANIZER_ABBREVIATION'));

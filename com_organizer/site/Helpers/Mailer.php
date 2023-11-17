@@ -20,9 +20,9 @@ class Mailer
     /**
      * Sends a notification mail to the participant.
      *
-     * @param int    $participantID the id of the participant being iterated
-     * @param string $subject       the subject of the notification
-     * @param string $body          the notification message
+     * @param   int     $participantID  the id of the participant being iterated
+     * @param   string  $subject        the subject of the notification
+     * @param   string  $body           the notification message
      *
      * @return void
      */
@@ -54,9 +54,9 @@ class Mailer
     /**
      * Sends a mail confirming the registration
      *
-     * @param int      $courseID      the course id
-     * @param int      $participantID the participant id
-     * @param int|null $status        the participant's status
+     * @param   int       $courseID       the course id
+     * @param   int       $participantID  the participant id
+     * @param   int|null  $status         the participant's status
      *
      * @return void
      */
@@ -90,7 +90,8 @@ class Mailer
         $userParams = json_decode($user->params);
         if (empty($userParams->language)) {
             $tag = Application::getTag();
-        } else {
+        }
+        else {
             // TODO see what variable Joomla needs set here and set it.
             $tag = explode('-', $userParams['language'])[0];
             Input::set('languageTag', $tag);
@@ -107,13 +108,14 @@ class Mailer
 
         if ($status === CourseParticipants::UNREGISTERED) {
             $body = Text::sprintf('ORGANIZER_DEREGISTER_BODY',
-                                  $courseName,
-                                  $sender->name,
-                                  $sender->email,
-                                  $address,
-                                  $contact
+                $courseName,
+                $sender->name,
+                $sender->email,
+                $address,
+                $contact
             );
-        } else {
+        }
+        else {
             $statusText = $status ? 'ORGANIZER_REGISTERED' : 'ORGANIZER_WAITLIST';
             $statusText = Text::_($statusText);
             $body       = Text::sprintf(
