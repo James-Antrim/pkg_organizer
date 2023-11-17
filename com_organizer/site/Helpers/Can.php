@@ -55,6 +55,29 @@ class Can
     }
 
     /**
+     * Checks for user access to event coordination, optionally a specific event
+     *
+     * @param   int  $resourceID
+     *
+     * @return bool
+     */
+    public static function coordinate(string $resource, int $resourceID = 0): bool
+    {
+        if (is_bool($authorized = self::basic())) {
+            return $authorized;
+        }
+
+        // If there is no ID there is no course to match against for new courses => falls back to event coordination
+        return match ($resource) {
+            'Course' => $resourceID ? in_array($resourceID, Courses::coordinates()) : Events::coordinates(),
+            'Courses', 'Events' => (bool) Events::coordinates(),
+            'Event' => $resourceID ? in_array($resourceID, Events::coordinates()) : Events::coordinates(),
+            default => false,
+        };
+
+    }
+
+    /**
      * Checks whether the user has access to documentation resources and their respective views.
      *
      * @param   string  $resourceType  the resource type being checked
@@ -176,16 +199,6 @@ class Can
             case 'category':
 
                 return self::editScheduleResource('Categories', $resource);
-
-            case 'course':
-            case 'courses':
-
-                return (Courses::coordinates($resource) or Courses::hasResponsibility($resource));
-
-            case 'event':
-            case 'events':
-
-                return $resource ? Events::coordinates($resource) : Events::coordinates() or self::scheduleTheseOrganizations();
 
             case 'group':
             case 'groups':
@@ -309,9 +322,6 @@ class Can
                 }
 
                 return false;
-            case 'course':
-            case 'courses':
-                return (Courses::coordinates($resourceID) or Courses::hasResponsibility($resourceID));
             case 'instance':
             case 'instances':
                 if (Instances::hasResponsibility($resourceID)) {
@@ -446,11 +456,12 @@ class Can
             'Categories', 'CoursesImport', 'Groups', 'MergeCategories', 'MergeEvents', 'Schedule', 'Schedules',
             'Units'
             => (bool) self::scheduleTheseOrganizations(),
-            // Special dispensation for coordinators and teachers
-            'Events' => self::edit('events'),
             // Edit views for scheduling resource with no intrinsic public value
-            'Category', 'Event', 'Group', 'Unit'
+            'Category', 'Group', 'Unit'
             => self::edit(strtolower($view), $resourceID),
+            // Special dispensation for coordinators and teachers
+            'Event' => self::coordinate($resourceID),
+            'Events' => self::coordinate(),
             // Curriculum resources with no intrinsic public value
             'FieldColors', 'Pools', 'PoolSelection', 'SubjectSelection'
             => (bool) self::documentTheseOrganizations(),

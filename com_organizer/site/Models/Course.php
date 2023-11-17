@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, Text};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Courses, Mailer, Units, Users};
 use THM\Organizer\Tables;
 
 /**
@@ -28,7 +28,7 @@ class Course extends BaseModel
      */
     protected function authorize()
     {
-        if (!Helpers\Can::manage('course', Input::getID())) {
+        if (!Can::coordinate('course', Input::getID())) {
             Application::error(403);
         }
     }
@@ -39,15 +39,15 @@ class Course extends BaseModel
      */
     public function deregister(): bool
     {
-        if (!$courseID = Input::getID() or !$participantID = Helpers\Users::getID()) {
+        if (!$courseID = Input::getID() or !$participantID = Users::getID()) {
             return false;
         }
 
-        if (!Helpers\Can::manage('participant', $participantID) and !Helpers\Can::manage('course', $courseID)) {
+        if (!Can::manage('participant', $participantID) and !Can::coordinate('course', $courseID)) {
             Application::error(403);
         }
 
-        $dates = Helpers\Courses::getDates($courseID);
+        $dates = Courses::getDates($courseID);
 
         if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d')) {
             return false;
@@ -60,7 +60,7 @@ class Course extends BaseModel
             return false;
         }
 
-        if ($instanceIDs = Helpers\Courses::getInstanceIDs($courseID)) {
+        if ($instanceIDs = Courses::getInstanceIDs($courseID)) {
             foreach ($instanceIDs as $instanceID) {
                 $ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
                 $instanceParticipant = new Tables\InstanceParticipants();
@@ -70,7 +70,7 @@ class Course extends BaseModel
             }
         }
 
-        Helpers\Mailer::registrationUpdate($courseID, $participantID, null);
+        Mailer::registrationUpdate($courseID, $participantID, null);
 
         return true;
     }
@@ -103,7 +103,7 @@ class Course extends BaseModel
             Application::error(400);
         }
 
-        if (!Helpers\Can::schedule('organization', $organizationID)) {
+        if (!Can::schedule('organization', $organizationID)) {
             Application::error(403);
         }
 
@@ -191,7 +191,7 @@ class Course extends BaseModel
         $event = new Tables\Events();
 
         foreach ($unitIDs as $unitID) {
-            foreach (Helpers\Units::getEventIDs($unitID) as $eventID) {
+            foreach (Units::getEventIDs($unitID) as $eventID) {
                 $event->load($eventID);
 
                 if ($course->deadline === null or $event->deadline < $course->deadline) {
@@ -212,7 +212,7 @@ class Course extends BaseModel
             }
         }
 
-        $course->campusID = Helpers\Units::getCampusID($units[0]->id, $event->campusID);
+        $course->campusID = Units::getCampusID($units[0]->id, $event->campusID);
 
         $course->store();
 
@@ -229,7 +229,7 @@ class Course extends BaseModel
     public function register(): bool
     {
         $courseID      = Input::getID();
-        $participantID = Helpers\Users::getID();
+        $participantID = Users::getID();
         $cpData        = ['courseID' => $courseID, 'participantID' => $participantID];
 
         $courseParticipant = new Tables\CourseParticipants();
@@ -246,7 +246,7 @@ class Course extends BaseModel
         }
 
         if ($courseParticipant->status === self::REGISTERED) {
-            if ($instanceIDs = Helpers\Courses::getInstanceIDs($courseID)) {
+            if ($instanceIDs = Courses::getInstanceIDs($courseID)) {
                 foreach ($instanceIDs as $instanceID) {
                     $ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
                     $instanceParticipant = new Tables\InstanceParticipants();
@@ -257,7 +257,7 @@ class Course extends BaseModel
             }
         }
 
-        Helpers\Mailer::registrationUpdate($courseID, $participantID, $courseParticipant->status);
+        Mailer::registrationUpdate($courseID, $participantID, $courseParticipant->status);
 
         return true;
     }

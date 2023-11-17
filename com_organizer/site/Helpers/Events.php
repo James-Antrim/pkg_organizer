@@ -10,7 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database as DB};
+use Joomla\Database\ParameterType;
+use function Symfony\Component\String\b;
 
 /**
  * Provides general functions for subject access checks, data retrieval and display.
@@ -24,29 +26,46 @@ class Events extends ResourceHelper
     protected static string $resource = 'event';
 
     /**
-     * Check if user is a subject coordinator.
-     *
-     * @param   array|int  $eventIDs  the optional id of the subject
-     * @param   int        $personID  the optional id of the person entry
-     *
-     * @return bool true if the user is a coordinator, otherwise false
+     * Gets a list of event ids for which the user has coordinating access.
+     * @return int[]
      */
-    public static function coordinates(array|int $eventIDs = 0, int $personID = 0): bool
+    public static function coordinates(): array
     {
-        $personID = $personID ?: Persons::getIDByUserID(Users::getID());
-        $query    = Database::getQuery();
-        $query->select('COUNT(*)')
-            ->from('#__organizer_event_coordinators')
-            ->where("personID = $personID");
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('e.id'))
+            ->from(DB::qn('#__organizer_events', 'e'));
 
-        if ($eventIDs) {
-            $clause = is_array($eventIDs) ? 'eventID IN (' . implode(',', $eventIDs) . ')' : "eventID = $eventIDs";
-            $query->where($clause);
+        // Administrators need no filter
+        if (!Can::administrate()) {
+
+            $condition = DB::qc('ec.eventID', 'e.id');
+            $personID  = Persons::getIDByUserID();
+            $table     = DB::qn('#__organizer_event_coordinators', 'ec');
+
+            // Check for planer access
+            if ($organizationIDs = Can::scheduleTheseOrganizations()) {
+                $query->whereIn(DB::qn('e.organizationID'), $organizationIDs);
+
+                // Coordinator entries are on-top
+                if ($personID) {
+                    $query->leftJoin($table, $condition)
+                        ->where(DB::qn('ec.personID') . ' = :personID', 'OR')
+                        ->bind(':personID', $personID, ParameterType::INTEGER);
+                }
+            }
+            // Coordinator entries are strictly necessary
+            elseif ($personID) {
+                $query->innerJoin($table, $condition)
+                    ->where(DB::qn('ec.personID') . ' = :personID')
+                    ->bind(':personID', $personID, ParameterType::INTEGER);
+            }
+            // No potential for access.
+            else {
+                return [];
+            }
         }
 
-        Database::setQuery($query);
-
-        return Database::loadBool();
+        return DB::loadIntColumn();
     }
 
     /**
@@ -60,7 +79,7 @@ class Events extends ResourceHelper
     {
         $names     = [];
         $tag       = Application::getTag();
-        $query     = Database::getQuery();
+        $query     = DB::getQuery();
         $nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
         $query->select("c.name_$tag AS category, " . $query->concatenate($nameParts, "") . ' AS program')
             ->select('c.id')
@@ -72,9 +91,9 @@ class Events extends ResourceHelper
             ->leftJoin('#__organizer_programs AS p ON p.categoryID = c.id')
             ->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
             ->where("i.eventID = $eventID");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$results = Database::loadAssocList()) {
+        if (!$results = DB::loadAssocList()) {
             return [];
         }
 
@@ -109,7 +128,7 @@ class Events extends ResourceHelper
      */
     public static function getUnits(int $eventID, string $date, string $interval = 'term'): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::getTag();
         $query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method")
             ->from('#__organizer_units AS u')
@@ -117,9 +136,9 @@ class Events extends ResourceHelper
             ->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
             ->where("eventID = $eventID");
         self::addUnitDateRestriction($query, $date, $interval);
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList();
+        return DB::loadAssocList();
     }
 
     /**
@@ -133,7 +152,7 @@ class Events extends ResourceHelper
     public static function teaches(int $eventID = 0, int $personID = 0): bool
     {
         $personID = $personID ?: Persons::getIDByUserID(Users::getID());
-        $query    = Database::getQuery();
+        $query    = DB::getQuery();
         $query->select('COUNT(*)')
             ->from('#__organizer_instances AS i')
             ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
@@ -144,8 +163,8 @@ class Events extends ResourceHelper
             $query->where("i.eventID = $eventID");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadBool();
+        return DB::loadBool();
     }
 }

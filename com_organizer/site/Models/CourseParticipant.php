@@ -44,7 +44,7 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Can::manage('course', $courseID)) {
+        if (!Can::coordinate('course', $courseID)) {
             Application::error(403);
         }
 
@@ -93,7 +93,7 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Can::manage('course', $courseID)) {
+        if (!Can::coordinate('course', $courseID)) {
             Application::error(403);
         }
 
@@ -128,7 +128,7 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Can::manage('course', $courseID)) {
+        if (!Can::coordinate('course', $courseID)) {
             Application::error(403);
         }
 
@@ -183,7 +183,7 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Can::manage('course', $courseID) or !Can::manage('participant', $participantID)) {
+        if (!Can::coordinate('course', $courseID) or !Can::manage('participant', $participantID)) {
             Application::error(403);
         }
 

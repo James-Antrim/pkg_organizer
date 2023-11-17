@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Events};
 use THM\Organizer\Tables;
 
 /**
@@ -23,15 +23,16 @@ class Event extends MergeModel
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if ($this->selected and !Helpers\Can::edit('events', $this->selected)) {
+        if ($this->selected and !Can::administrate()) {
             Application::error(403);
         }
-        elseif ($eventID = Input::getID() and !Helpers\Can::edit('events', $eventID)) {
+
+        if (!$coordinates = Events::coordinates()) {
             Application::error(403);
         }
-        elseif (!Helpers\Can::edit('events')) {
+        elseif ($eventID = Input::getID() and !in_array($eventID, $coordinates)) {
             Application::error(403);
         }
     }

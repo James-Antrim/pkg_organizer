@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Text};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Courses, Terms};
 use THM\Organizer\Tables;
 
 /**
@@ -25,7 +25,7 @@ class CourseEdit extends EditModel
      */
     protected function authorize()
     {
-        if (!Helpers\Can::manage('course', (int) $this->item->id)) {
+        if (!Can::coordinate('course', (int) $this->item->id)) {
             Application::error(403);
         }
     }
@@ -57,10 +57,10 @@ class CourseEdit extends EditModel
 
         if (empty($this->item->id)) {
             $this->item->name   = Text::_('ORGANIZER_NONE');
-            $this->item->termID = Helpers\Terms::getNextID();
+            $this->item->termID = Terms::getNextID();
         }
         else {
-            $this->item->name = Helpers\Courses::getName($this->item->id);
+            $this->item->name = Courses::getName($this->item->id);
         }
 
         return $this->item;

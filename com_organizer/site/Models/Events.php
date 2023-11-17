@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of events.
@@ -28,17 +28,22 @@ class Events extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
+        $query = DB::getQuery();
         $tag   = Application::getTag();
-        $query = Database::getQuery();
-        $query->select("DISTINCT e.id AS id, e.name_$tag as name, e.organizationID, e.code")
-            ->select("o.id AS organizationID, o.shortName_$tag AS organization")
-            ->select("c.id AS campusID, c.name_$tag AS campus")
-            ->from('#__organizer_events AS e')
-            ->innerJoin('#__organizer_organizations AS o ON o.id = e.organizationID')
-            ->leftJoin('#__organizer_campuses AS c ON c.id = e.campusID');
+
+        $aliased = DB::qn(
+            ["c.name_$tag", 'c.id', "e.name_$tag", "o.shortName_$tag", 'o.id'],
+            ['campus', 'campusID', 'name', 'organization', 'organizationID']
+        );
+        $select  = ['DISTINCT ' . DB::qn('e.id', 'id'), DB::qn('e.organizationID'), DB::qn('e.code')];
+
+        $query->select(array_merge($select, $aliased))
+            ->from(DB::qn('#__organizer_events', 'e'))
+            ->innerJoin(DB::qn('#__organizer_organizations', 'o'), DB::qc('o.id', 'e.organizationID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'e.campusID'));
 
         if (Application::backend()) {
-            $authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
+            $authorized = implode(', ', Can::scheduleTheseOrganizations());
             $query->where("o.id IN ($authorized)");
         }
 

@@ -94,7 +94,7 @@ class CourseParticipants extends ListView
             Application::error(400);
         }
 
-        if (!Helpers\Can::manage('course', $this->courseID)) {
+        if (!Helpers\Can::coordinate('course', $this->courseID)) {
             Application::error(403);
         }
     }

@@ -94,7 +94,7 @@ class CourseParticipants extends Participants
             Application::error(400);
         }
 
-        if (!Helpers\Can::manage('course', $courseID)) {
+        if (!Helpers\Can::coordinate('course', $courseID)) {
             Application::error(403);
         }
     }

@@ -27,7 +27,7 @@ class CourseItem extends ItemView
     {
         parent::__construct($config);
 
-        if (Can::scheduleTheseOrganizations() or Can::manage('courses')) {
+        if (Can::coordinate('courses')) {
             $this->manages = true;
         }
     }
