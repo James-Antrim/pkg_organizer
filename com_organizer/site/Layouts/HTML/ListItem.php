@@ -123,12 +123,12 @@ class ListItem
     /**
      * Renders a check all box style list header.
      *
-     * @param   object  $item      the current row item
-     * @param   string  $column    the current column
-     * @param   bool    $context   the display context (false: public, true: admin)
-     * @param   int     $linkType  the link type to use for the displayed column value
+     * @param   object  $item            the current row item
+     * @param   string  $column          the current column
+     * @param   bool    $administration  the display context (false: public, true: admin)
+     * @param   int     $linkType        the link type to use for the displayed column value
      */
-    private static function text(object $item, string $column, bool $context, int $linkType): void
+    private static function text(object $item, string $column, bool $administration, int $linkType): void
     {
         $value = $item->$column ?? '';
 
@@ -164,7 +164,7 @@ class ListItem
             if (empty($item->access)) {
                 echo HTML::link($url, $value, $attributes);
             }
-            elseif ($context === self::ADMIN) {
+            elseif ($administration === self::ADMIN) {
                 echo HTML::link($editURL, $value, $attributes);
             }
             else {

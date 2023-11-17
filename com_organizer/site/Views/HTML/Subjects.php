@@ -10,9 +10,11 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use Joomla\Registry\Registry;
-use THM\Organizer\Helpers\{Can, Persons, Pools, Programs, Routing};
+use stdClass;
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
+use THM\Organizer\Helpers\{Can, Persons, Pools, Programs};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of subjects into the display context.
@@ -63,8 +65,13 @@ class Subjects extends ListView
         if ($this->access) {
             $toolbar = Toolbar::getInstance();
             $toolbar->addNew('Subjects.add');
-            $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Subjects.import')->listCheck(true)->icon('fa fa-upload');
+            $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Subjects.import')->icon('fa fa-upload')->listCheck(true);
             $toolbar->delete('Subjects.delete')->message(Text::_('DELETE_CONFIRM'));
+
+            if (Application::backend() and Can::administrate()) {
+                $toolbar = Toolbar::getInstance();
+                $toolbar->preferences('com_organizer');
+            }
         }
     }
 
@@ -79,43 +86,27 @@ class Subjects extends ListView
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $structuredItems = [];
-
-        $attributes = [];
-        if (!Application::backend()) {
-            $attributes['target'] = '_blank';
+        if (empty($options['personID'])) {
+            $item->persons = $this->getPersonDisplay($item);
         }
 
-        $calledPersonID = (int) $this->state->get('calledPersonID', 0);
+        $item->creditPoints = $item->creditPoints ?: '';
+    }
 
-        foreach ($this->items as $subject) {
-            $access   = Can::document('subject', (int) $subject->id);
-            $checkbox = $access ? HTML::checkBox($index, $subject->id) : '';
-            $thisLink = (Application::backend() and $access) ?
-                Routing::getViewURL('SubjectEdit', $subject->id) : Routing::getViewURL('SubjectItem', $subject->id);
-
-            $structuredItems[$index] = [];
-
-            if ($this->access) {
-                $structuredItems[$index]['checkbox'] = $checkbox;
-            }
-
-            $structuredItems[$index]['name'] = HTML::link($thisLink, $subject->name, $attributes);
-            $structuredItems[$index]['code'] = HTML::link($thisLink, $subject->code, $attributes);
-
-            if (!$calledPersonID) {
-                $structuredItems[$index]['persons'] = $this->getPersonDisplay($subject);
-            }
-
-            $structuredItems[$index]['creditPoints'] = empty($subject->creditPoints) ? '' : $subject->creditPoints;
-
-            $index++;
+    /**
+     * @param   array  $options  *
+     *
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        if ($personID = (int) $this->state->get('calledPersonID', 0)) {
+            $options['personID'] = $personID;
         }
 
-        $this->items = $structuredItems;
+        parent::completeItems($options);
     }
 
     /** @inheritDoc */
@@ -132,26 +123,43 @@ class Subjects extends ListView
     {
         $direction = $this->state->get('list.direction');
         $ordering  = $this->state->get('list.ordering');
-        $headers   = [];
 
-        if ($this->access) {
-            $headers['checkbox'] = HTML::checkAll();
-        }
-
-        $headers['name'] = HTML::sort('NAME', 'name', $direction, $ordering);
-        $headers['code'] = HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
+        $headers = [
+            'check' => ['type' => 'check'],
+            'name'  => [
+                'link'       => Application::backend() ? ListItem::TAB : ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'code'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('MODULE_CODE', 'code', $direction, $ordering),
+                'type'       => 'text'
+            ],
+        ];
 
         if (!$this->state->get('calledPersonID', 0)) {
+
             if ($role = (int) Input::getParams()->get('role') and $role === self::COORDINATES) {
                 $personsText = Text::_('COORDINATORS');
             }
             else {
                 $personsText = Text::_('TEACHERS');
             }
-            $headers['persons'] = $personsText;
+
+            $headers['persons'] = [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => $personsText,
+                'type'       => 'text'
+            ];
         }
 
-        $headers['creditPoints'] = Text::_('CREDIT_POINTS');
+        $headers['creditPoints'] = [
+            'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+            'title'      => Text::_('CREDIT_POINTS'),
+            'type'       => 'text'
+        ];
 
         $this->headers = $headers;
     }

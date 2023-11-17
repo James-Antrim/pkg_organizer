@@ -12,8 +12,9 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Can, Pools, Programs, Subjects as Helper};
+use Joomla\Database\ParameterType;
 
 /**
  * Class retrieves information for a filtered set of subjects.
@@ -48,7 +49,7 @@ class Subjects extends ListModel
             unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
         }
         elseif (Application::backend()) {
-            if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
+            if (count(Can::documentTheseOrganizations()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
             }
@@ -60,16 +61,14 @@ class Subjects extends ListModel
      */
     public function getItems(): array
     {
-        $items = parent::getItems();
-
-        if (empty($items)) {
+        if (!$items = parent::getItems()) {
             return [];
         }
 
         $role = Input::getParams()->get('role', 1);
 
         foreach ($items as $item) {
-            $item->persons = Helpers\Subjects::persons($item->id, $role);
+            $item->persons = Helper::persons($item->id, $role);
         }
 
         return $items;
@@ -80,11 +79,28 @@ class Subjects extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Subject&id=';
 
-        $query = Database::getQuery();
-        $query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditPoints")
-            ->from('subjects AS s');
+        $select = [
+            'DISTINCT ' . DB::qn('s.id'),
+            DB::qn('s.code'),
+            DB::qn('s.creditPoints'),
+            DB::qn("s.fullName_$tag", 'name'),
+            DB::qn('s.fieldID'),
+            $query->concatenate([DB::quote($url), DB::qn('s.id')], '') . ' AS ' . DB::qn('url'),
+        ];
+
+        $query->select($select)
+            ->from(DB::qn('#__organizer_subjects', 's'));
+
+        if ($ids = Helper::documentable()) {
+            $query->select(DB::qn('s.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access'));
+        }
+        else {
+            $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
+        }
 
         $searchFields = [
             's.fullName_de',
@@ -99,22 +115,25 @@ class Subjects extends ListModel
         $this->filterSearch($query, $searchFields);
 
         if ($programID = (int) $this->state->get('filter.programID')) {
-            Helpers\Subjects::filterProgram($query, $programID, 'subject', 's');
+            Helper::filterProgram($query, $programID, 'subject', 's');
         }
 
         // The selected pool supersedes any original called pool
         if ($poolID = $this->state->get('filter.poolID')) {
-            Helpers\Subjects::filterPool($query, $poolID, 's');
+            Helper::filterPool($query, $poolID, 's');
         }
 
         $personID = (int) $this->state->get('filter.personID');
         if ($personID !== self::ALL) {
+            $condition = DB::qc('sp.subjectID', 's.id');
+            $table     = DB::qn('#__organizer_subject_persons', 'sp');
             if ($personID === self::NONE) {
-                $conditions = ['sp.subjectID = s.id', 'sp.subjectID IS NULL'];
-                $query->leftJoinX('subject_persons AS sp', $conditions);
+                $conditions = [$condition, DB::qn('sp.subjectID') . ' IS NULL'];
+                $query->leftJoin($table, $conditions);
             }
             else {
-                $query->innerJoinX('subject_persons AS sp', ['sp.subjectID = s.id'])->where("sp.personID = $personID");
+                $query->innerJoin($table, ['sp.subjectID = s.id'])
+                    ->where(DB::qn('sp.personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER);
             }
         }
 
@@ -142,7 +161,7 @@ class Subjects extends ListModel
         $organizationID = Input::getFilterID('organization', self::ALL);
 
         if (Application::backend()) {
-            $authorized = Helpers\Can::documentTheseOrganizations();
+            $authorized = Can::documentTheseOrganizations();
             if (count($authorized) === 1) {
                 $organizationID = $authorized[0];
                 $this->state->set('filter.organizationID', $organizationID);
@@ -202,7 +221,7 @@ class Subjects extends ListModel
                 }
 
                 // Selected program is incompatible with the selected organization => precludes pool selections
-                if (!Helpers\Programs::isAssociated($organizationID, $programID)) {
+                if (!Programs::isAssociated($organizationID, $programID)) {
                     return;
                 }
 
@@ -216,7 +235,7 @@ class Subjects extends ListModel
                     return;
                 }
 
-                if (!Helpers\Pools::isAssociated($organizationID, $poolID)) {
+                if (!Pools::isAssociated($organizationID, $poolID)) {
                     $this->state->set('filter.poolID', self::ALL);
                     $this->state->set('filter.programID', $programID);
 
@@ -224,12 +243,12 @@ class Subjects extends ListModel
                 }
 
                 if ($programID) {
-                    if (!$prRanges = Helpers\Programs::ranges($programID)) {
+                    if (!$prRanges = Programs::ranges($programID)) {
                         return;
                     }
 
-                    if (!$plRanges = Helpers\Pools::ranges($poolID)
-                        or !Helpers\Subjects::included($plRanges, $prRanges)) {
+                    if (!$plRanges = Pools::ranges($poolID)
+                        or !Helper::included($plRanges, $prRanges)) {
                         $this->state->set('filter.poolID', self::ALL);
                         $this->state->set('filter.programID', $programID);
 
@@ -288,7 +307,7 @@ class Subjects extends ListModel
         // The existence of a program id precludes the pool having been called directly
         if ($programID) {
             // None has already been eliminated => the chosen program is invalid => allow reset
-            if (!$prRanges = Helpers\Programs::ranges($programID)) {
+            if (!$prRanges = Programs::ranges($programID)) {
                 return;
             }
 
@@ -296,8 +315,8 @@ class Subjects extends ListModel
             $this->state->set('filter.programID', $programID);
 
             // Pool is invalid or invalid for the chosen program context
-            if (!$plRanges = Helpers\Pools::ranges($poolID)
-                or !Helpers\Subjects::included($plRanges, $prRanges)) {
+            if (!$plRanges = Pools::ranges($poolID)
+                or !Helper::included($plRanges, $prRanges)) {
                 return;
             }
 
