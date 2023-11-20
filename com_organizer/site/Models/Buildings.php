@@ -20,6 +20,8 @@ use THM\Organizer\Helpers\Can;
  */
 class Buildings extends ListModel
 {
+    use Activated;
+
     protected $filter_fields = ['campusID', 'propertyType'];
 
     /**
@@ -40,7 +42,7 @@ class Buildings extends ListModel
             ->innerJoin(DB::qn('#__organizer_campuses', 'c1'), DB::qc('c1.id', 'b.campusID'))
             ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'));
 
-        $this->filterActive($query, 'b');
+        $this->activeFilter($query, 'b');
         $this->filterSearch($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
         $this->filterValues($query, ['propertyType']);
 

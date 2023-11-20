@@ -57,7 +57,7 @@ class Programs extends ListModel
             $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
         }
 
-        $this->filterActive($query, 'p');
+        $this->activeFilter($query, 'p');
         $this->filterOrganizations($query, 'program', 'p');
 
         $searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];

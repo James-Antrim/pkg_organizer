@@ -10,10 +10,38 @@
 
 namespace THM\Organizer\Models;
 
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\Application;
 
 trait Activated
 {
+    protected const ACTIVE = 1, ALL = -1, INACTIVE = 0, IRRELEVANT = null;
+
+    protected const FILTERED = [self:: ALL, self::INACTIVE, self::ACTIVE];
+
+    /**
+     * Sets a campus filter for a given resource.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
+     */
+    protected function activeFilter(DatabaseQuery $query, string $alias): void
+    {
+        /** @var ListModel $this */
+        $status = $this->state->get('filter.active');
+
+        // Default filter is toward active entries.
+        if ($status === self::IRRELEVANT or !in_array($status = (int) $status, self::FILTERED)) {
+            $status = self::ACTIVE;
+        }
+        // No filter
+        elseif ($status === self::ALL) {
+            return;
+        }
+
+        $query->where("$alias.active = $status");
+    }
+
     /**
      * Method to auto-populate the model state.
      *

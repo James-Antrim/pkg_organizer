@@ -46,7 +46,7 @@ class Persons extends ListModel
             ->leftJoin(DB::qn('#__organizer_organizations', 'o'), DB::qn('o.id') . ' = ' . DB::qn('a.id'))
             ->group($personID);
 
-        $this->filterActive($query, 'p');
+        $this->activeFilter($query, 'p');
         $this->filterSearch($query, ['surname', 'forename', 'username', 'code']);
         $this->filterID($query, 'organizationID', 'filter.organizationID');
         $this->filterValues($query, ['p.suppress']);

@@ -72,27 +72,6 @@ abstract class ListModel extends Base
     }
 
     /**
-     * Sets a campus filter for a given resource.
-     *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the alias for the linking table
-     */
-    protected function filterActive(DatabaseQuery $query, string $alias): void
-    {
-        $status = $this->state->get('filter.active');
-
-        if (!is_numeric($status)) {
-            $status = 1;
-        }
-
-        if ($status == -1) {
-            return;
-        }
-
-        $query->where("$alias.active = $status");
-    }
-
-    /**
      * Adds a binary value filter clause for the given $query;
      *
      * @param   DatabaseQuery  $query  the query to modify

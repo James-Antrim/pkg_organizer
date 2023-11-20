@@ -48,7 +48,7 @@ class Categories extends ListModel
             ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'cat.id'))
             ->whereIn(DB::qn('a.organizationID'), Can::scheduleTheseOrganizations());
 
-        $this->filterActive($query, 'cat');
+        $this->activeFilter($query, 'cat');
         $this->filterSearch($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
         $this->filterValues($query, ['organizationID', 'programID']);
         $this->orderBy($query);
