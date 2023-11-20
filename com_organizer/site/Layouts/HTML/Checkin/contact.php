@@ -11,7 +11,7 @@
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{HTML, Text};
 
-$privacyText = Text::_('ORGANIZER_PRIVACY_POLICY');
+$privacyText = Text::_('PRIVACY_POLICY');
 $privacyURL  = str_replace('profile', 'privacy', Uri::getInstance());
 $privacyLink = HTML::link($privacyURL, $privacyText);
 
@@ -32,7 +32,7 @@ $privacyLink = HTML::link($privacyURL, $privacyText);
         </div>
     </div>
     <div class="control-group">
-        <input class="btn" type="submit" value="<?php echo Text::_('ORGANIZER_SAVE'); ?>"/>
+        <input class="btn" type="submit" value="<?php echo Text::_('SAVE'); ?>"/>
     </div>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.contact"/>

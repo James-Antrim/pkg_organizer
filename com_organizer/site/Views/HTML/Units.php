@@ -84,12 +84,12 @@ class Units extends ListView
         if ($item->status === 'removed') {
             $date  = Helpers\Dates::formatDate($item->modified);
             $class .= ' unit-removed';
-            $title = Text::sprintf('ORGANIZER_UNIT_REMOVED_ON', $date);
+            $title = Text::sprintf('UNIT_REMOVED_ON', $date);
         }
         elseif ($item->status === 'new' and $item->modified >= $this->statusDate) {
             $date  = Helpers\Dates::formatDate($item->modified);
             $class .= ' unit-new';
-            $title = Text::sprintf('ORGANIZER_UNIT_ADDED_ON', $date);
+            $title = Text::sprintf('UNIT_ADDED_ON', $date);
 
         }
 
@@ -104,12 +104,12 @@ class Units extends ListView
         $headers = [
             'checkbox' => HTML::checkAll(),
             'status'   => '',
-            'name'     => Text::_('ORGANIZER_NAME'),
-            'method'   => Text::_('ORGANIZER_METHOD'),
-            'dates'    => Text::_('ORGANIZER_DATES'),
-            'grid'     => Text::_('ORGANIZER_GRID'),
-            'code'     => Text::_('ORGANIZER_UNTIS_ID'),
-            //'run'      => Text::_('ORGANIZER_RUN')
+            'name'     => Text::_('NAME'),
+            'method'   => Text::_('METHOD'),
+            'dates'    => Text::_('DATES'),
+            'grid'     => Text::_('GRID'),
+            'code'     => Text::_('UNTIS_ID'),
+            //'run'      => Text::_('RUN')
         ];
 
         $this->headers = $headers;

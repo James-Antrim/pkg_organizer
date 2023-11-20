@@ -46,7 +46,7 @@ class ContactTracking extends ListView
     {
         $then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
         $today          = Helpers\Dates::formatDate(date('Y-m-d'));
-        $this->subtitle = Text::_('ORGANIZER_INTERVAL') . ": $then - $today";
+        $this->subtitle = Text::_('INTERVAL') . ": $then - $today";
     }
 
     /**
@@ -87,7 +87,7 @@ class ContactTracking extends ListView
         $index           = 1;
         $link            = '';
         $listFormat      = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
-        $mText           = Text::_('ORGANIZER_MINUTES');
+        $mText           = Text::_('MINUTES');
         $structuredItems = [];
 
         foreach ($this->items as $item) {
@@ -154,7 +154,7 @@ class ContactTracking extends ListView
             $this->empty = ' ';
         }
         else {
-            $this->empty = Text::_('ORGANIZER_ENTER_SEARCH_TERM');
+            $this->empty = Text::_('ENTER_SEARCH_TERM');
         }
 
         parent::display($tpl);
@@ -168,15 +168,15 @@ class ContactTracking extends ListView
         $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
         $headers    = [
             'index'  => '#',
-            'person' => Text::_('ORGANIZER_PERSON'),
-            'data'   => Text::_('ORGANIZER_CONTACT_INFORMATION')
+            'person' => Text::_('PERSON'),
+            'data'   => Text::_('CONTACT_INFORMATION')
         ];
 
         $otherHeaders = match ($listFormat) {
-            self::BY_EVENT => ['contacts' => Text::_('ORGANIZER_CONTACTS')],
+            self::BY_EVENT => ['contacts' => Text::_('CONTACTS')],
             default => [
-                'dates'  => Text::_('ORGANIZER_DATES'),
-                'length' => Text::_('ORGANIZER_CONTACT_LENGTH')
+                'dates'  => Text::_('DATES'),
+                'length' => Text::_('CONTACT_LENGTH')
             ],
         };
 

@@ -73,7 +73,7 @@ class CourseParticipants extends Participants
         $script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
         $batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 
-        $title       = Text::_('ORGANIZER_NOTIFY');
+        $title       = Text::_('NOTIFY');
         $batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
 
         $batchButton .= '</button>';
@@ -123,7 +123,7 @@ class CourseParticipants extends Participants
                     'participantID',
                     $item->id,
                     $item->status,
-                    Text::_('ORGANIZER_TOGGLE_ACCEPTED'),
+                    Text::_('TOGGLE_ACCEPTED'),
                     'status'
                 );
             }
@@ -139,7 +139,7 @@ class CourseParticipants extends Participants
                     'participantID',
                     $item->id,
                     $item->attended,
-                    Text::_('ORGANIZER_TOGGLE_ATTENDED'),
+                    Text::_('TOGGLE_ATTENDED'),
                     'attended'
                 );
             }
@@ -155,7 +155,7 @@ class CourseParticipants extends Participants
                     'participantID',
                     $item->id,
                     $item->paid,
-                    Text::_('ORGANIZER_TOGGLE_PAID'),
+                    Text::_('TOGGLE_PAID'),
                     'paid'
                 );
             }

@@ -30,26 +30,26 @@ trait Documented
 
         $lsfLink = HTML::link(
             'https://studien-sb-service.th-mittelhessen.de/docu/online.html',
-            Text::_('ORGANIZER_DISCLAIMER_LSF_TITLE'),
+            Text::_('DISCLAIMER_LSF_TITLE'),
             $attributes
         );
         $ambLink = HTML::link(
             'https://www.thm.de/amb/pruefungsordnungen',
-            Text::_('ORGANIZER_DISCLAIMER_AMB_TITLE'),
+            Text::_('DISCLAIMER_AMB_TITLE'),
             $attributes
         );
         $poLink  = HTML::link(
             'https://www.thm.de/site/studium/sie-studieren/pruefungsordnung.html',
-            Text::_('ORGANIZER_DISCLAIMER_PO_TITLE'),
+            Text::_('DISCLAIMER_PO_TITLE'),
             $attributes
         );
 
         $disclaimer = '<div class="disclaimer">';
-        $disclaimer .= '<h4>' . Text::_('ORGANIZER_DISCLAIMER_LEGAL') . '</h4>';
+        $disclaimer .= '<h4>' . Text::_('DISCLAIMER_LEGAL') . '</h4>';
         $disclaimer .= '<ul>';
-        $disclaimer .= '<li>' . Text::sprintf('ORGANIZER_DISCLAIMER_LSF_TEXT', $lsfLink) . '</li>';
-        $disclaimer .= '<li>' . Text::sprintf('ORGANIZER_DISCLAIMER_AMB_TEXT', $ambLink) . '</li>';
-        $disclaimer .= '<li>' . Text::sprintf('ORGANIZER_DISCLAIMER_PO_TEXT', $poLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_LSF_TEXT', $lsfLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_AMB_TEXT', $ambLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_PO_TEXT', $poLink) . '</li>';
         $disclaimer .= '</ul>';
         $disclaimer .= '</div>';
 

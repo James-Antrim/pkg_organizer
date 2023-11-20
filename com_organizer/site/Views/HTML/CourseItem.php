@@ -54,7 +54,7 @@ class CourseItem extends ItemView
                 $toolbar->appendButton(
                     'Link',
                     'vcard',
-                    Text::_('ORGANIZER_PROFILE_EDIT'),
+                    Text::_('PROFILE_EDIT'),
                     'index.php?option=com_organizer&view=participant_edit'
                 );
 
@@ -65,11 +65,11 @@ class CourseItem extends ItemView
                     $validProfile = CourseParticipants::validProfile($courseID, $participantID);
                     if (!$full and $state === CourseParticipants::UNREGISTERED and $validProfile) {
                         $rLink = $link . '&task=courses.register';
-                        $toolbar->appendButton('Link', 'enter', Text::_('ORGANIZER_REGISTER'), $rLink);
+                        $toolbar->appendButton('Link', 'enter', Text::_('REGISTER'), $rLink);
                     }
                     elseif ($state === CourseParticipants::ACCEPTED or $state === CourseParticipants::WAITLIST) {
                         $drLink = $link . '&task=courses.deregister';
-                        $toolbar->appendButton('Link', 'exit', Text::_('ORGANIZER_DEREGISTER'), $drLink);
+                        $toolbar->appendButton('Link', 'exit', Text::_('DEREGISTER'), $drLink);
 
                         $hasPaid = CourseParticipants::hasPaid($courseID, $participantID);
                         if ($state === CourseParticipants::ACCEPTED and $hasPaid) {
@@ -77,7 +77,7 @@ class CourseItem extends ItemView
                             $toolbar->appendButton(
                                 'Link',
                                 'tags-2',
-                                Text::_('ORGANIZER_DOWNLOAD_BADGE'),
+                                Text::_('DOWNLOAD_BADGE'),
                                 $bLink,
                                 true
                             );
@@ -90,7 +90,7 @@ class CourseItem extends ItemView
                 $toolbar->appendButton(
                     'Link',
                     'user-plus',
-                    Text::_('ORGANIZER_PROFILE_NEW'),
+                    Text::_('PROFILE_NEW'),
                     $link . '&view=participant_edit'
                 );
             }
@@ -107,7 +107,7 @@ class CourseItem extends ItemView
 
         if ($this->item['campusID']) {
             $campusName     = Campuses::getName($this->item['campusID']);
-            $this->subtitle .= Text::_('ORGANIZER_CAMPUS') . " $campusName: ";
+            $this->subtitle .= Text::_('CAMPUS') . " $campusName: ";
         }
 
         $this->subtitle .= Courses::getDateDisplay($this->item['id']) . '</h6>';

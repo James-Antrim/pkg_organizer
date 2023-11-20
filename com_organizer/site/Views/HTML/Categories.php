@@ -47,7 +47,7 @@ class Categories extends ListView
         $structuredItems = [];
 
         foreach ($this->items as $item) {
-            $tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
+            $tip          = $item->active ? 'CLICK_TO_DEACTIVATE' : 'CLICK_TO_ACTIVATE';
             $item->active = $this->getToggle('categories', $item->id, $item->active, $tip, 'active');
 
             $item->program           = Helpers\Categories::getName($item->id);

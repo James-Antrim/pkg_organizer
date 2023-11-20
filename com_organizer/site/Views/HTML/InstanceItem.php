@@ -200,7 +200,7 @@ class InstanceItem extends ListView
         $instance = $this->instance;
 
         echo '<div class="attribute-item">';
-        echo '<div class="attribute-label">' . Text::_('ORGANIZER_PERSONS') . '</div>';
+        echo '<div class="attribute-label">' . Text::_('PERSONS') . '</div>';
         echo '<div class="attribute-content"><ul>';
 
         foreach ($instance->persons as $persons) {
@@ -223,7 +223,7 @@ class InstanceItem extends ListView
                 }
 
                 if ($instance->hideGroups and !empty($person['groups'])) {
-                    echo '<li>' . Text::_('ORGANIZER_GROUPS') . '<ul>';
+                    echo '<li>' . Text::_('GROUPS') . '<ul>';
                     foreach ($person['groups'] as $group) {
                         $list = count($person['groups']) > 1;
                         echo $list ? '<li>' : '';
@@ -236,7 +236,7 @@ class InstanceItem extends ListView
                 }
 
                 if ($instance->hideRooms and !empty($person['rooms'])) {
-                    echo '<li>' . Text::_('ORGANIZER_ROOMS') . '<ul>';
+                    echo '<li>' . Text::_('ROOMS') . '<ul>';
                     foreach ($person['rooms'] as $room) {
                         $list = count($person['rooms']) > 1;
                         echo $list ? '<li>' : '';
@@ -282,13 +282,13 @@ class InstanceItem extends ListView
 
         switch ($instance->presence) {
             case Helper::HYBRID:
-                $formText = Text::_('ORGANIZER_HYBRID');
+                $formText = Text::_('HYBRID');
                 break;
             case Helper::ONLINE:
-                $formText = Text::_('ORGANIZER_ONLINE_TEXT');
+                $formText = Text::_('ONLINE_TEXT');
                 break;
             case Helper::PRESENCE:
-                $formText = Text::_('ORGANIZER_PRESENCE_TEXT');
+                $formText = Text::_('PRESENCE_TEXT');
                 break;
         }
 
@@ -299,35 +299,35 @@ class InstanceItem extends ListView
         {
             if (Helper::getMethodCode($instance->instanceID) === Methods::FINALCODE)
             {
-                echo '<li>' . Text::_('ORGANIZER_REGISTRATION_EXTERNAL') . '</li>';
+                echo '<li>' . Text::_('REGISTRATION_EXTERNAL') . '</li>';
             }
             elseif ($instance->premature)
             {
-                echo '<li>' . Text::sprintf('ORGANIZER_REGISTRATION_OPENS_ON', $instance->registrationStart) . '</li>';
+                echo '<li>' . Text::sprintf('REGISTRATION_OPENS_ON', $instance->registrationStart) . '</li>';
             }
             elseif ($instance->running)
             {
-                echo '<li>' . Text::_('ORGANIZER_REGISTRATION_CLOSED') . '</li>';
+                echo '<li>' . Text::_('REGISTRATION_CLOSED') . '</li>';
             }
             else
             {
-                echo '<li>' . Text::_('ORGANIZER_REGISTRATION_OPEN') . '</li>';
+                echo '<li>' . Text::_('REGISTRATION_OPEN') . '</li>';
 
                 if ($instance->capacity)
                 {
                     if ($available = $instance->capacity - $instance->current)
                     {
-                        echo '<li>' . Text::sprintf('ORGANIZER_REGISTRATIONS_AVAILABLE_COUNT', $available) . '</li>';
+                        echo '<li>' . Text::sprintf('REGISTRATIONS_AVAILABLE_COUNT', $available) . '</li>';
                     }
                     else
                     {
-                        echo '<li>' . Text::_('ORGANIZER_INSTANCE_FULL') . '</li>';
+                        echo '<li>' . Text::_('INSTANCE_FULL') . '</li>';
                     }
                 }
                 // No capacity => no idea
                 else
                 {
-                    echo '<li>' . Text::_('ORGANIZER_REGISTRATIONS_AVAILABLE') . '</li>';
+                    echo '<li>' . Text::_('REGISTRATIONS_AVAILABLE') . '</li>';
                 }
             }
         }*/
@@ -360,7 +360,7 @@ class InstanceItem extends ListView
 
         $dateTime = Dates::formatDateTime($dateTime);
         $delta    = $status === 'removed' ?
-            Text::sprintf('ORGANIZER_REMOVED_ON', $dateTime) : Text::sprintf('ORGANIZER_ADDED_ON', $dateTime);
+            Text::sprintf('REMOVED_ON', $dateTime) : Text::sprintf('ADDED_ON', $dateTime);
 
         echo "<span class=\"$status\">$name</span> $delta";
     }
@@ -395,11 +395,11 @@ class InstanceItem extends ListView
     {
         $this->headers = [
             'tools'    => ($this->userID and !Application::mobile()) ? HTML::checkAll() : '',
-            'instance' => Text::_('ORGANIZER_INSTANCE'),
-            'status'   => Text::_('ORGANIZER_STATUS'),
-            'persons'  => Text::_('ORGANIZER_PERSONS'),
-            'groups'   => Text::_('ORGANIZER_GROUPS'),
-            'rooms'    => Text::_('ORGANIZER_ROOMS')
+            'instance' => Text::_('INSTANCE'),
+            'status'   => Text::_('STATUS'),
+            'persons'  => Text::_('PERSONS'),
+            'groups'   => Text::_('GROUPS'),
+            'rooms'    => Text::_('ROOMS')
         ];
     }
 
@@ -430,7 +430,7 @@ class InstanceItem extends ListView
         // Set unit baseline for process dating.
         if ($dtRelevant) {
             $this->dateTime = $instance->unitStatusDate;
-            $constant       = $instance->unitStatus === 'removed' ? 'ORGANIZER_UNIT_REMOVED_ON' : 'ORGANIZER_UNIT_ADDED_ON';
+            $constant       = $instance->unitStatus === 'removed' ? 'UNIT_REMOVED_ON' : 'UNIT_ADDED_ON';
             $status         = $instance->unitStatus;
             $this->status   = $instance->unitStatus;
             $statusDate     = Dates::formatDateTime($instance->unitStatusDate);
@@ -447,7 +447,7 @@ class InstanceItem extends ListView
 
             // Instance was removed...
             if ($instance->instanceStatus === 'removed') {
-                $text = 'ORGANIZER_INSTANCE_REMOVED_ON';
+                $text = 'INSTANCE_REMOVED_ON';
 
                 // ...before the unit was removed.
                 if ($status === 'removed' and $earlier) {
@@ -463,7 +463,7 @@ class InstanceItem extends ListView
             elseif ($status !== 'removed' and $instance->instanceStatus === 'new') {
                 $this->dateTime = $instance->instanceStatusDate;
                 $this->status   = $instance->instanceStatus;
-                $message        = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', $statusDate);
+                $message        = Text::sprintf('INSTANCE_ADDED_ON', $statusDate);
             }
         }
 
@@ -562,7 +562,7 @@ class InstanceItem extends ListView
 
         if ($modified and $status !== 'new' and $status !== 'removed') {
             $modified         = Dates::formatDateTime($modified);
-            $this->messages[] = Text::sprintf('ORGANIZER_LAST_UPDATED', $modified);
+            $this->messages[] = Text::sprintf('LAST_UPDATED', $modified);
         }
 
         $this->instance = $instance;
@@ -624,24 +624,24 @@ class InstanceItem extends ListView
 
         if ($instance->expired) {
             $color          = 'grey';
-            $this->messages = [Text::_('ORGANIZER_INSTANCE_EXPIRED')];
+            $this->messages = [Text::_('INSTANCE_EXPIRED')];
         }
         elseif (!$this->userID) {
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_LOG_IN_FIRST');
+            $this->messages[] = Text::_('INSTANCE_LOG_IN_FIRST');
         }
         elseif ($instance->registered) {
             $color            = 'green';
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_REGISTERED');
+            $this->messages[] = Text::_('INSTANCE_REGISTERED');
         }
         elseif ($instance->bookmarked) {
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_BOOKMARKED');
+            $this->messages[] = Text::_('INSTANCE_BOOKMARKED');
 
             if ($instance->presence !== Helper::ONLINE) {
                 $color = 'yellow';
             }
         }
         elseif (!$instance->taught) {
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_NOT_BOOKMARKED');
+            $this->messages[] = Text::_('INSTANCE_NOT_BOOKMARKED');
         }
 
         if ($this->messages) {

@@ -50,10 +50,10 @@ class Buildings extends ListView
     {
         $item->campusID     = Helpers\Campuses::getName($item->campusID);
         $item->propertyType = match ($item->propertyType) {
-            self::OWNED => Text::_('ORGANIZER_OWNED'),
-            self::RENTED => Text::_('ORGANIZER_RENTED'),
-            self::USED => Text::_('ORGANIZER_USED'),
-            default => Text::_('ORGANIZER_UNKNOWN'),
+            self::OWNED => Text::_('OWNED'),
+            self::RENTED => Text::_('RENTED'),
+            self::USED => Text::_('USED'),
+            default => Text::_('UNKNOWN'),
         };
     }
 

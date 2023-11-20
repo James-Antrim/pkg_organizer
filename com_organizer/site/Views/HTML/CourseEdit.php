@@ -27,7 +27,7 @@ class CourseEdit extends EditView
     protected function addToolBar(): void
     {
         if ($this->item->id) {
-            $title = Text::_('ORGANIZER_COURSE_EDIT');
+            $title = Text::_('COURSE_EDIT');
 
             if (Application::backend()) {
                 $campus = Helpers\Campuses::getName($this->item->campusID);
@@ -40,7 +40,7 @@ class CourseEdit extends EditView
             }
         }
         else {
-            $title = Text::_('ORGANIZER_COURSE_NEW');
+            $title = Text::_('COURSE_NEW');
         }
 
         parent::addToolBar();

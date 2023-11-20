@@ -55,23 +55,23 @@ class Search extends ListView
             switch ($type) {
                 case 'curriculum':
                     $icon = '<span class="icon-grid-2"></span>';
-                    $text = Text::_('ORGANIZER_CURRICULUM');
+                    $text = Text::_('CURRICULUM');
                     break;
                 case 'grid':
                     $icon = '<span class="icon-calendar"></span>';
-                    $text = Text::_('ORGANIZER_SCHEDULE');
+                    $text = Text::_('SCHEDULE');
                     break;
                 case 'list':
                     $icon = '<span class="icon-list"></span>';
-                    $text = Text::_('ORGANIZER_INSTANCES');
+                    $text = Text::_('INSTANCES');
                     break;
                 case 'subjects':
                     $icon = '<span class="icon-list"></span>';
-                    $text = Text::_('ORGANIZER_SUBJECTS');
+                    $text = Text::_('SUBJECTS');
                     break;
                 case 'subject_item':
                     $icon = '<span class="icon-book"></span>';
-                    $text = Text::_('ORGANIZER_SUBJECT');
+                    $text = Text::_('SUBJECT');
                     break;
             }
 
@@ -118,7 +118,7 @@ class Search extends ListView
     {
         $this->state = $this->get('State');
 
-        $this->empty = $this->state->get('filter.search') ? '' : Text::_('ORGANIZER_NO_SEARCH_QUERY');
+        $this->empty = $this->state->get('filter.search') ? '' : Text::_('NO_SEARCH_QUERY');
 
         parent::display($tpl);
     }
@@ -128,6 +128,6 @@ class Search extends ListView
      */
     protected function initializeColumns(): void
     {
-        $this->headers = ['result' => Text::_('ORGANIZER_RESOURCE'), 'links' => Text::_('ORGANIZER_LINKS')];
+        $this->headers = ['result' => Text::_('RESOURCE'), 'links' => Text::_('LINKS')];
     }
 }

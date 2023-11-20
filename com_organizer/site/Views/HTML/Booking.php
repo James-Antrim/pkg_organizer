@@ -38,7 +38,7 @@ class Booking extends Participants
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle(Text::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}");
+        $this->setTitle(Text::_('EVENT_CODE') . ": {$this->booking->code}");
 
         $toolbar = Toolbar::getInstance();
 
@@ -254,9 +254,9 @@ class Booking extends Participants
     protected function setSupplement(): void
     {
         $bookingDate = $this->booking->get('date');
-        $expiredText = Text::_('ORGANIZER_BOOKING_CLOSED');
-        $ongoingText = Text::_('ORGANIZER_BOOKING_ONGOING');
-        $pendingText = Text::_('ORGANIZER_BOOKING_PENDING');
+        $expiredText = Text::_('BOOKING_CLOSED');
+        $ongoingText = Text::_('BOOKING_ONGOING');
+        $pendingText = Text::_('BOOKING_PENDING');
         $today       = date('Y-m-d');
 
         if ($today === $bookingDate) {
@@ -289,11 +289,11 @@ class Booking extends Participants
         $count         = Helper::getParticipantCount($this->bookingID);
         $registrations = Helper::getRegistrations($this->bookingID);
         $capacity      = Helper::getCapacity($this->bookingID);
-        $countText     = Text::sprintf('ORGANIZER_CHECKIN_COUNT', $count, $registrations, $capacity);
+        $countText     = Text::sprintf('CHECKIN_COUNT', $count, $registrations, $capacity);
 
         if ($count and $roomID = $this->state->get('filter.roomID')) {
             $roomCount = Helper::getParticipantCount($this->bookingID, $roomID);
-            $roomCount = Text::sprintf('ORGANIZER_CHECKIN_ROOM_COUNT', $roomCount);
+            $roomCount = Text::sprintf('CHECKIN_ROOM_COUNT', $roomCount);
             $countText .= " ($roomCount)";
         }
 
