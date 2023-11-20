@@ -22,8 +22,11 @@ class ListItem
 {
     private const ADMIN = true;
 
-    public const DIRECT = 1, NONE = 0, TAB = 2;
-    public const LINK_TYPES = [self::DIRECT, self::NONE, self::TAB];
+    // General
+    public const NO = 0, YES = 1;
+
+    public const DIRECT = 1, TAB = 2;
+    public const LINK_TYPES = [self::DIRECT, self::NO, self::TAB];
 
     /**
      * Renders a check all box style list header.
@@ -97,7 +100,7 @@ class ListItem
 
             foreach ($view->headers as $column => $header) {
                 $linkType = (!empty($header['link']) and in_array($header['link'], self::LINK_TYPES)) ?
-                    $header['link'] : self::NONE;
+                    $header['link'] : self::NO;
 
                 $header['properties'] = $header['properties'] ?? [];
                 switch ($header['type']) {
@@ -107,8 +110,11 @@ class ListItem
                     case 'ordering':
                         self::ordering($item, $dragEnabled);
                         break;
-                    case 'sort':
                     case 'text':
+                        $localize = (!empty($header['localize']) and $header['localize'] == self::YES) ? self::YES : self::NO;
+                        self::text($item, $column, Application::backend(), $linkType, $localize);
+                        break;
+                    case 'sort':
                     case 'value':
                     default:
                         self::text($item, $column, Application::backend(), $linkType);
@@ -128,7 +134,7 @@ class ListItem
      * @param   bool    $administration  the display context (false: public, true: admin)
      * @param   int     $linkType        the link type to use for the displayed column value
      */
-    private static function text(object $item, string $column, bool $administration, int $linkType): void
+    private static function text(object $item, string $column, bool $administration, int $linkType, bool $localize = false): void
     {
         $value = $item->$column ?? '';
 
@@ -160,6 +166,7 @@ class ListItem
             $attributes = $linkType === self::TAB ? ['target' => '_blank'] : [];
             $editURL    = Route::_("$item->url&layout=edit");
             $url        = Route::_($item->url);
+            $value      = $localize ? Text::_($value) : $value;
 
             if (empty($item->access)) {
                 echo HTML::link($url, $value, $attributes);

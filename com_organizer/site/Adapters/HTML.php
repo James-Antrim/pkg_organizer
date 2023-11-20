@@ -80,7 +80,7 @@ class HTML extends HTMLHelper
      */
     public static function link($url, $text, $attribs = null): string
     {
-        return parent::link($url, Text::_($text), $attribs);
+        return parent::link($url, $text, $attribs);
     }
 
     /**
@@ -228,6 +228,7 @@ class HTML extends HTMLHelper
             $properties['target'] = '_blank';
         }
 
+        $content = Text::_($content);
         $url     = $url ?: '#';
         $content = self::link($url, $content, $properties);
         $tip     = "<div role=\"tooltip\" id=\"$context\">" . Text::_($tip) . '</div>';
