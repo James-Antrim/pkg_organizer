@@ -57,7 +57,8 @@ class Can
     /**
      * Checks for user access to event coordination, optionally a specific event
      *
-     * @param   int  $resourceID
+     * @param   string  $resource    the name of the resource to check for coordinating authorization against
+     * @param   int     $resourceID  the id of the resource to check against, optional
      *
      * @return bool
      */
@@ -186,7 +187,7 @@ class Can
      *
      * @return bool true if the user is authorized to manage courses, otherwise false
      */
-    public static function edit(string $resourceType, $resource = null): bool
+    public static function edit(string $resourceType, array|int|null $resource = null): bool
     {
         if (is_bool($authorized = self::basic())) {
             return $authorized;
@@ -343,13 +344,7 @@ class Can
 
                 $courseIDs = Participants::getCourseIDs($resourceID);
 
-                foreach ($courseIDs as $courseID) {
-                    if (Courses::coordinates($courseID)) {
-                        return true;
-                    }
-                }
-
-                return false;
+                return (bool) array_intersect($courseIDs, Courses::coordinates());
             case 'persons':
                 return Users::getUser()->authorise('organizer.hr', 'com_organizer');
             case 'unit':
@@ -421,7 +416,7 @@ class Can
 
     /**
      * Check whether the user is authorized to perform contact tracing.
-     * @return bool|null
+     * @return bool
      */
     public static function traceContacts(): bool
     {
@@ -461,7 +456,7 @@ class Can
             => self::edit(strtolower($view), $resourceID),
             // Special dispensation for coordinators and teachers
             'Event' => self::coordinate($resourceID),
-            'Events' => self::coordinate(),
+            'Events' => self::coordinate('events'),
             // Curriculum resources with no intrinsic public value
             'FieldColors', 'Pools', 'PoolSelection', 'SubjectSelection'
             => (bool) self::documentTheseOrganizations(),

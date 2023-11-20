@@ -10,8 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use stdClass;
+use THM\Organizer\Helpers\{Can, Categories as Helper};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of event categories into the display context.
@@ -29,7 +31,7 @@ class Categories extends ListView
 
         $this->addActa();
 
-        if (Helpers\Can::administrate()) {
+        if (Can::administrate()) {
             $toolbar = Toolbar::getInstance();
             $toolbar->delete('Categories.delete');
         }
@@ -40,22 +42,10 @@ class Categories extends ListView
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=CategoryEdit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $tip          = $item->active ? 'CLICK_TO_DEACTIVATE' : 'CLICK_TO_ACTIVATE';
-            $item->active = $this->getToggle('categories', $item->id, $item->active, $tip, 'active');
-
-            $item->program           = Helpers\Categories::getName($item->id);
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $item->active  = HTML::toggle($index, Helper::activeStates[$item->active], 'Categories');
+        $item->program = Helper::getName($item->id);
     }
 
     /**
@@ -63,14 +53,30 @@ class Categories extends ListView
      */
     public function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'name'     => HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
-            'active'   => Text::_('ACTIVE'),
-            'program'  => Text::_('PROGRAM'),
-            'code'     => HTML::sort('UNTIS_ID', 'code', $direction, $ordering)
+            'check'   => ['type' => 'check'],
+            'name'    => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'type'       => 'text'
+            ],
+            'active'  => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ACTIVE'),
+                'type'       => 'value'
+            ],
+            'program' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('PROGRAM'),
+                'type'       => 'text'
+            ],
+            'code'    => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('UNTIS_ID'),
+                'type'       => 'text'
+            ],
         ];
 
         $this->headers = $headers;

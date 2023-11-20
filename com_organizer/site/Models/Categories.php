@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of categories.
@@ -30,15 +30,23 @@ class Categories extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Category&id=';
 
-        $query = Database::getQuery();
-        $query->select("DISTINCT cat.id, cat.code, cat.name_$tag AS name, cat.active")
-            ->from('#__organizer_categories AS cat')
-            ->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
+        $select = [
+            'DISTINCT ' . DB::qn('cat.id'),
+            DB::quote(1) . ' AS ' . DB::qn('access'),
+            DB::qn('cat.active'),
+            DB::qn('cat.code'),
+            DB::qn("cat.name_$tag", 'name'),
+            $query->concatenate([DB::quote($url), DB::qn('cat.id')], '') . ' AS ' . DB::qn('url'),
+        ];
 
-        $authorized = implode(",", Helpers\Can::scheduleTheseOrganizations());
-        $query->where("a.organizationID IN ($authorized)");
+        $query->select($select)
+            ->from(DB::qn('#__organizer_categories', 'cat'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'cat.id'))
+            ->whereIn(DB::qn('a.organizationID'), Can::scheduleTheseOrganizations());
 
         $this->filterActive($query, 'cat');
         $this->filterSearch($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
