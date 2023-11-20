@@ -12,7 +12,6 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
-use Joomla\Database\QueryInterface;
 use THM\Organizer\Helpers\Can;
 
 /**
@@ -21,19 +20,6 @@ use THM\Organizer\Helpers\Can;
 class Organizations extends ListModel
 {
     protected string $defaultOrdering = 'shortName';
-
-    /**
-     * @inheritDoc
-     */
-    protected function addAccess(QueryInterface $query): void
-    {
-        if ($ids = Can::manageTheseOrganizations()) {
-            $query->select(DB::qn('o.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access'));
-        }
-        else {
-            $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
-        }
-    }
 
     /**
      * Method to get a list of resources from the database.
@@ -45,10 +31,20 @@ class Organizations extends ListModel
         $tag   = Application::getTag();
         $url   = 'index.php?option=com_organizer&view=Organization&id=';
 
+        if (Can::administrate()) {
+            $access = [DB::quote(1) . ' AS ' . DB::qn('access')];
+        }
+        elseif ($ids = Can::manageTheseOrganizations()) {
+            $access = [DB::qn('o.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access')];
+        }
+        else {
+            $access = [DB::quote(0) . ' AS ' . DB::qn('access')];
+        }
+
         $aliased = DB::qn(["o.fullName_$tag", "o.shortName_$tag"], ['name', 'shortName']);
         $url     = [$query->concatenate([DB::quote($url), DB::qn('o.id')], '') . ' AS ' . DB::qn('url')];
 
-        $query->select(array_merge([DB::qn('o.id'), DB::qn('a.rules')], $aliased, $url))
+        $query->select(array_merge([DB::qn('o.id'), DB::qn('a.rules')], $access, $aliased, $url))
             ->from(DB::qn('#__organizer_organizations', 'o'))
             ->innerJoin(DB::qn('#__assets', 'a'), DB::qn('a.id') . ' = ' . DB::qn('o.asset_id'));
 

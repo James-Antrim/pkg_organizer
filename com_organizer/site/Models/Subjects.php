@@ -83,6 +83,17 @@ class Subjects extends ListModel
         $tag   = Application::getTag();
         $url   = 'index.php?option=com_organizer&view=Subject&id=';
 
+
+        if (Can::administrate()) {
+            $access = DB::quote(1) . ' AS ' . DB::qn('access');
+        }
+        elseif ($ids = Helper::documentable()) {
+            $access = DB::qn('s.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access');
+        }
+        else {
+            $access = DB::quote(0) . ' AS ' . DB::qn('access');
+        }
+
         $select = [
             'DISTINCT ' . DB::qn('s.id'),
             DB::qn('s.code'),
@@ -90,17 +101,11 @@ class Subjects extends ListModel
             DB::qn("s.fullName_$tag", 'name'),
             DB::qn('s.fieldID'),
             $query->concatenate([DB::quote($url), DB::qn('s.id')], '') . ' AS ' . DB::qn('url'),
+            $access,
         ];
 
         $query->select($select)
             ->from(DB::qn('#__organizer_subjects', 's'));
-
-        if ($ids = Helper::documentable()) {
-            $query->select(DB::qn('s.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access'));
-        }
-        else {
-            $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
-        }
 
         $searchFields = [
             's.fullName_de',

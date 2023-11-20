@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Can;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of events into the display context.
@@ -32,8 +32,10 @@ class Events extends ListView
         if (Can::administrate()) {
             $this->addMerge();
 
+            $toolbar = Toolbar::getInstance();
+            $toolbar->delete('Events.clean')->icon('fa fa-broom')->listCheck(false)->text(Text::_('CLEAN_ENTRIES'));
+
             if (Application::backend()) {
-                $toolbar = Toolbar::getInstance();
                 $toolbar->preferences('com_organizer');
             }
         }
@@ -42,32 +44,27 @@ class Events extends ListView
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
-    {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=event_edit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox'     => '',
-            'code'         => HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
-            'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
-            'organization' => HTML::sort('ORGANIZATION', 'name', $direction, $ordering)
+            'check'        => ['type' => 'check'],
+            'name'         => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'type'       => 'text'
+            ],
+            'code'         => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('UNTIS_ID'),
+                'type'       => 'text'
+            ],
+            'organization' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ORGANIZATION'),
+                'type'       => 'text'
+            ],
         ];
 
         $this->headers = $headers;

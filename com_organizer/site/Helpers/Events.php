@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\ParameterType;
-use function Symfony\Component\String\b;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Tables\Events as Table;
 
 /**
  * Provides general functions for subject access checks, data retrieval and display.
@@ -65,6 +65,8 @@ class Events extends ResourceHelper
             }
         }
 
+        DB::setQuery($query);
+
         return DB::loadIntColumn();
     }
 
@@ -113,7 +115,13 @@ class Events extends ResourceHelper
      */
     public static function getOrganizationID(int $eventID): int
     {
-        // todo implement
+        /** @var Table $table */
+        $table = self::getTable();
+
+        if ($table->load($eventID)) {
+            return $table->organizationID;
+        }
+
         return 0;
     }
 
