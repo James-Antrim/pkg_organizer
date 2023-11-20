@@ -150,14 +150,14 @@ class HTML extends HTMLHelper
     /**
      * Returns an action on a grid
      *
-     * @param   int     $index       the row index
+     * @param   int     $index       the row id
      * @param   array   $state       the state configuration
      * @param   string  $controller  the name of the controller class
-     * @param   string  $neither     text for columns which cannot be toggled
+     * @param   int     $assocID     the id of the referencing column
      *
      * @return  string
      */
-    public static function toggle(int $index, array $state, string $controller = '', string $neither = ''): string
+    public static function toggle(int $index, array $state, string $controller = '', int $assocID = 0): string
     {
         $ariaID     = "{$state['column']}-$index";
         $attributes = [
@@ -165,32 +165,18 @@ class HTML extends HTMLHelper
             'class'           => "tbody-icon"
         ];
 
-        $class  = $state['class'];
-        $return = '';
+        $class     = $state['class'];
+        $iconClass = $class === 'publish' ? 'fa fa-check' : 'fa fa-times';
+        $assocKey  = $assocID ? ".$assocID" : '';
+        $return    = '';
+        $task      = $state['task'];
+        $tip       = Text::_($state['tip']);
 
-        if ($neither) {
-            $iconClass = 'fa fa-minus';
-            $task      = '';
-            $tip       = $neither;
-        }
-        else {
-            $iconClass = $class === 'publish' ? 'fa fa-check' : 'fa fa-times';
-            $task      = $state['task'];
-            $tip       = Text::_($state['tip']);
-        }
+        $attributes['class']   .= $class === 'publish' ? ' active' : '';
+        $attributes['href']    = 'javascript:void(0);';
+        $attributes['onclick'] = "return Joomla.listItemTask('cb$index','$controller.$task$assocKey','adminForm')";
 
-        $icon = self::icon($iconClass);
-
-        if ($task and $controller) {
-            $attributes['class']   .= $class === 'publish' ? ' active' : '';
-            $attributes['href']    = 'javascript:void(0);';
-            $attributes['onclick'] = "return Joomla.listItemTask('cb$index','$controller.$task','adminForm')";
-
-            $return .= '<a ' . ArrayHelper::toString($attributes) . '>' . $icon . '</a>';
-        }
-        else {
-            $return .= '<span ' . ArrayHelper::toString($attributes) . '>' . $icon . '</span>';
-        }
+        $return .= '<a ' . ArrayHelper::toString($attributes) . '>' . self::icon($iconClass) . '</a>';
 
         $return .= "<div role=\"tooltip\" id=\"$ariaID\">$tip</div>";
 
