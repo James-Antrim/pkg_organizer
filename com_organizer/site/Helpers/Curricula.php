@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Database as DB, Text};
-use Joomla\Database\ParameterType;
 
 /**
  * Class contains methods and method stubs useful in the context of nested curriculum resources.

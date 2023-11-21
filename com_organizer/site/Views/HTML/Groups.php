@@ -10,10 +10,11 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, HTML, Text, Toolbar};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\{Can, Grids, Groups as Helper, Terms};
+use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Tables\GroupPublishing;
 
 /**
  * Class loads persistent information a filtered set of (scheduled subject) pools into the display context.
@@ -32,20 +33,19 @@ class Groups extends ListView
 
         $toolbar = Toolbar::getInstance();
 
-        $if          = "alert('" . Text::_('ORGANIZER_LIST_SELECTION_WARNING', true) . "');";
+        /*$if          = "alert('" . Text::_('ORGANIZER_LIST_SELECTION_WARNING', true) . "');";
         $else        = "jQuery('#modal-publishing').modal('show'); return true;";
         $script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
         $batchButton = '<button id="group-publishing" data-toggle="modal" class="btn btn-small" ' . $script . '>';
 
-        $title       = Text::_('ORGANIZER_BATCH');
         $batchButton .= '<span class="icon-stack" title="' . $title . '"></span>' . " $title";
 
-        $batchButton .= '</button>';
+        $batchButton .= '</button>';*/
 
-        $toolbar->appendButton('Custom', $batchButton, 'batch');
+        $toolbar->popupButton('batch', Text::_('BATCH'));
         $this->addActa();
 
-        if (Helpers\Can::administrate()) {
+        if (Can::administrate()) {
             $this->addMerge();
             $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
                 ->icon('fa fa-reply-all');
@@ -57,47 +57,29 @@ class Groups extends ListView
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $currentTerm     = Helpers\Terms::getCurrentID();
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=group_edit&id=';
-        $nextTerm        = Helpers\Terms::getNextID();
-        $publishing      = new Tables\GroupPublishing();
-        $structuredItems = [];
+        $item->active = HTML::toggle($index, Helper::activeStates[$item->active], 'Groups');
+        $item->grid   = Grids::getName($item->gridID);
 
-        foreach ($this->items as $item) {
-            $tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
-            $item->active = $this->getToggle('groups', $item->id, $item->active, $tip, 'active');
+        $publishing   = new GroupPublishing();
+        $keys         = ['groupID' => $item->id, 'termID' => $options['currentID']];
+        $currentValue = $publishing->load($keys) ? $publishing->published : 1;
+        $item->this   = HTML::toggle($index, Helper::publishStates[$currentValue], 'Groups', $options['currentID']);
 
-            $termData   = ['groupID' => $item->id, 'termID' => $currentTerm];
-            $item->grid = Helpers\Grids::getName($item->gridID);
-
-            $thisValue  = $publishing->load($termData) ? $publishing->published : 1;
-            $tip        = $thisValue ? 'ORGANIZER_CLICK_TO_UNPUBLISH' : 'ORGANIZER_CLICK_TO_PUBLISH';
-            $item->this = $this->getToggle('groups', $item->id, $thisValue, $tip, $currentTerm);
-
-            $termData['termID'] = $nextTerm;
-            $nextValue          = $publishing->load($termData) ? $publishing->published : 1;
-            $tip                = $nextValue ? 'ORGANIZER_CLICK_TO_UNPUBLISH' : 'ORGANIZER_CLICK_TO_PUBLISH';
-            $item->next         = $this->getToggle('groups', $item->id, $nextValue, $tip, $nextTerm);
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $publishing     = new GroupPublishing();
+        $keys['termID'] = $options['nextID'];
+        $nextValue      = $publishing->load($keys) ? $publishing->published : 1;
+        $item->next     = HTML::toggle($index, Helper::publishStates[$nextValue], 'Groups', $options['nextID']);
     }
 
     /**
      * @inheritDoc
      */
-    public function display($tpl = null): void
+    protected function completeItems(array $options = []): void
     {
-        // Set batch template path
-        $this->batch = ['batch_group_publishing'];
-
-        parent::display($tpl);
+        $options = ['currentID' => Terms::getCurrentID(), 'nextID' => Terms::getNextID()];
+        parent::completeItems($options);
     }
 
     /**
@@ -105,20 +87,55 @@ class Groups extends ListView
      */
     protected function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => HTML::checkAll(),
-            'fullName' => HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
-            'this'     => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
-            'next'     => Helpers\Terms::getName(Helpers\Terms::getNextID()),
-            'name'     => HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
-            'active'   => Text::_('ACTIVE'),
-            'grid'     => Text::_('GRID'),
-            'code'     => HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
+            'check'    => ['type' => 'check'],
+            'fullName' => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('FULL_NAME', 'gr.fullName', $direction, 'fullName'),
+                'type'       => 'text'
+            ],
+            'this'     => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Terms::getName(Terms::getCurrentID()),
+                'type'       => 'value'
+            ],
+            'next'     => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Terms::getName(Terms::getNextID()),
+                'type'       => 'value'
+            ],
+            'name'     => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('SELECT_BOX_DISPLAY'),
+                'type'       => 'text'
+            ],
+            'active'   => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ACTIVE'),
+                'type'       => 'value'
+            ],
+            'grid'     => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('GRID'),
+                'type'       => 'text'
+            ],
+            'code'     => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('UNTIS_ID'),
+                'type'       => 'text'
+            ],
         ];
 
         $this->headers = $headers;
+    }
+
+    protected function initializeView(): void
+    {
+        parent::initializeView();
+        //$this->batch = ['batch_group_publishing'];
     }
 
     /**

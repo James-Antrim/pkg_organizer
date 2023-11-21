@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
-use Joomla\Database\ParameterType;
 use THM\Organizer\Helpers\Can;
 
 /**

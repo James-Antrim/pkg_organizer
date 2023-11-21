@@ -24,6 +24,23 @@ class Groups extends Associated implements Selectable
     use Planned;
     use Suppressed;
 
+    public const PUBLISHED = 1, UNPUBLISHED = 0;
+
+    public const publishStates = [
+        self::PUBLISHED   => [
+            'class'  => 'publish',
+            'column' => 'published',
+            'task'   => 'publish',
+            'tip'    => 'CLICK_TO_UNPUBLISH'
+        ],
+        self::UNPUBLISHED => [
+            'class'  => 'unpublish',
+            'column' => 'published',
+            'task'   => 'unpublish',
+            'tip'    => 'CLICK_TO_PUBLISH'
+        ]
+    ];
+
     protected static $resource = 'group';
 
     /**

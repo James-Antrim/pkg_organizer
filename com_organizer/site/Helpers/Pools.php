@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use THM\Organizer\Tables\Pools as Table;
 
 /**

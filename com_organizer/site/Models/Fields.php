@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use Joomla\Database\ParameterType;
 
 /**
  * Class retrieves information for a filtered set of fields (of expertise).

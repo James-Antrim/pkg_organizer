@@ -12,8 +12,8 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\User\User;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers\Terms;
 use THM\Organizer\Tables;
 

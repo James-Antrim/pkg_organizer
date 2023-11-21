@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use Joomla\Database\ParameterType;
-use THM\Organizer\Tables;
 use stdClass;
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use THM\Organizer\Tables;
 
 /**
  * Provides general functions for person access checks, data retrieval and display.

@@ -11,9 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use Joomla\Database\ParameterType;
 use THM\Organizer\Helpers\Can;
 
 /**
