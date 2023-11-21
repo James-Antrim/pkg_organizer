@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" access="document"
                onchange="this.form.submit();">
             <option value="">ALL_ORGANIZATIONS</option>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
         <field name="relevant" type="Options" label="ORGANIZER_EXPORTED" onchange="this.form.submit();">
             <option value="">COST_ACCOUNTING_IGNORED</option>
             <option value="0">COST_ACCOUNTING_IRRELEVANT</option>

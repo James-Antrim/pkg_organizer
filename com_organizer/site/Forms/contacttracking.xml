@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
     </fields>
     <fields name="list">
         <field name="listFormat" type="Options" label="SUM_METHOD" class="input-15" default="1" onchange="this.form.submit();">
