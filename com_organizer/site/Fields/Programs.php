@@ -19,11 +19,6 @@ use THM\Organizer\Helpers;
 class Programs extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Programs';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

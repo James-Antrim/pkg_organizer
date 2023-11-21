@@ -21,11 +21,6 @@ use stdClass;
 class CheckinRooms extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'CheckinRooms';
-
-    /**
      * Returns an array of booking room options
      * @return stdClass[]  the pool options
      */

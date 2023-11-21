@@ -18,11 +18,6 @@ use THM\Organizer\Helpers\Terms as Helper;
 class Terms extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Terms';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

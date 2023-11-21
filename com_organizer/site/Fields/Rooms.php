@@ -18,11 +18,6 @@ use THM\Organizer\Helpers;
 class Rooms extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Rooms';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

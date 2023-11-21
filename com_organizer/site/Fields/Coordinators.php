@@ -19,11 +19,6 @@ use THM\Organizer\Tables;
 class Coordinators extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Coordinators';
-
-    /**
      * Method to get the field input markup.
      * @return  string  The field input markup.
      */

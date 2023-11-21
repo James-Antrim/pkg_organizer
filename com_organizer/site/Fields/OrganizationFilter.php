@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use stdClass;
-use THM\Organizer\Adapters\{Application, HTML};
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Organizations;
 
 /**
@@ -19,34 +19,6 @@ use THM\Organizer\Helpers\Organizations;
  */
 class OrganizationFilter extends Options
 {
-    /**
-     * @var  string
-     */
-    protected $type = 'OrganizationFilter';
-
-    /**
-     * Method to get the field input markup for a generic list.
-     * @return  string  The field input markup.
-     */
-    protected function getInput(): string
-    {
-        $onchange = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
-
-        // Get the field options.
-        $options = $this->getOptions();
-
-        return HTML::_(
-            'select.genericlist',
-            $options,
-            $this->name,
-            $onchange,
-            'value',
-            'text',
-            $this->value,
-            $this->id
-        );
-    }
-
     /**
      * Returns an array of options
      * @return stdClass[]  the organization options

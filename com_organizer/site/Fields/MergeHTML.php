@@ -21,11 +21,6 @@ class MergeHTML extends Options
     use Mergeable;
 
     /**
-     * @var  string
-     */
-    protected $type = 'MergeHTML';
-
-    /**
      * Returns a select box where resource attributes can be selected
      * @return stdClass[] the options for the select box
      */

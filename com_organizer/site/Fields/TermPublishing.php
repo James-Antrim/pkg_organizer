@@ -23,11 +23,6 @@ class TermPublishing extends FormField
     use Translated;
 
     /**
-     * @var  string
-     */
-    protected $type = 'TermPublishing';
-
-    /**
      * Returns a select box where resource attributes can be selected
      * @return string  the HTML select box
      */

@@ -21,12 +21,6 @@ class AddParticipant extends FormField
     use Translated;
 
     /**
-     * The form field type.
-     * @var    string
-     */
-    protected $type = 'AddParticipant';
-
-    /**
      * Method to get the field input markup for a generic list.
      * @return  string  The field input markup.
      */

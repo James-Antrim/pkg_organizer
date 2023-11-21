@@ -21,8 +21,6 @@ class SubjectEvents extends FormField
 {
     use Translated;
 
-    protected $type = 'SubjectEvents';
-
     /**
      * Returns a select box where stored pool can be chosen as a parent node
      * @return string  the HTML output

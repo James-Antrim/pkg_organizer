@@ -20,12 +20,6 @@ use THM\Organizer\Helpers;
  */
 class FileOptions extends Options
 {
-    /**
-     * The form field type.
-     * @var    string
-     */
-    protected $type = 'FileList';
-
     protected string $filter;
     protected string $exclude;
     protected bool $hideNone = false;

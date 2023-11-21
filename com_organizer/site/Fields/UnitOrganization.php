@@ -20,11 +20,6 @@ use THM\Organizer\Helpers\Organizations;
 class UnitOrganization extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'OrganizationFilter';
-
-    /**
      * Method to get the field input markup for a generic list.
      * @return  string  The field input markup.
      */

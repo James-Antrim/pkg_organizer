@@ -18,12 +18,6 @@ use THM\Organizer\Adapters\{HTML, Text};
 class Resources extends ColoredOptions
 {
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'Resources';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

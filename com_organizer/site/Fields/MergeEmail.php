@@ -20,11 +20,6 @@ class MergeEmail extends MergeValues
     use Mergeable;
 
     /**
-     * @var  string
-     */
-    protected $type = 'MergeEmail';
-
-    /**
      * Gets the saved values for the selected resource IDs.
      * @return array
      */

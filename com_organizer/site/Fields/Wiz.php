@@ -18,10 +18,4 @@ use Joomla\CMS\Form\Field\EditorField;
 class Wiz extends EditorField
 {
     use Translated;
-
-    /**
-     * The form field type.
-     * @var    string
-     */
-    public $type = 'Wiz';
 }

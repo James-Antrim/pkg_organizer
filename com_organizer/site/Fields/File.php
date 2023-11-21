@@ -21,8 +21,6 @@ class File extends FormField
 {
     use Translated;
 
-    protected $type = 'File';
-
     protected $accept;
 
     /**

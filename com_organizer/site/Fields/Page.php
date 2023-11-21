@@ -21,12 +21,6 @@ class Page extends FormField
     use Translated;
 
     /**
-     * The form field type.
-     * @var    string
-     */
-    protected $type = 'Page';
-
-    /**
      * Method to get the field input markup for a generic list.
      * @return  string  The field input markup.
      */

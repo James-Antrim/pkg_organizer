@@ -19,11 +19,6 @@ use stdClass;
 class Campuses extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Campuses';
-
-    /**
      * Returns an array of options
      * @return stdClass[]  the options
      */

@@ -18,12 +18,6 @@ use THM\Organizer\Adapters\Text;
 class UnitStates extends ColoredOptions
 {
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'UnitStates';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

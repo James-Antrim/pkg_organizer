@@ -23,12 +23,6 @@ class SubOrdinates extends FormField
     use Translated;
 
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'SubOrdinate';
-
-    /**
      * Creates a button template for a given function.
      *
      * @param   string  $function  the name of the javascript function to call on click

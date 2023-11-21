@@ -20,12 +20,6 @@ use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
 class GenericOptions extends Options
 {
     /**
-     * Type
-     * @var    String
-     */
-    public $type = 'GenericList';
-
-    /**
      * Method to get the field input markup for a generic list.
      * Use the multiple attribute to enable multiselect.
      * @return string  The field input markup.

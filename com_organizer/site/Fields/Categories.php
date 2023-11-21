@@ -18,12 +18,6 @@ use stdClass;
  */
 class Categories extends Options
 {
-
-    /**
-     * @var  string
-     */
-    protected $type = 'Categories';
-
     /**
      * Returns a select box where resource attributes can be selected
      * @return stdClass[] the options for the select box

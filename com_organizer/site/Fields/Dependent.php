@@ -23,11 +23,12 @@ trait Dependent
     {
         $this->options = $this->getOptions();
 
-        if (count($this->options) === count($this->getDefaultOptions())) {
+        if (count($this->options) === count($this->manifestOptions())) {
             return '';
         }
 
-        return $this->getBaseInput();
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
+        return parent::getInput();
     }
 
     /**
@@ -42,14 +43,5 @@ trait Dependent
 
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         return parent::getLabel();
-    }
-
-    /**
-     * Checks whether the field input would be displayed.
-     * @return bool
-     */
-    public function hasInput(): bool
-    {
-        return (bool) self::getInput();
     }
 }

@@ -21,12 +21,6 @@ class Date extends FormField
     use Translated;
 
     /**
-     * The form field type.
-     * @var    string
-     */
-    protected $type = 'Date';
-
-    /**
      * Method to get the field input markup.
      * @return  string  The field input markup.
      */

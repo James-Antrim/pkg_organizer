@@ -21,8 +21,6 @@ class MergeIDs extends FormField
 {
     use Translated;
 
-    protected $type = 'MergeIDs';
-
     /**
      * Method to get the field input markup for a generic list.
      * @return  string  The field input markup.

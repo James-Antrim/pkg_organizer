@@ -20,11 +20,6 @@ class Persons extends Options
     use Dependent;
 
     /**
-     * @var  string
-     */
-    protected $type = 'Persons';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

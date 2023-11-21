@@ -20,11 +20,6 @@ use stdClass;
 class MergeAssociations extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'MergeAssociations';
-
-    /**
      * Returns a select box where resource attributes can be selected
      * @return stdClass[] the options for the select box
      */

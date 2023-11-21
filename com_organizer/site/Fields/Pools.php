@@ -20,11 +20,6 @@ use stdClass;
 class Pools extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Pools';
-
-    /**
      * Returns an array of pool options
      * @return stdClass[]  the pool options
      */

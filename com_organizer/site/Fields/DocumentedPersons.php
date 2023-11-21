@@ -18,8 +18,6 @@ use THM\Organizer\Helpers;
  */
 class DocumentedPersons extends Options
 {
-    protected $type = 'DocumentedPersons';
-
     /**
      * Method to get the field options.
      * @return  array  The field option objects.

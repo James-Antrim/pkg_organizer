@@ -23,12 +23,6 @@ class Box extends FormField
     protected int $maxLength;
 
     /**
-     * The form field type.
-     * @var    string
-     */
-    protected $type = 'Box';
-
-    /**
      * Method to get the field input markup.
      * @return  string  The field input markup.
      */

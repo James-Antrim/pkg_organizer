@@ -16,12 +16,6 @@ namespace THM\Organizer\Fields;
 abstract class ColoredOptions extends Options
 {
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'ColorOptions';
-
-    /**
      * Returns a select box which contains the colors
      * @return string  the HTML for the color select box
      */

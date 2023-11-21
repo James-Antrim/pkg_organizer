@@ -21,11 +21,6 @@ class OrganizationAssociations extends Options
     private array $singleAssoc = ['event' => 'Events', 'fieldcolor' => 'FieldColors'];
 
     /**
-     * @var  string
-     */
-    protected $type = 'OrganizationAssociations';
-
-    /**
      * Retrieves the organization ids associated with the resource.
      *
      * @param   string  $resource    the resource type

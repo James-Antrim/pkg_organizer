@@ -19,11 +19,6 @@ use stdClass;
 class Buildings extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Buildings';
-
-    /**
      * Returns a select box where stored buildings can be chosen
      * @return stdClass[]  the available buildings
      */

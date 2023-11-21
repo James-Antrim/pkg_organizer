@@ -20,12 +20,6 @@ use stdClass;
 class Prerequisites extends DependencyOptions
 {
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'Prerequisites';
-
-    /**
      * Returns a select box in which resources can be chosen as a prerequisites
      * @return string
      */

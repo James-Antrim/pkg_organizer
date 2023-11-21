@@ -18,12 +18,6 @@ use THM\Organizer\Adapters\{HTML, Text};
 class Integer extends Options
 {
     /**
-     * The form field type.
-     * @var    string
-     */
-    protected $type = 'Integer';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

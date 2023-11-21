@@ -21,12 +21,6 @@ class Blank extends FormField
     use Translated;
 
     /**
-     * The form field type.
-     * @var    string
-     */
-    protected $type = 'Blank';
-
-    /**
      * The allowable maxlength of the field.
      * @var    int
      */

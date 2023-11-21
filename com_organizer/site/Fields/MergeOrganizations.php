@@ -19,11 +19,6 @@ use stdClass;
 class MergeOrganizations extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'MergeOrganizations';
-
-    /**
      * Returns a select box where resource attributes can be selected
      * @return stdClass[] the options for the select box
      */

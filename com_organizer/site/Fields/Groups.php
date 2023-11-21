@@ -21,11 +21,6 @@ class Groups extends Options
     use Dependent;
 
     /**
-     * @var  string
-     */
-    protected $type = 'Groups';
-
-    /**
      * Returns a select box where resource attributes can be selected
      * @return stdClass[] the options for the select box
      */

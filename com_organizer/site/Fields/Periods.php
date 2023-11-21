@@ -22,12 +22,6 @@ FormHelper::loadFieldClass('subform');
 class Periods extends JFormFieldSubform
 {
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'Periods';
-
-    /**
      * Method to get the multiple field input of the loaded grids periods
      * @return string  The field input markup.
      */

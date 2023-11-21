@@ -20,11 +20,6 @@ use stdClass;
 class BookingRooms extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'BookingRooms';
-
-    /**
      * Returns an array of booking room options
      * @return stdClass[]  the pool options
      */

@@ -20,12 +20,6 @@ use THM\Organizer\Helpers\Colors as Helper;
 class Colors extends ColoredOptions
 {
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'Colors';
-
-    /**
      * Method to get the field options.
      * @return  array  The field option objects.
      */

@@ -20,11 +20,6 @@ use stdClass;
 class Grids extends Options
 {
     /**
-     * @var  string
-     */
-    protected $type = 'Grids';
-
-    /**
      * Method to get the field input markup for a generic list.
      * @return  string  The field input markup.
      */

@@ -22,12 +22,6 @@ FormHelper::loadFieldClass('subform');
 class Runs extends JFormFieldSubform
 {
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'Runs';
-
-    /**
      * Method to get the multiple field input of the loaded Runs Section
      * @return string  The field input markup.
      */

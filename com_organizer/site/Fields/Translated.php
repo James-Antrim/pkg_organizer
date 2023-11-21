@@ -32,13 +32,13 @@ trait Translated
      */
     protected function getLayoutData(): array
     {
-        if (!empty($this->element['label'])) {
-            $label = $this->element['label'];
+        $label = $this->element['label'] ?? '';
+        if ($label and $this->isKey($label)) {
             $label = str_starts_with($label, 'ORGANIZER_') ? $label : "ORGANIZER_$label";
 
-            $tip = $this->element['description'] ?? "{$label}_DESC";
+            $tip = $this->element['description'] ?? $label;
             $tip = str_starts_with($tip, 'ORGANIZER_') ? $tip : "ORGANIZER_$tip";
-            $tip = strpos($tip, '_DESC') === strlen($tip) - 5 ? $tip : "{$tip}_DESC";
+            $tip = str_ends_with($tip, '_DESC') ? $tip : "{$tip}_DESC";
 
             $this->element['label'] = Text::_($label);
             $this->description      = Text::_($tip);
@@ -46,5 +46,18 @@ trait Translated
 
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         return parent::getLayoutData();
+    }
+
+    /**
+     * Checks whether the given string is a localization key.
+     *
+     * @param   string  $string
+     *
+     * @return bool
+     */
+    private function isKey(string $string): bool
+    {
+        preg_match('/^[A-Z_]+$/', $string, $matches);
+        return !empty($matches);
     }
 }

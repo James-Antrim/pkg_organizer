@@ -23,12 +23,6 @@ class SuperOrdinates extends FormField
     use Translated;
 
     /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'SuperOrdinates';
-
-    /**
      * Returns a select box in which resources can be chosen as a superordinates
      * @return string
      */

@@ -24,11 +24,6 @@ class Curricula extends FormField
     use Translated;
 
     /**
-     * @var  string
-     */
-    protected $type = 'Curricula';
-
-    /**
      * Returns a select box where stored degree program can be chosen
      * @return string  the HTML for the select box
      */
