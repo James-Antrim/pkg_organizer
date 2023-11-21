@@ -10,25 +10,16 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers;
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\{Dates};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class which loads data into the view output context
  */
 class Units extends ListView
 {
-    private $statusDate;
-
-    /**
-     * @inheritDoc
-     */
-    public function __construct($config = [])
-    {
-        parent::__construct($config);
-        $this->statusDate = date('Y-m-d H:i:s', strtotime('-14 days'));
-    }
-
     /**
      * @inheritDoc
      */
@@ -36,7 +27,7 @@ class Units extends ListView
     {
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->addNew('Course.add', Text::_('ADD_COURSE'))->listCheck(true)->icon('fa fa-plus');
+        $toolbar->addNew('Course.add', Text::_('ADD_COURSE'))->icon('fa fa-plus')->listCheck(true);
 
         parent::addToolBar();
     }
@@ -44,56 +35,38 @@ class Units extends ListView
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $structuredItems = [];
+        $date      = Dates::formatDate($item->modified);
+        $endDate   = Dates::formatDate($item->endDate);
+        $startDate = Dates::formatDate($item->startDate);
 
-        foreach ($this->items as $item) {
-            $endDate   = Helpers\Dates::formatDate($item->endDate);
-            $startDate = Helpers\Dates::formatDate($item->startDate);
-
-            $structuredItems[$index]             = [];
-            $structuredItems[$index]['checkbox'] = HTML::checkBox($index, $item->id);
-            $structuredItems[$index]['status']   = $this->getStatus($item);
-            $structuredItems[$index]['name']     = $item->name;
-            $structuredItems[$index]['method']   = $item->method;
-            $structuredItems[$index]['dates']    = "$startDate - $endDate";
-            $structuredItems[$index]['grid']     = $item->grid;
-            $structuredItems[$index]['code']     = $item->code;
-
-            $index++;
-        }
-
-        $this->items = $structuredItems;
-    }
-
-    /**
-     * Created a structure for displaying status information as necessary.
-     *
-     * @param   object  $item  the instance item being iterated
-     *
-     * @return array
-     */
-    private function getStatus(object $item): array
-    {
-        $class = 'status-display hasToolTip';
-        $title = '';
+        $item->dates = "$startDate - $endDate";
+        $item->name  = implode('<br>', $item->name);
 
         // If removed are here at all, the status holds relevance regardless of date
         if ($item->status === 'removed') {
-            $date  = Helpers\Dates::formatDate($item->modified);
-            $class .= ' unit-removed';
-            $title = Text::sprintf('UNIT_REMOVED_ON', $date);
+            $icon         = HTML::icon('fa fa-minus');
+            $tip          = Text::sprintf('UNIT_REMOVED_ON', $date);
+            $item->status = HTML::tip($icon, "status-$item->id", $tip);
         }
-        elseif ($item->status === 'new' and $item->modified >= $this->statusDate) {
-            $date  = Helpers\Dates::formatDate($item->modified);
-            $class .= ' unit-new';
-            $title = Text::sprintf('UNIT_ADDED_ON', $date);
-
+        elseif ($item->status === 'new' and $item->modified >= $options['statusDate']) {
+            $icon         = HTML::icon('fa fa-plus');
+            $tip          = Text::sprintf('UNIT_ADDED_ON', $date);
+            $item->status = HTML::tip($icon, "status-$item->id", $tip);
         }
+        else {
+            $item->status = '';
+        }
+    }
 
-        return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => ''] : ['value' => ''];
+    /**
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $options['statusDate'] = date('Y-m-d H:i:s', strtotime('-14 days'));
+        parent::completeItems($options);
     }
 
     /**
@@ -101,17 +74,44 @@ class Units extends ListView
      */
     public function initializeColumns(): void
     {
-        $headers = [
-            'checkbox' => HTML::checkAll(),
-            'status'   => '',
-            'name'     => Text::_('NAME'),
-            'method'   => Text::_('METHOD'),
-            'dates'    => Text::_('DATES'),
-            'grid'     => Text::_('GRID'),
-            'code'     => Text::_('UNTIS_ID'),
-            //'run'      => Text::_('RUN')
+        $this->headers = [
+            'check'  => ['type' => 'check'],
+            'status' => [
+                'properties' => ['class' => 'w-3 d-md-table-cell', 'scope' => 'col'],
+                'title'      => '',
+                'type'       => 'value'
+            ],
+            'name'   => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('NAME'),
+                'type'       => 'text'
+            ],
+            'method' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('METHOD'),
+                'type'       => 'text'
+            ],
+            'dates'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('DATES'),
+                'type'       => 'text'
+            ],
+            'grid'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('GRID'),
+                'type'       => 'text'
+            ],
+            'code'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('UNTIS_ID'),
+                'type'       => 'text'
+            ],
+            /*'run'      => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('RUN'),
+                'type'       => 'text'
+            ],*/
         ];
-
-        $this->headers = $headers;
     }
 }

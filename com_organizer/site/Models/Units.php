@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database};
-use THM\Organizer\Helpers;
+use Joomla\Database\{DatabaseQuery, ParameterType};
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\{Can, Terms, Units as Helper};
 
 /**
  * Class retrieves the data regarding a filtered set of units.
@@ -22,8 +22,7 @@ class Units extends ListModel
     protected $filter_fields = [
         'gridID',
         'organizationID',
-        'status',
-        'termID'
+        'status'
     ];
 
     /**
@@ -35,7 +34,7 @@ class Units extends ListModel
         $items = parent::getItems();
 
         foreach ($items as $item) {
-            $item->name = Helpers\Units::getEventNames($item->id, '<br>');
+            $item->name = Helper::getEventNames($item->id);
         }
 
         return $items;
@@ -48,36 +47,40 @@ class Units extends ListModel
     {
         $modified = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
         $termID   = $this->state->get('filter.termID');
-        $query    = Database::getQuery();
+        $query    = DB::getQuery();
         $tag      = Application::getTag();
 
-        $query->select('u.id, u.code, u.courseID, u.delta AS status, u.endDate, u.modified, u.startDate')
-            ->select("g.name_$tag AS grid")
-            //->select("r.name_$tag AS run")
-            ->select("m.name_de AS method")
-            ->from('#__organizer_units AS u')
-            ->innerJoin('#__organizer_grids AS g ON g.id = u.gridID')
-            //->leftJoin('#__organizer_runs AS r ON r.id = u.runID')
-            ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-            ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
-            ->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
-            ->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
-            ->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
-            ->where("(u.delta != 'removed' OR u.modified > '$modified')")
-            ->where("u.termid = $termID")
-            ->order('u.startDate, u.endDate')
-            ->group('u.id');
+        $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
+        $aliased = DB::qn(["g.name_$tag", "m.name_de", 'u.delta'], ['grid', 'method', 'status']);
+        $select  = DB::qn(['u.id', 'u.code', 'u.courseID', 'u.endDate', 'u.modified', 'u.startDate']);
+
+        //->select("r.name_$tag AS run")
+        //->leftJoin(DB::qn('#__organizer_runs', 'r'), DB::qc('r.id', 'u.runID')
+        $query->select(array_merge($select, $aliased, $access))
+            ->from(DB::qn('#__organizer_units', 'u'))
+            ->innerJoin(DB::qn('#__organizer_grids', 'g'), DB::qc('g.id', 'u.gridID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.instanceID', 'i.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.groupID', 'ig.groupID'))
+            ->leftJoin(DB::qn('#__organizer_methods', 'm'), DB::qc('m.id', 'i.methodID'))
+            ->where('(' . DB::qn('u.delta') . " != 'removed' OR " . DB::qn('u.modified') . ' > :modified)')
+            ->bind(':modified', $modified)
+            ->where(DB::qn('u.termID') . " = :termID")
+            ->bind(':termID', $termID, ParameterType::INTEGER)
+            ->order(DB::qn('u.startDate') . ', ' . DB::qn('u.endDate'))
+            ->group(DB::qn('u.id'));
 
         if ($organizationID = $this->state->get('filter.organizationID')) {
-            $query->where("a.organizationID = $organizationID");
+            $query->where(DB::qn('a.organizationID') . ' = :organizationID')
+                ->bind(':organizationID', $organizationID, ParameterType::INTEGER);
         }
         else {
-            $organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
-            $query->where("a.organizationID IN ($organizationIDs)");
+            $query->whereIn(DB::qn('a.organizationID'), Can::scheduleTheseOrganizations());
         }
 
         if ($this->state->get('filter.search')) {
-            $query->innerJoin('#__organizer_events AS e ON e.id = i.eventID');
+            $query->innerJoin(DB::qn('#__organizer_events', 'e'), DB::qc('e.id', 'i.eventID'));
             $this->filterSearch($query, ['e.name_de', 'e.name_en', 'u.code']);
         }
 
@@ -100,7 +103,7 @@ class Units extends ListModel
         parent::populateState($ordering, $direction);
 
         if (!$this->state->get('filter.termID')) {
-            $this->setState('filter.termID', Helpers\Terms::getCurrentID());
+            $this->setState('filter.termID', Terms::getCurrentID());
         }
     }
 }

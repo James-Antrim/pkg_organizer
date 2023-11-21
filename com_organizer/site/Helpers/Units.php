@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database as DB};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Units as Table;
 
@@ -29,7 +30,7 @@ class Units extends ResourceHelper
      */
     public static function getCampusID(int $unitID, ?int $defaultID): ?int
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('c.id AS campusID, c.parentID, COUNT(*) AS campusCount')
             ->from('#__organizer_campuses AS c')
             ->innerJoin('#__organizer_buildings AS b ON b.campusID = c.id')
@@ -41,9 +42,9 @@ class Units extends ResourceHelper
             ->where("r.virtual = 0")
             ->group('c.id')
             ->order('campusCount DESC');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        $plannedCampus = Database::loadAssoc();
+        $plannedCampus = DB::loadAssoc();
 
         if ($defaultID) {
             if ($plannedCampus['campusID'] === $defaultID or $plannedCampus['parentID'] === $defaultID) {
@@ -67,7 +68,7 @@ class Units extends ResourceHelper
     public static function getContexts(int $unitID, int $eventID): array
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select("g.id AS groupID, g.categoryID, g.fullName_$tag AS fqGroup, g.name_$tag AS nqGroup")
             ->from('#__organizer_instances AS i')
             ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
@@ -75,9 +76,9 @@ class Units extends ResourceHelper
             ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
             ->where("i.eventID = $eventID")
             ->where("i.unitID = $unitID");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('groupID');
+        return DB::loadAssocList('groupID');
     }
 
     /**
@@ -90,7 +91,7 @@ class Units extends ResourceHelper
      */
     public static function getEventIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
 
         $query->select('DISTINCT i.eventID')
             ->from('#__organizer_instances AS i')
@@ -105,32 +106,28 @@ class Units extends ResourceHelper
             }
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
-     * Gets a list of distinct names associated with the unit, optionally converted to a string for later display
-     * output.
+     * Gets a list of distinct names associated with the unit.
      *
-     * @param   int     $unitID  the id of the unit
-     * @param   string  $glue    the string to use to concatenate associated names
+     * @param   int  $unitID  the id of the unit
      *
-     * @return string|string[] the names of the associated events
+     * @return string[] the names of the associated events
      */
-    public static function getEventNames(int $unitID, string $glue = ''): array|string
+    public static function getEventNames(int $unitID): array
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
-        $query->select("DISTINCT name_$tag")
-            ->from('#__organizer_events AS e')
-            ->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
-            ->where("i.unitID = $unitID");
-        Database::setQuery($query);
-        $eventNames = Database::loadColumn();
-
-        return $glue ? implode($glue, $eventNames) : $eventNames;
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn("name_$tag"))
+            ->from(DB::qn('#__organizer_events', 'e'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
+            ->where(DB::qn('i.unitID') . ' = :unitID')->bind(':unitID', $unitID, ParameterType::INTEGER);
+        DB::setQuery($query);
+        return DB::loadColumn();
     }
 
     /**
@@ -158,7 +155,7 @@ class Units extends ResourceHelper
      */
     public static function getGroupIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
 
         $query->select('DISTINCT ig.groupID')
             ->from('#__organizer_instance_groups AS ig')
@@ -176,9 +173,9 @@ class Units extends ResourceHelper
             }
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
@@ -213,7 +210,7 @@ class Units extends ResourceHelper
      */
     public static function getRoomIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
 
         $query->select('DISTINCT ir.roomID')
             ->from('#__organizer_instance_rooms AS ir')
@@ -231,9 +228,9 @@ class Units extends ResourceHelper
             }
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
@@ -248,7 +245,7 @@ class Units extends ResourceHelper
     {
         $personID = $personID ?: Persons::getIDByUserID(Users::getID());
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('COUNT(*)')
             ->from('#__organizer_instance_persons AS ip')
             ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -259,8 +256,8 @@ class Units extends ResourceHelper
             $query->where("i.unitID = $unitID");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadBool();
+        return DB::loadBool();
     }
 }
