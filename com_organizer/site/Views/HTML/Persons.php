@@ -28,7 +28,7 @@ class Persons extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Person.add');
+        $toolbar->addNew('Persons.add');
         $this->addActa();
 
         if (Helpers\Can::administrate()) {

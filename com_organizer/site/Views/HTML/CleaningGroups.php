@@ -25,7 +25,7 @@ class CleaningGroups extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('CleaningGroup.add');
+        $toolbar->addNew('CleaningGroups.add');
         $toolbar->delete('CleaningGroups.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

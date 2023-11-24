@@ -28,7 +28,7 @@ class Buildings extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Building.add');
+        $toolbar->addNew('Buildings.add');
         $toolbar->delete('Buildings.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

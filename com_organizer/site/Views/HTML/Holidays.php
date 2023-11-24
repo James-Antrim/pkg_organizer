@@ -26,7 +26,7 @@ class Holidays extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Holiday.add');
+        $toolbar->addNew('Holidays.add');
         $toolbar->delete('Holidays.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

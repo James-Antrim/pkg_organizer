@@ -39,7 +39,7 @@ class Rooms extends ListView
 
         if (Can::manage('facilities')) {
             $toolbar = Toolbar::getInstance();
-            $toolbar->addNew('Room.add');
+            $toolbar->addNew('Rooms.add');
             $this->addActa();
 
             if (Can::administrate()) {

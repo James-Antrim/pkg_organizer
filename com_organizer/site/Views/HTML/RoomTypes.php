@@ -25,7 +25,7 @@ class RoomTypes extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Roomtype.add');
+        $toolbar->addNew('RoomTypes.add');
 
         // Trust isn't there for this yet.
         if (Can::administrate()) {

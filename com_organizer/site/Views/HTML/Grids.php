@@ -27,7 +27,7 @@ class Grids extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Grid.add');
+        $toolbar->addNew('Grids.add');
         $toolbar->delete('Grids.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

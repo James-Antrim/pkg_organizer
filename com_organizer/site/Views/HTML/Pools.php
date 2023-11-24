@@ -26,7 +26,7 @@ class Pools extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Pool.add');
+        $toolbar->addNew('Pools.add');
         $toolbar->delete('Pools.delete')->message(Text::_('DELETE_CONFIRM'));
 
         parent::addToolBar();

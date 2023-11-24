@@ -26,7 +26,7 @@ class Fields extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Field.add');
+        $toolbar->addNew('Fields.add');
         $toolbar->delete('Fields.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

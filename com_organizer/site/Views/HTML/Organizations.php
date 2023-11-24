@@ -24,7 +24,7 @@ class Organizations extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Organization.add');
+        $toolbar->addNew('Organizations.add');
         $toolbar->delete('Organizations.delete')->message(Text::_('DELETE_CONFIRM'));
 
         parent::addToolBar();

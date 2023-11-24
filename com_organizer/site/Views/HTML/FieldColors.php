@@ -29,11 +29,11 @@ class FieldColors extends ListView
         Toolbar::setTitle('FIELD_COLORS');
 
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('FieldColor.add')->icon('fa fa-link');
+        $toolbar->addNew('FieldColors.add')->icon('fa fa-link');
         $toolbar->delete('FieldColors.delete')->message(Text::_('DELETE_CONFIRM'));
 
-        $toolbar->standardButton('newField', Text::_('FIELD_NEW'), 'Field.add')->icon('fa fa-lightbulb');
-        $toolbar->standardButton('newColor', Text::_('COLOR_NEW'), 'Color.add')->icon('fa fa-palette');
+        $toolbar->standardButton('newField', Text::_('FIELD_NEW'), 'Fields.add')->icon('fa fa-lightbulb');
+        $toolbar->standardButton('newColor', Text::_('COLOR_NEW'), 'Colors.add')->icon('fa fa-palette');
 
 
         if (Can::administrate()) {

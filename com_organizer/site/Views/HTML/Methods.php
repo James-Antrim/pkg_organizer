@@ -24,7 +24,7 @@ class Methods extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Method.add');
+        $toolbar->addNew('Methods.add');
         $toolbar->delete('Methods.delete')->message(Text::_('DELETE_CONFIRM'));
 
         parent::addToolBar();

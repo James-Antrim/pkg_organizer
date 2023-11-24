@@ -26,7 +26,7 @@ class Campuses extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Campus.add');
+        $toolbar->addNew('Campuses.add');
         $toolbar->delete('Campuses.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

@@ -26,7 +26,7 @@ class Runs extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Run.add');
+        $toolbar->addNew('Runs.add');
         $toolbar->delete('Runs.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

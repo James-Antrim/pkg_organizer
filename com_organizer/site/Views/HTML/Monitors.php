@@ -26,7 +26,7 @@ class Monitors extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Monitor.add');
+        $toolbar->addNew('Monitors.add');
         $toolbar->delete('Monitors.delete')->message(Text::_('DELETE_CONFIRM'));
 
         parent::addToolBar();

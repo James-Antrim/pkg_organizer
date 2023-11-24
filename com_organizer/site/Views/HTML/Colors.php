@@ -26,7 +26,7 @@ class Colors extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Color.add');
+        $toolbar->addNew('Colors.add');
         $toolbar->delete('Colors.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

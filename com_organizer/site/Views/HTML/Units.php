@@ -27,7 +27,7 @@ class Units extends ListView
     {
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->addNew('Course.add', Text::_('ADD_COURSE'))->icon('fa fa-plus')->listCheck(true);
+        $toolbar->addNew('Courses.add', Text::_('ADD_COURSE'))->icon('fa fa-plus')->listCheck(true);
 
         parent::addToolBar();
     }

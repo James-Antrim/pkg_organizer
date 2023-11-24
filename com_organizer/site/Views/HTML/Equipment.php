@@ -24,7 +24,7 @@ class Equipment extends ListView
     protected function addToolBar(bool $delete = false): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('EquipmentItem.add');
+        $toolbar->addNew('Equipment.add');
         $toolbar->delete('Equipment.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }

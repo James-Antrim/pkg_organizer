@@ -25,7 +25,7 @@ class Degrees extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Degree.add');
+        $toolbar->addNew('Degrees.add');
         $toolbar->delete('Degrees.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }
