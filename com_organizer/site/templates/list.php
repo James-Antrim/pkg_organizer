@@ -70,7 +70,7 @@ if (count($this->headers) > 4) {
                                 'bootstrap.renderModal',
                                 'collapseModal',
                                 [
-                                    'title'  => Text::_('GROUPS_BATCH_PROCESSING'),
+                                    'title'  => Text::_('ORGANIZER_BATCH_PROCESSING'),
                                     'footer' => Batch::renderFooter($this),
                                 ],
                                 Batch::renderBody($this)

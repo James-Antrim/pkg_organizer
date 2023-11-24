@@ -29,6 +29,7 @@ abstract class ListView extends Base
     use ToCed;
 
     public bool $allowBatch = false;
+    /** @var string The default text for an empty result set. */
     public string $empty = '';
     /**
      * The header information to display indexed by the referenced attribute.
@@ -40,7 +41,7 @@ abstract class ListView extends Base
     protected BaseDatabaseModel $model;
     protected bool $sameTab = false;
     protected bool $structureEmpty = false;
-    /** @var array The default text for an empty result set. */
+    /** @var array the open items. */
     public array $toDo = [];
 
     /**

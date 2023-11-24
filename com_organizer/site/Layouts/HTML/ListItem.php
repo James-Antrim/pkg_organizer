@@ -190,11 +190,6 @@ class ListItem
             echo "<br><span class=\"small\">$item->supplement</span>";
         }
 
-        // Groups code mirroring users.
-        if ($main and isset($item->requireReset) and $item->requireReset === 1) {
-            echo '<span class="badge bg-warning text-dark">' . Text::_('GROUPS_RESET_REQUIRED') . '</span>';
-        }
-
         echo $closer;
     }
 }

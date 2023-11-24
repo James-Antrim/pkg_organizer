@@ -60,7 +60,7 @@ class Batch
         $reset = str_replace('XCLASSX', 'btn btn-secondary', $template);
         $reset = str_replace('XEXTRAX', 'data-bs-dismiss="modal"', $reset);
         $reset = str_replace('XONCLICKX', $onClick, $reset);
-        $reset = str_replace('XTEXTX', Text::_('GROUPS_CLOSE'), $reset);
+        $reset = str_replace('XTEXTX', Text::_('ORGANIZER_CLOSE'), $reset);
         $reset = str_replace('XTYPEX', 'button', $reset);
 
         $onClick = "Joomla.submitbutton('" . Application::getClass($view) . ".batch');return false;";
@@ -68,7 +68,7 @@ class Batch
         $submit = str_replace('XCLASSX', 'btn btn-success', $template);
         $submit = str_replace('XEXTRAX', '', $submit);
         $submit = str_replace('XONCLICKX', $onClick, $submit);
-        $submit = str_replace('XTEXTX', Text::_('GROUPS_PROCESS'), $submit);
+        $submit = str_replace('XTEXTX', Text::_('ORGANIZER_PROCESS'), $submit);
         $submit = str_replace('XTYPEX', 'submit', $submit);
 
         return $reset . $submit;

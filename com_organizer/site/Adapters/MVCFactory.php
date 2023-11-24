@@ -194,8 +194,8 @@ class MVCFactory extends Base
     private function getTableClasses(): array
     {
         $tables = [];
-        foreach (glob(JPATH_SITE . '/components/com_groups/Tables/*') as $table) {
-            $table    = str_replace(JPATH_SITE . '/components/com_groups/Tables/', '', $table);
+        foreach (glob(JPATH_SITE . '/components/com_organizer/Tables/*') as $table) {
+            $table    = str_replace(JPATH_SITE . '/components/com_organizer/Tables/', '', $table);
             $tables[] = str_replace('.php', '', $table);
         }
 

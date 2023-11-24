@@ -307,7 +307,7 @@ class Input
     {
         if (empty(self::$listItems)) {
             $view            = self::getView();
-            $previous        = Application::getSession()->get('registry')->get("com_groups.$view.list", []);
+            $previous        = Application::getSession()->get('registry')->get("com_organizer.$view.list", []);
             self::$listItems = new Registry(self::getArray('list', $previous));
         }
 

@@ -142,7 +142,7 @@ abstract class FormController extends Controller
     protected function store(Table $table, array $data, int $id = 0): int
     {
         if ($id and !$table->load($id)) {
-            Application::message('GROUPS_412', Application::ERROR);
+            Application::message('412', Application::ERROR);
 
             return $id;
         }

@@ -42,7 +42,7 @@ trait Titled
     }
 
     /**
-     * Prepares the title for standard HTML output.
+     * Prepares the title for standard HTML output. (Localizes)
      *
      * @param   string  $standard     the title to display
      * @param   string  $conditional  the conditional title to display

@@ -21,7 +21,7 @@ $wa = Application::getDocument()->getWebAssetManager();
 $wa->useScript('keepalive')->useScript('form.validate');
 
 $formName  = strtoupper($this->getName());
-$ariaLabel = Text::_("GROUPS_{$formName}_FORM");
+$ariaLabel = Text::_("ORGANIZER_{$formName}_FORM");
 
 $input          = Input::getInput();
 $forcedLanguage = $input->get('forcedLanguage', '');
@@ -38,7 +38,7 @@ if ($this->toDo) {
     echo '</ul>';
 }
 ?>
-<form action="<?php echo Route::_('index.php?option=com_groups'); ?>"
+<form action="<?php echo Route::_('index.php?option=com_organizer'); ?>"
       aria-label="<?php echo $ariaLabel; ?>"
       class="form-validate"
       enctype="multipart/form-data"
