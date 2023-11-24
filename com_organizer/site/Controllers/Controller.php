@@ -11,19 +11,15 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\Application\WebApplicationInterface;
-use Joomla\Input\Input as JInput;
 use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\MVC\{Controller\BaseController, Factory\MVCFactoryInterface, Model\BaseDatabaseModel as BDBM};
-use Joomla\CMS\Router\Route;
+use Joomla\CMS\MVC\{Controller\BaseController, Factory\MVCFactoryInterface};
 use Joomla\CMS\Uri\Uri;
+use Joomla\Input\Input as JInput;
 use THM\Organizer\Adapters\{Application, Input, Text};
-use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Can;
-use THM\Organizer\Helpers\OrganizerHelper;
 
 /**
- * Class provides ...
+ * Class provides basic component functionality.
  */
 class Controller extends BaseController
 {
@@ -36,8 +32,7 @@ class Controller extends BaseController
     /**
      * @inheritDoc
      */
-    public function __construct(
-        $config = [],
+    public function __construct($config = [],
         MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
         ?JInput $input = null
@@ -90,26 +85,26 @@ class Controller extends BaseController
     }
 
     /**
-     * Performs access checks, makes call to the models's merge function, and
+     * Performs access checks, makes call to the model's merge function, and
      * redirects to the room manager view
      * @return void
      */
-    public function merge(): void
-    {
-        $modelName = 'THM\\Organizer\\Models\\' . OrganizerHelper::getClass($this->resource);
-        $model     = new $modelName();
-
-        if ($model->merge($this->resource)) {
-            Application::message('ORGANIZER_MERGE_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_MERGE_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=$this->listView";
-        $this->setRedirect($url);
-    }
+//    public function merge(): void
+//    {
+//        $modelName = 'THM\\Organizer\\Models\\' . OrganizerHelper::getClass($this->resource);
+//        $model     = new $modelName();
+//
+//        if ($model->merge($this->resource)) {
+//            Application::message('ORGANIZER_MERGE_SUCCESS');
+//        }
+//        else {
+//            Application::message('ORGANIZER_MERGE_FAIL', Application::ERROR);
+//        }
+//
+//        $url = Helpers\Routing::getRedirectBase();
+//        $url .= "&view=$this->listView";
+//        $this->setRedirect($url);
+//    }
 
     /**
      * Attempts to automatically merge the selected resources, if the corresponding function is available. Redirects to
@@ -117,29 +112,29 @@ class Controller extends BaseController
      * @return void
      * @throws Exception
      */
-    public function mergeView(): void
-    {
-        $url = "index.php?option=com_organizer&view=$this->listView";
-
-        if (JDEBUG) {
-            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
-            $this->setRedirect($url);
-
-            return;
-        }
-
-        $selectedIDs = Input::getSelectedIDs();
-        if (count($selectedIDs) == 1) {
-            $msg = Text::_('ORGANIZER_TOO_FEW');
-            $this->setRedirect(Route::_($url, false), $msg, Application::NOTICE);
-
-            return;
-        }
-
-        // Reliance on POST requires a different method of redirection
-        Input::set('view', "{$this->resource}_merge");
-        $this->display();
-    }
+//    public function mergeView(): void
+//    {
+//        $url = "index.php?option=com_organizer&view=$this->listView";
+//
+//        if (JDEBUG) {
+//            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
+//            $this->setRedirect($url);
+//
+//            return;
+//        }
+//
+//        $selectedIDs = Input::getSelectedIDs();
+//        if (count($selectedIDs) == 1) {
+//            $msg = Text::_('ORGANIZER_TOO_FEW');
+//            $this->setRedirect(Route::_($url, false), $msg, Application::NOTICE);
+//
+//            return;
+//        }
+//
+//        // Reliance on POST requires a different method of redirection
+//        Input::set('view', "{$this->resource}_merge");
+//        $this->display();
+//    }
 
     /**
      * Creates a pdf file based on form data.
@@ -153,7 +148,7 @@ class Controller extends BaseController
     }
 
     /**
-     * Creates an xls file based on form data.
+     * Creates a xls file based on form data.
      * @return void
      * @throws Exception
      */
