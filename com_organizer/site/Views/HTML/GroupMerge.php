@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the plan (subject) pool merge form into display context.
  */
-class GroupMerge extends MergeView
+class GroupMerge extends MergeViewOld
 {
     /**
      * @inheritDoc

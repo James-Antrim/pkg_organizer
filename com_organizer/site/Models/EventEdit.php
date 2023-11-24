@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing event data.
  */
-class EventEdit extends EditModel
+class EventEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

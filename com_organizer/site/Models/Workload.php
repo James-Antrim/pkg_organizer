@@ -16,7 +16,7 @@ use THM\Organizer\Helpers;
 /**
  * Class retrieves information for a filtered set of participants.
  */
-class Workload extends FormModel
+class Workload extends OldFormModel
 {
     private const CURRENT_ITEMS = 1;
 

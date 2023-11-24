@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the organization form into display context.
  */
-class OrganizationEdit extends EditView
+class OrganizationEdit extends EditViewOld
 {
     protected string $layout = 'tabs';
 }

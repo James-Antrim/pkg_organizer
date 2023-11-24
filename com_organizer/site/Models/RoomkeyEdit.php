@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing building data.
  */
-class RoomkeyEdit extends EditModel
+class RoomkeyEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

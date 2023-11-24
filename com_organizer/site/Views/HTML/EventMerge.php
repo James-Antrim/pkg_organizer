@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the event merge form into display context.
  */
-class EventMerge extends MergeView
+class EventMerge extends MergeViewOld
 {
     /**
      * @inheritDoc

@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the schedule upload form into display context.
  */
-class ScheduleEdit extends EditView
+class ScheduleEdit extends EditViewOld
 {
     /**
      * @inheritDoc

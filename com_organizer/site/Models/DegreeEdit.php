@@ -15,7 +15,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing degree data.
  */
-class DegreeEdit extends EditModel
+class DegreeEdit extends EditModelOld
 {
     /**
      * Method to get a table object, load it if necessary.

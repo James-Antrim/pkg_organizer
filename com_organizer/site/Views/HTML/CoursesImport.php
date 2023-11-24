@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class provides an interface for uploading a file containing room data.
  */
-class CoursesImport extends EditView
+class CoursesImport extends EditViewOld
 {
     /**
      * @inheritDoc

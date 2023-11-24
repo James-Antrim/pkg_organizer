@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing (degree) program data.
  */
-class ProgramEdit extends EditModel
+class ProgramEdit extends EditModelOld
 {
     public $children = null;
 

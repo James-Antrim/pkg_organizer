@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the plan (subject) pool form into display context.
  */
-class GroupEdit extends EditView
+class GroupEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

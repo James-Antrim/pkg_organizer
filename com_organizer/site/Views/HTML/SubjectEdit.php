@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads persistent information about a subject into the display context.
  */
-class SubjectEdit extends EditView
+class SubjectEdit extends EditViewOld
 {
     use Subordinate;
 

@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing group data.
  */
-class GroupEdit extends EditModel
+class GroupEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

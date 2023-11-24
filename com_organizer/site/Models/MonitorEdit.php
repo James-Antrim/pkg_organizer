@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing monitor data.
  */
-class MonitorEdit extends EditModel
+class MonitorEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

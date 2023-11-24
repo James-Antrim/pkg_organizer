@@ -15,7 +15,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing grid data.
  */
-class GridEdit extends EditModel
+class GridEdit extends EditModelOld
 {
     /**
      * @inheritDoc

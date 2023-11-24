@@ -16,7 +16,7 @@ use THM\Organizer\Helpers;
 /**
  * Class loads persistent information about a course into the display context.
  */
-class CourseEdit extends EditView
+class CourseEdit extends EditViewOld
 {
     protected string $layout = 'tabs';
 

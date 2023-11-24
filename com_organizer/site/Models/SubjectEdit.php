@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing data.
  */
-class SubjectEdit extends EditModel
+class SubjectEdit extends EditModelOld
 {
     protected $association;
 

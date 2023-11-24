@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the plan (degree) program / organizational grouping form into display context.
  */
-class CategoryEdit extends EditView
+class CategoryEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

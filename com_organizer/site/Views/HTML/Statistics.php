@@ -19,7 +19,7 @@ use THM\Organizer\Helpers;
 /**
  * Class loads statistical information about appointments into the display context.
  */
-class Statistics extends FormView
+class Statistics extends OldFormView
 {
     public const METHOD_USE = 1, PLANNED_PRESENCE_TYPE = 2, PRESENCE_USE = 3, REGISTRATIONS = 4;
 

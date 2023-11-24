@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the degree form into display context.
  */
-class TermEdit extends EditView
+class TermEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

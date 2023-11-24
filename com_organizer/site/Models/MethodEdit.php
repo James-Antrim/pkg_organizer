@@ -15,7 +15,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing (lesson) method data.
  */
-class MethodEdit extends EditModel
+class MethodEdit extends EditModelOld
 {
     /**
      * Method to get a table object, load it if necessary.

@@ -18,7 +18,7 @@ use THM\Organizer\Views\HTML\Statistics as View;
 /**
  * Class calculates lesson statistics and loads them into the view context.
  */
-class Statistics extends FormModel
+class Statistics extends OldFormModel
 {
     /**
      * Authorizes the user.

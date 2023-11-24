@@ -17,7 +17,7 @@ use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
-class Checkin extends FormModel
+class Checkin extends OldFormModel
 {
     /**
      * @var array

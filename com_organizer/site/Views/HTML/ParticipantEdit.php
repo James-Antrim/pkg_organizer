@@ -16,7 +16,7 @@ use THM\Organizer\Helpers;
 /**
  * Class loads participant information into the display context.
  */
-class ParticipantEdit extends EditView
+class ParticipantEdit extends EditViewOld
 {
 
     /**

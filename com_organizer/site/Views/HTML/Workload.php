@@ -17,7 +17,7 @@ use THM\Organizer\Buttons\FormTarget;
 /**
  * Class loads personnal workload statistics into the display context.
  */
-class Workload extends FormView
+class Workload extends OldFormView
 {
     /**
      * Adds a toolbar and title to the view.

@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing field (of expertise) data.
  */
-class FieldEdit extends EditModel
+class FieldEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

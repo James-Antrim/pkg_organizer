@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing category data.
  */
-class CategoryEdit extends EditModel
+class CategoryEdit extends EditModelOld
 {
     protected $association = 'program';
 

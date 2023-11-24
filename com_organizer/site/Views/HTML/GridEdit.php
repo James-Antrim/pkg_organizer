@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the grid form into display context.
  */
-class GridEdit extends EditView
+class GridEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the building form into display context.
  */
-class RoomkeyEdit extends EditView
+class RoomkeyEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing campus data.
  */
-class CampusEdit extends EditModel
+class CampusEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

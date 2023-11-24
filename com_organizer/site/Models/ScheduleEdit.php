@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for uploading schedule data.
  */
-class ScheduleEdit extends EditModel
+class ScheduleEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

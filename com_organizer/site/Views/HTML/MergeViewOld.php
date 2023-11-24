@@ -16,7 +16,7 @@ use THM\Organizer\Helpers;
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
  */
-abstract class MergeView extends FormView
+abstract class MergeViewOld extends OldFormView
 {
     /**
      * The list view to redirect to after completion of form view functions.

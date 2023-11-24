@@ -15,7 +15,7 @@ use THM\Organizer\Tables\Organizations as Table;
 /**
  * Class loads a form for editing organization data.
  */
-class OrganizationEdit extends EditModel
+class OrganizationEdit extends EditModelOld
 {
     /**
      * Method to get a table object, load it if necessary.

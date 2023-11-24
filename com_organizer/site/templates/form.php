@@ -12,9 +12,9 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text};
-use THM\Organizer\Views\HTML\FormView;
+use THM\Organizer\Views\HTML\OldFormView;
 
-/** @var FormView $this */
+/** @var OldFormView $this */
 
 // Core behaviour scripts
 $wa = Application::getDocument()->getWebAssetManager();

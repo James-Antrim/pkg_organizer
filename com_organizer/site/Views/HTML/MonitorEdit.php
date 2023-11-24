@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the monitor form into display context.
  */
-class MonitorEdit extends EditView
+class MonitorEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

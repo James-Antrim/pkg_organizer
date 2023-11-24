@@ -18,7 +18,7 @@ use THM\Organizer\Tables\Participants as Table;
 /**
  * Generates the checkin form.
  */
-class Checkin extends FormView
+class Checkin extends OldFormView
 {
     public $complete = true;
 

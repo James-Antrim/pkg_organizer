@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the (lesson) method form into display context.
  */
-class MethodEdit extends EditView
+class MethodEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

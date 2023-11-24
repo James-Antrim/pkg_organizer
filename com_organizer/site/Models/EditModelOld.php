@@ -20,7 +20,7 @@ use THM\Organizer\Adapters\{Application, Input, FormFactory, MVCFactory};
  * Class for editing a single resource record, based loosely on AdminModel, but without all the extra code it now caries
  * with it.
  */
-abstract class EditModel extends FormModel
+abstract class EditModelOld extends OldFormModel
 {
     /**
      * The resource's table class.

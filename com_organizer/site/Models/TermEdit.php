@@ -15,7 +15,7 @@ use THM\Organizer\Tables\Terms as Table;
 /**
  * Class loads a form for editing degree data.
  */
-class TermEdit extends EditModel
+class TermEdit extends EditModelOld
 {
     /**
      * Method to get a table object, load it if necessary.

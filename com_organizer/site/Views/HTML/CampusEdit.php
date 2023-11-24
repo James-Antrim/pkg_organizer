@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the campus form into display context.
  */
-class CampusEdit extends EditView
+class CampusEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

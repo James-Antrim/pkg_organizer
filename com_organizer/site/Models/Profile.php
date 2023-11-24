@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing building data.
  */
-class Profile extends FormModel
+class Profile extends OldFormModel
 {
     /**
      * @inheritDoc

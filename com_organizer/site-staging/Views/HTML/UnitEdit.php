@@ -16,7 +16,7 @@ use THM\Organizer\Models\UnitEdit as Model;
 /**
  * Class loads the grid form into display context.
  */
-class UnitEdit extends EditView
+class UnitEdit extends EditViewOld
 {
     public string $orientation = 'vertical';
 

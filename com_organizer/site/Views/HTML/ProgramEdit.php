@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the (degree) program form into display context.
  */
-class ProgramEdit extends EditView
+class ProgramEdit extends EditViewOld
 {
     protected string $layout = 'tabs';
 

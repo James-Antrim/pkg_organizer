@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing run data.
  */
-class RunEdit extends EditModel
+class RunEdit extends EditModelOld
 {
     /**
      * Checks user authorization and initiates redirects accordingly.

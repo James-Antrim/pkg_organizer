@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the run form into display context.
  */
-class RunEdit extends EditView
+class RunEdit extends EditViewOld
 {
     /**
      * Method to generate buttons for user interaction

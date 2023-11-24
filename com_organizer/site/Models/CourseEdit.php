@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads forms for managing basic course attributes.
  */
-class CourseEdit extends EditModel
+class CourseEdit extends EditModelOld
 {
     /**
      * Checks access to edit the resource.

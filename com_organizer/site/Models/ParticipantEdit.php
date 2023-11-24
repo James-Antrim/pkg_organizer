@@ -19,7 +19,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing participant data.
  */
-class ParticipantEdit extends EditModel
+class ParticipantEdit extends EditModelOld
 {
     private $participantID;
 

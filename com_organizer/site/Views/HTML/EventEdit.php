@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the event form into display context.
  */
-class EventEdit extends EditView
+class EventEdit extends EditViewOld
 {
     protected string $layout = 'tabs';
 }

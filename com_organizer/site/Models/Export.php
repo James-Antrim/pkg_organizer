@@ -17,7 +17,7 @@ use THM\Organizer\Helpers;
 /**
  * Class retrieves information for a filtered set of instances.
  */
-class Export extends FormModel
+class Export extends OldFormModel
 {
 
     /**

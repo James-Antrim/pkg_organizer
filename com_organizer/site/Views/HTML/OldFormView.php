@@ -18,7 +18,7 @@ use THM\Organizer\Adapters\{Application, Document, HTML};
  * Class loads a non-item based resource form (merge) into the display context. Specific resource determined by
  * extending class.
  */
-abstract class FormView extends BaseView
+abstract class OldFormView extends BaseView
 {
     /**
      * @var Form

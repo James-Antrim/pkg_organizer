@@ -18,7 +18,7 @@ use THM\Organizer\Adapters\{Application, Form, FormFactory, MVCFactory};
 /**
  * Model for data to be used with a form.
  */
-abstract class FormModel extends Base
+abstract class OldFormModel extends Base
 {
     use Named;
 

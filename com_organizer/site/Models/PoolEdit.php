@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing (subject) pool data.
  */
-class PoolEdit extends EditModel
+class PoolEdit extends EditModelOld
 {
 
     /**

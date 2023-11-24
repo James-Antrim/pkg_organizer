@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the profile form into display context.
  */
-class Profile extends FormView
+class Profile extends OldFormView
 {
     /**
      * Adds a toolbar and title to the view.

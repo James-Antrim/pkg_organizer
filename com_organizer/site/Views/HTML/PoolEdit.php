@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the (subject) pool form into display context.
  */
-class PoolEdit extends EditView
+class PoolEdit extends EditViewOld
 {
     use Subordinate;
 

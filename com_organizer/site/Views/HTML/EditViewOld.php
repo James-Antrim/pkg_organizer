@@ -13,17 +13,17 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Models\EditModel;
+use THM\Organizer\Models\EditModelOld;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
  */
-abstract class EditView extends FormView
+abstract class EditViewOld extends OldFormView
 {
     public $item = null;
 
     /**
-     * @var EditModel
+     * @var EditModelOld
      */
     protected BaseDatabaseModel $model;
 
@@ -59,7 +59,7 @@ abstract class EditView extends FormView
      */
     public function display($tpl = null): void
     {
-        /** @var EditModel $model */
+        /** @var EditModelOld $model */
         $model      = $this->getModel();
         $this->item = $model->getItem(Input::getSelectedID());
         parent::display($tpl);

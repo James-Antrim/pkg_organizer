@@ -15,7 +15,7 @@ use THM\Organizer\Tables;
 /**
  * Class loads a form for editing holiday data.
  */
-class HolidayEdit extends EditModel
+class HolidayEdit extends EditModelOld
 {
     /**
      * Method to get a table object, load it if necessary.

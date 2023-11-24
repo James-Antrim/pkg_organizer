@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the room form into display context.
  */
-class RoomEdit extends EditView
+class RoomEdit extends EditViewOld
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

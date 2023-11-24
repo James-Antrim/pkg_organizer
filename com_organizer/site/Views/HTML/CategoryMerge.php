@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the plan (degree) program / organizational grouping merge form into display context.
  */
-class CategoryMerge extends MergeView
+class CategoryMerge extends MergeViewOld
 {
     /**
      * @inheritDoc

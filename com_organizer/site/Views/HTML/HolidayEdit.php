@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the holiday form into display context.
  */
-class HolidayEdit extends EditView
+class HolidayEdit extends EditViewOld
 {
     /**
      * Method to generate buttons for user interaction

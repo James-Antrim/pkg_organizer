@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 /**
  * Class loads the instance form into display context.
  */
-class InstanceEdit extends EditView
+class InstanceEdit extends EditViewOld
 {
     protected string $layout = 'instance-wrapper';
 

@@ -17,7 +17,7 @@ use THM\Organizer\Helpers;
 /**
  * Class loads persistent information a filtered set of instances into the display context.
  */
-class Export extends FormView
+class Export extends OldFormView
 {
     protected string $layout = 'export';
 
