@@ -33,11 +33,10 @@ class Degrees extends ListModel
         $url    = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
 
         $query->select(array_merge($select, $access, $url))
-            ->from(DB::qn('#__organizer_degrees'));
+            ->from(DB::qn('#__organizer_degrees'))
+            ->order(DB::qn('name'));
 
-        $columns = ['name', 'abbreviation', 'code'];
-        $this->filterSearch($query, $columns);
-        $this->orderBy($query);
+        $this->filterSearch($query, ['abbreviation', 'code', 'name']);
 
         return $query;
     }

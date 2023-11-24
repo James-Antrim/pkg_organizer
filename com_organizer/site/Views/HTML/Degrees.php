@@ -35,27 +35,23 @@ class Degrees extends ListView
      */
     public function initializeColumns(): void
     {
-        $ordering      = $this->state->get('list.ordering');
-        $direction     = $this->state->get('list.direction');
         $this->headers = [
             'check'        => ['type' => 'check'],
             'name'         => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
-                'type'       => 'value'
+                'title'      => Text::_('NAME'),
+                'type'       => 'text'
             ],
             'abbreviation' => [
-                'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
-                'type'       => 'value'
+                'title'      => Text::_('ABBREVIATION'),
+                'type'       => 'text'
             ],
             'code'         => [
-                'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('DEGREE_CODE', 'code', $direction, $ordering),
-                'type'       => 'value'
+                'title'      => Text::_('DEGREE_CODE'),
+                'type'       => 'text'
             ],
         ];
     }
