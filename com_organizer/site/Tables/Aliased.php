@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -20,7 +21,7 @@ trait Aliased
      * VARCHAR(255) DEFAULT ''
      * @var string
      */
-    public string $alias;
+    public $alias;
 
     /**
      * @inheritDoc

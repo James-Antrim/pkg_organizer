@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -21,5 +22,5 @@ trait Coded
      * VARCHAR(60) DEFAULT NULL
      * @var string
      */
-    public string $code;
+    public $code;
 }

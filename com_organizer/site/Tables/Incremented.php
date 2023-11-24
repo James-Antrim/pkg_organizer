@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -16,5 +17,5 @@ trait Incremented
      * INT(11) UNSIGNED NOT NULL AUTO_INCREMENT
      * @var int
      */
-    public int $id;
+    public $id;
 }

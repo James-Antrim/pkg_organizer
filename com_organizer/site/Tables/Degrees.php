@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -29,14 +30,14 @@ class Degrees extends Table
      * VARCHAR(45) NOT NULL DEFAULT ''
      * @var string
      */
-    public string $abbreviation;
+    public $abbreviation;
 
     /**
      * The resource's name.
      * VARCHAR(255) NOT NULL
      * @var string
      */
-    public string $name;
+    public $name;
 
     /**
      * @inheritDoc
