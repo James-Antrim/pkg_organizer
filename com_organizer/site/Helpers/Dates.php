@@ -49,7 +49,7 @@ class Dates
      *
      * @return string the formatted date time
      */
-    public static function formatDateTime($dateTime): string
+    public static function formatDateTime(int|string $dateTime): string
     {
         $format   = self::getFormat() . ' H:i';
         $dateTime = is_string($dateTime) ? strtotime($dateTime) : $dateTime;
@@ -210,7 +210,7 @@ class Dates
     {
         $dt = DateTime::createFromFormat('Y-m-d', $date);
 
-        return ($dt !== false and !array_sum($dt::getLastErrors()));
+        return ($dt !== false and $dt::getLastErrors() === false);
     }
 
     /**

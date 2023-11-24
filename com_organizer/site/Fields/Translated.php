@@ -44,6 +44,8 @@ trait Translated
             $this->description      = Text::_($tip);
         }
 
+        // TODO remove automatic description supplementation
+
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         return parent::getLayoutData();
     }

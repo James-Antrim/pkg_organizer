@@ -8,12 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Views\HTML;
 
 /**
- * Class which manages stored degree data.
+ * Class loads the degree form into display context.
  */
-class Term extends EditModel
+class Term extends FormView
 {
-    protected string $tableClass = 'Terms';
+    // Everything is taken care of in the inheritance hierarchy.
 }

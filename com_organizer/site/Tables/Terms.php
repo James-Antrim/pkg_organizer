@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,10 +11,15 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\CMS\Table\Table;
+use Joomla\Database\DatabaseDriver;
+use Joomla\Database\DatabaseInterface;
+use THM\Organizer\Adapters\Application;
+
 /**
  * Models the organizer_terms table.
  */
-class Terms extends BaseTable
+class Terms extends Table
 {
     use Aliased;
     use Coded;
@@ -61,10 +67,13 @@ class Terms extends BaseTable
     public $startDate;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_terms');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_terms', 'id', $dbo);
     }
 }

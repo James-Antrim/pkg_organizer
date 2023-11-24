@@ -8,12 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Views\HTML;
+namespace THM\Organizer\Controllers;
 
 /**
- * Class loads the degree form into display context.
+ * Class receives user actions and performs access checks and redirection.
  */
-class TermEdit extends EditViewOld
+class Term extends FormController
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    protected string $list = 'Terms';
 }
