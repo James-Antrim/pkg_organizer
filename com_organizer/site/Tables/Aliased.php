@@ -16,11 +16,11 @@ namespace THM\Organizer\Tables;
 trait Aliased
 {
     /**
-     * The alias used to reference the resource in an URL
+     * The alias used to reference the resource in a URL
      * VARCHAR(255) DEFAULT ''
      * @var string
      */
-    public $alias;
+    public string $alias;
 
     /**
      * @inheritDoc

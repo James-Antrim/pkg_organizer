@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Controllers;
 
-use Exception;
 use Joomla\Input\Input as JInput;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
@@ -52,27 +51,6 @@ abstract class ListController extends Controller
     public function add(): void
     {
         $this->setRedirect("$this->baseURL&view=$this->item");
-    }
-
-    /**
-     * Checks for a form token in the request. Wraps the parent function to add direct exception handling.
-     *
-     * @param   string  $method    the optional request methodin which to look for the token key.
-     * @param   bool    $redirect  whether to implicitly redirect user to the referrer page on failure or simply return false.*
-     *
-     * @return bool
-     */
-    public function checkToken($method = 'post', $redirect = true): bool
-    {
-        $valid = false;
-        try {
-            $valid = parent::checkToken($method, $redirect);
-        }
-        catch (Exception $exception) {
-            Application::handleException($exception);
-        }
-
-        return $valid;
     }
 
     /**

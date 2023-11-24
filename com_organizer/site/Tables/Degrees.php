@@ -10,33 +10,42 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\CMS\Table\Table;
+use Joomla\Database\DatabaseDriver;
+use Joomla\Database\DatabaseInterface;
+use THM\Organizer\Adapters\Application;
+
 /**
  * Models the organizer_degrees table.
  */
-class Degrees extends BaseTable
+class Degrees extends Table
 {
     use Aliased;
     use Coded;
+    use Incremented;
 
     /**
      * The resource's abbreviation.
      * VARCHAR(45) NOT NULL DEFAULT ''
      * @var string
      */
-    public $abbreviation;
+    public string $abbreviation;
 
     /**
      * The resource's name.
      * VARCHAR(255) NOT NULL
      * @var string
      */
-    public $name;
+    public string $name;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_degrees');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_degrees', 'id', $dbo);
     }
 }

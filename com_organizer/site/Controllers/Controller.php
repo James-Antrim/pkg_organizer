@@ -66,6 +66,27 @@ class Controller extends BaseController
     }
 
     /**
+     * Checks for a form token in the request. Wraps the parent function to add direct exception handling.
+     *
+     * @param   string  $method    the optional request method in which to look for the token key.
+     * @param   bool    $redirect  whether to implicitly redirect user to the referrer page on failure or simply return false.*
+     *
+     * @return bool
+     */
+    public function checkToken($method = 'post', $redirect = true): bool
+    {
+        $valid = false;
+        try {
+            $valid = parent::checkToken($method, $redirect);
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
+        }
+
+        return $valid;
+    }
+
+    /**
      * @inheritDoc
      */
     public function display($cachable = false, $urlparams = []): BaseController

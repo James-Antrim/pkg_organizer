@@ -205,6 +205,15 @@ class Input
     }
 
     /**
+     * Retrieves form data / POST.
+     * @return array
+     */
+    public static function getFormItems(): array
+    {
+        return self::getInput()->post->getArray();
+    }
+
+    /**
      * The file format of the document to be displayed.
      * @return string defaults to 'HTML'
      */
