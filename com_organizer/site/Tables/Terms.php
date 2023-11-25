@@ -12,8 +12,7 @@
 namespace THM\Organizer\Tables;
 
 use Joomla\CMS\Table\Table;
-use Joomla\Database\DatabaseDriver;
-use Joomla\Database\DatabaseInterface;
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
@@ -23,6 +22,7 @@ class Terms extends Table
 {
     use Aliased;
     use Coded;
+    use Incremented;
 
     /**
      * The end date of the resource.

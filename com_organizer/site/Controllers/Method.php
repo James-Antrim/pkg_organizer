@@ -8,12 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Views\HTML;
+namespace THM\Organizer\Controllers;
 
 /**
- * Class loads the (lesson) method form into display context.
+ * Class receives user actions and performs access checks and redirection.
  */
-class MethodEdit extends EditViewOld
+class Method extends FormController
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    protected string $list = 'Methods';
 }

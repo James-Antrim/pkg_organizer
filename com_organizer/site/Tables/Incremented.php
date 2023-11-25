@@ -11,10 +11,18 @@
 
 namespace THM\Organizer\Tables;
 
+/**
+ * Adds the id property to tables.
+ */
 trait Incremented
 {
     /**
-     * INT(11) UNSIGNED NOT NULL AUTO_INCREMENT
+     * Generally:
+     *
+     *
+     * Frequent associatons will have a larger definition, rudimentary resources smaller.
+     * Participants table is not explicilty UNSIGNED because of the reference to the #__users table.
+     *
      * @var int
      */
     public $id;

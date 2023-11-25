@@ -181,11 +181,10 @@ abstract class ListModel extends Base
         $where  = [];
 
         foreach ($columnNames as $name) {
-            $name    = DB::qn($name);
-            $where[] = "$name LIKE '$search'";
+            $where[] = DB::qn($name) . " LIKE '$search'";
         }
 
-        $query->andWhere($where);
+        $query->where('(' . implode(' OR ', $where) . ')');
     }
 
     /**
@@ -407,19 +406,6 @@ abstract class ListModel extends Base
     }
 
     /**
-     * @inheritDoc
-     */
-    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false): Form
-    {
-        /** @var Form $form */
-        if ($form = parent::loadForm($name, $source, $options, $clear, $xpath)) {
-            $this->filterFilterForm($form);
-        }
-
-        return $form;
-    }
-
-    /**
      * Checks whether the given value can safely be interpreted as a binary value.
      *
      * @param   mixed  $value  the value to be checked
@@ -440,6 +426,19 @@ abstract class ListModel extends Base
     /**
      * @inheritDoc
      */
+    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false): Form
+    {
+        /** @var Form $form */
+        if ($form = parent::loadForm($name, $source, $options, $clear, $xpath)) {
+            $this->filterFilterForm($form);
+        }
+
+        return $form;
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
@@ -454,7 +453,7 @@ abstract class ListModel extends Base
             $data->filter = [];
         }
 
-        foreach ((array) $this->state as $property => $value) {
+        foreach ($this->state->toArray() as $property => $value) {
             if (str_starts_with($property, 'list.')) {
                 $listProperty              = substr($property, 5);
                 $data->list[$listProperty] = $value;

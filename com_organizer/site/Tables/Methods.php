@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,14 +11,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\CMS\Table\Table;
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
  * Models the organizer_methods table.
  * @noinspection PhpUnused
  */
-class Methods extends BaseTable
+class Methods extends Table
 {
     use Aliased;
     use Coded;
+    use Incremented;
 
     /**
      * The resource's German abbreviation.
@@ -69,10 +75,13 @@ class Methods extends BaseTable
     public $relevant;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_methods');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_methods', 'id', $dbo);
     }
 }

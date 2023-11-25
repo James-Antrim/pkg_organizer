@@ -8,12 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Views\HTML;
 
 /**
- * Class which manages stored (lesson) method data.
+ * Class loads the (lesson) method form into display context.
  */
-class Method extends EditModel
+class Method extends FormView
 {
-    protected string $tableClass = 'Methods';
+    // Everything is taken care of in the inheritance hierarchy.
 }
