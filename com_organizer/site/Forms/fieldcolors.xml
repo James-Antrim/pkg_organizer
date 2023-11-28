@@ -7,9 +7,6 @@
         <field name="fieldID" type="Fields" label="FIELDS" onchange="this.form.submit();">
             <option value="">ALL_FIELDS</option>
         </field>
-        <field name="colorID" type="Colors" label="COLOR" onchange="this.form.submit();">
-            <option value="">ALL_COLORS</option>
-        </field>
     </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
