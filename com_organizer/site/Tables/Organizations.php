@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,18 +12,18 @@
 namespace THM\Organizer\Tables;
 
 use Joomla\CMS\Access\Rules;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Table\Asset;
-use Joomla\CMS\Table\Table;
-use THM\Organizer\Adapters\Database;
+use Joomla\CMS\Table\{Asset, Table};
+use Joomla\Database\{DatabaseDriver, DatabaseInterface, ParameterType};
+use THM\Organizer\Adapters\{Application, Database as DB};
 
 /**
  * Models the organizer_organizations table.
  */
-class Organizations extends BaseTable
+class Organizations extends Table
 {
     use Activated;
     use Aliased;
+    use Incremented;
 
     /**
      * The resource's German abbreviation.
@@ -116,11 +117,14 @@ class Organizations extends BaseTable
     public $URL;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_organizations');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_organizations', 'id', $dbo);
     }
 
     /**
@@ -146,7 +150,7 @@ class Organizations extends BaseTable
      */
     protected function _getAssetParentId(Table $table = null, $id = null): int
     {
-        $asset = new Asset(Factory::getDbo());
+        $asset = new Asset(Application::getDB());
         $asset->loadByName('com_organizer');
 
         return $asset->id;
@@ -157,7 +161,7 @@ class Organizations extends BaseTable
      */
     public function bind($src, $ignore = ''): bool
     {
-        if (isset($src['rules']) && is_array($src['rules'])) {
+        if (isset($src['rules']) and is_array($src['rules'])) {
             $this->cleanRules($src['rules']);
             $rules = new Rules($src['rules']);
             $this->setRules($rules);
@@ -190,7 +194,7 @@ class Organizations extends BaseTable
      *
      * @return void  unsets group indexes with a truly empty value
      */
-    private function cleanRules(array &$rules)
+    private function cleanRules(array &$rules): void
     {
         foreach ($rules as $rule => $groups) {
             foreach ($groups as $group => $value) {
@@ -206,11 +210,6 @@ class Organizations extends BaseTable
      */
     public function store($updateNulls = true): bool
     {
-        $keys = $this->_tbl_keys;
-
-        // Implement \JObservableInterface: Pre-processing by observers
-        $this->_observers->update('onBeforeStore', [$updateNulls, $keys]);
-
         $currentAssetId = 0;
 
         if ($this->asset_id) {
@@ -266,19 +265,18 @@ class Organizations extends BaseTable
         if (!$this->asset_id or $currentAssetId !== $this->asset_id) {
             $this->asset_id = $asset->id;
 
-            $query = Database::getQuery();
-            $query->update('#__organizer_organizations')
-                ->set("asset_id = $this->asset_id")
-                ->where("id = $this->id");
-            Database::setQuery($query);
+            $query = DB::getQuery();
+            $query->update(DB::qn('#__organizer_organizations'))
+                ->set(DB::qn('asset_id') . ' = :assetID')
+                ->bind(':assetID', $this->asset_id, ParameterType::INTEGER)
+                ->where(DB::qn('id') . ' = :tableID')
+                ->bind(':tableID', $this->id, ParameterType::INTEGER);
+            DB::setQuery($query);
 
-            if (!Database::execute()) {
+            if (!DB::execute()) {
                 return false;
             }
         }
-
-        // Implement \JObservableInterface: Post-processing by observers
-        $this->_observers->update('onAfterStore', [&$result]);
 
         return $result;
     }

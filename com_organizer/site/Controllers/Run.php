@@ -26,7 +26,6 @@ class Run extends FormController
     {
         $data    = Input::getFormItems();
         $endDate = '';
-        $runs    = [];
 
         foreach ($data['run'] as $section) {
             $endDate = max($endDate, $section['endDate']);
