@@ -1,2 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields"/>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="filter">
+        <field name="status" type="Options" label="STATE" onchange="this.form.submit();">
+            <option value="-1">ALL_STATES</option>
+            <option value="0">NOT_EXPIRED</option>
+            <option value="1">EXPIRED</option>
+        </field>
+    </fields>
+</form>

@@ -73,7 +73,7 @@ class FormView extends Base
 
         $new = empty($this->item->id);
 
-        $title = $new ? "ORGANIZER_NEW_$constant" : "ORGANIZER_EDIT_$constant";
+        $title = $new ? "ORGANIZER_ADD_$constant" : "ORGANIZER_EDIT_$constant";
         $this->setTitle($title);
 
         $saveLabel = $new ? 'ORGANIZER_CREATE_AND_CLOSE' : 'ORGANIZER_SAVE_AND_CLOSE';

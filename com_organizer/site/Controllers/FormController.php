@@ -89,12 +89,21 @@ abstract class FormController extends Controller
     {
         $this->checkToken();
         $this->authorize();
+
+        $id   = Input::getID();
         $data = $this->prepareData();
 
-        $id    = Input::getID();
-        $table = $this->getTable();
+        // For save to copy, will otherwise be identical.
+        $data['id'] = $id;
+        $table      = $this->getTable();
 
-        return $this->store($table, $data, $id);
+        if ($result = $this->store($table, $data, $id)) {
+            Application::message('SAVED');
+        }
+        else {
+            Application::message('NOT_SAVED');
+        }
+        return $result;
     }
 
     /**
@@ -115,8 +124,8 @@ abstract class FormController extends Controller
     {
         // Force new attribute creation
         Input::set('id', 0);
-        $id = $this->process();
-        $this->setRedirect("$this->baseURL&view=$this->name&id=$id");
+        $this->process();
+        $this->setRedirect("$this->baseURL&view=$this->list");
     }
 
     /**

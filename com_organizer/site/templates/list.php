@@ -23,6 +23,7 @@ $orderBy   = $this->escape($this->state->get('list.ordering'));
 
 /** @var ListView $this */
 if ($this->toDo) {
+    echo '<h6>Tasks:</h6>';
     echo '<ul>';
     foreach ($this->toDo as $toDo) {
         echo "<li>$toDo</li>";
