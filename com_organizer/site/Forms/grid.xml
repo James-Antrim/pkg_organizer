@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="code" type="text" label="ORGANIZER_UNTIS_ID" maxlength="60" required="true"/>
+        <field name="name_de" type="text" label="ORGANIZER_NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="text" label="ORGANIZER_NAME_EN" maxlength="150" required="true"/>
+        <field name="grid" type="Periods" formsource="grid_blocks" multiple="true" buttons="add,remove"
+               layout="joomla.form.field.subform.repeatable-table" label="GRID"/>
+        <field name="startDay" type="list" label="ORGANIZER_START_DAY" default="1" required="true">
+            <option value='1'>ORGANIZER_MONDAY</option>
+            <option value='2'>ORGANIZER_TUESDAY</option>
+            <option value='3'>ORGANIZER_WEDNESDAY</option>
+            <option value='4'>ORGANIZER_THURSDAY</option>
+            <option value='5'>ORGANIZER_FRIDAY</option>
+            <option value='6'>ORGANIZER_SATURDAY</option>
+            <option value='0'>ORGANIZER_SUNDAY</option>
+        </field>
+        <field name="endDay" type="list" label="ORGANIZER_END_DAY" default="6" required="true">
+            <option value='1'>ORGANIZER_MONDAY</option>
+            <option value='2'>ORGANIZER_TUESDAY</option>
+            <option value='3'>ORGANIZER_WEDNESDAY</option>
+            <option value='4'>ORGANIZER_THURSDAY</option>
+            <option value='5'>ORGANIZER_FRIDAY</option>
+            <option value='6'>ORGANIZER_SATURDAY</option>
+            <option value='0'>ORGANIZER_SUNDAY</option>
+        </field>
+        <field name="isDefault" type="list" label="ORGANIZER_DEFAULT" default="1">
+            <option value='1'>ORGANIZER_YES</option>
+            <option value='0'>ORGANIZER_NO</option>
+        </field>
+    </fieldset>
+</form>

@@ -11,9 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the grid form into display context.
+ * @inheritDoc
  */
-class GridEdit extends EditViewOld
+class Grid extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

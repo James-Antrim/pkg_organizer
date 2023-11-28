@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML};
+use THM\Organizer\Adapters\{Application, Database, Database as DB, HTML};
 use THM\Organizer\Tables\Grids as Table;
 
 /**
@@ -18,6 +18,23 @@ use THM\Organizer\Tables\Grids as Table;
  */
 class Grids extends ResourceHelper implements Selectable
 {
+    public const DEFAULT = 1, STANDARD = 0;
+
+    public const defaultStates = [
+        self::DEFAULT  => [
+            'class'  => 'publish',
+            'column' => 'isDefault',
+            'task'   => '',
+            'tip'    => 'CURRENT_DEFAULT'
+        ],
+        self::STANDARD => [
+            'class'  => 'unpublish',
+            'column' => 'isDefault',
+            'task'   => 'toggle',
+            'tip'    => 'CLICK_TO_DEFAULT'
+        ]
+    ];
+
     /**
      * @inheritDoc
      */
@@ -38,13 +55,15 @@ class Grids extends ResourceHelper implements Selectable
      *
      * @return int|Table int the id, otherwise the grid table entry
      */
-    public static function getDefault(bool $onlyID = true)
+    public static function getDefault(bool $onlyID = true): int|Table
     {
-        $query = Database::getQuery();
-        $query->select('id')->from('#__organizer_grids')->where('isDefault = 1');
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select(DB::qn('id'))->from(DB::qn('#__organizer_grids'))->where(DB::qn('isDefault') . ' = 1');
+        DB::setQuery($query);
 
-        $gridID = Database::loadInt();
+        if (!$gridID = DB::loadInt()) {
+            return 0;
+        }
 
         if ($onlyID) {
             return $gridID;
@@ -78,10 +97,27 @@ class Grids extends ResourceHelper implements Selectable
     {
         $query = Database::getQuery();
         $tag   = Application::getTag();
-        $query->select("*, name_$tag as name, isDefault")->from('#__organizer_grids')->order('name');
+
+        $select = ['*', DB::qn("name_$tag", 'name')];
+        $query->select($select)
+            ->from(DB::qn('#__organizer_grids'))
+            ->order(DB::qn('name'));
         Database::setQuery($query);
 
         return Database::loadAssocList('id');
     }
 
+
+    /**
+     * Removes the default status from all grids.
+     * @return bool
+     */
+    public static function resetDefault(): bool
+    {
+        $query = DB::getQuery();
+        $query->update(DB::qn('#__organizer_grids'))->set(DB::qn('isDefault') . ' = 0');
+        DB::setQuery($query);
+
+        return DB::execute();
+    }
 }

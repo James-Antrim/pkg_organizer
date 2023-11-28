@@ -11,9 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\{Dates, Grids as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -46,8 +45,8 @@ class Grids extends ListView
 
             $item->startDay  = Text::_($startDayConstant);
             $item->endDay    = Text::_($endDayConstant);
-            $item->startTime = Helpers\Dates::formatTime(reset($grid['periods'])['startTime']);
-            $item->endTime   = Helpers\Dates::formatTime(end($grid['periods'])['endTime']);
+            $item->startTime = Dates::formatTime(reset($grid['periods'])['startTime']);
+            $item->endTime   = Dates::formatTime(end($grid['periods'])['endTime']);
         }
         else {
             $item->startDay  = '';
@@ -56,7 +55,7 @@ class Grids extends ListView
             $item->endTime   = '';
         }
 
-        $item->isDefault = $this->getToggle('grids', $item->id, $item->isDefault, 'ORGANIZER_GRID_DESC');
+        $item->isDefault = HTML::toggle($index, Helper::defaultStates[$item->isDefault], 'Grids');
     }
 
     /**
