@@ -10,6 +10,8 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Input;
+
 /**
  * @inheritDoc
  */
@@ -18,33 +20,22 @@ class Run extends FormController
     protected string $list = 'Runs';
 
     /**
-     * Attempts to save the resource.
-     *
-     * @param   array  $data  the data from the form
-     *
-     * @return int|bool int id of the resource on success, otherwise bool false
+     * @inheritDoc
      */
-    /*public function save(array $data = [])
+    protected function prepareData(): array
     {
-        $this->authorize();
-
-        $data    = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data    = Input::getFormItems();
         $endDate = '';
-        $index   = 1;
         $runs    = [];
 
-        foreach ($data['run'] as $row) {
-            $endDate      = $endDate < $row['endDate'] ? $row['endDate'] : $endDate;
-            $runs[$index] = $row;
-            ++$index;
+        foreach ($data['run'] as $section) {
+            $endDate = max($endDate, $section['endDate']);
         }
 
         $data['endDate'] = $endDate;
-        $run             = ['runs' => $runs];
-        $data['run']     = json_encode($run, JSON_UNESCAPED_UNICODE);
+        $data['run']     = json_encode(['runs' => $data['run']], JSON_UNESCAPED_UNICODE);
 
-        $table = new Table();
+        return $data;
+    }
 
-        return $table->save($data) ? $table->id : false;
-    }*/
 }
