@@ -2,9 +2,10 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="name" type="Blank" label="NAME" class="required" maxlength="150" required="true"/>
-        <field name="abbreviation" type="Blank" label="ABBREVIATION" class="required" maxlength="25" required="true"/>
-        <field name="alias" type="Blank" label="ALIAS" maxlength="255"/>
-        <field name="code" type="Blank" label="DEGREE_CODE" class="required" maxlength="60" required="true"/>
+        <field name="name" type="text" label="ORGANIZER_NAME" class="required" maxlength="150" required="true"/>
+        <field name="abbreviation" type="text" label="ORGANIZER_ABBREVIATION" class="required" maxlength="25" required="true"/>
+        <field name="alias" type="text" label="ORGANIZER_ALIAS" description="ORGANIZER_ALIAS_DESC" maxlength="255"/>
+        <field name="code" type="text" label="ORGANIZER_DEGREE_CODE" class="required" description="ORGANIZER_DEGREE_CODE_DESC"
+               maxlength="60" required="true"/>
     </fieldset>
 </form>
