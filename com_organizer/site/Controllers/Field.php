@@ -11,7 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 /**
- * Class holds functions for handling user degree resource interactions.
+ * @inheritDoc
  */
 class Field extends FormController
 {

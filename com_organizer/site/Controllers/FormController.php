@@ -17,6 +17,9 @@ use Joomla\Input\Input as JInput;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Tables\Incremented;
 
+/**
+ * Handles authorization, display, data persistence and redirection for form views.
+ */
 abstract class FormController extends Controller
 {
     /**
