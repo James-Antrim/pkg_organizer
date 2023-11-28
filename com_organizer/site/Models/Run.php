@@ -10,72 +10,27 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables\Runs as Table;
+use Joomla\CMS\Form\Form as FormAlias;
+use THM\Organizer\Adapters\Input;
+use THM\Organizer\Helpers\Terms;
 
 /**
- * Class which manages stored run data.
+ * Class loads a form for editing run data.
  */
-class Run extends BaseModel
+class Run extends EditModel
 {
+    protected string $tableClass = 'Runs';
+
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    public function getForm($data = [], $loadData = true): ?FormAlias
     {
-        if (Helpers\Can::administrate()) {
-            return;
+        if ($form = parent::getForm($data, $loadData)) {
+            $defaultID = Input::getFilterID('term', Terms::getCurrentID());
+            $form->setValue('termID', null, $form->getValue('termID', null, $defaultID));
         }
 
-        if (!Helpers\Can::scheduleTheseOrganizations() or Input::getID()) {
-            Application::error(403);
-        }
-    }
-
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Table A Table object
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = []): Table
-    {
-        return new Table();
-    }
-
-    /**
-     * Attempts to save the resource.
-     *
-     * @param   array  $data  the data from the form
-     *
-     * @return int|bool int id of the resource on success, otherwise bool false
-     */
-    public function save(array $data = [])
-    {
-        $this->authorize();
-
-        $data    = empty($data) ? Input::getFormItems()->toArray() : $data;
-        $endDate = '';
-        $index   = 1;
-        $runs    = [];
-
-        foreach ($data['run'] as $row) {
-            $endDate      = $endDate < $row['endDate'] ? $row['endDate'] : $endDate;
-            $runs[$index] = $row;
-            ++$index;
-        }
-
-        $data['endDate'] = $endDate;
-        $run             = ['runs' => $runs];
-        $data['run']     = json_encode($run, JSON_UNESCAPED_UNICODE);
-
-        $table = new Table();
-
-        return $table->save($data) ? $table->id : false;
+        return $form;
     }
 }

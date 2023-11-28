@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,11 +11,17 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\DatabaseDriver;
+use Joomla\Database\DatabaseInterface;
+use THM\Organizer\Adapters\Application;
+
 /**
  * Models the organizer_runs table.
  */
 class Runs extends BaseTable
 {
+    use Incremented;
+
     /**
      * The end date of the resource.
      * DATE NOT NULL
@@ -51,10 +58,13 @@ class Runs extends BaseTable
     public $termID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_runs');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_runs', 'id', $dbo);
     }
 }
