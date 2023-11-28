@@ -17,31 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Class which manages stored color data.
  */
-class Color extends BaseModel
+class Color extends EditModel
 {
-    /**
-     * Authorizes the user.
-     * @return void
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Can::documentTheseOrganizations()) {
-            Application::error(403);
-        }
-    }
-
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\Colors A Table object
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = []): Tables\Colors
-    {
-        return new Tables\Colors();
-    }
+    protected string $tableClass = 'Colors';
 }

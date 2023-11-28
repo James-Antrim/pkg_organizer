@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class holds functions for handling user degree resource interactions.
  */
-class Degree extends FormController
+class Color extends FormController
 {
-    protected string $list = 'Degrees';
+    protected string $list = 'Colors';
 }
