@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the (lesson) method form into display context.
+ * @inheritDoc
  */
 class Method extends FormView
 {

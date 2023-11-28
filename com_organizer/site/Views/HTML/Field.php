@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the field form into display context.
+ * @inheritDoc
  */
 class Field extends FormView
 {

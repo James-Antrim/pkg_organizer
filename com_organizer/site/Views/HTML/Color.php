@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the color form into display context.
+ * @inheritDoc
  */
 class Color extends FormView
 {

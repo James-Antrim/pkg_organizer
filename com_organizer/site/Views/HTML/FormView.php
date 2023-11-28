@@ -16,6 +16,9 @@ use THM\Organizer\Adapters\Document;
 use THM\Organizer\Adapters\Input;
 use THM\Organizer\Views\Named;
 
+/**
+ * Class loads form data into the HTML view context.
+ */
 class FormView extends Base
 {
     use Configured;

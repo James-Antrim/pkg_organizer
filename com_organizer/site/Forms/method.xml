@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="code" type="text" label="ORGANIZER_UNTIS_ID" maxlength="60" required="true"/>
@@ -8,7 +8,7 @@
         <field name="name_de" type="text" label="ORGANIZER_NAME_DE" maxlength="150" required="true"/>
         <field name="name_en" type="text" label="ORGANIZER_NAME_EN" maxlength="150" required="true"/>
         <field name="relevant" type="list" label="ORGANIZER_WORKLOAD_RELEVANT" default="1"
-               description="ORGANIZER_WORKLOAD_RELEVANT_DESC" >
+               description="ORGANIZER_WORKLOAD_RELEVANT_DESC">
             <option value='1'>ORGANIZER_YES</option>
             <option value='0'>ORGANIZER_NO</option>
         </field>

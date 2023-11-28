@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the holiday form into display context.
+ * @inheritDoc
  */
 class Holiday extends FormView
 {

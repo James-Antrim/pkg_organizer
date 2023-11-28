@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="name_de" type="text" label="ORGANIZER_NAME_DE" maxlength="150" required="true"/>
