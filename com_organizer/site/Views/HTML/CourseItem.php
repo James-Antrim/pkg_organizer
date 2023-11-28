@@ -90,7 +90,7 @@ class CourseItem extends ItemView
                 $toolbar->appendButton(
                     'Link',
                     'user-plus',
-                    Text::_('PROFILE_NEW'),
+                    Text::_('ADD_PROFILE'),
                     $link . '&view=participant_edit'
                 );
             }

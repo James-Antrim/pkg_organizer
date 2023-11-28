@@ -32,8 +32,8 @@ class FieldColors extends ListView
         $toolbar->addNew('FieldColors.add')->icon('fa fa-link');
         $toolbar->delete('FieldColors.delete')->message(Text::_('DELETE_CONFIRM'));
 
-        $toolbar->standardButton('newField', Text::_('FIELD_NEW'), 'Fields.add')->icon('fa fa-lightbulb');
-        $toolbar->standardButton('newColor', Text::_('COLOR_NEW'), 'Colors.add')->icon('fa fa-palette');
+        $toolbar->standardButton('newField', Text::_('ADD_FIELD'), 'Fields.add')->icon('fa fa-lightbulb');
+        $toolbar->standardButton('newColor', Text::_('ADD_COLOR'), 'Colors.add')->icon('fa fa-palette');
 
 
         if (Can::administrate()) {

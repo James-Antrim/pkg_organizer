@@ -87,10 +87,10 @@ class Courses extends ListView
 
         if (!Application::backend()) {
             if (Participants::exists()) {
-                $toolbar->standardButton('participant', Text::_('PROFILE_EDIT'), 'Participant.edit')->icon('fa fa-address-card');
+                $toolbar->standardButton('participant', Text::_('EDIT_PROFILE'), 'Participant.edit')->icon('fa fa-address-card');
             }
             else {
-                $toolbar->standardButton('participant', Text::_('PROFILE_NEW'), 'Participant.edit')->icon('fa fa-user-plus');
+                $toolbar->standardButton('participant', Text::_('NEW_PROFILE'), 'Participant.edit')->icon('fa fa-user-plus');
             }
         }
 

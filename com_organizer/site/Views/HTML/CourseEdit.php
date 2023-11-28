@@ -40,7 +40,7 @@ class CourseEdit extends EditViewOld
             }
         }
         else {
-            $title = Text::_('COURSE_NEW');
+            $title = Text::_('ADD_COURSE');
         }
 
         parent::addToolBar();
