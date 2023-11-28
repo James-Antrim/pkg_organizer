@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,12 +11,17 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\CMS\Table\Table;
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
  * Models the organizer_grids table.
  */
-class Grids extends BaseTable
+class Grids extends Table
 {
     use Coded;
+    use Incremented;
 
     /**
      * A grid object modeled by a JSON string, containing the respective start and end times of the grid blocks.
@@ -46,10 +52,13 @@ class Grids extends BaseTable
     public $name_en;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_grids');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_grids', 'id', $dbo);
     }
 }

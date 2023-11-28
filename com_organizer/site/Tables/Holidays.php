@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,13 +11,17 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\CMS\Table\Table;
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
  * Models the organizer_holidays table.
  */
-class Holidays extends BaseTable
+class Holidays extends Table
 {
+    use Incremented;
+
     /**
      * The end date of the resource.
      * DATE DEFAULT NULL
@@ -53,11 +58,14 @@ class Holidays extends BaseTable
     public $type;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_holidays');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_holidays', 'id', $dbo);
     }
 
     /**

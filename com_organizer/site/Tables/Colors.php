@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,11 +11,17 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\CMS\Table\Table;
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
  * Models the organizer_colors table.
  */
-class Colors extends BaseTable
+class Colors extends Table
 {
+    use Incremented;
+
     /**
      * The six digit hexadecimal value of the color with leading #.
      * VARCHAR(60) NOT NULL
@@ -37,10 +44,13 @@ class Colors extends BaseTable
     public $name_en;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_colors');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_colors', 'id', $dbo);
     }
 }

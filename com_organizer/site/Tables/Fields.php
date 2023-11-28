@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,13 +11,18 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\CMS\Table\Table;
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
  * Models the organizer_fields table.
  */
-class Fields extends BaseTable
+class Fields extends Table
 {
     use Aliased;
     use Coded;
+    use Incremented;
 
     /**
      * The resource's German name.
@@ -33,10 +39,13 @@ class Fields extends BaseTable
     public $name_en;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_fields');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_fields', 'id', $dbo);
     }
 }
