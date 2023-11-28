@@ -157,7 +157,7 @@ class RoomStatistics
         $this->spreadSheet->getActiveSheet()->setCellValue('B7', Text::_('ORGANIZER_WEIGHTED_PERCENT_TIP'));
 
         $this->spreadSheet->getActiveSheet()->mergeCells('A9:B9');
-        $this->spreadSheet->getActiveSheet()->setCellValue('A9', Text::_('ORGANIZER_ROOMTYPES'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('A9', Text::_('ORGANIZER_ROOM_TYPES'));
         $this->spreadSheet->getActiveSheet()->getStyle('A9')->getFont()->setSize(14);
         $rowNumber = 9;
 
@@ -259,7 +259,7 @@ class RoomStatistics
 
         $this->spreadSheet->getActiveSheet()->setCellValue('A6', Text::_('ORGANIZER_NAME'));
         $this->spreadSheet->getActiveSheet()->getStyle('A6')->applyFromArray(['fill' => $this->headerFill]);
-        $this->spreadSheet->getActiveSheet()->setCellValue('B6', Text::_('ORGANIZER_ROOMTYPE'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('B6', Text::_('ORGANIZER_ROOM_TYPE'));
         $this->spreadSheet->getActiveSheet()->getStyle('B6')->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet()->setCellValue('C6', Text::_('ORGANIZER_RAW_UTIL_TEXT'));
         $this->spreadSheet->getActiveSheet()->getStyle('C6')->applyFromArray(['fill' => $this->headerFill]);
@@ -506,7 +506,7 @@ class RoomStatistics
         $this->spreadSheet->getActiveSheet(1)->setCellValue('A7', Text::_('ORGANIZER_NAME'));
         $this->spreadSheet->getActiveSheet()->getStyle('A7')->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet()->getStyle('B6')->applyFromArray(['borders' => $this->rightBorder]);
-        $this->spreadSheet->getActiveSheet(1)->setCellValue('B7', Text::_('ORGANIZER_ROOMTYPE'));
+        $this->spreadSheet->getActiveSheet(1)->setCellValue('B7', Text::_('ORGANIZER_ROOM_TYPE'));
         $this->spreadSheet->getActiveSheet()->getStyle('B7')
             ->applyFromArray(['fill' => $this->headerFill, 'borders' => $this->rightBorder]);
         $this->spreadSheet->getActiveSheet(1)->setAutoFilter("A7:{$lastColumn}{$lastRow}");

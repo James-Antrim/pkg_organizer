@@ -52,7 +52,7 @@ class RoomTypes extends ListView
             ],
             'rns'     => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('ROOMKEY', 'rns', $direction, $ordering),
+                'title'      => HTML::sort('ROOM_KEY', 'rns', $direction, $ordering),
                 'type'       => 'text'
             ],
             'useCode' => [

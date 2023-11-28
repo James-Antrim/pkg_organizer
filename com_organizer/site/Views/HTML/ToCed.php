@@ -171,11 +171,11 @@ trait ToCed
                 'url'    => Routing::getViewURL('RoomsImport'),
                 'active' => $viewName === 'rooms_import'
             ];*/
-            $items[Text::_('ROOMKEYS')]  = [
+            $items[Text::_('ROOM_KEYS')]  = [
                 'url'    => Routing::getViewURL('RoomKeys'),
                 'active' => $viewName === 'roomkeys'
             ];
-            $items[Text::_('ROOMTYPES')] = [
+            $items[Text::_('ROOM_TYPES')] = [
                 'url'    => Routing::getViewURL('RoomTypes'),
                 'active' => $viewName === 'roomtypes'
             ];

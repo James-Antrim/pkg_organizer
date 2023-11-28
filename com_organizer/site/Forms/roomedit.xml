@@ -8,9 +8,9 @@
                valuecolumn="id">
             <option value="">NO_INPUT</option>
         </field>
-        <field name="roomtypeID" type="GenericOptions" label="ROOMTYPE" localized="true" table="organizer_roomtypes"
+        <field name="roomtypeID" type="GenericOptions" label="ROOM_TYPE" localized="true" table="organizer_roomtypes"
                textcolumn="name" valuecolumn="id" required="true">
-            <option value="">SELECT_ROOMTYPE</option>
+            <option value="">SELECT_ROOM_TYPE</option>
         </field>
         <field name="maxCapacity" type="Integer" label="MAX_CAPACITY" last="500" step="1"/>
         <field name="effCapacity" type="Integer" label="EFF_CAPACITY" last="500" step="1"/>

@@ -83,7 +83,7 @@ class OrganizationOccupancy extends SelectionView
         $roomtypeSelect              = HTML::selectBox('roomtypeIDs', $typeOptions, $roomtypeAttribs);
 
         $this->sets['filterFields']['roomtypeIDs'] = [
-            'label'       => Text::_('ORGANIZER_ROOMTYPES'),
+            'label'       => Text::_('ORGANIZER_ROOM_TYPES'),
             'description' => Text::_('ORGANIZER_ROOMS_TYPES_DESC'),
             'input'       => $roomtypeSelect
         ];

@@ -6,9 +6,9 @@
                valuecolumn="id" textcolumn="name" table="organizer_use_groups">
             <option value="">ALL_USE_GROUPS</option>
         </field>
-        <field name="keyID" type="GenericOptions" label="ROOMKEY" onchange="this.form.submit();" localized="true"
+        <field name="keyID" type="GenericOptions" label="ROOM_KEY" onchange="this.form.submit();" localized="true"
                table="organizer_roomkeys" textcolumn="name" valuecolumn="id">
-            <option value="">ALL_ROOMKEYS</option>
+            <option value="">ALL_ROOM_KEYS</option>
         </field>
         <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();" localized="true"
                valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">

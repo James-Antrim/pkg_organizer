@@ -2,7 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="key" type="Blank" label="ROOMKEY" readonly="true"/>
+        <field name="key" type="Blank" label="ROOM_KEY" readonly="true"/>
         <field name="name_de" type="Blank" label="NAME_DE" readonly="true"/>
         <field name="name_en" type="Blank" label="NAME_EN" readonly="true"/>
         <field name="useGroup" type="Blank" label="USE_GROUP" readonly="true"/>

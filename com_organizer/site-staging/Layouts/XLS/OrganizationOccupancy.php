@@ -332,7 +332,7 @@ class OrganizationOccupancy
         $this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('A7', Text::_('ORGANIZER_NAME'));
         $this->spreadSheet->getActiveSheet()->getStyle('A7')->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet()->getStyle('B6')->applyFromArray(['borders' => $this->rightBorder]);
-        $this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('B7', Text::_('ORGANIZER_ROOMTYPE'));
+        $this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('B7', Text::_('ORGANIZER_ROOM_TYPE'));
         $this->spreadSheet->getActiveSheet()->getStyle('D6')->applyFromArray(['borders' => $this->rightBorder]);
         $this->spreadSheet->getActiveSheet()->getStyle('B7')
             ->applyFromArray(['fill' => $this->headerFill, 'borders' => $this->rightBorder]);

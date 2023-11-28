@@ -11,7 +11,7 @@
             <option value="-1">NO_BUILDING</option>
         </field>
         <field name="roomtypeID" type="RoomTypes" label="TYPE" class="input-12" onchange="this.form.submit();">
-            <option value="">ALL_ROOMTYPES</option>
+            <option value="">ALL_ROOM_TYPES</option>
         </field>
         <field name="effCapacity" type="Integer" label="CAPACITY" first="5" last="500" onchange="this.form.submit();" prefix="> "
                step="5" unit="SEATS">

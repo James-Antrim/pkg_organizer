@@ -6,7 +6,7 @@
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
         <field name="usecode" type="GenericOptions" label="USE_CODE_TEXT" required="true" localized="true"
                table="organizer_use_codes" textcolumn="name" valuecolumn="id">
-            <option value="">SELECT_ROOMKEY</option>
+            <option value="">SELECT_ROOM_KEY</option>
         </field>
         <field name="capacity" type="Integer" label="CAPACITY" default="-1" first="9" last="999" step="1">
             <option value="-1">NO_INPUT</option>
