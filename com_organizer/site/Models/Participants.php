@@ -98,7 +98,7 @@ class Participants extends ListModel
             $similarSurnames  = "($surname1 LIKE $likeSN2 OR $surname2 LIKE $likeSN1)";
             $conditions       = "($similarForenames AND $similarSurnames)";
             $paid             = DB::qn('pa.id');
-            $query->leftJoin(DB::qn('participants', 'pa2'), $conditions)
+            $query->leftJoin(DB::qn('#__organizer_participants', 'pa2'), $conditions)
                 ->where("$paid != " . DB::qn('pa2.id'))
                 ->group($paid);
 

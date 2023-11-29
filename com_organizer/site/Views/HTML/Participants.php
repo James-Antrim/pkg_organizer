@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{Application, Document, HTML, Input};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text};
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -61,12 +61,12 @@ class Participants extends ListView
             ],
             'email'    => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('EMAIL', 'email', $direction, $ordering),
+                'title'      => Text::_('EMAIL'),
                 'type'       => 'text'
             ],
             'program'  => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('PROGRAM', 'program', $direction, $ordering),
+                'title'      => Text::_('PROGRAM'),
                 'type'       => 'text'
             ],
         ];
@@ -74,17 +74,17 @@ class Participants extends ListView
         if ($courseID = Input::getFilterID('course') and $courseID !== -1) {
             $headers['status']   = [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('STATUS', 'status', $direction, $ordering),
+                'title'      => Text::_('STATUS'),
                 'type'       => 'value'
             ];
             $headers['paid']     = [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('PAID', 'paid', $direction, $ordering),
+                'title'      => Text::_('PAID'),
                 'type'       => 'value'
             ];
             $headers['attended'] = [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('ATTENDED', 'attended', $direction, $ordering),
+                'title'      => Text::_('ATTENDED'),
                 'type'       => 'value'
             ];
         }
@@ -97,15 +97,5 @@ class Participants extends ListView
         }
 
         $this->headers = $headers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
-    {
-        parent::modifyDocument();
-
-        //Document::style('modal');
     }
 }
