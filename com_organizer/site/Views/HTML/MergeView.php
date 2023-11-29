@@ -10,13 +10,13 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
  */
-abstract class MergeViewOld extends OldFormView
+abstract class MergeView extends FormView
 {
     /**
      * The list view to redirect to after completion of form view functions.
@@ -39,14 +39,25 @@ abstract class MergeViewOld extends OldFormView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(): void
+    protected function addToolbar(array $buttons = []): void
     {
-        $this->setTitle(Text::_(strtoupper($this->_name)));
+        Input::set('hidemainmenu', true);
+        $controller = $this->getName();
+        $key        = str_replace('Merge', 'MERGE_', $controller);
+        $this->setTitle(strtoupper($key));
 
         $toolbar = Toolbar::getInstance();
-        $toolbar->standardButton('merge', Text::_('MERGE'))
-            ->icon('fa fa-code-branch')
-            ->task($this->controller . '.merge');
-        $toolbar->cancel($this->controller . '.cancel');
+        $toolbar->save($controller . '.save', Text::_('MERGE'))->icon('fa fa-code-merge');
+        $toolbar->cancel("$controller.cancel", Text::_('CANCEL'));
+    }
+
+    /**
+     * @inheritDoc
+     * Overrides to avoid calling getItem and getTable as neither makes sense in a merge context.
+     */
+    protected function initializeView(): void
+    {
+        $this->form  = $this->get('Form');
+        $this->state = $this->get('State');
     }
 }

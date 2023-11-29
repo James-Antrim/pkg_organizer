@@ -25,12 +25,6 @@ class MergeEmail extends MergeValues
      */
     protected function getValues(): array
     {
-        $domain = Input::getParams()->get('emailFilter');
-
-        if (!$domain) {
-            return [];
-        }
-
         $query = DB::getQuery();
         $query->select(['DISTINCT ' . DB::qn('email', 'value'), DB::qn('email', 'text')])
             ->from(DB::qn('#__users'))
@@ -42,9 +36,12 @@ class MergeEmail extends MergeValues
             return [];
         }
 
-        foreach ($addresses as $address) {
-            if (strpos($address, $domain)) {
-                return [$address];
+        // Prefilter domain matches if configured
+        if ($domain = Input::getParams()->get('emailFilter')) {
+            foreach ($addresses as $address) {
+                if (strpos($address, $domain)) {
+                    return [$address];
+                }
             }
         }
 

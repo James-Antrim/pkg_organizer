@@ -62,7 +62,7 @@ trait Mergeable
     {
         $column = DB::qn($this->getAttribute('name'), 'value');
         $query  = DB::getQuery();
-        $table  = $this->resource === 'category' ? 'categories' : "{$this->resource}s";
+        $table  = strtolower($this->resource);
         $query->select(["DISTINCT BINARY $column"])
             ->from(DB::qn("#__organizer_$table"))
             ->whereIn(DB::qn('id'), $this->selectedIDs)
@@ -73,14 +73,26 @@ trait Mergeable
     }
 
     /**
-     * Validates basic information needed to merge values.
-     * @return bool
+     * Validates the context from which the field was called.
+     *
+     * @return  bool
      */
-    protected function validate(): bool
+    protected function validateContext(): bool
     {
         $this->selectedIDs = Input::getSelectedIDs();
-        $this->resource    = str_replace('_merge', '', Input::getView());
-        $validResources    = ['category', 'field', 'group', 'event', 'method', 'room', 'roomtype', 'participant', 'person'];
+        $this->resource    = str_replace('Merge', '', Input::getView());
+
+        $validResources = [
+            'Categories',
+            'Fields',
+            'Groups',
+            'Events',
+            'Methods',
+            'Rooms',
+            'Roomtypes',
+            'Participants',
+            'Persons'
+        ];
 
         return !(empty($this->selectedIDs) or empty($this->resource) or !in_array($this->resource, $validResources));
     }

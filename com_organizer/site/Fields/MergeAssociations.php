@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Fields;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
+use Joomla\Database\DatabaseQuery;
 use stdClass;
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 
 /**
  * Class creates a generalized select box for selection of a single id column value among those already selected.
@@ -95,11 +95,11 @@ class MergeAssociations extends Options
     /**
      * Resolves the textColumns for localization and concatenation of column names
      *
-     * @param   JDatabaseQuery  $query  the query to modify
+     * @param   DatabaseQuery  $query  the query to modify
      *
      * @return string  the string to use for text selection
      */
-    private function resolveTextColumn(JDatabaseQuery $query): string
+    private function resolveTextColumn(DatabaseQuery $query): string
     {
         $textColumn  = $this->getAttribute('textcolumn', '');
         $textColumns = explode(',', $textColumn);

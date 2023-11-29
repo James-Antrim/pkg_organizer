@@ -11,12 +11,13 @@
 namespace THM\Organizer\Fields;
 
 use THM\Organizer\Adapters\{HTML, Text};
+use Joomla\CMS\Form\Field\ListField;
 use stdClass;
 
 /**
  * Class creates a generalized select box for selection of a single column value among those already selected.
  */
-class MergeValues extends Options
+class MergeValues extends ListField
 {
     use Mergeable;
 
@@ -26,7 +27,7 @@ class MergeValues extends Options
      */
     protected function getOptions(): array
     {
-        if (!$this->validate()) {
+        if (!$this->validateContext()) {
             return [];
         }
 

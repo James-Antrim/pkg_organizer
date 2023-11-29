@@ -8,14 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Fields;
-
-use Joomla\CMS\Form\Field\EditorField;
+namespace THM\Organizer\Controllers;
 
 /**
- * Class creates text input.
+ * @inheritDoc
  */
-class Wiz extends EditorField
+class Participant extends FormController
 {
-    use Translated;
+    protected string $list = 'Participants';
 }
