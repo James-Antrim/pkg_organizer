@@ -35,21 +35,19 @@ class Organizations extends ListView
      */
     public function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
             'check'     => ['type' => 'check'],
-            'shortName' => [
-                'link'       => ListItem::DIRECT,
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
-                'type'       => 'value'
-            ],
             'name'      => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
-                'type'       => 'value'
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'type'       => 'text'
+            ],
+            'shortName' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('SHORT_NAME'),
+                'type'       => 'text'
             ],
         ];
 

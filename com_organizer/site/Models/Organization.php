@@ -10,25 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Tables;
-
 /**
- * Class which manages stored organization data.
+ * @inheritDoc
  */
-class Organization extends BaseModel
+class Organization extends EditModel
 {
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\Organizations A Table object
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = []): Tables\Organizations
-    {
-        return new Tables\Organizations();
-    }
+    protected string $tableClass = 'Organizations';
 }

@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
-    <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
+<form>
+    <fieldset name="details" label="ORGANIZER_SETTINGS">
         <field name="asset_id" type="hidden" filter="unset"/>f
         <field name="id" type="hidden"/>
+        <field name="fullName_de" type="text" label="ORGANIZER_FULL_NAME_DE" maxlength="200" required="true"
+               hint="Fachbereich 01 Bauwesen"/>
+        <field name="fullName_en" type="text" label="ORGANIZER_FULL_NAME_EN" maxlength="200" required="true"
+               hint="Civil Engineering Department 01"/>
+        <field name="name_de" type="text" label="ORGANIZER_NAME_DE" maxlength="150" required="true" hint="Fachbereich Bauwesen"/>
+        <field name="name_en" type="text" label="ORGANIZER_NAME_EN" maxlength="150" required="true"
+               hint="Civil Engineering Department"/>
+        <field name="shortName_de" type="text" label="ORGANIZER_SHORT_NAME_DE" maxlength="50" required="true" hint="FB 01 BAU"/>
+        <field name="shortName_en" type="text" label="ORGANIZER_SHORT_NAME_EN" maxlength="50" required="true" hint="CE DEPT 01"/>
+        <field name="abbreviation_de" type="text" label="ORGANIZER_ABBREVIATION_DE" maxlength="25" required="true" hint="BAU"/>
+        <field name="abbreviation_en" type="text" label="ORGANIZER_ABBREVIATION_EN" maxlength="25" required="true" hint="CE"/>
         <field name="URL" type="text" label="ORGANIZER_URL" maxlength="255"/>
         <field name="alias" type="text" label="ORGANIZER_ALIAS" maxlength="255"/>
         <field name="contactID" type="user" label="ORGANIZER_CONTACT_PERSON" description="ORGANIZER_CONTACT_PERSON_DESC"/>
@@ -16,20 +27,8 @@
             <option value="0">ORGANIZER_NO</option>
         </field>
     </fieldset>
-    <fieldset name="de" label="ORGANIZER_ATTRIBUTES_DE">
-        <field name="fullName_de" type="Blank" label="FULL_NAME_DE" maxlength="200" required="true"/>
-        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
-        <field name="shortName_de" type="Blank" label="SHORT_NAME_DE" maxlength="50" required="true"/>
-        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" maxlength="25" required="true"/>
-    </fieldset>
-    <fieldset name="en" label="ORGANIZER_ATTRIBUTES_EN">
-        <field name="fullName_en" type="Blank" label="FULL_NAME_EN" maxlength="200" required="true"/>
-        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
-        <field name="shortName_en" type="Blank" label="SHORT_NAME_EN" maxlength="50" required="true"/>
-        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" maxlength="25" required="true"/>
-    </fieldset>
     <fieldset name="rules" label="PERMISSIONS">
-        <field name="rules" type="Rules" label="JCONFIG_PERMISSIONS_LABEL" validate="rules" filter="rules"
-               component="com_organizer" section="organization"/>
+        <field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" component="com_organizer" filter="rules"
+               validate="rules" section="organization"/>
     </fieldset>
 </form>

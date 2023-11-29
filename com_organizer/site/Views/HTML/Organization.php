@@ -11,9 +11,15 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the organization form into display context.
+ * @inheritDoc
  */
-class OrganizationEdit extends EditViewOld
+class Organization extends FormView
 {
-    protected string $layout = 'tabs';
+    /**
+     * @inheritDoc
+     */
+    protected function addToolbar(array $buttons = []): void
+    {
+        parent::addToolbar(['apply', 'save']);
+    }
 }

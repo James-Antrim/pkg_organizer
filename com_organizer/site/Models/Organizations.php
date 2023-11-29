@@ -19,8 +19,6 @@ use THM\Organizer\Helpers\Can;
  */
 class Organizations extends ListModel
 {
-    protected string $defaultOrdering = 'shortName';
-
     /**
      * Method to get a list of resources from the database.
      * @return DatabaseQuery
