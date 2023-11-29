@@ -15,11 +15,5 @@ namespace THM\Organizer\Views\HTML;
  */
 class Organization extends FormView
 {
-    /**
-     * @inheritDoc
-     */
-    protected function addToolbar(array $buttons = []): void
-    {
-        parent::addToolbar(['apply', 'save']);
-    }
+    // Everything is taken care of in the inheritance hierarchy.
 }

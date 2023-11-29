@@ -70,7 +70,7 @@ class FormView extends Base
     protected function addToolbar(array $buttons = []): void
     {
         Input::set('hidemainmenu', true);
-        $buttons    = $buttons ?: ['save'];
+        $buttons    = $buttons ?: ['apply', 'save'];
         $controller = $this->getName();
         $constant   = strtoupper($controller);
 
