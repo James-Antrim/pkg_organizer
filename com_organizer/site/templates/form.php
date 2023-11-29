@@ -30,7 +30,7 @@ $return         = $input->getBase64('return');
 $tabs   = $this->form->getFieldsets();
 $tabbed = count($this->form->getFieldsets()) > 1;
 
-if ($this->toDo) {
+if (Application::backend() and $this->toDo) {
     echo '<h6>Tasks:</h6>';
     echo '<ul>';
     foreach ($this->toDo as $toDo) {

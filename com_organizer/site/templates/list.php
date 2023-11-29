@@ -22,7 +22,7 @@ $direction = $this->escape($this->state->get('list.direction'));
 $orderBy   = $this->escape($this->state->get('list.ordering'));
 
 /** @var ListView $this */
-if ($this->toDo) {
+if (Application::backend() and $this->toDo) {
     echo '<h6>Tasks:</h6>';
     echo '<ul>';
     foreach ($this->toDo as $toDo) {
