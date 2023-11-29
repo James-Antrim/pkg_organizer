@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
-    <fieldset name="details" label="CONTACT_INFORMATION">
-        <field name="forename" type="Blank" label="FORENAME" class="required validate-name" required="true"/>
-        <field name="surname" type="Blank" label="SURNAME" class="required validate-name" required="true"/>
-        <field name="title" type="Blank" label="TITLE" maxlength="45"/>
-        <field name="telephone" type="Blank" label="TELEPHONE" class="required validate-telephone" required="true"/>
-        <field name="address" type="Blank" label="STREET" class="required validate-address" required="true"/>
-        <field name="city" type="Blank" label="RESIDENCE" class="required validate-name" required="true"/>
-        <field name="zipCode" type="Blank" label="ZIP_CODE" class="required validate-alphanumeric" required="true"/>
-        <field name="programID" type="Programs" label="PROGRAM" class="input-15">
-            <option value="">SELECT_PROGRAM</option>
+<form>
+    <fieldset name="details" label="ORGANIZER_CONTACT_INFORMATION">
+        <field name="forename" type="text" label="ORGANIZER_FORENAME" class="required validate-name" required="true"/>
+        <field name="surname" type="text" label="ORGANIZER_SURNAME" class="required validate-name" required="true"/>
+        <field name="title" type="text" label="ORGANIZER_TITLE" maxlength="45"/>
+        <field name="telephone" type="text" label="ORGANIZER_TELEPHONE" class="required validate-telephone" required="true"/>
+        <field name="address" type="text" label="ORGANIZER_STREET" class="required validate-address" required="true"/>
+        <field name="city" type="text" label="ORGANIZER_RESIDENCE" class="required validate-name" required="true"/>
+        <field name="zipCode" type="text" label="ORGANIZER_ZIP_CODE" class="required validate-alphanumeric" required="true"/>
+        <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" class="input-15">
+            <option value="">ORGANIZER_SELECT_PROGRAM</option>
         </field>
-        <field name="public" type="Options" label="PUBLIC_RELEASE" class="input-15" default="0">
-            <option value="0">NOT_RELEASED</option>
-            <option value="1">RELEASED</option>
+        <field name="public" type="list" label="ORGANIZER_PUBLIC_RELEASE" class="input-15" default="0">
+            <option value="0">ORGANIZER_NOT_RELEASED</option>
+            <option value="1">ORGANIZER_RELEASED</option>
         </field>
     </fieldset>
 </form>

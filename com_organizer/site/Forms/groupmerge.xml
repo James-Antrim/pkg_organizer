@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
-        <field name="fullName_de" type="MergeValues" label="NAME_DE"/>
-        <field name="fullName_en" type="MergeValues" label="NAME_EN"/>
-        <field name="name_de" type="MergeValues" label="SHORT_NAME_DE"/>
-        <field name="name_en" type="MergeValues" label="SHORT_NAME_EN"/>
-        <field name="code" type="MergeValues" label="UNTIS_ID"/>
-        <field name="categoryID" type="MergeAssociations" label="CATEGORY" textcolumn="c.name_en" from="groups AS g"
+        <field name="fullName_de" type="MergeValues" label="ORGANIZER_NAME_DE"/>
+        <field name="fullName_en" type="MergeValues" label="ORGANIZER_NAME_EN"/>
+        <field name="name_de" type="MergeValues" label="ORGANIZER_SHORT_NAME_DE"/>
+        <field name="name_en" type="MergeValues" label="ORGANIZER_SHORT_NAME_EN"/>
+        <field name="code" type="MergeValues" label="ORGANIZER_UNTIS_ID"/>
+        <field name="categoryID" type="MergeAssociations" label="ORGANIZER_CATEGORY" textcolumn="c.name_en" from="groups AS g"
                innerJoins="categories AS c ON c.id = g.categoryID"/>
-        <field name="publishing" type="TermPublishing" label="PUBLISHING"/>
-        <field name="gridID" type="MergeAssociations" label="GRID" textcolumn="gd.name" localized="true" from="groups AS gp"
-               innerJoins="grids AS gd ON gd.id = gp.gridID"/>
-        <field name="active" type="Options" label="ACTIVE" default="1">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
+        <field name="publishing" type="TermPublishing" label="ORGANIZER_PUBLISHING"/>
+        <field name="gridID" type="MergeAssociations" label="ORGANIZER_GRID" textcolumn="gd.name" localized="true"
+               from="groups AS gp" innerJoins="grids AS gd ON gd.id = gp.gridID"/>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
+            <option value="1">ORGANIZER_YES</option>
+            <option value="0">ORGANIZER_NO</option>
         </field>
-        <field name="suppress" type="Options" label="SUPPRESS" default="0">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
+        <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" default="0">
+            <option value="1">ORGANIZER_YES</option>
+            <option value="0">ORGANIZER_NO</option>
         </field>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>

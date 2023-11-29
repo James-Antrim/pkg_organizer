@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="code" type="text" label="ORGANIZER_CODE" hint="SS21" maxlength="60"/>
-        <field name="startDate" type="Date" label="START_DATE" required="true" showtime="false"/>
-        <field name="endDate" type="Date" label="END_DATE" required="true" showtime="false"/>
+        <field name="startDate" type="Date" label="ORGANIZER_START_DATE" required="true" showtime="false"/>
+        <field name="endDate" type="Date" label="ORGANIZER_END_DATE" required="true" showtime="false"/>
         <field name="name_de" type="text" label="ORGANIZER_SHORT_NAME_DE" hint="SS 2021" maxlength="150" required="true"/>
         <field name="name_en" type="text" label="ORGANIZER_SHORT_NAME_EN" hint="Spring 2021" maxlength="150" required="true"/>
         <field name="fullName_de" type="text" label="ORGANIZER_NAME_DE" hint="Sommersemester 2021" maxlength="200"

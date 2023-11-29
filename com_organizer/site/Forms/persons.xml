@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="this.form.submit();">
-            <option value="">ALL_ORGANIZATIONS</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
-            <option value="-1">ALL_STATES</option>
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ORGANIZER_ALL_STATES</option>
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
-        <field name="suppress" type="Options" label="SUPPRESS" onchange="this.form.submit();">
-            <option value="">ALL_SUPPRESSION_STATES</option>
-            <option value="0">SHOWN</option>
-            <option value="1">SUPPRESSED</option>
+        <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_SUPPRESSION_STATES</option>
+            <option value="0">ORGANIZER_SHOWN</option>
+            <option value="1">ORGANIZER_SUPPRESSED</option>
         </field>
     </fields>
     <fields name="list">

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="termID" type="Terms" label="TERMS" filter="true" onchange="this.form.submit();">
-            <option value="">ALL_TERMS</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="termID" type="Terms" label="ORGANIZER_TERMS" filter="true" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_TERMS</option>
         </field>
     </fields>
     <fields name="list">

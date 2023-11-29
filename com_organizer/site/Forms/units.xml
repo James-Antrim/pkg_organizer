@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="this.form.submit();"
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" onchange="this.form.submit();"
                access="schedule">
-            <option value="">ALL_ORGANIZATIONS</option>
+            <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
         </field>
-        <field name="termID" type="Terms" label="TERM" onchange="this.form.submit();"/>
-        <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();">
-            <option value="">ALL_GRIDS</option>
-            <option value="-1">NO_GRID</option>
+        <field name="termID" type="Terms" label="ORGANIZER_TERM" onchange="this.form.submit();"/>
+        <field name="gridID" type="Grids" label="ORGANIZER_GRID" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_GRIDS</option>
+            <option value="-1">ORGANIZER_NO_GRID</option>
         </field>
-        <!--<field name="runID" type="GenericOptions" label="RUNS" localized="true" onchange="this.form.submit();"
+        <!--<field name="runID" type="GenericOptions" label="ORGANIZER_RUNS" localized="true" onchange="this.form.submit();"
                table="organizer_runs" textcolumn="name" valuecolumn="id">
-            <option value="">ALL_RUNS</option>
-            <option value="-1">NO_RUN</option>
+            <option value="">ORGANIZER_ALL_RUNS</option>
+            <option value="-1">ORGANIZER_NO_RUN</option>
         </field>-->
-        <field name="status" type="UnitStates" label="STATE" onchange="this.form.submit();"/>
+        <field name="status" type="UnitStates" label="ORGANIZER_STATE" onchange="this.form.submit();"/>
     </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>

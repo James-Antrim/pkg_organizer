@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();" localized="true"
-               valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
-            <option value="">ALL_CLEANING_GROUPS</option>
-            <option value="-1">NO_CLEANING_GROUP</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="cleaningID" type="GenericOptions" label="ORGANIZER_CLEANING_GROUP" onchange="this.form.submit();"
+               localized="true" valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
+            <option value="">ORGANIZER_ALL_CLEANING_GROUPS</option>
+            <option value="-1">ORGANIZER_NO_CLEANING_GROUP</option>
         </field>
-        <field name="useID" type="GenericOptions" label="USE_GROUP" onchange="this.form.submit();" localized="true"
+        <field name="useID" type="GenericOptions" label="ORGANIZER_USE_GROUP" onchange="this.form.submit();" localized="true"
                valuecolumn="id" textcolumn="name" table="organizer_use_groups">
-            <option value="">ALL_USE_GROUPS</option>
+            <option value="">ORGANIZER_ALL_USE_GROUPS</option>
         </field>
-        <field name="inUse" type="Options" label="ORGANIZER_IN_USE" onchange="this.form.submit();">
-            <option value="">CURRENT_USE_IGNORED</option>
-            <option value="0">USED</option>
-            <option value="1">NOT_USED</option>
+        <field name="inUse" type="list" label="ORGANIZER_IN_USE" onchange="this.form.submit();">
+            <option value="">ORGANIZER_CURRENT_USE_IGNORED</option>
+            <option value="0">ORGANIZER_USED</option>
+            <option value="1">ORGANIZER_NOT_USED</option>
         </field>
     </fields>
     <fields name="list">

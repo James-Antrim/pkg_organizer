@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="termID" type="Terms" label="TERM" class="input-13" onchange="this.form.submit();">
-            <option value="">ALL_TERMS</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="termID" type="Terms" label="ORGANIZER_TERM" class="input-13" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_TERMS</option>
         </field>
-        <field name="type" type="Options" label="HOLIDAY_TYPE" onchange="this.form.submit();">
-            <option value="">ALL_HOLIDAYS</option>
-            <option value="1">GAP_DAYS</option>
-            <option value="3">HOLIDAYS</option>
-            <option value="2">CLOSED_DAYS</option>
+        <field name="type" type="list" label="ORGANIZER_HOLIDAY_TYPE" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_HOLIDAYS</option>
+            <option value="1">ORGANIZER_GAP_DAYS</option>
+            <option value="3">ORGANIZER_HOLIDAYS</option>
+            <option value="2">ORGANIZER_CLOSED_DAYS</option>
         </field>
-        <field name="status" type="Options" label="STATE" onchange="this.form.submit();">
-            <option value="-1">ALL_STATES</option>
-            <option value="0">NOT_EXPIRED</option>
-            <option value="1">EXPIRED</option>
+        <field name="status" type="list" label="ORGANIZER_STATE" onchange="this.form.submit();">
+            <option value="-1">ORGANIZER_ALL_STATES</option>
+            <option value="0">ORGANIZER_NOT_EXPIRED</option>
+            <option value="1">ORGANIZER_EXPIRED</option>
         </field>
     </fields>
     <fields name="list">

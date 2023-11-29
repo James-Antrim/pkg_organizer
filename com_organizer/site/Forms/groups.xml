@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" access="schedule"
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" access="schedule"
                onchange="this.form.submit();">
-            <option value="">ALL_ORGANIZATIONS</option>
-            <option value="-1">NO_ORGANIZATIONS</option>
+            <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
+            <option value="-1">ORGANIZER_NO_ORGANIZATIONS</option>
         </field>
-        <field name="categoryID" type="Categories" label="CATEGORY" access="schedule" onchange="this.form.submit();">
-            <option value="">ALL_CATEGORIES</option>
-            <option value="-1">NO_CATEGORY</option>
+        <field name="categoryID" type="Categories" label="ORGANIZER_CATEGORY" access="schedule" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_CATEGORIES</option>
+            <option value="-1">ORGANIZER_NO_CATEGORY</option>
         </field>
-        <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();">
-            <option value="">ALL_GRIDS</option>
-            <option value="-1">NO_GRID</option>
+        <field name="gridID" type="Grids" label="ORGANIZER_GRID" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_GRIDS</option>
+            <option value="-1">ORGANIZER_NO_GRID</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
-            <option value="-1">ALL_STATES</option>
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ORGANIZER_ALL_STATES</option>
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
     </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
     </fields>
     <fields name="batch">
-        <field name="publishing" type="TermPublishing" label="PUBLISHING"/>
-        <field name="gridID" type="Grids" label="GRID">
-            <option value="">SELECT_GRID</option>
+        <field name="publishing" type="TermPublishing" label="ORGANIZER_PUBLISHING"/>
+        <field name="gridID" type="Grids" label="ORGANIZER_GRID">
+            <option value="">ORGANIZER_SELECT_GRID</option>
         </field>
     </fields>
 </form>

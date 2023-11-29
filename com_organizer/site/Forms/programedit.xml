@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
-    <fieldset name="details" label="ATTRIBUTES_BASIC">
+<form>
+    <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
-        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
-        <field name="categoryID" type="Categories" label="CATEGORY"/>
-        <field name="degreeID" type="GenericOptions" label="DEGREE" required="true" table="organizer_degrees" textcolumn="name"
-               valuecolumn="id">
-            <option value="">NO_INPUT</option>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
+        <field name="categoryID" type="Categories" label="ORGANIZER_CATEGORY"/>
+        <field name="degreeID" type="GenericOptions" label="ORGANIZER_DEGREE" required="true" table="organizer_degrees"
+               textcolumn="name" valuecolumn="id">
+            <option value="">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="accredited" type="Blank" label="ACCREDITED" required="true"/>
-        <field name="code" type="Blank" label="LSF_FIELD_ID" maxlength="60" required="true"/>
-        <field name="frequencyID" type="Options" label="FREQUENCY" default="3">
-            <option value="3">AVAILABILITY_SEMESTER</option>
-            <option value="5">AVAILABILITY_YEAR</option>
-            <option value="1">AVAILABILITY_SUMMER</option>
-            <option value="2">AVAILABILITY_WINTER</option>
+        <field name="accredited" type="text" label="ORGANIZER_ACCREDITED" required="true"/>
+        <field name="code" type="text" label="ORGANIZER_LSF_FIELD_ID" maxlength="60" required="true"/>
+        <field name="frequencyID" type="list" label="ORGANIZER_FREQUENCY" default="3">
+            <option value="3">ORGANIZER_AVAILABILITY_SEMESTER</option>
+            <option value="5">ORGANIZER_AVAILABILITY_YEAR</option>
+            <option value="1">ORGANIZER_AVAILABILITY_SUMMER</option>
+            <option value="2">ORGANIZER_AVAILABILITY_WINTER</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" default="1">
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
-        <field name="fee" type="Options" label="PROGRAM_FEE" default="0">
-            <option value="0">NO</option>
-            <option value="1">YES</option>
+        <field name="fee" type="list" label="ORGANIZER_PROGRAM_FEE" default="0">
+            <option value="0">ORGANIZER_NO</option>
+            <option value="1">ORGANIZER_YES</option>
         </field>
-        <field name="nc" type="Options" label="NC" default="0">
-            <option value="0">NO</option>
-            <option value="1">YES</option>
+        <field name="nc" type="list" label="ORGANIZER_NC" default="0">
+            <option value="0">ORGANIZER_NO</option>
+            <option value="1">ORGANIZER_YES</option>
         </field>
-        <field name="special" type="Options" label="PROGRAM_SPECIAL" default="0">
-            <option value="0">NO</option>
-            <option value="1">YES</option>
+        <field name="special" type="list" label="ORGANIZER_PROGRAM_SPECIAL" default="0">
+            <option value="0">ORGANIZER_NO</option>
+            <option value="1">ORGANIZER_YES</option>
         </field>
     </fieldset>
-    <fieldset name="de" label="ATTRIBUTES_DE">
-        <field name="name_de" type="Blank" label="NAME_DE" class="required" maxlength="150" required="true"/>
-        <field name="description_de" type="Wiz" label="DESC_DE"/>
+    <fieldset name="de" label="ORGANIZER_ATTRIBUTES_DE">
+        <field name="name_de" type="text" label="ORGANIZER_NAME_DE" class="required" maxlength="150" required="true"/>
+        <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
     </fieldset>
-    <fieldset name="en" label="ATTRIBUTES_EN">
-        <field name="name_en" type="Blank" label="NAME_EN" class="required" maxlength="150" required="true"/>
-        <field name="description_en" type="Wiz" label="DESC_EN"/>
+    <fieldset name="en" label="ORGANIZER_ATTRIBUTES_EN">
+        <field name="name_en" type="text" label="ORGANIZER_NAME_EN" class="required" maxlength="150" required="true"/>
+        <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
     </fieldset>
-    <fieldset name="associations" label="ASSOCIATIONS" displayinitial="0">
-        <field type="SubOrdinates" label="SUBORDINATES"/>
+    <fieldset name="associations" label="ORGANIZER_ASSOCIATIONS" displayinitial="0">
+        <field type="SubOrdinates" label="ORGANIZER_SUBORDINATES"/>
     </fieldset>
 </form>

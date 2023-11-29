@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="name_de" type="text" label="ORGANIZER_NAME_DE" maxlength="150" required="true"/>
         <field name="name_en" type="text" label="ORGANIZER_NAME_EN" maxlength="150" required="true"/>
-        <field name="startDate" type="Date" label="START_DATE" default="today" required="true" showtime="false"/>
-        <field name="endDate" type="Date" label="END_DATE" default="today" required="true" showtime="false"/>
+        <field name="startDate" type="Date" label="ORGANIZER_START_DATE" default="today" required="true" showtime="false"/>
+        <field name="endDate" type="Date" label="ORGANIZER_END_DATE" default="today" required="true" showtime="false"/>
         <field name="type" type="list" label="ORGANIZER_HOLIDAY_TYPE" required="true">
             <option value="1">ORGANIZER_GAP_DAY</option>
             <option value="3">ORGANIZER_HOLIDAYS</option>

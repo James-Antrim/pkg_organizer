@@ -27,7 +27,7 @@
             <option value="0">ORGANIZER_NO</option>
         </field>
     </fieldset>
-    <fieldset name="rules" label="PERMISSIONS">
+    <fieldset name="rules" label="ORGANIZER_PERMISSIONS">
         <field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" component="com_organizer" filter="rules"
                validate="rules" section="organization"/>
     </fieldset>

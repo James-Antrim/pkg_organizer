@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="name" type="Blank" label="NAME" class="required" maxlength="150" required="true"/>
-        <field name="campusID" type="Campuses" label="CAMPUS">
-            <option value="">NO_CAMPUS</option>
+        <field name="name" type="text" label="ORGANIZER_NAME" class="required" maxlength="150" required="true"/>
+        <field name="campusID" type="Campuses" label="ORGANIZER_CAMPUS">
+            <option value="">ORGANIZER_NO_CAMPUS</option>
         </field>
-        <field name="location" type="Blank" label="LOCATION" class="validate-gps" maxlength="20"/>
-        <field name="address" type="Blank" label="STREET" class="validate-address" maxlength="255"/>
-        <field name="propertyType" type="Options" label="PROPERTY_TYPE">
-            <option value="0">UNKNOWN</option>
-            <option value="1">OWNED</option>
-            <option value="2">RENTED</option>
-            <option value="3">USED</option>
+        <field name="location" type="text" label="ORGANIZER_LOCATION" class="validate-gps" maxlength="20"/>
+        <field name="address" type="text" label="ORGANIZER_STREET" class="validate-address" maxlength="255"/>
+        <field name="propertyType" type="list" label="ORGANIZER_PROPERTY_TYPE">
+            <option value="0">ORGANIZER_UNKNOWN</option>
+            <option value="1">ORGANIZER_OWNED</option>
+            <option value="2">ORGANIZER_RENTED</option>
+            <option value="3">ORGANIZER_USED</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" default="1">
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
     </fieldset>
 </form>

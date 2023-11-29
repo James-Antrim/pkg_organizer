@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
-        <field name="code" type="MergeValues" label="UNTIS_ID"/>
-        <field name="name_de" type="MergeValues" label="NAME_DE"/>
-        <field name="name_en" type="MergeValues" label="NAME_EN"/>
-        <field name="subjectNo" type="MergeValues" label="MODULE_ID"/>
-        <field name="organizationID" type="MergeAssociations" label="ORGANIZATION" localized="true" required="true"
+        <field name="code" type="MergeValues" label="ORGANIZER_UNTIS_ID"/>
+        <field name="name_de" type="MergeValues" label="ORGANIZER_NAME_DE"/>
+        <field name="name_en" type="MergeValues" label="ORGANIZER_NAME_EN"/>
+        <field name="subjectNo" type="MergeValues" label="ORGANIZER_MODULE_ID"/>
+        <field name="organizationID" type="MergeAssociations" label="ORGANIZER_ORGANIZATION" localized="true" required="true"
                from="events AS e" innerJoins="organizations AS o ON o.id = e.organizationID" textcolumn="o.shortName"/>
-        <field name="campusID" type="MergeAssociations" label="CAMPUS" localized="true" from="events AS e"
+        <field name="campusID" type="MergeAssociations" label="ORGANIZER_CAMPUS" localized="true" from="events AS e"
                innerJoins="campuses AS c ON c.id = e.campusID" textcolumn="c.name"/>
-        <field name="active" type="Options" label="ACTIVE" default="1">
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
-        <field name="suppress" type="Options" label="SUPPRESS" default="0">
-            <option value="0">SHOWN</option>
-            <option value="1">SUPPRESSED</option>
+        <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" default="0">
+            <option value="0">ORGANIZER_SHOWN</option>
+            <option value="1">ORGANIZER_SUPPRESSED</option>
         </field>
-        <field name="preparatory" type="MergeValues" label="PREP_COURSE" default="0">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
+        <field name="preparatory" type="MergeValues" label="ORGANIZER_PREP_COURSE" default="0">
+            <option value="1">ORGANIZER_YES</option>
+            <option value="0">ORGANIZER_NO</option>
         </field>
-        <field name="deadline" type="MergeValues" label="DEADLINE"/>
-        <field name="fee" type="MergeValues" label="FEE"/>
+        <field name="deadline" type="MergeValues" label="ORGANIZER_DEADLINE"/>
+        <field name="fee" type="MergeValues" label="ORGANIZER_FEE"/>
         <field name="maxParticipants" type="MergeValues"/>
-        <field name="registrationType" type="Options" label="REGISTRATION">
-            <option value="">NO_REGISTRATION</option>
-            <option value="0">FIFO</option>
-            <option value="1">MANUAL</option>
+        <field name="registrationType" type="list" label="ORGANIZER_REGISTRATION">
+            <option value="">ORGANIZER_NO_REGISTRATION</option>
+            <option value="0">ORGANIZER_FIFO</option>
+            <option value="1">ORGANIZER_MANUAL</option>
         </field>
-        <field name="organization_de" type="MergeHTML" label="COURSE_ORGANIZATION_DE"/>
-        <field name="organization_en" type="MergeHTML" label="COURSE_ORGANIZATION_EN"/>
-        <field name="description_de" type="MergeHTML" label="DESC_DE"/>
-        <field name="description_en" type="MergeHTML" label="DESC_EN"/>
-        <field name="content_de" type="MergeHTML" label="CONTENT_DE"/>
-        <field name="content_en" type="MergeHTML" label="CONTENT_EN"/>
-        <field name="courseContact_de" type="MergeHTML" label="COURSE_POC_DE"/>
-        <field name="courseContact_en" type="MergeHTML" label="COURSE_POC_EN"/>
-        <field name="contact_de" type="MergeHTML" label="POC_DE"/>
-        <field name="contact_en" type="MergeHTML" label="POC_EN"/>
-        <field name="pretests_de" type="MergeHTML" label="PRETESTS_DE"/>
-        <field name="pretests_en" type="MergeHTML" label="PRETESTS_EN"/>
+        <field name="organization_de" type="MergeHTML" label="ORGANIZER_COURSE_ORGANIZATION_DE"/>
+        <field name="organization_en" type="MergeHTML" label="ORGANIZER_COURSE_ORGANIZATION_EN"/>
+        <field name="description_de" type="MergeHTML" label="ORGANIZER_DESC_DE"/>
+        <field name="description_en" type="MergeHTML" label="ORGANIZER_DESC_EN"/>
+        <field name="content_de" type="MergeHTML" label="ORGANIZER_CONTENT_DE"/>
+        <field name="content_en" type="MergeHTML" label="ORGANIZER_CONTENT_EN"/>
+        <field name="courseContact_de" type="MergeHTML" label="ORGANIZER_COURSE_POC_DE"/>
+        <field name="courseContact_en" type="MergeHTML" label="ORGANIZER_COURSE_POC_EN"/>
+        <field name="contact_de" type="MergeHTML" label="ORGANIZER_POC_DE"/>
+        <field name="contact_en" type="MergeHTML" label="ORGANIZER_POC_EN"/>
+        <field name="pretests_de" type="MergeHTML" label="ORGANIZER_PRETESTS_DE"/>
+        <field name="pretests_en" type="MergeHTML" label="ORGANIZER_PRETESTS_EN"/>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>
 </form>

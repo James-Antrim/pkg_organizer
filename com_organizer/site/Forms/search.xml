@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
     </fields>
     <fields name="list">
-        <field name="resource" type="Resources" label="RESOURCE" onchange="this.form.submit();">
-            <option value="">ALL_RESOURCES</option>
+        <field name="resource" type="Resources" label="ORGANIZER_RESOURCE" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_RESOURCES</option>
         </field>
         <field name="limit" type="Limitbox" class="input-mini" default="0" onchange="this.form.submit();"/>
     </fields>

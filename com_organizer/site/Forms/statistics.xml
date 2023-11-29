@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="conditions">
-        <field name="statistic" type="Options" label="CALCULATION" class="input-12">
-            <option value="">SELECT_STATISTIC</option>
-            <option value="1">METHOD_USE</option>
-            <option value="2">PLANNED_PRESENCE_TYPE</option>
-            <option value="3">PRESENCE_USE</option>
-            <option value="4">REGISTRATIONS</option>
+        <field name="statistic" type="list" label="ORGANIZER_CALCULATION" class="input-12">
+            <option value="">ORGANIZER_SELECT_STATISTIC</option>
+            <option value="1">ORGANIZER_METHOD_USE</option>
+            <option value="2">ORGANIZER_PLANNED_PRESENCE_TYPE</option>
+            <option value="3">ORGANIZER_PRESENCE_USE</option>
+            <option value="4">ORGANIZER_REGISTRATIONS</option>
         </field>
-        <field name="termID" type="Terms" label="TERM" class="input-8"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="updateCategories();">
-            <option value="">ALL_ORGANIZATIONS</option>
+        <field name="termID" type="Terms" label="ORGANIZER_TERM" class="input-8"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" onchange="updateCategories();">
+            <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
         </field>
-        <field name="categoryID" type="Categories" label="CATEGORY">
-            <option value="">ALL_CATEGORIES</option>
+        <field name="categoryID" type="Categories" label="ORGANIZER_CATEGORY">
+            <option value="">ORGANIZER_ALL_CATEGORIES</option>
         </field>
     </fieldset>
 </form>

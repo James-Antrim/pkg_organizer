@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="checkin">
-        <field name="username" type="Blank" label="USERNAME" class="required validate-username" maxlength="150" required="true"/>
-        <field name="password" type="Blank" label="PASSWORD" class="required validate-password" maxlength="150" password="true"
+        <field name="username" type="text" label="ORGANIZER_USERNAME" class="required validate-username" maxlength="150"
                required="true"/>
-        <field name="code" type="Blank" label="EVENT_CODE" class="required validate-event-code" hint="xxxx-xxxx" maxlength="9"
-               required="true"/>
+        <field name="password" type="text" label="ORGANIZER_PASSWORD" class="required validate-password" maxlength="150"
+               password="true" required="true"/>
+        <field name="code" type="text" label="ORGANIZER_EVENT_CODE" class="required validate-event-code" hint="xxxx-xxxx"
+               maxlength="9" required="true"/>
     </fieldset>
     <fieldset name="participant">
         <field name="id" type="hidden"/>
-        <field name="surname" type="Blank" label="SURNAME" class="required validate-name" required="true"/>
-        <field name="forename" type="Blank" label="FORENAME" class="required validate-name" required="true"/>
-        <field name="telephone" type="Blank" label="TELEPHONE" class="required validate-telephone" required="true"/>
-        <field name="address" type="Blank" label="STREET" class="required validate-address" required="true"/>
-        <field name="city" type="Blank" label="RESIDENCE" class="required validate-name" required="true"/>
-        <field name="zipCode" type="Blank" label="ZIP_CODE" class="required validate-alphanumeric" required="true"/>
+        <field name="surname" type="text" label="ORGANIZER_SURNAME" class="required validate-name" required="true"/>
+        <field name="forename" type="text" label="ORGANIZER_FORENAME" class="required validate-name" required="true"/>
+        <field name="telephone" type="text" label="ORGANIZER_TELEPHONE" class="required validate-telephone" required="true"/>
+        <field name="address" type="text" label="ORGANIZER_STREET" class="required validate-address" required="true"/>
+        <field name="city" type="text" label="ORGANIZER_RESIDENCE" class="required validate-name" required="true"/>
+        <field name="zipCode" type="text" label="ORGANIZER_ZIP_CODE" class="required validate-alphanumeric" required="true"/>
     </fieldset>
     <fieldset name="seating">
         <field name="instanceID" type="hidden"/>
-        <field name="roomID" type="CheckinRooms" label="ROOM" class="required" required="true">
-            <option value="">SELECT_ROOM</option>
+        <field name="roomID" type="CheckinRooms" label="ORGANIZER_ROOM" class="required" required="true">
+            <option value="">ORGANIZER_SELECT_ROOM</option>
         </field>
-        <field name="seat" type="Blank" label="CHECKIN_SEAT"/>
+        <field name="seat" type="text" label="ORGANIZER_CHECKIN_SEAT"/>
     </fieldset>
 </form>

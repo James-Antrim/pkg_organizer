@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="campusID" type="Campuses" label="CAMPUS" onchange="this.form.submit();">
-            <option value="">ALL_CAMPUSES</option>
-            <option value="-1">NO_CAMPUS</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="campusID" type="Campuses" label="ORGANIZER_CAMPUS" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_CAMPUSES</option>
+            <option value="-1">ORGANIZER_NO_CAMPUS</option>
         </field>
-        <field name="buildingID" type="Buildings" label="BUILDING" onchange="this.form.submit();">
-            <option value="">ALL_BUILDINGS</option>
-            <option value="-1">NO_BUILDING</option>
+        <field name="buildingID" type="Buildings" label="ORGANIZER_BUILDING" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_BUILDINGS</option>
+            <option value="-1">ORGANIZER_NO_BUILDING</option>
         </field>
-        <field name="roomtypeID" type="RoomTypes" label="TYPE" onchange="this.form.submit();">
-            <option value="">ALL_ROOM_TYPES</option>
+        <field name="roomtypeID" type="RoomTypes" label="ORGANIZER_TYPE" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_ROOM_TYPES</option>
         </field>
-        <field name="keyID" type="GenericOptions" label="ROOM_KEY" onchange="this.form.submit();" localized="true"
+        <field name="keyID" type="GenericOptions" label="ORGANIZER_ROOM_KEY" onchange="this.form.submit();" localized="true"
                table="organizer_roomkeys" textcolumn="name" valuecolumn="id">
-            <option value="">ALL_ROOM_KEYS</option>
-            <option value="-1">NO_ROOM_KEY</option>
+            <option value="">ORGANIZER_ALL_ROOM_KEYS</option>
+            <option value="-1">ORGANIZER_NO_ROOM_KEY</option>
         </field>
-        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();" localized="true"
-               valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
-            <option value="">ALL_CLEANING_GROUPS</option>
-            <option value="-1">NO_CLEANING_GROUP</option>
+        <field name="cleaningID" type="GenericOptions" label="ORGANIZER_CLEANING_GROUP" onchange="this.form.submit();"
+               localized="true" valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
+            <option value="">ORGANIZER_ALL_CLEANING_GROUPS</option>
+            <option value="-1">ORGANIZER_NO_CLEANING_GROUP</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
-            <option value="-1">ALL_STATES</option>
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ORGANIZER_ALL_STATES</option>
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
-        <field name="virtual" type="Options" label="VIRTUAL" onchange="this.form.submit();">
-            <option value="">ALL_STATES</option>
-            <option value="1">VIRTUAL</option>
-            <option value="0">PHYSICAL</option>
+        <field name="virtual" type="list" label="ORGANIZER_VIRTUAL" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_STATES</option>
+            <option value="1">ORGANIZER_VIRTUAL</option>
+            <option value="0">ORGANIZER_PHYSICAL</option>
         </field>
     </fields>
     <fields name="list">

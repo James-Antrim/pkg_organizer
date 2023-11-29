@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
-        <field name="name" type="Blank" label="NAME" maxlength="150" required="true"/>
-        <field name="buildingID" type="GenericOptions" label="BUILDING" table="organizer_buildings" textcolumn="name"
+        <field name="code" type="text" label="ORGANIZER_UNTIS_ID" maxlength="60" required="true"/>
+        <field name="name" type="text" label="ORGANIZER_NAME" maxlength="150" required="true"/>
+        <field name="buildingID" type="GenericOptions" label="ORGANIZER_BUILDING" table="organizer_buildings" textcolumn="name"
                valuecolumn="id">
-            <option value="">NO_INPUT</option>
+            <option value="">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="roomtypeID" type="GenericOptions" label="ROOM_TYPE" localized="true" table="organizer_roomtypes"
+        <field name="roomtypeID" type="GenericOptions" label="ORGANIZER_ROOM_TYPE" localized="true" table="organizer_roomtypes"
                textcolumn="name" valuecolumn="id" required="true">
-            <option value="">SELECT_ROOM_TYPE</option>
+            <option value="">ORGANIZER_SELECT_ROOM_TYPE</option>
         </field>
-        <field name="maxCapacity" type="Integer" label="MAX_CAPACITY" last="500" step="1"/>
-        <field name="effCapacity" type="Integer" label="EFF_CAPACITY" last="500" step="1"/>
-        <field name="area" type="Blank" label="SURFACE_AREA" class="required validate-float" required="true"/>
-        <field name="active" type="Options" label="ACTIVE" default="1">
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="maxCapacity" type="Integer" label="ORGANIZER_MAX_CAPACITY" last="500" step="1"/>
+        <field name="effCapacity" type="Integer" label="ORGANIZER_EFF_CAPACITY" last="500" step="1"/>
+        <field name="area" type="text" label="ORGANIZER_SURFACE_AREA" class="required validate-float" required="true"/>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
-        <field name="virtual" type="Options" label="VIRTUAL" default="0">
-            <option value="1">VIRTUAL</option>
-            <option value="0">PHYSICAL</option>
+        <field name="virtual" type="list" label="ORGANIZER_VIRTUAL" default="0">
+            <option value="1">ORGANIZER_VIRTUAL</option>
+            <option value="0">ORGANIZER_PHYSICAL</option>
         </field>
     </fieldset>
 </form>

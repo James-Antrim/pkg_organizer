@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
-        <field name="file" type="File" label="FILE" required="true" accept=".csv"/>
+        <field name="file" type="File" label="ORGANIZER_FILE" required="true" accept=".csv"/>
     </fieldset>
 </form>

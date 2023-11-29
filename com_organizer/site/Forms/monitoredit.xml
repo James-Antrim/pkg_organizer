@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="roomID" type="GenericOptions" label="ROOM" required="true" table="organizer_rooms" textcolumn="name"
-               valuecolumn="id">
-            <option value="">SELECT_ROOM</option>
+        <field name="roomID" type="GenericOptions" label="ORGANIZER_ROOM" required="true" table="organizer_rooms"
+               textcolumn="name" valuecolumn="id">
+            <option value="">ORGANIZER_SELECT_ROOM</option>
         </field>
-        <field name="ip" type="Blank" label="IP" class="required validate-ip" maxlength="15" required="true"/>
-        <field name="useDefaults" type="Options" label="DEFAULT_SETTINGS" default="1">
-            <option value='1'>YES</option>
-            <option value='0'>NO</option>
+        <field name="ip" type="text" label="ORGANIZER_IP" class="required validate-ip" maxlength="15" required="true"/>
+        <field name="useDefaults" type="list" label="ORGANIZER_DEFAULT_SETTINGS" default="1">
+            <option value='1'>ORGANIZER_YES</option>
+            <option value='0'>ORGANIZER_NO</option>
         </field>
-        <field name="display" type="Options" label="DISPLAY_BEHAVIOUR" required="true" default="4">
-            <option value='0'>UPCOMING_INSTANCES</option>
-            <option value='1'>CURRENT_INSTANCES</option>
-            <option value='2'>MIXED_PLAN</option>
-            <option value='3'>CONTENT_DISPLAY</option>
+        <field name="display" type="list" label="ORGANIZER_DISPLAY_BEHAVIOUR" required="true" default="4">
+            <option value='0'>ORGANIZER_UPCOMING_INSTANCES</option>
+            <option value='1'>ORGANIZER_CURRENT_INSTANCES</option>
+            <option value='2'>ORGANIZER_MIXED_PLAN</option>
+            <option value='3'>ORGANIZER_CONTENT_DISPLAY</option>
         </field>
-        <field name="scheduleRefresh" type="Integer" label="SCHEDULE_REFRESH_RATE" default="60" first="10" last="990" step="10"/>
-        <field name="contentRefresh" type="Integer" label="CONTENT_REFRESH" default="60" first="10" last="990" step="10"/>
-        <field name="content" type="FileOptions" label="DISPLAY_CONTENT" directory="images/organizer/" exclude=""/>
+        <field name="scheduleRefresh" type="Integer" label="ORGANIZER_SCHEDULE_REFRESH_RATE" default="60" first="10" last="990"
+               step="10"/>
+        <field name="contentRefresh" type="Integer" label="ORGANIZER_CONTENT_REFRESH" default="60" first="10" last="990"
+               step="10"/>
+        <field name="content" type="FileOptions" label="ORGANIZER_DISPLAY_CONTENT" directory="images/organizer/" exclude=""/>
     </fieldset>
 </form>

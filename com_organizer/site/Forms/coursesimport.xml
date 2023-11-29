@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" access="schedule" required="true"/>
-        <field name="termID" type="Terms" label="TERM" filter="true" required="true">
-            <option value="">SELECT_TERM</option>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" access="schedule" required="true"/>
+        <field name="termID" type="Terms" label="ORGANIZER_TERM" filter="true" required="true">
+            <option value="">ORGANIZER_SELECT_TERM</option>
         </field>
-        <field name="file" type="File" label="FILE" required="true" accept=".txt"/>
+        <field name="file" type="File" label="ORGANIZER_FILE" required="true" accept=".txt"/>
     </fieldset>
 </form>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="runs">
         <field name="startDate" type="Date" label="ORGANIZER_SECTION_START_DATE" required="true"/>
         <field name="endDate" type="Date" label="ORGANIZER_SECTION_END_DATE" required="true"/>

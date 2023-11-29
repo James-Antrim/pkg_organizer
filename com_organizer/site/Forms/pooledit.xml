@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
-    <fieldset name="details" label="ATTRIBUTES_BASIC">
+<form>
+    <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
-        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
-        <field name="lsfID" type="Blank" label="LSF_ID"/>
-        <field name="fieldID" type="GenericOptions" label="FIELD" valuecolumn="id" textcolumn="name" localized="true"
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
+        <field name="lsfID" type="text" label="ORGANIZER_LSF_ID"/>
+        <field name="fieldID" type="GenericOptions" label="ORGANIZER_FIELD" valuecolumn="id" textcolumn="name" localized="true"
                table="organizer_fields">
-            <option value="">NO_FIELD</option>
+            <option value="">ORGANIZER_NO_FIELD</option>
         </field>
-        <field name="minCrP" type="Integer" label="CRP_MIN" required="true" first="0" last="120" step="1" default="24"/>
-        <field name="maxCrP" type="Integer" label="CRP_MAX" required="true" first="0" last="120" step="1" default="24"/>
+        <field name="minCrP" type="Integer" label="ORGANIZER_CRP_MIN" required="true" first="0" last="120" step="1" default="24"/>
+        <field name="maxCrP" type="Integer" label="ORGANIZER_CRP_MAX" required="true" first="0" last="120" step="1" default="24"/>
     </fieldset>
-    <fieldset name="de" label="ATTRIBUTES_DE">
-        <field name="fullName_de" type="Blank" label="FULL_NAME_DE" class="required" maxlength="200" required="true"/>
-        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" class="required" maxlength="25" required="true"/>
-        <field name="description_de" type="Wiz" label="DESC_DE"/>
+    <fieldset name="de" label="ORGANIZER_ATTRIBUTES_DE">
+        <field name="fullName_de" type="text" label="ORGANIZER_FULL_NAME_DE" class="required" maxlength="200" required="true"/>
+        <field name="abbreviation_de" type="text" label="ORGANIZER_ABBREVIATION_DE" class="required" maxlength="25"
+               required="true"/>
+        <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
     </fieldset>
-    <fieldset name="en" label="ATTRIBUTES_EN">
-        <field name="fullName_en" type="Blank" label="FULL_NAME_EN" class="required" maxlength="200" required="true"/>
-        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" class="required" maxlength="25" required="true"/>
-        <field name="description_en" type="Wiz" label="DESC_EN"/>
+    <fieldset name="en" label="ORGANIZER_ATTRIBUTES_EN">
+        <field name="fullName_en" type="text" label="ORGANIZER_FULL_NAME_EN" class="required" maxlength="200" required="true"/>
+        <field name="abbreviation_en" type="text" label="ORGANIZER_ABBREVIATION_EN" class="required" maxlength="25"
+               required="true"/>
+        <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
     </fieldset>
-    <fieldset name="associations" label="ASSOCIATIONS">
-        <field type="Curricula" label="PROGRAMS"/>
-        <field type="SuperOrdinates" label="SUPERORDINATES"/>
-        <field type="SubOrdinates" label="SUBORDINATES"/>
+    <fieldset name="associations" label="ORGANIZER_ASSOCIATIONS">
+        <field type="Curricula" label="ORGANIZER_PROGRAMS"/>
+        <field type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES"/>
+        <field type="SubOrdinates" label="ORGANIZER_SUBORDINATES"/>
     </fieldset>
 </form>

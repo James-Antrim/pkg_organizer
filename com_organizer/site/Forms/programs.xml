@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" access="document"
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" access="document"
                onchange="this.form.submit();">
-            <option value="">ALL_ORGANIZATIONS</option>
-            <option value="-1">NO_ORGANIZATION</option>
+            <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
+            <option value="-1">ORGANIZER_NO_ORGANIZATION</option>
         </field>
-        <field name="degreeID" type="GenericOptions" label="DEGREE" onchange="this.form.submit();"
+        <field name="degreeID" type="GenericOptions" label="ORGANIZER_DEGREE" onchange="this.form.submit();"
                table="organizer_programs AS p,organizer_degrees AS d ON d.id = p.degreeID" textcolumn="d.abbreviation"
                valuecolumn="d.id">
-            <option value="">ALL_DEGREES</option>
+            <option value="">ORGANIZER_ALL_DEGREES</option>
         </field>
-        <field name="accredited" type="GenericOptions" label="ACCREDITED" onchange="this.form.submit();"
+        <field name="accredited" type="GenericOptions" label="ORGANIZER_ACCREDITED" onchange="this.form.submit();"
                table="organizer_programs" textcolumn="accredited" valuecolumn="accredited">
-            <option value="">ALL_ACCREDITATION_YEARS</option>
+            <option value="">ORGANIZER_ALL_ACCREDITATION_YEARS</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
-            <option value="-1">ALL_STATES</option>
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ORGANIZER_ALL_STATES</option>
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
-        <field name="frequencyID" type="GenericOptions" label="FREQUENCY" localized="true" onchange="this.form.submit();"
-               table="organizer_frequencies AS f,organizer_programs AS p ON p.frequencyID = f.id" textcolumn="f.name"
-               valuecolumn="f.id">
-            <option value="">ALL_FREQUENCIES</option>
-            <option value="-1">NO_FREQUENCY</option>
+        <field name="frequencyID" type="GenericOptions" label="ORGANIZER_FREQUENCY" localized="true"
+               onchange="this.form.submit();" table="organizer_frequencies AS f,organizer_programs AS p ON p.frequencyID = f.id"
+               textcolumn="f.name" valuecolumn="f.id">
+            <option value="">ORGANIZER_ALL_FREQUENCIES</option>
+            <option value="-1">ORGANIZER_NO_FREQUENCY</option>
         </field>
     </fields>
     <fields name="list">

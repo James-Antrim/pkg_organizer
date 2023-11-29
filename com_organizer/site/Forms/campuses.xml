@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="city" type="GenericOptions" label="NAME" conditions="city != ''" default="" onchange="this.form.submit();"
-               table="organizer_campuses" textcolumn="city" valuecolumn="city">
-            <option value="">ALL_CITIES</option>
-            <option value="-1">NO_CITY</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="city" type="GenericOptions" label="ORGANIZER_NAME" conditions="city != ''" default=""
+               onchange="this.form.submit();" table="organizer_campuses" textcolumn="city" valuecolumn="city">
+            <option value="">ORGANIZER_ALL_CITIES</option>
+            <option value="-1">ORGANIZER_NO_CITY</option>
         </field>
-        <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();">
-            <option value="">ALL_GRIDS</option>
-            <option value="-1">NONE_GIVEN</option>
+        <field name="gridID" type="Grids" label="ORGANIZER_GRID" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_GRIDS</option>
+            <option value="-1">ORGANIZER_NONE_GIVEN</option>
         </field>
     </fields>
     <fields name="list">

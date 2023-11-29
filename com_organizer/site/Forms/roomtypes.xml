@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="useID" type="GenericOptions" label="USE_GROUP" onchange="this.form.submit();" localized="true"
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="useID" type="GenericOptions" label="ORGANIZER_USE_GROUP" onchange="this.form.submit();" localized="true"
                valuecolumn="id" textcolumn="name" table="organizer_use_groups">
-            <option value="">ALL_USE_GROUPS</option>
+            <option value="">ORGANIZER_ALL_USE_GROUPS</option>
         </field>
-        <field name="keyID" type="GenericOptions" label="ROOM_KEY" onchange="this.form.submit();" localized="true"
+        <field name="keyID" type="GenericOptions" label="ORGANIZER_ROOM_KEY" onchange="this.form.submit();" localized="true"
                table="organizer_roomkeys" textcolumn="name" valuecolumn="id">
-            <option value="">ALL_ROOM_KEYS</option>
+            <option value="">ORGANIZER_ALL_ROOM_KEYS</option>
         </field>
-        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();" localized="true"
-               valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
-            <option value="">ALL_CLEANING_GROUPS</option>
-            <option value="-1">NO_CLEANING_GROUP</option>
+        <field name="cleaningID" type="GenericOptions" label="ORGANIZER_CLEANING_GROUP" onchange="this.form.submit();"
+               localized="true" valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
+            <option value="">ORGANIZER_ALL_CLEANING_GROUPS</option>
+            <option value="-1">ORGANIZER_NO_CLEANING_GROUP</option>
         </field>
     </fields>
     <fields name="list">

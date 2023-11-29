@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" access="document"
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" access="document"
                onchange="this.form.submit();">
-            <option value="">ALL_ORGANIZATIONS</option>
-            <option value="-1">NO_ORGANIZATION</option>
+            <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
+            <option value="-1">ORGANIZER_NO_ORGANIZATION</option>
         </field>
-        <field name="programID" type="Programs" label="PROGRAM" access="document" onchange="this.form.submit();">
-            <option value="">ALL_PROGRAMS</option>
-            <option value="-1">NO_PROGRAMS</option>
+        <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" access="document" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_PROGRAMS</option>
+            <option value="-1">ORGANIZER_NO_PROGRAMS</option>
         </field>
-        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" onchange="this.form.submit();"
+        <field name="fieldID" type="GenericOptions" label="ORGANIZER_FIELD" localized="true" onchange="this.form.submit();"
                table="organizer_fields AS f,organizer_pools AS p ON p.fieldID = f.id" textcolumn="f.name" valuecolumn="f.id">
-            <option value="">ALL_FIELDS</option>
-            <option value="-1">NO_FIELD</option>
+            <option value="">ORGANIZER_ALL_FIELDS</option>
+            <option value="-1">ORGANIZER_NO_FIELD</option>
         </field>
     </fields>
     <fields name="list">

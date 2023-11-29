@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="this.form.submit();">
-            <option value="">ALL_ORGANIZATIONS</option>
-            <option value="">NO_ORGANIZATION</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
+            <option value="">ORGANIZER_NO_ORGANIZATION</option>
         </field>
     </fields>
     <fields name="list">

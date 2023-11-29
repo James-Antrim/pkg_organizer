@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="key" type="Blank" label="ROOM_KEY" readonly="true"/>
-        <field name="name_de" type="Blank" label="NAME_DE" readonly="true"/>
-        <field name="name_en" type="Blank" label="NAME_EN" readonly="true"/>
-        <field name="useGroup" type="Blank" label="USE_GROUP" readonly="true"/>
-        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" default="-1" localized="true" valuecolumn="id"
-               textcolumn="name" table="organizer_cleaning_groups">
-            <option value="-1">NO_CLEANING_GROUP</option>
+        <field name="key" type="text" label="ORGANIZER_ROOM_KEY" readonly="true"/>
+        <field name="name_de" type="text" label="ORGANIZER_NAME_DE" readonly="true"/>
+        <field name="name_en" type="text" label="ORGANIZER_NAME_EN" readonly="true"/>
+        <field name="useGroup" type="text" label="ORGANIZER_USE_GROUP" readonly="true"/>
+        <field name="cleaningID" type="GenericOptions" label="ORGANIZER_CLEANING_GROUP" default="-1" localized="true"
+               valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
+            <option value="-1">ORGANIZER_NO_CLEANING_GROUP</option>
         </field>
     </fieldset>
 </form>

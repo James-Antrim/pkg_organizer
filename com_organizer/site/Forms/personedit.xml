@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="surname" type="Blank" label="SURNAME" class="required" maxlength="255" required="true"/>
-        <field name="forename" type="Blank" label="FORENAME" maxlength="255"/>
-        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
-        <field name="username" type="Blank" label="USERNAME"/>
-        <field name="title" type="Blank" label="TITLE" maxlength="45"/>
-        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
-        <field name="active" type="Options" label="ACTIVE" default="1">
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="surname" type="text" label="ORGANIZER_SURNAME" class="required" maxlength="255" required="true"/>
+        <field name="forename" type="text" label="ORGANIZER_FORENAME" maxlength="255"/>
+        <field name="code" type="text" label="ORGANIZER_UNTIS_ID" maxlength="60" required="true"/>
+        <field name="username" type="text" label="ORGANIZER_USERNAME"/>
+        <field name="title" type="text" label="ORGANIZER_TITLE" maxlength="45"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
-        <field name="suppress" type="Options" label="SUPPRESS" default="0">
-            <option value="0">SHOWN</option>
-            <option value="1">SUPPRESSED</option>
+        <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" default="0">
+            <option value="0">ORGANIZER_SHOWN</option>
+            <option value="1">ORGANIZER_SUPPRESSED</option>
         </field>
-        <field name="public" type="Options" label="PUBLIC_RELEASE" class="input-15">
-            <option value="0">NOT_RELEASED</option>
-            <option value="1">RELEASED</option>
+        <field name="public" type="list" label="ORGANIZER_PUBLIC_RELEASE" class="input-15">
+            <option value="0">ORGANIZER_NOT_RELEASED</option>
+            <option value="1">ORGANIZER_RELEASED</option>
         </field>
     </fieldset>
 </form>

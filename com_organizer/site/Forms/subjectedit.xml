@@ -1,103 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
-    <fieldset name="details" label="ATTRIBUTES_SUBJECT_DETAILS">
+<form>
+    <fieldset name="details" label="ORGANIZER_ATTRIBUTES_SUBJECT_DETAILS">
         <field name="id" type="hidden"/>
-        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
-        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" table="organizer_fields" textcolumn="name"
-               valuecolumn="id">
-            <option value="">NO_FIELD</option>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
+        <field name="fieldID" type="GenericOptions" label="ORGANIZER_FIELD" localized="true" table="organizer_fields"
+               textcolumn="name" valuecolumn="id">
+            <option value="">ORGANIZER_NO_FIELD</option>
         </field>
-        <field name="lsfID" type="Blank" label="LSF_ID" maxlength="11"/>
-        <field name="code" type="Blank" label="MODULE_ID" maxlength="60"/>
+        <field name="lsfID" type="text" label="ORGANIZER_LSF_ID" maxlength="11"/>
+        <field name="code" type="text" label="ORGANIZER_MODULE_ID" maxlength="60"/>
         <field name="spacer1" type="spacer" hr="true"/>
-        <field name="coordinators" type="SubjectPersons" label="SUBJECT_COORDINATORS" multiple="multiple" role="1" size="12">
-            <option value="">NO_INPUT</option>
+        <field name="coordinators" type="SubjectPersons" label="ORGANIZER_SUBJECT_COORDINATORS" multiple="multiple" role="1"
+               size="12">
+            <option value="">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="persons" type="SubjectPersons" label="TEACHERS" multiple="multiple" role="2" size="12">
-            <option value="">UNSPECIFIED_TEACHERS</option>
+        <field name="persons" type="SubjectPersons" label="ORGANIZER_TEACHERS" multiple="multiple" role="2" size="12">
+            <option value="">ORGANIZER_UNSPECIFIED_TEACHERS</option>
         </field>
         <field name="spacer2" type="spacer" hr="true"/>
-        <field name="creditPoints" type="Integer" label="CREDIT_POINTS" default="6" first="1" last="30" step="1"/>
-        <field name="expenditure" type="Integer" label="EXPENDITURE" default="0" first="30" last="900" step="30">
-            <option value="0">NO_INPUT</option>
+        <field name="creditPoints" type="Integer" label="ORGANIZER_CREDIT_POINTS" default="6" first="1" last="30" step="1"/>
+        <field name="expenditure" type="Integer" label="ORGANIZER_EXPENDITURE" default="0" first="30" last="900" step="30">
+            <option value="0">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="present" type="Integer" label="PRESENT" default="" first="0" last="900" step="30">
-            <option value="">NO_INPUT</option>
+        <field name="present" type="Integer" label="ORGANIZER_PRESENT" default="" first="0" last="900" step="30">
+            <option value="">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="independent" type="Integer" label="INDEPENDENT" default="" first="0" last="900" step="30">
-            <option value="">NO_INPUT</option>
+        <field name="independent" type="Integer" label="ORGANIZER_INDEPENDENT" default="" first="0" last="900" step="30">
+            <option value="">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="sws" type="Integer" label="SWS" default="0" first="1" last="30" step="1">
-            <option value="0">FILTER_SEMESTER_HOURS</option>
+        <field name="sws" type="Integer" label="ORGANIZER_SWS" default="0" first="1" last="30" step="1">
+            <option value="0">ORGANIZER_FILTER_SEMESTER_HOURS</option>
         </field>
-        <field name="duration" type="Integer" label="DURATION" default="1" first="1" last="30" step="1">
-            <option value="0">SELECT_DURATION</option>
+        <field name="duration" type="Integer" label="ORGANIZER_DURATION" default="1" first="1" last="30" step="1">
+            <option value="0">ORGANIZER_SELECT_DURATION</option>
         </field>
-        <field name="frequencyID" type="Options" label="AVAILABILITY">
-            <option value="">FILTER_AVAILABILITY</option>
-            <option value="3">AVAILABILITY_SEMESTER</option>
-            <option value="5">AVAILABILITY_YEAR</option>
-            <option value="1">AVAILABILITY_SUMMER</option>
-            <option value="2">AVAILABILITY_WINTER</option>
-            <option value="4">AVAILABILITY_AS_NEEDED</option>
-            <option value="0">AVAILABILITY_APPT</option>
+        <field name="frequencyID" type="list" label="ORGANIZER_AVAILABILITY">
+            <option value="">ORGANIZER_FILTER_AVAILABILITY</option>
+            <option value="3">ORGANIZER_AVAILABILITY_SEMESTER</option>
+            <option value="5">ORGANIZER_AVAILABILITY_YEAR</option>
+            <option value="1">ORGANIZER_AVAILABILITY_SUMMER</option>
+            <option value="2">ORGANIZER_AVAILABILITY_WINTER</option>
+            <option value="4">ORGANIZER_AVAILABILITY_AS_NEEDED</option>
+            <option value="0">ORGANIZER_AVAILABILITY_APPT</option>
         </field>
-        <field name="language" type="Options" label="INSTRUCTION_LANGUAGE" default="D">
-            <option value="A">ARABIAN</option>
-            <option value="C">CHINESE</option>
-            <option value="D">GERMAN</option>
-            <option value="E">ENGLISH</option>
-            <option value="F">FRENCH</option>
-            <option value="G">GREEK</option>
-            <option value="I">ITALIAN</option>
-            <option value="J">JAPANESE</option>
-            <option value="K">KOREAN</option>
-            <option value="P">POLISH</option>
-            <option value="S">SPANISH</option>
-            <option value="T">TURKISH</option>
+        <field name="language" type="list" label="ORGANIZER_INSTRUCTION_LANGUAGE" default="D">
+            <option value="A">ORGANIZER_ARABIAN</option>
+            <option value="C">ORGANIZER_CHINESE</option>
+            <option value="D">ORGANIZER_GERMAN</option>
+            <option value="E">ORGANIZER_ENGLISH</option>
+            <option value="F">ORGANIZER_FRENCH</option>
+            <option value="G">ORGANIZER_GREEK</option>
+            <option value="I">ORGANIZER_ITALIAN</option>
+            <option value="J">ORGANIZER_JAPANESE</option>
+            <option value="K">ORGANIZER_KOREAN</option>
+            <option value="P">ORGANIZER_POLISH</option>
+            <option value="S">ORGANIZER_SPANISH</option>
+            <option value="T">ORGANIZER_TURKISH</option>
         </field>
-        <field name="bonusPoints" type="Options" label="BONUS_POINTS">
-            <option value='0'>NO</option>
-            <option value='1'>YES</option>
+        <field name="bonusPoints" type="list" label="ORGANIZER_BONUS_POINTS">
+            <option value='0'>ORGANIZER_NO</option>
+            <option value='1'>ORGANIZER_YES</option>
         </field>
-        <field name="literature" type="Wiz" label="LITERATURE"/>
+        <field name="literature" type="editor" label="ORGANIZER_LITERATURE"/>
     </fieldset>
-    <fieldset name="de_texts" label="ATTRIBUTES_DE">
-        <field name="fullName_de" type="Blank" label="FULL_NAME_DE" hint="Grundlagen der Informatik" maxlength="200"/>
-        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" hint="GDI" maxlength="25"/>
-        <field name="prerequisites_de" type="Wiz" label="PREREQUISITES_DE"/>
-        <field name="recommendedPrerequisites_de" type="Wiz" label="RECOMMENDED_PREREQUISITES_DE"/>
-        <field name="description_de" type="Wiz" label="DESC_DE"/>
-        <field name="content_de" type="Wiz" label="CONTENT_DE"/>
-        <field name="expertise_de" type="Wiz" label="EXPERTISE_DE"/>
-        <field name="methodCompetence_de" type="Wiz" label="METHOD_COMPETENCE_DE"/>
-        <field name="socialCompetence_de" type="Wiz" label="SOCIAL_COMPETENCE_DE"/>
-        <field name="selfCompetence_de" type="Wiz" label="SELF_COMPETENCE_DE"/>
-        <field name="method_de" type="Blank" label="METHOD_DE" hint="2 SWS Vorlesung, 2 SWS Übung"/>
-        <field name="preliminaryWork_de" type="Blank" label="PRELIMINARY_WORK_DE" hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
-        <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur"/>
+    <fieldset name="de_texts" label="ORGANIZER_ATTRIBUTES_DE">
+        <field name="fullName_de" type="text" label="ORGANIZER_FULL_NAME_DE" hint="Grundlagen der Informatik" maxlength="200"/>
+        <field name="abbreviation_de" type="text" label="ORGANIZER_ABBREVIATION_DE" hint="GDI" maxlength="25"/>
+        <field name="prerequisites_de" type="editor" label="ORGANIZER_PREREQUISITES_DE"/>
+        <field name="recommendedPrerequisites_de" type="editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_DE"/>
+        <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
+        <field name="content_de" type="editor" label="ORGANIZER_CONTENT_DE"/>
+        <field name="expertise_de" type="editor" label="ORGANIZER_EXPERTISE_DE"/>
+        <field name="methodCompetence_de" type="editor" label="ORGANIZER_METHOD_COMPETENCE_DE"/>
+        <field name="socialCompetence_de" type="editor" label="ORGANIZER_SOCIAL_COMPETENCE_DE"/>
+        <field name="selfCompetence_de" type="editor" label="ORGANIZER_SELF_COMPETENCE_DE"/>
+        <field name="method_de" type="text" label="ORGANIZER_METHOD_DE" hint="2 SWS Vorlesung, 2 SWS Übung"/>
+        <field name="preliminaryWork_de" type="text" label="ORGANIZER_PRELIMINARY_WORK_DE"
+               hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
+        <field name="proof_de" type="text" label="ORGANIZER_PROOF_DE" hint="schriftliche Klausur"/>
     </fieldset>
-    <fieldset name="en_texts" label="ATTRIBUTES_EN">
-        <field name="fullName_en" type="Blank" label="FULL_NAME_EN" hint="Mathematics I" maxlength="200"/>
-        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" hint="FCS" maxlength="25"/>
-        <field name="prerequisites_en" type="Wiz" label="PREREQUISITES_EN"/>
-        <field name="recommendedPrerequisites_en" type="Wiz" label="RECOMMENDED_PREREQUISITES_EN"/>
-        <field name="description_en" type="Wiz" label="DESC_EN"/>
-        <field name="content_en" type="Wiz" label="CONTENT_EN"/>
-        <field name="expertise_en" type="Wiz" label="EXPERTISE_EN"/>
-        <field name="methodCompetence_en" type="Wiz" label="METHOD_COMPETENCE_EN"/>
-        <field name="socialCompetence_en" type="Wiz" label="SOCIAL_COMPETENCE_EN"/>
-        <field name="selfCompetence_en" type="Wiz" label="SELF_COMPETENCE_EN"/>
-        <field name="method_en" type="Blank" label="METHOD_EN" hint="2 SWS Lecture, 2 SWS Practice"/>
-        <field name="preliminaryWork_en" type="Blank" label="PRELIMINARY_WORK_EN"
+    <fieldset name="en_texts" label="ORGANIZER_ATTRIBUTES_EN">
+        <field name="fullName_en" type="text" label="ORGANIZER_FULL_NAME_EN" hint="Mathematics I" maxlength="200"/>
+        <field name="abbreviation_en" type="text" label="ORGANIZER_ABBREVIATION_EN" hint="FCS" maxlength="25"/>
+        <field name="prerequisites_en" type="editor" label="ORGANIZER_PREREQUISITES_EN"/>
+        <field name="recommendedPrerequisites_en" type="editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_EN"/>
+        <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
+        <field name="content_en" type="editor" label="ORGANIZER_CONTENT_EN"/>
+        <field name="expertise_en" type="editor" label="ORGANIZER_EXPERTISE_EN"/>
+        <field name="methodCompetence_en" type="editor" label="ORGANIZER_METHOD_COMPETENCE_EN"/>
+        <field name="socialCompetence_en" type="editor" label="ORGANIZER_SOCIAL_COMPETENCE_EN"/>
+        <field name="selfCompetence_en" type="editor" label="ORGANIZER_SELF_COMPETENCE_EN"/>
+        <field name="method_en" type="text" label="ORGANIZER_METHOD_EN" hint="2 SWS Lecture, 2 SWS Practice"/>
+        <field name="preliminaryWork_en" type="text" label="ORGANIZER_PRELIMINARY_WORK_EN"
                hint="Successful completion of six homework assignments."/>
-        <field name="proof_en" type="Blank" label="PROOF_EN" hint="Written Exam"/>
+        <field name="proof_en" type="text" label="ORGANIZER_PROOF_EN" hint="Written Exam"/>
     </fieldset>
-    <fieldset name="associations" label="ASSOCIATIONS">
-        <!--<field name="eventIDs" type="SubjectEvents" label="EVENT" role="1"/>-->
-        <field type="Curricula" label="PROGRAMS"/>
-        <field type="SuperOrdinates" label="SUPERORDINATES"/>
+    <fieldset name="associations" label="ORGANIZER_ASSOCIATIONS">
+        <!--<field name="eventIDs" type="SubjectEvents" label="ORGANIZER_EVENT" role="1"/>-->
+        <field type="Curricula" label="ORGANIZER_PROGRAMS"/>
+        <field type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES"/>
         <field name="spacer3" type="spacer" hr="true"/>
-        <field type="Prerequisites" label="PREREQUISITES"/>
+        <field type="Prerequisites" label="ORGANIZER_PREREQUISITES"/>
     </fieldset>
 </form>

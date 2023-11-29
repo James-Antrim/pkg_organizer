@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form addfieldprefix="Organizer\Fields">
+<form>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="campusID" type="Campuses" label="NAME" onchange="this.form.submit();">
-            <option value="">ALL_CAMPUSES</option>
-            <option value="-1">NO_CAMPUS</option>
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="campusID" type="Campuses" label="ORGANIZER_NAME" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_CAMPUSES</option>
+            <option value="-1">ORGANIZER_NO_CAMPUS</option>
         </field>
-        <field name="propertyType" type="Options" label="PROPERTY_TYPE" onchange="this.form.submit();">
-            <option value="">ALL_PROPERTY_TYPES</option>
-            <option value="0">UNKNOWN</option>
-            <option value="1">OWNED</option>
-            <option value="2">RENTED</option>
-            <option value="3">USED</option>
+        <field name="propertyType" type="list" label="ORGANIZER_PROPERTY_TYPE" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_PROPERTY_TYPES</option>
+            <option value="0">ORGANIZER_UNKNOWN</option>
+            <option value="1">ORGANIZER_OWNED</option>
+            <option value="2">ORGANIZER_RENTED</option>
+            <option value="3">ORGANIZER_USED</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
-            <option value="-1">ALL_STATES</option>
-            <option value="1">ACTIVE</option>
-            <option value="0">INACTIVE</option>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ORGANIZER_ALL_STATES</option>
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
         </field>
     </fields>
     <fields name="list">
