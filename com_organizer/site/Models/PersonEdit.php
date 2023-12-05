@@ -44,7 +44,7 @@ class PersonEdit extends EditModelOld
         $this->item = parent::getItem($pk);
 
         $this->item->organizationID = $this->item->id ?
-            Helpers\Persons::getOrganizationIDs($this->item->id) : [];
+            Helpers\Persons::organizationIDs($this->item->id) : [];
 
         return $this->item;
     }

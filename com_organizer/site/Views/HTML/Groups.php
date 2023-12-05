@@ -29,6 +29,7 @@ class Groups extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->toDo[] = 'Store the publishing value in the instance directly to make instance queries much better.';
         // Resource creation occurs in Untis and editing is done via links in the list.
 
         $toolbar = Toolbar::getInstance();

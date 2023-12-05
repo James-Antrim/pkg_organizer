@@ -41,7 +41,7 @@ class Groups extends Associated implements Selectable
         ]
     ];
 
-    protected static $resource = 'group';
+    protected static string $resource = 'group';
 
     /**
      * Returns the category (table entry) associated with a group.
@@ -50,7 +50,7 @@ class Groups extends Associated implements Selectable
      *
      * @return Category
      */
-    public static function getCategory(int $groupID): Category
+    public static function category(int $groupID): Category
     {
         $category = new Category();
         $group    = new Group();
@@ -69,9 +69,9 @@ class Groups extends Associated implements Selectable
      *
      * @return string
      */
-    public static function getCategoryID(int $groupID): string
+    public static function categoryID(int $groupID): string
     {
-        $category = self::getCategory($groupID);
+        $category = self::category($groupID);
 
         if (!$category->id) {
             return 0;
@@ -89,7 +89,7 @@ class Groups extends Associated implements Selectable
      */
     public static function getCategoryName(int $groupID): string
     {
-        $category = self::getCategory($groupID);
+        $category = self::category($groupID);
 
         if (!$category->id) {
             return Text::_('ORGANIZER_NO_CATEGORIES');

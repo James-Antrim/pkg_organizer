@@ -44,22 +44,22 @@ class Export extends OldFormModel
                 $groupID        = empty($form['groupID']) ? 0 : $form['groupID'];
                 $personID       = empty($form['personID']) ? 0 : $form['personID'];
                 if ($organizationID) {
-                    if ($categoryID and !in_array($organizationID, Helpers\Categories::getOrganizationIDs($categoryID))) {
+                    if ($categoryID and !in_array($organizationID, Helpers\Categories::organizationIDs($categoryID))) {
                         $categoryID = 0;
                         unset($form['categoryID']);
                     }
 
-                    if ($groupID and !in_array($organizationID, Helpers\Groups::getOrganizationIDs($groupID))) {
+                    if ($groupID and !in_array($organizationID, Helpers\Groups::organizationIDs($groupID))) {
                         $groupID = 0;
                         unset($form['groupID']);
                     }
 
-                    if ($personID and !in_array($organizationID, Helpers\Persons::getOrganizationIDs($personID))) {
+                    if ($personID and !in_array($organizationID, Helpers\Persons::organizationIDs($personID))) {
                         unset($form['groupID']);
                     }
                 }
 
-                if ($categoryID and $groupID and $categoryID !== Helpers\Groups::getCategory($groupID)->id) {
+                if ($categoryID and $groupID and $categoryID !== Helpers\Groups::category($groupID)->id) {
                     unset($form['groupID']);
                 }
             }

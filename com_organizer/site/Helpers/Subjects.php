@@ -20,7 +20,7 @@ use THM\Organizer\Tables;
 class Subjects extends Curricula
 {
     public const COORDINATES = 1, TEACHES = 2;
-    protected static $resource = 'subject';
+    protected static string $resource = 'subject';
 
     /**
      * Check if user one of the subject's coordinators.
@@ -247,7 +247,7 @@ class Subjects extends Curricula
 
         $eventID         = Subjects::eventID($subjectID);
         $fieldID         = $table->fieldID ?: 0;
-        $organizationIDs = self::getOrganizationIDs($table->id);
+        $organizationIDs = self::organizationIDs($table->id);
         $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
         $tag             = Application::getTag();
 

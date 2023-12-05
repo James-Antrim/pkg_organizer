@@ -498,7 +498,7 @@ class Workload extends OldFormModel
         $programs = [];
 
         foreach ($results as &$program) {
-            $organizationIDs = Helpers\Programs::getOrganizationIDs($program['id']);
+            $organizationIDs = Helpers\Programs::organizationIDs($program['id']);
 
             foreach (array_keys($organizations = array_flip($organizationIDs)) as $organizationID) {
                 $organizations[$organizationID] = Helpers\Organizations::getShortName($organizationID);

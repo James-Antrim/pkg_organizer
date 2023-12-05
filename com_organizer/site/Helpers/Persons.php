@@ -26,7 +26,7 @@ class Persons extends Associated implements Selectable
     // TODO move all person related constants here and use this class instead of redefining them
     private const COORDINATES = 1;
 
-    protected static $resource = 'person';
+    protected static string $resource = 'person';
 
     /**
      * Retrieves person entries from the database

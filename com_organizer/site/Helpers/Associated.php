@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Tables;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\Database as DB;
+use THM\Organizer\Tables\Associations as Association;
 
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.
@@ -20,26 +21,7 @@ abstract class Associated extends ResourceHelper
 {
     use Filtered;
 
-    protected static $resource = '';
-
-    /**
-     * Retrieves the ids of organizations associated with the resource
-     *
-     * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
-     *
-     * @return int[] the ids of organizations associated with the resource
-     */
-    public static function getOrganizationIDs(int $resourceID): array
-    {
-        $column = static::$resource . 'ID';
-        $query  = Database::getQuery();
-        $query->select('DISTINCT organizationID')
-            ->from('#__organizer_associations')
-            ->where("$column = $resourceID");
-        Database::setQuery($query);
-
-        return Database::loadIntColumn();
-    }
+    protected static string $resource = '';
 
     /**
      * Checks whether a given resource is associated with a given organization.
@@ -47,13 +29,32 @@ abstract class Associated extends ResourceHelper
      * @param   int  $organizationID  the id of the organization
      * @param   int  $resourceID      the id of the resource
      *
-     * @return bool true if the resource is associated with the organization, otherwise false
+     * @return bool
      */
-    public static function isAssociated(int $organizationID, int $resourceID): bool
+    public static function associated(int $organizationID, int $resourceID): bool
     {
-        $column = static::$resource . 'ID';
-        $table  = new Tables\Associations();
+        $column      = static::$resource . 'ID';
+        $association = new Association();
 
-        return $table->load(['organizationID' => $organizationID, $column => $resourceID]);
+        return $association->load(['organizationID' => $organizationID, $column => $resourceID]);
+    }
+
+    /**
+     * The ids of organizations associated with the resource.
+     *
+     * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
+     *
+     * @return int[]
+     */
+    public static function organizationIDs(int $resourceID): array
+    {
+        $column = DB::qn(static::$resource . 'ID');
+        $query  = DB::getQuery();
+        $query->select('DISTINCT organizationID')
+            ->from(DB::qn('#__organizer_associations'))
+            ->where("$column = :resourceID")->bind(':resourceID', $resourceID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        return DB::loadIntColumn();
     }
 }

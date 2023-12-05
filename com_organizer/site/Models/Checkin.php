@@ -180,7 +180,7 @@ class Checkin extends OldFormModel
 
         foreach ($participation as $index => $entry) {
             $instanceID                = $entry['instanceID'];
-            $instances[$index]         = Helpers\Instances::getInstance($instanceID);
+            $instances[$index]         = Helpers\Instances::instance($instanceID);
             $instances[$index]['seat'] = $entry['seat'];
             $form->setValue('instanceID', null, $instanceID);
 

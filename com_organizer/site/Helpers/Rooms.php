@@ -20,6 +20,8 @@ class Rooms extends ResourceHelper implements Selectable
 {
     private const ALL = -1;
 
+    public const PHYSICAL = 0, VIRTUAL = 1;
+
     use Active;
     use Filtered;
 

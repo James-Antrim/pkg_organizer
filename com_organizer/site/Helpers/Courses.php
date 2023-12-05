@@ -11,7 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Tables;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Tables\Courses as Table;
 
 /**
  * Provides general functions for course access checks, data retrieval and display.
@@ -52,7 +53,7 @@ class Courses extends ResourceHelper
      */
     public static function getCampusID(int $courseID): int
     {
-        $course = new Tables\Courses();
+        $course = new Table();
 
         return $course->load($courseID) ? $course->campusID : 0;
     }
@@ -162,7 +163,7 @@ class Courses extends ResourceHelper
         $results = [];
 
         foreach ($programCounts as $programCount) {
-            $organizationIDs = Programs::getOrganizationIDs($programCount['id']);
+            $organizationIDs = Programs::organizationIDs($programCount['id']);
             foreach ($organizationIDs as $organizationID) {
                 $organization = Organizations::getFullName($organizationID);
 
@@ -352,18 +353,19 @@ class Courses extends ResourceHelper
      *
      * @return bool true if the course is full, otherwise false
      */
-    public static function isFull(int $courseID): bool
+    public static function full(int $courseID): bool
     {
-        $table = new Tables\Courses();
+        $table = new Table();
         if (!$table->load($courseID) or !$maxParticipants = $table->maxParticipants) {
             return false;
         }
 
-        $query = DB::getQuery();
+        $accepted = CourseParticipants::ACCEPTED;
+        $query    = DB::getQuery();
         $query->select('COUNT(*)')
-            ->from('#__organizer_course_participants')
-            ->where("courseID = $courseID")
-            ->where('status = 1');
+            ->from(DB::qn('#__organizer_course_participants'))
+            ->where(DB::qn('courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->where(DB::qn('status') . ' = :status')->bind(':status', $accepted, ParameterType::INTEGER);
         DB::setQuery($query);
 
         return DB::loadInt() >= $maxParticipants;

@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Factory;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\InstanceParticipants as Helper;
+use THM\Organizer\Helpers\Participation as Helper;
 use THM\Organizer\Tables\InstanceParticipants as Table;
 
 /**
@@ -45,7 +45,7 @@ class InstanceParticipantEdit extends EditModelOld
     {
         $bookingID = 0;
 
-        if (!$participationID = Input::getID() or !$bookingID = Helper::getBookingID($participationID)) {
+        if (!$participationID = Input::getID() or !$bookingID = Helper::bookingID($participationID)) {
             Application::error(400);
         }
 

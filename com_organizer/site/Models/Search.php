@@ -666,14 +666,14 @@ class Search extends ListModel
                     $links['curriculum'] = "?option=com_organizer&view=curriculum&programID=$programID";
                 }
 
-                $organizationIDs = Helpers\Programs::getOrganizationIDs($programID);
+                $organizationIDs = Helpers\Programs::organizationIDs($programID);
             }
             else {
                 $key   = "category-$categoryID";
                 $label = Text::_('ORGANIZER_CATEGORY') . ': ';
                 $name  = Helpers\Categories::getName($categoryID);
 
-                $organizationIDs = Helpers\Categories::getOrganizationIDs($categoryID);
+                $organizationIDs = Helpers\Categories::organizationIDs($categoryID);
             }
 
             $description   = '';
@@ -862,7 +862,7 @@ class Search extends ListModel
 
             $coordinates     = Helpers\Subjects::coordinates(0, $personID);
             $identity        = ($userID and Helpers\Persons::getIDByUserID($userID) === $personID);
-            $organizationIDs = Helpers\Persons::getOrganizationIDs($personID);
+            $organizationIDs = Helpers\Persons::organizationIDs($personID);
             $names           = Helpers\Persons::getOrganizationNames($personID);
             $released        = Helpers\Persons::released($personID);
             $teaches         = Helpers\Subjects::teaches(0, $personID);

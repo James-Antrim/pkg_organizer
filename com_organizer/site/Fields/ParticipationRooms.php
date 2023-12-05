@@ -25,7 +25,7 @@ class ParticipationRooms extends Options
      */
     protected function getOptions(): array
     {
-        $bookingID = Helpers\InstanceParticipants::getBookingID(Input::getID());
+        $bookingID = Helpers\Participation::bookingID(Input::getID());
         $rooms     = Helpers\Bookings::getRoomOptions($bookingID);
 
         if (count($rooms) === 1) {

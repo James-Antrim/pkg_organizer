@@ -56,10 +56,10 @@ class Statistics extends OldFormModel
             }
 
             if ($categoryID) {
-                $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
+                $resourceIDs = Helpers\Instances::groupIDs($instanceID);
             }
             elseif ($organizationID) {
-                $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
+                $resourceIDs = Helpers\Instances::categoryIDs($instanceID);
             }
             else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
@@ -125,8 +125,8 @@ class Statistics extends OldFormModel
                 continue;
             }
 
-            $attended  = Helpers\Instances::getAttended($instanceID);
-            $capacity  = Helpers\Instances::getCapacity($instanceID);
+            $attended  = Helpers\Instances::attendance($instanceID);
+            $capacity  = Helpers\Instances::capacity($instanceID);
             $monday    = date('Y-m-d', strtotime('monday this week', strtotime($instance['date'])));
             $uniqueKey = "{$instance['unitID']}-{$instance['blockID']}";
             $upTCap    = false;
@@ -141,10 +141,10 @@ class Statistics extends OldFormModel
             }
 
             if ($categoryID) {
-                $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
+                $resourceIDs = Helpers\Instances::groupIDs($instanceID);
             }
             elseif ($organizationID) {
-                $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
+                $resourceIDs = Helpers\Instances::categoryIDs($instanceID);
             }
             else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
@@ -216,10 +216,10 @@ class Statistics extends OldFormModel
             }
 
             $attendence    = Helpers\Bookings::getParticipantCount($instance['bookingID']);
-            $registrations = Helpers\Instances::getCurrentCapacity($instanceID);
+            $registrations = Helpers\Instances::currentCapacity($instanceID);
 
             $monday       = date('Y-m-d', strtotime('monday this week', strtotime($instance['date'])));
-            $attended     = Helpers\Instances::getAttended($instanceID);
+            $attended     = Helpers\Instances::attendance($instanceID);
             $noShows      = max(($registrations - $attendence), 0);
             $registered   = Helpers\Instances::getRegistered($instanceID);
             $unregistered = max(($attendence - $registrations), 0);
@@ -236,10 +236,10 @@ class Statistics extends OldFormModel
             }
 
             if ($categoryID) {
-                $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
+                $resourceIDs = Helpers\Instances::groupIDs($instanceID);
             }
             elseif ($organizationID) {
-                $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
+                $resourceIDs = Helpers\Instances::categoryIDs($instanceID);
             }
             else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
@@ -302,10 +302,10 @@ class Statistics extends OldFormModel
             $monday     = date('Y-m-d', strtotime('monday this week', strtotime($instance['date'])));
 
             if ($categoryID) {
-                $resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
+                $resourceIDs = Helpers\Instances::groupIDs($instanceID);
             }
             elseif ($organizationID) {
-                $resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
+                $resourceIDs = Helpers\Instances::categoryIDs($instanceID);
             }
             else {
                 $resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
@@ -631,7 +631,7 @@ class Statistics extends OldFormModel
             $categoryID     = $state->get('conditions.categoryID');
 
             if ($categoryID) {
-                $organizationIDs = Helpers\Categories::getOrganizationIDs($categoryID);
+                $organizationIDs = Helpers\Categories::organizationIDs($categoryID);
 
                 if ($organizationID) {
                     $form->setValue('organizationID', null, $organizationID);

@@ -11,12 +11,12 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\Database;
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\InstanceParticipants as Table;
 
 /**
  * Class provides generalized functions regarding dates and times.
  */
-class InstanceParticipants
+class Participation
 {
     /**
      * Returns the color value for a given colorID.
@@ -25,15 +25,15 @@ class InstanceParticipants
      *
      * @return int the id of the booking associated with the participation
      */
-    public static function getBookingID(int $participationID): int
+    public static function bookingID(int $participationID): int
     {
-        $participation = new Tables\InstanceParticipants();
+        $participation = new Table();
 
         if (!$participation->load($participationID)) {
             return 0;
         }
 
-        return Instances::getBookingID($participation->instanceID);
+        return Instances::bookingID($participation->instanceID);
     }
 
     /**
@@ -45,7 +45,7 @@ class InstanceParticipants
      *
      * @return bool
      */
-    public static function isBusy(string $date, string $startTime, string $endTime): bool
+    public static function busy(string $date, string $startTime, string $endTime): bool
     {
         $userID = Users::getID();
 

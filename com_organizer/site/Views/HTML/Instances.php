@@ -287,7 +287,7 @@ class Instances extends ListView
                         $grid[$key]['type']  = $block['type'];
                     }
 
-                    $busy = Helpers\InstanceParticipants::isBusy($current, $block['startTime'], $block['endTime']);
+                    $busy = Helpers\Participation::busy($current, $block['startTime'], $block['endTime']);
 
                     $grid[$key]['endTime']   = $block['endTime'] === '00:00' ? '23:59' : $block['endTime'];
                     $grid[$key]['startTime'] = $block['startTime'];
@@ -735,7 +735,7 @@ class Instances extends ListView
                 $this->premature = false;
             }
 
-            if (Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE and $item->registration === true) {
+            if (Helper::methodCode($item->instanceID) !== Helpers\Methods::FINALCODE and $item->registration === true) {
                 $this->registration = true;
             }
 

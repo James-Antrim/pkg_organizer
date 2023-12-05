@@ -35,7 +35,7 @@ class Bookings extends ResourceHelper
             return 0;
         }
 
-        return Instances::getCapacity($instanceIDs[0]);
+        return Instances::capacity($instanceIDs[0]);
     }
 
     /**
@@ -131,7 +131,7 @@ class Bookings extends ResourceHelper
                 $names[] = $name;
 
                 if (empty($method)) {
-                    $method = Instances::getMethod($instanceID);
+                    $method = Instances::methodName($instanceID);
                 }
             }
         }
@@ -208,7 +208,7 @@ class Bookings extends ResourceHelper
             return 0;
         }
 
-        return Instances::getCurrentCapacity($instanceIDs[0]);
+        return Instances::currentCapacity($instanceIDs[0]);
     }
 
     /**

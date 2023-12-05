@@ -22,7 +22,7 @@ class Categories extends Associated implements Selectable
     use Numbered;
     use Suppressed;
 
-    protected static $resource = 'category';
+    protected static string $resource = 'category';
 
     /**
      * Retrieves the groups associated with a category.

@@ -289,14 +289,6 @@ class Participant extends MergeModel
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Table();
-    }
-
-    /**
      * Merges resource entries and cleans association tables.
      * @return bool  true on success, otherwise false
      * @throws Exception

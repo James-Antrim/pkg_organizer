@@ -64,7 +64,7 @@ class RoomOverview extends TableView
             'userID'          => Helpers\Users::getID()
         ];
 
-        $instances = Helpers\Instances::getItems($conditions);
+        $instances = Helpers\Instances::items($conditions);
         if (isset($instances['futureDate']) or isset($instances['pastDate'])) {
             $instances = [];
         }

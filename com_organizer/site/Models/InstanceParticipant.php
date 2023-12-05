@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\InstanceParticipants as Helper;
+use THM\Organizer\Helpers\Participation as Helper;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\InstanceParticipants as Table;
 
@@ -78,7 +78,7 @@ class InstanceParticipant extends BaseModel
     {
         $bookingID = 0;
 
-        if (!$participationID = Input::getID() or !$bookingID = Helper::getBookingID($participationID)) {
+        if (!$participationID = Input::getID() or !$bookingID = Helper::bookingID($participationID)) {
             Application::error(400);
         }
 
@@ -519,14 +519,14 @@ class InstanceParticipant extends BaseModel
             }
 
             $name  = Helpers\Instances::getName($instanceID);
-            $block = Helpers\Instances::getBlock($instanceID);
+            $block = Helpers\Instances::block($instanceID);
             $date  = Helpers\Dates::formatDate($block->date);
             //$earliest  = Helpers\Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
             $endTime   = Helpers\Dates::formatEndTime($block->endTime);
             $startTime = Helpers\Dates::formatTime($block->startTime);
             //$then      = date('Y-m-d', strtotime('+2 days'));
 
-            if (Helpers\Instances::getMethodCode($instanceID) === Helpers\Methods::FINALCODE) {
+            if (Helpers\Instances::methodCode($instanceID) === Helpers\Methods::FINALCODE) {
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_EXTERNAL_REGISTRATION', $name, $date, $startTime, $endTime),
                     Application::NOTICE

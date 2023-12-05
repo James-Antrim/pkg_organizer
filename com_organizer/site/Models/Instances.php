@@ -208,7 +208,7 @@ class Instances extends ListModel
         $usedGrids = [];
 
         foreach ($items as $key => $instance) {
-            $instance                       = Helper::getInstance($instance->id);
+            $instance                       = Helper::instance($instance->id);
             $usedGrids[$instance['gridID']] = empty($usedGrids[$instance['gridID']]) ? 1 : $usedGrids[$instance['gridID']] + 1;
             Helper::fill($instance, $this->conditions);
             $items[$key] = (object) $instance;
@@ -445,12 +445,12 @@ class Instances extends ListModel
             }
             else {
                 if ($categoryID) {
-                    $organizationID                = Helpers\Categories::getOrganizationIDs($categoryID)[0];
+                    $organizationID                = Helpers\Categories::organizationIDs($categoryID)[0];
                     $conditions['organizationIDs'] = [$organizationID];
                 }
                 elseif ($groupID) {
-                    $categoryID                    = Helpers\Groups::getCategoryID($groupID);
-                    $organizationID                = Helpers\Categories::getOrganizationIDs($categoryID)[0];
+                    $categoryID                    = Helpers\Groups::categoryID($groupID);
+                    $organizationID                = Helpers\Categories::organizationIDs($categoryID)[0];
                     $conditions['organizationIDs'] = [$organizationID];
                 }
 
@@ -478,7 +478,7 @@ class Instances extends ListModel
                 if ($personID = Input::getInt('personID', $personID)) {
                     $personIDs = [$personID];
                     $userID    = Helpers\Users::getID();
-                    Helper::filterPersonIDs($personIDs, $userID);
+                    Helper::filterPersons($personIDs, $userID);
 
                     if ($personIDs) {
                         $conditions['personIDs'] = $personIDs;

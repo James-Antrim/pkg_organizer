@@ -22,7 +22,7 @@ class Programs extends Curricula implements Selectable
 {
     use Active;
 
-    protected static $resource = 'program';
+    protected static string $resource = 'program';
 
     /**
      * Checks if a program exists matching the identification keys. If none exist one is created.
@@ -290,7 +290,7 @@ class Programs extends Curricula implements Selectable
      */
     public static function organization(int $programID, bool $short = false): string
     {
-        if (!$organizationIDs = self::getOrganizationIDs($programID)) {
+        if (!$organizationIDs = self::organizationIDs($programID)) {
             return Text::_('NO_ORGANIZATION');
         }
 

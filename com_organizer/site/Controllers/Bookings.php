@@ -140,7 +140,7 @@ class Bookings extends Controller
             $instanceID = array_shift($instanceIDs);
         }
 
-        if (!$bookingID = Helpers\Instances::getBookingID($instanceID)) {
+        if (!$bookingID = Helpers\Instances::bookingID($instanceID)) {
             $model = new Models\Booking();
 
             if (!$bookingID = $model->add()) {

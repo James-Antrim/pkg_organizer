@@ -42,7 +42,7 @@ class CategoryEdit extends EditModelOld
     public function getItem($pk = 0)
     {
         $this->item                 = parent::getItem($pk);
-        $this->item->organizationID = Helpers\Categories::getOrganizationIDs($this->item->id);
+        $this->item->organizationID = Helpers\Categories::organizationIDs($this->item->id);
 
         return $this->item;
     }

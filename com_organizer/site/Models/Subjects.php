@@ -227,7 +227,7 @@ class Subjects extends ListModel
                 }
 
                 // Selected program is incompatible with the selected organization => precludes pool selections
-                if (!Programs::isAssociated($organizationID, $programID)) {
+                if (!Programs::associated($organizationID, $programID)) {
                     return;
                 }
 
@@ -241,7 +241,7 @@ class Subjects extends ListModel
                     return;
                 }
 
-                if (!Pools::isAssociated($organizationID, $poolID)) {
+                if (!Pools::associated($organizationID, $poolID)) {
                     $this->state->set('filter.poolID', self::ALL);
                     $this->state->set('filter.programID', $programID);
 

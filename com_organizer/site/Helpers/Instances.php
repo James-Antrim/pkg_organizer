@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Helpers;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
+use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Tables;
+use THM\Organizer\Tables\{Blocks as Block, Instances as Instance};
+use THM\Organizer\Tables\{InstanceParticipants as PTable, InstancePersons as Responsibility};
 
 /**
  * Provides functions for XML instance validation and modeling.
@@ -24,6 +27,8 @@ class Instances extends ResourceHelper
      * Delta constants
      */
     public const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+
+    private const IRRELEVANT = [self::CURRENT, self::NEW, self::REMOVED];
 
     /**
      * Jump constants
@@ -46,125 +51,37 @@ class Instances extends ResourceHelper
     public const HYBRID = 0, ONLINE = -1, PRESENCE = 1;
 
     /**
-     * Adds a delta clause for a joined table.
-     *
-     * @param   JDatabaseQuery  $query  the query to modify
-     * @param   string          $alias  the table alias
-     * @param   string|bool     $delta  string the date for the delta or bool false
-     *
-     * @return void modifies the query
-     */
-    private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta): void
-    {
-        $wherray = ["$alias.delta != 'removed'"];
-
-        if ($delta) {
-            $wherray[] = "($alias.delta = 'removed' AND $alias.modified > '$delta')";
-        }
-
-        $query->where('(' . implode(' OR ', $wherray) . ')');
-    }
-
-    /**
-     * Adds a delta clause for a joined table.
-     *
-     * @param   JDatabaseQuery  $query       the query to modify
-     * @param   string          $alias       the table alias
-     * @param   array           $conditions  the conditions for queries
-     *
-     * @return void modifies the query
-     */
-    private static function addResourceDelta(JDatabaseQuery $query, string $alias, array $conditions): void
-    {
-        if (!empty($conditions['instanceStatus']) and $conditions['instanceStatus'] !== 'removed') {
-            $query->where("$alias.delta != 'removed'");
-
-            return;
-        }
-
-        switch ($conditions['status']) {
-            case self::CURRENT:
-            case self::NEW:
-            case self::REMOVED:
-                $query->where("$alias.delta != 'removed'");
-                break;
-            case self::CHANGED:
-            case self::NORMAL:
-            default:
-                self::addDeltaClause($query, $alias, $conditions['delta']);
-                break;
-        }
-    }
-
-    /**
-     * Adds subject data to the instance.
-     *
-     * @param   array  &$instance  the instance data
-     * @param   array   $subject   the subject data
-     *
-     * @return void modifies the instance array
-     */
-    private static function addSubjectData(array &$instance, array $subject): void
-    {
-        $instance['subjectID'] = $subject['id'];
-        $instance['code']      = empty($subject['code']) ? '' : $subject['code'];
-        $instance['fullName']  = empty($subject['fullName']) ? '' : $subject['fullName'];
-
-        if (empty($instance['description']) and !empty($subject['description'])) {
-            $instance['description'] = $subject['description'];
-        }
-    }
-
-    /**
-     * Calls various functions filling the properties and resources of a single instance.
-     *
-     * @param   array  $instance
-     * @param          $conditions
-     *
-     * @return void modifies the instance array
-     */
-    public static function fill(array &$instance, $conditions): void
-    {
-        self::setBooking($instance);
-        self::setCourse($instance);
-        self::setParticipation($instance);
-        self::setPersons($instance, $conditions);
-        self::setSubject($instance, $conditions);
-        ksort($instance);
-    }
-
-    /**
-     * Returns the number of in-person participants for the given instance.
+     * The number of in-person participants for the given instance.
      *
      * @param   int  $instanceID
      *
      * @return int
      */
-    public static function getAttended(int $instanceID): int
+    public static function attendance(int $instanceID): int
     {
-        $query = Database::getQuery();
-        $query->select('i.attended')
-            ->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+        $query = DB::getQuery();
+        $query->select(DB::qn('i.attended'))
+            ->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where("i.id = $instanceID")
             ->where("i.delta != 'removed'")
             ->where("u.delta != 'removed'");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadInt();
+        return DB::loadInt();
     }
 
     /**
-     * Gets the block associated with the instance.
+     * Instantiates the block row associated with the given instance ID.
      *
      * @param   int  $instanceID  the id of the instance
      *
-     * @return Tables\Blocks
+     * @return Block
      */
-    public static function getBlock(int $instanceID): Tables\Blocks
+    public static function block(int $instanceID): Block
     {
-        $block    = new Tables\Blocks();
-        $instance = new Tables\Instances();
+        $block    = new Block();
+        $instance = new Instance();
 
         if ($instance->load($instanceID) and $blockID = $instance->blockID) {
             $block->load($blockID);
@@ -180,7 +97,7 @@ class Instances extends ResourceHelper
      *
      * @return Tables\Bookings
      */
-    public static function getBooking(int $instanceID): Tables\Bookings
+    public static function booking(int $instanceID): Tables\Bookings
     {
         $booking  = new Tables\Bookings();
         $instance = new Tables\Instances();
@@ -199,9 +116,9 @@ class Instances extends ResourceHelper
      *
      * @return int|null the id of the booking entry
      */
-    public static function getBookingID(int $instanceID): ?int
+    public static function bookingID(int $instanceID): ?int
     {
-        $booking = self::getBooking($instanceID);
+        $booking = self::booking($instanceID);
 
         return $booking->id;
     }
@@ -214,23 +131,27 @@ class Instances extends ResourceHelper
      *
      * @return int
      */
-    public static function getCapacity(int $instanceID): int
+    public static function capacity(int $instanceID): int
     {
-        $query = Database::getQuery();
-        $query->select('DISTINCT r.id, r.effCapacity')
-            ->from('#__organizer_rooms AS r')
-            ->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-            ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
-            ->innerJoin('#__organizer_instances AS i2 ON i2.id = ipe.instanceID')
-            ->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-            ->where('r.virtual = 0')
-            ->where("i1.id = $instanceID")
-            ->where("ir.delta != 'removed'")
-            ->where("ipe.delta != 'removed'")
-            ->order('r.effCapacity DESC');
-        Database::setQuery($query);
+        $physical = Rooms::PHYSICAL;
+        $query    = DB::getQuery();
+        $removed  = 'removed';
 
-        if ($capacities = Database::loadIntColumn(1)) {
+        $query->select(['DISTINCT ' . DB::qn('r.id'), DB::qn('r.effCapacity')])
+            ->from(DB::qn('#__organizer_rooms', 'r'))
+            ->innerJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.roomID', 'r.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe'), DB::qc('ipe.id', 'ir.assocID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i2'), DB::qc('i2.id', 'ipe.instanceID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i1'),
+                DB::qcs([['i1.unitID', 'i2.unitID'], ['i1.blockID', 'i2.blockID']]))
+            ->where(DB::qn('r.virtual') . ' = :virtual')->bind(':virtual', $physical, ParameterType::INTEGER)
+            ->where(DB::qn('i1.id') . ' = :instanceID')->bind(':instanceID', $instanceID, ParameterType::INTEGER)
+            ->where(DB::qn('ipe.delta') . ' != :pDelta')->bind(':pDelta', $removed)
+            ->where(DB::qn('ir.delta') . ' != :rDelta')->bind(':rDelta', $removed)
+            ->order(DB::qn('r.effCapacity') . ' DESC');
+        DB::setQuery($query);
+
+        if ($capacities = DB::loadIntColumn(1)) {
             return array_sum($capacities);
         }
 
@@ -238,23 +159,658 @@ class Instances extends ResourceHelper
     }
 
     /**
-     * Retrieves the
+     * Retrieves the ids of the categories associated with the instance.
      *
      * @param   int  $instanceID
      *
      * @return int[]
      */
-    public static function getCategoryIDs(int $instanceID): array
+    public static function categoryIDs(int $instanceID): array
     {
         $categoryIDs = [];
 
-        foreach (self::getGroupIDs($instanceID) as $groupID) {
-            $categoryID               = Groups::getCategoryID($groupID);
+        foreach (self::groupIDs($instanceID) as $groupID) {
+            $categoryID               = Groups::categoryID($groupID);
             $categoryIDs[$categoryID] = $categoryID;
         }
 
         return $categoryIDs;
     }
+
+    /**
+     * Sets/overwrites instance course attributes.
+     *
+     * @param   array &$instance  the array of instance attributes
+     *
+     * @return void modifies the instance
+     */
+    private static function course(array &$instance): void
+    {
+        $coursesTable = new Tables\Courses();
+        if (empty($instance['courseID']) or !$coursesTable->load($instance['courseID'])) {
+            return;
+        }
+
+        $tag                      = Application::getTag();
+        $instance['campusID']     = $coursesTable->campusID ?: $instance['campusID'];
+        $instance['courseGroups'] = $coursesTable->groups ?: '';
+        $instance['courseName']   = $coursesTable->{"name_$tag"} ?: '';
+        $instance['deadline']     = $coursesTable->deadline ?: $instance['deadline'];
+        $instance['fee']          = $coursesTable->fee ?: $instance['fee'];
+        $instance['full']         = Courses::full($instance['courseID']);
+
+        $instance['description'] = (empty($instance['description']) and $coursesTable->{"description_$tag"}) ?
+            $coursesTable->{"description_$tag"} : $instance['description'];
+
+        $instance['registrationType'] = $coursesTable->registrationType ?: $instance['registrationType'];
+    }
+
+    /**
+     * The current number of participants for all concurrent instances of the same block and unit as the given instance.
+     *
+     * @param   int  $instanceID
+     *
+     * @return int
+     */
+    public static function currentCapacity(int $instanceID): int
+    {
+        $query   = DB::getQuery();
+        $removed = 'removed';
+
+        $query->select('SUM(' . DB::qn('i2.registered') . ')')
+            ->from(DB::qn('#__organizer_instances', 'i2'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i1'),
+                DB::qcs([['i1.unitID', 'i2.unitID'], ['i1.blockID', 'i2.blockID']]))
+            ->where(DB::qn('i1.id') . ' = :instanceID')->bind(':instanceID', $instanceID, ParameterType::INTEGER)
+            ->where(DB::qn('i1.delta') . ' != :d1')->bind(':d1', $removed)
+            ->where(DB::qn('i2.delta') . ' != :d2')->bind(':d2', $removed);
+
+        DB::setQuery($query);
+
+        return DB::loadInt();
+    }
+
+    /**
+     * Calls various functions filling the properties and resources of a single instance.
+     *
+     * @param   array  $instance
+     * @param          $conditions
+     *
+     * @return void modifies the instance array
+     */
+    public static function fill(array &$instance, $conditions): void
+    {
+        self::fillBookingID($instance);
+        self::course($instance);
+        self::participation($instance);
+        self::persons($instance, $conditions);
+        self::subjects($instance, $conditions);
+        ksort($instance);
+    }
+
+    /**
+     * Sets the instance's bookingID attribute as appropriate.
+     *
+     * @param   array  &$instance  the instance to modify
+     *
+     * @return void
+     */
+    public static function fillBookingID(array &$instance): void
+    {
+        $booking               = new Tables\Bookings();
+        $exists                = $booking->load(['blockID' => $instance['blockID'], 'unitID' => $instance['unitID']]);
+        $instance['bookingID'] = $exists ? $booking->id : null;
+    }
+
+    /**
+     * Adds a delta clause for a joined table.
+     *
+     * @param   DatabaseQuery  $query       the query to modify
+     * @param   string         $alias       the table alias
+     * @param   array          $conditions  the conditions for queries
+     *
+     * @return void modifies the query
+     */
+    private static function filterResourceStatus(DatabaseQuery $query, string $alias, array $conditions): void
+    {
+        $newInstance = (!empty($conditions['instanceStatus']) and $conditions['instanceStatus'] !== 'removed');
+        $status      = $conditions['status'] ?? '';
+
+        if ($newInstance or in_array($status, self::IRRELEVANT)) {
+            $column = DB::qn("$alias.delta");
+            $value  = 'removed';
+            $query->where("$column != :value")->bind(':value', $value);
+
+            return;
+        }
+
+        self::filterStatus($query, $alias, $conditions['delta']);
+    }
+
+    /**
+     * Adds a clause to filter instances by status and modification date.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the table alias
+     * @param   bool|string    $delta  string the date for the delta or bool false
+     *
+     * @return void modifies the query
+     */
+    private static function filterStatus(DatabaseQuery $query, string $alias, bool|string $delta): void
+    {
+        $wherray = ["$alias.delta != 'removed'"];
+
+        if ($delta) {
+            $wherray[] = "($alias.delta = 'removed' AND $alias.modified > '$delta')";
+        }
+
+        $query->where('(' . implode(' OR ', $wherray) . ')');
+    }
+
+    /**
+     * Retrieves the groupIDs associated with the instance.
+     *
+     * @param   int  $instanceID  the id of the instance
+     *
+     * @return int[]
+     */
+    public static function groupIDs(int $instanceID): array
+    {
+        $instance = new Instance();
+        if (!$instance->load($instanceID)) {
+            return [];
+        }
+
+        $query   = DB::getQuery();
+        $removed = 'removed';
+
+        $query->select('DISTINCT groupID')
+            ->from(DB::qn('#__organizer_instance_groups', 'ig'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.id', 'ig.assocID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
+            ->where(DB::qn('i.delta ') . ' != :id')->bind(':id', $removed)
+            ->where(DB::qn('i.blockID') . ' = :blockID')->bind(':blockID', $instance->blockID, ParameterType::INTEGER)
+            ->where(DB::qn('i.unitID') . ' = :unitID')->bind(':unitID', $instance->unitID, ParameterType::INTEGER)
+            ->where(DB::qn('ig.delta ') . ' != :igd')->bind(':igd', $removed)
+            ->where(DB::qn('ip.delta ') . ' != :ipd')->bind(':ipd', $removed);
+        DB::setQuery($query);
+
+        return DB::loadIntColumn();
+    }
+
+    /**
+     * Gets the groups associated with the person's role association.
+     *
+     * @param   array &$person      the array of role assignments
+     * @param   array  $conditions  the conditions which instances must fulfill
+     *
+     * @return void
+     */
+    private static function groups(array &$person, array $conditions): void
+    {
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
+
+        $aliased  = DB::qn(['g.code', "g.fullName_$tag", "g.name_$tag"], ['code', 'fullName', 'name']);
+        $selected = DB::qn(['ig.groupID', 'ig.delta', 'ig.modified', 'g.gridID']);
+        $query->select(array_merge($selected, $aliased))
+            ->from(DB::qn('#__organizer_instance_groups', 'ig'))
+            ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.groupID', 'g.id'))
+            ->where(DB::qn('ig.assocID') . ' = :associationID')->bind(':associationID', $person['assocID'],
+                ParameterType::INTEGER);
+
+        if (array_key_exists('categoryIDs', $conditions)) {
+            $query->whereIn(DB::qn('g.categoryID'), $conditions['categoryIDs']);
+        }
+
+        self::filterResourceStatus($query, 'ig', $conditions);
+
+        // Don't limit the group organization in non-standard contexts
+        if (!empty($conditions['organizationIDs'])
+            and (empty($conditions['instances']) or $conditions['instances'] === 'organization')) {
+            $query->whereIn(DB::qn('a.organizationID'), $conditions['organizationIDs']);
+        }
+
+        DB::setQuery($query);
+
+        if (!$associations = DB::loadAssocList()) {
+            return;
+        }
+
+        $groups = [];
+        foreach ($associations as $association) {
+            $groupID = $association['groupID'];
+            $group   = [
+                'code'       => $association['code'],
+                'fullName'   => $association['fullName'],
+                'group'      => $association['name'],
+                'status'     => $association['delta'],
+                'statusDate' => $association['modified']
+            ];
+
+            $groups[$groupID] = $group;
+        }
+
+        $person['groups'] = $groups;
+    }
+
+    /**
+     * Retrieves the core information for one instance.
+     *
+     * @param   int  $instanceID  the id of the instance
+     *
+     * @return array an array modeling the instance
+     */
+    public static function instance(int $instanceID): array
+    {
+        $tag = Application::getTag();
+
+        $table = new Instance();
+        if (!$table->load($instanceID)) {
+            return [];
+        }
+
+        $instance = [
+            'attended'           => 0,
+            'blockID'            => $table->blockID,
+            'eventID'            => $table->eventID,
+            'instanceID'         => $instanceID,
+            'instanceStatus'     => $table->delta,
+            'instanceStatusDate' => $table->modified,
+            'methodID'           => $table->methodID,
+            'registered'         => 0,
+            'unitID'             => $table->unitID
+        ];
+
+        $iComment = $table->comment;
+        $title    = $table->title;
+
+        unset($table);
+
+        $table = new Block();
+
+        if (!$table->load($instance['blockID'])) {
+            return [];
+        }
+
+        $block = [
+            'date'      => $table->date,
+            'endTime'   => empty($instance['eventID']) ?
+                Dates::formatTime($table->endTime) : Dates::formatEndTime($table->endTime),
+            'startTime' => Dates::formatTime($table->startTime)
+        ];
+
+        unset($table);
+
+        $table = new Tables\Events();
+
+        // Planned events
+        if ($instance['eventID'] and $table->load($instance['eventID'])) {
+            $event = [
+                'campusID'         => $table->campusID,
+                'deadline'         => $table->deadline,
+                'description'      => $table->{"description_$tag"},
+                'fee'              => $table->fee,
+                'name'             => $table->{"name_$tag"},
+                'registrationType' => $table->registrationType,
+                'subjectNo'        => $table->subjectNo
+            ];
+        }
+        // Booked events
+        else {
+            $event = [
+                'campusID'         => null,
+                'deadline'         => 0,
+                'description'      => null,
+                'fee'              => 0,
+                'name'             => $title,
+                'registrationType' => null,
+                'subjectNo'        => ''
+            ];
+        }
+
+        unset($table);
+
+        $method = ['methodCode' => '', 'methodName' => ''];
+        $table  = new Tables\Methods();
+        if ($table->load($instance['methodID'])) {
+            $method = [
+                'methodCode' => $table->{"abbreviation_$tag"},
+                'method'     => $table->{"name_$tag"}
+            ];
+        }
+
+        unset($table);
+
+        $table = new Tables\Units();
+        if (!$table->load($instance['unitID'])) {
+            return [];
+        }
+
+        $orgName = $table->organizationID ? Organizations::getShortName($table->organizationID) : '';
+
+        $unit = [
+            'comment'        => $table->comment,
+            'courseID'       => $table->courseID,
+            'organization'   => $orgName,
+            'organizationID' => $table->organizationID,
+            'gridID'         => $table->gridID,
+            'termID'         => $table->termID,
+            'unitStatus'     => $table->delta,
+            'unitStatusDate' => $table->modified,
+        ];
+
+        unset($table);
+
+        $instance            = array_merge($block, $event, $instance, $method, $unit);
+        $instance['comment'] .= $iComment ? " $iComment" : '';
+
+        if ($courseID = $instance['courseID']) {
+            $courseTable = new Tables\Courses();
+            if ($courseTable->load($courseID)) {
+                $instance['campusID']         = $courseTable->campusID;
+                $instance['course']           = $courseTable->{"name_$tag"};
+                $instance['deadline']         = $courseTable->deadline;
+                $instance['fee']              = $courseTable->fee;
+                $instance['registrationType'] = $courseTable->registrationType;
+
+                if ($courseTable->{"description_$tag"}) {
+                    $instance['description'] = $courseTable->{"description_$tag"};
+                }
+            }
+        }
+
+        if ($participantID = Users::getID()) {
+            $participantsTable = new PTable();
+            if ($participantsTable->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
+                $instance['attended']           = (int) $participantsTable->attended;
+                $instance['registrationStatus'] = 1;
+            }
+        }
+
+        ksort($instance);
+
+        return $instance;
+    }
+
+    /**
+     * Retrieves a list of instance IDs for instances which fulfill the requirements.
+     *
+     * @param   array  $conditions  the conditions filtering the instances
+     *
+     * @return int[] the ids matching the conditions
+     */
+    public static function instanceIDs(array $conditions): array
+    {
+        $query = self::getInstanceQuery($conditions);
+        $query->select('DISTINCT ' . DB::qn('i.id'))
+            ->where("b.date BETWEEN :start AND :end")
+            ->bind(':start', $conditions['startDate'])
+            ->bind(':end', $conditions['endDate'])
+            ->order(DB::qn(['b.date', 'b.startTime', 'b.endTime']));
+        DB::setQuery($query);
+
+        return DB::loadIntColumn();
+    }
+
+    /**
+     * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
+     * instance.
+     *
+     * @param   int  $instanceID
+     *
+     * @return int
+     */
+    public static function interested(int $instanceID): int
+    {
+        $query   = DB::getQuery();
+        $removed = 'removed';
+
+        $query->select('COUNT(DISTINCT ipa.participantID)')
+            ->from(DB::qn('#__organizer_instance_participants', 'ipa'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i2'), DB::qc('i2.id', 'ipa.instanceID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i1'),
+                DB::qcs([['i1.unitID', 'i2.unitID'], ['i1.blockID', 'i2.blockID']]))
+            ->where(DB::qn('i1.id') . ' = :instanceID')->bind(':instanceID', $instanceID, ParameterType::INTEGER)
+            ->where(DB::qn('i1.delta') . ' != :d1')->bind(':d1', $removed)
+            ->where(DB::qn('i2.delta') . ' != :d2')->bind(':d2', $removed);
+        DB::setQuery($query);
+
+        return DB::loadInt();
+    }
+
+    /**
+     * @param $conditions
+     *
+     * @return array|array[]
+     */
+    public static function items($conditions): array
+    {
+        $instanceIDs = self::instanceIDs($conditions);
+        if (empty($instanceIDs)) {
+            return self::getJumpDates($conditions);
+        }
+
+        $instances = [];
+        foreach ($instanceIDs as $instanceID) {
+            if (!$instance = self::instance($instanceID)) {
+                continue;
+            }
+
+            self::fill($instance, $conditions);
+            $instances[] = $instance;
+        }
+
+        return $instances;
+    }
+
+    /**
+     * Gets the code of the method associated with the instance.
+     *
+     * @param   int  $instanceID  the id of the instance
+     *
+     * @return string
+     */
+    public static function methodCode(int $instanceID): string
+    {
+        $instance = new Tables\Instances();
+
+        if (!$instance->load($instanceID) or !$methodID = $instance->methodID) {
+            return '';
+        }
+
+        return Methods::getCode($methodID);
+    }
+
+    /**
+     * Gets the localized name of the method associated with the instance.
+     *
+     * @param   int  $instanceID  the id of the instance
+     *
+     * @return string
+     */
+    public static function methodName(int $instanceID): string
+    {
+        $instance = new Tables\Instances();
+
+        if (!$instance->load($instanceID) or !$methodID = $instance->methodID) {
+            return '';
+        }
+
+        return Methods::getName($methodID);
+    }
+
+    /**
+     * Sets the instance's participation properties:
+     * - 'bookmarked'  - the user has added the instance to their schedule
+     * - 'busy'       - the user's schedule has an appointment in a block overlapping the instance
+     * - 'capacity'   - the number of users who may physically attend the instance
+     * - 'interested' - the number of users who have added this instance to their schedule
+     * - 'registered' - the user has registered to physically participate in the instance
+     *
+     * @param   array  $instance  the array containing instance information
+     *
+     * @return void
+     */
+    public static function participation(array &$instance): void
+    {
+        $instance['capacity']   = self::capacity($instance['instanceID']);
+        $instance['current']    = self::currentCapacity($instance['instanceID']);
+        $instance['interested'] = self::interested($instance['instanceID']);
+
+        if (!$userID = Users::getID()) {
+            $instance['bookmarked'] = false;
+            $instance['busy']       = false;
+            $instance['registered'] = false;
+
+            return;
+        }
+
+        $participation = new PTable();
+        if ($participation->load(['instanceID' => $instance['instanceID'], 'participantID' => $userID])) {
+            $instance['bookmarked'] = true;
+            $instance['busy']       = true;
+            $instance['registered'] = $participation->registered;
+
+            return;
+        }
+
+        // The times in the instance have been pretreated, so that the endTime is no longer valid for comparisons.
+        $block = new Block();
+        if (!$block->load($instance['blockID'])) {
+            $instance['busy'] = false;
+
+            return;
+        }
+
+        $instance['bookmarked'] = false;
+        $instance['registered'] = false;
+        $instance['busy']       = Participation::busy($block->date, $block->startTime, $block->endTime);
+    }
+
+    /**
+     * Gets the persons and person associated resources for the instance.
+     *
+     * @param   array &$instance    the array of instance attributes
+     * @param   array  $conditions  the conditions which instances must fulfill
+     *
+     * @return void
+     */
+    public static function persons(array &$instance, array $conditions): void
+    {
+        $conditions['instanceStatus'] = $instance['instanceStatus'] ?? 'new';
+
+        $query    = DB::getQuery();
+        $tag      = Application::getTag();
+        $aliased  = DB::qn(
+            ['ip.id', "r.name_$tag", "r.abbreviation_$tag", 'ip.delta'],
+            ['assocID', 'role', 'roleCode', 'status']
+        );
+        $selected = DB::qn(['ip.personID', 'ip.roleID', 'ip.modified']);
+
+        $query->select(array_merge($aliased, $selected))
+            ->from(DB::qn('#__organizer_instance_persons', 'ip'))
+            ->innerJoin(DB::qn('#__organizer_roles', 'r'), DB::qc('r.id', 'ip.roleID'))
+            ->where(DB::qn('ip.instanceID') . ' = :instanceID')
+            ->bind(':instanceID', $instance['instanceID'], ParameterType::INTEGER);
+
+        if (!empty($conditions['roleID'])) {
+            $query->where(DB::qn('ip.roleID') . ' = :roleID')
+                ->bind(':roleID', $instance['roleID'], ParameterType::INTEGER);
+        }
+
+        self::filterResourceStatus($query, 'ip', $conditions);
+
+        DB::setQuery($query);
+        if (!$associations = DB::loadAssocList()) {
+            return;
+        }
+
+        $persons = [];
+        foreach ($associations as $association) {
+            $assocID  = $association['assocID'];
+            $personID = $association['personID'];
+            $person   = [
+                'assocID'    => $assocID,
+                'code'       => $association['roleCode'],
+                'person'     => Persons::getLNFName($personID, true),
+                'role'       => $association['role'],
+                'roleID'     => $association['roleID'],
+                'status'     => $association['status'],
+                'statusDate' => $association['modified']
+            ];
+
+            self::groups($person, $conditions);
+            self::rooms($person, $conditions);
+            $persons[$personID] = $person;
+        }
+
+        $instance['resources'] = $persons;
+    }
+
+    /**
+     * Gets the rooms associated with the person's role association.
+     *
+     * @param   array &$person      the array of role assignments
+     * @param   array  $conditions  the conditions which instances must fulfill
+     *
+     * @return void
+     */
+    private static function rooms(array &$person, array $conditions): void
+    {
+        $aliased  = DB::qn(['c1.location', 'c2.location', 'b.location'], ['campusLocation', 'defaultLocation', 'location']);
+        $selected = DB::qn(['ir.roomID', 'ir.delta', 'ir.modified', 'r.name', 'r.virtual']);
+        $query    = DB::getQuery();
+        $query->select(array_merge($selected, $aliased))
+            ->from(DB::qn('#__organizer_instance_rooms', 'ir'))
+            ->innerJoin(DB::qn('#__organizer_rooms', 'r'), DB::qc('r.id', 'ir.roomID'))
+            ->leftJoin(DB::qn('#__organizer_buildings', 'b'), DB::qc('b.id', 'r.buildingID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c1'), DB::qc('c1.id', 'b.campusID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'))
+            ->where(DB::qn('ir.assocID') . ' = :associationID')
+            ->bind(':associationID', $person['assocID'], ParameterType::INTEGER);
+
+        self::filterResourceStatus($query, 'ir', $conditions);
+
+        DB::setQuery($query);
+        if (!$associations = DB::loadAssocList()) {
+            return;
+        }
+
+        $rooms = [];
+        foreach ($associations as $association) {
+            $campus   = '';
+            $location = empty($association['location']) ? '' : $association['location'];
+
+            if (!empty($association['campusLocation'])) {
+                $campus = $association['campusLocation'];
+            }
+            elseif (!empty($association['defaultLocation'])) {
+                $campus = $association['defaultLocation'];
+            }
+
+            $roomID = $association['roomID'];
+            $room   = [
+                'campus'     => $campus,
+                'location'   => $location,
+                'room'       => $association['name'],
+                'status'     => $association['delta'],
+                'statusDate' => $association['modified'],
+                'virtual'    => $association['virtual']
+            ];
+
+            $rooms[$roomID] = $room;
+        }
+
+        $person['rooms'] = $rooms;
+    }
+
+
+
+
+    ####################################################################################################################
+
 
     /**
      * Builds the array of parameters used for instance retrieval.
@@ -308,7 +864,7 @@ class Instances extends ResourceHelper
 
             $personID = Input::getInt('personID');
             if ($personIDs = $personID ? [$personID] : Input::getIntCollection('personIDs')) {
-                self::filterPersonIDs($personIDs, $conditions['userID']);
+                self::filterPersons($personIDs, $conditions['userID']);
                 if (!empty($personIDs)) {
                     $conditions['personIDs'] = $personIDs;
                 }
@@ -341,261 +897,41 @@ class Instances extends ResourceHelper
     }
 
     /**
-     * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
-     * instance.
-     *
-     * @param   int  $instanceID
-     *
-     * @return int
-     */
-    public static function getCurrentCapacity(int $instanceID): int
-    {
-        $query = Database::getQuery();
-        $query->select('SUM(i2.registered)')
-            ->from('#__organizer_instances AS i2')
-            ->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-            ->where("i1.id = $instanceID")
-            ->where("i1.delta != 'removed'")
-            ->where("i2.delta != 'removed'");
-        Database::setQuery($query);
-
-        return Database::loadInt();
-    }
-
-    /**
-     * Retrieves the groupIDs associated with the instance.
-     *
-     * @param   int  $instanceID  the id of the instance
-     *
-     * @return int[]
-     */
-    public static function getGroupIDs(int $instanceID): array
-    {
-        $instance = new Tables\Instances();
-        if (!$instance->load($instanceID)) {
-            return [];
-        }
-
-        $query = Database::getQuery();
-        $query->select('DISTINCT groupID')
-            ->from('#__organizer_instance_groups AS ig')
-            ->where("ig.delta != 'removed'")
-            ->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
-            ->where("ip.delta != 'removed'")
-            ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-            ->where("i.blockID = $instance->blockID")
-            ->where("i.delta != 'removed'")
-            ->where("i.unitID = $instance->unitID");
-        Database::setQuery($query);
-
-        return Database::loadIntColumn();
-    }
-
-    /**
-     * @param $conditions
-     *
-     * @return array|array[]
-     */
-    public static function getItems($conditions): array
-    {
-        $instanceIDs = self::getInstanceIDs($conditions);
-        if (empty($instanceIDs)) {
-            return self::getJumpDates($conditions);
-        }
-
-        $instances = [];
-        foreach ($instanceIDs as $instanceID) {
-            if (!$instance = self::getInstance($instanceID)) {
-                continue;
-            }
-
-            self::fill($instance, $conditions);
-            $instances[] = $instance;
-        }
-
-        return $instances;
-    }
-
-    /**
-     * Retrieves the core information for one instance.
-     *
-     * @param   int  $instanceID  the id of the instance
-     *
-     * @return array an array modeling the instance
-     */
-    public static function getInstance(int $instanceID): array
-    {
-        $tag = Application::getTag();
-
-        $instancesTable = new Tables\Instances();
-        if (!$instancesTable->load($instanceID)) {
-            return [];
-        }
-
-        $instance = [
-            'attended'           => 0,
-            'blockID'            => $instancesTable->blockID,
-            'eventID'            => $instancesTable->eventID,
-            'instanceID'         => $instanceID,
-            'instanceStatus'     => $instancesTable->delta,
-            'instanceStatusDate' => $instancesTable->modified,
-            'methodID'           => $instancesTable->methodID,
-            'registered'         => 0,
-            'unitID'             => $instancesTable->unitID
-        ];
-
-        $iComment = $instancesTable->comment;
-        $title    = $instancesTable->title;
-
-        unset($instancesTable);
-
-        $blocksTable = new Tables\Blocks();
-
-        if (!$blocksTable->load($instance['blockID'])) {
-            return [];
-        }
-
-        $endTime = empty($instance['eventID']) ? Dates::formatTime($blocksTable->endTime) : Dates::formatEndTime($blocksTable->endTime);
-        $block   = [
-            'date'      => $blocksTable->date,
-            'endTime'   => $endTime,
-            'startTime' => Dates::formatTime($blocksTable->startTime)
-        ];
-
-        unset($blocksTable);
-
-        $eventsTable = new Tables\Events();
-
-        if ($instance['eventID'] and $eventsTable->load($instance['eventID'])) {
-            $event = [
-                'campusID'         => $eventsTable->campusID,
-                'deadline'         => $eventsTable->deadline,
-                'description'      => $eventsTable->{"description_$tag"},
-                'fee'              => $eventsTable->fee,
-                'name'             => $eventsTable->{"name_$tag"},
-                'registrationType' => $eventsTable->registrationType,
-                'subjectNo'        => $eventsTable->subjectNo
-            ];
-        }
-        else {
-            $event = [
-                'campusID'         => null,
-                'deadline'         => 0,
-                'description'      => null,
-                'fee'              => 0,
-                'name'             => $title,
-                'registrationType' => null,
-                'subjectNo'        => ''
-            ];
-        }
-
-        unset($eventsTable);
-
-        $method       = ['methodCode' => '', 'methodName' => ''];
-        $methodsTable = new Tables\Methods();
-        if ($methodsTable->load($instance['methodID'])) {
-            $method = [
-                'methodCode' => $methodsTable->{"abbreviation_$tag"},
-                'method'     => $methodsTable->{"name_$tag"}
-            ];
-        }
-
-        unset($methodsTable);
-
-        $unitsTable = new Tables\Units();
-        if (!$unitsTable->load($instance['unitID'])) {
-            return [];
-        }
-
-        $orgName = $unitsTable->organizationID ? Organizations::getShortName($unitsTable->organizationID) : '';
-
-        $unit = [
-            'comment'        => $unitsTable->comment,
-            'courseID'       => $unitsTable->courseID,
-            'organization'   => $orgName,
-            'organizationID' => $unitsTable->organizationID,
-            'gridID'         => $unitsTable->gridID,
-            'termID'         => $unitsTable->termID,
-            'unitStatus'     => $unitsTable->delta,
-            'unitStatusDate' => $unitsTable->modified,
-        ];
-
-        unset($unitsTable);
-
-        $instance            = array_merge($block, $event, $instance, $method, $unit);
-        $instance['comment'] .= $iComment ? " $iComment" : '';
-
-        if ($courseID = $instance['courseID']) {
-            $courseTable = new Tables\Courses();
-            if ($courseTable->load($courseID)) {
-                $instance['campusID']         = $courseTable->campusID;
-                $instance['course']           = $courseTable->{"name_$tag"};
-                $instance['deadline']         = $courseTable->deadline;
-                $instance['fee']              = $courseTable->fee;
-                $instance['registrationType'] = $courseTable->registrationType;
-
-                if ($courseTable->{"description_$tag"}) {
-                    $instance['description'] = $courseTable->{"description_$tag"};
-                }
-            }
-        }
-
-        if ($participantID = Users::getID()) {
-            $participantsTable = new Tables\InstanceParticipants();
-            if ($participantsTable->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
-                $instance['attended']           = (int) $participantsTable->attended;
-                $instance['registrationStatus'] = 1;
-            }
-        }
-
-        ksort($instance);
-
-        return $instance;
-    }
-
-    /**
-     * Retrieves a list of instance IDs for instances which fulfill the requirements.
-     *
-     * @param   array  $conditions  the conditions filtering the instances
-     *
-     * @return int[] the ids matching the conditions
-     */
-    public static function getInstanceIDs(array $conditions): array
-    {
-        $query = self::getInstanceQuery($conditions);
-        $query->select('DISTINCT i.id')
-            ->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
-            ->order('b.date, b.startTime, b.endTime');
-        Database::setQuery($query);
-
-        return Database::loadIntColumn();
-    }
-
-    /**
      * Builds a general query to find instances matching the given conditions.
      *
      * @param   array  $conditions  the conditions for filtering the query
      * @param   int    $jump        the jump direction if applicable
      *
-     * @return JDatabaseQuery the query object
+     * @return DatabaseQuery the query object
      */
-    public static function getInstanceQuery(array $conditions, int $jump = self::NONE): JDatabaseQuery
+    public static function getInstanceQuery(array $conditions, int $jump = self::NONE): DatabaseQuery
     {
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $query    = DB::getQuery();
+        $subQuery = null;
 
-        $query->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-            ->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-            ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-            ->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
-            ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
-            ->leftJoin('#__organizer_events AS e ON e.id = i.eventID')
-            ->leftJoin('#__organizer_group_publishing AS gp ON gp.groupID = ig.groupID AND gp.termID = u.termID')
-            ->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
+        $query->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe'), DB::qc('ipe.instanceID', 'i.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ipe.id'))
+            ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'))
+            ->leftJoin(DB::qn('#__organizer_events', 'e'), DB::qc('e.id', 'i.eventID'))
+            ->leftJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.assocID', 'ipe.id'));
 
         if (empty($conditions['showUnpublished'])) {
-            $query->where('(gp.published = 1 OR gp.id IS NULL)');
+            $subQuery = DB::getQuery();
+            $subQuery->select('DISTINCT ' . DB::qn('i2.id', 'suppressed'))
+                ->from(DB::qn('#__organizer_instances', 'i2'))
+                ->innerJoin(DB::qn('#__organizer_blocks', 'b2'), DB::qc('b2.id', 'i2.blockID'))
+                ->innerJoin(DB::qn('#__organizer_units', 'u2'), DB::qc('u2.id', 'i2.unitID'))
+                ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe2'), DB::qc('ipe2.instanceID', 'i2.id'))
+                ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig2'), DB::qc('ig2.assocID', 'ipe2.id'))
+                ->innerJoin(DB::qn('#__organizer_group_publishing', 'gp'), DB::qc('gp.groupID',
+                    'ig2.groupID AND gp.termID', 'u2.termID'))
+                ->where("gp.published = 0")
+                ->where("i2.delta != 'removed'")
+                ->where("ig2.delta != 'removed'")
+                ->where("ipe2.delta != 'removed'");
         }
 
         $dDate = $conditions['delta'];
@@ -613,8 +949,8 @@ class Instances extends ResourceHelper
 
             case self::NEW:
 
-                self::addDeltaClause($query, 'i', false);
-                self::addDeltaClause($query, 'u', false);
+                self::filterStatus($query, 'i', false);
+                self::filterStatus($query, 'u', false);
                 $clause = "((i.delta = 'new' AND i.modified >= '$dDate') ";
                 $clause .= "OR (u.delta = 'new' AND i.modified >= '$dDate'))";
                 $query->where($clause);
@@ -640,11 +976,11 @@ class Instances extends ResourceHelper
             case self::NORMAL:
             default:
 
-                self::addDeltaClause($query, 'i', $dDate);
-                self::addDeltaClause($query, 'u', $dDate);
-                self::addDeltaClause($query, 'ipe', $dDate);
-                self::addDeltaClause($query, 'ig', $dDate);
-                self::addDeltaClause($query, 'ir', $dDate);
+                self::filterStatus($query, 'i', $dDate);
+                self::filterStatus($query, 'u', $dDate);
+                self::filterStatus($query, 'ipe', $dDate);
+                self::filterStatus($query, 'ig', $dDate);
+                self::filterStatus($query, 'ir', $dDate);
 
                 break;
         }
@@ -654,15 +990,19 @@ class Instances extends ResourceHelper
                 $lowDate  = date('Y-m-d', strtotime('+1 day', strtotime($conditions['endDate'])));
                 $highDate = date('Y-m-d', strtotime('+3 months', strtotime($conditions['endDate'])));
                 $query->where("b.date BETWEEN '$lowDate' AND '$highDate'");
+                $subQuery?->where("b2.date BETWEEN '$lowDate' AND '$highDate'");
+
                 break;
             case self::PAST:
                 $lowDate  = date('Y-m-d', strtotime('-3 months', strtotime($conditions['startDate'])));
                 $highDate = date('Y-m-d', strtotime('-1 day', strtotime($conditions['startDate'])));
                 $query->where("b.date BETWEEN '$lowDate' AND '$highDate'");
+                $subQuery?->where("b2.date BETWEEN '$lowDate' AND '$highDate'");
                 break;
             case self::NONE:
             default:
                 $query->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
+                $subQuery?->where("b2.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
                 break;
         }
 
@@ -676,7 +1016,7 @@ class Instances extends ResourceHelper
                 $exists = Participants::exists($userID);
                 if ($my === self::REGISTRATIONS and $exists) {
                     $filterOrganization = false;
-                    $query->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
+                    $query->innerJoin(DB::qn('#__organizer_instance_participants', 'ipa'), DB::qc('ipa.instanceID', 'i.id'))
                         ->where("ipa.participantID = $userID")
                         ->where("ipa.registered = 1");
                 }
@@ -688,7 +1028,7 @@ class Instances extends ResourceHelper
 
                     if ($exists) {
                         $filterOrganization = false;
-                        $query->leftJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id');
+                        $query->leftJoin(DB::qn('#__organizer_instance_participants', 'ipa'), DB::qc('ipa.instanceID', 'i.id'));
                         $wherray[] = "ipa.participantID = $userID";
                     }
 
@@ -715,18 +1055,20 @@ class Instances extends ResourceHelper
 
             if (!empty($conditions['subjectIDs'])) {
                 $subjectIDs = implode(',', $conditions['subjectIDs']);
-                $query->innerJoin('#__organizer_subject_events AS se ON se.eventID = e.id')
+                $query->innerJoin(DB::qn('#__organizer_subject_events', 'se'), DB::qc('se.eventID', 'e.id'))
                     ->where("se.subjectID IN ($subjectIDs)");
             }
         }
         elseif (!empty($conditions['unitIDs'])) {
             $unitIDs = implode(',', $conditions['unitIDs']);
             $query->where("i.unitID IN ($unitIDs)");
+            $subQuery?->where("i2.unitID IN ($unitIDs)");
         }
         elseif (!empty($conditions['courseIDs'])) {
             $filterOrganization = false;
             $courseIDs          = implode(',', $conditions['courseIDs']);
             $query->where("u.courseID IN ($courseIDs)");
+            $subQuery?->where("u2.courseID IN ($courseIDs)");
         }
         elseif (!empty($conditions['groupIDs'])) {
             $filterOrganization = false;
@@ -756,70 +1098,15 @@ class Instances extends ResourceHelper
 
         if ($filterOrganization and !empty($conditions['organizationIDs'])) {
             $organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
-            $query->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
+            $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.groupID', 'ig.groupID'))
                 ->where("a.organizationID IN ($organizationIDs)");
         }
 
+        if ($subQuery) {
+            $query->where("i.id NOT IN ($subQuery)");
+        }
+
         return $query;
-    }
-
-    /**
-     * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
-     * instance.
-     *
-     * @param   int  $instanceID
-     *
-     * @return int
-     */
-    public static function getInterested(int $instanceID): int
-    {
-        $query = Database::getQuery();
-        $query->select('COUNT(DISTINCT ipa.participantID)')
-            ->from('#__organizer_instance_participants AS ipa')
-            ->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
-            ->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-            ->where("i1.id = $instanceID")
-            ->where("i1.delta != 'removed'")
-            ->where("i2.delta != 'removed'");
-        Database::setQuery($query);
-
-        return Database::loadInt();
-    }
-
-    /**
-     * Gets the localized name of the method associated with the instance.
-     *
-     * @param   int  $instanceID  the id of the instance
-     *
-     * @return string
-     */
-    public static function getMethod(int $instanceID): string
-    {
-        $instance = new Tables\Instances();
-
-        if (!$instance->load($instanceID) or !$methodID = $instance->methodID) {
-            return '';
-        }
-
-        return Methods::getName($methodID);
-    }
-
-    /**
-     * Gets the code of the method associated with the instance.
-     *
-     * @param   int  $instanceID  the id of the instance
-     *
-     * @return string
-     */
-    public static function getMethodCode(int $instanceID): string
-    {
-        $instance = new Tables\Instances();
-
-        if (!$instance->load($instanceID) or !$methodID = $instance->methodID) {
-            return '';
-        }
-
-        return Methods::getCode($methodID);
     }
 
     /**
@@ -864,8 +1151,8 @@ class Instances extends ResourceHelper
     {
         $organizationIDs = [];
 
-        foreach (self::getGroupIDs($instanceID) as $groupID) {
-            $organizationIDs = array_merge($organizationIDs, Groups::getOrganizationIDs($groupID));
+        foreach (self::groupIDs($instanceID) as $groupID) {
+            $organizationIDs = array_merge($organizationIDs, Groups::organizationIDs($groupID));
         }
 
         return $organizationIDs;
@@ -881,9 +1168,9 @@ class Instances extends ResourceHelper
      */
     public static function getPersonIDs(int $instanceID, int $roleID = 0): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('personID')
-            ->from('#__organizer_instance_persons')
+            ->from(DB::qn('#__organizer_instance_persons'))
             ->where("instanceID = $instanceID")
             ->where("delta != 'removed'");
 
@@ -891,9 +1178,9 @@ class Instances extends ResourceHelper
             $query->where("roleID = $roleID");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
@@ -905,16 +1192,16 @@ class Instances extends ResourceHelper
      */
     public static function getRegistered(int $instanceID): int
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('i.registered')
-            ->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+            ->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where("i.id = $instanceID")
             ->where("i.delta != 'removed'")
             ->where("u.delta != 'removed'");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadInt();
+        return DB::loadInt();
     }
 
     /**
@@ -927,10 +1214,10 @@ class Instances extends ResourceHelper
      */
     public static function getRoleID(int $instanceID, int $personID): int
     {
-        $table = new Tables\InstancePersons();
+        $responsibility = new Responsibility();
 
-        if ($table->load(['instanceID' => $instanceID, 'personID' => $personID])) {
-            return $table->roleID;
+        if ($responsibility->load(['instanceID' => $instanceID, 'personID' => $personID])) {
+            return $responsibility->roleID;
         }
 
         return 0;
@@ -945,27 +1232,27 @@ class Instances extends ResourceHelper
      */
     public static function getRoomIDs(int $instanceID): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT roomID')
-            ->from('#__organizer_instance_rooms AS ir')
-            ->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
+            ->from(DB::qn('#__organizer_instance_rooms', 'ir'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.id', 'ir.assocID'))
             ->where("ip.instanceID = $instanceID")
             ->where("ir.delta != 'removed'")
             ->where("ip.delta != 'removed'");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
-     * Filters the person ids to view access
+     * Filters the persons to those authorized to the user.
      *
-     * @param   array &$personIDs  the person ids.
+     * @param   array &$personIDs  the requested person ids
      * @param   int    $userID     the id of the user whose authorizations will be checked
      *
-     * @return void removes unauthorized entries from the array
+     * @return void
      */
-    public static function filterPersonIDs(array &$personIDs, int $userID)
+    public static function filterPersons(array &$personIDs, int $userID): void
     {
         if (Can::administrate() or Can::manage('persons')) {
             return;
@@ -982,7 +1269,7 @@ class Instances extends ResourceHelper
                 continue;
             }
 
-            $associations = Persons::getOrganizationIDs($personID);
+            $associations = Persons::organizationIDs($personID);
             $overlap      = array_intersect($authorized, $associations);
 
             if (empty($overlap)) {
@@ -1004,17 +1291,17 @@ class Instances extends ResourceHelper
 
         $pastQuery = self::getInstanceQuery($conditions, self::PAST);
         $pastQuery->select('MAX(DATE)')->where("date < '" . $conditions['startDate'] . "'");
-        Database::setQuery($pastQuery);
+        DB::setQuery($pastQuery);
 
-        if ($pastDate = Database::loadString()) {
+        if ($pastDate = DB::loadString()) {
             $dates['pastDate'] = $pastDate;
         }
 
         $futureQuery = self::getInstanceQuery($conditions, self::FUTURE);
         $futureQuery->select('MIN(DATE)')->where("date > '" . $conditions['endDate'] . "'");
-        Database::setQuery($futureQuery);
+        DB::setQuery($futureQuery);
 
-        if ($futureDate = Database::loadString()) {
+        if ($futureDate = DB::loadString()) {
             $dates['futureDate'] = $futureDate;
         }
 
@@ -1030,18 +1317,18 @@ class Instances extends ResourceHelper
      */
     public static function getPresence(int $instanceID): int
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT r.virtual')
-            ->from('#__organizer_rooms AS r')
-            ->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-            ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
-            ->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
+            ->from(DB::qn('#__organizer_rooms', 'r'))
+            ->innerJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.roomID', 'r.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe'), DB::qc('ipe.id', 'ir.assocID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ipe.instanceID'))
             ->where("i.id = $instanceID")
             ->where("ir.delta != 'removed'")
             ->where("ipe.delta != 'removed'");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        $results = Database::loadIntColumn();
+        $results = DB::loadIntColumn();
 
         $online   = in_array(1, $results);
         $presence = in_array(0, $results);
@@ -1072,8 +1359,10 @@ class Instances extends ResourceHelper
             return false;
         }
 
-        $query = Database::getQuery();
-        $query->select('COUNT(*)')->from('#__organizer_instance_persons')->where("personID = $personID");
+        $query = DB::getQuery();
+        $query->select('COUNT(*)')
+            ->from(DB::qn('#__organizer_instance_persons'))
+            ->where("personID = $personID");
 
         if ($instanceID) {
             $query->where("instanceID = $instanceID");
@@ -1083,9 +1372,9 @@ class Instances extends ResourceHelper
             $query->where("roleID = $roleID");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadBool();
+        return DB::loadBool();
     }
 
     /**
@@ -1097,52 +1386,11 @@ class Instances extends ResourceHelper
      */
     public static function isFull(int $instanceID): bool
     {
-        if (!$capacity = self::getCapacity($instanceID)) {
+        if (!$capacity = self::capacity($instanceID)) {
             return false;
         }
 
-        return self::getCurrentCapacity($instanceID) >= $capacity;
-    }
-
-    /**
-     * Sets the instance's bookingID
-     *
-     * @param   array  &$instance  the instance to modify
-     *
-     * @return void
-     */
-    public static function setBooking(array &$instance)
-    {
-        $booking               = new Tables\Bookings();
-        $exists                = $booking->load(['blockID' => $instance['blockID'], 'unitID' => $instance['unitID']]);
-        $instance['bookingID'] = $exists ? $booking->id : null;
-    }
-
-    /**
-     * Sets/overwrites attributes based on subject associations.
-     *
-     * @param   array &$instance  the array of instance attributes
-     *
-     * @return void modifies the instance
-     */
-    private static function setCourse(array &$instance)
-    {
-        $coursesTable = new Tables\Courses();
-        if (empty($instance['courseID']) or !$coursesTable->load($instance['courseID'])) {
-            return;
-        }
-
-        $tag                      = Application::getTag();
-        $instance['campusID']     = $coursesTable->campusID ?: $instance['campusID'];
-        $instance['courseGroups'] = $coursesTable->groups ?: '';
-        $instance['courseName']   = $coursesTable->{"name_$tag"} ?: '';
-        $instance['deadline']     = $coursesTable->deadline ?: $instance['deadline'];
-        $instance['fee']          = $coursesTable->fee ?: $instance['fee'];
-        $instance['full']         = Courses::isFull($instance['courseID']);
-
-        $instance['description']      = (empty($instance['description']) and $coursesTable->{"description_$tag"}) ?
-            $coursesTable->{"description_$tag"} : $instance['description'];
-        $instance['registrationType'] = $coursesTable->registrationType ?: $instance['registrationType'];
+        return self::currentCapacity($instanceID) >= $capacity;
     }
 
     /**
@@ -1188,162 +1436,6 @@ class Instances extends ResourceHelper
     }
 
     /**
-     * Gets the groups associated with the instance => person association.
-     *
-     * @param   array &$person      the array of person attributes
-     * @param   array  $conditions  the conditions which instances must fulfill
-     *
-     * @return void modifies $person
-     */
-    private static function setGroups(array &$person, array $conditions)
-    {
-        $tag   = Application::getTag();
-        $query = Database::getQuery();
-
-        $query->select('ig.groupID, ig.delta, ig.modified')
-            ->select("g.code AS code, g.name_$tag AS name, g.fullName_$tag AS fullName, g.gridID")
-            ->from('#__organizer_instance_groups AS ig')
-            ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
-            ->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
-            ->where("ig.assocID = {$person['assocID']}");
-
-        if (array_key_exists('categoryIDs', $conditions)) {
-            $query->where('g.categoryID IN (' . implode($conditions['categoryIDs']) . ')');
-        }
-
-        self::addResourceDelta($query, 'ig', $conditions);
-
-        // Don't limit the group organization in non-standard contexts
-        if (!empty($conditions['organizationIDs'])
-            and (empty($conditions['instances']) or $conditions['instances'] === 'organization')) {
-            $organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
-            $query->where("a.organizationID IN ($organizationIDs)");
-        }
-
-        Database::setQuery($query);
-        if (!$groupAssocs = Database::loadAssocList()) {
-            return;
-        }
-
-        $groups = [];
-        foreach ($groupAssocs as $groupAssoc) {
-            $groupID = $groupAssoc['groupID'];
-            $group   = [
-                'code'       => $groupAssoc['code'],
-                'fullName'   => $groupAssoc['fullName'],
-                'group'      => $groupAssoc['name'],
-                'status'     => $groupAssoc['delta'],
-                'statusDate' => $groupAssoc['modified']
-            ];
-
-            $groups[$groupID] = $group;
-        }
-
-        $person['groups'] = $groups;
-    }
-
-    /**
-     * Sets the instance's participation properties:
-     * - 'bookmarked'  - the user has added the instance to their schedule
-     * - 'busy'       - the user's schedule has an appointment in a block overlapping the instance
-     * - 'capacity'   - the number of users who may physically attend the instance
-     * - 'interested' - the number of users who have added this instance to their schedule
-     * - 'registered' - the user has registered to physically participate in the instance
-     *
-     * @param   array  $instance  the array containing instance information
-     *
-     * @return void
-     */
-    public static function setParticipation(array &$instance)
-    {
-        $instance['capacity']   = self::getCapacity($instance['instanceID']);
-        $instance['current']    = self::getCurrentCapacity($instance['instanceID']);
-        $instance['interested'] = self::getInterested($instance['instanceID']);
-
-        if (!$userID = Users::getID()) {
-            $instance['bookmarked'] = false;
-            $instance['busy']       = false;
-            $instance['registered'] = false;
-
-            return;
-        }
-
-        $participation = new Tables\InstanceParticipants();
-        if ($participation->load(['instanceID' => $instance['instanceID'], 'participantID' => $userID])) {
-            $instance['bookmarked'] = true;
-            $instance['busy']       = true;
-            $instance['registered'] = $participation->registered;
-
-            return;
-        }
-
-        // The times in the instance have been pretreated, so that the endTime is no longer valid for comparisons.
-        $block = new Tables\Blocks();
-        if (!$block->load($instance['blockID'])) {
-            $instance['busy'] = false;
-
-            return;
-        }
-
-        $instance['bookmarked'] = false;
-        $instance['registered'] = false;
-        $instance['busy']       = InstanceParticipants::isBusy($block->date, $block->startTime, $block->endTime);
-    }
-
-    /**
-     * Gets the persons and person associated resources associated with the instance.
-     *
-     * @param   array &$instance    the array of instance attributes
-     * @param   array  $conditions  the conditions which instances must fulfill
-     *
-     * @return void modifies the instance array
-     */
-    public static function setPersons(array &$instance, array $conditions)
-    {
-        $conditions['instanceStatus'] = $instance['instanceStatus'] ?? 'new';
-
-        $tag   = Application::getTag();
-        $query = Database::getQuery();
-        $query->select('ip.id AS assocID, ip.personID, ip.roleID, ip.delta AS status, ip.modified')
-            ->select("r.abbreviation_$tag AS roleCode, r.name_$tag AS role")
-            ->from('#__organizer_instance_persons AS ip')
-            ->innerJoin('#__organizer_roles AS r ON r.id = ip.roleID')
-            ->where("ip.instanceID = {$instance['instanceID']}");
-
-        if (!empty($conditions['roleID'])) {
-            $query->where("ip.roleID = {$conditions['roleID']}");
-        }
-
-        self::addResourceDelta($query, 'ip', $conditions);
-
-        Database::setQuery($query);
-        if (!$personAssocs = Database::loadAssocList()) {
-            return;
-        }
-
-        $persons = [];
-        foreach ($personAssocs as $personAssoc) {
-            $assocID  = $personAssoc['assocID'];
-            $personID = $personAssoc['personID'];
-            $person   = [
-                'assocID'    => $assocID,
-                'code'       => $personAssoc['roleCode'],
-                'person'     => Persons::getLNFName($personID, true),
-                'role'       => $personAssoc['role'],
-                'roleID'     => $personAssoc['roleID'],
-                'status'     => $personAssoc['status'],
-                'statusDate' => $personAssoc['modified']
-            ];
-
-            self::setGroups($person, $conditions);
-            self::setRooms($person, $conditions);
-            $persons[$personID] = $person;
-        }
-
-        $instance['resources'] = $persons;
-    }
-
-    /**
      * Set the display of unpublished instances according to the user's access rights
      *
      * @param   array &$conditions  the conditions for instance retrieval
@@ -1366,92 +1458,56 @@ class Instances extends ResourceHelper
     }
 
     /**
-     * Gets the rooms associated with the instance => person association.
+     * Adds subject documentation information to the instance.
      *
-     * @param   array &$person      the array of person attributes
-     * @param   array  $conditions  the conditions which instances must fulfill
+     * @param   array  &$instance  the instance data
+     * @param   array   $subject   the subject data
      *
-     * @return void modifies $person
+     * @return void modifies the instance array
      */
-    private static function setRooms(array &$person, array $conditions)
+    private static function subject(array &$instance, array $subject): void
     {
-        $query = Database::getQuery();
-        $query->select('ir.roomID, ir.delta, ir.modified, r.name, r.virtual')
-            ->select('b.location AS location, c1.location AS campusLocation, c2.location AS defaultLocation')
-            ->from('#__organizer_instance_rooms AS ir')
-            ->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
-            ->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-            ->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
-            ->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
-            ->where("ir.assocID = {$person['assocID']}");
+        $instance['subjectID'] = $subject['id'];
+        $instance['code']      = empty($subject['code']) ? '' : $subject['code'];
+        $instance['fullName']  = empty($subject['fullName']) ? '' : $subject['fullName'];
 
-        self::addResourceDelta($query, 'ir', $conditions);
-
-        Database::setQuery($query);
-        if (!$roomAssocs = Database::loadAssocList()) {
-            return;
+        if (empty($instance['description']) and !empty($subject['description'])) {
+            $instance['description'] = $subject['description'];
         }
-
-        $rooms = [];
-        foreach ($roomAssocs as $room) {
-            $campus   = '';
-            $location = empty($room['location']) ? '' : $room['location'];
-
-            if (!empty($room['campusLocation'])) {
-                $campus = $room['campusLocation'];
-            }
-            elseif (!empty($room['defaultLocation'])) {
-                $campus = $room['defaultLocation'];
-            }
-
-            $roomID = $room['roomID'];
-            $room   = [
-                'campus'     => $campus,
-                'location'   => $location,
-                'room'       => $room['name'],
-                'status'     => $room['delta'],
-                'statusDate' => $room['modified'],
-                'virtual'    => $room['virtual']
-            ];
-
-            $rooms[$roomID] = $room;
-        }
-
-        $person['rooms'] = $rooms;
     }
 
     /**
-     * Sets/overwrites attributes based on subject associations.
+     * Sets/overwrites instance attributes based on subject associations.
      *
      * @param   array &$instance    the instance
      * @param   array  $conditions  the conditions used to specify the instances
      *
      * @return void modifies the instance
      */
-    public static function setSubject(array &$instance, array $conditions)
+    public static function subjects(array &$instance, array $conditions): void
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName")
             ->select("s.description_$tag AS description")
-            ->from('#__organizer_subjects AS s')
-            ->innerJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
-            ->innerJoin('#__organizer_associations AS a ON a.subjectID = s.id')
+            ->from(DB::qn('#__organizer_subjects', 's'))
+            ->innerJoin(DB::qn('#__organizer_subject_events', 'se'), DB::qc('se.subjectID', 's.id'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.subjectID', 's.id'))
             ->where("se.eventID = {$instance['eventID']}");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
         $default = ['id' => null, 'code' => '', 'fullName' => ''];
 
         // No subject <-> event associations
-        if (!$subjects = Database::loadAssocList()) {
-            self::addSubjectData($instance, $default);
+        if (!$subjects = DB::loadAssocList()) {
+            self::subject($instance, $default);
 
             return;
         }
 
         // One subject <-> event association
         if (count($subjects) === 1) {
-            self::addSubjectData($instance, $subjects[0]);
+            self::subject($instance, $subjects[0]);
 
             return;
         }
@@ -1473,29 +1529,31 @@ class Instances extends ResourceHelper
         }
         elseif (!empty($conditions['groupIDs'])) {
             foreach ($conditions['groupIDs'] as $groupID) {
-                $categoryID               = Groups::getCategoryID($groupID);
+                $categoryID               = Groups::categoryID($groupID);
                 $categoryIDs[$categoryID] = $categoryID;
             }
         }
 
         // Find the programs associated with the event categories
         if ($categoryIDs) {
-            $pQuery = Database::getQuery();
-            $pQuery->selectX(['DISTINCT id'], 'programs', 'categoryID', $categoryIDs)
-                ->order(['accredited']);
-            Database::setQuery($pQuery);
+            $pQuery = DB::getQuery();
+            $pQuery->select('DISTINCT id')
+                ->from('#__organizer_programs')
+                ->whereIn('categoryID', $categoryIDs)
+                ->order('accredited');
+            DB::setQuery($pQuery);
 
-            foreach (Database::loadColumn() as $programID) {
+            foreach (DB::loadColumn() as $programID) {
                 if (isset($programMap[$programID])) {
                     // First match is the best match because of the accredited sort
-                    self::addSubjectData($instance, $subjects[$programMap[$programID]]);
+                    self::subject($instance, $subjects[$programMap[$programID]]);
 
                     return;
                 }
             }
         }
 
-        self::addSubjectData($instance, $default);
+        self::subject($instance, $default);
     }
 
     /**
@@ -1520,11 +1578,11 @@ class Instances extends ResourceHelper
      */
     public static function updateNumbers(int $instanceID)
     {
-        $query = Database::getQuery();
-        $query->select('*')->from('#__organizer_instance_participants')->where("instanceID = $instanceID");
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");
+        DB::setQuery($query);
 
-        if (!$results = Database::loadAssocList()) {
+        if (!$results = DB::loadAssocList()) {
             return;
         }
 

@@ -21,7 +21,7 @@ class Pools extends Curricula implements Selectable
 {
     use Filtered;
 
-    protected static $resource = 'pool';
+    protected static string $resource = 'pool';
 
     /**
      * Creates a text for the required pool credit points
@@ -172,7 +172,7 @@ class Pools extends Curricula implements Selectable
         }
 
         $fieldID         = $table->fieldID ?: 0;
-        $organizationIDs = self::getOrganizationIDs($table->id);
+        $organizationIDs = self::organizationIDs($table->id);
         $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
         $tag             = Application::getTag();
 

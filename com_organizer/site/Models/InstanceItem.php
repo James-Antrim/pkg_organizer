@@ -36,7 +36,7 @@ class InstanceItem extends ListModel
         parent::__construct($config);
 
         $instanceID = Input::getID();
-        $instance   = Helpers\Instances::getInstance($instanceID);
+        $instance   = Helpers\Instances::instance($instanceID);
 
         $endDate    = Helpers\Terms::getEndDate($instance['termID']);
         $tStartDate = Helpers\Terms::getStartDate($instance['termID']);
@@ -65,7 +65,7 @@ class InstanceItem extends ListModel
         $items = parent::getItems();
 
         foreach ($items as $key => $instance) {
-            $instance = Helpers\Instances::getInstance($instance->id);
+            $instance = Helpers\Instances::instance($instance->id);
             Helpers\Instances::fill($instance, $this->conditions);
             $items[$key] = (object) $instance;
         }
