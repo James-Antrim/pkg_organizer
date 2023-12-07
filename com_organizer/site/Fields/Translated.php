@@ -36,9 +36,8 @@ trait Translated
         if ($label and $this->isKey($label)) {
             $label = str_starts_with($label, 'ORGANIZER_') ? $label : "ORGANIZER_$label";
 
-            $tip = $this->element['description'] ?? $label;
+            $tip = $this->element['description'] ?? "{$label}_DESC";
             $tip = str_starts_with($tip, 'ORGANIZER_') ? $tip : "ORGANIZER_$tip";
-            $tip = str_ends_with($tip, '_DESC') ? $tip : "{$tip}_DESC";
 
             $this->element['label'] = Text::_($label);
             $this->description      = Text::_($tip);

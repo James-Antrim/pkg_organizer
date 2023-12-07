@@ -10,7 +10,8 @@
         <field name="zipCode" type="text" required="true" class="input-15 required validate-alphanumeric"
                label="ORGANIZER_ZIP_CODE"/>
         <field name="city" type="text" required="true" class="input-15 required validate-name" label="ORGANIZER_RESIDENCE"/>
-        <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" class="input-15" required="true">
+        <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" class="input-15"
+               description="ORGANIZER_ENROLLED_PROGRAM" required="true">
             <option value="">ORGANIZER_SELECT_PROGRAM</option>
         </field>
     </fieldset>
