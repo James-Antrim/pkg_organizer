@@ -10,12 +10,12 @@
 
 namespace THM\Organizer\Controllers;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Helpers\Can;
 use THM\Organizer\Models;
+use THM\Organizer\Tables\{Instances as Instance, InstanceParticipants as Participation};
 
 /**
  * Class provides methods for participant interation with instances.
@@ -24,27 +24,18 @@ class InstanceParticipants extends Controller
 {
     private const BLOCK = 2, SELECTED = 0, THIS = 1;
 
-    protected $listView = 'instance_participants';
+    protected string $listView = 'instance_participants';
 
-    protected $resource = 'instance_participant';
-
-    /**
-     * Class constructor
-     *
-     * @param   array  $config  An optional associative [] of configuration settings.
-     */
-    public function __construct($config = [])
-    {
-        parent::__construct($config);
-
-        $this->registerTask('add', 'add');
-    }
+    protected string $resource = 'instance_participant';
 
     /**
      * Triggers the model to add instances to the participant's personal schedule.
+     *
+     * @param   int  $method
+     *
      * @return void
      */
-    public function bookmark(int $method = self::SELECTED)
+    public function bookmark(int $method = self::SELECTED): void
     {
         $model = new Models\InstanceParticipant();
         $model->bookmark($method);
@@ -56,7 +47,7 @@ class InstanceParticipants extends Controller
      * Triggers the model to add instances of a unique block (dow/times) and event to a participant's personal schedule.
      * @return void
      */
-    public function bookmarkBlock()
+    public function bookmarkBlock(): void
     {
         $this->bookmark(self::BLOCK);
     }
@@ -65,16 +56,19 @@ class InstanceParticipants extends Controller
      * Triggers the model to add the current instance to a participant's personal schedule.
      * @return void
      */
-    public function bookmarkThis()
+    public function bookmarkThis(): void
     {
         $this->bookmark(self::THIS);
     }
 
     /**
      * Triggers the model to deregister the participant from instances.
+     *
+     * @param   int  $method
+     *
      * @return void
      */
-    public function deregister(int $method = self::SELECTED)
+    public function deregister(int $method = self::SELECTED): void
     {
         $model = new Models\InstanceParticipant();
         $model->deregister($method);
@@ -86,16 +80,19 @@ class InstanceParticipants extends Controller
      * Triggers the model to deregister the participant from the current instance.
      * @return void
      */
-    public function deregisterThis()
+    public function deregisterThis(): void
     {
         $this->deregister(self::THIS);
     }
 
     /**
      * Triggers the model to register the participant to instances.
+     *
+     * @param   int  $method
+     *
      * @return void
      */
-    public function register(int $method = self::SELECTED)
+    public function register(int $method = self::SELECTED): void
     {
         $model = new Models\InstanceParticipant();
         $model->register($method);
@@ -107,16 +104,19 @@ class InstanceParticipants extends Controller
      * Triggers the model to register the participant to the current instance.
      * @return void
      */
-    public function registerThis()
+    public function registerThis(): void
     {
         $this->register(self::THIS);
     }
 
     /**
      * Triggers the model to remove instances from the participant's personal schedule.
+     *
+     * @param   int  $method
+     *
      * @return void
      */
-    public function removeBookmark(int $method = self::SELECTED)
+    public function removeBookmark(int $method = self::SELECTED): void
     {
         $model = new Models\InstanceParticipant();
         $model->removeBookmark($method);
@@ -129,7 +129,7 @@ class InstanceParticipants extends Controller
      * personal schedule.
      * @return void
      */
-    public function removeBookmarkBlock()
+    public function removeBookmarkBlock(): void
     {
         $this->removeBookmark(self::BLOCK);
     }
@@ -138,7 +138,7 @@ class InstanceParticipants extends Controller
      * Triggers the model to remove the current instance from the participant's personal schedule.
      * @return void
      */
-    public function removeBookmarkThis()
+    public function removeBookmarkThis(): void
     {
         $this->removeBookmark(self::THIS);
     }
@@ -147,18 +147,80 @@ class InstanceParticipants extends Controller
      * Save form data to the database.
      * @return void
      */
-    public function save()
+    public function save(): void
     {
         $model = new Models\InstanceParticipant();
 
         if ($model->save()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-            Factory::getSession()->set('organizer.participation.referrer', '');
+            Application::getSession()->set('organizer.participation.referrer', '');
             $referrer = Input::getString('referrer');
             $this->setRedirect(Route::_($referrer, false));
         }
         else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
+        }
+    }
+
+    /**
+     * Truncates the participation to the threshold set in the component parameters.
+     *
+     * @return void
+     * @see \PlgSystemOrganizer::onUserAfterLogin()
+     */
+    public static function truncate(): void
+    {
+        if (!Can::administrate() or !$threshold = (int) Input::getParams()->get('truncateHistory')) {
+            return;
+        }
+
+        $then = date('Y-m-d', strtotime("-$threshold days"));
+
+        $query = DB::getQuery();
+        $query->select(DB::qn('ip') . '.*')
+            ->from(DB::qn('#__organizer_instance_participants', 'ip'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
+            ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
+            ->where(DB::qn('b.date') . ' <= :then')->bind(':then', $then);
+        DB::setQuery($query);
+
+        $instances = [];
+
+        foreach (DB::loadObjectList() as $entry) {
+            $instanceID = $entry->instanceID;
+
+            if (empty($instances[$instanceID])) {
+                $instances[$instanceID] = [
+                    'attended'   => (int) $entry->attended,
+                    'bookmarked' => 1,
+                    'registered' => (int) $entry->registered
+                ];
+            }
+            else {
+                $instances[$instanceID]['attended']   += (int) $entry->attended;
+                $instances[$instanceID]['bookmarked'] += 1;
+                $instances[$instanceID]['registered'] += (int) $entry->registered;
+            }
+
+            $participation = new Participation();
+
+            if ($participation->load($entry->id)) {
+                $participation->delete();
+            }
+        }
+
+        foreach ($instances as $instanceID => $participation) {
+            $instance = new Instance();
+
+            if (!$instance->load($instanceID)) {
+                continue;
+            }
+
+            $instance->attended   = $participation['attended'];
+            $instance->bookmarked = $participation['bookmarked'];
+            $instance->registered = $participation['registered'];
+
+            $instance->store();
         }
     }
 }

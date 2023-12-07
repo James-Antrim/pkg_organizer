@@ -10,13 +10,13 @@
 
 require_once JPATH_ADMINISTRATOR . '/components/com_organizer/services/autoloader.php';
 
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\Form\FormHelper;
+use Joomla\CMS\Form\{Form, FormHelper};
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
-use THM\Organizer\Models\Participant;
+use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Controllers\InstanceParticipants as Controller;
+use THM\Organizer\Helpers\Users;
 
 defined('_JEXEC') or die;
 
@@ -34,7 +34,7 @@ class PlgSystemOrganizer extends JPlugin
      */
     private function getAssocQuery(): array
     {
-        $referrer = Adapters\Input::getInput()->server->get('HTTP_REFERER', '', 'raw');
+        $referrer = Input::getInput()->server->get('HTTP_REFERER', '', 'raw');
         $query    = parse_url($referrer, PHP_URL_QUERY);
         parse_str($referrer, $query);
 
@@ -48,9 +48,9 @@ class PlgSystemOrganizer extends JPlugin
      */
     private function getCredentials(): array
     {
-        $form = Adapters\Input::getFormItems();
+        $form = Input::getFormItems();
 
-        return ['username' => $form->get('username'), 'password' => $form->get('password1')];
+        return ['username' => $form['username'], 'password' => $form['password1']];
     }
 
     /**
@@ -61,36 +61,32 @@ class PlgSystemOrganizer extends JPlugin
      *
      * @return  bool
      */
-    public function onContentPrepareForm(Form $form, $data): bool
+    public function onContentPrepareForm(Form $form, mixed $data): bool
     {
-        // Check we are manipulating a valid form.
-        $name = $form->getName();
+        switch ($form->getName()) {
+            // Menu item => Load form path
+            case 'com_menus.item' :
 
-        // Menu item => Load form path?
-        if ($name === 'com_menus.item') {
-            // Invalid
-            if (!is_object($data) or empty($data->request) or empty($data->request['option']) or empty($data->request['view'])) {
-                return false;
-            }
+                // Invalid
+                if (!is_object($data) or empty($data->request) or empty($data->request['option']) or empty($data->request['view'])) {
+                    return false;
+                }
 
-            if ($data->request['option'] !== 'com_organizer') {
-                return true;
-            }
+                if ($data->request['option'] === 'com_organizer') {
+                    FormHelper::addFormPath(JPATH_ROOT . '/components/com_organizer/Forms/MenuItems');
+                    $form->loadFile($data->request['view']);
+                }
 
-            FormHelper::addFormPath(JPATH_ROOT . '/components/com_organizer/Layouts/HTML');
-            $form->loadFile($data->request['view']);
+                break;
+            // Configuration => Load field path
+            case 'com_config.component':
+
+                if (Input::getView() === 'component' and Input::getString('component') === 'com_organizer') {
+                    Form::addFieldPath(JPATH_SITE . '/components/com_organizer/Fields');
+                }
+
+                break;
         }
-        elseif ($name === 'com_config.component') {
-            $view      = Adapters\Input::getView();
-            $component = Adapters\Input::getString('component');
-
-            if ($view !== 'component' or $component !== 'com_organizer') {
-                return true;
-            }
-
-            Form::addFieldPath(JPATH_SITE . '/components/com_organizer/Fields');
-        }
-
 
         return true;
     }
@@ -102,11 +98,10 @@ class PlgSystemOrganizer extends JPlugin
      */
     public function onUserAfterLogin(): bool
     {
-        $user = Factory::getUser();
+        $user = Users::getUser();
 
         if ($user->authorise('core.admin')) {
-            $model = new Participant();
-            $model->truncateParticipation();
+            Controller::truncate();
         }
 
         return true;
@@ -117,17 +112,18 @@ class PlgSystemOrganizer extends JPlugin
      *
      * @return void
      */
-    public function onUserAfterSave()
+    public function onUserAfterSave(): void
     {
         // Not a save from a registration or the function has already been called.
-        if (!$task = Adapters\Input::getTask() or $task !== 'register' or self::$called) {
+        if (!$task = Input::getTask() or $task !== 'register' or self::$called) {
             return;
         }
 
         $query  = $this->getAssocQuery();
         $return = array_key_exists('return', $query) ? base64_decode($query['return']) : '';
 
-        $app = Adapters\Application::getApplication();
+        /** @var CMSApplication $app */
+        $app = Application::getApplication();
 
         if ($app->login($this->getCredentials()) and $return) {
             $app->redirect($return);
@@ -146,29 +142,32 @@ class PlgSystemOrganizer extends JPlugin
      */
     public function onUserBeforeSave(array $existing, bool $newFlag, array $user): bool
     {
-        if (!$task = Adapters\Input::getTask() or $task !== 'register' or self::$called) {
+        // Irrelevant or already called
+        if (!$task = Input::getTask() or $task !== 'register' or self::$called) {
             return true;
         }
 
-        if (!$filter = ComponentHelper::getParams('com_organizer')->get('emailFilter')) {
+        /**
+         * No filter configured or the configured filter does not apply => everything else is irrelevant.
+         * Component helper is used because outide the component context component parameters are not loaded automatically.
+         */
+        if (!$filter = ComponentHelper::getParams('com_organizer')->get('emailFilter')
+            or !str_contains($user['email'], $filter)) {
             return true;
         }
 
-        if (strpos($user['email'], $filter) === false) {
-            return true;
-        }
-
+        // Prevent infinite loops by noting that the function has already been called
         self::$called = true;
 
         $query  = $this->getAssocQuery();
         $return = array_key_exists('return', $query) ? base64_decode($query['return']) : Uri::base();
 
         // An attempt was made to register using official credentials.
-        $app = Adapters\Application::getApplication();
+        /** @var CMSApplication $app */
+        $app = Application::getApplication();
 
         if ($app->login($this->getCredentials())) {
-            $message = sprintf(Adapters\Text::_('ORGANIZER_REGISTER_INTERNAL_SUCCESS'), $filter);
-            Adapters\Application::message($message, 'success');
+            Application::message(sprintf(Text::_('REGISTER_INTERNAL_SUCCESS'), $filter), 'success');
             $app->redirect($return);
 
             return true;
@@ -176,8 +175,8 @@ class PlgSystemOrganizer extends JPlugin
 
         // Clear the standard error messages from the login routine.
         $app->getMessageQueue(true);
-        $message = sprintf(Adapters\Text::_('ORGANIZER_REGISTER_INTERNAL_FAIL'), $filter);
-        Adapters\Application::message($message, 'warning');
+
+        Application::message(sprintf(Text::_('REGISTER_INTERNAL_FAIL'), $filter), 'warning');
         $app->redirect($return);
 
         return false;
