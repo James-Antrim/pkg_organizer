@@ -13,11 +13,9 @@ namespace THM\Organizer\Controllers;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Database\ParameterType;
 use Joomla\Input\Input as JInput;
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Database, Input};
 use THM\Organizer\Tables\{Associations, InstanceGroups, InstanceRooms, Schedules};
-use THM\Organizer\Helpers\Can;
 
 /**
  * @inheritDoc
@@ -56,6 +54,27 @@ abstract class MergeController extends FormController
     }
 
     /**
+     * Gets the resource ids associated with persons in association tables.
+     *
+     * @param   string  $table     the unique portion of the table name
+     * @param   string  $fkColumn  the name of the fk column referencing the other resource
+     *
+     * @return int[] the ids of the resources associated
+     */
+    protected function getReferences(string $table, string $fkColumn): array
+    {
+        $refColumn = $this->mergeContext . 'ID';
+
+        [$table, $refColumn, $fkColumn] = DB::qn(["#__organizer_$table", $refColumn, $fkColumn]);
+
+        $query = Database::getQuery();
+        $query->select("DISTINCT $fkColumn")->from($table)->whereIn($refColumn, $this->mergeIDs)->order($fkColumn);
+        Database::setQuery($query);
+
+        return Database::loadIntColumn();
+    }
+
+    /**
      * @inheritDoc
      */
     protected function prepareData(): array
@@ -73,51 +92,47 @@ abstract class MergeController extends FormController
     {
         $this->checkToken();
         $this->authorize();
+
+        if (!$this->validate()) {
+            // Any messaging should be performed in the overriding function.
+            return 0;
+        }
+
         $this->resolveIDs();
 
         // Associations have to be updated before entity references are deleted by foreign keys
         if (!$this->updateReferences()) {
-            Application::message('Something about references not updated.', Application::ERROR);
             return 0;
         }
         elseif (!$this->updateSchedules()) {
-            Application::message('Something about schedules not updated.', Application::ERROR);
             return 0;
         }
         else {
             foreach ($this->deprecatedIDs as $deprecatedID) {
                 $table = $this->getTable();
+
+                // Tables whose IDs are fk references should already be gone through updateReferences.
                 if (!$table->load($deprecatedID)) {
                     continue;
                 }
+
                 $table->delete();
             }
 
-            // ID set in prepareData
-            return parent::process();
+            /**
+             * Parent makes redundant authorize/token checks and can mess up the merge ID.
+             */
+            $data  = $this->prepareData();
+            $table = $this->getTable();
+
+            if ($result = $this->store($table, $data, $data['id'])) {
+                Application::message('SAVED');
+            }
+            else {
+                Application::message('NOT_SAVED');
+            }
+            return $result;
         }
-    }
-
-    /**
-     * Gets the resource ids associated with persons in association tables.
-     *
-     * @param   string  $suffix    the unique portion of the table name
-     * @param   string  $srColumn  the name of the column referencing the resource itself
-     * @param   string  $fkColumn  the name of the fk column referencing the other resource
-     *
-     * @return int[] the ids of the resources associated
-     */
-    protected function referencedIDs(string $suffix, string $srColumn, string $fkColumn): array
-    {
-        $fkColumn = DB::qn($fkColumn);
-        $query    = DB::getQuery();
-        $query->select($fkColumn)
-            ->from(DB::qn("#__organizer_$suffix"))
-            ->whereIn(DB::qn($srColumn), $this->mergeIDs)
-            ->order($fkColumn);
-        DB::setQuery($query);
-
-        return DB::loadIntColumn();
     }
 
     /**
@@ -367,21 +382,11 @@ abstract class MergeController extends FormController
     }
 
     /**
-     * Updates an association where the associated resource itself has a fk reference to the resource being merged.
-     *
-     * @param   string  $suffix  the unique part of the table name
-     *
-     * @return bool  true on success, otherwise false
+     * Initial validation checks, object property value setting as necessary for reference resolution.
+     * @return bool
      */
-    protected function updateTable(string $suffix, string $fkColumn): bool
+    protected function validate(): bool
     {
-        $query = DB::getQuery();
-        $query->update(DB::qn("#__organizer_$suffix"))
-            ->set(DB::qc($fkColumn, ':mergeID'))
-            ->bind(':mergeID', $this->mergeID, ParameterType::INTEGER)
-            ->whereIN(DB::qn($fkColumn), $this->mergeIDs);
-        DB::setQuery($query);
-
-        return DB::execute();
+        return true;
     }
 }

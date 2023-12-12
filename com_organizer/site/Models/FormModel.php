@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\CMS\Form\Form as FormAlias;
 use Joomla\CMS\MVC\Model\FormModel as Base;
-use THM\Organizer\Adapters\{Application, Form, FormFactory, MVCFactory};
+use THM\Organizer\Adapters\{Application, FormFactory, MVCFactory};
 
 /**
  * Model for data to be used with a form.
@@ -37,18 +37,6 @@ abstract class FormModel extends Base
         parent::__construct($config, $factory, $formFactory);
 
         $this->setContext();
-    }
-
-    /**
-     * Filters out form inputs which should not be displayed due to previous selections.
-     *
-     * @param   Form  $form  the form to be filtered
-     *
-     * @return void modifies $form
-     */
-    protected function filterForm(Form $form)
-    {
-        // Per default no fields are altered
     }
 
     /**

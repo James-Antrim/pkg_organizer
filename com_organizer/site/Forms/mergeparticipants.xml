@@ -4,12 +4,14 @@
         <field name="email" type="MergeEmail" label="ORGANIZER_EMAIL"/>
         <field name="surname" type="MergeValues" label="ORGANIZER_SURNAME"/>
         <field name="forename" type="MergeValues" label="ORGANIZER_FORENAME"/>
+        <field name="telephone" type="MergeValues" label="ORGANIZER_TELEPHONE"/>
         <field name="address" type="MergeValues" label="ORGANIZER_STREET"/>
         <field name="zipCode" type="MergeValues" label="ORGANIZER_ZIP_CODE"/>
         <field name="city" type="MergeValues" label="ORGANIZER_CITY"/>
-        <field name="programID" type="MergeAssociations" label="ORGANIZER_PROGRAM"
-               textcolumn="pg.name,pg.accredited,d.abbreviation" localized="true" glue=", " from="participants AS pa"
-               innerJoins="programs AS pg ON pg.id = pa.programID,degrees AS d ON d.id = pg.degreeID"/>
+        <field name="programID" type="MergeAssociations" label="ORGANIZER_PROGRAM" description="ORGANIZER_ENROLLED_PROGRAM"
+               from="participants AS pa" glue=", " localized="true"
+               innerJoins="programs AS pg ON pg.id = pa.programID,degrees AS d ON d.id = pg.degreeID"
+               textcolumn="pg.name,pg.accredited,d.abbreviation"/>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>
 </form>

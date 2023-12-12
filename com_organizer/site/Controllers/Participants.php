@@ -10,14 +10,38 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Models\Participant;
-
 /**
  * Class receives user actions and performs access checks and redirection.
  */
 class Participants extends ListController
 {
     protected string $item = 'Participant';
+
+//	private function anonymize()
+//	{
+//		/**
+//		 * Anonymize user:
+//		 * name: 'Anonymous User'
+//		 * username: 'x-<id>'
+//		 * password: ''
+//		 * email: x.<id>@xx.xx
+//		 * block: 1
+//		 * sendEmail: 0
+//		 * registerDate: '0000-00-00 00:00:00'
+//		 * lastvisitDate: '0000-00-00 00:00:00'
+//		 * activation: ''
+//		 * params: '{}'
+//		 * lastResetTime: '0000-00-00 00:00:00'
+//		 * resetCount: 0
+//		 * otpKey: ''
+//		 * otep: ''
+//		 * requireReset: 0
+//		 * authProvider: ''
+//		 */
+//
+//		/**
+//		 * Anonymize participant:
+//		 *
+//		 */
+//	}
 }

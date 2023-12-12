@@ -21,28 +21,6 @@ use THM\Organizer\Tables;
 abstract class MergeModel extends BaseModel
 {
     /**
-     * Gets the resource ids associated with persons in association tables.
-     *
-     * @param   string  $table     the unique portion of the table name
-     * @param   string  $fkColumn  the name of the fk column referencing the other resource
-     *
-     * @return int[] the ids of the resources associated
-     */
-    protected function getReferencedIDs(string $table, string $fkColumn): array
-    {
-        $resourceColumn = strtolower($this->name) . 'ID';
-        $selectedIDs    = implode(',', $this->selected);
-        $query          = Database::getQuery();
-        $query->select("DISTINCT $fkColumn")
-            ->from("#__organizer_$table")
-            ->where("$resourceColumn IN ($selectedIDs)")
-            ->order("$fkColumn");
-        Database::setQuery($query);
-
-        return Database::loadIntColumn();
-    }
-
-    /**
      * Merges resource entries and cleans association tables.
      * @return bool  true on success, otherwise false
      * @throws Exception
@@ -65,7 +43,7 @@ abstract class MergeModel extends BaseModel
             return false;
         }
 
-        $data          = empty($this->data) ? Input::getFormItems()->toArray() : $this->data;
+        $data          = empty($this->data) ? Input::getFormItems() : $this->data;
         $deprecatedIDs = $this->selected;
         $data['id']    = array_shift($deprecatedIDs);
         $table         = $this->getTable();
@@ -98,7 +76,7 @@ abstract class MergeModel extends BaseModel
     protected function updateAssociationsReferences(): bool
     {
         $fkColumn  = strtolower($this->name) . 'ID';
-        $query     = Database::getQuery(true);
+        $query     = Database::getQuery();
         $updateIDs = implode(', ', $this->selected);
         $query->select("id, $fkColumn, organizationID")
             ->from("#__organizer_associations")
@@ -129,7 +107,6 @@ abstract class MergeModel extends BaseModel
 
             $entry = ['id' => $result['id'], $fkColumn => $mergeID, 'organizationID' => $result['organizationID']];
 
-            $entry[$fkColumn] = $mergeID;
             if (!$association->save($entry)) {
                 return false;
             }
@@ -280,7 +257,7 @@ abstract class MergeModel extends BaseModel
             // Put the merge id in/back in
             $instance[$personID][$context][] = $mergeID;
 
-            // Resequence to avoid JSON encoding treating the array as associative (object)
+            // Re-sequence to avoid JSON encoding treating the array as associative (object)
             $instance[$personID][$context] = array_values($instance[$personID][$context]);
         }
 
@@ -294,7 +271,7 @@ abstract class MergeModel extends BaseModel
      *
      * @return void
      */
-    private function updateSchedule(int $scheduleID)
+    private function updateSchedule(int $scheduleID): void
     {
         $context = strtolower($this->name);
 

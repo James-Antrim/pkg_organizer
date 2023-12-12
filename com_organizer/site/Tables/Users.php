@@ -22,6 +22,7 @@ use THM\Organizer\Adapters\Application;
 class Users extends User
 {
     /**
+     * A password hash used during the reset process. Any non-empty value indicates a reset has been performed at some point.
      * VARCHAR(100) NOT NULL DEFAULT ''
      * @var string
      */
@@ -41,6 +42,7 @@ class Users extends User
     public $authProvider;
 
     /**
+     * Whether the user is barred from logging into the site.
      * TINYINT(4) NOT NULL DEFAULT 0
      * @var bool
      */
