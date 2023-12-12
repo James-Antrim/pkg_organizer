@@ -106,58 +106,6 @@ class Controller extends BaseController
     }
 
     /**
-     * Performs access checks, makes call to the model's merge function, and
-     * redirects to the room manager view
-     * @return void
-     */
-//    public function merge(): void
-//    {
-//        $modelName = 'THM\\Organizer\\Models\\' . OrganizerHelper::getClass($this->resource);
-//        $model     = new $modelName();
-//
-//        if ($model->merge($this->resource)) {
-//            Application::message('ORGANIZER_MERGE_SUCCESS');
-//        }
-//        else {
-//            Application::message('ORGANIZER_MERGE_FAIL', Application::ERROR);
-//        }
-//
-//        $url = Helpers\Routing::getRedirectBase();
-//        $url .= "&view=$this->listView";
-//        $this->setRedirect($url);
-//    }
-
-    /**
-     * Attempts to automatically merge the selected resources, if the corresponding function is available. Redirects to
-     * the merge view if the automatic merge was unavailable or implausible.
-     * @return void
-     * @throws Exception
-     */
-//    public function mergeView(): void
-//    {
-//        $url = "index.php?option=com_organizer&view=$this->listView";
-//
-//        if (JDEBUG) {
-//            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
-//            $this->setRedirect($url);
-//
-//            return;
-//        }
-//
-//        $selectedIDs = Input::getSelectedIDs();
-//        if (count($selectedIDs) == 1) {
-//            $msg = Text::_('ORGANIZER_TOO_FEW');
-//            $this->setRedirect(Route::_($url, false), $msg, Application::NOTICE);
-//
-//            return;
-//        }
-//
-//        // Reliance on POST requires a different method of redirection
-//        Input::set('view', "{$this->resource}_merge");
-//        $this->display();
-//    }
-
-    /**
      * Creates a pdf file based on form data.
      * @return void
      * @throws Exception
