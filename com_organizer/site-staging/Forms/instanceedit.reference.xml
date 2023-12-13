@@ -2,7 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="organizationID" type="UnitOrganization" label="ORGANIZATION" onchange="this.form.submit();"/>
-        <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();" required="true"/>
+        <field name="date" type="Date" label="DATE" description="ORGANIZER_DATE_DESC" empty="false" onchange="this.form.submit();" required="true"/>
         <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();" required="true">
             <option value="">SELECT_GRID</option>
         </field>

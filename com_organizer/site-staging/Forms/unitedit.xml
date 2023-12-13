@@ -6,7 +6,7 @@
         <field name="instances" type="Nested" label="INSTANCES" buttons="add,remove" layout="joomla.form.field.subform.repeatable"
                min="0" multiple="true">
             <form>
-                <field name="date" type="Date" label="DATE" onchange="this.form.submit();"/>
+                <field name="date" type="Date" label="DATE" description="ORGANIZER_DATE_DESC" onchange="this.form.submit();"/>
                 <field name="block" type="Blank" label="BLOCK"/>
                 <field name="method" type="Blank" label="METHOD"/>
                 <field name="events" type="Nested" label="EVENTS" buttons="add,remove"

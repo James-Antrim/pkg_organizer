@@ -18,8 +18,6 @@ use THM\Organizer\Helpers;
  */
 class Date extends FormField
 {
-    use Translated;
-
     /**
      * Method to get the field input markup.
      * @return  string  The field input markup.
@@ -38,7 +36,7 @@ class Date extends FormField
 
         $attributes = [
             $this->autofocus ? 'autofocus' : '',
-            $this->class ? "class=\"$this->class\"" : '',
+            $this->class ? "class=\"$this->class form-control\"" : "class=\"form-control\"",
             $this->disabled ? 'disabled' : '',
             "id=\"$this->id\"",
             "name=\"$this->name\"",
