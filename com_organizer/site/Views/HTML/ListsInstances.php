@@ -11,9 +11,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text};
-use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Roles, Users};
-use THM\Organizer\Helpers\Routing;
+use THM\Organizer\Adapters\{Application, HTML, Text, User};
+use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Roles, Routing};
 use stdClass;
 
 trait ListsInstances
@@ -69,7 +68,7 @@ trait ListsInstances
      */
     private function getStatus(stdClass $instance): string
     {
-        $userID = Users::getID();
+        $userID = User::id();
 
         if ($instance->instanceStatus !== 'removed' and $instance->unitStatus !== 'removed') {
             if ($instance->expired) {
@@ -176,7 +175,7 @@ trait ListsInstances
         $class      = 'status-display hasToolTip';
         $instanceID = $instance->instanceID;
         $title      = '';
-        $userID     = Users::getID();
+        $userID     = User::id();
         $value      = '';
 
         // If removed are here at all, the status holds relevance regardless of date
@@ -566,7 +565,7 @@ trait ListsInstances
     {
         $now    = date('H:i');
         $today  = date('Y-m-d');
-        $userID = Users::getID();
+        $userID = User::id();
 
         $this->setResources($instance);
 

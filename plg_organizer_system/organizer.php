@@ -14,9 +14,8 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Form\{Form, FormHelper};
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Controllers\InstanceParticipants as Controller;
-use THM\Organizer\Helpers\Users;
 
 defined('_JEXEC') or die;
 
@@ -98,7 +97,7 @@ class PlgSystemOrganizer extends JPlugin
      */
     public function onUserAfterLogin(): bool
     {
-        $user = Users::getUser();
+        $user = User::instance();
 
         if ($user->authorise('core.admin')) {
             Controller::truncate();

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -298,7 +298,7 @@ class CourseItem extends ItemModel
 
         $deadlineText = Text::sprintf('ORGANIZER_DEADLINE_TEXT', $deadline);
 
-        if ($userID = Helpers\Users::getID()) {
+        if ($userID = User::id()) {
             $course['registrationStatus'] = Helpers\CourseParticipants::getState($course['id'], $userID);
 
             if ($course['registrationStatus'] === self::UNREGISTERED) {

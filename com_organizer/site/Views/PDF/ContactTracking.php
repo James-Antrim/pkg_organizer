@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, Text, User};
 use THM\Organizer\Helpers;
-use THM\Organizer\Tables\Participants;
-use THM\Organizer\Tables\Persons;
+use THM\Organizer\Tables\{Participants, Persons};
 
 /**
  * Class loads persistent information about a course into the display context.
@@ -39,7 +38,7 @@ class ContactTracking extends ListView
         $state = $this->formState;
 
         if ($participantID = $state->get('participantID')) {
-            $user = Helpers\Users::getUser($participantID);
+            $user = User::instance($participantID);
             $name = $user->name;
         }
         elseif ($personID = $state->get('personID')) {
@@ -65,7 +64,7 @@ class ContactTracking extends ListView
      */
     protected function authorize()
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 
@@ -107,7 +106,7 @@ class ContactTracking extends ListView
         $subTitles   = [];
 
         if ($participantID = $this->formState->get('participantID') and $participant->load($participantID)) {
-            $user        = Helpers\Users::getUser($participantID);
+            $user        = User::instance($participantID);
             $subTitles[] = Text::_('ORGANIZER_EMAIL') . ": $user->email";
 
             if ($participant->telephone) {

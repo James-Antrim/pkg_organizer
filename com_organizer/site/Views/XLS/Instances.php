@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\XLS;
 
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\Exported;
 use THM\Organizer\Models\BaseModel;
@@ -40,7 +40,7 @@ class Instances extends ListView
             Application::error(403);
         }
 
-        if (Input::getBool('my') and !Helpers\Users::getID()) {
+        if (Input::getBool('my') and !User::id()) {
             Application::error(401);
         }
     }

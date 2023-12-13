@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{HTML, Text};
-use THM\Organizer\Helpers\Users;
+use THM\Organizer\Adapters\{HTML, Text, User};
 
 $current          = Uri::getInstance()->toString();
 $privacyText      = Text::_('PRIVACY_POLICY');
@@ -19,7 +18,7 @@ $privacyLink      = HTML::link($privacyURL, $privacyText);
 $return           = urlencode(base64_encode($current));
 $registerURL      = Uri::base() . "?option=com_users&view=registration&return=$return";
 $registrationLink = HTML::link($registerURL, Text::_('REGISTER_TEXT_LINK'));
-$userID           = Users::getID();
+$userID           = User::id();
 
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"

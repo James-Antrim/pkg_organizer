@@ -11,8 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database, User};
 use THM\Organizer\Tables;
 
 /**
@@ -26,7 +25,7 @@ class Can
      */
     public static function administrate(): bool
     {
-        $user = Users::getUser();
+        $user = User::instance();
 
         if (!$user->id) {
             return false;
@@ -43,7 +42,7 @@ class Can
      */
     private static function basic(): ?bool
     {
-        if (!Users::getID()) {
+        if (!User::id()) {
             return false;
         }
 
@@ -159,7 +158,7 @@ class Can
             $organizationIDs = Database::loadIntColumn();
         }
 
-        $user = Users::getUser();
+        $user = User::instance();
 
         foreach ($organizationIDs as $organizationID) {
             if ($user->authorise('organizer.document', "com_organizer.organization.$organizationID")) {
@@ -193,7 +192,7 @@ class Can
             return $authorized;
         }
 
-        $user = Users::getUser();
+        $user = User::instance();
 
         switch ($resourceType) {
             case 'categories':
@@ -274,7 +273,7 @@ class Can
      */
     private static function getAuthorizedOrganizations(string $function): array
     {
-        if (!Users::getID()) {
+        if (!User::id()) {
             return [];
         }
 
@@ -334,11 +333,11 @@ class Can
 
                 return (bool) array_intersect($managedOrganizations, $instanceOrganizations);
             case 'facilities':
-                return Users::getUser()->authorise('organizer.fm', 'com_organizer');
+                return User::instance()->authorise('organizer.fm', 'com_organizer');
             case 'organization':
-                return Users::getUser()->authorise('organizer.manage', "com_organizer.organization.$resourceID");
+                return User::instance()->authorise('organizer.manage', "com_organizer.organization.$resourceID");
             case 'participant':
-                if ($resourceID === Users::getID()) {
+                if ($resourceID === User::id()) {
                     return true;
                 }
 
@@ -346,7 +345,7 @@ class Can
 
                 return (bool) array_intersect($courseIDs, Courses::coordinates());
             case 'persons':
-                return Users::getUser()->authorise('organizer.hr', 'com_organizer');
+                return User::instance()->authorise('organizer.hr', 'com_organizer');
             case 'unit':
             case 'units':
                 if (Units::teaches($resourceID)) {
@@ -386,7 +385,7 @@ class Can
             return false;
         }
 
-        $user = Users::getUser();
+        $user = User::instance();
 
         if ($resourceType === 'schedule') {
             $schedule = new Tables\Schedules();
@@ -424,7 +423,7 @@ class Can
             return $authorized;
         }
 
-        return Users::getUser()->authorise('organizer.ct', 'com_organizer');
+        return User::instance()->authorise('organizer.ct', 'com_organizer');
     }
 
     /**

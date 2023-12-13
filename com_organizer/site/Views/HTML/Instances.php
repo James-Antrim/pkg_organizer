@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\{Dates, Instances as Helper};
@@ -69,7 +69,7 @@ class Instances extends ListView
 
         /** @var Model $model */
         $model = $this->model;
-        if (Helpers\Users::getID() and $model->layout === Helper::LIST) {
+        if (User::id() and $model->layout === Helper::LIST) {
             if (!$this->expired and !$this->teachesALL) {
                 $bookmarkDD = $toolbar->dropdownButton('bookmark-dd', Text::_('INSTANCES'));
                 $bookmarkDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-ellipsis-h')->listCheck(true);
@@ -158,7 +158,7 @@ class Instances extends ListView
             return;
         }
 
-        if (Input::getBool('my') and !Helpers\Users::getID()) {
+        if (Input::getBool('my') and !User::id()) {
             Application::error(401);
         }
 
@@ -413,7 +413,7 @@ class Instances extends ListView
 
             $tools = [];
 
-            if (Helpers\Users::getID()) {
+            if (User::id()) {
                 $instanceID = $item->instanceID;
 
                 if ($item->manageable) {
@@ -535,7 +535,7 @@ class Instances extends ListView
             'rooms'   => Text::_('ORGANIZER_ROOMS')
         ];
 
-        if (Helpers\Users::getID() and !Application::mobile()) {
+        if (User::id() and !Application::mobile()) {
             $this->headers['tools'] = HTML::checkAll();
         }
     }
@@ -581,7 +581,7 @@ class Instances extends ListView
         if ($fields) {
             $authRequired = (!empty($fields['my']) or !empty($fields['personID']));
 
-            if (!$username = Helpers\Users::getUserName() and $authRequired) {
+            if (!$username = User::userName() and $authRequired) {
                 Application::error(401);
 
                 return;
@@ -601,7 +601,7 @@ class Instances extends ListView
             }
 
             if ($authRequired) {
-                $url .= "&username=$username&auth=" . Helpers\Users::getAuth();
+                $url .= "&username=$username&auth=" . User::token();
             }
         }
 
@@ -660,7 +660,7 @@ class Instances extends ListView
                 $supplement .= implode('</li><li>', $dates) . '</li></ul>';
             }
             elseif (Input::getInt('my')) {
-                if (Helpers\Users::getID()) {
+                if (User::id()) {
                     $supplement .= Text::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
                 }
                 else {

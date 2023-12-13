@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, Text};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Roles;
 use THM\Organizer\Tables;
@@ -855,7 +855,7 @@ class Search extends ListModel
     {
         $label   = Text::_('ORGANIZER_PERSON') . ': ';
         $persons = [];
-        $userID  = Helpers\Users::getID();
+        $userID  = User::id();
 
         foreach ($personIDs as $personID) {
             $links = [];

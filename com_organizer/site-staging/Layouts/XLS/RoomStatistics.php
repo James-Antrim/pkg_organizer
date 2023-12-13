@@ -13,7 +13,8 @@ namespace THM\Organizer\Layouts\XLS;
 jimport('phpexcel.library.PHPExcel');
 
 use Joomla\CMS\Application\ApplicationHelper;
-use THM\Organizer\Adapters\Text;
+use PHPExcel;
+use THM\Organizer\Adapters\{Text, User};
 use THM\Organizer\Helpers;
 
 /**
@@ -69,9 +70,9 @@ class RoomStatistics
         $this->startDoW    = $model->startDoW;
         unset($model);
 
-        $this->spreadSheet = new \PHPExcel();
+        $this->spreadSheet = new PHPExcel();
 
-        $userName    = Helpers\Users::getUser()->name;
+        $userName    = User::name();
         $startDate   = Helpers\Dates::formatDate($this->startDate);
         $endDate     = Helpers\Dates::formatDate($this->endDate);
         $description = Text::sprintf('ORGANIZER_ROOM_STATISTICS_EXPORT_DESCRIPTION', $startDate, $endDate);

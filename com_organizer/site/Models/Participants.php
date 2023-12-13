@@ -11,10 +11,9 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use Joomla\Database\QueryInterface;
 use THM\Organizer\Helpers\Can;
-use THM\Organizer\Helpers\Users;
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -45,7 +44,7 @@ class Participants extends ListModel
         if (Can::administrate()) {
             $query->select(DB::quote(1) . ' AS ' . DB::qn('access'));
         }
-        elseif ($userID = Users::getID()) {
+        elseif ($userID = User::id()) {
             $query->select(DB::quote($userID) . ' = ' . DB::qn('u.id') . ' AS ' . DB::qn('access'));
         }
         else {

@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -118,7 +118,7 @@ class Courses extends ListController
     {
         $courseID      = Input::getID();
         $referrer      = Input::getInput()->server->getString('HTTP_REFERER');
-        $participantID = Helpers\Users::getID();
+        $participantID = User::id();
 
         if (!Helpers\CourseParticipants::validProfile($courseID, $participantID)) {
             Application::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', Application::ERROR);

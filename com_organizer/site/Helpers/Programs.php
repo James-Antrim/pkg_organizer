@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\{DatabaseQuery, ParameterType};
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text, User};
 use THM\Organizer\Models;
 use THM\Organizer\Tables\{Participants, Programs as Table};
 
@@ -324,7 +324,7 @@ class Programs extends Curricula implements Selectable
         $useCurrent  = false;
 
         if (Input::getView() === 'participant_edit') {
-            $participantID = empty($selectedIDs) ? Users::getID() : $selectedIDs[0];
+            $participantID = empty($selectedIDs) ? User::id() : $selectedIDs[0];
             $table         = new Participants();
 
             if (!$table->load($participantID)) {

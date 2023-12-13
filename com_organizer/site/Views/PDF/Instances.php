@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Instances as Model;
 
@@ -56,7 +56,7 @@ class Instances extends ListView
         $personID = $filters->get('personID');
 
         if ($my or $personID) {
-            if (!Helpers\Users::getID()) {
+            if (!User::id()) {
                 Application::error(401);
             }
 

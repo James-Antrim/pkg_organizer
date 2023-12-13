@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
-use THM\Organizer\Helpers\{Campuses, Can, CourseParticipants, Courses, Dates, Participants, Users};
+use THM\Organizer\Adapters\{Text, Toolbar, User};
+use THM\Organizer\Helpers\{Campuses, Can, CourseParticipants, Courses, Dates, Participants};
 
 /**
  * Class loads the subject into the display context.
@@ -38,7 +38,7 @@ class CourseItem extends ItemView
      */
     protected function addToolBar(): void
     {
-        if (!$this->manages and $participantID = Users::getID()) {
+        if (!$this->manages and $participantID = User::id()) {
             $courseID        = $this->item['id'];
             $deadline        = $this->item['deadline'];
             $link            = 'index.php?option=com_organizer';

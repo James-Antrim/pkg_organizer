@@ -12,7 +12,7 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
 use stdClass;
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, User};
 use THM\Organizer\Tables;
 
 /**
@@ -244,7 +244,7 @@ class Persons extends Associated implements Selectable
      */
     public static function getIDByUserID(int $userID = 0): int
     {
-        if (!$user = Users::getUser($userID)) {
+        if (!$user = User::instance($userID)) {
             return 0;
         }
 
@@ -295,7 +295,7 @@ class Persons extends Associated implements Selectable
 
         $userName = '';
         if ($thisPersonID = self::getIDByUserID()) {
-            $userName = Users::getUser()->username;
+            $userName = User::username();
         }
 
         $query = DB::getQuery();

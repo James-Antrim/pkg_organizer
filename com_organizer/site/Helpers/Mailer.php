@@ -12,7 +12,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Tables;
 
 class Mailer
@@ -28,7 +28,7 @@ class Mailer
      */
     public static function notifyParticipant(int $participantID, string $subject, string $body)
     {
-        $user = Users::getUser($participantID);
+        $user = User::instance($participantID);
         if (!$user->id) {
             return;
         }
@@ -38,7 +38,7 @@ class Mailer
             return;
         }
 
-        $sender = Users::getUser();
+        $sender = User::instance();
         if (!$sender->id) {
             return;
         }
@@ -71,7 +71,7 @@ class Mailer
             return;
         }
 
-        $user = Users::getUser($participantID);
+        $user = User::instance($participantID);
         if (!$user->id) {
             return;
         }
@@ -82,7 +82,7 @@ class Mailer
         }
 
         $params = Input::getParams();
-        $sender = Users::getUser($params->get('mailSender'));
+        $sender = User::instance($params->get('mailSender'));
         if (empty($sender->id)) {
             return;
         }

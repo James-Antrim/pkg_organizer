@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\User\User;
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
+use Joomla\CMS\{Form\Form, User\User};
 use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text, User as UAdapter};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Tables;
@@ -45,7 +44,7 @@ class Booking extends Participants
      */
     public function add(): int
     {
-        if (!Helpers\Users::getID()) {
+        if (!UAdapter::id()) {
             Application::error(401);
         }
 

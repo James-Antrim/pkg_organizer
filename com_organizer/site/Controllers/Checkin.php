@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -31,13 +31,13 @@ class Checkin extends Controller
         $data    = Input::getFormItems();
         $session = Factory::getSession();
 
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             $credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
             Application::getApplication()->login($credentials);
             $session->set('organizer.checkin.username', $data->get('username'));
         }
 
-        if (Helpers\Users::getID()) {
+        if (User::id()) {
             $model = new Models\InstanceParticipant();
 
             // Code was invalid, no reason to keep it.
@@ -58,7 +58,7 @@ class Checkin extends Controller
      */
     public function confirmInstance()
     {
-        if (Helpers\Users::getID()) {
+        if (User::id()) {
             $model = new Models\InstanceParticipant();
             $model->confirmInstance();
         }
@@ -73,7 +73,7 @@ class Checkin extends Controller
      */
     public function confirmSeating()
     {
-        if (Helpers\Users::getID()) {
+        if (User::id()) {
             $model = new Models\InstanceParticipant();
             $model->confirmSeating();
         }
@@ -88,7 +88,7 @@ class Checkin extends Controller
      */
     public function contact()
     {
-        if (Helpers\Users::getID()) {
+        if (User::id()) {
             $model = new Models\Participant();
             $model->save();
         }

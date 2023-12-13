@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, User};
 use THM\Organizer\Tables;
 
 /**
@@ -32,7 +32,7 @@ class Subjects extends Curricula
      */
     public static function coordinates(int $subjectID = 0, int $personID = 0): bool
     {
-        if (!$personID = $personID ?: Persons::getIDByUserID(Users::getID())) {
+        if (!$personID = $personID ?: Persons::getIDByUserID(User::id())) {
             return false;
         }
 
@@ -408,7 +408,7 @@ class Subjects extends Curricula
      */
     public static function teaches(int $subjectID = 0, int $personID = 0): bool
     {
-        if (!$personID = $personID ?: Persons::getIDByUserID(Users::getID())) {
+        if (!$personID = $personID ?: Persons::getIDByUserID(User::id())) {
             return false;
         }
 

@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Instances as Table;
@@ -33,7 +33,7 @@ class InstanceEdit extends EditModelOld
      */
     protected function authorize()
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 
@@ -75,7 +75,7 @@ class InstanceEdit extends EditModelOld
         if ($selection = $request->get($field)) {
             $selection = ArrayHelper::toInteger($selection);
 
-            if ($position = array_search(-1, $selection) !== false) {
+            if ($position = in_array(-1, $selection)) {
                 unset($selection[$position]);
             }
 

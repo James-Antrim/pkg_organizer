@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Participation as Helper;
 use THM\Organizer\Tables;
@@ -96,7 +96,7 @@ class InstanceParticipant extends BaseModel
      */
     public function bookmark(int $method)
     {
-        if (!$participantID = Helpers\Users::getID()) {
+        if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;
@@ -148,7 +148,7 @@ class InstanceParticipant extends BaseModel
      */
     public function checkin(): bool
     {
-        if (!$participantID = Helpers\Users::getID()) {
+        if (!$participantID = User::id()) {
             Application::message('ORGANIZER_401', Application::ERROR);
 
             return false;
@@ -223,7 +223,7 @@ class InstanceParticipant extends BaseModel
      */
     public function confirmInstance()
     {
-        if (!$participantID = Helpers\Users::getID()) {
+        if (!$participantID = User::id()) {
             Application::message('ORGANIZER_401', Application::ERROR);
 
             return;
@@ -271,7 +271,7 @@ class InstanceParticipant extends BaseModel
      */
     public function confirmSeating()
     {
-        if (!$participantID = Helpers\Users::getID()) {
+        if (!$participantID = User::id()) {
             Application::message('ORGANIZER_401', Application::ERROR);
 
             return;
@@ -306,7 +306,7 @@ class InstanceParticipant extends BaseModel
      */
     public function deregister(int $method)
     {
-        if (!$participantID = Helpers\Users::getID()) {
+        if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;
@@ -485,7 +485,7 @@ class InstanceParticipant extends BaseModel
      */
     public function register(int $method)
     {
-        if (!$participantID = Helpers\Users::getID()) {
+        if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;
@@ -606,7 +606,7 @@ class InstanceParticipant extends BaseModel
      */
     public function removeBookmark(int $method)
     {
-        if (!$participantID = Helpers\Users::getID()) {
+        if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;

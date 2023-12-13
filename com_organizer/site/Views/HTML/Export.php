@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar, User};
 use THM\Organizer\Helpers;
 
 /**
@@ -82,7 +82,7 @@ class Export extends OldFormView
 
         $authRequired = (!empty($fields['my']) or !empty($fields['personID']));
 
-        if (!$username = Helpers\Users::getUserName() and $authRequired) {
+        if (!$username = User::userName() and $authRequired) {
             Application::error(401);
         }
 
@@ -97,7 +97,7 @@ class Export extends OldFormView
         }
 
         if ($authRequired) {
-            $url .= "&username=$username&auth=" . Helpers\Users::getAuth();
+            $url .= "&username=$username&auth=" . User::token();
         }
 
         if ($format !== 'ics') {

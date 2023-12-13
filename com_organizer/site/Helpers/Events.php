@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Adapters\{Application, Database as DB, User};
 use THM\Organizer\Tables\Events as Table;
 
 /**
@@ -159,7 +159,7 @@ class Events extends ResourceHelper
      */
     public static function teaches(int $eventID = 0, int $personID = 0): bool
     {
-        $personID = $personID ?: Persons::getIDByUserID(Users::getID());
+        $personID = $personID ?: Persons::getIDByUserID(User::id());
         $query    = DB::getQuery();
         $query->select('COUNT(*)')
             ->from('#__organizer_instances AS i')

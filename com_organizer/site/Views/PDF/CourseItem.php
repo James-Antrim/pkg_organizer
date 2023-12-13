@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -94,7 +94,7 @@ class CourseItem extends BaseView
             Application::error(400);
         }
 
-        if (!$this->participantID = Helpers\Users::getID()) {
+        if (!$this->participantID = User::id()) {
             Application::error(401);
         }
 

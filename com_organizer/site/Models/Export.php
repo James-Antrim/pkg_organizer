@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Input, User};
 use THM\Organizer\Helpers;
 
 /**
@@ -88,7 +88,7 @@ class Export extends OldFormModel
      */
     protected function filterForm(Form $form)
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             $form->removeField('instances');
             $form->removeField('my');
             $form->removeField('personID');

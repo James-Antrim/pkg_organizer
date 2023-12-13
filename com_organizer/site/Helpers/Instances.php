@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\DatabaseQuery;
-use Joomla\Database\ParameterType;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\{Blocks as Block, Instances as Instance};
 use THM\Organizer\Tables\{InstanceParticipants as PTable, InstancePersons as Responsibility};
@@ -521,7 +520,7 @@ class Instances extends ResourceHelper
             }
         }
 
-        if ($participantID = Users::getID()) {
+        if ($participantID = User::id()) {
             $participantsTable = new PTable();
             if ($participantsTable->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
                 $instance['attended']           = (int) $participantsTable->attended;
@@ -659,7 +658,7 @@ class Instances extends ResourceHelper
         $instance['current']    = self::currentCapacity($instance['instanceID']);
         $instance['interested'] = self::interested($instance['instanceID']);
 
-        if (!$userID = Users::getID()) {
+        if (!$userID = User::id()) {
             $instance['bookmarked'] = false;
             $instance['busy']       = false;
             $instance['registered'] = false;
@@ -819,7 +818,7 @@ class Instances extends ResourceHelper
     public static function getConditions(): array
     {
         $conditions           = [];
-        $conditions['userID'] = Users::getID();
+        $conditions['userID'] = User::id();
         $conditions['my']     = (!empty($conditions['userID']) and Input::getBool('my'));
 
         $conditions['date'] = Dates::standardizeDate(Input::getCMD('date', date('Y-m-d')));
@@ -1012,7 +1011,7 @@ class Instances extends ResourceHelper
             $my      = (int) $conditions['my'];
             $wherray = [];
 
-            if ($userID = Users::getID()) {
+            if ($userID = User::id()) {
                 $exists = Participants::exists($userID);
                 if ($my === self::REGISTRATIONS and $exists) {
                     $filterOrganization = false;
@@ -1355,7 +1354,7 @@ class Instances extends ResourceHelper
      */
     public static function hasResponsibility(int $instanceID = 0, int $personID = 0, int $roleID = 0): bool
     {
-        if (!$personID and !$personID = Persons::getIDByUserID(Users::getID())) {
+        if (!$personID and !$personID = Persons::getIDByUserID(User::id())) {
             return false;
         }
 

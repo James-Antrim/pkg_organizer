@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, User};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 
@@ -61,7 +61,7 @@ class Courses extends ListModel
             return [];
         }
 
-        $userID = Helpers\Users::getID();
+        $userID = User::id();
 
         foreach ($items as $item) {
             $item->participants = count(Helpers\Courses::getParticipantIDs($item->id));

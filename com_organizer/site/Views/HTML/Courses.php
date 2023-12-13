@@ -11,9 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
-use THM\Organizer\Helpers\{Campuses, Can, Courses as Helper, Dates, Participants, Users};
+use THM\Organizer\Helpers\{Campuses, Can, Courses as Helper, Dates, Participants};
 
 /**
  * Class which loads data into the view output context
@@ -69,7 +69,7 @@ class Courses extends ListView
 
         $this->setTitle('COURSES', $resourceName);
 
-        if (!Users::getID()) {
+        if (!User::id()) {
             return;
         }
 
@@ -125,7 +125,7 @@ class Courses extends ListView
         $structuredItems = [];
 
         $today  = Dates::standardizeDate();
-        $userID = Users::getID();
+        $userID = User::id();
 
         foreach ($this->items as $course) {
             $campusID   = (int) $course->campusID;
@@ -303,7 +303,7 @@ class Courses extends ListView
             $this->supplement .= '<div>' . Text::_('PREP_COURSE_SUPPLEMENT') . '</div>';
         }
 
-        if (!Users::getID()) {
+        if (!User::id()) {
             $currentURL       = Uri::getInstance()->toString() . '#login-anchor';
             $this->supplement .= '<div class="tbox-yellow">';
             $this->supplement .= Text::sprintf('COURSE_LOGIN_WARNING', $currentURL);

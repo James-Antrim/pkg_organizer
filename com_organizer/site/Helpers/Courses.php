@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Adapters\{Application, Database as DB, User};
 use Joomla\Database\ParameterType;
 use THM\Organizer\Tables\Courses as Table;
 
@@ -306,7 +306,7 @@ class Courses extends ResourceHelper
             return true;
         }
 
-        if (!$personID = $personID ?: Persons::getIDByUserID(Users::getID())) {
+        if (!$personID = $personID ?: Persons::getIDByUserID(User::id())) {
             return false;
         }
 

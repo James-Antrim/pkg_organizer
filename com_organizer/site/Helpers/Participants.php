@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\User;
 use THM\Organizer\Tables;
 
 /**
@@ -27,7 +28,7 @@ class Participants extends ResourceHelper
      */
     public static function canRegister(int $participantID = 0): bool
     {
-        $participantID = $participantID ?: Users::getID();
+        $participantID = $participantID ?: User::id();
         $table         = new Tables\Participants();
         if ($table->load($participantID)) {
             $valid = (bool) $table->address;
@@ -51,7 +52,7 @@ class Participants extends ResourceHelper
      */
     public static function exists(int $participantID = 0): bool
     {
-        $participantID = $participantID ?: Users::getID();
+        $participantID = $participantID ?: User::id();
         $participants  = new Tables\Participants();
 
         return $participants->load($participantID);

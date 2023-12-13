@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
 use THM\Organizer\Helpers;
 
 /**
@@ -255,7 +255,7 @@ class Workload extends OldFormModel
      */
     protected function authorize()
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 

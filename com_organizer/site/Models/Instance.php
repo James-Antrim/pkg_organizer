@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -35,7 +35,7 @@ class Instance extends BaseModel
      */
     protected function authorize()
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 
@@ -127,7 +127,7 @@ class Instance extends BaseModel
             $unitID = $instance->unitID;
         }
         else {
-            $code   = Helpers\Users::getID() . '-1';
+            $code   = User::id() . '-1';
             $termID = Helpers\Terms::getCurrentID($date);
             $unit   = new Tables\Units();
             $unit->load(['code' => $code, 'termID' => $termID]);

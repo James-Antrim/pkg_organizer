@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
-use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Routing, Users};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar, User};
+use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Routing};
 use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Models\InstanceItem as Model;
 
@@ -145,7 +145,7 @@ class InstanceItem extends ListView
             Application::error(400);
         }
 
-        if ($this->userID = Users::getID()) {
+        if ($this->userID = User::id()) {
             $this->manages = Can::manage('instance', $instanceID);
         }
     }

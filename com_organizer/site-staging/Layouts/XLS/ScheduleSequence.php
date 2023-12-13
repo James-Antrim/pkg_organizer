@@ -12,7 +12,8 @@ namespace THM\Organizer\Layouts\XLS;
 
 jimport('phpexcel.library.PHPExcel');
 
-use THM\Organizer\Adapters\Text;
+use PHPExcel;
+use THM\Organizer\Adapters\{Text, User};
 use THM\Organizer\Helpers;
 
 /**
@@ -35,9 +36,9 @@ class ScheduleSequence
         $this->parameters = $parameters;
         $this->lessons    = $lessons;
 
-        $spreadSheet = new \PHPExcel();
+        $spreadSheet = new PHPExcel();
 
-        $userName    = Helpers\Users::getUser()->name;
+        $userName    = User::name();
         $description = $this->getDescription();
         $spreadSheet->getProperties()->setCreator("THM Organizer")
             ->setLastModifiedBy($userName)

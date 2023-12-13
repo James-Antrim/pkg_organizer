@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -66,7 +66,7 @@ class Checkin extends OldFormModel
 
         $participant = new Tables\Participants();
 
-        if ($participantID = Helpers\Users::getID() and $participant->load($participantID)) {
+        if ($participantID = User::id() and $participant->load($participantID)) {
             $form->bind($participant);
         }
 
@@ -80,7 +80,7 @@ class Checkin extends OldFormModel
      */
     protected function authorize()
     {
-        if (Input::getCMD('layout') === 'profile' and !Helpers\Users::getID()) {
+        if (Input::getCMD('layout') === 'profile' and !User::id()) {
             Application::error(401);
         }
     }

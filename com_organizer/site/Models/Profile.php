@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -24,7 +24,7 @@ class Profile extends OldFormModel
      */
     protected function authorize()
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 
@@ -37,7 +37,7 @@ class Profile extends OldFormModel
     public function getForm($data = [], $loadData = false)
     {
         $form = parent::getForm($data, $loadData);
-        $user = Helpers\Users::getUser();
+        $user = User::instance();
 
         if (!Helpers\Participants::exists($user->id)) {
             $model = new Participant();
@@ -70,7 +70,7 @@ class Profile extends OldFormModel
     public function save()
     {
         $this->authorize();
-        $userID      = Helpers\Users::getID();
+        $userID      = User::id();
         $participant = new Tables\Participants();
 
         if (!$participant->load($userID)) {

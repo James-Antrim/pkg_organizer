@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers;
 
@@ -70,7 +70,7 @@ class ContactTracking extends ListView
      */
     protected function authorize(): void
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 

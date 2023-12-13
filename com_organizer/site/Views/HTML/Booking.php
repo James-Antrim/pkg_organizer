@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
-use THM\Organizer\Helpers\{Bookings as Helper, Can, Users};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
+use THM\Organizer\Helpers\{Bookings as Helper, Can};
 use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Tables;
 
@@ -113,7 +113,7 @@ class Booking extends Participants
      */
     protected function authorize(): void
     {
-        if (!Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 

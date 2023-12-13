@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Adapters\{Application, Database as DB, User};
 use Joomla\Database\ParameterType;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Units as Table;
@@ -243,7 +243,7 @@ class Units extends ResourceHelper
      */
     public static function teaches(int $unitID = 0, int $personID = 0): bool
     {
-        $personID = $personID ?: Persons::getIDByUserID(Users::getID());
+        $personID = $personID ?: Persons::getIDByUserID(User::id());
 
         $query = DB::getQuery();
         $query->select('COUNT(*)')

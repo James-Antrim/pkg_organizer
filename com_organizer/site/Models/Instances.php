@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
 use THM\Organizer\Tables;
@@ -96,7 +96,7 @@ class Instances extends ListModel
             $this->filter_fields = [];
         }
         else {
-            if (!Helpers\Users::getID()) {
+            if (!User::id()) {
                 $form->removeField('my', 'list');
             }
 
@@ -288,7 +288,7 @@ class Instances extends ListModel
         }
 
         if ($my = (int) $this->state->get('list.my')) {
-            $username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
+            $username = ($username = User::username()) ? " ($username)" : '';
 
             if ($methods) {
                 $title = Text::_('ORGANIZER_MY') . ' ' . $methods;
@@ -477,7 +477,7 @@ class Instances extends ListModel
                 $personID = Application::getUserRequestState("{$fc}personID", "{$fp}personID", 0, 'int');
                 if ($personID = Input::getInt('personID', $personID)) {
                     $personIDs = [$personID];
-                    $userID    = Helpers\Users::getID();
+                    $userID    = User::id();
                     Helper::filterPersons($personIDs, $userID);
 
                     if ($personIDs) {

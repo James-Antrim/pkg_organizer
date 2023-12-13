@@ -13,11 +13,9 @@ namespace THM\Organizer\Views\ICS;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Joomla\CMS\Filter\OutputFilter;
-use Joomla\CMS\Uri\Uri;
-use Joomla\CMS\User\User;
+use Joomla\CMS\{Filter\OutputFilter, Uri\Uri, User\User};
 use Joomla\Registry\Registry;
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, Text, User as UAdapter};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 use SimpleXMLElement;
@@ -126,7 +124,7 @@ class Instances
         $this->instances   = $model->getItems();
         $this->state       = $model->getState();
         $this->tzID        = date_default_timezone_get();
-        $this->user        = Helpers\Users::getUser();
+        $this->user        = UAdapter::instance();
         $this->uIDTemplate = "UID:$left-%s@$right";
 
         $this->setStamp();

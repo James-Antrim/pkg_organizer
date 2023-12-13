@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Units as Table;
@@ -33,7 +33,7 @@ class UnitEdit extends EditModelOld
      */
     protected function authorize()
     {
-        if (!Helpers\Users::getID()) {
+        if (!User::id()) {
             Application::error(401);
         }
 
@@ -141,7 +141,7 @@ class UnitEdit extends EditModelOld
         die;
 
         if ($this->my = Input::getBool('my')) {
-            $code = Helpers\Users::getID() . '-1';
+            $code = User::id() . '-1';
             $keys = ['code' => $code];
 
             // Get an organization associated with the user as a teacher

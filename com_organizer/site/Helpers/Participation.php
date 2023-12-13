@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\User;
 use THM\Organizer\Tables\InstanceParticipants as Table;
 
 /**
@@ -47,7 +48,7 @@ class Participation
      */
     public static function busy(string $date, string $startTime, string $endTime): bool
     {
-        $userID = Users::getID();
+        $userID = User::id();
 
         $timeConditions = [
             "b.startTime <= '$startTime' AND b.endTime >= '$endTime'",

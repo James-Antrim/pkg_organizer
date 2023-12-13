@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Roles;
 
@@ -61,7 +61,7 @@ class RoomOverview extends TableView
             'showUnpublished' => Helpers\Can::administrate(),
             'startDate'       => $date,
             'status'          => 1,
-            'userID'          => Helpers\Users::getID()
+            'userID'          => User::id()
         ];
 
         $instances = Helpers\Instances::items($conditions);

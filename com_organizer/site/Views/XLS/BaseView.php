@@ -13,16 +13,15 @@ namespace THM\Organizer\Views\XLS;
 require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
 
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use Joomla\CMS\Application\ApplicationHelper;
-use THM\Organizer\Adapters\Input;
+use PHPExcel;
+use PHPExcel_IOFactory;
+use PHPExcel_Worksheet;
+use THM\Organizer\Adapters\{Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\XLS\BaseLayout;
 use THM\Organizer\Models\BaseModel;
 use THM\Organizer\Views\Named;
-use PHPExcel;
-use PHPExcel_IOFactory;
-use PHPExcel_Worksheet;
 
 /**
  * Base class for a Joomla View
@@ -54,7 +53,7 @@ abstract class BaseView extends PHPExcel
 
         $properties = $this->getProperties();
         $properties->setCreator('Organizer');
-        $properties->setLastModifiedBy(Helpers\Users::getName());
+        $properties->setLastModifiedBy(User::name());
         $properties->setDescription($this->layout->getDescription());
         $properties->setTitle($this->layout->getTitle());
     }
@@ -90,7 +89,7 @@ abstract class BaseView extends PHPExcel
      * @return void
      * @throws Exception
      */
-    #[NoReturn] public function display(): void
+    public function display(): void
     {
         $this->layout->fill();
         $this->render();

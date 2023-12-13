@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Database, HTML};
+use THM\Organizer\Adapters\{Database, HTML, User};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -27,7 +27,7 @@ class CheckinRooms extends Options
     protected function getOptions(): array
     {
         $options       = parent::getOptions();
-        $participantID = Helpers\Users::getID();
+        $participantID = User::id();
 
         $now = date('H:i:s');
 

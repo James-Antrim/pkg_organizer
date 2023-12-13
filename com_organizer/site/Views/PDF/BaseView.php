@@ -15,7 +15,7 @@ namespace THM\Organizer\Views\PDF;
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\BaseLayout;
 use THM\Organizer\Models;
@@ -106,7 +106,7 @@ abstract class BaseView extends TCPDF
         $this->authorize();
 
         parent::__construct($orientation, $unit, $format);
-        $this->SetAuthor(Helpers\Users::getUser()->name);
+        $this->SetAuthor(User::name());
         $this->setCellPaddings(1, 1.5, 1, 1.5);
         $this->SetCreator('THM Organizer');
         $this->setFooterFont($this->dataFont);

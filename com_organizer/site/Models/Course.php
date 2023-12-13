@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Input, Text};
-use THM\Organizer\Helpers\{Can, Courses, Mailer, Units, Users};
+use THM\Organizer\Adapters\{Application, Input, Text, User};
+use THM\Organizer\Helpers\{Can, Courses, Mailer, Units};
 use THM\Organizer\Tables;
 
 /**
@@ -39,7 +39,7 @@ class Course extends BaseModel
      */
     public function deregister(): bool
     {
-        if (!$courseID = Input::getID() or !$participantID = Users::getID()) {
+        if (!$courseID = Input::getID() or !$participantID = User::id()) {
             return false;
         }
 
@@ -229,7 +229,7 @@ class Course extends BaseModel
     public function register(): bool
     {
         $courseID      = Input::getID();
-        $participantID = Users::getID();
+        $participantID = User::id();
         $cpData        = ['courseID' => $courseID, 'participantID' => $participantID];
 
         $courseParticipant = new Tables\CourseParticipants();

@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Table\Table;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\{BaseTable, Schedules};
@@ -978,7 +978,7 @@ class Schedule extends BaseModel
             return false;
         }
 
-        $userID = Helpers\Users::getID();
+        $userID = User::id();
         unset($validator->schedule);
 
         $data = [
