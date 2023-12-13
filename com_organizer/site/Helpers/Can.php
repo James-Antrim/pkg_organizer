@@ -192,8 +192,6 @@ class Can
             return $authorized;
         }
 
-        $user = User::instance();
-
         switch ($resourceType) {
             case 'categories':
             case 'category':
@@ -211,7 +209,7 @@ class Can
                     return false;
                 }
 
-                if ($user->id == $resource) {
+                if (User::id() === $resource) {
                     return true;
                 }
 
