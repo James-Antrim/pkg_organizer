@@ -236,6 +236,12 @@ abstract class FormController extends Controller
                 return;
             }
 
+            // Implicit null => no option had to be selected  / Explicit null => the null value option was selected
+            if (in_array($key, $nullable) and (empty($value) or (int) $value === self::NULL_VALUE)) {
+                $data[$key] = null;
+                continue;
+            }
+
             if (in_array($key, $numeric)) {
                 if (!is_numeric($value)) {
                     Application::message('400');
@@ -248,10 +254,6 @@ abstract class FormController extends Controller
                 }
 
                 $data[$key] = (int) $value;
-
-                if (in_array($key, $nullable) and $value === self::NULL_VALUE) {
-                    $data[$key] = null;
-                }
             }
         }
     }

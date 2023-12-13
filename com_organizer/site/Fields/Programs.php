@@ -18,6 +18,8 @@ use THM\Organizer\Helpers;
  */
 class Programs extends Options
 {
+    use Malleable;
+
     /**
      * Method to get the field options.
      * @return  array  The field option objects.

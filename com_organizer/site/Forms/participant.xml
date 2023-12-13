@@ -3,15 +3,14 @@
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="referrer" type="hidden"/>
-        <field name="forename" type="text" required="true" class="input-15 required validate-name" label="ORGANIZER_FORENAME"/>
-        <field name="surname" type="text" required="true" class="input-15 required validate-name" label="ORGANIZER_SURNAME"/>
-        <field name="telephone" type="text" class="input-15 validate-telephone" label="ORGANIZER_TELEPHONE"/>
-        <field name="address" type="text" required="true" class="input-15 required validate-address" label="ORGANIZER_STREET"/>
-        <field name="zipCode" type="text" required="true" class="input-15 required validate-alphanumeric"
-               label="ORGANIZER_ZIP_CODE"/>
-        <field name="city" type="text" required="true" class="input-15 required validate-name" label="ORGANIZER_RESIDENCE"/>
-        <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" class="input-15"
-               description="ORGANIZER_ENROLLED_PROGRAM" required="true">
+        <field name="forename" type="Text" label="ORGANIZER_FORENAME" class="required validate-name" required="true"/>
+        <field name="surname" type="Text" label="ORGANIZER_SURNAME" class="required validate-name" required="true"/>
+        <field name="telephone" type="Text" label="ORGANIZER_TELEPHONE" class="validate-telephone"/>
+        <field name="address" type="Text" label="ORGANIZER_STREET" class="required validate-address" required="true"/>
+        <field name="zipCode" type="Text" label="ORGANIZER_ZIP_CODE" class="required validate-alphanumeric" required="true"/>
+        <field name="city" type="Text" label="ORGANIZER_RESIDENCE" class="required validate-name" required="true"/>
+        <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" description="ORGANIZER_ENROLLED_PROGRAM"
+               required="true">
             <option value="">ORGANIZER_SELECT_PROGRAM</option>
         </field>
     </fieldset>
