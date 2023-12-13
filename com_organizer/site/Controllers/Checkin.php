@@ -11,6 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
@@ -26,26 +27,27 @@ class Checkin extends Controller
      * @return void
      * @throws Exception
      */
-    public function checkin()
+    public function checkin(): void
     {
         $data    = Input::getFormItems();
         $session = Factory::getSession();
 
         if (!User::id()) {
-            $credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
-            Application::getApplication()->login($credentials);
-            $session->set('organizer.checkin.username', $data->get('username'));
+            /** @var CMSApplication $app */
+            $app = Application::getApplication();
+            $app->login(['username' => $data['username'], 'password' => $data['password']]);
+            $session->set('organizer.checkin.username', $data['username']);
         }
 
         if (User::id()) {
             $model = new Models\InstanceParticipant();
 
             // Code was invalid, no reason to keep it.
-            $code = $model->checkin() ? $data->get('code') : '';
+            $code = $model->checkin() ? $data['code'] : '';
             $session->set('organizer.checkin.code', $code);
         }
         else {
-            $session->set('organizer.checkin.code', $data->get('code'));
+            $session->set('organizer.checkin.code', $data['code']);
         }
 
         $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
@@ -56,7 +58,7 @@ class Checkin extends Controller
      * Resolves participant instance ambiguity.
      * @return void
      */
-    public function confirmInstance()
+    public function confirmInstance(): void
     {
         if (User::id()) {
             $model = new Models\InstanceParticipant();
@@ -71,7 +73,7 @@ class Checkin extends Controller
      * Confirms the participant's room and seat.
      * @return void
      */
-    public function confirmSeating()
+    public function confirmSeating(): void
     {
         if (User::id()) {
             $model = new Models\InstanceParticipant();
@@ -85,9 +87,13 @@ class Checkin extends Controller
     /**
      * Saves the participants contact data.
      * @return void
+     * @see Participant::save(), Participant::prepareData()
      */
-    public function contact()
+    public function contact(): void
     {
+        //$numeric  = ['id', 'programID'];
+        //$nullable = ['programID'];
+        //$required = ['address', 'city', 'forename', 'id', 'surname', 'telephone', 'zipCode'];
         if (User::id()) {
             $model = new Models\Participant();
             $model->save();

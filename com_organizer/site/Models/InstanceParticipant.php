@@ -11,8 +11,9 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
+use THM\Organizer\Controllers\Participant;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Participation as Helper;
+use THM\Organizer\Helpers\{Can, Dates, Participation as Helper, Instances};
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\InstanceParticipants as Table;
 
@@ -28,7 +29,7 @@ class InstanceParticipant extends BaseModel
      * Finds instances matching the given instance by course and date.
      * @return void
      */
-    private function addCourseInstances(array &$instanceIDs)
+    private function addCourseInstances(array &$instanceIDs): void
     {
         $now             = date('H:i:s');
         $supplementalIDs = [];
@@ -74,7 +75,7 @@ class InstanceParticipant extends BaseModel
      * Authorizes users responsible for bookings to edit individual participation.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         $bookingID = 0;
 
@@ -82,7 +83,7 @@ class InstanceParticipant extends BaseModel
             Application::error(400);
         }
 
-        if (!Helpers\Can::manage('booking', $bookingID)) {
+        if (!Can::manage('booking', $bookingID)) {
             Application::error(403);
         }
     }
@@ -94,7 +95,7 @@ class InstanceParticipant extends BaseModel
      *
      * @return void
      */
-    public function bookmark(int $method)
+    public function bookmark(int $method): void
     {
         if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
@@ -102,8 +103,7 @@ class InstanceParticipant extends BaseModel
             return;
         }
 
-        $participant = new Participant();
-        $participant->supplement($participantID);
+        Participant::supplement($participantID);
 
         if (!$instanceIDs = $this->getInstanceIDs($method, true)) {
             return;
@@ -113,7 +113,7 @@ class InstanceParticipant extends BaseModel
         $responsible = false;
 
         foreach ($instanceIDs as $instanceID) {
-            if (Helpers\Instances::hasResponsibility($instanceID)) {
+            if (Instances::hasResponsibility($instanceID)) {
                 $responsible = true;
                 continue;
             }
@@ -128,7 +128,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->save($keys)) {
                 $bookmarked = true;
-                Helpers\Instances::updateNumbers($instanceID);
+                Instances::updateNumbers($instanceID);
             }
         }
 
@@ -154,11 +154,10 @@ class InstanceParticipant extends BaseModel
             return false;
         }
 
-        $participant = new Participant();
-        $participant->supplement($participantID);
+        Participant::supplement($participantID);
 
         $data = Input::getFormItems();
-        if (!$code = $data->get('code') or !preg_match('/^[a-f0-9]{4}-[a-f0-9]{4}$/', $code)) {
+        if (!$code = $data['code'] or !preg_match('/^[a-f0-9]{4}-[a-f0-9]{4}$/', $code)) {
             Application::message('ORGANIZER_UNIT_CODE_INVALID', Application::ERROR);
 
             return false;
@@ -209,7 +208,7 @@ class InstanceParticipant extends BaseModel
                 return false;
             }
 
-            Helpers\Instances::updateNumbers($instanceID);
+            Instances::updateNumbers($instanceID);
         }
 
         Application::message(Text::_('ORGANIZER_CHECKIN_SUCCEEDED'));
@@ -221,7 +220,7 @@ class InstanceParticipant extends BaseModel
      * Resolves participant instance ambiguity.
      * @return void
      */
-    public function confirmInstance()
+    public function confirmInstance(): void
     {
         if (!$participantID = User::id()) {
             Application::message('ORGANIZER_401', Application::ERROR);
@@ -257,7 +256,7 @@ class InstanceParticipant extends BaseModel
             if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
                 $participation->delete();
                 Application::message('ORGANIZER_EVENT_CONFIRMED');
-                Helpers\Instances::updateNumbers($instanceID);
+                Instances::updateNumbers($instanceID);
             }
             else {
                 Application::message('ORGANIZER_412', Application::ERROR);
@@ -269,7 +268,7 @@ class InstanceParticipant extends BaseModel
      * Confirms the participant's room and seat.
      * @return void
      */
-    public function confirmSeating()
+    public function confirmSeating(): void
     {
         if (!$participantID = User::id()) {
             Application::message('ORGANIZER_401', Application::ERROR);
@@ -298,13 +297,13 @@ class InstanceParticipant extends BaseModel
     }
 
     /**
-     * Deregisters participants from instances.
+     * De-registers participants from instances.
      *
      * @param   int  $method  the method to be used for resolving the instances to be registered
      *
      * @return void
      */
-    public function deregister(int $method)
+    public function deregister(int $method): void
     {
         if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
@@ -334,7 +333,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->save($keys)) {
                 $deregistered = true;
-                Helpers\Instances::updateNumbers($instanceID);
+                Instances::updateNumbers($instanceID);
             }
         }
 
@@ -447,12 +446,12 @@ class InstanceParticipant extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::manageTheseOrganizations() and !Helpers\Instances::teaches($instanceID))
+        if (!Can::manageTheseOrganizations() and !Instances::teaches($instanceID))
         {
             OrganizerHelper::error(403);
         }
 
-        $participants = Helpers\Instances::getParticipantIDs($instanceID);
+        $participants = Instances::getParticipantIDs($instanceID);
         $selected     = Input::getIntCollection('cid');
 
         if (empty($participants) and empty($selected))
@@ -483,7 +482,7 @@ class InstanceParticipant extends BaseModel
      *
      * @return void
      */
-    public function register(int $method)
+    public function register(int $method): void
     {
         if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
@@ -491,8 +490,7 @@ class InstanceParticipant extends BaseModel
             return;
         }
 
-        $participant = new Participant();
-        $participant->supplement($participantID);
+        Participant::supplement($participantID);
 
         // This filters out past instances.
         if (!$instanceIDs = $this->getInstanceIDs($method)) {
@@ -505,7 +503,7 @@ class InstanceParticipant extends BaseModel
         $responsible = false;
 
         foreach ($instanceIDs as $instanceID) {
-            if (Helpers\Instances::hasResponsibility($instanceID)) {
+            if (Instances::hasResponsibility($instanceID)) {
                 $responsible = true;
                 continue;
             }
@@ -518,15 +516,15 @@ class InstanceParticipant extends BaseModel
                 continue;
             }
 
-            $name  = Helpers\Instances::getName($instanceID);
-            $block = Helpers\Instances::block($instanceID);
-            $date  = Helpers\Dates::formatDate($block->date);
-            //$earliest  = Helpers\Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
-            $endTime   = Helpers\Dates::formatEndTime($block->endTime);
-            $startTime = Helpers\Dates::formatTime($block->startTime);
+            $name  = Instances::getName($instanceID);
+            $block = Instances::block($instanceID);
+            $date  = Dates::formatDate($block->date);
+            //$earliest  = Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
+            $endTime   = Dates::formatEndTime($block->endTime);
+            $startTime = Dates::formatTime($block->startTime);
             //$then      = date('Y-m-d', strtotime('+2 days'));
 
-            if (Helpers\Instances::methodCode($instanceID) === Helpers\Methods::FINALCODE) {
+            if (Instances::methodCode($instanceID) === Helpers\Methods::FINALCODE) {
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_EXTERNAL_REGISTRATION', $name, $date, $startTime, $endTime),
                     Application::NOTICE
@@ -534,7 +532,7 @@ class InstanceParticipant extends BaseModel
                 continue;
             }
 
-            if (Helpers\Instances::getPresence($instanceID) === Helpers\Instances::ONLINE) {
+            if (Instances::getPresence($instanceID) === Instances::ONLINE) {
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_ONLINE', $name, $date, $startTime, $endTime),
                     Application::NOTICE
@@ -562,7 +560,7 @@ class InstanceParticipant extends BaseModel
             Database::setQuery($query);
 
             if ($otherInstanceID = Database::loadInt()) {
-                $otherName = Helpers\Instances::getName($otherInstanceID);
+                $otherName = Instances::getName($otherInstanceID);
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT', $date, $startTime, $endTime,
                         $otherName),
@@ -571,7 +569,7 @@ class InstanceParticipant extends BaseModel
                 continue;
             }
 
-            if (Helpers\Instances::isFull($instanceID)) {
+            if (Instances::isFull($instanceID)) {
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_FULL_MESSAGE', $name, $date, $startTime, $endTime),
                     Application::NOTICE
@@ -583,7 +581,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->save($keys)) {
                 $registered = true;
-                Helpers\Instances::updateNumbers($instanceID);
+                Instances::updateNumbers($instanceID);
             }
         }
 
@@ -604,7 +602,7 @@ class InstanceParticipant extends BaseModel
      *
      * @return void
      */
-    public function removeBookmark(int $method)
+    public function removeBookmark(int $method): void
     {
         if (!$participantID = User::id()) {
             Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
@@ -629,7 +627,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->delete()) {
                 $removed = true;
-                Helpers\Instances::updateNumbers($instanceID);
+                Instances::updateNumbers($instanceID);
             }
         }
 
@@ -637,7 +635,7 @@ class InstanceParticipant extends BaseModel
             Application::message(Text::_('ORGANIZER_DESCHEDULE_SUCCESS'));
         }
 
-        // The other option is that the participant didn't have matching instances in their personal schedule anyways => no message.
+        // The other option is that the participant didn't have matching instances in their personal schedule regardless => no message.
     }
 
     /**
@@ -651,7 +649,7 @@ class InstanceParticipant extends BaseModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems() : $data;
 
         $table = new Table();
         if (!$table->load($data['id'])) {
@@ -691,7 +689,7 @@ class InstanceParticipant extends BaseModel
         $success = $table->store();
 
         foreach ($instanceIDs as $instanceID) {
-            Helpers\Instances::updateNumbers($instanceID);
+            Instances::updateNumbers($instanceID);
         }
 
         return $success;

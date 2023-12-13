@@ -13,8 +13,8 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\{Form\Form, User\User};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text, User as UAdapter};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Bookings as Helper;
+use THM\Organizer\Controllers\Participant;
+use THM\Organizer\Helpers\{Can, Bookings as Helper, Instances, Participants as PHelper};
 use THM\Organizer\Tables;
 
 /**
@@ -54,7 +54,7 @@ class Booking extends Participants
 
         $instanceID = array_shift($instanceIDs);
 
-        if (!Helpers\Can::manage('instance', $instanceID)) {
+        if (!Can::manage('instance', $instanceID)) {
             Application::error(403);
         }
 
@@ -114,9 +114,8 @@ class Booking extends Participants
         Database::setQuery($query);
 
         if ($participantID = Database::loadInt()) {
-            if (!Helpers\Participants::exists($participantID)) {
-                $participant = new Participant();
-                $participant->supplement($participantID);
+            if (!PHelper::exists($participantID)) {
+                Participant::supplement($participantID);
                 $existing = false;
             }
         }
@@ -162,7 +161,7 @@ class Booking extends Participants
                 return;
             }
 
-            // Remove characters upto and and after li-tags inclusively
+            // Remove characters upto and after li-tags inclusively
             $response = mb_convert_encoding($response, 'utf-8', $charset);
             $response = substr($response, strpos($response, '<li>') + 4);
             $response = substr($response, 0, strpos($response, '</li>'));
@@ -264,8 +263,7 @@ class Booking extends Participants
                 }
             }
 
-            $participant = new Participant();
-            $participant->supplement($userNameID, true);
+            Participant::supplement($participantID, true);
         }
 
         $instanceIDs = Helper::getInstanceIDs($bookingID);
@@ -291,7 +289,7 @@ class Booking extends Participants
                         return;
                     }
 
-                    Helpers\Instances::updateNumbers($participation->instanceID);
+                    Instances::updateNumbers($participation->instanceID);
                 }
 
                 Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -310,7 +308,7 @@ class Booking extends Participants
                 return;
             }
 
-            Helpers\Instances::updateNumbers($instanceID);
+            Instances::updateNumbers($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -326,7 +324,7 @@ class Booking extends Participants
             Application::error(400);
         }
 
-        if (!Helpers\Can::manage('booking', $bookingID)) {
+        if (!Can::manage('booking', $bookingID)) {
             Application::error(403);
         }
     }
@@ -444,7 +442,7 @@ class Booking extends Participants
                 $participation->attended = true;
 
                 if ($participation->store()) {
-                    Helpers\Instances::updateNumbers($participation->instanceID);
+                    Instances::updateNumbers($participation->instanceID);
                     $count++;
                 }
             }
@@ -736,7 +734,7 @@ class Booking extends Participants
                 return;
             }
 
-            Helpers\Instances::updateNumbers($instanceID);
+            Instances::updateNumbers($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANTS_REMOVED');

@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Input, User};
+use THM\Organizer\Adapters\{Application, Form, Input, User};
+use THM\Organizer\Controllers\Participant;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -22,26 +23,23 @@ class Profile extends OldFormModel
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!User::id()) {
             Application::error(401);
         }
-
-        return true;
     }
 
     /**
      * @inheritDoc
      */
-    public function getForm($data = [], $loadData = false)
+    public function getForm($data = [], $loadData = false): Form
     {
         $form = parent::getForm($data, $loadData);
         $user = User::instance();
 
         if (!Helpers\Participants::exists($user->id)) {
-            $model = new Participant();
-            $model->supplement($user->id);
+            Participant::supplement($user->id);
         }
 
         $participant = new Tables\Participants();
@@ -80,9 +78,8 @@ class Profile extends OldFormModel
         }
 
         $data = Input::getFormItems();
-        $participant->bindRegistry($data);
 
-        if (!$participant->store()) {
+        if (!$participant->save($data)) {
             Application::message('ORGANIZER_PROFILE_NOT_SAVED', Application::ERROR);
 
             return;
@@ -97,9 +94,7 @@ class Profile extends OldFormModel
                 return;
             }
 
-            $person->bindRegistry($data);
-
-            if (!$person->store()) {
+            if (!$person->save($data)) {
                 Application::message('ORGANIZER_PROFILE_NOT_SAVED', Application::ERROR);
 
                 return;

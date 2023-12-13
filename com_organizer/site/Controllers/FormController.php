@@ -22,6 +22,8 @@ use THM\Organizer\Tables\Incremented;
  */
 abstract class FormController extends Controller
 {
+    protected const NULL_VALUE = -1;
+
     /**
      * The list view to redirect to after completion of form view functions.
      * @var string
@@ -65,6 +67,30 @@ abstract class FormController extends Controller
     }
 
     /**
+     * Filters field data for actual letters and accepted special characters.
+     *
+     * @param   string  $value  the raw value
+     *
+     * @return string
+     */
+    protected static function cleanAlpha(string $value): string
+    {
+        return preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}_.\-\']/', ' ', $value);
+    }
+
+    /**
+     * Filters field data for actual letters, accepted special characters and numbers.
+     *
+     * @param   string  $value  the raw value
+     *
+     * @return string
+     */
+    protected static function cleanAlphaNum(string $value): string
+    {
+        return preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\d\p{N}_.\-\']/', ' ', $value);
+    }
+
+    /**
      * Instances a table object corresponding to the registered list.
      * @return Table
      */
@@ -81,7 +107,11 @@ abstract class FormController extends Controller
      */
     protected function prepareData(): array
     {
-        return Input::getFormItems();
+        foreach ($data = Input::getFormItems() as $key => $value) {
+            $data[$key] = self::trim($value);
+        }
+
+        return $data;
     }
 
     /**
@@ -167,5 +197,62 @@ abstract class FormController extends Controller
         Application::message($table->getError(), Application::ERROR);
 
         return $id;
+    }
+
+    /**
+     * Removes excess spaces from a form value.
+     *
+     * @param   string  $value
+     *
+     * @return string
+     */
+    protected static function trim(string $value): string
+    {
+        // Replace ideographic space
+        $value = str_replace(chr(0xE3) . chr(0x80) . chr(0x80), ' ', $value);
+        // Replace no-break space
+        $value = str_replace(chr(0xC2) . chr(0xA0), ' ', $value);
+        // Remove leading & trailing spaces
+        $value = trim($value);
+        // Remove surfeit spaces
+        return preg_replace('/ +/', ' ', $value);
+    }
+
+    /**
+     * Validates form
+     *
+     * @param   array  $data
+     * @param   array  $required
+     * @param   array  $nullable
+     * @param   array  $numeric
+     *
+     * @return void
+     */
+    protected function validate(array &$data, array $required = [], array $nullable = [], array $numeric = []): void
+    {
+        foreach ($data as $key => $value) {
+            if (in_array($key, $required) and empty($value)) {
+                Application::error(400);
+                return;
+            }
+
+            if (in_array($key, $numeric)) {
+                if (!is_numeric($value)) {
+                    Application::message('400');
+                    return;
+                }
+
+                if (str_contains($value, '.')) {
+                    $data[$key] = (float) $value;
+                    continue;
+                }
+
+                $data[$key] = (int) $value;
+
+                if (in_array($key, $nullable) and $value === self::NULL_VALUE) {
+                    $data[$key] = null;
+                }
+            }
+        }
     }
 }
