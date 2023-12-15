@@ -176,7 +176,7 @@ class HTML extends HTMLHelper
 
         $attributes['class']   .= $class === 'publish' ? ' active' : '';
         $attributes['href']    = 'javascript:void(0);';
-        $attributes['onclick'] = "return Joomla.listItemTask('cb$index','$controller.$task$refKey','adminForm')";
+        $attributes['onclick'] = $task ? "return Joomla.listItemTask('cb$index','$controller.$task$refKey','adminForm')" : '#';
 
         $return .= '<a ' . ArrayHelper::toString($attributes) . '>' . self::icon($iconClass) . '</a>';
 
