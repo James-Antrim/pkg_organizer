@@ -10,12 +10,12 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Helpers\RoomTypes as Helper;
+use THM\Organizer\Helpers\RoomKeys as Helper;
 
 /**
  * Class creates a form field for room type selection
  */
-class RoomTypes extends Options
+class RoomKeys extends Options
 {
     /**
      * Method to get the field options.

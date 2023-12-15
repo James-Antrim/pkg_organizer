@@ -13,8 +13,7 @@
         <field name="roomtypeID" type="RoomTypes" label="ORGANIZER_TYPE" onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_ROOM_TYPES</option>
         </field>
-        <field name="keyID" type="GenericOptions" label="ORGANIZER_ROOM_KEY" onchange="this.form.submit();" localized="true"
-               table="organizer_roomkeys" textcolumn="name" valuecolumn="id">
+        <field name="keyID" type="RoomKeys" label="ORGANIZER_ROOM_KEY" onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_ROOM_KEYS</option>
             <option value="-1">ORGANIZER_NO_ROOM_KEY</option>
         </field>

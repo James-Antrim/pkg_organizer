@@ -21,6 +21,7 @@ use THM\Organizer\Adapters\Text;
  */
 class Options extends ListField
 {
+    use Malleable;
     use Translated;
 
     /**

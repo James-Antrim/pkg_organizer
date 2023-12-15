@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use stdClass;
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 
 /**
  * Class replaces form field type sql by using Joomla's database objects to avoid database language dependency. While
@@ -19,86 +19,6 @@ use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
  */
 class GenericOptions extends Options
 {
-    /**
-     * Method to get the field input markup for a generic list.
-     * Use the multiple attribute to enable multiselect.
-     * @return string  The field input markup.
-     */
-    protected function getInput(): string
-    {
-        $html = [];
-        $attr = '';
-
-        // Initialize some field attributes.
-        $attr        .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
-        $attr        .= !empty($this->size) ? ' size="' . $this->size . '"' : '';
-        $attr        .= $this->multiple ? ' multiple' : '';
-        $attr        .= $this->required ? ' required aria-required="true"' : '';
-        $attr        .= $this->autofocus ? ' autofocus' : '';
-        $placeHolder = $this->getAttribute('placeholder', '');
-        $attr        .= empty($placeHolder) ? '' : ' placeholder="' . Text::_($placeHolder) . '"';
-
-        $isReadOnly     = ($this->readonly == '1' or $this->readonly == 'true');
-        $this->readonly = (string) $isReadOnly;
-        $isDisabled     = ($this->disabled == '1' or $this->disabled == 'true');
-        $this->disabled = (string) $isDisabled;
-        // To avoid user's confusion, readonly="true" should imply disabled="true".
-        if ($isReadOnly or $isDisabled) {
-            $attr .= ' disabled="disabled"';
-        }
-
-        // Initialize JavaScript field attributes.
-        $attr .= $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
-
-        // Get the field options.
-        $options = $this->getOptions();
-
-        // Create a read-only list (no name) with hidden input(s) to store the value(s).
-        if ($isReadOnly) {
-            $html[] = HTML::_(
-                'select.genericlist',
-                $options,
-                '',
-                trim($attr),
-                'value',
-                'text',
-                $this->value,
-                $this->id
-            );
-
-            // E.g. form field type tag sends $this->value as array
-            if ($this->multiple && is_array($this->value)) {
-                if (!count($this->value)) {
-                    $this->value[] = '';
-                }
-
-                foreach ($this->value as $value) {
-                    $value  = htmlspecialchars($value, ENT_COMPAT);
-                    $html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
-                }
-            }
-            else {
-                $value  = htmlspecialchars($this->value, ENT_COMPAT);
-                $html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
-            }
-        }
-        else // Create a regular list.
-        {
-            $html[] = HTML::_(
-                'select.genericlist',
-                $options,
-                $this->name,
-                trim($attr),
-                'value',
-                'text',
-                $this->value,
-                $this->id
-            );
-        }
-
-        return implode($html);
-    }
-
     /**
      * Retrieve an array of options by building and executing a database query.
      * @return stdClass[]
