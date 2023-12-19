@@ -308,15 +308,12 @@ class MergeParticipants extends MergeController
     /**
      * @inheritDoc
      */
-    protected function validate(): bool
+    protected function validate(array &$data, array $required = [], array $nullable = [], array $numeric = []): void
     {
-        if (!$data = Input::getFormItems() or empty($data['email'])) {
-            Application::message('NO_EMAIL_ADDRESS_SELECTED', Application::ERROR);
-
-            return false;
+        if ($data = Input::getFormItems() and !empty($data['email'])) {
+            $this->email = $data['email'];
         }
 
-        $this->email = $data['email'];
-        return true;
+        parent::validate($data, ['email'], ['programID'], ['programID']);
     }
 }
