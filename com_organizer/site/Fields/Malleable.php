@@ -13,6 +13,9 @@ namespace THM\Organizer\Fields;
 
 use SimpleXMLElement;
 
+/**
+ * Adds the ability to set attribute values that will not later be overwritten by element parsing.
+ */
 trait Malleable
 {
     public function setAttribute(string $attribute, string $value): void

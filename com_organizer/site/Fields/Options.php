@@ -21,9 +21,6 @@ use THM\Organizer\Adapters\Text;
  */
 class Options extends ListField
 {
-    use Malleable;
-    use Translated;
-
     /**
      * Cached array of the category items.
      * @var    array
