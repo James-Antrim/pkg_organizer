@@ -13,7 +13,11 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the room form into display context.
  */
-class RoomEdit extends EditViewOld
+class Room extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
+    public array $toDo = [
+        'Add additional fields for FM relevant attributes and values.',
+        'Add sanity checks for eff./max. capacity.'
+    ];
 }

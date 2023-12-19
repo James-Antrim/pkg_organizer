@@ -10,14 +10,10 @@
 
 namespace THM\Organizer\Controllers;
 
-trait Unscheduled
+/**
+ * @inheritDoc
+ */
+class Room extends FormController
 {
-    /**
-     * This resource is not referenced in schedule DIFs.
-     * @return bool
-     */
-    protected function updateSchedules(): bool
-    {
-        return true;
-    }
+    protected string $list = 'Rooms';
 }
