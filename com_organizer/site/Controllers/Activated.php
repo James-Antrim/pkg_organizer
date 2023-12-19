@@ -10,49 +10,40 @@
 
 namespace THM\Organizer\Controllers;
 
-use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Input;
 
+/**
+ * Standard implementation for de-/activating resources.
+ */
 trait Activated
 {
     /**
-     * Activates resources.
+     * Activates selected resources.
      * @return void
      */
-    public function activate()
+    public function activate(): void
     {
-        $fqName = 'THM\\Organizer\\Models\\' . ucfirst($this->resource);
-        $model  = new $fqName();
+        $this->checkToken();
+        $this->authorize();
 
-        if ($model->activate()) {
-            Application::message('ORGANIZER_DEACTIVATION_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_DEACTIVATION_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;
-        $this->setRedirect(Route::_($url, false));
+        $selectedIDs = Input::getSelectedIDs();
+        $selected    = count($selectedIDs);
+        $updated     = $this->updateBool('active', $selectedIDs, true);
+        $this->farewell($selected, $updated);
     }
 
     /**
-     * Deactivates resources.
+     * De-activates selected resources.
      * @return void
      */
-    public function deactivate()
+    public function deactivate(): void
     {
-        $fqName = 'THM\\Organizer\\Models\\' . ucfirst($this->resource);
-        $model  = new $fqName();
+        $this->checkToken();
+        $this->authorize();
 
-        if ($model->deactivate()) {
-            Application::message('ORGANIZER_DEACTIVATION_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_DEACTIVATION_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;
-        $this->setRedirect(Route::_($url, false));
+        $selectedIDs = Input::getSelectedIDs();
+        $selected    = count($selectedIDs);
+        $updated     = $this->updateBool('active', $selectedIDs, false);
+        $this->farewell($selected, $updated);
     }
 }

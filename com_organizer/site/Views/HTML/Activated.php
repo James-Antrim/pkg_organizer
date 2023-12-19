@@ -18,29 +18,37 @@ use THM\Organizer\Adapters\Toolbar;
  */
 trait Activated
 {
+    private const ACTIVE = 1, ALL = -1, INACTIVE = 0;
+
     /**
      * Adds activation and deactivation buttons to the global toolbar.
      *
-     * @param   bool  $check  whether a list item has to be selected for deactivation
-     *
      * @return void
      */
-    protected function addActa(bool $check = false): void
+    protected function addActa(): void
     {
         /** @var ListView $this */
         $controller = $this->getName();
+        $toolbar    = Toolbar::getInstance();
 
-        $toolbar = Toolbar::getInstance();
-
-        // Activation always requires a check to avoid unintended activation of resources purposefully deactivated.
-        $toolbar->standardButton('activate', Text::_('ACTIVATE'), "$controller.activate")
-            ->icon('fa fa-eye')
-            ->listCheck(true);
-
-        // Deactivation needs to be checked where no global deactivation has been implimented.
-        $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), "$controller.deactivate")
-            ->icon('fa fa-eye-slash')
-            ->listCheck($check);
+        switch ((int) $this->state->get('filter.active', self::ACTIVE)) {
+            case self::ACTIVE:
+                $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), "$controller.deactivate")
+                    ->icon('fa fa-eye-slash')
+                    ->listCheck(true);
+                break;
+            case self::ALL:
+                $toolbar->standardButton('activate', Text::_('ACTIVATE'),
+                    "$controller.activate")->icon('fa fa-eye')->listCheck(true);
+                $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), "$controller.deactivate")
+                    ->icon('fa fa-eye-slash')
+                    ->listCheck(true);
+                break;
+            case self::INACTIVE:
+                $toolbar->standardButton('activate', Text::_('ACTIVATE'),
+                    "$controller.activate")->icon('fa fa-eye')->listCheck(true);
+                break;
+        }
 
     }
 }

@@ -12,8 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Models\Room;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -25,43 +24,13 @@ class Rooms extends ListController
     protected string $item = 'Room';
 
     /**
-     * Makes call to the model's import function, and redirects to the manager view if the file .
-     * @return void
+     * @inheritDoc
      */
-    public function import(): void
+    protected function authorize(): void
     {
-        $url  = Helpers\Routing::getRedirectBase();
-        $view = 'Rooms';
-
-        if (JDEBUG) {
-            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
-            $url .= "&view=$view";
-            $this->setRedirect($url);
-
-            return;
+        if (!Can::manage('facilities')) {
+            Application::error(403);
         }
-
-        $form  = $this->input->files->get('jform', [], '[]');
-        $file  = $form['file'];
-        $types = ['application/vnd.ms-excel', 'text/csv'];
-
-        if (!empty($file['type']) and in_array($file['type'], $types)) {
-            if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
-                $model = new Room();
-                $view  = $model->import() ? 'Rooms' : 'RoomsImport';
-            }
-            else {
-                $view = 'RoomsImport';
-                Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
-            }
-        }
-        else {
-            $view = 'RoomsImport';
-            Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
-        }
-
-        $url .= "&view=$view";
-        $this->setRedirect($url);
     }
 
     /**

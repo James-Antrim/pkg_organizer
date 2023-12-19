@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use Exception;
 use Joomla\Input\Input as JInput;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
@@ -104,7 +105,7 @@ abstract class ListController extends Controller
      *
      * @return void
      */
-    protected function farewell(int $selected = 0, int $updated = 0, bool $delete = false, bool $autoRedirect = true): void
+    protected function farewell(int $selected = 0, int $updated = 0, bool $delete = false, bool $autoRedirect = false): void
     {
         if ($selected) {
             if ($selected === $updated) {
@@ -126,6 +127,13 @@ abstract class ListController extends Controller
         if ($autoRedirect) {
             $view = Application::getClass($this);
             $this->setRedirect("$this->baseURL&view=$view");
+        }
+
+        try {
+            $this->display();
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
         }
     }
 
