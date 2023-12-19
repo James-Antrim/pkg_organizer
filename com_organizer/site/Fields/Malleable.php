@@ -21,8 +21,8 @@ trait Malleable
     public function setAttribute(string $attribute, string $value): void
     {
         if ($this->element instanceof SimpleXMLElement) {
-            $attributes             = $this->element->attributes();
-            $attributes->$attribute = $value;
+            $attributes = $this->element->attributes();
+            $attributes->addAttribute($attribute, $value);
         }
     }
 }

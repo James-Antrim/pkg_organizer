@@ -10,31 +10,16 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Input, Text, Toolbar};
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
  */
 abstract class MergeView extends FormView
 {
-    /**
-     * The list view to redirect to after completion of form view functions.
-     * @var string
-     */
-    protected string $controller = '';
-
-    /**
-     * @inheritDoc
-     */
-    public function __construct($config = [])
-    {
-        if (empty($this->controller)) {
-            Application::error(501);
-        }
-
-        parent::__construct($config);
-    }
+    public array $toDo = [
+        'Figure out a way to make elements with values required beyond the asterix in merge fields.'
+    ];
 
     /**
      * @inheritDoc

@@ -48,6 +48,12 @@ abstract class MergeController extends FormController
      */
     public function display($cachable = false, $urlparams = []): BaseController
     {
+        if (JDEBUG) {
+            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
+
+            $this->setRedirect("$this->baseURL&view=$this->list");
+        }
+
         $this->input->set('view', Application::getClass($this));
 
         return parent::display($cachable, $urlparams);
@@ -81,6 +87,7 @@ abstract class MergeController extends FormController
     {
         $data       = parent::prepareData();
         $data['id'] = $this->mergeID;
+        $this->validate($data);
         return $data;
     }
 
@@ -93,12 +100,12 @@ abstract class MergeController extends FormController
         $this->checkToken();
         $this->authorize();
 
-        if (!$this->validate()) {
-            // Any messaging should be performed in the overriding function.
-            return 0;
-        }
-
         $this->resolveIDs();
+
+        /**
+         * Parent makes redundant authorize/token checks and can mess up the merge ID.
+         */
+        $data = $this->prepareData();
 
         // Associations have to be updated before entity references are deleted by foreign keys
         if (!$this->updateReferences()) {
@@ -119,10 +126,6 @@ abstract class MergeController extends FormController
                 $table->delete();
             }
 
-            /**
-             * Parent makes redundant authorize/token checks and can mess up the merge ID.
-             */
-            $data  = $this->prepareData();
             $table = $this->getTable();
 
             if ($result = $this->store($table, $data, $data['id'])) {
@@ -147,6 +150,91 @@ abstract class MergeController extends FormController
         $this->mergeIDs      = $ids;
         $this->mergeID       = array_shift($ids);
         $this->deprecatedIDs = $ids;
+    }
+
+    /**
+     * Updates an instance person association with groups, persons or rooms.
+     * @return bool
+     */
+    protected function updateAssignments(): bool
+    {
+        $column = $this->mergeContext . 'ID';
+        $table  = DB::qn('#__organizer_instance_' . $this->mergeContext . 's');
+        $query  = DB::getQuery();
+        $query->select('*')
+            ->from($table)
+            ->whereIn(DB::qn($column), $this->mergeIDs)
+            ->order(DB::qn(['assocID', 'modified']));
+        DB::setQuery($query);
+
+        if (!$results = DB::loadAssocList()) {
+            return true;
+        }
+
+        $initialSize = count($results);
+        $nextIndex   = 0;
+        $tableClass  = "THM\\Organizer\\Tables\\Instance" . $this->list;
+
+        for ($index = 0; $index < $initialSize;) {
+
+            /** @var InstanceGroups|InstanceRooms $assocTable */
+            $assocTable = new $tableClass();
+            $thisAssoc  = $results[$index];
+            $nextIndex  = $nextIndex ?: $index + 1;
+            $nextAssoc  = empty($results[$nextIndex]) ? [] : $results[$nextIndex];
+
+            // Unique IP association.
+            if (empty($nextAssoc) or $thisAssoc['assocID'] !== $nextAssoc['assocID']) {
+
+                $assocTable->load($thisAssoc['id']);
+                $assocTable->$column = $this->mergeID;
+                $assocTable->store();
+
+                $index++;
+                $nextIndex++;
+                continue;
+            }
+
+            /* Non-unique IP associations. */
+
+            // Redundant association
+            if ($thisAssoc['delta'] === 'removed' or $nextAssoc['delta'] !== 'removed') {
+                $assocTable->delete($thisAssoc['id']);
+                $index++;
+                $nextIndex++;
+                continue;
+            }
+
+            // Remove removed entries added later
+            do {
+                $assocTable->delete($nextAssoc['id']);
+                unset($results[$nextIndex]);
+
+                $nextIndex++;
+                $nextAssoc = $results[$nextIndex];
+
+                // This is the last result associated with the current IP association.
+                if ($thisAssoc['assocID'] !== $nextAssoc['assocID']) {
+                    $assocTable->load($thisAssoc['id']);
+                    $assocTable->$column = $this->mergeID;
+                    $assocTable->store();
+                    $index = $nextIndex;
+                    $nextIndex++;
+                    continue 2;
+                }
+
+                // An IP association added later is still current.
+                if ($nextAssoc['delta'] !== 'removed') {
+                    $assocTable->delete($thisAssoc['id']);
+                    $index = $nextIndex;
+                    $nextIndex++;
+                    continue 2;
+                }
+            }
+            while (true);
+        }
+
+        return true;
     }
 
     /**
@@ -187,89 +275,6 @@ abstract class MergeController extends FormController
     }
 
     /**
-     * Updates an instance person association with groups, persons or rooms.
-     * @return bool  true on success, otherwise false
-     */
-    protected function updateIPReferences(string $suffix, string $fkColumn): bool
-    {
-        $query = DB::getQuery();
-        $query->select('*')
-            ->from("#__organizer_instance_$suffix")
-            ->whereIn(DB::qn($fkColumn), $this->mergeIDs)
-            ->order(DB::qn(['assocID', 'modified']));
-        DB::setQuery($query);
-
-        if (!$results = DB::loadAssocList()) {
-            return true;
-        }
-
-        $initialSize = count($results);
-        $nextIndex   = 0;
-        $tableClass  = "THM\\Organizer\\Tables\\Instance" . $suffix . 's';
-
-        for ($index = 0; $index < $initialSize;) {
-
-            /** @var InstanceGroups|InstanceRooms $assocTable */
-            $assocTable = new $tableClass();
-            $thisAssoc  = $results[$index];
-            $nextIndex  = $nextIndex ?: $index + 1;
-            $nextAssoc  = empty($results[$nextIndex]) ? [] : $results[$nextIndex];
-
-            // Unique IP association.
-            if (empty($nextAssoc) or $thisAssoc['assocID'] !== $nextAssoc['assocID']) {
-
-                $assocTable->load($thisAssoc['id']);
-                $assocTable->$fkColumn = $this->mergeID;
-                $assocTable->store();
-
-                $index++;
-                $nextIndex++;
-                continue;
-            }
-
-            /* Non-unique IP associations. */
-
-            // Redundant association
-            if ($thisAssoc['delta'] === 'removed' or $nextAssoc['delta'] !== 'removed') {
-                $assocTable->delete($thisAssoc['id']);
-                $index++;
-                $nextIndex++;
-                continue;
-            }
-
-            // Remove removed entries added later
-            do {
-                $assocTable->delete($nextAssoc['id']);
-                unset($results[$nextIndex]);
-
-                $nextIndex++;
-                $nextAssoc = $results[$nextIndex];
-
-                // This is the last result associated with the current IP association.
-                if ($thisAssoc['assocID'] !== $nextAssoc['assocID']) {
-                    $assocTable->load($thisAssoc['id']);
-                    $assocTable->$fkColumn = $this->mergeID;
-                    $assocTable->store();
-                    $index = $nextIndex;
-                    $nextIndex++;
-                    continue 2;
-                }
-
-                // An IP association added later is still current.
-                if ($nextAssoc['delta'] !== 'removed') {
-                    $assocTable->delete($thisAssoc['id']);
-                    $index = $nextIndex;
-                    $nextIndex++;
-                    continue 2;
-                }
-            }
-            while (true);
-        }
-
-        return true;
-    }
-
-    /**
      * Updates resource associations in a schedule instance.
      *
      * @param   array  &$instance  the instance being iterated
@@ -279,7 +284,7 @@ abstract class MergeController extends FormController
      */
     private function updateInstance(array &$instance, int $mergeID): bool
     {
-        $context  = strtolower($this->name) . 's';
+        $context  = $this->mergeContext . 's';
         $relevant = false;
 
         foreach ($instance as $personID => $resources) {
@@ -306,7 +311,7 @@ abstract class MergeController extends FormController
     }
 
     /**
-     * Updates the resource dependent associations
+     * Updates the resource dependent associations.
      * @return bool
      */
     abstract protected function updateReferences(): bool;
@@ -318,7 +323,7 @@ abstract class MergeController extends FormController
      *
      * @return void
      */
-    protected function updateSchedule(int $scheduleID): void
+    private function updateSchedule(int $scheduleID): void
     {
         $schedule = new Schedules();
 
@@ -382,11 +387,21 @@ abstract class MergeController extends FormController
     }
 
     /**
-     * Initial validation checks, object property value setting as necessary for reference resolution.
+     * Updates an association where the associated resource itself has a fk reference to the resource being merged.
+     *
+     * @param   string  $table  the unique part of the table name
+     *
      * @return bool
      */
-    protected function validate(): bool
+    protected function updateTable(string $table): bool
     {
-        return true;
+        $column = DB::qn($this->mergeContext . 'ID');
+        $query  = Database::getQuery();
+        $query->update("#__organizer_$table")
+            ->set("$column = :mergeID")->bind(':mergeID', $this->mergeID)
+            ->whereIn($column, $this->mergeIDs);
+        Database::setQuery($query);
+
+        return Database::execute();
     }
 }

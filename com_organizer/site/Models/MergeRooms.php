@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 /**
  * Class loads a form for merging room data.
  */
-class RoomMerge extends OldFormModel
+class MergeRooms extends FormModel
 {
-    // Necessary code is performed in inheritance hierarchy.
+    // Everything is taken care of in the inheritance hierarchy.
 }
