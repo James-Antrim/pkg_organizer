@@ -16,6 +16,7 @@ namespace THM\Organizer\Tables;
 class Pools extends BaseTable
 {
     use Aliased;
+    use LSFImported;
 
     /**
      * The resource's German abbreviation.

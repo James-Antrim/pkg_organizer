@@ -18,6 +18,7 @@ class Subjects extends BaseTable
 {
     use Aliased;
     use Coded;
+    use LSFImported;
 
     /**
      * The resource's German abbreviation.
@@ -36,7 +37,7 @@ class Subjects extends BaseTable
     public $abbreviation_en;
 
     /**
-     * A flag denoting whether or not it is possible to achieve extra credit.
+     * A flag denoting whether it is possible to achieve extra credit.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
      */

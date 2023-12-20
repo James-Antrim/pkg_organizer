@@ -78,22 +78,6 @@ abstract class BaseTable extends Table
     }
 
     /**
-     * Sets a given property from a table, loading the table as necessary.
-     *
-     * @param   string  $column   the name of the property to set
-     * @param   mixed   $value    the value to set the property to
-     * @param   mixed   $default  the default value to use if the value parameter is empty
-     *
-     * @return void modifies the column property value
-     */
-    public function setColumn(string $column, $value, $default)
-    {
-        if (property_exists($this, $column)) {
-            $this->$column = empty($value) ? $default : $value;
-        }
-    }
-
-    /**
      * @inheritDoc
      */
     public function store($updateNulls = true): bool
