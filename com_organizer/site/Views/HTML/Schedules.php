@@ -38,7 +38,7 @@ class Schedules extends ListView
 
             if ($admin) {
                 $toolbar->standardButton('rebuild', Text::_('REBUILD'), 'Schedules.rebuild')->icon('fa fa-sync');
-                $toolbar->delete('Schedules.delete', Text::_('DELETE'))->message(Text::_('DELETE_CONFIRM'));
+                $toolbar->delete('Schedules.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
             }
         }
 

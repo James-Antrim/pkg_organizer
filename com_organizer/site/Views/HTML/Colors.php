@@ -27,7 +27,7 @@ class Colors extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Colors.add');
-        $toolbar->delete('Colors.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Colors.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 

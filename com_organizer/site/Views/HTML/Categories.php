@@ -33,7 +33,7 @@ class Categories extends ListView
 
         if (Can::administrate()) {
             $toolbar = Toolbar::getInstance();
-            $toolbar->delete('Categories.delete');
+            $toolbar->delete('Categories.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         }
 
         parent::addToolBar();

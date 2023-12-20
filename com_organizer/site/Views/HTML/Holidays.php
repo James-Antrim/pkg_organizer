@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
-use THM\Organizer\Helpers\{Can, Dates, Holidays as Helper};
+use THM\Organizer\Helpers\{Dates, Holidays as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -27,7 +27,7 @@ class Holidays extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Holidays.add');
-        $toolbar->delete('Holidays.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Holidays.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 

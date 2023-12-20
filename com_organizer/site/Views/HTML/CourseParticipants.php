@@ -55,7 +55,10 @@ class CourseParticipants extends Participants
             ->listCheck(true)
             ->icon('fa fa-square');
 
-        $toolbar->delete('CourseParticipants.remove')->message(Text::_('DELETE_CONFIRM'))->icon('fa fa-user-minus');
+        $toolbar->delete('CourseParticipants.remove')
+            ->message(Text::_('DELETE_CONFIRM'))
+            ->icon('fa fa-user-minus')
+            ->listCheck(true);
 
         $button = new FormTarget('badges', Text::_('DOWNLOAD_BADGES'));
         $button->icon('fa fa-tags')->task('CourseParticipants.badges');

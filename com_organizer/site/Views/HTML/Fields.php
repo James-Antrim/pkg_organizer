@@ -27,7 +27,7 @@ class Fields extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Fields.add');
-        $toolbar->delete('Fields.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Fields.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 

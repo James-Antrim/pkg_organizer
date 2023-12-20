@@ -27,7 +27,7 @@ class Runs extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Runs.add');
-        $toolbar->delete('Runs.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Runs.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 

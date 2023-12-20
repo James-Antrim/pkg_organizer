@@ -27,7 +27,7 @@ class Pools extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Pools.add');
-        $toolbar->delete('Pools.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Pools.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
 
         parent::addToolBar();
     }

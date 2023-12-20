@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use stdClass;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
+use THM\Organizer\Helpers\{Buildings as Helper, Campuses, Can};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -20,8 +20,6 @@ use THM\Organizer\Layouts\HTML\ListItem;
  */
 class Buildings extends ListView
 {
-    private const OWNED = 1, RENTED = 2, USED = 3;
-
     /**
      * @inheritDoc
      */
@@ -29,7 +27,7 @@ class Buildings extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Buildings.add');
-        $toolbar->delete('Buildings.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Buildings.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 
@@ -38,7 +36,7 @@ class Buildings extends ListView
      */
     protected function authorize(): void
     {
-        if (!Helpers\Can::manage('facilities')) {
+        if (!Can::manage('facilities')) {
             Application::error(403);
         }
     }
@@ -48,11 +46,11 @@ class Buildings extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->campusID     = Helpers\Campuses::getName($item->campusID);
+        $item->campusID     = Campuses::getName($item->campusID);
         $item->propertyType = match ($item->propertyType) {
-            self::OWNED => Text::_('OWNED'),
-            self::RENTED => Text::_('RENTED'),
-            self::USED => Text::_('USED'),
+            Helper::OWNED => Text::_('OWNED'),
+            Helper::RENTED => Text::_('RENTED'),
+            Helper::USED => Text::_('USED'),
             default => Text::_('UNKNOWN'),
         };
     }

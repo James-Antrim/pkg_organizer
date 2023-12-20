@@ -29,7 +29,7 @@ class RoomTypes extends ListView
 
         // Trust isn't there for this yet.
         if (Can::administrate()) {
-            $toolbar->delete('RoomTypes.delete')->message(Text::_('DELETE_CONFIRM'));
+            $toolbar->delete('RoomTypes.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         }
 
         parent::addToolBar();

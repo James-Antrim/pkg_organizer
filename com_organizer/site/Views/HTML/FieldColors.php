@@ -30,7 +30,7 @@ class FieldColors extends ListView
 
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('FieldColors.add')->icon('fa fa-link');
-        $toolbar->delete('FieldColors.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('FieldColors.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
 
         $toolbar->standardButton('newField', Text::_('ADD_FIELD'), 'Fields.add')->icon('fa fa-lightbulb');
         $toolbar->standardButton('newColor', Text::_('ADD_COLOR'), 'Colors.add')->icon('fa fa-palette');

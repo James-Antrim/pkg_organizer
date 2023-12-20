@@ -25,7 +25,7 @@ class Organizations extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Organizations.add');
-        $toolbar->delete('Organizations.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Organizations.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
 
         parent::addToolBar();
     }

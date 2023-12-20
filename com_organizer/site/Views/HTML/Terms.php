@@ -28,7 +28,7 @@ class Terms extends ListView
         $this->toDo[] = 'Be able to mark semesters as inactive so they no longer show up in filters.';
         $toolbar      = Toolbar::getInstance();
         $toolbar->addNew('Terms.add');
-        $toolbar->delete('Terms.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Terms.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 

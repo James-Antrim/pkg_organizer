@@ -27,7 +27,7 @@ class Campuses extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Campuses.add');
-        $toolbar->delete('Campuses.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Campuses.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 

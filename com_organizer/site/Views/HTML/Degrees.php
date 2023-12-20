@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use stdClass;
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -26,7 +25,7 @@ class Degrees extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Degrees.add');
-        $toolbar->delete('Degrees.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Degrees.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 

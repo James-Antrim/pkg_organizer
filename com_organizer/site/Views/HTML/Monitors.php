@@ -27,7 +27,7 @@ class Monitors extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Monitors.add');
-        $toolbar->delete('Monitors.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Monitors.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
 
         parent::addToolBar();
     }

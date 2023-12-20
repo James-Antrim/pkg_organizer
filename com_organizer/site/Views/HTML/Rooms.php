@@ -44,7 +44,7 @@ class Rooms extends ListView
 
             if (Can::administrate()) {
                 $this->addMerge();
-                $toolbar->delete('Rooms.delete')->message(Text::_('DELETE_CONFIRM'));
+                $toolbar->delete('Rooms.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
             }
 
             $export = new FormTarget('export', Text::_('UNINOW_EXPORT'));

@@ -32,7 +32,7 @@ class Persons extends ListView
         $this->addActa();
 
         if (Helpers\Can::administrate()) {
-            $toolbar->delete('Persons.delete')->message('DELETE_CONFIRM');
+            $toolbar->delete('Persons.delete')->message('DELETE_CONFIRM')->listCheck(true);
             $toolbar->standardButton('merge', Text::_('MERGE'), 'MergePersons.display')->icon('fa fa-compress');
         }
 

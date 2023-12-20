@@ -38,11 +38,11 @@ class Programs extends ListView
                 ->listCheck(true)->icon('fa fa-sync');
 
             if (Can::administrate()) {
-                $toolbar->delete('Programs.delete')->message(Text::_('DELETE_CONFIRM'));
+                $toolbar->delete('Programs.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
             }
 
             // No implicit basis in scheduling to deactivate programs.
-            $this->addActa(true);
+            $this->addActa();
         }
 
         parent::addToolBar();

@@ -22,6 +22,8 @@ class Buildings extends ResourceHelper implements Selectable
     use Active;
     use Filtered;
 
+    public const OWNED = 1, RENTED = 2, USED = 3;
+
     /**
      * Checks for the building entry in the database, creating it as necessary. Adds the id to the building entry in the
      * schedule.
