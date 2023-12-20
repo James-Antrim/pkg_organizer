@@ -138,6 +138,26 @@ abstract class ListController extends Controller
     }
 
     /**
+     * Initiates toggling of boolean values in a column.
+     *
+     * @param   string  $column  the column in which the values are stored
+     * @param   bool    $value   the target value
+     *
+     * @return void
+     */
+    protected function toggle(string $column, bool $value): void
+    {
+        $this->checkToken();
+        $this->authorize();
+
+        $selectedIDs = Input::getSelectedIDs();
+        $selected    = count($selectedIDs);
+        $updated     = $this->updateBool($column, $selectedIDs, $value);
+
+        $this->farewell($selected, $updated);
+    }
+
+    /**
      * Updates a boolean column for multiple entries in a
      *
      * @param   string  $column       the table column / object property

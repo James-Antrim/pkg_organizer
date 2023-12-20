@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\CleaningGroups as Helper;
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -26,7 +27,29 @@ class CleaningGroups extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('CleaningGroups.add');
-        $toolbar->delete('CleaningGroups.delete')->message(Text::_('DELETE_CONFIRM'));
+
+        switch ($this->state->get('filter.relevant')) {
+            case Helper::EXCLUDED:
+                $toolbar->standardButton('include', Text::_('INCLUDE'), "CleaningGroups.activate")
+                    ->icon('fa fa-check')
+                    ->listCheck(true);
+                break;
+            case Helper::INCLUDED:
+                $toolbar->standardButton('exclude', Text::_('EXCLUDE'), "CleaningGroups.deactivate")
+                    ->icon('fa fa-times')
+                    ->listCheck(true);
+                break;
+            default:
+                $toolbar->standardButton('include', Text::_('INCLUDE'), "CleaningGroups.activate")
+                    ->icon('fa fa-check')
+                    ->listCheck(true);
+                $toolbar->standardButton('exclude', Text::_('EXCLUDE'), "CleaningGroups.deactivate")
+                    ->icon('fa fa-times')
+                    ->listCheck(true);
+                break;
+        }
+
+        $toolbar->delete('CleaningGroups.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         parent::addToolBar();
     }
 
@@ -35,11 +58,8 @@ class CleaningGroups extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $tip = 'CLICK_TO_MARK_';
-        $tip .= $item->relevant ? 'IRRELEVANT' : 'RELEVANT';
-
         $item->days      = $item->days === '0.00' ? '-' : $item->days;
-        $item->relevant  = $this->getToggle('CleaningGroups', $item->id, $item->relevant, $tip);
+        $item->relevant  = HTML::toggle($index, Helper::STATES[$item->relevant], 'CleaningGroups');
         $item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
     }
 

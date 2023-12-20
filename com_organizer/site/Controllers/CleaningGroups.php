@@ -16,4 +16,22 @@ namespace THM\Organizer\Controllers;
 class CleaningGroups extends ListController
 {
     protected string $item = 'CleaningGroup';
+
+    /**
+     * Activates selected resources.
+     * @return void
+     */
+    public function exclude(): void
+    {
+        parent::toggle('relevant', false);
+    }
+
+    /**
+     * De-activates selected resources.
+     * @return void
+     */
+    public function include(): void
+    {
+        parent::toggle('relevant', true);
+    }
 }
