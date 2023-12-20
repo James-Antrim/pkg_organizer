@@ -19,7 +19,7 @@ use THM\Organizer\Helpers\Can;
  */
 class RoomKeys extends ListModel
 {
-    protected $filter_fields = ['cleaningID', 'useID'];
+    protected $filter_fields = ['cleaningID', 'inUse', 'useID'];
 
     /**
      * @inheritDoc

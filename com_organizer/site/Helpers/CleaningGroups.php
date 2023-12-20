@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Application, Database as DB, HTML};
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class CleaningGroups implements Selectable
+class CleaningGroups extends ResourceHelper implements Selectable
 {
     public const INCLUDED = 1, EXCLUDED = 0;
 
