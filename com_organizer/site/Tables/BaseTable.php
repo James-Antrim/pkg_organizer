@@ -13,7 +13,6 @@ namespace THM\Organizer\Tables;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
-use Joomla\Registry\Registry;
 use THM\Organizer\Adapters\Application;
 
 /**
@@ -21,6 +20,8 @@ use THM\Organizer\Adapters\Application;
  */
 abstract class BaseTable extends Table
 {
+    use Nullable;
+
     /**
      * The primary key.
      * INT (UN)SIGNED (11|20) NOT NULL AUTO_INCREMENT
@@ -35,25 +36,6 @@ abstract class BaseTable extends Table
     {
         $dbo = Factory::getDbo();
         parent::__construct($table, 'id', $dbo);
-    }
-
-    /**
-     * Binds the table properties with data stored in a registry.
-     *
-     * @param   Registry  $registry  the registry object
-     *
-     * @return bool
-     */
-    public function bindRegistry(Registry $registry): bool
-    {
-        // Bind the source value, excluding the ignored fields.
-        foreach (array_keys($this->getProperties()) as $property) {
-            if ($registry->exists($property)) {
-                $this->$property = $registry->get($property);
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -75,13 +57,5 @@ abstract class BaseTable extends Table
 
             return false;
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function store($updateNulls = true): bool
-    {
-        return parent::store($updateNulls);
     }
 }

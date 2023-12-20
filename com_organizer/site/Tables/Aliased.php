@@ -18,10 +18,10 @@ trait Aliased
 {
     /**
      * The alias used to reference the resource in a URL
-     * VARCHAR(255) DEFAULT ''
-     * @var string
+     * VARCHAR(255) DEFAULT NULL
+     * @var null|string
      */
-    public $alias;
+    public null|string $alias;
 
     /**
      * @inheritDoc
