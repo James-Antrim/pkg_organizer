@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 /**
- * Class which manages stored grid data.
+ * @inheritDoc
  */
 class Grid extends EditModel
 {

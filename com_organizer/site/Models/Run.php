@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers\Terms;
 
 /**
- * Class loads a form for editing run data.
+ * @inheritDoc
  */
 class Run extends EditModel
 {

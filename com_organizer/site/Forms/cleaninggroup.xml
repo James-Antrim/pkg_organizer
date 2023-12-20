@@ -4,10 +4,11 @@
         <field name="id" type="hidden"/>
         <field name="name_de" type="text" label="ORGANIZER_NAME_DE" class="required" maxlength="150" required="true"/>
         <field name="name_en" type="text" label="ORGANIZER_NAME_EN" class="required" maxlength="150" required="true"/>
-        <field name="maxValuation" type="Integer" label="ORGANIZER_MAX_SURFACE_PERFORMANCE_VALUE" default="0" first="0" last="300"
-               step="10"/>
-        <field name="valuation" type="text" label="ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE" class="required validate-float"
-               default="0.00" required="true"/>
+        <field name="maxValuation" type="Integer" default="0" first="0" last="300" step="10"
+               label="ORGANIZER_MAX_SURFACE_PERFORMANCE_VALUE" description="ORGANIZER_MAX_SURFACE_PERFORMANCE_VALUE_DESC"/>
+        <field name="valuation" type="text" class="required validate-float" default="0.00" required="true"
+               label="ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE"
+               description="ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE_DESC"/>
         <field name="days" type="text" label="ORGANIZER_CLEANING_DAYS_PER_MONTH" class="required validate-float" default="0.00"
                required="true"/>
         <field name="relevant" type="list" label="ORGANIZER_COST_ACCOUNTING_RELEVANT" default="1">

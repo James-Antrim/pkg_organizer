@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 /**
- * Class which manages stored field (of expertise) data.
+ * @inheritDoc
  */
 class Field extends EditModel
 {

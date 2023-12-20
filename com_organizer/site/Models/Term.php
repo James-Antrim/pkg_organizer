@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 /**
- * Class which manages stored degree data.
+ * @inheritDoc
  */
 class Term extends EditModel
 {

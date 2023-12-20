@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 /**
- * Class which manages stored (lesson) method data.
+ * @inheritDoc
  */
 class Method extends EditModel
 {

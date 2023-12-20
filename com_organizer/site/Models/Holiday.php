@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 /**
- * Class which manages stored holiday data.
+ * @inheritDoc
  */
 class Holiday extends EditModel
 {

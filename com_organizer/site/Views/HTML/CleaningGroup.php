@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the building form into display context.
  */
-class CleaningGroupEdit extends EditViewOld
+class CleaningGroup extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

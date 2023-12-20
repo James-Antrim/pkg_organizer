@@ -10,12 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
-
 /**
- * Class which manages stored color data.
+ * @inheritDoc
  */
 class Color extends EditModel
 {

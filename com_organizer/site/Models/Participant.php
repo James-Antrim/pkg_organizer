@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\User;
 use THM\Organizer\Fields\{Programs, Text};
 
 /**
- * Class which manages stored participant data.
+ * @inheritDoc
  */
 class Participant extends EditModel
 {

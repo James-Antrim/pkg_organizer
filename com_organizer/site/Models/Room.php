@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 /**
- * Class which manages stored room data.
+ * @inheritDoc
  */
 class Room extends EditModel
 {
