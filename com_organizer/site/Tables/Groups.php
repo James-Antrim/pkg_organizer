@@ -10,20 +10,25 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_groups table.
+ * @inheritDoc
  */
-class Groups extends BaseTable
+class Groups extends Table
 {
     use Activated;
     use Aliased;
     use Coded;
+    use Nullable;
     use Suppressed;
 
     /**
      * The id of the category entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $categoryID;
 
@@ -31,6 +36,7 @@ class Groups extends BaseTable
      * The resource's German name.
      * VARCHAR(200) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_de;
 
@@ -38,6 +44,7 @@ class Groups extends BaseTable
      * The resource's English name.
      * VARCHAR(200) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_en;
 
@@ -45,6 +52,7 @@ class Groups extends BaseTable
      * The id of the grid entry referenced.
      * INT(11) UNSIGNED DEFAULT 1
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $gridID;
 
@@ -52,6 +60,7 @@ class Groups extends BaseTable
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -59,14 +68,18 @@ class Groups extends BaseTable
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_groups');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_groups', 'id', $dbo);
     }
 }

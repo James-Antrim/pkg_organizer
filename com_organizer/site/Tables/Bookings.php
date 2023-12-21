@@ -10,46 +10,55 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_instances table.
+ * @inheritDoc
  */
-class Bookings extends BaseTable
+class Bookings extends Table
 {
     use Coded;
+    use Nullable;
 
     /**
      * The id of the block entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $blockID;
 
     /**
      * The end time of the block.
      * TIME DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $endTime;
+    public null|string $endTime;
 
     /**
      * The start time of the block.
      * TIME DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $startTime;
+    public null|string $startTime;
 
     /**
      * The id of the unit entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $unitID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_bookings');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_bookings', 'id', $dbo);
     }
 }

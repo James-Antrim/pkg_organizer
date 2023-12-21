@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_group_publishing table.
+ * @inheritDoc
  */
-class GroupPublishing extends BaseTable
+class GroupPublishing extends Table
 {
     /**
      * The id of the group entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $groupID;
 
@@ -26,6 +30,7 @@ class GroupPublishing extends BaseTable
      * The publishing status of the group for the term.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $published;
 
@@ -33,14 +38,18 @@ class GroupPublishing extends BaseTable
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $termID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_group_publishing');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_group_publishing', 'id', $dbo);
     }
 }

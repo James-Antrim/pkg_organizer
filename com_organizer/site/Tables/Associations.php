@@ -10,66 +10,76 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_associations table.
+ * @inheritDoc
  */
-class Associations extends BaseTable
+class Associations extends Table
 {
+    use Incremented;
+    use Nullable;
+
     /**
      * The id of the category entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $categoryID;
+    public int|null $categoryID;
 
     /**
      * The id of the group entry referenced.
      * INT(11) DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $groupID;
+    public int|null $groupID;
 
     /**
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $organizationID;
 
     /**
      * The id of the person entry referenced.
      * INT(11) DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $personID;
+    public int|null $personID;
 
     /**
      * The id of the pool entry referenced.
      * INT(11) DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $poolID;
+    public int|null $poolID;
 
     /**
      * The id of the program entry referenced.
      * INT(11) DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $programID;
+    public int|null $programID;
 
     /**
      * The id of the subject entry referenced.
      * INT(11) DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $subjectID;
+    public int|null $subjectID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_associations');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_associations', 'id', $dbo);
     }
 
     /**
@@ -77,18 +87,22 @@ class Associations extends BaseTable
      */
     public function check(): bool
     {
-        // An association should always be between an organization and another resource.
-        $atLeastOne = false;
-        $keyColumns = ['categoryID', 'groupID', 'personID', 'poolID', 'programID', 'subjectID'];
-        foreach ($keyColumns as $keyColumn) {
-            if (!strlen($this->$keyColumn)) {
-                $this->$keyColumn = null;
-                continue;
-            }
-
-            $atLeastOne = true;
+        if (empty($this->organizationID)) {
+            return false;
         }
 
-        return $atLeastOne;
+        // An association should always be between an organization and another resource.
+        $count      = 0;
+        $keyColumns = ['categoryID', 'groupID', 'personID', 'poolID', 'programID', 'subjectID'];
+        foreach ($keyColumns as $keyColumn) {
+            if ($this->$keyColumn) {
+                $count++;
+            }
+            else {
+                $this->$keyColumn = null;
+            }
+        }
+
+        return $count === 1;
     }
 }

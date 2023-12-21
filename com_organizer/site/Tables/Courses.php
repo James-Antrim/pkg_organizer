@@ -10,24 +10,29 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_courses table.
+ * @inheritDoc
  */
-class Courses extends BaseTable
+class Courses extends Table
 {
     use Aliased;
+    use Nullable;
 
     /**
      * The id of the campus entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $campusID;
+    public int|null $campusID;
 
     /**
      * The number of days before course begin when registration is closed.
      * INT(2) UNSIGNED DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $deadline;
 
@@ -35,6 +40,7 @@ class Courses extends BaseTable
      * The resource's German description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_de;
 
@@ -42,6 +48,7 @@ class Courses extends BaseTable
      * The resource's English description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_en;
 
@@ -49,6 +56,7 @@ class Courses extends BaseTable
      * The fee for participation in the course.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fee;
 
@@ -56,6 +64,7 @@ class Courses extends BaseTable
      * A short textual description of which groups should visit the course.
      * VARCHAR(100) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $groups;
 
@@ -63,43 +72,48 @@ class Courses extends BaseTable
      * The maximum number of participants the course allows.
      * INT(4) UNSIGNED DEFAULT 1000
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $maxParticipants;
 
     /**
      * The resource's German name.
      * VARCHAR(150) DEFAULT NULL
-     * @var string
+     * @var string|null
      */
-    public $name_de;
+    public null|string $name_de;
 
     /**
      * The resource's English name.
      * VARCHAR(150) DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $name_en;
+    public null|string $name_en;
 
     /**
      * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
      * INT(1) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $registrationType;
+    public int|null $registrationType;
 
     /**
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $termID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_courses');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_courses', 'id', $dbo);
     }
 
     /**
@@ -113,6 +127,14 @@ class Courses extends BaseTable
 
         if (empty($this->campusID)) {
             $this->campusID = null;
+        }
+
+        if (empty($this->name_de)) {
+            $this->name_de = null;
+        }
+
+        if (empty($this->name_en)) {
+            $this->name_en = null;
         }
 
         return true;

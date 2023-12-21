@@ -10,27 +10,32 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_events table.
+ * @inheritDoc
  */
-class Events extends BaseTable
+class Events extends Table
 {
     use Activated;
     use Aliased;
     use Coded;
+    use Nullable;
     use Suppressed;
 
     /**
      * The id of the campus entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $campusID;
+    public int|null $campusID;
 
     /**
      * The organization's German contact information for a group of courses.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $contact_de;
 
@@ -38,6 +43,7 @@ class Events extends BaseTable
      * The organization's English contact information for a group of courses.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $contact_en;
 
@@ -45,6 +51,7 @@ class Events extends BaseTable
      * The German description of the event's contents.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $content_de;
 
@@ -52,6 +59,7 @@ class Events extends BaseTable
      * The English description of the event's contents.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $content_en;
 
@@ -59,6 +67,7 @@ class Events extends BaseTable
      * The organization's German contact information for courses of this event type.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $courseContact_de;
 
@@ -66,6 +75,7 @@ class Events extends BaseTable
      * The organization's English contact information for courses of this event type.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $courseContact_en;
 
@@ -73,6 +83,7 @@ class Events extends BaseTable
      * The number of days before course begin when registration is closed.
      * INT(2) UNSIGNED DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $deadline;
 
@@ -80,6 +91,7 @@ class Events extends BaseTable
      * The resource's German description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_de;
 
@@ -87,6 +99,7 @@ class Events extends BaseTable
      * The resource's English description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_en;
 
@@ -94,6 +107,7 @@ class Events extends BaseTable
      * The fee for participation in the course.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fee;
 
@@ -101,6 +115,7 @@ class Events extends BaseTable
      * The maximum number of participants the course allows.
      * INT(4) UNSIGNED DEFAULT 1000
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $maxParticipants;
 
@@ -108,6 +123,7 @@ class Events extends BaseTable
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -115,6 +131,7 @@ class Events extends BaseTable
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -122,6 +139,7 @@ class Events extends BaseTable
      * A German description of how courses implementing this event are organized.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $organization_de;
 
@@ -129,6 +147,7 @@ class Events extends BaseTable
      * An English description of how courses implementing this event are organized.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $organization_en;
 
@@ -136,6 +155,7 @@ class Events extends BaseTable
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $organizationID;
 
@@ -144,6 +164,7 @@ class Events extends BaseTable
      * implementing this event.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $pretests_de;
 
@@ -152,6 +173,7 @@ class Events extends BaseTable
      * implementing this event.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $pretests_en;
 
@@ -159,29 +181,34 @@ class Events extends BaseTable
      * Whether the event is a preparatory event.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $preparatory;
 
     /**
      * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
      * INT(1) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $registrationType;
+    public int|null $registrationType;
 
     /**
      * The resource's alphanumeric identifier in degree program documentation.
      * VARCHAR(45) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $subjectNo;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_events');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_events', 'id', $dbo);
     }
 
     /**
@@ -197,7 +224,7 @@ class Events extends BaseTable
             $this->campusID = null;
         }
 
-        if (empty($this->registrationType) and !is_numeric($this->registrationType)) {
+        if (empty($this->registrationType) or !is_numeric($this->registrationType)) {
             $this->registrationType = null;
         }
 

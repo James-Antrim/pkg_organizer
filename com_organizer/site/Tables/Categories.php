@@ -10,20 +10,25 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_categories table.
+ * @inheritDoc
  */
-class Categories extends BaseTable
+class Categories extends Table
 {
     use Activated;
     use Aliased;
     use Coded;
+    use Nullable;
     use Suppressed;
 
     /**
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -31,30 +36,18 @@ class Categories extends BaseTable
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
     /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_categories');
-    }
-
-    /**
      * @inheritDoc
      */
-    public function check(): bool
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        if (empty($this->alias)) {
-            $this->alias = null;
-        }
+        $dbo = $dbo ?? Application::getDB();
 
-        if (empty($this->code)) {
-            $this->code = null;
-        }
-
-        return true;
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_categories', 'id', $dbo);
     }
 }

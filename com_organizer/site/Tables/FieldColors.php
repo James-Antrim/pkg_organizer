@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_event_coordinators table.
+ * @inheritDoc
  */
-class FieldColors extends BaseTable
+class FieldColors extends Table
 {
     /**
      * The id of the color entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $colorID;
 
@@ -26,6 +30,7 @@ class FieldColors extends BaseTable
      * The id of the field entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fieldID;
 
@@ -33,14 +38,18 @@ class FieldColors extends BaseTable
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $organizationID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_field_colors');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_field_colors', 'id', $dbo);
     }
 }

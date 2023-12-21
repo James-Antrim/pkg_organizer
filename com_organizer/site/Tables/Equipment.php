@@ -10,33 +10,40 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_colors table.
+ * @inheritDoc
  */
-class Equipment extends BaseTable
+class Equipment extends Table
 {
     use Coded;
+    use Nullable;
 
     /**
      * The equipment's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
+     * VARCHAR(150) DEFAULT NULL
+     * @var null|string
      */
-    public $name_de;
+    public null|string $name_de;
 
     /**
      * The equipment's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
+     * VARCHAR(150) DEFAULT NULL
+     * @var null|string
      */
-    public $name_en;
+    public null|string $name_en;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_equipment');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_equipment', 'id', $dbo);
     }
 
     /**
@@ -46,6 +53,10 @@ class Equipment extends BaseTable
     {
         if (empty($this->code)) {
             $this->code = null;
+        }
+
+        if (!$this->name_de or !$this->name_en) {
+            return false;
         }
 
         return true;

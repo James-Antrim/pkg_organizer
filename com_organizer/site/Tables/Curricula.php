@@ -10,74 +10,79 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_curricula table.
+ * @inheritDoc
  */
-class Curricula extends BaseTable
+class Curricula extends Table
 {
     /**
      * The depth of this element in the curriculum hierarchy.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $level;
+    public int|null $level;
 
     /**
      * The left most value of this resource as viewed on a numbered line.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $lft;
+    public int|null $lft;
 
     /**
      * The order of this element among its hierarchical siblings.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $ordering;
+    public int|null $ordering;
 
     /**
      * The id of the range referenced as parent.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $parentID;
+    public int|null $parentID;
 
     /**
      * The id of the pool entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $poolID;
+    public int|null $poolID;
 
     /**
      * The id of the program entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $programID;
+    public int|null $programID;
 
     /**
      * The right most value of this resource as viewed on a numbered line.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $rgt;
+    public int|null $rgt;
 
     /**
      * The id of the subject entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $subjectID;
+    public int|null $subjectID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_curricula');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_curricula', 'id', $dbo);
     }
 
     /**
@@ -85,18 +90,38 @@ class Curricula extends BaseTable
      */
     public function check(): bool
     {
-        // All three fields can receive data from at least two systems.
-        $atLeastOne = false;
-        $keyColumns = ['programID', 'poolID', 'subjectID'];
-        foreach ($keyColumns as $keyColumn) {
-            if (!$this->$keyColumn) {
-                $this->$keyColumn = null;
-                continue;
+        // Although typing allows it these columns should never be null
+        foreach (['level', 'lft', 'ordering', 'rgt'] as $column) {
+            if (!$this->$column) {
+                return false;
             }
-
-            $atLeastOne = true;
         }
 
-        return $atLeastOne;
+        // Should be null for programs
+        if (!$this->parentID) {
+            $this->parentID = null;
+        }
+
+        $count      = 0;
+        $keyColumns = ['programID', 'poolID', 'subjectID'];
+        foreach ($keyColumns as $keyColumn) {
+            if ($this->$keyColumn) {
+                $count++;
+            }
+            else {
+                $this->$keyColumn = null;
+            }
+
+            if ($keyColumn === 'programID') {
+                if ($this->parentID) {
+                    return false;
+                }
+            }
+            elseif (!$this->parentID) {
+                return false;
+            }
+        }
+
+        return $count === 1;
     }
 }

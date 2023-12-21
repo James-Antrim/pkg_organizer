@@ -7,6 +7,7 @@ use Joomla\CMS\Table\Table as Base;
 use THM\Organizer\Adapters\Application;
 
 /**
+ * Models the resource alluded to in the inheriting class name.
  * Wrapper to prevent unnecessary try/catch handling in client objects and standardized property retrieval after Joomla
  * declared their implementation deprecated.
  */

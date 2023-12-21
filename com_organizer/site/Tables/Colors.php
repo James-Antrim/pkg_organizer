@@ -14,7 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_colors table.
+ * @inheritDoc
  */
 class Colors extends Table
 {

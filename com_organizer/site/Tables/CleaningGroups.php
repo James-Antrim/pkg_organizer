@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_blocks table.
+ * @inheritDoc
  */
-class CleaningGroups extends BaseTable
+class CleaningGroups extends Table
 {
     /**
      * The number of days per month used for calculated values.
      * DOUBLE(6, 2) UNSIGNED NOT NULL
      * @var float
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $days;
 
@@ -26,6 +30,7 @@ class CleaningGroups extends BaseTable
      * The cleaning group's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -33,6 +38,7 @@ class CleaningGroups extends BaseTable
      * The cleaning group's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -41,6 +47,7 @@ class CleaningGroups extends BaseTable
      * used to calculate the actual valuation. ~Overhead
      * SMALLINT(3) UNSIGNED
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $maxValuation;
 
@@ -48,6 +55,7 @@ class CleaningGroups extends BaseTable
      * A flag which displays whether associated rooms should appear in exported media.
      * TINYINT(1) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $relevant;
 
@@ -55,14 +63,18 @@ class CleaningGroups extends BaseTable
      * The numeric valuation of cleaning quality.
      * DOUBLE(6, 2) UNSIGNED NOT NULL
      * @var float
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $valuation;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_cleaning_groups');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_cleaning_groups', 'id', $dbo);
     }
 }

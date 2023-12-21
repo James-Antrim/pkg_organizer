@@ -10,15 +10,21 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_course_participants table.
+ * @inheritDoc
  */
-class CourseParticipants extends BaseTable
+class CourseParticipants extends Table
 {
+    use Nullable;
+
     /**
-     * Whether or not the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
+     * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $attended;
 
@@ -26,6 +32,7 @@ class CourseParticipants extends BaseTable
      * The id of the course entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $courseID;
 
@@ -33,20 +40,22 @@ class CourseParticipants extends BaseTable
      * The participant's course payment status. Values: 0 - Unpaid, 1 - Paid.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $paid;
 
     /**
      * The date and time of the last participant initiated change.
      * DATETIME DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $participantDate;
+    public null|string $participantDate;
 
     /**
      * The id of the participant entry referenced.
      * INT(11) NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $participantID;
 
@@ -54,21 +63,41 @@ class CourseParticipants extends BaseTable
      * The participant's course status. Values: 0 - Pending, 1 - Accepted.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $status;
 
     /**
      * The date and time of the last change.
      * DATETIME DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $statusDate;
+    public null|string $statusDate;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_course_participants');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_course_participants', 'id', $dbo);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function check(): bool
+    {
+        if (!$this->participantDate) {
+            $this->participantDate = null;
+        }
+
+        if (!$this->statusDate) {
+            $this->statusDate = null;
+        }
+
+        return true;
     }
 }

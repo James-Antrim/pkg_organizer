@@ -14,7 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_fields table.
+ * @inheritDoc
  */
 class Fields extends Table
 {

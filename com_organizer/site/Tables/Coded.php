@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -19,8 +18,8 @@ trait Coded
     /**
      * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
      * software except units which are also supplemented locally.
-     * VARCHAR(60) DEFAULT NULL
-     * @var string
+     * Generally: VARCHAR(60) NOT NULL, but also DEFAULT NULL
+     * @var null|string
      */
-    public $code;
+    public null|string $code;
 }

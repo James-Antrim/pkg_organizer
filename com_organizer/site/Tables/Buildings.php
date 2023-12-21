@@ -10,31 +10,37 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_buildings table.
+ * @inheritDoc
  */
-class Buildings extends BaseTable
+class Buildings extends Table
 {
     use Activated;
+    use Nullable;
 
     /**
      * The physical address of the resource.
      * VARCHAR(255) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $address;
 
     /**
      * The id of the campus entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $campusID;
+    public int|null $campusID;
 
     /**
      * The GPS coordinates of the resource.
      * VARCHAR(20) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $location;
 
@@ -42,6 +48,7 @@ class Buildings extends BaseTable
      * The resource's name.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name;
 
@@ -49,15 +56,19 @@ class Buildings extends BaseTable
      * The property type. Values: 0 - New/Unknown | 1 - Owned | 2 - Leased/Rented
      * INT(1) UNSIGNED  NOT NULL DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $propertyType;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_buildings');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_buildings', 'id', $dbo);
     }
 
     /**

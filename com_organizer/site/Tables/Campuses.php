@@ -10,18 +10,23 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_campuses table.
+ * @inheritDoc
  */
-class Campuses extends BaseTable
+class Campuses extends Table
 {
     use Activated;
     use Aliased;
+    use Nullable;
 
     /**
      * The physical address of the resource.
      * VARCHAR(255) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $address;
 
@@ -29,20 +34,22 @@ class Campuses extends BaseTable
      * The city in which the resource is located.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $city;
 
     /**
      * The id of the grid entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $gridID;
+    public int|null $gridID;
 
     /**
      * A flag displaying if the campus is equatable with a city for internal purposes.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $isCity;
 
@@ -50,6 +57,7 @@ class Campuses extends BaseTable
      * The GPS coordinates of the resource.
      * VARCHAR(20) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $location;
 
@@ -57,6 +65,7 @@ class Campuses extends BaseTable
      * The resource's German name.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -64,29 +73,34 @@ class Campuses extends BaseTable
      * The resource's English name.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
     /**
      * The id of the campus entry referenced as parent.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $parentID;
+    public int|null $parentID;
 
     /**
      * The ZIP code of the resource.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $zipCode;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_campuses');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_campuses', 'id', $dbo);
     }
 
     /**

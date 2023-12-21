@@ -14,7 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_grids table.
+ * @inheritDoc
  */
 class Grids extends Table
 {

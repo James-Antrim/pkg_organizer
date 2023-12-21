@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,7 +10,6 @@
 
 namespace THM\Organizer\Tables;
 
-use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
@@ -22,12 +20,13 @@ class Degrees extends Table
 {
     use Aliased;
     use Coded;
-    use Incremented;
+    use Nullable;
 
     /**
      * The resource's abbreviation.
      * VARCHAR(45) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation;
 
@@ -35,6 +34,7 @@ class Degrees extends Table
      * The resource's name.
      * VARCHAR(255) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name;
 

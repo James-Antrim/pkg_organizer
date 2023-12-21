@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_blocks table.
+ * @inheritDoc
  */
-class Blocks extends BaseTable
+class Blocks extends Table
 {
     /**
      * The date of the block.
      * DATE DEFAULT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $date;
 
@@ -26,6 +30,7 @@ class Blocks extends BaseTable
      * The numerical day of the week of the block.
      * TINYINT(1) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $dow;
 
@@ -33,6 +38,7 @@ class Blocks extends BaseTable
      * The end time of the block.
      * TIME DEFAULT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $endTime;
 
@@ -40,14 +46,18 @@ class Blocks extends BaseTable
      * The start time of the block.
      * TIME DEFAULT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $startTime;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_blocks');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_blocks', 'id', $dbo);
     }
 }
