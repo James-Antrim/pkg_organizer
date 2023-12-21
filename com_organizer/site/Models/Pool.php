@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
+use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Helpers\Can;
+use THM\Organizer\Tables\{Associations, Curricula, Pools as Table};
 
 /**
  * Class which manages stored (subject) pool data.
@@ -30,11 +30,11 @@ class Pool extends CurriculumResource
 
     /**
      * @inheritDoc
-     * @return Tables\Pools A Table object
+     * @return Table
      */
-    public function getTable($name = '', $prefix = '', $options = []): Tables\Pools
+    public function getTable($name = '', $prefix = '', $options = []): Table
     {
-        return new Tables\Pools();
+        return new Table();
     }
 
     /**
@@ -66,7 +66,7 @@ class Pool extends CurriculumResource
         $noChildren = !isset($XMLObject->modulliste->modul);
         $validTitle = $this->validTitle($XMLObject);
 
-        $pool = new Tables\Pools();
+        $pool = new Table();
 
         if (!$pool->load(['lsfID' => $lsfID])) {
             // There isn't one and shouldn't be one
@@ -85,14 +85,14 @@ class Pool extends CurriculumResource
             return $this->deleteSingle($pool->id);
         }
 
-        $curricula = new Tables\Curricula();
+        $curricula = new Curricula();
 
         if (!$curricula->load(['parentID' => $parentID, 'poolID' => $pool->id])) {
             $range             = [];
             $range['parentID'] = $parentID;
             $range['poolID']   = $pool->id;
 
-            $range['ordering'] = $this->getOrdering($parentID, $pool->id);
+            $range['ordering'] = $this->ordering($parentID, $pool->id);
             if (!$this->shiftUp($parentID, $range['ordering'])) {
                 return false;
             }
@@ -104,7 +104,7 @@ class Pool extends CurriculumResource
             $curricula->load(['parentID' => $parentID, 'poolID' => $pool->id]);
         }
 
-        $association = new Tables\Associations();
+        $association = new Associations();
         if (!$association->load(['organizationID' => $organizationID, 'poolID' => $pool->id])) {
             $association->save(['organizationID' => $organizationID, 'poolID' => $pool->id]);
         }
@@ -115,17 +115,17 @@ class Pool extends CurriculumResource
     /**
      * @inheritDoc
      */
-    public function save(array $data = [])
+    public function save(array $data = []): int
     {
-        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems() : $data;
 
         if (empty($data['id'])) {
-            if (!Helpers\Can::documentTheseOrganizations()) {
+            if (!Can::documentTheseOrganizations()) {
                 Application::error(403);
             }
         }
         elseif (is_numeric($data['id'])) {
-            if (!Helpers\Can::document('pool', (int) $data['id'])) {
+            if (!Can::document('pool', (int) $data['id'])) {
                 Application::error(403);
             }
         }
@@ -133,7 +133,7 @@ class Pool extends CurriculumResource
             return false;
         }
 
-        $table = new Tables\Pools();
+        $table = new Table();
 
         if (!$table->save($data)) {
             return false;
@@ -153,6 +153,6 @@ class Pool extends CurriculumResource
 
         $this->removeDeprecated($table->id, $superOrdinates);
 
-        return $table->id;
+        return $table->id ?: 0;
     }
 }

@@ -6,13 +6,14 @@
  * @license     A "Slug" license name e.g. GPL2
  */
 
-
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use Joomla\CMS\Table\Table;
+use Joomla\Database\ParameterType;
 use SimpleXMLElement;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Can, Curricula as Helper};
+use THM\Organizer\Tables\{Curricula, Pools, Subjects};
 
 /**
  * Class provides functions to use managing resources in a nested curriculum structure.
@@ -36,11 +37,11 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function addRange(array &$range): int
     {
-        $curricula = new Tables\Curricula();
+        $curricula = new Curricula();
 
         if (empty($range['programID'])) {
             // Subordinates must have a parent
-            if (empty($range['parentID']) or !$parent = Helpers\Curricula::range($range['parentID'])) {
+            if (empty($range['parentID']) or !$parent = Helper::range($range['parentID'])) {
                 return 0;
             }
 
@@ -74,7 +75,7 @@ abstract class CurriculumResource extends BaseModel
                 $range['parentID'] = null;
             }
 
-            $range['lft'] = $this->getLeft($range['parentID'], $range['ordering']);
+            $range['lft'] = $this->left($range['parentID'], $range['ordering']);
 
             if (!$range['lft'] or !$this->shiftRight($range['lft'])) {
                 return 0;
@@ -101,15 +102,16 @@ abstract class CurriculumResource extends BaseModel
                 $subRangeIDs[$subRangeID] = $subRangeID;
             }
 
-            if ($subRangeIDs = implode(',', $subRangeIDs)) {
-                $query = Database::getQuery();
-                $query->select('id')
-                    ->from('#__organizer_curricula')
-                    ->where("id NOT IN ($subRangeIDs)")
-                    ->where("parentID = $curricula->id");
-                Database::setQuery($query);
+            if ($subRangeIDs) {
+                $query = DB::getQuery();
+                $query->select(DB::qn('id'))
+                    ->from(DB::qn('#__organizer_curricula'))
+                    ->whereNotIn(DB::qn('id'), $subRangeIDs)
+                    ->where(DB::qn('parentID') . ' = :curriculaID')
+                    ->bind(':curriculaID', $curricula->id, ParameterType::INTEGER);
+                DB::setQuery($query);
 
-                if ($zombieIDs = Database::loadIntColumn()) {
+                if ($zombieIDs = DB::loadIntColumn()) {
                     foreach ($zombieIDs as $zombieID) {
                         $this->deleteRange($zombieID);
                     }
@@ -123,10 +125,9 @@ abstract class CurriculumResource extends BaseModel
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if (($id = Input::getID() and !Helpers\Can::document($this->resource, $id))
-            or !Helpers\Can::documentTheseOrganizations()) {
+        if (($id = Input::getID() and !Can::document($this->resource, $id)) or !Can::documentTheseOrganizations()) {
             Application::error(403);
         }
     }
@@ -140,7 +141,7 @@ abstract class CurriculumResource extends BaseModel
 
         if ($resourceIDs = Input::getSelectedIDs()) {
             foreach ($resourceIDs as $resourceID) {
-                if (!Helpers\Can::document($this->resource, $resourceID)) {
+                if (!Can::document($this->resource, $resourceID)) {
                     Application::error(403);
                 }
 
@@ -162,12 +163,12 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function deleteRange(int $rangeID): bool
     {
-        if (!$range = Helpers\Curricula::range($rangeID)) {
+        if (!$range = Helper::range($rangeID)) {
             return false;
         }
 
         // Deletes the range
-        $curricula = new Tables\Curricula();
+        $curricula = new Curricula();
 
         if (!$curricula->delete($rangeID)) {
             return false;
@@ -192,10 +193,10 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function deleteRanges(int $resourceID): bool
     {
+        /** @var Helper $helper */
         $helper = "THM\\Organizer\\Helpers\\$this->helper";
 
-        /** @noinspection PhpUndefinedMethodInspection */
-        if ($rangeIDs = $helper::getRangeIDs($resourceID)) {
+        if ($rangeIDs = $helper::rangeIDs($resourceID)) {
             foreach ($rangeIDs as $rangeID) {
                 $success = $this->deleteRange($rangeID);
                 if (!$success) {
@@ -226,139 +227,6 @@ abstract class CurriculumResource extends BaseModel
     }
 
     /**
-     * Gets the curriculum for a pool selected as a subordinate resource
-     *
-     * @param   int  $poolID  the resource id
-     *
-     * @return array[]  empty if no child data exists
-     */
-    protected function getExistingCurriculum(int $poolID): array
-    {
-        // Subordinate structures are the same for every superordinate resource
-        $query = Database::getQuery();
-        $query->select('id')->from('#__organizer_curricula')->where("poolID = $poolID");
-        Database::setQuery($query);
-
-        if (!$firstID = Database::loadInt()) {
-            return [];
-        }
-
-        $query = Database::getQuery();
-        $query->select('*')->from('#__organizer_curricula')->where("parentID = $firstID")->order('lft');
-        Database::setQuery($query);
-
-        if (!$subOrdinates = Database::loadAssocList()) {
-            return $subOrdinates;
-        }
-
-        foreach ($subOrdinates as $key => $subOrdinate) {
-            if ($subOrdinate['poolID']) {
-                $subOrdinates[$key]['curriculum'] = $this->getExistingCurriculum($subOrdinate['poolID']);
-            }
-        }
-
-        return $subOrdinates;
-    }
-
-    /**
-     * Returns the resource's existing ordering in the context of its parent.
-     *
-     * @param   int  $parentID    the parent id (curricula)
-     * @param   int  $resourceID  the resource id (resource table)
-     *
-     * @return int int if the resource has an existing ordering, otherwise null
-     */
-    protected function getExistingOrdering(int $parentID, int $resourceID): int
-    {
-        $column = $this->resource . 'ID';
-        $query  = Database::getQuery();
-        $query->select('ordering')
-            ->from('#__organizer_curricula')
-            ->where("parentID = $parentID")
-            ->where("$column = $resourceID");
-        Database::setQuery($query);
-
-        return Database::loadInt();
-    }
-
-    /**
-     * Attempt to determine the left value for the range to be created
-     *
-     * @param   null|int  $parentID  the parent of the item to be inserted
-     * @param   mixed     $ordering  the targeted ordering on completion
-     *
-     * @return int  int the left value for the range to be created, or 0 on error
-     */
-    protected function getLeft(?int $parentID, $ordering): int
-    {
-        if (!$parentID) {
-            $query = Database::getQuery();
-            $query->select('MAX(rgt) + 1')->from('#__organizer_curricula');
-            Database::setQuery($query);
-
-            return Database::loadInt();
-        }
-
-        // Right value of the next lowest sibling
-        $rgtQuery = Database::getQuery();
-        $rgtQuery->select('MAX(rgt)')
-            ->from('#__organizer_curricula')
-            ->where("parentID = $parentID")
-            ->where("ordering < $ordering");
-        Database::setQuery($rgtQuery);
-
-        if ($rgt = Database::loadInt()) {
-            return $rgt + 1;
-        }
-
-        // No siblings => use parent left for reference
-        $lftQuery = Database::getQuery();
-        $lftQuery->select('lft')
-            ->from('#__organizer_curricula')
-            ->where("id = $parentID");
-        Database::setQuery($lftQuery);
-        $lft = Database::loadInt();
-
-        return $lft ? $lft + 1 : 0;
-    }
-
-    /**
-     * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
-     *
-     * @param   int  $parentID    the id of the parent range
-     * @param   int  $resourceID  the id of the resource
-     *
-     * @return int  the value of the highest existing ordering or 1 if none exist
-     */
-    protected function getOrdering(int $parentID, int $resourceID): int
-    {
-        if ($existingOrdering = $this->getExistingOrdering($parentID, $resourceID)) {
-            return $existingOrdering;
-        }
-
-        $query = Database::getQuery();
-        $query->select('MAX(ordering)')->from('#__organizer_curricula')->where("parentID = $parentID");
-        Database::setQuery($query);
-
-        return Database::loadInt() + 1;
-    }
-
-    /**
-     * Gets the mapped curricula ranges for the given resource
-     *
-     * @param   int  $resourceID  the resource id
-     *
-     * @return array[] the resource ranges
-     */
-    protected function getRanges(int $resourceID): array
-    {
-        $helper = "THM\\Organizer\\Helpers\\$this->helper";
-
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $helper::getRanges($resourceID);
-    }
-
-    /**
      * Method to import data associated with resources from LSF
      * @return bool true on success, otherwise false
      */
@@ -381,6 +249,78 @@ abstract class CurriculumResource extends BaseModel
      * @return bool  true on success, otherwise false
      */
     abstract public function importSingle(int $resourceID): bool;
+
+    /**
+     * Attempt to determine the left value for the range to be created
+     *
+     * @param   null|int  $parentID  the parent of the item to be inserted
+     * @param   int       $ordering  the targeted ordering on completion
+     *
+     * @return int  int the left value for the range to be created, or 0 on error
+     */
+    protected function left(?int $parentID, int $ordering): int
+    {
+        if (!$parentID) {
+            $query = DB::getQuery();
+            $query->select('MAX(' . DB::qn('rgt') . ') + 1')->from(DB::qn('#__organizer_curricula'));
+            DB::setQuery($query);
+
+            return DB::loadInt();
+        }
+
+        // Right value of the next lowest sibling
+        $rgtQuery = DB::getQuery();
+        $rgtQuery->select('MAX(' . DB::qn('rgt') . ')')
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER)
+            ->where(DB::qn('ordering') . ' < :ordering')->bind(':ordering', $ordering, ParameterType::INTEGER);
+        DB::setQuery($rgtQuery);
+
+        if ($rgt = DB::loadInt()) {
+            return $rgt + 1;
+        }
+
+        // No siblings => use parent left for reference
+        $lftQuery = DB::getQuery();
+        $lftQuery->select(DB::qn('lft'))
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('id') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
+        DB::setQuery($lftQuery);
+        $lft = DB::loadInt();
+
+        return $lft ? $lft + 1 : 0;
+    }
+
+    /**
+     * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
+     *
+     * @param   int  $parentID    the id of the parent range
+     * @param   int  $resourceID  the id of the resource
+     *
+     * @return int  the value of the highest existing ordering or 1 if none exist
+     */
+    protected function ordering(int $parentID, int $resourceID): int
+    {
+        $column = $this->resource . 'ID';
+        $query  = DB::getQuery();
+        $query->select(DB::qn('ordering'))
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER)
+            ->where(DB::qn($column) . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        if ($existingOrdering = DB::loadInt()) {
+            return $existingOrdering;
+        }
+
+        $query = DB::getQuery();
+        $query->select('MAX(' . DB::qn('ordering') . ')')
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        return DB::loadInt() + 1;
+    }
 
     /**
      * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
@@ -421,14 +361,29 @@ abstract class CurriculumResource extends BaseModel
     }
 
     /**
+     * Gets the mapped curricula ranges for the given resource
+     *
+     * @param   int  $resourceID  the resource id
+     *
+     * @return array[] the resource ranges
+     */
+    protected function ranges(int $resourceID): array
+    {
+        /** @var Helper $helper */
+        $helper = "THM\\Organizer\\Helpers\\$this->helper";
+
+        return $helper::ranges($resourceID);
+    }
+
+    /**
      * Set name attributes common to pools and subjects
      *
-     * @param   Tables\Pools|Tables\Subjects  $table      the table to modify
-     * @param   SimpleXMLElement              $XMLObject  the data source
+     * @param   Pools|Subjects    $table      the table to modify
+     * @param   SimpleXMLElement  $XMLObject  the data source
      *
-     * @return void modifies the table object
+     * @return void
      */
-    protected function setNameAttributes($table, SimpleXMLElement $XMLObject)
+    protected function setNameAttributes(Pools|Subjects $table, SimpleXMLElement $XMLObject): void
     {
         $table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
         $table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
@@ -452,14 +407,15 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function shiftDown(int $parentID, int $ordering): bool
     {
-        $query = Database::getQuery();
+        $column = DB::qn('ordering');
+        $query  = DB::getQuery();
         $query->update('#__organizer_curricula')
-            ->set('ordering = ordering - 1')
-            ->where("ordering > $ordering")
-            ->where("parentID = $parentID");
-        Database::setQuery($query);
+            ->set('$column = $column - 1')
+            ->where("$column > :ordering")->bind(':ordering', $ordering, ParameterType::INTEGER)
+            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::execute();
+        return DB::execute();
     }
 
     /**
@@ -472,19 +428,25 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function shiftLeft(int $left, int $width): bool
     {
-        $lftQuery = Database::getQuery();
-        $lftQuery->update('#__organizer_curricula')->set("lft = lft - $width")->where("lft > $left");
-        Database::setQuery($lftQuery);
+        $column = DB::qn('lft');
+        $query  = DB::getQuery();
+        $query->update(DB::qn('#__organizer_curricula'))
+            ->set("$column = $column - :width")->bind(':width', $width, ParameterType::INTEGER)
+            ->where("$column > :left")->bind(':left', $left, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        if (!Database::execute()) {
+        if (!DB::execute()) {
             return false;
         }
 
-        $rgtQuery = Database::getQuery();
-        $rgtQuery->update('#__organizer_curricula')->set("rgt = rgt - $width")->where("rgt > $left");
-        Database::setQuery($rgtQuery);
+        $column = DB::qn('rgt');
+        $query  = DB::getQuery();
+        $query->update(DB::qn('#__organizer_curricula'))
+            ->set("$column = $column - :width")->bind(':width', $width, ParameterType::INTEGER)
+            ->where("$column > :left")->bind(':left', $left, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::execute();
+        return DB::execute();
     }
 
     /**
@@ -497,19 +459,25 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function shiftRight(int $left): bool
     {
-        $lftQuery = Database::getQuery();
-        $lftQuery->update('#__organizer_curricula')->set('lft = lft + 2')->where("lft >= $left");
-        Database::setQuery($lftQuery);
+        $column = DB::qn('lft');
+        $query  = DB::getQuery();
+        $query->update(DB::qn('#__organizer_curricula'))
+            ->set('$column = $column + 2')
+            ->where("$column >= :left")->bind(':left', $left, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        if (!Database::execute()) {
+        if (!DB::execute()) {
             return false;
         }
 
-        $rgtQuery = Database::getQuery();
-        $rgtQuery->update('#__organizer_curricula')->set('rgt = rgt + 2')->where("rgt >= $left");
-        Database::setQuery($rgtQuery);
+        $column = DB::qn('rgt');
+        $query  = DB::getQuery();
+        $query->update(DB::qn('#__organizer_curricula'))
+            ->set('$column = $column 2')
+            ->where("$column >= :left")->bind(':left', $left, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::execute();
+        return DB::execute();
     }
 
     /**
@@ -522,14 +490,15 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function shiftUp(int $parentID, int $ordering): bool
     {
-        $query = Database::getQuery();
-        $query->update('#__organizer_curricula')
-            ->set('ordering = ordering + 1')
-            ->where("ordering >= $ordering")
-            ->where("parentID = $parentID");
-        Database::setQuery($query);
+        $column = DB::qn('ordering');
+        $query  = DB::getQuery();
+        $query->update(DB::qn('#__organizer_curricula'))
+            ->set('$column = $column + 1')
+            ->where("$column >= :ordering")->bind(':ordering', $ordering, ParameterType::INTEGER)
+            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::execute();
+        return DB::execute();
     }
 
     /**
@@ -539,11 +508,11 @@ abstract class CurriculumResource extends BaseModel
      * @param   string  $prefix   The class prefix. Optional.
      * @param   array   $options  Configuration array for model. Optional.
      *
-     * @return Tables\BaseTable A Table object
+     * @return Table A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @noinspection PhpMissingReturnTypeInspection polymorphic return value
      */
-    public function getTable($name = '', $prefix = '', $options = [])
+    public function getTable($name = '', $prefix = '', $options = []): Table
     {
         $table = "THM\\Organizer\\Tables\\$this->helper";
 

@@ -11,9 +11,10 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Can, LSF, Programs as Helper};
+use THM\Organizer\Tables\Programs as Table;
 
 /**
  * Class which manages stored (degree) program data.
@@ -40,7 +41,7 @@ class Program extends CurriculumResource
         $this->authorize();
 
         foreach ($selected as $selectedID) {
-            $program = new Tables\Programs();
+            $program = new Table();
 
             if ($program->load($selectedID)) {
                 $program->active = 1;
@@ -67,7 +68,7 @@ class Program extends CurriculumResource
         $this->authorize();
 
         foreach ($selected as $selectedID) {
-            $program = new Tables\Programs();
+            $program = new Table();
 
             if ($program->load($selectedID)) {
                 $program->active = 0;
@@ -91,15 +92,17 @@ class Program extends CurriculumResource
      */
     private function getKeys(int $programID): array
     {
-        $query = Database::getQuery();
-        $query->select('p.code AS program, d.code AS degree, p.accredited, a.organizationID')
-            ->from('#__organizer_programs AS p')
-            ->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-            ->innerJoin('#__organizer_associations AS a ON a.programID = p.id')
-            ->where("p.id = $programID");
-        Database::setQuery($query);
+        $aliased  = DB::qn(['p.code', 'd.code'], ['program', 'degree']);
+        $selected = DB::qn(['p.accredited', 'a.organizationID']);
+        $query    = DB::getQuery();
+        $query->select(array_merge($aliased, $selected))
+            ->from(DB::qn('#__organizer_programs', 'p'))
+            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.programID', 'p.id'))
+            ->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $programID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::loadAssoc();
+        return DB::loadAssoc();
     }
 
     /**
@@ -112,7 +115,7 @@ class Program extends CurriculumResource
      */
     private function getSubjectIDs(int $resourceID, int $subjectID = 0): array
     {
-        $ranges = Helpers\Programs::subjects($resourceID, $subjectID);
+        $ranges = Helper::subjects($resourceID, $subjectID);
 
         $ids = [];
         foreach ($ranges as $range) {
@@ -126,11 +129,11 @@ class Program extends CurriculumResource
 
     /**
      * @inheritDoc
-     * @return Tables\Programs
+     * @return Table
      */
-    public function getTable($name = '', $prefix = '', $options = []): Tables\Programs
+    public function getTable($name = '', $prefix = '', $options = []): Table
     {
-        return new Tables\Programs();
+        return new Table();
     }
 
     /**
@@ -145,7 +148,7 @@ class Program extends CurriculumResource
         }
 
         try {
-            $client = new Helpers\LSF();
+            $client = new LSF();
         }
         catch (Exception) {
             Application::message('LSF_CLIENT_FAILED', Application::ERROR);
@@ -162,7 +165,7 @@ class Program extends CurriculumResource
             return true;
         }
 
-        if (!$ranges = $this->getRanges($resourceID) or empty($ranges[0])) {
+        if (!$ranges = $this->ranges($resourceID) or empty($ranges[0])) {
             $range = ['parentID' => null, 'programID' => $resourceID, 'ordering' => 0];
 
             return $this->addRange($range);
@@ -182,21 +185,21 @@ class Program extends CurriculumResource
     /**
      * @inheritDoc
      */
-    public function save(array $data = [])
+    public function save(array $data = []): int
     {
-        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems() : $data;
 
         if (empty($data['id'])) {
             // New program can be saved explicitly by documenters or implicitly by schedulers.
-            $documentationAccess = (bool) Helpers\Can::documentTheseOrganizations();
-            $schedulingAccess    = (bool) Helpers\Can::scheduleTheseOrganizations();
+            $documentationAccess = (bool) Can::documentTheseOrganizations();
+            $schedulingAccess    = (bool) Can::scheduleTheseOrganizations();
 
             if (!($documentationAccess or $schedulingAccess)) {
                 Application::error(403);
             }
         }
         elseif (is_numeric($data['id'])) {
-            if (!Helpers\Can::document('program', (int) $data['id'])) {
+            if (!Can::document('program', (int) $data['id'])) {
                 Application::error(403);
             }
         }
@@ -204,7 +207,7 @@ class Program extends CurriculumResource
             return false;
         }
 
-        $table = new Tables\Programs();
+        $table = new Table();
 
         if (!$table->save($data)) {
             return false;
@@ -216,7 +219,7 @@ class Program extends CurriculumResource
             return false;
         }
 
-        $range = ['parentID' => null, 'programID' => $table->id, 'curriculum' => $this->getSubOrdinates(), 'ordering' => 0];
+        $range = ['parentID' => null, 'programID' => $table->id, 'curriculum' => $this->subordinates(), 'ordering' => 0];
 
         if (!$this->addRange($range)) {
             return false;
@@ -240,7 +243,7 @@ class Program extends CurriculumResource
         $subject = new Subject();
 
         foreach ($programIDs as $programID) {
-            if (!Helpers\Can::document('program', $programID)) {
+            if (!Can::document('program', $programID)) {
                 Application::error(403);
             }
 

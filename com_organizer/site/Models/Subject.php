@@ -11,10 +11,10 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Helpers\{LSF, Programs, Subjects as Helper, SubjectsLSF as SLSF};
+use THM\Organizer\Tables\{Associations, Curricula, Persons, Prerequisites, Subjects as Table, SubjectPersons as SP};
 
 /**
  * Class which manages stored subject data.
@@ -61,7 +61,7 @@ class Subject extends CurriculumResource
      * @param   array  $programRanges       the program ranges
      * @param   array  $prerequisiteRanges  the prerequisite ranges
      * @param   array  $subjectRanges       the subject ranges
-     * @param   bool   $pre                 whether or not the function is being called in the prerequisite context this
+     * @param   bool   $pre                 whether the function is being called in the prerequisite context this
      *                                      influences how possible deprecated entries are detected.
      *
      * @return bool true on success, otherwise false
@@ -78,8 +78,8 @@ class Subject extends CurriculumResource
             }
 
             // Remove deprecated associations
-            $rprIDs = implode(',', Helpers\Subjects::filterIDs($rprRanges));
-            $rsIDs  = implode(',', Helpers\Subjects::filterIDs($rsRanges));
+            $rprIDs = implode(',', Helper::filterIDs($rprRanges));
+            $rsIDs  = implode(',', Helper::filterIDs($rsRanges));
             $query  = Database::getQuery();
             $query->delete('#__organizer_prerequisites');
 
@@ -99,7 +99,7 @@ class Subject extends CurriculumResource
             foreach ($rprRanges as $rprRange) {
                 foreach ($rsRanges as $rsRange) {
                     $data          = ['subjectID' => $rsRange['id'], 'prerequisiteID' => $rprRange['id']];
-                    $prerequisites = new Tables\Prerequisites();
+                    $prerequisites = new Prerequisites();
 
                     if ($prerequisites->load($data)) {
                         continue;
@@ -123,7 +123,7 @@ class Subject extends CurriculumResource
      *
      * @return void  can change the &$data value at the property name index
      */
-    private function cleanStarProperty(array &$data, string $property)
+    private function cleanStarProperty(array &$data, string $property): void
     {
         if (!isset($data[$property])) {
             $data[$property] = 'NULL';
@@ -171,14 +171,14 @@ class Subject extends CurriculumResource
      */
     public function importSingle(int $resourceID): bool
     {
-        $table = new Tables\Subjects();
+        $table = new Table();
 
         if (!$table->load($resourceID) or empty($table->lsfID)) {
             return false;
         }
 
         try {
-            $client = new Helpers\LSF();
+            $client = new LSF();
         }
         catch (Exception) {
             Application::message('ORGANIZER_LSF_CLIENT_FAILED', Application::ERROR);
@@ -225,7 +225,7 @@ class Subject extends CurriculumResource
 
         $this->setNameAttributes($table, $subject);
 
-        Helpers\SubjectsLSF::processAttributes($table, $subject);
+        SLSF::processAttributes($table, $subject);
 
         if (!$table->store()) {
             return false;
@@ -289,7 +289,7 @@ class Subject extends CurriculumResource
         if ($coordinatorsSet and $persons = array_filter($data['coordinators'])) {
             foreach ($persons as $personID) {
                 $spData = ['personID' => $personID, 'role' => self::COORDINATES, 'subjectID' => $data['id']];
-                $table  = new Tables\SubjectPersons();
+                $table  = new SP();
 
                 if (!$table->save($spData)) {
                     return false;
@@ -301,7 +301,7 @@ class Subject extends CurriculumResource
         if ($personsSet and $persons = array_filter($data['persons'])) {
             foreach ($persons as $personID) {
                 $spData = ['personID' => $personID, 'role' => self::TEACHES, 'subjectID' => $data['id']];
-                $table  = new Tables\SubjectPersons();
+                $table  = new SP();
 
                 if (!$table->save($spData)) {
                     return false;
@@ -323,17 +323,17 @@ class Subject extends CurriculumResource
     {
         $subjectID = $data['id'];
 
-        if (!$subjectRanges = $this->getRanges($subjectID)) {
+        if (!$subjectRanges = $this->ranges($subjectID)) {
             return true;
         }
 
-        $programRanges = Helpers\Programs::ranges($subjectRanges);
+        $programRanges = Programs::ranges($subjectRanges);
 
         $preRequisites = array_filter($data['prerequisites']);
         if (!empty($preRequisites) and !in_array(self::NONE, $preRequisites)) {
             $prerequisiteRanges = [];
             foreach ($preRequisites as $preRequisiteID) {
-                $prerequisiteRanges = array_merge($prerequisiteRanges, $this->getRanges($preRequisiteID));
+                $prerequisiteRanges = array_merge($prerequisiteRanges, $this->ranges($preRequisiteID));
             }
 
             $success = $this->associate($programRanges, $prerequisiteRanges, $subjectRanges, true);
@@ -364,7 +364,7 @@ class Subject extends CurriculumResource
         $blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) == 'x';
         $validTitle = $this->validTitle($XMLObject);
 
-        $subject = new Tables\Subjects();
+        $subject = new Table();
 
         if (!$subject->load(['lsfID' => $lsfID])) {
             // There isn't one and shouldn't be one
@@ -382,13 +382,13 @@ class Subject extends CurriculumResource
             return $this->deleteSingle($subject->id);
         }
 
-        $curricula = new Tables\Curricula();
+        $curricula = new Curricula();
 
         if (!$curricula->load(['parentID' => $parentID, 'subjectID' => $subject->id])) {
             $range = [
                 'parentID'  => $parentID,
                 'subjectID' => $subject->id,
-                'ordering'  => $this->getOrdering($parentID, $subject->id)
+                'ordering'  => $this->ordering($parentID, $subject->id)
             ];
 
             if (!$this->shiftUp($parentID, $range['ordering'])) {
@@ -402,7 +402,7 @@ class Subject extends CurriculumResource
             $curricula->load(['parentID' => $parentID, 'poolID' => $subject->id]);
         }
 
-        $association = new Tables\Associations();
+        $association = new Associations();
         if (!$association->load(['organizationID' => $organizationID, 'subjectID' => $subject->id])) {
             $association->save(['organizationID' => $organizationID, 'subjectID' => $subject->id]);
         }
@@ -473,7 +473,7 @@ class Subject extends CurriculumResource
      */
     private function removePreRequisites(int $subjectID): bool
     {
-        if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID))) {
+        if ($rangeIDs = Helper::filterIDs($this->ranges($subjectID))) {
             $rangeIDString = implode(',', $rangeIDs);
 
             $query = Database::getQuery();
@@ -496,7 +496,7 @@ class Subject extends CurriculumResource
      */
     private function removePostRequisites(int $subjectID): bool
     {
-        if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID))) {
+        if ($rangeIDs = Helper::filterIDs($this->ranges($subjectID))) {
             $rangeIDString = implode(',', $rangeIDs);
 
             $query = Database::getQuery();
@@ -518,7 +518,7 @@ class Subject extends CurriculumResource
      */
     private function resolve(int $subjectID): bool
     {
-        $table = new Tables\Subjects();
+        $table = new Table();
 
         // Entry doesn't exist. Should not occur.
         if (!$table->load($subjectID)) {
@@ -526,7 +526,7 @@ class Subject extends CurriculumResource
         }
 
         // Subject is not associated with a program
-        if (!$programRanges = Helpers\Subjects::programs($subjectID)) {
+        if (!$programRanges = Helper::programs($subjectID)) {
             return $this->removeDependencies($subjectID);
         }
 
@@ -554,7 +554,7 @@ class Subject extends CurriculumResource
             $originalText   = $table->$attribute;
             $potentialCodes = [];
 
-            foreach (explode(' ', Helpers\SubjectsLSF::sanitizeText($originalText)) as $sanitizedText) {
+            foreach (explode(' ', SLSF::sanitizeText($originalText)) as $sanitizedText) {
                 if (preg_match('/([A-Za-z0-9]{3,10})/', $sanitizedText)) {
                     $potentialCodes[$sanitizedText] = $sanitizedText;
                 }
@@ -567,7 +567,7 @@ class Subject extends CurriculumResource
             if ($dependencies = $this->verifyDependencies($potentialCodes, $programRanges)) {
                 $prerequisites = $prerequisites + $dependencies;
 
-                $emptyAttribute = Helpers\SubjectsLSF::checkContents($originalText, $checkedAttributes, $dependencies);
+                $emptyAttribute = SLSF::checkContents($originalText, $checkedAttributes, $dependencies);
 
                 if ($emptyAttribute) {
                     $table->$attribute = '';
@@ -590,9 +590,9 @@ class Subject extends CurriculumResource
     /**
      * @inheritDoc
      */
-    public function save(array $data = [])
+    public function save(array $data = []): int
     {
-        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems() : $data;
 
         $this->authorize();
 
@@ -603,7 +603,7 @@ class Subject extends CurriculumResource
             $this->cleanStarProperty($data, $property);
         }
 
-        $table = new Tables\Subjects();
+        $table = new Table();
 
         if (!$table->save($data)) {
             return false;
@@ -637,7 +637,7 @@ class Subject extends CurriculumResource
             return false;
         }*/
 
-        return $table->id;
+        return $table->id ?: 0;
     }
 
     /**
@@ -652,18 +652,18 @@ class Subject extends CurriculumResource
      */
     private function saveDependencies(array $programs, int $subjectID, array $dependencies, string $type): bool
     {
-        $subjectRanges = $this->getRanges($subjectID);
+        $subjectRanges = $this->ranges($subjectID);
 
         foreach ($programs as $program) {
             // Program context filtered subject ranges
             $fsRanges   = $this->filterRanges($program, $subjectRanges);
-            $fsRangeIDs = Helpers\Subjects::filterIDs($fsRanges);
+            $fsRangeIDs = Helper::filterIDs($fsRanges);
 
             // Program context filtered dependency ranges
             $fdRangeIDs = [];
             foreach ($dependencies as $dependency) {
                 $fdRanges   = $this->filterRanges($program, $dependency);
-                $fdRangeIDs = array_merge($fdRangeIDs, Helpers\Subjects::filterIDs($fdRanges));
+                $fdRangeIDs = array_merge($fdRangeIDs, Helper::filterIDs($fdRanges));
             }
 
             $fdRangeIDs = array_unique($fdRangeIDs);
@@ -704,7 +704,7 @@ class Subject extends CurriculumResource
 
         foreach ($prerequisiteIDs as $prerequisiteID) {
             foreach ($subjectIDs as $subjectID) {
-                $table = new Tables\Prerequisites();
+                $table = new Prerequisites();
                 if (!$table->load(['prerequisiteID' => $prerequisiteID, 'subjectID' => $subjectID])) {
                     $table->prerequisiteID = $prerequisiteID;
                     $table->subjectID      = $subjectID;
@@ -790,7 +790,7 @@ class Subject extends CurriculumResource
                 $loadCriteria[] = ['surname' => $personData['surname'], 'forename' => $personData['forename']];
             }
 
-            $personTable = new Tables\Persons();
+            $personTable = new Persons();
             $loaded      = false;
 
             foreach ($loadCriteria as $criteria) {
@@ -805,7 +805,7 @@ class Subject extends CurriculumResource
             }
 
             $spData  = ['personID' => $personTable->id, 'role' => $role, 'subjectID' => $subjectID];
-            $spTable = new Tables\SubjectPersons();
+            $spTable = new SP();
 
             if (!$spTable->save($spData)) {
                 return false;

@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Pools, Programs};
 use THM\Organizer\Tables\Curricula;
 
 /**
@@ -31,12 +31,12 @@ trait SubOrdinate
     private function addNew(array $data, array $superOrdinates): bool
     {
         $existingPool = ($this->resource === 'pool' and Input::getTask() !== 'pools.save2copy');
-        $ranges       = $this->getRanges($data['id']);
+        $ranges       = $this->ranges($data['id']);
         $resourceID   = $this->resource . 'ID';
 
         $range = [
             $resourceID  => $data['id'],
-            'curriculum' => $existingPool ? $this->getSubOrdinates() : []
+            'curriculum' => $existingPool ? $this->subordinates() : []
         ];
 
         foreach ($superOrdinates as $super) {
@@ -59,7 +59,7 @@ trait SubOrdinate
                 }
             }
 
-            $range['ordering'] = $this->getOrdering($super['id'], $data['id']);
+            $range['ordering'] = $this->ordering($super['id'], $data['id']);
 
             if (!$this->addRange($range)) {
                 return false;
@@ -105,7 +105,7 @@ trait SubOrdinate
         // Retrieve the program context ranges for sanity checks on pool ranges
         $programRanges = [];
         foreach ($data['curricula'] as $programID) {
-            if ($ranges = Helpers\Programs::ranges($programID)) {
+            if ($ranges = Programs::ranges($programID)) {
                 $programRanges[$programID] = $ranges[0];
             }
         }
@@ -135,7 +135,7 @@ trait SubOrdinate
                 continue;
             }
 
-            foreach (Helpers\Pools::ranges($table->poolID) as $poolRange) {
+            foreach (Pools::ranges($table->poolID) as $poolRange) {
                 foreach ($programRanges as $programRange) {
                     // Pool range is a valid subset of the program context range
                     if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt']) {
@@ -156,11 +156,11 @@ trait SubOrdinate
      *
      * @return void removes deprecated ranges from the database
      */
-    private function removeDeprecated(int $resourceID, array $superOrdinates)
+    private function removeDeprecated(int $resourceID, array $superOrdinates): void
     {
         $superIDs = array_keys($superOrdinates);
 
-        foreach ($this->getRanges($resourceID) as $range) {
+        foreach ($this->ranges($resourceID) as $range) {
             if (in_array($range['parentID'], $superIDs)) {
                 continue;
             }

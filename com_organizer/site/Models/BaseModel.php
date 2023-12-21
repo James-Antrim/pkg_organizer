@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 use THM\Organizer\Tables\BaseTable;
 
 /**
@@ -48,9 +48,9 @@ abstract class BaseModel extends BaseDatabaseModel
      * Authorizes the user.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if (!Helpers\Can::administrate()) {
+        if (!Can::administrate()) {
             Application::error(403);
         }
     }
@@ -91,13 +91,13 @@ abstract class BaseModel extends BaseDatabaseModel
      *
      * @param   array  $data  the data from the form
      *
-     * @return int|bool int id of the resource on success, otherwise bool false
+     * @return int
      */
-    public function save(array $data = [])
+    public function save(array $data = []): int
     {
         $this->authorize();
 
-        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems() : $data;
 
         try {
             /* @var BaseTable $table */
@@ -109,7 +109,7 @@ abstract class BaseModel extends BaseDatabaseModel
             return false;
         }
 
-        return $table->save($data) ? $table->id : false;
+        return $table->save($data) ? $table->id : 0;
     }
 
     /**
@@ -117,11 +117,11 @@ abstract class BaseModel extends BaseDatabaseModel
      *
      * @param   array  $data  the data to be used to create the program when called from the program helper
      *
-     * @return int|bool the id of the resource on success, otherwise bool false
+     * @return int
      */
-    public function save2copy(array $data = [])
+    public function save2copy(array $data = []): int
     {
-        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems() : $data;
         unset($data['id']);
 
         return $this->save($data);

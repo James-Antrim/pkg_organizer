@@ -10,15 +10,59 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Input;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Database as DB, Input};
 
+/**
+ * Provides functions for superordinate curriculum resources.
+ */
 trait SuperOrdinate
 {
+    /**
+     * Gets the curriculum for a pool selected as a subordinate resource
+     *
+     * @param   int  $poolID  the resource id
+     *
+     * @return array[]  empty if no child data exists
+     */
+    protected function curriculum(int $poolID): array
+    {
+        // Subordinate structures are the same for every superordinate resource
+        $query = DB::getQuery();
+        $query->select(DB::qn('id'))
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('poolID') . ' = :poolID')->bind(':poolID', $poolID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        if (!$firstID = DB::loadInt()) {
+            return [];
+        }
+
+        $query = DB::getQuery();
+        $query->select('*')
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('parentID') . ' = :firstID')->bind(':firstID', $firstID, ParameterType::INTEGER)
+            ->order(DB::qn('lft'));
+        DB::setQuery($query);
+
+        if (!$subOrdinates = DB::loadAssocList()) {
+            return $subOrdinates;
+        }
+
+        foreach ($subOrdinates as $key => $subOrdinate) {
+            if ($subOrdinate['poolID']) {
+                $subOrdinates[$key]['curriculum'] = $this->curriculum($subOrdinate['poolID']);
+            }
+        }
+
+        return $subOrdinates;
+    }
+
     /**
      * Builds the resource's curriculum using the subordinate resources contained in the form.
      * @return array[]  an array containing the resource's subordinate resources
      */
-    private function getSubOrdinates(): array
+    private function subordinates(): array
     {
         $index        = 1;
         $subOrdinates = [];
@@ -41,7 +85,7 @@ trait SuperOrdinate
                     $subOrdinates[$ordering]['poolID']     = $resourceID;
                     $subOrdinates[$ordering]['subjectID']  = null;
                     $subOrdinates[$ordering]['ordering']   = $ordering;
-                    $subOrdinates[$ordering]['curriculum'] = $this->getExistingCurriculum($resourceID);
+                    $subOrdinates[$ordering]['curriculum'] = $this->curriculum($resourceID);
                 }
             }
 
