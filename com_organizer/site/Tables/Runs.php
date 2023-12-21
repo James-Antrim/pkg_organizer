@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -18,14 +17,13 @@ use THM\Organizer\Adapters\Application;
 /**
  * Models the organizer_runs table.
  */
-class Runs extends BaseTable
+class Runs extends Table
 {
-    use Incremented;
-
     /**
      * The end date of the resource.
      * DATE NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $endDate;
 
@@ -33,6 +31,7 @@ class Runs extends BaseTable
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -40,6 +39,7 @@ class Runs extends BaseTable
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -47,6 +47,7 @@ class Runs extends BaseTable
      * A run object modeled by a JSON string, containing the respective start and end dates of run sections.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $run;
 
@@ -54,6 +55,7 @@ class Runs extends BaseTable
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $termID;
 

@@ -10,11 +10,11 @@
 
 namespace THM\Organizer\Controllers;
 
-use Joomla\CMS\Table\Table;
+use Joomla\CMS\Table\Table as JTable;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use THM\Organizer\Helpers\{Can, Participants};
 use Joomla\Database\ParameterType;
-use THM\Organizer\Tables\Incremented;
+use THM\Organizer\Tables\Table;
 
 /**
  * @inheritDoc
@@ -65,17 +65,15 @@ class Participant extends FormController
     /**
      * @inheritDoc
      */
-    protected function store(Table $table, array $data, int $id = 0): int
+    protected function store(JTable $table, array $data, int $id = 0): int
     {
         // The primary key is also a foreign key to users, so there may not be a table entry for a non-zero id.
         $table->load($id);
 
         if ($table->save($data)) {
-            /** @var Incremented $table */
+            /** @var Table $table */
             return $table->id;
         }
-
-        Application::message($table->getError(), Application::ERROR);
 
         return $id;
     }

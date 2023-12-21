@@ -12,10 +12,10 @@ namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\Table\Table;
+use Joomla\CMS\Table\Table as JTable;
 use Joomla\Input\Input as JInput;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Tables\Incremented;
+use THM\Organizer\Tables\Table;
 
 /**
  * Handles authorization, display, data persistence and redirection for form views.
@@ -92,9 +92,9 @@ abstract class FormController extends Controller
 
     /**
      * Instances a table object corresponding to the registered list.
-     * @return Table
+     * @return JTable
      */
-    protected function getTable(): Table
+    protected function getTable(): JTable
     {
         $fqName = 'THM\\Organizer\\Tables\\' . $this->list;
 
@@ -174,14 +174,14 @@ abstract class FormController extends Controller
     /**
      * Reusable function to store data in an Incremented table.
      *
-     * @param   Table  $table  an Incremented table
-     * @param   array  $data   the data to store
-     * @param   int    $id     the id of the row in which to store the data
+     * @param   JTable  $table  an Incremented table
+     * @param   array   $data   the data to store
+     * @param   int     $id     the id of the row in which to store the data
      *
      * @return int the id of the table row on success, otherwise the id parameter
      * @uses Incremented
      */
-    protected function store(Table $table, array $data, int $id = 0): int
+    protected function store(JTable $table, array $data, int $id = 0): int
     {
         if ($id and !$table->load($id)) {
             Application::message('412', Application::ERROR);
@@ -190,11 +190,9 @@ abstract class FormController extends Controller
         }
 
         if ($table->save($data)) {
-            /** @var Incremented $table */
+            /** @var Table $table */
             return $table->id;
         }
-
-        Application::message($table->getError(), Application::ERROR);
 
         return $id;
     }

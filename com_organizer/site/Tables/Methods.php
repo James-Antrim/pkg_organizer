@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,7 +10,6 @@
 
 namespace THM\Organizer\Tables;
 
-use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
@@ -23,12 +21,13 @@ class Methods extends Table
 {
     use Aliased;
     use Coded;
-    use Incremented;
+    use Nullable;
 
     /**
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_de;
 
@@ -36,27 +35,29 @@ class Methods extends Table
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_en;
 
     /**
      * The resource's German name.
      * VARCHAR(150) NOT NULL
-     * @var string
+     * @var null|string
      */
-    public $name_de;
+    public null|string $name_de;
 
     /**
      * The resource's English name.
      * VARCHAR(150) NOT NULL
-     * @var string
+     * @var null|string
      */
-    public $name_en;
+    public null|string $name_en;
 
     /**
      * The resource's German plural.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $plural_de;
 
@@ -64,13 +65,15 @@ class Methods extends Table
      * The resource's English plural.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $plural_en;
 
     /**
      * A flag which displays whether the method is relevant for .
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var string
+     * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $relevant;
 
@@ -83,5 +86,21 @@ class Methods extends Table
 
         /** @var DatabaseDriver $dbo */
         parent::__construct('#__organizer_methods', 'id', $dbo);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function check(): bool
+    {
+        // An association should always be between an organization and another resource.
+        $columns = ['name_de', 'name_en'];
+        foreach ($columns as $column) {
+            if (empty($this->$column)) {
+                $this->$column = null;
+            }
+        }
+
+        return true;
     }
 }

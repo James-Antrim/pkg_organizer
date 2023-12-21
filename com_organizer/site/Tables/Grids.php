@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,7 +10,6 @@
 
 namespace THM\Organizer\Tables;
 
-use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
@@ -21,12 +19,13 @@ use THM\Organizer\Adapters\Application;
 class Grids extends Table
 {
     use Coded;
-    use Incremented;
+    use Nullable;
 
     /**
      * A grid object modeled by a JSON string, containing the respective start and end times of the grid blocks.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $grid;
 
@@ -34,22 +33,23 @@ class Grids extends Table
      * A flag to determine which grid is to be used if none is specified.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $isDefault;
 
     /**
      * The resource's German name.
      * VARCHAR(150) NOT NULL
-     * @var string
+     * @var null|string
      */
-    public $name_de;
+    public null|string $name_de;
 
     /**
      * The resource's English name.
      * VARCHAR(150) NOT NULL
-     * @var string
+     * @var null|string
      */
-    public $name_en;
+    public null|string $name_en;
 
     /**
      * @inheritDoc
@@ -60,5 +60,21 @@ class Grids extends Table
 
         /** @var DatabaseDriver $dbo */
         parent::__construct('#__organizer_grids', 'id', $dbo);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function check(): bool
+    {
+        // An association should always be between an organization and another resource.
+        $columns = ['name_de', 'name_en'];
+        foreach ($columns as $column) {
+            if (empty($this->$column)) {
+                $this->$column = null;
+            }
+        }
+
+        return true;
     }
 }

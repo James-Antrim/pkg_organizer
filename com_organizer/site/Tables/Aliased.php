@@ -25,6 +25,7 @@ trait Aliased
 
     /**
      * @inheritDoc
+     * Stand-alone check function for classes whose sole nullable column is alias.
      */
     public function check(): bool
     {

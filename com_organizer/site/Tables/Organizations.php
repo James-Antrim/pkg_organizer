@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -12,7 +11,7 @@
 namespace THM\Organizer\Tables;
 
 use Joomla\CMS\Access\Rules;
-use Joomla\CMS\Table\{Asset, Table};
+use Joomla\CMS\Table\{Asset, Table as JTable};
 use Joomla\Database\{DatabaseDriver, DatabaseInterface, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
 
@@ -29,6 +28,7 @@ class Organizations extends Table
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_de;
 
@@ -36,41 +36,44 @@ class Organizations extends Table
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_en;
 
     /**
      * A flag which displays whether the planning for the organization directly is allowed.
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var string
+     * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $allowScheduling;
 
     /**
      * The id used by Joomla as a reference to its assets table.
      * INT(11) NOT NULL
-     * @var int
+     * @var int|null
      */
-    public $asset_id = null;
+    public int|null $asset_id = null;
 
     /**
      * The id of the user entry referenced.
      * INT(11) DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $contactID;
+    public int|null $contactID;
 
     /**
      * The email address to be used for contacting participants
      * VARCHAR(100) DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $contactEmail;
+    public null|string $contactEmail;
 
     /**
      * The resource's German full name.
      * VARCHAR(200) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_de;
 
@@ -78,6 +81,7 @@ class Organizations extends Table
      * The resource's English full name.
      * VARCHAR(200) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_en;
 
@@ -85,6 +89,7 @@ class Organizations extends Table
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -92,6 +97,7 @@ class Organizations extends Table
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -99,6 +105,7 @@ class Organizations extends Table
      * The resource's German shortened name.
      * VARCHAR(50) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $shortName_de;
 
@@ -106,6 +113,7 @@ class Organizations extends Table
      * The resource's English shortened name.
      * VARCHAR(50) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $shortName_en;
 
@@ -113,6 +121,8 @@ class Organizations extends Table
      * The base URL for the organization's homepage.
      * VARCHAR(50) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
+     * @noinspection PhpPropertyNamingConventionInspection
      */
     public $URL;
 
@@ -148,7 +158,7 @@ class Organizations extends Table
     /**
      * @inheritDoc
      */
-    protected function _getAssetParentId(Table $table = null, $id = null): int
+    protected function _getAssetParentId(JTable $table = null, $id = null): int
     {
         $asset = new Asset(Application::getDB());
         $asset->loadByName('com_organizer');
@@ -230,13 +240,6 @@ class Organizations extends Table
         $asset = new Asset($this->getDbo());
         $name  = $this->_getAssetName();
         $asset->loadByName($name);
-
-        if ($error = $asset->getError()) {
-            $this->setError($error);
-
-            return false;
-        }
-
         $this->asset_id = $asset->id;
 
         $parentId = $this->_getAssetParentId();
@@ -256,8 +259,6 @@ class Organizations extends Table
 
         // Try to create/update the asset.
         if (!$asset->check() or !$asset->store()) {
-            $this->setError($asset->getError());
-
             return false;
         }
 

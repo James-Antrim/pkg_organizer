@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,7 +10,6 @@
 
 namespace THM\Organizer\Tables;
 
-use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
@@ -22,12 +20,13 @@ class Fields extends Table
 {
     use Aliased;
     use Coded;
-    use Incremented;
+    use Nullable;
 
     /**
      * The resource's German name.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -35,6 +34,7 @@ class Fields extends Table
      * The resource's English name.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 

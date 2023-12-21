@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,7 +10,6 @@
 
 namespace THM\Organizer\Tables;
 
-use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
@@ -22,12 +20,13 @@ class Terms extends Table
 {
     use Aliased;
     use Coded;
-    use Incremented;
+    use Nullable;
 
     /**
      * The end date of the resource.
      * DATE DEFAULT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $endDate;
 
@@ -35,6 +34,7 @@ class Terms extends Table
      * The resource's full German name.
      * VARCHAR(200) DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_de;
 
@@ -42,6 +42,7 @@ class Terms extends Table
      * The resource's full English name.
      * VARCHAR(200) DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_en;
 
@@ -49,6 +50,7 @@ class Terms extends Table
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -56,6 +58,7 @@ class Terms extends Table
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -63,6 +66,7 @@ class Terms extends Table
      * The start date of the resource.
      * DATE DEFAULT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $startDate;
 
