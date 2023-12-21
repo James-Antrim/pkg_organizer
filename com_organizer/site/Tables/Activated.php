@@ -11,14 +11,14 @@
 namespace THM\Organizer\Tables;
 
 /**
- * Resources which can be reached over a URL are addressable.
+ * Adds a flag denoting resource activation status.
  */
 trait Activated
 {
     /**
      * A flag which displays whether the resource is currently active.
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var string
+     * @var bool
      * @noinspection PhpMissingFieldTypeInspection
      */
     public $active;

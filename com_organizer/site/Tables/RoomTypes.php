@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_roomtypes table.
+ * @inheritDoc
  */
-class RoomTypes extends BaseTable
+class RoomTypes extends Table
 {
     use Suppressed;
 
@@ -22,6 +24,7 @@ class RoomTypes extends BaseTable
      * The resource's German description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_de;
 
@@ -29,20 +32,22 @@ class RoomTypes extends BaseTable
      * The resource's English description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_en;
 
     /**
      * The maximum occupancy for rooms of this type.
      * INT(4) UNSIGNED DEFAULT NULL
-     * @var string
+     * @var int|null
      */
-    public $capacity;
+    public int|null $capacity;
 
     /**
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -50,6 +55,7 @@ class RoomTypes extends BaseTable
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -57,14 +63,18 @@ class RoomTypes extends BaseTable
      * The id of the normed use code with which the type is associated.
      * SMALLINT(4) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $usecode;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_roomtypes');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_roomtypes', 'id', $dbo);
     }
 }

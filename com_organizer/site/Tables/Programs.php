@@ -11,10 +11,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_programs table.
+ * @inheritDoc
  */
-class Programs extends BaseTable
+class Programs extends Table
 {
     use Activated;
     use Aliased;
@@ -24,27 +27,29 @@ class Programs extends BaseTable
      * The year in which the program was accredited.
      * YEAR(4) DEFAULT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $accredited;
 
     /**
      * The id of the category entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $categoryID;
+    public int|null $categoryID;
 
     /**
      * The id of the degree entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $degreeID;
+    public int|null $degreeID;
 
     /**
      * The resource's German description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_de;
 
@@ -52,27 +57,30 @@ class Programs extends BaseTable
      * The resource's English description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_en;
 
     /**
      * A flag which displays whether the program has a fee.
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var string
+     * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fee;
 
     /**
      * The id of the frequency entry referenced.
      * INT(1) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $frequencyID;
+    public int|null $frequencyID;
 
     /**
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -80,29 +88,44 @@ class Programs extends BaseTable
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
     /**
      * A flag which displays whether the program has a restricted number of participants.
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var string
+     * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $nc;
 
     /**
+     * The associated organization id.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int|null
+     * @deprecated ???
+     */
+    public int|null $organizationID;
+
+    /**
      * A flag which displays whether the program has special participation requirements
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var string
+     * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $special;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_programs');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_programs', 'id', $dbo);
     }
 
     /**

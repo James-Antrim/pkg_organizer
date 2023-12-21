@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_subject_events table.
+ * @inheritDoc
  */
-class SubjectEvents extends BaseTable
+class SubjectEvents extends Table
 {
     /**
      * The id of the event entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $eventID;
 
@@ -26,14 +30,18 @@ class SubjectEvents extends BaseTable
      * The id of the subject entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $subjectID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_subject_events');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_subject_events', 'id', $dbo);
     }
 }

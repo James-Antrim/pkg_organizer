@@ -82,13 +82,6 @@ class Pools extends Table
     public int|null $groupID;
 
     /**
-     * The id of the entry in the LSF software module.
-     * INT(11) UNSIGNED DEFAULT NULL
-     * @var int|null
-     */
-    public int|null $lsfID;
-
-    /**
      * The maximum credit points required to be achieved in subjects of this pool.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int

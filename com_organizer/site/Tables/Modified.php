@@ -11,7 +11,7 @@
 namespace THM\Organizer\Tables;
 
 /**
- * Resources which can be reached over a URL are addressable.
+ * Provides fields for resources with rudimentary logging with a check to prevent setting the 0 date as a default.
  */
 trait Modified
 {

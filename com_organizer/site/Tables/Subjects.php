@@ -11,10 +11,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_subjects table.
+ * @inheritDoc
  */
-class Subjects extends BaseTable
+class Subjects extends Table
 {
     use Aliased;
     use Coded;
@@ -25,6 +28,7 @@ class Subjects extends BaseTable
      * VARCHAR(25) NOT NULL DEFAULT ''
      * Status: Unknown
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_de;
 
@@ -33,6 +37,7 @@ class Subjects extends BaseTable
      * VARCHAR(25) NOT NULL DEFAULT ''
      * Status: Unknown
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_en;
 
@@ -40,6 +45,7 @@ class Subjects extends BaseTable
      * A flag denoting whether it is possible to achieve extra credit.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $bonusPoints;
 
@@ -47,6 +53,7 @@ class Subjects extends BaseTable
      * The subject's contents in German.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $content_de;
 
@@ -54,13 +61,15 @@ class Subjects extends BaseTable
      * The subject's contents in English.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $content_en;
 
     /**
      * The number of credit points (ECTS) rewarded for successful completion of this subject.
      * INT(3) UNSIGNED  NOT NULL DEFAULT 0
-     * @var float
+     * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $creditPoints;
 
@@ -69,6 +78,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Changed -> maximum length of displayed characters is now 300?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_de;
 
@@ -77,6 +87,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Changed -> maximum length of displayed characters is now 300?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_en;
 
@@ -84,6 +95,7 @@ class Subjects extends BaseTable
      * The number of terms over which the subject is taught.
      * TINYINT(1) UNSIGNED DEFAULT 1
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $duration;
 
@@ -92,28 +104,32 @@ class Subjects extends BaseTable
      * INT(4) UNSIGNED NOT NULL DEFAULT
      * Status: Unchanged
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $expenditure;
 
     /**
      * The quantifier for the level of expertise of this subject. Values: NULL - unset, 0 - none ... 3 - much.
      * TINYINT(1) UNSIGNED DEFAULT NULL
-     * @deprecated replaced by localized full text fields
+     * @deprecated   replaced by localized full text fields
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $expertise;
 
     /**
      * The description for expertise learning objectives in German.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $expertise_de;
 
     /**
      * The description for expertise learning objectives in English.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $expertise_en;
 
@@ -121,23 +137,24 @@ class Subjects extends BaseTable
      * The id of the field entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * Status: Unchanged (as yet internal)
-     * @var int
+     * @var int|null
      */
-    public $fieldID;
+    public int|null $fieldID;
 
     /**
      * The id of the frequency entry referenced.
      * INT(1) UNSIGNED DEFAULT NULL
      * Status: Changed -> tinyint(1) (keep semesterly, yearly and on demand)
-     * @var int
+     * @var int|null
      */
-    public $frequencyID;
+    public int|null $frequencyID;
 
     /**
      * The resource's German full name.
      * VARCHAR(200) NOT NULL
      * Status: Unchanged
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_de;
 
@@ -146,6 +163,7 @@ class Subjects extends BaseTable
      * VARCHAR(200) NOT NULL
      * Status: Unchanged
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $fullName_en;
 
@@ -154,6 +172,7 @@ class Subjects extends BaseTable
      * INT(4) UNSIGNED NOT NULL DEFAULT
      * Status: Unchanged
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $independent;
 
@@ -162,6 +181,7 @@ class Subjects extends BaseTable
      * VARCHAR(2) NOT NULL DEFAULT 'D'
      * Status: Unknown, are these still sent as codes? are there codes for any other potential languages?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $language;
 
@@ -169,22 +189,16 @@ class Subjects extends BaseTable
      * The recommended literature to accompany this subject.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $literature;
-
-    /**
-     * The id of the entry in the LSF software module.
-     * INT(11) UNSIGNED DEFAULT NULL
-     * Status: Unknown
-     * @var int
-     */
-    public $lsfID;
 
     /**
      * The German description for the way in which this subject is taught.
      * TEXT
      * Status: A whole box of things...
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $method_de;
 
@@ -193,6 +207,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: A whole box of things...
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $method_en;
 
@@ -200,37 +215,41 @@ class Subjects extends BaseTable
      * The quantifier for the level of method competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
      * TINYINT(1) UNSIGNED DEFAULT NULL
      * @deprecated replaced by localized full text fields
-     * @var int
+     * @var int|null
      */
-    public $methodCompetence;
+    public int|null $methodCompetence;
 
     /**
      * The description for procedural learning objectives in German.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $methodCompetence_de;
 
     /**
      * The description for procedural learning objectives in English.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $methodCompetence_en;
 
     /**
      * The subject's objectives in German.
      * TEXT
-     * @deprecated replaced by competences
+     * @deprecated   replaced by competences
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $objective_de;
 
     /**
      * The subject's objectives in English.
      * TEXT
-     * @deprecated replaced by competences
+     * @deprecated   replaced by competences
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $objective_en;
 
@@ -239,6 +258,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $preliminaryWork_de;
 
@@ -247,6 +267,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $preliminaryWork_en;
 
@@ -255,6 +276,7 @@ class Subjects extends BaseTable
      * TEXT NOT NULL
      * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $prerequisites_de;
 
@@ -263,6 +285,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $prerequisites_en;
 
@@ -271,6 +294,7 @@ class Subjects extends BaseTable
      * INT(4) UNSIGNED NOT NULL DEFAULT
      * Status: Unchanged
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $present;
 
@@ -279,6 +303,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Prüfungsleistung?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $proof_de;
 
@@ -287,6 +312,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Prüfungsleistung?
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $proof_en;
 
@@ -295,6 +321,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Unknown. Empfohlene Voraussetzungen
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $recommendedPrerequisites_de;
 
@@ -303,6 +330,7 @@ class Subjects extends BaseTable
      * TEXT
      * Status: Unknown. Empfohlene Voraussetzungen
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $recommendedPrerequisites_en;
 
@@ -310,21 +338,23 @@ class Subjects extends BaseTable
      * The quantifier for the level of self competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
      * TINYINT(1) UNSIGNED DEFAULT NULL
      * @deprecated replaced by localized full text fields
-     * @var int
+     * @var int|null
      */
-    public $selfCompetence;
+    public int|null $selfCompetence;
 
     /**
      * The description for personal learning objectives in German.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $selfCompetence_de;
 
     /**
      * The description for personal learning objectives in English.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $selfCompetence_en;
 
@@ -332,21 +362,23 @@ class Subjects extends BaseTable
      * The quantifier for the level of social competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
      * TINYINT(1) UNSIGNED DEFAULT NULL
      * @deprecated replaced by localized full text fields
-     * @var int
+     * @var int|null
      */
-    public $socialCompetence;
+    public int|null $socialCompetence;
 
     /**
      * The description for social learning objectives in German.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $socialCompetence_de;
 
     /**
      * The description for social learning objectives in English.
      * TEXT
-     * @var int
+     * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $socialCompetence_en;
 
@@ -355,15 +387,19 @@ class Subjects extends BaseTable
      * INT(2) UNSIGNED NOT NULL DEFAULT 0
      * Status: A whole box of things...
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $sws;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_subjects');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_subjects', 'id', $dbo);
     }
 
     /**
@@ -371,7 +407,7 @@ class Subjects extends BaseTable
      */
     public function check(): bool
     {
-        $nullColumns = ['alias', 'fieldID', 'frequencyID', 'language', 'lsfID'];
+        $nullColumns = ['alias', 'fieldID', 'frequencyID', 'lsfID'];
 
         foreach ($nullColumns as $nullColumn) {
             if (!$this->$nullColumn) {
@@ -379,18 +415,18 @@ class Subjects extends BaseTable
             }
         }
 
-        $competences = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
+        $replacedFields = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
 
-        foreach ($competences as $competence) {
+        foreach ($replacedFields as $replacedField) {
             // Truly empty
-            if (!strlen($this->$competence)) {
-                $this->$competence = null;
+            if (!strlen($this->$replacedField)) {
+                $this->$replacedField = null;
                 continue;
             }
 
-            $value = (int) $this->$competence;
+            $value = (int) $this->$replacedField;
 
-            $this->$competence = ($value < 0 or $value > 3) ? null : $value;
+            $this->$replacedField = ($value < 0 or $value > 3) ? null : $value;
         }
 
         return true;

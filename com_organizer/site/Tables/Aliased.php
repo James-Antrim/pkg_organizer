@@ -12,7 +12,7 @@
 namespace THM\Organizer\Tables;
 
 /**
- * Resources which can be reached over a URL are addressable.
+ * Adds rudimentary alias field and a common check routine for tables for whom only this field is nullable.
  */
 trait Aliased
 {

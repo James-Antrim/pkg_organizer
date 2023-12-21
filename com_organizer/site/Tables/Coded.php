@@ -11,7 +11,7 @@
 namespace THM\Organizer\Tables;
 
 /**
- * Resources which can be reached over a URL are addressable.
+ * Adds a field with an accepted short form code, predominantly from Untis scheduling software.
  */
 trait Coded
 {

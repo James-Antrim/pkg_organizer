@@ -78,7 +78,7 @@ class Courses extends Table
     /**
      * The resource's German name.
      * VARCHAR(150) DEFAULT NULL
-     * @var string|null
+     * @var null|string
      */
     public null|string $name_de;
 

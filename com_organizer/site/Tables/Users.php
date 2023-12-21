@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -17,7 +16,7 @@ use Joomla\Database\DatabaseInterface;
 use THM\Organizer\Adapters\Application;
 
 /**
- * Class representing the persons table.
+ * Class extends the user table for the purposes of documentation and code completion.
  */
 class Users extends User
 {
@@ -25,6 +24,7 @@ class Users extends User
      * A password hash used during the reset process. Any non-empty value indicates a reset has been performed at some point.
      * VARCHAR(100) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $activation;
 
@@ -32,12 +32,13 @@ class Users extends User
      * VARCHAR(255) DEFAULT NULL
      * @var null|string
      */
-    public $alias;
+    public null|string $alias;
 
     /**
      * VARCHAR(100) NOT NULL DEFAULT ''
      * Name of used authentication plugin
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $authProvider;
 
@@ -45,18 +46,21 @@ class Users extends User
      * Whether the user is barred from logging into the site.
      * TINYINT(4) NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $block;
 
     /**
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $content;
 
     /**
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $editing;
 
@@ -91,6 +95,7 @@ class Users extends User
     /**
      * VARCHAR(400) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name;
 
@@ -114,18 +119,21 @@ class Users extends User
      * MEDIUMTEXT NOT NULL
      * JSON String
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $params;
 
     /**
      * VARCHAR(100) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $password;
 
     /**
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $published;
 
@@ -140,6 +148,7 @@ class Users extends User
      * TINYINT(4) DEFAULT 0
      * Require user to reset password on next login
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $requireReset;
 
@@ -147,6 +156,7 @@ class Users extends User
      * INT(11) NOT NULL DEFAULT 0
      * Count of password resets since lastResetTime
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $resetCount;
 
@@ -160,6 +170,7 @@ class Users extends User
     /**
      * VARCHAR(150) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $username;
 

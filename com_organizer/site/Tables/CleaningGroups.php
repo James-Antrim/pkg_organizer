@@ -54,7 +54,7 @@ class CleaningGroups extends Table
     /**
      * A flag which displays whether associated rooms should appear in exported media.
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var int
+     * @var bool
      * @noinspection PhpMissingFieldTypeInspection
      */
     public $relevant;

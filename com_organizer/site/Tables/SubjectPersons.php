@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_subject_persons table.
+ * @inheritDoc
  */
-class SubjectPersons extends BaseTable
+class SubjectPersons extends Table
 {
     /**
      * The id of the person entry referenced.
      * INT(11) NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $personID;
 
@@ -26,6 +30,7 @@ class SubjectPersons extends BaseTable
      * The person's responsibility for the subject. Values: 1 - Coordinates, 2 - Teaches.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $role;
 
@@ -33,14 +38,18 @@ class SubjectPersons extends BaseTable
      * The id of the subject entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $subjectID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_subject_persons');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_subject_persons', 'id', $dbo);
     }
 }

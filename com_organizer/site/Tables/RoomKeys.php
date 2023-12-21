@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -11,22 +10,26 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_blocks table.
+ * @inheritDoc
  */
-class RoomKeys extends BaseTable
+class RoomKeys extends Table
 {
     /**
      * The cleaning group associated with the room key.
      * TINYINT(2) UNSIGNED  DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $cleaningID;
+    public int|null $cleaningID;
 
     /**
      * The actual room key.
      * VARCHAR(3) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $key;
 
@@ -34,6 +37,7 @@ class RoomKeys extends BaseTable
      * The room key's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -41,6 +45,7 @@ class RoomKeys extends BaseTable
      * The room key's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -48,15 +53,19 @@ class RoomKeys extends BaseTable
      * The use group associated with the room key.
      * TINYINT(1) UNSIGNED  NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $useID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_roomkeys');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_roomkeys', 'id', $dbo);
     }
 
     /**

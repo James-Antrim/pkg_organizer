@@ -11,14 +11,15 @@
 namespace THM\Organizer\Tables;
 
 /**
- * Resources which can be reached over a URL are addressable.
+ * Adds a flag for resources for which individual resources can be explicitly censored from public viewership.
  */
 trait Suppressed
 {
     /**
      * A flag which displays whether associated resources should be suppressed from public display.
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var int
+     * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $suppress;
 }

@@ -10,44 +10,52 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_instance_persons table.
+ * @inheritDoc
  */
-class RoomEquipment extends BaseTable
+class RoomEquipment extends Table
 {
     /**
      * The description of the specific equipment referenced: make, model, color, ...
      * VARCHAR(255)     NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description;
 
     /**
      * The id of the equipment entry referenced.
-     * INT(11) UNSIGNED NOT NULL
-     * @var int
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
      */
-    public $equipmentID;
+    public int|null $equipmentID;
 
     /**
      * The id of the room entry referenced.
-     * INT(11) UNSIGNED NOT NULL
-     * @var int
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
      */
-    public $roomID;
+    public int|null $roomID;
 
     /**
      * The quantity of the referenced equipment in the room.
      * INT(4) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $quantity;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_room_equipment');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_room_equipment', 'id', $dbo);
     }
 }

@@ -10,12 +10,11 @@
 
 namespace THM\Organizer\Tables;
 
-use Joomla\Database\DatabaseDriver;
-use Joomla\Database\DatabaseInterface;
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_runs table.
+ * @inheritDoc
  */
 class Runs extends Table
 {

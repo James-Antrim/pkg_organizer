@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_units table.
+ * @inheritDoc
  */
-class Units extends BaseTable
+class Units extends Table
 {
     use Coded;
     use Modified;
@@ -22,64 +25,69 @@ class Units extends BaseTable
      * A supplementary text description.
      * VARCHAR(255) DEFAULT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $comment;
 
     /**
      * The id of the course entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $courseID;
+    public int|null $courseID;
 
     /**
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $organizationID;
+    public int|null $organizationID;
 
     /**
      * The end date of the resource.
      * DATE DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $endDate;
+    public null|string $endDate;
 
     /**
      * The id of the grid entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $gridID;
+    public int|null $gridID;
 
     /**
      * The id of the run entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $runID;
+    public int|null $runID;
 
     /**
      * The start date of the resource.
      * DATE DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $startDate;
+    public null|string $startDate;
 
     /**
      * The id of the term entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * INT(11) UNSIGNED NOT NULL
+     * @var int|null
+     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $termID;
+    public int|null $termID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_units');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_units', 'id', $dbo);
     }
 
     /**

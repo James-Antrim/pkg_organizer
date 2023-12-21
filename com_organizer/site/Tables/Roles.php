@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_blocks table.
+ * @inheritDoc
  */
-class Roles extends BaseTable
+class Roles extends Table
 {
     use Coded;
 
@@ -21,6 +24,7 @@ class Roles extends BaseTable
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_de;
 
@@ -28,6 +32,7 @@ class Roles extends BaseTable
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_en;
 
@@ -35,6 +40,7 @@ class Roles extends BaseTable
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_de;
 
@@ -42,6 +48,7 @@ class Roles extends BaseTable
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $name_en;
 
@@ -49,6 +56,7 @@ class Roles extends BaseTable
      * The resource's German plural.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $plural_de;
 
@@ -56,14 +64,18 @@ class Roles extends BaseTable
      * The resource's English plural.
      * VARCHAR(150) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $plural_en;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_roles');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_roles', 'id', $dbo);
     }
 }

@@ -10,29 +10,33 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_schedules table.
+ * @inheritDoc
  */
-class Schedules extends BaseTable
+class Schedules extends Table
 {
     /**
      * The date of the schedule's creation.
      * DATE DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $creationDate;
+    public null|string $creationDate;
 
     /**
      * The time of the schedule's creation.
      * TIME DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $creationTime;
+    public null|string $creationTime;
 
     /**
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $organizationID;
 
@@ -40,6 +44,7 @@ class Schedules extends BaseTable
      * A collection of instance objects modeled by a JSON string.
      * MEDIUMTEXT NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $schedule;
 
@@ -47,21 +52,25 @@ class Schedules extends BaseTable
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $termID;
 
     /**
      * The id of the user entry referenced.
      * INT(11) DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $userID;
+    public int|null $userID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_schedules');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_schedules', 'id', $dbo);
     }
 }

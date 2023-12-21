@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_prerequisites table.
+ * @inheritDoc
  */
-class Prerequisites extends BaseTable
+class Prerequisites extends Table
 {
     /**
      * The id of the subject entry referenced as being a dependency.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $prerequisiteID;
 
@@ -26,14 +30,18 @@ class Prerequisites extends BaseTable
      * The id of the subject entry referenced as requiring a dependency.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $subjectID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_prerequisites');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_prerequisites', 'id', $dbo);
     }
 }

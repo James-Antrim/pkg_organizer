@@ -8,6 +8,14 @@ namespace THM\Organizer\Tables;
 trait LSFImported
 {
     /**
+     * The id of the entry in the LSF software module.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * Status: Unknown
+     * @var int|null
+     */
+    public int|null $lsfID;
+
+    /**
      * Sets a table column value.
      *
      * @param   string  $column   the name of the property to set
