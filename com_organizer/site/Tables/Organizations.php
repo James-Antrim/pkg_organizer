@@ -22,7 +22,6 @@ class Organizations extends Table
 {
     use Activated;
     use Aliased;
-    use Incremented;
 
     /**
      * The resource's German abbreviation.

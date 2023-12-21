@@ -20,7 +20,6 @@ class Campuses extends Table
 {
     use Activated;
     use Aliased;
-    use Nullable;
 
     /**
      * The physical address of the resource.

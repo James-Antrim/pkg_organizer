@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_persons table.
+ * @inheritDoc
  */
-class Persons extends BaseTable
+class Persons extends Table
 {
     use Activated;
     use Aliased;
@@ -24,6 +27,7 @@ class Persons extends BaseTable
      * The person's first and middle names.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $forename;
 
@@ -31,6 +35,7 @@ class Persons extends BaseTable
      * A flag which displays whether the person chooses to display their information publicly.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $public;
 
@@ -38,6 +43,7 @@ class Persons extends BaseTable
      * The person's surnames.
      * VARCHAR(255) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $surname;
 
@@ -45,22 +51,26 @@ class Persons extends BaseTable
      * The person's titles.
      * VARCHAR(45) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $title;
 
     /**
-     * The person's user name.
+     * The person's username.
      * VARCHAR(150) DEFAULT NULL
-     * @var string
+     * @var null|string
      */
-    public $username;
+    public null|string $username;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_persons');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_persons', 'id', $dbo);
     }
 
     /**
@@ -68,10 +78,9 @@ class Persons extends BaseTable
      */
     public function check(): bool
     {
-        // All three fields can receive data from at least two systems.
         $nullColumns = ['alias', 'code', 'username'];
         foreach ($nullColumns as $nullColumn) {
-            if (!strlen($this->$nullColumn)) {
+            if (!$this->$nullColumn) {
                 $this->$nullColumn = null;
             }
         }

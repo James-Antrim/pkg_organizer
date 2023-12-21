@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_instances table.
+ * @inheritDoc
  */
-class Instances extends BaseTable
+class Instances extends Table
 {
     use Modified;
 
@@ -21,6 +24,7 @@ class Instances extends BaseTable
      * The number of participants who checked into this instance.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $attended;
 
@@ -28,6 +32,7 @@ class Instances extends BaseTable
      * The id of the block entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $blockID;
 
@@ -35,6 +40,7 @@ class Instances extends BaseTable
      * The number of participants who added this instance to their personal schedule.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $bookmarked;
 
@@ -42,27 +48,29 @@ class Instances extends BaseTable
      * A supplementary text description specific to a subset of unit instances.
      * VARCHAR(255) DEFAULT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $comment;
 
     /**
      * The id of the event entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $eventID;
+    public int|null $eventID;
 
     /**
      * The id of the method entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $methodID;
+    public int|null $methodID;
 
     /**
      * The number of participants who registered to participate in this instance.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $registered;
 
@@ -70,6 +78,7 @@ class Instances extends BaseTable
      * The person's first and middle names.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $title;
 
@@ -77,15 +86,19 @@ class Instances extends BaseTable
      * The id of the unit entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $unitID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_instances');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_instances', 'id', $dbo);
     }
 
     /**
@@ -93,6 +106,10 @@ class Instances extends BaseTable
      */
     public function check(): bool
     {
+        if (empty($this->eventID)) {
+            $this->methodID = null;
+        }
+
         if (empty($this->methodID)) {
             $this->methodID = null;
         }

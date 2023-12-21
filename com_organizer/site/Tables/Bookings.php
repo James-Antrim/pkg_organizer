@@ -19,7 +19,6 @@ use THM\Organizer\Adapters\Application;
 class Bookings extends Table
 {
     use Coded;
-    use Nullable;
 
     /**
      * The id of the block entry referenced.

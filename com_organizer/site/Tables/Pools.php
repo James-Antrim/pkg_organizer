@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_pools table.
+ * @inheritDoc
  */
-class Pools extends BaseTable
+class Pools extends Table
 {
     use Aliased;
     use LSFImported;
@@ -22,6 +25,7 @@ class Pools extends BaseTable
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_de;
 
@@ -29,6 +33,7 @@ class Pools extends BaseTable
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $abbreviation_en;
 
@@ -36,6 +41,7 @@ class Pools extends BaseTable
      * The resource's German description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_de;
 
@@ -43,48 +49,50 @@ class Pools extends BaseTable
      * The resource's English description.
      * TEXT
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $description_en;
 
     /**
      * The id of the field entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $fieldID;
+    public int|null $fieldID;
 
     /**
      * The resource's German name.
-     * VARCHAR(255) NOT NULL
-     * @var string
+     * VARCHAR(200) DEFAULT NULL
+     * @var null|string
      */
-    public $fullName_de;
+    public null|string $fullName_de;
 
     /**
      * The resource's English name.
-     * VARCHAR(255) NOT NULL
-     * @var string
+     * VARCHAR(200) DEFAULT NULL
+     * @var null|string
      */
-    public $fullName_en;
+    public null|string $fullName_en;
 
     /**
      * The id of the group entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $groupID;
+    public int|null $groupID;
 
     /**
      * The id of the entry in the LSF software module.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $lsfID;
+    public int|null $lsfID;
 
     /**
      * The maximum credit points required to be achieved in subjects of this pool.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $maxCrP;
 
@@ -92,15 +100,19 @@ class Pools extends BaseTable
      * The minimum credit points required to be achieved in subjects of this pool.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $minCrP;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_pools');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_pools', 'id', $dbo);
     }
 
     /**

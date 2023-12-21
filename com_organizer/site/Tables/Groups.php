@@ -21,7 +21,6 @@ class Groups extends Table
     use Activated;
     use Aliased;
     use Coded;
-    use Nullable;
     use Suppressed;
 
     /**

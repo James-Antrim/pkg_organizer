@@ -14,13 +14,12 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_terms table.
+ * @inheritDoc
  */
 class Terms extends Table
 {
     use Aliased;
     use Coded;
-    use Nullable;
 
     /**
      * The end date of the resource.

@@ -10,15 +10,20 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_monitors table.
+ * @inheritDoc
  */
-class Monitors extends BaseTable
+class Monitors extends Table
 {
+
     /**
      * The file name of the content to be displayed.
      * VARCHAR(256) DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $content;
 
@@ -26,6 +31,7 @@ class Monitors extends BaseTable
      * The refresh interval (in seconds) for content display.
      * INT(3) UNSIGNED NOT NULL DEFAULT 60
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $contentRefresh;
 
@@ -33,6 +39,7 @@ class Monitors extends BaseTable
      * A flag displaying for component or monitor specific settings. Values: 1 - Daily Plan, 2 - Interval, 3 - Content
      * INT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $display;
 
@@ -40,6 +47,7 @@ class Monitors extends BaseTable
      * The interval (in minutes) between display type switches.
      * INT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $interval;
 
@@ -47,20 +55,22 @@ class Monitors extends BaseTable
      * The ip address associated with the monitor.
      * VARCHAR(15) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $ip;
 
     /**
      * The id of the room entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $roomID;
+    public int|null $roomID;
 
     /**
      * The refresh interval (in seconds) for schedule display.
      * INT(3) UNSIGNED NOT NULL DEFAULT 60
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $scheduleRefresh;
 
@@ -68,14 +78,18 @@ class Monitors extends BaseTable
      * The monitor settings source. Values: 0 - Monitor Specific, 1 - Component
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $useDefaults;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_monitors');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_monitors', 'id', $dbo);
     }
 }

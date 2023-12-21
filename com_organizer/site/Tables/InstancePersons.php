@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_instance_persons table.
+ * @inheritDoc
  */
-class InstancePersons extends BaseTable
+class InstancePersons extends Table
 {
     use Modified;
 
@@ -21,6 +24,7 @@ class InstancePersons extends BaseTable
      * The id of the instance entry referenced.
      * INT(20) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $instanceID;
 
@@ -28,6 +32,7 @@ class InstancePersons extends BaseTable
      * The id of the person entry referenced.
      * INT(11) NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $personID;
 
@@ -35,6 +40,7 @@ class InstancePersons extends BaseTable
      * The id of the role entry referenced.
      * TINYINT(2) UNSIGNED NOT NULL DEFAULT 1
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $roleID;
 

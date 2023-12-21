@@ -19,7 +19,6 @@ use THM\Organizer\Adapters\Application;
 class Buildings extends Table
 {
     use Activated;
-    use Nullable;
 
     /**
      * The physical address of the resource.

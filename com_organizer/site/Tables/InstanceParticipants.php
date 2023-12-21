@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_instance_participants table.
+ * @inheritDoc
  */
-class InstanceParticipants extends BaseTable
+class InstanceParticipants extends Table
 {
     /**
      * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $attended;
 
@@ -26,6 +30,7 @@ class InstanceParticipants extends BaseTable
      * The id of the instance entry referenced.
      * INT(20) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $instanceID;
 
@@ -33,6 +38,7 @@ class InstanceParticipants extends BaseTable
      * The id of the participant entry referenced.
      * INT(11) NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $participantID;
 
@@ -40,29 +46,33 @@ class InstanceParticipants extends BaseTable
      * Whether the participant has registered to physically attend the instance. Values: 0 - No, 1 - Yes.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $registered;
 
     /**
      * The id of the room entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $roomID;
+    public int|null $roomID;
 
     /**
      * The id of the room entry referenced.
      * VARCHAR(60) NOT NULL DEFAULT ''
-     * @var string
+     * @var null|string
      */
-    public $seat;
+    public null|string $seat;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_instance_participants');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_instance_participants', 'id', $dbo);
     }
 
     /**
@@ -71,6 +81,10 @@ class InstanceParticipants extends BaseTable
     public function check(): bool
     {
         if (empty($this->roomID)) {
+            $this->roomID = null;
+        }
+
+        if (empty($this->seat)) {
             $this->roomID = null;
         }
 

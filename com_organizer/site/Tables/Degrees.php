@@ -20,7 +20,6 @@ class Degrees extends Table
 {
     use Aliased;
     use Coded;
-    use Nullable;
 
     /**
      * The resource's abbreviation.

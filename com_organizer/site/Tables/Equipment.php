@@ -19,7 +19,6 @@ use THM\Organizer\Adapters\Application;
 class Equipment extends Table
 {
     use Coded;
-    use Nullable;
 
     /**
      * The equipment's German name.

@@ -10,10 +10,13 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_instance_groups table.
+ * @inheritDoc
  */
-class InstanceGroups extends BaseTable
+class InstanceGroups extends Table
 {
     use Modified;
 
@@ -21,6 +24,7 @@ class InstanceGroups extends BaseTable
      * The id of the instance persons entry referenced.
      * INT(20) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $assocID;
 
@@ -28,14 +32,18 @@ class InstanceGroups extends BaseTable
      * The id of the group entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $groupID;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_instance_groups');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_instance_groups', 'id', $dbo);
     }
 }

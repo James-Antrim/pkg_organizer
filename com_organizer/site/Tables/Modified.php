@@ -19,6 +19,7 @@ trait Modified
      * The resource's delta status. Possible values: '', 'new,' 'removed'.
      * VARCHAR(10) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $delta;
 
@@ -26,6 +27,7 @@ trait Modified
      * The timestamp at which the schedule was generated which modified this entry.
      * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $modified;
 

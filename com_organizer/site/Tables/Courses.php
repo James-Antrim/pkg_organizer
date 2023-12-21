@@ -19,7 +19,6 @@ use THM\Organizer\Adapters\Application;
 class Courses extends Table
 {
     use Aliased;
-    use Nullable;
 
     /**
      * The id of the campus entry referenced.

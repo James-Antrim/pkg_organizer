@@ -20,8 +20,6 @@ use THM\Organizer\Adapters\Application;
  */
 abstract class BaseTable extends Table
 {
-    use Nullable;
-
     /**
      * The primary key.
      * INT (UN)SIGNED (11|20) NOT NULL AUTO_INCREMENT

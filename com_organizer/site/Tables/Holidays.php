@@ -14,7 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_holidays table.
+ * @inheritDoc
  */
 class Holidays extends Table
 {

@@ -20,7 +20,6 @@ class Fields extends Table
 {
     use Aliased;
     use Coded;
-    use Nullable;
 
     /**
      * The resource's German name.

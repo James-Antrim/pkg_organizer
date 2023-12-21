@@ -18,8 +18,6 @@ use THM\Organizer\Adapters\Application;
  */
 class CourseParticipants extends Table
 {
-    use Nullable;
-
     /**
      * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
      * TINYINT(1) UNSIGNED DEFAULT 0

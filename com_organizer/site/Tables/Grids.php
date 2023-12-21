@@ -19,7 +19,6 @@ use THM\Organizer\Adapters\Application;
 class Grids extends Table
 {
     use Coded;
-    use Nullable;
 
     /**
      * A grid object modeled by a JSON string, containing the respective start and end times of the grid blocks.

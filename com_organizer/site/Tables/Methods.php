@@ -14,14 +14,12 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
 /**
- * Models the organizer_methods table.
- * @noinspection PhpUnused
+ * @inheritDoc
  */
 class Methods extends Table
 {
     use Aliased;
     use Coded;
-    use Nullable;
 
     /**
      * The resource's German abbreviation.

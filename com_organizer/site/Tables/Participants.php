@@ -10,15 +10,19 @@
 
 namespace THM\Organizer\Tables;
 
+use Joomla\Database\{DatabaseDriver, DatabaseInterface};
+use THM\Organizer\Adapters\Application;
+
 /**
- * Models the organizer_participants table.
+ * @inheritDoc
  */
-class Participants extends BaseTable
+class Participants extends Table
 {
     /**
      * The physical address of the resource.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $address;
 
@@ -26,6 +30,7 @@ class Participants extends BaseTable
      * The city in which the resource is located.
      * VARCHAR(60) NOT NULL
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $city;
 
@@ -33,6 +38,7 @@ class Participants extends BaseTable
      * The person's first and middle names.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $forename;
 
@@ -40,20 +46,22 @@ class Participants extends BaseTable
      * A flag displaying whether the user wishes to receive emails regarding schedule changes.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $notify;
 
     /**
      * The id of the program entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
-     * @var int
+     * @var int|null
      */
-    public $programID;
+    public int|null $programID;
 
     /**
      * The person's surnames.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $surname;
 
@@ -61,6 +69,7 @@ class Participants extends BaseTable
      * The person's telephone number.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $telephone;
 
@@ -68,15 +77,19 @@ class Participants extends BaseTable
      * The ZIP code of the resource.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string
+     * @noinspection PhpMissingFieldTypeInspection
      */
     public $zipCode;
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_participants');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_participants', 'id', $dbo);
     }
 
     /**

@@ -18,9 +18,6 @@ use THM\Organizer\Adapters\Application;
  */
 class Associations extends Table
 {
-    use Incremented;
-    use Nullable;
-
     /**
      * The id of the category entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL

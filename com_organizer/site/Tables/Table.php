@@ -63,4 +63,13 @@ abstract class Table extends Base
 
         return $properties;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function store($updateNulls = true): bool
+    {
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
+        return parent::store($updateNulls);
+    }
 }

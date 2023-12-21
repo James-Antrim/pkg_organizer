@@ -179,7 +179,7 @@ abstract class FormController extends Controller
      * @param   int     $id     the id of the row in which to store the data
      *
      * @return int the id of the table row on success, otherwise the id parameter
-     * @uses Incremented
+     * @uses Table
      */
     protected function store(JTable $table, array $data, int $id = 0): int
     {
