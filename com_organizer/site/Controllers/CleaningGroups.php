@@ -15,6 +15,8 @@ namespace THM\Organizer\Controllers;
  */
 class CleaningGroups extends ListController
 {
+    use FluMoxed;
+
     protected string $item = 'CleaningGroup';
 
     /**

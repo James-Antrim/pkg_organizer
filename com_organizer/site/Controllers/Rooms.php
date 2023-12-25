@@ -20,18 +20,9 @@ use THM\Organizer\Helpers\Can;
 class Rooms extends ListController
 {
     use Activated;
+    use FluMoxed;
 
     protected string $item = 'Room';
-
-    /**
-     * @inheritDoc
-     */
-    protected function authorize(): void
-    {
-        if (!Can::manage('facilities')) {
-            Application::error(403);
-        }
-    }
 
     /**
      * Creates an UniNow xls file based on form data.
