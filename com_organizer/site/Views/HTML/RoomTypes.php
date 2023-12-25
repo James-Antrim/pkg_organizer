@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -24,15 +24,18 @@ class RoomTypes extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->setTitle('ROOM_TYPES');
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('RoomTypes.add');
 
         // Trust isn't there for this yet.
         if (Can::administrate()) {
             $toolbar->delete('RoomTypes.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
-        }
 
-        parent::addToolBar();
+            if (Application::backend()) {
+                $toolbar->preferences('com_organizer');
+            }
+        }
     }
 
     /**
@@ -40,24 +43,23 @@ class RoomTypes extends ListView
      */
     public function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
             'check'   => ['type' => 'check'],
             'name'    => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
                 'type'       => 'value'
             ],
             'rns'     => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('ROOM_KEY', 'rns', $direction, $ordering),
+                'title'      => Text::_('ROOM_KEY'),
                 'type'       => 'text'
             ],
             'useCode' => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('USE_CODE_TEXT', 'useCode', $direction, $ordering),
+                'title'      => Text::_('USE_CODE_TEXT'),
                 'type'       => 'text'
             ],
         ];
