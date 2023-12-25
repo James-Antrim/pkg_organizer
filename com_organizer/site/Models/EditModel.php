@@ -11,10 +11,10 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Object\CMSObject;
-use Joomla\CMS\Table\Table;
+use Joomla\CMS\Table\Table as JTable;
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, FormFactory, MVCFactory};
+use THM\Organizer\Tables\Table;
 
 /**
  * Class for editing a single resource record, based loosely on AdminModel, but without all the extra code it now caries
@@ -45,21 +45,18 @@ abstract class EditModel extends FormModel
 
     /**
      * Retrieves a resource record.
-     * @return  CMSObject  Object on success, false on failure.
+     * @return  object  object on success, false on failure.
      */
-    public function getItem(): CMSObject
+    public function getItem(): object
     {
         $rowID = Input::getSelectedID();
+
+        /** @var Table $table */
         $table = $this->getTable();
         $table->load($rowID);
+        $properties = $table->properties();
 
-        // Convert to the CMSObject before adding other data.
-        $properties = $table->getProperties();
-
-        /** @var CMSObject $item */
-        $item = ArrayHelper::toObject($properties, CMSObject::class);
-
-        return $item;
+        return ArrayHelper::toObject($properties);
     }
 
     /**
@@ -69,9 +66,9 @@ abstract class EditModel extends FormModel
      * @param   string  $prefix   the class prefix, unused
      * @param   array   $options  configuration array for model, unused
      *
-     * @return  Table  a table object
+     * @return  JTable  a table object
      */
-    public function getTable($name = '', $prefix = '', $options = []): Table
+    public function getTable($name = '', $prefix = '', $options = []): JTable
     {
         $fqn = "\\THM\\Organizer\\Tables\\$this->tableClass";
 
@@ -81,7 +78,7 @@ abstract class EditModel extends FormModel
     /**
      * @inheritDoc
      */
-    protected function loadFormData(): ?CMSObject
+    protected function loadFormData(): ?object
     {
         return $this->getItem();
     }

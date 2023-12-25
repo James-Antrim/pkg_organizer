@@ -11,8 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Adapters\Input;
 
 /**
  * Class receives user actions and performs access checks and redirection.
