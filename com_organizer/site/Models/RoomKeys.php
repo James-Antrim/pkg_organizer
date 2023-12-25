@@ -48,7 +48,7 @@ class RoomKeys extends ListModel
 
         if ($useID) {
             $query->where(DB::qn('useID') . ' = :useID')
-                ->bind(':useID', $cleaningID, ParameterType::INTEGER);
+                ->bind(':useID', $useID, ParameterType::INTEGER);
         }
 
         $cgConditions = DB::qc('cg.id', 'rk.cleaningID');
