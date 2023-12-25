@@ -67,12 +67,12 @@ class FormView extends Base
      *
      * @return  void adds buttons to the global toolbar object
      */
-    protected function addToolbar(array $buttons = []): void
+    protected function addToolbar(array $buttons = [], string $constant = ''): void
     {
         Input::set('hidemainmenu', true);
         $buttons    = $buttons ?: ['apply', 'save'];
         $controller = $this->getName();
-        $constant   = strtoupper($controller);
+        $constant   = $constant ?: strtoupper($controller);
 
         $new = empty($this->item->id);
 

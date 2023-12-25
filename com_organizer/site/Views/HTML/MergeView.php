@@ -24,7 +24,7 @@ abstract class MergeView extends FormView
     /**
      * @inheritDoc
      */
-    protected function addToolbar(array $buttons = []): void
+    protected function addToolbar(array $buttons = [], string $constant = ''): void
     {
         Input::set('hidemainmenu', true);
         $controller = $this->getName();

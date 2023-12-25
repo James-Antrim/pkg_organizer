@@ -18,7 +18,7 @@ class Holiday extends FormView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(array $buttons = []): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $buttons = empty($this->item->id) ? [] : ['save', 'save2copy'];
         parent::addToolbar($buttons);

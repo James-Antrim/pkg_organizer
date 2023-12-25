@@ -16,13 +16,9 @@ namespace THM\Organizer\Views\HTML;
 class Run extends FormView
 {
     /**
-     * Method to generate buttons for user interaction
-     *
-     * @param   array  $buttons  *
-     *
-     * @return void
+     * @inheritDoc
      */
-    protected function addToolBar(array $buttons = []): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         parent::addToolbar(['apply', 'save', 'save2copy']);
     }
