@@ -21,7 +21,7 @@ trait Aliased
      * VARCHAR(255) DEFAULT NULL
      * @var null|string
      */
-    public null|string $alias;
+    public null|string $alias = null;
 
     /**
      * @inheritDoc

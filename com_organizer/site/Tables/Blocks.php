@@ -22,33 +22,29 @@ class Blocks extends Table
      * The date of the block.
      * DATE DEFAULT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $date;
+    public string $date;
 
     /**
      * The numerical day of the week of the block.
      * TINYINT(1) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $dow;
+    public int $dow;
 
     /**
      * The end time of the block.
-     * TIME DEFAULT NULL
+     * TIME NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $endTime;
+    public string $endTime;
 
     /**
      * The start time of the block.
-     * TIME DEFAULT NULL
+     * TIME NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $startTime;
+    public string $startTime;
 
     /**
      * @inheritDoc

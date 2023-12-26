@@ -22,25 +22,22 @@ class FieldColors extends Table
      * The id of the color entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $colorID;
+    public int $colorID;
 
     /**
      * The id of the field entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fieldID;
+    public int $fieldID;
 
     /**
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $organizationID;
+    public int $organizationID;
 
     /**
      * @inheritDoc

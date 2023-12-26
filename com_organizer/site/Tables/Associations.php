@@ -36,9 +36,8 @@ class Associations extends Table
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $organizationID;
+    public int $organizationID;
 
     /**
      * The id of the person entry referenced.

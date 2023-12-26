@@ -25,84 +25,77 @@ class Courses extends Table
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $campusID;
+    public int|null $campusID = null;
 
     /**
      * The number of days before course begin when registration is closed.
      * INT(2) UNSIGNED DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $deadline;
+    public int $deadline = 0;
 
     /**
      * The resource's German description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_de;
+    public string $description_de;
 
     /**
      * The resource's English description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_en;
+    public string $description_en;
 
     /**
      * The fee for participation in the course.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fee;
+    public int $fee = 0;
 
     /**
      * A short textual description of which groups should visit the course.
      * VARCHAR(100) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $groups;
+    public string $groups = '';
 
     /**
      * The maximum number of participants the course allows.
      * INT(4) UNSIGNED DEFAULT 1000
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $maxParticipants;
+    public int $maxParticipants = 1000;
 
     /**
      * The resource's German name.
      * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_de;
+    public null|string $name_de = null;
 
     /**
      * The resource's English name.
      * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_en;
+    public null|string $name_en = null;
 
     /**
      * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
      * INT(1) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $registrationType;
+    public int|null $registrationType = null;
 
     /**
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $termID;
+    public int $termID;
 
     /**
      * @inheritDoc

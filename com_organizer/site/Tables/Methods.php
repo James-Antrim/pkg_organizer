@@ -20,60 +20,49 @@ class Methods extends Table
 {
     use Aliased;
     use Coded;
+    use Relevant;
 
     /**
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_de;
+    public string $abbreviation_de = '';
 
     /**
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_en;
+    public string $abbreviation_en = '';
 
     /**
      * The resource's German name.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_de;
+    public null|string $name_de = null;
 
     /**
      * The resource's English name.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_en;
+    public null|string $name_en = null;
 
     /**
      * The resource's German plural.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $plural_de;
+    public string $plural_de = '';
 
     /**
      * The resource's English plural.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $plural_en;
-
-    /**
-     * A flag which displays whether the method is relevant for .
-     * TINYINT(1) UNSIGNED NOT NULL
-     * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $relevant;
+    public string $plural_en = '';
 
     /**
      * @inheritDoc

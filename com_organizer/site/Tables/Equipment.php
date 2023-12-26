@@ -31,14 +31,14 @@ class Equipment extends Table
      * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_de;
+    public null|string $name_de = null;
 
     /**
      * The equipment's English name.
      * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_en;
+    public null|string $name_en = null;
 
     /**
      * @inheritDoc

@@ -23,56 +23,56 @@ class Curricula extends Table
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $level;
+    public int|null $level = null;
 
     /**
      * The left most value of this resource as viewed on a numbered line.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $lft;
+    public int|null $lft = null;
 
     /**
      * The order of this element among its hierarchical siblings.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $ordering;
+    public int|null $ordering = null;
 
     /**
      * The id of the range referenced as parent.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $parentID;
+    public int|null $parentID = null;
 
     /**
      * The id of the pool entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $poolID;
+    public int|null $poolID = null;
 
     /**
      * The id of the program entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $programID;
+    public int|null $programID = null;
 
     /**
      * The right most value of this resource as viewed on a numbered line.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $rgt;
+    public int|null $rgt = null;
 
     /**
      * The id of the subject entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $subjectID;
+    public int|null $subjectID = null;
 
     /**
      * @inheritDoc

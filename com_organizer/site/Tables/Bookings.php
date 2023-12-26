@@ -24,31 +24,29 @@ class Bookings extends Table
      * The id of the block entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $blockID;
+    public int $blockID;
 
     /**
      * The end time of the block.
      * TIME DEFAULT NULL
      * @var null|string
      */
-    public null|string $endTime;
+    public null|string $endTime = null;
 
     /**
      * The start time of the block.
      * TIME DEFAULT NULL
      * @var null|string
      */
-    public null|string $startTime;
+    public null|string $startTime = null;
 
     /**
      * The id of the unit entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $unitID;
+    public int $unitID;
 
     /**
      * @inheritDoc

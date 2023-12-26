@@ -22,55 +22,50 @@ class CourseParticipants extends Table
      * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $attended;
+    public bool $attended = false;
 
     /**
      * The id of the course entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $courseID;
+    public int $courseID;
 
     /**
      * The participant's course payment status. Values: 0 - Unpaid, 1 - Paid.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $paid;
+    public bool $paid = false;
 
     /**
      * The date and time of the last participant initiated change.
      * DATETIME DEFAULT NULL
      * @var null|string
      */
-    public null|string $participantDate;
+    public null|string $participantDate = null;
 
     /**
      * The id of the participant entry referenced.
      * INT(11) NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $participantID;
+    public int $participantID;
 
     /**
      * The participant's course status. Values: 0 - Pending, 1 - Accepted.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $status;
+    public int $status = 0;
 
     /**
      * The date and time of the last change.
      * DATETIME DEFAULT NULL
      * @var null|string
      */
-    public null|string $statusDate;
+    public null|string $statusDate = null;
 
     /**
      * @inheritDoc

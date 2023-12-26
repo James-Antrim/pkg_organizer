@@ -27,17 +27,15 @@ class Categories extends Table
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_de;
+    public string $name_de;
 
     /**
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_en;
+    public string $name_en;
 
     /**
      * @inheritDoc

@@ -23,19 +23,17 @@ class Degrees extends Table
 
     /**
      * The resource's abbreviation.
-     * VARCHAR(45) NOT NULL DEFAULT ''
+     * VARCHAR(25) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation;
+    public string $abbreviation;
 
     /**
      * The resource's name.
-     * VARCHAR(255) NOT NULL
+     * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name;
+    public string $name;
 
     /**
      * @inheritDoc

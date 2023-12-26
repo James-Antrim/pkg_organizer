@@ -22,17 +22,15 @@ class EventCoordinators extends Table
      * The id of the event entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $eventID;
+    public int $eventID;
 
     /**
      * The id of the person entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $personID;
+    public int $personID;
 
     /**
      * @inheritDoc

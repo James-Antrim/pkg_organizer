@@ -27,7 +27,7 @@ class Events extends Table
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $campusID;
+    public int|null $campusID = null;
 
     /**
      * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
@@ -42,170 +42,150 @@ class Events extends Table
      * The organization's German contact information for a group of courses.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $contact_de;
+    public string $contact_de;
 
     /**
      * The organization's English contact information for a group of courses.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $contact_en;
+    public string $contact_en;
 
     /**
      * The German description of the event's contents.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $content_de;
+    public string $content_de;
 
     /**
      * The English description of the event's contents.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $content_en;
+    public string $content_en;
 
     /**
      * The organization's German contact information for courses of this event type.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $courseContact_de;
+    public string $courseContact_de;
 
     /**
      * The organization's English contact information for courses of this event type.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $courseContact_en;
+    public string $courseContact_en;
 
     /**
      * The number of days before course begin when registration is closed.
      * INT(2) UNSIGNED DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $deadline;
+    public int $deadline = 0;
 
     /**
      * The resource's German description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_de;
+    public string $description_de;
 
     /**
      * The resource's English description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_en;
+    public string $description_en;
 
     /**
      * The fee for participation in the course.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fee;
+    public int $fee = 0;
 
     /**
      * The maximum number of participants the course allows.
      * INT(4) UNSIGNED DEFAULT 1000
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $maxParticipants;
+    public int $maxParticipants = 1000;
 
     /**
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_de;
+    public string $name_de;
 
     /**
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_en;
+    public string $name_en;
 
     /**
      * A German description of how courses implementing this event are organized.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $organization_de;
+    public string $organization_de;
 
     /**
      * An English description of how courses implementing this event are organized.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $organization_en;
+    public string $organization_en;
 
     /**
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $organizationID;
+    public int $organizationID;
 
     /**
      * A German description how to test one's self to see if one should attend or is qualified to attend courses
      * implementing this event.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $pretests_de;
+    public string $pretests_de;
 
     /**
      * An English description how to test one's self to see if one should attend or is qualified to attend courses
      * implementing this event.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $pretests_en;
+    public string $pretests_en;
 
     /**
      * Whether the event is a preparatory event.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $preparatory;
+    public bool $preparatory = false;
 
     /**
      * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
      * INT(1) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $registrationType;
+    public int|null $registrationType = null;
 
     /**
      * The resource's alphanumeric identifier in degree program documentation.
      * VARCHAR(45) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $subjectNo;
+    public string $subjectNo = '';
 
     /**
      * @inheritDoc

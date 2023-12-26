@@ -25,71 +25,64 @@ class Campuses extends Table
      * The physical address of the resource.
      * VARCHAR(255) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $address;
+    public string $address;
 
     /**
      * The city in which the resource is located.
      * VARCHAR(60) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $city;
+    public string $city;
 
     /**
      * The id of the grid entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $gridID;
+    public int|null $gridID = null;
 
     /**
      * A flag displaying if the campus is equatable with a city for internal purposes.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $isCity;
+    public bool $isCity = false;
 
     /**
      * The GPS coordinates of the resource.
      * VARCHAR(20) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $location;
+    public string $location;
 
     /**
      * The resource's German name.
      * VARCHAR(60) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_de;
+    public string $name_de;
 
     /**
      * The resource's English name.
      * VARCHAR(60) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_en;
+    public string $name_en;
 
     /**
      * The id of the campus entry referenced as parent.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $parentID;
+    public int|null $parentID = null;
 
     /**
      * The ZIP code of the resource.
      * VARCHAR(60) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $zipCode;
+    public string $zipCode;
 
     /**
      * @inheritDoc

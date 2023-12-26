@@ -23,51 +23,45 @@ class Terms extends Table
 
     /**
      * The end date of the resource.
-     * DATE DEFAULT NULL
+     * DATE NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $endDate;
+    public string $endDate;
 
     /**
      * The resource's full German name.
      * VARCHAR(200) DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fullName_de;
+    public string $fullName_de = '';
 
     /**
      * The resource's full English name.
      * VARCHAR(200) DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fullName_en;
+    public string $fullName_en = '';
 
     /**
      * The resource's German name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_de;
+    public string $name_de;
 
     /**
      * The resource's English name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_en;
+    public string $name_en;
 
     /**
      * The start date of the resource.
-     * DATE DEFAULT NULL
+     * DATE NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $startDate;
+    public string $startDate;
 
     /**
      * @inheritDoc

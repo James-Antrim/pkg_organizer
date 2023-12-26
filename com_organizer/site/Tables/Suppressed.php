@@ -17,9 +17,8 @@ trait Suppressed
 {
     /**
      * A flag which displays whether associated resources should be suppressed from public display.
-     * TINYINT(1) UNSIGNED NOT NULL
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $suppress;
+    public bool $suppress = false;
 }

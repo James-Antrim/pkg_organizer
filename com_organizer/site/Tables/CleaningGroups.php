@@ -18,54 +18,43 @@ use THM\Organizer\Adapters\Application;
  */
 class CleaningGroups extends Table
 {
+    use Relevant;
+
     /**
      * The number of days per month used for calculated values.
      * DOUBLE(6, 2) UNSIGNED NOT NULL
      * @var float
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $days;
+    public float $days;
 
     /**
      * The cleaning group's German name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_de;
+    public string $name_de;
 
     /**
      * The cleaning group's English name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name_en;
+    public string $name_en;
 
     /**
      * The max valuation of the cleaning quality for this group. This value appears in exported media but is not overtly
      * used to calculate the actual valuation. ~Overhead
      * SMALLINT(3) UNSIGNED
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $maxValuation;
-
-    /**
-     * A flag which displays whether associated rooms should appear in exported media.
-     * TINYINT(1) UNSIGNED NOT NULL
-     * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $relevant;
+    public int $maxValuation;
 
     /**
      * The numeric valuation of cleaning quality.
      * DOUBLE(6, 2) UNSIGNED NOT NULL
      * @var float
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $valuation;
+    public float $valuation;
 
     /**
      * @inheritDoc

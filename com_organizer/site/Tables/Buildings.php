@@ -24,9 +24,8 @@ class Buildings extends Table
      * The physical address of the resource.
      * VARCHAR(255) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $address;
+    public string $address;
 
     /**
      * The id of the campus entry referenced.
@@ -39,25 +38,22 @@ class Buildings extends Table
      * The GPS coordinates of the resource.
      * VARCHAR(20) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $location;
+    public string $location;
 
     /**
      * The resource's name.
      * VARCHAR(60) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name;
+    public string $name;
 
     /**
      * The property type. Values: 0 - New/Unknown | 1 - Owned | 2 - Leased/Rented
      * INT(1) UNSIGNED  NOT NULL DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $propertyType;
+    public int $propertyType = 0;
 
     /**
      * @inheritDoc

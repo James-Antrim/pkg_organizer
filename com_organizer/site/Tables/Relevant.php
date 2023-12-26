@@ -13,12 +13,12 @@ namespace THM\Organizer\Tables;
 /**
  * Adds a flag denoting resource activation status.
  */
-trait Activated
+trait Relevant
 {
     /**
-     * A flag which displays whether the resource is currently active.
+     * A flag which displays whether associated rooms should appear in exported media.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var bool
      */
-    public bool $active = true;
+    public bool $relevant = true;
 }

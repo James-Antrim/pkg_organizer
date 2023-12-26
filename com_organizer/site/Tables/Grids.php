@@ -24,31 +24,29 @@ class Grids extends Table
      * A grid object modeled by a JSON string, containing the respective start and end times of the grid blocks.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $grid;
+    public string $grid;
 
     /**
      * A flag to determine which grid is to be used if none is specified.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $isDefault;
+    public bool $isDefault = false;
 
     /**
      * The resource's German name.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_de;
+    public null|string $name_de = null;
 
     /**
      * The resource's English name.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT NULL
      * @var null|string
      */
-    public null|string $name_en;
+    public null|string $name_en = null;
 
     /**
      * @inheritDoc
