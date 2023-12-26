@@ -20,7 +20,6 @@ class Events extends Table
 {
     use Activated;
     use Aliased;
-    use Coded;
     use Suppressed;
 
     /**
@@ -29,6 +28,15 @@ class Events extends Table
      * @var int|null
      */
     public int|null $campusID;
+
+    /**
+     * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+     * software except units which are also supplemented locally. Collation allows capitolization and accented characters
+     * to be accepted as unique entries.
+     * VARCHAR(60) NOT NULL COLLATE utf8mb4_bin
+     * @var string
+     */
+    public string $code;
 
     /**
      * The organization's German contact information for a group of courses.

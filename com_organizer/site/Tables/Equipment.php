@@ -18,7 +18,13 @@ use THM\Organizer\Adapters\Application;
  */
 class Equipment extends Table
 {
-    use Coded;
+    /**
+     * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+     * software except units which are also supplemented locally.
+     * VARCHAR(60) DEFAULT NULL
+     * @var null|string
+     */
+    public null|string $code = null;
 
     /**
      * The equipment's German name.
