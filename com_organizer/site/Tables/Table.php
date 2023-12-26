@@ -4,6 +4,7 @@ namespace THM\Organizer\Tables;
 
 use Exception;
 use Joomla\CMS\Table\Table as Base;
+use ReflectionClass;
 use THM\Organizer\Adapters\Application;
 
 /**
@@ -62,6 +63,62 @@ abstract class Table extends Base
         }
 
         return $properties;
+    }
+
+    /**
+     * Method to reset class properties to the defaults set in the class
+     * definition.
+     * - Ignores the primary key and private class properties.
+     * - Override fixes problem that NOT NULL is being ignored by the 'Default' value from 'SHOW FULL COLUMNS' statement.
+     * -- Consequently allows inheriting tables to complete their property typing regardless of whether they are default null.
+     *
+     * @return  void
+     */
+    public function reset(): void
+    {
+        $reflection = new ReflectionClass($this);
+
+        // Get the default values for the class from the table.
+        foreach ($this->getFields() as $column => $definition) {
+            // If the property is not the primary key or private, skip it.
+            if (in_array($column, $this->_tbl_keys) OR (str_starts_with($column, '_'))) {
+                continue;
+            }
+
+            if ($definition->Null === 'NO' and $definition->Default === null) {
+                try {
+                    if ($property = $reflection->getProperty($column))
+                    {
+                        if ($default = $property->getDefaultValue()) {
+                            $definition->Default = $default;
+                            continue;
+                        }
+
+                        if ($type = $property->getType()) {
+                            switch ($type->getName()) {
+                                case 'bool':
+                                    $definition->Default = false;
+                                    break;
+                                case 'float':
+                                    $definition->Default = 0.0;
+                                    break;
+                                case 'int':
+                                    $definition->Default = 0;
+                                    break;
+                                case 'string':
+                                    $definition->Default = '';
+                                    break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception $exception) {
+                    Application::handleException($exception);
+                }
+
+            }
+            $this->$column = $definition->Default;
+        }
     }
 
     /**
