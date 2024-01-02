@@ -20,7 +20,7 @@ class Grids extends ResourceHelper implements Selectable
 {
     public const DEFAULT = 1, STANDARD = 0;
 
-    public const defaultStates = [
+    public const STATES = [
         self::DEFAULT  => [
             'class'  => 'publish',
             'column' => 'isDefault',
@@ -30,7 +30,7 @@ class Grids extends ResourceHelper implements Selectable
         self::STANDARD => [
             'class'  => 'unpublish',
             'column' => 'isDefault',
-            'task'   => 'toggle',
+            'task'   => 'default',
             'tip'    => 'CLICK_TO_DEFAULT'
         ]
     ];

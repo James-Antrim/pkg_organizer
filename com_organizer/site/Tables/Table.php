@@ -5,6 +5,7 @@ namespace THM\Organizer\Tables;
 use Exception;
 use Joomla\CMS\Table\Table as Base;
 use ReflectionClass;
+use ReflectionProperty;
 use THM\Organizer\Adapters\Application;
 
 /**
@@ -45,19 +46,18 @@ abstract class Table extends Base
     /**
      * Returns an associative array of object properties.
      *
+     * @param   bool  $public
+     *
      * @return  array
      */
-    public function properties(): array
+    public function getProperties($public = true): array
     {
-        $properties = get_object_vars($this);
-
-        // These are never internal
-        foreach ($properties as $key => $value) {
-            if (str_starts_with($key, '_')) {
-                unset($properties[$key]);
-            }
+        $properties = [];
+        $reflection = new ReflectionClass($this);
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            $column              = $property->getName();
+            $properties[$column] = $this->$column ?? null;
         }
-
         return $properties;
     }
 
@@ -79,6 +79,11 @@ abstract class Table extends Base
             // If the property is not the primary key or private, skip it.
             if (in_array($column, $this->_tbl_keys) or (str_starts_with($column, '_'))) {
                 continue;
+            }
+
+            // Text derivatives default irredeemably to null, which will always conflict with PHP typing.
+            if (in_array($definition->Type, ['mediumtext', 'text'])) {
+                $definition->Default = '';
             }
 
             if ($definition->Null === 'NO' and $definition->Default === null) {
@@ -112,6 +117,7 @@ abstract class Table extends Base
                 }
 
             }
+
             $this->$column = $definition->Default;
         }
     }

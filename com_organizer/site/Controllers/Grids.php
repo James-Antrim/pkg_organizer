@@ -25,7 +25,7 @@ class Grids extends ListController
      * Toggles the selected grid to be the new default.
      * @return void
      */
-    public function toggle(): void
+    public function default(): void
     {
         $this->authorize();
 

@@ -54,7 +54,7 @@ abstract class EditModel extends FormModel
         /** @var Table $table */
         $table = $this->getTable();
         $table->load($rowID);
-        $properties = $table->properties();
+        $properties = $table->getProperties();
 
         return ArrayHelper::toObject($properties);
     }
