@@ -94,11 +94,10 @@ class Users extends User
 
     /**
      * MEDIUMTEXT NOT NULL
-     * JSON String. Typing would propably cause problems here because it is both NOT NULL and DEFAULT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
+     * JSON String. Typing would propably cause problems here because it is both NOT NULL and implicitly DEFAULT NULL
+     * @var null|string
      */
-    public $params;
+    public null|string $params;
 
     /**
      * VARCHAR(100) NOT NULL DEFAULT ''
@@ -110,7 +109,6 @@ class Users extends User
      * DATETIME NOT NULL
      * Magic property in parent. Typing would propably cause problems here because it is both NOT NULL and DEFAULT NULL.
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
     public $registerDate;
 

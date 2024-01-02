@@ -35,6 +35,13 @@ class Bookings extends Table
     public null|string $endTime = null;
 
     /**
+     * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
+     */
+    public int $id;
+
+    /**
      * The start time of the block.
      * TIME DEFAULT NULL
      * @var null|string

@@ -879,7 +879,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomkeys`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-#Normed
 INSERT INTO `#__organizer_roomkeys` (`id`, `key`, `name_de`, `name_en`, `cleaningID`, `useID`)
 VALUES (11, '011', 'Wohnflächen im Freien', 'Outdoor Residential Areas', 1, 0),
        (12, '012', 'Gemeinschaftsflächen im Freien', 'Outdoor Socialization Areas', 1, 0),
@@ -1493,7 +1492,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_use_codes`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-#Normed
 INSERT INTO `#__organizer_use_codes` (`id`, `code`, `name_de`, `name_en`, `keyID`, `cat6`, `cat12`)
 VALUES (110, '0110', 'Wohnfläche im Freien', 'Outdoor Residential Area', 11, 0, 0),
        (120, '0120', 'Gemeinschaftsfläche im Freien', 'Outdoor Socialization Area', 12, 0, 0),

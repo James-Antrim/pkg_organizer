@@ -18,6 +18,8 @@ use THM\Organizer\Adapters\Application;
  */
 class RoomKeys extends Table
 {
+    use Localized;
+
     /**
      * The cleaning group associated with the room key.
      * TINYINT(2) UNSIGNED  DEFAULT NULL
@@ -26,36 +28,25 @@ class RoomKeys extends Table
     public int|null $cleaningID;
 
     /**
+     * SMALLINT(3) UNSIGNED NOT NULL
+     *
+     * @var int
+     */
+    public int $id;
+
+    /**
      * The actual room key.
      * VARCHAR(3) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $key;
-
-    /**
-     * The room key's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_de;
-
-    /**
-     * The room key's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_en;
+    public string $key;
 
     /**
      * The use group associated with the room key.
      * TINYINT(1) UNSIGNED  NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $useID;
+    public int $useID;
 
     /**
      * @inheritDoc

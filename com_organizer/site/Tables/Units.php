@@ -23,11 +23,10 @@ class Units extends Table
 
     /**
      * A supplementary text description.
-     * VARCHAR(255) DEFAULT NULL
+     * VARCHAR(255) DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $comment;
+    public string $comment = '';
 
     /**
      * The id of the course entry referenced.
@@ -75,7 +74,6 @@ class Units extends Table
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int|null
-     * @noinspection PhpMissingFieldTypeInspection
      */
     public int|null $termID;
 

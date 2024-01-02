@@ -12,6 +12,7 @@ namespace THM\Organizer\Tables;
 
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
+use THM\Organizer\Helpers\Roles;
 
 /**
  * @inheritDoc
@@ -21,34 +22,42 @@ class InstancePersons extends Table
     use Modified;
 
     /**
+     * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
+     */
+    public int $id;
+
+    /**
      * The id of the instance entry referenced.
      * INT(20) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $instanceID;
+    public int $instanceID;
 
     /**
      * The id of the person entry referenced.
      * INT(11) NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $personID;
+    public int $personID;
 
     /**
      * The id of the role entry referenced.
      * TINYINT(2) UNSIGNED NOT NULL DEFAULT 1
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $roleID;
+    public int $roleID = Roles::TEACHER;
+
 
     /**
-     * Declares the associated table.
+     * @inheritDoc
      */
-    public function __construct()
+    public function __construct(DatabaseInterface $dbo = null)
     {
-        parent::__construct('#__organizer_instance_persons');
+        $dbo = $dbo ?? Application::getDB();
+
+        /** @var DatabaseDriver $dbo */
+        parent::__construct('#__organizer_instance_persons', 'id', $dbo);
     }
 }

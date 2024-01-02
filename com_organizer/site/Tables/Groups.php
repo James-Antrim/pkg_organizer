@@ -21,55 +21,36 @@ class Groups extends Table
     use Activated;
     use Aliased;
     use Coded;
+    use Localized;
     use Suppressed;
 
     /**
      * The id of the category entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
+     * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $categoryID;
+    public int $categoryID;
 
     /**
      * The resource's German name.
      * VARCHAR(200) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fullName_de;
+    public string $fullName_de;
 
     /**
      * The resource's English name.
      * VARCHAR(200) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fullName_en;
+    public string $fullName_en;
 
     /**
      * The id of the grid entry referenced.
      * INT(11) UNSIGNED DEFAULT 1
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $gridID;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_en;
+    public int $gridID = 1;
 
     /**
      * @inheritDoc

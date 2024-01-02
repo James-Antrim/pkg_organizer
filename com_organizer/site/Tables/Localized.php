@@ -11,14 +11,19 @@
 namespace THM\Organizer\Tables;
 
 /**
- * Adds a flag denoting resource relevance status.
+ * Adds standard definitions for localized naming columns.
  */
-trait Relevant
+trait Localized
 {
     /**
-     * A flag which displays whether associated rooms should appear in exported media.
-     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-     * @var bool
+     * VARCHAR(150) NOT NULL
+     * @var string
      */
-    public bool $relevant = true;
+    public string $name_de;
+
+    /**
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public string $name_en;
 }

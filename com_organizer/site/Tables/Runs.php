@@ -18,45 +18,22 @@ use THM\Organizer\Adapters\Application;
  */
 class Runs extends Table
 {
-    /**
-     * The end date of the resource.
-     * DATE NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $endDate;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_en;
+    use Ends;
+    use Localized;
 
     /**
      * A run object modeled by a JSON string, containing the respective start and end dates of run sections.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $run;
+    public string $run;
 
     /**
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $termID;
+    public int $termID;
 
     /**
      * @inheritDoc

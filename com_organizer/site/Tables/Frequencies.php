@@ -18,19 +18,14 @@ use THM\Organizer\Adapters\Application;
  */
 class Frequencies extends Table
 {
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     */
-    public string $name_de;
+    use Localized;
 
     /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
+     * INT(1) UNSIGNED NOT NULL
+     *
+     * @var int
      */
-    public string $name_en;
+    public int $id;
 
     /**
      * @inheritDoc

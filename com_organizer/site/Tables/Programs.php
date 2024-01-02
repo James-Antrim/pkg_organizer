@@ -22,14 +22,14 @@ class Programs extends Table
     use Activated;
     use Aliased;
     use Coded;
+    use Localized;
 
     /**
      * The year in which the program was accredited.
-     * YEAR(4) DEFAULT NULL
+     * YEAR(4) NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $accredited;
+    public int $accredited;
 
     /**
      * The id of the category entry referenced.
@@ -49,25 +49,22 @@ class Programs extends Table
      * The resource's German description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_de;
+    public string $description_de = '';
 
     /**
      * The resource's English description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_en;
+    public string $description_en = '';
 
     /**
      * A flag which displays whether the program has a fee.
-     * TINYINT(1) UNSIGNED NOT NULL
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fee;
+    public bool $fee = false;
 
     /**
      * The id of the frequency entry referenced.
@@ -77,45 +74,27 @@ class Programs extends Table
     public int|null $frequencyID;
 
     /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_en;
-
-    /**
      * A flag which displays whether the program has a restricted number of participants.
-     * TINYINT(1) UNSIGNED NOT NULL
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $nc;
+    public bool $nc = false;
 
     /**
      * The associated organization id.
      * INT(11) UNSIGNED DEFAULT NULL
      *
      * @var int|null
-     * @deprecated ???
+     * @deprecated is this still filled to show priority or was this replaced completely by the associations table?
      */
     public int|null $organizationID;
 
     /**
      * A flag which displays whether the program has special participation requirements
-     * TINYINT(1) UNSIGNED NOT NULL
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $special;
+    public bool $special = false;
 
     /**
      * @inheritDoc

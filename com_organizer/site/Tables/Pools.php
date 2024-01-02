@@ -25,33 +25,29 @@ class Pools extends Table
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_de;
+    public string $abbreviation_de = '';
 
     /**
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_en;
+    public string $abbreviation_en = '';
 
     /**
      * The resource's German description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_de;
+    public string $description_de = '';
 
     /**
      * The resource's English description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_en;
+    public string $description_en = '';
 
     /**
      * The id of the field entry referenced.
@@ -85,17 +81,15 @@ class Pools extends Table
      * The maximum credit points required to be achieved in subjects of this pool.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $maxCrP;
+    public int $maxCrP = 0;
 
     /**
      * The minimum credit points required to be achieved in subjects of this pool.
      * INT(3) UNSIGNED DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $minCrP;
+    public int $minCrP = 0;
 
     /**
      * @inheritDoc

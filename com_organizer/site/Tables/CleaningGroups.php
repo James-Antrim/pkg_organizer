@@ -18,6 +18,7 @@ use THM\Organizer\Adapters\Application;
  */
 class CleaningGroups extends Table
 {
+    use Localized;
     use Relevant;
 
     /**
@@ -28,18 +29,11 @@ class CleaningGroups extends Table
     public float $days;
 
     /**
-     * The cleaning group's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
+     * TINYINT(2) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
      */
-    public string $name_de;
-
-    /**
-     * The cleaning group's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     */
-    public string $name_en;
+    public int $id;
 
     /**
      * The max valuation of the cleaning quality for this group. This value appears in exported media but is not overtly

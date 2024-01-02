@@ -11,14 +11,14 @@
 namespace THM\Organizer\Tables;
 
 /**
- * Adds a flag denoting resource relevance status.
+ * Adds a standard definition for the endDate column.
  */
-trait Relevant
+trait Ends
 {
     /**
-     * A flag which displays whether associated rooms should appear in exported media.
-     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-     * @var bool
+     * The end date of the resource.
+     * DATE NOT NULL
+     * @var string
      */
-    public bool $relevant = true;
+    public string $endDate;
 }

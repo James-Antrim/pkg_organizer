@@ -19,25 +19,23 @@ trait Modified
      * The resource's delta status. Possible values: '', 'new,' 'removed'.
      * VARCHAR(10) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $delta;
+    public string $delta = '';
 
     /**
      * The timestamp at which the schedule was generated which modified this entry.
      * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $modified;
+    public string $modified;
 
     /**
      * @inheritDoc
      */
     public function check(): bool
     {
-        if ($this->modified === '0000-00-00 00:00:00') {
-            $this->modified = null;
+        if (!$this->modified or $this->modified === '0000-00-00 00:00:00') {
+            $this->modified = date('Y-m-d');
         }
 
         return true;

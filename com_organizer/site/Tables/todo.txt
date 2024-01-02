@@ -1,0 +1,11 @@
+-remove static resources as tables and views
+-- degrees, flooring, frequencies, use codes, ...
+-- remove managing views
+-- add helpers as necessary
+-- migrate values from tables to class constants
+-- update functions and table classes to reference helper constants
+-- drop referencing fks
+-- drop tables
+- drop deprecated columns
+-- subject competences & co.
+-- program organization ids?

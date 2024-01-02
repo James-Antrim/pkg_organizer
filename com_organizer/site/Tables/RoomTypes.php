@@ -18,23 +18,22 @@ use THM\Organizer\Adapters\Application;
  */
 class RoomTypes extends Table
 {
+    use Localized;
     use Suppressed;
 
     /**
      * The resource's German description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_de;
+    public string $description_de = '';
 
     /**
      * The resource's English description.
      * TEXT
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description_en;
+    public string $description_en = '';
 
     /**
      * The maximum occupancy for rooms of this type.
@@ -44,28 +43,11 @@ class RoomTypes extends Table
     public int|null $capacity;
 
     /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_en;
-
-    /**
      * The id of the normed use code with which the type is associated.
      * SMALLINT(4) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $usecode;
+    public int $usecode;
 
     /**
      * @inheritDoc

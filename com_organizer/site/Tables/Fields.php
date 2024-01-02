@@ -19,6 +19,7 @@ use THM\Organizer\Adapters\Application;
 class Fields extends Table
 {
     use Aliased;
+    use Localized;
 
     /**
      * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
@@ -28,20 +29,6 @@ class Fields extends Table
      * @var string
      */
     public string $code;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(60) NOT NULL
-     * @var string
-     */
-    public string $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(60) NOT NULL
-     * @var string
-     */
-    public string $name_en;
 
     /**
      * @inheritDoc

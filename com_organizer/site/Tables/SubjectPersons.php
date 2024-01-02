@@ -12,6 +12,7 @@ namespace THM\Organizer\Tables;
 
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
+use THM\Organizer\Helpers\Subjects;
 
 /**
  * @inheritDoc
@@ -22,25 +23,22 @@ class SubjectPersons extends Table
      * The id of the person entry referenced.
      * INT(11) NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $personID;
+    public int $personID;
 
     /**
      * The person's responsibility for the subject. Values: 1 - Coordinates, 2 - Teaches.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $role;
+    public int $role = Subjects::COORDINATES;
 
     /**
      * The id of the subject entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $subjectID;
+    public int $subjectID;
 
     /**
      * @inheritDoc

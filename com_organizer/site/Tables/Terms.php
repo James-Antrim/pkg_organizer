@@ -20,13 +20,7 @@ class Terms extends Table
 {
     use Aliased;
     use Coded;
-
-    /**
-     * The end date of the resource.
-     * DATE NOT NULL
-     * @var string
-     */
-    public string $endDate;
+    use Ends;
 
     /**
      * The resource's full German name.

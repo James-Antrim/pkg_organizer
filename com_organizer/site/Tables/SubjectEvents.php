@@ -22,17 +22,15 @@ class SubjectEvents extends Table
      * The id of the event entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $eventID;
+    public int $eventID;
 
     /**
      * The id of the subject entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $subjectID;
+    public int $subjectID;
 
     /**
      * @inheritDoc

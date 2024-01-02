@@ -22,17 +22,15 @@ class Prerequisites extends Table
      * The id of the subject entry referenced as being a dependency.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $prerequisiteID;
+    public int $prerequisiteID;
 
     /**
      * The id of the subject entry referenced as requiring a dependency.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $subjectID;
+    public int $subjectID;
 
     /**
      * @inheritDoc

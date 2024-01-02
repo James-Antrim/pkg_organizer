@@ -15,15 +15,11 @@ use THM\Organizer\Adapters\Application;
 abstract class Table extends Base
 {
     /**
-     * Generally: INT(11) UNSIGNED
-     *
-     * Frequent associatons will have a larger definition, rudimentary resources smaller.
-     * Participants table is not explicilty UNSIGNED because of the reference to the #__users table.
+     * INT(11) UNSIGNED NOT NULL AUTO_INCREMENT
      *
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $id;
+    public int $id;
 
     /**
      * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
@@ -81,14 +77,13 @@ abstract class Table extends Base
         // Get the default values for the class from the table.
         foreach ($this->getFields() as $column => $definition) {
             // If the property is not the primary key or private, skip it.
-            if (in_array($column, $this->_tbl_keys) OR (str_starts_with($column, '_'))) {
+            if (in_array($column, $this->_tbl_keys) or (str_starts_with($column, '_'))) {
                 continue;
             }
 
             if ($definition->Null === 'NO' and $definition->Default === null) {
                 try {
-                    if ($property = $reflection->getProperty($column))
-                    {
+                    if ($property = $reflection->getProperty($column)) {
                         if ($default = $property->getDefaultValue()) {
                             $definition->Default = $default;
                             continue;

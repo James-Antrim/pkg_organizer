@@ -22,25 +22,22 @@ class GroupPublishing extends Table
      * The id of the group entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $groupID;
+    public int $groupID;
 
     /**
      * The publishing status of the group for the term.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $published;
+    public bool $published = true;
 
     /**
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $termID;
+    public int $termID;
 
     /**
      * @inheritDoc

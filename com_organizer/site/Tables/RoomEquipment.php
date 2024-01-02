@@ -20,11 +20,10 @@ class RoomEquipment extends Table
 {
     /**
      * The description of the specific equipment referenced: make, model, color, ...
-     * VARCHAR(255)     NOT NULL DEFAULT ''
+     * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $description;
+    public string $description = '';
 
     /**
      * The id of the equipment entry referenced.
@@ -42,11 +41,10 @@ class RoomEquipment extends Table
 
     /**
      * The quantity of the referenced equipment in the room.
-     * INT(4) UNSIGNED NOT NULL
+     * INT(4) UNSIGNED DEFAULT 1
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $quantity;
+    public int $quantity = 1;
 
     /**
      * @inheritDoc

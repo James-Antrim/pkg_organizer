@@ -19,54 +19,42 @@ use THM\Organizer\Adapters\Application;
 class Roles extends Table
 {
     use Coded;
+    use Localized;
 
     /**
      * The resource's German abbreviation.
-     * VARCHAR(25) NOT NULL DEFAULT ''
+     * VARCHAR(25) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_de;
+    public string $abbreviation_de;
 
     /**
      * The resource's English abbreviation.
-     * VARCHAR(25) NOT NULL DEFAULT ''
+     * VARCHAR(25) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_en;
+    public string $abbreviation_en;
 
     /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
+     * TINYINT(2) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
      */
-    public $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_en;
+    public int $id;
 
     /**
      * The resource's German plural.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $plural_de;
+    public string $plural_de;
 
     /**
      * The resource's English plural.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $plural_en;
+    public string $plural_en;
 
     /**
      * @inheritDoc

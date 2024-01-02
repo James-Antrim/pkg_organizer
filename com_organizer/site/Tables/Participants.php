@@ -22,33 +22,36 @@ class Participants extends Table
      * The physical address of the resource.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $address;
+    public string $address = '';
 
     /**
      * The city in which the resource is located.
      * VARCHAR(60) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $city;
+    public string $city = '';
 
     /**
      * The person's first and middle names.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $forename;
+    public string $forename = '';
+
+    /**
+     * INT(11) NOT NULL
+     *
+     * @var int
+     */
+    public int $id;
 
     /**
      * A flag displaying whether the user wishes to receive emails regarding schedule changes.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $notify;
+    public bool $notify = false;
 
     /**
      * The id of the program entry referenced.
@@ -61,25 +64,22 @@ class Participants extends Table
      * The person's surnames.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $surname;
+    public string $surname = '';
 
     /**
      * The person's telephone number.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $telephone;
+    public string $telephone = '';
 
     /**
      * The ZIP code of the resource.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $zipCode;
+    public string $zipCode = '';
 
     /**
      * @inheritDoc

@@ -22,30 +22,28 @@ class Organizations extends Table
 {
     use Activated;
     use Aliased;
+    use Localized;
 
     /**
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_de;
+    public string $abbreviation_de;
 
     /**
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $abbreviation_en;
+    public string $abbreviation_en;
 
     /**
      * A flag which displays whether the planning for the organization directly is allowed.
      * TINYINT(1) UNSIGNED NOT NULL
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $allowScheduling;
+    public bool $allowScheduling = true;
 
     /**
      * The id used by Joomla as a reference to its assets table.
@@ -72,58 +70,37 @@ class Organizations extends Table
      * The resource's German full name.
      * VARCHAR(200) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fullName_de;
+    public string $fullName_de;
 
     /**
      * The resource's English full name.
      * VARCHAR(200) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $fullName_en;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     * @noinspection PhpMissingFieldTypeInspection
-     */
-    public $name_en;
+    public string $fullName_en;
 
     /**
      * The resource's German shortened name.
      * VARCHAR(50) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $shortName_de;
+    public string $shortName_de;
 
     /**
      * The resource's English shortened name.
      * VARCHAR(50) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $shortName_en;
+    public string $shortName_en;
 
     /**
      * The base URL for the organization's homepage.
      * VARCHAR(50) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      * @noinspection PhpPropertyNamingConventionInspection
      */
-    public $URL;
+    public string $URL;
 
     /**
      * @inheritDoc

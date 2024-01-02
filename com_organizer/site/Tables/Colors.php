@@ -18,26 +18,14 @@ use THM\Organizer\Adapters\Application;
  */
 class Colors extends Table
 {
+    use Localized;
+
     /**
      * The six digit hexadecimal value of the color with leading #.
      * VARCHAR(60) NOT NULL
      * @var string
      */
     public string $color;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(60) NOT NULL
-     * @var string
-     */
-    public string $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(60) NOT NULL
-     * @var string
-     */
-    public string $name_en;
 
     /**
      * @inheritDoc

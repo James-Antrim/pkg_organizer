@@ -20,6 +20,7 @@ class Campuses extends Table
 {
     use Activated;
     use Aliased;
+    use Localized;
 
     /**
      * The physical address of the resource.
@@ -55,20 +56,6 @@ class Campuses extends Table
      * @var string
      */
     public string $location;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(60) NOT NULL
-     * @var string
-     */
-    public string $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(60) NOT NULL
-     * @var string
-     */
-    public string $name_en;
 
     /**
      * The id of the campus entry referenced as parent.

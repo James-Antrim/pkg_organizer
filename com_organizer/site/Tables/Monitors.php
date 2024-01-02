@@ -12,52 +12,48 @@ namespace THM\Organizer\Tables;
 
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
+use THM\Organizer\Helpers\Monitors as Helper;
 
 /**
  * @inheritDoc
  */
 class Monitors extends Table
 {
-
     /**
      * The file name of the content to be displayed.
      * VARCHAR(256) DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $content;
+    public string $content = '';
 
     /**
-     * The refresh interval (in seconds) for content display.
+     * The refresh interval (seconds) for content display.
      * INT(3) UNSIGNED NOT NULL DEFAULT 60
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $contentRefresh;
+    public int $contentRefresh;
 
     /**
-     * A flag displaying for component or monitor specific settings. Values: 1 - Daily Plan, 2 - Interval, 3 - Content
+     * A flag displaying for component or monitor specific settings.
      * INT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
+     * @see Helper for values
      */
-    public $display;
+    public int $display = Helper::CURRENT;
 
     /**
-     * The interval (in minutes) between display type switches.
+     * The interval (minutes) between display type switches.
      * INT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $interval;
+    public int $interval = 1;
 
     /**
      * The ip address associated with the monitor.
      * VARCHAR(15) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $ip;
+    public string $ip;
 
     /**
      * The id of the room entry referenced.
@@ -67,20 +63,18 @@ class Monitors extends Table
     public int|null $roomID;
 
     /**
-     * The refresh interval (in seconds) for schedule display.
+     * The refresh interval (seconds) for schedule display.
      * INT(3) UNSIGNED NOT NULL DEFAULT 60
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $scheduleRefresh;
+    public int $scheduleRefresh;
 
     /**
      * The monitor settings source. Values: 0 - Monitor Specific, 1 - Component
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var int
-     * @noinspection PhpMissingFieldTypeInspection
+     * @var bool
      */
-    public $useDefaults;
+    public bool $useDefaults = false;
 
     /**
      * @inheritDoc

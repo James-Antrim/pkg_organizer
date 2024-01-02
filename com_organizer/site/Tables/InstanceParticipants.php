@@ -22,33 +22,36 @@ class InstanceParticipants extends Table
      * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $attended;
+    public bool $attended = false;
+
+    /**
+     * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
+     */
+    public int $id;
 
     /**
      * The id of the instance entry referenced.
      * INT(20) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $instanceID;
+    public int $instanceID;
 
     /**
      * The id of the participant entry referenced.
      * INT(11) NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $participantID;
+    public int $participantID;
 
     /**
      * Whether the participant has registered to physically attend the instance. Values: 0 - No, 1 - Yes.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $registered;
+    public bool $registered = false;
 
     /**
      * The id of the room entry referenced.
@@ -58,7 +61,7 @@ class InstanceParticipants extends Table
     public int|null $roomID;
 
     /**
-     * The id of the room entry referenced.
+     * The identifier of the seat.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var null|string
      */

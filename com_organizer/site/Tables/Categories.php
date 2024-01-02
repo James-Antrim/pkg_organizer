@@ -21,21 +21,8 @@ class Categories extends Table
     use Activated;
     use Aliased;
     use Coded;
+    use Localized;
     use Suppressed;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     */
-    public string $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     */
-    public string $name_en;
 
     /**
      * @inheritDoc

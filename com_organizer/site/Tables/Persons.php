@@ -27,33 +27,29 @@ class Persons extends Table
      * The person's first and middle names.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $forename;
+    public string $forename = '';
 
     /**
      * A flag which displays whether the person chooses to display their information publicly.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $public;
+    public bool $public = false;
 
     /**
      * The person's surnames.
      * VARCHAR(255) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $surname;
+    public string $surname;
 
     /**
      * The person's titles.
      * VARCHAR(45) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $title;
+    public string $title = '';
 
     /**
      * The person's username.

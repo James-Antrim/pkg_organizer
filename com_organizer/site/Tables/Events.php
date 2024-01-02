@@ -20,6 +20,7 @@ class Events extends Table
 {
     use Activated;
     use Aliased;
+    use Localized;
     use Suppressed;
 
     /**
@@ -114,20 +115,6 @@ class Events extends Table
      * @var int
      */
     public int $maxParticipants = 1000;
-
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     */
-    public string $name_de;
-
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     * @var string
-     */
-    public string $name_en;
 
     /**
      * A German description of how courses implementing this event are organized.

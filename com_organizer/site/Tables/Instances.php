@@ -24,33 +24,29 @@ class Instances extends Table
      * The number of participants who checked into this instance.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $attended;
+    public int $attended = 0;
 
     /**
      * The id of the block entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $blockID;
+    public int $blockID;
 
     /**
      * The number of participants who added this instance to their personal schedule.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $bookmarked;
+    public int $bookmarked = 0;
 
     /**
      * A supplementary text description specific to a subset of unit instances.
-     * VARCHAR(255) DEFAULT NULL
+     * VARCHAR(255) DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $comment;
+    public string $comment = '';
 
     /**
      * The id of the event entry referenced.
@@ -58,6 +54,13 @@ class Instances extends Table
      * @var int|null
      */
     public int|null $eventID;
+
+    /**
+     * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
+     */
+    public int $id;
 
     /**
      * The id of the method entry referenced.
@@ -70,25 +73,22 @@ class Instances extends Table
      * The number of participants who registered to participate in this instance.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $registered;
+    public int $registered = 0;
 
     /**
      * The person's first and middle names.
      * VARCHAR(255) NOT NULL DEFAULT ''
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $title;
+    public string $title = '';
 
     /**
      * The id of the unit entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $unitID;
+    public int $unitID;
 
     /**
      * @inheritDoc

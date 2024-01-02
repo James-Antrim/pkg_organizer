@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer

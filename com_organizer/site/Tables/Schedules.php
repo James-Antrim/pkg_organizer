@@ -36,25 +36,22 @@ class Schedules extends Table
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $organizationID;
+    public int $organizationID;
 
     /**
      * A collection of instance objects modeled by a JSON string.
      * MEDIUMTEXT NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $schedule;
+    public string $schedule;
 
     /**
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $termID;
+    public int $termID;
 
     /**
      * The id of the user entry referenced.

@@ -3,14 +3,13 @@
 namespace THM\Organizer\Tables;
 
 /**
- * @see self::setColumn()
+ * Adds items for resources imported from LSF/HISin1
  */
 trait LSFImported
 {
     /**
-     * The id of the entry in the LSF software module.
+     * The id of the entry in the LSF? software module.
      * INT(11) UNSIGNED DEFAULT NULL
-     * Status: Unknown
      * @var int|null
      */
     public int|null $lsfID;

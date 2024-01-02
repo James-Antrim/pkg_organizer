@@ -26,9 +26,8 @@ class Rooms extends Table
      * The surface area of the room.
      * DOUBLE(6, 2) UNSIGNED NOT NULL DEFAULT 0.00
      * @var float
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $area;
+    public float $area = 0.00;
 
     /**
      * The id of the building entry referenced.
@@ -39,35 +38,31 @@ class Rooms extends Table
 
     /**
      * The rooms effective occupancy for participants.
-     * INT(4) UNSIGNED DEFAULT NULL
+     * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $effCapacity;
+    public int $effCapacity = 0;
 
     /**
      * The id of the corresponding flooring entry
-     * SMALLINT(3) UNSIGNED
-     * @var int|null
-     * @noinspection PhpMissingFieldTypeInspection
+     * SMALLINT(3) UNSIGNED DEFAULT 1
+     * @var int
      */
-    public int|null $flooringID;
+    public int $flooringID = 1;
 
     /**
      * The rooms maximum occupancy for participants.
      * INT(4) UNSIGNED DEFAULT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $maxCapacity;
+    public int $maxCapacity = 0;
 
     /**
      * The resource's name.
      * VARCHAR(150) NOT NULL
      * @var string
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $name;
+    public string $name;
 
     /**
      * The id of the roomtype entry referenced.
@@ -78,11 +73,10 @@ class Rooms extends Table
 
     /**
      * A flag which displays whether the room is a virtual room.
-     * TINYINT(1) UNSIGNED NOT NULL
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var bool
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $virtual;
+    public bool $virtual = false;
 
     /**
      * @inheritDoc

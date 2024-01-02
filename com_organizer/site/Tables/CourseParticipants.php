@@ -33,6 +33,13 @@ class CourseParticipants extends Table
     public int $courseID;
 
     /**
+     * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
+     */
+    public int $id;
+
+    /**
      * The participant's course payment status. Values: 0 - Unpaid, 1 - Paid.
      * TINYINT(1) UNSIGNED DEFAULT 0
      * @var bool

@@ -24,17 +24,22 @@ class InstanceGroups extends Table
      * The id of the instance persons entry referenced.
      * INT(20) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $assocID;
+    public int $assocID;
+
+    /**
+     * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
+     *
+     * @var int
+     */
+    public int $id;
 
     /**
      * The id of the group entry referenced.
      * INT(11) UNSIGNED NOT NULL
      * @var int
-     * @noinspection PhpMissingFieldTypeInspection
      */
-    public $groupID;
+    public int $groupID;
 
     /**
      * @inheritDoc
