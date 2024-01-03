@@ -51,8 +51,9 @@ class Buildings extends ListModel
                 $query->where("$column IS NULL");
             }
             else {
-                $query->where("($column = :campusID OR c1.parentID = :campusID)")
-                    ->bind(':campusID', $campusID, ParameterType::INTEGER);
+                $query->where("($column = :campusID OR c1.parentID = :pCampusID)")
+                    ->bind(':campusID', $campusID, ParameterType::INTEGER)
+                    ->bind(':pCampusID', $campusID, ParameterType::INTEGER);
             }
         }
 

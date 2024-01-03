@@ -11,9 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the building form into display context.
+ * @inheritDoc
  */
-class BuildingEdit extends EditViewOld
+class Building extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }
