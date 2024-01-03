@@ -63,9 +63,9 @@ class InstanceParticipants extends Table
     /**
      * The identifier of the seat.
      * VARCHAR(60) NOT NULL DEFAULT ''
-     * @var null|string
+     * @var string|null
      */
-    public null|string $seat;
+    public string|null $seat;
 
     /**
      * @inheritDoc

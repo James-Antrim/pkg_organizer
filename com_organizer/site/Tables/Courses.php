@@ -72,16 +72,16 @@ class Courses extends Table
     /**
      * The resource's German name.
      * VARCHAR(150) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $name_de = null;
+    public string|null $name_de = null;
 
     /**
      * The resource's English name.
      * VARCHAR(150) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $name_en = null;
+    public string|null $name_en = null;
 
     /**
      * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.

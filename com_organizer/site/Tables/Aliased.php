@@ -18,9 +18,9 @@ trait Aliased
     /**
      * The alias used to reference the resource in a URL
      * VARCHAR(255) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $alias = null;
+    public string|null $alias = null;
 
     /**
      * @inheritDoc

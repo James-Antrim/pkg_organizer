@@ -22,23 +22,23 @@ class Equipment extends Table
      * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
      * software except units which are also supplemented locally.
      * VARCHAR(60) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $code = null;
+    public string|null $code = null;
 
     /**
      * The equipment's German name.
      * VARCHAR(150) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $name_de = null;
+    public string|null $name_de = null;
 
     /**
      * The equipment's English name.
      * VARCHAR(150) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $name_en = null;
+    public string|null $name_en = null;
 
     /**
      * @inheritDoc

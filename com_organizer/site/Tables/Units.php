@@ -45,9 +45,9 @@ class Units extends Table
     /**
      * The end date of the resource.
      * DATE DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $endDate;
+    public string|null $endDate;
 
     /**
      * The id of the grid entry referenced.
@@ -66,9 +66,9 @@ class Units extends Table
     /**
      * The start date of the resource.
      * DATE DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $startDate;
+    public string|null $startDate;
 
     /**
      * The id of the term entry referenced.

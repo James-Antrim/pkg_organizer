@@ -49,9 +49,9 @@ class CourseParticipants extends Table
     /**
      * The date and time of the last participant initiated change.
      * DATETIME DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $participantDate = null;
+    public string|null $participantDate = null;
 
     /**
      * The id of the participant entry referenced.
@@ -70,9 +70,9 @@ class CourseParticipants extends Table
     /**
      * The date and time of the last change.
      * DATETIME DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $statusDate = null;
+    public string|null $statusDate = null;
 
     /**
      * @inheritDoc

@@ -62,9 +62,9 @@ class Organizations extends Table
     /**
      * The email address to be used for contacting participants
      * VARCHAR(100) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $contactEmail;
+    public string|null $contactEmail;
 
     /**
      * The resource's German full name.

@@ -21,16 +21,16 @@ class Schedules extends Table
     /**
      * The date of the schedule's creation.
      * DATE DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $creationDate;
+    public string|null $creationDate;
 
     /**
      * The time of the schedule's creation.
      * TIME DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $creationTime;
+    public string|null $creationTime;
 
     /**
      * The id of the organization entry referenced.

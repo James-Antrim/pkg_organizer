@@ -54,9 +54,9 @@ class Persons extends Table
     /**
      * The person's username.
      * VARCHAR(150) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $username;
+    public string|null $username;
 
     /**
      * @inheritDoc

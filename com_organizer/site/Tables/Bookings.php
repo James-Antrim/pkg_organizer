@@ -30,9 +30,9 @@ class Bookings extends Table
     /**
      * The end time of the block.
      * TIME DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $endTime = null;
+    public string|null $endTime = null;
 
     /**
      * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
@@ -44,9 +44,9 @@ class Bookings extends Table
     /**
      * The start time of the block.
      * TIME DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $startTime = null;
+    public string|null $startTime = null;
 
     /**
      * The id of the unit entry referenced.

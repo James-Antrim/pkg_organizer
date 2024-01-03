@@ -59,16 +59,16 @@ class Users extends User
     /**
      * DATETIME
      * Magic property in parent.
-     * @var null|string
+     * @var string|null
      */
-    public null|string $lastResetTime;
+    public string|null $lastResetTime;
 
     /**
      * DATETIME
      * Magic property in parent.
-     * @var null|string
+     * @var string|null
      */
-    public null|string $lastvisitDate;
+    public string|null $lastvisitDate;
 
     /**
      * VARCHAR(400) NOT NULL DEFAULT ''
@@ -95,9 +95,9 @@ class Users extends User
     /**
      * MEDIUMTEXT NOT NULL
      * JSON String. Typing would propably cause problems here because it is both NOT NULL and implicitly DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $params;
+    public string|null $params;
 
     /**
      * VARCHAR(100) NOT NULL DEFAULT ''

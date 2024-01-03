@@ -59,16 +59,16 @@ class Pools extends Table
     /**
      * The resource's German name.
      * VARCHAR(200) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $fullName_de;
+    public string|null $fullName_de;
 
     /**
      * The resource's English name.
      * VARCHAR(200) DEFAULT NULL
-     * @var null|string
+     * @var string|null
      */
-    public null|string $fullName_en;
+    public string|null $fullName_en;
 
     /**
      * The id of the group entry referenced.
