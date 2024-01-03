@@ -18,7 +18,8 @@ trait Suppressed
     /**
      * A flag which displays whether associated resources should be suppressed from public display.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $suppress = false;
+    public int $suppress = 0;
 }

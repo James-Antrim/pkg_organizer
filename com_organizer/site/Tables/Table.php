@@ -55,6 +55,12 @@ abstract class Table extends Base
         $properties = [];
         $reflection = new ReflectionClass($this);
         foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+
+            // Public untyped property from Joomla.
+            if (is_null($property->getType())) {
+                continue;
+            }
+
             $column              = $property->getName();
             $properties[$column] = $this->$column ?? null;
         }

@@ -10,10 +10,14 @@
 
 namespace THM\Organizer\Controllers;
 
+use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\Table\Table as JTable;
 use Joomla\Input\Input as JInput;
+use ReflectionNamedType;
+use ReflectionObject;
+use ReflectionUnionType;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Tables\Table;
 
@@ -107,8 +111,53 @@ abstract class FormController extends Controller
      */
     protected function prepareData(): array
     {
-        foreach ($data = Input::getFormItems() as $key => $value) {
-            $data[$key] = self::trim($value);
+        $data = [];
+
+        /** @var Table $table */
+        $table      = $this->getTable();
+        $properties = $table->getProperties();
+        $reflection = new ReflectionObject($table);
+
+        foreach ($properties as $column => $default) {
+            try {
+                $property = $reflection->getProperty($column);
+            }
+            catch (Exception $exception) {
+                Application::handleException($exception);
+            }
+
+            $default = $property->getDefaultValue();
+
+            /** @var ReflectionNamedType|ReflectionUnionType $type */
+            $rType = $property->getType();
+            // <type>|null get the first one
+            if (get_class($rType) === 'ReflectionUnionType') {
+                $rType = $rType->getTypes()[0];
+            }
+
+            $type = $rType->getName();
+
+            switch ($type) {
+                case 'float':
+                    $default       = $default ?: 0.0;
+                    $data[$column] = Input::getFloat($column, $default);
+                    break;
+                case 'int':
+                    // SQL doesn't technichally have bool, so it has to be mapped over int. I've used the comment for this.
+                    if ($comment = $property->getDocComment() and str_contains($comment, '@bool')) {
+                        $default       = (bool) $default;
+                        $data[$column] = (int) Input::getBool($column, $default);
+                    }
+                    else {
+                        $default       = $default ?: 0;
+                        $data[$column] = Input::getInt($column, $default);
+                    }
+                    break;
+                case 'string':
+                    $default       = $default ?: '';
+                    $data[$column] = Input::getString($column, $default);
+                    break;
+            }
         }
 
         return $data;
@@ -130,13 +179,7 @@ abstract class FormController extends Controller
         $data['id'] = $id;
         $table      = $this->getTable();
 
-        if ($result = $this->store($table, $data, $id)) {
-            Application::message('SAVED');
-        }
-        else {
-            Application::message('NOT_SAVED');
-        }
-        return $result;
+        return $this->store($table, $data, $id);
     }
 
     /**
@@ -189,12 +232,15 @@ abstract class FormController extends Controller
             return $id;
         }
 
-        if ($table->save($data)) {
+        if (!$table->save($data)) {
+            Application::message('NOT_SAVED');
+            return $id;
+        }
+        else {
+            Application::message('SAVED');
             /** @var Table $table */
             return $table->id;
         }
-
-        return $id;
     }
 
     /**
