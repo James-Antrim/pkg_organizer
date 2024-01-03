@@ -20,7 +20,7 @@ abstract class Table extends Base
      *
      * @var int
      */
-    public int $id;
+    public int $id = 0;
 
     /**
      * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
