@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the room type form into display context.
+ * @inheritDoc
  */
 class RoomType extends FormView
 {

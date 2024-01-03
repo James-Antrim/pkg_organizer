@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the room merge form into display context.
+ * @inheritDoc
  */
 class MergeRooms extends MergeView
 {

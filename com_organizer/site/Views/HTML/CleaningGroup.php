@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the building form into display context.
+ * @inheritDoc
  */
 class CleaningGroup extends FormView
 {

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads participant information into the display context.
+ * @inheritDoc
  */
 class Participant extends FormView
 {

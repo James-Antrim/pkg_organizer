@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the run form into display context.
+ * @inheritDoc
  */
 class Run extends FormView
 {

@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{Input, Text, Toolbar};
 
 /**
- * Class loads the resource form into display context. Specific resource determined by extending class.
+ * Class loads form data from selected list resources into the HTML view context for selection of values.
  */
 abstract class MergeView extends FormView
 {
