@@ -18,7 +18,8 @@ trait Activated
     /**
      * A flag which displays whether the resource is currently active.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $active = true;
+    public int $active = 1;
 }

@@ -42,9 +42,10 @@ class Subjects extends Table
     /**
      * A flag denoting whether it is possible to achieve extra credit.
      * TINYINT(1) UNSIGNED DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $bonusPoints = false;
+    public int $bonusPoints = 0;
 
     /**
      * The subject's contents in German.

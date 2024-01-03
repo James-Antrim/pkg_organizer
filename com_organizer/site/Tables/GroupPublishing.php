@@ -28,9 +28,10 @@ class GroupPublishing extends Table
     /**
      * The publishing status of the group for the term.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $published = true;
+    public int $published = 1;
 
     /**
      * The id of the term entry referenced.

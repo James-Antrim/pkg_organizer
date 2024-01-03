@@ -62,9 +62,10 @@ class Programs extends Table
     /**
      * A flag which displays whether the program has a fee.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $fee = false;
+    public int $fee = 0;
 
     /**
      * The id of the frequency entry referenced.
@@ -76,9 +77,10 @@ class Programs extends Table
     /**
      * A flag which displays whether the program has a restricted number of participants.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $nc = false;
+    public int $nc = 0;
 
     /**
      * The associated organization id.
@@ -92,9 +94,10 @@ class Programs extends Table
     /**
      * A flag which displays whether the program has special participation requirements
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $special = false;
+    public int $special = 0;
 
     /**
      * @inheritDoc

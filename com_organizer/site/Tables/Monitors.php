@@ -72,9 +72,10 @@ class Monitors extends Table
     /**
      * The monitor settings source. Values: 0 - Monitor Specific, 1 - Component
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $useDefaults = false;
+    public int $useDefaults = 0;
 
     /**
      * @inheritDoc

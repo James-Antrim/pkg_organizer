@@ -33,9 +33,10 @@ class Persons extends Table
     /**
      * A flag which displays whether the person chooses to display their information publicly.
      * TINYINT(1) UNSIGNED DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $public = false;
+    public int $public = 0;
 
     /**
      * The person's surnames.

@@ -74,9 +74,10 @@ class Rooms extends Table
     /**
      * A flag which displays whether the room is a virtual room.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $virtual = false;
+    public int $virtual = 0;
 
     /**
      * @inheritDoc

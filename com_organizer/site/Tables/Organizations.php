@@ -41,9 +41,10 @@ class Organizations extends Table
     /**
      * A flag which displays whether the planning for the organization directly is allowed.
      * TINYINT(1) UNSIGNED NOT NULL
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $allowScheduling = true;
+    public int $allowScheduling = 1;
 
     /**
      * The id used by Joomla as a reference to its assets table.

@@ -18,7 +18,8 @@ trait Relevant
     /**
      * A flag which displays whether associated rooms should appear in exported media.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $relevant = true;
+    public int $relevant = 1;
 }

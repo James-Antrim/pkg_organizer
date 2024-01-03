@@ -46,9 +46,10 @@ class Campuses extends Table
     /**
      * A flag displaying if the campus is equatable with a city for internal purposes.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $isCity = false;
+    public int $isCity = 0;
 
     /**
      * The GPS coordinates of the resource.

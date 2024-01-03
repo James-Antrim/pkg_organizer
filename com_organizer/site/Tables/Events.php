@@ -156,9 +156,10 @@ class Events extends Table
     /**
      * Whether the event is a preparatory event.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $preparatory = false;
+    public int $preparatory = 0;
 
     /**
      * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.

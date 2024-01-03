@@ -30,9 +30,10 @@ class Grids extends Table
     /**
      * A flag to determine which grid is to be used if none is specified.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $isDefault = false;
+    public int $isDefault = 0;
 
     /**
      * The resource's German name.

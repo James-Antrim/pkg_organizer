@@ -21,9 +21,10 @@ class CourseParticipants extends Table
     /**
      * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
      * TINYINT(1) UNSIGNED DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $attended = false;
+    public int $attended = 0;
 
     /**
      * The id of the course entry referenced.
@@ -42,9 +43,10 @@ class CourseParticipants extends Table
     /**
      * The participant's course payment status. Values: 0 - Unpaid, 1 - Paid.
      * TINYINT(1) UNSIGNED DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $paid = false;
+    public int $paid = 0;
 
     /**
      * The date and time of the last participant initiated change.

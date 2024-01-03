@@ -49,9 +49,10 @@ class Participants extends Table
     /**
      * A flag displaying whether the user wishes to receive emails regarding schedule changes.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $notify = false;
+    public int $notify = 0;
 
     /**
      * The id of the program entry referenced.

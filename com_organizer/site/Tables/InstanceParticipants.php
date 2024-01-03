@@ -21,9 +21,10 @@ class InstanceParticipants extends Table
     /**
      * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
      * TINYINT(1) UNSIGNED DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $attended = false;
+    public int $attended = 0;
 
     /**
      * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
@@ -49,9 +50,10 @@ class InstanceParticipants extends Table
     /**
      * Whether the participant has registered to physically attend the instance. Values: 0 - No, 1 - Yes.
      * TINYINT(1) UNSIGNED DEFAULT 0
-     * @var bool
+     * @var int
+     * @bool
      */
-    public bool $registered = false;
+    public int $registered = 0;
 
     /**
      * The id of the room entry referenced.
