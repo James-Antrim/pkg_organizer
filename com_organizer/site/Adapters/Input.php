@@ -205,6 +205,26 @@ class Input
     }
 
     /**
+     * Retrieves the specified parameter.
+     *
+     * @param   string  $property  Name of the property to get.
+     * @param   float   $default   Default value to return if variable does not exist.
+     *
+     * @return float
+     */
+    public static function getFloat(string $property, float $default = 0.0): float
+    {
+        $value = self::find($property);
+
+        // Better plausibility test for this type whose value can also be 0 on purpose and otherwise evaluate to false.
+        if (is_numeric($value)) {
+            return self::filter($value, 'float');
+        }
+
+        return self::filter($default, 'float');
+    }
+
+    /**
      * Retrieves form data / POST.
      * @return array
      */
