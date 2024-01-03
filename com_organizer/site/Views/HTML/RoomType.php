@@ -13,7 +13,13 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the room type form into display context.
  */
-class RoomtypeEdit extends EditViewOld
+class RoomType extends FormView
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    /**
+     * @inheritDoc
+     */
+    protected function addToolbar(array $buttons = [], string $constant = ''): void
+    {
+        parent::addToolbar($buttons, 'ROOM_TYPE');
+    }
 }

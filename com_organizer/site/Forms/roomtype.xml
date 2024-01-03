@@ -12,8 +12,8 @@
             <option value="-1">ORGANIZER_NO_INPUT</option>
         </field>
         <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" default="0">
-            <option value="1">ORGANIZER_YES</option>
             <option value="0">ORGANIZER_NO</option>
+            <option value="1">ORGANIZER_YES</option>
         </field>
         <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
         <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
