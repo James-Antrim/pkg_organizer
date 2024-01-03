@@ -101,13 +101,14 @@ class Campuses extends ListModel
          * be extended we could maybe add a parameter for it later.
          */
         if ((int) $value === self::NONE) {
-            $query->where(DB::qn('city') . " = ''");
+            $query->where(DB::qn('c1.city') . " = ''")->where(DB::qn('c2.city') . " = ''");
 
             return;
         }
 
         $cCity = DB::qn('c1.city');
-        $query->where("($cCity = :city OR ($cCity = '' AND " . DB::qn('c2.city') . " = :city))")->bind(':city', $value);
+        $query->where("($cCity = :city OR ($cCity = '' AND " . DB::qn('c2.city') . " = :pCity))")
+            ->bind(':city', $value)->bind(':pCity', $value);
     }
 
     /**
@@ -137,7 +138,7 @@ class Campuses extends ListModel
             return;
         }
 
-        $query->where("($grid = :gridID OR ($grid IS NULL AND $pGrid = :gridID))")
-            ->bind(':gridID', $value, ParameterType::INTEGER);
+        $query->where("($grid = :gridID OR ($grid IS NULL AND $pGrid = :pGridID))")
+            ->bind(':gridID', $value, ParameterType::INTEGER)->bind(':pGridID', $value, ParameterType::INTEGER);
     }
 }
