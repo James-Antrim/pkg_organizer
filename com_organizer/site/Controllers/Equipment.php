@@ -15,5 +15,7 @@ namespace THM\Organizer\Controllers;
  */
 class Equipment extends ListController
 {
+    use FluMoxed;
+
     protected string $item = 'EquipmentItem';
 }

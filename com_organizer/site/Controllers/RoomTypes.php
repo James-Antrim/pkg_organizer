@@ -15,5 +15,7 @@ namespace THM\Organizer\Controllers;
  */
 class RoomTypes extends ListController
 {
+    use FluMoxed;
+
     protected string $item = 'RoomType';
 }

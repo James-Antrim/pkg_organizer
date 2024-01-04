@@ -16,5 +16,7 @@ namespace THM\Organizer\Controllers;
  */
 class RoomType extends FormController
 {
+    use FluMoxed;
+
     protected string $list = 'RoomTypes';
 }

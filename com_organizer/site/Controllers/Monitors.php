@@ -15,5 +15,7 @@ namespace THM\Organizer\Controllers;
  */
 class Monitors extends ListController
 {
+    use FluMoxed;
+
     protected string $item = 'Monitor';
 }

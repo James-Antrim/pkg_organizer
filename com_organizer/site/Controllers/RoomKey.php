@@ -19,6 +19,8 @@ use THM\Organizer\Adapters\Input;
  */
 class RoomKey extends FormController
 {
+    use FluMoxed;
+
     protected string $list = 'RoomKeys';
 
     /**
