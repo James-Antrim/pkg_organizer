@@ -10,6 +10,8 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Tables\Campuses as Table;
+
 /**
  * @inheritDoc
  */
@@ -22,18 +24,22 @@ class Campus extends FormController
     /**
      * @inheritDoc
      */
-    /*public function save(array $data = [])
+    protected function prepareData(): array
     {
-        if ($parentID = Input::getInt('parentID')) {
-            $table = new Tables\Campuses();
-            $table->load($parentID);
+        $data = parent::prepareData();
 
-            // The chosen superordinate campus is in itself subordinate.
-            if (!empty($table->parentID)) {
-                return false;
+        $this->validate($data, ['name_de', 'name_en'], ['parentID'], ['parentID']);
+
+        if (!empty($data['parentID'])) {
+            /** @var Table $table */
+            $table = $this->getTable();
+
+            // Referenced parent doesn't exist or is itself a subordinate campus.
+            if (!$table->load($data['parentID']) or !empty($table->parentID)) {
+                $data['parentID'] = null;
             }
         }
 
-        return parent::save($data);
-    }*/
+        return $data;
+    }
 }
