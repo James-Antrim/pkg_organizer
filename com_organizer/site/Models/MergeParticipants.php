@@ -15,5 +15,5 @@ namespace THM\Organizer\Models;
  */
 class MergeParticipants extends FormModel
 {
-    // tbd
+    // Everything is taken care of in the inheritance hierarchy.
 }

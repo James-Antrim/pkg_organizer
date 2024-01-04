@@ -10,12 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
-
 /**
- * Class which manages stored room type data.
+ * @inheritDoc
  */
 class RoomType extends EditModel
 {
