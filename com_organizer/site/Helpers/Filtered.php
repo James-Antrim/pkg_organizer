@@ -100,13 +100,13 @@ trait Filtered
         }
 
         // Alias 'aof' so as not to conflict with the access filter.
-        $conditon = DB::qc("aof.{$resource}ID", "$alias.$keyColumn");
-        $table    = DB::qn('#__organizer_associations', 'aof');
+        $condition = DB::qc("aof.{$resource}ID", "$alias.$keyColumn");
+        $table     = DB::qn('#__organizer_associations', 'aof');
         if (in_array(self::NONE, $organizationIDs)) {
-            $query->leftJoin($table, $conditon)->where(DB::qn('aof.id') . ' IS NULL');
+            $query->leftJoin($table, $condition)->where(DB::qn('aof.id') . ' IS NULL');
         }
         else {
-            $query->innerJoin($table, $conditon)
+            $query->innerJoin($table, $condition)
                 ->whereIn(DB::qn('aof.organizationID'), $organizationIDs);
         }
     }

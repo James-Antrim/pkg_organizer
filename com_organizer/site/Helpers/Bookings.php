@@ -141,7 +141,7 @@ class Bookings extends ResourceHelper
         $names = implode(', ', $names);
 
         // Removes potentially redundant methods which are also a part of the instance event name.
-        $names .= ($method and strpos($names, $method) === false) ? " - $method" : '';
+        $names .= ($method and !str_contains($names, $method)) ? " - $method" : '';
 
         return $names;
     }

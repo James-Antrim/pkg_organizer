@@ -173,7 +173,7 @@ class UnitEdit extends EditModelOld
             }
         }
         else {
-            // No unit creation outside of the my context right now.
+            // No unit creation outside the 'my' context right now.
             if (empty($pk)) {
                 Application::error(501);
             }

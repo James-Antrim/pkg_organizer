@@ -26,7 +26,7 @@ foreach ($iterator as $node) {
     if ($node->isFile()) {
         $file = $node->getFilename();
 
-        if (strpos($file, '.php') === false or $file === 'toc.php') {
+        if (!str_contains($file, '.php') or $file === 'toc.php') {
             continue;
         }
 

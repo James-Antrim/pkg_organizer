@@ -42,7 +42,7 @@ class Instances
     private const HOUR = 3600, MINUTE = 60;
 
     /**
-     * Hexidecimal byte values used for resolving character encoding.
+     * Hexadecimal byte values used for resolving character encoding.
      */
     private const ONE_BYTE_LOWER = 0x20, ONE_BYTE_UPPER = 0x7F, TWO_BYTE_MARK = 0xC0, THREE_BYTE_MARK = 0xE0,
         FOUR_BYTE_MARK = 0xF0, FIVE_BYTE_MARK = 0xF8, SIX_BYTE_MARK = 0xFC, SEVEN_BYTE_MARK = 0xFE;
@@ -377,7 +377,7 @@ class Instances
             $currentLine .= $current;
 
             /**
-             * After one byte encoding has been ruled out a bit-wise and is made with the next higher byte prefix to
+             * After one byte encoding has been ruled out bit-wise and is made with the next higher byte prefix to
              * suppress insignificant bytes for the comparison with the actual byte prefix to ensure character encoding.
              */
 

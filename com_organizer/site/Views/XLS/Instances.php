@@ -110,8 +110,8 @@ class Instances extends ListView
      *
      * @param   array  $container   the container with role persons
      * @param   array  $persons     the array with data on all persons
-     * @param   bool   $showGroups  whether or not groups should be shown for individuals
-     * @param   bool   $showRooms   whether or not rooms should be shown for individuals
+     * @param   bool   $showGroups  whether groups should be shown for individuals
+     * @param   bool   $showRooms   whether rooms should be shown for individuals
      *
      * @return string[]
      */

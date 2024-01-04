@@ -46,22 +46,13 @@ class Booking extends ListLayout
             $startY    = $view->GetY();
 
             foreach (array_keys($this->headers) as $columnName) {
-                switch ($columnName) {
-                    case 'index':
-                        $value = $itemNo;
-                        break;
-                    case 'name':
-                        $value = empty($participant->forename) ?
-                            $participant->surname : "$participant->surname,  $participant->forename";
-                        break;
-                    case 'attended':
-                    case 'registered':
-                        $value = empty($participant->$columnName) ? '' : 'X';
-                        break;
-                    default:
-                        $value = empty($participant->$columnName) ? '' : $participant->$columnName;
-                        break;
-                }
+                $value = match ($columnName) {
+                    'index' => $itemNo,
+                    'name' => empty($participant->forename) ?
+                        $participant->surname : "$participant->surname,  $participant->forename",
+                    'attended', 'registered' => empty($participant->$columnName) ? '' : 'X',
+                    default => empty($participant->$columnName) ? '' : $participant->$columnName,
+                };
 
                 $length = $view->renderMultiCell($this->widths[$columnName], 5, $value);
 

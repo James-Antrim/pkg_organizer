@@ -355,7 +355,7 @@ function setFirst(position)
 }
 
 /**
- * Moves the subordinate to the last position in the table. Moves up all subordinates subsequent to the subordinate
+ * Moves the subordinate to the last position in the table. Moves up all subordinates after the subordinate
  * being moved.
  *
  * @param {int} position the position of the subordinate to be moved
@@ -374,7 +374,7 @@ function setLast(position)
 }
 
 /**
- * Shifts all subOrdinates subsequent to the position down.
+ * Shifts all subOrdinates after the position down.
  *
  * @param {int} position the highest subordinate position which will be replaced
  * @param {int} stopPosition the position which defines the end of the shift process
@@ -396,7 +396,7 @@ function shiftDown(position, stopPosition, subOrdinates)
 }
 
 /**
- * Shift all subOrdinates subsequent to the position up one.
+ * Shift all subOrdinates after the position up one.
  *
  * @param {int} position the lowest subordinate position which will be replaced
  * @param {int} stopPosition the position which defines the end of the shift process

@@ -27,6 +27,6 @@ class Degrees extends ResourceHelper
     {
         $code = self::getCode($degreeID);
 
-        return strpos($code, 'M') === 0 ? 'Master' : 'Bachelor';
+        return str_starts_with($code, 'M') ? 'Master' : 'Bachelor';
     }
 }

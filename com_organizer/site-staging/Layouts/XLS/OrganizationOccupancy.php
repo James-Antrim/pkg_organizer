@@ -151,10 +151,10 @@ class OrganizationOccupancy
     {
         $typeName = empty($this->roomtypeMap[$roomID]) ? 'X' : $this->roomtypes[$this->roomtypeMap[$roomID]]['name'];
 
-        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("A{$rowNo}", $this->rooms[$roomID]);
-        $this->spreadSheet->getActiveSheet()->getStyle("A{$rowNo}")->applyFromArray(['borders' => $this->lightBorder]);
-        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("B{$rowNo}", $typeName);
-        $this->spreadSheet->getActiveSheet()->getStyle("B{$rowNo}")->applyFromArray(['borders' => $this->rightBorder]);
+        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("A$rowNo", $this->rooms[$roomID]);
+        $this->spreadSheet->getActiveSheet()->getStyle("A$rowNo")->applyFromArray(['borders' => $this->lightBorder]);
+        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("B$rowNo", $typeName);
+        $this->spreadSheet->getActiveSheet()->getStyle("B$rowNo")->applyFromArray(['borders' => $this->rightBorder]);
 
         $column = 'D';
 
@@ -163,42 +163,42 @@ class OrganizationOccupancy
 
             ++$column;
             $hours = $minutes / 60;
-            $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("{$column}{$rowNo}", $minutes / 60);
-            $this->spreadSheet->getActiveSheet()->getStyle("{$column}{$rowNo}")->getNumberFormat()
+            $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue($column . $rowNo, $minutes / 60);
+            $this->spreadSheet->getActiveSheet()->getStyle($column . $rowNo)->getNumberFormat()
                 ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
-            $this->spreadSheet->getActiveSheet()->getStyle("{$column}{$rowNo}")
+            $this->spreadSheet->getActiveSheet()->getStyle($column . $rowNo)
                 ->applyFromArray(['borders' => $this->lightBorder]);
             $this->hoursColumns[$column] = $column;
 
             ++$column;
-            $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("{$column}{$rowNo}", $minutes / 45);
-            $this->spreadSheet->getActiveSheet()->getStyle("{$column}{$rowNo}")->getNumberFormat()
+            $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue($column . $rowNo, $minutes / 45);
+            $this->spreadSheet->getActiveSheet()->getStyle($column . $rowNo)->getNumberFormat()
                 ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
-            $this->spreadSheet->getActiveSheet()->getStyle("{$column}{$rowNo}")
+            $this->spreadSheet->getActiveSheet()->getStyle($column . $rowNo)
                 ->applyFromArray(['borders' => $this->lightBorder]);
             $this->sHoursColumns[$column] = $column;
 
             ++$column;
             $this->spreadSheet->getActiveSheet($sheetNo)
                 ->setCellValue("{$column}{$rowNo}", "=IFERROR($hours/C$rowNo,0)");
-            $this->spreadSheet->getActiveSheet()->getStyle("{$column}{$rowNo}")->getNumberFormat()
+            $this->spreadSheet->getActiveSheet()->getStyle($column . $rowNo)->getNumberFormat()
                 ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE_00);
-            $this->spreadSheet->getActiveSheet()->getStyle("{$column}{$rowNo}")
+            $this->spreadSheet->getActiveSheet()->getStyle($column . $rowNo)
                 ->applyFromArray(['borders' => $this->rightBorder]);
         }
 
         $hoursCells = implode("$rowNo,", $this->hoursColumns) . $rowNo;
-        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("C{$rowNo}", "=SUM($hoursCells)");
-        $this->spreadSheet->getActiveSheet()->getStyle("C{$rowNo}")->getNumberFormat()
+        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("C$rowNo", "=SUM($hoursCells)");
+        $this->spreadSheet->getActiveSheet()->getStyle("C$rowNo")->getNumberFormat()
             ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
-        $this->spreadSheet->getActiveSheet()->getStyle("C{$rowNo}")->applyFromArray(['borders' => $this->lightBorder]);
+        $this->spreadSheet->getActiveSheet()->getStyle("C$rowNo")->applyFromArray(['borders' => $this->lightBorder]);
 
         $sHoursCells = implode("$rowNo,", $this->sHoursColumns) . $rowNo;
-        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("D{$rowNo}", "=SUM($sHoursCells)");
+        $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("D$rowNo", "=SUM($sHoursCells)");
 
-        $this->spreadSheet->getActiveSheet()->getStyle("D{$rowNo}")->getNumberFormat()
+        $this->spreadSheet->getActiveSheet()->getStyle("D$rowNo")->getNumberFormat()
             ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
-        $this->spreadSheet->getActiveSheet()->getStyle("D{$rowNo}")->applyFromArray(['borders' => $this->rightBorder]);
+        $this->spreadSheet->getActiveSheet()->getStyle("D$rowNo")->applyFromArray(['borders' => $this->rightBorder]);
 
         return $column;
     }

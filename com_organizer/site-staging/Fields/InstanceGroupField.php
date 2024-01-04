@@ -31,7 +31,7 @@ class InstanceGroupField extends \JFormFieldSubform
      */
     protected function getInput()
     {
-        $this->value = isset($this->value) ? $this->value : [];
+        $this->value = $this->value ?? [];
 
         return parent::getInput();
     }

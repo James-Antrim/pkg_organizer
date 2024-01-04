@@ -104,7 +104,7 @@ class InstanceItem extends ListModel
             $referrer = Uri::getInstance(Input::getInput()->server->getString('HTTP_REFERER'));
 
             // Site external => irrelevant
-            if (strpos((string) $referrer, $root) !== 0) {
+            if (!str_starts_with((string) $referrer, $root)) {
                 return;
             }
 
@@ -130,13 +130,13 @@ class InstanceItem extends ListModel
             $theRest = str_replace($root, '', (string) $referrer);
 
             // The query will only interfere with resolution
-            $path = strpos($theRest, '?') !== false ? $theRest : explode('?', $theRest)[0];
+            $path = str_contains($theRest, '?') ? $theRest : explode('?', $theRest)[0];
 
             // Joomla doesn't store the format in the path variable
             $path = str_replace('.html', '', $path);
 
             // Joomla doesn't store the language tag in the path variable
-            if (strpos($path, 'en/') === 0) {
+            if (str_starts_with($path, 'en/')) {
                 $path = substr_replace($path, '', 0, 3);
             }
 

@@ -157,7 +157,7 @@ class CourseItem extends ItemModel
                         continue;
                     }
 
-                    if ($course['name']['value'] and strpos($course['name']['value'], $value) === false) {
+                    if ($course['name']['value'] and !str_contains($course['name']['value'], $value)) {
                         $course['name']['value'] .= " / $value";
                     }
                     elseif (empty($course['name']['value'])) {
@@ -168,7 +168,7 @@ class CourseItem extends ItemModel
                 }
 
                 if ($name == 'fee') {
-                    if (!$course['fee']['value'] and strpos($course['name']['value'], $value) === false) {
+                    if (!$course['fee']['value'] and !str_contains($course['name']['value'], $value)) {
                         $course['fee']['value'] .= $value . '€';
                     }
                     continue;

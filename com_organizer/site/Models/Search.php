@@ -1016,7 +1016,7 @@ class Search extends ListModel
     }
 
     /**
-     * Checks for room types which match the the capacity and unresolvable terms. If resolved removes the type from the
+     * Checks for room types which match the capacity and unresolvable terms. If resolved removes the type from the
      * list of potential non-conventional/conforming room names.
      *
      * @param   array  $ncRooms   an array of terms which could not be resolved
@@ -2009,7 +2009,7 @@ class Search extends ListModel
         /**
          * -- Exact --
          * @Groups1: Exact categoryID and associated with an exact semester or the non-program terms have an 80% coverage.
-         * @Groups2: Exact programID and program name covers the group name (Finals Groups=.
+         * @Groups2: Exact programID and program name covers the group name (Finals Groups).
          * @Groups3: Filtered initial term (to include degree abbreviations as salt) has an 80% coverage.
          * @Pools  : Exact programID and associated with an exact semester or the non-program terms have an 80% coverage.
          */

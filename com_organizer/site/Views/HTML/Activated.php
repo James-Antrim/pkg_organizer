@@ -14,7 +14,7 @@ use THM\Organizer\Adapters\Text;
 use THM\Organizer\Adapters\Toolbar;
 
 /**
- * Handles code common to resources that can be activated or deactiviated.
+ * Handles code common to resources that can be activated or deactivated.
  */
 trait Activated
 {

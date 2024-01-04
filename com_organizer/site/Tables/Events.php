@@ -32,7 +32,7 @@ class Events extends Table
 
     /**
      * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-     * software except units which are also supplemented locally. Collation allows capitolization and accented characters
+     * software except units which are also supplemented locally. Collation allows capitalization and accented characters
      * to be accepted as unique entries.
      * VARCHAR(60) NOT NULL COLLATE utf8mb4_bin
      * @var string

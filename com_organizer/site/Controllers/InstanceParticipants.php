@@ -18,7 +18,7 @@ use THM\Organizer\Models;
 use THM\Organizer\Tables\{Instances as Instance, InstanceParticipants as Participation};
 
 /**
- * Class provides methods for participant interation with instances.
+ * Class provides methods for participant interaction with instances.
  */
 class InstanceParticipants extends Controller
 {

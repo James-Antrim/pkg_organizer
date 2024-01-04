@@ -577,7 +577,7 @@ class Workload extends OldFormModel
     /**
      * Adds associated structure items to the instances results.
      *
-     * @param   array  $instances  the instances results
+     * @param   array  $instances  the instance results
      * @param   array  $structure  the structure items associated with the instance results
      *
      * @return void

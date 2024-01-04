@@ -175,16 +175,10 @@ class SubjectsLSF
      */
     private static function processBonus(Table $table, string $text)
     {
-        // Remove tags and indescriminate left spacing then standardize as lower for comparisions.
+        // Remove tags and indiscriminate left spacing then standardize as lower for comparisons.
         $text = strtolower(trim(strip_tags($text)));
 
-        $hardNo = (
-            empty($text)
-            or strpos($text, 'nein') !== false
-            or strpos($text, 'kein') !== false
-            or $text === '0'
-            or $text === '-'
-        );
+        $hardNo = (empty($text) or str_contains($text, 'nein') or str_contains($text, 'kein') or $text === '-');
 
         if ($hardNo) {
             $table->bonusPoints = false;
@@ -193,7 +187,7 @@ class SubjectsLSF
         }
 
         // Hard yes
-        if (strpos($text, 'ja') !== false or $text === '1') {
+        if (str_contains($text, 'ja') or $text === '1') {
             $table->bonusPoints = true;
 
             return;
@@ -203,7 +197,7 @@ class SubjectsLSF
          * Only explanatory text => implied no
          * Explanatory text for exam prerequisites => implied error => no
          */
-        if (strpos($text, 'bonus') === 0 or strpos($text, 'prüfungsvorleistung') === 0) {
+        if (str_starts_with($text, 'bonus') or str_starts_with($text, 'prüfungsvorleistung')) {
             $table->bonusPoints = false;
 
             return;
@@ -473,7 +467,7 @@ class SubjectsLSF
         if (preg_match('/^\d/', $deValue)) {
             $deValue = trim(substr($deValue, 1));
 
-            if (strpos($deValue, '<br>') === 0) {
+            if (str_starts_with($deValue, '<br>')) {
                 $deValue = trim(substr($deValue, 4));
             }
         }
@@ -481,7 +475,7 @@ class SubjectsLSF
         if (preg_match('/^\d/', $enValue)) {
             $enValue = trim(substr($enValue, 1));
 
-            if (strpos($enValue, '<br>') === 0) {
+            if (str_starts_with($enValue, '<br>')) {
                 $enValue = trim(substr($enValue, 4));
             }
         }

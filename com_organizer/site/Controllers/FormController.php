@@ -143,7 +143,7 @@ abstract class FormController extends Controller
                     $data[$column] = Input::getFloat($column, $default);
                     break;
                 case 'int':
-                    // SQL doesn't technichally have bool, so it has to be mapped over int. I've used the comment for this.
+                    // SQL doesn't technically have bool, so it has to be mapped over int. I've used the comment for this.
                     if ($comment = $property->getDocComment() and str_contains($comment, '@bool')) {
                         $default       = (bool) $default;
                         $data[$column] = (int) Input::getBool($column, $default);

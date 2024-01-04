@@ -21,7 +21,7 @@ use THM\Organizer\Helpers\OrganizerHelper;
 trait Imported
 {
     /**
-     * Makes call to the models's save and importSingle functions, and redirects to the same view.
+     * Makes call to the model's save and importSingle functions, and redirects to the same view.
      * @return void
      */
     public function applyImport()
@@ -41,7 +41,7 @@ trait Imported
     }
 
     /**
-     * Makes call to the models's import batch function, and redirects to the manager view.
+     * Makes call to the model's import batch function, and redirects to the manager view.
      * @return void
      */
     public function import()

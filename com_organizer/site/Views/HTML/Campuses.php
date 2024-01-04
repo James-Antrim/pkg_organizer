@@ -74,7 +74,7 @@ class Campuses extends ListView
      * Compares the long names of the campuses for sorting.
      *
      * @param   stdClass  $item1  the first item
-     * @param   stdClass  $item2  the secont item
+     * @param   stdClass  $item2  the second item
      *
      * @return int -1 if $item1 is before $item2; 1 if $item1 is after $item2
      */

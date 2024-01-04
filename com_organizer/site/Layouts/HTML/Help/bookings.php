@@ -173,7 +173,7 @@ $registerPopUpAttribs = array_merge($jcePopUpAttribs, $registerPopUpAttribs);
 </p>
 <dl>
     <dt>Statusbalken (1)</dt>
-    <dd>Im Statusbalken sehen Sie den aktuellen Status der Veranstaltung ( noch nicht begonnen | laufend | beendet),
+    <dd>Im Statusbalken sehen Sie den aktuellen Status der Veranstaltung (noch nicht begonnen | laufend | beendet),
         sowie die Anzahl der eingecheckten Studierenden.
     <dt>[ausserplanmässiges Start/Stopp] (2)</dt>
     <dd>

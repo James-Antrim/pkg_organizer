@@ -48,15 +48,10 @@ class ContactTracking extends ListLayout
 
         $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
 
-        switch ($listFormat) {
-            case self::BY_EVENT:
-                $otherHeaders = ['contacts' => Text::_('ORGANIZER_CONTACTS')];
-                break;
-            case self::BY_DAY:
-            default:
-                $otherHeaders = ['dates' => Text::_('ORGANIZER_DATES'), 'length' => Text::_('ORGANIZER_CONTACT_LENGTH')];
-                break;
-        }
+        $otherHeaders = match ($listFormat) {
+            self::BY_EVENT => ['contacts' => Text::_('ORGANIZER_CONTACTS')],
+            default => ['dates' => Text::_('ORGANIZER_DATES'), 'length' => Text::_('ORGANIZER_CONTACT_LENGTH')],
+        };
 
         $this->headers = array_merge($headers, $otherHeaders);
     }

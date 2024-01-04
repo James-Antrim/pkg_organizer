@@ -523,7 +523,7 @@ class Instances extends ResourceHelper
         if ($participantID = User::id()) {
             $participantsTable = new PTable();
             if ($participantsTable->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
-                $instance['attended']           = (int) $participantsTable->attended;
+                $instance['attended']           = $participantsTable->attended;
                 $instance['registrationStatus'] = 1;
             }
         }

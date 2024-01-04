@@ -19,7 +19,7 @@ use Joomla\Registry\Registry;
 abstract class ListView extends BaseView
 {
     /**
-     * TCPDF has it's own 'state' property. This is the state from the submitted form.
+     * TCPDF has its own 'state' property. This is the state from the submitted form.
      * @var Registry
      */
     public $formState;

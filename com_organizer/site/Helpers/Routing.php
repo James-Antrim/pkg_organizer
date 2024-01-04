@@ -19,7 +19,7 @@ use THM\Organizer\Adapters\{Application, Input};
 class Routing
 {
     /**
-     * Builds a the base url for redirection
+     * Builds the base url for redirection
      * @return string the root url to redirect to
      */
     public static function getRedirectBase(): string

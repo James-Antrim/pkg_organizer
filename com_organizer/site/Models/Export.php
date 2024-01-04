@@ -132,7 +132,7 @@ class Export extends OldFormModel
         }
 
         $noAggregate = (empty($organizationID) and empty($categoryID));
-        $pdf         = (!$format = Input::getFormItems()->get('format') or strpos($format, 'pdf') === 0);
+        $pdf         = (!$format = Input::getFormItems()->get('format') or str_starts_with($format, 'pdf'));
 
         if ($atomic or $noAggregate or !$pdf) {
             $form->removeField('separate');

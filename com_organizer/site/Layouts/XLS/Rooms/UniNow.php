@@ -47,7 +47,6 @@ class UniNow extends BaseLayout
          * ======
          * ID#AAAAKmhoyqQ
          * Importierter Autor    (2020-10-30 12:54:24)
-         * Building External ID
          * External ID to identify the building in other services. If specified, we will try to find the building id using this, and if we cannot find an existing building with the external id specified, we will create a new building.
          * format: text
          * required: optional
@@ -133,7 +132,6 @@ class UniNow extends BaseLayout
          * ======
          * ID#AAAAKmhoyqI
          * Importierter Autor    (2020-10-30 12:54:24)
-         * Room External ID
          * External ID to identify the room in other services. If specified, we will try to find the room id using this, and if we cannot find an existing room with the external id specified, we will create a new room.
          * format: text
          * required: optional
@@ -156,7 +154,7 @@ class UniNow extends BaseLayout
          * ID#AAAAKmhoypY
          * Importierter Autor    (2020-10-30 12:54:24)
          * Room Status
-         * The current status of an room. If you are editing the status of your room, make sure your building status correlates with your room status. For example, if an building status is set to "DELETED" but the room status is set to "ACTIVE" this can cause errors. Make sure both statuses correspond. If the status is DRAFT, the room is not yet visible.
+         * The current status of a room. If you are editing the status of your room, make sure your building status correlates with your room status. For example, if a building status is set to "DELETED" but the room status is set to "ACTIVE" this can cause errors. Make sure both statuses correspond. If the status is DRAFT, the room is not yet visible.
          * format: ACTIVE, DRAFT,DELETED
          * required: recommended
          * example: ACTIVE
@@ -245,7 +243,7 @@ class UniNow extends BaseLayout
          * ID#AAAAKmhoypE
          * Importierter Autor    (2020-10-30 12:54:24)
          * Auto Checkout
-         * If set to TRUE, we perform a check out on each active check in after a configurable time
+         * If set to TRUE, we perform a check-out on each active check in after a configurable time
          * (Threshold Auto Checkout).
          * format: TRUE, FALSE
          * required: required
@@ -268,7 +266,7 @@ class UniNow extends BaseLayout
          * ID#AAAAKmhoypQ
          * Importierter Autor    (2020-10-30 12:54:24)
          * Threshold Auto Checkout
-         * If the field "Auto Checkout" is set to TRUE, we perform a check out on all active check ins after this value in minutes.
+         * If the field "Auto Checkout" is set to TRUE, we perform a check-out on all active check ins after this value in minutes.
          * format: positive integer range (60,90,120,150,180,210,240)
          * required: optional
          * example: 120

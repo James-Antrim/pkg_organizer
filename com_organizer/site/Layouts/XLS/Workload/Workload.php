@@ -1070,7 +1070,7 @@ class Workload extends BaseLayout
      *
      * @param   int     $row       the row number
      * @param   string  $text      the section header text
-     * @param   bool    $break     whether or not a break should be displayed
+     * @param   bool    $break     whether a break should be displayed
      * @param   array   $comments  an array of tips with title and/or text
      * @param   int     $cHeight   the comment height
      *
@@ -1147,7 +1147,7 @@ class Workload extends BaseLayout
      * Creates a row evaluating the valuation of a type and quantity of supervisions
      *
      * @param   int    $row       the row number
-     * @param   array  $category  an array containing the category text and it's calculation weight
+     * @param   array  $category  an array containing the category text and its calculation weight
      *
      * @return void
      * @throws Exception

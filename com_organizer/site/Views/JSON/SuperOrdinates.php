@@ -27,7 +27,7 @@ class SuperOrdinates extends BaseView
         $subID = Input::getID();
         $type  = Input::getCMD('type');
 
-        // Pending program ranges are dependant on selected programs.
+        // Pending program ranges are dependent on selected programs.
         $programIDs    = Input::getIntCollection('curricula');
         $programRanges = Helpers\Programs::programs($programIDs);
 

@@ -77,17 +77,12 @@ class OrganizerHelper
      */
     public static function getPlural(string $resource): string
     {
-        switch ($resource) {
-            case 'equipment':
-            case 'organizer':
-                return $resource;
-            case mb_substr($resource, -1) == 's':
-                return $resource . 'es';
-            case mb_substr($resource, -2) == 'ry':
-                return mb_substr($resource, 0, mb_strlen($resource) - 1) . 'ies';
-            default:
-                return $resource . 's';
-        }
+        return match ($resource) {
+            'equipment', 'organizer' => $resource,
+            mb_substr($resource, -1) == 's' => $resource . 'es',
+            mb_substr($resource, -2) == 'ry' => mb_substr($resource, 0, mb_strlen($resource) - 1) . 'ies',
+            default => $resource . 's',
+        };
     }
 
     /**

@@ -17,21 +17,12 @@ $script   .= "document.getElementById('download-url').setSelectionRange(0,99999)
 $script   .= "document.execCommand('copy');";
 $interval = Input::getString('interval', 'week');
 
-switch ($interval) {
-    case 'month':
-        $interval = Text::_('ORGANIZER_SELECTED_MONTH');
-        break;
-    case 'quarter':
-        $interval = Text::_('ORGANIZER_QUARTER');
-        break;
-    case 'term':
-        $interval = Text::_('ORGANIZER_SELECTED_TERM');
-        break;
-    case 'week':
-    default:
-        $interval = Text::_('ORGANIZER_SELECTED_WEEK');
-        break;
-}
+$interval = match ($interval) {
+    'month' => Text::_('ORGANIZER_SELECTED_MONTH'),
+    'quarter' => Text::_('ORGANIZER_QUARTER'),
+    'term' => Text::_('ORGANIZER_SELECTED_TERM'),
+    default => Text::_('ORGANIZER_SELECTED_WEEK'),
+};
 
 echo $this->title;
 ?>
