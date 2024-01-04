@@ -57,7 +57,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param   string  $columnName  the substatiative part of the column name to search for
+     * @param   string  $columnName  the substantive part of the column name to search for
      * @param   int     $resourceID  the id of the resource
      *
      * @return string
@@ -122,9 +122,9 @@ abstract class ResourceHelper
 
     /**
      * Returns a table based on the called class.
-     * @return Tables\BaseTable
+     * @return Tables\Table
      */
-    public static function getTable(): Tables\BaseTable
+    public static function getTable(): Tables\Table
     {
         $tableClass = OrganizerHelper::getClass(get_called_class());
         $fqn        = "THM\\Organizer\\Tables\\$tableClass";
