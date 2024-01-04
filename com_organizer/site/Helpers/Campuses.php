@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Tables;
 
 /**
@@ -19,6 +20,7 @@ use THM\Organizer\Tables;
 class Campuses extends ResourceHelper implements Selectable
 {
     use Active;
+    use Pinned;
 
     /**
      * Retrieves the default grid id for the given campus
@@ -46,21 +48,6 @@ class Campuses extends ResourceHelper implements Selectable
     }
 
     /**
-     * Creates a link to the campus' location
-     *
-     * @param   int  $campusID  the id of the campus
-     *
-     * @return string the HTML for the location link
-     */
-    public static function getLocation(int $campusID): string
-    {
-        $table = new Tables\Campuses();
-        $table->load($campusID);
-
-        return empty($table->location) ? '' : $table->location;
-    }
-
-    /**
      * Gets the qualified campus name
      *
      * @param   int  $resourceID  the campus' id
@@ -74,14 +61,14 @@ class Campuses extends ResourceHelper implements Selectable
         }
 
         $tag   = Application::getTag();
-        $query = Database::getQuery();
-        $query->select("c1.name_$tag as name, c2.name_$tag as parentName")
-            ->from('#__organizer_campuses AS c1')
-            ->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
-            ->where("c1.id = $resourceID");
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select(DB::qn(["c1.name_$tag", "c2.name_$tag"], ['name', 'parentName']))
+            ->from(DB::qn('#__organizer_campuses', 'c1'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'))
+            ->where(DB::qn('c1.id') . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        if (!$names = Database::loadAssoc()) {
+        if (!$names = DB::loadAssoc()) {
             return '';
         }
 
@@ -111,48 +98,24 @@ class Campuses extends ResourceHelper implements Selectable
     public static function getResources(): array
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
-        $query->select("c1.*, c1.name_$tag AS name")
-            ->from('#__organizer_campuses AS c1')
-            ->select("c2.name_$tag as parentName")
-            ->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
-            ->order('parentName, name');
-
-        $selectedIDs = Input::getSelectedIDs();
-        $view        = Input::getView();
+        $query = DB::getQuery();
+        $query->select([DB::qn('c1') . '.*', DB::qn("c1.name_$tag", 'name'), DB::qn("c2.name_$tag", 'parentName')])
+            ->from(DB::qn('#__organizer_campuses', 'c1'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'))
+            ->order(DB::qn(['parentName', 'name']));
 
         // Only parents
-        if (strtolower($view) === 'campus_edit') {
-            $query->where("c1.parentID IS NULL");
+        if (strtolower(Input::getView()) === 'campus') {
+            $query->where(DB::qn('c1.parentID') . ' IS NULL');
 
             // Not self
-            if (count($selectedIDs)) {
-                $query->where("c1.id != $selectedIDs[0]");
+            if ($campusID = Input::getID()) {
+                $query->where(DB::qn('c1.id') . ' != :campusID')->bind(':campusID', $campusID, ParameterType::INTEGER);
             }
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
-    }
-
-    /**
-     * Returns a pin icon with a link for the location
-     *
-     * @param   int|string  $input  int the id of the campus, string the location coordinates
-     *
-     * @return string the html output of the pin
-     */
-    public static function getPin(int|string $input): string
-    {
-        $location = is_int($input) ? self::getLocation($input) : $input;
-
-        if (!preg_match('/^-?[\d]?[\d].[\d]{6},-?[01]?[\d]{1,2}.[\d]{6}$/', $location)) {
-            return '';
-        }
-
-        $icon = HTML::icon('fa fa-map-marker-alt');
-        $url  = "https://www.google.de/maps/place/$location";
-        return HTML::link($url, $icon, ['target' => '_blank']);
+        return DB::loadAssocList('id');
     }
 }

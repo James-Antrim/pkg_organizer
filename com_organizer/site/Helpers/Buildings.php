@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Adapters\HTML;
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\Buildings as Table;
 
 /**
  * Class provides general functions for retrieving building data.
@@ -21,6 +21,7 @@ class Buildings extends ResourceHelper implements Selectable
 {
     use Active;
     use Filtered;
+    use Pinned;
 
     public const OWNED = 1, RENTED = 2, USED = 3;
 
@@ -34,7 +35,7 @@ class Buildings extends ResourceHelper implements Selectable
      */
     public static function getID(string $name): ?int
     {
-        $table = new Tables\Buildings();
+        $table = new Table();
         $data  = ['name' => $name];
 
         if ($table->load($data)) {
@@ -101,14 +102,14 @@ class Buildings extends ResourceHelper implements Selectable
      */
     public static function getResources(): array
     {
-        $query = Database::getQuery();
-        $query->select('DISTINCT b.*, c.parentID')
-            ->from('#__organizer_buildings AS b')
-            ->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')
-            ->order('name');
+        $query = DB::getQuery();
+        $query->select(['DISTINCT ' . DB::qn('b') . '.*', DB::qn('c.parentID')])
+            ->from(DB::qn('#__organizer_buildings', 'b'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'b.campusID'))
+            ->order(DB::qn('name'));
         self::filterCampus($query, 'b');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 }
