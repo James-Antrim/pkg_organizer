@@ -111,7 +111,8 @@ abstract class FormController extends Controller
      */
     protected function prepareData(): array
     {
-        $data = [];
+        $data      = [];
+        $formItems = Input::getFormItems();
 
         /** @var Table $table */
         $table      = $this->getTable();
@@ -135,27 +136,36 @@ abstract class FormController extends Controller
                 $rType = $rType->getTypes()[0];
             }
 
-            $type = $rType->getName();
+            $type  = $rType->getName();
+            $value = empty($formItems[$column]) ? null : $formItems[$column];
 
             switch ($type) {
                 case 'float':
-                    $default       = $default ?: 0.0;
-                    $data[$column] = Input::getFloat($column, $default);
+                    $default = $default ?: 0.0;
+                    $value   = Input::filter($value, 'float');
+
+                    $data[$column] = $value === 0.0 ? $default : $value;
                     break;
                 case 'int':
                     // SQL doesn't technically have bool, so it has to be mapped over int. I've used the comment for this.
                     if ($comment = $property->getDocComment() and str_contains($comment, '@bool')) {
-                        $default       = (bool) $default;
-                        $data[$column] = (int) Input::getBool($column, $default);
+                        $default = (bool) $default;
+                        $value   = Input::filter($value, 'bool');
+
+                        $data[$column] = $value === false ? (int) $default : (int) $value;
                     }
                     else {
-                        $default       = $default ?: 0;
-                        $data[$column] = Input::getInt($column, $default);
+                        $default = $default ?: 0;
+                        $value   = Input::filter($value, 'int');
+
+                        $data[$column] = $value ?: $default;
                     }
                     break;
                 case 'string':
-                    $default       = $default ?: '';
-                    $data[$column] = Input::getString($column, $default);
+                    $default = $default ?: '';
+                    $value   = Input::filter($value);
+
+                    $data[$column] = $value ?: $default;
                     break;
             }
         }
