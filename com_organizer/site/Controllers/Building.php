@@ -15,5 +15,7 @@ namespace THM\Organizer\Controllers;
  */
 class Building extends FormController
 {
+    use FluMoxed;
+
     protected string $list = 'Buildings';
 }

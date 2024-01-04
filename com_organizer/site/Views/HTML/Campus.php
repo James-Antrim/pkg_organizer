@@ -8,12 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Views\HTML;
 
 /**
- * Class which manages stored campus data.
+ * Class loads the campus form into display context.
  */
-class Campus extends EditModel
+class Campus extends FormView
 {
-    protected string $tableClass = 'Campuses';
+    // Everything is taken care of in the inheritance hierarchy.
 }
