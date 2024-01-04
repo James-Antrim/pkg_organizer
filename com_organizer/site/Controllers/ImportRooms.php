@@ -2,16 +2,13 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Tables\Rooms as Table;
-
 /**
- * Imports rooms from a CSV File.
+ * @inheritDoc
  */
 class ImportRooms extends FormController
 {
+    use FluMoxed;
+
     /**
      * Cleans an individual row for later processing.
      * - Replaces escaped quotes "" and commas in quoted values with HTML entities.
@@ -19,9 +16,9 @@ class ImportRooms extends FormController
      *
      * @param   string  $row  the row to clean
      *
-     * @return void modifies the row
+     * @return void
      */
-    private function cleanRow(string &$row)
+    private function cleanRow(string &$row): void
     {
         $row = str_replace('""', '&quot;', $row);
         $row = str_replace(chr(13) . chr(10), '', $row);
@@ -43,7 +40,7 @@ class ImportRooms extends FormController
     public function import(): bool
     {
         return false;
-        $this->authorize();
+        /*$this->authorize();
 
         $input = Input::getInput();
 
@@ -143,6 +140,6 @@ class ImportRooms extends FormController
 
         Application::message(Text::_('ORGANIZER_IMPORT_SUCCESS'));
 
-        return true;
+        return true;*/
     }
 }
