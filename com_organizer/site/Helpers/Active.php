@@ -15,7 +15,7 @@ trait Active
 {
     public const ACTIVE = 1, INACTIVE = 0;
 
-    public const activeStates = [
+    public const ACTIVE_STATES = [
         self::ACTIVE   => [
             'class'  => 'publish',
             'column' => 'activate',

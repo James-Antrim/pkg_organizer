@@ -55,7 +55,7 @@ class Grids extends ListView
             $item->endTime   = '';
         }
 
-        $item->isDefault = HTML::toggle($index, Helper::STATES[$item->isDefault], 'Grids');
+        $item->isDefault = HTML::toggle($index, Helper::PUBLISHED_STATES[$item->isDefault], 'Grids');
     }
 
     /**

@@ -58,7 +58,7 @@ class Rooms extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->active = HTML::toggle($index, Helper::activeStates[$item->active], 'Rooms');
+        $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Rooms');
     }
 
     /**

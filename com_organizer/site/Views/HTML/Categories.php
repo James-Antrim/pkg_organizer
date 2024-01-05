@@ -44,7 +44,7 @@ class Categories extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->active  = HTML::toggle($index, Helper::activeStates[$item->active], 'Categories');
+        $item->active  = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Categories');
         $item->program = Helper::getName($item->id);
     }
 

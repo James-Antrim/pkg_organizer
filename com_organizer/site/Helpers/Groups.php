@@ -26,7 +26,7 @@ class Groups extends Associated implements Selectable
 
     public const PUBLISHED = 1, UNPUBLISHED = 0;
 
-    public const publishStates = [
+    public const PUBLISHED_STATES = [
         self::PUBLISHED   => [
             'class'  => 'publish',
             'column' => 'published',

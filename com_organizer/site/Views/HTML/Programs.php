@@ -54,7 +54,7 @@ class Programs extends ListView
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         if (Application::backend()) {
-            $item->active = HTML::toggle($index, Helper::activeStates[$item->active], 'Programs');
+            $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Programs');
         }
         else {
             $item->links = '';

@@ -19,7 +19,7 @@ class CleaningGroups extends ResourceHelper implements Selectable
 {
     public const INCLUDED = 1, EXCLUDED = 0;
 
-    public const STATES = [
+    public const RELEVANCE_STATES = [
         self::INCLUDED => [
             'class'  => 'publish',
             'column' => 'relevant',

@@ -59,7 +59,7 @@ class CleaningGroups extends ListView
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->days      = $item->days === '0.00' ? '-' : $item->days;
-        $item->relevant  = HTML::toggle($index, Helper::STATES[$item->relevant], 'CleaningGroups');
+        $item->relevant  = HTML::toggle($index, Helper::RELEVANCE_STATES[$item->relevant], 'CleaningGroups');
         $item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
     }
 
