@@ -67,35 +67,35 @@ class Monitors extends ListModel
      */
     private function displayFilter(DatabaseQuery $query): void
     {
-        $templateKey = $this->state->get('filter.display', '');
+        $display = $this->state->get('filter.display');
 
         // Filter null and empty string as explicit non-zero values with the consequence of no filter being applied.
-        if (!is_numeric($templateKey)) {
+        if (!is_numeric($display)) {
             return;
         }
 
         // Constants are int.
-        $templateKey = (int) $templateKey;
+        $display = (int) $display;
 
-        if (!in_array($templateKey, Helper::LAYOUTS)) {
+        if (!in_array($display, Helper::DISPLAYS)) {
             return;
         }
 
         $default     = (int) Input::getParams()->get('display');
         $useDefaults = DB::qn('m.useDefaults');
 
-        if (!in_array($templateKey, Helper::LAYOUTS)) {
+        if (!in_array($display, Helper::DISPLAYS)) {
             return;
         }
 
-        $defaults = match ($templateKey) {
+        $defaults = match ($display) {
             Helper::CONTENT => $default === Helper::CONTENT ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
             Helper::DAY_PLAN => $default === Helper::DAY_PLAN ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
             Helper::MIXED => $default === Helper::MIXED ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
             default => $default === Helper::UPCOMING ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
         };
 
-        $query->where('(' . DB::qn('m.display') . " = $templateKey $defaults)");
+        $query->where('(' . DB::qn('m.display') . " = $display $defaults)");
     }
 
     /**

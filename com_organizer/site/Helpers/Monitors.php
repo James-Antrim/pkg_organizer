@@ -19,7 +19,7 @@ class Monitors
 
     public const DEFAULT = 1, INDIVIDUAL = 0;
 
-    public const LAYOUTS = [self::CONTENT, self::DAY_PLAN, self::MIXED, self::UPCOMING];
+    public const DISPLAYS = [self::CONTENT, self::DAY_PLAN, self::MIXED, self::UPCOMING];
 
     public const CONFIGURATIONS = [
         self::DEFAULT    => [
