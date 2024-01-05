@@ -44,7 +44,7 @@ class Participant extends FormController
         $data = parent::prepareData();
 
         $identity = ((int) $data['id'] === User::id());
-        $numeric  = ['id', 'programID'];
+        $numeric  = ['programID'];
         $nullable = ['programID'];
 
         // Cannot require users other than the actual participant to know all the participant's data points.

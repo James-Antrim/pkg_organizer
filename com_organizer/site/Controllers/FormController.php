@@ -285,6 +285,12 @@ abstract class FormController extends Controller
     protected function validate(array &$data, array $required = [], array $nullable = [], array $numeric = []): void
     {
         foreach ($data as $key => $value) {
+            // ID does not need to be explicitly validated.
+            if ($key === 'id' and !is_numeric($value)) {
+                Application::error(400);
+                return;
+            }
+
             if (in_array($key, $required) and empty($value)) {
                 Application::error(400);
                 return;
