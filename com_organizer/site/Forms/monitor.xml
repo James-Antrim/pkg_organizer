@@ -13,7 +13,7 @@
         </field>
         <field name="display" type="list" label="ORGANIZER_DISPLAY_BEHAVIOUR" required="true" default="4">
             <option value='0'>ORGANIZER_UPCOMING_INSTANCES</option>
-            <option value='1'>ORGANIZER_CURRENT_INSTANCES</option>
+            <option value='1'>ORGANIZER_DAILY_PLAN</option>
             <option value='2'>ORGANIZER_MIXED_PLAN</option>
             <option value='3'>ORGANIZER_CONTENT_DISPLAY</option>
         </field>
@@ -21,6 +21,7 @@
                step="10"/>
         <field name="contentRefresh" type="Integer" label="ORGANIZER_CONTENT_REFRESH" default="60" first="10" last="990"
                step="10"/>
-        <field name="content" type="FileOptions" label="ORGANIZER_DISPLAY_CONTENT" directory="images/organizer/" exclude=""/>
+        <field name="content" type="filelist" label="ORGANIZER_DISPLAY_CONTENT" directory="images/organizer/" exclude=""
+               hide_default="true"/>
     </fieldset>
 </form>

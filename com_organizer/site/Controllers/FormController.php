@@ -142,7 +142,7 @@ abstract class FormController extends Controller
             }
 
             $type  = $rType->getName();
-            $value = empty($formItems[$column]) ? null : $formItems[$column];
+            $value = !isset($formItems[$column]) ? null : $formItems[$column];
 
             switch ($type) {
                 case 'float':
@@ -156,9 +156,8 @@ abstract class FormController extends Controller
                         $data[$column] = is_null($value) ? (int) $default : (int) Input::filter($value, 'bool');
                     }
                     else {
-
                         // Global implicit id validation
-                        if ($column === 'id' and (!is_null($value) or !is_numeric($value))) {
+                        if ($column === 'id' and !is_numeric($value)) {
                             Application::error(400);
                         }
 

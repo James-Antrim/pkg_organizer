@@ -15,5 +15,5 @@ namespace THM\Organizer\Models;
  */
 class Monitor extends EditModel
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    protected string $tableClass = 'Monitors';
 }
