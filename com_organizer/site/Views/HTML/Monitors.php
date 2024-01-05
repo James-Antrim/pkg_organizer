@@ -75,7 +75,6 @@ class Monitors extends ListView
      */
     public function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
 
         $this->headers = [
@@ -83,12 +82,12 @@ class Monitors extends ListView
             'name'        => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('ROOM', 'r.name', $direction, $ordering),
-                'type'       => 'value'
+                'title'      => HTML::sort('ROOM', 'r.name', $direction, 'r.name'),
+                'type'       => 'text'
             ],
             'ip'          => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('IP', 'm.ip', $direction, $ordering),
+                'title'      => Text::_('IP'),
                 'type'       => 'text'
             ],
             'useDefaults' => [
@@ -103,7 +102,7 @@ class Monitors extends ListView
             ],
             'content'     => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering),
+                'title'      => Text::_('DISPLAY_CONTENT'),
                 'type'       => 'text'
             ],
         ];
