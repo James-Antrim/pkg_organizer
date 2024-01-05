@@ -15,11 +15,11 @@ namespace THM\Organizer\Helpers;
  */
 class Monitors
 {
-    public const UPCOMING = 0, CURRENT = 1, MIXED = 2, CONTENT = 3;
+    public const UPCOMING = 0, DAY_PLAN = 1, MIXED = 2, CONTENT = 3;
 
     public const DEFAULT = 1, INDIVIDUAL = 0;
 
-    public const LAYOUTS = [self::CONTENT, self::CURRENT, self::MIXED, self::UPCOMING];
+    public const LAYOUTS = [self::CONTENT, self::DAY_PLAN, self::MIXED, self::UPCOMING];
 
     public const CONFIGURATIONS = [
         self::DEFAULT    => [

@@ -90,7 +90,7 @@ class Monitors extends ListModel
 
         $defaults = match ($templateKey) {
             Helper::CONTENT => $default === Helper::CONTENT ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
-            Helper::CURRENT => $default === Helper::CURRENT ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
+            Helper::DAY_PLAN => $default === Helper::DAY_PLAN ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
             Helper::MIXED => $default === Helper::MIXED ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
             default => $default === Helper::UPCOMING ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
         };

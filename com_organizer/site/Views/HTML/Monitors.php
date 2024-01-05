@@ -62,7 +62,7 @@ class Monitors extends ListView
             'template'  => $template,
             'templates' => [
                 Helper::UPCOMING => Text::_('UPCOMING_INSTANCES'),
-                Helper::CURRENT  => Text::_('CURRENT_INSTANCES'),
+                Helper::DAY_PLAN => Text::_('DAILY_PLAN'),
                 Helper::MIXED    => Text::_('MIXED_PLAN'),
                 Helper::CONTENT  => Text::_('CONTENT_DISPLAY'),
             ]

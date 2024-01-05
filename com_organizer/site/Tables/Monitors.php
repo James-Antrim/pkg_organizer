@@ -39,7 +39,7 @@ class Monitors extends Table
      * @var int
      * @see Helper for values
      */
-    public int $display = Helper::CURRENT;
+    public int $display = Helper::DAY_PLAN;
 
     /**
      * The interval (minutes) between display type switches.
