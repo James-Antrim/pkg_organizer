@@ -244,8 +244,10 @@ abstract class MergeController extends FormController
      *
      * @return bool
      */
-    protected function updateAssociations(string $fkColumn): bool
+    protected function updateAssociations(): bool
     {
+        $fkColumn = $this->mergeContext . 'ID';
+
         $query = DB::getQuery();
         $query->select(DB::qn('organizationID'))
             ->from(DB::qn("#__organizer_associations"))
