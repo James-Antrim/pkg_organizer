@@ -157,7 +157,7 @@ class HTML extends HTMLHelper
      *
      * @return  string
      */
-    public static function toggle(int $index, array $state, string $controller = '', int $refID = 0): string
+    public static function toggle(int $index, array $state, string $controller, int $refID = 0): string
     {
         $ariaID = "{$state['column']}-$index-$refID";
         $ariaID .= $refID ? "-$refID" : '';

@@ -10,6 +10,8 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Input;
+
 /**
  * Class receives user actions and performs access checks and redirection.
  */
@@ -18,4 +20,34 @@ class Monitors extends ListController
     use FluMoxed;
 
     protected string $item = 'Monitor';
+
+    /**
+     * Activates selected resources.
+     * @return void
+     */
+    public function individualize(): void
+    {
+        $this->checkToken();
+        $this->authorize();
+
+        $selectedIDs = Input::getSelectedIDs();
+        $selected    = count($selectedIDs);
+        $updated     = $this->updateBool('useDefaults', $selectedIDs, false);
+        $this->farewell($selected, $updated);
+    }
+
+    /**
+     * De-activates selected resources.
+     * @return void
+     */
+    public function useDefaults(): void
+    {
+        $this->checkToken();
+        $this->authorize();
+
+        $selectedIDs = Input::getSelectedIDs();
+        $selected    = count($selectedIDs);
+        $updated     = $this->updateBool('useDefaults', $selectedIDs, true);
+        $this->farewell($selected, $updated);
+    }
 }

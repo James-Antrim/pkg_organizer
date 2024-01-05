@@ -45,7 +45,7 @@ class Monitors extends ListView
             $item->display = $options['templates'][$item->display];
         }
 
-        $item->useDefaults = $this->getToggle('monitor', $item->id, $item->useDefaults, 'TOGGLE_DEFAULT');
+        $item->useDefaults = HTML::toggle($index, Helper::CONFIGURATIONS[$item->useDefaults], 'Monitors');
     }
 
     /**

@@ -17,5 +17,22 @@ class Monitors
 {
     public const UPCOMING = 0, CURRENT = 1, MIXED = 2, CONTENT = 3;
 
+    public const DEFAULT = 1, INDIVIDUAL = 0;
+
     public const LAYOUTS = [self::CONTENT, self::CURRENT, self::MIXED, self::UPCOMING];
+
+    public const CONFIGURATIONS = [
+        self::DEFAULT    => [
+            'class'  => 'publish',
+            'column' => 'useDefaults',
+            'task'   => 'individualize',
+            'tip'    => 'CLICK_TO_INDIVIDUALIZE'
+        ],
+        self::INDIVIDUAL => [
+            'class'  => 'unpublish',
+            'column' => 'useDefaults',
+            'task'   => 'useDefaults',
+            'tip'    => 'CLICK_TO_USE_DEFAULTS'
+        ]
+    ];
 }
