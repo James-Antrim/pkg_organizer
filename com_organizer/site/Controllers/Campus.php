@@ -28,7 +28,7 @@ class Campus extends FormController
     {
         $data = parent::prepareData();
 
-        $this->validate($data, ['name_de', 'name_en'], ['parentID'], ['parentID']);
+        $this->validate($data, ['name_de', 'name_en']);
 
         if (!empty($data['parentID'])) {
             /** @var Table $table */

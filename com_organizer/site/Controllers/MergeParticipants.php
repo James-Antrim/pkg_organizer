@@ -308,12 +308,12 @@ class MergeParticipants extends MergeController
     /**
      * @inheritDoc
      */
-    protected function validate(array &$data, array $required = [], array $nullable = [], array $numeric = []): void
+    protected function validate(array &$data, array $required = []): void
     {
-        if ($data = Input::getFormItems() and !empty($data['email'])) {
+        parent::validate($data, ['email']);
+
+        if (!empty($data['email'])) {
             $this->email = $data['email'];
         }
-
-        parent::validate($data, ['email'], ['programID'], ['programID']);
     }
 }

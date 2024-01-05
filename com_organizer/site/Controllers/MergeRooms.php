@@ -43,13 +43,8 @@ class MergeRooms extends MergeController
     /**
      * @inheritDoc
      */
-    protected function validate(array &$data, array $required = [], array $nullable = [], array $numeric = []): void
+    protected function validate(array &$data, array $required = []): void
     {
-        parent::validate(
-            $data,
-            ['code', 'name', 'roomtypeID'],
-            ['buildingID'],
-            ['active', 'buildingID', 'effCapacity', 'maxCapacity', 'roomtypeID']
-        );
+        parent::validate($data, ['code', 'name', 'roomtypeID']);
     }
 }

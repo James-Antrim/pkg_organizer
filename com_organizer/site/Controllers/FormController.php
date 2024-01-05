@@ -120,6 +120,7 @@ abstract class FormController extends Controller
         $reflection = new ReflectionObject($table);
 
         foreach ($properties as $column => $default) {
+
             try {
                 $property = $reflection->getProperty($column);
             }
@@ -145,7 +146,7 @@ abstract class FormController extends Controller
 
             switch ($type) {
                 case 'float':
-                    $default       = $defaults ? (float) $property->getDefaultValue() : 0.0;
+                    $default       = $defaults ? $property->getDefaultValue() : 0.0;
                     $data[$column] = is_null($value) ? $default : Input::filter($value, 'float');
                     break;
                 case 'int':
@@ -155,12 +156,18 @@ abstract class FormController extends Controller
                         $data[$column] = is_null($value) ? (int) $default : (int) Input::filter($value, 'bool');
                     }
                     else {
-                        $default       = $defaults ? (int) $property->getDefaultValue() : 0;
+
+                        // Global implicit id validation
+                        if ($column === 'id' and (!is_null($value) or !is_numeric($value))) {
+                            Application::error(400);
+                        }
+
+                        $default       = $defaults ? $property->getDefaultValue() : 0;
                         $data[$column] = is_null($value) ? $default : Input::filter($value, 'int');
                     }
                     break;
                 case 'string':
-                    $default       = $defaults ? (string) $property->getDefaultValue() : '';
+                    $default       = $defaults ? $property->getDefaultValue() : '';
                     $data[$column] = is_null($value) ? $default : Input::filter($value);
                     break;
             }
@@ -269,47 +276,19 @@ abstract class FormController extends Controller
     }
 
     /**
-     * Validates form
+     * Validates the form data beyond the implicit type validation performed during prepareData.
      *
-     * @param   array  $data
-     * @param   array  $required
-     * @param   array  $nullable
-     * @param   array  $numeric
+     * @param   array  $data      the form data to validate
+     * @param   array  $required  the required fields
      *
      * @return void
      */
-    protected function validate(array &$data, array $required = [], array $nullable = [], array $numeric = []): void
+    protected function validate(array &$data, array $required = []): void
     {
         foreach ($data as $key => $value) {
-            // ID does not need to be explicitly validated.
-            if ($key === 'id' and !is_numeric($value)) {
-                Application::error(400);
-                return;
-            }
-
             if (in_array($key, $required) and empty($value)) {
                 Application::error(400);
                 return;
-            }
-
-            // Implicit null => no option had to be selected  / Explicit null => the null value option was selected
-            if (in_array($key, $nullable) and (empty($value) or (int) $value === self::NULL_VALUE)) {
-                $data[$key] = null;
-                continue;
-            }
-
-            if (in_array($key, $numeric)) {
-                if (!is_numeric($value)) {
-                    Application::message('400');
-                    return;
-                }
-
-                if (str_contains($value, '.')) {
-                    $data[$key] = (float) $value;
-                    continue;
-                }
-
-                $data[$key] = (int) $value;
             }
         }
     }

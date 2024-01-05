@@ -43,14 +43,10 @@ class Participant extends FormController
     {
         $data = parent::prepareData();
 
-        $identity = ((int) $data['id'] === User::id());
-        $numeric  = ['programID'];
-        $nullable = ['programID'];
-
         // Cannot require users other than the actual participant to know all the participant's data points.
-        $required = $identity ? ['address', 'city', 'forename', 'id', 'programID', 'surname', 'zipCode'] : [];
-
-        $this->validate($data, $required, $nullable, $numeric);
+        $required = ((int) $data['id'] === User::id()) ?
+            ['address', 'city', 'forename', 'id', 'programID', 'surname', 'zipCode'] : [];
+        $this->validate($data, $required);
 
         $data['address']   = self::cleanAlphaNum($data['address']);
         $data['city']      = self::cleanAlpha($data['city']);
