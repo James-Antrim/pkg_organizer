@@ -95,19 +95,18 @@ abstract class Table extends Base
             if ($definition->Null === 'NO' and $definition->Default === null) {
                 try {
                     if ($property = $reflection->getProperty($column)) {
-                        if ($default = $property->getDefaultValue()) {
-                            $definition->Default = $default;
+
+                        if (str_contains($property->getDocComment(), 'DEFAULT')) {
+                            $definition->Default = $property->getDefaultValue();
                             continue;
                         }
 
                         if ($type = $property->getType()) {
                             switch ($type->getName()) {
-                                case 'bool':
-                                    $definition->Default = false;
-                                    break;
                                 case 'float':
                                     $definition->Default = 0.0;
                                     break;
+                                // Bool isn't directly supported by SQL, mapped as int now.
                                 case 'int':
                                     $definition->Default = 0;
                                     break;

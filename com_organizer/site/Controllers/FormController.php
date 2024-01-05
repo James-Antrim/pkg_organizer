@@ -127,10 +127,14 @@ abstract class FormController extends Controller
                 Application::handleException($exception);
             }
 
-            $default = $property->getDefaultValue();
+            $comment = $property->getDocComment();
+
+            // If there is no documented default value the potential return value of null as default is meaningless.
+            $defaults = str_contains($comment, 'DEFAULT');
 
             /** @var ReflectionNamedType|ReflectionUnionType $type */
             $rType = $property->getType();
+
             // <type>|null get the first one
             if (get_class($rType) === 'ReflectionUnionType') {
                 $rType = $rType->getTypes()[0];
@@ -141,31 +145,23 @@ abstract class FormController extends Controller
 
             switch ($type) {
                 case 'float':
-                    $default = $default ?: 0.0;
-                    $value   = Input::filter($value, 'float');
-
-                    $data[$column] = $value === 0.0 ? $default : $value;
+                    $default       = $defaults ? (float) $property->getDefaultValue() : 0.0;
+                    $data[$column] = is_null($value) ? $default : Input::filter($value, 'float');
                     break;
                 case 'int':
                     // SQL doesn't technically have bool, so it has to be mapped over int. I've used the comment for this.
-                    if ($comment = $property->getDocComment() and str_contains($comment, '@bool')) {
-                        $default = (bool) $default;
-                        $value   = Input::filter($value, 'bool');
-
-                        $data[$column] = $value === false ? (int) $default : (int) $value;
+                    if (str_contains($comment, '@bool')) {
+                        $default       = ($defaults and $property->getDefaultValue());
+                        $data[$column] = is_null($value) ? (int) $default : (int) Input::filter($value, 'bool');
                     }
                     else {
-                        $default = $default ?: 0;
-                        $value   = Input::filter($value, 'int');
-
-                        $data[$column] = $value ?: $default;
+                        $default       = $defaults ? (int) $property->getDefaultValue() : 0;
+                        $data[$column] = is_null($value) ? $default : Input::filter($value, 'int');
                     }
                     break;
                 case 'string':
-                    $default = $default ?: '';
-                    $value   = Input::filter($value);
-
-                    $data[$column] = $value ?: $default;
+                    $default       = $defaults ? (string) $property->getDefaultValue() : '';
+                    $data[$column] = is_null($value) ? $default : Input::filter($value);
                     break;
             }
         }
