@@ -38,17 +38,17 @@ class Terms extends Table
 
     /**
      * The resource's German name.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT ''
      * @var string
      */
-    public string $name_de;
+    public string $name_de = '';
 
     /**
      * The resource's English name.
-     * VARCHAR(150) NOT NULL
+     * VARCHAR(150) DEFAULT ''
      * @var string
      */
-    public string $name_en;
+    public string $name_en = '';
 
     /**
      * The start date of the resource.

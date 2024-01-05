@@ -53,7 +53,7 @@ class Instances extends Table
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $eventID;
+    public int|null $eventID = null;
 
     /**
      * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
@@ -63,11 +63,11 @@ class Instances extends Table
     public int $id;
 
     /**
-     * The id of the method entry referenced.
+     * The id of the method entry referenced. Independent of FK cascading, this can legitimately not reference a method.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $methodID;
+    public int|null $methodID = null;
 
     /**
      * The number of participants who registered to participate in this instance.

@@ -40,7 +40,7 @@ class Organizations extends Table
 
     /**
      * A flag which displays whether the planning for the organization directly is allowed.
-     * TINYINT(1) UNSIGNED NOT NULL
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
      * @bool
      */
@@ -48,7 +48,7 @@ class Organizations extends Table
 
     /**
      * The id used by Joomla as a reference to its assets table.
-     * INT(11) NOT NULL
+     * INT(11) DEFAULT NULL
      * @var int|null
      */
     public int|null $asset_id = null;
@@ -58,14 +58,14 @@ class Organizations extends Table
      * INT(11) DEFAULT NULL
      * @var int|null
      */
-    public int|null $contactID;
+    public int|null $contactID = null;
 
     /**
      * The email address to be used for contacting participants
      * VARCHAR(100) DEFAULT NULL
      * @var string|null
      */
-    public string|null $contactEmail;
+    public string|null $contactEmail = null;
 
     /**
      * The resource's German full name.
@@ -97,11 +97,11 @@ class Organizations extends Table
 
     /**
      * The base URL for the organization's homepage.
-     * VARCHAR(50) NOT NULL
+     * VARCHAR(255) DEFAULT ''
      * @var string
      * @noinspection PhpPropertyNamingConventionInspection
      */
-    public string $URL;
+    public string $URL = '';
 
     /**
      * @inheritDoc

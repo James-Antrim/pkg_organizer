@@ -30,14 +30,14 @@ class RoomEquipment extends Table
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $equipmentID;
+    public int|null $equipmentID = null;
 
     /**
      * The id of the room entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $roomID;
+    public int|null $roomID = null;
 
     /**
      * The quantity of the referenced equipment in the room.

@@ -27,7 +27,7 @@ trait Modified
      * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
      * @var string
      */
-    public string $modified;
+    public string $modified = '';
 
     /**
      * @inheritDoc

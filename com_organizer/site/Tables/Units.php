@@ -29,53 +29,53 @@ class Units extends Table
     public string $comment = '';
 
     /**
-     * The id of the course entry referenced.
+     * The id of the course entry referenced. Independent of FK cascading, this can legitimately not reference a course.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $courseID;
+    public int|null $courseID = null;
 
     /**
      * The id of the organization entry referenced.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $organizationID;
+    public int|null $organizationID = null;
 
     /**
      * The end date of the resource.
      * DATE DEFAULT NULL
      * @var string|null
      */
-    public string|null $endDate;
+    public string|null $endDate = null;
 
     /**
-     * The id of the grid entry referenced.
+     * The id of the grid entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $gridID;
+    public int|null $gridID = null;
 
     /**
-     * The id of the run entry referenced.
+     * The id of the run entry referenced. Independent of FK cascading, this can legitimately not reference a run.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $runID;
+    public int|null $runID = null;
 
     /**
      * The start date of the resource.
      * DATE DEFAULT NULL
      * @var string|null
      */
-    public string|null $startDate;
+    public string|null $startDate = null;
 
     /**
      * The id of the term entry referenced.
      * INT(11) UNSIGNED NOT NULL
-     * @var int|null
+     * @var int
      */
-    public int|null $termID;
+    public int $termID;
 
     /**
      * @inheritDoc

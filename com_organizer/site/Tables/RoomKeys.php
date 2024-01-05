@@ -21,11 +21,11 @@ class RoomKeys extends Table
     use Localized;
 
     /**
-     * The cleaning group associated with the room key.
+     * The cleaning group associated with the room key. Null is available as the referenced purposefully does not cascade on delete.
      * TINYINT(2) UNSIGNED  DEFAULT NULL
      * @var int|null
      */
-    public int|null $cleaningID;
+    public int|null $cleaningID = null;
 
     /**
      * SMALLINT(3) UNSIGNED NOT NULL

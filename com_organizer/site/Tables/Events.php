@@ -24,7 +24,7 @@ class Events extends Table
     use Suppressed;
 
     /**
-     * The id of the campus entry referenced.
+     * The id of the campus entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
@@ -132,7 +132,7 @@ class Events extends Table
 
     /**
      * The id of the organization entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
+     * INT(11) UNSIGNED NOT NULL
      * @var int
      */
     public int $organizationID;

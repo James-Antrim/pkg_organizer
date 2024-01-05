@@ -28,11 +28,11 @@ class Buildings extends Table
     public string $address;
 
     /**
-     * The id of the campus entry referenced.
+     * The id of the campus entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $campusID;
+    public int|null $campusID = null;
 
     /**
      * The GPS coordinates of the resource.

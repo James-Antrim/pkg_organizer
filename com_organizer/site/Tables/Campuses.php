@@ -37,7 +37,7 @@ class Campuses extends Table
     public string $city;
 
     /**
-     * The id of the grid entry referenced.
+     * The id of the grid entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
@@ -59,7 +59,7 @@ class Campuses extends Table
     public string $location;
 
     /**
-     * The id of the campus entry referenced as parent.
+     * The id of the campus entry referenced as parent. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */

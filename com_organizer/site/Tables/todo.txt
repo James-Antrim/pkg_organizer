@@ -9,3 +9,4 @@
 - drop deprecated columns
 -- subject competences & co.
 -- program organization ids?
+update selected varchars to default to '' instead of null

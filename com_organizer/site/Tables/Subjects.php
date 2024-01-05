@@ -20,7 +20,6 @@ use THM\Organizer\Adapters\Application;
 class Subjects extends Table
 {
     use Aliased;
-    use Coded;
     use LSFImported;
 
     /**
@@ -46,6 +45,14 @@ class Subjects extends Table
      * @bool
      */
     public int $bonusPoints = 0;
+
+    /**
+     * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+     * software except units which are also supplemented locally.
+     * VARCHAR(60) DEFAULT NULL
+     * @var string|null
+     */
+    public string|null $code = '';
 
     /**
      * The subject's contents in German.
@@ -92,7 +99,7 @@ class Subjects extends Table
 
     /**
      * The total number of scholastic hours (45 minutes) estimated to be necessary for this subject.
-     * INT(4) UNSIGNED NOT NULL DEFAULT
+     * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
      */
     public int $expenditure = 0;
@@ -101,9 +108,9 @@ class Subjects extends Table
      * The quantifier for the level of expertise of this subject. Values: NULL - unset, 0 - none ... 3 - much.
      * TINYINT(1) UNSIGNED DEFAULT NULL
      * @deprecated   replaced by localized full text fields
-     * @var int
+     * @var int|null
      */
-    public int $expertise;
+    public int|null $expertise = 0;
 
     /**
      * The description for expertise learning objectives in German.
@@ -120,19 +127,19 @@ class Subjects extends Table
     public string $expertise_en = '';
 
     /**
-     * The id of the field entry referenced.
+     * The id of the field entry referenced. Independent of FK cascading, this can legitimately not reference a field.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $fieldID;
+    public int|null $fieldID = null;
 
     /**
-     * The id of the frequency entry referenced.
+     * The id of the frequency entry referenced. Independent of FK cascading, this can legitimately not reference a frequency.
      * INT(1) UNSIGNED DEFAULT NULL
      * Status: Changed -> tinyint(1) (keep semesterly, yearly and on demand)
      * @var int|null
      */
-    public int|null $frequencyID;
+    public int|null $frequencyID = null;
 
     /**
      * The resource's German full name.
@@ -150,7 +157,7 @@ class Subjects extends Table
 
     /**
      * The total number of scholastic hours (45 minutes) independent estimated to be necessary for this subject.
-     * INT(4) UNSIGNED NOT NULL DEFAULT
+     * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
      */
     public int $independent = 0;
@@ -192,7 +199,7 @@ class Subjects extends Table
      * @deprecated replaced by localized full text fields
      * @var int|null
      */
-    public int|null $methodCompetence;
+    public int|null $methodCompetence = null;
 
     /**
      * The description for procedural learning objectives in German.
@@ -303,7 +310,7 @@ class Subjects extends Table
      * @deprecated replaced by localized full text fields
      * @var int|null
      */
-    public int|null $selfCompetence;
+    public int|null $selfCompetence = null;
 
     /**
      * The description for personal learning objectives in German.
@@ -325,7 +332,7 @@ class Subjects extends Table
      * @deprecated replaced by localized full text fields
      * @var int|null
      */
-    public int|null $socialCompetence;
+    public int|null $socialCompetence = null;
 
     /**
      * The description for social learning objectives in German.

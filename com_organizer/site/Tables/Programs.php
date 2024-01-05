@@ -32,18 +32,18 @@ class Programs extends Table
     public int $accredited;
 
     /**
-     * The id of the category entry referenced.
+     * The id of the category entry referenced. Independent of FK cascading, this can legitimately not reference a category.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $categoryID;
+    public int|null $categoryID = null;
 
     /**
-     * The id of the degree entry referenced.
+     * The id of the degree entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $degreeID;
+    public int|null $degreeID = null;
 
     /**
      * The resource's German description.
@@ -68,11 +68,11 @@ class Programs extends Table
     public int $fee = 0;
 
     /**
-     * The id of the frequency entry referenced.
+     * The id of the frequency entry referenced. Independent of FK cascading, this can legitimately not reference a frequency.
      * INT(1) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $frequencyID;
+    public int|null $frequencyID = null;
 
     /**
      * A flag which displays whether the program has a restricted number of participants.
@@ -89,7 +89,7 @@ class Programs extends Table
      * @var int|null
      * @deprecated is this still filled to show priority or was this replaced completely by the associations table?
      */
-    public int|null $organizationID;
+    public int|null $organizationID = null;
 
     /**
      * A flag which displays whether the program has special participation requirements

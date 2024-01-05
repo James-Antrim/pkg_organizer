@@ -50,32 +50,32 @@ class Pools extends Table
     public string $description_en = '';
 
     /**
-     * The id of the field entry referenced.
+     * The id of the field entry referenced. Independent of FK cascading, this can legitimately not reference a field.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $fieldID;
+    public int|null $fieldID = null;
 
     /**
      * The resource's German name.
      * VARCHAR(200) DEFAULT NULL
      * @var string|null
      */
-    public string|null $fullName_de;
+    public string|null $fullName_de = '';
 
     /**
      * The resource's English name.
      * VARCHAR(200) DEFAULT NULL
      * @var string|null
      */
-    public string|null $fullName_en;
+    public string|null $fullName_en = '';
 
     /**
-     * The id of the group entry referenced.
+     * The id of the group entry referenced. Independent of FK cascading, this can legitimately not reference a group.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $groupID;
+    public int|null $groupID = null;
 
     /**
      * The maximum credit points required to be achieved in subjects of this pool.

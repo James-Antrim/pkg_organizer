@@ -12,7 +12,7 @@ trait LSFImported
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $lsfID;
+    public int|null $lsfID = null;
 
     /**
      * Sets a table column value.

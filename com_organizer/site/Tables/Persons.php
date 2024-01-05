@@ -20,8 +20,15 @@ class Persons extends Table
 {
     use Activated;
     use Aliased;
-    use Coded;
     use Suppressed;
+
+    /**
+     * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+     * software except units which are also supplemented locally.
+     * VARCHAR(60) DEFAULT NULL COLLATE utf8mb4_bin
+     * @var string|null
+     */
+    public string|null $code = null;
 
     /**
      * The person's first and middle names.
@@ -57,7 +64,7 @@ class Persons extends Table
      * VARCHAR(150) DEFAULT NULL
      * @var string|null
      */
-    public string|null $username;
+    public string|null $username = null;
 
     /**
      * @inheritDoc

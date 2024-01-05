@@ -46,7 +46,7 @@ class Groups extends Table
     public string $fullName_en;
 
     /**
-     * The id of the grid entry referenced.
+     * The id of the grid entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT 1
      * @var int
      */

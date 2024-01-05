@@ -31,7 +31,7 @@ class Monitors extends Table
      * INT(3) UNSIGNED NOT NULL DEFAULT 60
      * @var int
      */
-    public int $contentRefresh;
+    public int $contentRefresh = 60;
 
     /**
      * A flag displaying for component or monitor specific settings.
@@ -56,18 +56,18 @@ class Monitors extends Table
     public string $ip;
 
     /**
-     * The id of the room entry referenced.
+     * The id of the room entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $roomID;
+    public int|null $roomID = null;
 
     /**
      * The refresh interval (seconds) for schedule display.
      * INT(3) UNSIGNED NOT NULL DEFAULT 60
      * @var int
      */
-    public int $scheduleRefresh;
+    public int $scheduleRefresh = 60;
 
     /**
      * The monitor settings source. Values: 0 - Monitor Specific, 1 - Component

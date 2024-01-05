@@ -27,7 +27,7 @@ class Participants extends Table
 
     /**
      * The city in which the resource is located.
-     * VARCHAR(60) NOT NULL
+     * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string
      */
     public string $city = '';
@@ -55,11 +55,11 @@ class Participants extends Table
     public int $notify = 0;
 
     /**
-     * The id of the program entry referenced.
+     * The id of the program entry referenced. Independent of FK cascading, this can legitimately not reference a program.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $programID;
+    public int|null $programID = null;
 
     /**
      * The person's surnames.

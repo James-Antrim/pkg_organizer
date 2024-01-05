@@ -56,18 +56,18 @@ class InstanceParticipants extends Table
     public int $registered = 0;
 
     /**
-     * The id of the room entry referenced.
+     * The id of the room entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $roomID;
+    public int|null $roomID = null;
 
     /**
      * The identifier of the seat.
      * VARCHAR(60) NOT NULL DEFAULT ''
      * @var string|null
      */
-    public string|null $seat;
+    public string|null $seat = '';
 
     /**
      * @inheritDoc

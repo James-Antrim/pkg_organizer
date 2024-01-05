@@ -40,7 +40,7 @@ class RoomTypes extends Table
      * INT(4) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $capacity;
+    public int|null $capacity = null;
 
     /**
      * The id of the normed use code with which the type is associated.

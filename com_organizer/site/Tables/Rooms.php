@@ -30,11 +30,11 @@ class Rooms extends Table
     public float $area = 0.00;
 
     /**
-     * The id of the building entry referenced.
+     * The id of the building entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $buildingID;
+    public int|null $buildingID = null;
 
     /**
      * The rooms effective occupancy for participants.
@@ -44,7 +44,7 @@ class Rooms extends Table
     public int $effCapacity = 0;
 
     /**
-     * The id of the corresponding flooring entry
+     * The id of the corresponding flooring entry. Null is available as the referenced purposefully does not cascade on delete.
      * SMALLINT(3) UNSIGNED DEFAULT 1
      * @var int
      */
@@ -65,11 +65,11 @@ class Rooms extends Table
     public string $name;
 
     /**
-     * The id of the roomtype entry referenced.
+     * The id of the roomtype entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $roomtypeID;
+    public int|null $roomtypeID = null;
 
     /**
      * A flag which displays whether the room is a virtual room.

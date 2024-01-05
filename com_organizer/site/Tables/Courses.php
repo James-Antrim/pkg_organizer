@@ -21,7 +21,7 @@ class Courses extends Table
     use Aliased;
 
     /**
-     * The id of the campus entry referenced.
+     * The id of the campus entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */

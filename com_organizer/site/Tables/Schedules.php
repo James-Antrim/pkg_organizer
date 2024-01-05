@@ -23,14 +23,14 @@ class Schedules extends Table
      * DATE DEFAULT NULL
      * @var string|null
      */
-    public string|null $creationDate;
+    public string|null $creationDate = null;
 
     /**
      * The time of the schedule's creation.
      * TIME DEFAULT NULL
      * @var string|null
      */
-    public string|null $creationTime;
+    public string|null $creationTime = null;
 
     /**
      * The id of the organization entry referenced.
@@ -54,11 +54,11 @@ class Schedules extends Table
     public int $termID;
 
     /**
-     * The id of the user entry referenced.
+     * The id of the user entry referenced. Null is available as the referenced purposefully does not cascade on delete.
      * INT(11) DEFAULT NULL
      * @var int|null
      */
-    public int|null $userID;
+    public int|null $userID = null;
 
     /**
      * @inheritDoc
