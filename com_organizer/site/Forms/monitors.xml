@@ -14,11 +14,10 @@
             <option value="3">ORGANIZER_CONTENT_DISPLAY</option>
             <option value="0">ORGANIZER_EVENT_LIST</option>
         </field>
-        <field name="content" type="GenericOptions" label="ORGANIZER_DISPLAY_CONTENT" conditions="content != ''"
-               onchange="this.form.submit();" table="organizer_monitors" textcolumn="content" valuecolumn="content"
-               valueParameter="content">
+        <field name="content" type="list" label="ORGANIZER_DISPLAY_CONTENT" onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_CONTENTS</option>
             <option value="-1">ORGANIZER_NO_CONTENT</option>
+            <option value="1">ORGANIZER_WITH_CONTENT</option>
         </field>
     </fields>
     <fields name="list">

@@ -10,16 +10,17 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\Database\{DatabaseQuery, ParameterType};
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Database as DB, Input};
-use THM\Organizer\Helpers\Can;
-use THM\Organizer\Helpers\Monitors as Helper;
+use THM\Organizer\Helpers\{Can, Monitors as Helper};
 
 /**
  * Class retrieves information for a filtered set of monitors.
  */
 class Monitors extends ListModel
 {
+    private const CONTENT = 1;
+
     protected string $defaultOrdering = 'r.name';
 
     protected $filter_fields = ['content', 'display', 'useDefaults'];
@@ -33,23 +34,28 @@ class Monitors extends ListModel
      */
     private function contentFilter(DatabaseQuery $query): void
     {
-        if (!$content = (string) $this->state->get('filter.content')) {
+        // All or invalid
+        if (!$filter = (int) $this->state->get('filter.content') or !in_array($filter, [self::CONTENT, self::NONE])) {
             return;
         }
 
-        $content  = $content === (string) self::NONE ? '' : $content;
-        $default  = (string) Input::getParams()->get('content');
-        $assigned = DB::qn('m.content') . ' = :content';
+        $default = (bool) Input::getParams()->get('content');
 
-        if ($content === $default) {
-            $useDefaults = DB::qn('useDefaults') . ' = 1';
-            $query->where("($assigned OR $useDefaults)");
+        $cColumn  = DB::qn('m.content');
+        $udColumn = DB::qn('m.useDefaults');
+
+        if ($filter === self::NONE) {
+            // no content & not defaulted to content or defaulted to no content
+            $content  = "$cColumn = ''";
+            $defaults = $default ? " AND $udColumn = 0" : " OR $udColumn = 1";
         }
         else {
-            $query->where($assigned);
+            // content and not defaulted to no content or defaulted to content
+            $content  = "$cColumn != ''";
+            $defaults = $default ? " OR $udColumn = 1" : " AND $udColumn = 0";
         }
 
-        $query->bind(':content', $content);
+        $query->where("($content $defaults)");
     }
 
     /**
@@ -61,37 +67,39 @@ class Monitors extends ListModel
      */
     private function displayFilter(DatabaseQuery $query): void
     {
-        $templateKey = $this->state->get('filter.display');
+        $templateKey = $this->state->get('filter.display', '');
 
-        // Filter null and empty string as explicit non-zero values.
+        // Filter null and empty string as explicit non-zero values with the consequence of no filter being applied.
         if (!is_numeric($templateKey)) {
             return;
         }
 
+        // Constants are int.
         $templateKey = (int) $templateKey;
 
         if (!in_array($templateKey, Helper::LAYOUTS)) {
             return;
         }
 
-        $assigned = DB::qn('m.display') . ' = :template';
-        $default  = Input::getParams()->get('display');
+        $default     = (int) Input::getParams()->get('display');
+        $useDefaults = DB::qn('m.useDefaults');
 
-        if (is_numeric($default) and (int) $default === $templateKey) {
-            $useDefaults = DB::qn('useDefaults') . ' = 1';
-            $query->where("($assigned OR $useDefaults)");
-        }
-        else {
-            $query->where($assigned);
+        if (!in_array($templateKey, Helper::LAYOUTS)) {
+            return;
         }
 
-        $query->bind(':template', $templateKey, ParameterType::INTEGER);
+        $defaults = match ($templateKey) {
+            Helper::CONTENT => $default === Helper::CONTENT ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
+            Helper::CURRENT => $default === Helper::CURRENT ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
+            Helper::MIXED => $default === Helper::MIXED ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
+            default => $default === Helper::UPCOMING ? " OR $useDefaults = 1" : " AND $useDefaults = 0",
+        };
 
+        $query->where('(' . DB::qn('m.display') . " = $templateKey $defaults)");
     }
 
     /**
-     * Method to get a list of resources from the database.
-     * @return DatabaseQuery
+     * @inheritDoc
      */
     protected function getListQuery(): DatabaseQuery
     {
@@ -110,7 +118,6 @@ class Monitors extends ListModel
         $this->filterValues($query, ['useDefaults']);
         $this->displayFilter($query);
         $this->contentFilter($query);
-
         $this->orderBy($query);
 
         return $query;
