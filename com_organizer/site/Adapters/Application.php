@@ -39,8 +39,15 @@ class Application
      * default: success
      * @see    CMSApplicationInterface
      */
-    public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency', ERROR = 'error',
-        INFO = 'info', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
+    public const ERROR = 'error', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
+
+    /**
+     * Predefined Joomla message types without unnecessary prefixing. Unused locally, but Joomla supported.
+     * @ALERT, @CRITICAL, @EMERGENCY: danger
+     * @DEBUG, @INFO: info
+     *
+     * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency', INFO = 'info';
+     */
 
     /**
      * Checks whether the current context is the administrator context.
@@ -98,6 +105,7 @@ class Application
 
             if ($severity === self::ERROR) {
                 // TODO turn this into logging before productive release
+                echo "<pre>" . print_r($message, true) . "</pre>";
                 $exc = new Exception();
                 echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
                 die;
