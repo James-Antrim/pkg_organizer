@@ -1357,7 +1357,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons`
 (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `personID`  INT(11) UNSIGNED    NOT NULL,
-    `role`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'The person''s role for the given subject. Roles are not mutually exclusive. Possible values: 1 - coordinates, 2 - teaches.',
+    `role`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `subjectID` INT(11) UNSIGNED    NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `entry` (`personID`, `role`, `subjectID`),
@@ -1921,7 +1921,7 @@ VALUES (110, '0110', 'Wohnfläche im Freien', 'Outdoor Residential Area', 11, 0,
        (6611, '6611', 'Medizinisches Wannenbad', 'Bathing Room, Medical', 661, 4, 6),
        (6612, '6612', 'Medizinisches Teilbad', 'Bathing Room, Medical, Partial', 661, 4, 6),
        (6613, '6613', 'Unterwasserdruckstrahlmassage', 'Underwater Pressure Stream Massage Room', 661, 4, 6),
-       (6614, '6614', 'Kneipp\'sche Anwendungen', 'Bathing Room, Medical, Cold', 661, 4, 6),
+       (6614, '6614', 'Kneipp''sche Anwendungen', 'Bathing Room, Medical, Cold', 661, 4, 6),
        (6622, '6622', 'Schwimmbecken Nasstherapie', 'Swimming Pool, Therapeutic', 662, 4, 6),
        (6631, '6631', 'Schwitzbad', 'Steam Bath', 663, 4, 6),
        (6632, '6632', 'Packungen - Vorbereitung', 'Compress Room, Preparation', 663, 4, 6),
@@ -2084,7 +2084,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_use_groups`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-#Normed
 INSERT INTO `#__organizer_use_groups` (`id`, `name_de`, `name_en`)
 VALUES (1, 'Wohnen und Aufenthalt', 'Residential and Social'),
        (2, 'Büroarbeit', 'Office Work'),
