@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 /**
  * Class loads a form for merging person data.
  */
-class PersonMerge extends OldFormModel
+class MergePersons extends OldFormModel
 {
     // Necessary code is performed in inheritance hierarchy.
 }
