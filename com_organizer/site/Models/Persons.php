@@ -21,7 +21,7 @@ class Persons extends ListModel
 {
     use Activated;
 
-    protected string $defaultOrdering = 'p.surname, p.forename';
+    protected string $defaultOrdering = 'surname, forename';
 
     protected $filter_fields = ['organizationID', 'suppress'];
 

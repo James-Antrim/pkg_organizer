@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use stdClass;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Persons as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -31,9 +31,9 @@ class Persons extends ListView
         $toolbar->addNew('Persons.add');
         $this->addActa();
 
-        if (Helpers\Can::administrate()) {
+        if (Can::administrate()) {
             $toolbar->delete('Persons.delete')->message('DELETE_CONFIRM')->listCheck(true);
-            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergePersons.display')->icon('fa fa-compress');
+            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergePersons.display')->icon('fa fa-compress')->listCheck(true);
         }
 
         parent::addToolBar();
@@ -46,11 +46,9 @@ class Persons extends ListView
     {
         $item->forename = empty($item->forename) ? '' : $item->forename;
         $item->username = empty($item->username) ? '' : $item->username;
+        $item->active   = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Persons');
 
-        $tip          = $item->active ? 'CLICK_TO_DEACTIVATE' : 'CLICK_TO_ACTIVATE';
-        $item->active = $this->getToggle('persons', $item->id, $item->active, $tip, 'active');
-
-        if (!$organizations = Helpers\Persons::getOrganizationNames($item->id)) {
+        if (!$organizations = Helper::getOrganizationNames($item->id)) {
             $item->organizationID = Text::_('NONE');
         }
         elseif (count($organizations) === 1) {
@@ -68,24 +66,27 @@ class Persons extends ListView
      */
     public function initializeColumns(): void
     {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+
         $this->headers = [
             'check'          => ['type' => 'check'],
             'surname'        => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('SURNAME'),
+                'title'      => HTML::sort('SURNAME', 'surname, forename', $direction, $ordering),
                 'type'       => 'text'
             ],
             'forename'       => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('FORENAME'),
+                'title'      => HTML::sort('FORENAME', 'surname, forename', $direction, $ordering),
                 'type'       => 'text'
             ],
             'username'       => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('USERNAME'),
+                'title'      => HTML::sort('USERNAME', 'username', $direction, $ordering),
                 'type'       => 'text'
             ],
             'active'         => [
