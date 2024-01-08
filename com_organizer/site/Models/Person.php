@@ -10,27 +10,23 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Helpers\Persons as Helper;
+
 /**
  * @inheritDoc
  */
 class Person extends EditModel
 {
-    protected string $list = 'Persons';
+    protected string $tableClass = 'Persons';
 
     /**
-     * Method to get a single record.
-     *
-     * @param   int  $pk  The id of the primary key.
-     *
-     * @return mixed    Object on success, false on failure.
+     * @inheritDoc
      */
-    /*public function getItem($pk = 0)
+    public function getItem(): object
     {
-        $this->item = parent::getItem($pk);
+        $item                  = parent::getItem();
+        $item->organizationIDs = $item->id ? Helper::organizationIDs($item->id) : [];
 
-        $this->item->organizationID = $this->item->id ?
-            Helpers\Persons::organizationIDs($this->item->id) : [];
-
-        return $this->item;
-    }*/
+        return $item;
+    }
 }

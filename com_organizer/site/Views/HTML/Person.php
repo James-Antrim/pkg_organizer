@@ -11,9 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the person form into display context.
+ * @inheritDoc
  */
-class PersonEdit extends EditViewOld
+class Person extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

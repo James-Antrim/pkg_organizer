@@ -5,7 +5,7 @@
         <field name="surname" type="text" label="ORGANIZER_SURNAME" class="required" maxlength="255" required="true"/>
         <field name="forename" type="text" label="ORGANIZER_FORENAME" maxlength="255"/>
         <field name="code" type="text" label="ORGANIZER_UNTIS_ID" maxlength="60" required="true"/>
-        <field name="username" type="text" label="ORGANIZER_USERNAME"/>
+        <field name="username" type="text" label="ORGANIZER_USERNAME" class="validate-username"/>
         <field name="title" type="text" label="ORGANIZER_TITLE" maxlength="45"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
         <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
