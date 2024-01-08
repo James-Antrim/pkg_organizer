@@ -238,11 +238,11 @@ abstract class MergeController extends FormController
     }
 
     /**
-     * Associates the merge ID with all previously associated organization IDS. Deletion occurs via FK reference later.
-     *
-     * @param   string  $fkColumn  the name of the associations table column referencing this resource
+     * Updates associations entries for the resource in the merge context. Not to be confused with updateAssociations in
+     * the save context.
      *
      * @return bool
+     * @see Associated::updateAssociations()
      */
     protected function updateAssociations(): bool
     {
