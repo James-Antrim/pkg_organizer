@@ -27,7 +27,7 @@ class Campuses extends ResourceHelper implements Selectable
      *
      * @param   int  $campusID  the id of the campus
      *
-     * @return int the id of the associated grid
+     * @return int
      */
     public static function getGridID(int $campusID): int
     {
@@ -52,7 +52,7 @@ class Campuses extends ResourceHelper implements Selectable
      *
      * @param   int  $resourceID  the campus' id
      *
-     * @return string the name if the campus could be resolved, otherwise empty
+     * @return string
      */
     public static function getName(int $resourceID = 0): string
     {
