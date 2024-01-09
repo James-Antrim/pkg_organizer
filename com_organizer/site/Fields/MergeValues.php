@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{HTML, Text};
 use Joomla\CMS\Form\Field\ListField;
 use stdClass;
 
@@ -31,10 +30,6 @@ class MergeValues extends ListField
             return [];
         }
 
-        if (!$values = $this->getValues()) {
-            return [HTML::option('-1', Text::_('NONE_GIVEN'))];
-        }
-
-        return $this->createOptions($values);
+        return $this->createOptions($this->getValues());
     }
 }
