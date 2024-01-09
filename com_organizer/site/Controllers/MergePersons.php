@@ -22,6 +22,20 @@ class MergePersons extends MergeController
     protected string $mergeContext = 'person';
 
     /**
+     * @inheritDoc
+     */
+    protected function prepareData(): array
+    {
+        $data = parent::prepareData();
+
+        $data['active']   = $this->boolAggregate('active', 'persons', false);
+        $data['public']   = $this->boolAggregate('public', 'persons', true);
+        $data['suppress'] = $this->boolAggregate('suppress', 'persons', false);
+
+        return $data;
+    }
+
+    /**
      * Updates the instance persons table references to the mergeID.
      * @return bool
      */
@@ -199,8 +213,6 @@ class MergePersons extends MergeController
      */
     protected function validate(array &$data, array $required = []): void
     {
-        // Not here yet
-        Application::error(503);
-        parent::validate($data, ['code', 'name', 'roomtypeID']);
+        parent::validate($data, ['surname', 'code']);
     }
 }

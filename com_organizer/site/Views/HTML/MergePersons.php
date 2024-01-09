@@ -13,10 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the person merge form into display context.
  */
-class PersonMerge extends MergeViewOld
+class MergePersons extends MergeView
 {
-    /**
-     * @inheritDoc
-     */
-    protected string $controller = 'Room';
+    // Everything is taken care of in the inheritance hierarchy.
 }
