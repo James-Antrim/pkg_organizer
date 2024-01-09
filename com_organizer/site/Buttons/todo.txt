@@ -1,0 +1,3 @@
+Autophobic button for selections that require at least two selections.
+- Update the activation script so that the button remains inactive until then.
+Make FormTarget work again.
