@@ -17,10 +17,6 @@ use THM\Organizer\Adapters\{Input, Text, Toolbar};
  */
 abstract class MergeView extends FormView
 {
-    public array $toDo = [
-        'Figure out a way to make elements with values required beyond the asterix in merge fields.'
-    ];
-
     /**
      * @inheritDoc
      */
