@@ -50,7 +50,7 @@ abstract class Associated extends ResourceHelper
     {
         $column = DB::qn(static::$resource . 'ID');
         $query  = DB::getQuery();
-        $query->select('DISTINCT organizationID')
+        $query->select('DISTINCT ' . DB::qn('organizationID'))
             ->from(DB::qn('#__organizer_associations'))
             ->where("$column = :resourceID")->bind(':resourceID', $resourceID, ParameterType::INTEGER);
         DB::setQuery($query);
