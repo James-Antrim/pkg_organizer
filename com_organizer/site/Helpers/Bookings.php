@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\HTML;
-use THM\Organizer\Tables;
+use Joomla\Database\ParameterType;
 use stdClass;
+use THM\Organizer\Adapters\{Database as DB, HTML};
+use THM\Organizer\Tables\{Bookings as Table, Blocks, Instances as ITable, Rooms as RTable};
 
 /**
  * Provides functions for XML instance validation and modeling.
@@ -25,7 +25,7 @@ class Bookings extends ResourceHelper
     /**
      * Retrieves the number of current registrations for the booking.
      *
-     * @param   int  $bookingID
+     * @param   int  $bookingID  the id of the booking
      *
      * @return int
      */
@@ -43,22 +43,22 @@ class Bookings extends ResourceHelper
      *
      * @param   int  $bookingID  the id of the booking entry
      *
-     * @return string the dates to display
+     * @return string
      */
     public static function getDateTimeDisplay(int $bookingID): string
     {
-        $booking = new Tables\Bookings();
+        $booking = new Table();
         if (!$booking->load($bookingID)) {
             return '';
         }
 
-        $block = new Tables\Blocks();
+        $block = new Blocks();
         if (!$block->load($booking->blockID)) {
             return '';
         }
 
         // It is enough to load a single one, because if the instance does not have an event, there is only one.
-        $instance = new Tables\Instances();
+        $instance = new ITable();
         if (!$instance->load(['blockID' => $booking->blockID, 'unitID' => $booking->unitID])) {
             return '';
         }
@@ -73,23 +73,23 @@ class Bookings extends ResourceHelper
     }
 
     /**
-     * Retrieves a list of instance IDs for instances which fulfill the requirements.
+     * Retrieves a list of instance IDs associated with the booking.
      *
      * @param   int  $bookingID  the id of the booking entry
      *
-     * @return int[] the ids matching the conditions
+     * @return int[]
      */
     public static function getInstanceIDs(int $bookingID): array
     {
-        $query = Database::getQuery();
-        $query->select('DISTINCT i.id')
-            ->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID and b.unitID = i.unitID')
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('i.id'))
+            ->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_bookings', 'b'), DB::qcs([['b.blockID', 'i.blockID'], ['b.unitID', 'i.unitID']]))
             ->where("b.id = $bookingID")
             ->order('i.id');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
@@ -175,24 +175,24 @@ class Bookings extends ResourceHelper
      * @param   int  $bookingID  the id of the booking entry
      * @param   int  $roomID     the optional id of the room
      *
-     * @return int the number of attending participants
+     * @return int
      */
     public static function getParticipantCount(int $bookingID, int $roomID = 0): int
     {
-        $query = Database::getQuery();
-        $query->select('SUM(i.attended)')
-            ->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND b.blockID = i.blockID')
-            ->where("b.id = $bookingID");
+        $query = DB::getQuery();
+        $query->select('SUM(' . DB::qn('i.attended') . ')')
+            ->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_bookings', 'b'), DB::qcs([['b.unitID', 'i.unitID'], ['b.blockID', 'i.blockID']]))
+            ->where(DB::qn('b.id') . ' = :bookingID')->bind(':bookingID', $bookingID, ParameterType::INTEGER);
 
         if ($roomID) {
-            $query->leftJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
-                ->where("ip.roomID = $roomID");
+            $query->leftJoin(DB::qn('#__organizer_instance_participants', 'ip'), DB::qc('ip.instanceID', 'i.id'))
+                ->where(DB::qn('ip.roomID') . ' = :roomID')->bind(':roomID', $roomID, ParameterType::INTEGER);
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadInt();
+        return DB::loadInt();
     }
 
     /**
@@ -224,7 +224,7 @@ class Bookings extends ResourceHelper
 
         foreach (self::getInstanceIDs($bookingID) as $instanceID) {
             foreach (Instances::getRoomIDs($instanceID) as $roomID) {
-                $room = new Tables\Rooms();
+                $room = new RTable();
                 $room->load($roomID);
 
                 if ($room->virtual) {
