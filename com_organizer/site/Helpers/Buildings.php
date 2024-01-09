@@ -31,9 +31,9 @@ class Buildings extends ResourceHelper implements Selectable
      *
      * @param   string  $name  the building name
      *
-     * @return int|null  int the id if the room could be resolved/added, otherwise null
+     * @return int
      */
-    public static function getID(string $name): ?int
+    public static function getID(string $name): int
     {
         $table = new Table();
         $data  = ['name' => $name];
@@ -42,7 +42,7 @@ class Buildings extends ResourceHelper implements Selectable
             return $table->id;
         }
 
-        return $table->save($data) ? $table->id : null;
+        return $table->save($data) ? $table->id : 0;
     }
 
     /**
