@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Tables\Categories as Category;
 use THM\Organizer\Tables\Groups as Group;
 
@@ -21,7 +22,7 @@ class Groups extends Associated implements Selectable
 {
     use Active;
     use Filtered;
-    use Planned;
+    use Terminated;
     use Suppressed;
 
     public const PUBLISHED = 1, UNPUBLISHED = 0;
@@ -67,17 +68,11 @@ class Groups extends Associated implements Selectable
      *
      * @param   int  $groupID
      *
-     * @return string
+     * @return int
      */
-    public static function categoryID(int $groupID): string
+    public static function categoryID(int $groupID): int
     {
-        $category = self::category($groupID);
-
-        if (!$category->id) {
-            return 0;
-        }
-
-        return $category->id;
+        return self::category($groupID)->id;
     }
 
     /**
@@ -109,17 +104,20 @@ class Groups extends Associated implements Selectable
      */
     public static function getEvents(int $groupID): array
     {
-        $query = Database::getQuery();
-        $tag   = Application::getTag();
-        $query->select("DISTINCT e.id, e.code, e.name_$tag AS name, e.description_$tag AS description")
-            ->from('#__organizer_events AS e')
-            ->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
-            ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
-            ->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
-            ->where("groupID = $groupID");
-        Database::setQuery($query);
+        $tag      = Application::getTag();
+        $aliased  = DB::qn(["e.description_$tag", "e.name_$tag"], ['description', 'name']);
+        $selected = ['DISTINCT ' . DB::qn('e.id'), DB::qn('e.code')];
 
-        return Database::loadAssocList();
+        $query = DB::getQuery();
+        $query->select(array_merge($selected, $aliased))
+            ->from(DB::qn('#__organizer_events', 'e'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.instanceID', 'i.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
+            ->where(DB::qn('groupID') . ' = :groupID')->bind(':groupID', $groupID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        return DB::loadAssocList();
     }
 
     /**
@@ -131,10 +129,11 @@ class Groups extends Associated implements Selectable
     {
         $categoryID  = Input::getInt('categoryID');
         $categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
-        $tag         = Application::getTag();
-        $name        = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";
-        $options     = [];
 
+        $tag  = Application::getTag();
+        $name = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";
+
+        $options = [];
         foreach (self::getResources() as $group) {
             if ($group['active']) {
                 $options[] = HTML::option($group['id'], $group[$name]);
@@ -174,8 +173,8 @@ class Groups extends Associated implements Selectable
             return [];
         }
 
-        $query = Database::getQuery();
-        $query->select('g.*')->from('#__organizer_groups AS g');
+        $query = DB::getQuery();
+        $query->select(DB::qn('g') . '.*')->from(DB::qn('#__organizer_groups', 'g'));
 
         if (!empty($access)) {
             self::filterAccess($query, $access, 'group', 'g');
@@ -189,9 +188,9 @@ class Groups extends Associated implements Selectable
             self::filterResources($query, 'category', 'cat', 'g');
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 
     /**
@@ -205,7 +204,7 @@ class Groups extends Associated implements Selectable
      */
     public static function getUnits(int $groupID, string $date, string $interval = 'term'): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::getTag();
         $query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method, eventID")
             ->from('#__organizer_units AS u')
@@ -215,9 +214,9 @@ class Groups extends Associated implements Selectable
             ->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
             ->where("groupID = $groupID")
             ->where("u.delta != 'removed'");
-        self::addUnitDateRestriction($query, $date, $interval);
-        Database::setQuery($query);
+        self::terminate($query, $date, $interval);
+        DB::setQuery($query);
 
-        return Database::loadAssocList();
+        return DB::loadAssocList();
     }
 }

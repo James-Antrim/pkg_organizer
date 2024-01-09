@@ -69,15 +69,16 @@ trait Filtered
             return;
         }
 
+        $tableID   = DB::qn('campusAlias.id');
         $condition = DB::qc('campusAlias.id', "$alias.campusID");
         $table     = DB::qn('#__organizer_campuses', 'campusAlias');
-        if (in_array('-1', $campusIDs)) {
-            $query->leftJoin($table, $condition)->where("campusAlias.id IS NULL");
+        if (in_array(self::NONE, $campusIDs)) {
+            $query->leftJoin($table, $condition)->where("$tableID IS NULL");
         }
         else {
+            $parentID  = DB::qn('campusAlias.parentID');
             $campusIDs = implode(',', $campusIDs);
-            $query->innerJoin($table, $condition)
-                ->where("(campusAlias.id IN ($campusIDs) OR campusAlias.parentID IN ($campusIDs))");
+            $query->innerJoin($table, $condition)->where("($tableID IN ($campusIDs) OR $parentID IN ($campusIDs))");
         }
     }
 
@@ -93,9 +94,8 @@ trait Filtered
      */
     public static function filterOrganizations($query, $resource, $alias, $keyColumn = 'id'): void
     {
-        $organizationID  = Input::getInt('organizationID');
-        $organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
-        if (empty($organizationIDs)) {
+        $organizationID = Input::getInt('organizationID');
+        if (!$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization')) {
             return;
         }
 
@@ -106,8 +106,7 @@ trait Filtered
             $query->leftJoin($table, $condition)->where(DB::qn('aof.id') . ' IS NULL');
         }
         else {
-            $query->innerJoin($table, $condition)
-                ->whereIn(DB::qn('aof.organizationID'), $organizationIDs);
+            $query->innerJoin($table, $condition)->whereIn(DB::qn('aof.organizationID'), $organizationIDs);
         }
     }
 

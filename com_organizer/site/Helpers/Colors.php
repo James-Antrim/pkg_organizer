@@ -23,7 +23,7 @@ class Colors extends ResourceHelper
      *
      * @param   int  $colorID  the id of the color
      *
-     * @return string the hex value of the color
+     * @return string
      */
     public static function getColor(int $colorID): string
     {
@@ -58,15 +58,16 @@ class Colors extends ResourceHelper
      *
      * @param   string  $bgColor  the background color with which do
      *
-     * @return string  the hexadecimal value for an appropriate text color
+     * @return string
      */
     public static function getDynamicTextColor(string $bgColor): string
     {
-        $color              = substr($bgColor, 1);
+        $color = substr($bgColor, 1);
+        $red   = hexdec(substr($color, 0, 2));
+        $green = hexdec(substr($color, 2, 2));
+        $blue  = hexdec(substr($color, 4, 2));
+
         $params             = Input::getParams();
-        $red                = hexdec(substr($color, 0, 2));
-        $green              = hexdec(substr($color, 2, 2));
-        $blue               = hexdec(substr($color, 4, 2));
         $relativeBrightness = ($red * 299) + ($green * 587) + ($blue * 114);
         $brightness         = $relativeBrightness / 1000;
         if ($brightness >= 128) {

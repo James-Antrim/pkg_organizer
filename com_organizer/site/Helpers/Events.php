@@ -20,7 +20,7 @@ use THM\Organizer\Tables\Events as Table;
 class Events extends ResourceHelper
 {
     use Active;
-    use Planned;
+    use Terminated;
     use Suppressed;
 
     /**
@@ -73,30 +73,33 @@ class Events extends ResourceHelper
      *
      * @param   int  $eventID  the id of the event
      *
-     * @return string[] the names of the categories (or programs)
+     * @return string[]
      */
     public static function getCategoryNames(int $eventID): array
     {
-        $names     = [];
-        $tag       = Application::getTag();
-        $query     = DB::getQuery();
-        $nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-        $query->select("c.name_$tag AS category, " . $query->concatenate($nameParts, "") . ' AS program')
-            ->select('c.id')
-            ->from('#__organizer_categories AS c')
-            ->innerJoin('#__organizer_groups AS g ON g.categoryID = c.id')
-            ->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = g.id')
-            ->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
-            ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-            ->leftJoin('#__organizer_programs AS p ON p.categoryID = c.id')
-            ->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
-            ->where("i.eventID = $eventID");
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
+
+        $nameParts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('p.accredited'), "')'"];
+        $program   = [$query->concatenate($nameParts, '') . ' AS ' . DB::qn('program')];
+        $selected  = [DB::qn('c.id'), DB::qn("c.name_$tag", 'category')];
+
+        $query->select(array_merge($selected, $program))
+            ->from(DB::qn('#__organizer_categories', 'c'))
+            ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.categoryID', 'c.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.groupID', 'g.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.id', 'ig.assocID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
+            ->leftJoin(DB::qn('#__organizer_programs', 'p'), DB::qc('p.categoryID', 'c.id'))
+            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('p.degreeID', 'd.id'))
+            ->where(DB::qn('i.eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
         DB::setQuery($query);
 
         if (!$results = DB::loadAssocList()) {
             return [];
         }
 
+        $names = [];
         foreach ($results as $result) {
             $names[$result['id']] = $result['program'] ?: $result['category'];
         }
@@ -109,7 +112,7 @@ class Events extends ResourceHelper
      *
      * @param   int  $eventID
      *
-     * @return int the id of the organization associated with an event, or 0
+     * @return int
      */
     public static function getOrganizationID(int $eventID): int
     {
@@ -134,14 +137,16 @@ class Events extends ResourceHelper
      */
     public static function getUnits(int $eventID, string $date, string $interval = 'term'): array
     {
+        [$id, $comment] = DB::qn(['u.id', 'u.comment']);
+        $method = DB::qn('m.abbreviation_' . Application::getTag(), 'method');
+
         $query = DB::getQuery();
-        $tag   = Application::getTag();
-        $query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method")
-            ->from('#__organizer_units AS u')
-            ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-            ->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
-            ->where("eventID = $eventID");
-        self::addUnitDateRestriction($query, $date, $interval);
+        $query->select("DISTINCT $id, $comment, $method")
+            ->from(DB::qn('#__organizer_units', 'u'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
+            ->leftJoin(DB::qn('#__organizer_methods', 'm'), DB::qc('m.id', 'i.methodID'))
+            ->where(DB::qn('eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
+        self::terminate($query, $date, $interval);
         DB::setQuery($query);
 
         return DB::loadAssocList();
@@ -153,20 +158,20 @@ class Events extends ResourceHelper
      * @param   int  $eventID   the optional id of the subject
      * @param   int  $personID  the optional id of the person entry
      *
-     * @return bool true if the user is a teacher, otherwise false
+     * @return bool
      */
     public static function teaches(int $eventID = 0, int $personID = 0): bool
     {
         $personID = $personID ?: Persons::getIDByUserID(User::id());
         $query    = DB::getQuery();
         $query->select('COUNT(*)')
-            ->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
-            ->where("ip.personID = $personID")
-            ->where("ip.roleID = 1");
+            ->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.instanceID', 'i.id'))
+            ->where(DB::qn('ip.personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER)
+            ->where(DB::qn('ip.roleID') . ' = ' . Roles::TEACHER);
 
         if ($eventID) {
-            $query->where("i.eventID = $eventID");
+            $query->where(DB::qn('i.eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
         }
 
         DB::setQuery($query);

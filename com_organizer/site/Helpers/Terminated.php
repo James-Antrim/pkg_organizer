@@ -15,7 +15,7 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Tables;
 
-trait Planned
+trait Terminated
 {
     /**
      * Adds a restriction to the query based on the unit dates.
@@ -26,7 +26,7 @@ trait Planned
      *
      * @return void
      */
-    public static function addUnitDateRestriction(DatabaseQuery $query, string $date, string $interval): void
+    public static function terminate(DatabaseQuery $query, string $date, string $interval): void
     {
         switch ($interval) {
             case 'term':
@@ -39,8 +39,8 @@ trait Planned
                 Dates::betweenColumns($query, $date, 'u.startDate', 'u.endDate');
                 break;
             case 'day':
-                $query->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-                    ->where("b.date = '$date'");
+                $query->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
+                    ->where(DB::qn('b.date') . ' = :date')->bind(':date', $date);
                 break;
         }
     }

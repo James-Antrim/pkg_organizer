@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Tables;
 
 /**
@@ -55,32 +56,28 @@ class CourseParticipants extends ResourceHelper
      * @param   int  $participantID  the id of the participant
      * @param   int  $eventID        the id of the specific course event
      *
-     * @return  int|null int if the user has a course participant state, otherwise null
+     * @return  int|null
      */
     public static function getState(int $courseID, int $participantID, int $eventID = 0): ?int
     {
-        $query = Database::getQuery();
-        $query->select('status')
-            ->from('#__organizer_course_participants AS cp')
-            ->where("cp.courseID = $courseID")
-            ->where("cp.participantID = $participantID");
+        $query = DB::getQuery();
+        $query->select(DB::qn('status'))
+            ->from(DB::qn('#__organizer_course_participants', 'cp'))
+            ->where(DB::qn('cp.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->where(DB::qn('cp.participantID') . ' = :cParticipantID')
+            ->bind(':cParticipantID', $participantID, ParameterType::INTEGER);
 
         if ($eventID) {
-            $query->innerJoin('#__organizer_units AS u ON u.courseID = cp.courseID')
-                ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-                ->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
-                ->where("i.eventID = $eventID")
-                ->where("ip.participantID = $participantID");
+            $query->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.courseID', 'cp.courseID'))
+                ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
+                ->innerJoin(DB::qn('#__organizer_instance_participants', 'ip'), DB::qc('ip.instanceID', 'i.id'))
+                ->where(DB::qn('i.eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER)
+                ->where(DB::qn('ip.participantID') . ' = :iParticipantID')
+                ->bind(':iParticipantID', $participantID, ParameterType::INTEGER);
         }
 
-        Database::setQuery($query);
-        $state = Database::loadResult();
-
-        if ($state === self::UNREGISTERED) {
-            return $state;
-        }
-
-        return (int) $state;
+        DB::setQuery($query);
+        return DB::loadResult();
     }
 
     /**
@@ -89,7 +86,7 @@ class CourseParticipants extends ResourceHelper
      * @param   int  $courseID       the id of the course to check against
      * @param   int  $participantID  the id of the participant to validate
      *
-     * @return bool true if the participant entry is incomplete, otherwise false
+     * @return bool
      */
     public static function validProfile(int $courseID, int $participantID): bool
     {
