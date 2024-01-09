@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Dates, Organizations, Rooms};
+use THM\Organizer\Tables\Terms;
 
 /**
  * Class calculates room usage statistics.
@@ -151,7 +151,7 @@ class RoomStatistics extends BaseModel
     public function getOrganizationOptions(): array
     {
         $options = [];
-        foreach (Helpers\Organizations::getOptions(false) as $id => $name) {
+        foreach (Organizations::getOptions(false) as $id => $name) {
             $options[$id] = $name;
         }
 
@@ -250,7 +250,7 @@ class RoomStatistics extends BaseModel
     private function setData(int $roomID): bool
     {
         $tag       = Application::getTag();
-        $ringQuery = Database::getQuery();
+        $ringQuery = DB::getQuery();
         $ringQuery->select('DISTINCT ccm.id AS ccmID')
             ->from('#__organizer_calendar_configuration_map AS ccm')
             ->select('c.schedule_date AS date, c.startTime, c.endTime')
@@ -267,13 +267,13 @@ class RoomStatistics extends BaseModel
         $ringQuery->where("lcrs.delta != 'removed'");
         $ringQuery->where("l.delta != 'removed'");
         $ringQuery->where("c.delta != 'removed'");
-        $ringQuery->where("schedule_date BETWEEN '$this->startDate' AND '$this->endDate'");
+        Dates::betweenValues($ringQuery, 'schedule_date', $this->startDate, $this->endDate);
 
         $regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
         $ringQuery->where("conf.configuration REGEXP '$regexp'");
-        Database::setQuery($ringQuery);
-        $ringData = Database::loadAssocList();
-        $lcrsIDs  = Database::loadIntColumn(7);
+        DB::setQuery($ringQuery);
+        $ringData = DB::loadAssocList();
+        $lcrsIDs  = DB::loadIntColumn(7);
 
         if (empty($ringData) or empty($lcrsIDs)) {
             return false;
@@ -294,7 +294,7 @@ class RoomStatistics extends BaseModel
         $termID = Input::getFilterID('term');
 
         if ($termID) {
-            $table = new Tables\Terms();
+            $table = new Terms();
 
             if ($table->load($termID)) {
                 $this->startDate = $table->startDate;
@@ -311,8 +311,8 @@ class RoomStatistics extends BaseModel
         $interval   = Input::getCMD('interval', 'week');
 
         $dates = match ($interval) {
-            'month' => Helpers\Dates::getMonth($date),
-            default => Helpers\Dates::getWeek($date, $startDoWNo, $endDoWNo),
+            'month' => Dates::getMonth($date),
+            default => Dates::getWeek($date, $startDoWNo, $endDoWNo),
         };
 
         $this->startDate = $dates['startDate'];
@@ -325,7 +325,7 @@ class RoomStatistics extends BaseModel
      */
     private function setGrid(): void
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('grid')->from('#__organizer_grids');
 
         if (empty($this->parameters['gridID'])) {
@@ -335,9 +335,9 @@ class RoomStatistics extends BaseModel
             $query->where("id = {$this->parameters['gridID']}");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$rawGrid = Database::loadString()) {
+        if (!$rawGrid = DB::loadString()) {
             return;
         }
 
@@ -366,7 +366,7 @@ class RoomStatistics extends BaseModel
     private function setLSData(array $lcrsIDs): void
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
 
         $select = 'DISTINCT lcrs.id AS lcrsID, ';
         $query->from('#__organizer_lesson_courses AS lcrs');
@@ -400,9 +400,9 @@ class RoomStatistics extends BaseModel
         $query->select($select);
         $query->where("lg.delta != 'removed'");
         $query->where("lcrs.id IN ('" . implode("', '", $lcrsIDs) . "')");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        $results = Database::loadAssocList('lcrsID');
+        $results = DB::loadAssocList('lcrsID');
         if (empty($results)) {
             return;
         }
@@ -418,7 +418,7 @@ class RoomStatistics extends BaseModel
      */
     private function setRooms(): void
     {
-        $rooms       = Helpers\Rooms::getPlannedRooms();
+        $rooms       = Rooms::getPlannedRooms();
         $roomtypeMap = [];
 
         foreach ($rooms as $room) {
@@ -436,15 +436,15 @@ class RoomStatistics extends BaseModel
     private function setRoomTypes(): void
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
 
         $query->select("id, name_$tag AS name, description_$tag AS description")
             ->from('#__organizer_roomtypes')
             ->order('name');
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        $this->roomtypes = Database::loadAssocList('id');
+        $this->roomtypes = DB::loadAssocList('id');
     }
 
     /**

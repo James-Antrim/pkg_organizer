@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Dates, Rooms};
 
 /**
  * Class which calculates organization statistic data.
@@ -246,11 +246,11 @@ class OrganizationOccupancy extends BaseModel
     {
         $options = [];
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT YEAR(schedule_date) AS year')->from('#__organizer_calendar')->order('year');
 
-        Database::setQuery($query);
-        $years = Database::loadColumn();
+        DB::setQuery($query);
+        $years = DB::loadColumn();
 
         if (!empty($years)) {
             foreach ($years as $year) {
@@ -274,7 +274,7 @@ class OrganizationOccupancy extends BaseModel
         $cSelect = "c.schedule_date AS date, TIME_FORMAT(c.startTime, '%H:%i') AS startTime, ";
         $cSelect .= "TIME_FORMAT(c.endTime, '%H:%i') AS endTime";
 
-        $ringQuery = Database::getQuery();
+        $ringQuery = DB::getQuery();
         $ringQuery->select('DISTINCT ccm.id AS ccmID')
             ->from('#__organizer_calendar_configuration_map AS ccm')
             ->select($cSelect)
@@ -291,13 +291,13 @@ class OrganizationOccupancy extends BaseModel
         $ringQuery->where("lcrs.delta != 'removed'");
         $ringQuery->where("l.delta != 'removed'");
         $ringQuery->where("c.delta != 'removed'");
-        $ringQuery->where("schedule_date BETWEEN '$this->startDate' AND '$this->endDate'");
+        Dates::betweenValues($ringQuery, 'schedule_date', $this->startDate, $this->endDate);
 
         $regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
         $ringQuery->where("conf.configuration REGEXP '$regexp'");
-        Database::setQuery($ringQuery);
+        DB::setQuery($ringQuery);
 
-        if (!$roomConfigurations = Database::loadAssocList()) {
+        if (!$roomConfigurations = DB::loadAssocList()) {
             return false;
         }
 
@@ -312,7 +312,7 @@ class OrganizationOccupancy extends BaseModel
      */
     private function setRooms()
     {
-        $rooms       = Helpers\Rooms::getPlannedRooms();
+        $rooms       = Rooms::getPlannedRooms();
         $roomtypeMap = [];
 
         foreach ($rooms as $room) {
@@ -329,15 +329,15 @@ class OrganizationOccupancy extends BaseModel
      */
     private function setRoomTypes()
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::getTag();
 
         $query->select("id, name_$tag AS name, description_$tag AS description");
         $query->from('#__organizer_roomtypes');
         $query->order('name');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        $this->roomtypes = Database::loadAssocList('id');
+        $this->roomtypes = DB::loadAssocList('id');
     }
 
     /**
@@ -349,13 +349,13 @@ class OrganizationOccupancy extends BaseModel
      */
     private function setTerms(string $year): void
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('*')->from('#__organizer_terms')
             ->where("(YEAR(startDate) = $year OR YEAR(endDate) = $year)")
             ->order('startDate');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        $this->terms = Database::loadAssocList('id');
+        $this->terms = DB::loadAssocList('id');
 
     }
 

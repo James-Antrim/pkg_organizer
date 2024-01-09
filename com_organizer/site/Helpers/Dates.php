@@ -11,7 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use DateTime;
-use THM\Organizer\Adapters\{Database, Input, Text};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Database as DB, Input, Text};
 
 /**
  * Class provides generalized functions regarding dates and times.
@@ -19,13 +20,50 @@ use THM\Organizer\Adapters\{Database, Input, Text};
 class Dates
 {
     /**
+     * Modifies a query with a restriction for a value (not) between two column values.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $value  the date for the restriction
+     * @param   string         $low    the low date column
+     * @param   string         $high   the high date column
+     * @param   bool           $not    whether the restriction should be negated
+     *
+     * @return void
+     */
+    public static function betweenColumns(DatabaseQuery $query, string $value, string $low, string $high, bool $not = false): void
+    {
+        [$low, $high] = DB::qn([$low, $high]);
+        $where = $not ? ":value NOT BETWEEN $low AND $high" : ":value BETWEEN $low AND $high";
+        $query->where($where)->bind(':value', $value);
+    }
+
+    /**
+     * Modifies a query with a restriction for a value (not) between two column values.
+     *
+     * @param   DatabaseQuery  $query   the query to modify
+     * @param   string         $column  the column for the restriction
+     * @param   string         $low     the low date value
+     * @param   string         $high    the high date value
+     * @param   bool           $not     whether the restriction should be negated
+     *
+     * @return void
+     */
+    public static function betweenValues(DatabaseQuery $query, string $column, string $low, string $high, bool $not = false): void
+    {
+        $column = DB::qn($column);
+        [$low, $high] = DB::quote([$low, $high]);
+        $where = $not ? "$column NOT BETWEEN :low AND :high" : "$column BETWEEN :low AND :high";
+        $query->where($where)->bind(':low', $low)->bind(':high', $high);
+    }
+
+    /**
      * Formats the date stored in the database according to the format in the component parameters
      *
      * @param   string  $date      the date to be formatted
      * @param   bool    $withText  if the day name should be part of the output
      * @param   bool    $short     if the day name output should be abbreviated
      *
-     * @return string  a formatted date string otherwise false
+     * @return string
      */
     public static function formatDate(string $date = '', bool $withText = false, bool $short = false): string
     {
@@ -47,7 +85,7 @@ class Dates
      *
      * @param   int|string  $dateTime  the raw date time
      *
-     * @return string the formatted date time
+     * @return string
      */
     public static function formatDateTime(int|string $dateTime): string
     {
@@ -62,7 +100,7 @@ class Dates
      *
      * @param   string  $time  the date to be formatted
      *
-     * @return string  a formatted date string otherwise false
+     * @return string
      */
     public static function formatEndTime(string $time): string
     {
@@ -74,7 +112,7 @@ class Dates
      *
      * @param   string  $time  the date to be formatted
      *
-     * @return string  a formatted date string otherwise false
+     * @return string
      */
     public static function formatTime(string $time): string
     {
@@ -87,7 +125,7 @@ class Dates
      * @param   string  $startDate  the start date of the resource
      * @param   string  $endDate    the end date of the resource
      *
-     * @return string  a formatted date string otherwise false
+     * @return string
      */
     public static function getDisplay(string $startDate, string $endDate): string
     {
@@ -98,8 +136,9 @@ class Dates
     }
 
     /**
-     * Gets the format from the component settings
-     * @return string the date format
+     * Gets the format from the component settings.
+     *
+     * @return string
      */
     public static function getFormat(): string
     {
@@ -111,7 +150,7 @@ class Dates
      *
      * @param   string  $date  the date
      *
-     * @return string[] containing startDate and endDate
+     * @return string[]
      */
     public static function getHalfYear(string $date): array
     {
@@ -125,17 +164,15 @@ class Dates
      *
      * @param   string  $date  the date
      *
-     * @return string[] containing startDate and endDate
+     * @return string[]
      */
     public static function getMonth(string $date): array
     {
-        $dateTime  = strtotime($date);
-        $startDT   = strtotime('first day of this month', $dateTime);
-        $startDate = date('Y-m-d', $startDT);
-        $endDT     = strtotime('last day of this month', $dateTime);
-        $endDate   = date('Y-m-d', $endDT);
+        $dateTime = strtotime($date);
+        $endDT    = strtotime('last day of this month', $dateTime);
+        $startDT  = strtotime('first day of this month', $dateTime);
 
-        return ['startDate' => $startDate, 'endDate' => $endDate];
+        return ['startDate' => date('Y-m-d', $startDT), 'endDate' => date('Y-m-d', $endDT)];
     }
 
     /**
@@ -144,11 +181,12 @@ class Dates
      * @param   string  $date  the date
      * @param   int     $startDay
      *
-     * @return string[] containing startDate and endDate
+     * @return string[]
      */
     public static function getQuarter(string $date, int $startDay = 1): array
     {
         $dateTime = strtotime($date);
+
         switch (Input::getCMD('format')) {
             case 'pdf':
                 $startDayName = date('l', strtotime("Sunday + $startDay days"));
@@ -166,17 +204,16 @@ class Dates
      *
      * @param   string  $date  the date in format Y-m-d
      *
-     * @return string[] containing startDate and endDate
+     * @return string[]
      */
     public static function getTerm(string $date): array
     {
-        $query = Database::getQuery();
-        $query->select('startDate, endDate')
-            ->from('#__organizer_terms')
-            ->where("'$date' BETWEEN startDate AND endDate");
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select(DB::qn(['startDate', 'endDate']))->from(DB::qn('#__organizer_terms'));
+        self::betweenColumns($query, $date, 'startDate', 'endDate');
+        DB::setQuery($query);
 
-        return Database::loadAssoc();
+        return DB::loadAssoc();
     }
 
     /**
@@ -186,7 +223,7 @@ class Dates
      * @param   int     $startDay  0-6 number of the starting day of the week
      * @param   int     $endDay    0-6 number of the ending day of the week
      *
-     * @return string[] containing startDate and endDate
+     * @return string[]
      */
     public static function getWeek(string $date, int $startDay = 1, int $endDay = 6): array
     {
@@ -218,7 +255,7 @@ class Dates
      *
      * @param   string  $date  the date string
      *
-     * @return string  date sting in format Y-m-d
+     * @return string
      */
     public static function standardizeDate(string $date = ''): string
     {
