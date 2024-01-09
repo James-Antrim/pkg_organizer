@@ -44,6 +44,39 @@ abstract class MergeController extends FormController
     }
 
     /**
+     * Checks the aggregate value of a "bool" column.
+     *
+     * @param   string  $column  the column value to aggregate as bool
+     * @param   string  $table   the table suffix
+     * @param   bool    $all     true => all values must be 1, false => any value can be 1
+     *
+     * @return int
+     */
+    protected function boolAggregate(string $column, string $table, bool $all): int
+    {
+        $query = DB::getQuery();
+        $query->select(DB::qn($column))
+            ->from(DB::qn("#__organizer_$table"))
+            ->whereIn(DB::qn('id'), $this->mergeIDs);
+        DB::setQuery($query);
+
+        $return = null;
+
+        foreach (DB::loadIntColumn() as $result) {
+
+            // Don't add weight with an extrinsic initial value
+            if (is_null($return)) {
+                $return = $result;
+                continue;
+            }
+
+            $return = $all ? ($return and $result) : ($return or $result);
+        }
+
+        return (int) $return;
+    }
+
+    /**
      * @inheritDoc
      */
     public function display($cachable = false, $urlparams = []): BaseController
@@ -150,6 +183,8 @@ abstract class MergeController extends FormController
         $this->mergeIDs      = $ids;
         $this->mergeID       = array_shift($ids);
         $this->deprecatedIDs = $ids;
+
+        Input::getInput()->post->set('id', $this->mergeID);
     }
 
     /**
