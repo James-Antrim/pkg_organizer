@@ -9,10 +9,6 @@
                from="rooms AS rm" innerJoins="roomtypes AS rt ON rt.id = rm.roomtypeID" required="true"/>
         <field name="maxCapacity" type="MergeValues" label="ORGANIZER_MAX_CAPACITY"/>
         <field name="effCapacity" type="MergeValues" label="ORGANIZER_EFF_CAPACITY"/>
-        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
-            <option value="1">ORGANIZER_YES</option>
-            <option value="0">ORGANIZER_NO</option>
-        </field>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>
 </form>

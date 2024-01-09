@@ -23,6 +23,19 @@ class MergeRooms extends MergeController
     /**
      * @inheritDoc
      */
+    protected function prepareData(): array
+    {
+        $data = parent::prepareData();
+
+        $data['active']  = $this->boolAggregate('active', 'persons', false);
+        $data['virtual'] = $this->boolAggregate('virtual', 'persons', true);
+
+        return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function updateReferences(): bool
     {
         if (!$this->updateTable('monitors')) {
