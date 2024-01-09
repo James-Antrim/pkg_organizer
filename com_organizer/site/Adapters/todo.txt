@@ -1,0 +1,1 @@
+Convert the current application error output into logging before production release.

@@ -104,11 +104,10 @@ class Application
             };
 
             //if ($severity === self::ERROR) {
-                // TODO turn this into logging before productive release
-                echo "<pre>" . print_r($message, true) . "</pre>";
-                $exc = new Exception();
-                echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
-                die;
+            echo "<pre>" . print_r($message, true) . "</pre>";
+            $exc = new Exception();
+            echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
+            die;
             //}
 
             //$url = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
@@ -198,13 +197,17 @@ class Application
      * Gets the current menu item.
      * @return MenuItem|null the current menu item or null
      */
-    public static function getMenuItem(): ?MenuItem
+    public static function getMenuItem(int $itemID = 0): ?MenuItem
     {
         /** @var CMSApplication $app */
         $app = self::getApplication();
 
         if ($menu = $app->getMenu() and $menuItem = $menu->getActive()) {
-            return $menuItem;
+            if ($itemID) {
+                return $menu->getItem($itemID);
+            }
+
+            return $menu->getActive();
         }
 
         return null;
