@@ -10,9 +10,10 @@
 
 namespace THM\Organizer\Helpers;
 
+use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database, User};
-use THM\Organizer\Tables;
+use THM\Organizer\Adapters\{Application, Database as DB, User};
+use THM\Organizer\Tables\{FieldColors, Schedules};
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -37,8 +38,7 @@ class Can
     /**
      * Performs ubiquitous authorization checks. Functions using this with is_bool() will get a false positive for a
      * null return value in their own return value suggestions.
-     * @return bool|null true if the user has administrative authorization, false if the user is a guest, otherwise
-     *                   null
+     * @return bool|null
      */
     private static function basic(): ?bool
     {
@@ -83,7 +83,7 @@ class Can
      * @param   string  $resourceType  the resource type being checked
      * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
      *
-     * @return bool true if the user is authorized to document the resources of an/the organization
+     * @return bool
      */
     public static function document(string $resourceType, int $resourceID = 0): bool
     {
@@ -95,14 +95,14 @@ class Can
             return false;
         }
 
-        $query = Database::getQuery();
-        $query->select('DISTINCT organizationID')->from('#__organizer_associations');
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('organizationID'))->from(DB::qn('#__organizer_associations'));
         $organizationIDs = [];
 
         if ($resourceID) {
             switch ($resourceType) {
                 case 'fieldcolor':
-                    $table = new Tables\FieldColors();
+                    $table = new FieldColors();
 
                     if (!$table->load($resourceID) or empty($table->organizationID)) {
                         return false;
@@ -114,19 +114,20 @@ class Can
                     $organizationIDs[] = $resourceID;
                     break;
                 case 'pool':
-                    $query->where("poolID = $resourceID");
-                    Database::setQuery($query);
+                    $query->where(DB::qn('poolID') . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
+                    DB::setQuery($query);
 
-                    if (!$organizationIDs = Database::loadIntColumn()) {
+                    if (!$organizationIDs = DB::loadIntColumn()) {
                         return false;
                     }
 
                     break;
                 case 'program':
-                    $query->where("programID = $resourceID");
-                    Database::setQuery($query);
+                    $query->where(DB::qn('programID') . ' = :resourceID')->bind(':resourceID', $resourceID,
+                        ParameterType::INTEGER);
+                    DB::setQuery($query);
 
-                    if (!$organizationIDs = Database::loadIntColumn()) {
+                    if (!$organizationIDs = DB::loadIntColumn()) {
                         return false;
                     }
 
@@ -137,10 +138,11 @@ class Can
                         return true;
                     }
 
-                    $query->where("subjectID = $resourceID");
-                    Database::setQuery($query);
+                    $query->where(DB::qn('subjectID') . ' = :resourceID')->bind(':resourceID', $resourceID,
+                        ParameterType::INTEGER);
+                    DB::setQuery($query);
 
-                    if (!$organizationIDs = Database::loadIntColumn()) {
+                    if (!$organizationIDs = DB::loadIntColumn()) {
                         return false;
                     }
 
@@ -154,8 +156,8 @@ class Can
             }
         }
         else {
-            Database::setQuery($query);
-            $organizationIDs = Database::loadIntColumn();
+            DB::setQuery($query);
+            $organizationIDs = DB::loadIntColumn();
         }
 
         $user = User::instance();
@@ -171,7 +173,7 @@ class Can
 
     /**
      * Gets the ids of organizations for which the user is authorized documentation access
-     * @return int[]  the organization ids, empty if user has no access
+     * @return int[]
      */
     public static function documentTheseOrganizations(): array
     {
@@ -184,7 +186,7 @@ class Can
      * @param   string          $resourceType  the resource type being checked
      * @param   array|int|null  $resource      the resource id being checked or an array if resource ids to check
      *
-     * @return bool true if the user is authorized to manage courses, otherwise false
+     * @return bool
      */
     public static function edit(string $resourceType, array|int|null $resource = null): bool
     {
@@ -230,7 +232,7 @@ class Can
      * @param   string     $helperClass  the name of the helper class
      * @param   array|int  $resource     the resource id being checked or an array if resource ids to check
      *
-     * @return bool true if the user is authorized to manage courses, otherwise false
+     * @return bool
      * @noinspection PhpUndefinedMethodInspection
      */
     private static function editScheduleResource(string $helperClass, array|int $resource): bool
@@ -267,7 +269,7 @@ class Can
      *
      * @param   string  $function  the action for authorization
      *
-     * @return int[]  the organization ids, empty if user has no access
+     * @return int[]
      */
     private static function getAuthorizedOrganizations(string $function): array
     {
@@ -302,7 +304,7 @@ class Can
      * @param   string  $resourceType  the resource type being checked
      * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
      *
-     * @return bool true if the user is authorized for scheduling functions and views.
+     * @return bool
      */
     public static function manage(string $resourceType, int $resourceID = 0): bool
     {
@@ -358,7 +360,7 @@ class Can
 
     /**
      * Gets the ids of organizations for which the user is authorized managing access
-     * @return int[]  the organization ids, empty if user has no access
+     * @return int[]
      */
     public static function manageTheseOrganizations(): array
     {
@@ -371,7 +373,7 @@ class Can
      * @param   string  $resourceType  the resource type being checked
      * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
      *
-     * @return bool true if the user is authorized for scheduling functions and views.
+     * @return bool
      */
     public static function schedule(string $resourceType, int $resourceID): bool
     {
@@ -386,7 +388,7 @@ class Can
         $user = User::instance();
 
         if ($resourceType === 'schedule') {
-            $schedule = new Tables\Schedules();
+            $schedule = new Schedules();
 
             if (!$schedule->load($resourceID)) {
                 return false;
@@ -404,7 +406,7 @@ class Can
 
     /**
      * Gets the ids of organizations for which the user is authorized scheduling access
-     * @return int[]  the organization ids, empty if user has no access
+     * @return int[]
      */
     public static function scheduleTheseOrganizations(): array
     {
@@ -430,7 +432,7 @@ class Can
      * @param   string  $view        the name of the view being accessed
      * @param   int     $resourceID  the optional resource id
      *
-     * @return bool true if the user is authorized for scheduling functions and views.
+     * @return bool
      */
     public static function view(string $view, int $resourceID = 0): bool
     {
@@ -489,7 +491,7 @@ class Can
 
     /**
      * Gets the ids of organizations for which the user is authorized privileged view access
-     * @return int[]  the organization ids, empty if user has no access
+     * @return int[]
      */
     public static function viewTheseOrganizations(): array
     {
