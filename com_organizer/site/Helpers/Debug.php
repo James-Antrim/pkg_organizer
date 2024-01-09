@@ -26,7 +26,7 @@ class Debug
      * @return void
      * @noinspection PhpUnused
      */
-    public static function examineString(string $string)
+    public static function examineString(string $string): void
     {
         echo "<pre>string: " . print_r($string, true) . "</pre><br>";
         $bytes = unpack('C*', $string);

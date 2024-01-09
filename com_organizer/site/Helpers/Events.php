@@ -23,8 +23,6 @@ class Events extends ResourceHelper
     use Planned;
     use Suppressed;
 
-    protected static string $resource = 'event';
-
     /**
      * Gets a list of event ids for which the user has coordinating access.
      * @return int[]

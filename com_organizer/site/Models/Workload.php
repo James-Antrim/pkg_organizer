@@ -11,52 +11,39 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
+use Joomla\CMS\Form\Form;
 use THM\Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of participants.
  */
-class Workload extends OldFormModel
+class Workload extends FormModel
 {
     private const CURRENT_ITEMS = 1;
 
-    public $bachelors = 0;
+    public int $bachelors = 0;
 
-    public $diplomas = 0;
+    public int $doctors = 0;
 
-    public $doctors = 0;
+    private array $conditions;
 
-    private $conditions;
+    public array $items;
 
-    /**
-     * @var array
-     */
-    public $items;
+    public array $methods;
 
-    /**
-     * @var array
-     */
-    public $methods;
+    private int $organizationID;
 
-    private $organizationID;
+    public int $masters = 0;
 
-    public $masters = 0;
+    private int $personID;
 
-    private $personID;
+    public int $projects = 0;
 
-    public $projects = 0;
+    public array $programs;
 
-    /**
-     * @var array
-     */
-    public $programs;
+    private int $termID;
 
-    private $termID;
-
-    /**
-     * @var int
-     */
-    private $weeks;
+    private int $weeks;
 
     /**
      * Aggregates by concurrent blocks.
@@ -110,7 +97,7 @@ class Workload extends OldFormModel
      *
      * @return void
      */
-    private function aggregateByDate(array &$items)
+    private function aggregateByDate(array &$items): void
     {
         $count = count($items);
 
@@ -121,11 +108,9 @@ class Workload extends OldFormModel
                 $block['minutes'] = ceil((strtotime($block['endTime']) - strtotime($block['startTime'])) / 60);
 
                 if (!empty($blocks[$block['date']])) {
-                    $block['endTime']   = $block['endTime'] > $blocks[$block['date']]['endTime'] ?
-                        $block['endTime'] : $blocks[$block['date']]['endTime'];
+                    $block['endTime']   = max($block['endTime'], $blocks[$block['date']]['endTime']);
                     $block['minutes']   += $blocks[$block['date']]['minutes'];
-                    $block['startTime'] = $block['startTime'] < $blocks[$block['date']]['startTime'] ?
-                        $block['startTime'] : $blocks[$block['date']]['startTime'];
+                    $block['startTime'] = min($block['startTime'], $blocks[$block['date']]['startTime']);
                 }
 
                 $blocks[$block['date']] = $block;
@@ -144,7 +129,7 @@ class Workload extends OldFormModel
      *
      * @return void
      */
-    private function aggregateByEvent(array &$items)
+    private function aggregateByEvent(array &$items): void
     {
         $count = count($items);
 
@@ -253,7 +238,7 @@ class Workload extends OldFormModel
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!User::id()) {
             Application::error(401);
@@ -286,7 +271,7 @@ class Workload extends OldFormModel
     /**
      * @inheritDoc
      */
-    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
+    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = null): Form
     {
         $options['load_data'] = true;
 
@@ -381,7 +366,7 @@ class Workload extends OldFormModel
      * Builds the array of parameters used for instance retrieval.
      * @return void
      */
-    private function setConditions()
+    private function setConditions(): void
     {
         $conditions              = [];
         $conditions['date']      = Helpers\Terms::getStartDate($this->termID);
@@ -400,7 +385,7 @@ class Workload extends OldFormModel
      * Sets program data.
      * @return void
      */
-    private function setMethods()
+    private function setMethods(): void
     {
         $tag   = Application::getTag();
         $query = Database::getQuery();
@@ -422,7 +407,7 @@ class Workload extends OldFormModel
      * Creates workload entry items.
      * @return void
      */
-    private function calculate()
+    private function calculate(): void
     {
         $conditions = $this->conditions;
         $tag        = Application::getTag();
@@ -447,10 +432,10 @@ class Workload extends OldFormModel
             ->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
             ->leftJoin('#__organizer_associations AS a ON a.programID = p.id')
             ->leftJoin('#__organizer_organizations AS o ON o.id = a.organizationID')
-            ->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
             ->order('b.date, b.startTime, b.endTime')
             ->where('ipe.roleID = 1')
             ->where('m.relevant = 1');
+        Helpers\Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
         Database::setQuery($query);
 
         $this->supplement($instances, Database::loadAssocList());
@@ -469,7 +454,7 @@ class Workload extends OldFormModel
      * Set dynamic data.
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->authorize();
         $this->setPrograms();
@@ -482,7 +467,7 @@ class Workload extends OldFormModel
      * Sets program data.
      * @return void
      */
-    private function setPrograms()
+    private function setPrograms(): void
     {
         $tag   = Application::getTag();
         $query = Database::getQuery();
@@ -522,7 +507,7 @@ class Workload extends OldFormModel
      *
      * @return void
      */
-    private function structureOutliers(array &$items)
+    private function structureOutliers(array &$items): void
     {
         foreach ($items as $eIndex => $item) {
             $dates                     = [];
@@ -582,7 +567,7 @@ class Workload extends OldFormModel
      *
      * @return void
      */
-    private function supplement(array &$instances, array $structure)
+    private function supplement(array &$instances, array $structure): void
     {
         foreach ($structure as $data) {
             if (empty($instances[$data['instanceID']])) {
@@ -621,7 +606,7 @@ class Workload extends OldFormModel
      *
      * @return void
      */
-    private function structureRepeaters(array &$items)
+    private function structureRepeaters(array &$items): void
     {
         foreach ($items as $eIndex => $item) {
             foreach ($item['blocks'] as $block) {

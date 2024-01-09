@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, User};
 use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Application, Database as DB, User};
 use THM\Organizer\Tables\Courses as Table;
 
 /**
@@ -210,26 +210,24 @@ class Courses extends ResourceHelper
     /**
      * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
      *
-     * @param   int       $courseID  the course id
-     * @param   int|null  $status    the participant status
+     * @param   int  $courseID  the course id
      *
      * @return int [] the participant IDs
      */
-    public static function getParticipantIDs(int $courseID, int $status = null): array
+    public static function getParticipantIDs(int $courseID): array
     {
         if (empty($courseID)) {
             return [];
         }
 
-        $query = DB::getQuery();
-        $query->select('participantID')
-            ->from('#__organizer_course_participants')
-            ->where("courseID = $courseID")
-            ->order('participantID');
+        $participantID = DB::qn('participantID');
 
-        if ($status !== null and is_numeric($status)) {
-            $query->where("status = $status");
-        }
+        $query = DB::getQuery();
+        $query->select($participantID)
+            ->from(DB::qn('#__organizer_course_participants'))
+            ->where(DB::qn('courseID') . ' = :courseID')
+            ->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->order($participantID);
 
         DB::setQuery($query);
 

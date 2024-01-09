@@ -20,11 +20,7 @@ use THM\Organizer\Adapters\{Application, Input};
  */
 class LSF
 {
-    private $client;
-
-    private $username;
-
-    private $password;
+    private SoapClient $client;
 
     /**
      * Creates the SOAP Client.
@@ -32,12 +28,8 @@ class LSF
      */
     public function __construct()
     {
-        $params = Input::getParams();
-        $uri    = $params->get('wsURI');
-
-        $this->username = $params->get('wsUsername');
-        $this->password = $params->get('wsPassword');
-        $this->client   = new SoapClient(null, ['uri' => $uri, 'location' => $uri]);
+        $uri          = Input::getParams()->get('wsURI');
+        $this->client = new SoapClient(null, ['uri' => $uri, 'location' => $uri]);
     }
 
     /**
@@ -47,9 +39,14 @@ class LSF
      *
      * @return SimpleXMLElement|false  SimpleXMLElement if the query was successful, otherwise false
      */
-    private function getDataXML(string $query)
+    private function getDataXML(string $query): SimpleXMLElement|false
     {
-        $result = $this->client->__soapCall('getDataXML', ['xmlParams' => $query]);
+        try {
+            $result = $this->client->__soapCall('getDataXML', ['xmlParams' => $query]);
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
+        }
 
         if (!$result) {
             Application::message('ORGANIZER_SOAP_FAIL', Application::ERROR);
@@ -57,7 +54,7 @@ class LSF
             return false;
         }
 
-        if ($result == 'error in soap-request') {
+        if ($result === 'error in soap-request') {
             Application::message('ORGANIZER_SOAP_INVALID', Application::ERROR);
 
             return false;
@@ -73,7 +70,7 @@ class LSF
      *
      * @return SimpleXMLElement|false
      */
-    public function getModule(int $moduleID)
+    public function getModule(int $moduleID): SimpleXMLElement|false
     {
         $XML = $this->header('ModuleAll');
         $XML .= "<modulid>$moduleID</modulid>";
@@ -90,7 +87,7 @@ class LSF
      *
      * @return SimpleXMLElement|false
      */
-    public function getModules(array $keys)
+    public function getModules(array $keys): SimpleXMLElement|false
     {
         $XML = $this->header('studiengang');
         $XML .= "<stg>{$keys['program']}</stg>";
@@ -110,10 +107,12 @@ class LSF
      */
     private function header(string $objectType): string
     {
+        $params = Input::getParams();
+
         $header = '<?xml version="1.0" encoding="UTF-8"?><SOAPDataService>';
         $header .= "<general><object>$objectType</object></general><user-auth>";
-        $header .= "<username>$this->username</username>";
-        $header .= "<password>$this->password</password>";
+        $header .= '<password>' . $params->get('wsPassword') . '</password>';
+        $header .= '<username>' . $params->get('wsUsername') . '</username>';
         $header .= '</user-auth><condition>';
 
         return $header;

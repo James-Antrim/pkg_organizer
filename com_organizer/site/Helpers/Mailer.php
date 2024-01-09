@@ -11,9 +11,10 @@
 
 namespace THM\Organizer\Helpers;
 
+use Exception;
 use Joomla\CMS\Factory;
 use THM\Organizer\Adapters\{Application, Input, Text, User};
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\{Courses as CTable, Participants};
 
 class Mailer
 {
@@ -26,14 +27,15 @@ class Mailer
      *
      * @return void
      */
-    public static function notifyParticipant(int $participantID, string $subject, string $body)
+    public static function notifyParticipant(int $participantID, string $subject, string $body): void
     {
         $user = User::instance($participantID);
+
         if (!$user->id) {
             return;
         }
 
-        $participant = new Tables\Participants();
+        $participant = new Participants();
         if (!$participant->load($participantID)) {
             return;
         }
@@ -44,11 +46,17 @@ class Mailer
         }
 
         $mailer = Factory::getMailer();
-        $mailer->setSender([$sender->email, $sender->name]);
-        $mailer->addRecipient($user->email);
-        $mailer->setBody($body);
-        $mailer->setSubject($subject);
-        $mailer->Send();
+
+        try {
+            $mailer->setSender([$sender->email, $sender->name]);
+            $mailer->addRecipient($user->email);
+            $mailer->setBody($body);
+            $mailer->setSubject($subject);
+            $mailer->Send();
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
+        }
     }
 
     /**
@@ -60,9 +68,9 @@ class Mailer
      *
      * @return void
      */
-    public static function registrationUpdate(int $courseID, int $participantID, ?int $status)
+    public static function registrationUpdate(int $courseID, int $participantID, ?int $status): void
     {
-        $course = new Tables\Courses();
+        $course = new CTable();
         if (!$course->load($courseID)) {
             return;
         }
@@ -76,7 +84,7 @@ class Mailer
             return;
         }
 
-        $participant = new Tables\Participants();
+        $participant = new Participants();
         if (!$participant->load($participantID)) {
             return;
         }
@@ -130,10 +138,16 @@ class Mailer
         }
 
         $mailer = Factory::getMailer();
-        $mailer->setSender([$sender->email, $sender->name]);
-        $mailer->addRecipient($user->email);
-        $mailer->setBody($body);
-        $mailer->setSubject($courseName);
-        $mailer->Send();
+
+        try {
+            $mailer->setSender([$sender->email, $sender->name]);
+            $mailer->addRecipient($user->email);
+            $mailer->setBody($body);
+            $mailer->setSubject($courseName);
+            $mailer->Send();
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
+        }
     }
 }

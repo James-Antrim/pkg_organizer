@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML, Text};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Text};
+use Joomla\Database\ParameterType;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -35,18 +36,19 @@ class Categories extends Associated implements Selectable
     public static function getGroups(int $categoryID, bool $active = true): array
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
-        $query->select("id, code, name_$tag AS name")
-            ->from('#__organizer_groups AS g')
-            ->where("categoryID = $categoryID");
+        $query = DB::getQuery();
+        $query->select(array_merge(DB::qn(['id', 'code']), [DB::qn("name_$tag", 'name')]))
+            ->from(DB::qn('#__organizer_groups', 'g'))
+            ->where(DB::qn('categoryID') . ' = :categoryID')
+            ->bind(':categoryID', $categoryID, ParameterType::INTEGER);
 
         if ($active) {
-            $query->where('active = 1');
+            $query->where(DB::qn('active') . ' = 1');
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList();
+        return DB::loadAssocList();
     }
 
     /**
@@ -75,22 +77,26 @@ class Categories extends Associated implements Selectable
     /**
      * Retrieves the name of the program associated with the category.
      *
-     * @param   int  $categoryID  the table id for the program
+     * @param   int  $categoryID  the id of the program
      *
-     * @return string the name of the (plan) program, otherwise empty
+     * @return string
      */
     public static function getProgramName(int $categoryID): string
     {
         $noName = Text::_('ORGANIZER_NO_PROGRAM');
+
         if (!$categoryID) {
             return $noName;
         }
 
-        $query = Database::getQuery();
-        $query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = $categoryID");
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('id'))
+            ->from(DB::qn('#__organizer_programs'))
+            ->where(DB::qn('categoryID') . ' = :categoryID')
+            ->bind(':categoryID', $categoryID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        if ($programIDs = Database::loadIntColumn()) {
+        if ($programIDs = DB::loadIntColumn()) {
             return count($programIDs) > 1 ?
                 Text::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
         }
@@ -106,16 +112,18 @@ class Categories extends Associated implements Selectable
     public static function getResources(string $access = ''): array
     {
         $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
-        $query = Database::getQuery();
-        $query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('c') . '*')
+            ->from(DB::qn('#__organizer_categories', 'c'))
+            ->order($order);
 
         if (!empty($access)) {
             self::filterAccess($query, $access, 'category', 'c');
         }
 
         self::filterOrganizations($query, 'category', 'c');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 }

@@ -543,11 +543,8 @@ class Instances extends ResourceHelper
     public static function instanceIDs(array $conditions): array
     {
         $query = self::getInstanceQuery($conditions);
-        $query->select('DISTINCT ' . DB::qn('i.id'))
-            ->where("b.date BETWEEN :start AND :end")
-            ->bind(':start', $conditions['startDate'])
-            ->bind(':end', $conditions['endDate'])
-            ->order(DB::qn(['b.date', 'b.startTime', 'b.endTime']));
+        $query->select('DISTINCT ' . DB::qn('i.id'))->order(DB::qn(['b.date', 'b.startTime', 'b.endTime']));
+        Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
         DB::setQuery($query);
 
         return DB::loadIntColumn();
@@ -988,21 +985,23 @@ class Instances extends ResourceHelper
             case self::FUTURE:
                 $lowDate  = date('Y-m-d', strtotime('+1 day', strtotime($conditions['endDate'])));
                 $highDate = date('Y-m-d', strtotime('+3 months', strtotime($conditions['endDate'])));
-                $query->where("b.date BETWEEN '$lowDate' AND '$highDate'");
-                $subQuery?->where("b2.date BETWEEN '$lowDate' AND '$highDate'");
 
                 break;
             case self::PAST:
                 $lowDate  = date('Y-m-d', strtotime('-3 months', strtotime($conditions['startDate'])));
                 $highDate = date('Y-m-d', strtotime('-1 day', strtotime($conditions['startDate'])));
-                $query->where("b.date BETWEEN '$lowDate' AND '$highDate'");
-                $subQuery?->where("b2.date BETWEEN '$lowDate' AND '$highDate'");
                 break;
             case self::NONE:
             default:
-                $query->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
-                $subQuery?->where("b2.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
+                $lowDate  = $conditions['startDate'];
+                $highDate = $conditions['endDate'];
                 break;
+        }
+
+        Dates::betweenValues($query, 'b.date', $lowDate, $highDate);
+
+        if ($subQuery) {
+            Dates::betweenValues($subQuery, 'b2.date', $lowDate, $highDate);
         }
 
         $filterOrganization = true;
@@ -1397,9 +1396,9 @@ class Instances extends ResourceHelper
      *
      * @param   array &$parameters  the parameters used for event retrieval
      *
-     * @return void modifies $parameters
+     * @return void
      */
-    public static function setDates(array &$parameters)
+    public static function setDates(array &$parameters): void
     {
         $date     = $parameters['date'];
         $dateTime = strtotime($date);
@@ -1441,7 +1440,7 @@ class Instances extends ResourceHelper
      *
      * @return void
      */
-    public static function setPublishingAccess(array &$conditions)
+    public static function setPublishingAccess(array &$conditions): void
     {
         $allowedIDs   = Can::viewTheseOrganizations();
         $overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
@@ -1575,7 +1574,7 @@ class Instances extends ResourceHelper
      *
      * @return void
      */
-    public static function updateNumbers(int $instanceID)
+    public static function updateNumbers(int $instanceID): void
     {
         $query = DB::getQuery();
         $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");

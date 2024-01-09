@@ -31,9 +31,8 @@ class Terms extends ResourceHelper implements Selectable
     {
         $date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
         $query = Database::getQuery();
-        $query->select('id')
-            ->from('#__organizer_terms')
-            ->where("'$date' BETWEEN startDate and endDate");
+        $query->select('id')->from('#__organizer_terms');
+        Dates::betweenColumns($query, $date, 'startDate', 'endDate');
         Database::setQuery($query);
 
         return Database::loadInt();

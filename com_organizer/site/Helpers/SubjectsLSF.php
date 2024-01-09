@@ -57,7 +57,7 @@ class SubjectsLSF
      *
      * @return void
      */
-    public static function checkProofAndMethod(Table $table)
+    public static function checkProofAndMethod(Table $table): void
     {
         $unusableProofValue = (empty($table->proof_en) or strlen($table->proof_en) < 4);
 
@@ -140,7 +140,7 @@ class SubjectsLSF
      *
      * @return void modifies the Table object
      */
-    public static function processAttributes(Table $table, Element $subject)
+    public static function processAttributes(Table $table, Element $subject): void
     {
         $table->setColumn('code', (string) $subject->modulecode, '');
         $table->setColumn('language', (string) $subject->sprache, '');
@@ -173,7 +173,7 @@ class SubjectsLSF
      *
      * @return void
      */
-    private static function processBonus(Table $table, string $text)
+    private static function processBonus(Table $table, string $text): void
     {
         // Remove tags and indiscriminate left spacing then standardize as lower for comparisons.
         $text = strtolower(trim(strip_tags($text)));
@@ -214,7 +214,7 @@ class SubjectsLSF
      *
      * @return void
      */
-    private static function processExpenditures(Table $table, string $text)
+    private static function processExpenditures(Table $table, string $text): void
     {
         $crpMatch = [];
         preg_match('/(\d) CrP/', $text, $crpMatch);
@@ -244,7 +244,7 @@ class SubjectsLSF
      *
      * @return void
      */
-    private static function processObject(Table $table, Element $property)
+    private static function processObject(Table $table, Element $property): void
     {
         $category = (string) $property->kategorie;
 
@@ -346,7 +346,7 @@ class SubjectsLSF
      *
      * @return void
      */
-    private static function processSpecialFields(Table $table, Element $subject)
+    private static function processSpecialFields(Table $table, Element $subject): void
     {
         if (!empty($subject->sws)) {
             $table->setColumn('sws', (int) $subject->sws, 0);
@@ -407,7 +407,7 @@ class SubjectsLSF
      *
      * @return void
      */
-    private static function processStarAttribute(Table $table, string $attribute, string $deValue, string $enValue)
+    private static function processStarAttribute(Table $table, string $attribute, string $deValue, string $enValue): void
     {
         switch ($attribute) {
             case 'Fachkompetenz':
@@ -450,8 +450,8 @@ class SubjectsLSF
             $scalarValue = $scalarValue < 4 ? $scalarValue : 3;
             $scalarValue = max($scalarValue, 0);
         }
-        elseif (preg_match('/^(\*)+$/', $deValue, $occurences)) {
-            $scalarValue = count($occurences);
+        elseif (preg_match('/^(\*)+$/', $deValue, $occurrences)) {
+            $scalarValue = count($occurrences);
             $scalarValue = $scalarValue < 4 ? $scalarValue : 3;
         }
 
