@@ -103,15 +103,15 @@ class Application
                 default => self::ERROR,
             };
 
-            if ($severity === self::ERROR) {
+            //if ($severity === self::ERROR) {
                 // TODO turn this into logging before productive release
                 echo "<pre>" . print_r($message, true) . "</pre>";
                 $exc = new Exception();
                 echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
                 die;
-            }
+            //}
 
-            $url = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
+            //$url = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
         }
 
         self::message($message, $severity);
