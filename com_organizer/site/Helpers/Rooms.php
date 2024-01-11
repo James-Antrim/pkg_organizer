@@ -10,21 +10,21 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Database, HTML, Input};
-use THM\Organizer\Tables;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Database as DB, HTML, Input};
+use THM\Organizer\Tables\Rooms as Table;
 
 /**
  * Class provides general functions for retrieving room data.
  */
 class Rooms extends ResourceHelper implements Selectable
 {
-    private const ALL = -1;
-
     //VIRTUAL = 1
     public const PHYSICAL = 0;
 
     use Active;
     use Filtered;
+    use Suppressed;
 
     /**
      * Resolves a text to a room id.
@@ -35,7 +35,7 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function getID(string $room): int
     {
-        $table = new Tables\Rooms();
+        $table = new Table();
 
         if ($table->load(['alias' => $room])) {
             return $table->id;
@@ -69,16 +69,16 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function getPlannedRooms(): array
     {
-        $query = Database::getQuery();
-        $query->select('r.id, r.name, r.roomtypeID')
-            ->from('#__organizer_rooms AS r')
-            ->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-            ->order('r.name');
+        $query = DB::getQuery();
+        $query->select(DB::qn(['r.id', 'r.name', 'r.roomtypeID']))
+            ->from(DB::qn('#__organizer_rooms', 'r'))
+            ->innerJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.roomID', 'r.id'))
+            ->order(DB::qn('r.name'));
 
         if ($organizationID = Input::getFilterID('organization')) {
-            $query->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ir.assocID')
-                ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
-                ->innerJoin('#__organizer_associations AS a ON a.categoryID = g.categoryID')
+            $query->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ir.assocID'))
+                ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'))
+                ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'g.categoryID'))
                 ->where("a.organizationID = $organizationID");
 
             if ($selectedCategory = Input::getFilterID('category')) {
@@ -86,9 +86,9 @@ class Rooms extends ResourceHelper implements Selectable
             }
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$results = Database::loadAssocList()) {
+        if (!$results = DB::loadAssocList()) {
             return [];
         }
 
@@ -105,39 +105,28 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function getResources(): array
     {
-        $query = Database::getQuery();
-        $query->select("DISTINCT r.id, r.*")
-            ->from('#__organizer_rooms AS r')
-            ->innerJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID')
-            ->order('name');
+        $query = DB::getQuery();
+        $query->select(['DISTINCT ' . DB::qn('r.id'), DB::qn('r') . '.*'])
+            ->from(DB::qn('#__organizer_rooms', 'r'))
+            ->innerJoin(DB::qn('#__organizer_roomtypes', 'rt'), DB::qc('rt.id', 'r.roomtypeID'))
+            ->order(DB::qn('name'));
         self::filterResources($query, 'building', 'b1', 'r');
 
-        // TODO Remove roomTypeIDs on completion of migration.
-        $roomtypeID  = Input::getInt('roomtypeID', Input::getInt('roomTypeIDs', self::ALL));
-        $roomtypeIDs = $roomtypeID ? [$roomtypeID] : Input::getFilterIDs('roomtype');
-
-        if (!in_array(self::ALL, $roomtypeIDs)) {
-            $query->where("rt.id IN (" . implode(',', $roomtypeIDs) . ")");
+        if ($typeID = Input::getInt('roomtypeID')) {
+            $query->where(DB::qn('rt.id') . ' = :typeID')->bind(':typeID', $typeID, ParameterType::INTEGER);
         }
 
-        $active = Input::getInt('active', 1);
+        self::activeFilter($query, 'r');
+        self::suppressedFilter($query, 'r');
 
-        if ($active !== self::ALL) {
-            $query->where("r.active = $active");
+        if ($campusID = Input::getInt('campusID')) {
+            $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
+            Campuses::filter($query, 'b2', $campusID);
         }
 
-        $suppress = Input::getInt('suppress');
+        DB::setQuery($query);
 
-        if ($suppress !== self::ALL) {
-            $query->where("rt.suppress = $suppress");
-        }
-
-        // This join is used specifically to filter campuses independent of buildings.
-        $query->leftJoin('#__organizer_buildings AS b2 ON b2.id = r.buildingID');
-        self::filterCampus($query, 'b2');
-        Database::setQuery($query);
-
-        return Database::loadAssocList();
+        return DB::loadAssocList();
     }
 
     /**
@@ -149,7 +138,7 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function isVirtual(int $roomID): bool
     {
-        $room = new Tables\Rooms();
+        $room = new Table();
 
         if (!$room->load(($roomID))) {
             return false;
@@ -168,15 +157,22 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function onCampus(int $roomID, int $campusID): bool
     {
-        $query = Database::getQuery();
-        $query->select('r.id')
-            ->from('#__organizer_rooms AS r')
-            ->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-            ->innerJoin('#__organizer_campuses AS c ON b.campusID = c.id')
-            ->where("r.id = $roomID")
-            ->where("(c.id = $campusID OR c.parentID = $campusID)");
-        Database::setQuery($query);
+        $cID = DB::qn('c.id');
+        $pID = DB::qn('c.parentID');
+        $rID = DB::qn('r.id');
 
-        return Database::loadBool();
+        $query = DB::getQuery();
+        $query->select($rID)
+            ->from(DB::qn('#__organizer_rooms', 'r'))
+            ->innerJoin(DB::qn('#__organizer_buildings', 'b'), DB::qc('b.id', 'r.buildingID'))
+            ->innerJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('b.campusID', 'c.id'))
+            ->where("($cID = :campusID OR $pID = :parentID)")
+            ->where("$rID = :roomID")
+            ->bind(':campusID', $campusID, ParameterType::INTEGER)
+            ->bind(':parentID', $campusID, ParameterType::INTEGER)
+            ->bind(':roomID', $roomID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        return DB::loadBool();
     }
 }
