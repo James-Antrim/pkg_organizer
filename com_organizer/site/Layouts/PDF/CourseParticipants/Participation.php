@@ -46,7 +46,7 @@ class Participation extends ListLayout
     {
         /* @var CourseParticipants $view */
         $view                 = $this->view;
-        $groupedParticipation = Helpers\Courses::getGroupedParticipation($view->courseID);
+        $groupedParticipation = Helpers\Courses::groupedParticipation($view->courseID);
 
         $this->addListPage();
 

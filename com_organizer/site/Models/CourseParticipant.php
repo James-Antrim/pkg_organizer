@@ -97,7 +97,7 @@ class CourseParticipant extends BaseModel
             Application::error(403);
         }
 
-        $courseParticipants   = Courses::getParticipantIDs($courseID);
+        $courseParticipants   = Courses::participantIDs($courseID);
         $selectedParticipants = Input::getIntCollection('cid');
 
         if (empty($courseParticipants) and empty($selectedParticipants)) {
@@ -132,13 +132,13 @@ class CourseParticipant extends BaseModel
             Application::error(403);
         }
 
-        $dates = Courses::getDates($courseID);
+        $dates = Courses::dates($courseID);
 
         if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d')) {
             return false;
         }
 
-        $instanceIDs = Courses::getInstanceIDs($courseID);
+        $instanceIDs = Courses::instanceIDs($courseID);
         $instanceIDs = implode(',', $instanceIDs);
 
         foreach ($participantIDs as $participantID) {

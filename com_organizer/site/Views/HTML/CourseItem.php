@@ -110,7 +110,7 @@ class CourseItem extends ItemView
             $this->subtitle .= Text::_('CAMPUS') . " $campusName: ";
         }
 
-        $this->subtitle .= Courses::getDateDisplay($this->item['id']) . '</h6>';
+        $this->subtitle .= Courses::displayDate($this->item['id']) . '</h6>';
     }
 
     /**

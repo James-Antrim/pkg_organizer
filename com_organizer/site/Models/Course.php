@@ -47,7 +47,7 @@ class Course extends BaseModel
             Application::error(403);
         }
 
-        $dates = Courses::getDates($courseID);
+        $dates = Courses::dates($courseID);
 
         if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d')) {
             return false;
@@ -60,7 +60,7 @@ class Course extends BaseModel
             return false;
         }
 
-        if ($instanceIDs = Courses::getInstanceIDs($courseID)) {
+        if ($instanceIDs = Courses::instanceIDs($courseID)) {
             foreach ($instanceIDs as $instanceID) {
                 $ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
                 $instanceParticipant = new Tables\InstanceParticipants();
@@ -246,7 +246,7 @@ class Course extends BaseModel
         }
 
         if ($courseParticipant->status === self::REGISTERED) {
-            if ($instanceIDs = Courses::getInstanceIDs($courseID)) {
+            if ($instanceIDs = Courses::instanceIDs($courseID)) {
                 foreach ($instanceIDs as $instanceID) {
                     $ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
                     $instanceParticipant = new Tables\InstanceParticipants();

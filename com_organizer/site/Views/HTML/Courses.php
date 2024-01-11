@@ -134,7 +134,7 @@ class Courses extends ListView
 
             $course->campus = $campusName . $pin;
 
-            $course->dates = Helper::getDateDisplay($course->id);
+            $course->dates = Helper::displayDate($course->id);
 
             $expired = $course->endDate < $today;
             $ongoing = ($course->startDate <= $today and !$expired);

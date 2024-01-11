@@ -29,11 +29,11 @@ class CourseParticipants extends Participants
         $subTitle   = [];
         $subTitle[] = Helpers\Courses::getName($courseID);
 
-        if ($campusID = Helpers\Courses::getCampusID($courseID)) {
+        if ($campusID = Helpers\Courses::campusID($courseID)) {
             $subTitle[] = Helpers\Campuses::getName($campusID);
         }
 
-        $subTitle[] = Helpers\Courses::getDateDisplay($courseID);
+        $subTitle[] = Helpers\Courses::displayDate($courseID);
 
         $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
     }
@@ -114,7 +114,7 @@ class CourseParticipants extends Participants
         $admin     = Helpers\Can::administrate();
         $checked   = '<span class="icon-checkbox-checked"></span>';
         $courseID  = Input::getID();
-        $expired   = Helpers\Courses::isExpired($courseID);
+        $expired   = Helpers\Courses::expired($courseID);
         $unchecked = '<span class="icon-checkbox-unchecked"></span>';
 
         foreach ($this->items as $item) {

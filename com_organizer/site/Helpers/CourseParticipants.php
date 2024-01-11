@@ -95,7 +95,7 @@ class CourseParticipants extends ResourceHelper
             return false;
         }
 
-        if (Courses::isPreparatory($courseID)) {
+        if (Courses::preparatory($courseID)) {
             $requiredProperties = ['address', 'city', 'forename', 'programID', 'surname', 'zipCode'];
         } // Resolve any other contexts here later.
         else {

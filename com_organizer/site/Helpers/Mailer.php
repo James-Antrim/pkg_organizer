@@ -75,7 +75,7 @@ class Mailer
             return;
         }
 
-        if (!$dates = Courses::getDateDisplay($courseID)) {
+        if (!$dates = Courses::displayDate($courseID)) {
             return;
         }
 

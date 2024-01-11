@@ -51,27 +51,11 @@ class Courses extends ResourceHelper
      *
      * @return int  the id of the associated campus
      */
-    public static function getCampusID(int $courseID): int
+    public static function campusID(int $courseID): int
     {
         $course = new Table();
 
-        return $course->load($courseID) ? $course->campusID : 0;
-    }
-
-    /**
-     * Creates a display of formatted dates for a course
-     *
-     * @param   int  $courseID  the id of the course to be loaded
-     *
-     * @return string the dates to display
-     */
-    public static function getDateDisplay(int $courseID): string
-    {
-        if ($dates = self::getDates($courseID)) {
-            return Dates::getDisplay($dates['startDate'], $dates ['endDate']);
-        }
-
-        return '';
+        return $course->load($courseID) ? (int) $course->campusID : 0;
     }
 
     /**
@@ -81,19 +65,41 @@ class Courses extends ResourceHelper
      *
      * @return string[]  the start and end date for the given course
      */
-    public static function getDates(int $courseID = 0): array
+    public static function dates(int $courseID = 0): array
     {
-        if (empty($courseID)) {
+        if (!$courseID) {
             return [];
         }
 
+        $endDate   = DB::qn('endDate');
+        $endDate   = "MAX($endDate) AS $endDate";
+        $startDate = DB::qn('startDate');
+        $startDate = "DISTINCT MIN($startDate) AS $startDate";
+
         $query = DB::getQuery();
-        $query->select('DISTINCT MIN(startDate) AS startDate, MAX(endDate) AS endDate')
-            ->from('#__organizer_units')
-            ->where("courseID = $courseID");
+        $query->select([$startDate, $endDate])
+            ->from(DB::qn('#__organizer_units'))
+            ->where(DB::qn('courseID') . ' = :courseID')
+            ->bind(':courseID', $courseID, ParameterType::INTEGER);
         DB::setQuery($query);
 
         return DB::loadAssoc();
+    }
+
+    /**
+     * Creates a display of formatted dates for a course
+     *
+     * @param   int  $courseID  the id of the course to be loaded
+     *
+     * @return string the dates to display
+     */
+    public static function displayDate(int $courseID): string
+    {
+        if ($dates = self::dates($courseID)) {
+            return Dates::getDisplay($dates['startDate'], $dates ['endDate']);
+        }
+
+        return '';
     }
 
     /**
@@ -103,18 +109,38 @@ class Courses extends ResourceHelper
      *
      * @return array[] the events associated with the course
      */
-    public static function getEvents(int $courseID): array
+    public static function events(int $courseID): array
     {
-        $tag   = Application::getTag();
+        $tag      = Application::getTag();
+        $aliased  = DB::qn(
+            [
+                "contact_$tag",
+                "content_$tag",
+                "courseContact_$tag",
+                "e.description_$tag",
+                "e.name_$tag",
+                "organization_$tag",
+                "pretests_$tag",
+            ],
+            [
+                'contact',
+                'content',
+                'courseContact',
+                'description',
+                'name',
+                'organization',
+                'pretests',
+            ]
+        );
+        $selected = ['DISTINCT ' . DB::qn('e.id'), DB::qn('preparatory')];
+
         $query = DB::getQuery();
-        $query->select("DISTINCT e.id, e.name_$tag AS name, contact_$tag AS contact")
-            ->select("courseContact_$tag AS courseContact, content_$tag AS content, e.description_$tag AS description")
-            ->select("organization_$tag AS organization, pretests_$tag AS pretests, preparatory")
-            ->from('#__organizer_events AS e')
-            ->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
-            ->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-            ->where("u.courseID = $courseID")
-            ->order('name ASC');
+        $query->select(array_merge($selected, $aliased))
+            ->from(DB::qn('#__organizer_events', 'e'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
+            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->order(DB::qn('name'));
         DB::setQuery($query);
 
         if (!$events = DB::loadAssocList()) {
@@ -122,12 +148,53 @@ class Courses extends ResourceHelper
         }
 
         foreach ($events as &$event) {
-            $event['speakers'] = self::getPersons($courseID, $event['id'], [Roles::SPEAKER]);
-            $event['teachers'] = self::getPersons($courseID, $event['id'], [Roles::TEACHER]);
-            $event['tutors']   = self::getPersons($courseID, $event['id'], [Roles::TUTOR]);
+            $event['speakers'] = self::persons($courseID, $event['id'], [Roles::SPEAKER]);
+            $event['teachers'] = self::persons($courseID, $event['id'], [Roles::TEACHER]);
+            $event['tutors']   = self::persons($courseID, $event['id'], [Roles::TUTOR]);
         }
 
         return $events;
+    }
+
+    /**
+     * Checks if the course is expired
+     *
+     * @param   int  $courseID  the id of the course
+     *
+     * @return bool true if the course is expired, otherwise false
+     */
+    public static function expired(int $courseID): bool
+    {
+        if ($dates = self::dates($courseID)) {
+            return date('Y-m-d') > $dates['endDate'];
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if the number of active participants is less than the number of max participants
+     *
+     * @param   int  $courseID  the id of the course
+     *
+     * @return bool true if the course is full, otherwise false
+     */
+    public static function full(int $courseID): bool
+    {
+        $table = new Table();
+        if (!$table->load($courseID) or !$maxParticipants = $table->maxParticipants) {
+            return false;
+        }
+
+        $accepted = CourseParticipants::ACCEPTED;
+        $query    = DB::getQuery();
+        $query->select('COUNT(*)')
+            ->from(DB::qn('#__organizer_course_participants'))
+            ->where(DB::qn('courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->where(DB::qn('status') . ' = :status')->bind(':status', $accepted, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        return DB::loadInt() >= $maxParticipants;
     }
 
     /**
@@ -137,22 +204,24 @@ class Courses extends ResourceHelper
      *
      * @return array[] list of participants in course
      */
-    public static function getGroupedParticipation(int $courseID): array
+    public static function groupedParticipation(int $courseID): array
     {
         if (empty($courseID)) {
             return [];
         }
 
+        $tag      = Application::getTag();
+        $aliased  = DB::qn(['d.abbreviation', "pr.name_$tag", 'pr.accredited'], ['degree', 'program', 'year']);
+        $selected = [DB::qn('pr.id'), 'COUNT(*) AS ' . DB::qn('participants')];
+
         $query = DB::getQuery();
-        $tag   = Application::getTag();
-        $query->select("pr.id, pr.name_$tag AS program, pr.accredited AS year, COUNT(*) AS participants")
-            ->select("d.abbreviation AS degree")
-            ->from('#__organizer_programs AS pr')
-            ->innerJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
-            ->innerJoin('#__organizer_participants AS pa ON pa.programID = pr.id')
-            ->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
-            ->where("courseID = $courseID")
-            ->order("pr.name_$tag, d.abbreviation, pr.accredited DESC")
+        $query->select(array_merge($selected, $aliased))
+            ->from(DB::qn('#__organizer_programs', 'pr'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'pr.degreeID'))
+            ->innerJoin(DB::qn('#__organizer_participants', 'pa'), DB::qc('pa.programID', 'pr.id'))
+            ->innerJoin(DB::qn('#__organizer_course_participants', 'cp'), DB::qc('cp.participantID', 'pa.id'))
+            ->where(DB::qn('courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->order([DB::qn("pr.name_$tag"), DB::qn('d.abbreviation'), DB::qn('pr.accredited') . ' DESC'])
             ->group("pr.id");
         DB::setQuery($query);
 
@@ -188,18 +257,57 @@ class Courses extends ResourceHelper
     }
 
     /**
+     * Check if user has a course responsibility.
+     *
+     * @param   int  $courseID  the optional id of the course
+     * @param   int  $personID  the optional id of the person
+     * @param   int  $roleID    the optional if of the person's role
+     *
+     * @return bool true if the user has a course responsibility, otherwise false
+     */
+    public static function hasResponsibility(int $courseID = 0, int $personID = 0, int $roleID = 0): bool
+    {
+        if (Can::administrate()) {
+            return true;
+        }
+
+        if (!$personID = $personID ?: Persons::getIDByUserID(User::id())) {
+            return false;
+        }
+
+        $query = DB::getQuery();
+        $query->select('COUNT(*)')
+            ->from(DB::qn('#__organizer_instance_persons', 'ip'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
+            ->where("ip.personID = $personID");
+
+        if ($courseID) {
+            $query->where("u.courseID = $courseID");
+        }
+
+        if ($roleID) {
+            $query->where("ip.roleID = $roleID");
+        }
+
+        DB::setQuery($query);
+
+        return DB::loadBool();
+    }
+
+    /**
      * Gets instances associated with the given course.
      *
      * @param   int  $courseID  the id of the course
      *
      * @return int[] the instances which are a part of the course
      */
-    public static function getInstanceIDs(int $courseID): array
+    public static function instanceIDs(int $courseID): array
     {
         $query = DB::getQuery();
         $query->select("DISTINCT i.id")
-            ->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+            ->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where("u.courseID = $courseID")
             ->order('i.id');
         DB::setQuery($query);
@@ -214,7 +322,7 @@ class Courses extends ResourceHelper
      *
      * @return int [] the participant IDs
      */
-    public static function getParticipantIDs(int $courseID): array
+    public static function participantIDs(int $courseID): array
     {
         if (empty($courseID)) {
             return [];
@@ -243,13 +351,13 @@ class Courses extends ResourceHelper
      *
      * @return string[] the persons matching the search criteria
      */
-    public static function getPersons(int $courseID, int $eventID = 0, array $roleIDs = []): array
+    public static function persons(int $courseID, int $eventID = 0, array $roleIDs = []): array
     {
         $query = DB::getQuery();
         $query->select("DISTINCT ip.personID")
-            ->from('#__organizer_instance_persons AS ip')
-            ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-            ->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+            ->from(DB::qn('#__organizer_instance_persons', 'ip'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where("u.courseID = $courseID");
 
         if ($eventID) {
@@ -274,115 +382,19 @@ class Courses extends ResourceHelper
     }
 
     /**
-     * Retrieves the ids of units associated with the course.
-     *
-     * @param   int  $courseID  the id of the course with which the units must be associated
-     *
-     * @return int[] the ids of the associated units
-     */
-    public static function getUnitIDs(int $courseID): array
-    {
-        $query = DB::getQuery();
-        $query->select('DISTINCT id')->from('#__organizer_units')->where("courseID = $courseID");
-        DB::setQuery($query);
-
-        return DB::loadIntColumn();
-    }
-
-    /**
-     * Check if user has a course responsibility.
-     *
-     * @param   int  $courseID  the optional id of the course
-     * @param   int  $personID  the optional id of the person
-     * @param   int  $roleID    the optional if of the person's role
-     *
-     * @return bool true if the user has a course responsibility, otherwise false
-     */
-    public static function hasResponsibility(int $courseID = 0, int $personID = 0, int $roleID = 0): bool
-    {
-        if (Can::administrate()) {
-            return true;
-        }
-
-        if (!$personID = $personID ?: Persons::getIDByUserID(User::id())) {
-            return false;
-        }
-
-        $query = DB::getQuery();
-        $query->select('COUNT(*)')
-            ->from('#__organizer_instance_persons AS ip')
-            ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-            ->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-            ->where("ip.personID = $personID");
-
-        if ($courseID) {
-            $query->where("u.courseID = $courseID");
-        }
-
-        if ($roleID) {
-            $query->where("ip.roleID = $roleID");
-        }
-
-        DB::setQuery($query);
-
-        return DB::loadBool();
-    }
-
-    /**
-     * Checks if the course is expired
-     *
-     * @param   int  $courseID  the id of the course
-     *
-     * @return bool true if the course is expired, otherwise false
-     */
-    public static function isExpired(int $courseID): bool
-    {
-        if ($dates = self::getDates($courseID)) {
-            return date('Y-m-d') > $dates['endDate'];
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if the number of active participants is less than the number of max participants
-     *
-     * @param   int  $courseID  the id of the course
-     *
-     * @return bool true if the course is full, otherwise false
-     */
-    public static function full(int $courseID): bool
-    {
-        $table = new Table();
-        if (!$table->load($courseID) or !$maxParticipants = $table->maxParticipants) {
-            return false;
-        }
-
-        $accepted = CourseParticipants::ACCEPTED;
-        $query    = DB::getQuery();
-        $query->select('COUNT(*)')
-            ->from(DB::qn('#__organizer_course_participants'))
-            ->where(DB::qn('courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
-            ->where(DB::qn('status') . ' = :status')->bind(':status', $accepted, ParameterType::INTEGER);
-        DB::setQuery($query);
-
-        return DB::loadInt() >= $maxParticipants;
-    }
-
-    /**
      * Checks if the course is a preparatory course.
      *
      * @param   int  $courseID  the id of the course
      *
      * @return bool true if the course is expired, otherwise false
      */
-    public static function isPreparatory(int $courseID): bool
+    public static function preparatory(int $courseID): bool
     {
         $query = DB::getQuery();
         $query->select('COUNT(*)')
-            ->from('#__organizer_units AS u')
-            ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-            ->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
+            ->from(DB::qn('#__organizer_units', 'u'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
+            ->innerJoin(DB::qn('#__organizer_events', 'e'), DB::qc('e.id', 'i.eventID'))
             ->where("u.courseID = $courseID")
             ->where('e.preparatory = 1');
 
@@ -441,5 +453,21 @@ class Courses extends ResourceHelper
     public static function tutors(int $courseID = 0, int $personID = 0): bool
     {
         return self::hasResponsibility($courseID, $personID, Roles::TUTOR);
+    }
+
+    /**
+     * Retrieves the ids of units associated with the course.
+     *
+     * @param   int  $courseID  the id of the course with which the units must be associated
+     *
+     * @return int[] the ids of the associated units
+     */
+    public static function unitIDs(int $courseID): array
+    {
+        $query = DB::getQuery();
+        $query->select('DISTINCT id')->from('#__organizer_units')->where("courseID = $courseID");
+        DB::setQuery($query);
+
+        return DB::loadIntColumn();
     }
 }

@@ -61,7 +61,7 @@ class CourseItem extends ItemModel
         $course['id']                   = $courseID;
         $course['maxParticipants']      = $courseTable->maxParticipants;
         $course['name']['value']        = $courseTable->{"name_$tag"};
-        $course['participants']         = count(Helpers\Courses::getParticipantIDs($courseID));
+        $course['participants']         = count(Helpers\Courses::participantIDs($courseID));
         $course['registrationType']     = $courseTable->registrationType;
         $course['termID']               = $courseTable->termID;
 
@@ -142,7 +142,7 @@ class CourseItem extends ItemModel
     {
         // If the course has its own name, do not create it dynamically
         $setName = empty($course['name']['value']);
-        $events  = Helpers\Courses::getEvents($course['id']);
+        $events  = Helpers\Courses::events($course['id']);
 
         foreach ($events as $key => $attributes) {
             $course['preparatory'] = ($course['preparatory'] or $attributes['preparatory']);

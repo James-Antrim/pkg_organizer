@@ -31,7 +31,7 @@ class CourseEdit extends EditViewOld
 
             if (Application::backend()) {
                 $campus = Helpers\Campuses::getName($this->item->campusID);
-                $dates  = Helpers\Courses::getDateDisplay($this->item->id);
+                $dates  = Helpers\Courses::displayDate($this->item->id);
                 $tag    = Application::getTag();
                 $name   = "name_$tag";
                 $name   = $this->item->$name;
@@ -66,7 +66,7 @@ class CourseEdit extends EditViewOld
             $subTitle[] = Helpers\Campuses::getName($this->item->campusID);
         }
 
-        $subTitle[] = Helpers\Courses::getDateDisplay($this->item->id);
+        $subTitle[] = Helpers\Courses::displayDate($this->item->id);
 
         $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
     }
