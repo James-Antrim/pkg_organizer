@@ -59,27 +59,16 @@ trait Filtered
      * @param   DatabaseQuery  $query  the query to modify
      * @param   string         $alias  the alias for the linking table
      *
-     * @return void modifies the query object
+     * @return void
+     *
      */
     public static function filterCampus($query, $alias): void
     {
-        $campusID  = Input::getInt('campusID');
-        $campusIDs = $campusID ? [$campusID] : Input::getFilterIDs('campus');
-        if (!$campusIDs) {
+        if (!$campusID = Input::getInt('campusID')) {
             return;
         }
 
-        $tableID   = DB::qn('campusAlias.id');
-        $condition = DB::qc('campusAlias.id', "$alias.campusID");
-        $table     = DB::qn('#__organizer_campuses', 'campusAlias');
-        if (in_array(self::NONE, $campusIDs)) {
-            $query->leftJoin($table, $condition)->where("$tableID IS NULL");
-        }
-        else {
-            $parentID  = DB::qn('campusAlias.parentID');
-            $campusIDs = implode(',', $campusIDs);
-            $query->innerJoin($table, $condition)->where("($tableID IN ($campusIDs) OR $parentID IN ($campusIDs))");
-        }
+        Campuses::filter($query, $alias, $campusID);
     }
 
     /**

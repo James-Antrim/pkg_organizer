@@ -17,7 +17,7 @@ use Joomla\Database\DatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Campuses, Organizations};
 
 /**
  * Model class for handling lists of items.
@@ -104,20 +104,11 @@ abstract class ListModel extends Base
      */
     protected function filterCampus(DatabaseQuery $query, string $alias): void
     {
-        $campusID = $this->state->get('filter.campusID');
-        if (empty($campusID)) {
+        if (!$campusID = $this->state->get('filter.campusID')) {
             return;
         }
 
-        if ($campusID === '-1') {
-            $query->leftJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
-                ->where("campusAlias.id IS NULL");
-
-            return;
-        }
-
-        $query->innerJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
-            ->where("(campusAlias.id = $campusID OR campusAlias.parentID = $campusID)");
+        Campuses::filter($query, $alias, (int) $campusID);
     }
 
     /**
@@ -295,7 +286,7 @@ abstract class ListModel extends Base
      */
     protected function filterOrganizations(DatabaseQuery $query, string $context, string $alias): void
     {
-        $authorizedIDs  = Application::backend() ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
+        $authorizedIDs  = Application::backend() ? Can::documentTheseOrganizations() : Organizations::getIDs();
         $organizationID = (int) $this->state->get('filter.organizationID');
 
         if (!$authorizedIDs or !$organizationID) {

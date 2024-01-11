@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
-use Joomla\Database\ParameterType;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Tables;
 
 /**
@@ -21,6 +21,25 @@ class Campuses extends ResourceHelper implements Selectable
 {
     use Active;
     use Pinned;
+
+    public static function filter(DatabaseQuery $query, string $alias, int $campusID): void
+    {
+        $tableID   = DB::qn('campusAlias.id');
+        $condition = DB::qc('campusAlias.id', "$alias.campusID");
+        $table     = DB::qn('#__organizer_campuses', 'campusAlias');
+
+        if ($campusID === self::NONE) {
+            $query->leftJoin($table, $condition)->where("$tableID IS NULL");
+
+            return;
+        }
+
+        $parentID = DB::qn('campusAlias.parentID');
+        $query->innerJoin($table, $condition)
+            ->where("($tableID = :campusID OR $parentID = :pCampusID)")
+            ->bind(':campusID', $campusID, ParameterType::INTEGER)
+            ->bind(':pCampusID', $campusID, ParameterType::INTEGER);
+    }
 
     /**
      * Retrieves the default grid id for the given campus
