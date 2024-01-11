@@ -23,8 +23,6 @@ class Subjects extends ListView
 {
     use Documented;
 
-    private const ALL = 0, COORDINATES = 1, TEACHES = 2;
-
     private bool $access = false;
 
     private Registry $params;
@@ -46,7 +44,7 @@ class Subjects extends ListView
         $resourceName = '';
         if (!Application::backend()) {
             if ($personID = $this->state->get('calledPersonID', 0)) {
-                $resourceName = Persons::getDefaultName($personID);
+                $resourceName = Persons::defaultName($personID);
                 $resourceName .= ": " . Text::_('ORGANIZER_SUBJECTS');
             }
             else {
@@ -141,7 +139,7 @@ class Subjects extends ListView
 
         if (!$this->state->get('calledPersonID', 0)) {
 
-            if ($role = (int) Input::getParams()->get('role') and $role === self::COORDINATES) {
+            if ($role = (int) Input::getParams()->get('role') and $role === Persons::COORDINATES) {
                 $personsText = Text::_('COORDINATORS');
             }
             else {
@@ -177,7 +175,7 @@ class Subjects extends ListView
         $role  = (int) Input::getParams()->get('role');
 
         if (count($subject->persons) > 3) {
-            return $role === self::COORDINATES ?
+            return $role === Persons::COORDINATES ?
                 Text::_('ORGANIZER_COORDINATORS_PLACEHOLDER') :
                 Text::_('ORGANIZER_TEACHERS_PLACEHOLDER');
         }
@@ -185,12 +183,12 @@ class Subjects extends ListView
         foreach ($subject->persons as $person) {
             $name = $this->getPersonText($person);
 
-            if ($role === self::ALL) {
+            if (!$role) {
                 $roles = [];
-                if (isset($person['role'][self::COORDINATES])) {
+                if (isset($person['role'][Persons::COORDINATES])) {
                     $roles[] = Text::_('ORGANIZER_SUBJECT_COORDINATOR_ABBR');
                 }
-                if (isset($person['role'][self::TEACHES])) {
+                if (isset($person['role'][Persons::TEACHES])) {
                     $roles[] = Text::_('ORGANIZER_TEACHER_ABBR');
                 }
 

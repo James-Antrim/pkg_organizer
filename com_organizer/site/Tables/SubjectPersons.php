@@ -12,7 +12,7 @@ namespace THM\Organizer\Tables;
 
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers\Subjects;
+use THM\Organizer\Helpers\Persons;
 
 /**
  * @inheritDoc
@@ -31,7 +31,7 @@ class SubjectPersons extends Table
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
      * @var int
      */
-    public int $role = Subjects::COORDINATES;
+    public int $role = Persons::COORDINATES;
 
     /**
      * The id of the subject entry referenced.

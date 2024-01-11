@@ -203,7 +203,7 @@ class Screen extends BaseModel
             foreach ($instances as $instanceID => $instance) {
                 $persons = [];
                 foreach (Helpers\Instances::getPersonIDs($instanceID) as $personID) {
-                    $persons[$personID] = Helpers\Persons::getLNFName($personID, true);
+                    $persons[$personID] = Helpers\Persons::lastNameFirst($personID, true);
                 }
 
                 asort($persons);
@@ -246,7 +246,7 @@ class Screen extends BaseModel
                 $period['events'][$instance['eventID']] = $instance['event'];
 
                 foreach (Helpers\Instances::getPersonIDs($instanceID) as $personID) {
-                    $period['persons'][$personID] = Helpers\Persons::getLNFName($personID, true);
+                    $period['persons'][$personID] = Helpers\Persons::lastNameFirst($personID, true);
                 }
 
                 $period['comment'] = $period['comment'] ?: $instance['comment'];

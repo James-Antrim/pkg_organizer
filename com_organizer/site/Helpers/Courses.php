@@ -267,7 +267,7 @@ class Courses extends ResourceHelper
 
         $persons = [];
         foreach ($personIDs as $personID) {
-            $persons[$personID] = Persons::getLNFName($personID);
+            $persons[$personID] = Persons::lastNameFirst($personID);
         }
 
         return $persons;

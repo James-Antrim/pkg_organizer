@@ -13,18 +13,15 @@ namespace THM\Organizer\Models;
 use Exception;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database, Input, Text};
-use THM\Organizer\Helpers\{LSF, Programs, Subjects as Helper, SubjectsLSF as SLSF};
-use THM\Organizer\Tables\{Associations, Curricula, Persons, Prerequisites, Subjects as Table, SubjectPersons as SP};
+use THM\Organizer\Helpers\{LSF, Persons as PHelper, Programs, Subjects as Helper, SubjectsLSF as SLSF};
+use THM\Organizer\Tables\{Associations, Curricula, Persons as PTable, Prerequisites, Subjects as Table, SubjectPersons as SP};
 
 /**
  * Class which manages stored subject data.
  */
 class Subject extends CurriculumResource
 {
-    use Associated;
     use SubOrdinate;
-
-    private const COORDINATES = 1, TEACHES = 2;
 
     protected string $helper = 'Subjects';
 
@@ -288,7 +285,7 @@ class Subject extends CurriculumResource
 
         if ($coordinatorsSet and $persons = array_filter($data['coordinators'])) {
             foreach ($persons as $personID) {
-                $spData = ['personID' => $personID, 'role' => self::COORDINATES, 'subjectID' => $data['id']];
+                $spData = ['personID' => $personID, 'role' => PHelper::COORDINATES, 'subjectID' => $data['id']];
                 $table  = new SP();
 
                 if (!$table->save($spData)) {
@@ -300,7 +297,7 @@ class Subject extends CurriculumResource
 
         if ($personsSet and $persons = array_filter($data['persons'])) {
             foreach ($persons as $personID) {
-                $spData = ['personID' => $personID, 'role' => self::TEACHES, 'subjectID' => $data['id']];
+                $spData = ['personID' => $personID, 'role' => PHelper::TEACHES, 'subjectID' => $data['id']];
                 $table  = new SP();
 
                 if (!$table->save($spData)) {
@@ -738,11 +735,11 @@ class Subject extends CurriculumResource
             return true;
         }
 
-        if (!$this->setPersonsByRoles($subjectID, $coordinators, self::COORDINATES)) {
+        if (!$this->setPersonsByRoles($subjectID, $coordinators, PHelper::COORDINATES)) {
             return false;
         }
 
-        if (!$this->setPersonsByRoles($subjectID, $persons, self::TEACHES)) {
+        if (!$this->setPersonsByRoles($subjectID, $persons, PHelper::TEACHES)) {
             return false;
         }
 
@@ -770,8 +767,8 @@ class Subject extends CurriculumResource
             return true;
         }
 
-        $surnameAttribute  = $role == self::COORDINATES ? 'nachname' : 'personal.nachname';
-        $forenameAttribute = $role == self::COORDINATES ? 'vorname' : 'personal.vorname';
+        $surnameAttribute  = $role == PHelper::COORDINATES ? 'nachname' : 'personal.nachname';
+        $forenameAttribute = $role == PHelper::COORDINATES ? 'vorname' : 'personal.vorname';
 
         foreach ($persons as $person) {
             $personData             = [];
@@ -790,7 +787,7 @@ class Subject extends CurriculumResource
                 $loadCriteria[] = ['surname' => $personData['surname'], 'forename' => $personData['forename']];
             }
 
-            $personTable = new Persons();
+            $personTable = new PTable();
             $loaded      = false;
 
             foreach ($loadCriteria as $criteria) {

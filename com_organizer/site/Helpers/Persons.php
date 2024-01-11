@@ -13,7 +13,7 @@ namespace THM\Organizer\Helpers;
 use Joomla\Database\ParameterType;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, User};
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\{Persons as Table};
 
 /**
  * Provides general functions for person access checks, data retrieval and display.
@@ -23,43 +23,47 @@ class Persons extends Associated implements Selectable
     use Active;
     use Suppressed;
 
-    // TODO move all person related constants here and use this class instead of redefining them
-    private const COORDINATES = 1;
+    public const COORDINATES = 1, TEACHES = 2;
 
     protected static string $resource = 'person';
 
     /**
      * Retrieves person entries from the database
      * @return stdClass[]  the persons who hold courses for the selected program and pool
-     * @todo used by a plugin?
+     * @todo implement the plugin around this again
      */
     public static function byProgramOrPool(): array
     {
-        $programID = Input::getInt('programID', -1);
-        $poolID    = Input::getInt('poolID', -1);
-
-        if ($poolID > 0) {
-            $boundarySet = Pools::ranges($poolID);
-        }
-        else {
-            $boundarySet = Programs::ranges($programID);
-        }
-
         $query = DB::getQuery();
         $query->select('DISTINCT p.id, p.forename, p.surname')
-            ->from('#__organizer_persons AS p')
-            ->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
-            ->innerJoin('#__organizer_curricula AS c ON c.subjectID = sp.subjectID')
-            ->order('p.surname, p.forename');
+            ->from(DB::qn('#__organizer_persons', 'p'))
+            ->innerJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))
+            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.subjectID', 'sp.subjectID'))
+            ->order(DB::qn(['p.surname', 'p.forename']));
 
-        if (!empty($boundarySet)) {
-            $where   = '';
-            $initial = true;
+        $programID = Input::getInt('programID', self::NONE);
+        $poolID    = Input::getInt('poolID', self::NONE);
+
+        $boundarySet = $poolID > 0 ? Pools::ranges($poolID) : Programs::ranges($programID);
+
+        if ($boundarySet) {
+
+            $count = 0;
+            $left  = DB::qn('c.lft');
+            $right = DB::qn('c.rgt');
+            $where = '';
+
             foreach ($boundarySet as $boundaries) {
-                $where   .= $initial ?
-                    "((c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')"
-                    : " OR (c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')";
-                $initial = false;
+
+                $phLeft = ":left$count";
+                $query->bind($phLeft, $boundaries['lft'], ParameterType::INTEGER);
+                $phRight = ":right$count";
+                $query->bind($phRight, $boundaries['rgt'], ParameterType::INTEGER);
+
+                $where .= $count === 0 ?
+                    "(($left >= $phLeft AND $right <= $phRight)" : " OR ($left >= $phLeft AND $right <= $phRight)";
+
+                $count++;
             }
 
             $query->where($where . ')');
@@ -76,6 +80,30 @@ class Persons extends Associated implements Selectable
         }
 
         return $persons;
+    }
+
+    /**
+     * Generates a default person text based upon organizer's internal data
+     *
+     * @param   int   $personID      the person's id
+     * @param   bool  $excludeTitle  whether the title should be excluded from the return value
+     *
+     * @return string  the default name of the person
+     */
+    public static function defaultName(int $personID, bool $excludeTitle = false): string
+    {
+        $person = new Table();
+        $person->load($personID);
+        $return = '';
+
+        if ($person->id) {
+            $title    = ($person->title and !$excludeTitle) ? "$person->title " : '';
+            $forename = $person->forename ? "$person->forename " : '';
+            $surname  = $person->surname;
+            $return   = $title . $forename . $surname;
+        }
+
+        return $return;
     }
 
     /**
@@ -102,10 +130,25 @@ class Persons extends Associated implements Selectable
     }
 
     /**
+     * Retrieves the person's forenames.
+     *
+     * @param   int  $personID  the person's id
+     *
+     * @return string  the default name of the person
+     */
+    public static function forename(int $personID): string
+    {
+        $person = new Table();
+        $person->load($personID);
+
+        return $person->forename ?: '';
+    }
+
+    /**
      * Retrieves the persons associated with a given subject, optionally filtered by role.
      *
      * @param   int   $subjectID  the subject's id
-     * @param   int   $role       represents the person's role for the subject
+     * @param   int   $roleID     represents the person's role for the subject
      * @param   bool  $multiple   whether multiple results are desired
      * @param   bool  $unique     whether unique results are desired
      *
@@ -113,77 +156,40 @@ class Persons extends Associated implements Selectable
      */
     public static function getDataBySubject(
         int $subjectID,
-        int $role = 0,
+        int $roleID = 0,
         bool $multiple = false,
         bool $unique = true
     ): array
     {
-        $query = DB::getQuery();
-        $query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, sp.role, code')
-            ->from('#__organizer_persons AS p')
-            ->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
-            ->leftJoin('#__users AS u ON u.username = p.username')
-            ->where("sp.subjectID = $subjectID")
-            ->order('surname');
+        $aliased  = DB::qn(['u.id'], ['userID']);
+        $selected = DB::qn(['p.id', 'p.surname', 'p.forename', 'p.title', 'p.username', 'sp.role', 'code']);
+        $query    = DB::getQuery();
+        $query->select(array_merge($selected, $aliased))
+            ->from(DB::qn('#__organizer_persons', 'p'))
+            ->innerJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))
+            ->leftJoin(DB::qn('#__users', 'u'), DB::qc('u.username', 'p.username'))
+            ->where(DB::qn('sp.subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER)
+            ->order(DB::qn('surname'));
 
-        if ($role) {
-            $query->where("sp.role = $role");
+        if ($roleID) {
+            $query->where(DB::qn('sp.role') . ' = :roleID')->bind(':roleID', $roleID, ParameterType::INTEGER);
         }
 
         DB::setQuery($query);
 
         if ($multiple) {
-            if (!$personList = DB::loadAssocList()) {
+            if (!$persons = DB::loadAssocList()) {
                 return [];
             }
 
             if ($unique) {
-                self::ensureUnique($personList);
+                self::ensureUnique($persons);
             }
 
-            return $personList;
+            return $persons;
         }
 
         return DB::loadAssoc();
-    }
-
-    /**
-     * Generates a default person text based upon organizer's internal data
-     *
-     * @param   int   $personID      the person's id
-     * @param   bool  $excludeTitle  whether the title should be excluded from the return value
-     *
-     * @return string  the default name of the person
-     */
-    public static function getDefaultName(int $personID, bool $excludeTitle = false): string
-    {
-        $person = new Tables\Persons();
-        $person->load($personID);
-        $return = '';
-
-        if ($person->id) {
-            $title    = ($person->title and !$excludeTitle) ? "$person->title " : '';
-            $forename = $person->forename ? "$person->forename " : '';
-            $surname  = $person->surname;
-            $return   = $title . $forename . $surname;
-        }
-
-        return $return;
-    }
-
-    /**
-     * Retrieves the person's surnames.
-     *
-     * @param   int  $personID  the person's id
-     *
-     * @return string  the default name of the person
-     */
-    public static function getForename(int $personID): string
-    {
-        $person = new Tables\Persons();
-        $person->load($personID);
-
-        return $person->forename ?: '';
     }
 
     /**
@@ -208,33 +214,6 @@ class Persons extends Associated implements Selectable
     }
 
     /**
-     * Generates a preformatted person text based upon organizer's internal data
-     *
-     * @param   int   $personID  the person's id
-     * @param   bool  $short     whether the person's forename should be abbreviated
-     *
-     * @return string  the default name of the person
-     */
-    public static function getLNFName(int $personID, bool $short = false): string
-    {
-        $person = new Tables\Persons();
-        $person->load($personID);
-        $return = '';
-
-        if ($person->id) {
-            $return = $person->surname;
-
-            if ($person->forename) {
-                // Getting the first letter by other means can cause encoding problems with 'interesting' first names.
-                $forename = $short ? mb_substr($person->forename, 0, 1) . '.' : $person->forename;
-                $return   .= empty($forename) ? '' : ", $forename";
-            }
-        }
-
-        return $return;
-    }
-
-    /**
      * Checks whether the user has an associated person resource by their username, returning the id of the person
      * entry if existent.
      *
@@ -248,13 +227,10 @@ class Persons extends Associated implements Selectable
             return 0;
         }
 
-        $query = DB::getQuery();
-        $query->select('id')
-            ->from('#__organizer_persons')
-            ->where("username = '$user->username'");
-        DB::setQuery($query);
+        $person = new Table();
+        $person->load(['username' => $user->username]);
 
-        return DB::loadInt();
+        return $person->id ?: 0;
     }
 
     /**
@@ -293,27 +269,23 @@ class Persons extends Associated implements Selectable
             $organizationIDs = Can::manageTheseOrganizations();
         }
 
-        $userName = '';
-        if ($thisPersonID = self::getIDByUserID()) {
-            $userName = User::username();
-        }
-
         $query = DB::getQuery();
-        $query->select('DISTINCT p.*')
-            ->from('#__organizer_persons AS p')
-            ->where('p.active = 1')
-            ->order('p.surname, p.forename');
+        $query->select('DISTINCT ' . DB::qn('p') . '.*')
+            ->from(DB::qn('#__organizer_persons AS p'))
+            ->where(DB::qn('p.active') . ' = 1')
+            ->order(DB::qn(['p.surname', 'p.forename']));
 
         $wherray = [];
 
-        if ($thisPersonID) {
-            $wherray[] = "p.username = '$userName'";
+        if (self::getIDByUserID() and $userName = User::username()) {
+            $wherray[] = DB::qn('p.username') . ' = :username';
+            $query->bind(':username', $userName);
         }
 
         if (count($organizationIDs)) {
-            $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
+            $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'));
 
-            $where = 'a.organizationID IN (' . implode(',', $organizationIDs) . ')';
+            $where = DB::qn('a.organizationID') . ' IN (' . implode(',', $query->bindArray($organizationIDs)) . ')';
 
             if ($categoryID = Input::getInt('categoryID')) {
                 $categoryIDs = [$categoryID];
@@ -322,20 +294,21 @@ class Persons extends Associated implements Selectable
             $categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
             $categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
 
-            if ($categoryIDs and $categoryIDs = implode(',', $categoryIDs)) {
-                $query->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = p.id')
-                    ->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
-                    ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
+            if ($categoryIDs and $categoryIDs = implode(',', $query->bindArray($categoryIDs))) {
+                $query->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.personID', 'p.id'))
+                    ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
+                    ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'));
 
-                $where .= " AND g.categoryID in ($categoryIDs)";
+                $where .= ' AND ' . DB::qn('g.categoryID') . " IN ($categoryIDs)";
                 $where = "($where)";
             }
 
             $wherray[] = $where;
         }
         elseif ($organizationID) {
-            $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
-            $wherray[] = "(a.organizationID = $organizationID and p.public = 1) ";
+            $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'))
+                ->bind(':organizationID', $organizationID, ParameterType::INTEGER);
+            $wherray[] = '(' . DB::qn('a.organizationID') . ' = :organizationID AND ' . DB::qn('p.public') . ' = 1) ';
         }
 
         if ($wherray) {
@@ -349,18 +322,45 @@ class Persons extends Associated implements Selectable
     }
 
     /**
-     * Retrieves the person's surnames.
+     * Generates a preformatted person text based upon organizer's internal data
      *
-     * @param   int  $personID  the person's id
+     * @param   int   $personID  the person's id
+     * @param   bool  $short     whether the person's forename should be abbreviated
      *
      * @return string  the default name of the person
      */
-    public static function getSurname(int $personID): string
+    public static function lastNameFirst(int $personID, bool $short = false): string
     {
-        $person = new Tables\Persons();
+        $person = new Table();
+        $person->load($personID);
+        $return = '';
+
+        if ($person->id) {
+            $return = $person->surname;
+
+            if ($person->forename) {
+                // Getting the first letter by other means can cause encoding problems with 'interesting' first names.
+                $forename = $short ? mb_substr($person->forename, 0, 1) . '.' : $person->forename;
+                $return   .= empty($forename) ? '' : ", $forename";
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Retrieves the person's public release status.
+     *
+     * @param   int  $personID  the person's id
+     *
+     * @return bool  the person's public release status
+     */
+    public static function public(int $personID): bool
+    {
+        $person = new Table();
         $person->load($personID);
 
-        return $person->surname ?: '';
+        return $person->public;
     }
 
     /**
@@ -370,7 +370,7 @@ class Persons extends Associated implements Selectable
      *
      * @return void
      */
-    public static function nameSort(array &$persons): void
+    public static function sortByName(array &$persons): void
     {
         uasort($persons, function ($personOne, $personTwo) {
             if ($personOne['surname'] > $personTwo['surname']) {
@@ -385,26 +385,11 @@ class Persons extends Associated implements Selectable
     }
 
     /**
-     * Retrieves the person's public release status.
-     *
-     * @param   int  $personID  the person's id
-     *
-     * @return bool  the person's public release status
-     */
-    public static function released(int $personID): bool
-    {
-        $person = new Tables\Persons();
-        $person->load($personID);
-
-        return $person->public;
-    }
-
-    /**
      * Function to sort persons by their roles.
      *
      * @param   array &$persons  the persons array to sort.
      */
-    public static function roleSort(array &$persons): void
+    public static function sortByRole(array &$persons): void
     {
         uasort($persons, function ($personOne, $personTwo) {
             $roleOne = isset($personOne['role'][self::COORDINATES]);
@@ -415,6 +400,21 @@ class Persons extends Associated implements Selectable
 
             return -1;
         });
+    }
+
+    /**
+     * Retrieves the person's surnames.
+     *
+     * @param   int  $personID  the person's id
+     *
+     * @return string  the default name of the person
+     */
+    public static function surname(int $personID): string
+    {
+        $person = new Table();
+        $person->load($personID);
+
+        return $person->surname ?: '';
     }
 
     /**
@@ -429,9 +429,9 @@ class Persons extends Associated implements Selectable
 
         $query = DB::getQuery();
         $query->select('DISTINCT a.organizationID')
-            ->from('#__organizer_associations AS a')
-            ->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = a.groupID')
-            ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ig.assocID')
+            ->from(DB::qn('#__organizer_associations', 'a'))
+            ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.groupID', 'a.groupID'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe'), DB::qc('ipe.id', 'ig.assocID'))
             ->where("ipe.personID = $personID")
             ->where("ipe.roleID = 1");
         DB::setQuery($query);

@@ -19,7 +19,6 @@ use THM\Organizer\Tables;
  */
 class Subjects extends Curricula
 {
-    public const COORDINATES = 1, TEACHES = 2;
     protected static string $resource = 'subject';
 
     /**
@@ -36,7 +35,7 @@ class Subjects extends Curricula
             return false;
         }
 
-        $coordinates = self::COORDINATES;
+        $coordinates = Persons::COORDINATES;
         $query       = DB::getQuery();
         $query->select('COUNT(*)')->from(DB::qn('#__organizer_subject_persons'))
             ->where(DB::qn('personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER)
@@ -195,7 +194,7 @@ class Subjects extends Curricula
                 ->where("sp.personID = :personID")->bind(':personID', $personID, ParameterType::INTEGER);
         }
         else {
-            $coordinates = self::COORDINATES;
+            $coordinates = Persons::COORDINATES;
             $query->leftJoin($table, $condition)
                 ->where(DB::qc('sp.role', ':roleID'))->bind(':roleID', $coordinates, ParameterType::INTEGER);
         }
@@ -306,8 +305,8 @@ class Subjects extends Curricula
             $persons[$person['id']]['role'] = [$person['role'] => $person['role']];
         }
 
-        Persons::roleSort($persons);
-        Persons::nameSort($persons);
+        Persons::sortByRole($persons);
+        Persons::sortByName($persons);
 
         return $persons;
     }
@@ -412,7 +411,7 @@ class Subjects extends Curricula
             return false;
         }
 
-        $teaches = self::TEACHES;
+        $teaches = Persons::TEACHES;
         $query   = DB::getQuery();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_subject_persons'))

@@ -864,7 +864,7 @@ class Search extends ListModel
             $identity        = ($userID and Helpers\Persons::getIDByUserID($userID) === $personID);
             $organizationIDs = Helpers\Persons::organizationIDs($personID);
             $names           = Helpers\Persons::getOrganizationNames($personID);
-            $released        = Helpers\Persons::released($personID);
+            $released        = Helpers\Persons::public($personID);
             $teaches         = Helpers\Subjects::teaches(0, $personID);
             $wedge           = ($organizationIDs and array_intersect($this->authorized, $organizationIDs));
 
@@ -881,7 +881,7 @@ class Search extends ListModel
                 $persons[$personID] = [];
 
                 $persons[$personID]['description'] = $names ?: '';
-                $persons[$personID]['text']        = $label . Helpers\Persons::getDefaultName($personID);
+                $persons[$personID]['text']        = $label . Helpers\Persons::defaultName($personID);
                 $persons[$personID]['links']       = $links;
             }
         }

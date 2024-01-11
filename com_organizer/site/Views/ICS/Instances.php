@@ -727,7 +727,7 @@ class Instances
         }
 
         if ($thisID = (int) $state->get('filter.personID')) {
-            $this->title    = sprintf($postTemplate2, Helpers\Persons::getDefaultName($thisID, true));
+            $this->title    = sprintf($postTemplate2, Helpers\Persons::defaultName($thisID, true));
             $this->fileName = OutputFilter::stringURLSafe($this->title) . $suffix;
 
             return;

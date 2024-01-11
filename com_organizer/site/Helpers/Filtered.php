@@ -48,9 +48,8 @@ trait Filtered
         }
 
         // Alias 'aaf' so as not to conflict with the access filter.
-        $authorized = implode(',', $authorized);
         $query->innerJoin(DB::qn('#__organizer_associations', 'aaf'), DB::qc("aaf.{$context}ID", "$alias.id"))
-            ->where("aaf.organizationID IN ($authorized)");
+            ->where(DB::qn('aaf.organizationID') . ' IN (' . implode(',', $query->bindArray($authorized)) . ')');
     }
 
     /**

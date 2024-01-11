@@ -1212,12 +1212,12 @@ class Workload extends BaseLayout
 
         $sheet->getRowDimension('8')->setRowHeight($this->heights['basicField']);
         $this->addBasicField(8, 'Name');
-        $sheet->setCellValue('C8', Helpers\Persons::getSurname($this->personID));
+        $sheet->setCellValue('C8', Helpers\Persons::surname($this->personID));
         $sheet->getRowDimension('9')->setRowHeight($this->heights['spacer']);
 
         $sheet->getRowDimension('10')->setRowHeight($this->heights['basicField']);
         $this->addBasicField(10, 'Vorname');
-        $sheet->setCellValue('C10', Helpers\Persons::getForename($this->personID));
+        $sheet->setCellValue('C10', Helpers\Persons::forename($this->personID));
         $sheet->getRowDimension('11')->setRowHeight($this->heights['spacer']);
 
         $color = '9C132E';
@@ -1369,7 +1369,7 @@ class Workload extends BaseLayout
      */
     public function getDescription(): string
     {
-        $person = Helpers\Persons::getDefaultName($this->personID);
+        $person = Helpers\Persons::defaultName($this->personID);
         $term   = Helpers\Terms::getFullName($this->termID);
         $date   = Helpers\Dates::formatDate(date('Y-m-d'));
 
@@ -1381,7 +1381,7 @@ class Workload extends BaseLayout
      */
     public function getTitle(): string
     {
-        $person = Helpers\Persons::getLNFName($this->personID);
+        $person = Helpers\Persons::lastNameFirst($this->personID);
         $term   = Helpers\Terms::getName($this->termID);
 
         return Text::_('ORGANIZER_WORKLOAD') . ": $person - $term";

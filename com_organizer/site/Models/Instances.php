@@ -335,7 +335,7 @@ class Instances extends ListModel
                 $suffix .= ': ' . Helpers\Events::getName($eventID);
             }
             elseif ($personID = $this->state->get('filter.personID')) {
-                $suffix .= ': ' . Helpers\Persons::getDefaultName($personID);
+                $suffix .= ': ' . Helpers\Persons::defaultName($personID);
             }
             elseif ($groupID = $this->state->get('filter.groupID')) {
                 $suffix .= ': ' . Helpers\Groups::getFullName($groupID);

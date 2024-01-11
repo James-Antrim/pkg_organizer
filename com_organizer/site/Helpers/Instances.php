@@ -730,7 +730,7 @@ class Instances extends ResourceHelper
             $person   = [
                 'assocID'    => $assocID,
                 'code'       => $association['roleCode'],
-                'person'     => Persons::getLNFName($personID, true),
+                'person'     => Persons::lastNameFirst($personID, true),
                 'role'       => $association['role'],
                 'roleID'     => $association['roleID'],
                 'status'     => $association['status'],
@@ -1262,7 +1262,7 @@ class Instances extends ResourceHelper
         foreach ($personIDs as $key => $personID) {
             // Identity or publicly released
             $identity = ($thisPersonID and $thisPersonID === $personID);
-            $released = Persons::released($personID);
+            $released = Persons::public($personID);
             if ($identity or $released) {
                 continue;
             }
