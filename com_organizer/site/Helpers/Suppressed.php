@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\DatabaseQuery;
-use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\Database as DB;
-use THM\Organizer\Adapters\Input;
+use Joomla\Database\{DatabaseQuery, ParameterType};
+use THM\Organizer\Adapters\{Database as DB, Input};
 use THM\Organizer\Tables\Suppressed as SuppressedTable;
 
 trait Suppressed
