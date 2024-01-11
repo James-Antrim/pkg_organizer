@@ -18,9 +18,6 @@ use THM\Organizer\Adapters\{Database as DB, Text};
  */
 abstract class Curricula extends Associated implements Selectable
 {
-    // Both are string values on the line the latter must be cast
-    protected const ALL = 0, NONE = -1;
-
     /**
      * Recursively builds the curriculum hierarchy inclusive data for resources subordinate to a given range.
      *
