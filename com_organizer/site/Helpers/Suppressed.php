@@ -10,6 +10,10 @@
 
 namespace THM\Organizer\Helpers;
 
+use Joomla\Database\DatabaseQuery;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\Database as DB;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Tables\Suppressed as SuppressedTable;
 
 trait Suppressed
@@ -30,5 +34,25 @@ trait Suppressed
         }
 
         return true;
+    }
+
+    /**
+     * Adds a query restriction for the suppress column of the aliased table.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias of the table with the active column
+     *
+     * @return void
+     */
+    public static function suppressedFilter(DatabaseQuery $query, string $alias): void
+    {
+        $suppressed = Input::getCMD('active');
+
+        if ($suppressed === self::ALL) {
+            return;
+        }
+
+        $suppressed = (int) Input::filter($suppressed, 'bool');
+        $query->where(DB::qn("$alias.suppress") . ' = :suppress')->bind(':suppress', $suppressed, ParameterType::INTEGER);
     }
 }
