@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database as DB;
-use THM\Organizer\Adapters\HTML;
+use THM\Organizer\Adapters\{Database as DB, HTML, Input};
 use THM\Organizer\Tables\Buildings as Table;
 
 /**
@@ -107,7 +106,11 @@ class Buildings extends ResourceHelper implements Selectable
             ->from(DB::qn('#__organizer_buildings', 'b'))
             ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'b.campusID'))
             ->order(DB::qn('name'));
-        self::filterCampus($query, 'b');
+
+        if ($campusID = Input::getInt('campusID')) {
+            Campuses::filter($query, 'b', $campusID);
+        }
+
         DB::setQuery($query);
 
         return DB::loadAssocList('id');

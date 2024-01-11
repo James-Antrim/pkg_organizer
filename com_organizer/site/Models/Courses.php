@@ -129,7 +129,7 @@ class Courses extends ListModel
             $query->where("endDate >= '$today'");
         }
 
-        self::filterCampus($query, 'c');
+        $this->filterCampus($query, 'c');
 
         return $query;
     }

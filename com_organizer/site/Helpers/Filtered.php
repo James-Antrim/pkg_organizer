@@ -54,24 +54,6 @@ trait Filtered
     }
 
     /**
-     * Adds a resource filter for a given resource.
-     *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the alias for the linking table
-     *
-     * @return void
-     *
-     */
-    public static function filterCampus($query, $alias): void
-    {
-        if (!$campusID = Input::getInt('campusID')) {
-            return;
-        }
-
-        Campuses::filter($query, $alias, $campusID);
-    }
-
-    /**
      * Adds a selected organization filter to the query.
      *
      * @param   DatabaseQuery  $query      the query to modify
