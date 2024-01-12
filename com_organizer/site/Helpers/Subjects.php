@@ -101,7 +101,7 @@ class Subjects extends Curricula
      *
      * @return string the subject name
      */
-    public static function getName(int $resourceID = 0, bool $withNumber = false): string
+    public static function name(int $resourceID = 0, bool $withNumber = false): string
     {
         if (!$resourceID = $resourceID ?: Input::getID()) {
             return '';
@@ -254,10 +254,10 @@ class Subjects extends Curricula
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
-            'bgColor'      => Fields::getColor($fieldID, $organizationID),
+            'bgColor'      => Fields::color($fieldID, $organizationID),
             'creditPoints' => $table->creditPoints,
             'eventID'      => $eventID,
-            'field'        => $fieldID ? Fields::getName($fieldID) : '',
+            'field'        => $fieldID ? Fields::name($fieldID) : '',
             'fieldID'      => $table->fieldID,
             'id'           => $table->id,
             'moduleNo'     => $table->code,

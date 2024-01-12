@@ -74,7 +74,7 @@ class CourseParticipants extends ListView
         // Course Data is on top, because the participants are the actual list items.
         $course = new Tables\Courses();
         $course->load($this->courseID);
-        $this->campus    = Helpers\Campuses::getName($course->campusID);
+        $this->campus    = Helpers\Campuses::name($course->campusID);
         $this->course    = $course->$nameProperty;
         $this->endDate   = Helpers\Dates::formatDate($dates['endDate']);
         $this->fee       = $course->fee;

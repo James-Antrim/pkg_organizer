@@ -27,10 +27,10 @@ class CourseParticipants extends Participants
         $courseID = Input::getID();
 
         $subTitle   = [];
-        $subTitle[] = Helpers\Courses::getName($courseID);
+        $subTitle[] = Helpers\Courses::name($courseID);
 
         if ($campusID = Helpers\Courses::campusID($courseID)) {
-            $subTitle[] = Helpers\Campuses::getName($campusID);
+            $subTitle[] = Helpers\Campuses::name($campusID);
         }
 
         $subTitle[] = Helpers\Courses::displayDate($courseID);

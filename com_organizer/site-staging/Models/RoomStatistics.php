@@ -311,8 +311,8 @@ class RoomStatistics extends BaseModel
         $interval   = Input::getCMD('interval', 'week');
 
         $dates = match ($interval) {
-            'month' => Dates::getMonth($date),
-            default => Dates::getWeek($date, $startDoWNo, $endDoWNo),
+            'month' => Dates::oneMonth($date),
+            default => Dates::week($date, $startDoWNo, $endDoWNo),
         };
 
         $this->startDate = $dates['startDate'];

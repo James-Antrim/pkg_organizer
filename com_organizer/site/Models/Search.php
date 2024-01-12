@@ -658,7 +658,7 @@ class Search extends ListModel
                 $key   = "program-$programID";
                 $left  = $resource['lft'];
                 $label = Text::_('ORGANIZER_PROGRAM') . ': ';
-                $name  = Helpers\Programs::getName($programID);
+                $name  = Helpers\Programs::name($programID);
                 $right = $resource['rgt'];
 
                 if ($left and $right and $right - $left >= 2) {
@@ -671,7 +671,7 @@ class Search extends ListModel
             else {
                 $key   = "category-$categoryID";
                 $label = Text::_('ORGANIZER_CATEGORY') . ': ';
-                $name  = Helpers\Categories::getName($categoryID);
+                $name  = Helpers\Categories::name($categoryID);
 
                 $organizationIDs = Helpers\Categories::organizationIDs($categoryID);
             }
@@ -680,7 +680,7 @@ class Search extends ListModel
             $organizations = [];
 
             foreach ($organizationIDs as $organizationID) {
-                $organizations[] = Helpers\Organizations::getName($organizationID);
+                $organizations[] = Helpers\Organizations::name($organizationID);
             }
 
             if ($organizations) {
@@ -737,7 +737,7 @@ class Search extends ListModel
                 $description = Helpers\Subjects::programName($subjectID);
                 $key         = "subject-$subjectID";
                 $label       = Text::_('ORGANIZER_SUBJECT') . ': ';
-                $name        = Helpers\Subjects::getName($subjectID, true);
+                $name        = Helpers\Subjects::name($subjectID, true);
 
                 $links['subject_item'] = "?option=com_organizer&view=subject_item&id=$subjectID";
             }
@@ -745,7 +745,7 @@ class Search extends ListModel
                 $description = Helpers\Events::categoryNames($eventID);
                 $key         = "event-$eventID";
                 $label       = Text::_('ORGANIZER_EVENT') . ': ';
-                $name        = Helpers\Events::getName($resource['eventID']);
+                $name        = Helpers\Events::name($resource['eventID']);
             }
 
             if ($eventID) {
@@ -837,7 +837,7 @@ class Search extends ListModel
             $links['list'] = "?option=com_organizer&view=instances&organizationID=$organizationID&layout=list";
 
             $organizations[$organizationID]          = ['description' => ''];
-            $organizations[$organizationID]['text']  = $label . Helpers\Organizations::getName($organizationID);
+            $organizations[$organizationID]['text']  = $label . Helpers\Organizations::name($organizationID);
             $organizations[$organizationID]['links'] = $links;
         }
 

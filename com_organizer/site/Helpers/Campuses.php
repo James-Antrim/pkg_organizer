@@ -48,7 +48,7 @@ class Campuses extends ResourceHelper implements Selectable
      *
      * @return int
      */
-    public static function getGridID(int $campusID): int
+    public static function gridID(int $campusID): int
     {
         $table = new Tables\Campuses();
         if (!$table->load($campusID)) {
@@ -60,7 +60,7 @@ class Campuses extends ResourceHelper implements Selectable
         }
 
         if ($parentID = $table->parentID) {
-            return self::getGridID($parentID);
+            return self::gridID($parentID);
         }
 
         return 0;
@@ -73,7 +73,7 @@ class Campuses extends ResourceHelper implements Selectable
      *
      * @return string
      */
-    public static function getName(int $resourceID = 0): string
+    public static function name(int $resourceID = 0): string
     {
         if (empty($resourceID)) {
             return '';

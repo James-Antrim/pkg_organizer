@@ -309,7 +309,7 @@ abstract class Curricula extends Associated implements Selectable
         }
 
         if (count($programs) === 1) {
-            return Programs::getName($programs[0]['programID']);
+            return Programs::name($programs[0]['programID']);
         }
         else {
             return Text::_('MULTIPLE_PROGRAMS');

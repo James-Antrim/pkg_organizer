@@ -47,7 +47,7 @@ class FieldColors extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->color = Colors::getListDisplay($item->color, $item->colorID);
+        $item->color = Colors::swatch($item->color, $item->colorID);
     }
 
     /**

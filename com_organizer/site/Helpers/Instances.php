@@ -634,7 +634,7 @@ class Instances extends ResourceHelper
             return '';
         }
 
-        return Methods::getName($methodID);
+        return Methods::name($methodID);
     }
 
     /**
@@ -818,7 +818,7 @@ class Instances extends ResourceHelper
         $conditions['userID'] = User::id();
         $conditions['my']     = (!empty($conditions['userID']) and Input::getBool('my'));
 
-        $conditions['date'] = Dates::standardizeDate(Input::getCMD('date', date('Y-m-d')));
+        $conditions['date'] = Dates::standardize(Input::getCMD('date', date('Y-m-d')));
 
         $delta               = Input::getInt('delta');
         $conditions['delta'] = empty($delta) ? false : date('Y-m-d', strtotime('-' . $delta . ' days'));
@@ -1115,7 +1115,7 @@ class Instances extends ResourceHelper
      *
      * @return string
      */
-    public static function getName(int $resourceID, bool $showMethod = true): string
+    public static function name(int $resourceID, bool $showMethod = true): string
     {
         $instance = new Tables\Instances();
 
@@ -1127,12 +1127,12 @@ class Instances extends ResourceHelper
             return $instance->title;
         }
 
-        if (!$name = Events::getName($eventID)) {
+        if (!$name = Events::name($eventID)) {
             return '';
         }
 
         if ($showMethod and $methodID = $instance->methodID) {
-            $name .= ' - ' . Methods::getName($methodID);
+            $name .= ' - ' . Methods::name($methodID);
         }
 
         return $name;
@@ -1423,11 +1423,11 @@ class Instances extends ResourceHelper
 
         $dates = match ($parameters['interval']) {
             'day' => ['startDate' => $date, 'endDate' => $date],
-            'half' => Dates::getHalfYear($date),
-            'month' => Dates::getMonth($date),
-            'quarter' => Dates::getQuarter($date),
-            'term' => Dates::getTerm($date),
-            default => Dates::getWeek($date, $startDayNo, $endDayNo),
+            'half' => Dates::sixMonths($date),
+            'month' => Dates::oneMonth($date),
+            'quarter' => Dates::ninetyDays($date),
+            'term' => Dates::term($date),
+            default => Dates::week($date, $startDayNo, $endDayNo),
         };
 
         $parameters = array_merge($parameters, $dates);

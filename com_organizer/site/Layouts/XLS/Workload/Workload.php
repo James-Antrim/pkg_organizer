@@ -690,7 +690,7 @@ class Workload extends BaseLayout
             $sheet->setCellValue("A$row", $name);
 
             if ($program['frequencyID']) {
-                $sheet->setCellValue("B$row", Helpers\Frequencies::getName($program['frequencyID']));
+                $sheet->setCellValue("B$row", Helpers\Frequencies::name($program['frequencyID']));
             }
 
             $restrictions = [];
@@ -1207,7 +1207,7 @@ class Workload extends BaseLayout
 
         $sheet->getRowDimension('6')->setRowHeight($this->heights['basicField']);
         $this->addBasicField(6, 'Semester');
-        $sheet->setCellValue('C6', Helpers\Terms::getName($this->termID));
+        $sheet->setCellValue('C6', Helpers\Terms::name($this->termID));
         $sheet->getRowDimension('7')->setRowHeight($this->heights['spacer']);
 
         $sheet->getRowDimension('8')->setRowHeight($this->heights['basicField']);
@@ -1382,7 +1382,7 @@ class Workload extends BaseLayout
     public function getTitle(): string
     {
         $person = Helpers\Persons::lastNameFirst($this->personID);
-        $term   = Helpers\Terms::getName($this->termID);
+        $term   = Helpers\Terms::name($this->termID);
 
         return Text::_('ORGANIZER_WORKLOAD') . ": $person - $term";
     }

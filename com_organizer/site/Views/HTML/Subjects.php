@@ -49,7 +49,7 @@ class Subjects extends ListView
             }
             else {
                 if ($programID = Input::getInt('programID')) {
-                    $resourceName = Programs::getName($programID);
+                    $resourceName = Programs::name($programID);
                 }
                 if ($poolID = $this->state->get('calledPoolID', 0)) {
                     $poolName     = Pools::getFullName($poolID);

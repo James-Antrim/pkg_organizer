@@ -36,7 +36,7 @@ class Colors extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->color = Helpers\Colors::getListDisplay($item->color, $item->id);
+        $item->color = Helpers\Colors::swatch($item->color, $item->id);
     }
 
     /**

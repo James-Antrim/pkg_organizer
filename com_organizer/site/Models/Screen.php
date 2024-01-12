@@ -48,7 +48,7 @@ class Screen extends BaseModel
 
         if ($monitor->load($ipData)) {
             $roomID = $monitor->roomID;
-            $name   = Helpers\Rooms::getName($roomID);
+            $name   = Helpers\Rooms::name($roomID);
 
             switch ($monitor->display) {
                 case self::CURRENT:

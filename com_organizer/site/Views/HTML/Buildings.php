@@ -46,7 +46,7 @@ class Buildings extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->campusID     = Campuses::getName($item->campusID);
+        $item->campusID     = Campuses::name($item->campusID);
         $item->propertyType = match ($item->propertyType) {
             Helper::OWNED => Text::_('OWNED'),
             Helper::RENTED => Text::_('RENTED'),

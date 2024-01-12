@@ -63,7 +63,7 @@ class Courses extends ListView
         if (!Application::backend() and $this->preparatory) {
             $resourceName .= Text::_('PREP_COURSES');
             if ($campusID = $this->state->get('filter.campusID', 0)) {
-                $resourceName .= ' ' . Text::_('CAMPUS') . ' ' . Campuses::getName($campusID);
+                $resourceName .= ' ' . Text::_('CAMPUS') . ' ' . Campuses::name($campusID);
             }
         }
 
@@ -124,12 +124,12 @@ class Courses extends ListView
 
         $structuredItems = [];
 
-        $today  = Dates::standardizeDate();
+        $today  = Dates::standardize();
         $userID = User::id();
 
         foreach ($this->items as $course) {
             $campusID   = (int) $course->campusID;
-            $campusName = Campuses::getName($campusID);
+            $campusName = Campuses::name($campusID);
             $pin        = Application::backend() ? '' : ' ' . Campuses::getPin($campusID);
 
             $course->campus = $campusName . $pin;

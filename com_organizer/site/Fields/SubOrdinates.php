@@ -92,7 +92,7 @@ class SubOrdinates extends FormField
                 $subjectID = $subOrdinates[$ordering]['subjectID'];
                 $icon      = 'icon-book';
                 $link      = Route::_($subjectEditLink . $subjectID, false);
-                $name      = Helpers\Subjects::getName($subjectID, true);
+                $name      = Helpers\Subjects::name($subjectID, true);
                 $subID     = $subjectID . 's';
             }
 

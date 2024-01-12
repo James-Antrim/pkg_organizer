@@ -178,9 +178,9 @@ class Pools extends Curricula implements Selectable
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
-            'bgColor'      => Fields::getColor($fieldID, $organizationID),
+            'bgColor'      => Fields::color($fieldID, $organizationID),
             'description'  => $table->{"description_$tag"},
-            'field'        => $fieldID ? Fields::getName($fieldID) : '',
+            'field'        => $fieldID ? Fields::name($fieldID) : '',
             'fieldID'      => $table->fieldID,
             'id'           => $table->id,
             'maxCrP'       => $table->maxCrP,

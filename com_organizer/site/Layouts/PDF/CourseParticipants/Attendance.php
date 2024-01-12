@@ -79,7 +79,7 @@ class Attendance extends ListLayout
                     'name' => empty($participant->forename) ?
                         $participant->surname : "$participant->surname,  $participant->forename",
                     'organization' => Helpers\Programs::organization((int) $participant->programID, true),
-                    'program' => Helpers\Programs::getName((int) $participant->programID),
+                    'program' => Helpers\Programs::name((int) $participant->programID),
                     default => '',
                 };
 

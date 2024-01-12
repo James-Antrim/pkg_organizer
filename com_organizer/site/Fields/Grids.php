@@ -26,7 +26,7 @@ class Grids extends Options
     protected function getInput(): string
     {
         if (empty($this->value) and $campusID = Input::getParams()->get('campusID')) {
-            $this->value = Helpers\Campuses::getGridID($campusID);
+            $this->value = Helpers\Campuses::gridID($campusID);
         }
 
         return parent::getInput();

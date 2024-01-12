@@ -197,7 +197,7 @@ class Checkin extends OldFormModel
             }
 
             if ($roomID) {
-                $instances[$index]['room'] = Helpers\Rooms::getName($roomID);
+                $instances[$index]['room'] = Helpers\Rooms::name($roomID);
             }
 
         }

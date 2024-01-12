@@ -26,7 +26,7 @@ class Fields extends ResourceHelper implements Selectable
      *
      * @return string the hexadecimal color value associated with the field
      */
-    public static function getColor(int $fieldID, int $organizationID): string
+    public static function color(int $fieldID, int $organizationID): string
     {
         $table  = new Tables\FieldColors();
         $exists = $table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]);
@@ -35,37 +35,7 @@ class Fields extends ResourceHelper implements Selectable
             return Input::getParams()->get('backgroundColor', '#f2f5f6');
         }
 
-        return Colors::getColor($table->colorID);
-    }
-
-    /**
-     * Creates the display for a field item as used in a list view.
-     *
-     * @param   int  $fieldID         the id of the field
-     * @param   int  $organizationID  the id of the organization
-     *
-     * @return string the HTML output of the field attribute display
-     */
-    public static function getFieldColorDisplay(int $fieldID, int $organizationID = 0): string
-    {
-        if (!$fieldID) {
-            return '';
-        }
-
-        $organizationIDs = $organizationID ? [$organizationID] : Organizations::getIDs();
-        $return          = '';
-
-        foreach ($organizationIDs as $organizationID) {
-            $table = new Tables\FieldColors();
-            if ($table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID])) {
-                $link         = 'index.php?option=com_organizer&view=field_color_edit&id=' . $table->id;
-                $organization = Organizations::getShortName($organizationID);
-                $text         = HTML::_('link', $link, $organization);
-                $return       .= Colors::getListDisplay($text, $table->colorID);
-            }
-        }
-
-        return $return;
+        return Colors::color($table->colorID);
     }
 
     /**
@@ -79,6 +49,28 @@ class Fields extends ResourceHelper implements Selectable
         }
 
         return $options;
+    }
+
+    /**
+     * Retrieves the relevant field ids for the given curriculum context.
+     *
+     * @param   array  $subjectRanges  the mapped subject ranges
+     *
+     * @return int[] the field ids associated with the subjects in the given context
+     */
+    private static function relevantIDs(array $subjectRanges): array
+    {
+        $fieldIDs = [];
+
+        foreach ($subjectRanges as $subject) {
+            $table = new Tables\Subjects();
+
+            if ($table->load($subject['subjectID']) and !empty($table->fieldID)) {
+                $fieldIDs[$table->fieldID] = $table->fieldID;
+            }
+        }
+
+        return $fieldIDs;
     }
 
     /**
@@ -101,7 +93,7 @@ class Fields extends ResourceHelper implements Selectable
             $ranges = Programs::subjects($programID);
         }
 
-        if ($ranges and $fieldIDs = self::getRelevantIDs($ranges)) {
+        if ($ranges and $fieldIDs = self::relevantIDs($ranges)) {
             $string = implode(',', $fieldIDs);
             $query->where("id IN ($string)");
         }
@@ -112,24 +104,32 @@ class Fields extends ResourceHelper implements Selectable
     }
 
     /**
-     * Retrieves the relevant field ids for the given curriculum context.
+     * Creates the display for a field item as used in a list view.
      *
-     * @param   array  $subjectRanges  the mapped subject ranges
+     * @param   int  $fieldID         the id of the field
+     * @param   int  $organizationID  the id of the organization
      *
-     * @return int[] the field ids associated with the subjects in the given context
+     * @return string the HTML output of the field attribute display
      */
-    private static function getRelevantIDs(array $subjectRanges): array
+    public static function swatch(int $fieldID, int $organizationID = 0): string
     {
-        $fieldIDs = [];
+        if (!$fieldID) {
+            return '';
+        }
 
-        foreach ($subjectRanges as $subject) {
-            $table = new Tables\Subjects();
+        $organizationIDs = $organizationID ? [$organizationID] : Organizations::getIDs();
+        $return          = '';
 
-            if ($table->load($subject['subjectID']) and !empty($table->fieldID)) {
-                $fieldIDs[$table->fieldID] = $table->fieldID;
+        foreach ($organizationIDs as $organizationID) {
+            $table = new Tables\FieldColors();
+            if ($table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID])) {
+                $link         = 'index.php?option=com_organizer&view=field_color_edit&id=' . $table->id;
+                $organization = Organizations::getShortName($organizationID);
+                $text         = HTML::_('link', $link, $organization);
+                $return       .= Colors::swatch($text, $table->colorID);
             }
         }
 
-        return $fieldIDs;
+        return $return;
     }
 }

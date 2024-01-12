@@ -60,7 +60,7 @@ class CourseEdit extends EditModelOld
             $this->item->termID = Terms::getNextID();
         }
         else {
-            $this->item->name = Courses::getName($this->item->id);
+            $this->item->name = Courses::name($this->item->id);
         }
 
         return $this->item;

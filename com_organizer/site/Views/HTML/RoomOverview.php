@@ -33,7 +33,7 @@ class RoomOverview extends TableView
         if (!Application::backend()) {
             if ($campusID = Input::getInt('campusID')) {
                 $resourceName .= ': ' . Text::_('ORGANIZER_CAMPUS');
-                $resourceName .= ' ' . Helpers\Campuses::getName($campusID);
+                $resourceName .= ' ' . Helpers\Campuses::name($campusID);
             }
         }
 
@@ -168,7 +168,7 @@ class RoomOverview extends TableView
 
         if ((int) $this->state->get('list.template') === self::WEEK) {
             $row         = [];
-            $dates       = Helpers\Dates::getWeek($date, $this->grid['startDay'], $this->grid['endDay']);
+            $dates       = Helpers\Dates::week($date, $this->grid['startDay'], $this->grid['endDay']);
             $currentDate = $dates['startDate'];
             while ($currentDate <= $dates['endDate']) {
                 $dailyCells  = $this->getDailyCells($resource, $currentDate);
@@ -342,7 +342,7 @@ class RoomOverview extends TableView
         if ((int) $template === self::WEEK) {
             $blocks    = $this->getHeaderBlocks(true);
             $headers[] = ['text' => '', 'columns' => []];
-            $dates     = Helpers\Dates::getWeek($date, $this->grid['startDay'], $this->grid['endDay']);
+            $dates     = Helpers\Dates::week($date, $this->grid['startDay'], $this->grid['endDay']);
 
             $currentDate = $dates['startDate'];
             while ($currentDate <= $dates['endDate']) {
@@ -370,7 +370,7 @@ class RoomOverview extends TableView
     protected function setOverrides(): void
     {
         if (!$gridID = $this->state->get('list.gridID') and $campusID = Input::getParams()->get('campusID')) {
-            $gridID = Helpers\Campuses::getGridID($campusID);
+            $gridID = Helpers\Campuses::gridID($campusID);
         }
 
         if (empty($gridID)) {

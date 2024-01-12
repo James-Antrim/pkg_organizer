@@ -26,7 +26,7 @@ class ParticipationInstances extends Options
     protected function getOptions(): array
     {
         $bookingID = Helpers\Participation::bookingID(Input::getID());
-        $instances = Helpers\Bookings::getInstanceOptions($bookingID);
+        $instances = Helpers\Bookings::instanceOptions($bookingID);
 
         if (count($instances) === 1) {
             return $instances;

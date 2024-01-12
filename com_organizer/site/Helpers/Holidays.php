@@ -29,8 +29,8 @@ class Holidays
      */
     public static function getRelevant(string $startDate = '', string $endDate = ''): array
     {
-        $endDate   = Dates::standardizeDate($endDate);
-        $startDate = Dates::standardizeDate($startDate);
+        $endDate   = Dates::standardize($endDate);
+        $startDate = Dates::standardize($startDate);
         $tag       = Application::getTag();
 
         $query = Database::getQuery();

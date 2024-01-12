@@ -1112,13 +1112,13 @@ abstract class GridLayout extends BaseLayout
 
         if (array_key_exists('personIDs', $conditions)
             and count($conditions['personIDs']) === 1
-            and $person = Helpers\Persons::getName($conditions['personIDs'][0])) {
+            and $person = Helpers\Persons::name($conditions['personIDs'][0])) {
             $resources['person'] = $person;
         }
 
         if (array_key_exists('categoryIDs', $conditions)
             and count($conditions['categoryIDs']) === 1
-            and $category = Helpers\Categories::getName($conditions['categoryIDs'][0])) {
+            and $category = Helpers\Categories::name($conditions['categoryIDs'][0])) {
             $resources['group'] = $category;
         }
 
@@ -1129,12 +1129,12 @@ abstract class GridLayout extends BaseLayout
             else {
                 $groups    = [];
                 $lastID    = array_pop($conditions['groupIDs']);
-                $lastGroup = Helpers\Groups::getName($lastID);
+                $lastGroup = Helpers\Groups::name($lastID);
 
                 // If there was no specific category filter, the groups are not necessarily of the same category and should be ignored.
                 if (array_key_exists('group', $resources)) {
                     foreach ($conditions['groupIDs'] as $groupID) {
-                        $groups[] = Helpers\Groups::getName($groupID);
+                        $groups[] = Helpers\Groups::name($groupID);
                     }
 
                     $resources['group'] .= implode(', ', $groups) . " & $lastGroup";
@@ -1144,15 +1144,15 @@ abstract class GridLayout extends BaseLayout
 
         if (array_key_exists('roomIDs', $conditions)) {
             if (count($conditions['roomIDs']) === 1) {
-                $resources['room'] = Helpers\Rooms::getName($conditions['roomIDs'][0]);
+                $resources['room'] = Helpers\Rooms::name($conditions['roomIDs'][0]);
             }
             else {
                 $rooms    = [];
                 $lastID   = array_pop($conditions['roomIDs']);
-                $lastRoom = Helpers\Rooms::getName($lastID);
+                $lastRoom = Helpers\Rooms::name($lastID);
 
                 foreach ($conditions['roomIDs'] as $roomID) {
-                    $rooms[] = Helpers\Rooms::getName($roomID);
+                    $rooms[] = Helpers\Rooms::name($roomID);
                 }
 
                 $resources['room'] .= implode(', ', $rooms) . " & $lastRoom";

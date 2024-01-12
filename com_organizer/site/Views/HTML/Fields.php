@@ -36,7 +36,7 @@ class Fields extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $options['organizationID']);
+        $item->colors = Helpers\Fields::swatch($item->id, $options['organizationID']);
     }
 
     /**

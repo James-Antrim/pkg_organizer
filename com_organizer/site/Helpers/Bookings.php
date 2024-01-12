@@ -29,9 +29,9 @@ class Bookings extends ResourceHelper
      *
      * @return int
      */
-    public static function getCapacity(int $bookingID): int
+    public static function capacity(int $bookingID): int
     {
-        if (!$instanceIDs = self::getInstanceIDs($bookingID)) {
+        if (!$instanceIDs = self::instanceIDs($bookingID)) {
             return 0;
         }
 
@@ -45,7 +45,7 @@ class Bookings extends ResourceHelper
      *
      * @return string
      */
-    public static function getDateTimeDisplay(int $bookingID): string
+    public static function dateTimeDisplay(int $bookingID): string
     {
         $booking = new Table();
         if (!$booking->load($bookingID)) {
@@ -79,7 +79,7 @@ class Bookings extends ResourceHelper
      *
      * @return int[]
      */
-    public static function getInstanceIDs(int $bookingID): array
+    public static function instanceIDs(int $bookingID): array
     {
         $query = DB::getQuery();
         $query->select('DISTINCT ' . DB::qn('i.id'))
@@ -99,12 +99,12 @@ class Bookings extends ResourceHelper
      *
      * @return stdClass[]
      */
-    public static function getInstanceOptions(int $bookingID): array
+    public static function instanceOptions(int $bookingID): array
     {
         $options = [];
 
-        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
-            if ($name = Instances::getName($instanceID)) {
+        foreach (self::instanceIDs($bookingID) as $instanceID) {
+            if ($name = Instances::name($instanceID)) {
                 $options[$name] = HTML::option($instanceID, $name);
             }
         }
@@ -121,13 +121,13 @@ class Bookings extends ResourceHelper
      *
      * @return string
      */
-    public static function getName(int $resourceID): string
+    public static function name(int $resourceID): string
     {
         $method = '';
         $names  = [];
 
-        foreach (self::getInstanceIDs($resourceID) as $instanceID) {
-            if ($name = Instances::getName($instanceID, false)) {
+        foreach (self::instanceIDs($resourceID) as $instanceID) {
+            if ($name = Instances::name($instanceID, false)) {
                 $names[] = $name;
 
                 if (empty($method)) {
@@ -153,12 +153,12 @@ class Bookings extends ResourceHelper
      *
      * @return string[]
      */
-    public static function getNames(int $bookingID): array
+    public static function names(int $bookingID): array
     {
         $names = [];
 
-        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
-            if ($name = Instances::getName($instanceID)) {
+        foreach (self::instanceIDs($bookingID) as $instanceID) {
+            if ($name = Instances::name($instanceID)) {
                 $names[] = $name;
             }
         }
@@ -177,7 +177,7 @@ class Bookings extends ResourceHelper
      *
      * @return int
      */
-    public static function getParticipantCount(int $bookingID, int $roomID = 0): int
+    public static function participantCount(int $bookingID, int $roomID = 0): int
     {
         $query = DB::getQuery();
         $query->select('SUM(' . DB::qn('i.attended') . ')')
@@ -196,15 +196,15 @@ class Bookings extends ResourceHelper
     }
 
     /**
-     * Retrieves the number of current registrations for the booking.
+     * Gets the count of registrations for the booking.
      *
      * @param   int  $bookingID
      *
      * @return int
      */
-    public static function getRegistrations(int $bookingID): int
+    public static function registrationCount(int $bookingID): int
     {
-        if (!$instanceIDs = self::getInstanceIDs($bookingID)) {
+        if (!$instanceIDs = self::instanceIDs($bookingID)) {
             return 0;
         }
 
@@ -212,17 +212,17 @@ class Bookings extends ResourceHelper
     }
 
     /**
-     * Gets instance options for the booking entry.
+     * Builds list of room ids => room name pairs, sorted by their names.
      *
      * @param   int  $bookingID  the id of the booking to get instance options for
      *
      * @return string[]
      */
-    public static function getRooms(int $bookingID): array
+    public static function rooms(int $bookingID): array
     {
         $rooms = [];
 
-        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
+        foreach (self::instanceIDs($bookingID) as $instanceID) {
             foreach (Instances::getRoomIDs($instanceID) as $roomID) {
                 $room = new RTable();
                 $room->load($roomID);
@@ -247,13 +247,13 @@ class Bookings extends ResourceHelper
      *
      * @return stdClass[]
      */
-    public static function getRoomOptions(int $bookingID): array
+    public static function roomOptions(int $bookingID): array
     {
         $options = [];
 
-        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
+        foreach (self::instanceIDs($bookingID) as $instanceID) {
             foreach (Instances::getRoomIDs($instanceID) as $roomID) {
-                $name           = Rooms::getName($roomID);
+                $name           = Rooms::name($roomID);
                 $options[$name] = HTML::option($roomID, $name);
             }
         }

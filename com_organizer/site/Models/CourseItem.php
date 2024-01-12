@@ -52,7 +52,7 @@ class CourseItem extends ItemModel
         $campusID = $courseTable->campusID;
         $tag      = Application::getTag();
 
-        $course['campus']['value']      = Helpers\Campuses::getPin($campusID) . ' ' . Helpers\Campuses::getName($campusID);
+        $course['campus']['value']      = Helpers\Campuses::getPin($campusID) . ' ' . Helpers\Campuses::name($campusID);
         $course['campusID']             = $campusID;
         $course['deadline']             = $courseTable->deadline;
         $course['description']['value'] = $courseTable->{"description_$tag"} ?: '';
@@ -249,7 +249,7 @@ class CourseItem extends ItemModel
         $course['registration']['value'] = $course['registrationType'] ?
             Text::_('ORGANIZER_REGISTRATION_MANUAL') : Text::_('ORGANIZER_REGISTRATION_FIFO');
 
-        $today = Helpers\Dates::standardizeDate();
+        $today = Helpers\Dates::standardize();
 
         $expired = $course['endDate'] < $today;
         $ongoing = ($course['startDate'] <= $today and $expired);
@@ -299,7 +299,7 @@ class CourseItem extends ItemModel
         $deadlineText = Text::sprintf('ORGANIZER_DEADLINE_TEXT', $deadline);
 
         if ($userID = User::id()) {
-            $course['registrationStatus'] = Helpers\CourseParticipants::getState($course['id'], $userID);
+            $course['registrationStatus'] = Helpers\CourseParticipants::state($course['id'], $userID);
 
             if ($course['registrationStatus'] === self::UNREGISTERED) {
                 $texts['pRegistration'] = Text::_('ORGANIZER_COURSE_UNREGISTERED');

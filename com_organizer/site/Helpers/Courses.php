@@ -96,7 +96,7 @@ class Courses extends ResourceHelper
     public static function displayDate(int $courseID): string
     {
         if ($dates = self::dates($courseID)) {
-            return Dates::getDisplay($dates['startDate'], $dates ['endDate']);
+            return Dates::intervalText($dates['startDate'], $dates ['endDate']);
         }
 
         return '';

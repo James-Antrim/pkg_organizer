@@ -45,7 +45,7 @@ class CourseItem extends ItemView
             $maxParticipants = $this->item['maxParticipants'];
             $participants    = $this->item['participants'];
             $startDate       = $this->item['startDate'];
-            $today           = Dates::standardizeDate();
+            $today           = Dates::standardize();
             $toolbar         = Toolbar::getInstance();
 
             $deadline = $deadline ? date('Y-m-d', strtotime("-$deadline Days", strtotime($startDate))) : $startDate;
@@ -61,7 +61,7 @@ class CourseItem extends ItemView
                 if ($deadline > $today) {
                     $full         = $participants >= $maxParticipants;
                     $link         .= '&id=' . $this->item['id'];
-                    $state        = CourseParticipants::getState($courseID, $participantID);
+                    $state        = CourseParticipants::state($courseID, $participantID);
                     $validProfile = CourseParticipants::validProfile($courseID, $participantID);
                     if (!$full and $state === CourseParticipants::UNREGISTERED and $validProfile) {
                         $rLink = $link . '&task=courses.register';
@@ -71,7 +71,7 @@ class CourseItem extends ItemView
                         $drLink = $link . '&task=courses.deregister';
                         $toolbar->appendButton('Link', 'exit', Text::_('DEREGISTER'), $drLink);
 
-                        $hasPaid = CourseParticipants::hasPaid($courseID, $participantID);
+                        $hasPaid = CourseParticipants::paid($courseID, $participantID);
                         if ($state === CourseParticipants::ACCEPTED and $hasPaid) {
                             $bLink = $link . '&view=CourseItem&task=Courses.badge';
                             $toolbar->appendButton(
@@ -106,7 +106,7 @@ class CourseItem extends ItemView
         $this->subtitle = '<h6 class="sub-title">';
 
         if ($this->item['campusID']) {
-            $campusName     = Campuses::getName($this->item['campusID']);
+            $campusName     = Campuses::name($this->item['campusID']);
             $this->subtitle .= Text::_('CAMPUS') . " $campusName: ";
         }
 

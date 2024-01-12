@@ -28,10 +28,10 @@ class Date extends FormField
         $onchange = $this->getAttribute('onchange', '');
 
         if ($this->value) {
-            $value = Helpers\Dates::standardizeDate($this->value);
+            $value = Helpers\Dates::standardize($this->value);
         }
         else {
-            $value = $empty === 'false' ? Helpers\Dates::standardizeDate() : '';
+            $value = $empty === 'false' ? Helpers\Dates::standardize() : '';
         }
 
         $attributes = [

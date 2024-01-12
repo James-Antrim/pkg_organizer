@@ -64,8 +64,8 @@ class Booking extends ListView
         parent::__construct();
 
         $this->booking  = $this->model->getBooking();
-        $this->events   = Helper::getName($this->bookingID);
-        $this->dateTime = Helper::getDateTimeDisplay($this->bookingID);
+        $this->events   = Helper::name($this->bookingID);
+        $this->dateTime = Helper::dateTimeDisplay($this->bookingID);
     }
 
     /**
@@ -131,7 +131,7 @@ class Booking extends ListView
     public function setOverhead()
     {
         $title    = Text::_('ORGANIZER_EVENT_CODE') . ': ' . $this->booking->code;
-        $subTitle = Helpers\Bookings::getNames($this->bookingID);
+        $subTitle = Helpers\Bookings::names($this->bookingID);
 
         if (count($subTitle) > 2) {
             $subTitle = [Text::_('ORGANIZER_MULTIPLE_EVENTS')];
@@ -140,7 +140,7 @@ class Booking extends ListView
         $room = '';
 
         if ($roomID = $this->formState->get('filter.roomID')) {
-            $room = ', ' . Text::_('ORGANIZER_ROOM') . ' ' . Helpers\Rooms::getName($roomID);
+            $room = ', ' . Text::_('ORGANIZER_ROOM') . ' ' . Helpers\Rooms::name($roomID);
         }
 
         $subTitle[] = $this->dateTime . $room;

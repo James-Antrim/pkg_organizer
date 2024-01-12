@@ -177,7 +177,7 @@ class Instances extends ListModel
         $date = Input::getString('date', $date);
 
         // Defaults to today
-        return Helpers\Dates::standardizeDate($date);
+        return Helpers\Dates::standardize($date);
     }
 
     /**
@@ -332,7 +332,7 @@ class Instances extends ListModel
 
             // Which resource
             if ($eventID = $this->state->get('filter.eventID')) {
-                $suffix .= ': ' . Helpers\Events::getName($eventID);
+                $suffix .= ': ' . Helpers\Events::name($eventID);
             }
             elseif ($personID = $this->state->get('filter.personID')) {
                 $suffix .= ': ' . Helpers\Persons::defaultName($personID);
@@ -341,7 +341,7 @@ class Instances extends ListModel
                 $suffix .= ': ' . Helpers\Groups::getFullName($groupID);
             }
             elseif ($categoryID = $this->state->get('filter.categoryID')) {
-                $suffix .= ': ' . Helpers\Categories::getName($categoryID);
+                $suffix .= ': ' . Helpers\Categories::name($categoryID);
             }
             elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID'))) {
                 $fullName  = Helpers\Organizations::getFullName($organizationID);
@@ -350,7 +350,7 @@ class Instances extends ListModel
                 $suffix    .= ': ' . $name;
             }
             elseif ($campusID = $params->get('campusID')) {
-                $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
+                $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::name($campusID);
             }
 
             if ($roleID = Input::getInt('roleID')) {

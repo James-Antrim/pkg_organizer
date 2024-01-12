@@ -36,6 +36,40 @@ class Can
     }
 
     /**
+     * Gets the organization ids of for which the user is authorized access
+     *
+     * @param   string  $function  the action for authorization
+     *
+     * @return int[]
+     */
+    private static function authorizedIDs(string $function): array
+    {
+        if (!User::id()) {
+            return [];
+        }
+
+        $organizationIDs = Organizations::getIDs();
+
+        if (self::administrate()) {
+            return $organizationIDs;
+        }
+
+        if (!method_exists('THM\\Organizer\\Helpers\\Can', $function)) {
+            return [];
+        }
+
+        $authorized = [];
+
+        foreach ($organizationIDs as $organizationID) {
+            if (self::$function('organization', $organizationID)) {
+                $authorized[] = $organizationID;
+            }
+        }
+
+        return $authorized;
+    }
+
+    /**
      * Performs ubiquitous authorization checks. Functions using this with is_bool() will get a false positive for a
      * null return value in their own return value suggestions.
      * @return bool|null
@@ -177,7 +211,7 @@ class Can
      */
     public static function documentTheseOrganizations(): array
     {
-        return self::getAuthorizedOrganizations('document');
+        return self::authorizedIDs('document');
     }
 
     /**
@@ -265,40 +299,6 @@ class Can
     }
 
     /**
-     * Gets the organization ids of for which the user is authorized access
-     *
-     * @param   string  $function  the action for authorization
-     *
-     * @return int[]
-     */
-    private static function getAuthorizedOrganizations(string $function): array
-    {
-        if (!User::id()) {
-            return [];
-        }
-
-        $organizationIDs = Organizations::getIDs();
-
-        if (self::administrate()) {
-            return $organizationIDs;
-        }
-
-        if (!method_exists('THM\\Organizer\\Helpers\\Can', $function)) {
-            return [];
-        }
-
-        $authorized = [];
-
-        foreach ($organizationIDs as $organizationID) {
-            if (self::$function('organization', $organizationID)) {
-                $authorized[] = $organizationID;
-            }
-        }
-
-        return $authorized;
-    }
-
-    /**
      * Checks whether the user can manage the given resource.
      *
      * @param   string  $resourceType  the resource type being checked
@@ -315,7 +315,7 @@ class Can
         switch ($resourceType) {
             case 'booking':
             case 'bookings':
-                foreach (Bookings::getInstanceIDs($resourceID) as $instanceID) {
+                foreach (Bookings::instanceIDs($resourceID) as $instanceID) {
                     if (self::manage('instance', $instanceID)) {
                         return true;
                     }
@@ -364,7 +364,7 @@ class Can
      */
     public static function manageTheseOrganizations(): array
     {
-        return self::getAuthorizedOrganizations('manage');
+        return self::authorizedIDs('manage');
     }
 
     /**
@@ -410,7 +410,7 @@ class Can
      */
     public static function scheduleTheseOrganizations(): array
     {
-        return self::getAuthorizedOrganizations('schedule');
+        return self::authorizedIDs('schedule');
     }
 
     /**
@@ -495,6 +495,6 @@ class Can
      */
     public static function viewTheseOrganizations(): array
     {
-        return self::getAuthorizedOrganizations('view');
+        return self::authorizedIDs('view');
     }
 }

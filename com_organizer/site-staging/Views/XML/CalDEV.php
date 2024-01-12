@@ -155,9 +155,9 @@ class CalDEV extends BaseView
                     $room->addAttribute('virtual', $table->virtual);
                     $name = $this->amp($table->name);
                     $room->addChild('name', $name);
-                    $type = $this->amp(Helpers\RoomTypes::getName($table->roomtypeID));
+                    $type = $this->amp(Helpers\RoomTypes::name($table->roomtypeID));
                     $room->addChild('type', $type);
-                    $building = $table->buildingID ? $this->amp(Helpers\Buildings::getName($table->buildingID)) : '';
+                    $building = $table->buildingID ? $this->amp(Helpers\Buildings::name($table->buildingID)) : '';
                     $room->addChild('building', $building);
                     $capacity = $table->maxCapacity ?: '';
                     $room->addChild('capacity', $capacity);

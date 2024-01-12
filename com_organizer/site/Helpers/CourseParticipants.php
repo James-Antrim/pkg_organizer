@@ -29,7 +29,7 @@ class CourseParticipants extends ResourceHelper
      *
      * @return  bool
      */
-    public static function hasPaid(int $courseID, int $participantID): bool
+    public static function paid(int $courseID, int $participantID): bool
     {
         $course = new Tables\Courses();
 
@@ -58,7 +58,7 @@ class CourseParticipants extends ResourceHelper
      *
      * @return  int|null
      */
-    public static function getState(int $courseID, int $participantID, int $eventID = 0): ?int
+    public static function state(int $courseID, int $participantID, int $eventID = 0): ?int
     {
         $query = DB::getQuery();
         $query->select(DB::qn('status'))

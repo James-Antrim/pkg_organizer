@@ -23,7 +23,7 @@ class Degrees extends ResourceHelper
      *
      * @return string
      */
-    public static function getLevel(int $degreeID): string
+    public static function level(int $degreeID): string
     {
         $code = self::getCode($degreeID);
 

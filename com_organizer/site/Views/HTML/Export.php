@@ -103,7 +103,7 @@ class Export extends OldFormView
         if ($format !== 'ics') {
             $defaultDate = date('Y-m-d');
             $date        = empty($form['date']) ? $defaultDate : $form['date'];
-            $date        = Helpers\Dates::standardizeDate($date);
+            $date        = Helpers\Dates::standardize($date);
 
             if ($specific = ($date !== $defaultDate)) {
                 $url .= "&date=$date";

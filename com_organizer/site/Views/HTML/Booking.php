@@ -243,8 +243,8 @@ class Booking extends Participants
     protected function setSubTitle(): void
     {
         $bookingID      = Input::getID();
-        $subTitle       = Helper::getNames($bookingID);
-        $subTitle[]     = Helper::getDateTimeDisplay($bookingID);
+        $subTitle       = Helper::names($bookingID);
+        $subTitle[]     = Helper::dateTimeDisplay($bookingID);
         $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
     }
 
@@ -286,13 +286,13 @@ class Booking extends Participants
             $texts[]     = $expiredText;
         }
 
-        $count         = Helper::getParticipantCount($this->bookingID);
-        $registrations = Helper::getRegistrations($this->bookingID);
-        $capacity      = Helper::getCapacity($this->bookingID);
+        $count         = Helper::participantCount($this->bookingID);
+        $registrations = Helper::registrationCount($this->bookingID);
+        $capacity      = Helper::capacity($this->bookingID);
         $countText     = Text::sprintf('CHECKIN_COUNT', $count, $registrations, $capacity);
 
         if ($count and $roomID = $this->state->get('filter.roomID')) {
-            $roomCount = Helper::getParticipantCount($this->bookingID, $roomID);
+            $roomCount = Helper::participantCount($this->bookingID, $roomID);
             $roomCount = Text::sprintf('CHECKIN_ROOM_COUNT', $roomCount);
             $countText .= " ($roomCount)";
         }

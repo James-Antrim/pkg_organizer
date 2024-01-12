@@ -25,26 +25,6 @@ class Buildings extends ResourceHelper implements Selectable
     public const OWNED = 1, RENTED = 2, USED = 3;
 
     /**
-     * Checks for the building entry in the database, creating it as necessary. Adds the id to the building entry in the
-     * schedule.
-     *
-     * @param   string  $name  the building name
-     *
-     * @return int
-     */
-    public static function getID(string $name): int
-    {
-        $table = new Table();
-        $data  = ['name' => $name];
-
-        if ($table->load($data)) {
-            return $table->id;
-        }
-
-        return $table->save($data) ? $table->id : 0;
-    }
-
-    /**
      * @inheritDoc
      */
     public static function options(): array
@@ -74,8 +54,8 @@ class Buildings extends ResourceHelper implements Selectable
             $thisCampusID = empty($thisBuilding['parentID']) ? $thisBuilding['campusID'] : $thisBuilding['parentID'];
             $nextCampusID = empty($nextBuilding['parentID']) ? $nextBuilding['campusID'] : $nextBuilding['parentID'];
 
-            $thisBuilding['campusName'] = Campuses::getName($thisCampusID);
-            $nextBuilding['campusName'] = Campuses::getName($nextCampusID);
+            $thisBuilding['campusName'] = Campuses::name($thisCampusID);
+            $nextBuilding['campusName'] = Campuses::name($nextCampusID);
 
             if ($thisBuilding['campusName'] < $nextBuilding['campusName']) {
                 $buildingID   = $thisBuilding['id'];
@@ -94,6 +74,25 @@ class Buildings extends ResourceHelper implements Selectable
         }
 
         return $options;
+    }
+
+    /**
+     * Checks for the building name in the database, creating an entry for it as necessary.
+     *
+     * @param   string  $name  the building name
+     *
+     * @return int
+     */
+    public static function resolveID(string $name): int
+    {
+        $table = new Table();
+        $data  = ['name' => $name];
+
+        if ($table->load($data)) {
+            return $table->id;
+        }
+
+        return $table->save($data) ? $table->id : 0;
     }
 
     /**

@@ -625,8 +625,8 @@ class Instances extends ListView
     {
         if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
             $date           = $this->state->get('list.date');
-            $interval       = Helpers\Dates::getQuarter($date);
-            $interval       = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
+            $interval       = Helpers\Dates::ninetyDays($date);
+            $interval       = Helpers\Dates::intervalText($interval['startDate'], $interval['endDate']);
             $this->subtitle = "<h6 class=\"sub-title\">$interval</h6>";
         }
     }

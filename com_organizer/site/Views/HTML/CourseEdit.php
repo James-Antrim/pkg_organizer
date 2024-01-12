@@ -30,7 +30,7 @@ class CourseEdit extends EditViewOld
             $title = Text::_('COURSE_EDIT');
 
             if (Application::backend()) {
-                $campus = Helpers\Campuses::getName($this->item->campusID);
+                $campus = Helpers\Campuses::name($this->item->campusID);
                 $dates  = Helpers\Courses::displayDate($this->item->id);
                 $tag    = Application::getTag();
                 $name   = "name_$tag";
@@ -60,10 +60,10 @@ class CourseEdit extends EditViewOld
         }
 
         $subTitle   = [];
-        $subTitle[] = Helpers\Courses::getName($this->item->id);
+        $subTitle[] = Helpers\Courses::name($this->item->id);
 
         if ($this->item->campusID) {
-            $subTitle[] = Helpers\Campuses::getName($this->item->campusID);
+            $subTitle[] = Helpers\Campuses::name($this->item->campusID);
         }
 
         $subTitle[] = Helpers\Courses::displayDate($this->item->id);

@@ -65,7 +65,7 @@ class Courses extends ListModel
 
         foreach ($items as $item) {
             $item->participants = count(Helpers\Courses::participantIDs($item->id));
-            $item->registered   = Helpers\CourseParticipants::getState($item->id, $userID);
+            $item->registered   = Helpers\CourseParticipants::state($item->id, $userID);
         }
 
         return $items;

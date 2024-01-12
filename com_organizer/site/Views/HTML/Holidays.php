@@ -36,7 +36,7 @@ class Holidays extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->dates = Dates::getDisplay($item->startDate, $item->endDate);
+        $item->dates = Dates::intervalText($item->startDate, $item->endDate);
 
         if (!$this->state->get('filter.termID')) {
             $item->name .= " ($item->term)";

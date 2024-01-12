@@ -266,7 +266,7 @@ class Booking extends Participants
             Participant::supplement($participantID, true);
         }
 
-        $instanceIDs = Helper::getInstanceIDs($bookingID);
+        $instanceIDs = Helper::instanceIDs($bookingID);
 
         // Check for existing entries in an existing participant's personal schedule
         if ($existing) {
@@ -429,7 +429,7 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        if (!Helper::getInstanceIDs(Input::getID())) {
+        if (!Helper::instanceIDs(Input::getID())) {
             Application::error(400);
         }
 
@@ -510,12 +510,12 @@ class Booking extends Participants
             $form->removeField('username', 'list');
         }
 
-        if (count(Helper::getInstanceOptions($bookingID)) === 1) {
+        if (count(Helper::instanceOptions($bookingID)) === 1) {
             $form->removeField('instanceID', 'filter');
             unset($this->filter_fields[array_search('instanceID', $this->filter_fields)]);
         }
 
-        if (count(Helper::getRoomOptions($bookingID)) <= 1) {
+        if (count(Helper::roomOptions($bookingID)) <= 1) {
             $form->removeField('roomID', 'filter');
             unset($this->filter_fields[array_search('roomID', $this->filter_fields)]);
         }
@@ -591,7 +591,7 @@ class Booking extends Participants
             ->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
             ->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id');
 
-        $rooms      = Helper::getRooms($bookingID);
+        $rooms      = Helper::rooms($bookingID);
         $updateID   = 0;
         $updateRoom = '';
 

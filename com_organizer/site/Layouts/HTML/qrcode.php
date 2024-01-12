@@ -25,10 +25,10 @@ $qrCode     = new QRCode($checkinURL, 'QRCODE,L');
 <div id="j-main-container" class="span10 qr-code">
     <h1><?php echo $this->booking->code; ?></h1>
     <?php echo $qrCode->getBarcodeHTML(6, 6); ?>
-    <?php foreach (Helper::getNames($bookingID) as $name): ?>
+    <?php foreach (Helper::names($bookingID) as $name): ?>
         <?php echo "<p>$name</p>"; ?>
     <?php endforeach; ?>
-    <?php echo '<p>' . implode(' ', Helper::getRooms($bookingID)) . '</p>'; ?>
-    <?php echo '<p class="date">' . Helper::getDateTimeDisplay($bookingID) . '</p>'; ?>
+    <?php echo '<p>' . implode(' ', Helper::rooms($bookingID)) . '</p>'; ?>
+    <?php echo '<p class="date">' . Helper::dateTimeDisplay($bookingID) . '</p>'; ?>
     <div class="foot">go.thm.de/checkin</div>
 </div>

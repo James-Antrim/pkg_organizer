@@ -86,7 +86,7 @@ class Booking extends ListLayout
 
         $view     = $this->view;
         $showCR   = $view->formState->get('filter.status') === Helper::ALL;
-        $showRoom = (count(Helper::getRooms($view->bookingID)) > 1 and !$view->formState->get('filter.roomID'));
+        $showRoom = (count(Helper::rooms($view->bookingID)) > 1 and !$view->formState->get('filter.roomID'));
 
         if ($showCR and $showRoom) {
             $this->widths = [

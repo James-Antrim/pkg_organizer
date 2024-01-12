@@ -109,7 +109,7 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getName(int $resourceID): string
+    public static function name(int $resourceID): string
     {
         if (!$resourceID) {
             return Text::_('NO_PROGRAM');
@@ -139,7 +139,7 @@ class Programs extends Curricula implements Selectable
      */
     public static function level(int $programID): string
     {
-        return Degrees::getLevel(self::degreeID($programID));
+        return Degrees::level(self::degreeID($programID));
     }
 
     /**
@@ -298,7 +298,7 @@ class Programs extends Curricula implements Selectable
             return Text::_('MULTIPLE_ORGANIZATIONS');
         }
 
-        return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::getName($organizationIDs[0]);
+        return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::name($organizationIDs[0]);
     }
 
     /**

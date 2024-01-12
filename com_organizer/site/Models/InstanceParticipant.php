@@ -516,7 +516,7 @@ class InstanceParticipant extends BaseModel
                 continue;
             }
 
-            $name  = Instances::getName($instanceID);
+            $name  = Instances::name($instanceID);
             $block = Instances::block($instanceID);
             $date  = Dates::formatDate($block->date);
             //$earliest  = Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
@@ -560,7 +560,7 @@ class InstanceParticipant extends BaseModel
             Database::setQuery($query);
 
             if ($otherInstanceID = Database::loadInt()) {
-                $otherName = Instances::getName($otherInstanceID);
+                $otherName = Instances::name($otherInstanceID);
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT', $date, $startTime, $endTime,
                         $otherName),

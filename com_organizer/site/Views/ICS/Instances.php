@@ -720,7 +720,7 @@ class Instances
         }
 
         if ($thisID = (int) $state->get('filter.eventID')) {
-            $this->title    = sprintf($postTemplate, Helpers\Events::getName($thisID));
+            $this->title    = sprintf($postTemplate, Helpers\Events::name($thisID));
             $this->fileName = OutputFilter::stringURLSafe($this->title) . $suffix;
 
             return;
@@ -741,28 +741,28 @@ class Instances
         }
 
         if ($thisID = (int) $state->get('filter.roomID')) {
-            $this->title    = sprintf($preTemplate, Helpers\Rooms::getName($thisID));
+            $this->title    = sprintf($preTemplate, Helpers\Rooms::name($thisID));
             $this->fileName = OutputFilter::stringURLSafe($this->title) . $suffix;
 
             return;
         }
 
         if ($thisID = (int) $state->get('filter.categoryID')) {
-            $this->title    = sprintf($postTemplate, Helpers\Categories::getName($thisID));
+            $this->title    = sprintf($postTemplate, Helpers\Categories::name($thisID));
             $this->fileName = OutputFilter::stringURLSafe($this->title) . $suffix;
 
             return;
         }
 
         if ($thisID = (int) $state->get('filter.organizationID')) {
-            $this->title    = sprintf($postTemplate, Helpers\Organizations::getName($thisID));
+            $this->title    = sprintf($postTemplate, Helpers\Organizations::name($thisID));
             $this->fileName = OutputFilter::stringURLSafe($this->title) . $suffix;
 
             return;
         }
 
         if ($thisID = (int) $state->get('filter.campusID')) {
-            $campus         = Helpers\Campuses::getName($thisID);
+            $campus         = Helpers\Campuses::name($thisID);
             $this->title    = sprintf($postTemplate, $campus);
             $this->fileName = OutputFilter::stringURLSafe($this->title) . $suffix;
 

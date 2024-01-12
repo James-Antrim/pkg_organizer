@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Text};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML};
 use Joomla\Database\ParameterType;
 
 /**
@@ -33,7 +33,7 @@ class Categories extends Associated implements Selectable
      *
      * @return array[]
      */
-    public static function getGroups(int $categoryID, bool $active = true): array
+    public static function groups(int $categoryID, bool $active = true): array
     {
         $tag   = Application::getTag();
         $query = DB::getQuery();
@@ -72,36 +72,6 @@ class Categories extends Associated implements Selectable
 
         // Any out of sequence indexes cause JSON to treat this as an object
         return array_values($options);
-    }
-
-    /**
-     * Retrieves the name of the program associated with the category.
-     *
-     * @param   int  $categoryID  the id of the program
-     *
-     * @return string
-     */
-    public static function getProgramName(int $categoryID): string
-    {
-        $noName = Text::_('ORGANIZER_NO_PROGRAM');
-
-        if (!$categoryID) {
-            return $noName;
-        }
-
-        $query = DB::getQuery();
-        $query->select('DISTINCT ' . DB::qn('id'))
-            ->from(DB::qn('#__organizer_programs'))
-            ->where(DB::qn('categoryID') . ' = :categoryID')
-            ->bind(':categoryID', $categoryID, ParameterType::INTEGER);
-        DB::setQuery($query);
-
-        if ($programIDs = DB::loadIntColumn()) {
-            return count($programIDs) > 1 ?
-                Text::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
-        }
-
-        return $noName;
     }
 
     /**

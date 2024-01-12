@@ -26,7 +26,7 @@ class BookingInstances extends Options
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $instances = Helpers\Bookings::getInstanceOptions(Input::getID());
+        $instances = Helpers\Bookings::instanceOptions(Input::getID());
 
         return array_merge($options, $instances);
     }

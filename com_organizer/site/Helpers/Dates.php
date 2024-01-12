@@ -68,7 +68,7 @@ class Dates
     public static function formatDate(string $date = '', bool $withText = false, bool $short = false): string
     {
         $date          = empty($date) ? date('Y-m-d') : $date;
-        $formattedDate = date(self::getFormat(), strtotime($date));
+        $formattedDate = date(self::formatParameter(), strtotime($date));
 
         if ($withText) {
             $textFormat    = $short ? 'D' : 'l';
@@ -89,7 +89,7 @@ class Dates
      */
     public static function formatDateTime(int|string $dateTime): string
     {
-        $format   = self::getFormat() . ' H:i';
+        $format   = self::formatParameter() . ' H:i';
         $dateTime = is_string($dateTime) ? strtotime($dateTime) : $dateTime;
 
         return date($format, $dateTime);
@@ -105,6 +105,16 @@ class Dates
     public static function formatEndTime(string $time): string
     {
         return date('H:i', strtotime('+1 minute', strtotime($time)));
+    }
+
+    /**
+     * Gets the format from the component settings.
+     *
+     * @return string
+     */
+    public static function formatParameter(): string
+    {
+        return Input::getParams()->get('dateFormat', 'd.m.Y');
     }
 
     /**
@@ -127,52 +137,12 @@ class Dates
      *
      * @return string
      */
-    public static function getDisplay(string $startDate, string $endDate): string
+    public static function intervalText(string $startDate, string $endDate): string
     {
         $startDate = self::formatDate($startDate);
         $endDate   = self::formatDate($endDate);
 
         return $startDate === $endDate ? $startDate : "$startDate - $endDate";
-    }
-
-    /**
-     * Gets the format from the component settings.
-     *
-     * @return string
-     */
-    public static function getFormat(): string
-    {
-        return Input::getParams()->get('dateFormat', 'd.m.Y');
-    }
-
-    /**
-     * Returns the end and start dates of a six-month period beginning with the date given.
-     *
-     * @param   string  $date  the date
-     *
-     * @return string[]
-     */
-    public static function getHalfYear(string $date): array
-    {
-        $dateTime = strtotime($date);
-
-        return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+6 month', $dateTime))];
-    }
-
-    /**
-     * Returns the end date and start date of the month for the given date
-     *
-     * @param   string  $date  the date
-     *
-     * @return string[]
-     */
-    public static function getMonth(string $date): array
-    {
-        $dateTime = strtotime($date);
-        $endDT    = strtotime('last day of this month', $dateTime);
-        $startDT  = strtotime('first day of this month', $dateTime);
-
-        return ['startDate' => date('Y-m-d', $startDT), 'endDate' => date('Y-m-d', $endDT)];
     }
 
     /**
@@ -183,7 +153,7 @@ class Dates
      *
      * @return string[]
      */
-    public static function getQuarter(string $date, int $startDay = 1): array
+    public static function ninetyDays(string $date, int $startDay = 1): array
     {
         $dateTime = strtotime($date);
 
@@ -200,13 +170,81 @@ class Dates
     }
 
     /**
+     * Returns the end date and start date of the month for the given date
+     *
+     * @param   string  $date  the date
+     *
+     * @return string[]
+     */
+    public static function oneMonth(string $date): array
+    {
+        $dateTime = strtotime($date);
+        $endDT    = strtotime('last day of this month', $dateTime);
+        $startDT  = strtotime('first day of this month', $dateTime);
+
+        return ['startDate' => date('Y-m-d', $startDT), 'endDate' => date('Y-m-d', $endDT)];
+    }
+
+    /**
+     * Returns the end and start dates of a six-month period beginning with the date given.
+     *
+     * @param   string  $date  the date
+     *
+     * @return string[]
+     */
+    public static function sixMonths(string $date): array
+    {
+        $dateTime = strtotime($date);
+
+        return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+6 month', $dateTime))];
+    }
+
+    /**
+     * Converts a date string from the format in the component settings into the format used by the database
+     *
+     * @param   string  $date  the date string
+     *
+     * @return string
+     */
+    public static function standardize(string $date = ''): string
+    {
+        $default = date('Y-m-d');
+
+        if (empty($date)) {
+            return $default;
+        }
+
+        if (self::standardized($date)) {
+            return $date;
+        }
+
+        $dt = DateTime::createFromFormat(self::formatParameter(), $date);
+
+        return ($dt !== false and !array_sum($dt::getLastErrors())) ? $dt->format('Y-m-d') : $default;
+    }
+
+    /**
+     * Checks whether a date is a valid date in the standard Y-m-d format.
+     *
+     * @param   string  $date  the date to be checked
+     *
+     * @return bool
+     */
+    public static function standardized(string $date): bool
+    {
+        $dt = DateTime::createFromFormat('Y-m-d', $date);
+
+        return ($dt !== false and $dt::getLastErrors() === false);
+    }
+
+    /**
      * Returns the end date and start date of the term for the given date
      *
      * @param   string  $date  the date in format Y-m-d
      *
      * @return string[]
      */
-    public static function getTerm(string $date): array
+    public static function term(string $date): array
     {
         $query = DB::getQuery();
         $query->select(DB::qn(['startDate', 'endDate']))->from(DB::qn('#__organizer_terms'));
@@ -225,7 +263,7 @@ class Dates
      *
      * @return string[]
      */
-    public static function getWeek(string $date, int $startDay = 1, int $endDay = 6): array
+    public static function week(string $date, int $startDay = 1, int $endDay = 6): array
     {
         $dateTime     = strtotime($date);
         $startDayName = date('l', strtotime("Sunday + $startDay days"));
@@ -234,43 +272,5 @@ class Dates
         $endDate      = date('Y-m-d', strtotime("$endDayName this week", $dateTime));
 
         return ['startDate' => $startDate, 'endDate' => $endDate];
-    }
-
-    /**
-     * Checks whether a date is a valid date in the standard Y-m-d format.
-     *
-     * @param   string  $date  the date to be checked
-     *
-     * @return bool
-     */
-    public static function isStandardized(string $date): bool
-    {
-        $dt = DateTime::createFromFormat('Y-m-d', $date);
-
-        return ($dt !== false and $dt::getLastErrors() === false);
-    }
-
-    /**
-     * Converts a date string from the format in the component settings into the format used by the database
-     *
-     * @param   string  $date  the date string
-     *
-     * @return string
-     */
-    public static function standardizeDate(string $date = ''): string
-    {
-        $default = date('Y-m-d');
-
-        if (empty($date)) {
-            return $default;
-        }
-
-        if (self::isStandardized($date)) {
-            return $date;
-        }
-
-        $dt = DateTime::createFromFormat(self::getFormat(), $date);
-
-        return ($dt !== false and !array_sum($dt::getLastErrors())) ? $dt->format('Y-m-d') : $default;
     }
 }

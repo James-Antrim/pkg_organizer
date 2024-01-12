@@ -25,7 +25,7 @@ class Colors extends ResourceHelper
      *
      * @return string
      */
-    public static function getColor(int $colorID): string
+    public static function color(int $colorID): string
     {
         $table = new Tables\Colors();
 
@@ -33,20 +33,20 @@ class Colors extends ResourceHelper
     }
 
     /**
-     * Creates a container to output text with a system specific color.
+     * Creates a container with the given text and background color. Text color is calculated dynamically for contrast.
      *
      * @param   string  $text     the text to display
-     * @param   int     $colorID  the id of the color
+     * @param   int     $colorID  the id of the background color
      *
      * @return string
      */
-    public static function getListDisplay(string $text, int $colorID): string
+    public static function swatch(string $text, int $colorID): string
     {
         $styles = ['text-align:center;'];
         if (!empty($colorID)) {
-            $bgColor   = self::getColor($colorID);
+            $bgColor   = self::color($colorID);
             $styles[]  = "background-color:$bgColor;";
-            $textColor = self::getDynamicTextColor($bgColor);
+            $textColor = self::textColor($bgColor);
             $styles[]  = "color:$textColor;";
         }
 
@@ -60,7 +60,7 @@ class Colors extends ResourceHelper
      *
      * @return string
      */
-    public static function getDynamicTextColor(string $bgColor): string
+    public static function textColor(string $bgColor): string
     {
         $color = substr($bgColor, 1);
         $red   = hexdec(substr($color, 0, 2));

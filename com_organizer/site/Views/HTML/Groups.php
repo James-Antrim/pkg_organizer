@@ -61,7 +61,7 @@ class Groups extends ListView
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Groups');
-        $item->grid   = Grids::getName($item->gridID);
+        $item->grid   = Grids::name($item->gridID);
 
         $publishing   = new GroupPublishing();
         $keys         = ['groupID' => $item->id, 'termID' => $options['currentID']];
@@ -99,12 +99,12 @@ class Groups extends ListView
             ],
             'this'     => [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Terms::getName(Terms::getCurrentID()),
+                'title'      => Terms::name(Terms::getCurrentID()),
                 'type'       => 'value'
             ],
             'next'     => [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Terms::getName(Terms::getNextID()),
+                'title'      => Terms::name(Terms::getNextID()),
                 'type'       => 'value'
             ],
             'name'     => [

@@ -35,7 +35,7 @@ class CategoryUnits extends BaseView
         $active     = Input::getBool('active', true);
         $categoryID = Input::getInt('categoryID');
 
-        foreach (Helpers\Categories::getGroups($categoryID, $active) as $group) {
+        foreach (Helpers\Categories::groups($categoryID, $active) as $group) {
             $group['events'] = [];
 
             $groupID = $group['id'];

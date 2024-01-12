@@ -106,7 +106,7 @@ class Mailer
         }
 
         $courseName = $course->{"name_$tag"};
-        if ($campus = Campuses::getName($course->campusID)) {
+        if ($campus = Campuses::name($course->campusID)) {
             $courseName .= " - $campus";
         }
 

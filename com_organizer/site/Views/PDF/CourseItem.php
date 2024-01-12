@@ -76,7 +76,7 @@ class CourseItem extends BaseView
         $this->showPrintOverhead(false);
 
         $item            = $this->get('item');
-        $this->campus    = Helpers\Campuses::getName($item['campusID']);
+        $this->campus    = Helpers\Campuses::name($item['campusID']);
         $this->course    = $item['name']['value'];
         $this->endDate   = Helpers\Dates::formatDate($item['endDate']);
         $this->fee       = $item['fee']['value'];

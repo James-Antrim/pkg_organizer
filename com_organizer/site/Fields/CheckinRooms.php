@@ -49,7 +49,7 @@ class CheckinRooms extends Options
         $rooms = [];
 
         foreach (Helpers\Instances::getRoomIDs($instanceID) as $roomID) {
-            $name         = Helpers\Rooms::getName($roomID);
+            $name         = Helpers\Rooms::name($roomID);
             $rooms[$name] = HTML::option($roomID, $name);
         }
 

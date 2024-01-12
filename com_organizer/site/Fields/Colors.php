@@ -44,7 +44,7 @@ class Colors extends ColoredOptions
             $option->text  = $color['text'];
             $option->value = $color['value'];
 
-            $textColor     = Helper::getDynamicTextColor($color['color']);
+            $textColor     = Helper::textColor($color['color']);
             $option->style = "background-color:{$color['color']};color:$textColor;";
             $options[]     = $option;
         }

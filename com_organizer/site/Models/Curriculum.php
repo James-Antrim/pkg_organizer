@@ -27,14 +27,14 @@ class Curriculum extends ItemModel
         $curriculum = [];
         if ($poolID = Input::getInt('poolID')) {
             $ranges             = Helpers\Pools::rows($poolID);
-            $curriculum['name'] = Helpers\Pools::getName($poolID);
+            $curriculum['name'] = Helpers\Pools::name($poolID);
             $curriculum['type'] = 'pool';
             $curriculum         += array_pop($ranges);
             Helpers\Pools::curriculum($curriculum);
         }
         elseif ($programID = Input::getInt('programID')) {
             $ranges             = Helpers\Programs::rows($programID);
-            $curriculum['name'] = Helpers\Programs::getName($programID);
+            $curriculum['name'] = Helpers\Programs::name($programID);
             $curriculum['type'] = 'program';
             $curriculum         += array_pop($ranges);
             Helpers\Programs::curriculum($curriculum);

@@ -88,12 +88,12 @@ class RoomOverview extends ListModel
 
         $date = Application::getUserRequestState("$this->context.list.date", "list_date", '', 'string');
         $date = (string) $list->get('date', $date);
-        $date = Helpers\Dates::standardizeDate($date);
+        $date = Helpers\Dates::standardize($date);
 
         $defaultGrid = Helpers\Grids::getDefault();
 
         if ($campusID = Input::getParams()->get('campusID')) {
-            $defaultGrid = Helpers\Campuses::getGridID($campusID);
+            $defaultGrid = Helpers\Campuses::gridID($campusID);
             $this->setState('filter.campusID', $campusID);
         }
 

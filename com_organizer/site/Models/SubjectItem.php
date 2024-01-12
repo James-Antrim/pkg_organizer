@@ -260,7 +260,7 @@ class SubjectItem extends ItemModel
                 continue;
             }
 
-            $programName = Helpers\Programs::getName($program['programID']);
+            $programName = Helpers\Programs::name($program['programID']);
 
             foreach ($dependencies as $dependency) {
                 if ($dependency['preID'] == $subjectID) {
@@ -388,7 +388,7 @@ class SubjectItem extends ItemModel
         $poolRanges = Helpers\Subjects::pools($subject['subjectID']);
 
         foreach (Helpers\Subjects::programs($subject['subjectID']) as $prRange) {
-            $program         = Helpers\Programs::getName($prRange['programID']);
+            $program         = Helpers\Programs::name($prRange['programID']);
             $semesterNumbers = [];
 
             foreach ($poolRanges as $poRange) {

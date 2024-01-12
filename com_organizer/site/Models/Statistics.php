@@ -215,14 +215,14 @@ class Statistics extends OldFormModel
                 continue;
             }
 
-            $attendence    = Helpers\Bookings::getParticipantCount($instance['bookingID']);
+            $attendance    = Helpers\Bookings::participantCount($instance['bookingID']);
             $registrations = Helpers\Instances::currentCapacity($instanceID);
 
             $monday       = date('Y-m-d', strtotime('monday this week', strtotime($instance['date'])));
             $attended     = Helpers\Instances::attendance($instanceID);
-            $noShows      = max(($registrations - $attendence), 0);
+            $noShows      = max(($registrations - $attendance), 0);
             $registered   = Helpers\Instances::getRegistered($instanceID);
-            $unregistered = max(($attendence - $registrations), 0);
+            $unregistered = max(($attendance - $registrations), 0);
             $uniqueKey    = "{$instance['unitID']}-{$instance['blockID']}";
             $updateUnique = false;
 
@@ -475,7 +475,7 @@ class Statistics extends OldFormModel
         $state   = $this->state;
 
         if ($categoryID = $state->get('conditions.categoryID')) {
-            foreach (Helpers\Categories::getGroups($categoryID) as $group) {
+            foreach (Helpers\Categories::groups($categoryID) as $group) {
                 $columns[$group['id']] = $group['name'];
             }
         }
