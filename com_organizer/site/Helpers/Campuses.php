@@ -22,6 +22,15 @@ class Campuses extends ResourceHelper implements Selectable
     use Active;
     use Pinned;
 
+    /**
+     * Adds campus filter clauses to the given query.
+     *
+     * @param   DatabaseQuery  $query
+     * @param   string         $alias
+     * @param   int            $campusID
+     *
+     * @return void
+     */
     public static function filter(DatabaseQuery $query, string $alias, int $campusID): void
     {
         $tableID   = DB::qn('campusAlias.id');
