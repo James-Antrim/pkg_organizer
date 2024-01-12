@@ -97,10 +97,10 @@ class Campuses extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $campus) {
+        foreach (self::resources() as $campus) {
             $name = empty($campus['parentName']) ? $campus['name'] : "{$campus['parentName']} / {$campus['name']}";
 
             $options[$name] = HTML::option($campus['id'], $name);
@@ -114,7 +114,7 @@ class Campuses extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $tag   = Application::getTag();
         $query = DB::getQuery();

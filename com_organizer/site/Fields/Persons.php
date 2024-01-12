@@ -26,7 +26,7 @@ class Persons extends Options
     protected function getOptions(): array
     {
         $options = parent::getOptions();
-        $persons = Helpers\Persons::getOptions();
+        $persons = Helpers\Persons::options();
 
         return array_merge($options, $persons);
     }

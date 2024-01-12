@@ -26,7 +26,7 @@ class Terms extends Options
         $options   = parent::getOptions();
         $filter    = (bool) $this->getAttribute('filter');
         $withDates = (bool) $this->getAttribute('withDates');
-        $terms     = Helper::getOptions($withDates, $filter);
+        $terms     = Helper::options($withDates, $filter);
 
         return array_merge($options, $terms);
     }

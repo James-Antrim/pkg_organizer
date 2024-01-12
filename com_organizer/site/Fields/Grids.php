@@ -39,7 +39,7 @@ class Grids extends Options
     protected function getOptions(): array
     {
         $options  = parent::getOptions();
-        $campuses = Helpers\Grids::getOptions();
+        $campuses = Helpers\Grids::options();
 
         return array_merge($options, $campuses);
     }

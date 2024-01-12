@@ -23,6 +23,6 @@ class PersonOptions extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Persons::getOptions(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Persons::options(), JSON_UNESCAPED_UNICODE);
     }
 }

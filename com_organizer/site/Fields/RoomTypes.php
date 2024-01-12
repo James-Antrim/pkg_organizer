@@ -23,6 +23,6 @@ class RoomTypes extends Options
      */
     protected function getOptions(): array
     {
-        return array_merge(parent::getOptions(), Helper::getOptions());
+        return array_merge(parent::getOptions(), Helper::options());
     }
 }

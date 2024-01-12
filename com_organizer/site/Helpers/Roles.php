@@ -40,10 +40,10 @@ class Roles extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $role) {
+        foreach (self::resources() as $role) {
             $options[] = HTML::option($role['id'], $role['name']);
         }
 
@@ -53,7 +53,7 @@ class Roles extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $query = Database::getQuery();
         $tag   = Application::getTag();

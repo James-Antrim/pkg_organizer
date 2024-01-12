@@ -47,10 +47,10 @@ class Buildings extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         // Array values allows easier manipulation of entries for buildings of the same name on different campuses.
-        if (!$buildings = array_values(self::getResources())) {
+        if (!$buildings = array_values(self::resources())) {
             return $buildings;
         }
 
@@ -99,7 +99,7 @@ class Buildings extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $query = DB::getQuery();
         $query->select(['DISTINCT ' . DB::qn('b') . '.*', DB::qn('c.parentID')])

@@ -23,6 +23,6 @@ class Subjects extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Subjects::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Subjects::resources(), JSON_UNESCAPED_UNICODE);
     }
 }

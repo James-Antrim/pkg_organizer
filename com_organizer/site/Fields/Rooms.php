@@ -24,7 +24,7 @@ class Rooms extends Options
     protected function getOptions(): array
     {
         $options = parent::getOptions();
-        $rooms   = Helpers\Rooms::getOptions();
+        $rooms   = Helpers\Rooms::options();
 
         return array_merge($options, $rooms);
     }

@@ -207,7 +207,7 @@ class InstanceEdit extends EditModelOld
          * field is omitted or if 'none' option is selected.
          */
         if (empty($item->gridID)) {
-            $organizations  = Helpers\Organizations::getResources('teach');
+            $organizations  = Helpers\Organizations::resources('teach');
             $organizationID = reset($organizations)['id'];
             $item->gridID   = Helpers\Organizations::getDefaultGrid($organizationID);
         }

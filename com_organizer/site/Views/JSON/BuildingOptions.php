@@ -23,6 +23,6 @@ class BuildingOptions extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Buildings::getOptions(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Buildings::options(), JSON_UNESCAPED_UNICODE);
     }
 }

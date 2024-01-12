@@ -23,6 +23,6 @@ class Pools extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Pools::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Pools::resources(), JSON_UNESCAPED_UNICODE);
     }
 }

@@ -46,7 +46,7 @@ class TermPublishing extends FormField
             $values = Database::loadAssocList('termID');
         }
 
-        foreach (Terms::getResources() as $term) {
+        foreach (Terms::resources() as $term) {
             if ($term['endDate'] < $today) {
                 continue;
             }

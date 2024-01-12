@@ -25,7 +25,7 @@ class Categories extends Options
     protected function getOptions(): array
     {
         $options    = parent::getOptions();
-        $categories = Helpers\Categories::getOptions();
+        $categories = Helpers\Categories::options();
 
         return array_merge($options, $categories);
     }

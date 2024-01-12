@@ -485,7 +485,7 @@ class Statistics extends OldFormModel
             }
         }
         else {
-            foreach (Helpers\Organizations::getResources() as $organization) {
+            foreach (Helpers\Organizations::resources() as $organization) {
                 if (!$organization['active']) {
                     continue;
                 }
@@ -520,7 +520,7 @@ class Statistics extends OldFormModel
                 $grid['sum'][$columnID] = 0;
             }
 
-            foreach (Helpers\Methods::getResources() as $method) {
+            foreach (Helpers\Methods::resources() as $method) {
                 $methodID        = $method['id'];
                 $grid[$methodID] = [];
 

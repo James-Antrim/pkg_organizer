@@ -23,6 +23,6 @@ class Terms extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Terms::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Terms::resources(), JSON_UNESCAPED_UNICODE);
     }
 }

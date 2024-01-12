@@ -145,11 +145,11 @@ class UnitEdit extends EditModelOld
             $keys = ['code' => $code];
 
             // Get an organization associated with the user as a teacher
-            $organizations  = Helpers\Organizations::getResources('teach');
+            $organizations  = Helpers\Organizations::resources('teach');
             $organizationID = reset($organizations)['id'];
             $gridID         = Helpers\Organizations::getDefaultGrid($organizationID);
 
-            foreach (Helpers\Terms::getResources(true) as $term) {
+            foreach (Helpers\Terms::resources(true) as $term) {
                 $item  = new stdClass();
                 $table = new Table();
 

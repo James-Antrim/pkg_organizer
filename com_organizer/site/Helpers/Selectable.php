@@ -21,11 +21,11 @@ interface Selectable
      * Retrieves the selectable options for the resource.
      * @return array the available options
      */
-    public static function getOptions(): array;
+    public static function options(): array;
 
     /**
      * Retrieves resource items.
      * @return array the available resources
      */
-    public static function getResources(): array;
+    public static function resources(): array;
 }

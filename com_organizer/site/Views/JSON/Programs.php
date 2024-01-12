@@ -23,6 +23,6 @@ class Programs extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Programs::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Programs::resources(), JSON_UNESCAPED_UNICODE);
     }
 }

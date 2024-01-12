@@ -56,11 +56,11 @@ class Categories extends Associated implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getOptions(string $access = ''): array
+    public static function options(string $access = ''): array
     {
         $name    = Application::getTag() === 'en' ? 'name_en' : 'name_de';
         $options = [];
-        foreach (self::getResources($access) as $category) {
+        foreach (self::resources($access) as $category) {
             if ($category['active']) {
                 $options[] = HTML::option($category['id'], $category[$name]);
             }
@@ -109,7 +109,7 @@ class Categories extends Associated implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getResources(string $access = ''): array
+    public static function resources(string $access = ''): array
     {
         $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
         $query = DB::getQuery();

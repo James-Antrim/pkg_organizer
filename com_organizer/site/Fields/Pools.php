@@ -27,7 +27,7 @@ class Pools extends Options
     {
         $options = parent::getOptions();
         $access  = Application::backend() ? 'document' : '';
-        $pools   = Helpers\Pools::getOptions($access);
+        $pools   = Helpers\Pools::options($access);
 
         return array_merge($options, $pools);
     }

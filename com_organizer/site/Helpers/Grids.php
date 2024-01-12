@@ -38,10 +38,10 @@ class Grids extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $grid) {
+        foreach (self::resources() as $grid) {
             $options[] = HTML::option($grid['id'], $grid['name']);
         }
 
@@ -93,7 +93,7 @@ class Grids extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $query = Database::getQuery();
         $tag   = Application::getTag();

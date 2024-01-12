@@ -147,10 +147,10 @@ class Programs extends Curricula implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getOptions(string $access = ''): array
+    public static function options(string $access = ''): array
     {
         $options = [];
-        foreach (self::getResources($access) as $program) {
+        foreach (self::resources($access) as $program) {
             if ($program['active']) {
                 $options[] = HTML::option($program['id'], $program['name']);
             }
@@ -164,7 +164,7 @@ class Programs extends Curricula implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getResources(string $access = ''): array
+    public static function resources(string $access = ''): array
     {
         $query = self::query();
         $query->select(DB::qn('d.abbreviation', 'degree'))

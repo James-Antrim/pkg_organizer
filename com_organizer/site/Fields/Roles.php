@@ -25,7 +25,7 @@ class Roles extends Options
     protected function getOptions(): array
     {
         $defaultOptions = parent::getOptions();
-        $options        = Helpers\Roles::getOptions();
+        $options        = Helpers\Roles::options();
 
         return array_merge($defaultOptions, $options);
     }

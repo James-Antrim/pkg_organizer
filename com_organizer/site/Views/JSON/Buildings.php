@@ -23,6 +23,6 @@ class Buildings extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Buildings::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Buildings::resources(), JSON_UNESCAPED_UNICODE);
     }
 }

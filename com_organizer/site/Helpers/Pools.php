@@ -194,10 +194,10 @@ class Pools extends Curricula implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getOptions(string $access = ''): array
+    public static function options(string $access = ''): array
     {
         $options = [];
-        foreach (self::getResources($access) as $pool) {
+        foreach (self::resources($access) as $pool) {
             $options[] = HTML::option($pool['id'], $pool['name']);
         }
 
@@ -279,7 +279,7 @@ class Pools extends Curricula implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getResources(string $access = ''): array
+    public static function resources(string $access = ''): array
     {
         $programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID');
         $poolID    = Input::getInt('poolID');

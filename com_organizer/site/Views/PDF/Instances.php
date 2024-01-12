@@ -60,7 +60,7 @@ class Instances extends ListView
                 Application::error(401);
             }
 
-            if ($personID and !in_array($personID, array_keys(Helpers\Persons::getResources()))) {
+            if ($personID and !in_array($personID, array_keys(Helpers\Persons::resources()))) {
                 Application::error(403);
             }
         }

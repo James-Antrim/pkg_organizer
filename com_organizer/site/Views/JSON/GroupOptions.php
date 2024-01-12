@@ -23,6 +23,6 @@ class GroupOptions extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Groups::getOptions(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Groups::options(), JSON_UNESCAPED_UNICODE);
     }
 }

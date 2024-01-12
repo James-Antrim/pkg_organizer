@@ -25,7 +25,7 @@ class Campuses extends Options
     protected function getOptions(): array
     {
         $options  = parent::getOptions();
-        $campuses = Helpers\Campuses::getOptions();
+        $campuses = Helpers\Campuses::options();
 
         return array_merge($options, $campuses);
     }

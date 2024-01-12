@@ -135,10 +135,10 @@ class Subjects extends Curricula
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $subject) {
+        foreach (self::resources() as $subject) {
             $options[] = HTML::option($subject['id'], $subject['name']);
         }
 
@@ -148,7 +148,7 @@ class Subjects extends Curricula
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $poolID    = Input::getInt('poolID', self::NONE);
         $programID = Input::getInt('programID', self::NONE);

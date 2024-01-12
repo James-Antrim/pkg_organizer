@@ -23,6 +23,6 @@ class Groups extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Groups::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Groups::resources(), JSON_UNESCAPED_UNICODE);
     }
 }

@@ -160,10 +160,10 @@ class Organizations extends ResourceHelper implements Selectable
      * @param   bool    $short   whether abbreviated names should be returned
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getOptions(bool $short = true, string $access = ''): array
+    public static function options(bool $short = true, string $access = ''): array
     {
         $options = [];
-        foreach (self::getResources($access) as $organization) {
+        foreach (self::resources($access) as $organization) {
             if ($organization['active']) {
                 $name = $short ? $organization['shortName'] : $organization['name'];
 
@@ -202,7 +202,7 @@ class Organizations extends ResourceHelper implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getResources(string $access = ''): array
+    public static function resources(string $access = ''): array
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();

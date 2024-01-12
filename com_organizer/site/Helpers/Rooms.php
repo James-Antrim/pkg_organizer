@@ -51,10 +51,10 @@ class Rooms extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $room) {
+        foreach (self::resources() as $room) {
             if ($room['active']) {
                 $options[] = HTML::option($room['id'], $room['name']);
             }
@@ -103,7 +103,7 @@ class Rooms extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $query = DB::getQuery();
         $query->select(['DISTINCT ' . DB::qn('r.id'), DB::qn('r') . '.*'])

@@ -23,6 +23,6 @@ class CampusOptions extends BaseView
      */
     public function display()
     {
-        echo json_encode(Helpers\Campuses::getOptions(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\Campuses::options(), JSON_UNESCAPED_UNICODE);
     }
 }

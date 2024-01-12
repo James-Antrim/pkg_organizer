@@ -167,7 +167,7 @@ class Group extends MergeModel
     public function publishPast(): bool
     {
         $query = Database::getQuery();
-        $terms = Helpers\Terms::getResources();
+        $terms = Helpers\Terms::resources();
         $today = date('Y-m-d');
         $query->update('#__organizer_group_publishing')->set('published = 1');
 

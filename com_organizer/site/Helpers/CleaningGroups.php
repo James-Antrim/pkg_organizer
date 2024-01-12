@@ -39,11 +39,11 @@ class CleaningGroups extends ResourceHelper implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getOptions(string $access = ''): array
+    public static function options(string $access = ''): array
     {
         $name    = Application::getTag() === 'en' ? 'name_en' : 'name_de';
         $options = [];
-        foreach (self::getResources() as $group) {
+        foreach (self::resources() as $group) {
             $options[] = HTML::option($group['id'], $group[$name]);
         }
 
@@ -60,7 +60,7 @@ class CleaningGroups extends ResourceHelper implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
         $query = DB::getQuery();

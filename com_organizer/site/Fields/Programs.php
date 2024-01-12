@@ -34,7 +34,7 @@ class Programs extends Options
         }
 
         $access   = Application::backend() ? $this->getAttribute('access', '') : '';
-        $programs = Helpers\Programs::getOptions($access);
+        $programs = Helpers\Programs::options($access);
 
         return array_merge($options, $programs);
     }

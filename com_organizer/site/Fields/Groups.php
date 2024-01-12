@@ -27,7 +27,7 @@ class Groups extends Options
     protected function getOptions(): array
     {
         $options = parent::getOptions();
-        $groups  = Helpers\Groups::getOptions();
+        $groups  = Helpers\Groups::options();
 
         return array_merge($options, $groups);
     }

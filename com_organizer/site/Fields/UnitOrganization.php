@@ -45,7 +45,7 @@ class UnitOrganization extends Options
     protected function getOptions(): array
     {
         $options       = parent::getOptions();
-        $organizations = Organizations::getOptions(true, 'teach');
+        $organizations = Organizations::options(true, 'teach');
 
         return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
     }

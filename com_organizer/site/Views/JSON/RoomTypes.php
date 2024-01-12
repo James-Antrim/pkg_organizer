@@ -23,6 +23,6 @@ class RoomTypes extends BaseView
      */
     public function display(): void
     {
-        echo json_encode(Helpers\RoomTypes::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\RoomTypes::resources(), JSON_UNESCAPED_UNICODE);
     }
 }

@@ -86,7 +86,7 @@ class Terms extends ResourceHelper implements Selectable
     {
         $ids = [];
 
-        foreach (self::getResources($filter) as $term) {
+        foreach (self::resources($filter) as $term) {
             $ids[] = (int) $term['id'];
         }
 
@@ -123,12 +123,12 @@ class Terms extends ResourceHelper implements Selectable
      * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
      * @param   bool  $filter     if true only current and future terms will be displayed
      */
-    public static function getOptions(bool $showDates = false, bool $filter = false): array
+    public static function options(bool $showDates = false, bool $filter = false): array
     {
         $tag     = Application::getTag();
         $options = [];
 
-        foreach (Terms::getResources($filter) as $term) {
+        foreach (Terms::resources($filter) as $term) {
             $name = $term["name_$tag"];
 
             if ($showDates) {
@@ -172,7 +172,7 @@ class Terms extends ResourceHelper implements Selectable
      *
      * @param   bool  $filter
      */
-    public static function getResources(bool $filter = false): array
+    public static function resources(bool $filter = false): array
     {
         $query = Database::getQuery();
         $query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');

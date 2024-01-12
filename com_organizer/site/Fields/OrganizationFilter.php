@@ -27,7 +27,7 @@ class OrganizationFilter extends Options
     {
         $options       = parent::getOptions();
         $access        = Application::backend() ? $this->getAttribute('access', '') : '';
-        $organizations = Organizations::getOptions(true, $access);
+        $organizations = Organizations::options(true, $access);
 
         return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
     }

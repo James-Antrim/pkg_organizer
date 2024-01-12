@@ -125,7 +125,7 @@ class Groups extends Associated implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getOptions(string $access = ''): array
+    public static function options(string $access = ''): array
     {
         $categoryID  = Input::getInt('categoryID');
         $categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
@@ -134,7 +134,7 @@ class Groups extends Associated implements Selectable
         $name = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";
 
         $options = [];
-        foreach (self::getResources() as $group) {
+        foreach (self::resources() as $group) {
             if ($group['active']) {
                 $options[] = HTML::option($group['id'], $group[$name]);
             }
@@ -153,7 +153,7 @@ class Groups extends Associated implements Selectable
      *
      * @param   string  $access  any access restriction which should be performed
      */
-    public static function getResources(string $access = ''): array
+    public static function resources(string $access = ''): array
     {
         if ($categoryID = Input::getInt('categoryID')) {
             $categoryIDs = [$categoryID];

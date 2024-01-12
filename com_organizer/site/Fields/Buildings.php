@@ -25,7 +25,7 @@ class Buildings extends Options
     protected function getOptions(): array
     {
         $defaultOptions = parent::getOptions();
-        $options        = Helpers\Buildings::getOptions();
+        $options        = Helpers\Buildings::options();
 
         return array_merge($defaultOptions, $options);
     }

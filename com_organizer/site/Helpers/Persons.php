@@ -236,10 +236,10 @@ class Persons extends Associated implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $person) {
+        foreach (self::resources() as $person) {
             if ($person['active']) {
                 $name     = $person['surname'];
                 $forename = trim($person['forename']);
@@ -255,7 +255,7 @@ class Persons extends Associated implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $organizationID = Input::getInt('organizationID');
         if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization')) {

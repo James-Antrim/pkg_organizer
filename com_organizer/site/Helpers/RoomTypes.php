@@ -25,10 +25,10 @@ class RoomTypes extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $type) {
+        foreach (self::resources() as $type) {
             $options[] = HTML::option($type['id'], $type['name']);
         }
 
@@ -41,7 +41,7 @@ class RoomTypes extends ResourceHelper implements Selectable
      * @param   bool  $associated  whether the type needs to be associated with a room
      * @param   bool  $suppressed  whether suppressed types should also be included in the result set
      */
-    public static function getResources(bool $associated = self::YES, bool $suppressed = self::NO): array
+    public static function resources(bool $associated = self::YES, bool $suppressed = self::NO): array
     {
         $tag    = Application::getTag();
         $select = [

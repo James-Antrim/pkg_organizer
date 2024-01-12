@@ -25,7 +25,7 @@ class Fields extends Options
     protected function getOptions(): array
     {
         $defaultOptions = parent::getOptions();
-        $options        = Helpers\Fields::getOptions();
+        $options        = Helpers\Fields::options();
 
         return array_merge($defaultOptions, $options);
     }

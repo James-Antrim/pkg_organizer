@@ -71,10 +71,10 @@ class Fields extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getOptions(): array
+    public static function options(): array
     {
         $options = [];
-        foreach (self::getResources() as $field) {
+        foreach (self::resources() as $field) {
             $options[] = HTML::option($field['id'], $field['name']);
         }
 
@@ -84,7 +84,7 @@ class Fields extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getResources(): array
+    public static function resources(): array
     {
         $query = Database::getQuery();
         $tag   = Application::getTag();

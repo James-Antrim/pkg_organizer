@@ -19,7 +19,7 @@ trait Numbered
      */
     public static function getIDs(): array
     {
-        $ids = array_keys(self::getResources());
+        $ids = array_keys(self::resources());
         sort($ids);
 
         return $ids;

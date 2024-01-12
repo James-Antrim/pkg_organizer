@@ -25,7 +25,7 @@ class Methods extends Options
     protected function getOptions(): array
     {
         $defaultOptions = parent::getOptions();
-        $options        = Helpers\Methods::getOptions();
+        $options        = Helpers\Methods::options();
 
         return array_merge($defaultOptions, $options);
     }
