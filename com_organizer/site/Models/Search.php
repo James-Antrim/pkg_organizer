@@ -742,7 +742,7 @@ class Search extends ListModel
                 $links['subject_item'] = "?option=com_organizer&view=subject_item&id=$subjectID";
             }
             else {
-                $description = Helpers\Events::getCategoryNames($eventID);
+                $description = Helpers\Events::categoryNames($eventID);
                 $key         = "event-$eventID";
                 $label       = Text::_('ORGANIZER_EVENT') . ': ';
                 $name        = Helpers\Events::getName($resource['eventID']);

@@ -31,7 +31,7 @@ class EventUnits extends BaseView
         $interval = $this->getInterval();
         $units    = [];
 
-        foreach (Helpers\Events::getUnits($eventID, $date, $interval) as $unit) {
+        foreach (Helpers\Events::units($eventID, $date, $interval) as $unit) {
             $unitID = $unit['id'];
             unset($unit['id']);
 
