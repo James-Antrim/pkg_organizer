@@ -172,7 +172,7 @@ class Programs extends Curricula implements Selectable
             ->order(DB::qn('name'));
 
         if ($access) {
-            self::filterAccess($query, $access, 'program', 'p');
+            Can::filterAccess($query, $access, 'programID', 'p');
         }
 
         self::filterOrganizations($query, 'program', 'p');

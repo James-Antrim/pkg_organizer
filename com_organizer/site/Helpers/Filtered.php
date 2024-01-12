@@ -19,40 +19,6 @@ use THM\Organizer\Adapters\{Database as DB, Input};
 trait Filtered
 {
     /**
-     * Restricts the query by the organizationIDs for which the user has the given access right.
-     *
-     * @param   DatabaseQuery  $query    the query to modify
-     * @param   string         $access   the access right to be filtered against
-     * @param   string         $context  the resource context from which this function was called
-     * @param   string         $alias    the alias being used for the resource table
-     *
-     * @return void modifies the query object
-     */
-    public static function filterAccess($query, $access, $context, $alias): void
-    {
-        $authorized = [];
-
-        switch ($access) {
-            case 'document':
-                $authorized = Can::documentTheseOrganizations();
-                break;
-            case 'manage':
-                $authorized = Can::manageTheseOrganizations();
-                break;
-            case 'schedule':
-                $authorized = Can::scheduleTheseOrganizations();
-                break;
-            case 'view':
-                $authorized = Can::viewTheseOrganizations();
-                break;
-        }
-
-        // Alias 'aaf' so as not to conflict with the access filter.
-        $query->innerJoin(DB::qn('#__organizer_associations', 'aaf'), DB::qc("aaf.{$context}ID", "$alias.id"))
-            ->where(DB::qn('aaf.organizationID') . ' IN (' . implode(',', $query->bindArray($authorized)) . ')');
-    }
-
-    /**
      * Adds a selected organization filter to the query.
      *
      * @param   DatabaseQuery  $query      the query to modify

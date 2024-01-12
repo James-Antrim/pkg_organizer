@@ -177,7 +177,7 @@ class Groups extends Associated implements Selectable
         $query->select(DB::qn('g') . '.*')->from(DB::qn('#__organizer_groups', 'g'));
 
         if (!empty($access)) {
-            self::filterAccess($query, $access, 'group', 'g');
+            Can::filterAccess($query, $access, 'groupID', 'g');
         }
 
         if (!empty($organizationIDs)) {

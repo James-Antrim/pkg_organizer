@@ -88,7 +88,7 @@ class Categories extends Associated implements Selectable
             ->order($order);
 
         if (!empty($access)) {
-            self::filterAccess($query, $access, 'category', 'c');
+            Can::filterAccess($query, $access, 'categoryID', 'c');
         }
 
         self::filterOrganizations($query, 'category', 'c');
