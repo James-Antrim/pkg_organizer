@@ -53,9 +53,9 @@ class Subjects extends Curricula
     /**
      * @inheritDoc
      */
-    public static function documentable(string $resource = 'subject'): array
+    public static function documentableIDs(string $column = 'subjectID'): array
     {
-        return parent::documentable($resource);
+        return parent::documentableIDs($column);
     }
 
     /**
@@ -81,11 +81,11 @@ class Subjects extends Curricula
      */
     private static function filterRanges(): array
     {
-        if (!$programRanges = Programs::ranges(Input::getInt('programID'))) {
+        if (!$programRanges = Programs::rows(Input::getInt('programID'))) {
             return [];
         }
 
-        if ($poolRanges = Pools::ranges(Input::getInt('poolID'))
+        if ($poolRanges = Pools::rows(Input::getInt('poolID'))
             and self::included($poolRanges, $programRanges)) {
             return $poolRanges;
         }
@@ -153,6 +153,8 @@ class Subjects extends Curricula
         $poolID    = Input::getInt('poolID', self::NONE);
         $programID = Input::getInt('programID', self::NONE);
         $personID  = Input::getInt('personID', self::NONE);
+
+        // Without a valid restriction there are too many results.
         if ($poolID === self::NONE and $programID === self::NONE and $personID === self::NONE) {
             return [];
         }
@@ -189,7 +191,7 @@ class Subjects extends Curricula
 
         $condition = DB::qc('sp.subjectID', 's.id');
         $table     = DB::qn('#__organizer_subject_persons', 'sp');
-        if ($personID !== self::ALL) {
+        if ($personID) {
             $query->innerJoin($table, $condition)
                 ->where("sp.personID = :personID")->bind(':personID', $personID, ParameterType::INTEGER);
         }
@@ -320,7 +322,7 @@ class Subjects extends Curricula
      */
     public static function pools(int $subjectID): array
     {
-        return Pools::ranges(self::ranges($subjectID));
+        return Pools::rows(self::rows($subjectID));
     }
 
     /**
@@ -350,7 +352,7 @@ class Subjects extends Curricula
     /**
      * @inheritDoc
      */
-    public static function ranges(array|int $identifiers): array
+    public static function rows(array|int $identifiers): array
     {
         // Signature demands allowing an array to this point.
         if (!$identifiers or is_array($identifiers)) {

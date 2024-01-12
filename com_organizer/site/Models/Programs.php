@@ -50,7 +50,7 @@ class Programs extends ListModel
         if (Can::administrate()) {
             $query->select(DB::quote(1) . ' AS ' . DB::qn('access'));
         }
-        elseif ($ids = Helper::documentable()) {
+        elseif ($ids = Helper::documentableIDs()) {
             $query->select(DB::qn('p.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access'));
         }
         else {

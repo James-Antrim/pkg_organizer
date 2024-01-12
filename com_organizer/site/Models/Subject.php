@@ -75,8 +75,8 @@ class Subject extends CurriculumResource
             }
 
             // Remove deprecated associations
-            $rprIDs = implode(',', Helper::filterIDs($rprRanges));
-            $rsIDs  = implode(',', Helper::filterIDs($rsRanges));
+            $rprIDs = implode(',', Helper::curriculumIDs($rprRanges));
+            $rsIDs  = implode(',', Helper::curriculumIDs($rsRanges));
             $query  = Database::getQuery();
             $query->delete('#__organizer_prerequisites');
 
@@ -324,7 +324,7 @@ class Subject extends CurriculumResource
             return true;
         }
 
-        $programRanges = Programs::ranges($subjectRanges);
+        $programRanges = Programs::rows($subjectRanges);
 
         $preRequisites = array_filter($data['prerequisites']);
         if (!empty($preRequisites) and !in_array(self::NONE, $preRequisites)) {
@@ -470,7 +470,7 @@ class Subject extends CurriculumResource
      */
     private function removePreRequisites(int $subjectID): bool
     {
-        if ($rangeIDs = Helper::filterIDs($this->ranges($subjectID))) {
+        if ($rangeIDs = Helper::curriculumIDs($this->ranges($subjectID))) {
             $rangeIDString = implode(',', $rangeIDs);
 
             $query = Database::getQuery();
@@ -493,7 +493,7 @@ class Subject extends CurriculumResource
      */
     private function removePostRequisites(int $subjectID): bool
     {
-        if ($rangeIDs = Helper::filterIDs($this->ranges($subjectID))) {
+        if ($rangeIDs = Helper::curriculumIDs($this->ranges($subjectID))) {
             $rangeIDString = implode(',', $rangeIDs);
 
             $query = Database::getQuery();
@@ -654,13 +654,13 @@ class Subject extends CurriculumResource
         foreach ($programs as $program) {
             // Program context filtered subject ranges
             $fsRanges   = $this->filterRanges($program, $subjectRanges);
-            $fsRangeIDs = Helper::filterIDs($fsRanges);
+            $fsRangeIDs = Helper::curriculumIDs($fsRanges);
 
             // Program context filtered dependency ranges
             $fdRangeIDs = [];
             foreach ($dependencies as $dependency) {
                 $fdRanges   = $this->filterRanges($program, $dependency);
-                $fdRangeIDs = array_merge($fdRangeIDs, Helper::filterIDs($fdRanges));
+                $fdRangeIDs = array_merge($fdRangeIDs, Helper::curriculumIDs($fdRanges));
             }
 
             $fdRangeIDs = array_unique($fdRangeIDs);

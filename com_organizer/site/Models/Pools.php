@@ -58,7 +58,7 @@ class Pools extends ListModel
         $this->filterValues($query, ['fieldID']);
 
         if ($programID = (int) $this->state->get('filter.programID')) {
-            Helpers\Pools::filterProgram($query, $programID, 'pool', 'p');
+            Helpers\Pools::filterProgram($query, $programID, 'poolID', 'p');
         }
 
         $this->orderBy($query);

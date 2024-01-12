@@ -41,7 +41,7 @@ class Curricula extends FormField
 
         Document::scriptLocalizations('curriculumParameters', $curriculumParameters);
 
-        $ranges = $resourceType === 'pool' ? Pools::ranges($resourceID) : Subjects::ranges($resourceID);
+        $ranges = $resourceType === 'pool' ? Pools::rows($resourceID) : Subjects::rows($resourceID);
 
         $programIDs = empty($ranges) ? [] : Programs::extractIDs($ranges);
         $options    = $this->getOptions();

@@ -88,7 +88,7 @@ class Subjects extends ListModel
         if (Can::administrate()) {
             $access = DB::quote(1) . ' AS ' . DB::qn('access');
         }
-        elseif ($ids = Helper::documentable()) {
+        elseif ($ids = Helper::documentableIDs()) {
             $access = DB::qn('s.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access');
         }
         else {
@@ -121,7 +121,7 @@ class Subjects extends ListModel
         $this->filterSearch($query, $searchFields);
 
         if ($programID = (int) $this->state->get('filter.programID')) {
-            Helper::filterProgram($query, $programID, 'subject', 's');
+            Helper::filterProgram($query, $programID, 'subjectID', 's');
         }
 
         // The selected pool supersedes any original called pool
@@ -249,11 +249,11 @@ class Subjects extends ListModel
                 }
 
                 if ($programID) {
-                    if (!$prRanges = Programs::ranges($programID)) {
+                    if (!$prRanges = Programs::rows($programID)) {
                         return;
                     }
 
-                    if (!$plRanges = Pools::ranges($poolID)
+                    if (!$plRanges = Pools::rows($poolID)
                         or !Helper::included($plRanges, $prRanges)) {
                         $this->state->set('filter.poolID', self::ALL);
                         $this->state->set('filter.programID', $programID);
@@ -313,7 +313,7 @@ class Subjects extends ListModel
         // The existence of a program id precludes the pool having been called directly
         if ($programID) {
             // None has already been eliminated => the chosen program is invalid => allow reset
-            if (!$prRanges = Programs::ranges($programID)) {
+            if (!$prRanges = Programs::rows($programID)) {
                 return;
             }
 
@@ -321,7 +321,7 @@ class Subjects extends ListModel
             $this->state->set('filter.programID', $programID);
 
             // Pool is invalid or invalid for the chosen program context
-            if (!$plRanges = Pools::ranges($poolID)
+            if (!$plRanges = Pools::rows($poolID)
                 or !Helper::included($plRanges, $prRanges)) {
                 return;
             }

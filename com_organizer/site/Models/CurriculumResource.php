@@ -41,7 +41,7 @@ abstract class CurriculumResource extends BaseModel
 
         if (empty($range['programID'])) {
             // Subordinates must have a parent
-            if (empty($range['parentID']) or !$parent = Helper::range($range['parentID'])) {
+            if (empty($range['parentID']) or !$parent = Helper::row($range['parentID'])) {
                 return 0;
             }
 
@@ -163,7 +163,7 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function deleteRange(int $rangeID): bool
     {
-        if (!$range = Helper::range($rangeID)) {
+        if (!$range = Helper::row($rangeID)) {
             return false;
         }
 
@@ -196,7 +196,7 @@ abstract class CurriculumResource extends BaseModel
         /** @var Helper $helper */
         $helper = "THM\\Organizer\\Helpers\\$this->helper";
 
-        if ($rangeIDs = $helper::rangeIDs($resourceID)) {
+        if ($rangeIDs = $helper::rowIDs($resourceID)) {
             foreach ($rangeIDs as $rangeID) {
                 $success = $this->deleteRange($rangeID);
                 if (!$success) {
@@ -372,7 +372,7 @@ abstract class CurriculumResource extends BaseModel
         /** @var Helper $helper */
         $helper = "THM\\Organizer\\Helpers\\$this->helper";
 
-        return $helper::ranges($resourceID);
+        return $helper::rows($resourceID);
     }
 
     /**

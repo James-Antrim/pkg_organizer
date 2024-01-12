@@ -51,9 +51,9 @@ class Pools extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function documentable(string $resource = 'pool'): array
+    public static function documentableIDs(string $column = 'poolID'): array
     {
-        return parent::documentable($resource);
+        return parent::documentableIDs($column);
     }
 
     /**
@@ -124,7 +124,7 @@ class Pools extends Curricula implements Selectable
      */
     public static function filterRanges(array|int $identifiers): array
     {
-        if (!$ranges = self::ranges($identifiers)) {
+        if (!$ranges = self::rows($identifiers)) {
             return [];
         }
 
@@ -249,7 +249,7 @@ class Pools extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function ranges(array|int $identifiers): array
+    public static function rows(array|int $identifiers): array
     {
         if (empty($identifiers) or $identifiers === self::NONE) {
             return [];
@@ -287,7 +287,7 @@ class Pools extends Curricula implements Selectable
             return [];
         }
 
-        if (!$ranges = $poolID ? self::ranges($poolID) : Programs::ranges($programID)) {
+        if (!$ranges = $poolID ? self::rows($poolID) : Programs::rows($programID)) {
             return [];
         }
 

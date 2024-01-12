@@ -44,7 +44,7 @@ class Persons extends Associated implements Selectable
         $programID = Input::getInt('programID', self::NONE);
         $poolID    = Input::getInt('poolID', self::NONE);
 
-        $boundarySet = $poolID > 0 ? Pools::ranges($poolID) : Programs::ranges($programID);
+        $boundarySet = $poolID > 0 ? Pools::rows($poolID) : Programs::rows($programID);
 
         if ($boundarySet) {
 

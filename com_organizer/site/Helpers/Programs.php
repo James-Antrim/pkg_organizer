@@ -77,9 +77,9 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function documentable(string $resource = 'program'): array
+    public static function documentableIDs(string $column = 'programID'): array
     {
-        return parent::documentable($resource);
+        return parent::documentableIDs($column);
     }
 
     /**
@@ -91,7 +91,7 @@ class Programs extends Curricula implements Selectable
      */
     public static function extractIDs(array|int $identifiers): array
     {
-        if (!$ranges = self::ranges($identifiers)) {
+        if (!$ranges = self::rows($identifiers)) {
             return [];
         }
 
@@ -230,7 +230,7 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function ranges(array|int $identifiers): array
+    public static function rows(array|int $identifiers): array
     {
         if (!$identifiers or $identifiers === self::NONE) {
             return [];
@@ -308,7 +308,7 @@ class Programs extends Curricula implements Selectable
     {
         $ranges = [];
         foreach ($identifiers as $programID) {
-            $ranges = array_merge($ranges, self::ranges($programID));
+            $ranges = array_merge($ranges, self::rows($programID));
         }
 
         return $ranges;

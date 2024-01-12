@@ -105,7 +105,7 @@ trait SubOrdinate
         // Retrieve the program context ranges for sanity checks on pool ranges
         $programRanges = [];
         foreach ($data['curricula'] as $programID) {
-            if ($ranges = Programs::ranges($programID)) {
+            if ($ranges = Programs::rows($programID)) {
                 $programRanges[$programID] = $ranges[0];
             }
         }
@@ -135,7 +135,7 @@ trait SubOrdinate
                 continue;
             }
 
-            foreach (Pools::ranges($table->poolID) as $poolRange) {
+            foreach (Pools::rows($table->poolID) as $poolRange) {
                 foreach ($programRanges as $programRange) {
                     // Pool range is a valid subset of the program context range
                     if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt']) {
