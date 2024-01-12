@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -19,12 +19,12 @@ use THM\Organizer\Tables;
 class Fields extends ResourceHelper implements Selectable
 {
     /**
-     * Returns the color value associated with the field.
+     * Gets the hexadecimal color value associated with the field.
      *
      * @param   int  $fieldID         the id of the field
      * @param   int  $organizationID  the id of the organization
      *
-     * @return string the hexadecimal color value associated with the field
+     * @return string
      */
     public static function color(int $fieldID, int $organizationID): string
     {
@@ -52,17 +52,17 @@ class Fields extends ResourceHelper implements Selectable
     }
 
     /**
-     * Retrieves the relevant field ids for the given curriculum context.
+     * Extracts field ids assigned to the given subjects.
      *
-     * @param   array  $subjectRanges  the mapped subject ranges
+     * @param   array  $subjects  the mapped subject ranges
      *
-     * @return int[] the field ids associated with the subjects in the given context
+     * @return int[]
      */
-    private static function relevantIDs(array $subjectRanges): array
+    private static function relevantIDs(array $subjects): array
     {
         $fieldIDs = [];
 
-        foreach ($subjectRanges as $subject) {
+        foreach ($subjects as $subject) {
             $table = new Tables\Subjects();
 
             if ($table->load($subject['subjectID']) and !empty($table->fieldID)) {
@@ -78,38 +78,38 @@ class Fields extends ResourceHelper implements Selectable
      */
     public static function resources(): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::getTag();
-        $query->select("DISTINCT *, name_$tag AS name")
-            ->from('#__organizer_fields')
-            ->order('name');
+        $query->select('DISTINCT *, ' . DB::qn("name_$tag", 'name'))
+            ->from(DB::qn('#__organizer_fields'))
+            ->order(DB::qn('name'));
 
-        $ranges = [];
+        $rows = [];
 
-        if ($poolID = Input::getFilterID('pool') ? Input::getFilterID('pool') : Input::getInt('poolID')) {
-            $ranges = Pools::subjects($poolID);
+        if ($poolID = Input::getInt('poolID')) {
+            $rows = Pools::subjects($poolID);
         }
-        elseif ($programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID')) {
-            $ranges = Programs::subjects($programID);
+        elseif ($programID = Input::getInt('programID')) {
+            $rows = Programs::subjects($programID);
         }
 
-        if ($ranges and $fieldIDs = self::relevantIDs($ranges)) {
+        if ($rows and $fieldIDs = self::relevantIDs($rows)) {
             $string = implode(',', $fieldIDs);
             $query->where("id IN ($string)");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 
     /**
-     * Creates the display for a field item as used in a list view.
+     * Creates a swatch panel with organizational assignments of colors to fields.
      *
      * @param   int  $fieldID         the id of the field
      * @param   int  $organizationID  the id of the organization
      *
-     * @return string the HTML output of the field attribute display
+     * @return string
      */
     public static function swatch(int $fieldID, int $organizationID = 0): string
     {
@@ -123,7 +123,7 @@ class Fields extends ResourceHelper implements Selectable
         foreach ($organizationIDs as $organizationID) {
             $table = new Tables\FieldColors();
             if ($table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID])) {
-                $link         = 'index.php?option=com_organizer&view=field_color_edit&id=' . $table->id;
+                $link         = 'index.php?option=com_organizer&view=FieldColor&id=' . $table->id;
                 $organization = Organizations::getShortName($organizationID);
                 $text         = HTML::_('link', $link, $organization);
                 $return       .= Colors::swatch($text, $table->colorID);
