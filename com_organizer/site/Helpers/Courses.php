@@ -280,14 +280,14 @@ class Courses extends ResourceHelper
             ->from(DB::qn('#__organizer_instance_persons', 'ip'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
-            ->where("ip.personID = $personID");
+            ->where(DB::qn('ip.personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER);
 
         if ($courseID) {
-            $query->where("u.courseID = $courseID");
+            $query->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER);
         }
 
         if ($roleID) {
-            $query->where("ip.roleID = $roleID");
+            $query->where(DB::qn('ip.roleID') . ' = :roleID')->bind(':roleID', $roleID, ParameterType::INTEGER);
         }
 
         DB::setQuery($query);
@@ -305,11 +305,11 @@ class Courses extends ResourceHelper
     public static function instanceIDs(int $courseID): array
     {
         $query = DB::getQuery();
-        $query->select("DISTINCT i.id")
+        $query->select('DISTINCT ' . DB::qn('i.id'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
-            ->where("u.courseID = $courseID")
-            ->order('i.id');
+            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->order(DB::qn('i.id'));
         DB::setQuery($query);
 
         return DB::loadIntColumn();
@@ -354,21 +354,22 @@ class Courses extends ResourceHelper
     public static function persons(int $courseID, int $eventID = 0, array $roleIDs = []): array
     {
         $query = DB::getQuery();
-        $query->select("DISTINCT ip.personID")
+        $query->select('DISTINCT ' . DB::qn('ip.personID'))
             ->from(DB::qn('#__organizer_instance_persons', 'ip'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
-            ->where("u.courseID = $courseID");
+            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER);
 
         if ($eventID) {
-            $query->where("i.eventID = $eventID");
+            $query->where(DB::qn('i.eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
         }
 
         if ($roleIDs) {
-            $query->where('ip.roleID IN (' . implode(',', $roleIDs) . ')');
+            $query->whereIn(DB::qn('ip.roleID'), $roleIDs);
         }
 
         DB::setQuery($query);
+
         if (!$personIDs = DB::loadIntColumn()) {
             return [];
         }
@@ -395,8 +396,8 @@ class Courses extends ResourceHelper
             ->from(DB::qn('#__organizer_units', 'u'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
             ->innerJoin(DB::qn('#__organizer_events', 'e'), DB::qc('e.id', 'i.eventID'))
-            ->where("u.courseID = $courseID")
-            ->where('e.preparatory = 1');
+            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->where(DB::qn('e.preparatory') . ' = 1');
 
         DB::setQuery($query);
 
@@ -453,21 +454,5 @@ class Courses extends ResourceHelper
     public static function tutors(int $courseID = 0, int $personID = 0): bool
     {
         return self::hasResponsibility($courseID, $personID, Roles::TUTOR);
-    }
-
-    /**
-     * Retrieves the ids of units associated with the course.
-     *
-     * @param   int  $courseID  the id of the course with which the units must be associated
-     *
-     * @return int[] the ids of the associated units
-     */
-    public static function unitIDs(int $courseID): array
-    {
-        $query = DB::getQuery();
-        $query->select('DISTINCT id')->from('#__organizer_units')->where("courseID = $courseID");
-        DB::setQuery($query);
-
-        return DB::loadIntColumn();
     }
 }
