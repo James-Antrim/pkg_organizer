@@ -248,7 +248,7 @@ class Instances extends ListModel
         if ($this->state->get('filter.campusID')) {
             $query->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
                 ->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
-            $this->filterCampus($query, 'bd');
+            $this->filterByCampus($query, 'bd');
         }
 
         return $query;
@@ -288,7 +288,7 @@ class Instances extends ListModel
         }
 
         if ($my = (int) $this->state->get('list.my')) {
-            $username = ($username = User::username()) ? " ($username)" : '';
+            $username = ($username = User::userName()) ? " ($username)" : '';
 
             if ($methods) {
                 $title = Text::_('ORGANIZER_MY') . ' ' . $methods;

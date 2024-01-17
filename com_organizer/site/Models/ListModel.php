@@ -104,25 +104,13 @@ abstract class ListModel extends Base
      * @param   DatabaseQuery  $query  the query to modify
      * @param   string         $alias  the alias for the linking table
      */
-    protected function filterCampus(DatabaseQuery $query, string $alias): void
+    protected function filterByCampus(DatabaseQuery $query, string $alias): void
     {
         if (!$campusID = $this->state->get('filter.campusID')) {
             return;
         }
 
-        Campuses::filter($query, $alias, (int) $campusID);
-    }
-
-    /**
-     * Filters out form inputs which should not be displayed due to menu settings.
-     *
-     * @param   Form  $form  the form to be filtered
-     *
-     * @return void modifies $form
-     */
-    protected function filterFilterForm(Form $form): void
-    {
-        // No implementation is the default implementation.
+        Campuses::filterBy($query, $alias, (int) $campusID);
     }
 
     /**
@@ -158,6 +146,18 @@ abstract class ListModel extends Base
         }
 
         $query->where("$qColumn = :$column")->bind(":$column", $value, $type);
+    }
+
+    /**
+     * Filters out form inputs which should not be displayed due to menu settings.
+     *
+     * @param   Form  $form  the form to be filtered
+     *
+     * @return void modifies $form
+     */
+    protected function filterFilterForm(Form $form): void
+    {
+        // No implementation is the default implementation.
     }
 
     /**

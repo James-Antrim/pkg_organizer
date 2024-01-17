@@ -70,7 +70,7 @@ class RoomTypes extends ResourceHelper implements Selectable
 
         if ($campusID = Input::getInt('campusID')) {
             $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
-            Campuses::filter($query, 'b2', $campusID);
+            Campuses::filterBy($query, 'b2', $campusID);
         }
 
         $query->order('name');

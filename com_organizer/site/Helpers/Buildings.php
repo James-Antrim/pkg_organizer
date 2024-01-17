@@ -107,7 +107,7 @@ class Buildings extends ResourceHelper implements Selectable
             ->order(DB::qn('name'));
 
         if ($campusID = Input::getInt('campusID')) {
-            Campuses::filter($query, 'b', $campusID);
+            Campuses::filterBy($query, 'b', $campusID);
         }
 
         DB::setQuery($query);

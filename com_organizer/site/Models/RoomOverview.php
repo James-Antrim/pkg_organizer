@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -62,7 +62,7 @@ class RoomOverview extends ListModel
 
         $this->filterSearch($query, ['r.name']);
         $this->filterValues($query, ['buildingID', 'roomtypeID']);
-        $this->filterCampus($query, 'b');
+        $this->filterByCampus($query, 'b');
 
         if ($roomIDs = Input::getFilterIDs('room')) {
             $query->where('r.id IN (' . implode(',', $roomIDs) . ')');

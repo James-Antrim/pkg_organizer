@@ -31,7 +31,7 @@ class Campuses extends ResourceHelper implements Selectable
      *
      * @return void
      */
-    public static function filter(DatabaseQuery $query, string $alias, int $campusID): void
+    public static function filterBy(DatabaseQuery $query, string $alias, int $campusID): void
     {
         $tableID   = DB::qn('campusAlias.id');
         $condition = DB::qc('campusAlias.id', "$alias.campusID");
