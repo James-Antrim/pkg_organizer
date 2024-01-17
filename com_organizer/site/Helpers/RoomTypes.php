@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, HTML};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -68,9 +68,10 @@ class RoomTypes extends ResourceHelper implements Selectable
 
         self::filterResources($query, 'building', 'b1', 'r');
 
-        // This join is used specifically to filter campuses independent of buildings.
-        $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
-        self::filterCampus($query, 'b2');
+        if ($campusID = Input::getInt('campusID')) {
+            $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
+            Campuses::filter($query, 'b2', $campusID);
+        }
 
         $query->order('name');
         DB::setQuery($query);
