@@ -41,9 +41,9 @@ class RoomTypes extends ListModel
             ->innerJoin(DB::qn('#__organizer_roomkeys', 'k'), DB::qc('k.id', 'c.keyID'))
             ->innerJoin(DB::qn('#__organizer_use_groups', 'g'), DB::qc('g.id', 'k.useID'));
 
-        $this->filterID($query, 'k.cleaningID', 'filter.cleaningID');
-        $this->filterID($query, 'k.id', 'filter.keyID');
-        $this->filterID($query, 'k.useID', 'filter.useID');
+        $this->filterByKey($query, 'k.cleaningID', 'cleaningID');
+        $this->filterByKey($query, 'k.id', 'keyID');
+        $this->filterByKey($query, 'k.useID', 'useID');
         $this->filterSearch($query, ['t.name_de', 't.name_en', 't.capacity', 'c.code']);
         $this->orderBy($query);
 

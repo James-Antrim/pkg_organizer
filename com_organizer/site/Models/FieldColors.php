@@ -59,8 +59,8 @@ class FieldColors extends ListModel
             ->innerJoin(DB::qn('#__organizer_organizations', 'o'), DB::qc('o.id', 'fc.organizationID'));
 
         // Explicitly set via request
-        $this->filterID($query, 'c.id', 'filter.colorID');
-        $this->filterID($query, 'f.id', 'filter.fieldID');
+        $this->filterByKey($query, 'c.id', 'colorID');
+        $this->filterByKey($query, 'f.id', 'fieldID');
 
         // Explicitly set via request or implicitly set by authorization
         if ($organizationID = $this->state->get('filter.organizationID')) {

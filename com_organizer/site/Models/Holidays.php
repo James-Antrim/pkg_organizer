@@ -47,7 +47,7 @@ class Holidays extends ListModel
             ->from(DB::qn('#__organizer_holidays', 'h'))
             ->innerJoin(DB::qn('#__organizer_terms', 't'), implode(' AND ', $conditions));
 
-        $this->filterID($query, 't.id', 'filter.termID');
+        $this->filterByKey($query, 't.id', 'termID');
         $this->filterSearch($query, ['h.name_de', 'h.name_en']);
         $this->filterValues($query, ['type']);
 

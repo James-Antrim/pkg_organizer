@@ -48,7 +48,9 @@ class Persons extends ListModel
 
         $this->activeFilter($query, 'p');
         $this->filterSearch($query, ['surname', 'forename', 'username', 'code']);
-        $this->filterID($query, 'organizationID', 'filter.organizationID');
+
+        // The joins are made anyway for retrieval of output data, no need for additional joins in a fit-for-purpose filter.
+        $this->filterByKey($query, 'organizationID', 'organizationID');
         $this->filterValues($query, ['p.suppress']);
         $this->orderBy($query);
 

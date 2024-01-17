@@ -143,7 +143,7 @@ class Subjects extends ListModel
             }
         }
 
-        $this->filterID($query, 's.fieldID', 'filter.fieldID');
+        $this->filterByKey($query, 's.fieldID', 'fieldID');
         $this->filterValues($query, ['language']);
         $this->orderBy($query);
 

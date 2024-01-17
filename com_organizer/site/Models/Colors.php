@@ -37,7 +37,6 @@ class Colors extends ListModel
 
         $this->filterSearch($query, ['name_de', 'name_en', 'color']);
         $this->filterValues($query, ['color']);
-        $this->filterID($query, 'id', 'filter.name');
 
         $this->orderBy($query);
 

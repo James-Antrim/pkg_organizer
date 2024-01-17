@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Base};
 use Joomla\CMS\Table\Table;
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
@@ -28,7 +28,9 @@ abstract class ListModel extends Base
 {
     use Named;
 
-    protected const NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+    protected const NONE = -1, UNSELECTED = '', UNSET = null;
+
+    protected const CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
     protected int $defaultLimit = 50;
     protected string $defaultOrdering = 'name';
@@ -124,34 +126,38 @@ abstract class ListModel extends Base
     }
 
     /**
-     * Provides a default method for setting filters based on id/unique values
+     * Provides a default method for setting filters based on unique key values.
      *
-     * @param   DatabaseQuery  $query       the query to modify
-     * @param   string         $idColumn    the id column in the table
-     * @param   string         $filterName  the filter name to look for the id in
+     * @param   DatabaseQuery  $query   the query to modify
+     * @param   string         $column  the table column where the id value is stored
+     * @param   string         $field   the field name to look for the id in
      *
      * @return void
      */
-    protected function filterID(DatabaseQuery $query, string $idColumn, string $filterName): void
+    protected function filterByKey(DatabaseQuery $query, string $column, string $field): void
     {
-        $value = $this->state->get($filterName, '');
-        if ($value === '') {
+        $value = $this->state->get("filter.$field");
+        if ($value === self::UNSET or $value === self::UNSELECTED) {
             return;
         }
 
-        /**
-         * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
-         * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
-         * be extended we could maybe add a parameter for it later.
-         */
-        if ($value == '-1') {
-            $query->where("$idColumn IS NULL");
+        $qColumn = DB::qn($column);
+
+        if (is_numeric($value)) {
+            $type  = ParameterType::INTEGER;
+            $value = (int) $value;
+        }
+        else {
+            $type = ParameterType::STRING;
+        }
+
+        if ($value === self::NONE) {
+            $query->where("$column IS NULL");
 
             return;
         }
 
-        // IDs are unique and therefore mutually exclusive => one is enough!
-        $query->where("$idColumn = $value");
+        $query->where("$qColumn = :$column")->bind(":$column", $value, $type);
     }
 
     /**
