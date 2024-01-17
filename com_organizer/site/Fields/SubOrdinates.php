@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Fields;
 
-use Joomla\CMS\Form\FormField;
-use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Database, Document, Text};
+use Joomla\CMS\{Form\FormField, Router\Route};
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Database as DB, Document, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -73,9 +73,9 @@ class SubOrdinates extends FormField
         }
 
         $maxOrdering     = max(array_keys($subOrdinates));
-        $poolEditLink    = 'index.php?option=com_organizer&view=pool_edit&id=';
+        $poolEditLink    = 'index.php?option=com_organizer&view=Pool&layout=edit&id=';
         $rowTemplate     = $this->getRowTemplate();
-        $subjectEditLink = 'index.php?option=com_organizer&view=subject_edit&id=';
+        $subjectEditLink = 'index.php?option=com_organizer&view=Subject&layout=edit&id=';
 
         for ($ordering = 1; $ordering <= $maxOrdering; $ordering++) {
             if (empty($subOrdinates[$ordering])) {
@@ -154,27 +154,30 @@ class SubOrdinates extends FormField
      */
     private function getSubordinates(): array
     {
-        $contextParts = explode('.', $this->form->getName());
-        $query        = Database::getQuery();
-        $resource     = Helpers\OrganizerHelper::getResource($contextParts[1]);
-        $resourceID   = (int) $this->form->getValue('id');
-        $query->select('id')
-            ->from('#__organizer_curricula')
-            ->where("{$resource}ID = $resourceID")
-            ->group('id');
-        Database::setQuery($query);
+        $query    = DB::getQuery();
+        $column   = DB::qn(strtolower(Input::getView()) . 'ID');
+        $parentID = Input::getID();
 
-        if (!$parentID = Database::loadInt()) {
+        $query->select(DB::qn('id'))
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where("$column = :parentID")
+            ->bind(':parentID', $parentID, ParameterType::INTEGER)
+            ->group('id');
+        DB::setQuery($query);
+
+        if (!$parentID = DB::loadInt()) {
             return [];
         }
 
-        $query = Database::getQuery();
+        $column = DB::qn('parentID');
+        $query  = DB::getQuery();
         $query->select('*')
-            ->from('#__organizer_curricula')
-            ->where("parentID = $parentID")
-            ->order('lft');
-        Database::setQuery($query);
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where("$column = :parentID")
+            ->bind(':parentID', $parentID, ParameterType::INTEGER)
+            ->order(DB::qn('lft'));
+        DB::setQuery($query);
 
-        return Database::loadAssocList('ordering');
+        return DB::loadAssocList('ordering');
     }
 }
