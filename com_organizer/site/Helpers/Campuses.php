@@ -25,14 +25,18 @@ class Campuses extends ResourceHelper implements Selectable
     /**
      * Adds campus filter clauses to the given query.
      *
-     * @param   DatabaseQuery  $query
-     * @param   string         $alias
-     * @param   int            $campusID
+     * @param   DatabaseQuery  $query     the query to modify
+     * @param   string         $alias     the alias of the table where the campusID is a column
+     * @param   int            $campusID  the id of the campus to use as a filter
      *
      * @return void
      */
     public static function filterBy(DatabaseQuery $query, string $alias, int $campusID): void
     {
+        if ($campusID === self::UNSELECTED) {
+            return;
+        }
+
         $tableID   = DB::qn('campusAlias.id');
         $condition = DB::qc('campusAlias.id', "$alias.campusID");
         $table     = DB::qn('#__organizer_campuses', 'campusAlias');

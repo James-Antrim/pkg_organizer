@@ -15,7 +15,7 @@ namespace THM\Organizer\Helpers;
  */
 interface Selectable
 {
-    const ALL = '', NONE = -1;
+    public const ALL = '', NONE = -1, UNSELECTED = 0;
 
     /**
      * Retrieves the selectable options for the resource.

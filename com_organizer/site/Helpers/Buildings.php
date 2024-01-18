@@ -106,9 +106,7 @@ class Buildings extends ResourceHelper implements Selectable
             ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'b.campusID'))
             ->order(DB::qn('name'));
 
-        if ($campusID = Input::getInt('campusID')) {
-            Campuses::filterBy($query, 'b', $campusID);
-        }
+        Campuses::filterBy($query, 'b', Input::getInt('campusID'));
 
         DB::setQuery($query);
 
