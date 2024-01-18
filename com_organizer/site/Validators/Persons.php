@@ -13,7 +13,6 @@ namespace THM\Organizer\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\Organizations;
 use THM\Organizer\Tables\{Associations, Persons as Table};
 
 /**
@@ -50,7 +49,7 @@ class Persons implements UntisXMLValidator
                     }
 
                     if (property_exists($table, $key) and empty($table->$key) and !empty($value)) {
-                        $table->set($key, $value);
+                        $table->$key = $value;
                         $altered = true;
                     }
                 }
@@ -143,6 +142,5 @@ class Persons implements UntisXMLValidator
         $model->persons->$internalID = $person;
 
         self::setID($model, $internalID);
-        Organizations::setResource($person->id, 'personID');
     }
 }

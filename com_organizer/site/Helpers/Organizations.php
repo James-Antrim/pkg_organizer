@@ -213,30 +213,4 @@ class Organizations extends ResourceHelper implements Selectable
 
         return DB::loadAssocList('id');
     }
-
-    /**
-     * Checks whether the plan resource is already associated with an organization, creating an entry if none already
-     * exists.
-     *
-     * @param   int     $resourceID  the db id for the plan resource
-     * @param   string  $column      the column in which the resource information is stored
-     *
-     * @return void
-     */
-    public static function setResource(int $resourceID, string $column): void
-    {
-        $associations = new Tables\Associations();
-
-        /**
-         * If associations already exist for the resource, further associations should be made explicitly using the
-         * appropriate edit view.
-         */
-        $data = [$column => $resourceID];
-        if ($associations->load($data)) {
-            return;
-        }
-
-        $data['organizationID'] = Input::getInt('organizationID');
-        $associations->save($data);
-    }
 }
