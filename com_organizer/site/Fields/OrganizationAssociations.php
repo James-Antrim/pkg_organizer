@@ -62,7 +62,7 @@ class OrganizationAssociations extends Options
             case 'pool':
             case 'program':
             case 'subject':
-                return Helpers\Can::documentTheseOrganizations();
+                return Helpers\Organizations::documentableIDs();
             case 'person':
                 if (Helpers\Can::manage('persons')) {
                     return Helpers\Organizations::getIDs();

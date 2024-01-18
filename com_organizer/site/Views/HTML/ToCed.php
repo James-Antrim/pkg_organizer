@@ -12,10 +12,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\HTML\Helpers\Sidebar;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\{Can, Routing};
+use THM\Organizer\Adapters\{Application, Document, Text};
+use THM\Organizer\Helpers\{Can, Organizations, Routing};
 
 /**
  * Class adds an administrative menu component menu to the given view.
@@ -96,7 +94,7 @@ trait ToCed
             }
         }
 
-        if (Can::documentTheseOrganizations()) {
+        if (Organizations::documentableIDs()) {
             $spanText = Text::_('DOCUMENTATION');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';

@@ -134,7 +134,7 @@ abstract class Curricula extends Associated implements Selectable
      */
     public static function documentableIDs(string $column): array
     {
-        if (!$organizationIDs = Can::documentTheseOrganizations()) {
+        if (!$organizationIDs = Organizations::documentableIDs()) {
             return [];
         }
 

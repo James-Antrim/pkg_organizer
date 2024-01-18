@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Can, Pools, Programs, Subjects as Helper};
+use THM\Organizer\Helpers\{Can, Organizations, Pools, Programs, Subjects as Helper};
 
 /**
  * Class retrieves information for a filtered set of subjects.
@@ -50,7 +50,7 @@ class Subjects extends ListModel
             unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
         }
         elseif (Application::backend()) {
-            if (count(Can::documentTheseOrganizations()) === 1) {
+            if (count(Organizations::documentableIDs()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
             }
@@ -170,7 +170,7 @@ class Subjects extends ListModel
         $organizationID = Input::getFilterID('organization', self::ALL);
 
         if (Application::backend()) {
-            $authorized = Can::documentTheseOrganizations();
+            $authorized = Organizations::documentableIDs();
             if (count($authorized) === 1) {
                 $organizationID = $authorized[0];
                 $this->state->set('filter.organizationID', $organizationID);

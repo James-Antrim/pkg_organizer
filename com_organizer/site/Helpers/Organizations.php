@@ -11,13 +11,13 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, User};
 use THM\Organizer\Tables;
 
 /**
  * Provides general functions for organization access checks, data retrieval and display.
  */
-class Organizations extends ResourceHelper implements Selectable
+class Organizations extends ResourceHelper implements Documentable, Selectable
 {
     use Active;
     use Numbered;
@@ -52,7 +52,7 @@ class Organizations extends ResourceHelper implements Selectable
                 if (in_array($resource, ['pool', 'program', 'subject'])) {
                     $query->where("a.{$resource}ID IS NOT NULL");
                 }
-                $allowedIDs = Can::documentTheseOrganizations();
+                $allowedIDs = self::documentableIDs();
                 break;
             case 'manage':
                 $allowedIDs = Can::manageTheseOrganizations();
@@ -152,6 +152,30 @@ class Organizations extends ResourceHelper implements Selectable
         }
 
         return 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function documentable(int $resourceID): bool
+    {
+        return User::instance()->authorise('organizer.document', "com_organizer.organization.$resourceID");
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function documentableIDs(): array
+    {
+        $organizationIDs = self::getIDs();
+
+        foreach ($organizationIDs as $index => $organizationID) {
+            if (!self::documentable($organizationID)) {
+                unset($organizationIDs[$index]);
+            }
+        }
+
+        return $organizationIDs;
     }
 
     /**

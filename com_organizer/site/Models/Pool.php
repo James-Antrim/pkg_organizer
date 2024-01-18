@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\{Can, Organizations};
 use THM\Organizer\Tables\{Associations, Curricula, Pools as Table};
 
 /**
@@ -20,7 +20,6 @@ use THM\Organizer\Tables\{Associations, Curricula, Pools as Table};
  */
 class Pool extends CurriculumResource
 {
-    use Associated;
     use SubOrdinate;
     use SuperOrdinate;
 
@@ -120,7 +119,7 @@ class Pool extends CurriculumResource
         $data = empty($data) ? Input::getFormItems() : $data;
 
         if (empty($data['id'])) {
-            if (!Can::documentTheseOrganizations()) {
+            if (!Organizations::documentableIDs()) {
                 Application::error(403);
             }
         }

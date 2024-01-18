@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Helpers\{Can, Pools as Helper};
+use THM\Organizer\Helpers\{Can, Organizations, Pools as Helper};
 
 /**
  * Class retrieves information for a filtered set of (subject) pools.
@@ -27,7 +27,7 @@ class Pools extends ListModel
      */
     public function filterFilterForm(Form $form): void
     {
-        if (count(Can::documentTheseOrganizations()) === 1) {
+        if (count(Organizations::documentableIDs()) === 1) {
             $form->removeField('organizationID', 'filter');
             unset($this->filter_fields['organizationID']);
         }
@@ -85,7 +85,7 @@ class Pools extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $authorized = Can::documentTheseOrganizations();
+        $authorized = Organizations::documentableIDs();
         if (count($authorized) === 1) {
             $this->state->set('filter.organizationID', $authorized[0]);
         }

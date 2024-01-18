@@ -12,7 +12,7 @@ use Joomla\CMS\Table\Table;
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Can, Curricula as Helper};
+use THM\Organizer\Helpers\{Can, Curricula as Helper, Organizations};
 use THM\Organizer\Tables\{Curricula, Pools, Subjects};
 
 /**
@@ -127,7 +127,7 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function authorize(): void
     {
-        if (($id = Input::getID() and !Can::document($this->resource, $id)) or !Can::documentTheseOrganizations()) {
+        if (($id = Input::getID() and !Can::document($this->resource, $id)) or !Organizations::documentableIDs()) {
             Application::error(403);
         }
     }

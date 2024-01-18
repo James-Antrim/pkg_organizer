@@ -26,7 +26,7 @@ class FieldColorEdit extends EditModelOld
     public function authorize()
     {
         if (($fcID = Input::getID() and Helpers\Can::document('fieldcolor', $fcID))
-            or Helpers\Can::documentTheseOrganizations()) {
+            or Helpers\Organizations::documentableIDs()) {
             return;
         }
 

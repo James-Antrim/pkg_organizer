@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\Registry\Registry;
 use stdClass;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
-use THM\Organizer\Helpers\{Can, Persons, Pools, Programs};
+use THM\Organizer\Helpers\{Can, Organizations, Persons, Pools, Programs};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -78,7 +78,7 @@ class Subjects extends ListView
      */
     protected function authorize(): void
     {
-        $this->access = (bool) Can::documentTheseOrganizations();
+        $this->access = (bool) Organizations::documentableIDs();
     }
 
     /**

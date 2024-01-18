@@ -25,7 +25,7 @@ class FieldEdit extends EditModelOld
      */
     public function authorize()
     {
-        if (!Helpers\Can::documentTheseOrganizations()) {
+        if (!Helpers\Organizations::documentableIDs()) {
             Application::error(403);
         }
     }

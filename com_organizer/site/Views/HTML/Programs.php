@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use stdClass;
-use THM\Organizer\Helpers\{Can, Programs as Helper};
+use THM\Organizer\Helpers\{Can, Organizations, Programs as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -29,7 +29,7 @@ class Programs extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        if (Can::documentTheseOrganizations()) {
+        if (Organizations::documentableIDs()) {
             $toolbar = Toolbar::getInstance();
 
             $toolbar->addNew('Programs.add');

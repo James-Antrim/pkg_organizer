@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\Organizations;
 
 /**
  * Class retrieves information for a filtered set of fields (of expertise).
@@ -29,7 +29,7 @@ class FieldColors extends ListModel
      */
     protected function filterFilterForm(Form $form): void
     {
-        if (count(Can::documentTheseOrganizations()) === 1) {
+        if (count(Organizations::documentableIDs()) === 1) {
             $form->removeField('organizationID', 'filter');
             unset($this->filter_fields['organizationID']);
         }
@@ -79,7 +79,7 @@ class FieldColors extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $documentable = Can::documentTheseOrganizations();
+        $documentable = Organizations::documentableIDs();
 
         if (count($documentable) === 1) {
             $this->setState('filter.organizationID', $documentable[0]);

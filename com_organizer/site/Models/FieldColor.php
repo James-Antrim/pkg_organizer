@@ -26,7 +26,7 @@ class FieldColor extends BaseModel
     protected function authorize()
     {
         if ($organizationID = Input::getInt('organizationID')
-            and Helpers\Can::document('organization', $organizationID)
+            and Helpers\Organizations::documentable($organizationID)
         ) {
             return;
         }

@@ -208,15 +208,6 @@ class Can
     }
 
     /**
-     * Gets the ids of organizations for which the user is authorized documentation access
-     * @return int[]
-     */
-    public static function documentTheseOrganizations(): array
-    {
-        return self::authorizedIDs('document');
-    }
-
-    /**
      * Checks whether the user has access to the participant information
      *
      * @param   string          $resourceType  the resource type being checked
@@ -460,10 +451,10 @@ class Can
             'Events' => self::coordinate('events'),
             // Curriculum resources with no intrinsic public value
             'FieldColors', 'Pools', 'PoolSelection', 'SubjectSelection'
-            => (bool) self::documentTheseOrganizations(),
+            => (bool) Organizations::documentableIDs(),
             // Curriculum resources with public value
             'Programs', 'Subjects'
-            => (!Application::backend() or self::documentTheseOrganizations()),
+            => (!Application::backend() or Organizations::documentableIDs()),
             // Edit views for curriculum resource with no intrinsic public value
             'FieldColor', 'Pool' => self::document(strtolower($view), $resourceID),
             // Edit views for curriculum resource with intrinsic public value

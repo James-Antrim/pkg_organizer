@@ -54,7 +54,7 @@ abstract class Associated extends ResourceHelper
 
         switch ($access) {
             case 'document':
-                $authorized = Can::documentTheseOrganizations();
+                $authorized = Organizations::documentableIDs();
                 break;
             case 'manage':
                 $authorized = Can::manageTheseOrganizations();
