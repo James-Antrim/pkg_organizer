@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\ParameterType;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Tables\Associations as Association;
 
@@ -37,6 +37,70 @@ abstract class Associated extends ResourceHelper
         $association = new Association();
 
         return $association->load(['organizationID' => $organizationID, $column => $resourceID]);
+    }
+
+    /**
+     * Adds access filter clauses to the given query.
+     *
+     * @param   DatabaseQuery  $query   the query to modify
+     * @param   string         $alias   the alias being used for the resource table
+     * @param   string         $access  the access right to be filtered against
+     *
+     * @return void
+     */
+    public static function filterByAccess(DatabaseQuery $query, string $alias, string $access): void
+    {
+        $authorized = [];
+
+        switch ($access) {
+            case 'document':
+                $authorized = Can::documentTheseOrganizations();
+                break;
+            case 'manage':
+                $authorized = Can::manageTheseOrganizations();
+                break;
+            case 'schedule':
+                $authorized = Can::scheduleTheseOrganizations();
+                break;
+            case 'view':
+                $authorized = Can::viewTheseOrganizations();
+                break;
+        }
+
+        // Alias 'aaf' so as not to conflict with the access filter.
+        $query->innerJoin(DB::qn('#__organizer_associations', 'aaf'), DB::qc('aaf' . self::$resource . 'ID', "$alias.id"))
+            ->where(DB::qn('aaf.organizationID') . ' IN (' . implode(',', $query->bindArray($authorized)) . ')');
+    }
+
+    /**
+     * Adds organization filter clauses to the given query. In the associated trait, because tables with an internal column
+     * should use the filterByKey function.
+     *
+     * @param   DatabaseQuery  $query           the query to modify
+     * @param   string         $alias           the alias of the table where the campusID is a column
+     * @param   int            $organizationID  the id of the organization to use as a filter
+     *
+     * @return void
+     */
+    public static function filterByOrganization(DatabaseQuery $query, string $alias, int $organizationID): void
+    {
+        if ($organizationID === Selectable::UNSELECTED) {
+            return;
+        }
+
+        $column    = DB::qn('aof' . self::$resource . 'ID');
+        $table     = DB::qn('#__organizer_associations', 'aof');
+        $condition = DB::qc($column, "$alias.id");
+
+        if ($organizationID === Selectable::NONE) {
+            $query->leftJoin($table, $condition)->where(DB::qn('aof.id') . ' IS NULL');
+
+            return;
+        }
+
+        $query->innerJoin($table, $condition)
+            ->where(DB::qn('aof.organizationID') . ' = :organizationID')
+            ->bind(':organizationID', $organizationID, ParameterType::INTEGER);
     }
 
     /**

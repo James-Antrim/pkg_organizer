@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, HTML};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use Joomla\Database\ParameterType;
 
 /**
@@ -88,10 +88,10 @@ class Categories extends Associated implements Selectable
             ->order($order);
 
         if (!empty($access)) {
-            Can::filterAccess($query, $access, 'categoryID', 'c');
+            self::filterByAccess($query, 'c', $access);
         }
 
-        self::filterOrganizations($query, 'category', 'c');
+        self::filterByOrganization($query, 'c', Input::getInt('organizationID'));
         DB::setQuery($query);
 
         return DB::loadAssocList('id');

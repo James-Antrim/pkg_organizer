@@ -162,14 +162,9 @@ class Groups extends Associated implements Selectable
         $categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
         $categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
 
-        if ($organizationID = Input::getInt('organizationID')) {
-            $organizationIDs = [$organizationID];
-        }
+        $organizationID = Input::getInt('organizationID');
 
-        $organizationIDs = empty($organizationIDs) ? Input::getIntCollection('organizationIDs') : $organizationIDs;
-        $organizationIDs = empty($organizationIDs) ? Input::getFilterIDs('organization') : $organizationIDs;
-
-        if (empty($categoryIDs) and empty($organizationIDs)) {
+        if (empty($categoryIDs) and empty($organizationID)) {
             return [];
         }
 
@@ -177,12 +172,10 @@ class Groups extends Associated implements Selectable
         $query->select(DB::qn('g') . '.*')->from(DB::qn('#__organizer_groups', 'g'));
 
         if (!empty($access)) {
-            Can::filterAccess($query, $access, 'groupID', 'g');
+            self::filterByAccess($query, 'g', $access);
         }
 
-        if (!empty($organizationIDs)) {
-            self::filterOrganizations($query, 'group', 'g');
-        }
+        self::filterByOrganization($query, 'g', $organizationID);
 
         if (!empty($categoryIDs)) {
             self::filterResources($query, 'category', 'cat', 'g');

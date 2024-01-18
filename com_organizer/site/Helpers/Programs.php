@@ -172,10 +172,10 @@ class Programs extends Curricula implements Selectable
             ->order(DB::qn('name'));
 
         if ($access) {
-            Can::filterAccess($query, $access, 'programID', 'p');
+            self::filterByAccess($query, 'p', $access);
         }
 
-        self::filterOrganizations($query, 'program', 'p');
+        self::filterByOrganization($query, 'p', Input::getInt('organizationID'));
 
         if (self::useCurrent()) {
             $tag = Application::getTag();

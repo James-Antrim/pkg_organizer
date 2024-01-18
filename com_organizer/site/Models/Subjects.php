@@ -84,7 +84,6 @@ class Subjects extends ListModel
         $tag   = Application::getTag();
         $url   = 'index.php?option=com_organizer&view=Subject&id=';
 
-
         if (Can::administrate()) {
             $access = DB::quote(1) . ' AS ' . DB::qn('access');
         }
@@ -117,7 +116,11 @@ class Subjects extends ListModel
             's.lsfID'
         ];
 
-        $this->filterOrganizations($query, 'subject', 's');
+        if (Application::backend()) {
+            $this->filterByAccess($query, 's', 'document');
+        }
+
+        $this->filterByOrganization($query, 's');
         $this->filterSearch($query, $searchFields);
 
         if ($programID = (int) $this->state->get('filter.programID')) {

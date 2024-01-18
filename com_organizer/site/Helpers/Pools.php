@@ -302,7 +302,7 @@ class Pools extends Curricula implements Selectable
             ->order('name');
 
         if (!empty($access)) {
-            Can::filterAccess($query, $access, 'poolID', 'p');
+            self::filterByAccess($query, 'p', $access);
         }
 
         DB::setQuery($query);

@@ -19,34 +19,6 @@ use THM\Organizer\Adapters\{Database as DB, Input};
 trait Filtered
 {
     /**
-     * Adds a selected organization filter to the query.
-     *
-     * @param   DatabaseQuery  $query      the query to modify
-     * @param   string         $resource   the name of the organization associated resource
-     * @param   string         $alias      the alias being used for the resource table
-     * @param   string         $keyColumn  the name of the column holding the association key
-     *
-     * @return void modifies the query
-     */
-    public static function filterOrganizations($query, $resource, $alias, $keyColumn = 'id'): void
-    {
-        $organizationID = Input::getInt('organizationID');
-        if (!$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization')) {
-            return;
-        }
-
-        // Alias 'aof' so as not to conflict with the access filter.
-        $condition = DB::qc("aof.{$resource}ID", "$alias.$keyColumn");
-        $table     = DB::qn('#__organizer_associations', 'aof');
-        if (in_array(self::NONE, $organizationIDs)) {
-            $query->leftJoin($table, $condition)->where(DB::qn('aof.id') . ' IS NULL');
-        }
-        else {
-            $query->innerJoin($table, $condition)->whereIn(DB::qn('aof.organizationID'), $organizationIDs);
-        }
-    }
-
-    /**
      * Adds a resource filter for a given resource.
      *
      * @param   DatabaseQuery  $query          the query to modify

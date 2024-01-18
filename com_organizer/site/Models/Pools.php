@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Pools as Helper};
 
 /**
  * Class retrieves information for a filtered set of (subject) pools.
@@ -27,7 +27,7 @@ class Pools extends ListModel
      */
     public function filterFilterForm(Form $form): void
     {
-        if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
+        if (count(Can::documentTheseOrganizations()) === 1) {
             $form->removeField('organizationID', 'filter');
             unset($this->filter_fields['organizationID']);
         }
@@ -39,26 +39,38 @@ class Pools extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $query = DB::getQuery();
-        $tag   = Application::getTag();
+        if (Can::administrate()) {
+            $access = DB::quote(1) . ' AS ' . DB::qn('access');
+        }
+        elseif ($ids = Helper::documentableIDs()) {
+            $access = DB::qn('p.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access');
+        }
+        else {
+            $access = DB::quote(0) . ' AS ' . DB::qn('access');
+        }
 
         $select = [
             'DISTINCT ' . DB::qn('p.id'),
-            DB::quote(1) . ' AS ' . DB::qn('access'),
+            $access,
             DB::qn('p.fieldID'),
-            DB::qn("p.fullName_$tag", 'name'),
+            DB::qn('p.fullName_' . Application::getTag(), 'name'),
         ];
 
+        $query = DB::getQuery();
         $query->select($select)->from(DB::qn('#__organizer_pools', 'p'));
 
-        $this->filterOrganizations($query, 'pool', 'p');
+        if (Application::backend()) {
+            $this->filterByAccess($query, 'p', 'document');
+        }
+
+        $this->filterByOrganization($query, 'p');
 
         $searchColumns = ['p.fullName_de', 'p.abbreviation_de', 'p.fullName_en', 'p.abbreviation_en'];
         $this->filterSearch($query, $searchColumns);
         $this->filterValues($query, ['fieldID']);
 
         if ($programID = (int) $this->state->get('filter.programID')) {
-            Helpers\Pools::filterProgram($query, $programID, 'poolID', 'p');
+            Helper::filterProgram($query, $programID, 'poolID', 'p');
         }
 
         $this->orderBy($query);
@@ -73,7 +85,7 @@ class Pools extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $authorized = Helpers\Can::documentTheseOrganizations();
+        $authorized = Can::documentTheseOrganizations();
         if (count($authorized) === 1) {
             $this->state->set('filter.organizationID', $authorized[0]);
         }

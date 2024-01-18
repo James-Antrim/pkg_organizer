@@ -17,7 +17,7 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
-use THM\Organizer\Helpers\{Can, Campuses, Organizations};
+use THM\Organizer\Helpers\{Associated, Campuses};
 
 /**
  * Model class for handling lists of items.
@@ -71,6 +71,21 @@ abstract class ListModel extends Base
     public function emptyCache(): void
     {
         $this->cleanCache();
+    }
+
+    /**
+     * Sets an access filter for a given resource. Wrapper for uniformity of filter function calls.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
+     */
+    protected function filterByAccess(DatabaseQuery $query, string $alias, string $access): void
+    {
+        $view   = Input::getView();
+        $helper = "\\THM\\Organizer\\Helpers\\$view";
+
+        /** @var Associated $helper */
+        $helper::filterByAccess($query, $alias, $access);
     }
 
     /**
@@ -146,6 +161,21 @@ abstract class ListModel extends Base
         }
 
         $query->where("$qColumn = :$column")->bind(":$column", $value, $type);
+    }
+
+    /**
+     * Sets an organization filter for a given resource.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
+     */
+    protected function filterByOrganization(DatabaseQuery $query, string $alias): void
+    {
+        $view   = Input::getView();
+        $helper = "\\THM\\Organizer\\Helpers\\$view";
+
+        /** @var Associated $helper */
+        $helper::filterByOrganization($query, $alias, (int) $this->state->get('filter.organizationID'));
     }
 
     /**
@@ -278,39 +308,6 @@ abstract class ListModel extends Base
                 $query->where($column . DB::makeSet($values));
             }
         }
-    }
-
-    /**
-     * Sets an organization filter for the given resource.
-     *
-     * @param   DatabaseQuery  $query     the query to modify
-     * @param   string         $context   the resource context from which this function was called
-     * @param   string         $alias     the alias of the table onto which the organizations table will be joined as
-     *                                    needed
-     *
-     * @return void
-     */
-    protected function filterOrganizations(DatabaseQuery $query, string $context, string $alias): void
-    {
-        $authorizedIDs  = Application::backend() ? Can::documentTheseOrganizations() : Organizations::getIDs();
-        $organizationID = (int) $this->state->get('filter.organizationID');
-
-        if (!$authorizedIDs or !$organizationID) {
-            return;
-        }
-
-        $conditions = DB::qc("a.{$context}ID", "$alias.id");
-
-        if ($organizationID === self::NONE) {
-            $query->leftJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
-                ->where(DB::qn('a.organizationID') . ' IS NULL');
-
-            return;
-        }
-
-        $in = in_array($organizationID, $authorizedIDs) ? [$organizationID] : $authorizedIDs;
-        $query->innerJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
-            ->whereIn(DB::qn('a.organizationID'), $in);
     }
 
     /**

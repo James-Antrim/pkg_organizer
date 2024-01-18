@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\{DatabaseQuery, ParameterType};
+use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Database as DB, User};
 use THM\Organizer\Tables\{FieldColors, Schedules};
@@ -296,40 +296,6 @@ class Can
         }
 
         return false;
-    }
-
-    /**
-     * Adds access filter clauses to the given query.
-     *
-     * @param   DatabaseQuery  $query   the query to modify
-     * @param   string         $access  the access right to be filtered against
-     * @param   string         $column  the name of the column referencing the specific resource
-     * @param   string         $alias   the alias being used for the resource table
-     *
-     * @return void modifies the query object
-     */
-    public static function filterAccess(DatabaseQuery $query, string $access, string $column, string $alias): void
-    {
-        $authorized = [];
-
-        switch ($access) {
-            case 'document':
-                $authorized = Can::documentTheseOrganizations();
-                break;
-            case 'manage':
-                $authorized = Can::manageTheseOrganizations();
-                break;
-            case 'schedule':
-                $authorized = Can::scheduleTheseOrganizations();
-                break;
-            case 'view':
-                $authorized = Can::viewTheseOrganizations();
-                break;
-        }
-
-        // Alias 'aaf' so as not to conflict with the access filter.
-        $query->innerJoin(DB::qn('#__organizer_associations', 'aaf'), DB::qc("aaf.$column", "$alias.id"))
-            ->where(DB::qn('aaf.organizationID') . ' IN (' . implode(',', $query->bindArray($authorized)) . ')');
     }
 
     /**
