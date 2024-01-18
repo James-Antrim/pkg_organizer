@@ -31,7 +31,7 @@ class FieldColor extends BaseModel
             return;
         }
 
-        if ($fcID = Input::getID() and Helpers\Can::document('fieldcolor', $fcID)) {
+        if ($fcID = Input::getID() and Helpers\FieldColors::documentable($fcID)) {
             return;
         }
 

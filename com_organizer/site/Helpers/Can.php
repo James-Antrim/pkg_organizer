@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database as DB, User};
-use THM\Organizer\Tables\{FieldColors, Schedules};
+use THM\Organizer\Adapters\{Application, User};
+use THM\Organizer\Tables\Schedules;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -111,100 +110,6 @@ class Can
             default => false,
         };
 
-    }
-
-    /**
-     * Checks whether the user has access to documentation resources and their respective views.
-     *
-     * @param   string  $resourceType  the resource type being checked
-     * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
-     *
-     * @return bool
-     */
-    public static function document(string $resourceType, int $resourceID = 0): bool
-    {
-        if (is_bool($authorized = self::basic())) {
-            return $authorized;
-        }
-
-        if (!in_array($resourceType, ['fieldcolor', 'organization', 'pool', 'program', 'subject'])) {
-            return false;
-        }
-
-        $query = DB::getQuery();
-        $query->select('DISTINCT ' . DB::qn('organizationID'))->from(DB::qn('#__organizer_associations'));
-        $organizationIDs = [];
-
-        if ($resourceID) {
-            switch ($resourceType) {
-                case 'fieldcolor':
-                    $table = new FieldColors();
-
-                    if (!$table->load($resourceID) or empty($table->organizationID)) {
-                        return false;
-                    }
-
-                    $organizationIDs[] = $table->organizationID;
-                    break;
-                case 'organization':
-                    $organizationIDs[] = $resourceID;
-                    break;
-                case 'pool':
-                    $query->where(DB::qn('poolID') . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
-                    DB::setQuery($query);
-
-                    if (!$organizationIDs = DB::loadIntColumn()) {
-                        return false;
-                    }
-
-                    break;
-                case 'program':
-                    $query->where(DB::qn('programID') . ' = :resourceID')->bind(':resourceID', $resourceID,
-                        ParameterType::INTEGER);
-                    DB::setQuery($query);
-
-                    if (!$organizationIDs = DB::loadIntColumn()) {
-                        return false;
-                    }
-
-                    break;
-                case 'subject':
-
-                    if (Subjects::coordinates($resourceID)) {
-                        return true;
-                    }
-
-                    $query->where(DB::qn('subjectID') . ' = :resourceID')->bind(':resourceID', $resourceID,
-                        ParameterType::INTEGER);
-                    DB::setQuery($query);
-
-                    if (!$organizationIDs = DB::loadIntColumn()) {
-                        return false;
-                    }
-
-                    break;
-                default:
-                    return false;
-            }
-
-            if (!$organizationIDs) {
-                return false;
-            }
-        }
-        else {
-            DB::setQuery($query);
-            $organizationIDs = DB::loadIntColumn();
-        }
-
-        $user = User::instance();
-
-        foreach ($organizationIDs as $organizationID) {
-            if ($user->authorise('organizer.document', "com_organizer.organization.$organizationID")) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -456,9 +361,11 @@ class Can
             'Programs', 'Subjects'
             => (!Application::backend() or Organizations::documentableIDs()),
             // Edit views for curriculum resource with no intrinsic public value
-            'FieldColor', 'Pool' => self::document(strtolower($view), $resourceID),
+            'FieldColor' => FieldColors::documentable($resourceID),
+            'Pool' => Pools::documentable($resourceID),
             // Edit views for curriculum resource with intrinsic public value
-            'Program', 'Subject' => (!Application::backend() or self::document(strtolower($view), $resourceID)),
+            'Program' => (!Application::backend() or Programs::documentable($resourceID)),
+            'Subject' => (!Application::backend() or Subjects::documentable($resourceID)),
             'MergePersons', 'Person', 'Persons'
             => self::manage('persons'),
             // Facility resource views

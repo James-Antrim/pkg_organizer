@@ -51,14 +51,6 @@ class Subjects extends Curricula
     }
 
     /**
-     * @inheritDoc
-     */
-    public static function documentableIDs(string $column = 'subjectID'): array
-    {
-        return parent::documentableIDs($column);
-    }
-
-    /**
      * Retrieves the event ID associated with the subject.
      *
      * @param   int  $subjectID  the id of the referencing subject

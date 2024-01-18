@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Can, LSF, Organizations, Programs as Helper};
+use THM\Organizer\Helpers\{Can, Documentable, LSF, Organizations, Programs as Helper};
 use THM\Organizer\Tables\Programs as Table;
 
 /**
@@ -199,7 +199,9 @@ class Program extends CurriculumResource
             }
         }
         elseif (is_numeric($data['id'])) {
-            if (!Can::document('program', (int) $data['id'])) {
+            /** @var Documentable $helper */
+            $helper = "THM\\Organizer\\Helpers\\$this->helper";
+            if (!$helper::documentable((int) $data['id'])) {
                 Application::error(403);
             }
         }
@@ -240,10 +242,12 @@ class Program extends CurriculumResource
             return false;
         }
 
+        /** @var Documentable $helper */
+        $helper  = "THM\\Organizer\\Helpers\\$this->helper";
         $subject = new Subject();
 
         foreach ($programIDs as $programID) {
-            if (!Can::document('program', $programID)) {
+            if (!$helper::documentable($programID)) {
                 Application::error(403);
             }
 

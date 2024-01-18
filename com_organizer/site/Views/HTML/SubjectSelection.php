@@ -38,7 +38,7 @@ class SubjectSelection extends ListView
         $structuredItems = [];
 
         foreach ($this->items as $subject) {
-            if (!Helpers\Can::document('subject', (int) $subject->id)) {
+            if (!Helpers\Subjects::documentable((int) $subject->id)) {
                 continue;
             }
 

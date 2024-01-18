@@ -75,14 +75,6 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
-     * @inheritDoc
-     */
-    public static function documentableIDs(string $column = 'programID'): array
-    {
-        return parent::documentableIDs($column);
-    }
-
-    /**
      * Gets the programIDs for the given resource
      *
      * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources

@@ -12,7 +12,7 @@ use Joomla\CMS\Table\Table;
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Can, Curricula as Helper, Organizations};
+use THM\Organizer\Helpers\{Curricula as Helper, Documentable, Organizations};
 use THM\Organizer\Tables\{Curricula, Pools, Subjects};
 
 /**
@@ -20,8 +20,6 @@ use THM\Organizer\Tables\{Curricula, Pools, Subjects};
  */
 abstract class CurriculumResource extends BaseModel
 {
-    use Associated;
-
     protected const NONE = -1, POOL = 'K', SUBJECT = 'M';
 
     protected string $helper;
@@ -127,7 +125,9 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function authorize(): void
     {
-        if (($id = Input::getID() and !Can::document($this->resource, $id)) or !Organizations::documentableIDs()) {
+        /** @var Documentable $helper */
+        $helper = "THM\\Organizer\\Helpers\\$this->helper";
+        if (($id = Input::getID() and !$helper::documentable($id)) or !Organizations::documentableIDs()) {
             Application::error(403);
         }
     }
@@ -139,9 +139,12 @@ abstract class CurriculumResource extends BaseModel
     {
         $this->authorize();
 
+        /** @var Documentable $helper */
+        $helper = "THM\\Organizer\\Helpers\\$this->helper";
+
         if ($resourceIDs = Input::getSelectedIDs()) {
             foreach ($resourceIDs as $resourceID) {
-                if (!Can::document($this->resource, $resourceID)) {
+                if (!$helper::documentable($resourceID)) {
                     Application::error(403);
                 }
 

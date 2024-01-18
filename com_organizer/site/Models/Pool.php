@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\{Can, Organizations};
+use THM\Organizer\Helpers\{Documentable, Organizations};
 use THM\Organizer\Tables\{Associations, Curricula, Pools as Table};
 
 /**
@@ -124,7 +124,9 @@ class Pool extends CurriculumResource
             }
         }
         elseif (is_numeric($data['id'])) {
-            if (!Can::document('pool', (int) $data['id'])) {
+            /** @var Documentable $helper */
+            $helper = "THM\\Organizer\\Helpers\\$this->helper";
+            if (!$helper::documentable((int) $data['id'])) {
                 Application::error(403);
             }
         }

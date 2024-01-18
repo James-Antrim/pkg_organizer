@@ -49,14 +49,6 @@ class Pools extends Curricula implements Selectable
     }
 
     /**
-     * @inheritDoc
-     */
-    public static function documentableIDs(string $column = 'poolID'): array
-    {
-        return parent::documentableIDs($column);
-    }
-
-    /**
      * Retrieves the range of the selected resource exclusive subordinate pools.
      *
      * @param   array  $range  the original range of a pool

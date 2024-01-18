@@ -17,7 +17,7 @@ use THM\Organizer\Controllers\Subject;
 /**
  * Class contains methods and method stubs useful in the context of nested curriculum resources.
  */
-abstract class Curricula extends Associated implements Selectable
+abstract class Curricula extends Associated implements Documentable, Selectable
 {
     /**
      * Gets all curriculum rows for resources mapped to a program, unfiltered by type, including the program itself.
@@ -126,20 +126,45 @@ abstract class Curricula extends Associated implements Selectable
     }
 
     /**
-     * Gets the ids of resources for which the user has documentation access.
-     *
-     * @param   string  $column  the name of the column referencing the specific resource
-     *
-     * @return array
+     * @inheritDoc
      */
-    public static function documentableIDs(string $column): array
+    public static function documentable(int $resourceID): bool
+    {
+        if (!$organizationIDs = Organizations::documentableIDs()) {
+            return false;
+        }
+        // Document authorization has already been established, allow new
+        elseif (!$resourceID) {
+            return true;
+        }
+
+        $idColumn       = DB::qn('id');
+        $organizationID = DB::qn('organizationID');
+        $resourceColumn = DB::qn(self::$resource . 'ID');
+
+        $query = DB::getQuery();
+        $query->select($idColumn)
+            ->from(DB::qn('#__organizer_associations'))
+            ->where("$resourceColumn = :resourceID")
+            ->bind(':resourceID', $resourceID, ParameterType::INTEGER)
+            ->whereIn($organizationID, $organizationIDs);
+
+        DB::setQuery($query);
+
+        return DB::loadBool();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function documentableIDs(): array
     {
         if (!$organizationIDs = Organizations::documentableIDs()) {
             return [];
         }
 
         $organizationID = DB::qn('organizationID');
-        $column         = DB::qn($column);
+        $column         = DB::qn(self::$resource . 'ID');
 
         $query = DB::getQuery();
         $query->select("DISTINCT $column")

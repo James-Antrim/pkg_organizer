@@ -167,6 +167,10 @@ class Organizations extends ResourceHelper implements Documentable, Selectable
      */
     public static function documentableIDs(): array
     {
+        if (!User::id()) {
+            return [];
+        }
+
         $organizationIDs = self::getIDs();
 
         foreach ($organizationIDs as $index => $organizationID) {

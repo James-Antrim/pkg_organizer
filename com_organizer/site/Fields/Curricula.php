@@ -69,7 +69,7 @@ class Curricula extends FormField
 
         $options = [];
         foreach ($programs as $program) {
-            if (!Can::document('program', (int) $program['id'])) {
+            if (!Programs::documentable((int) $program['id'])) {
                 continue;
             }
 
