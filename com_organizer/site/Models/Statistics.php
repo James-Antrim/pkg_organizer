@@ -480,7 +480,7 @@ class Statistics extends OldFormModel
             }
         }
         elseif ($organizationID = $state->get('conditions.organizationID')) {
-            foreach (Helpers\Organizations::getCategories($organizationID) as $category) {
+            foreach (Helpers\Organizations::categories($organizationID) as $category) {
                 $columns[$category['id']] = $category['name'];
             }
         }

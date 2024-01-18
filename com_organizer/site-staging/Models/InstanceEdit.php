@@ -209,7 +209,7 @@ class InstanceEdit extends EditModelOld
         if (empty($item->gridID)) {
             $organizations  = Helpers\Organizations::resources('teach');
             $organizationID = reset($organizations)['id'];
-            $item->gridID   = Helpers\Organizations::getDefaultGrid($organizationID);
+            $item->gridID   = Helpers\Organizations::defaultGrid($organizationID);
         }
 
         $this->item = $item;

@@ -70,8 +70,10 @@ class Can
     }
 
     /**
-     * Performs ubiquitous authorization checks. Functions using this with is_bool() will get a false positive for a
-     * null return value in their own return value suggestions.
+     * Performs ubiquitous authorization checks for three fundemental values:
+     * 0 - unauthenticated
+     * null - indeterminate
+     * 1 - component/site administrator
      * @return bool|null
      */
     private static function basic(): ?bool

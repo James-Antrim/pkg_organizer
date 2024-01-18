@@ -968,7 +968,7 @@ class Schedule extends BaseModel
             Application::error(403);
         }
 
-        if (!Helpers\Organizations::allowScheduling($organizationID)) {
+        if (!Helpers\Organizations::allowsScheduling($organizationID)) {
             Application::error(501);
         }
 

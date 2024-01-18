@@ -439,7 +439,7 @@ class Instances extends ListModel
 
                 $instances = Input::getCMD('instances');
                 if (Helpers\Can::view('organization', $organizationID) and $instances === 'person') {
-                    $conditions['personIDs'] = Helpers\Organizations::getPersonIDs($organizationID);
+                    $conditions['personIDs'] = Helpers\Organizations::personIDs($organizationID);
                     $byPerson                = true;
                 }
             }

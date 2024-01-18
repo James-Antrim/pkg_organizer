@@ -89,7 +89,7 @@ class Organizations extends ResourceHelper implements Selectable
      *
      * @return bool true if direct scheduling is allowed otherwise false
      */
-    public static function allowScheduling(int $organizationID): bool
+    public static function allowsScheduling(int $organizationID): bool
     {
         $organization = new Tables\Organizations();
 
@@ -108,7 +108,7 @@ class Organizations extends ResourceHelper implements Selectable
      *
      * @return array[]
      */
-    public static function getCategories(int $organizationID, bool $active = true): array
+    public static function categories(int $organizationID, bool $active = true): array
     {
         $tag   = Application::getTag();
         $query = DB::getQuery();
@@ -133,7 +133,7 @@ class Organizations extends ResourceHelper implements Selectable
      *
      * @return int
      */
-    public static function getDefaultGrid(int $organizationID): int
+    public static function defaultGrid(int $organizationID): int
     {
         $query = DB::getQuery();
         $query->select('u.gridID, COUNT(*) AS occurrences')
@@ -186,7 +186,7 @@ class Organizations extends ResourceHelper implements Selectable
      *
      * @return int[]
      */
-    public static function getPersonIDs(int $organizationID): array
+    public static function personIDs(int $organizationID): array
     {
         $query = DB::getQuery();
         $query->select('DISTINCT ' . DB::qn('personID'))

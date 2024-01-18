@@ -147,7 +147,7 @@ class UnitEdit extends EditModelOld
             // Get an organization associated with the user as a teacher
             $organizations  = Helpers\Organizations::resources('teach');
             $organizationID = reset($organizations)['id'];
-            $gridID         = Helpers\Organizations::getDefaultGrid($organizationID);
+            $gridID         = Helpers\Organizations::defaultGrid($organizationID);
 
             foreach (Helpers\Terms::resources(true) as $term) {
                 $item  = new stdClass();
@@ -275,7 +275,7 @@ class UnitEdit extends EditModelOld
      */
     private function setGridID(object $item)
     {
-        $default = Helpers\Organizations::getDefaultGrid($item->organizationID);
+        $default = Helpers\Organizations::defaultGrid($item->organizationID);
         $grid    = new Tables\Grids();
 
         // Selected > unit > organization default > 0
