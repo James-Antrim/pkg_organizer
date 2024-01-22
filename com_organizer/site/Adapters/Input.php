@@ -56,11 +56,11 @@ class Input
             return $value;
         }
 
-        if ($value = self::getFilterItems()->get($property)) {
+        if ($value = self::getInput()->get("filter.$property", null, 'raw')) {
             return $value;
         }
 
-        if ($value = self::getListItems()->get($property)) {
+        if ($value = self::getInput()->get("list.$property", null, 'raw')) {
             return $value;
         }
 

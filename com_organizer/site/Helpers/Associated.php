@@ -66,7 +66,7 @@ abstract class Associated extends ResourceHelper
         }
 
         // Alias 'aaf' so as not to conflict with the access filter.
-        $query->innerJoin(DB::qn('#__organizer_associations', 'aaf'), DB::qc('aaf' . self::$resource . 'ID', "$alias.id"))
+        $query->innerJoin(DB::qn('#__organizer_associations', 'aaf'), DB::qc('aaf.' . static::$resource . 'ID', "$alias.id"))
             ->where(DB::qn('aaf.organizationID') . ' IN (' . implode(',', $query->bindArray($authorized)) . ')');
     }
 
@@ -87,7 +87,7 @@ abstract class Associated extends ResourceHelper
             return;
         }
 
-        $column    = DB::qn('aof' . self::$resource . 'ID');
+        $column    = DB::qn('aof.' . static::$resource . 'ID');
         $table     = DB::qn('#__organizer_associations', 'aof');
         $condition = DB::qc($column, "$alias.id");
 

@@ -47,6 +47,7 @@ class Application
      * @DEBUG, @INFO: info
      *
      * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency', INFO = 'info';
+     * @noinspection GrazieInspection
      */
 
     /**
@@ -103,12 +104,10 @@ class Application
                 default => self::ERROR,
             };
 
-            //if ($severity === self::ERROR) {
-            echo "<pre>" . print_r($message, true) . "</pre>";
-            $exc = new Exception();
-            echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
-            die;
-            //}
+            if ($severity === self::ERROR) {
+                echo "<pre>" . print_r($message, true) . "</pre>";
+                die;
+            }
 
             //$url = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
         }
@@ -202,7 +201,7 @@ class Application
         /** @var CMSApplication $app */
         $app = self::getApplication();
 
-        if ($menu = $app->getMenu() and $menuItem = $menu->getActive()) {
+        if ($menu = $app->getMenu()) {
             if ($itemID) {
                 return $menu->getItem($itemID);
             }
@@ -320,6 +319,7 @@ class Application
     {
         $code    = $exception->getCode() ?: 500;
         $message = $exception->getMessage();
+        echo "<pre>" . print_r($exception->getTraceAsString(), true) . "</pre>";
         self::error($code, $message);
     }
 

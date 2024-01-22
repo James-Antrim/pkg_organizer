@@ -160,6 +160,9 @@ abstract class ListModel extends Base
             return;
         }
 
+        // If there is a period the first part is parsed and the second part produces an error.
+        $column = str_replace('.', '', $column);
+
         $query->where("$qColumn = :$column")->bind(":$column", $value, $type);
     }
 

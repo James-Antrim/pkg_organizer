@@ -71,8 +71,9 @@ class Rooms extends ListModel
         if ($campusID and $campusID !== self::NONE) {
             $query->innerJoin(DB::qn('#__organizer_buildings', 'b'), DB::qc('b.id', 'r.buildingID'))
                 ->innerJoin(DB::qn('#__organizer_campuses', 'c1'), DB::qc('c1.id', 'b.campusID'))
-                ->where('(' . DB::qcs([['c1.id', ':campusID'], ['c1.parentID', ':campusID']], 'OR') . ')')
-                ->bind(':campusID', $campusID, ParameterType::INTEGER);
+                ->where('(' . DB::qn('c1.id') . ' = :campusID OR ' . DB::qn('c1.parentID') . ' = :pCampusID)')
+                ->bind(':campusID', $campusID, ParameterType::INTEGER)
+                ->bind(':pCampusID', $campusID, ParameterType::INTEGER);
         }
         else {
             $query->leftJoin(DB::qn('#__organizer_buildings', 'b'), DB::qc('b.id', 'r.buildingID'))
