@@ -46,7 +46,7 @@ abstract class CurriculumResources extends ListController
         }
 
         /** @var Documentable $helper */
-        $helper   = "THM\\Organizer\\Helpers\\" . Application::getClass($this);
+        $helper   = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
         $deleted  = 0;
         $selected = count($selectedIDs);
 

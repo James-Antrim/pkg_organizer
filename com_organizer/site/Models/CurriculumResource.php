@@ -133,103 +133,6 @@ abstract class CurriculumResource extends BaseModel
     }
 
     /**
-     * @inheritDoc
-     */
-    public function delete(): bool
-    {
-        $this->authorize();
-
-        /** @var Documentable $helper */
-        $helper = "THM\\Organizer\\Helpers\\$this->helper";
-
-        if ($resourceIDs = Input::getSelectedIDs()) {
-            foreach ($resourceIDs as $resourceID) {
-                if (!$helper::documentable($resourceID)) {
-                    Application::error(403);
-                }
-
-                if (!$this->deleteSingle($resourceID)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Method to delete a single range from the curricula table
-     *
-     * @param   int  $rangeID  the id value of the range to be deleted
-     *
-     * @return bool  true on success, otherwise false
-     */
-    protected function deleteRange(int $rangeID): bool
-    {
-        if (!$range = Helper::row($rangeID)) {
-            return false;
-        }
-
-        // Deletes the range
-        $curricula = new Curricula();
-
-        if (!$curricula->delete($rangeID)) {
-            return false;
-        }
-
-        // Reduces the ordering of siblings with a greater ordering
-        if (!empty($range['parentID']) and !$this->shiftDown($range['parentID'], $range['ordering'])) {
-            return false;
-        }
-
-        $width = $range['rgt'] - $range['lft'] + 1;
-
-        return $this->shiftLeft($range['lft'], $width);
-    }
-
-    /**
-     * Deletes ranges of a specific curriculum resource.
-     *
-     * @param   int  $resourceID  the id of the resource
-     *
-     * @return bool true on success, otherwise false
-     */
-    protected function deleteRanges(int $resourceID): bool
-    {
-        /** @var Helper $helper */
-        $helper = "THM\\Organizer\\Helpers\\$this->helper";
-
-        if ($rangeIDs = $helper::rowIDs($resourceID)) {
-            foreach ($rangeIDs as $rangeID) {
-                $success = $this->deleteRange($rangeID);
-                if (!$success) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Deletes a single curriculum resource.
-     *
-     * @param   int  $resourceID  the resource id
-     *
-     * @return bool  true on success, otherwise false
-     */
-    protected function deleteSingle(int $resourceID): bool
-    {
-        if (!$this->deleteRanges($resourceID)) {
-            return false;
-        }
-
-        $table = $this->getTable();
-
-        return $table->delete($resourceID);
-    }
-
-    /**
      * Method to import data associated with resources from LSF
      * @return bool true on success, otherwise false
      */
@@ -243,15 +146,6 @@ abstract class CurriculumResource extends BaseModel
 
         return true;
     }
-
-    /**
-     * Method to import data associated with a resource from LSF
-     *
-     * @param   int  $resourceID  the id of the program to be imported
-     *
-     * @return bool  true on success, otherwise false
-     */
-    abstract public function importSingle(int $resourceID): bool;
 
     /**
      * Attempt to determine the left value for the range to be created
@@ -292,37 +186,6 @@ abstract class CurriculumResource extends BaseModel
         $lft = DB::loadInt();
 
         return $lft ? $lft + 1 : 0;
-    }
-
-    /**
-     * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
-     *
-     * @param   int  $parentID    the id of the parent range
-     * @param   int  $resourceID  the id of the resource
-     *
-     * @return int  the value of the highest existing ordering or 1 if none exist
-     */
-    protected function ordering(int $parentID, int $resourceID): int
-    {
-        $column = $this->resource . 'ID';
-        $query  = DB::getQuery();
-        $query->select(DB::qn('ordering'))
-            ->from(DB::qn('#__organizer_curricula'))
-            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER)
-            ->where(DB::qn($column) . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
-        DB::setQuery($query);
-
-        if ($existingOrdering = DB::loadInt()) {
-            return $existingOrdering;
-        }
-
-        $query = DB::getQuery();
-        $query->select('MAX(' . DB::qn('ordering') . ')')
-            ->from(DB::qn('#__organizer_curricula'))
-            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
-        DB::setQuery($query);
-
-        return DB::loadInt() + 1;
     }
 
     /**

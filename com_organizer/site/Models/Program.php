@@ -84,28 +84,6 @@ class Program extends CurriculumResource
     }
 
     /**
-     * Retrieves program information relevant for soap queries to the LSF system.
-     *
-     * @param   int  $programID  the id of the degree program
-     *
-     * @return array  empty if the program could not be found
-     */
-    private function getKeys(int $programID): array
-    {
-        $aliased  = DB::qn(['p.code', 'd.code'], ['program', 'degree']);
-        $selected = DB::qn(['p.accredited', 'a.organizationID']);
-        $query    = DB::getQuery();
-        $query->select(array_merge($aliased, $selected))
-            ->from(DB::qn('#__organizer_programs', 'p'))
-            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
-            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.programID', 'p.id'))
-            ->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $programID, ParameterType::INTEGER);
-        DB::setQuery($query);
-
-        return DB::loadAssoc();
-    }
-
-    /**
      * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
      *
      * @param   int  $resourceID  the id of the resource
