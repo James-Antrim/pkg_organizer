@@ -60,7 +60,7 @@ abstract class Associated extends ResourceHelper
                 $authorized = Can::manageTheseOrganizations();
                 break;
             case 'schedule':
-                $authorized = Can::scheduleTheseOrganizations();
+                $authorized = Organizations::schedulableIDs();
                 break;
             case 'view':
                 $authorized = Can::viewTheseOrganizations();

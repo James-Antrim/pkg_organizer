@@ -79,7 +79,7 @@ class Events extends ResourceHelper
             $table     = DB::qn('#__organizer_event_coordinators', 'ec');
 
             // Check for planer access
-            if ($organizationIDs = Can::scheduleTheseOrganizations()) {
+            if ($organizationIDs = Organizations::schedulableIDs()) {
                 $query->whereIn(DB::qn('e.organizationID'), $organizationIDs);
 
                 // Coordinator entries are on-top

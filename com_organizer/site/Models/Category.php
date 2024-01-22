@@ -50,7 +50,7 @@ class Category extends BaseModel
         }
 
         // Implicitly used resources
-        $allowed  = Helpers\Can::scheduleTheseOrganizations();
+        $allowed  = Helpers\Organizations::schedulableIDs();
         $subQuery = Database::getQuery();
         $subQuery->select('DISTINCT categoryID')
             ->from('#__organizer_instance_groups AS ig')
@@ -104,7 +104,7 @@ class Category extends BaseModel
         }
 
         // Implicitly unused resources
-        $allowed  = Helpers\Can::scheduleTheseOrganizations();
+        $allowed  = Helpers\Organizations::schedulableIDs();
         $subQuery = Database::getQuery();
         $subQuery->select('DISTINCT categoryID')
             ->from('#__organizer_instance_groups AS ig')

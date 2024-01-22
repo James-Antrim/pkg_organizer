@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\{Can, Terms, Units as Helper};
+use THM\Organizer\Helpers\{Organizations, Terms, Units as Helper};
 
 /**
  * Class retrieves the data regarding a filtered set of units.
@@ -76,7 +76,7 @@ class Units extends ListModel
                 ->bind(':organizationID', $organizationID, ParameterType::INTEGER);
         }
         else {
-            $query->whereIn(DB::qn('a.organizationID'), Can::scheduleTheseOrganizations());
+            $query->whereIn(DB::qn('a.organizationID'), Organizations::schedulableIDs());
         }
 
         if ($this->state->get('filter.search')) {

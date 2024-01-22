@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\Organizations;
 
 /**
  * Class retrieves information for a filtered set of categories.
@@ -46,7 +46,7 @@ class Categories extends ListModel
         $query->select($select)
             ->from(DB::qn('#__organizer_categories', 'cat'))
             ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'cat.id'))
-            ->whereIn(DB::qn('a.organizationID'), Can::scheduleTheseOrganizations());
+            ->whereIn(DB::qn('a.organizationID'), Organizations::schedulableIDs());
 
         $this->activeFilter($query, 'cat');
         $this->filterSearch($query, ['cat.name_de', 'cat.name_en', 'cat.code']);

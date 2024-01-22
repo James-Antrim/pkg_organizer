@@ -53,7 +53,7 @@ class Group extends MergeModel
         }
 
         // Implicitly used resources
-        $allowed  = Helpers\Can::scheduleTheseOrganizations();
+        $allowed  = Helpers\Organizations::schedulableIDs();
         $subQuery = Database::getQuery();
         $subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
         $query = Database::getQuery();
@@ -138,7 +138,7 @@ class Group extends MergeModel
         }
 
         // Implicitly unused resources
-        $allowed  = Helpers\Can::scheduleTheseOrganizations();
+        $allowed  = Helpers\Organizations::schedulableIDs();
         $subQuery = Database::getQuery();
         $subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
         $query = Database::getQuery();
@@ -150,14 +150,6 @@ class Group extends MergeModel
         Database::setQuery($query);
 
         return Database::execute();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\Groups();
     }
 
     /**

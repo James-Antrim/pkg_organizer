@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, Text, User};
-use THM\Organizer\Helpers\{Can, Courses, Mailer, Units};
+use THM\Organizer\Helpers\{Can, Courses, Mailer, Organizations, Units};
 use THM\Organizer\Tables;
 
 /**
@@ -103,7 +103,7 @@ class Course extends BaseModel
             Application::error(400);
         }
 
-        if (!Can::schedule('organization', $organizationID)) {
+        if (!Organizations::schedulable($organizationID)) {
             Application::error(403);
         }
 

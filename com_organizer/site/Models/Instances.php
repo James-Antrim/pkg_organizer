@@ -78,7 +78,7 @@ class Instances extends ListModel
         }
 
         if (Application::backend()) {
-            if (count(Helpers\Can::scheduleTheseOrganizations()) === 1) {
+            if (count(Helpers\Organizations::schedulableIDs()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
             }
@@ -412,7 +412,7 @@ class Instances extends ListModel
 
             if (Application::backend()) {
                 // Empty would have already resulted in a redirect from the view authorization check.
-                $authorized = Helpers\Can::scheduleTheseOrganizations();
+                $authorized = Helpers\Organizations::schedulableIDs();
                 if (count($authorized) === 1) {
                     $organizationID = $authorized[0];
                 }

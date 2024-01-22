@@ -34,7 +34,7 @@ class Unit extends BaseModel
             return $unit->courseID;
         }
 
-        $authorized = Helpers\Can::scheduleTheseOrganizations();
+        $authorized = Helpers\Organizations::schedulableIDs();
         if (!in_array($unit->organizationID, $authorized)) {
             Application::error(403);
         }

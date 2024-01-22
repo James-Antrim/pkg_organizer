@@ -36,7 +36,7 @@ class Instances extends ListView
      */
     protected function authorize(): void
     {
-        if (Application::backend() and !Helpers\Can::scheduleTheseOrganizations()) {
+        if (Application::backend() and !Helpers\Organizations::schedulableIDs()) {
             Application::error(403);
         }
 

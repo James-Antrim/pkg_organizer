@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\Organizations;
 
 /**
  * Class retrieves information for a filtered set of groups.
@@ -30,7 +30,7 @@ class Groups extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $authorized = Can::scheduleTheseOrganizations();
+        $authorized = Organizations::schedulableIDs();
 
         $query = DB::getQuery();
         $tag   = Application::getTag();

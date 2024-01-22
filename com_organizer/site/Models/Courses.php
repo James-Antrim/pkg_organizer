@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Database, Input, User};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 
@@ -77,7 +77,7 @@ class Courses extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select("c.*, c.name_$tag AS name, MIN(u.startDate) AS startDate, MAX(u.endDate) AS endDate")
             ->from('#__organizer_courses AS c')
             ->innerJoin('#__organizer_units AS u ON u.courseID = c.id')
@@ -110,8 +110,7 @@ class Courses extends ListModel
         $this->filterSearch($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
         if (Application::backend()) {
-            $organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
-            $query->where("u.organizationID in ($organizationIDs)");
+            $query->whereIn(DB::qn('u.organizationID'), Helpers\Organizations::schedulableIDs());
         }
 
         $params      = Input::getParams();

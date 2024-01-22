@@ -12,7 +12,6 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, User};
-use THM\Organizer\Tables\Schedules;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -130,12 +129,12 @@ class Can
             case 'categories':
             case 'category':
 
-                return self::editScheduleResource('Categories', $resource);
+                return Categories::schedulable($resource);
 
             case 'group':
             case 'groups':
 
-                return self::editScheduleResource('Groups', $resource);
+                return Groups::schedulable($resource);
 
             case 'participant':
 
@@ -152,45 +151,7 @@ class Can
             case 'person':
             case 'persons':
 
-                return $resource ? self::editScheduleResource('Persons', $resource) : self::manage('persons');
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns whether the user is authorized to edit the schedule resource.
-     *
-     * @param   string     $helperClass  the name of the helper class
-     * @param   array|int  $resource     the resource id being checked or an array if resource ids to check
-     *
-     * @return bool
-     * @noinspection PhpUndefinedMethodInspection
-     */
-    private static function editScheduleResource(string $helperClass, array|int $resource): bool
-    {
-        if (empty($resource)) {
-            return false;
-        }
-
-        $authorized = self::scheduleTheseOrganizations();
-        $helper     = "THM\\Organizer\\Helpers\\$helperClass";
-
-        if (is_int($resource)) {
-            $associated = $helper::getOrganizationIDs($resource);
-
-            return (bool) array_intersect($associated, $authorized);
-        }
-        elseif (is_array($resource)) {
-            $resource = ArrayHelper::toInteger($resource);
-
-            foreach ($resource as $resourceID) {
-                if (!array_intersect($helper::getOrganizationIDs($resourceID), $authorized)) {
-                    return false;
-                }
-            }
-
-            return true;
+                return $resource ? Persons::schedulable($resource) : self::manage('persons');
         }
 
         return false;
@@ -266,52 +227,6 @@ class Can
     }
 
     /**
-     * Checks whether the user has access to scheduling resources and their respective views.
-     *
-     * @param   string  $resourceType  the resource type being checked
-     * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
-     *
-     * @return bool
-     */
-    public static function schedule(string $resourceType, int $resourceID): bool
-    {
-        if (is_bool($authorized = self::basic())) {
-            return $authorized;
-        }
-
-        if (!$resourceID) {
-            return false;
-        }
-
-        $user = User::instance();
-
-        if ($resourceType === 'schedule') {
-            $schedule = new Schedules();
-
-            if (!$schedule->load($resourceID)) {
-                return false;
-            }
-
-            return $user->authorise('organizer.schedule', "com_organizer.organization.$schedule->organizationID");
-        }
-
-        if ($resourceType === 'organization') {
-            return $user->authorise('organizer.schedule', "com_organizer.organization.$resourceID");
-        }
-
-        return false;
-    }
-
-    /**
-     * Gets the ids of organizations for which the user is authorized scheduling access
-     * @return int[]
-     */
-    public static function scheduleTheseOrganizations(): array
-    {
-        return self::authorizedIDs('schedule');
-    }
-
-    /**
      * Check whether the user is authorized to perform contact tracing.
      * @return bool
      */
@@ -347,7 +262,7 @@ class Can
             // Scheduling resources and views with no intrinsic public value and import forms
             'Categories', 'CoursesImport', 'Groups', 'MergeCategories', 'MergeEvents', 'Schedule', 'Schedules',
             'Units'
-            => (bool) self::scheduleTheseOrganizations(),
+            => (bool) Organizations::schedulableIDs(),
             // Edit views for scheduling resource with no intrinsic public value
             'Category', 'Group', 'Unit'
             => self::edit(strtolower($view), $resourceID),

@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
-use THM\Organizer\Helpers\{Campuses, Can, Courses as Helper, Dates, Participants};
+use THM\Organizer\Helpers\{Campuses, Can, Courses as Helper, Dates, Organizations, Participants};
 
 /**
  * Class which loads data into the view output context
@@ -38,7 +38,7 @@ class Courses extends ListView
             'courseStatus' => 'value'
         ];
 
-        if (Can::scheduleTheseOrganizations() or Can::coordinate('courses')) {
+        if (Organizations::schedulableIDs() or Can::coordinate('courses')) {
             $this->manages = true;
             $structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];
             unset($structure['registrationStatus']);
@@ -105,11 +105,7 @@ class Courses extends ListView
      */
     protected function authorize(): void
     {
-        if (!Application::backend()) {
-            return;
-        }
-
-        if (!Can::scheduleTheseOrganizations()) {
+        if (Application::backend() and !Organizations::schedulableIDs()) {
             Application::error(403);
         }
     }

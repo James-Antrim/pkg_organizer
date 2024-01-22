@@ -33,7 +33,7 @@ class InstanceEvents extends Options
         $options = parent::getOptions();
 
         $personID   = Helpers\Persons::getIDByUserID();
-        $plannedIDs = Helpers\Can::scheduleTheseOrganizations();
+        $plannedIDs = Helpers\Organizations::schedulableIDs();
 
         if (empty($personID) and empty($plannedIDs)) {
             return $options;

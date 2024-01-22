@@ -57,7 +57,7 @@ class OrganizationAssociations extends Options
             case 'category':
             case 'event':
             case 'group':
-                return Helpers\Can::scheduleTheseOrganizations();
+                return Helpers\Organizations::schedulableIDs();
             case 'fieldcolor':
             case 'pool':
             case 'program':

@@ -39,7 +39,7 @@ trait ToCed
         );
 
 
-        if (Can::scheduleTheseOrganizations()) {
+        if (Organizations::schedulableIDs()) {
             $spanText = Text::_('SCHEDULING');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';

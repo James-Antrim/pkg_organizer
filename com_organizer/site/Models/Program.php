@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Can, Documentable, LSF, Organizations, Programs as Helper};
+use THM\Organizer\Helpers\{Documentable, LSF, Organizations, Programs as Helper};
 use THM\Organizer\Tables\Programs as Table;
 
 /**
@@ -192,7 +192,7 @@ class Program extends CurriculumResource
         if (empty($data['id'])) {
             // New program can be saved explicitly by documenters or implicitly by schedulers.
             $documentationAccess = (bool) Organizations::documentableIDs();
-            $schedulingAccess    = (bool) Can::scheduleTheseOrganizations();
+            $schedulingAccess    = (bool) Organizations::schedulableIDs();
 
             if (!($documentationAccess or $schedulingAccess)) {
                 Application::error(403);

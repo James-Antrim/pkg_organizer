@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Table\Table;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, User};
+use THM\Organizer\Adapters\{Application, Database, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\{BaseTable, Schedules};
@@ -174,7 +174,7 @@ class Schedule extends BaseModel
      */
     public function delete(): bool
     {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
+        if (!Helpers\Organizations::schedulableIDs()) {
             Application::error(403);
         }
 
@@ -245,7 +245,7 @@ class Schedule extends BaseModel
      */
     private function deleteSingle($scheduleID): bool
     {
-        if (!Helpers\Can::schedule('schedule', $scheduleID)) {
+        if (!Helpers\Organizations::schedulable($scheduleID)) {
             Application::error(403);
         }
 
@@ -398,7 +398,7 @@ class Schedule extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::schedule('organization', $organizationID)) {
+        if (!Helpers\Organizations::schedulable($organizationID)) {
             Application::error(403);
         }
 
@@ -429,7 +429,7 @@ class Schedule extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::schedule('schedule', $referenceID)) {
+        if (!Helpers\Organizations::schedulable($referenceID)) {
             Application::error(403);
         }
 
@@ -964,7 +964,7 @@ class Schedule extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::schedule('organization', $organizationID)) {
+        if (!Helpers\Organizations::schedulable($organizationID)) {
             Application::error(403);
         }
 

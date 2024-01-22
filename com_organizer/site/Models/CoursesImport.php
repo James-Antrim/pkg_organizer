@@ -25,7 +25,7 @@ class CoursesImport extends EditModelOld
      */
     public function authorize()
     {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
+        if (!Helpers\Organizations::schedulableIDs()) {
             Application::error(403);
         }
     }

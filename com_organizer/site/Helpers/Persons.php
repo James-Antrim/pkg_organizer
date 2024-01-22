@@ -18,7 +18,7 @@ use THM\Organizer\Tables\{Persons as Table};
 /**
  * Provides general functions for person access checks, data retrieval and display.
  */
-class Persons extends Associated implements Selectable
+class Persons extends Planned implements Selectable
 {
     use Active;
     use Suppressed;
@@ -277,7 +277,7 @@ class Persons extends Associated implements Selectable
 
         $wherray = [];
 
-        if (self::getIDByUserID() and $userName = User::username()) {
+        if (self::getIDByUserID() and $userName = User::userName()) {
             $wherray[] = DB::qn('p.username') . ' = :username';
             $query->bind(':username', $userName);
         }

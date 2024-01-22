@@ -16,7 +16,7 @@ use Joomla\Database\ParameterType;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Categories extends Associated implements Selectable
+class Categories extends Planned implements Selectable
 {
     use Active;
     use Filtered;

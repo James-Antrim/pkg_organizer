@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\Organizations;
 
 /**
  * Class retrieves information for a filtered set of schedules.
@@ -46,7 +46,7 @@ class Schedules extends ListModel
             ->innerJoin(DB::qn('#__users', 'u'), DB::qc('u.id', 's.userID'))
             ->order(DB::qn('created') . ' DESC');
 
-        $query->whereIn(DB::qn('o.id'), Can::scheduleTheseOrganizations());
+        $query->whereIn(DB::qn('o.id'), Organizations::schedulableIDs());
 
         $this->filterValues($query, ['organizationID', 'termID']);
 

@@ -17,7 +17,7 @@ use THM\Organizer\Tables;
 /**
  * Provides general functions for organization access checks, data retrieval and display.
  */
-class Organizations extends ResourceHelper implements Documentable, Selectable
+class Organizations extends ResourceHelper implements Documentable, Schedulable, Selectable
 {
     use Active;
     use Numbered;
@@ -45,7 +45,7 @@ class Organizations extends ResourceHelper implements Documentable, Selectable
                 if (in_array($resource, ['category', 'person'])) {
                     $query->where("a.{$resource}ID IS NOT NULL");
                 }
-                $allowedIDs = Can::scheduleTheseOrganizations();
+                $allowedIDs = self::schedulableIDs();
                 break;
             case 'document':
                 $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
@@ -62,14 +62,14 @@ class Organizations extends ResourceHelper implements Documentable, Selectable
                 if (in_array($resource, ['category', 'person'])) {
                     $query->where("a.{$resource}ID IS NOT NULL");
                 }
-                $allowedIDs = Can::scheduleTheseOrganizations();
+                $allowedIDs = self::schedulableIDs();
                 break;
             case 'teach':
-                $managedIDs   = Can::manageTheseOrganizations();
-                $scheduledIDs = Can::scheduleTheseOrganizations();
-                $taughtIDs    = Persons::taughtOrganizations();
-                $viewedIDs    = Can::viewTheseOrganizations();
-                $allowedIDs   = array_merge($managedIDs, $scheduledIDs, $taughtIDs, $viewedIDs);
+                $managedIDs     = Can::manageTheseOrganizations();
+                $schedulableIDs = self::schedulableIDs();
+                $taughtIDs      = Persons::taughtOrganizations();
+                $viewedIDs      = Can::viewTheseOrganizations();
+                $allowedIDs     = array_merge($managedIDs, $schedulableIDs, $taughtIDs, $viewedIDs);
                 break;
             case 'view':
                 $allowedIDs = Can::viewTheseOrganizations();
@@ -240,5 +240,33 @@ class Organizations extends ResourceHelper implements Documentable, Selectable
         DB::setQuery($query);
 
         return DB::loadAssocList('id');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function schedulable(int $resourceID): bool
+    {
+        return User::instance()->authorise('organizer.schedule', "com_organizer.organization.$resourceID");
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function schedulableIDs(): array
+    {
+        if (!User::id()) {
+            return [];
+        }
+
+        $organizationIDs = self::getIDs();
+
+        foreach ($organizationIDs as $index => $organizationID) {
+            if (!self::schedulable($organizationID)) {
+                unset($organizationIDs[$index]);
+            }
+        }
+
+        return $organizationIDs;
     }
 }
