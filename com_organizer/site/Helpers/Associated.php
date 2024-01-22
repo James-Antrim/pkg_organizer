@@ -50,8 +50,6 @@ abstract class Associated extends ResourceHelper
      */
     public static function filterByAccess(DatabaseQuery $query, string $alias, string $access): void
     {
-        $authorized = [];
-
         switch ($access) {
             case 'document':
                 $authorized = Organizations::documentableIDs();
@@ -65,6 +63,8 @@ abstract class Associated extends ResourceHelper
             case 'view':
                 $authorized = Can::viewTheseOrganizations();
                 break;
+            default:
+                return;
         }
 
         // Alias 'aaf' so as not to conflict with the access filter.
@@ -74,7 +74,8 @@ abstract class Associated extends ResourceHelper
 
     /**
      * Adds organization filter clauses to the given query. In the associated trait, because tables with an internal column
-     * should use the filterByKey function.
+     * should use the filterByKey function. Explicitly named because of its availability through inheriting classes and not the
+     * organizations helper.
      *
      * @param   DatabaseQuery  $query           the query to modify
      * @param   string         $alias           the alias of the table where the campusID is a column

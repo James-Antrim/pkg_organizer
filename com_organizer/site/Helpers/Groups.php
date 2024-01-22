@@ -155,31 +155,19 @@ class Groups extends Scheduled implements Selectable
      */
     public static function resources(string $access = ''): array
     {
-        if ($categoryID = Input::getInt('categoryID')) {
-            $categoryIDs = [$categoryID];
-        }
-
-        $categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
-        $categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
-
+        $categoryID     = Input::getInt('categoryID');
         $organizationID = Input::getInt('organizationID');
 
-        if (empty($categoryIDs) and empty($organizationID)) {
+        if (!$categoryID and !$organizationID) {
             return [];
         }
 
         $query = DB::getQuery();
         $query->select(DB::qn('g') . '.*')->from(DB::qn('#__organizer_groups', 'g'));
 
-        if (!empty($access)) {
-            self::filterByAccess($query, 'g', $access);
-        }
-
+        self::filterByAccess($query, 'g', $access);
+        Categories::filterBy($query, 'g', $categoryID);
         self::filterByOrganization($query, 'g', $organizationID);
-
-        if (!empty($categoryIDs)) {
-            self::filterResources($query, 'category', 'cat', 'g');
-        }
 
         DB::setQuery($query);
 

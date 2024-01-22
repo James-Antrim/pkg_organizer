@@ -11,12 +11,13 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use Joomla\Database\DatabaseQuery;
 use Joomla\Database\ParameterType;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Categories extends Scheduled implements Selectable
+class Categories extends Scheduled implements Filterable, Selectable
 {
     use Active;
     use Filtered;
@@ -24,6 +25,29 @@ class Categories extends Scheduled implements Selectable
     use Suppressed;
 
     protected static string $resource = 'category';
+
+    /**
+     * @inheritDoc
+     */
+    public static function filterBy(DatabaseQuery $query, string $alias, int $resourceID): void
+    {
+        if ($resourceID === self::UNSELECTED) {
+            return;
+        }
+
+        $tableID   = DB::qn('categoryAlias.id');
+        $condition = DB::qc('categoryAlias.id', "$alias.categoryID");
+        $table     = DB::qn("#__organizer_categories", 'categoryAlias');
+
+        if ($resourceID === self::NONE) {
+            $query->leftJoin($table, $condition)->where("$tableID.id IS NULL");
+            return;
+        }
+
+        $query->innerJoin($table, $condition)
+            ->where("$tableID = :categoryID")
+            ->bind(':categoryID', $resourceID, ParameterType::INTEGER);
+    }
 
     /**
      * Retrieves the groups associated with a category.
@@ -87,10 +111,7 @@ class Categories extends Scheduled implements Selectable
             ->from(DB::qn('#__organizer_categories', 'c'))
             ->order($order);
 
-        if (!empty($access)) {
-            self::filterByAccess($query, 'c', $access);
-        }
-
+        self::filterByAccess($query, 'c', $access);
         self::filterByOrganization($query, 'c', Input::getInt('organizationID'));
         DB::setQuery($query);
 

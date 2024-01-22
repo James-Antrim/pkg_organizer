@@ -293,9 +293,7 @@ class Pools extends Curricula implements Selectable
             ->bind(':right', $ranges[0]['rgt'], ParameterType::INTEGER)
             ->order('name');
 
-        if (!empty($access)) {
-            self::filterByAccess($query, 'p', $access);
-        }
+        self::filterByAccess($query, 'p', $access);
 
         DB::setQuery($query);
 

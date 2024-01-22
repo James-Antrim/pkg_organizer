@@ -17,23 +17,17 @@ use THM\Organizer\Tables;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Campuses extends ResourceHelper implements Selectable
+class Campuses extends ResourceHelper implements Filterable, Selectable
 {
     use Active;
     use Pinned;
 
     /**
-     * Adds campus filter clauses to the given query.
-     *
-     * @param   DatabaseQuery  $query     the query to modify
-     * @param   string         $alias     the alias of the table where the campusID is a column
-     * @param   int            $campusID  the id of the campus to use as a filter
-     *
-     * @return void
+     * @inheritDoc
      */
-    public static function filterBy(DatabaseQuery $query, string $alias, int $campusID): void
+    public static function filterBy(DatabaseQuery $query, string $alias, int $resourceID): void
     {
-        if ($campusID === self::UNSELECTED) {
+        if ($resourceID === self::UNSELECTED) {
             return;
         }
 
@@ -41,7 +35,7 @@ class Campuses extends ResourceHelper implements Selectable
         $condition = DB::qc('campusAlias.id', "$alias.campusID");
         $table     = DB::qn('#__organizer_campuses', 'campusAlias');
 
-        if ($campusID === self::NONE) {
+        if ($resourceID === self::NONE) {
             $query->leftJoin($table, $condition)->where("$tableID IS NULL");
 
             return;
@@ -50,8 +44,8 @@ class Campuses extends ResourceHelper implements Selectable
         $parentID = DB::qn('campusAlias.parentID');
         $query->innerJoin($table, $condition)
             ->where("($tableID = :campusID OR $parentID = :pCampusID)")
-            ->bind(':campusID', $campusID, ParameterType::INTEGER)
-            ->bind(':pCampusID', $campusID, ParameterType::INTEGER);
+            ->bind(':campusID', $resourceID, ParameterType::INTEGER)
+            ->bind(':pCampusID', $resourceID, ParameterType::INTEGER);
     }
 
     /**

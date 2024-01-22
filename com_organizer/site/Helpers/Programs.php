@@ -163,10 +163,7 @@ class Programs extends Curricula implements Selectable
             ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
             ->order(DB::qn('name'));
 
-        if ($access) {
-            self::filterByAccess($query, 'p', $access);
-        }
-
+        self::filterByAccess($query, 'p', $access);
         self::filterByOrganization($query, 'p', Input::getInt('organizationID'));
 
         if (self::useCurrent()) {
