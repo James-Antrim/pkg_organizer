@@ -23,7 +23,6 @@ class Rooms extends ResourceHelper implements Selectable
     public const PHYSICAL = 0;
 
     use Active;
-    use Filtered;
     use Suppressed;
 
     /**
@@ -110,13 +109,13 @@ class Rooms extends ResourceHelper implements Selectable
             ->from(DB::qn('#__organizer_rooms', 'r'))
             ->innerJoin(DB::qn('#__organizer_roomtypes', 'rt'), DB::qc('rt.id', 'r.roomtypeID'))
             ->order(DB::qn('name'));
-        self::filterResources($query, 'building', 'b1', 'r');
 
         if ($typeID = Input::getInt('roomtypeID')) {
             $query->where(DB::qn('rt.id') . ' = :typeID')->bind(':typeID', $typeID, ParameterType::INTEGER);
         }
 
         self::activeFilter($query, 'r');
+        Buildings::filterBy($query, 'r', Input::getInt('buildingID'));
         self::suppressedFilter($query, 'r');
 
         if ($campusID = Input::getInt('campusID')) {

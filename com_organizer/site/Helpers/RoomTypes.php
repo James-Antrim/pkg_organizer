@@ -17,7 +17,6 @@ use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
  */
 class RoomTypes extends ResourceHelper implements Selectable
 {
-    use Filtered;
     use Suppressed;
 
     private const NO = false, YES = true;
@@ -66,7 +65,7 @@ class RoomTypes extends ResourceHelper implements Selectable
             $query->where(DB::qn('r.roomtypeID') . ' IS NULL');
         }
 
-        self::filterResources($query, 'building', 'b1', 'r');
+        Buildings::filterBy($query, 'r', Input::getInt('buildingID'));
 
         if ($campusID = Input::getInt('campusID')) {
             $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));

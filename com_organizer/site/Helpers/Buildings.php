@@ -11,18 +11,42 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\{Database as DB, HTML, Input};
+use Joomla\Database\DatabaseQuery;
+use Joomla\Database\ParameterType;
 use THM\Organizer\Tables\Buildings as Table;
 
 /**
  * Class provides general functions for retrieving building data.
  */
-class Buildings extends ResourceHelper implements Selectable
+class Buildings extends ResourceHelper implements Filterable, Selectable
 {
     use Active;
-    use Filtered;
     use Pinned;
 
     public const OWNED = 1, RENTED = 2, USED = 3;
+
+    /**
+     * @inheritDoc
+     */
+    public static function filterBy(DatabaseQuery $query, string $alias, int $resourceID): void
+    {
+        if ($resourceID === self::UNSELECTED) {
+            return;
+        }
+
+        $tableID   = DB::qn('buildingAlias.id');
+        $condition = DB::qc('buildingAlias.id', "$alias.buildingID");
+        $table     = DB::qn("#__organizer_buildings", 'buildingAlias');
+
+        if ($resourceID === self::NONE) {
+            $query->leftJoin($table, $condition)->where("$tableID.id IS NULL");
+            return;
+        }
+
+        $query->innerJoin($table, $condition)
+            ->where("$tableID = :buildingID")
+            ->bind(':buildingID', $resourceID, ParameterType::INTEGER);
+    }
 
     /**
      * @inheritDoc

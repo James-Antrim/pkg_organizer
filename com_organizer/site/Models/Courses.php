@@ -20,8 +20,6 @@ use THM\Organizer\Helpers;
  */
 class Courses extends ListModel
 {
-    use Helpers\Filtered;
-
     protected string $defaultOrdering = 'dates';
 
     protected $filter_fields = ['campusID', 'status', 'termID'];

@@ -20,7 +20,6 @@ use Joomla\Database\ParameterType;
 class Categories extends Scheduled implements Filterable, Selectable
 {
     use Active;
-    use Filtered;
     use Numbered;
     use Suppressed;
 

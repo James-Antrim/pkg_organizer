@@ -21,7 +21,6 @@ use THM\Organizer\Tables\Groups as Group;
 class Groups extends Scheduled implements Selectable
 {
     use Active;
-    use Filtered;
     use Terminated;
     use Suppressed;
 

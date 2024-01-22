@@ -19,8 +19,6 @@ use THM\Organizer\Tables\Associations as Association;
  */
 abstract class Associated extends ResourceHelper
 {
-    use Filtered;
-
     protected static string $resource = '';
 
     /**

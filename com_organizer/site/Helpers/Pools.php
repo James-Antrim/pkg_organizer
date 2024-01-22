@@ -19,8 +19,6 @@ use THM\Organizer\Tables\Pools as Table;
  */
 class Pools extends Curricula implements Selectable
 {
-    use Filtered;
-
     protected static string $resource = 'pool';
 
     /**
