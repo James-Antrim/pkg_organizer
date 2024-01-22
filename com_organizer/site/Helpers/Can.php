@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, User};
 
 /**
@@ -68,7 +67,7 @@ class Can
     }
 
     /**
-     * Performs ubiquitous authorization checks for three fundemental values:
+     * Performs ubiquitous authorization checks for three fundamental values:
      * 0 - unauthenticated
      * null - indeterminate
      * 1 - component/site administrator

@@ -16,7 +16,7 @@ namespace THM\Organizer\Helpers;
 interface Schedulable
 {
     /**
-     * Checks whether the user is authorized to plan the given resource.
+     * Checks whether the user is authorized to schedule the given resource.
      *
      * @param   int  $resourceID  the id of the resource to check documentation access for.
      *
@@ -25,7 +25,7 @@ interface Schedulable
     public static function schedulable(int $resourceID): bool;
 
     /**
-     * Retrieves the resources plannable for the user.
+     * Retrieves the resources schedulable for the user.
      *
      * @return int[]
      */
