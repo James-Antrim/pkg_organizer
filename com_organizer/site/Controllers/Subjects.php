@@ -13,9 +13,15 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Subjects extends ListController
+class Subjects extends CurriculumResources
 {
-    use Imported;
-
     protected string $item = 'Subject';
+
+    /**
+     * @inheritDoc
+     */
+    public function importSingle(int $resourceID): bool
+    {
+        // TODO: Implement importSingle() method.
+    }
 }

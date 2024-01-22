@@ -17,10 +17,9 @@ use THM\Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Programs extends ListController
+class Programs extends CurriculumResources
 {
     use Activated;
-    use Imported;
 
     protected string $item = 'Program';
 
@@ -41,5 +40,13 @@ class Programs extends ListController
 
         $url = Helpers\Routing::getRedirectBase() . '&view=' . Application::getClass($this);
         $this->setRedirect($url);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function importSingle(int $resourceID): bool
+    {
+        // TODO: Implement importSingle() method.
     }
 }

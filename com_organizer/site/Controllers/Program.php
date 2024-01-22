@@ -13,9 +13,9 @@ namespace THM\Organizer\Controllers;
 /**
  * @inheritDoc
  */
-class Subject extends CurriculumResource
+class Program extends CurriculumResource
 {
-    protected string $list = 'Subjects';
+    protected string $list = 'Programs';
 
     protected function import(int $resourceID): void
     {

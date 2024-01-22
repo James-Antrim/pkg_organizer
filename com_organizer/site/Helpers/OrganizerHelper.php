@@ -48,27 +48,6 @@ class OrganizerHelper
     }
 
     /**
-     * Gets the name of an object's class without its namespace.
-     *
-     * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
-     *                                  loaded
-     *
-     * @return string the name of the class without its namespace
-     */
-    public static function getClass(object|string $object): string
-    {
-        $fqName   = is_string($object) ? $object : get_class($object);
-        $nsParts  = explode('\\', $fqName);
-        $lastItem = array_pop($nsParts);
-
-        if (empty($lastItem)) {
-            return 'Organizer';
-        }
-
-        return self::classDecode($lastItem);
-    }
-
-    /**
      * Creates the plural of the given resource.
      *
      * @param   string  $resource  the resource for which the plural is needed
