@@ -79,56 +79,9 @@ class OrganizerHelper
     {
         return match ($resource) {
             'equipment', 'organizer' => $resource,
-            mb_substr($resource, -1) == 's' => $resource . 'es',
+            mb_substr($resource, -1) === 's' => $resource . 'es',
             mb_substr($resource, -2) == 'ry' => mb_substr($resource, 0, mb_strlen($resource) - 1) . 'ies',
             default => $resource . 's',
         };
-    }
-
-    /**
-     * Resolves a view name to the corresponding resource.
-     *
-     * @param   string  $view  the view for which the resource is needed
-     *
-     * @return string the resource name
-     */
-    public static function getResource(string $view): string
-    {
-        $initial       = strtolower($view);
-        $withoutSuffix = preg_replace('/_?(edit|import|item|manager|merge|statistics)$/', '', $initial);
-        if ($withoutSuffix !== $initial) {
-            return $withoutSuffix;
-        }
-
-        $listViews = [
-            'campuses'      => 'campus',
-            'categories'    => 'category',
-            'courses'       => 'course',
-            'colors'        => 'color',
-            'degrees'       => 'degree',
-            'grids'         => 'grid',
-            'groups'        => 'group',
-            'equipment'     => 'equipment',
-            'events'        => 'event',
-            'fields'        => 'field',
-            'fieldcolors'   => 'fieldcolor',
-            'holidays'      => 'holiday',
-            'methods'       => 'method',
-            'organizations' => 'organization',
-            'participants'  => 'participant',
-            'persons'       => 'person',
-            'pools'         => 'pool',
-            'programs'      => 'program',
-            'rooms'         => 'room',
-            'roomtypes'     => 'roomtype',
-            'schedules'     => 'schedule',
-            'search'        => 'search',
-            'subjects'      => 'subject',
-            'terms'         => 'term',
-            'trace'         => '',
-            'units'         => 'unit'
-        ];
-
-        return $listViews[$initial];
     }
 }

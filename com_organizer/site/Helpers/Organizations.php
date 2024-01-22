@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, User};
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\Organizations as Table;
 
 /**
  * Provides general functions for organization access checks, data retrieval and display.
@@ -23,66 +23,6 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     use Numbered;
 
     /**
-     * Filters organizations according to user access and relevant resource associations.
-     *
-     * @param   DatabaseQuery  $query   the query to modify
-     * @param   string         $access  any access restriction which should be performed
-     *
-     * @return void modifies the query
-     */
-    private static function addAccessFilter(DatabaseQuery $query, string $access): void
-    {
-        if (!$access or !$view = Input::getView()) {
-            return;
-        }
-
-        $resource = OrganizerHelper::getResource($view);
-
-        switch ($access) {
-            case 'allowScheduling':
-                $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')
-                    ->where('o.allowScheduling = 1');
-                if (in_array($resource, ['category', 'person'])) {
-                    $query->where("a.{$resource}ID IS NOT NULL");
-                }
-                $allowedIDs = self::schedulableIDs();
-                break;
-            case 'document':
-                $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
-                if (in_array($resource, ['pool', 'program', 'subject'])) {
-                    $query->where("a.{$resource}ID IS NOT NULL");
-                }
-                $allowedIDs = self::documentableIDs();
-                break;
-            case 'manage':
-                $allowedIDs = Can::manageTheseOrganizations();
-                break;
-            case 'schedule':
-                $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
-                if (in_array($resource, ['category', 'person'])) {
-                    $query->where("a.{$resource}ID IS NOT NULL");
-                }
-                $allowedIDs = self::schedulableIDs();
-                break;
-            case 'teach':
-                $managedIDs     = Can::manageTheseOrganizations();
-                $schedulableIDs = self::schedulableIDs();
-                $taughtIDs      = Persons::taughtOrganizations();
-                $viewedIDs      = Can::viewTheseOrganizations();
-                $allowedIDs     = array_merge($managedIDs, $schedulableIDs, $taughtIDs, $viewedIDs);
-                break;
-            case 'view':
-                $allowedIDs = Can::viewTheseOrganizations();
-                break;
-            default:
-                // Access right does not exist for organization resource.
-                return;
-        }
-
-        $query->where("o.id IN ( '" . implode("', '", $allowedIDs) . "' )");
-    }
-
-    /**
      * Checks whether direct scheduling has been allowed for the given organization id.
      *
      * @param   int  $organizationID  the id of the organization
@@ -91,7 +31,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
      */
     public static function allowsScheduling(int $organizationID): bool
     {
-        $organization = new Tables\Organizations();
+        $organization = new Table();
 
         if (!$organization->load($organizationID)) {
             Application::error(412);
@@ -112,13 +52,14 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     {
         $tag   = Application::getTag();
         $query = DB::getQuery();
-        $query->select("c.id, code, name_$tag AS name")
-            ->from('#__organizer_categories AS c')
-            ->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
-            ->where("a.organizationID = $organizationID");
+        $query->select(array_merge(DB::qn(['c.id', 'code'], [DB::qn("name_$tag", 'name')])))
+            ->from(DB::qn('#__organizer_categories', 'c'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'c.id'))
+            ->where(DB::qn('a.organizationID') . ' = :organizationID')
+            ->bind(':organizationID', $organizationID, ParameterType::INTEGER);
 
         if ($active) {
-            $query->where('c.active = 1');
+            $query->where(DB::qn('c.active') . ' = 1');
         }
 
         DB::setQuery($query);
@@ -136,15 +77,16 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     public static function defaultGrid(int $organizationID): int
     {
         $query = DB::getQuery();
-        $query->select('u.gridID, COUNT(*) AS occurrences')
-            ->from('#__organizer_units AS u')
-            ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-            ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-            ->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
-            ->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
-            ->where("a.organizationID = $organizationID")
-            ->group('u.gridID')
-            ->order('occurrences DESC');
+        $query->select([DB::qn('u.gridID'), 'COUNT(*) AS ' . DB::qn('occurrences')])
+            ->from(DB::qn('#__organizer_units', 'u'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe'), DB::qc('ipe.instanceID', 'i.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ipe.id'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.groupID', 'ig.groupID'))
+            ->where(DB::qn('a.organizationID') . ' = :organizationID')
+            ->bind(':organizationID', $organizationID, ParameterType::INTEGER)
+            ->group(DB::qn('u.gridID'))
+            ->order(DB::qn('occurrences') . ' DESC');
         DB::setQuery($query);
 
         if ($results = DB::loadAssoc()) {
@@ -236,7 +178,75 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
         $tag   = Application::getTag();
         $query->select(['DISTINCT ' . DB::qn('o') . '.*', DB::qn("o.shortName_$tag", 'shortName'), DB::qn("o.name_$tag", 'name')])
             ->from(DB::qn('#__organizer_organizations', 'o'));
-        self::addAccessFilter($query, $access);
+
+        if ($access) {
+            $allowedIDs = [];
+            $view       = strtolower(Input::getView());
+
+            switch ($access) {
+                case 'allowScheduling':
+                case 'schedule':
+
+                    $allowedIDs = self::schedulableIDs();
+                    $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.organizationID', 'o.id'));
+
+                    if ($access === 'allowScheduling') {
+                        $query->where(DB::qn('o.allowScheduling') . ' = 1');
+                    }
+
+                    switch ($view) {
+                        case 'categories':
+                            $query->where(DB::qn('a.categoryID') . ' IS NOT NULL');
+                            break;
+                        case 'events':
+                            $query->innerJoin(DB::qn('#__organizer_events', 'e'), DB::qc('e.id', 'o.id'));
+                            break;
+                        case 'groups':
+                            $query->where(DB::qn('a.groupID') . ' IS NOT NULL');
+                            break;
+                        case 'schedules':
+                        default:
+                            break;
+                    }
+
+                    break;
+
+                case 'document':
+
+                    $allowedIDs = self::documentableIDs();
+                    $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.organizationID', 'o.id'));
+
+                    switch ($view) {
+                        case 'pools':
+                            $query->where(DB::qn('a.poolID') . ' IS NOT NULL');
+                            break;
+                        case 'programs':
+                            $query->where(DB::qn('a.programID') . ' IS NOT NULL');
+                            break;
+                        case 'subjects':
+                            $query->where(DB::qn('a.subjectID') . ' IS NOT NULL');
+                            break;
+                        case 'schedules':
+                        default:
+                            break;
+                    }
+
+                    break;
+                case 'teach':
+                    $managedIDs     = Can::manageTheseOrganizations();
+                    $schedulableIDs = self::schedulableIDs();
+                    $taughtIDs      = Persons::taughtOrganizations();
+                    $viewedIDs      = Can::viewTheseOrganizations();
+                    $allowedIDs     = array_merge($managedIDs, $schedulableIDs, $taughtIDs, $viewedIDs);
+                    break;
+                default:
+                    // Requested authorization does not exist for the organization resource.
+                    Application::error(501);
+            }
+
+            $query->whereIn(DB::qn('o.id'), $allowedIDs);
+        }
+
         DB::setQuery($query);
 
         return DB::loadAssocList('id');
