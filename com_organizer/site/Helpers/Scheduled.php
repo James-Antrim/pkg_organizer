@@ -16,7 +16,7 @@ use THM\Organizer\Adapters\Database as DB;
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.
  */
-abstract class Planned extends Associated implements Schedulable
+abstract class Scheduled extends Associated implements Schedulable
 {
     /**
      * @inheritDoc

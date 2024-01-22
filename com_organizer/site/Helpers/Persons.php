@@ -18,7 +18,7 @@ use THM\Organizer\Tables\{Persons as Table};
 /**
  * Provides general functions for person access checks, data retrieval and display.
  */
-class Persons extends Planned implements Selectable
+class Persons extends Scheduled implements Selectable
 {
     use Active;
     use Suppressed;

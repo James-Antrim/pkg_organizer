@@ -18,7 +18,7 @@ use THM\Organizer\Tables\Groups as Group;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Groups extends Planned implements Selectable
+class Groups extends Scheduled implements Selectable
 {
     use Active;
     use Filtered;
