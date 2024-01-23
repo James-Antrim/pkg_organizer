@@ -10,6 +10,8 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Application;
+
 /**
  * @inheritDoc
  */
@@ -17,8 +19,16 @@ class Pool extends CurriculumResource
 {
     protected string $list = 'Pools';
 
-    protected function import(int $resourceID): void
+    /**
+     * @inheritDoc
+     */
+    public function import(int $resourceID): bool
     {
-        // TODO: Implement import() method.
+        /**
+         * This resource is completely inadequately maintained for actual documentation purposes, and is instead used for internal
+         * metric validation. The actual data used for basic temporary modeling is delivered with its superordinate program.
+         */
+        Application::error(501);
+        return false;
     }
 }

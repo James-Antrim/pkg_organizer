@@ -16,16 +16,4 @@ namespace THM\Organizer\Controllers;
 class Pools extends CurriculumResources
 {
     protected string $item = 'Pool';
-
-    /**
-     * @inheritDoc
-     */
-    public function importSingle(int $resourceID): bool
-    {
-        /**
-         * This resource is completely inadequately maintained for actual documentation purposes, and is instead used for internal
-         * metric validation. The actual data used for basic temporary modeling is delivered with its superordinate program.
-         */
-        return true;
-    }
 }

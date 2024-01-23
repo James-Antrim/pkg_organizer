@@ -37,15 +37,6 @@ class Pool extends CurriculumResource
     }
 
     /**
-     * @inheritDoc
-     */
-    public function importSingle(int $resourceID): bool
-    {
-        // There is no legitimate call to this method.
-        return false;
-    }
-
-    /**
      * Creates a pool entry if none exists and calls
      *
      * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary subject data
@@ -74,14 +65,14 @@ class Pool extends CurriculumResource
             }
 
             $pool->lsfID = $lsfID;
-            $this->setNameAttributes($pool, $XMLObject);
+            $this->setNames($pool, $XMLObject);
 
             if (!$pool->store()) {
                 return false;
             }
         }
         elseif ($blocked or !$validTitle or $noChildren) {
-            return $this->deleteSingle($pool->id);
+            return $this->delete($pool->id);
         }
 
         $curricula = new Curricula();

@@ -15,6 +15,9 @@ namespace THM\Organizer\Controllers;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\{Documentable, Organizations};
 
+/**
+ * Class performs access checks, user actions and redirection for listed curriculum resources.
+ */
 abstract class CurriculumResources extends ListController
 {
     use Ranges;
@@ -46,39 +49,24 @@ abstract class CurriculumResources extends ListController
         }
 
         /** @var Documentable $helper */
-        $helper   = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
-        $deleted  = 0;
-        $selected = count($selectedIDs);
+        $helper     = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
+        $controller = $this->item;
+        $deleted    = 0;
+        $selected   = count($selectedIDs);
 
+        /** @var CurriculumResource $controller */
+        $controller = new $controller();
         foreach ($selectedIDs as $selectedID) {
             if (!$helper::documentable($selectedID)) {
                 Application::error(403);
             }
 
-            if ($this->deleteSingle($selectedID)) {
+            if ($controller->delete($selectedID)) {
                 $deleted++;
             }
         }
 
         $this->farewell($selected, $deleted, true);
-    }
-
-    /**
-     * Method to delete data associated with an individual curriculum resource.
-     *
-     * @param   int  $resourceID  the resource id
-     *
-     * @return bool
-     */
-    protected function deleteSingle(int $resourceID): bool
-    {
-        if (!$this->deleteRanges($resourceID)) {
-            return false;
-        }
-
-        $table = $this->getTable();
-
-        return $table->delete($resourceID);
     }
 
     /**
@@ -100,24 +88,18 @@ abstract class CurriculumResources extends ListController
             return;
         }
 
-        $imported = 0;
-        $selected = count($selectedIDs);
+        $controller = $this->item;
+        $imported   = 0;
+        $selected   = count($selectedIDs);
 
+        /** @var CurriculumResource $controller */
+        $controller = new $controller();
         foreach ($selectedIDs as $selectedID) {
-            if ($this->importSingle($selectedID)) {
+            if ($controller->import($selectedID)) {
                 $imported++;
             }
         }
 
         $this->farewell($selected, $imported);
     }
-
-    /**
-     * Method to import data associated with an individual curriculum resource.
-     *
-     * @param   int  $resourceID  the id of the program to be imported
-     *
-     * @return bool
-     */
-    abstract public function importSingle(int $resourceID): bool;
 }

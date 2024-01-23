@@ -18,7 +18,7 @@ use Joomla\CMS\Table\Table;
 use THM\Organizer\Adapters\{Application, Input, Text};
 
 /**
- * Class receives user actions and performs access checks and redirection.
+ * Class performs access checks, user actions and redirection for listed resources.
  */
 abstract class ListController extends Controller
 {

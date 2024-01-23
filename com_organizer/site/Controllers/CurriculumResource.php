@@ -11,8 +11,9 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Database as DB;
+use SimpleXMLElement;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Tables\{Pools, Subjects};
 
 /**
  * @inheritDoc
@@ -20,6 +21,8 @@ use THM\Organizer\Adapters\Database as DB;
 abstract class CurriculumResource extends FormController
 {
     use Ranges;
+
+    protected const NONE = -1, POOL = 'K', SUBJECT = 'M';
 
     /**
      * Creates a new resource, imports external data, and redirects to the same view of the same resource.
@@ -36,23 +39,33 @@ abstract class CurriculumResource extends FormController
         $this->setRedirect("$this->baseURL&view=$this->name&id=$id");
     }
 
-    abstract protected function import(int $resourceID): void;
-
-
     /**
-     * Saves the resource, imports external data and redirects to the list view.
-     * @return void
+     * Method to delete data associated with an individual curriculum resource. Authorized in the list view delete, import and
+     * update functions. Authorized in the form views in the apply- & saveImport functions.
+     *
+     * @param   int  $resourceID  the resource id
+     *
+     * @return bool
      */
-    public function saveImport(): void
+    public function delete(int $resourceID): bool
     {
-        if (Application::getClass(get_called_class()) === 'Pool') {
-            Application::error(501);
+        if (!$this->deleteRanges($resourceID)) {
+            return false;
         }
 
-        $id = $this->process();
-        $this->import($id);
-        $this->setRedirect("$this->baseURL&view=$this->list");
+        $table = $this->getTable();
+
+        return $table->delete($resourceID);
     }
+
+    /**
+     * Method to import data associated with an individual curriculum resource. Authorization performed by calling function.
+     *
+     * @param   int  $resourceID  the id of the program to be imported
+     *
+     * @return bool
+     */
+    abstract public function import(int $resourceID): bool;
 
     /**
      * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
@@ -83,5 +96,59 @@ abstract class CurriculumResource extends FormController
         DB::setQuery($query);
 
         return DB::loadInt() + 1;
+    }
+
+    /**
+     * Saves the resource, imports external data and redirects to the list view.
+     * @return void
+     */
+    public function saveImport(): void
+    {
+        if (Application::getClass(get_called_class()) === 'Pool') {
+            Application::error(501);
+        }
+
+        $id = $this->process();
+        $this->import($id);
+        $this->setRedirect("$this->baseURL&view=$this->list");
+    }
+
+    /**
+     * Set name attributes common to pools and subjects.
+     *
+     * @param   Pools|Subjects    $table      the table to modify
+     * @param   SimpleXMLElement  $XMLObject  the data source
+     *
+     * @return void
+     */
+    protected function setNames(Pools|Subjects $table, SimpleXMLElement $XMLObject): void
+    {
+        $table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
+        $table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
+
+        $table->fullName_de = (string) $XMLObject->titelde;
+        $table->fullName_en = (string) $XMLObject->titelen ?: $table->fullName_de;
+    }
+
+    /**
+     * Ensures that a title is set and does not contain 'dummy'. This function favors the German title.
+     *
+     * @param   SimpleXMLElement  $resource  the resource being checked
+     *
+     * @return bool
+     */
+    protected function validTitle(SimpleXMLElement $resource): bool
+    {
+        $titleDE = trim((string) $resource->titelde);
+        $titleEN = trim((string) $resource->titelen);
+        $title   = $titleDE ?: $titleEN;
+
+        if (empty($title)) {
+            return false;
+        }
+
+        $dummyPos = stripos($title, 'dummy');
+
+        return $dummyPos === false;
     }
 }

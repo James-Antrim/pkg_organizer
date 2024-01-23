@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\{Documentable, LSF, Organizations, Programs as Helper};
 use THM\Organizer\Tables\Programs as Table;
 
@@ -21,67 +20,11 @@ use THM\Organizer\Tables\Programs as Table;
  */
 class Program extends CurriculumResource
 {
-    use Associated;
     use SuperOrdinate;
 
     protected string $helper = 'Programs';
 
     protected string $resource = 'program';
-
-    /**
-     * Activates programs by id.
-     * @return bool true on success, otherwise false
-     */
-    public function activate(): bool
-    {
-        if (!$selected = Input::getSelectedIDs()) {
-            return false;
-        }
-
-        $this->authorize();
-
-        foreach ($selected as $selectedID) {
-            $program = new Table();
-
-            if ($program->load($selectedID)) {
-                $program->active = 1;
-                $program->store();
-                continue;
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Deactivates programs by id.
-     * @return bool true on success, otherwise false
-     */
-    public function deactivate(): bool
-    {
-        if (!$selected = Input::getSelectedIDs()) {
-            return false;
-        }
-
-        $this->authorize();
-
-        foreach ($selected as $selectedID) {
-            $program = new Table();
-
-            if ($program->load($selectedID)) {
-                $program->active = 0;
-                $program->store();
-                continue;
-            }
-
-            return false;
-        }
-
-        return true;
-
-    }
 
     /**
      * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
