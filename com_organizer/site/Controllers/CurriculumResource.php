@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Tables\{Pools, Subjects};
+use THM\Organizer\Tables\{Associations, Curricula, Pools, Subjects, Table};
 use THM\Organizer\Helpers\Documentable;
 
 /**
@@ -42,7 +42,7 @@ abstract class CurriculumResource extends FormController
     }
 
     /**
-     * Default authorization check. Level component administrator. Override for nuance.
+     * General or specific resource documentation authorization.
      * @return void
      */
     protected function authorize(): void
@@ -53,6 +53,49 @@ abstract class CurriculumResource extends FormController
 
         if ($id ? !$helper::documentable($id) : !$helper::documentableIDs()) {
             Application::error(403);
+        }
+    }
+
+    /**
+     * Ensures that the imported resource is mapped in the curricula table.
+     *
+     * @param   Curricula  $curriculum  the curricula table object
+     * @param   int        $parentID    the id of the curriculum entry for the resource superordinate to this one
+     * @param   string     $column      the resource reference column name
+     * @param   int        $resourceID  the resource id
+     *
+     * @return void
+     */
+    protected function checkCurriculum(Curricula $curriculum, int $parentID, string $column, int $resourceID): void
+    {
+        $keys = ['parentID' => $parentID, $column => $resourceID];
+        if (!$curriculum->load($keys)) {
+            $range             = $keys;
+            $range['ordering'] = $this->ordering($parentID, $resourceID);
+
+            if (!$this->shiftUp($parentID, $range['ordering']) or !$this->addRange($range)) {
+                return;
+            }
+
+            $curriculum->load($keys);
+        }
+    }
+
+    /**
+     * Ensures that the imported resource is associated with the selected organization.
+     *
+     * @param   int     $organizationID  the id of the organization
+     * @param   string  $column          the resource reference column name
+     * @param   int     $resourceID      the resource id
+     *
+     * @return void
+     */
+    protected function checkAssociation(int $organizationID, string $column, int $resourceID): void
+    {
+        $association = new Associations();
+        $keys        = ['organizationID' => $organizationID, $column => $resourceID];
+        if (!$association->load($keys)) {
+            $association->save($keys);
         }
     }
 
@@ -113,6 +156,81 @@ abstract class CurriculumResource extends FormController
         DB::setQuery($query);
 
         return DB::loadInt() + 1;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function process(): int
+    {
+        $this->checkToken();
+        $this->authorize();
+
+        $id   = Input::getID();
+        $data = $this->prepareData();
+
+        // For save to copy, will otherwise be identical.
+        $data['id'] = $id;
+
+        /** @var Table $table */
+        $table = $this->getTable();
+
+        if (!$id = $this->store($table, $data, $id)) {
+            return $id;
+        }
+
+        $data['id'] = $id;
+
+        $this->postProcess($data);
+
+        return $id;
+    }
+
+    /**
+     * The process steps post-store specific to individual resource types.
+     *
+     * @param   array  $data  the data to process
+     *
+     * @return void
+     */
+    abstract protected function postProcess(array $data): void;
+
+    /**
+     * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
+     * needed.
+     *
+     * @param   SimpleXMLElement  $collection      the SimpleXML node containing the collection of subordinate elements
+     * @param   int               $organizationID  the id of the organization with which the resources are associated
+     * @param   int               $parentID        the id of the curriculum entry for the parent element.
+     *
+     * @return bool
+     */
+    protected function processCollection(SimpleXMLElement $collection, int $organizationID, int $parentID): bool
+    {
+        $pool    = new Pool();
+        $subject = new Subject();
+
+        foreach ($collection as $subOrdinate) {
+            $type = (string) $subOrdinate->pordtyp;
+
+            if ($type === self::POOL) {
+                if ($pool->processStub($subOrdinate, $organizationID, $parentID)) {
+                    continue;
+                }
+
+                return false;
+            }
+
+            if ($type === self::SUBJECT) {
+                if ($subject->processStub($subOrdinate, $organizationID, $parentID)) {
+                    continue;
+                }
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

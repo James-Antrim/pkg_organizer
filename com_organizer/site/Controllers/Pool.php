@@ -10,12 +10,14 @@
 
 namespace THM\Organizer\Controllers;
 
+use SimpleXMLElement;
 use THM\Organizer\Adapters\Application;
+use THM\Organizer\{Adapters\Input, Tables, Tables\Pools as Table};
 
 /**
  * @inheritDoc
  */
-class Pool extends CurriculumResource
+class Pool extends CurriculumResource implements Stubby
 {
     protected string $list = 'Pools';
 
@@ -30,5 +32,86 @@ class Pool extends CurriculumResource
          */
         Application::error(501);
         return false;
+    }
+
+    /**
+     * Prepares the data to be saved.
+     * @return array
+     */
+    protected function prepareData(): array
+    {
+        $data = parent::prepareData();
+
+        /**
+         * External references are not in the table and as such won't be automatically prepared. Subordinates are picked up
+         * individually during further processing.
+         * @see Ranges::addSubordinate(), Ranges::subordinates()
+         */
+        $data['curricula']       = Input::getIntCollection('curricula');
+        $data['organizationIDs'] = Input::getIntCollection('organizationIDs');
+        $data['superordinates']  = Input::getIntCollection('superordinates');
+
+        $this->validate($data, ['abbreviation_de', 'abbreviation_en', 'fullName_de', 'fullName_en', 'organizationIDs']);
+
+        return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function postProcess(array $data): void
+    {
+        if (!$this->updateAssociations('poolID', $data['id'], $data['organizationIDs'])) {
+            Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
+        }
+
+        $superOrdinates = $this->superOrdinates($data);
+
+        if (!$this->addSubordinate($data, $superOrdinates)) {
+            Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
+        }
+
+        $this->deleteDeprecated($data['id'], $superOrdinates);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function processStub(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
+    {
+        if (!$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid) {
+            return false;
+        }
+
+        $blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) === 'x';
+        $noChildren = !isset($XMLObject->modulliste->modul);
+        $validTitle = $this->validTitle($XMLObject);
+
+        $pool = new Table();
+
+        if (!$pool->load(['lsfID' => $lsfID])) {
+            // There isn't one and shouldn't be one
+            if ($blocked or !$validTitle or $noChildren) {
+                return true;
+            }
+
+            $pool->lsfID = $lsfID;
+            $this->setNames($pool, $XMLObject);
+
+            if (!$pool->store()) {
+                return false;
+            }
+        }
+        // There is one and shouldn't be one
+        elseif ($blocked or !$validTitle or $noChildren) {
+            return $this->delete($pool->id);
+        }
+
+        $this->checkAssociation($organizationID, 'poolID', $pool->id);
+
+        $curriculum = new Tables\Curricula();
+        $this->checkCurriculum($curriculum, $parentID, 'poolID', $pool->id);
+
+        return $this->processCollection($XMLObject->modulliste->modul, $organizationID, $curriculum->id);
     }
 }

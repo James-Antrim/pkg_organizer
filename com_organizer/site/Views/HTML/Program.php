@@ -15,9 +15,13 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the (degree) program form into display context.
  */
-class ProgramEdit extends EditViewOld
+class Program extends EditViewOld
 {
     protected string $layout = 'tabs';
+
+    protected array $todo = [
+        'Set the default value for accredited to the current year.'
+    ];
 
     /**
      * Method to generate buttons for user interaction

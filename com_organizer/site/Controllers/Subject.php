@@ -20,7 +20,7 @@ use THM\Organizer\{Tables, Tables\Subjects as Table};
 /**
  * @inheritDoc
  */
-class Subject extends CurriculumResource
+class Subject extends CurriculumResource implements Stubby
 {
     private const POST = 0, PRE = 1;
 
@@ -369,8 +369,8 @@ class Subject extends CurriculumResource
     }
 
     /**
-     * Sets text values describing competences recommended as a prerequisite for subject attendence or competences aquired by
-     * subject attendence.
+     * Sets text values describing competences recommended as a prerequisite for subject attendance or competences acquired by
+     * subject attendance.
      *
      * @param   Table   $table      the subjects table object
      * @param   string  $attribute  the attribute's name in the xml response
@@ -740,26 +740,8 @@ class Subject extends CurriculumResource
     /**
      * @inheritDoc
      */
-    public function process(array $data = []): int
+    public function postProcess(array $data): void
     {
-        $this->checkToken();
-        $this->authorize();
-
-        $id   = Input::getID();
-        $data = $this->prepareData();
-
-        // For save to copy, will otherwise be identical.
-        $data['id'] = $id;
-
-        /** @var Table $table */
-        $table = $this->getTable();
-
-        if (!$id = $this->store($table, $data, $id)) {
-            return $id;
-        }
-
-        $data['id'] = $id;
-
         if (!$this->updateAssociations('subjectID', $data['id'], $data['organizationIDs'])) {
             Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
         }
@@ -773,9 +755,8 @@ class Subject extends CurriculumResource
         if (!$this->addSubordinate($data, $superOrdinates)) {
             Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
         }
-        else {
-            $this->deleteDeprecated($table->id, $superOrdinates);
-        }
+
+        $this->deleteDeprecated($data['id'], $superOrdinates);
 
         // Dependant on curricula entries.
         if (!$this->processPrerequisites($data['id'], $data['prerequisites'])) {
@@ -784,16 +765,14 @@ class Subject extends CurriculumResource
 
         /*if (!$this->processEvents($data))
         {
-            return false;
+            Application::message('TBD', Application::WARNING);
         }*/
-
-        return $table->id ?: 0;
     }
 
     /**
      * Processes the subject prerequisites selected for the subject
      *
-     * @param   int    $subjectID      the id of the subject to map depencencies for
+     * @param   int    $subjectID      the id of the subject to map prerequisites for
      * @param   array  $prerequisites  the prerequisites discovered during resolution
      *
      * @return bool
@@ -861,13 +840,7 @@ class Subject extends CurriculumResource
     }
 
     /**
-     * Processes a subject stub from a program manifest, creating subject and curricula table entries as necessary.
-     *
-     * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary resource data
-     * @param   int               $organizationID  the id of the organization with which the resource is associated
-     * @param   int               $parentID        the  id of the parent entry in the curricula table
-     *
-     * @return bool
+     * @inheritDoc
      */
     public function processStub(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
     {
@@ -897,30 +870,10 @@ class Subject extends CurriculumResource
             return $this->delete($subject->id);
         }
 
-        $curricula = new Tables\Curricula();
+        $this->checkAssociation($organizationID, 'subjectID', $subject->id);
 
-        if (!$curricula->load(['parentID' => $parentID, 'subjectID' => $subject->id])) {
-            $range = [
-                'parentID'  => $parentID,
-                'subjectID' => $subject->id,
-                'ordering'  => $this->ordering($parentID, $subject->id)
-            ];
-
-            if (!$this->shiftUp($parentID, $range['ordering'])) {
-                return false;
-            }
-
-            if (!$this->addRange($range)) {
-                return false;
-            }
-
-            $curricula->load(['parentID' => $parentID, 'poolID' => $subject->id]);
-        }
-
-        $association = new Tables\Associations();
-        if (!$association->load(['organizationID' => $organizationID, 'subjectID' => $subject->id])) {
-            $association->save(['organizationID' => $organizationID, 'subjectID' => $subject->id]);
-        }
+        $curriculum = new Tables\Curricula();
+        $this->checkCurriculum($curriculum, $parentID, 'subjectID', $subject->id);
 
         return $this->import($subject->id);
     }

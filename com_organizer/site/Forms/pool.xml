@@ -2,14 +2,15 @@
 <form>
     <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
-        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
+               required="true"/>
         <field name="lsfID" type="text" label="ORGANIZER_LSF_ID"/>
         <field name="fieldID" type="GenericOptions" label="ORGANIZER_FIELD" valuecolumn="id" textcolumn="name" localized="true"
                table="organizer_fields">
             <option value="">ORGANIZER_NO_FIELD</option>
         </field>
-        <field name="minCrP" type="Integer" label="ORGANIZER_CRP_MIN" required="true" first="0" last="120" step="1" default="24"/>
-        <field name="maxCrP" type="Integer" label="ORGANIZER_CRP_MAX" required="true" first="0" last="120" step="1" default="24"/>
+        <field name="minCrP" type="Integer" label="ORGANIZER_CRP_MIN" first="0" last="120" step="1" default="24"/>
+        <field name="maxCrP" type="Integer" label="ORGANIZER_CRP_MAX" first="0" last="120" step="1" default="24"/>
     </fieldset>
     <fieldset name="de" label="ORGANIZER_ATTRIBUTES_DE">
         <field name="fullName_de" type="text" label="ORGANIZER_FULL_NAME_DE" class="required" maxlength="200" required="true"/>

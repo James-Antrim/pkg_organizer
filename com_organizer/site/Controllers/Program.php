@@ -12,8 +12,8 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\{LSF, Programs as Helper};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Documentable, LSF, Organizations, Programs as Helper};
 
 /**
  * @inheritDoc
@@ -23,6 +23,22 @@ class Program extends CurriculumResource
     use Activated;
 
     protected string $list = 'Programs';
+
+    /**
+     * General or specific resource documentation authorization.
+     * @return void
+     */
+    protected function authorize(): void
+    {
+        /** @var Documentable $helper */
+        $helper = "THM\\Organizer\\Helpers\\" . $this->list;
+        $id     = Input::getID();
+
+        // Existing over document access, new explicitly over document access and implicitly over schedule access.
+        if ($id ? !$helper::documentable($id) : !(Organizations::documentableIDs() or Organizations::schedulableIDs())) {
+            Application::error(403);
+        }
+    }
 
     /**
      * Retrieves program information relevant for soap queries to the LSF system.
@@ -97,5 +113,41 @@ class Program extends CurriculumResource
         }
 
         return $this->processCollection($program->gruppe, $keys['organizationID'], $curriculumID);
+    }
+
+    /**
+     * Prepares the data to be saved.
+     * @return array
+     */
+    protected function prepareData(): array
+    {
+        $data = parent::prepareData();
+
+        /**
+         * External references are not in the table and as such won't be automatically prepared. Subordinates are picked up
+         * individually during further processing.
+         * @see Ranges::addSubordinate(), Ranges::subordinates()
+         */
+        $data['organizationIDs'] = Input::getIntCollection('organizationIDs');
+
+        $this->validate($data, ['accredited', 'code', 'degreeID', 'name_de', 'name_en', 'organizationIDs']);
+
+        return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function postProcess(array $data): void
+    {
+        if (!$this->updateAssociations('programID', $data['id'], $data['organizationIDs'])) {
+            Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
+        }
+
+        $range = ['parentID' => null, 'programID' => $data['id'], 'curriculum' => $this->subordinates(), 'ordering' => 0];
+
+        if (!$this->addRange($range)) {
+            Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
+        }
     }
 }

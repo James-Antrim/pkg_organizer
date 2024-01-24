@@ -241,13 +241,12 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Adds subject filter clauses to the given query.
      *
-     * @param   DatabaseQuery  $query      the query to modify
-     * @param   array          $rows       the rows of subordinate resources
-     * @param   int            $subjectID  the id of a specific subject resource to find in context
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   array          $rows   the rows of subordinate resources
      *
      * @return void
      */
-    private static function filterSubject(DatabaseQuery $query, array $rows, int $subjectID = 0): void
+    private static function filterSubjects(DatabaseQuery $query, array $rows): void
     {
         $count   = 1;
         $left    = DB::qn('lft');
@@ -267,13 +266,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
             $query->where('( ' . implode(' OR ', $wherray) . ' )');
         }
 
-        $column = DB::qn('subjectID');
-        if ($subjectID) {
-            $query->where("$column = :subjectID")->bind(':subjectID', $subjectID, ParameterType::INTEGER);
-        }
-        else {
-            $query->where("$column IS NOT NULL");
-        }
+        $query->where(DB::qn('subjectID') . ' IS NOT NULL');
     }
 
     /**
@@ -407,6 +400,29 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     }
 
     /**
+     * Finds the subject mappings subordinate to a particular resource in the curricula table.
+     *
+     * @param   int  $resourceID  the id of the resource
+     *
+     * @return array[] the associated programs
+     */
+    public static function subjects(int $resourceID): array
+    {
+        $query = DB::getQuery();
+        $query->select('DISTINCT *')
+            ->from(DB::qn('#__organizer_curricula'))
+            ->order(DB::qn('lft'));
+
+        /** @var Pools|Programs $resource */
+        $resource = get_called_class();
+        self::filterSubjects($query, $resource::rows($resourceID));
+
+        DB::setQuery($query);
+
+        return DB::loadAssocList();
+    }
+
+    /**
      * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
      *
      * @param   int     $resourceID   the id of the resource for which the form is being displayed
@@ -463,29 +479,5 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         }
 
         return $options;
-    }
-
-    /**
-     * Finds the subject entries subordinate to a particular resource.
-     *
-     * @param   int  $resourceID  the id of the resource
-     * @param   int  $subjectID   the id of a specific subject resource to find in context
-     *
-     * @return array[] the associated programs
-     */
-    public static function subjects(int $resourceID, int $subjectID = 0): array
-    {
-        $query = DB::getQuery();
-        $query->select('DISTINCT *')
-            ->from(DB::qn('#__organizer_curricula'))
-            ->order(DB::qn('lft'));
-
-        /** @var Pools|Programs $resource */
-        $resource = get_called_class();
-        self::filterSubject($query, $resource::rows($resourceID), $subjectID);
-
-        DB::setQuery($query);
-
-        return DB::loadAssocList();
     }
 }

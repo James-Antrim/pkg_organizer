@@ -85,7 +85,7 @@ abstract class CurriculumResources extends ListController
         if (!$selectedIDs = Input::getSelectedIDs()) {
             Application::message('NO_SELECTION', Application::WARNING);
 
-            return;
+            $this->farewell();
         }
 
         $controller = $this->item;
@@ -94,7 +94,16 @@ abstract class CurriculumResources extends ListController
 
         /** @var CurriculumResource $controller */
         $controller = new $controller();
+
+        /** @var Documentable $helper */
+        $helper = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
+
         foreach ($selectedIDs as $selectedID) {
+            if (!$helper::documentable($selectedID)) {
+                Application::message('403', Application::ERROR);
+                break;
+            }
+
             if ($controller->import($selectedID)) {
                 $imported++;
             }

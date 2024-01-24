@@ -2,14 +2,18 @@
 <form>
     <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
-        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
+               required="true"/>
         <field name="categoryID" type="Categories" label="ORGANIZER_CATEGORY"/>
-        <field name="degreeID" type="GenericOptions" label="ORGANIZER_DEGREE" required="true" table="organizer_degrees"
-               textcolumn="name" valuecolumn="id">
+        <field name="degreeID" type="GenericOptions" label="ORGANIZER_DEGREE" class="required" required="true"
+               table="organizer_degrees" textcolumn="name" valuecolumn="id">
             <option value="">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="accredited" type="text" label="ORGANIZER_ACCREDITED" required="true"/>
-        <field name="code" type="text" label="ORGANIZER_LSF_FIELD_ID" maxlength="60" required="true"/>
+        <field name="accredited" type="integer" label="ORGANIZER_ACCREDITED" class="required" first="2006" last="2056"
+               required="true" step="1">
+            <option value="">ORGANIZER_SELECT_YEAR</option>
+        </field>
+        <field name="code" type="text" label="ORGANIZER_LSF_FIELD_ID" class="required" maxlength="60" required="true"/>
         <field name="frequencyID" type="list" label="ORGANIZER_FREQUENCY" default="3">
             <option value="3">ORGANIZER_AVAILABILITY_SEMESTER</option>
             <option value="5">ORGANIZER_AVAILABILITY_YEAR</option>
