@@ -20,7 +20,7 @@ class ScheduleEdit extends EditViewOld
     /**
      * @inheritDoc
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $this->setTitle('ORGANIZER_SCHEDULE_UPLOAD');
         $toolbar = Toolbar::getInstance();
@@ -34,7 +34,7 @@ class ScheduleEdit extends EditViewOld
         $toolbar->appendButton(
             'Standard',
             'cancel',
-            Text::_('ORGANIZER_CANCEL'),
+            //cancel text from button
             'schedules.cancel',
             false
         );

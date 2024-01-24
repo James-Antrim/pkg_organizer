@@ -16,15 +16,19 @@ use THM\Organizer\Helpers;
 /**
  * Class loads persistent information about a course into the display context.
  */
-class CourseEdit extends EditViewOld
+class Course extends FormView
 {
     protected string $layout = 'tabs';
 
     /**
      * Adds a toolbar and title to the view.
+     *
+     * @param   array   $buttons
+     * @param   string  $constant  *
+     *
      * @return void  adds toolbar items to the view
      */
-    protected function addToolBar(): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         if ($this->item->id) {
             $title = Text::_('COURSE_EDIT');

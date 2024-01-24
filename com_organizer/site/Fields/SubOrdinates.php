@@ -20,8 +20,6 @@ use THM\Organizer\Helpers;
  */
 class SubOrdinates extends FormField
 {
-    use Translated;
-
     /**
      * Creates a button template for a given function.
      *

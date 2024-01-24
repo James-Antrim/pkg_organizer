@@ -15,35 +15,24 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads the (subject) pool form into display context.
  */
-class PoolEdit extends EditViewOld
+class Pool extends FormView
 {
-    use Subordinate;
-
-    protected string $layout = 'tabs';
-
     /**
-     * Method to generate buttons for user interaction
-     * @return void
+     * @inheritDoc
      */
-    protected function addToolBar(): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         if ($this->item->id) {
-            $apply  = 'ORGANIZER_APPLY';
-            $cancel = 'ORGANIZER_CLOSE';
-            $save   = 'ORGANIZER_SAVE';
-            $title  = "ORGANIZER_POOL_EDIT";
+            $title = "ORGANIZER_POOL_EDIT";
         }
         else {
-            $apply  = 'ORGANIZER_CREATE';
-            $cancel = 'ORGANIZER_CANCEL';
-            $save   = 'ORGANIZER_CREATE';
-            $title  = "ORGANIZER_POOL_NEW";
+            $title = "ORGANIZER_POOL_NEW";
         }
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'apply', Text::_($apply), 'pools.apply', false);
-        $toolbar->appendButton('Standard', 'save', Text::_($save), 'pools.save', false);
+        $toolbar->appendButton('Standard', 'apply', 'applytextfrombutton', 'pools.apply', false);
+        $toolbar->appendButton('Standard', 'save', 'savetxtfrombutton', 'pools.save', false);
 
         if ($this->item->id) {
             $toolbar->appendButton(
@@ -64,6 +53,6 @@ class PoolEdit extends EditViewOld
         $subjectLink = $baseURL . 'subject_selection';
         $toolbar->appendButton('Popup', 'book', Text::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
 
-        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), 'pools.cancel', false);
+        $toolbar->appendButton('Standard', 'cancel', 'button-text', 'pools.cancel', false);
     }
 }

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use THM\Organizer\Adapters\{Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\EditModelOld;
 
@@ -28,8 +28,7 @@ abstract class EditViewOld extends OldFormView
     protected BaseDatabaseModel $model;
 
     /**
-     * Method to generate buttons for user interaction
-     * @return void
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -38,20 +37,16 @@ abstract class EditViewOld extends OldFormView
         $controller = Helpers\OrganizerHelper::getPlural($resource);
 
         if ($this->item->id) {
-            $cancel = 'ORGANIZER_CLOSE';
-            $save   = 'ORGANIZER_SAVE_CLOSE';
-            $title  = "ORGANIZER_{$constant}_EDIT";
+            $title = "ORGANIZER_{$constant}_EDIT";
         }
         else {
-            $cancel = 'ORGANIZER_CANCEL';
-            $save   = 'ORGANIZER_CREATE_CLOSE';
-            $title  = "ORGANIZER_{$constant}_NEW";
+            $title = "ORGANIZER_{$constant}_NEW";
         }
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Text::_($save), "$controller.save", false);
-        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), "$controller.cancel", false);
+        $toolbar->appendButton('Standard', 'save', 'sevetextfrombutton', "$controller.save", false);
+        $toolbar->appendButton('Standard', 'cancel', 'canceltextfrombutton', "$controller.cancel", false);
     }
 
     /**

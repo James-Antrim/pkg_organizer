@@ -106,7 +106,7 @@ class Categories extends Scheduled implements Filterable, Selectable
     {
         $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
         $query = DB::getQuery();
-        $query->select('DISTINCT ' . DB::qn('c') . '*')
+        $query->select('DISTINCT ' . DB::qn('c') . '.*')
             ->from(DB::qn('#__organizer_categories', 'c'))
             ->order($order);
 

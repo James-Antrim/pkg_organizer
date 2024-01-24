@@ -15,47 +15,36 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads persistent information about a subject into the display context.
  */
-class Subject extends EditViewOld
+class Subject extends FormView
 {
-    use Subordinate;
-
-    protected string $layout = 'tabs';
-
     protected array $todo = [
         'Remove fields and handling for deprecated competence values.',
         'Rename the curricula field programIDs'
     ];
 
     /**
-     * Method to generate buttons for user interaction
-     * @return void
+     * @inheritDoc
      */
-    protected function addToolBar(): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         if (empty($this->item->id)) {
-            $apply       = Text::_('ORGANIZER_CREATE');
             $applyImport = Text::_('ORGANIZER_CREATE_IMPORT');
-            $cancel      = Text::_('ORGANIZER_CLOSE');
-            $save        = Text::_('ORGANIZER_CREATE_CLOSE');
             $saveImport  = Text::_('ORGANIZER_CREATE_IMPORT_CLOSE');
             $title       = Text::_('ORGANIZER_SUBJECT_NEW');
 
         }
         else {
-            $apply       = Text::_('ORGANIZER_APPLY');
-            $applyImport = Text::_('ORGANIZER_APPLY_UPDATE');
-            $cancel      = Text::_('ORGANIZER_CANCEL');
-            $save        = Text::_('ORGANIZER_SAVE');
+            $applyImport = Text::_('ORGANIZER_APPLY_AND_UPDATE');
             $saveImport  = Text::_('ORGANIZER_SAVE_UPDATE');
             $title       = Text::_('ORGANIZER_SUBJECT_EDIT');
         }
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save-new', $apply, 'subjects.apply', false);
+        $toolbar->appendButton('Standard', 'save-new', 'button-text', 'subjects.apply', false);
         $toolbar->appendButton('Standard', 'file-add', $applyImport, 'subjects.applyImport', false);
-        $toolbar->appendButton('Standard', 'publish', $save, 'subjects.save', false);
+        $toolbar->appendButton('Standard', 'publish', 'button-text', 'subjects.save', false);
         $toolbar->appendButton('Standard', 'file-check', $saveImport, 'subjects.saveImport', false);
-        $toolbar->appendButton('Standard', 'cancel', $cancel, 'subjects.cancel', false);
+        $toolbar->appendButton('Standard', 'cancel', 'button-text', 'subjects.cancel', false);
     }
 }

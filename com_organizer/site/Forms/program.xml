@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-    <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
+    <fieldset name="details" label="ORGANIZER_PROPERTIES_BASIC">
         <field name="id" type="hidden"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
                required="true"/>
@@ -37,11 +37,11 @@
             <option value="1">ORGANIZER_YES</option>
         </field>
     </fieldset>
-    <fieldset name="de" label="ORGANIZER_ATTRIBUTES_DE">
+    <fieldset name="de" label="ORGANIZER_PROPERTIES_DE">
         <field name="name_de" type="text" label="ORGANIZER_NAME_DE" class="required" maxlength="150" required="true"/>
         <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
     </fieldset>
-    <fieldset name="en" label="ORGANIZER_ATTRIBUTES_EN">
+    <fieldset name="en" label="ORGANIZER_PROPERTIES_EN">
         <field name="name_en" type="text" label="ORGANIZER_NAME_EN" class="required" maxlength="150" required="true"/>
         <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
     </fieldset>

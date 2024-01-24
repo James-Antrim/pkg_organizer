@@ -79,8 +79,7 @@ class FormView extends Base
         $title = $new ? "ORGANIZER_ADD_$constant" : "ORGANIZER_EDIT_$constant";
         $this->setTitle($title);
 
-        $saveLabel = $new ? 'ORGANIZER_CREATE_AND_CLOSE' : 'ORGANIZER_SAVE_AND_CLOSE';
-        $toolbar   = Document::getToolbar();
+        $toolbar = Document::getToolbar();
 
         if (count($buttons) > 1) {
             $saveGroup = $toolbar->dropdownButton('save-group');
@@ -89,30 +88,27 @@ class FormView extends Base
             foreach ($buttons as $button) {
                 switch ($button) {
                     case 'apply':
-                        $applyLabel = $new ? 'ORGANIZER_CREATE' : 'ORGANIZER_APPLY';
-                        $saveBar->apply("$controller.apply", $applyLabel);
+                        $saveBar->apply("$controller.apply");
                         break;
                     case 'save':
-                        $saveBar->save("$controller.save", $saveLabel);
+                        $saveBar->save("$controller.save");
                         break;
                     case 'save2copy':
                         if (!$new) {
-                            $saveBar->save2copy("$controller.save2copy", 'ORGANIZER_SAVE_AS_COPY');
+                            $saveBar->save2copy("$controller.save2copy");
                         }
                         break;
                     case 'save2new':
-                        $newLabel = $new ? 'ORGANIZER_CREATE_AND_NEW' : 'ORGANIZER_SAVE_AND_NEW';
-                        $saveBar->save2new("$controller.save2new", $newLabel);
+                        $saveBar->save2new("$controller.save2new");
                         break;
                 }
             }
         }
         else {
-            $toolbar->save("$controller.save", $saveLabel);
+            $toolbar->save("$controller.save");
         }
 
-        $closeLabel = $new ? 'ORGANIZER_CLOSE' : 'ORGANIZER_CANCEL';
-        $toolbar->cancel("$controller.cancel", $closeLabel);
+        $toolbar->cancel("$controller.cancel");
 
         //TODO help!
     }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Adapters\Toolbar;
 use THM\Organizer\Models\UnitEdit as Model;
 
 /**
@@ -21,8 +21,7 @@ class UnitEdit extends EditViewOld
     public string $orientation = 'vertical';
 
     /**
-     * Method to generate buttons for user interaction
-     * @return void
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
@@ -34,7 +33,7 @@ class UnitEdit extends EditViewOld
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Text::_('ORGANIZER_SAVE_CLOSE'), "Units.save", false);
-        $toolbar->appendButton('Standard', 'cancel', Text::_('ORGANIZER_CLOSE'), "Units.cancel", false);
+        $toolbar->appendButton('Standard', 'save', 'saveclosetextfrombutton', "Units.save", false);
+        $toolbar->appendButton('Standard', 'cancel', 'canceltextfrombutton', "Units.cancel", false);
     }
 }

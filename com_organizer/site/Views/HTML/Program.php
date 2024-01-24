@@ -10,57 +10,49 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
+use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\{Document, Input};
 
 /**
  * Class loads the (degree) program form into display context.
  */
-class Program extends EditViewOld
+class Program extends FormView
 {
-    protected string $layout = 'tabs';
-
     protected array $todo = [
         'Set the default value for accredited to the current year.'
     ];
 
     /**
-     * Method to generate buttons for user interaction
-     * @return void
+     * @inheritDoc
      */
-    protected function addToolBar(): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        if ($this->item->id) {
-            $apply  = 'ORGANIZER_APPLY';
-            $cancel = 'ORGANIZER_CLOSE';
-            $save   = 'ORGANIZER_SAVE';
-            $title  = "ORGANIZER_PROGRAM_EDIT";
-        }
-        else {
-            $apply  = 'ORGANIZER_CREATE';
-            $cancel = 'ORGANIZER_CANCEL';
-            $save   = 'ORGANIZER_CREATE_CLOSE';
-            $title  = "ORGANIZER_PROGRAM_NEW";
-        }
+        Input::set('hidemainmenu', true);
+        $new = empty($this->item->id);
 
+        $title = $new ? "ORGANIZER_ADD_PROGRAM" : "ORGANIZER_EDIT_PROGRAM";
         $this->setTitle($title);
-        $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'apply', Text::_($apply), 'programs.apply', false);
-        $toolbar->appendButton('Standard', 'save', Text::_($save), 'programs.save', false);
 
-        if ($this->item->id) {
-            $toolbar->appendButton(
-                'Standard',
-                'save-copy',
-                Text::_('ORGANIZER_SAVE2COPY'),
-                'programs.save2copy',
-                false
-            );
+        $toolbar = Document::getToolbar();
 
-            $poolLink = 'index.php?option=com_organizer&tmpl=component';
-            $poolLink .= "&type=program&id={$this->item->id}&view=pool_selection";
-            $toolbar->appendButton('Popup', 'list', Text::_('ORGANIZER_ADD_POOL'), $poolLink);
+        $saveGroup = $toolbar->dropdownButton('save-group');
+        $saveBar   = $saveGroup->getChildToolbar();
+
+        $saveBar->apply('Program.apply');
+        $saveBar->save('Program.save');
+
+        if (!$new) {
+            $saveBar->save2copy('Program.save2copy');
+
+            $url = "index.php?option=com_organizer&view=PoolSelection&tmpl=component&type=program&id={$this->item->id}";
+            $toolbar->popupButton('pools', 'ORGANIZER_ADD_POOL')
+                ->popupType('iframe')
+                ->url(Route::_($url))
+                ->modalWidth('800px')
+                ->modalHeight('500px')
+                ->icon('fa fa-list');
         }
 
-        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), 'programs.cancel', false);
+        $toolbar->cancel('Program.cancel');
     }
 }

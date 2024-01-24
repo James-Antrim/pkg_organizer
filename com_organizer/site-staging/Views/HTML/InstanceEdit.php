@@ -20,27 +20,22 @@ class InstanceEdit extends EditViewOld
     protected string $layout = 'instance-wrapper';
 
     /**
-     * Method to generate buttons for user interaction
-     * @return void
+     * @inheritDoc
      */
     protected function addToolBar(): void
     {
         //$appointment = Input::getCMD('layout') === 'appointment';
 
         if ($this->item->id) {
-            $cancel = 'ORGANIZER_CLOSE';
-            $save   = 'ORGANIZER_SAVE';
-            $title  = 'ORGANIZER_INSTANCE_EDIT';
+            $title = 'ORGANIZER_INSTANCE_EDIT';
         }
         else {
-            $cancel = 'ORGANIZER_CANCEL';
-            $save   = 'ORGANIZER_CREATE';
-            $title  = 'ORGANIZER_INSTANCE_NEW';
+            $title = 'ORGANIZER_INSTANCE_NEW';
         }
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Text::_($save), 'instances.save', false);
+        $toolbar->appendButton('Standard', 'save', 'button-text', 'instances.save', false);
 
         $layout  = Input::getCMD('layout');
         $layouts = ['appointment', 'simple'];
@@ -51,7 +46,7 @@ class InstanceEdit extends EditViewOld
             $toolbar->appendButton('Standard', 'reset', Text::_('ORGANIZER_RESET'), 'instances.reset', false);
         }
 
-        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), 'instances.cancel', false);
+        $toolbar->appendButton('Standard', 'cancel', 'button-text', 'instances.cancel', false);
     }
 
     /**

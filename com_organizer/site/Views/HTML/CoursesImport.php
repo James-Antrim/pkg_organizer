@@ -20,7 +20,7 @@ class CoursesImport extends EditViewOld
     /**
      * @inheritDoc
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $this->setTitle('ORGANIZER_COURSES_IMPORT');
         $toolbar = Toolbar::getInstance();
@@ -34,7 +34,7 @@ class CoursesImport extends EditViewOld
         $toolbar->appendButton(
             'Standard',
             'cancel',
-            Text::_('ORGANIZER_CANCEL'),
+            //cancel text from button
             'courses.cancel',
             false
         );
