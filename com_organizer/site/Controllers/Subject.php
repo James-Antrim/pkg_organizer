@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
-use THM\Organizer\Adapters\{Application, Database as DB, Text};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 use THM\Organizer\{Helpers, Helpers\Subjects as Helper};
 use THM\Organizer\{Tables, Tables\Subjects as Table};
 
@@ -713,6 +713,81 @@ class Subject extends CurriculumResource
         $text = trim($this->filterText($text));
 
         return empty($text);
+    }
+
+    /**
+     * Prepares the data to be saved.
+     * @return array
+     */
+    protected function prepareData(): array
+    {
+        $data = parent::prepareData();
+
+        // External references are not in the table and as such won't be automatically prepared.
+        $data['coordinators']    = Input::getIntCollection('coordinators');
+        $data['curricula']       = Input::getIntCollection('curricula');
+        $data['organizationIDs'] = Input::getIntCollection('organizationIDs');
+        $data['persons']         = Input::getIntCollection('persons');
+        $data['prerequisites']   = Input::getIntCollection('prerequisites');
+        $data['superordinates']  = Input::getIntCollection('superordinates');
+
+        // Because most values are imported this is the only item that is technically required.
+        $this->validate($data, ['organizationIDs']);
+
+        return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function process(array $data = []): int
+    {
+        $this->checkToken();
+        $this->authorize();
+
+        $id   = Input::getID();
+        $data = $this->prepareData();
+
+        // For save to copy, will otherwise be identical.
+        $data['id'] = $id;
+
+        /** @var Table $table */
+        $table = $this->getTable();
+
+        if (!$id = $this->store($table, $data, $id)) {
+            return $id;
+        }
+
+        $data['id'] = $id;
+
+        if (!$this->updateAssociations('subjectID', $data['id'], $data['organizationIDs'])) {
+            Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
+        }
+
+        if (!$this->assignments($data)) {
+            Application::message('UPDATE_ASSIGNMENT_FAILED', Application::WARNING);
+        }
+
+        $superOrdinates = $this->superOrdinates($data);
+
+        if (!$this->addSubordinate($data, $superOrdinates)) {
+            Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
+        }
+        else {
+            $this->deleteDeprecated($table->id, $superOrdinates);
+        }
+
+        // Dependant on curricula entries.
+        if (!$this->processPrerequisites($data['id'], $data['prerequisites'])) {
+            Application::message('UPDATE_DEPENDENCY_FAILED', Application::WARNING);
+        }
+
+        /*if (!$this->processEvents($data))
+        {
+            return false;
+        }*/
+
+        return $table->id ?: 0;
     }
 
     /**

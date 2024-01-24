@@ -20,9 +20,6 @@ use THM\Organizer\Tables\{Associations, Curricula, Pools as Table};
  */
 class Pool extends CurriculumResource
 {
-    use SubOrdinate;
-    use SuperOrdinate;
-
     protected string $helper = 'Pools';
 
     protected string $resource = 'pool';
@@ -139,7 +136,7 @@ class Pool extends CurriculumResource
 
         $superOrdinates = $this->getSuperOrdinates($data);
 
-        if (!$this->addNew($data, $superOrdinates)) {
+        if (!$this->addSubordinate($data, $superOrdinates)) {
             return false;
         }
 

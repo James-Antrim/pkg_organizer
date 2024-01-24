@@ -12,14 +12,16 @@ namespace THM\Organizer\Controllers;
 
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
-use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Tables\{Pools, Subjects};
+use THM\Organizer\Helpers\Documentable;
 
 /**
  * @inheritDoc
  */
 abstract class CurriculumResource extends FormController
 {
+    use Associated;
     use Ranges;
 
     protected const NONE = -1, POOL = 'K', SUBJECT = 'M';
@@ -37,6 +39,21 @@ abstract class CurriculumResource extends FormController
         $id = $this->process();
         $this->import($id);
         $this->setRedirect("$this->baseURL&view=$this->name&id=$id");
+    }
+
+    /**
+     * Default authorization check. Level component administrator. Override for nuance.
+     * @return void
+     */
+    protected function authorize(): void
+    {
+        /** @var Documentable $helper */
+        $helper = "THM\\Organizer\\Helpers\\" . $this->list;
+        $id     = Input::getID();
+
+        if ($id ? !$helper::documentable($id) : !$helper::documentableIDs()) {
+            Application::error(403);
+        }
     }
 
     /**

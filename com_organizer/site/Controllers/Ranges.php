@@ -12,9 +12,8 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Database as DB;
-use THM\Organizer\Helpers\Curricula as Helper;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Curricula as Helper, Pools, Programs};
 use THM\Organizer\Tables\Curricula;
 
 /**
@@ -114,6 +113,127 @@ trait Ranges
         }
 
         return $curricula->id;
+    }
+
+    /**
+     * Adds ranges for the resource to the given superordinate ranges.
+     *
+     * @param   array  $data            the resource data from the form
+     * @param   array  $superOrdinates  the valid superordinate ranges to which to create/validate ranges within
+     *
+     * @return bool
+     */
+    protected function addSubordinate(array $data, array $superOrdinates): bool
+    {
+        switch (Application::getClass(get_called_class())) {
+            case 'Pool':
+                $range = [
+                    'poolID'     => $data['id'],
+                    'curriculum' => Input::getTask() !== 'Pool.save2copy' ? $this->subordinates() : []
+                ];
+                break;
+            case 'Subject':
+                $range = [
+                    'subjectID'  => $data['id'],
+                    'curriculum' => []
+                ];
+                break;
+            default:
+                return false;
+        }
+
+        $ranges = $this->ranges($data['id']);
+
+        foreach ($superOrdinates as $super) {
+            $range['parentID'] = $super['id'];
+
+            foreach ($ranges as $index => $existing) {
+                // There is an existing direct subordinate relationship
+                if ($existing['parentID'] === $super['id']) {
+                    // Prevent further iteration of an established relationship
+                    unset($ranges[$index]);
+
+                    // Update subordinate curricula entries as necessary
+                    foreach ($range['curriculum'] as $subOrdinate) {
+                        $subOrdinate['parentID'] = $existing['id'];
+
+                        $this->addRange($subOrdinate);
+                    }
+
+                    continue 2;
+                }
+            }
+
+            $range['ordering'] = $this->ordering($super['id'], $data['id']);
+
+            if (!$this->addRange($range)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets the curriculum for a pool selected as a subordinate resource
+     *
+     * @param   int  $poolID  the resource id
+     *
+     * @return array[]  empty if no child data exists
+     */
+    protected function curriculum(int $poolID): array
+    {
+        // Subordinate structures are the same for every superordinate resource
+        $query = DB::getQuery();
+        $query->select(DB::qn('id'))
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('poolID') . ' = :poolID')->bind(':poolID', $poolID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        if (!$firstID = DB::loadInt()) {
+            return [];
+        }
+
+        $query = DB::getQuery();
+        $query->select('*')
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('parentID') . ' = :firstID')->bind(':firstID', $firstID, ParameterType::INTEGER)
+            ->order(DB::qn('lft'));
+        DB::setQuery($query);
+
+        if (!$subOrdinates = DB::loadAssocList()) {
+            return $subOrdinates;
+        }
+
+        foreach ($subOrdinates as $key => $subOrdinate) {
+            if ($subOrdinate['poolID']) {
+                $subOrdinates[$key]['curriculum'] = $this->curriculum($subOrdinate['poolID']);
+            }
+        }
+
+        return $subOrdinates;
+    }
+
+    /**
+     * Method to delete resource ranges not subordinate to the given superordinate elements.
+     *
+     * @param   int    $resourceID      the resource id
+     * @param   array  $superOrdinates  the valid superordinate ranges
+     *
+     * @return void
+     */
+    protected function deleteDeprecated(int $resourceID, array $superOrdinates): void
+    {
+        $superIDs = array_keys($superOrdinates);
+
+        foreach ($this->ranges($resourceID) as $range) {
+            if (in_array($range['parentID'], $superIDs)) {
+                continue;
+            }
+
+            // Remove unrequested existing relationship
+            $this->deleteRange($range['id']);
+        }
     }
 
     /**
@@ -330,5 +450,121 @@ trait Ranges
         DB::setQuery($query);
 
         return DB::execute();
+    }
+
+    /**
+     * Builds the resource's curriculum using the subordinate resources contained in the form.
+     * @return array[]
+     */
+    protected function subordinates(): array
+    {
+        if (Application::getClass(get_called_class()) === 'Subject') {
+            return [];
+        }
+
+        $index        = 1;
+        $subOrdinates = [];
+
+        while (Input::getInt("sub{$index}Order")) {
+            $ordering      = Input::getInt("sub{$index}Order");
+            $aggregateInfo = Input::getCMD("sub$index");
+
+            if (!empty($aggregateInfo)) {
+                $resourceID   = substr($aggregateInfo, 0, strlen($aggregateInfo) - 1);
+                $resourceType = strpos($aggregateInfo, 'p') ? 'pool' : 'subject';
+
+                if ($resourceType == 'subject') {
+                    $subOrdinates[$ordering]['poolID']    = null;
+                    $subOrdinates[$ordering]['subjectID'] = $resourceID;
+                    $subOrdinates[$ordering]['ordering']  = $ordering;
+                }
+
+                if ($resourceType == 'pool') {
+                    $subOrdinates[$ordering]['poolID']     = $resourceID;
+                    $subOrdinates[$ordering]['subjectID']  = null;
+                    $subOrdinates[$ordering]['ordering']   = $ordering;
+                    $subOrdinates[$ordering]['curriculum'] = $this->curriculum($resourceID);
+                }
+            }
+
+            $index++;
+        }
+
+        return $subOrdinates;
+    }
+
+    /**
+     * Performs checks to ensure that a superordinate item has been selected as a precursor to the rest of the
+     * curriculum processing.
+     *
+     * @param   array  $data  the form data
+     *
+     * @return array[] the applicable superordinate ranges
+     */
+    protected function superOrdinates(array $data): array
+    {
+        $class = Application::getClass(get_called_class());
+        if ($class === 'Program') {
+            Application::error(501);
+        }
+
+        // No program context was selected implicitly or explicitly.
+        if (empty($data['curricula']) or in_array(self::NONE, $data['curricula'])) {
+            $this->deleteRanges($data['id']);
+
+            return [];
+        }
+
+        // No superordinates were selected implicitly or explicitly.
+        if (empty($data['superordinates']) or in_array(self::NONE, $data['superordinates'])) {
+            $this->deleteRanges($data['id']);
+
+            return [];
+        }
+
+        // Retrieve the program context ranges for sanity checks on pool ranges
+        $programRanges = [];
+        foreach ($data['curricula'] as $programID) {
+            if ($ranges = Programs::rows($programID)) {
+                $programRanges[$programID] = $ranges[0];
+            }
+        }
+
+        $soRanges = [];
+        foreach ($data['superordinates'] as $soID) {
+            $table = new Curricula();
+
+            // Non-existent or invalid entry
+            if (!$table->load($soID) or $table->subjectID) {
+                continue;
+            }
+
+            // Requested superordinate is the program context root
+            if ($programID = $table->programID) {
+                // Subjects may not be directly associated with programs
+                if ($class === 'Subject') {
+                    continue;
+                }
+
+                foreach ($programRanges as $programRange) {
+                    if ($programRange['programID'] === $programID) {
+                        $soRanges[$programRange['id']] = $programRange;
+                    }
+                }
+
+                continue;
+            }
+
+            foreach (Pools::rows($table->poolID) as $poolRange) {
+                foreach ($programRanges as $programRange) {
+                    // Pool range is a valid subset of the program context range
+                    if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt']) {
+                        $soRanges[$poolRange['id']] = $poolRange;
+                    }
+                }
+            }
+        }
+
+        return $soRanges;
     }
 }

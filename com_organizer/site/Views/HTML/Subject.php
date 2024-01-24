@@ -15,11 +15,16 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 /**
  * Class loads persistent information about a subject into the display context.
  */
-class SubjectEdit extends EditViewOld
+class Subject extends EditViewOld
 {
     use Subordinate;
 
     protected string $layout = 'tabs';
+
+    protected array $todo = [
+        'Remove fields and handling for deprecated competence values.',
+        'Rename the curricula field programIDs'
+    ];
 
     /**
      * Method to generate buttons for user interaction

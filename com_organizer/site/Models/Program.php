@@ -20,8 +20,6 @@ use THM\Organizer\Tables\Programs as Table;
  */
 class Program extends CurriculumResource
 {
-    use SuperOrdinate;
-
     protected string $helper = 'Programs';
 
     protected string $resource = 'program';

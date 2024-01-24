@@ -2,7 +2,8 @@
 <form>
     <fieldset name="details" label="ORGANIZER_ATTRIBUTES_SUBJECT_DETAILS">
         <field name="id" type="hidden"/>
-        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
+               required="true"/>
         <field name="fieldID" type="GenericOptions" label="ORGANIZER_FIELD" localized="true" table="organizer_fields"
                textcolumn="name" valuecolumn="id">
             <option value="">ORGANIZER_NO_FIELD</option>
