@@ -8,12 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Controllers;
 
 /**
  * @inheritDoc
  */
-class PoolSelection extends Pools
+class PoolSelection extends CurriculumResources
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    protected string $item = 'Pool';
 }

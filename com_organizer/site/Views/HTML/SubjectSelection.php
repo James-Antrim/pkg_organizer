@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class SubjectSelection extends ListView
 {
-    protected string $layout = 'list_modal';
+    protected string $layout = 'modallist';
 
     /**
      * @inheritDoc

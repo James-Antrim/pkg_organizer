@@ -17,7 +17,7 @@ use THM\Organizer\Adapters\Toolbar;
  */
 class PoolSelection extends Pools
 {
-    protected string $layout = 'list_modal';
+    protected string $layout = 'modallist';
 
     /**
      * @inheritDoc

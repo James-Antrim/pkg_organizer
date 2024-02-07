@@ -8,12 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Helpers;
 
 /**
  * @inheritDoc
  */
 class PoolSelection extends Pools
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    // Everything taken care of in the inheritance hierarchy.
 }

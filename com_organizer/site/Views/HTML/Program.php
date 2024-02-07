@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Document, Input};
 
 /**
@@ -47,7 +46,7 @@ class Program extends FormView
             $url = "index.php?option=com_organizer&view=PoolSelection&tmpl=component&type=program&id={$this->item->id}";
             $toolbar->popupButton('pools', 'ORGANIZER_ADD_POOL')
                 ->popupType('iframe')
-                ->url(Route::_($url))
+                ->url($url)
                 ->modalWidth('800px')
                 ->modalHeight('500px')
                 ->icon('fa fa-list');
