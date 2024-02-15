@@ -163,4 +163,15 @@ class Form extends Base
 
         return $field;
     }
+
+    /**
+     * Gets the view specific portion of the form name.
+     *
+     * @return string
+     */
+    public function view(): string
+    {
+        $contextParts = explode('.', $this->getName());
+        return $contextParts[1];
+    }
 }

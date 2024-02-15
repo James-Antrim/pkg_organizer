@@ -10,15 +10,21 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, HTML, Input};
-use THM\Organizer\Helpers;
+use Joomla\CMS\Form\Field\ListField;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Database as DB, Form, HTML, Input};
+use THM\Organizer\Helpers\{Can, Organizations};
 
 /**
- * Class creates a select box for organizations.
+ * Class creates a select box for organizations based on column values in resource tables.
  */
-class OrganizationAssociations extends Options
+class OrganizationAssociations extends ListField
 {
-    private array $singleAssoc = ['event' => 'Events', 'fieldcolor' => 'FieldColors'];
+    // Resources associated by values in their respective tables => not in the associations table.
+    private array $disassociated = ['Events' => 'event', 'FieldColors' => 'fieldcolor'];
+
+    // Management views => organizations determined by authorization rather than associations.
+    private array $managed = ['workload'];
 
     /**
      * Retrieves the organization ids associated with the resource.
@@ -28,20 +34,24 @@ class OrganizationAssociations extends Options
      *
      * @return int[] the ids of the organizations associated with the resource
      */
-    private function getAssociated(string $resource, int $resourceID): array
+    private function associatedIDs(string $resource, int $resourceID): array
     {
-        if (array_key_exists($resource, $this->singleAssoc)) {
-            $tableName = 'THM\\Organizer\\Tables\\' . $this->singleAssoc[$resource];
-            $table     = new $tableName();
+        // These resources are mapped directly in resource tables.
+        if ($tableClass = array_search($resource, $this->disassociated)) {
+            $tableClass = "THM\\Organizer\\Tables\\$tableClass";
+            $table      = new $tableClass();
 
             return ($table->load($resourceID) and !empty($table->organizationID)) ? [$table->organizationID] : [];
         }
 
-        $query = Database::getQuery();
-        $query->select('DISTINCT organizationID')->from('#__organizer_associations')->where("{$resource}ID = $resourceID");
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('organizationID'))
+            ->from(DB::qn('#__organizer_associations'))
+            ->where(DB::qn("{$resource}ID") . ' = :resourceID')
+            ->bind(':resourceID', $resourceID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
@@ -51,115 +61,107 @@ class OrganizationAssociations extends Options
      *
      * @return int[] the ids of the organizations associated with the resource
      */
-    private function getAuthorized(string $resource): array
+    private function authorizedIDs(string $resource): array
     {
-        switch ($resource) {
-            case 'category':
-            case 'event':
-            case 'group':
-                return Helpers\Organizations::schedulableIDs();
-            case 'fieldcolor':
-            case 'pool':
-            case 'program':
-            case 'subject':
-                return Helpers\Organizations::documentableIDs();
-            case 'person':
-                if (Helpers\Can::manage('persons')) {
-                    return Helpers\Organizations::getIDs();
-                }
-
-                return [];
-            case 'workload':
-                return Helpers\Can::manageTheseOrganizations();
-            default:
-                return [];
-        }
+        return match ($resource) {
+            'category', 'event', 'group' => Organizations::schedulableIDs(),
+            'fieldcolor', 'pool', 'program', 'subject' => Organizations::documentableIDs(),
+            'person' => Can::manage('persons') ? Organizations::getIDs() : [],
+            'workload' => Can::manageTheseOrganizations(),
+            default => [],
+        };
     }
 
     /**
-     * Method to get the field input markup for a generic list.
-     * @return  string  The field input markup.
+     * @inheritDoc
      */
     protected function getInput(): string
     {
-        $contextParts    = explode('.', $this->form->getName());
-        $disabled        = false;
-        $resource        = str_replace('edit', '', $contextParts[1]);
-        $resourceID      = Input::getSelectedID(Input::getID());
-        $pseudoResources = ['workload'];
+        /**
+         * This portion would normally be a part of the getOptions function, but available options influence the layout
+         * data. Since the layout data would otherwise be beyond the scope of influence the code is not extracted in
+         * this implementation.
+         */
 
-        $authorized = $this->getAuthorized($resource);
-        $pseudo     = in_array($resource, $pseudoResources);
+        /** @var Form $form */
+        $form       = $this->form;
+        $resource   = $form->view();
+        $resourceID = Input::getSelectedID(Input::getID());
 
-        if (!$pseudo and $associated = $this->getAssociated($resource, $resourceID)) {
-            $this->value = $resource === 'fieldcolor' ? $associated[0] : $associated;
+        $authorizedIDs = $this->authorizedIDs($resource);
+        $disabled      = false;
 
-            $assocCount = count($associated);
-            $authCount  = count($authorized);
+        if (in_array($resource, $this->managed)) {
+            $organizationIDs = $authorizedIDs;
+        }
+        else {
+            $associatedIDs = $this->associatedIDs($resource, $resourceID);
 
-            // The already associated organizations are a subset of the organizations authorized for editing
-            if (count(array_intersect($authorized, $associated)) === $assocCount and $authCount > $assocCount) {
-                $displayed = $authorized;
+            $this->value = $resource === 'fieldcolor' ? reset($associatedIDs) : $associatedIDs;
+
+            $assocCount = count($associatedIDs);
+            $authCount  = count($authorizedIDs);
+
+            $exhausted = $assocCount >= $authCount;
+            $subset    = count(array_intersect($authorizedIDs, $associatedIDs)) === $assocCount;
+
+            if ($exhausted or !$subset) {
+                $organizationIDs = $associatedIDs;
+                $disabled        = true;
             }
             else {
-                $displayed = $associated;
-                $disabled  = true;
+                $organizationIDs = $authorizedIDs;
             }
         }
-        else {
-            $displayed = $authorized;
-        }
-
-        $displayed = array_flip($displayed);
-
-        foreach (array_keys($displayed) as $organizationID) {
-            $displayed[$organizationID] = Helpers\Organizations::getShortName($organizationID);
-        }
-
-        asort($displayed);
 
         $options = [];
-
-        foreach ($displayed as $organizationID => $shortName) {
-            $options[] = HTML::option($organizationID, $shortName);
+        foreach ($organizationIDs as $organizationID) {
+            $shortName           = Organizations::getShortName($organizationID);
+            $options[$shortName] = HTML::option($organizationID, $shortName);
         }
 
-        $attr = !empty($this->class) ? ' class="' . $this->class . '"' : '';
+        ksort($options);
 
-        if (array_key_exists($resource, $this->singleAssoc)) {
-            $attr .= ' required aria-required="true" autofocus';
-        }
-        elseif ($pseudo and $onchange = $this->getAttribute('onchange')) {
-            $attr .= " onchange=\"$onchange\"";
+        $data            = $this->getLayoutData();
+        $data['options'] = $options;
+
+        // Since overwrites are included anywhere and everywhere both object properties and layout data is modified.
+        if (in_array($resource, $this->disassociated)) {
+            $this->autofocus   = 'autofocus';
+            $data['autofocus'] = 'autofocus';
         }
         else {
-            $this->name = $this->name . '[]';
-
-            if (count($options) > 1) {
-                $attr .= ' multiple';
-            }
+            $this->name   = $this->name . '[]';
+            $data['name'] = $this->name . '[]';
 
             $count = count($options);
 
-            if ($disabled) {
-                $attr .= ' disabled="disabled"';
-                $attr .= ' size="' . count($options) . '"';
+            if ($count > 1) {
+                $this->multiple   = 'multiple';
+                $data['multiple'] = 'multiple';
             }
-            elseif (!$pseudo) {
-                $attr .= $count > 3 ? ' size="10"' : " size=\"$count\"";
-                $attr .= ' size="3" required aria-required="true" autofocus';
+
+            if ($disabled) {
+                $this->disabled   = 'disabled';
+                $data['disabled'] = 'disabled';
+                $this->size       = $count;
+                $data['size']     = $count;
+            }
+            elseif (!in_array($resource, $this->managed)) {
+                $this->autofocus   = 'autofocus';
+                $data['autofocus'] = 'autofocus';
+
+                if ($count < 10) {
+                    $this->size   = $count;
+                    $data['size'] = $count;
+                }
+                else {
+                    $this->size   = 10;
+                    $data['size'] = 10;
+                }
             }
         }
 
-        return HTML::_(
-            'select.genericlist',
-            $options,
-            $this->name,
-            trim($attr),
-            'value',
-            'text',
-            $this->value,
-            $this->id
-        );
+        return $this->getRenderer($this->layout)->render($data);
     }
 }
