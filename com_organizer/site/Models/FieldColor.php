@@ -10,66 +10,30 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use Joomla\CMS\Form\Form as FormAlias;
+use THM\Organizer\Adapters\Input;
 
 /**
- * Class which manages stored field (of expertise) data.
+ * @inheritDoc
  */
-class FieldColor extends BaseModel
+class FieldColor extends EditModel
 {
-    /**
-     * Authorizes the user.
-     * @return void
-     */
-    protected function authorize()
-    {
-        if ($organizationID = Input::getInt('organizationID')
-            and Helpers\Organizations::documentable($organizationID)
-        ) {
-            return;
-        }
-
-        if ($fcID = Input::getID() and Helpers\FieldColors::documentable($fcID)) {
-            return;
-        }
-
-        Application::error(403);
-    }
-
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\FieldColors A Table object
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = []): Tables\FieldColors
-    {
-        return new Tables\FieldColors();
-    }
+    protected string $tableClass = 'FieldColors';
 
     /**
      * @inheritDoc
      */
-    public function save(array $data = [])
+    public function getForm($data = [], $loadData = true): ?FormAlias
     {
-        $this->authorize();
-
-        $data  = empty($data) ? Input::getFormItems()->toArray() : $data;
-        $table = $this->getTable();
-
-        if (empty($data['id'])) {
-            return $table->save($data) ? $table->id : false;
+        if (!$form = parent::getForm($data, $loadData)) {
+            return null;
         }
 
-        $table->load($data['id']);
-        $table->colorID = $data['colorID'];
+        if (Input::getID()) {
+            $form->setFieldAttribute('fieldID', 'disabled', true);
+            $form->setFieldAttribute('organizationID', 'disabled', true);
+        }
 
-        return $table->store();
+        return $form;
     }
 }

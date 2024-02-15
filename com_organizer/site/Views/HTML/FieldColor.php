@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 /**
  * Class loads the field form into display context.
  */
-class FieldColorEdit extends EditViewOld
+class FieldColor extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }
