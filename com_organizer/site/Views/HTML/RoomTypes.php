@@ -24,6 +24,8 @@ class RoomTypes extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->toDo[] = 'Add a column for the suppression output.';
+
         $this->setTitle('ROOM_TYPES');
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('RoomTypes.add');
