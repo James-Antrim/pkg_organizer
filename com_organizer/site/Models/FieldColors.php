@@ -20,8 +20,6 @@ use THM\Organizer\Helpers\Organizations;
  */
 class FieldColors extends ListModel
 {
-    protected string $defaultOrdering = 'field';
-
     protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
 
     /**
@@ -67,7 +65,8 @@ class FieldColors extends ListModel
             $query->where("organizationID = $organizationID");
         }
 
-        $this->orderBy($query);
+        $this->filterSearch($query, ['f.name_de', 'f.name_en']);
+        $query->order([DB::qn('field'), DB::qn('organization')]);
 
         return $query;
     }

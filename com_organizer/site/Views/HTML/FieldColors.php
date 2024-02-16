@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Colors};
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -55,21 +55,18 @@ class FieldColors extends ListView
      */
     public function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-
         $this->headers = [
             'check'        => ['type' => 'check'],
             'field'        => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('FIELD', 'field', $direction, $ordering),
+                'title'      => Text::_('FIELD'),
                 'type'       => 'text'
             ],
             'organization' => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('ORGANIZATION', 'organization', $direction, $ordering),
+                'title'      => Text::_('ORGANIZATION'),
                 'type'       => 'text'
             ],
             'color'        => [
