@@ -286,7 +286,7 @@ class Pools extends Curricula implements Selectable
         $query->select(['DISTINCT ' . DB::qn('p') . '.*', DB::qn("p.fullName_$tag", 'name')])
             ->from(DB::qn('#__organizer_pools', 'p'))
             ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.poolID', 'p.id'))
-            ->where(DB::qcs([['lft', ':left', '>'], ['rgt', ':right', '<']]))
+            ->where(DB::qn('lft') . '> :left AND ' . DB::qn('rgt') . '< :right')
             ->bind(':left', $ranges[0]['lft'], ParameterType::INTEGER)
             ->bind(':right', $ranges[0]['rgt'], ParameterType::INTEGER)
             ->order('name');
