@@ -29,8 +29,6 @@ class ListTools
             return;
         }
 
-        //TODO: The original had something about a selector field here might be useful to circle back to this.
-
         // Checks if the filters button should exist.
         $filters     = $view->filterForm->getGroup('filter');
         $filterCount = count($filters);
