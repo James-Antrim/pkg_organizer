@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Handles code common to resources that can be activated or deactivated.

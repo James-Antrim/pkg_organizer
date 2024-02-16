@@ -16,6 +16,23 @@ use THM\Organizer\Tables\Suppressed as SuppressedTable;
 
 trait Suppressed
 {
+    public const REVEALED = 0, SUPPRESSED = 1;
+
+    public const SUPPRESSION_STATES = [
+        self::REVEALED   => [
+            'class'  => 'publish',
+            'column' => 'suppress',
+            'task'   => 'suppress',
+            'tip'    => 'CLICK_TO_SUPPRESS'
+        ],
+        self::SUPPRESSED => [
+            'class'  => 'unpublish',
+            'column' => 'suppress',
+            'task'   => 'reveal',
+            'tip'    => 'CLICK_TO_REVEAL'
+        ]
+    ];
+
     /**
      * Retrieves the suppress attribute of the table.
      *

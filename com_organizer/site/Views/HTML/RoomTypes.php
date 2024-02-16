@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use stdClass;
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\{Can, RoomTypes as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -19,16 +20,18 @@ use THM\Organizer\Layouts\HTML\ListItem;
  */
 class RoomTypes extends ListView
 {
+    use Suppressed;
+
     /**
      * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->toDo[] = 'Add a column for the suppression output.';
-
         $this->setTitle('ROOM_TYPES');
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('RoomTypes.add');
+
+        $this->addSuppression();
 
         // Trust isn't there for this yet.
         if (Can::administrate()) {
@@ -43,25 +46,38 @@ class RoomTypes extends ListView
     /**
      * @inheritDoc
      */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->suppress = HTML::toggle($index, Helper::SUPPRESSION_STATES[$item->suppress], 'RoomTypes');
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'check'   => ['type' => 'check'],
-            'name'    => [
+            'check'    => ['type' => 'check'],
+            'name'     => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
                 'type'       => 'value'
             ],
-            'rns'     => [
+            'rns'      => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('ROOM_KEY'),
                 'type'       => 'text'
             ],
-            'useCode' => [
+            'useCode'  => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('USE_CODE_TEXT'),
+                'type'       => 'text'
+            ],
+            'suppress' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('SHOWN'),
                 'type'       => 'text'
             ],
         ];

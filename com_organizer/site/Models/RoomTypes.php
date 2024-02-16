@@ -19,7 +19,7 @@ use THM\Organizer\Helpers\Can;
  */
 class RoomTypes extends ListModel
 {
-    protected $filter_fields = ['cleaningID', 'keyID', 'useID'];
+    protected $filter_fields = ['cleaningID', 'keyID', 'suppress', 'useID'];
 
     /**
      * @inheritDoc
@@ -30,11 +30,12 @@ class RoomTypes extends ListModel
         $tag   = Application::getTag();
         $url   = 'index.php?option=com_organizer&view=RoomType&id=';
 
-        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
-        $aliased = DB::qn(["t.name_$tag", 'k.key'], ['name', 'rns']);
-        $url     = [$query->concatenate([DB::quote($url), DB::qn('t.id')], '') . ' AS ' . DB::qn('url')];
+        $access   = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
+        $aliased  = DB::qn(["t.name_$tag", 'k.key'], ['name', 'rns']);
+        $selected = ['DISTINCT ' . DB::qn('t.id'), DB::qn('t.suppress')];
+        $url      = [$query->concatenate([DB::quote($url), DB::qn('t.id')], '') . ' AS ' . DB::qn('url')];
 
-        $query->select(array_merge(['DISTINCT ' . DB::qn('t.id')], $access, $aliased, $url))
+        $query->select(array_merge($selected, $access, $aliased, $url))
             ->select($query->concatenate(["c.name_$tag", "' ('", 'c.code', "')'"], '') . ' AS useCode')
             ->from(DB::qn('#__organizer_roomtypes', 't'))
             ->innerJoin(DB::qn('#__organizer_use_codes', 'c'), DB::qc('c.id', 't.usecode'))
@@ -44,6 +45,7 @@ class RoomTypes extends ListModel
         $this->filterByKey($query, 'k.cleaningID', 'cleaningID');
         $this->filterByKey($query, 'k.id', 'keyID');
         $this->filterByKey($query, 'k.useID', 'useID');
+        $this->filterBinary($query, 'filter.suppress');
         $this->filterSearch($query, ['t.name_de', 't.name_en', 't.capacity', 'c.code']);
         $this->orderBy($query);
 

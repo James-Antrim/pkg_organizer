@@ -15,6 +15,11 @@
             <option value="">ORGANIZER_ALL_CLEANING_GROUPS</option>
             <option value="-1">ORGANIZER_NO_CLEANING_GROUP</option>
         </field>
+        <field name="suppress" type="list" label="ORGANIZER_SHOWN" onchange="this.form.submit();" default="-1">
+            <option value="-1">ORGANIZER_ALL_DISPLAY_STATES</option>
+            <option value="0">ORGANIZER_SHOWN</option>
+            <option value="1">ORGANIZER_SUPPRESSED</option>
+        </field>
     </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
