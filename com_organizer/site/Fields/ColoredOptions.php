@@ -23,7 +23,7 @@ abstract class ColoredOptions extends Options
     {
         $onChange = empty($this->getAttribute('onchange')) ?
             '' : ' onchange="' . $this->getAttribute('onchange') . '"';
-        $html     = '<select name="' . $this->name . '"' . $onChange . '>';
+        $html     = '<select name="' . $this->name . '"' . $onChange . ' class="form-select">';
         $options  = $this->getOptions();
         foreach ($options as $option) {
             $style    = isset($option->style) ? ' style="' . $option->style . '"' : '';
