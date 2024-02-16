@@ -89,7 +89,7 @@ abstract class Associated extends ResourceHelper
 
         $column    = DB::qn('aof.' . static::$resource . 'ID');
         $table     = DB::qn('#__organizer_associations', 'aof');
-        $condition = DB::qc($column, "$alias.id");
+        $condition = "$column = " . DB::qn("$alias.id");
 
         if ($organizationID === Selectable::NONE) {
             $query->leftJoin($table, $condition)->where(DB::qn('aof.id') . ' IS NULL');
