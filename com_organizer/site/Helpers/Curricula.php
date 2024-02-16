@@ -73,7 +73,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('lft') . ' > :left')->bind(':left', $curriculum['lft'], ParameterType::INTEGER)
             ->where(DB::qn('rgt') . ' < :right')->bind(':right', $curriculum['rgt'], ParameterType::INTEGER)
-            ->where(DB::qn('level') . ' = :level')->bind(':right', $nextLevel, ParameterType::INTEGER)
+            ->where(DB::qn('level') . ' = :level')->bind(':level', $nextLevel, ParameterType::INTEGER)
             ->order(DB::qn('ordering'));
 
         // Only pools should be direct subordinates of programs
@@ -202,9 +202,8 @@ abstract class Curricula extends Associated implements Documentable, Selectable
 
         $row = array_pop($rows);
         $query->innerJoin(DB::qn('#__organizer_curricula', 'poc'), DB::qc('poc.subjectID', "$alias.id"))
-            ->where([DB::qn('poc.lft') . ' > :left', DB::qn('poc.rgt') . ' < :right'])
-            ->bind(':left', $row['lft'], ParameterType::INTEGER)
-            ->bind(':right', $row['rgt'], ParameterType::INTEGER);
+            ->where(DB::qn('poc.lft') . '> :poLeft')->bind(':poLeft', $row['lft'], ParameterType::INTEGER)
+            ->where(DB::qn('poc.rgt') . '< :poRight')->bind(':poRight', $row['rgt'], ParameterType::INTEGER);
     }
 
     /**
@@ -234,8 +233,8 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         }
 
         $query->innerJoin($table, $condition)
-            ->where(DB::qc('prc.lft', ':left', '>'))->bind(':left', $row['lft'], ParameterType::INTEGER)
-            ->where(DB::qc('prc.rgt', ':right', '<'))->bind(':right', $row['rgt'], ParameterType::INTEGER);
+            ->where(DB::qn('prc.lft') . '> :prLeft')->bind(':prLeft', $row['lft'], ParameterType::INTEGER)
+            ->where(DB::qn('prc.rgt') . '< :prRight')->bind(':prRight', $row['rgt'], ParameterType::INTEGER);
     }
 
     /**
