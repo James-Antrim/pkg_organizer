@@ -67,7 +67,7 @@ class Routing
      */
     public static function getViewURL(string $view, int $id = 0): string
     {
-        $url = Uri::base() . "?option=com_organizer&view=$view";
+        $url = Uri::base() . '?option=com_organizer&view=' . strtolower($view);
 
         if ($id) {
             $url .= "&id=$id";

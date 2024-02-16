@@ -26,8 +26,6 @@ use THM\Organizer\Tables\Table;
  */
 abstract class FormController extends Controller
 {
-    protected const NULL_VALUE = -1;
-
     /**
      * The list view to redirect to after completion of form view functions.
      * @var string
@@ -58,7 +56,7 @@ abstract class FormController extends Controller
     public function apply(): void
     {
         $id = $this->process();
-        $this->setRedirect("$this->baseURL&view=$this->name&id=$id");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id");
     }
 
     /**
@@ -67,7 +65,7 @@ abstract class FormController extends Controller
      */
     public function cancel(): void
     {
-        $this->setRedirect("$this->baseURL&view=$this->list");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->list));
     }
 
     /**
@@ -201,7 +199,7 @@ abstract class FormController extends Controller
     public function save(): void
     {
         $this->process();
-        $this->setRedirect("$this->baseURL&view=$this->list");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->list));
     }
 
     /**
@@ -213,7 +211,7 @@ abstract class FormController extends Controller
         // Force new attribute creation
         Input::set('id', 0);
         $this->process();
-        $this->setRedirect("$this->baseURL&view=$this->list");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->list));
     }
 
     /**
@@ -223,7 +221,7 @@ abstract class FormController extends Controller
     public function save2new(): void
     {
         $this->process();
-        $this->setRedirect("$this->baseURL&view=$this->name&id=0");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . '&id=0');
     }
 
     /**

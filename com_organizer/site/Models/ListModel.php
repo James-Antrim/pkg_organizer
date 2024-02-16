@@ -81,8 +81,7 @@ abstract class ListModel extends Base
      */
     protected function filterByAccess(DatabaseQuery $query, string $alias, string $access): void
     {
-        $view   = Input::getView();
-        $helper = "\\THM\\Organizer\\Helpers\\$view";
+        $helper = '\THM\Organizer\Helpers\\' . Application::ucClassName();
 
         /** @var Associated $helper */
         $helper::filterByAccess($query, $alias, $access);
@@ -174,8 +173,7 @@ abstract class ListModel extends Base
      */
     protected function filterByOrganization(DatabaseQuery $query, string $alias): void
     {
-        $view   = Input::getView();
-        $helper = "\\THM\\Organizer\\Helpers\\$view";
+        $helper = '\THM\Organizer\Helpers\\' . Application::ucClassName();
 
         /** @var Associated $helper */
         $helper::filterByOrganization($query, $alias, (int) $this->state->get('filter.organizationID'));

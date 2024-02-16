@@ -34,7 +34,7 @@ trait ToCed
 
         Sidebar::addEntry(
             '<span class="icon-home"></span> Organizer',
-            Routing::getViewURL('Organizer'),
+            Routing::getViewURL('organizer'),
             $viewName === 'organizer'
         );
 
@@ -48,31 +48,31 @@ trait ToCed
             $items = [];
 
             $items[Text::_('CATEGORIES')]      = [
-                'url'    => Routing::getViewURL('Categories'),
+                'url'    => Routing::getViewURL('categories'),
                 'active' => $viewName === 'categories'
             ];
             $items[Text::_('COURSES')]         = [
-                'url'    => Routing::getViewURL('Courses'),
+                'url'    => Routing::getViewURL('courses'),
                 'active' => $viewName === 'courses'
             ];
             $items[Text::_('COURSES_IMPORT')]  = [
-                'url'    => Routing::getViewURL('CoursesImport'),
-                'active' => $viewName === 'coursesimport'
+                'url'    => Routing::getViewURL('importcourses'),
+                'active' => $viewName === 'importcourses'
             ];
             $items[Text::_('EVENT_TEMPLATES')] = [
-                'url'    => Routing::getViewURL('Events'),
+                'url'    => Routing::getViewURL('events'),
                 'active' => $viewName === 'events'
             ];
             $items[Text::_('GROUPS')]          = [
-                'url'    => Routing::getViewURL('Groups'),
+                'url'    => Routing::getViewURL('groups'),
                 'active' => $viewName === 'groups'
             ];
             $items[Text::_('SCHEDULES')]       = [
-                'url'    => Routing::getViewURL('Schedules'),
+                'url'    => Routing::getViewURL('schedules'),
                 'active' => $viewName === 'schedules'
             ];
             $items[Text::_('UNITS')]           = [
-                'url'    => Routing::getViewURL('Units'),
+                'url'    => Routing::getViewURL('units'),
                 'active' => $viewName === 'units'
             ];
 
@@ -81,7 +81,7 @@ trait ToCed
             // Uploading a schedule should always be the first menu item and will never be the active submenu item.
             $prepend = [
                 Text::_('SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
-                    'url'    => Routing::getViewURL('ScheduleEdit'),
+                    'url'    => Routing::getViewURL('importschedule'),
                     'active' => false
                 ]
             ];
@@ -103,19 +103,19 @@ trait ToCed
             $items = [];
 
             $items[Text::_('FIELD_COLORS')] = [
-                'url'    => Routing::getViewURL('FieldColors'),
+                'url'    => Routing::getViewURL('fieldcolors'),
                 'active' => $viewName === 'fieldcolors'
             ];
             $items[Text::_('POOLS')]        = [
-                'url'    => Routing::getViewURL('Pools'),
+                'url'    => Routing::getViewURL('pools'),
                 'active' => $viewName === 'pools'
             ];
             $items[Text::_('PROGRAMS')]     = [
-                'url'    => Routing::getViewURL('Programs'),
+                'url'    => Routing::getViewURL('programs'),
                 'active' => $viewName === 'programs'
             ];
             $items[Text::_('SUBJECTS')]     = [
-                'url'    => Routing::getViewURL('Subjects'),
+                'url'    => Routing::getViewURL('subjects'),
                 'active' => $viewName === 'subjects'
             ];
             ksort($items);
@@ -132,7 +132,7 @@ trait ToCed
             Sidebar::addEntry($spanText);
             Sidebar::addEntry(
                 Text::_('PERSONS'),
-                Routing::getViewURL('Persons'),
+                Routing::getViewURL('persons'),
                 $viewName === 'persons'
             );
         }
@@ -146,35 +146,35 @@ trait ToCed
             $items = [];
 
             $items[Text::_('BUILDINGS')]      = [
-                'url'    => Routing::getViewURL('Buildings'),
+                'url'    => Routing::getViewURL('buildings'),
                 'active' => $viewName === 'buildings'
             ];
             $items[Text::_('CAMPUSES')]       = [
-                'url'    => Routing::getViewURL('Campuses'),
+                'url'    => Routing::getViewURL('campuses'),
                 'active' => $viewName === 'campuses'
             ];
             $items[Text::_('CLEANINGGROUPS')] = [
-                'url'    => Routing::getViewURL('CleaningGroups'),
+                'url'    => Routing::getViewURL('cleaninggroups'),
                 'active' => $viewName === 'cleaninggroups'
             ];
             $items[Text::_('MONITORS')]       = [
-                'url'    => Routing::getViewURL('Monitors'),
+                'url'    => Routing::getViewURL('monitors'),
                 'active' => $viewName === 'monitors'
             ];
             $items[Text::_('ROOMS')]          = [
-                'url'    => Routing::getViewURL('Rooms'),
+                'url'    => Routing::getViewURL('rooms'),
                 'active' => $viewName === 'rooms'
             ];
             /*$items[Text::_('ROOMS_IMPORT')] = [
-                'url'    => Routing::getViewURL('RoomsImport'),
-                'active' => $viewName === 'rooms_import'
+                'url'    => Routing::getViewURL('importrooms'),
+                'active' => $viewName === 'importrooms'
             ];*/
             $items[Text::_('ROOM_KEYS')]  = [
-                'url'    => Routing::getViewURL('RoomKeys'),
+                'url'    => Routing::getViewURL('roomkeys'),
                 'active' => $viewName === 'roomkeys'
             ];
             $items[Text::_('ROOM_TYPES')] = [
-                'url'    => Routing::getViewURL('RoomTypes'),
+                'url'    => Routing::getViewURL('roomtypes'),
                 'active' => $viewName === 'roomtypes'
             ];
             ksort($items);
@@ -193,43 +193,43 @@ trait ToCed
             $items = [];
 
             $items[Text::_('COLORS')]        = [
-                'url'    => Routing::getViewURL('Colors'),
+                'url'    => Routing::getViewURL('colors'),
                 'active' => $viewName === 'colors'
             ];
             $items[Text::_('DEGREES')]       = [
-                'url'    => Routing::getViewURL('Degrees'),
+                'url'    => Routing::getViewURL('degrees'),
                 'active' => $viewName === 'degrees'
             ];
             $items[Text::_('FIELDS')]        = [
-                'url'    => Routing::getViewURL('Fields'),
+                'url'    => Routing::getViewURL('fields'),
                 'active' => $viewName === 'fields'
             ];
             $items[Text::_('GRIDS')]         = [
-                'url'    => Routing::getViewURL('Grids'),
+                'url'    => Routing::getViewURL('grids'),
                 'active' => $viewName === 'grids'
             ];
             $items[Text::_('HOLIDAYS')]      = [
-                'url'    => Routing::getViewURL('Holidays'),
+                'url'    => Routing::getViewURL('holidays'),
                 'active' => $viewName === 'holidays'
             ];
             $items[Text::_('METHODS')]       = [
-                'url'    => Routing::getViewURL('Methods'),
+                'url'    => Routing::getViewURL('methods'),
                 'active' => $viewName === 'methods'
             ];
             $items[Text::_('ORGANIZATIONS')] = [
-                'url'    => Routing::getViewURL('Organizations'),
+                'url'    => Routing::getViewURL('organizations'),
                 'active' => $viewName === 'organizations'
             ];
             $items[Text::_('PARTICIPANTS')]  = [
-                'url'    => Routing::getViewURL('Participants'),
+                'url'    => Routing::getViewURL('participants'),
                 'active' => $viewName === 'participants'
             ];
             $items[Text::_('RUNS')]          = [
-                'url'    => Routing::getViewURL('Runs'),
+                'url'    => Routing::getViewURL('runs'),
                 'active' => $viewName === 'runs'
             ];
             $items[Text::_('TERMS')]         = [
-                'url'    => Routing::getViewURL('Terms'),
+                'url'    => Routing::getViewURL('terms'),
                 'active' => $viewName === 'terms'
             ];
             ksort($items);

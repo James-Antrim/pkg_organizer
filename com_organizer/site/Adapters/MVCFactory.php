@@ -126,8 +126,7 @@ class MVCFactory extends Base
      */
     public function createController($name, $prefix, array $config, CMSApplicationInterface $app, JInput $input): Controller
     {
-        $name           = preg_replace('/[^A-Z0-9_]/i', '', $name);
-        $className      = "THM\Organizer\Controllers\\$name";
+        $className      = 'THM\Organizer\Controllers\\' . Application::ucClassName($name);
         $config['name'] = $name;
         $controller     = new $className($config, $this, $app, $input);
         $this->addDispatcher($controller);
@@ -141,8 +140,7 @@ class MVCFactory extends Base
      */
     public function createModel($name, $prefix = '', array $config = [])
     {
-        $name        = preg_replace('/[^A-Z0-9_]/i', '', $name);
-        $className   = "THM\Organizer\Models\\$name";
+        $className   = 'THM\Organizer\Models\\' . Application::ucClassName($name);
         $formFactory = $this->getFormFactory();
         $model       = new $className($config, $this, $formFactory);
         $this->addDispatcher($model);
@@ -157,8 +155,7 @@ class MVCFactory extends Base
     public function createView($name, $prefix = '', $type = 'HTML', array $config = [])
     {
         $format = Input::getFormat();
-        $name   = preg_replace('/[^A-Z0-9_]/i', '', $name);
-        $view   = "THM\Organizer\Views\\$format\\$name";
+        $view   = "THM\Organizer\Views\\$format\\" . Application::ucClassName($name);
         $view   = new $view($config);
         $this->addDispatcher($view);
         $this->addFormFactory($view);
@@ -184,8 +181,6 @@ class MVCFactory extends Base
 
         return new $fqName($dbo);
     }
-
-    // todo overwrite getClassName???
 
     /**
      * Checks for the available Table classes.

@@ -51,7 +51,7 @@ abstract class ListController extends Controller
      */
     public function add(): void
     {
-        $this->setRedirect("$this->baseURL&view=$this->item");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->item));
     }
 
     /**
@@ -125,8 +125,7 @@ abstract class ListController extends Controller
         }
 
         if ($autoRedirect) {
-            $view = Application::getClass($this);
-            $this->setRedirect("$this->baseURL&view=$view");
+            $this->setRedirect("$this->baseURL&view=" . strtolower(Application::getClass($this)));
         }
 
         try {

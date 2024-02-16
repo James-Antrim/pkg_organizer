@@ -62,7 +62,7 @@ class Courses extends ListController
     public function import(): void
     {
         $url  = Helpers\Routing::getRedirectBase();
-        $view = 'Courses';
+        $view = 'courses';
 
         if (JDEBUG) {
             Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
@@ -78,15 +78,15 @@ class Courses extends ListController
         if (!empty($file['type']) and $file['type'] === 'text/plain') {
             if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
                 $model = new Models\Course();
-                $view  = $model->import() ? 'Courses' : 'CoursesImport';
+                $view  = $model->import() ? 'courses' : 'importcourses';
             }
             else {
-                $view = 'CoursesImport';
+                $view = 'importcourses';
                 Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
             }
         }
         else {
-            $view = 'CoursesImport';
+            $view = 'importcourses';
             Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
 

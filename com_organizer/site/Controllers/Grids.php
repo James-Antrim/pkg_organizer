@@ -58,7 +58,6 @@ class Grids extends ListController
         }
 
         Application::message($message, $type);
-        $view = Application::getClass($this);
-        $this->setRedirect("$this->baseURL&view=$view");
+        $this->setRedirect("$this->baseURL&view=" . strtolower(Application::getClass($this)));
     }
 }

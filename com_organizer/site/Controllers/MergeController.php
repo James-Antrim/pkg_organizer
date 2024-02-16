@@ -84,7 +84,7 @@ abstract class MergeController extends FormController
         if (JDEBUG) {
             Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
 
-            $this->setRedirect("$this->baseURL&view=$this->list");
+            $this->setRedirect("$this->baseURL&view=" . strtolower($this->list));
         }
 
         $this->input->set('view', Application::getClass($this));

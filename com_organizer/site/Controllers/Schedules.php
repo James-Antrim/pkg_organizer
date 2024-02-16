@@ -92,7 +92,7 @@ class Schedules extends ListController
         $url = Helpers\Routing::getRedirectBase();
         if (JDEBUG) {
             Application::message('DEBUG_ON', Application::ERROR);
-            $url .= "&view=Schedules";
+            $url .= "&view=schedules";
             $this->setRedirect($url);
 
             return;
@@ -100,24 +100,24 @@ class Schedules extends ListController
 
         $form      = $this->input->files->get('jform', [], '[]');
         $file      = $form['file'];
+        $url       .= '&view=';
         $validType = (!empty($file['type']) and $file['type'] == 'text/xml');
 
         if ($validType) {
             if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
                 $model = new Models\Schedule();
-                $view  = $model->upload() ? 'Schedules' : 'Schedule_Edit';
+                $view  = $model->upload() ? 'schedules' : 'importschedule';
             }
             else {
-                $view = 'Schedule_Edit';
+                $view = 'importschedule';
                 Application::message('FILE_ENCODING_INVALID', Application::ERROR);
             }
         }
         else {
-            $view = 'Schedule_Edit';
+            $view = 'importschedule';
             Application::message('FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
 
-        $url .= "&view=$view";
-        $this->setRedirect($url);
+        $this->setRedirect($url . $view);
     }
 }

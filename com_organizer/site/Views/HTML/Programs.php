@@ -74,8 +74,8 @@ class Programs extends ListView
     protected function completeItems(array $options = []): void
     {
         $options['links'] = [
-            'Curriculum' => HTML::icon('fa fa-th'),
-            'Subjects'   => HTML::icon('fa fa-list'),
+            'curriculum' => HTML::icon('fa fa-th'),
+            'subjects'   => HTML::icon('fa fa-list'),
         ];
 
         parent::completeItems($options);

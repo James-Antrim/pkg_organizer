@@ -106,10 +106,12 @@ class Application
 
             if ($severity === self::ERROR) {
                 echo "<pre>" . print_r($message, true) . "</pre>";
+                $exc = new Exception;
+                echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
                 die;
             }
 
-            //$url = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
+            $url = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
         }
 
         self::message($message, $severity);
@@ -365,5 +367,47 @@ class Application
         /** @var CMSApplication $app */
         $app = self::getApplication();
         $app->redirect($url, $status);
+    }
+
+    /**
+     * Resolves the upper case class name for the given string.
+     *
+     * @param   string  $name  the name of the class to resolve
+     *
+     * @return string
+     */
+    public static function ucClassName(string $name = ''): string
+    {
+        $name = empty($name) ? Input::getView() : $name;
+        $name = preg_replace('/[^A-Z0-9_]/i', '', $name);
+
+        // First letter UC assume already correct
+        if (ctype_upper($name[0])) {
+            return $name;
+        }
+
+        return match ($name) {
+            // Compound nouns
+            'cleaninggroup' => 'CleaningGroup',
+            'cleaninggroups' => 'CleaningGroups',
+            'courseparticipants' => 'CourseParticipants',
+            'fieldcolor' => 'FieldColor',
+            'fieldcolors' => 'FieldColors',
+            'importcourses' => 'ImportCourses',
+            'importrooms' => 'ImportRooms',
+            'importschedule' => 'ImportSchedule',
+            'instanceparticipants' => 'InstanceParticipants',
+            'mergeparticipants' => 'MergeParticipants',
+            'mergepersons' => 'MergePersons',
+            'mergerooms' => 'MergeRooms',
+            'roomkey' => 'RoomKey',
+            'roomkeys' => 'RoomKeys',
+            'roomtype' => 'RoomType',
+            'roomtypes' => 'RoomTypes',
+            'selectpools' => 'SelectPools',
+            'selectsubjects' => 'SelectSubjects',
+
+            default => ucfirst($name),
+        };
     }
 }
