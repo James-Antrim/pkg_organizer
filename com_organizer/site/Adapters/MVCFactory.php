@@ -11,9 +11,9 @@
 namespace THM\Organizer\Adapters;
 
 use Exception;
-use Joomla\CMS\Application\CMSApplicationInterface;
-use Joomla\CMS\Form\FormFactoryAwareInterface;
-use Joomla\CMS\MVC\Factory\MVCFactory as Base;
+use Joomla\CMS\{Application\CMSApplicationInterface, Form\FormFactoryAwareInterface};
+use Joomla\CMS\MVC\Factory\{MVCFactory as Base, MVCFactoryInterface};
+use Joomla\CMS\Table\Table;
 use Joomla\Event\DispatcherAwareInterface;
 use Joomla\Input\Input as JInput;
 use THM\Organizer\Controllers\Controller;
@@ -23,52 +23,6 @@ use THM\Organizer\Controllers\Controller;
  */
 class MVCFactory extends Base
 {
-    /**
-     * Maps singular model / view names to their corresponding table names.
-     * @var string[]
-     * @todo remove unused resolutions
-     */
-    private array $tableMap = [
-        'Booking'           => 'Bookings',
-        'Building'          => 'Buildings',
-        'Campus'            => 'Campuses',
-        'Category'          => 'Categories',
-        'CleaningGroup'     => 'CleaningGroups',
-        'Color'             => 'Colors',
-        'Course'            => 'Courses',
-        'CourseParticipant' => 'CourseParticipants',
-        // todo helper this
-        'Degree'            => 'Degrees',
-        'Event'             => 'Events',
-        'Field'             => 'Fields',
-        'FieldColor'        => 'FieldColors',
-        // todo helper this
-        'Frequency'         => 'Frequencies',
-        'Grid'              => 'Grids',
-        'Group'             => 'Groups',
-        'Holiday'           => 'Holidays',
-        'Instance'          => 'Instances',
-        // todo helper this
-        'Method'            => 'Methods',
-        'Monitor'           => 'Monitors',
-        'Organization'      => 'Organizations',
-        'Participant'       => 'Participants',
-        'Person'            => 'Persons',
-        'Pool'              => 'Pools',
-        'Program'           => 'Programs',
-        // todo helper this
-        'Role'              => 'Roles',
-        'Room'              => 'Rooms',
-        // todo camelcase this
-        'RoomKey'           => 'RoomKeys',
-        'RoomType'          => 'RoomTypes',
-        'Run'               => 'Runs',
-        'Schedule'          => 'Schedules',
-        'Subject'           => 'Subjects',
-        'Term'              => 'Terms',
-        'Unit'              => 'Units'
-    ];
-
     /**
      * Sets the internal event dispatcher on the given object. Parent has private access. :(
      *
@@ -164,36 +118,42 @@ class MVCFactory extends Base
     }
 
     /**
-     * @inheritDoc
+     * Method to load and return a table object. This function is not yet to my knowledge used, but necessary to fulfill
+     * the MVCFactoryInterface.
+     *
+     * @param   string  $name    The name of the table.
+     * @param   string  $prefix  Optional table prefix.
+     * @param   array   $config  Optional configuration array for the table.
+     *
+     * @return  Table  The table object
+     * @see MVCFactoryInterface
      */
-    public function createTable($name, $prefix = '', array $config = [])
+    public function createTable($name, $prefix = '', array $config = []): Table
     {
-        // Clean the parameters
-        $name = preg_replace('/[^A-Z0-9_]/i', '', $name);
-        $name = empty($this->tableMap[$name]) ? $name : $this->tableMap[$name];
+        $caller = Application::ucClassName($name);
+        $table  = str_ends_with($caller, 's') ? $caller : match ($caller) {
+            // Unusual plurals
+            'Campus' => 'Campuses',
+            'Category' => 'Categories',
+            'Course' => 'Courses',
+            'Frequency' => 'Frequencies',
+            // Potentially derivative classes: Import-, Merge-, Select-
+            default => $caller . 's'
+        };
 
-        if (!in_array($name, $this->getTableClasses())) {
-            Application::error(503);
-        }
-
-        $fqName = "THM\Organizer\Tables\\$name";
-        $dbo    = array_key_exists('dbo', $config) ? $config['dbo'] : $this->getDatabase();
-
-        return new $fqName($dbo);
-    }
-
-    /**
-     * Checks for the available Table classes.
-     * @return array
-     */
-    private function getTableClasses(): array
-    {
         $tables = [];
         foreach (glob(JPATH_SITE . '/components/com_organizer/Tables/*') as $table) {
             $table    = str_replace(JPATH_SITE . '/components/com_organizer/Tables/', '', $table);
             $tables[] = str_replace('.php', '', $table);
         }
 
-        return $tables;
+        if (!in_array($table, $tables)) {
+            Application::error(503);
+        }
+
+        $fqName = "THM\Organizer\Tables\\$table";
+        $dbo    = array_key_exists('dbo', $config) ? $config['dbo'] : $this->getDatabase();
+
+        return new $fqName($dbo);
     }
 }
