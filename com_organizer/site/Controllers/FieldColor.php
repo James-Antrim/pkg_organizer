@@ -10,6 +10,9 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Input;
+use THM\Organizer\Tables\FieldColors as Table;
+
 /**
  * @inheritDoc
  */
@@ -17,7 +20,10 @@ class FieldColor extends FormController
 {
     protected string $list = 'FieldColors';
 
-    /*protected function process(): int
+    /**
+     * @inheritDoc
+     */
+    protected function process(): int
     {
         $this->checkToken();
         $this->authorize();
@@ -25,30 +31,35 @@ class FieldColor extends FormController
         $id   = Input::getID();
         $data = $this->prepareData();
 
-        // For save to copy, will otherwise be identical.
-        $data['id'] = $id;
-        $table      = $this->getTable();
-
-        return $this->store($table, $data, $id);
-    }*/
-
-    /**
-     * @inheritDoc
-     */
-    /*public function save(array $data = [])
-    {
-        $this->authorize();
-
-        $data  = empty($data) ? Input::getFormItems()->toArray() : $data;
+        /** @var Table $table */
         $table = $this->getTable();
 
-        if (empty($data['id'])) {
-            return $table->save($data) ? $table->id : false;
+        // Pull accurate disabled field values from stored table values.
+        if (!empty($id)) {
+            $table->load($id);
+            $data['fieldID']        = $table->fieldID;
+            $data['organizationID'] = $table->organizationID;
         }
 
-        $table->load($data['id']);
-        $table->colorID = $data['colorID'];
+        return $this->store($table, $data, $id);
+    }
 
-        return $table->store();
-    }**/
+    /**
+     * Validates the form data beyond the implicit type validation performed during prepareData.
+     *
+     * @param   array  $data      the form data to validate
+     * @param   array  $required  the required fields
+     *
+     * @return void
+     */
+    protected function validate(array &$data, array $required = []): void
+    {
+        if (empty($data['id'])) {
+            parent::validate($data, ['colorID', 'fieldID', 'organizationID']);
+            return;
+        }
+
+        //The other fields are disabled and deliver ~empty values.
+        parent::validate($data, ['colorID']);
+    }
 }
