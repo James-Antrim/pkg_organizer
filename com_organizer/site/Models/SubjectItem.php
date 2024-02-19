@@ -228,7 +228,7 @@ class SubjectItem extends ItemModel
      *
      * @return void
      */
-    private function setDependencies(array &$subject)
+    private function setDependencies(array &$subject): void
     {
         $subjectID = $subject['subjectID'];
         $programs  = Helpers\Subjects::programs($subjectID);
@@ -341,7 +341,7 @@ class SubjectItem extends ItemModel
      *
      * @return void
      */
-    private function setPersons(array &$subject)
+    private function setPersons(array &$subject): void
     {
         $personData = Helpers\Persons::getDataBySubject($subject['subjectID'], 0, true, false);
 
@@ -373,6 +373,9 @@ class SubjectItem extends ItemModel
         if (count($persons)) {
             $subject['persons']['value'] = $persons;
         }
+        else {
+            $subject['persons']['value'] = [Text::_('VARIOUS_TEACHERS')];
+        }
     }
 
     /**
@@ -382,7 +385,7 @@ class SubjectItem extends ItemModel
      *
      * @return void
      */
-    private function setPools(array &$subject)
+    private function setPools(array &$subject): void
     {
         $programs   = [];
         $poolRanges = Helpers\Subjects::pools($subject['subjectID']);
