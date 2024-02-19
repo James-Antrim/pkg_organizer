@@ -56,11 +56,11 @@ class Input
             return $value;
         }
 
-        if ($value = self::getInput()->get("filter.$property", null, 'raw')) {
+        if ($filterItems = self::getFilterItems() and $value = $filterItems->get($property)) {
             return $value;
         }
 
-        if ($value = self::getInput()->get("list.$property", null, 'raw')) {
+        if ($listItems = self::getListItems() and $value = $listItems->get($property)) {
             return $value;
         }
 
@@ -285,14 +285,20 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param   string  $property  Name of the property to get.
-     * @param   int     $default   Default value to return if variable does not exist.
+     * @param   string  $property  Name of the property to get
+     * @param   int     $default   Default value to return if variable does not exist
+     * @param   string  $method    Explicit method where the value should be
      *
      * @return int
      */
-    public static function getInt(string $property, int $default = 0): int
+    public static function getInt(string $property, int $default = 0, string $method = ''): int
     {
-        $value = self::find($property);
+        if ($method) {
+            $value = self::getInput()->$method->get($property, $default, 'raw');
+        }
+        else {
+            $value = self::find($property);
+        }
 
         // Better plausibility test for this type whose value can also be 0 on purpose and otherwise evaluate to false.
         if (is_numeric($value)) {

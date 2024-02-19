@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\Database\{DatabaseQuery, ParameterType};
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 use THM\Organizer\Helpers\{Can, Organizations, Pools, Programs, Subjects as Helper};
 
 /**
@@ -69,6 +69,7 @@ class Subjects extends ListModel
         $role = Input::getParams()->get('role', 1);
 
         foreach ($items as $item) {
+            $item->name    = $item->name ?: sprintf(Text::_('SUBJECT_WITHOUT_NAME'), $item->id);
             $item->persons = Helper::persons($item->id, $role);
         }
 
@@ -128,12 +129,11 @@ class Subjects extends ListModel
         }
 
         // The selected pool supersedes any original called pool
-        if ($poolID = $this->state->get('filter.poolID')) {
-            Helper::filterPool($query, $poolID, 's');
+        if ($poolID = (int) $this->state->get('filter.poolID')) {
+            Helper::filterPool($query, $poolID, 's', $programID);
         }
 
-        $personID = (int) $this->state->get('filter.personID');
-        if ($personID !== self::ALL) {
+        if ($personID = (int) $this->state->get('filter.personID')) {
             $condition = DB::qc('sp.subjectID', 's.id');
             $table     = DB::qn('#__organizer_subject_persons', 'sp');
             if ($personID === self::NONE) {
@@ -141,7 +141,7 @@ class Subjects extends ListModel
                 $query->leftJoin($table, $conditions);
             }
             else {
-                $query->innerJoin($table, ['sp.subjectID = s.id'])
+                $query->innerJoin($table, $condition)
                     ->where(DB::qn('sp.personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER);
             }
         }
@@ -154,197 +154,214 @@ class Subjects extends ListModel
     }
 
     /**
+     * Checks whether the person in question is assigned to a subject in the given pool or program
+     *
+     * @param   int  $personID   the id of the person filtered against
+     * @param   int  $programID  the optional id of the program being filtered against
+     * @param   int  $poolID     the optional id of the pool being filtered against
+     *
+     * @return bool
+     */
+    private function plausiblePerson(int $personID, int $programID = 0, int $poolID = 0): bool
+    {
+        // Cannot check against an empty or negative context
+        if ((!$programID and !$poolID) or $programID === self::NONE or $poolID === self::NONE) {
+            return false;
+        }
+
+        // Empty result set
+        if (!$subjects = $poolID ? Pools::subjects($poolID) : Programs::subjects($programID)) {
+            return false;
+        }
+
+        $persons = [];
+        foreach ($subjects as $subject) {
+            $thesePeople = Helper::persons($subject['subjectID']);
+            if (empty($thesePeople)) {
+                continue;
+            }
+
+            $persons = array_merge($persons, $thesePeople);
+        }
+
+        if (empty($persons)) {
+            return false;
+        }
+
+        foreach ($persons as $person) {
+            if ($person['id'] === $personID) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @inheritDoc
      */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
-        $calledPerson  = false;
-        $calledPool    = false;
-        $calledProgram = false;
-        $personID      = self::ALL;
-        $poolID        = self::ALL;
-        $programID     = self::ALL;
-
-        $organizationID = Input::getFilterID('organization', self::ALL);
-
         if (Application::backend()) {
             $authorized = Organizations::documentableIDs();
             if (count($authorized) === 1) {
                 $organizationID = $authorized[0];
-                $this->state->set('filter.organizationID', $organizationID);
+            }
+            else {
+                $organizationID = Input::getInt('organizationID');
             }
         }
         else {
-            // Program ID can be set by menu settings or the request
-            if ($programID = Input::getInt('programID')
-                or $programID = Input::getParams()->get('programID', 0)
-                or $programID = $this->state->get('calledProgramID')) {
-                $calledProgram = $programID;
-            }
-
-            // Pool ID can be set by the request
-            if ($poolID = Input::getInt('poolID')
-                or $poolID = $this->state->get('calledPoolID')) {
-                $calledPool = $poolID;
-            }
-
-            // Person ID can be set by the request
-            if ($personID = Input::getInt('personID')
-                or $personID = $this->state->get('calledPersonID')) {
-                $calledPerson = $personID;
-            }
+            // Can only be explicitly called by a subjects filter where no called parameters prevented its output.
+            $organizationID = Input::getInt('organizationID');
         }
 
-        if ($calledPerson or $calledPool or $calledProgram) {
-            $this->setState('list.limit', 0);
-        }
-
-        $personID    = $calledPerson ? $personID : Input::getFilterID('person', self::ALL);
-        $defaultPool = $calledPool ?: self::ALL;
-        $poolID      = $calledPool ? $poolID : Input::getFilterID('pool', $defaultPool);
-        $programID   = $calledProgram ? $programID : Input::getFilterID('program', self::ALL);
-
-        $this->state->set('calledPersonID', $calledPerson);
-        $this->state->set('calledPoolID', false);
-        $this->state->set('calledProgramID', false);
-
-        $this->state->set('filter.personID', $personID);
-        $this->state->set('filter.poolID', self::ALL);
-        $this->state->set('filter.programID', self::ALL);
-
-        // The existence of the organization id precludes called curriculum parameter use
         if ($organizationID) {
-            // Pool and program filtering is completely disassociated subjects
-            if ($organizationID === self::NONE) {
-                return;
-            }
-
-            if ($programID) {
-                // Disassociated subjects requested => precludes pool selections
-                if ($programID === self::NONE) {
-                    $this->state->set('filter.programID', $programID);
-
-                    return;
-                }
-
-                // Selected program is incompatible with the selected organization => precludes pool selections
-                if (!Programs::associated($organizationID, $programID)) {
-                    return;
-                }
-
-            }
-
-            if ($poolID) {
-                if ($poolID === self::NONE) {
-                    $this->state->set('filter.poolID', $poolID);
-                    $this->state->set('filter.programID', $programID);
-
-                    return;
-                }
-
-                if (!Pools::associated($organizationID, $poolID)) {
-                    $this->state->set('filter.poolID', self::ALL);
-                    $this->state->set('filter.programID', $programID);
-
-                    return;
-                }
-
-                if ($programID) {
-                    if (!$prRanges = Programs::rows($programID)) {
-                        return;
-                    }
-
-                    if (!$plRanges = Pools::rows($poolID)
-                        or !Helper::included($plRanges, $prRanges)) {
-                        $this->state->set('filter.poolID', self::ALL);
-                        $this->state->set('filter.programID', $programID);
-
-                        return;
-                    }
-                }
-            }
-
-            // Curriculum filters are either valid or empty
-            $this->state->set('filter.poolID', $poolID);
-            $this->state->set('filter.programID', $programID);
-
-            return;
+            $this->state->set('filter.organizationID', $organizationID);
         }
 
-        if ($calledPerson) {
-            $this->state->set('calledPersonID', $calledPerson);
-            $this->state->set('filter.personID', $personID);
-            $this->state->set('filter.programID', $programID);
-            $this->state->set('filter.poolID', $poolID);
-        }
+        $disassociated = $organizationID === self::NONE;
+        $personID      = Input::getInt('personID');
+        $unassigned    = $personID === self::NONE;
+        $poolID        = Input::getInt('poolID');
+        $misconfigured = $poolID === self::NONE;
+        $programID     = Input::getInt('programID');
+        $lost          = $programID === self::NONE;
 
-        if ($programID === self::NONE) {
-            $this->state->set('filter.programID', $programID);
+        // Curriculum plausibility checks //////////////////////////////////////////////////////////////////////////////
 
-            return;
-        }
-
-        if (!$poolID) {
-            if ($calledProgram) {
-                $this->state->set('calledProgramID', $calledProgram);
+        // Subjects not associated with a program
+        if ($lost) {
+            // Pool selected in an invalid program context
+            if ($poolID and !$misconfigured) {
+                $poolID = '';
             }
-
-            $this->state->set('filter.programID', $programID);
-
-            return;
         }
-
-        if ($poolID === self::NONE) {
-            if ($programID) {
-                if ($calledProgram) {
-                    $this->state->set('calledProgramID', $programID);
-                }
-
-                $this->state->set('filter.poolID', $poolID);
-                $this->state->set('filter.programID', $programID);
-            }
-            else {
-                $this->state->set('filter.poolID', self::ALL);
-                $this->state->set('filter.programID', self::NONE);
-            }
-
-            return;
-        }
-
-        // The existence of a program id precludes the pool having been called directly
-        if ($programID) {
-            // None has already been eliminated => the chosen program is invalid => allow reset
+        // Subjects associated with selected program
+        elseif ($programID) {
+            // Selected program context invalid => any concrete pool selection is consequently invalid
             if (!$prRanges = Programs::rows($programID)) {
-                return;
+                $poolID    = $misconfigured ? $poolID : '';
+                $programID = '';
+            }
+            // Concrete pool selected
+            elseif ($poolID and !$misconfigured) {
+                // Selected pool context is invalid or pool not available in program context
+                if (!$plRanges = Pools::rows($poolID) or !Helper::included($plRanges, $prRanges)) {
+                    $poolID = '';
+                }
+            }
+        }
+        // Pool selected with no program context selected: error state
+        elseif ($poolID and !$misconfigured) {
+            $poolID = '';
+        }
+
+        // Association plausibility checks /////////////////////////////////////////////////////////////////////////////
+
+        // Concrete organization selected
+        if ($organizationID and !$disassociated) {
+            // Program selected not associated with selected organization: error state
+            if ($programID and !$lost and !Programs::associated($organizationID, $programID)) {
+                $programID = '';
+                $poolID    = $misconfigured ? $poolID : '';
+            }
+            elseif ($poolID and !$misconfigured and !Pools::associated($organizationID, $poolID)) {
+                $poolID = '';
+            }
+        }
+
+        if (Application::backend()) {
+
+            if ($personID and !$unassigned and ($programID or $poolID)) {
+                $personID = $this->plausiblePerson($personID, $programID ?: 0, $poolID ?: 0) ? $personID : '';
             }
 
-
-            $this->state->set('filter.programID', $programID);
-
-            // Pool is invalid or invalid for the chosen program context
-            if (!$plRanges = Pools::rows($poolID)
-                or !Helper::included($plRanges, $prRanges)) {
-                return;
-            }
-
-            if ($calledPool) {
-                $this->state->set('calledPoolID', $calledPool);
-            }
-            elseif ($calledProgram) {
-                $this->state->set('calledProgramID', $calledProgram);
-            }
-
+            $this->state->set('filter.personID', $personID);
             $this->state->set('filter.poolID', $poolID);
+            $this->state->set('filter.programID', $programID);
 
             return;
         }
 
-        if ($calledPool) {
-            $this->state->set('calledPoolID', $calledPool);
+
+        if (!$organizationID) {
+            $cPersonID  = Input::getInt('personID', 0, 'GET') ?: (int) $this->state->get('calledPersonID', 0);
+            $cPersonID  = $cPersonID === self::NONE ? 0 : $cPersonID;
+            $cPoolID    = Input::getInt('poolID', 0, 'GET') ?: (int) $this->state->get('calledPoolID', 0);
+            $cPoolID    = $cPoolID === self::NONE ? 0 : $cPoolID;
+            $cProgramID = Input::getInt('programID', 0, 'GET') ?: (int) Input::getParams()->get('programID', 0);
+            $cProgramID = $cProgramID ?: (int) $this->state->get('calledProgramID', 0);
+            $cProgramID = $cProgramID === self::NONE ? 0 : $cProgramID;
+
+            if ($cProgramID) {
+                // Called program context invalid => any concrete pool called are consequently invalid
+                if (!$prRanges = Programs::rows($cProgramID)) {
+                    $cPoolID    = 0;
+                    $cProgramID = 0;
+                }
+                // Concrete pool called
+                elseif ($cPoolID) {
+                    // Selected pool context is invalid or pool not available in program context
+                    if (!$plRanges = Pools::rows($cPoolID) or !Helper::included($plRanges, $prRanges)) {
+                        $cPoolID = 0;
+                    }
+                }
+                // Concrete pool selected
+                elseif ($poolID and !$misconfigured) {
+                    // Selected pool context is invalid or pool not available in program context
+                    if (!$plRanges = Pools::rows($poolID) or !Helper::included($plRanges, $prRanges)) {
+                        $poolID = 0;
+                    }
+                }
+            }
+
+            // Preemptively dismiss pagination on configured calls and end here
+            if ($cPersonID or $cPoolID or $cProgramID) {
+                // Ensure correct filter typing for empties
+                $cPersonID  = $cPersonID ?: '';
+                $cPoolID    = $cPoolID ?: '';
+                $cProgramID = $cProgramID ?: '';
+                $poolID     = $poolID ?: '';
+
+                // Set ~final filter values
+                $usedPersonID  = $cPersonID ?: $personID;
+                $usedPoolID    = $cPoolID ?: $poolID;
+                $usedProgramID = $cProgramID ?: $programID;
+
+                // Use filter values to check person plausibility
+                if ($usedPersonID and !$unassigned and ($usedProgramID or $usedPoolID)) {
+                    $usedPersonID = $this->plausiblePerson($usedPersonID, $usedProgramID ?: 0, $usedPoolID ?: 0) ?
+                        $usedPersonID : '';
+                }
+
+                $this->state->set('calledPersonID', $cPersonID);
+                $this->state->set('filter.personID', $usedPersonID);
+                $this->state->set('calledPoolID', $cPoolID);
+                $this->state->set('filter.poolID', $usedPoolID);
+                $this->state->set('filter.poolID', $cPoolID);
+                $this->state->set('calledProgramID', $cProgramID);
+                $this->state->set('filter.programID', $cProgramID ?: $programID);
+                $this->setState('list.limit', 0);
+
+                return;
+            }
         }
 
-        $this->state->set('filter.poolID', $poolID);
+        // Ensure clean cache
+        $this->state->set('calledPersonID', null);
+        $this->state->set('calledPoolID', null);
+        $this->state->set('calledProgramID', null);
+
+
+        if ($personID and !$unassigned and ($programID or $poolID)) {
+            $personID = $this->plausiblePerson($personID, $programID ?: 0, $poolID ?: 0) ? $personID : '';
+        }
+
+        $this->state->set('filter.personID', $personID ?: '');
+        $this->state->set('filter.poolID', $poolID ?: '');
+        $this->state->set('filter.programID', $programID ?: '');
     }
 }

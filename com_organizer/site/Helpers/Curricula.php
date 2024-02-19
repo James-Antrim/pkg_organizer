@@ -180,23 +180,33 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Adds pool filter clauses to the given query.
      *
-     * @param   DatabaseQuery  $query   the query to modify
-     * @param   int            $poolID  the id of the pool to filter for
-     * @param   string         $alias   the alias of the table referenced in the join
+     * @param   DatabaseQuery  $query      the query to modify
+     * @param   int            $poolID     the id of the pool to filter for
+     * @param   string         $alias      the alias of the table referenced in the join
+     * @param   int            $programID  the optional programID
      *
      * @return void
      */
-    public static function filterPool(DatabaseQuery $query, int $poolID, string $alias): void
+    public static function filterPool(DatabaseQuery $query, int $poolID, string $alias, int $programID = 0): void
     {
-        if (!$poolID or !$rows = Pools::rows($poolID)) {
+        if (!$poolID) {
             return;
         }
 
-        // Subjects directly subordinated to a program.
+        // Subjects misconfigured directly to a program.
         if ($poolID === self::NONE) {
+
+            if (!$programID) {
+                $query->innerJoin(DB::qn('#__organizer_curricula', 'prc'), DB::qc("prc.subjectID", "$alias.id"));
+            }
+
             $query->innerJoin(DB::qn('#__organizer_curricula', 'parent'), DB::qc('parent.ID', 'prc.parentID'))
                 ->where(DB::qn('parent.programID') . ' IS NOT NULL');
 
+            return;
+        }
+
+        if (!$rows = Pools::rows($poolID)) {
             return;
         }
 
