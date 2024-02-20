@@ -86,11 +86,13 @@ class Subjects extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        if (empty($options['personID'])) {
-            $item->persons = $this->getPersonDisplay($item);
-        }
+        if (!$options['backend']) {
+            if (empty($options['personID'])) {
+                $item->persons = $this->getPersonDisplay($item);
+            }
 
-        $item->creditPoints = $item->creditPoints ?: '';
+            $item->creditPoints = $item->creditPoints ?: '';
+        }
     }
 
     /**
@@ -100,8 +102,10 @@ class Subjects extends ListView
      */
     protected function completeItems(array $options = []): void
     {
-        if ($personID = (int) $this->state->get('calledPersonID', 0)) {
-            $options['personID'] = $personID;
+        if (!$options['backend'] = Application::backend()) {
+            if ($personID = (int) $this->state->get('calledPersonID', 0)) {
+                $options['personID'] = $personID;
+            }
         }
 
         parent::completeItems($options);
@@ -131,33 +135,42 @@ class Subjects extends ListView
                 'type'       => 'text'
             ],
             'code'  => [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('MODULE_CODE', 'code', $direction, $ordering),
                 'type'       => 'text'
             ],
         ];
 
-        if (!$this->state->get('calledPersonID', 0)) {
-
-            if ($role = (int) Input::getParams()->get('role') and $role === Persons::COORDINATES) {
-                $personsText = Text::_('COORDINATORS');
-            }
-            else {
-                $personsText = Text::_('TEACHERS');
-            }
-
-            $headers['persons'] = [
+        if (Application::backend()) {
+            $headers['program'] = [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => $personsText,
+                'title'      => Text::_('PROGRAM'),
                 'type'       => 'text'
             ];
         }
+        else {
+            if (!$this->state->get('calledPersonID', 0)) {
 
-        $headers['creditPoints'] = [
-            'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-            'title'      => Text::_('CREDIT_POINTS'),
-            'type'       => 'text'
-        ];
+                if ($role = (int) Input::getParams()->get('role') and $role === Persons::COORDINATES) {
+                    $personsText = Text::_('COORDINATORS');
+                }
+                else {
+                    $personsText = Text::_('TEACHERS');
+                }
+
+                $headers['persons'] = [
+                    'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                    'title'      => $personsText,
+                    'type'       => 'text'
+                ];
+            }
+
+            $headers['creditPoints'] = [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CREDIT_POINTS'),
+                'type'       => 'text'
+            ];
+        }
 
         $this->headers = $headers;
     }

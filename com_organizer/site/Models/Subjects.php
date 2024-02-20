@@ -20,8 +20,6 @@ use THM\Organizer\Helpers\{Can, Organizations, Pools, Programs, Subjects as Help
  */
 class Subjects extends ListModel
 {
-    private const ALL = 0;
-
     protected $filter_fields = [
         'language'       => 'language',
         'fieldID'        => 'fieldID',
@@ -66,11 +64,17 @@ class Subjects extends ListModel
             return [];
         }
 
-        $role = Input::getParams()->get('role', 1);
+        $backend = Application::backend();
+        $role    = Input::getParams()->get('role', 1);
 
         foreach ($items as $item) {
-            $item->name    = $item->name ?: sprintf(Text::_('SUBJECT_WITHOUT_NAME'), $item->id);
-            $item->persons = Helper::persons($item->id, $role);
+            $item->name = $item->name ?: sprintf(Text::_('SUBJECT_WITHOUT_NAME'), $item->id);
+            if ($backend) {
+                $item->program = Helper::programName($item->id);
+            }
+            else {
+                $item->persons = Helper::persons($item->id, $role);
+            }
         }
 
         return $items;
