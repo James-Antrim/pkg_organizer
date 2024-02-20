@@ -275,9 +275,11 @@ trait Ranges
      */
     protected function deleteRanges(int $resourceID): bool
     {
-        /** @var Helper $helper */
-        $helper = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
+        $helper = Application::getClass(get_called_class());
+        $helper = "THM\\Organizer\\Helpers\\" . $helper;
+        $helper = str_ends_with($helper, 's') ? $helper : $helper . 's';
 
+        /** @var Helper $helper */
         if ($rangeIDs = $helper::rowIDs($resourceID)) {
             foreach ($rangeIDs as $rangeID) {
                 $success = $this->deleteRange($rangeID);

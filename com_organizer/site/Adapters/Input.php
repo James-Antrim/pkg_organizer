@@ -118,11 +118,7 @@ class Input
      */
     public static function getController(): string
     {
-        if ($controller = self::getCMD('controller')) {
-            return $controller;
-        }
-
-        return self::getView();
+        return (string) self::getInput()->get('controller') ?: self::getView();
     }
 
     /**
@@ -135,11 +131,7 @@ class Input
      */
     public static function getCMD(string $property, string $default = ''): string
     {
-        if ($value = self::find($property)) {
-            return self::filter($value, 'cmd');
-        }
-
-        return self::filter($default, 'cmd');
+        return ($value = self::find($property)) ? self::filter($value, 'cmd') : self::filter($default, 'cmd');
     }
 
     /**
@@ -249,7 +241,7 @@ class Input
     {
         $document  = Application::getDocument();
         $supported = ['HTML', 'ICS', 'JSON', 'PDF', 'XLS', 'XML'];
-        $format    = self::getCMD('format', strtoupper($document->getType()));
+        $format    = (string) self::getInput()->get('format', strtoupper($document->getType()));
 
         if (!in_array($format, $supported)) {
             self::set('format', 'HTML');
@@ -265,7 +257,7 @@ class Input
      */
     public static function getID(): int
     {
-        return self::getInt('id');
+        return (int) self::getInput()->get('id', 0, 'int');
     }
 
     /**
@@ -317,7 +309,7 @@ class Input
         $item    = Application::getMenuItem();
         $default = $item ? $item->id : 0;
 
-        return self::getInt('Itemid', $default);
+        return (int) self::getInput()->get('Itemid', $default, 'int');
     }
 
     /**
@@ -369,7 +361,7 @@ class Input
      */
     public static function getReferrer(): string
     {
-        return self::getInput()->server->getString('HTTP_REFERER');
+        return (string) self::getInput()->server->get('HTTP_REFERER');
     }
 
     /**
@@ -435,7 +427,7 @@ class Input
      */
     public static function getTask(): string
     {
-        return self::getCMD('task', 'display');
+        return (string) self::getInput()->get('task', 'display');
     }
 
     /**
@@ -444,7 +436,7 @@ class Input
      */
     public static function getView(): string
     {
-        return self::getCMD('view');
+        return (string) self::getInput()->get('view');
     }
 
     /**

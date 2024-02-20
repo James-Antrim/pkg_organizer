@@ -347,7 +347,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         $query = DB::getQuery();
         $query->select('*')
             ->from(DB::qn('#__organizer_curricula'))
-            ->where(DB::qc('id', ':rowID'))
+            ->where(DB::qn('id') . ' = :rowID')
             ->bind(':rowID', $rowID, ParameterType::INTEGER);
         DB::setQuery($query);
 
