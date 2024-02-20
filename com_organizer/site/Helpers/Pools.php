@@ -271,13 +271,10 @@ class Pools extends Curricula implements Selectable
      */
     public static function resources(string $access = ''): array
     {
-        $programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID');
+        $programID = Input::getInt('programID');
         $poolID    = Input::getInt('poolID');
-        if (!$programID and !$poolID) {
-            return [];
-        }
 
-        if (!$ranges = $poolID ? self::rows($poolID) : Programs::rows($programID)) {
+        if (!$programID and !$poolID) {
             return [];
         }
 
@@ -287,14 +284,39 @@ class Pools extends Curricula implements Selectable
             ->from(DB::qn('#__organizer_pools', 'p'))
             ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.poolID', 'p.id'))
             ->where(DB::qn('lft') . '> :left AND ' . DB::qn('rgt') . '< :right')
-            ->bind(':left', $ranges[0]['lft'], ParameterType::INTEGER)
-            ->bind(':right', $ranges[0]['rgt'], ParameterType::INTEGER)
             ->order('name');
 
         self::filterByAccess($query, 'p', $access);
 
-        DB::setQuery($query);
+        if ($poolID and $ranges = self::rows($poolID)) {
+            // Adjust the ranges for pool self inclusion
+            $left  = $ranges[0]['lft'] - 1;
+            $right = $ranges[0]['rgt'] + 1;
 
-        return DB::loadAssocList('id');
+            $query->bind(':left', $left, ParameterType::INTEGER)
+                ->bind(':right', $right, ParameterType::INTEGER);
+
+            DB::setQuery($query);
+
+            $results = DB::loadAssocList('id');
+
+            if ($results and (count($results) > 1 or !$programID)) {
+                return $results;
+            }
+        }
+
+        if ($programID and $ranges = Programs::rows($programID)) {
+
+            $query->bind(':left', $ranges[0]['lft'], ParameterType::INTEGER)
+                ->bind(':right', $ranges[0]['rgt'], ParameterType::INTEGER);
+
+            DB::setQuery($query);
+
+            if ($results = DB::loadAssocList('id')) {
+                return $results;
+            }
+        }
+
+        return [];
     }
 }

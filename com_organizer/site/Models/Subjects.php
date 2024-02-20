@@ -228,7 +228,6 @@ class Subjects extends ListModel
 
         $disassociated = $organizationID === self::NONE;
         $personID      = Input::getInt('personID');
-        $unassigned    = $personID === self::NONE;
         $poolID        = Input::getInt('poolID');
         $misconfigured = $poolID === self::NONE;
         $programID     = Input::getInt('programID');
@@ -240,7 +239,7 @@ class Subjects extends ListModel
         if ($lost) {
             // Pool selected in an invalid program context
             if ($poolID and !$misconfigured) {
-                $poolID = '';
+                $poolID = 0;
             }
         }
         // Subjects associated with selected program
@@ -248,19 +247,19 @@ class Subjects extends ListModel
             // Selected program context invalid => any concrete pool selection is consequently invalid
             if (!$prRanges = Programs::rows($programID)) {
                 $poolID    = $misconfigured ? $poolID : '';
-                $programID = '';
+                $programID = 0;
             }
             // Concrete pool selected
             elseif ($poolID and !$misconfigured) {
                 // Selected pool context is invalid or pool not available in program context
                 if (!$plRanges = Pools::rows($poolID) or !Helper::included($plRanges, $prRanges)) {
-                    $poolID = '';
+                    $poolID = 0;
                 }
             }
         }
         // Pool selected with no program context selected: error state
         elseif ($poolID and !$misconfigured) {
-            $poolID = '';
+            $poolID = 0;
         }
 
         // Association plausibility checks /////////////////////////////////////////////////////////////////////////////
@@ -269,23 +268,17 @@ class Subjects extends ListModel
         if ($organizationID and !$disassociated) {
             // Program selected not associated with selected organization: error state
             if ($programID and !$lost and !Programs::associated($organizationID, $programID)) {
-                $programID = '';
-                $poolID    = $misconfigured ? $poolID : '';
+                $programID = 0;
+                $poolID    = $misconfigured ? $poolID : 0;
             }
             elseif ($poolID and !$misconfigured and !Pools::associated($organizationID, $poolID)) {
-                $poolID = '';
+                $poolID = 0;
             }
         }
 
         if (Application::backend()) {
 
-            if ($personID and !$unassigned and ($programID or $poolID)) {
-                $personID = $this->plausiblePerson($personID, $programID ?: 0, $poolID ?: 0) ? $personID : '';
-            }
-
-            $this->state->set('filter.personID', $personID);
-            $this->state->set('filter.poolID', $poolID);
-            $this->state->set('filter.programID', $programID);
+            $this->finalizeFilterState($personID, $programID, $poolID);
 
             return;
         }
@@ -324,30 +317,22 @@ class Subjects extends ListModel
 
             // Preemptively dismiss pagination on configured calls and end here
             if ($cPersonID or $cPoolID or $cProgramID) {
-                // Ensure correct filter typing for empties
-                $cPersonID  = $cPersonID ?: '';
-                $cPoolID    = $cPoolID ?: '';
-                $cProgramID = $cProgramID ?: '';
-                $poolID     = $poolID ?: '';
+                $cPersonID  = $cPersonID ?: null;
+                $cPoolID    = $cPoolID ?: null;
+                $cProgramID = $cProgramID ?: null;
 
                 // Set ~final filter values
-                $usedPersonID  = $cPersonID ?: $personID;
-                $usedPoolID    = $cPoolID ?: $poolID;
-                $usedProgramID = $cProgramID ?: $programID;
+                $personID  = $cPersonID ?: $personID;
+                $poolID    = $cPoolID ?: $poolID;
+                $programID = $cProgramID ?: $programID;
 
                 // Use filter values to check person plausibility
-                if ($usedPersonID and !$unassigned and ($usedProgramID or $usedPoolID)) {
-                    $usedPersonID = $this->plausiblePerson($usedPersonID, $usedProgramID ?: 0, $usedPoolID ?: 0) ?
-                        $usedPersonID : '';
-                }
+                $this->finalizeFilterState($personID, $programID, $poolID);
 
                 $this->state->set('calledPersonID', $cPersonID);
-                $this->state->set('filter.personID', $usedPersonID);
                 $this->state->set('calledPoolID', $cPoolID);
-                $this->state->set('filter.poolID', $usedPoolID);
-                $this->state->set('filter.poolID', $cPoolID);
                 $this->state->set('calledProgramID', $cProgramID);
-                $this->state->set('filter.programID', $cProgramID ?: $programID);
+
                 $this->setState('list.limit', 0);
 
                 return;
@@ -360,7 +345,21 @@ class Subjects extends ListModel
         $this->state->set('calledProgramID', null);
 
 
-        if ($personID and !$unassigned and ($programID or $poolID)) {
+        $this->finalizeFilterState($personID, $programID, $poolID);
+    }
+
+    /**
+     * Sets the resource id filter states after plausibility checks.
+     *
+     * @param   int  $personID   the id for the person filter
+     * @param   int  $programID  the id for the program filter
+     * @param   int  $poolID     the id for the p
+     *
+     * @return void
+     */
+    protected function finalizeFilterState(int $personID, int $programID, int $poolID): void
+    {
+        if ($personID and $personID !== self::NONE and ($programID or $poolID)) {
             $personID = $this->plausiblePerson($personID, $programID ?: 0, $poolID ?: 0) ? $personID : '';
         }
 
