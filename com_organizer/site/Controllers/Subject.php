@@ -531,7 +531,13 @@ class Subject extends CurriculumResource implements Stubby
     {
         $table = new Table();
 
-        if (!$table->load($resourceID) or empty($table->lsfID)) {
+        if (!$table->load($resourceID)) {
+            Application::message('412', Application::ERROR);
+            return false;
+        }
+
+        if (empty($table->lsfID)) {
+            Application::message('LSF_ID_MISSING', Application::WARNING);
             return false;
         }
 
@@ -539,7 +545,7 @@ class Subject extends CurriculumResource implements Stubby
             $client = new Helpers\LSF();
         }
         catch (Exception) {
-            Application::message('ORGANIZER_LSF_CLIENT_FAILED', Application::ERROR);
+            Application::message('LSF_CLIENT_FAILED', Application::ERROR);
 
             return false;
         }
@@ -547,7 +553,7 @@ class Subject extends CurriculumResource implements Stubby
         $response = $client->getModule($table->lsfID);
 
         if (empty($response->modul)) {
-            $message = Text::sprintf('ORGANIZER_LSF_RESPONSE_EMPTY', $table->lsfID);
+            $message = Text::sprintf('LSF_RESPONSE_EMPTY', $table->lsfID);
             Application::message($message, Application::NOTICE);
 
             return $this->delete($table->id);
@@ -556,7 +562,7 @@ class Subject extends CurriculumResource implements Stubby
         $subject = $response->modul;
 
         if (!$this->validTitle($subject)) {
-            $message = Text::sprintf('ORGANIZER_IMPORT_TITLE_INVALID', $table->lsfID);
+            $message = Text::sprintf('IMPORT_TITLE_INVALID', $table->lsfID);
             Application::message($message, Application::ERROR);
 
             return $this->delete($table->id);
@@ -568,14 +574,14 @@ class Subject extends CurriculumResource implements Stubby
 
         // Suppressed after title validation for use in message.
         if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x') {
-            $message = Text::sprintf('ORGANIZER_SUBJECT_SUPPRESSED', $title, $table->lsfID);
+            $message = Text::sprintf('SUBJECT_SUPPRESSED', $title, $table->lsfID);
             Application::message($message, Application::NOTICE);
 
             return $this->delete($table->id);
         }
 
         if (!$this->assign($table->id, $subject)) {
-            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
+            Application::message('SAVE_FAIL', Application::ERROR);
 
             return false;
         }
@@ -1067,7 +1073,7 @@ class Subject extends CurriculumResource implements Stubby
             // Delete any and all old prerequisites in case there are now fewer.
             if ($subjectIDs) {
                 $query = DB::getQuery();
-                $query->delete(DB::qn('#__organizer_prerequisites'))->where(DB::qn('subjectID'), $subjectIDs);
+                $query->delete(DB::qn('#__organizer_prerequisites'))->whereIn(DB::qn('subjectID'), $subjectIDs);
                 DB::setQuery($query);
                 DB::execute();
             }

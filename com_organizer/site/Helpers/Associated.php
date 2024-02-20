@@ -12,7 +12,6 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\Database as DB;
-use THM\Organizer\Tables\Associations as Association;
 
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.
@@ -24,18 +23,52 @@ abstract class Associated extends ResourceHelper
     /**
      * Checks whether a given resource is associated with a given organization.
      *
-     * @param   int  $organizationID  the id of the organization
-     * @param   int  $resourceID      the id of the resource
+     * @param   array|int  $organizationIDs  the id of the organization or organizations
+     * @param   int        $resourceID       the id of the resource
      *
      * @return bool
      */
-    public static function associated(int $organizationID, int $resourceID): bool
+    public static function associated(array|int $organizationIDs, int $resourceID): bool
     {
-        $column      = static::$resource . 'ID';
-        $association = new Association();
+        $oColumn         = 'organizationID';
+        $organizationIDs = is_int($organizationIDs) ? [$organizationIDs] : $organizationIDs;
+        $rColumn         = static::$resource . 'ID';
 
-        return $association->load(['organizationID' => $organizationID, $column => $resourceID]);
+        $query = DB::getQuery();
+        $query->select(DB::qn('id'))
+            ->from(DB::qn('#__organizer_associations'))
+            ->where("$rColumn = :resourceID")
+            ->bind(':resourceID', $resourceID, ParameterType::INTEGER)
+            ->whereIn(DB::qn($oColumn), $organizationIDs);
+
+        DB::setQuery($query);
+
+        return DB::loadBool();
     }
+
+    /**
+     * Gets the ids of inheriting resources associated with the given organization ids.
+     *
+     * @param   int[]  $organizationIDs  the organization ids with which the resources should be associated
+     *
+     * @return array
+     */
+    public static function associatedIDs(array $organizationIDs): array
+    {
+        $oColumn = DB::qn('organizationID');
+        $rColumn = DB::qn(static::$resource . 'ID');
+
+        $query = DB::getQuery();
+        $query->select("DISTINCT $rColumn")
+            ->from(DB::qn('#__organizer_associations'))
+            ->where("$rColumn IS NOT NULL")
+            ->whereIn($oColumn, $organizationIDs);
+
+        DB::setQuery($query);
+
+        return DB::loadIntColumn();
+    }
+
 
     /**
      * Adds access filter clauses to the given query.

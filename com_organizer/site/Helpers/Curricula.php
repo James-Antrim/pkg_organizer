@@ -138,20 +138,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
             return true;
         }
 
-        $idColumn       = DB::qn('id');
-        $organizationID = DB::qn('organizationID');
-        $resourceColumn = DB::qn(self::$resource . 'ID');
-
-        $query = DB::getQuery();
-        $query->select($idColumn)
-            ->from(DB::qn('#__organizer_associations'))
-            ->where("$resourceColumn = :resourceID")
-            ->bind(':resourceID', $resourceID, ParameterType::INTEGER)
-            ->whereIn($organizationID, $organizationIDs);
-
-        DB::setQuery($query);
-
-        return DB::loadBool();
+        return self::associated($organizationIDs, $resourceID);
     }
 
     /**
@@ -163,18 +150,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
             return [];
         }
 
-        $organizationID = DB::qn('organizationID');
-        $column         = DB::qn(self::$resource . 'ID');
-
-        $query = DB::getQuery();
-        $query->select("DISTINCT $column")
-            ->from(DB::qn('#__organizer_associations'))
-            ->where("$column IS NOT NULL")
-            ->whereIn($organizationID, $organizationIDs);
-
-        DB::setQuery($query);
-
-        return DB::loadIntColumn();
+        return self::associatedIDs($organizationIDs);
     }
 
     /**

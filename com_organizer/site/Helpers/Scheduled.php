@@ -10,9 +10,6 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\Database as DB;
-
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.
  */
@@ -31,20 +28,7 @@ abstract class Scheduled extends Associated implements Schedulable
             return true;
         }
 
-        $idColumn       = DB::qn('id');
-        $organizationID = DB::qn('organizationID');
-        $resourceColumn = DB::qn(self::$resource . 'ID');
-
-        $query = DB::getQuery();
-        $query->select($idColumn)
-            ->from(DB::qn('#__organizer_associations'))
-            ->where("$resourceColumn = :resourceID")
-            ->bind(':resourceID', $resourceID, ParameterType::INTEGER)
-            ->whereIn($organizationID, $organizationIDs);
-
-        DB::setQuery($query);
-
-        return DB::loadBool();
+        return self::associated($organizationIDs, $resourceID);
     }
 
     /**
@@ -56,17 +40,6 @@ abstract class Scheduled extends Associated implements Schedulable
             return [];
         }
 
-        $organizationID = DB::qn('organizationID');
-        $column         = DB::qn(self::$resource . 'ID');
-
-        $query = DB::getQuery();
-        $query->select("DISTINCT $column")
-            ->from(DB::qn('#__organizer_associations'))
-            ->where("$column IS NOT NULL")
-            ->whereIn($organizationID, $organizationIDs);
-
-        DB::setQuery($query);
-
-        return DB::loadIntColumn();
+        return self::associatedIDs($organizationIDs);
     }
 }

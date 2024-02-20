@@ -11,7 +11,6 @@
 
 namespace THM\Organizer\Controllers;
 
-
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\{Documentable, Organizations};
 
@@ -88,7 +87,7 @@ abstract class CurriculumResources extends ListController
             $this->farewell();
         }
 
-        $controller = $this->item;
+        $controller = "THM\\Organizer\\Controllers\\" . $this->item;
         $imported   = 0;
         $selected   = count($selectedIDs);
 

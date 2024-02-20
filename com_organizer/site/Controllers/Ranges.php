@@ -340,9 +340,11 @@ trait Ranges
      */
     protected function ranges(int $resourceID): array
     {
-        /** @var Helper $helper */
-        $helper = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
+        $helper = Application::getClass(get_called_class());
+        $helper = "THM\\Organizer\\Helpers\\" . $helper;
+        $helper = str_ends_with($helper, 's') ? $helper : $helper . 's';
 
+        /** @var Helper $helper */
         return $helper::rows($resourceID);
     }
 
