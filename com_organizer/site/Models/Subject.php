@@ -10,10 +10,29 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Helpers\{Persons, Subjects as Helper};
+
 /**
  * @inheritDoc
  */
 class Subject extends EditModel
 {
     protected string $tableClass = 'Subjects';
+
+    /**
+     * @inheritDoc
+     */
+    public function getItem(): object
+    {
+        $item               = parent::getItem();
+        $item->coordinators = [];
+        foreach (Helper::persons($item->id, Persons::COORDINATES) as $coordinator) {
+            $item->coordinators[$coordinator['id']] = $coordinator['id'];
+        }
+        $item->persons = [];
+        foreach (Helper::persons($item->id, Persons::TEACHES) as $teacher) {
+            $item->persons[$teacher['id']] = $teacher['id'];
+        }
+        return $item;
+    }
 }

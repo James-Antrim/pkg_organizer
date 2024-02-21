@@ -10,13 +10,14 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, HTML, Input};
-use THM\Organizer\Helpers;
+use Joomla\CMS\Form\Field\ListField;
+use THM\Organizer\Adapters\{Database as DB, HTML, Input};
+use THM\Organizer\Helpers\Subjects;
 
 /**
  * Class creates a select box for the association of persons with subject documentation.
  */
-class SubjectPersons extends Options
+class SubjectPersons extends ListField
 {
     /**
      * Method to get the field options.
@@ -24,49 +25,53 @@ class SubjectPersons extends Options
      */
     protected function getOptions(): array
     {
-        $subjectIDs = Input::getSelectedIDs();
-        $role       = $this->getAttribute('role');
-        $invalid    = (empty($subjectIDs) or empty($subjectIDs[0]) or empty($role));
-
-        if ($invalid) {
+        if (!$subjectID = Input::getID() or !$role = $this->getAttribute('role')) {
             return [];
         }
 
-        $existingPersons = Helpers\Subjects::persons($subjectIDs[0], $role);
-        $this->value     = [];
-        foreach ($existingPersons as $person) {
+        $this->value = [];
+        foreach (Subjects::persons($subjectID, $role) as $person) {
             $this->value[$person['id']] = $person['id'];
         }
 
-        $query = Database::getQuery();
-        $query->select('p.id, p.surname, p.forename')
-            ->from('#__organizer_persons AS p')
-            ->order('surname, forename');
+        $query = DB::getQuery();
+        $query->select(DB::qn(['p.id', 'surname', 'forename']))
+            ->from(DB::qn('#__organizer_persons', 'p'))
+            ->order(DB::qn(['surname', 'forename']));
 
-        $organizationID = $this->form->getValue('organizationID');
-        if (!empty($organizationID)) {
+        if ($organizationIDs = Subjects::organizationIDs($subjectID)) {
+
+            $condition = DB::qc('a.personID', 'p.id');
+            $table     = DB::qn('#__organizer_associations', 'a');
+
             if (empty($this->value)) {
-                $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
-                    ->where("organizationID = $organizationID");
+                $query->innerJoin($table, $condition)
+                    ->whereIn(DB::qn('organizationID'), $organizationIDs);
             }
             else {
-                $query->leftJoin('#__organizer_associations AS a ON a.personID = p.id');
-                $personIDs  = implode(',', $this->value);
-                $extPersons = "(organizationID != $organizationID AND personID IN ($personIDs))";
-                $query->where("(organizationID = $organizationID OR $extPersons)");
+                $oColumn = DB::qn('organizationID');
+                $pColumn = DB::qn('personID');
+                $query->leftJoin($table, $condition);
+
+                $externalOrganizations = "$oColumn NOT IN (" . implode(',', $query->bindArray($organizationIDs)) . ')';
+                $selectedPersons       = "$pColumn IN (" . implode(',', $query->bindArray($this->value)) . ')';
+
+                $externalPersons  = "($externalOrganizations AND $selectedPersons)";
+                $intOrganizations = "$oColumn IN (" . implode(',', $query->bindArray($organizationIDs)) . ')';
+
+                $query->where("($intOrganizations OR $externalPersons)");
             }
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
         $options = parent::getOptions();
 
-        if (!$persons = Database::loadAssocList('id')) {
+        if (!$persons = DB::loadAssocList('id')) {
             return $options;
         }
 
         foreach ($persons as $person) {
-            $text      = empty($person['forename']) ?
-                $person['surname'] : "{$person['surname']}, {$person['forename']}";
+            $text      = empty($person['forename']) ? $person['surname'] : "{$person['surname']}, {$person['forename']}";
             $options[] = HTML::option($person['id'], $text);
         }
 

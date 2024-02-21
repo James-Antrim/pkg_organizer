@@ -44,7 +44,7 @@ abstract class EditModel extends FormModel
     }
 
     /**
-     * Retrieves a resource record.
+     * Retrieves a resource record. Inheriting classes will have to override this function to add table external values.
      * @return  object  object on success, false on failure.
      */
     public function getItem(): object
