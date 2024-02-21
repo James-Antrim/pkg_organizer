@@ -196,12 +196,20 @@ abstract class ListModel extends Base
      *
      * @param   DatabaseQuery  $query        the query to modify
      * @param   array          $columnNames  the column names to use in the search
+     * @param   string         $alias        the optional string aliasing the main table name if id search is to be enabled
      *
      * @return void
      */
-    protected function filterSearch(DatabaseQuery $query, array $columnNames): void
+    protected function filterSearch(DatabaseQuery $query, array $columnNames, string $alias = ''): void
     {
         if (!$userInput = $this->state->get('filter.search')) {
+            return;
+        }
+
+        if ($alias and preg_match('/^:(\d+)$/', $userInput, $matches)) {
+            $column = DB::qn("$alias.id");
+            $value  = (int) $matches[1];
+            $query->where("$column = :id")->bind(':id', $value, ParameterType::INTEGER);
             return;
         }
 

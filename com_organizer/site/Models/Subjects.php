@@ -126,7 +126,7 @@ class Subjects extends ListModel
         }
 
         $this->filterByOrganization($query, 's');
-        $this->filterSearch($query, $searchFields);
+        $this->filterSearch($query, $searchFields, 's');
 
         if ($programID = (int) $this->state->get('filter.programID')) {
             Helper::filterProgram($query, $programID, 'subjectID', 's');
