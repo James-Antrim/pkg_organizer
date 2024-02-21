@@ -98,7 +98,7 @@
     </fieldset>
     <fieldset name="associations" label="ORGANIZER_ASSOCIATIONS">
         <!--<field name="eventIDs" type="SubjectEvents" label="ORGANIZER_EVENT" role="1"/>-->
-        <field type="Curricula" label="ORGANIZER_PROGRAMS"/>
+        <field name="programIDs" type="Curricula" label="ORGANIZER_PROGRAMS" default="-1" multiple="multiple"/>
         <field type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES"/>
         <field name="spacer3" type="spacer" hr="true"/>
         <field name="prerequisites" type="Prerequisites" label="ORGANIZER_PREREQUISITES" default="-1" multiple="multiple"

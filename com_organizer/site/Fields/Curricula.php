@@ -10,70 +10,57 @@
 
 namespace THM\Organizer\Fields;
 
-use Joomla\CMS\Form\FormField;
+use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\Uri\Uri;
-use stdClass;
-use THM\Organizer\Adapters\{Database, Document, HTML, Text};
-use THM\Organizer\Helpers\{Can, Pools, Programs, Subjects};
+use THM\Organizer\Adapters\{Application, Database as DB, Document, Form, HTML, Input, Text};
+use THM\Organizer\Helpers\Programs;
 
 /**
  * Class creates a select box for programs to filter the context for subordinate resources.
  */
-class Curricula extends FormField
+class Curricula extends ListField
 {
-    use Translated;
-
     /**
-     * Returns a select box where stored degree program can be chosen
-     * @return string  the HTML for the select box
+     * @inheritDoc
      */
-    public function getInput(): string
+    public function getOptions(): array
     {
-        $resourceID   = $this->form->getValue('id');
-        $contextParts = explode('.', $this->form->getName());
-        $resourceType = str_replace('edit', '', $contextParts[1]);
+        $options = [HTML::option(-1, Text::_('NO_PROGRAMS'))];
+
+        if (!$subjectID = Input::getID()) {
+            return $options;
+        }
+
+        /** @var Form $form */
+        $form     = $this->form;
+        $resource = $form->view();
 
         $curriculumParameters = [
             'rootURL' => Uri::root(),
-            'id'      => $resourceID,
-            'type'    => $resourceType
+            'id'      => $subjectID,
+            'type'    => $resource
         ];
 
         Document::scriptLocalizations('curriculumParameters', $curriculumParameters);
 
-        $ranges = $resourceType === 'pool' ? Pools::rows($resourceID) : Subjects::rows($resourceID);
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
 
-        $programIDs = empty($ranges) ? [] : Programs::extractIDs($ranges);
-        $options    = $this->getOptions();
+        $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "', '", DB::qn('p.accredited'), "')'"];
 
-        $defaultOptions = [HTML::option(-1, Text::_('NONE'))];
-        $programs       = array_merge($defaultOptions, $options);
-        $attributes     = ['multiple' => 'multiple', 'size' => '10'];
+        $select = ['DISTINCT ' . DB::qn('p.id'), $query->concatenate($parts, '') . ' AS ' . DB::qn('name')];
+        $query->select($select)
+            ->from(DB::qn('#__organizer_programs', 'p'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
+            ->order('name ASC');
+        DB::setQuery($query);
 
-        return HTML::selectBox('curricula', $programs, $attributes, $programIDs);
-    }
 
-    /**
-     * Creates a list of programs to which the user has documentation access.
-     * @return stdClass[] HTML options strings
-     */
-    private function getOptions(): array
-    {
-        $query = Programs::query();
-        $query->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')->order('name ASC');
-        Database::setQuery($query);
-
-        if (!$programs = Database::loadAssocList()) {
-            return [];
-        }
-
-        $options = [];
-        foreach ($programs as $program) {
-            if (!Programs::documentable((int) $program['id'])) {
-                continue;
+        foreach (DB::loadAssocList() as $program) {
+            if (Programs::documentable($program['id'])) {
+                $options[] = HTML::option($program['id'], $program['name']);
             }
-
-            $options[] = HTML::option($program['id'], $program['name']);
         }
 
         return $options;

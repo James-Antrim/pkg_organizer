@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Helpers\{Persons, Subjects as Helper};
+use THM\Organizer\Helpers\{Persons, Programs, Subjects as Helper};
 
 /**
  * @inheritDoc
@@ -35,6 +35,9 @@ class Subject extends EditModel
             $item->persons[$teacher['id']] = $teacher['id'];
         }
         $item->prerequisites = Helper::prerequisites($item->id);
+
+        $ranges           = Helper::rows($item->id);
+        $item->programIDs = empty($ranges) ? [] : Programs::extractIDs($ranges);
 
         return $item;
     }
