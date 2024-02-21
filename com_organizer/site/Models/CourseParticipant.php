@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers\{Can, CourseParticipants, Courses, Mailer};
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\CourseParticipants as Table;
 
 /**
  * Class which manages stored course data.
@@ -38,7 +38,7 @@ class CourseParticipant extends BaseModel
      * @return bool true on success, otherwise false
      * @throws Exception
      */
-    private function batch($value): bool
+    private function batch(int $value): bool
     {
         if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs()) {
             return false;
@@ -78,9 +78,9 @@ class CourseParticipant extends BaseModel
     /**
      * @inheritDoc
      */
-    public function getTable($name = '', $prefix = '', $options = [])
+    public function getTable($name = '', $prefix = '', $options = []): Table
     {
-        return new Tables\CourseParticipants();
+        return new Table();
     }
 
     /**
@@ -98,7 +98,7 @@ class CourseParticipant extends BaseModel
         }
 
         $courseParticipants   = Courses::participantIDs($courseID);
-        $selectedParticipants = Input::getIntCollection('cid');
+        $selectedParticipants = Input::getIntArray('cid');
 
         if (empty($courseParticipants) and empty($selectedParticipants)) {
             return false;
@@ -146,7 +146,7 @@ class CourseParticipant extends BaseModel
                 Application::error(403);
             }
 
-            $courseParticipant = new Tables\CourseParticipants();
+            $courseParticipant = new Table();
             $cpData            = ['courseID' => $courseID, 'participantID' => $participantID];
 
             if (!$courseParticipant->load($cpData) or !$courseParticipant->delete()) {

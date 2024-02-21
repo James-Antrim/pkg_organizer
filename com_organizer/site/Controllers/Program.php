@@ -128,7 +128,7 @@ class Program extends CurriculumResource
          * individually during further processing.
          * @see Ranges::addSubordinate(), Ranges::subordinates()
          */
-        $data['organizationIDs'] = Input::getIntCollection('organizationIDs');
+        $data['organizationIDs'] = Input::getIntArray('organizationIDs');
 
         $this->validate($data, ['accredited', 'code', 'degreeID', 'name_de', 'name_en', 'organizationIDs']);
 

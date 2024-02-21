@@ -22,13 +22,13 @@ class SuperOrdinates extends BaseView
      * loads model data into view context
      * @return void
      */
-    public function display()
+    public function display(): void
     {
         $subID = Input::getID();
         $type  = Input::getCMD('type');
 
         // Pending program ranges are dependent on selected programs.
-        $programIDs    = Input::getIntCollection('curricula');
+        $programIDs    = Input::getIntArray('curricula');
         $programRanges = Helpers\Programs::programs($programIDs);
 
         $options = Helpers\Pools::superOptions($subID, $type, $programRanges);

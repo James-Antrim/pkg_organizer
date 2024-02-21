@@ -730,12 +730,12 @@ class Subject extends CurriculumResource implements Stubby
         $data = parent::prepareData();
 
         // External references are not in the table and as such won't be automatically prepared.
-        $data['coordinators']    = Input::getIntCollection('coordinators');
-        $data['curricula']       = Input::getIntCollection('curricula');
-        $data['organizationIDs'] = Input::getIntCollection('organizationIDs');
-        $data['persons']         = Input::getIntCollection('persons');
-        $data['prerequisites']   = Input::getIntCollection('prerequisites');
-        $data['superordinates']  = Input::getIntCollection('superordinates');
+        $data['coordinators']    = Input::getIntArray('coordinators');
+        $data['curricula']       = Input::getIntArray('curricula');
+        $data['organizationIDs'] = Input::getIntArray('organizationIDs');
+        $data['persons']         = Input::getIntArray('persons');
+        $data['prerequisites']   = Input::getIntArray('prerequisites');
+        $data['superordinates']  = Input::getIntArray('superordinates');
 
         // Because most values are imported this is the only item that is technically required.
         $this->validate($data, ['organizationIDs']);

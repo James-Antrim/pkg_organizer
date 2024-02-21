@@ -20,6 +20,8 @@ use Joomla\Utilities\ArrayHelper;
  */
 class Input
 {
+    const NONE = -1;
+
     private static InputFilter $filter;
     private static Registry $filterItems;
     private static Base $input;
@@ -135,7 +137,7 @@ class Input
     }
 
     /**
-     * Returns the application's input object.
+     * Retrieves an id value from a filter or list selection box.
      *
      * @param   string  $resource  the name of the resource upon which the ids being sought reference
      * @param   int     $default   the default value
@@ -234,11 +236,33 @@ class Input
      *
      * @return int[] the ids
      */
+    public static function getIntArray(string $name): array
+    {
+        $array = array_filter(ArrayHelper::toInteger(self::getArray($name)));
+        return in_array(self::NONE, $array) ? [] : $array;
+    }
+
+    /**
+     * Resolves a comma separated list of id values to an array of id values.
+     *
+     * @param   string  $name  the input field name at which the value should be found
+     *
+     * @return int[]
+     */
     public static function getIntCollection(string $name): array
     {
-        $collection = self::getArray($name);
+        $collection = self::getString($name);
 
-        return self::formatIDValues($collection);
+        // Single number collection
+        if (is_numeric($collection)) {
+            $value = (int) $collection;
+            return $value === self::NONE ? [] : [$value];
+        }
+
+        $collection = explode(',', $collection);
+        $collection = array_filter(ArrayHelper::toInteger($collection));
+
+        return in_array(self::NONE, $collection) ? [] : $collection;
     }
 
     /**
@@ -336,7 +360,7 @@ class Input
      *
      * @param   int  $default  the default value
      *
-     * @return int the selected id
+     * @return int
      */
     public static function getSelectedID(int $default = 0): int
     {
@@ -347,12 +371,12 @@ class Input
 
     /**
      * Returns the selected resource ids.
-     * @return int[] the selected ids
+     * @return int[]
      */
     public static function getSelectedIDs(): array
     {
         // List Views
-        if ($selectedIDs = self::getIntCollection('cid')) {
+        if ($selectedIDs = self::getIntArray('cid')) {
             return $selectedIDs;
         }
 
@@ -404,30 +428,6 @@ class Input
     public static function getView(): string
     {
         return (string) self::getInput()->get('view');
-    }
-
-    /**
-     * Resolves a comma separated list of id values to an array of id values.
-     *
-     * @param   array|string  $idValues  the id values as an array or string
-     *
-     * @return int[] the id values, empty if the values were invalid or the input was not an array or a string
-     */
-    public static function formatIDValues(array|string &$idValues): array
-    {
-        if (is_string($idValues)) {
-            $idValues = explode(',', $idValues);
-        }
-        elseif (is_array($idValues) and count($idValues) === 1 and preg_match('/^(\d+,)*\d+$/', $idValues[0]) !== -1) {
-            $idValues = explode(',', $idValues[0]);
-        }
-        elseif (!is_array($idValues)) {
-            $idValues = [];
-        }
-
-        $idValues = ArrayHelper::toInteger($idValues);
-
-        return array_filter($idValues);
     }
 
     /**

@@ -40,7 +40,7 @@ class Person extends FormController
     protected function prepareData(): array
     {
         $data                    = parent::prepareData();
-        $data['organizationIDs'] = Input::getIntCollection('organizationIDs');
+        $data['organizationIDs'] = Input::getIntArray('organizationIDs');
 
         $this->validate($data);
         $this->data = $data;
