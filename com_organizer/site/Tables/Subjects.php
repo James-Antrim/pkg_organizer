@@ -383,15 +383,7 @@ class Subjects extends Table
         $replacedFields = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
 
         foreach ($replacedFields as $replacedField) {
-            // Truly empty
-            if (!strlen($this->$replacedField)) {
-                $this->$replacedField = null;
-                continue;
-            }
-
-            $value = (int) $this->$replacedField;
-
-            $this->$replacedField = ($value < 0 or $value > 3) ? null : $value;
+            $this->$replacedField = null;
         }
 
         return true;
