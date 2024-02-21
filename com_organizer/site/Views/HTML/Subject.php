@@ -27,24 +27,14 @@ class Subject extends FormView
      */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        if (empty($this->item->id)) {
-            $applyImport = Text::_('ORGANIZER_CREATE_IMPORT');
-            $saveImport  = Text::_('ORGANIZER_CREATE_IMPORT_CLOSE');
-            $title       = Text::_('ORGANIZER_ADD_SUBJECT');
-
-        }
-        else {
-            $applyImport = Text::_('ORGANIZER_APPLY_AND_UPDATE');
-            $saveImport  = Text::_('ORGANIZER_SAVE_UPDATE');
-            $title       = Text::_('ORGANIZER_EDIT_SUBJECT');
-        }
-
-        $this->setTitle($title);
-        $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save-new', 'button-text', 'subjects.apply', false);
-        $toolbar->appendButton('Standard', 'file-add', $applyImport, 'subjects.applyImport', false);
-        $toolbar->appendButton('Standard', 'publish', 'button-text', 'subjects.save', false);
-        $toolbar->appendButton('Standard', 'file-check', $saveImport, 'subjects.saveImport', false);
-        $toolbar->appendButton('Standard', 'cancel', 'button-text', 'subjects.cancel', false);
+        $this->setTitle(empty($this->item->id) ? Text::_('ADD_SUBJECT') : Text::_('EDIT_SUBJECT'));
+        $toolbar   = Toolbar::getInstance();
+        $saveGroup = $toolbar->dropdownButton('save-group');
+        $saveBar   = $saveGroup->getChildToolbar();
+        $saveBar->apply('Subject.apply');
+        $saveBar->apply('Subject.applyImport', Text::_('APPLY_AND_IMPORT'))->icon('fa fa-file-import');
+        $saveBar->save('Subject.save');
+        $saveBar->save('Subject.saveImport', Text::_('SAVE_AND_IMPORT'))->icon('fa fa-file-import');
+        $toolbar->cancel("Subject.cancel");
     }
 }
