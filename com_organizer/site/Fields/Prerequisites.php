@@ -10,43 +10,40 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Input, Text};
-use THM\Organizer\Helpers;
-use stdClass;
+use Joomla\CMS\Form\Field\ListField;
+use THM\Organizer\Adapters\{HTML, Input, Text};
+use THM\Organizer\Helpers\{Programs, Subjects};
 
 /**
  * Class creates a select box for superordinate pool resources.
  */
-class Prerequisites extends DependencyOptions
+class Prerequisites extends ListField
 {
     /**
-     * Returns a select box in which resources can be chosen as a prerequisites
-     * @return string
-     */
-    public function getInput(): string
-    {
-        $options = $this->getOptions();
-        $select  = '<select id="prerequisites" name="prerequisites[]" multiple="multiple" size="10">';
-        $select  .= implode('', $options) . '</select>';
-
-        return $select;
-    }
-
-    /**
-     * Gets available prerequisite options.
-     * @return stdClass[]
+     * @inheritDoc
      */
     protected function getOptions(): array
     {
-        $subjectID = Input::getID();
-        $values    = Helpers\Subjects::prerequisites($subjectID);
+        $options = [0 => HTML::option(-1, Text::_('NO_PREREQUISITES'))];
 
-        $selected = empty($values) ? ' selected' : '';
-        $text     = Text::_('NO_PREREQUISITES');
+        if (!$subjectID = Input::getID()) {
+            return $options;
+        }
 
-        $defaultOption     = "<option value=\"-1\"$selected>$text</option>";
-        $dependencyOptions = parent::getDependencyOptions($subjectID, $values);
+        foreach (Subjects::programs($subjectID) as $pRange) {
+            foreach (Programs::subjects($pRange['programID']) as $sRange) {
+                $value = $sRange['subjectID'];
 
-        return [$defaultOption] + $dependencyOptions;
+                if ($value === $subjectID or !$text = Subjects::getFullName($value)) {
+                    continue;
+                }
+
+                $options[$text] = HTML::option($value, $text);
+            }
+        }
+
+        ksort($options);
+
+        return $options;
     }
 }

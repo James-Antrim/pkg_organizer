@@ -24,7 +24,8 @@ class Subject extends EditModel
      */
     public function getItem(): object
     {
-        $item               = parent::getItem();
+        $item = parent::getItem();
+
         $item->coordinators = [];
         foreach (Helper::persons($item->id, Persons::COORDINATES) as $coordinator) {
             $item->coordinators[$coordinator['id']] = $coordinator['id'];
@@ -33,6 +34,8 @@ class Subject extends EditModel
         foreach (Helper::persons($item->id, Persons::TEACHES) as $teacher) {
             $item->persons[$teacher['id']] = $teacher['id'];
         }
+        $item->prerequisites = Helper::prerequisites($item->id);
+
         return $item;
     }
 }

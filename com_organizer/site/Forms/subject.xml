@@ -101,6 +101,7 @@
         <field type="Curricula" label="ORGANIZER_PROGRAMS"/>
         <field type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES"/>
         <field name="spacer3" type="spacer" hr="true"/>
-        <field type="Prerequisites" label="ORGANIZER_PREREQUISITES" default="-1"/>
+        <field name="prerequisites" type="Prerequisites" label="ORGANIZER_PREREQUISITES" default="-1" multiple="multiple"
+               size="10"/>
     </fieldset>
 </form>
