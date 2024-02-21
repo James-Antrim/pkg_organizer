@@ -71,7 +71,7 @@ class Participants extends ListView
             ],
         ];
 
-        if ($courseID = Input::getFilterID('course') and $courseID !== -1) {
+        if ($courseID = Input::getFilterID('courseID') and $courseID !== -1) {
             $headers['status']   = [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('STATUS'),

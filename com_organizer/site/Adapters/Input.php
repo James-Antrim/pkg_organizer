@@ -167,28 +167,24 @@ class Input
         $filterItems = self::getFilterItems();
         $listItems   = self::getListItems();
 
-        $pluralIndex = "{$resource}IDs";
+        $fieldName = "{$resource}IDs";
 
-        if ($values = $filterItems->get($pluralIndex, false)) {
-            return self::formatIDValues($values);
+        if ($values = $filterItems->get($fieldName, false)) {
+            return array_filter(ArrayHelper::toInteger($values));
         }
 
-        if ($values = $listItems->get($pluralIndex, false)) {
-            return self::formatIDValues($values);
+        if ($values = $listItems->get($fieldName, false)) {
+            return array_filter(ArrayHelper::toInteger($values));
         }
 
-        $singularIndex = "{$resource}ID";
+        $fieldName = "{$resource}ID";
 
-        if ($value = $filterItems->get($singularIndex, false)) {
-            $values = [$value];
-
-            return self::formatIDValues($values);
+        if ($value = $filterItems->get($fieldName, false)) {
+            return [(int) $value];
         }
 
-        if ($value = $listItems->get($singularIndex, false)) {
-            $values = [$value];
-
-            return self::formatIDValues($values);
+        if ($value = $listItems->get($fieldName, false)) {
+            return [(int) $value];
         }
 
         return [];
