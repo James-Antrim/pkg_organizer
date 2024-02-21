@@ -291,7 +291,7 @@ class RoomStatistics extends BaseModel
      */
     private function setDates(): void
     {
-        $termID = Input::getFilterID('term');
+        $termID = Input::getFilterID('termID');
 
         if ($termID) {
             $table = new Terms();

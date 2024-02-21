@@ -74,13 +74,13 @@ class Rooms extends ResourceHelper implements Selectable
             ->innerJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.roomID', 'r.id'))
             ->order(DB::qn('r.name'));
 
-        if ($organizationID = Input::getFilterID('organization')) {
+        if ($organizationID = Input::getFilterID('organizationID')) {
             $query->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ir.assocID'))
                 ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'))
                 ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'g.categoryID'))
                 ->where("a.organizationID = $organizationID");
 
-            if ($selectedCategory = Input::getFilterID('category')) {
+            if ($selectedCategory = Input::getFilterID('categoryID')) {
                 $query->where("g.categoryID  = $selectedCategory");
             }
         }

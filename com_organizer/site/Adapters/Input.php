@@ -144,9 +144,15 @@ class Input
      */
     public static function getFilterID(string $resource, int $default = 0): int
     {
-        $filterIDs = self::getFilterIDs($resource);
+        if ($value = self::getFilterItems()->get($resource, false)) {
+            return (int) $value;
+        }
 
-        return empty($filterIDs) ? $default : $filterIDs[0];
+        if ($value = self::getListItems()->get($resource, false)) {
+            return (int) $value;
+        }
+
+        return $default;
     }
 
     /**

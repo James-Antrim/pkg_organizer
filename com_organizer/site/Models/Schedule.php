@@ -394,7 +394,7 @@ class Schedule extends BaseModel
      */
     public function rebuild(): bool
     {
-        if (!$organizationID = Input::getFilterID('organization') or !$termID = Input::getFilterID('term')) {
+        if (!$organizationID = Input::getFilterID('organizationID') or !$termID = Input::getFilterID('termID')) {
             return false;
         }
 

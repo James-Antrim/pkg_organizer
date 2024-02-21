@@ -25,8 +25,8 @@ class DocumentedPersons extends Options
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $poolID    = Input::getFilterID('pool', Input::getInt('poolID'));
-        $programID = Input::getFilterID('program', Input::getInt('programID'));
+        $poolID    = Input::getFilterID('poolID', Input::getInt('poolID'));
+        $programID = Input::getFilterID('programID', Input::getInt('programID'));
 
         if (!$poolID and !$programID) {
             return $options;

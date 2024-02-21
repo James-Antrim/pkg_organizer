@@ -125,7 +125,7 @@ class Participants extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        if ($courseID = Input::getFilterID('course')) {
+        if ($courseID = Input::getFilterID('courseID')) {
             $this->setState('filter.courseID', $courseID);
         }
     }
