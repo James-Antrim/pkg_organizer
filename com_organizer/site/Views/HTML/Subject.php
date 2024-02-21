@@ -30,13 +30,13 @@ class Subject extends FormView
         if (empty($this->item->id)) {
             $applyImport = Text::_('ORGANIZER_CREATE_IMPORT');
             $saveImport  = Text::_('ORGANIZER_CREATE_IMPORT_CLOSE');
-            $title       = Text::_('ORGANIZER_SUBJECT_NEW');
+            $title       = Text::_('ORGANIZER_ADD_SUBJECT');
 
         }
         else {
             $applyImport = Text::_('ORGANIZER_APPLY_AND_UPDATE');
             $saveImport  = Text::_('ORGANIZER_SAVE_UPDATE');
-            $title       = Text::_('ORGANIZER_SUBJECT_EDIT');
+            $title       = Text::_('ORGANIZER_EDIT_SUBJECT');
         }
 
         $this->setTitle($title);
