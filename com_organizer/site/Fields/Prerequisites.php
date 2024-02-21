@@ -26,7 +26,7 @@ class Prerequisites extends DependencyOptions
     public function getInput(): string
     {
         $options = $this->getOptions();
-        $select  = '<select id="prerequisites" name="jform[prerequisites][]" multiple="multiple" size="10">';
+        $select  = '<select id="prerequisites" name="prerequisites[]" multiple="multiple" size="10">';
         $select  .= implode('', $options) . '</select>';
 
         return $select;

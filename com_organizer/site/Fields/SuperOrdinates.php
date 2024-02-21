@@ -29,7 +29,7 @@ class SuperOrdinates extends FormField
     public function getInput(): string
     {
         $options = $this->getOptions();
-        $select  = '<select id="superordinates" name="jform[superordinates][]" multiple="multiple" size="10">';
+        $select  = '<select id="superordinates" name="superordinates[]" multiple="multiple" size="10">';
         $select  .= implode('', $options) . '</select>';
 
         return $select;
