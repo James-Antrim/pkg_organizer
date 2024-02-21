@@ -258,12 +258,8 @@ class Persons extends Scheduled implements Selectable
     public static function resources(): array
     {
         $organizationID = Input::getInt('organizationID');
-        if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization')) {
-            foreach ($organizationIDs as $key => $organizationID) {
-                if (!Can::view('organization', $organizationID)) {
-                    unset($organizationIDs[$key]);
-                }
-            }
+        if ($organizationID) {
+            $organizationIDs = Can::view('organization', $organizationID) ? [$organizationID] : [];
         }
         else {
             $organizationIDs = Can::manageTheseOrganizations();
@@ -288,18 +284,12 @@ class Persons extends Scheduled implements Selectable
             $where = DB::qn('a.organizationID') . ' IN (' . implode(',', $query->bindArray($organizationIDs)) . ')';
 
             if ($categoryID = Input::getInt('categoryID')) {
-                $categoryIDs = [$categoryID];
-            }
-
-            $categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
-            $categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
-
-            if ($categoryIDs and $categoryIDs = implode(',', $query->bindArray($categoryIDs))) {
                 $query->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.personID', 'p.id'))
                     ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
-                    ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'));
+                    ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'))
+                    ->bind(':categoryID', $categoryID, ParameterType::INTEGER);
 
-                $where .= ' AND ' . DB::qn('g.categoryID') . " IN ($categoryIDs)";
+                $where .= ' AND ' . DB::qn('g.categoryID') . " = :categoryID";
                 $where = "($where)";
             }
 

@@ -64,10 +64,6 @@ class RoomOverview extends ListModel
         $this->filterValues($query, ['buildingID', 'roomtypeID']);
         $this->filterByCampus($query, 'b');
 
-        if ($roomIDs = Input::getFilterIDs('room')) {
-            $query->where('r.id IN (' . implode(',', $roomIDs) . ')');
-        }
-
         if ($capacity = $this->state->get('filter.effCapacity')) {
             $query->where("r.effCapacity >= $capacity");
         }

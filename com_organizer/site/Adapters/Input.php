@@ -156,41 +156,6 @@ class Input
     }
 
     /**
-     * Returns the application's input object.
-     *
-     * @param   string  $resource  the name of the resource upon which the ids being sought reference
-     *
-     * @return int[] the filter ids
-     */
-    public static function getFilterIDs(string $resource): array
-    {
-        $filterItems = self::getFilterItems();
-        $listItems   = self::getListItems();
-
-        $fieldName = "{$resource}IDs";
-
-        if ($values = $filterItems->get($fieldName, false)) {
-            return array_filter(ArrayHelper::toInteger($values));
-        }
-
-        if ($values = $listItems->get($fieldName, false)) {
-            return array_filter(ArrayHelper::toInteger($values));
-        }
-
-        $fieldName = "{$resource}ID";
-
-        if ($value = $filterItems->get($fieldName, false)) {
-            return [(int) $value];
-        }
-
-        if ($value = $listItems->get($fieldName, false)) {
-            return [(int) $value];
-        }
-
-        return [];
-    }
-
-    /**
      * Retrieves the filter items from the request and creates a registry with the data.
      * @return Registry
      */

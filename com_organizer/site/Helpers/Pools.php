@@ -195,24 +195,6 @@ class Pools extends Curricula implements Selectable
     }
 
     /**
-     * Retrieves pool options for a given curriculum element
-     * @return string
-     */
-    public static function parentOptions(): string
-    {
-        $resourceID   = Input::getID();
-        $resourceType = Input::getCMD('type');
-
-        // Pending program ranges are dependent on selected programs.
-        $programIDs    = Input::getFilterIDs('program');
-        $programRanges = Programs::programs($programIDs);
-
-        $options = self::superOptions($resourceID, $resourceType, $programRanges);
-
-        return implode('', $options);
-    }
-
-    /**
      * Gets an HTML option based upon a pool curriculum association
      *
      * @param   array  $range      the curriculum range entry

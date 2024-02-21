@@ -126,11 +126,9 @@ class Groups extends Scheduled implements Selectable
      */
     public static function options(string $access = ''): array
     {
-        $categoryID  = Input::getInt('categoryID');
-        $categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
-
-        $tag  = Application::getTag();
-        $name = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";
+        $categoryID = Input::getInt('categoryID');
+        $tag        = Application::getTag();
+        $name       = $categoryID ? "name_$tag" : "fullName_$tag";
 
         $options = [];
         foreach (self::resources() as $group) {
