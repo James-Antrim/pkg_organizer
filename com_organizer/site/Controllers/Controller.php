@@ -55,14 +55,16 @@ class Controller extends BaseController
 
     /**
      * Default authorization check. Level component administrator. Override for nuance.
-     * @return void
+     * @return bool
      */
-    protected function authorizeAJAX(): void
+    protected function authorizeAJAX(): bool
     {
         if (!Can::administrate()) {
-            echo Text::_('403');
-            $this->app->close();
+            http_response_code(403);
+            return false;
         }
+
+        return true;
     }
 
     /**
