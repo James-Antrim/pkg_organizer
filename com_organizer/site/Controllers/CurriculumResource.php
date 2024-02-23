@@ -57,6 +57,24 @@ abstract class CurriculumResource extends FormController
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function authorizeAJAX(): void
+    {
+        // Has already been checked in calling function.
+        $id = Input::getID();
+
+        /** @var Documentable $helper */
+        $helper = "THM\\Organizer\\Helpers\\" . $this->list;
+
+        if (!$helper::documentable($id)) {
+            http_response_code(403);
+            echo '';
+            $this->app->close();
+        }
+    }
+
+    /**
      * Ensures that the imported resource is mapped in the curricula table.
      *
      * @param   Curricula  $curriculum  the curricula table object
