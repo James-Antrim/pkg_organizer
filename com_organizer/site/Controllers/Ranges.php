@@ -498,32 +498,29 @@ trait Ranges
     }
 
     /**
-     * Performs checks to ensure that a superordinate item has been selected as a precursor to the rest of the
-     * curriculum processing.
+     * Processes form data mapping the resource to superordinate resources.
      *
      * @param   array  $data  the form data
      *
-     * @return array[] the applicable superordinate ranges
+     * @return bool
      */
-    protected function superOrdinates(array $data): array
+    protected function updateSuper(array $data): bool
     {
         $class = Application::getClass(get_called_class());
+
+        // Programs cannot have superordinate resources, hard unsupported error.
         if ($class === 'Program') {
             Application::error(501);
         }
 
         // No program context was selected implicitly or explicitly.
         if (empty($data['programIDs']) or in_array(self::NONE, $data['programIDs'])) {
-            $this->deleteRanges($data['id']);
-
-            return [];
+            return $this->deleteRanges($data['id']);
         }
 
         // No superordinates were selected implicitly or explicitly.
         if (empty($data['superordinates']) or in_array(self::NONE, $data['superordinates'])) {
-            $this->deleteRanges($data['id']);
-
-            return [];
+            return $this->deleteRanges($data['id']);
         }
 
         // Retrieve the program context ranges for sanity checks on pool ranges
@@ -532,6 +529,12 @@ trait Ranges
             if ($ranges = Programs::rows($programID)) {
                 $programRanges[$programID] = $ranges[0];
             }
+        }
+
+        // In good faith this would be inconsistent data, otherwise request manipulation.
+        if (empty($programRanges)) {
+            Application::message('412');// Stopped here trying to find error messages and make this return bool.
+            return false;
         }
 
         $soRanges = [];

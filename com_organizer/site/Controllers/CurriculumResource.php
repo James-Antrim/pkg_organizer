@@ -287,7 +287,7 @@ abstract class CurriculumResource extends FormController
      * Method to save the submitted ordering values for records via AJAX.
      * @return  void
      */
-    public function superOrdinates(): void
+    public function superOrdinatesAjax(): void
     {
         $this->checkToken();
 
@@ -338,3 +338,87 @@ abstract class CurriculumResource extends FormController
         return $dummyPos === false;
     }
 }
+/*
+Array
+(
+    [abbreviation_de] => V3-dimS
+    [abbreviation_en] => PrV3-dimS
+    [bonusPoints] => 0
+    [code] => TE5011
+    [content_de] => Mathematischer Hintergrund: Koordinatensysteme, homogene Koordinaten, Transformationen, 3D Grafik Beispiele für Versuchsthemen: Kamerakalibrierung, Nahbereichsphotogrammetrie, strukturierte Beleuchtung/Streifenlichtscanner, Bearbeiten 3-dimensionalerDaten, Realisierung erfasster Objekte mittels 3D-Drucker
+    [content_en] => Lectures on Math foundations: Coordinate-systems, homogeneous coordinates, transformations, 3d graphics Examples for lab-topics: camera-calibration, photogrammetry, structured light scanner, working with 3d-data, realize objects by 3d printing
+    [creditPoints] => 6
+    [description_de] => Algorithmen und Hardware zur 3-dimensionalen Bildauswertung, Koordinatensystemtransformationen, 3D-Grafik, Lösen überbestimmter Gleichungssysteme, ausgewählte Kapitel der Photogrammetrie und Versuche zur 3D-Vermessung und Anwendung der Resultate
+    [description_en] => Algorithms and Hardware for 3-dimensional computer vision, coordinate-transformations, 3D-graphics, solving over determined equation systems, selected chapters in photogrammetry and lab exercises in 3-dimensional object acquisition and in applying 3D data
+    [duration] => 1
+    [expenditure] => 180
+    [expertise] => 0
+    [expertise_de] =>
+    [expertise_en] =>
+    [fieldID] => 0
+    [frequencyID] => 5
+    [fullName_de] => 3-dimensionales maschinelles Sehen
+    [fullName_en] => 3D computer vision
+    [independent] => 120
+    [language] => D
+    [literature] => Vorlesungsbegleitende Materialen, publiziert zeitnah auf der Lernplattform. Aktuelle OpenCV Documentation Luhmann, T.: Nahbereichsphotogrammetrie. Wichmann Hartley, R.; Zisserman, A.: Multiple View Geometry in Computer Vision. Cambridge University Press. Schreer, O.: Stereoanalyse und Bildsynthese. Springer.
+    [method_de] => Vorlesung 2 SWS, Praktikum 2 SWS
+    [method_en] => Vorlesung 2 SWS, Praktikum 2 SWS
+    [methodCompetence] =>
+    [methodCompetence_de] =>
+    [methodCompetence_en] =>
+    [objective_de] =>
+    [objective_en] =>
+    [preliminaryWork_de] =>
+    [preliminaryWork_en] =>
+    [prerequisites_de] => Keine
+    [prerequisites_en] =>
+    [present] => 60
+    [proof_de] => Prüfungsvorleistung: Übungsaufgaben, Praktikumsleistungen (Anzahl der Übungsaufgaben und Praktikumsleistungen wird den Studierenden rechtzeitig und in geeigneter Weise bekannt gegeben.)Prüfungsleistung: Mündliche Prüfung (der Versuchsvorbereitung), schriftliche Ausarbeitung (zu Übungen und Versuchen) (zusammen 100%)
+    [proof_en] => Pre-examination achievements: Exercises, practical performance (Number of exercises and practical performances will be announced to the students in a timely and appropriate manner).Examination achievements: Oral examination of preparations for the experiments, Written reports (for exercises and lab experiments) (together 100%)
+    [recommendedPrerequisites_de] =>
+    [recommendedPrerequisites_en] =>
+    [selfCompetence] =>
+    [selfCompetence_de] =>
+    [selfCompetence_en] =>
+    [socialCompetence] =>
+    [socialCompetence_de] =>
+    [socialCompetence_en] =>
+    [sws] => 4
+    [id] => 2100
+    [alias] =>
+    [lsfID] => 125347
+    [coordinators] => Array
+        (
+            [0] => 2300
+            [1] => 31
+        )
+
+    [organizationIDs] => Array
+        (
+            [0] => 1
+        )
+
+    [persons] => Array
+        (
+            [0] => 2300
+            [1] => 31
+        )
+
+    [prerequisites] => Array
+        (
+        )
+
+    [programIDs] => Array
+        (
+            [0] => 2
+            [1] => 68
+        )
+
+    [superordinates] => Array
+        (
+            [0] => 23909
+            [1] => 24126
+        )
+)
+*/

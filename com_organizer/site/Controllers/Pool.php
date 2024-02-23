@@ -65,7 +65,7 @@ class Pool extends CurriculumResource implements Stubby
             Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
         }
 
-        $superOrdinates = $this->superOrdinates($data);
+        $superOrdinates = $this->updateSuper($data);
 
         if (!$this->addSubordinate($data, $superOrdinates)) {
             Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
