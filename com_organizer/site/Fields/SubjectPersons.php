@@ -20,18 +20,12 @@ use THM\Organizer\Helpers\Subjects;
 class SubjectPersons extends ListField
 {
     /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
+     * @inheritDoc
      */
     protected function getOptions(): array
     {
         if (!$subjectID = Input::getID() or !$role = $this->getAttribute('role')) {
             return [];
-        }
-
-        $this->value = [];
-        foreach (Subjects::persons($subjectID, $role) as $person) {
-            $this->value[$person['id']] = $person['id'];
         }
 
         $query = DB::getQuery();
