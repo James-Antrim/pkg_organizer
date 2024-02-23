@@ -12,6 +12,7 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use stdClass;
 use THM\Organizer\Tables\Pools as Table;
 
 /**
@@ -197,25 +198,22 @@ class Pools extends Curricula implements Selectable
     /**
      * Gets an HTML option based upon a pool curriculum association
      *
-     * @param   array  $range      the curriculum range entry
-     * @param   array  $parentIDs  the selected parents
+     * @param   array  $range  the curriculum range entry
      *
-     * @return string  HTML option
+     * @return null|stdClass
      */
-    public static function option(array $range, array $parentIDs): string
+    public static function option(array $range): null|stdClass
     {
         $poolsTable = new Table();
 
         if (!$poolsTable->load($range['poolID'])) {
-            return '';
+            return null;
         }
 
         $nameColumn   = 'fullName_' . Application::getTag();
         $indentedName = Pools::indentName($poolsTable->$nameColumn, $range['level']);
 
-        $selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
-
-        return "<option value='{$range['id']}' $selected>$indentedName</option>";
+        return HTML::option($range['id'], $indentedName);
     }
 
     /**

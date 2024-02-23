@@ -11,7 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\{DatabaseQuery, ParameterType};
-use THM\Organizer\Adapters\{Database as DB, Text};
+use stdClass;
+use THM\Organizer\Adapters\{Database as DB, HTML, Text};
 use THM\Organizer\Controllers\Subject;
 
 /**
@@ -410,32 +411,53 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
      *
-     * @param   int     $resourceID   the id of the resource for which the form is being displayed
-     * @param   string  $type         the type of the resource
-     * @param   array   $programRows  the rows for programs selected in the form, or already mapped
+     * @param   string  $type    the type of the resource
+     * @param   array   $ranges  the rows for programs selected in the form, or already mapped
      *
-     * @return string[] the superordinate resource options
+     * @return stdClass[] the superordinate resource options
      */
-    public static function superOptions(int $resourceID, string $type, array $programRows): array
+    public static function superOptions(string $type, array $ranges): array
     {
-        $options = ['<option value="-1">' . Text::_('NONE') . '</option>'];
+        $default = HTML::option(-1, Text::_('NONE'));
 
-        if (!$programRows or !$type) {
-            return $options;
+        if (!$ranges or !$type) {
+            return [$default];
         }
 
-        $rows = self::allRows($programRows);
+        $rows = self::allRows($ranges);
 
         // The programs have no subordinate resources and subjects cannot be directly subordinated to programs
-        if (count($rows) === count($programRows) and $type == 'subject') {
-            return $options;
+        if (count($rows) === count($ranges) and $type == 'subject') {
+            return [$default];
         }
 
+        $options = [$default];
+
+        foreach ($rows as $row) {
+            if ($option = empty($row['poolID']) ? Programs::option($row, $type) : Pools::option($row)) {
+                $options[] = $option;
+            }
+
+        }
+
+        return $options;
+    }
+
+    /**
+     * @param   int     $id
+     * @param   string  $type
+     * @param   array   $programRows
+     *
+     * @return int[]
+     */
+    public static function superValues(int $id, string $type, array $programRows): array
+    {
+        $rows     = self::allRows($programRows);
         $selected = [];
 
-        if ($resourceID) {
+        if ($id) {
             if ($type === 'pool') {
-                $selected = Pools::rows($resourceID);
+                $selected = Pools::rows($id);
 
                 foreach ($rows as $key => $row) {
                     foreach ($selected as $sRange) {
@@ -444,25 +466,12 @@ abstract class Curricula extends Associated implements Documentable, Selectable
                         }
                     }
                 }
-
             }
             else {
-                $selected = Subjects::rows($resourceID);
+                $selected = Subjects::rows($id);
             }
         }
 
-        $parentIDs = self::parentIDs($selected);
-
-        foreach ($rows as $row) {
-
-            if (!empty($row['poolID'])) {
-                $options[] = Pools::option($row, $parentIDs);
-            }
-            else {
-                $options[] = Programs::option($row, $parentIDs, $type);
-            }
-        }
-
-        return $options;
+        return self::parentIDs($selected) ?: [-1];
     }
 }

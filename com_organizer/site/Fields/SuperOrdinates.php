@@ -10,45 +10,48 @@
 
 namespace THM\Organizer\Fields;
 
-use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
-use stdClass;
+use Joomla\CMS\Form\Field\ListField;
+use THM\Organizer\Adapters\{Form, Input};
+use THM\Organizer\Helpers\{Pools, Subjects};
 
 /**
  * Class creates a select box for superordinate pool resources.
  */
-class SuperOrdinates extends FormField
+class SuperOrdinates extends ListField
 {
-    use Translated;
+    private array $values = [-1];
 
     /**
-     * Returns a select box in which resources can be chosen as a superordinates
-     * @return string
+     * @inheritDoc
      */
-    public function getInput(): string
+    protected function getInput(): string
     {
+        $data    = $this->getLayoutData();
         $options = $this->getOptions();
-        $select  = '<select id="superordinates" name="superordinates[]" multiple="multiple" size="10">';
-        $select  .= implode('', $options) . '</select>';
 
-        return $select;
+        $data['options']  = $options;
+        $data['multiple'] = true;
+        $data['size']     = 10;
+        $data['value']    = $this->values;
+
+        return $this->getRenderer($this->layout)->render($data);
     }
 
     /**
      * Gets available superordinate options.
-     * @return stdClass[]
+     * @return string[]
      */
     protected function getOptions(): array
     {
-        $resourceID   = Input::getID();
-        $contextParts = explode('.', $this->form->getName());
-        $resourceType = str_replace('edit', '', $contextParts[1]);
+        /** @var Form $form */
+        $form       = $this->form;
+        $resource   = $form->view();
+        $resourceID = Input::getID();
 
         // Initial program ranges are dependent on existing ranges.
-        $programRanges = $resourceType === 'pool' ?
-            Helpers\Pools::programs($resourceID) : Helpers\Subjects::programs($resourceID);
+        $ranges       = $resource === 'pool' ? Pools::programs($resourceID) : Subjects::programs($resourceID);
+        $this->values = Pools::superValues($resourceID, $resource, $ranges);
 
-        return Helpers\Pools::superOptions($resourceID, $resourceType, $programRanges);
+        return Pools::superOptions($resource, $ranges);
     }
 }

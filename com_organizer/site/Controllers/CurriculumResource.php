@@ -13,8 +13,8 @@ namespace THM\Organizer\Controllers;
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Tables\{Associations, Curricula, Pools, Subjects, Table};
-use THM\Organizer\Helpers\Documentable;
+use THM\Organizer\Tables\{Associations, Curricula, Pools as PoolsTable, Subjects, Table};
+use THM\Organizer\Helpers\{Documentable, Pools as PoolsHelper, Programs};
 
 /**
  * @inheritDoc
@@ -269,18 +269,53 @@ abstract class CurriculumResource extends FormController
     /**
      * Set name attributes common to pools and subjects.
      *
-     * @param   Pools|Subjects    $table      the table to modify
-     * @param   SimpleXMLElement  $XMLObject  the data source
+     * @param   PoolsTable|Subjects  $table      the table to modify
+     * @param   SimpleXMLElement     $XMLObject  the data source
      *
      * @return void
      */
-    protected function setNames(Pools|Subjects $table, SimpleXMLElement $XMLObject): void
+    protected function setNames(PoolsTable|Subjects $table, SimpleXMLElement $XMLObject): void
     {
         $table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
         $table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
 
         $table->fullName_de = (string) $XMLObject->titelde;
         $table->fullName_en = (string) $XMLObject->titelen ?: $table->fullName_de;
+    }
+
+    /**
+     * Method to save the submitted ordering values for records via AJAX.
+     * @return  void
+     */
+    public function superOrdinates(): void
+    {
+        $this->checkToken();
+
+        $id   = Input::getID();
+        $type = Input::getCMD('type');
+
+        if (!$id or !$type) {
+            http_response_code(400);
+            echo '';
+            $this->app->close();
+        }
+
+        $this->authorizeAJAX();
+
+        // Pending program ranges are dependent on selected programs.
+        $ranges = Programs::programs(Input::getIntArray('programIDs'));
+        $values = PoolsHelper::superValues($id, $type, $ranges);
+
+        $options = '';
+
+        foreach (PoolsHelper::superOptions($type, $ranges) as $option) {
+            $selected = in_array($option->value, $values) ? 'selected' : '';
+            $options  .= "<option value=\"$option->value\" $selected $option->disabled>$option->text</option>";
+        }
+
+        echo json_encode($options, JSON_UNESCAPED_UNICODE);
+
+        $this->app->close();
     }
 
     /**
