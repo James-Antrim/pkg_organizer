@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Helpers\{Persons, Programs, Subjects as Helper};
+use THM\Organizer\Helpers\{Persons, Pools, Programs, Subjects as Helper};
 
 /**
  * @inheritDoc
@@ -24,20 +24,23 @@ class Subject extends EditModel
      */
     public function getItem(): object
     {
-        $item = parent::getItem();
+        if (!$item = $this->item) {
+            $item = parent::getItem();
 
-        $item->coordinators = [];
-        foreach (Helper::persons($item->id, Persons::COORDINATES) as $coordinator) {
-            $item->coordinators[$coordinator['id']] = $coordinator['id'];
-        }
-        $item->persons = [];
-        foreach (Helper::persons($item->id, Persons::TEACHES) as $teacher) {
-            $item->persons[$teacher['id']] = $teacher['id'];
-        }
-        $item->prerequisites = Helper::prerequisites($item->id);
+            $item->coordinators = [];
+            foreach (Helper::persons($item->id, Persons::COORDINATES) as $coordinator) {
+                $item->coordinators[$coordinator['id']] = $coordinator['id'];
+            }
+            $item->persons = [];
+            foreach (Helper::persons($item->id, Persons::TEACHES) as $teacher) {
+                $item->persons[$teacher['id']] = $teacher['id'];
+            }
+            $item->prerequisites = Helper::prerequisites($item->id);
 
-        $ranges           = Helper::rows($item->id);
-        $item->programIDs = empty($ranges) ? [] : Programs::extractIDs($ranges);
+            $ranges               = Helper::rows($item->id);
+            $item->programIDs     = empty($ranges) ? [] : Programs::extractIDs($ranges);
+            $item->superordinates = Pools::superValues($item->id, 'subject');
+        }
 
         return $item;
     }

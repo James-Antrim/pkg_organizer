@@ -444,31 +444,31 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     }
 
     /**
-     * @param   int     $id
-     * @param   string  $type
-     * @param   array   $programRows
+     * Gets the current superordinate ids for the given resource id and type.
+     *
+     * @param   int     $id    the id of the resource in its respective table
+     * @param   string  $type  the type of subordinate resource (pool|subject)
      *
      * @return int[]
      */
-    public static function superValues(int $id, string $type, array $programRows): array
+    public static function superValues(int $id, string $type): array
     {
-        $rows     = self::allRows($programRows);
-        $selected = [];
+        if (!$id or !in_array($type, ['pool', 'subject'])) {
+            return [];
+        }
 
-        if ($id) {
-            if ($type === 'pool') {
-                $selected = Pools::rows($id);
+        if ($type === 'subject') {
+            return self::parentIDs(Subjects::rows($id)) ?: [-1];
+        }
 
-                foreach ($rows as $key => $row) {
-                    foreach ($selected as $sRange) {
-                        if ($row['lft'] >= $sRange ['lft'] and $row['rgt'] <= $sRange ['rgt']) {
-                            unset($rows[$key]);
-                        }
-                    }
+        $rows     = self::allRows(Pools::programs($id));
+        $selected = Pools::rows($id);
+
+        foreach ($rows as $key => $row) {
+            foreach ($selected as $sRange) {
+                if ($row['lft'] >= $sRange ['lft'] and $row['rgt'] <= $sRange ['rgt']) {
+                    unset($rows[$key]);
                 }
-            }
-            else {
-                $selected = Subjects::rows($id);
             }
         }
 

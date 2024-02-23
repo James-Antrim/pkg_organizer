@@ -302,11 +302,9 @@ abstract class CurriculumResource extends FormController
 
         $this->authorizeAJAX();
 
-        // Pending program ranges are dependent on selected programs.
-        $ranges = Programs::programs(Input::getIntArray('programIDs'));
-        $values = PoolsHelper::superValues($id, $type, $ranges);
-
         $options = '';
+        $ranges  = Programs::programs(Input::getIntArray('programIDs'));
+        $values  = PoolsHelper::superValues($id, $type);
 
         foreach (PoolsHelper::superOptions($type, $ranges) as $option) {
             $selected = in_array($option->value, $values) ? 'selected' : '';

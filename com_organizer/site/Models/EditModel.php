@@ -23,6 +23,13 @@ use THM\Organizer\Tables\Table;
 abstract class EditModel extends FormModel
 {
     /**
+     * The data representing the resource.
+     *
+     * @var null|object
+     */
+    protected null|object $item = null;
+
+    /**
      * The resource's table class.
      * @var string
      */
@@ -49,14 +56,18 @@ abstract class EditModel extends FormModel
      */
     public function getItem(): object
     {
-        $rowID = Input::getSelectedID();
+        if (!$this->item) {
+            $rowID = Input::getSelectedID();
 
-        /** @var Table $table */
-        $table = $this->getTable();
-        $table->load($rowID);
-        $properties = $table->getProperties();
+            /** @var Table $table */
+            $table = $this->getTable();
+            $table->load($rowID);
+            $properties = $table->getProperties();
 
-        return ArrayHelper::toObject($properties);
+            $this->item = ArrayHelper::toObject($properties);
+        }
+
+        return $this->item;
     }
 
     /**

@@ -11,12 +11,13 @@
         <field name="lsfID" type="text" label="ORGANIZER_LSF_ID" maxlength="11"/>
         <field name="code" type="text" label="ORGANIZER_MODULE_ID" maxlength="60"/>
         <field name="spacer1" type="spacer" hr="true"/>
-        <field name="coordinators" type="SubjectPersons" label="ORGANIZER_SUBJECT_COORDINATORS" multiple="multiple" role="1"
-               size="12">
-            <option value="">ORGANIZER_NO_INPUT</option>
+        <field name="coordinators" type="SubjectPersons" label="ORGANIZER_SUBJECT_COORDINATORS" default="-1" multiple="multiple"
+               role="1" size="10">
+            <option value="-1">ORGANIZER_NO_INPUT</option>
         </field>
-        <field name="persons" type="SubjectPersons" label="ORGANIZER_TEACHERS" multiple="multiple" role="2" size="12">
-            <option value="">ORGANIZER_UNSPECIFIED_TEACHERS</option>
+        <field name="persons" type="SubjectPersons" label="ORGANIZER_TEACHERS" default="-1" multiple="multiple" role="2"
+               size="10">
+            <option value="-1">ORGANIZER_UNSPECIFIED_TEACHERS</option>
         </field>
         <field name="spacer2" type="spacer" hr="true"/>
         <field name="creditPoints" type="Integer" label="ORGANIZER_CREDIT_POINTS" default="6" first="1" last="30" step="1"/>
@@ -98,8 +99,9 @@
     </fieldset>
     <fieldset name="associations" label="ORGANIZER_ASSOCIATIONS">
         <!--<field name="eventIDs" type="SubjectEvents" label="ORGANIZER_EVENT" role="1"/>-->
-        <field name="programIDs" type="Curricula" label="ORGANIZER_PROGRAMS" default="-1" multiple="multiple"/>
-        <field type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES"/>
+        <field name="programIDs" type="Curricula" label="ORGANIZER_PROGRAMS" default="-1" multiple="multiple" size="10"/>
+        <field name="superordinates" type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES" default="-1" multiple="multiple"
+               size="10"/>
         <field name="spacer3" type="spacer" hr="true"/>
         <field name="prerequisites" type="Prerequisites" label="ORGANIZER_PREREQUISITES" default="-1" multiple="multiple"
                size="10"/>

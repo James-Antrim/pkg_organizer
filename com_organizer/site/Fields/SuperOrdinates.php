@@ -19,24 +19,6 @@ use THM\Organizer\Helpers\{Pools, Subjects};
  */
 class SuperOrdinates extends ListField
 {
-    private array $values = [-1];
-
-    /**
-     * @inheritDoc
-     */
-    protected function getInput(): string
-    {
-        $data    = $this->getLayoutData();
-        $options = $this->getOptions();
-
-        $data['options']  = $options;
-        $data['multiple'] = true;
-        $data['size']     = 10;
-        $data['value']    = $this->values;
-
-        return $this->getRenderer($this->layout)->render($data);
-    }
-
     /**
      * Gets available superordinate options.
      * @return string[]
@@ -49,8 +31,7 @@ class SuperOrdinates extends ListField
         $resourceID = Input::getID();
 
         // Initial program ranges are dependent on existing ranges.
-        $ranges       = $resource === 'pool' ? Pools::programs($resourceID) : Subjects::programs($resourceID);
-        $this->values = Pools::superValues($resourceID, $resource, $ranges);
+        $ranges = $resource === 'pool' ? Pools::programs($resourceID) : Subjects::programs($resourceID);
 
         return Pools::superOptions($resource, $ranges);
     }
