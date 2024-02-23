@@ -15,7 +15,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\{Controller\BaseController, Factory\MVCFactoryInterface};
 use Joomla\CMS\Uri\Uri;
 use Joomla\Input\Input as JInput;
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\Can;
 
 /**
