@@ -513,7 +513,7 @@ trait Ranges
         }
 
         // No program context was selected implicitly or explicitly.
-        if (empty($data['curricula']) or in_array(self::NONE, $data['curricula'])) {
+        if (empty($data['programIDs']) or in_array(self::NONE, $data['programIDs'])) {
             $this->deleteRanges($data['id']);
 
             return [];
