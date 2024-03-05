@@ -17,11 +17,6 @@ use THM\Organizer\Adapters\{Text, Toolbar};
  */
 class Subject extends FormView
 {
-    protected array $todo = [
-        'Remove fields and handling for deprecated competence values.',
-        'Rename the curricula field programIDs'
-    ];
-
     /**
      * @inheritDoc
      */
