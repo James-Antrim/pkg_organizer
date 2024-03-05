@@ -753,21 +753,10 @@ class Subject extends CurriculumResource implements Stubby
         }
 
         if (!$this->assignments($data)) {
-            echo "<pre>assignements failed?</pre>";die;
             Application::message('UPDATE_ASSIGNMENT_FAILED', Application::WARNING);
         }
 
-        if (!$superOrdinates = $this->updateSuper($data)) {
-
-            echo "<pre>super failed</pre>";die;
-        }
-        echo "<pre>super updated?</pre>";die;
-
-        if (!$this->addSubordinate($data, $superOrdinates)) {
-            Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
-        }
-
-        $this->deleteDeprecated($data['id'], $superOrdinates);
+        $this->updateSuperOrdinates($data);
 
         // Dependant on curricula entries.
         if (!$this->processPrerequisites($data['id'], $data['prerequisites'])) {

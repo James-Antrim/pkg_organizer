@@ -215,28 +215,6 @@ trait Ranges
     }
 
     /**
-     * Method to delete resource ranges not subordinate to the given superordinate elements.
-     *
-     * @param   int    $resourceID      the resource id
-     * @param   array  $superOrdinates  the valid superordinate ranges
-     *
-     * @return void
-     */
-    protected function deleteDeprecated(int $resourceID, array $superOrdinates): void
-    {
-        $superIDs = array_keys($superOrdinates);
-
-        foreach ($this->ranges($resourceID) as $range) {
-            if (in_array($range['parentID'], $superIDs)) {
-                continue;
-            }
-
-            // Remove unrequested existing relationship
-            $this->deleteRange($range['id']);
-        }
-    }
-
-    /**
      * Method to delete a single range from the curricula table
      *
      * @param   int  $rangeID  the id value of the range to be deleted
@@ -498,13 +476,13 @@ trait Ranges
     }
 
     /**
-     * Processes form data mapping the resource to superordinate resources.
+     * Updates structure relations based on the superordinates selected in the form.
      *
      * @param   array  $data  the form data
      *
-     * @return bool
+     * @return void
      */
-    protected function updateSuper(array $data): bool
+    protected function updateSuperOrdinates(array $data): void
     {
         $class = Application::getClass(get_called_class());
 
@@ -513,46 +491,55 @@ trait Ranges
             Application::error(501);
         }
 
-        // No program context was selected implicitly or explicitly.
+
+        // No program context was selected implicitly or explicitly => remove resource from curricula.
         if (empty($data['programIDs']) or in_array(self::NONE, $data['programIDs'])) {
-            return $this->deleteRanges($data['id']);
+            $this->deleteRanges($data['id']);
+
+            return;
         }
 
-        // No superordinates were selected implicitly or explicitly.
+        // No superordinates were selected implicitly or explicitly => remove resource from curricula.
         if (empty($data['superordinates']) or in_array(self::NONE, $data['superordinates'])) {
-            return $this->deleteRanges($data['id']);
+            $this->deleteRanges($data['id']);
+
+            return;
         }
 
         // Retrieve the program context ranges for sanity checks on pool ranges
         $programRanges = [];
-        foreach ($data['curricula'] as $programID) {
+        foreach ($data['programIDs'] as $programID) {
             if ($ranges = Programs::rows($programID)) {
                 $programRanges[$programID] = $ranges[0];
             }
         }
 
-        // In good faith this would be inconsistent data, otherwise request manipulation.
+        // Selected program does not deliver a valid context for curriculum structures => remove resource from curricula.
         if (empty($programRanges)) {
-            Application::message('412');// Stopped here trying to find error messages and make this return bool.
-            return false;
+            Application::message('412');
+            $this->deleteRanges($data['id']);
+
+            return;
         }
 
         $soRanges = [];
         foreach ($data['superordinates'] as $soID) {
             $table = new Curricula();
 
-            // Non-existent or invalid entry
+            // Selected superordinate does not exist or is a subject mapping => invalid.
             if (!$table->load($soID) or $table->subjectID) {
                 continue;
             }
 
             // Requested superordinate is the program context root
             if ($programID = $table->programID) {
-                // Subjects may not be directly associated with programs
+
+                // Subjects may not be directly subordinate to programs => invalid.
                 if ($class === 'Subject') {
                     continue;
                 }
 
+                // Add every mapping for the selected program as a superordinate implicitly => not just those explicitly selected.
                 foreach ($programRanges as $programRange) {
                     if ($programRange['programID'] === $programID) {
                         $soRanges[$programRange['id']] = $programRange;
@@ -562,16 +549,40 @@ trait Ranges
                 continue;
             }
 
+            // Add every mapping for the selected pool as a superordinate implicitly => not just those explicitly selected.
             foreach (Pools::rows($table->poolID) as $poolRange) {
                 foreach ($programRanges as $programRange) {
-                    // Pool range is a valid subset of the program context range
-                    if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt']) {
+                    $validLeft  = $poolRange['lft'] > $programRange['lft'];
+                    $validRight = $poolRange['rgt'] < $programRange['rgt'];
+                    if ($validLeft and $validRight) {
                         $soRanges[$poolRange['id']] = $poolRange;
                     }
                 }
             }
         }
 
-        return $soRanges;
+        // Selected superordinates were non-existent or invalid => remove resource from curricula.
+        if (empty($soRanges)) {
+            Application::message('412');
+            $this->deleteRanges($data['id']);
+
+            return;
+        }
+
+        if (!$this->addSubordinate($data, $soRanges)) {
+            Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
+            return;
+        }
+
+        $soIDs = array_keys($soRanges);
+
+        foreach ($this->ranges($data['id']) as $range) {
+
+            // Existing subordinate relation not in request => deprecated.
+            if (!in_array($range['parentID'], $soIDs)) {
+                $this->deleteRange($range['id']);
+            }
+
+        }
     }
 }

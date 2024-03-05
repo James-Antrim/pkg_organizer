@@ -131,8 +131,8 @@ class OrganizationAssociations extends ListField
             $data['autofocus'] = 'autofocus';
         }
         else {
-            $this->name   = $this->name . '[]';
-            $data['name'] = $this->name . '[]';
+            $this->name   .= str_ends_with($this->name, '[]') ? '' : '[]';
+            $data['name'] = $this->name;
 
             $count = count($options);
 
