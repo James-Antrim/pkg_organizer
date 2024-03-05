@@ -71,9 +71,9 @@ class SubOrdinates extends FormField
         }
 
         $maxOrdering     = max(array_keys($subOrdinates));
-        $poolEditLink    = 'index.php?option=com_organizer&view=Pool&layout=edit&id=';
+        $poolEditLink    = 'index.php?option=com_organizer&view=pool&layout=edit&id=';
         $rowTemplate     = $this->getRowTemplate();
-        $subjectEditLink = 'index.php?option=com_organizer&view=Subject&layout=edit&id=';
+        $subjectEditLink = 'index.php?option=com_organizer&view=subject&layout=edit&id=';
 
         for ($ordering = 1; $ordering <= $maxOrdering; $ordering++) {
             if (empty($subOrdinates[$ordering])) {

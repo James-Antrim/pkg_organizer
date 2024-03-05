@@ -87,7 +87,7 @@ class Subjects extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Subject&id=';
+        $url   = 'index.php?option=com_organizer&view=subject&id=';
 
         if (Can::administrate()) {
             $access = DB::quote(1) . ' AS ' . DB::qn('access');

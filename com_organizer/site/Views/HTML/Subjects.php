@@ -129,7 +129,7 @@ class Subjects extends ListView
         $headers = [
             'check' => ['type' => 'check'],
             'name'  => [
-                'link'       => Application::backend() ? ListItem::TAB : ListItem::DIRECT,
+                'link'       => Application::backend() ? ListItem::DIRECT : ListItem::TAB,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
                 'type'       => 'text'
