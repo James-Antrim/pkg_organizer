@@ -32,7 +32,7 @@ class FormView extends Base
      * The name of the layout to use during rendering.
      * @var string
      */
-    protected string $layout = 'form';
+    protected string $layout = 'edit';
 
     /**
      * Constructor
@@ -41,8 +41,13 @@ class FormView extends Base
      */
     public function __construct(array $config)
     {
-        // If this is not explicitly set going in Joomla will default to default without looking at the object property value.
-        $config['layout'] = $this->layout;
+        // Joomla ignores the property value and overwrites it.
+        if ($config['layout'] === 'default') {
+            $config['layout'] = $this->layout;
+        }
+        else {
+            $this->layout = $config['layout'];
+        }
 
         parent::__construct($config);
 
