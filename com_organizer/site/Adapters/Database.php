@@ -337,18 +337,32 @@ class Database
     }
 
     /**
-     * Creates a condition in name quotes.
+     * Creates a condition with appropriate quotes.
      *
-     * @param   string  $leftColumn   the left column in the comparison
-     * @param   string  $rightColumn  the right column in the comparison
-     * @param   string  $operator
+     * @param   string      $subject   the column alias/name used as the subject of the comparison
+     * @param   int|string  $basis     the column alias/name, placeholder, or value being used as the basis of comparison
+     * @param   string      $standard  the standard of comparison; the operator used to compare
+     * @param   bool        $literal   flag denoting a string literal value's use as the basis of comparison
      *
      * @return string an accurate representation of what is actually returned from the dbo quoteName function
-     * @noinspection PhpMethodNamingConventionInspection
      */
-    public static function qc(string $leftColumn, string $rightColumn, string $operator = '='): string
+    public static function qc(string $subject, int|string $basis, string $standard = '=', bool $literal = false): string
     {
-        return self::qn($leftColumn) . " $operator " . self::qn($rightColumn);
+        if (is_string($basis)) {
+            // Comparison to an actual string value
+            if ($literal) {
+                $basis = self::quote($basis);
+            }
+            // Comparison to a column or column alias
+            elseif (!str_starts_with($basis, ':')) {
+                $basis = self::qn($basis);
+            }
+        }
+        // else: Comparison to a dynamically bound value using a placeholder string or an integer => leave as is
+
+        $subject = self::qn($subject);
+
+        return "$subject $standard $basis";
     }
 
     /**
