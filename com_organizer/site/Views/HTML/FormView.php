@@ -21,6 +21,7 @@ use THM\Organizer\Views\Named;
  */
 class FormView extends Base
 {
+    use Attributed;
     use Configured;
     use Named;
     use Tasked;
@@ -126,4 +127,21 @@ class FormView extends Base
         parent::display($tpl);
     }
 
+    /**
+     * @inheritDoc
+     */
+    protected function initializeView(): void
+    {
+        parent::initializeView();
+
+        $this->modifyDocument();
+    }
+
+    /**
+     * Adds scripts and stylesheets to the document.
+     */
+    protected function modifyDocument(): void
+    {
+        // Added on demand by implementing classes.
+    }
 }
