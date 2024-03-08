@@ -30,14 +30,7 @@ $return         = $input->getBase64('return');
 $tabs   = $this->form->getFieldsets();
 $tabbed = count($this->form->getFieldsets()) > 1;
 
-if (Application::backend() and $this->toDo) {
-    echo '<h6>Tasks:</h6>';
-    echo '<ul>';
-    foreach ($this->toDo as $toDo) {
-        echo "<li>$toDo</li>";
-    }
-    echo '</ul>';
-}
+$this->renderTasks();
 ?>
 <form action="<?php echo Route::_('index.php?option=com_organizer'); ?>"
       aria-label="<?php echo $ariaLabel; ?>"

@@ -25,6 +25,7 @@ use THM\Organizer\Models\ListModel;
 abstract class ListView extends Base
 {
     use Configured;
+    use Tasked;
     use Titled;
     use ToCed;
 

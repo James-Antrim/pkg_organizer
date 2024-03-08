@@ -21,21 +21,12 @@ $action    = Route::_('index.php?option=com_organizer&view=' . $this->_name);
 $direction = $this->escape($this->state->get('list.direction'));
 $orderBy   = $this->escape($this->state->get('list.ordering'));
 
-/** @var ListView $this */
-if (Application::backend() and $this->toDo) {
-    echo '<h6>Tasks:</h6>';
-    echo '<ul>';
-    foreach ($this->toDo as $toDo) {
-        echo "<li>$toDo</li>";
-    }
-    echo '</ul>';
-}
-
 if (count($this->headers) > 4) {
     $wa = Application::getDocument()->getWebAssetManager();
     $wa->useScript('table.columns');
 }
 
+$this->renderTasks();
 ?>
 <form action="<?php echo $action; ?>" method="post" name="adminForm" id="adminForm">
     <div class="row">

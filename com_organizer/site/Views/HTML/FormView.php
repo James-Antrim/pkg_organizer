@@ -23,10 +23,8 @@ class FormView extends Base
 {
     use Configured;
     use Named;
+    use Tasked;
     use Titled;
-
-    /** @var array the open items. */
-    public array $toDo = [];
 
     /**
      * The name of the layout to use during rendering.
