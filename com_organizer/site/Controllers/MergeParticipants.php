@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use THM\Organizer\Tables\{CourseParticipants as CParticipation, InstanceParticipants as IParticipation, Users};
 use Joomla\Database\ParameterType;
 
@@ -267,7 +267,7 @@ class MergeParticipants extends MergeController
         foreach ($this->mergeIDs as $mergeID) {
 
             // Joomla aggregates the user values from multiple tables in the user instance
-            $instance = Application::getUser($mergeID);
+            $instance = User::instance($mergeID);
             $table    = new Users();
 
             if (!$instance->id or !$table->load($mergeID) or $instance->id !== $table->id) {

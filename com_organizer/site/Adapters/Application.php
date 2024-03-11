@@ -11,19 +11,11 @@
 namespace THM\Organizer\Adapters;
 
 use Exception;
-use Joomla\CMS\Application\{CMSApplication, WebApplication};
-use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Document\Document;
-use Joomla\CMS\Language\Language;
-use Joomla\CMS\Menu\MenuItem;
-use Joomla\CMS\Session\Session;
-use Joomla\CMS\User\{User, UserFactory, UserFactoryInterface};
+use Joomla\CMS\Application\{CMSApplication, CMSApplicationInterface, WebApplication};
+use Joomla\CMS\{Component\ComponentHelper, Document\Document, Factory, Language\Language, Menu\MenuItem, Session\Session, Uri\Uri};
 use Joomla\Database\DatabaseDriver;
 use Joomla\DI\Container;
 use Joomla\Registry\Registry;
-use Joomla\CMS\Application\CMSApplicationInterface;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Uri\Uri;
 
 /**
  * Aggregates various core joomla functions spread around multiple core classes and offers shortcuts to them with no
@@ -244,29 +236,6 @@ class Application
         $language = self::getApplication()->getLanguage();
 
         return explode('-', $language->getTag())[0];
-    }
-
-    /**
-     * Gets a user object (specified or current).
-     *
-     * @param   int|string  $userID  the user identifier (id or name)
-     *
-     * @return User
-     */
-    public static function getUser(int|string $userID = 0): User
-    {
-        /** @var UserFactory $userFactory */
-        $userFactory = self::getContainer()->get(UserFactoryInterface::class);
-
-        // Get a specific user.
-        if ($userID) {
-            return is_int($userID) ? $userFactory->loadUserById($userID) : $userFactory->loadUserByUsername($userID);
-        }
-
-        $current = self::getApplication()->getIdentity();
-
-        // Enforce type consistency, by overwriting the potential null from getIdentity.
-        return $current ?: $userFactory->loadUserById(0);
     }
 
     /**
