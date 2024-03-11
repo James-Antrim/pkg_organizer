@@ -11,6 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\Application;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Handles code common for HTML output of outstanding tasks in the view context.
@@ -27,7 +28,7 @@ trait Tasked
      */
     public function renderTasks(): void
     {
-        if (Application::backend() and $this->toDo) {
+        if (Application::backend() and Can::administrate() and $this->toDo) {
             echo '<h6>Tasks:</h6>';
             echo '<ul>';
             foreach ($this->toDo as $toDo) {
