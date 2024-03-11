@@ -57,6 +57,11 @@ class Subject extends FormView
      */
     protected function modifyDocument(): void
     {
+        $this->toDo[] = 'Front-end toolbar:';
+        $this->toDo[] = '- PDF export (subject)';
+        $this->toDo[] = '- Edit (subject)';
+        $this->toDo[] = '- Close closes tab (subject)';
+
         if ($this->layout === 'subject') {
             Document::style('item');
         }
