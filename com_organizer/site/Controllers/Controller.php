@@ -54,19 +54,6 @@ class Controller extends BaseController
     }
 
     /**
-     * Default authorization check. Level component administrator. Override for nuance.
-     * @return void
-     */
-    protected function authorizeAJAX(): void
-    {
-        if (!Can::administrate()) {
-            http_response_code(403);
-            echo '';
-            $this->app->close();
-        }
-    }
-
-    /**
      * Checks for a form token in the request. Wraps the parent function to add direct exception handling.
      *
      * @param   string  $method    the optional request method in which to look for the token key.
