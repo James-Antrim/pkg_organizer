@@ -21,11 +21,12 @@ $return         = $input->getBase64('return');
 
 $this->renderTasks();
 ?>
-<div class="item subject">
-    <?php foreach ($this->item as $label => $value) : ?>
-        <?php if (in_array($label, ['code', 'id', 'name'])) : continue; ?>
-        <?php elseif ($label === 'PREREQUISITE_MODULES' or $label === 'POSTREQUISITE_MODULES') : ?>
-            <?php $this->renderSubjects($label, $value); ?>
-        <?php else: $this->renderAttribute($label, $value); endif; ?>
-    <?php endforeach; ?>
-</div>
+    <div class="item subject">
+        <?php foreach ($this->item as $label => $value) : ?>
+            <?php if (in_array($label, ['code', 'id', 'name'])) : continue; ?>
+            <?php elseif ($label === 'PREREQUISITE_MODULES' or $label === 'POSTREQUISITE_MODULES') : ?>
+                <?php $this->renderSubjects($label, $value); ?>
+            <?php else: $this->renderAttribute($label, $value); endif; ?>
+        <?php endforeach; ?>
+    </div>
+<?php echo $this->disclaimer; ?>

@@ -10,13 +10,16 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Document, HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, HTML, Text, Toolbar};
+use THM\Organizer\Helpers\Subjects as Helper;
 
 /**
  * Class loads persistent information about a subject into the display context.
  */
 class Subject extends FormView
 {
+    use Documented;
+
     /**
      * @inheritdoc
      */
@@ -27,8 +30,9 @@ class Subject extends FormView
      */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
+        $subjectID = empty($this->item->id) ? 0 : $this->item->id;
         if ($this->layout === 'edit') {
-            $this->setTitle(empty($this->item->id) ? Text::_('ADD_SUBJECT') : Text::_('EDIT_SUBJECT'));
+            $this->setTitle(empty($subjectID) ? Text::_('ADD_SUBJECT') : Text::_('EDIT_SUBJECT'));
             $toolbar   = Toolbar::getInstance();
             $saveGroup = $toolbar->dropdownButton('save-group');
             $saveBar   = $saveGroup->getChildToolbar();
@@ -38,8 +42,13 @@ class Subject extends FormView
             $saveBar->save('Subject.saveImport', Text::_('SAVE_AND_IMPORT'))->icon('fa fa-file-import');
             $toolbar->cancel("Subject.cancel");
         }
+        elseif ($this->item->id and $subject = Helper::name($subjectID, true)) {
+            $this->addDisclaimer();
+            $this->setTitle($subject);
+        }
+        // Subject layout for non-existent / invalid subject
         else {
-
+            Application::error(404);
         }
     }
 

@@ -11,7 +11,6 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, HTML, Text};
 
 trait Documented
@@ -29,8 +28,8 @@ trait Documented
         $attributes = ['target' => '_blank'];
 
         $lsfLink = HTML::link(
-            'https://studien-sb-service.th-mittelhessen.de/docu/online.html',
-            Text::_('DISCLAIMER_LSF_TITLE'),
+            'https://ecampus.thm.de',
+            Text::_('DISCLAIMER_HIS_TITLE'),
             $attributes
         );
         $ambLink = HTML::link(
@@ -47,7 +46,7 @@ trait Documented
         $disclaimer = '<div class="disclaimer">';
         $disclaimer .= '<h4>' . Text::_('DISCLAIMER_LEGAL') . '</h4>';
         $disclaimer .= '<ul>';
-        $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_LSF_TEXT', $lsfLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_HIS_TEXT', $lsfLink) . '</li>';
         $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_AMB_TEXT', $ambLink) . '</li>';
         $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_PO_TEXT', $poLink) . '</li>';
         $disclaimer .= '</ul>';
