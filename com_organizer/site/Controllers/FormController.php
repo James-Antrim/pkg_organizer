@@ -56,7 +56,7 @@ abstract class FormController extends Controller
     public function apply(): void
     {
         $id = $this->process();
-        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id&layout=edit");
     }
 
     /**
@@ -221,7 +221,7 @@ abstract class FormController extends Controller
     public function save2new(): void
     {
         $this->process();
-        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . '&id=0');
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . '&id=0&layout=edit');
     }
 
     /**
