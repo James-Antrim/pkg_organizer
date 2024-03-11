@@ -10,7 +10,7 @@ use THM\Organizer\Adapters\{Application, Input};
 /**
  * Extends FormController to allow for redirection to multiple referencing list views on process completion.
  */
-abstract class Referred extends FormController
+abstract class ListsReferred extends FormController
 {
     /**
      * @inheritDoc

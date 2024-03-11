@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * @inheritDoc
  */
-class Color extends Referred
+class Color extends ListsReferred
 {
     protected string $list = 'Colors';
 }

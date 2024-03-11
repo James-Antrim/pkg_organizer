@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * @inheritDoc
  */
-class Field extends Referred
+class Field extends ListsReferred
 {
     protected string $list = 'Fields';
 }
