@@ -273,25 +273,28 @@ abstract class CurriculumResource extends FormController
     {
         $this->checkToken('get', false);
 
-        $id   = Input::getID();
-        $type = Input::getCMD('type');
-
-        if (!$id or !$type) {
+        if (!$id = Input::getID()) {
             http_response_code(400);
             echo '';
             $this->app->close();
         }
 
-        $options = '';
-        $ranges  = Programs::programs(Input::getIntArray('programIDs'));
-        $values  = PoolsHelper::superValues($id, $type);
+        $type = strtolower(Application::getClass(get_called_class()));
 
-        foreach (PoolsHelper::superOptions($type, $ranges) as $option) {
-            $selected = in_array($option->value, $values) ? 'selected' : '';
-            $options  .= "<option value=\"$option->value\" $selected $option->disabled>$option->text</option>";
+        if (!in_array($type, ['pool', 'subject'])) {
+            http_response_code(501);
+            echo '';
+            $this->app->close();
         }
 
-        echo json_encode($options, JSON_UNESCAPED_UNICODE);
+        $options = '';
+        $ranges  = Programs::programs(Input::getIntCollection('programIDs'));
+
+        foreach (PoolsHelper::superOptions($id, $type, $ranges) as $option) {
+            $options .= "<option value='$option->value' $option->selected $option->disable>$option->text</option>";
+        }
+
+        echo $options;
 
         $this->app->close();
     }

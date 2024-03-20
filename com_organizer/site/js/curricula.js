@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     const parameters = Joomla.getOptions('curriculumParameters', {}),
-        baseURL = parameters.rootURL + '?option=com_organizer&format=json',
+        baseURL = parameters.rootURL + '?option=com_organizer&tmpl=component&' + parameters.token + '=1',
         id = parameters.id,
         type = parameters.type,
-        cInput = document.getElementById('jformcurricula');
+        cInput = document.getElementById('programIDs');
 
     cInput.addEventListener(
         'change',
-        function () {
+        async function () {
 
             const
                 soInput = document.getElementById('superordinates'),
@@ -18,48 +18,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 postInput = document.getElementById('postrequisites'),
                 oldPosts = postInput === null ? [] : getMultipleValues('postrequisites');
 
-            let selectedCurricula = getMultipleValues('jformcurricula'), soURL;
+            let options, programIDs = getMultipleValues('programIDs'), response, soURL;
+            soURL = baseURL + '&task=' + type + '.superOrdinatesAjax&id=' + id + '&programIDs=' + programIDs;
 
-            if (selectedCurricula === null)
+            if (programIDs === null || programIDs.includes('-1') !== false)
             {
-                selectedCurricula = '';
-            }
-            else if (Array.isArray(selectedCurricula))
-            {
-                selectedCurricula = selectedCurricula.join(',');
-            }
-
-            if (selectedCurricula.includes('-1') !== false)
-            {
-                cInput.find('option').removeAttr('selected');
+                cInput.find('option').removeAttribute('selected');
                 return false;
             }
 
-            soURL = baseURL + '&view=super_ordinates&id=' + id + '&curricula=' + selectedCurricula + '&type=' + type;
+            response = await fetch(soURL);
+            options = await response.text();
 
-            jQuery.get(soURL, function (options) {
-                soInput.innerHTML = options;
-                const newSOs = getMultipleValues('superordinates');
-                let selectedSOs = [];
-
-                if (newSOs !== null && newSOs.length)
-                {
-                    if (oldSOs !== null && oldSOs.length)
-                    {
-                        selectedSOs = mergeMultipleUnique(newSOs, oldSOs);
-                    }
-                    else
-                    {
-                        selectedSOs = newSOs;
-                    }
-                }
-                else if (oldSOs !== null && oldSOs.length)
-                {
-                    selectedSOs = oldSOs;
-                }
-
-                setMultipleValues('superordinates', selectedSOs);
-            });
+            alert(options);
+            // fetch(soURL).then(data => {
+            //
+            // });
+            // jQuery.get(soURL, function (options) {
+            //     soInput.innerHTML = options;
+            //     const newSOs = getMultipleValues('superordinates');
+            //     let selectedSOs = [];
+            //
+            //     if (newSOs !== null && newSOs.length)
+            //     {
+            //         if (oldSOs !== null && oldSOs.length)
+            //         {
+            //             selectedSOs = mergeMultipleUnique(newSOs, oldSOs);
+            //         }
+            //         else
+            //         {
+            //             selectedSOs = newSOs;
+            //         }
+            //     }
+            //     else if (oldSOs !== null && oldSOs.length)
+            //     {
+            //         selectedSOs = oldSOs;
+            //     }
+            //
+            //     setMultipleValues('superordinates', selectedSOs);
+            // });
         }
     );
 });

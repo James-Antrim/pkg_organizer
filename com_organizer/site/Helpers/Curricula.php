@@ -411,14 +411,17 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
      *
-     * @param   string  $type    the type of the resource
-     * @param   array   $ranges  the rows for programs selected in the form, or already mapped
+     * @param   int     $resourceID  the id of the resource for which the form is being displayed
+     * @param   string  $type        the type of the resource
+     * @param   array   $ranges      the rows for programs selected in the form, or already mapped
      *
      * @return stdClass[] the superordinate resource options
      */
-    public static function superOptions(string $type, array $ranges): array
+    public static function superOptions(int $resourceID, string $type, array $ranges): array
     {
-        $default = HTML::option(-1, Text::_('NONE'));
+        $default           = HTML::option(-1, Text::_('NONE'));
+        $default->disable  = '';
+        $default->selected = '';
 
         if (!$ranges or !$type) {
             return [$default];
@@ -431,13 +434,34 @@ abstract class Curricula extends Associated implements Documentable, Selectable
             return [$default];
         }
 
-        $options = [$default];
+        $selected = [];
+
+        if ($resourceID) {
+            if ($type === 'pool') {
+                $selected = Pools::rows($resourceID);
+
+                // Remove subordinate pools from the available options
+                foreach ($rows as $key => $row) {
+                    foreach ($selected as $sRange) {
+                        if ($row['lft'] >= $sRange ['lft'] and $row['rgt'] <= $sRange ['rgt']) {
+                            unset($rows[$key]);
+                        }
+                    }
+                }
+
+            }
+            else {
+                $selected = Subjects::rows($resourceID);
+            }
+        }
+
+        $parentIDs = self::parentIDs($selected);
+        $options   = [$default];
 
         foreach ($rows as $row) {
-            if ($option = empty($row['poolID']) ? Programs::option($row, $type) : Pools::option($row)) {
+            if ($option = empty($row['poolID']) ? Programs::option($row, $parentIDs, $type) : Pools::option($row, $parentIDs)) {
                 $options[] = $option;
             }
-
         }
 
         return $options;
@@ -453,10 +477,6 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      */
     public static function superValues(int $id, string $type): array
     {
-        if (!$id or !in_array($type, ['pool', 'subject'])) {
-            return [];
-        }
-
         if ($type === 'subject') {
             return self::parentIDs(Subjects::rows($id)) ?: [-1];
         }

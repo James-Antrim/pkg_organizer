@@ -196,24 +196,28 @@ class Pools extends Curricula implements Selectable
     }
 
     /**
-     * Gets an HTML option based upon a pool curriculum association
+     * Gets an option based upon a pool curriculum association.
      *
-     * @param   array  $range  the curriculum range entry
+     * @param   array  $range      the curriculum range entry
+     * @param   array  $parentIDs  the currently assigned superordinate elements
      *
      * @return null|stdClass
      */
-    public static function option(array $range): null|stdClass
+    public static function option(array $range, array $parentIDs): null|stdClass
     {
         $poolsTable = new Table();
 
-        if (!$poolsTable->load($range['poolID'])) {
-            return null;
+        if ($poolsTable->load($range['poolID'])) {
+            $nameColumn   = 'fullName_' . Application::getTag();
+            $indentedName = Pools::indentName($poolsTable->$nameColumn, $range['level']);
+
+            $option           = HTML::option($range['id'], $indentedName);
+            $option->disable  = '';
+            $option->selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
+            return $option;
         }
 
-        $nameColumn   = 'fullName_' . Application::getTag();
-        $indentedName = Pools::indentName($poolsTable->$nameColumn, $range['level']);
-
-        return HTML::option($range['id'], $indentedName);
+        return null;
     }
 
     /**

@@ -246,20 +246,28 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
-     * Gets an HTML option based upon a program curriculum association
+     * Gets an option based upon a program curriculum association
      *
-     * @param   array   $range  the program curriculum range
-     * @param   string  $type   the resource type of the form
+     * @param   array   $range      the program curriculum range
+     * @param   array   $parentIDs  the selected parents
+     * @param   string  $type       the resource type of the form
      *
      * @return null|stdClass
      */
-    public static function option(array $range, string $type): null|stdClass
+    public static function option(array $range, array $parentIDs, string $type): null|stdClass
     {
         $query = self::query();
         $query->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $range['programID'], ParameterType::INTEGER);
         DB::setQuery($query);
 
-        return ($program = DB::loadAssoc()) ? HTML::option($range['id'], $program['name'], $type !== 'pool') : null;
+        if ($program = DB::loadAssoc()) {
+            $option           = HTML::option($range['id'], $program['name']);
+            $option->disable  = $type !== 'pool' ? 'disabled' : '';
+            $option->selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
+            return $option;
+        }
+
+        return null;
     }
 
     /**

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\Field\ListField;
-use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\{Session\Session, Uri\Uri};
 use THM\Organizer\Adapters\{Application, Database as DB, Document, Form, HTML, Input, Text};
 use THM\Organizer\Helpers\Programs;
 
@@ -38,10 +38,13 @@ class Curricula extends ListField
         $curriculumParameters = [
             'rootURL' => Uri::root(),
             'id'      => $subjectID,
+            'token'   => Session::getFormToken(),
             'type'    => $resource
         ];
 
         Document::scriptLocalizations('curriculumParameters', $curriculumParameters);
+        Document::script('curricula');
+        Document::script('multiple');
 
         $query = DB::getQuery();
         $tag   = Application::getTag();
