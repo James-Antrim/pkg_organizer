@@ -162,7 +162,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addArrow(string $cell)
+    private function addArrow(string $cell): void
     {
         $objDrawing = new PHPExcel_Worksheet_Drawing();
         $objDrawing->setName('Summe Pfeil');
@@ -184,7 +184,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addBasicField(int $row, string $label)
+    private function addBasicField(int $row, string $label): void
     {
         $sheet     = $this->view->getActiveSheet();
         $border    = $this->borders['header'];
@@ -211,7 +211,12 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addColumnHeader(string $startCell, string $endCell, string $text, array $comments = [], int $height = 200)
+    private function addColumnHeader(
+        string $startCell,
+        string $endCell,
+        string $text,
+        array $comments = [],
+        int $height = 200): void
     {
         $view  = $this->view;
         $style = [
@@ -239,7 +244,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addComment(string $cell, array $comment, int $height)
+    private function addComment(string $cell, array $comment, int $height): void
     {
         if (empty($comment['title']) and empty($comment['text'])) {
             return;
@@ -274,7 +279,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addEventRow(int &$row, array $item = [])
+    private function addEventRow(int &$row, array $item = []): void
     {
         $sheet = $this->view->getActiveSheet();
 
@@ -405,7 +410,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addEventSubHeadRow(int $row, string $text)
+    private function addEventSubHeadRow(int $row, string $text): void
     {
         $sheet = $this->view->getActiveSheet();
         $sheet->mergeCells("C$row:E$row");
@@ -435,7 +440,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addFunctionHeader(int $row, string $text, string $function)
+    private function addFunctionHeader(int $row, string $text, string $function): void
     {
         $view  = $this->view;
         $sheet = $view->getActiveSheet();
@@ -466,7 +471,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addInstruction(int $row, float $height, string $text, bool $bold = false)
+    private function addInstruction(int $row, float $height, string $text, bool $bold = false): void
     {
         $sheet  = $this->view->getActiveSheet();
         $coords = 'B' . $row;
@@ -485,10 +490,11 @@ class Workload extends BaseLayout
 
     /**
      * Creates an instructions sheet
+     *
      * @return void
      * @throws Exception
      */
-    private function addInstructionSheet()
+    private function addInstructionSheet(): void
     {
         $view = $this->view;
         $view->setActiveSheetIndex();
@@ -551,7 +557,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addLogo(int $offsetY)
+    private function addLogo(int $offsetY): void
     {
         $objDrawing = new PHPExcel_Worksheet_Drawing();
         $objDrawing->setName('THM Logo');
@@ -575,7 +581,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws PHPExcel_Exception
      */
-    private function addProgramRow(int $row, string $program, array $groups, array $dataStyle, array $indexStyle)
+    private function addProgramRow(int $row, string $program, array $groups, array $dataStyle, array $indexStyle): void
     {
         $sheet = $this->view->getActiveSheet();
 
@@ -616,10 +622,11 @@ class Workload extends BaseLayout
 
     /**
      * Adds the main work sheet to the document.
+     *
      * @return void
      * @throws Exception
      */
-    private function addMethodsSheet()
+    private function addMethodsSheet(): void
     {
         $view = $this->view;
         $view->createSheet();
@@ -656,10 +663,11 @@ class Workload extends BaseLayout
 
     /**
      * Adds the main work sheet to the document.
+     *
      * @return void
      * @throws Exception
      */
-    private function addProgramSheet()
+    private function addProgramSheet(): void
     {
         $view = $this->view;
         $view->createSheet();
@@ -729,7 +737,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addRoleRow(int $row)
+    private function addRoleRow(int $row): void
     {
         $view   = $this->view;
         $sheet  = $view->getActiveSheet();
@@ -750,7 +758,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addSectionA(int &$row)
+    private function addSectionA(int &$row): void
     {
         $this->addSectionHeader($row, "A. Lehrveranstaltungen", true);
 
@@ -858,13 +866,10 @@ class Workload extends BaseLayout
             unset($model->items[$key]);
         }
 
-        $end = $row + 1;
-        $own = ['start' => $start, 'end' => $end];
+        $own = ['start' => $start, 'end' => $row];
 
-        for ($current = $row; $current <= $end; $current++) {
-            $this->addEventRow($current);
-            $row++;
-        }
+        // Add a blank for user additions
+        $this->addEventRow($row);
 
         $this->addEventSubHeadRow($row++, 'Mehrere Fachbereiche');
         $start = $row;
@@ -878,12 +883,10 @@ class Workload extends BaseLayout
             unset($model->items[$key]);
         }
 
-        $end   = $row + 1;
-        $other = ['start' => $start, 'end' => $end];
+        $other = ['start' => $start, 'end' => $row];
 
-        for ($current = $row; $current <= $end; $current++) {
-            $this->addEventRow($current);
-        }
+        // Add a blank for user additions
+        $this->addEventRow($row);
 
         $this->addEventSubHeadRow($row++, 'Nicht vorgegeben');
         $start = $row;
@@ -916,7 +919,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addSectionB(int &$row)
+    private function addSectionB(int &$row): void
     {
         $comments = [
             ['title' => 'Olaf Berger:', 'text' => 'Laut LVVO und HMWK ist eine maximale Grenze von 2 SWS zu beachten.']
@@ -975,7 +978,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addSectionC(int &$row)
+    private function addSectionC(int &$row): void
     {
         $sheet = $this->view->getActiveSheet();
         $this->addSectionHeader($row++, "C. Deputatsfreistellungen", true);
@@ -1077,7 +1080,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addSectionHeader(int $row, string $text, bool $break = false, array $comments = [], int $cHeight = 200)
+    private function addSectionHeader(int $row, string $text, bool $break = false, array $comments = [], int $cHeight = 200): void
     {
         $view  = $this->view;
         $sheet = $view->getActiveSheet();
@@ -1107,11 +1110,12 @@ class Workload extends BaseLayout
      * @param   int     $row      the row where the sum will be added
      * @param   string  $section  the section being summed (used for the label)
      * @param   array   $ranges   the row ranges to be summed
+     * @param   int     $max      the maximum value of the sum
      *
      * @return void
-     * @throws Exception
+     * @throws PHPExcel_Exception
      */
-    private function addSumRow(int $row, string $section, array $ranges = [], $max = 0)
+    private function addSumRow(int $row, string $section, array $ranges = [], int $max = 0): void
     {
         $sheet     = $this->view->getActiveSheet();
         $border    = $this->borders['header'];
@@ -1152,7 +1156,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addSupervisionRow(int $row, array $category)
+    private function addSupervisionRow(int $row, array $category): void
     {
         $view   = $this->view;
         $sheet  = $view->getActiveSheet();
@@ -1175,7 +1179,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addWorkSheet()
+    private function addWorkSheet(): void
     {
         $view = $this->view;
         $view->createSheet();
@@ -1232,7 +1236,7 @@ class Workload extends BaseLayout
             'font'      => ['bold' => true, 'color' => ['rgb' => $color]]
         ];
         $text  = 'Die Tabelle soll in Excel ausgefüllt werden. Durch Kontakt des Cursors mit der kleinen roten ';
-        $text  .= 'Markierung in einem entsprechenden Feld öffntet sich ein Infofeld und Sie erhalten weiterführende ';
+        $text  .= 'Markierung in einem entsprechenden Feld öffnet sich ein Infofeld und Sie erhalten weiterführende ';
         $text  .= 'Informationen.';
         $view->addRange('G4', 'K10', $style, $text);
 
@@ -1322,7 +1326,7 @@ class Workload extends BaseLayout
     /**
      * @inheritDoc
      */
-    public function fill()
+    public function fill(): void
     {
         $this->view->getDefaultStyle()->getFont()->setName('Arial')->setSize();
         $this->addInstructionSheet();
@@ -1337,7 +1341,7 @@ class Workload extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function formatWorkSheet()
+    private function formatWorkSheet(): void
     {
         $sheet = $this->view->getActiveSheet();
 

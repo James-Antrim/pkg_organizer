@@ -184,7 +184,7 @@ class Workload extends FormModel
             }
 
             if ($instance['code'] === 'KOL.D') {
-                $this->masters = $this->doctors + 1;
+                $this->doctors = $this->doctors + 1;
                 unset($instances[$instanceID]);
                 continue;
             }
@@ -196,7 +196,7 @@ class Workload extends FormModel
             }
 
             if ($instance['code'] === 'KOL.P') {
-                $this->masters = $this->doctors + 1;
+                $this->projects = $this->projects + 1;
                 unset($instances[$instanceID]);
                 continue;
             }
@@ -228,6 +228,10 @@ class Workload extends FormModel
                     'name'      => $instance['event'],
                     'subjectNo' => $instance['subjectNo']
                 ];
+            }
+
+            foreach ($instance['organizations'] as $organizationID => $shortName) {
+                $unit['organizations'][$organizationID] = $shortName;
             }
         }
 
@@ -364,6 +368,7 @@ class Workload extends FormModel
 
     /**
      * Builds the array of parameters used for instance retrieval.
+     *
      * @return void
      */
     private function setConditions(): void
@@ -383,6 +388,7 @@ class Workload extends FormModel
 
     /**
      * Sets program data.
+     *
      * @return void
      */
     private function setMethods(): void
@@ -405,6 +411,7 @@ class Workload extends FormModel
 
     /**
      * Creates workload entry items.
+     *
      * @return void
      */
     private function calculate(): void
@@ -452,6 +459,7 @@ class Workload extends FormModel
 
     /**
      * Set dynamic data.
+     *
      * @return void
      */
     public function setUp(): void
@@ -465,6 +473,7 @@ class Workload extends FormModel
 
     /**
      * Sets program data.
+     *
      * @return void
      */
     private function setPrograms(): void
@@ -562,7 +571,7 @@ class Workload extends FormModel
     /**
      * Adds associated structure items to the instances results.
      *
-     * @param   array  $instances  the instance results
+     * @param   array  $instances  the instances
      * @param   array  $structure  the structure items associated with the instance results
      *
      * @return void
@@ -596,6 +605,11 @@ class Workload extends FormModel
 
             $instances[$data['instanceID']]['organizations'] = $organizations;
             $instances[$data['instanceID']]['programs']      = $programs;
+        }
+
+        foreach ($instances as &$instance) {
+            $instance['organizations'] = empty($instance['organizations']) ? [] : $instance['organizations'];
+            $instance['programs']      = empty($instance['programs']) ? [] : $instance['programs'];
         }
     }
 
