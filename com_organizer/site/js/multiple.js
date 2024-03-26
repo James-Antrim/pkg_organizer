@@ -1,4 +1,8 @@
 /**
+ * Small library of functions for multiple select boxes.
+ */
+
+/**
  * Returns the selected values of a multiple select box.
  *
  * @param {string} elementID the id of the multiple select box
@@ -79,27 +83,3 @@ function setMultipleValues(elementID, values)
         }
     }
 }
-
-/*document.addEventListener("DOMContentLoaded", function () {
-    const options = [].slice.call(document.querySelectorAll("option"));
-
-    options.forEach(function (element) {
-
-        const parent = element.parentNode;
-
-        if (!parent.hasAttribute('multiple')) {
-            return;
-        }
-
-        // console.log("element", element);
-        element.addEventListener("mousedown",
-            function (e) {
-                e.preventDefault();
-                this.selected = !this.selected;
-            }
-        );
-
-        parent.dispatchEvent(new Event('change'));
-    });
-});*/
-

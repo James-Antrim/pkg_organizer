@@ -18,7 +18,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 postInput = document.getElementById('postrequisites'),
                 oldPosts = postInput === null ? [] : getMultipleValues('postrequisites');
 
-            let options, programIDs = getMultipleValues('programIDs'), response, soURL;
+            let newSOs, options, programIDs = getMultipleValues('programIDs'), response, selectedSOs = [], soURL;
+
             soURL = url + '&task=' + type + '.superOrdinatesAjax&id=' + id + '&programIDs=' + programIDs;
 
             if (programIDs === null || programIDs.includes('-1') !== false)
@@ -29,34 +30,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
             response = await fetch(soURL);
             options = await response.text();
+            soInput.innerHTML = options;
+            newSOs = getMultipleValues('superordinates');
 
-            alert(options);
-            // fetch(soURL).then(data => {
-            //
-            // });
-            // jQuery.get(soURL, function (options) {
-            //     soInput.innerHTML = options;
-            //     const newSOs = getMultipleValues('superordinates');
-            //     let selectedSOs = [];
-            //
-            //     if (newSOs !== null && newSOs.length)
-            //     {
-            //         if (oldSOs !== null && oldSOs.length)
-            //         {
-            //             selectedSOs = mergeMultipleUnique(newSOs, oldSOs);
-            //         }
-            //         else
-            //         {
-            //             selectedSOs = newSOs;
-            //         }
-            //     }
-            //     else if (oldSOs !== null && oldSOs.length)
-            //     {
-            //         selectedSOs = oldSOs;
-            //     }
-            //
-            //     setMultipleValues('superordinates', selectedSOs);
-            // });
+            if (newSOs !== null && newSOs.length)
+            {
+                if (oldSOs !== null && oldSOs.length)
+                {
+                    selectedSOs = mergeMultipleUnique(newSOs, oldSOs);
+                }
+                else
+                {
+                    selectedSOs = newSOs;
+                }
+            }
+            else if (oldSOs !== null && oldSOs.length)
+            {
+                selectedSOs = oldSOs;
+            }
+
+            setMultipleValues('superordinates', selectedSOs);
         }
     );
 });
