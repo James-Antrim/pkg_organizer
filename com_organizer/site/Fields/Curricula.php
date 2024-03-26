@@ -36,10 +36,12 @@ class Curricula extends ListField
         $resource = $form->view();
 
         $curriculumParameters = [
-            'rootURL' => Uri::root(),
-            'id'      => $subjectID,
-            'token'   => Session::getFormToken(),
-            'type'    => $resource
+            'id'    => $subjectID,
+            'token' => Session::getFormToken(),
+            'type'  => $resource,
+
+            // Root causes problems with the session in the administrator context.
+            'url'   => Uri::base(),
         ];
 
         Document::scriptLocalizations('curriculumParameters', $curriculumParameters);

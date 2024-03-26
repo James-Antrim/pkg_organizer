@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    const parameters = Joomla.getOptions('curriculumParameters', {}),
-        baseURL = parameters.rootURL + '?option=com_organizer&tmpl=component&' + parameters.token + '=1',
+    const cInput = document.getElementById('programIDs'),
+        parameters = Joomla.getOptions('curriculumParameters', {}),
         id = parameters.id,
         type = parameters.type,
-        cInput = document.getElementById('programIDs');
+        url = parameters.url + '?option=com_organizer&tmpl=component&' + parameters.token + '=1';
 
     cInput.addEventListener(
         'change',
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 oldPosts = postInput === null ? [] : getMultipleValues('postrequisites');
 
             let options, programIDs = getMultipleValues('programIDs'), response, soURL;
-            soURL = baseURL + '&task=' + type + '.superOrdinatesAjax&id=' + id + '&programIDs=' + programIDs;
+            soURL = url + '&task=' + type + '.superOrdinatesAjax&id=' + id + '&programIDs=' + programIDs;
 
             if (programIDs === null || programIDs.includes('-1') !== false)
             {

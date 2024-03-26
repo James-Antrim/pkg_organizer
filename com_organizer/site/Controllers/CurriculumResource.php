@@ -271,7 +271,11 @@ abstract class CurriculumResource extends FormController
      */
     public function superOrdinatesAjax(): void
     {
-        $this->checkToken('get', false);
+        if (!$this->checkToken('get', false)) {
+            http_response_code(403);
+            echo '';
+            $this->app->close();
+        }
 
         if (!$id = Input::getID()) {
             http_response_code(400);
