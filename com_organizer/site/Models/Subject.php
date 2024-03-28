@@ -262,10 +262,9 @@ class Subject extends EditModel
                     $model[Text::_('METHOD')] = count($methods) === 1 ? reset($methods) : $methods;
                 }
 
-//                'pools'                    => [
-//                    'label' => Text::_($option . 'SUBJECT_ITEM_SEMESTER'),
-//                    'type'  => 'list'
-//                ],
+                if ($pools = $this->pools($item)) {
+                    $model[Text::_('SUBJECT_ITEM_SEMESTER')] = $pools;
+                }
 
                 if ($item->duration) {
                     $constant                   = $item->duration > 1 ? 'SEMESTERS' : 'SEMESTER';
@@ -322,5 +321,63 @@ class Subject extends EditModel
         }
 
         return $item;
+    }
+
+    private function pools(object $subject): array
+    {
+        $programs   = [];
+        $poolRanges = Helper::pools($subject->id);
+
+        foreach (Helper::programs($subject->id) as $prRange) {
+            $program         = Programs::name($prRange['programID']);
+            $semesterNumbers = [];
+
+            foreach ($poolRanges as $poRange) {
+                if ($poRange['lft'] < $prRange['lft'] or $poRange['rgt'] > $prRange['rgt']) {
+                    continue;
+                }
+
+                $pool = strtolower(Pools::getFullName($poRange['poolID']));
+
+                if (!str_contains($pool, 'semester')) {
+                    continue;
+                }
+
+                if (preg_match('/(\d+)[^\d]+(\d+)?/', $pool, $numbers)) {
+                    $semesterNumbers[$numbers[1]] = $numbers[1];
+
+                    if (!empty($numbers[2])) {
+                        $semesterNumbers[$numbers[2]] = $numbers[2];
+                    }
+                }
+            }
+
+            $semester = '';
+
+            if ($semesterNumbers) {
+                $first = min($semesterNumbers);
+                $last  = max($semesterNumbers);
+                $tag   = Application::getTag();
+
+                if ($first !== $last) {
+                    $suffix   = Text::_('ORGANIZER_SEMESTERS');
+                    $semester = $tag === 'en' ? "$first - $last $suffix" : "$first. - $last. $suffix";
+                }
+                else {
+                    $suffix   = Text::_('ORGANIZER_SEMESTER');
+                    $semester = $tag === 'en' ? "$first $suffix" : "$first. $suffix";
+                }
+            }
+
+            $semester = $semester ? "$program - $semester" : "$program - " . Text::_('SEMESTER_NOT_SPECIFIED');
+
+            $programs[$program] = $semester;
+        }
+
+        ksort($programs);
+        $programs = array_values($programs);
+        echo "<pre>" . print_r($programs, true) . "</pre>";
+
+        return $programs;
     }
 }

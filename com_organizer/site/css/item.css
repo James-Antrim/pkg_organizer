@@ -1,16 +1,20 @@
 div.item {
-  display: grid;
-  grid-gap: 1rem; }
+    display: grid;
+    grid-gap: 1rem;
+}
 
 div.attribute {
-  display: flex; }
+    display: flex;
+}
 
 div.label {
-  width: 240px;
-  padding: .3rem 1rem .3rem 0; }
+    width: 240px;
+    padding: .3rem 1rem .3rem 0;
+}
 
 div.value {
-  flex: 1;
-  min-width: 210px;
-  max-width: 100%;
-  position: relative; }
+    flex: 1;
+    min-width: 210px;
+    max-width: 100%;
+    position: relative;
+}

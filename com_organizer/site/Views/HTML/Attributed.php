@@ -28,8 +28,13 @@ trait Attributed
 
         foreach ($values as $key => $value) {
             $return .= '<li>';
-            $return .= !is_numeric($key) ? $key : '';
-            $return .= is_array($value) ? $this->listValues($value) : $value;
+            if (is_numeric($key)) {
+                $return .= is_array($value) ? $this->listValues($value) : $value;
+            }
+            else {
+                $return .= $key;
+                $return .= is_array($value) ? $this->listValues($value) : " $value";
+            }
             $return .= '</li>';
         }
 
