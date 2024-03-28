@@ -10,15 +10,9 @@
 
 defined('_JEXEC') or die;
 
-use THM\Organizer\Adapters\Input;
 use THM\Organizer\Views\HTML\Subject;
 
 /** @var Subject $this */
-
-$input          = Input::getInput();
-$forcedLanguage = $input->get('forcedLanguage', '');
-$return         = $input->getBase64('return');
-
 $this->renderTasks();
 ?>
     <div class="item subject">
