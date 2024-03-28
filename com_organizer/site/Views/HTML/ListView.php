@@ -52,6 +52,7 @@ abstract class ListView extends Base
      */
     public function __construct(array $config)
     {
+        $this->toDo[] = 'Add configuration for output of item and form template links w/ options for new tab.';
         $this->option = 'com_organizer';
 
         // If this is not explicitly set going in Joomla will default to default without looking at the object property value.
