@@ -37,6 +37,7 @@
     </administration>
     <files folder="site">
         <filename>metadata.xml</filename>
+        <filename>Component.php</filename>
         <folder>Adapters</folder>
         <folder>Buttons</folder>
         <folder>Controllers</folder>
@@ -48,7 +49,9 @@
         <folder>js</folder>
         <folder>Layouts</folder>
         <folder>Models</folder>
+        <folder>Providers</folder>
         <folder>Tables</folder>
+        <folder>templates</folder>
         <folder>Validators</folder>
         <folder>Views</folder>
     </files>
