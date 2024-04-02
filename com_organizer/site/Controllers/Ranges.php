@@ -395,7 +395,7 @@ trait Ranges
         $column = DB::qn('lft');
         $query  = DB::getQuery();
         $query->update(DB::qn('#__organizer_curricula'))
-            ->set('$column = $column + 2')
+            ->set("$column = $column + 2")
             ->where("$column >= :left")->bind(':left', $left, ParameterType::INTEGER);
         DB::setQuery($query);
 
@@ -406,7 +406,7 @@ trait Ranges
         $column = DB::qn('rgt');
         $query  = DB::getQuery();
         $query->update(DB::qn('#__organizer_curricula'))
-            ->set('$column = $column 2')
+            ->set("$column = $column + 2")
             ->where("$column >= :left")->bind(':left', $left, ParameterType::INTEGER);
         DB::setQuery($query);
 

@@ -10,17 +10,12 @@ document.addEventListener("DOMContentLoaded", function () {
         'change',
         async function () {
 
-            const
-                soInput = document.getElementById('superordinates'),
-                oldSOs = getMultipleValues('superordinates'),
+            const oldSOs = getMultipleValues('superordinates'),
                 preInput = document.getElementById('prerequisites'),
-                oldPres = preInput === null ? [] : getMultipleValues('prerequisites'),
-                postInput = document.getElementById('postrequisites'),
-                oldPosts = postInput === null ? [] : getMultipleValues('postrequisites');
+                programIDs = '&programIDs=' + getMultipleValues('programIDs'),
+                soInput = document.getElementById('superordinates');
 
-            let newSOs, options, programIDs = getMultipleValues('programIDs'), response, selectedSOs = [], soURL;
-
-            soURL = url + '&task=' + type + '.superOrdinatesAjax&id=' + id + '&programIDs=' + programIDs;
+            let newSOs, newPres, oldPres, preResponse, selectedSOs, selectedPres, soResponse;
 
             if (programIDs === null || programIDs.includes('-1') !== false)
             {
@@ -28,9 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 return false;
             }
 
-            response = await fetch(soURL);
-            options = await response.text();
-            soInput.innerHTML = options;
+            soResponse = await fetch(url + '&task=' + type + '.superOrdinatesAjax&id=' + id + programIDs);
+            soInput.innerHTML = await soResponse.text();
             newSOs = getMultipleValues('superordinates');
 
             if (newSOs !== null && newSOs.length)
@@ -50,6 +44,33 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             setMultipleValues('superordinates', selectedSOs);
+
+            if (preInput !== null)
+            {
+                oldPres = getMultipleValues('prerequisites');
+
+                preResponse = await fetch(url + '&task=subject.prerequisitesAjax&id=' + id + programIDs);
+                preInput.innerHTML = await preResponse.text();
+                newPres = getMultipleValues('prerequisites');
+
+                if (newPres !== null && newPres.length)
+                {
+                    if (oldPres !== null && oldPres.length)
+                    {
+                        selectedPres = mergeMultipleUnique(newPres, oldPres);
+                    }
+                    else
+                    {
+                        selectedPres = newPres;
+                    }
+                }
+                else if (oldPres !== null && oldPres.length)
+                {
+                    selectedPres = oldPres;
+                }
+
+                setMultipleValues('prerequisites', selectedPres);
+            }
         }
     );
 });

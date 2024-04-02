@@ -11,7 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, User};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text, User};
+use stdClass;
 use THM\Organizer\Tables;
 
 /**
@@ -339,6 +340,68 @@ class Subjects extends Curricula
     public static function prerequisites(int $subjectID): array
     {
         return self::requisites($subjectID, 'pre');
+    }
+
+    /**
+     * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
+     *
+     * @param   int    $subjectID  the id of the subject for which the form is being displayed
+     * @param   array  $ranges     the rows for programs selected in the form, or already mapped
+     *
+     * @return stdClass[] the superordinate resource options
+     */
+    public static function preOptions(int $subjectID, array $ranges): array
+    {
+        $default           = HTML::option(-1, Text::_('NO_PREREQUISITES'));
+        $default->disable  = '';
+        $default->selected = '';
+
+        if (!$subjectID or !$ranges) {
+            return [$default];
+        }
+
+        $addContext = count($ranges) > 1;
+        $values     = [];
+
+        foreach ($ranges as $pRange) {
+            $pName = $addContext ? '(' . Programs::name($pRange['programID']) . ')' : '';
+            foreach (Programs::subjects($pRange['programID']) as $sRange) {
+                $value = $sRange['subjectID'];
+
+                if ($value === $subjectID or !$text = Subjects::getFullName($value)) {
+                    continue;
+                }
+
+                if (empty($values[$value])) {
+                    $values[$value] = [
+                        'text'     => $text,
+                        'programs' => [$pRange['programID'] => $pName]
+                    ];
+                }
+                else {
+                    $values[$value]['programs'][$pRange['programID']] = $pName;
+                }
+            }
+        }
+
+        $existing = self::requisites($subjectID, 'pre');
+
+        foreach ($values as $value => $data) {
+            $text = $data['text'];
+            if ($addContext) {
+                $text .= ' ';
+                $text .= (count($data['programs']) > 1) ? '(' . Text::_('MULTIPLE_PROGRAMS') . ')' : reset($data['programs']);
+            }
+
+            $option           = HTML::option($value, $text);
+            $option->disable  = '';
+            $option->selected = in_array($value, $existing) ? 'selected' : '';
+            $options[$text]   = $option;
+        }
+
+        ksort($options);
+
+        return $options;
     }
 
     /**

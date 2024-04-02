@@ -14,7 +14,7 @@ use Exception;
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
-use THM\Organizer\{Helpers, Helpers\Subjects as Helper};
+use THM\Organizer\Helpers\{LSF, Persons, Programs, Subjects as Helper};
 use THM\Organizer\{Tables, Tables\Subjects as Table};
 
 /**
@@ -120,11 +120,11 @@ class Subject extends CurriculumResource implements Stubby
             return true;
         }
 
-        if (!$this->assignByRole($subjectID, $coordinators, Helpers\Persons::COORDINATES)) {
+        if (!$this->assignByRole($subjectID, $coordinators, Persons::COORDINATES)) {
             return false;
         }
 
-        if (!$this->assignByRole($subjectID, $persons, Helpers\Persons::TEACHES)) {
+        if (!$this->assignByRole($subjectID, $persons, Persons::TEACHES)) {
             return false;
         }
 
@@ -146,8 +146,8 @@ class Subject extends CurriculumResource implements Stubby
             return true;
         }
 
-        $fnAttribute = $role == Helpers\Persons::COORDINATES ? 'vorname' : 'personal.vorname';
-        $snAttribute = $role == Helpers\Persons::COORDINATES ? 'nachname' : 'personal.nachname';
+        $fnAttribute = $role == Persons::COORDINATES ? 'vorname' : 'personal.vorname';
+        $snAttribute = $role == Persons::COORDINATES ? 'nachname' : 'personal.nachname';
 
         foreach ($persons as $person) {
             $pData = [];
@@ -212,7 +212,7 @@ class Subject extends CurriculumResource implements Stubby
 
         if ($coordinators and $persons = array_filter($coordinators)) {
             foreach ($persons as $personID) {
-                $spData = ['personID' => $personID, 'role' => Helpers\Persons::COORDINATES, 'subjectID' => $data['id']];
+                $spData = ['personID' => $personID, 'role' => Persons::COORDINATES, 'subjectID' => $data['id']];
                 $table  = new Tables\SubjectPersons();
 
                 if (!$table->save($spData)) {
@@ -224,7 +224,7 @@ class Subject extends CurriculumResource implements Stubby
 
         if ($teachers and $persons = array_filter($teachers)) {
             foreach ($persons as $personID) {
-                $spData = ['personID' => $personID, 'role' => Helpers\Persons::TEACHES, 'subjectID' => $data['id']];
+                $spData = ['personID' => $personID, 'role' => Persons::TEACHES, 'subjectID' => $data['id']];
                 $table  = new Tables\SubjectPersons();
 
                 if (!$table->save($spData)) {
@@ -542,7 +542,7 @@ class Subject extends CurriculumResource implements Stubby
         }
 
         try {
-            $client = new Helpers\LSF();
+            $client = new LSF();
         }
         catch (Exception) {
             Application::message('LSF_CLIENT_FAILED', Application::ERROR);
@@ -744,6 +744,37 @@ class Subject extends CurriculumResource implements Stubby
     }
 
     /**
+     * Method to retrieve updated prerequisite options after curriculum selection changes.
+     *
+     * @return  void
+     */
+    public function prerequisitesAjax(): void
+    {
+        if (!$this->checkToken('get', false)) {
+            http_response_code(403);
+            echo '';
+            $this->app->close();
+        }
+
+        if (!$id = Input::getID()) {
+            http_response_code(400);
+            echo '';
+            $this->app->close();
+        }
+
+        $options = '';
+        $ranges  = Programs::programs(Input::getIntCollection('programIDs'));
+
+        foreach (Helper::preOptions($id, $ranges) as $option) {
+            $options .= "<option value='$option->value' $option->selected $option->disable>$option->text</option>";
+        }
+
+        echo $options;
+
+        $this->app->close();
+    }
+
+    /**
      * @inheritDoc
      */
     public function postProcess(array $data): void
@@ -784,7 +815,7 @@ class Subject extends CurriculumResource implements Stubby
             return true;
         }
 
-        $programRanges = Helpers\Programs::rows($subjectRanges);
+        $programRanges = Programs::rows($subjectRanges);
 
         if ($prerequisites = array_filter($prerequisites) and !in_array(self::NONE, $prerequisites)) {
             $prerequisiteRanges = [];
