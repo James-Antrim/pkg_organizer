@@ -17,9 +17,7 @@ use THM\Organizer\Views\HTML\ListView;
 
 /** @var ListView $this */
 
-$action    = Route::_('index.php?option=com_organizer&view=' . $this->_name);
-$direction = $this->escape($this->state->get('list.direction'));
-$orderBy   = $this->escape($this->state->get('list.ordering'));
+$action = Route::_('index.php?option=com_organizer&view=' . $this->_name);
 
 if (count($this->headers) > 4) {
     $wa = Application::getDocument()->getWebAssetManager();
@@ -44,11 +42,6 @@ $this->renderTasks();
                         <?php EmptyList::render($this); ?>
                     <?php else : ?>
                         <table class="table" id="<?php echo $this->_name ?>List">
-                            <caption class="visually-hidden">
-                                <?php echo Text::_('COM_USERS_USERS_TABLE_CAPTION'); ?>,
-                                <span id="orderedBy"><?php echo Text::_('JGLOBAL_SORTED_BY'); ?> </span>,
-                                <span id="filteredBy"><?php echo Text::_('JGLOBAL_FILTERED_BY'); ?></span>
-                            </caption>
                             <?php ListHeaders::render($this); ?>
                             <tbody>
                             <?php foreach ($this->items as $rowNo => $item) : ?>
