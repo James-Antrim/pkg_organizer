@@ -10,18 +10,18 @@
 
 namespace THM\Organizer\Views\JSON;
 
-use THM\Organizer\Models\SubjectItem as Model;
+use THM\Organizer\Models\Subject as Model;
 
 /**
  * Class loads the subject into the display context.
  */
-class SubjectItem extends BaseView
+class Subject extends BaseView
 {
     /**
      * loads model data into view context
      * @return void
      */
-    public function display()
+    public function display(): void
     {
         $model = new Model();
         echo json_encode($model->getItem(), JSON_UNESCAPED_UNICODE);
