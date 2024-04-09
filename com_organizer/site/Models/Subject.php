@@ -375,9 +375,7 @@ class Subject extends EditModel
         }
 
         ksort($programs);
-        $programs = array_values($programs);
-        echo "<pre>" . print_r($programs, true) . "</pre>";
 
-        return $programs;
+        return array_values($programs);
     }
 }
