@@ -205,19 +205,24 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      */
     public static function filterProgram(DatabaseQuery $query, int $programID, string $column, string $alias): void
     {
-        if (!$programID or !$rows = Programs::rows($programID)) {
+        if (!$programID) {
             return;
         }
 
         $condition = DB::qc("prc.$column", "$alias.id");
         $table     = DB::qn('#__organizer_curricula', 'prc');
-        $row       = array_pop($rows);
 
         if ($programID === self::NONE) {
             $query->leftJoin($table, $condition)->where(DB::qn("prc.$column") . ' IS NULL');
 
             return;
         }
+
+        if (!$rows = Programs::rows($programID)) {
+            return;
+        }
+
+        $row = array_pop($rows);
 
         $query->innerJoin($table, $condition)
             ->where(DB::qn('prc.lft') . '> :prLeft')->bind(':prLeft', $row['lft'], ParameterType::INTEGER)

@@ -35,6 +35,22 @@ class Pools extends ListModel
 
     /**
      * @inheritDoc
+     */
+    public function getItems(): array
+    {
+        if (!$items = parent::getItems()) {
+            return [];
+        }
+
+        foreach ($items as $item) {
+            $item->programs = Helper::programs($item->id);
+        }
+
+        return $items;
+    }
+
+    /**
+     * @inheritDoc
      * @todo get the program name here as part of the query
      */
     protected function getListQuery(): DatabaseQuery

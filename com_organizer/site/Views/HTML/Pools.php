@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
-use THM\Organizer\Helpers\Pools as Helper;
+use THM\Organizer\Helpers\Programs;
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -37,7 +37,15 @@ class Pools extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->programID = Helper::programName($item->id);
+        if (empty($item->programs)) {
+            $item->program = Text::_('NO_PROGRAMS');
+        }
+        elseif (count($item->programs) === 1) {
+            $item->program = Programs::name($item->programs[0]['programID']);
+        }
+        else {
+            $item->program = Text::_('MULTIPLE_PROGRAMS');
+        }
     }
 
     /**
@@ -47,14 +55,14 @@ class Pools extends ListView
     {
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'check'     => ['type' => 'check'],
-            'name'      => [
+            'check'   => ['type' => 'check'],
+            'name'    => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
                 'type'       => 'text'
             ],
-            'programID' => [
+            'program' => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('PROGRAM'),
                 'type'       => 'text'
