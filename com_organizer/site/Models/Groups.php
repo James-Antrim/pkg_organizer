@@ -34,7 +34,7 @@ class Groups extends ListModel
 
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Group&id=';
+        $url   = 'index.php?option=com_organizer&view=group&id=';
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["gr.fullName_$tag", "gr.name_$tag"], ['fullName', 'name']);

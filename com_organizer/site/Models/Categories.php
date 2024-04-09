@@ -32,7 +32,7 @@ class Categories extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Category&id=';
+        $url   = 'index.php?option=com_organizer&view=category&id=';
 
         $select = [
             'DISTINCT ' . DB::qn('cat.id'),

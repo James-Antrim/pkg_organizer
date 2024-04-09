@@ -33,7 +33,7 @@ class Persons extends ListModel
     {
         $personID = DB::qn('p.id');
         $query    = DB::getQuery();
-        $url      = 'index.php?option=com_organizer&view=Person&id=';
+        $url      = 'index.php?option=com_organizer&view=person&id=';
 
         $access = [DB::quote((int) Can::manage('persons')) . ' AS ' . DB::qn('access')];
         $these  = ["DISTINCT $personID", DB::qn('o.id', 'organizationID')];

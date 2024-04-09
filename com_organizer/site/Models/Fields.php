@@ -29,7 +29,7 @@ class Fields extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Field&id=';
+        $url   = 'index.php?option=com_organizer&view=field&id=';
 
         $select = [
             'DISTINCT ' . DB::qn('f.id'),

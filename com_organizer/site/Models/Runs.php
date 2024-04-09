@@ -44,7 +44,7 @@ class Runs extends ListModel
 
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Run&id=';
+        $url   = 'index.php?option=com_organizer&view=run&id=';
 
         // Admin access required for view.
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];

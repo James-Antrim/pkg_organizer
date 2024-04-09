@@ -30,7 +30,7 @@ class Events extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Event&id=';
+        $url   = 'index.php?option=com_organizer&view=event&id=';
 
         if (Can::administrate()) {
             $access = [DB::quote(1) . ' AS ' . DB::qn('access')];

@@ -29,7 +29,7 @@ class Terms extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Term&id=';
+        $url   = 'index.php?option=com_organizer&view=term&id=';
 
         // Admin access required for view.
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];

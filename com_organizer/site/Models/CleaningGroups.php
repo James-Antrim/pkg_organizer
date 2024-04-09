@@ -28,7 +28,7 @@ class CleaningGroups extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=CleaningGroup&id=';
+        $url   = 'index.php?option=com_organizer&view=cleaninggroup&id=';
 
         $select = [
             '*',

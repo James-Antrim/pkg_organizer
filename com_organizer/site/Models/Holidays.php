@@ -31,7 +31,7 @@ class Holidays extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $hED   = DB::qn('h.endDate');
-        $url   = 'index.php?option=com_organizer&view=Holiday&id=';
+        $url   = 'index.php?option=com_organizer&view=holiday&id=';
         $query = DB::getQuery();
         $tag   = Application::getTag();
 

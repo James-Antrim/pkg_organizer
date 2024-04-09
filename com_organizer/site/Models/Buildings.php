@@ -29,7 +29,7 @@ class Buildings extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
-        $url   = 'index.php?option=com_organizer&view=Building&id=';
+        $url   = 'index.php?option=com_organizer&view=building&id=';
 
         $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(['c2.city'], ['parentCity']);

@@ -65,14 +65,17 @@ class Pools extends ListModel
             $access = DB::quote(0) . ' AS ' . DB::qn('access');
         }
 
+        $query = DB::getQuery();
+        $url   = 'index.php?option=com_organizer&view=pool&id=';
+
         $select = [
             'DISTINCT ' . DB::qn('p.id'),
             $access,
             DB::qn('p.fieldID'),
             DB::qn('p.fullName_' . Application::getTag(), 'name'),
+            $query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')
         ];
 
-        $query = DB::getQuery();
         $query->select($select)->from(DB::qn('#__organizer_pools', 'p'));
 
         if (Application::backend()) {

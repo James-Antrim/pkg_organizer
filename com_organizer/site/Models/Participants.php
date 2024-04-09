@@ -59,7 +59,7 @@ class Participants extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Participant&id=';
+        $url   = 'index.php?option=com_organizer&view=participant&id=';
 
         $nameParts    = [DB::qn('pa.surname'), "', '", DB::qn('pa.forename')];
         $programParts = [DB::qn("pr.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('pr.accredited'), "')'"];

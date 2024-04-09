@@ -28,7 +28,7 @@ class Methods extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Method&id=';
+        $url   = 'index.php?option=com_organizer&view=method&id=';
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["abbreviation_$tag", "name_$tag"], ['abbreviation', 'name']);

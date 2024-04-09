@@ -25,7 +25,7 @@ class Colors extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=Color&id=';
+        $url   = 'index.php?option=com_organizer&view=color&id=';
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["name_$tag"], ['name']);

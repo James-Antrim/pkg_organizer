@@ -28,7 +28,7 @@ class RoomKeys extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
-        $url   = 'index.php?option=com_organizer&view=RoomKey&id=';
+        $url   = 'index.php?option=com_organizer&view=roomkey&id=';
 
         $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(
