@@ -54,9 +54,7 @@ class Holidays extends Table
     public function check(): bool
     {
         if ($this->endDate < $this->startDate) {
-            Application::message('ORGANIZER_DATE_CHECK', Application::ERROR);
-
-            return false;
+            return $this->fail();
         }
 
         return true;

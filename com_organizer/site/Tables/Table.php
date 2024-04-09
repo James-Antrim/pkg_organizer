@@ -7,6 +7,7 @@ use Joomla\CMS\Table\Table as Base;
 use ReflectionClass;
 use ReflectionProperty;
 use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\Text;
 
 /**
  * Models the resource alluded to in the inheriting class name.
@@ -41,6 +42,16 @@ abstract class Table extends Base
 
             return false;
         }
+    }
+
+    /**
+     * Adds a fail message for check functions that can fail. Returns false so to inline the entire fail process.
+     * @return bool
+     */
+    protected function fail(): bool
+    {
+        Application::message(Text::sprintf('TABLE_CHECK_FAIL', Application::getClass(get_called_class())), Application::ERROR);
+        return false;
     }
 
     /**
@@ -132,7 +143,6 @@ abstract class Table extends Base
      */
     public function store($updateNulls = true): bool
     {
-        /** @noinspection PhpMultipleClassDeclarationsInspection */
         return parent::store($updateNulls);
     }
 }

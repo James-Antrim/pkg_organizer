@@ -93,7 +93,7 @@ class Curricula extends Table
         // Although typing allows it these columns should never be null
         foreach (['level', 'lft', 'ordering', 'rgt'] as $column) {
             if (!$this->$column) {
-                return false;
+                return $this->fail();
             }
         }
 
@@ -115,14 +115,18 @@ class Curricula extends Table
 
             if ($keyColumn === 'programID') {
                 if ($this->parentID) {
-                    return false;
+                    return $this->fail();
                 }
             }
             elseif (!$this->parentID) {
-                return false;
+                return $this->fail();
             }
         }
 
-        return $count === 1;
+        if ($count !== 1) {
+            return $this->fail();
+        }
+
+        return true;
     }
 }

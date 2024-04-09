@@ -84,7 +84,7 @@ class Associations extends Table
     public function check(): bool
     {
         if (empty($this->organizationID)) {
-            return false;
+            return $this->fail();
         }
 
         // An association should always be between an organization and another resource.
@@ -99,6 +99,10 @@ class Associations extends Table
             }
         }
 
-        return $count === 1;
+        if ($count !== 1) {
+            return $this->fail();
+        }
+
+        return true;
     }
 }
