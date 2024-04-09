@@ -110,6 +110,7 @@ class Curricula extends Table
             }
             else {
                 $this->$keyColumn = null;
+                continue;
             }
 
             if ($keyColumn === 'programID') {
