@@ -22,37 +22,33 @@ class Pool extends FormView
      */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        if ($this->item->id) {
-            $title = "ORGANIZER_POOL_EDIT";
-        }
-        else {
-            $title = "ORGANIZER_POOL_NEW";
-        }
+        $this->toDo[] = 'SelectPools';
+        $this->toDo[] = 'SelectSubjects';
+        $this->toDo[] = 'Programs';
+        $this->toDo[] = 'SuperOrdinates';
+        $this->toDo[] = 'SubOrdinates';
+        $this->toDo[] = 'Functions';
+        $this->toDo[] = 'Refresh on Modal Close';
 
-        $this->setTitle($title);
+        parent::addToolbar(['apply', 'save', 'save2copy']);
+
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'apply', 'applytextfrombutton', 'pools.apply', false);
-        $toolbar->appendButton('Standard', 'save', 'savetxtfrombutton', 'pools.save', false);
+        $toolbar->divider();
 
-        if ($this->item->id) {
-            $toolbar->appendButton(
-                'Standard',
-                'save-copy',
-                Text::_('ORGANIZER_SAVE2COPY'),
-                'pools.save2copy',
-                false
-            );
-        }
+        $baseURL = "index.php?option=com_organizer&tmpl=component&type=pool&id={$this->item->id}&view=";
 
-        $baseURL = 'index.php?option=com_organizer&tmpl=component';
-        $baseURL .= "&type=pool&id={$this->item->id}&view=";
+        $toolbar->popupButton('pools', 'ORGANIZER_ADD_POOL')
+            ->popupType('iframe')
+            ->url($baseURL . 'selectpools')
+            ->modalWidth('800px')
+            ->modalHeight('500px')
+            ->icon('fa fa-list');
 
-        $poolLink = $baseURL . 'pool_selection';
-        $toolbar->appendButton('Popup', 'list', Text::_('ORGANIZER_ADD_POOL'), $poolLink);
-
-        $subjectLink = $baseURL . 'subject_selection';
-        $toolbar->appendButton('Popup', 'book', Text::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
-
-        $toolbar->appendButton('Standard', 'cancel', 'button-text', 'pools.cancel', false);
+        $toolbar->popupButton('pools', 'ORGANIZER_ADD_SUBJECT')
+            ->popupType('iframe')
+            ->url($baseURL . 'selectsubjects')
+            ->modalWidth('800px')
+            ->modalHeight('500px')
+            ->icon('fa fa-book');
     }
 }

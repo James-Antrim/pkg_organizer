@@ -11,9 +11,9 @@
 namespace THM\Organizer\Controllers;
 
 /**
- * @inheritDoc
+ * Class receives user actions and performs access checks and redirection.
  */
-class PoolSelection extends CurriculumResources
+class SelectSubjects extends CurriculumResources
 {
-    protected string $item = 'Pool';
+    protected string $item = 'Subject';
 }

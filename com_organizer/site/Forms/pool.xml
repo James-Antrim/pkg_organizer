@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-    <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
+    <fieldset name="details" label="ORGANIZER_PROPERTIES_BASIC">
         <field name="id" type="hidden"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
                required="true"/>
@@ -12,21 +12,22 @@
         <field name="minCrP" type="Integer" label="ORGANIZER_CRP_MIN" first="0" last="120" step="1" default="24"/>
         <field name="maxCrP" type="Integer" label="ORGANIZER_CRP_MAX" first="0" last="120" step="1" default="24"/>
     </fieldset>
-    <fieldset name="de" label="ORGANIZER_ATTRIBUTES_DE">
+    <fieldset name="de" label="ORGANIZER_PROPERTIES_DE">
         <field name="fullName_de" type="text" label="ORGANIZER_FULL_NAME_DE" class="required" maxlength="200" required="true"/>
         <field name="abbreviation_de" type="text" label="ORGANIZER_ABBREVIATION_DE" class="required" maxlength="25"
                required="true"/>
         <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
     </fieldset>
-    <fieldset name="en" label="ORGANIZER_ATTRIBUTES_EN">
+    <fieldset name="en" label="ORGANIZER_PROPERTIES_EN">
         <field name="fullName_en" type="text" label="ORGANIZER_FULL_NAME_EN" class="required" maxlength="200" required="true"/>
         <field name="abbreviation_en" type="text" label="ORGANIZER_ABBREVIATION_EN" class="required" maxlength="25"
                required="true"/>
         <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
     </fieldset>
     <fieldset name="associations" label="ORGANIZER_ASSOCIATIONS">
-        <field type="Curricula" label="ORGANIZER_PROGRAMS"/>
-        <field type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES"/>
+        <field name="programIDs" type="Curricula" label="ORGANIZER_PROGRAMS" default="-1" multiple="multiple" size="10"/>
+        <field name="superordinates" type="SuperOrdinates" label="ORGANIZER_SUPERORDINATES" default="-1" multiple="multiple"
+               size="10"/>
         <field type="SubOrdinates" label="ORGANIZER_SUBORDINATES"/>
     </fieldset>
 </form>

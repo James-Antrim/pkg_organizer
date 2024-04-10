@@ -16,7 +16,7 @@ use THM\Organizer\Helpers;
 /**
  * Class loads subject information into the display context.
  */
-class SubjectSelection extends ListView
+class SelectSubjects extends Subjects
 {
     protected string $layout = 'modallist';
 
