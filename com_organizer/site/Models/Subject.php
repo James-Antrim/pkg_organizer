@@ -323,6 +323,13 @@ class Subject extends EditModel
         return $item;
     }
 
+    /**
+     * Aggregates pool assignments by program context as texts.
+     *
+     * @param   object  $subject  the subject item being displayed
+     *
+     * @return array
+     */
     private function pools(object $subject): array
     {
         $programs   = [];

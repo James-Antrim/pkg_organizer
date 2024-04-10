@@ -10,10 +10,27 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Helpers\{Pools as Helper, Programs};
+
 /**
- * Class which manages stored (subject) pool data.
+ * @inheritDoc
  */
 class Pool extends EditModel
 {
     protected string $tableClass = 'Pools';
+
+    /**
+     * @inheritDoc
+     */
+    public function getItem(): object
+    {
+        if (!$item = $this->item) {
+            $item                 = parent::getItem();
+            $ranges               = Helper::rows($item->id);
+            $item->programIDs     = empty($ranges) ? [] : Programs::extractIDs($ranges);
+            $item->superordinates = Helper::superValues($item->id, 'pool');
+            $this->item           = $item;
+        }
+        return $item;
+    }
 }

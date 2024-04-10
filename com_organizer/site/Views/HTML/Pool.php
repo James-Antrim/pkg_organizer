@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Adapters\Toolbar;
 
 /**
- * Class loads the (subject) pool form into display context.
+ * @inheritDoc
  */
 class Pool extends FormView
 {
@@ -24,8 +24,6 @@ class Pool extends FormView
     {
         $this->toDo[] = 'SelectPools';
         $this->toDo[] = 'SelectSubjects';
-        $this->toDo[] = 'Programs';
-        $this->toDo[] = 'SuperOrdinates';
         $this->toDo[] = 'SubOrdinates';
         $this->toDo[] = 'Functions';
         $this->toDo[] = 'Refresh on Modal Close';
