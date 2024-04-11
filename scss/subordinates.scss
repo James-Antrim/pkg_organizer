@@ -1,0 +1,54 @@
+.controls .btn-toolbar {
+  margin-bottom: .4rem;
+
+  button, input {
+    background-color: var(--body-bg);
+    border-color: hsl(214, 20%, 80%);
+    margin-right: .75rem;
+  }
+}
+
+.so-table.form-select {
+  background: var(--body-bg);
+  border-collapse: inherit;
+  border-radius: var(--border-radius);
+  display: table;
+  padding: 0;
+
+  tbody, thead, tr {
+    background-color: var(--body-bg);
+    width: 100%;
+  }
+
+  span.icon {
+    margin-right: .4rem;
+  }
+
+  button, input {
+    background-color: var(--body-bg);
+    border-color: hsl(214, 20%, 80%);
+    margin-right: .2rem;
+  }
+
+  input {
+    border-color: hsl(214, 20%, 80%);
+    border-width: var(--border-width);
+    border-left-width: 3px;
+    border-top-width: 3px;
+    border-radius: .25rem;
+    padding: .4rem .4rem .55rem .4rem;
+    width: 3rem;
+  }
+
+  .sub-name, .sub-order {
+    min-width: 24.5rem;
+  }
+
+  .sub-name {
+    vertical-align: middle;
+  }
+
+  .sub-order {
+    width: 24.5rem;
+  }
+}
