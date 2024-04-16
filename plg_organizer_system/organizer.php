@@ -58,9 +58,9 @@ class PlgSystemOrganizer extends JPlugin
      * @param   Form   $form  The form to be altered.
      * @param   mixed  $data  The associated data for the form.
      *
-     * @return  bool
+     * @return  void
      */
-    public function onContentPrepareForm(Form $form, mixed $data): bool
+    public function onContentPrepareForm(Form $form, mixed $data): void
     {
         switch ($form->getName()) {
             // Menu item => Load form path
@@ -68,7 +68,7 @@ class PlgSystemOrganizer extends JPlugin
 
                 // Invalid
                 if (!is_object($data) or empty($data->request) or empty($data->request['option']) or empty($data->request['view'])) {
-                    return false;
+                    return;
                 }
 
                 if ($data->request['option'] === 'com_organizer') {
@@ -86,8 +86,6 @@ class PlgSystemOrganizer extends JPlugin
 
                 break;
         }
-
-        return true;
     }
 
     /**
@@ -148,7 +146,7 @@ class PlgSystemOrganizer extends JPlugin
 
         /**
          * No filter configured or the configured filter does not apply => everything else is irrelevant.
-         * Component helper is used because outide the component context component parameters are not loaded automatically.
+         * Component helper is used because outside the component context component parameters are not loaded automatically.
          */
         if (!$filter = ComponentHelper::getParams('com_organizer')->get('emailFilter')
             or !str_contains($user['email'], $filter)) {
