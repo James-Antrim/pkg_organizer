@@ -262,8 +262,8 @@ class Instances extends ListModel
     {
         $params = Input::getParams();
 
-        if ($params->get('show_page_heading') and $title = $params->get('page_title')) {
-            return $title;
+        if ($params->get('show_page_heading')) {
+            return $params->get('page_heading') ?: $params->get('page_title');
         }
 
         $methods   = '';

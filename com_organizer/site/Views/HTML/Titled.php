@@ -53,8 +53,8 @@ trait Titled
     {
         $params = Input::getParams();
 
-        if ($params->get('show_page_heading') and $params->get('page_title')) {
-            $title = $params->get('page_title');
+        if ($params->get('show_page_heading')) {
+            $title = $params->get('page_heading') ?: $params->get('page_title');
         }
         else {
             $title = empty($conditional) ? Text::_($standard) : Text::_($conditional);
