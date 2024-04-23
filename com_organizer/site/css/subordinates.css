@@ -2,14 +2,12 @@
     margin-bottom: .4rem;
 }
 
-/*noinspection ALL*/
 .controls .btn-toolbar button, .controls .btn-toolbar input {
     background-color: var(--body-bg);
     border-color: #c2cbd6;
     margin-right: .75rem;
 }
 
-/*noinspection ALL*/
 .so-table.form-select {
     background: var(--body-bg);
     border-collapse: inherit;
@@ -18,24 +16,17 @@
     padding: 0;
 }
 
-/*noinspection ALL*/
 .so-table.form-select tbody, .so-table.form-select thead, .so-table.form-select tr {
     background-color: var(--body-bg);
     width: 100%;
 }
 
-.so-table.form-select span.icon {
-    margin-right: .4rem;
-}
-
-/*noinspection ALL*/
 .so-table.form-select button, .so-table.form-select input {
     background-color: var(--body-bg);
     border-color: #c2cbd6;
     margin-right: .2rem;
 }
 
-/*noinspection ALL*/
 .so-table.form-select input {
     border-color: #c2cbd6;
     border-width: var(--border-width);
@@ -52,6 +43,10 @@
 
 .so-table.form-select .sub-name {
     vertical-align: middle;
+}
+
+.so-table.form-select .sub-name span:first-child {
+    margin-right: .4rem;
 }
 
 .so-table.form-select .sub-order {

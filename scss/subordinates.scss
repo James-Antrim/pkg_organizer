@@ -20,10 +20,6 @@
     width: 100%;
   }
 
-  span.icon {
-    margin-right: .4rem;
-  }
-
   button, input {
     background-color: var(--body-bg);
     border-color: hsl(214, 20%, 80%);
@@ -46,6 +42,10 @@
 
   .sub-name {
     vertical-align: middle;
+
+    span:first-child {
+      margin-right: .4rem;
+    }
   }
 
   .sub-order {
