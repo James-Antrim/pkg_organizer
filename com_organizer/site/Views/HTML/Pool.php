@@ -35,14 +35,15 @@ class Pool extends FormView
 
         $baseURL = "index.php?option=com_organizer&tmpl=component&type=pool&id={$this->item->id}&view=";
 
-        $toolbar->popupButton('pools', 'ORGANIZER_ADD_POOL')
+        $toolbar = Toolbar::getInstance('subordinates');
+        $toolbar->popupButton('add-pool', 'ORGANIZER_ADD_POOL')
             ->popupType('iframe')
             ->url($baseURL . 'selectpools')
             ->modalWidth('800px')
             ->modalHeight('500px')
             ->icon('fa fa-list');
 
-        $toolbar->popupButton('pools', 'ORGANIZER_ADD_SUBJECT')
+        $toolbar->popupButton('add-subject', 'ORGANIZER_ADD_SUBJECT')
             ->popupType('iframe')
             ->url($baseURL . 'selectsubjects')
             ->modalWidth('800px')
