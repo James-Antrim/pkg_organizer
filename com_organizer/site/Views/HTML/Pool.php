@@ -24,7 +24,6 @@ class Pool extends FormView
     {
         $this->toDo[] = 'SelectPools';
         $this->toDo[] = 'SelectSubjects';
-        $this->toDo[] = 'SubOrdinates';
         $this->toDo[] = 'Functions';
         $this->toDo[] = 'Refresh on Modal Close';
 

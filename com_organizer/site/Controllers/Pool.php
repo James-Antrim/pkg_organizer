@@ -47,9 +47,10 @@ class Pool extends CurriculumResource implements Stubby
          * individually during further processing.
          * @see Ranges::addSubordinate(), Ranges::subordinates()
          */
-        $data['curricula']       = Input::getIntArray('curricula');
+        $data['programIDs']      = Input::getIntArray('programIDs');
         $data['organizationIDs'] = Input::getIntArray('organizationIDs');
         $data['superordinates']  = Input::getIntArray('superordinates');
+        $data['subordinates']  = $this->subordinates();
 
         $this->validate($data, ['abbreviation_de', 'abbreviation_en', 'fullName_de', 'fullName_en', 'organizationIDs']);
 
