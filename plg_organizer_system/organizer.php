@@ -13,6 +13,7 @@ require_once JPATH_ADMINISTRATOR . '/components/com_organizer/services/autoloade
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Form\{Form, FormHelper};
+use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Controllers\InstanceParticipants as Controller;
@@ -22,7 +23,7 @@ defined('_JEXEC') or die;
 /**
  * Organizer system plugin
  */
-class PlgSystemOrganizer extends JPlugin
+class PlgSystemOrganizer extends CMSPlugin
 {
     private static bool $called = false;
 
