@@ -24,7 +24,6 @@ class Pool extends FormView
     {
         $this->toDo[] = 'SelectPools';
         $this->toDo[] = 'SelectSubjects';
-        $this->toDo[] = 'Functions';
         $this->toDo[] = 'Refresh on Modal Close';
 
         parent::addToolbar(['apply', 'save', 'save2copy']);
