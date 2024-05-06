@@ -43,6 +43,9 @@ $this->renderTasks();
         <?php if ($tabbed): ?>
             <?php echo HTML::_('uitab.startTabSet', 'myTab', ['active' => 'details', 'recall' => true, 'breakpoint' => 768]); ?>
             <?php foreach ($tabs as $name => $tab): ?>
+                <?php if (!$this->form->getFieldset($name)) {
+                    continue;
+                } ?>
                 <?php echo HTML::_('uitab.addTab', 'myTab', $tab->name, Text::_($tab->label)); ?>
                 <fieldset class="options-form">
                     <div class="form-grid">

@@ -13,7 +13,8 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Documentable, LSF, Organizations, Programs as Helper};
+use THM\Organizer\Helpers\{Categories, Documentable, LSF, Organizations, Programs as Helper};
+use THM\Organizer\Tables\Programs as Table;
 
 /**
  * @inheritDoc
@@ -41,25 +42,40 @@ class Program extends CurriculumResource
     }
 
     /**
-     * Retrieves program information relevant for soap queries to the LSF system.
+     * Creates a program stub from imported category data
      *
-     * @param   int  $programID  the id of the degree program
+     * @param   array   $data
+     * @param   string  $name
+     * @param   int     $categoryID
      *
-     * @return array  empty if the program could not be found
+     * @return void
      */
-    private function keys(int $programID): array
+    public function fromSchedule(array $data, string $name, int $categoryID): void
     {
-        $aliased  = DB::qn(['p.code', 'd.code'], ['program', 'degree']);
-        $selected = DB::qn(['p.accredited', 'a.organizationID']);
-        $query    = DB::getQuery();
-        $query->select(array_merge($aliased, $selected))
-            ->from(DB::qn('#__organizer_programs', 'p'))
-            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
-            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.programID', 'p.id'))
-            ->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $programID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        if (!Categories::schedulable($categoryID)) {
+            Application::error(403);
+        }
 
-        return DB::loadAssoc();
+        $table = $this->getTable();
+
+        if ($table->load($data)) {
+            return;
+        }
+
+        $data['categoryID']      = $categoryID;
+        $data['name_de']         = $name;
+        $data['name_en']         = $name;
+        $data['organizationIDs'] = [Input::getInt('organizationID')];
+        $data['subordinates']    = [];
+
+        /** @var Table $table */
+        $table = $this->getTable();
+
+        if (!$data['id'] = $this->store($table, $data)) {
+            return;
+        }
+
+        $this->postProcess($data);
     }
 
     /**
@@ -116,6 +132,28 @@ class Program extends CurriculumResource
     }
 
     /**
+     * Retrieves program information relevant for soap queries to the LSF system.
+     *
+     * @param   int  $programID  the id of the degree program
+     *
+     * @return array  empty if the program could not be found
+     */
+    private function keys(int $programID): array
+    {
+        $aliased  = DB::qn(['p.code', 'd.code'], ['program', 'degree']);
+        $selected = DB::qn(['p.accredited', 'a.organizationID']);
+        $query    = DB::getQuery();
+        $query->select(array_merge($aliased, $selected))
+            ->from(DB::qn('#__organizer_programs', 'p'))
+            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.programID', 'p.id'))
+            ->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $programID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        return DB::loadAssoc();
+    }
+
+    /**
      * Prepares the data to be saved.
      * @return array
      */
@@ -129,6 +167,7 @@ class Program extends CurriculumResource
          * @see Ranges::addSubordinate(), Ranges::subordinates()
          */
         $data['organizationIDs'] = Input::getIntArray('organizationIDs');
+        $data['subordinates']    = $this->subordinates();
 
         $this->validate($data, ['accredited', 'code', 'degreeID', 'name_de', 'name_en', 'organizationIDs']);
 
@@ -144,7 +183,7 @@ class Program extends CurriculumResource
             Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
         }
 
-        $range = ['parentID' => null, 'programID' => $data['id'], 'curriculum' => $this->subordinates(), 'ordering' => 0];
+        $range = ['parentID' => null, 'programID' => $data['id'], 'curriculum' => $data['subordinates'], 'ordering' => 0];
 
         if (!$this->addRange($range)) {
             Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);

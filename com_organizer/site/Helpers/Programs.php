@@ -13,8 +13,7 @@ namespace THM\Organizer\Helpers;
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text, User};
-use THM\Organizer\Models;
-use THM\Organizer\Tables\{Participants, Programs as Table};
+use THM\Organizer\Tables\{Curricula as CTable, Participants, Programs as Table};
 
 /**
  * Provides general functions for program access checks, data retrieval and display.
@@ -24,37 +23,6 @@ class Programs extends Curricula implements Selectable
     use Active;
 
     protected static string $resource = 'program';
-
-    /**
-     * Checks if a program exists matching the identification keys. If none exist one is created.
-     *
-     * @param   array   $programData  the program data
-     * @param   string  $initialName  the name to be used if no entry already exists
-     * @param   int     $categoryID   the id of the category calling this function
-     *
-     * @return int int the created program's id on success, otherwise 0
-     */
-    public static function create(array $programData, string $initialName, int $categoryID): int
-    {
-        $programTable = new Table();
-        if ($programTable->load($programData)) {
-            return $programTable->id;
-        }
-
-        if (empty($initialName)) {
-            return 0;
-        }
-
-        $programData['organizationID'] = Input::getInt('organizationID');
-        $programData['name_de']        = $initialName;
-        $programData['name_en']        = $initialName;
-        $programData['categoryID']     = $categoryID;
-
-        $model     = new Models\Program();
-        $programID = $model->save($programData);
-
-        return empty($programID) ? 0 : $programID;
-    }
 
     /**
      * Retrieves the id of the degree associated with the program.
@@ -97,6 +65,24 @@ class Programs extends Curricula implements Selectable
         sort($ids);
 
         return $ids;
+    }
+
+    /**
+     * Checks whether the given program has configured subordinates.
+     *
+     * @param   int  $programID
+     *
+     * @return bool
+     */
+    public static function hasSubordinates(int $programID): bool
+    {
+        $curriculum = new CTable();
+
+        if (!$curriculum->load(['programID' => $programID])) {
+            return false;
+        }
+
+        return $curriculum->rgt - $curriculum->lft > 1;
     }
 
     /**

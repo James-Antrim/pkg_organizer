@@ -13,7 +13,7 @@ namespace THM\Organizer\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\Programs;
+use THM\Organizer\Controllers\Program;
 use THM\Organizer\Tables\{Associations, Categories as Table, Degrees};
 
 /**
@@ -69,7 +69,7 @@ class Categories implements UntisXMLValidator
             foreach ($category as $key => $value) {
                 if (property_exists($table, $key) and empty($table->$key) and !empty($value)) {
                     $table->$key = $value;
-                    $altered = true;
+                    $altered     = true;
                 }
             }
 
@@ -112,9 +112,9 @@ class Categories implements UntisXMLValidator
         $model->categories->$code = $category;
         self::setID($model, $code);
 
-        if ($programData = self::parseProgramData($code)) {
-            $programName = trim(substr($name, 0, strpos($name, '(')));
-            Programs::create($programData, $programName, $category->id);
+        if ($keys = self::parseProgramData($code) and $name = trim(substr($name, 0, strpos($name, '(')))) {
+            $program = new Program();
+            $program->fromSchedule($keys, $name, $category->id);
         }
     }
 }
