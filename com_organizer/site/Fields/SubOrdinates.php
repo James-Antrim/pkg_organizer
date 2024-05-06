@@ -13,7 +13,7 @@ namespace THM\Organizer\Fields;
 use Exception;
 use Joomla\CMS\Form\FormField;
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Database as DB, Document, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Database as DB, Document, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -53,9 +53,7 @@ class SubOrdinates extends FormField
         // The other localizations are added during template creation.
         Text::useLocalization('EMPTY_PANEL');
 
-        $input = Toolbar::getInstance('subordinates')->render(['title' => Text::_('SUBORDINATE_TOOLBAR')]);
-
-        $input .= '<table id="so-table" class="so-table form-select table">';
+        $input = '<table id="so-table" class="so-table form-select table">';
         $input .= '<thead><tr>';
         $input .= '<th class="sub-name">' . Text::_('NAME') . '</th>';
         $input .= '<th class="sub-order">' . Text::_('ORDER') . '</th>';

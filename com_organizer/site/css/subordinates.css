@@ -1,13 +1,3 @@
-.controls .btn-toolbar {
-    margin-bottom: .4rem;
-}
-
-.controls .btn-toolbar button, .controls .btn-toolbar input {
-    background-color: var(--body-bg);
-    border-color: #c2cbd6;
-    margin-right: .75rem;
-}
-
 .so-table.form-select {
     background: var(--body-bg);
     border-collapse: inherit;
