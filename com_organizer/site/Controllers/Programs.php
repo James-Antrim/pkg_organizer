@@ -58,9 +58,8 @@ class Programs extends CurriculumResources
             $this->farewell();
         }
 
-        $selected = count($selectedIDs);
-        $subject  = new Subject();
-        $updated  = 0;
+        $subject = new Subject();
+        $updated = 0;
 
         foreach ($selectedIDs as $programID) {
             if (!Helper::documentable($programID)) {
@@ -75,6 +74,6 @@ class Programs extends CurriculumResources
             }
         }
 
-        $this->farewell($selected, $updated);
+        $this->farewell(0, $updated);
     }
 }

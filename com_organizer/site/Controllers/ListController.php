@@ -116,12 +116,16 @@ abstract class ListController extends Controller
             }
             else {
                 $message = $delete ?
-                    Text::sprintf('ORGANIZER_XX_DELETED', $updated, $selected) :
-                    Text::sprintf('ORGANIZER_XX_UPDATED', $updated, $selected);
+                    Text::sprintf('ORGANIZER_X_OF_X_DELETED', $updated, $selected) :
+                    Text::sprintf('ORGANIZER_X_OF_X_UPDATED', $updated, $selected);
                 $type    = Application::WARNING;
             }
 
             Application::message($message, $type);
+        }
+        elseif ($updated) {
+            $key = $updated === 1 ? 'ORGANIZER_1_UPDATED' : 'ORGANIZER_X_UPDATED';
+            Application::message(Text::sprintf($key, $updated));
         }
 
         if ($autoRedirect) {
