@@ -426,7 +426,7 @@ trait Ranges
         $column = DB::qn('ordering');
         $query  = DB::getQuery();
         $query->update(DB::qn('#__organizer_curricula'))
-            ->set('$column = $column + 1')
+            ->set("$column = $column + 1")
             ->where("$column >= :ordering")->bind(':ordering', $ordering, ParameterType::INTEGER)
             ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
         DB::setQuery($query);
