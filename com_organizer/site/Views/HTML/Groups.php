@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\Toolbar\Button\DropdownButton;
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Grids, Groups as Helper, Terms};
@@ -30,9 +31,34 @@ class Groups extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Store the publishing value in the instance directly to make instance queries much better.';
+        $this->toDo[] = 'Batch processing.';
         // Resource creation occurs in Untis and editing is done via links in the list.
 
         $toolbar = Toolbar::getInstance();
+
+        /** @var DropdownButton $functions */
+        $functions    = $toolbar->dropdownButton('functions-group', 'ORGANIZER_FUNCTIONS')
+            ->toggleSplit(false)
+            ->icon('icon-ellipsis-h')
+            ->buttonClass('btn btn-action')
+            ->listCheck(true);
+        $functionsBar = $functions->getChildToolbar();
+        $current      = Terms::name(Terms::getCurrentID());
+        $functionsBar->standardButton('publish-current', Text::sprintf('PUBLISH_TERM', $current), 'groups.publishCurrent')
+            ->icon('fa fa-eye');
+        $functionsBar->standardButton('unpublish-current', Text::sprintf('UNPUBLISH_TERM', $current), 'groups.unpublishCurrent')
+            ->icon('fa fa-eye-slash');
+        $next = Terms::name(Terms::getNextID());
+        $functionsBar->standardButton('publish-current', Text::sprintf('PUBLISH_TERM', $next), 'groups.publishNext')
+            ->icon('fa fa-eye');
+        $functionsBar->standardButton('unpublish-current', Text::sprintf('UNPUBLISH_TERM', $next), 'groups.unpublishNext')
+            ->icon('fa fa-eye-slash');
+
+        if (Can::administrate()) {
+            $this->addMerge($functionsBar);
+        }
+
+        $this->addActa($functionsBar);
 
         /*$if          = "alert('" . Text::_('ORGANIZER_LIST_SELECTION_WARNING', true) . "');";
         $else        = "jQuery('#modal-publishing').modal('show'); return true;";
@@ -43,14 +69,16 @@ class Groups extends ListView
 
         $batchButton .= '</button>';*/
 
-        $toolbar->popupButton('batch', Text::_('BATCH'));
-        $this->addActa();
+        $toolbar->popupButton('batch', Text::_('BATCH'))
+            ->buttonClass('btn btn-action');
 
+        // This access level isn't due to a security risk
         if (Can::administrate()) {
-            $this->addMerge();
             $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
-                ->icon('fa fa-reply-all');
+                ->icon('fa fa-reply-all')
+                ->buttonClass('btn btn-action');
         }
+
 
         parent::addToolBar();
     }
@@ -66,12 +94,12 @@ class Groups extends ListView
         $publishing   = new GroupPublishing();
         $keys         = ['groupID' => $item->id, 'termID' => $options['currentID']];
         $currentValue = $publishing->load($keys) ? $publishing->published : 1;
-        $item->this   = HTML::toggle($index, Helper::PUBLISHED_STATES[$currentValue], 'Groups', $options['currentID']);
+        $item->this   = HTML::toggle($index, Helper::PUBLISHED_STATES[$currentValue], 'Groups', 'Current');
 
         $publishing     = new GroupPublishing();
         $keys['termID'] = $options['nextID'];
         $nextValue      = $publishing->load($keys) ? $publishing->published : 1;
-        $item->next     = HTML::toggle($index, Helper::PUBLISHED_STATES[$nextValue], 'Groups', $options['nextID']);
+        $item->next     = HTML::toggle($index, Helper::PUBLISHED_STATES[$nextValue], 'Groups', 'Next');
     }
 
     /**

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\Toolbar\Toolbar as Dropdown;
 use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
@@ -21,31 +22,42 @@ trait Activated
 
     /**
      * Adds activation and deactivation buttons to the global toolbar.
-     *
-     * @return void
      */
-    protected function addActa(): void
+    protected function addActa(?Dropdown $dropdown = null): void
     {
         /** @var ListView $this */
         $controller = $this->getName();
-        $toolbar    = Toolbar::getInstance();
+        $toolbar    = $dropdown ?: Toolbar::getInstance();
 
         switch ((int) $this->state->get('filter.active', self::ACTIVE)) {
             case self::ACTIVE:
-                $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), "$controller.deactivate")
-                    ->icon('fa fa-eye-slash')
-                    ->listCheck(true);
+                $deactivate = $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), "$controller.deactivate")
+                    ->icon('fa fa-eye-slash');
+
+                if (!$dropdown) {
+                    $deactivate->listCheck(true);
+                }
+
                 break;
             case self::ALL:
-                $toolbar->standardButton('activate', Text::_('ACTIVATE'),
-                    "$controller.activate")->icon('fa fa-eye')->listCheck(true);
-                $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), "$controller.deactivate")
-                    ->icon('fa fa-eye-slash')
-                    ->listCheck(true);
+                $activate   = $toolbar->standardButton('activate', Text::_('ACTIVATE'), "$controller.activate")
+                    ->icon('fa fa-eye')->listCheck(true);
+                $deactivate = $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), "$controller.deactivate")
+                    ->icon('fa fa-eye-slash');
+
+                if (!$dropdown) {
+                    $activate->listCheck(true);
+                    $deactivate->listCheck(true);
+                }
+
                 break;
             case self::INACTIVE:
-                $toolbar->standardButton('activate', Text::_('ACTIVATE'),
-                    "$controller.activate")->icon('fa fa-eye')->listCheck(true);
+                $activate = $toolbar->standardButton('activate', Text::_('ACTIVATE'), "$controller.activate")->icon('fa fa-eye');
+
+                if (!$dropdown) {
+                    $activate->listCheck(true);
+                }
+
                 break;
         }
 

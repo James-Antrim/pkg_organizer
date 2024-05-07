@@ -153,14 +153,14 @@ class HTML extends HTMLHelper
      * @param   int     $index       the row id
      * @param   array   $state       the state configuration
      * @param   string  $controller  the name of the controller class
-     * @param   int     $refID       the value of the column referencing out of the assoc table
+     * @param   string  $context     supplemental context for the task
      *
      * @return  string
      */
-    public static function toggle(int $index, array $state, string $controller, int $refID = 0): string
+    public static function toggle(int $index, array $state, string $controller, string $context = ''): string
     {
-        $ariaID = "{$state['column']}-$index-$refID";
-        $ariaID .= $refID ? "-$refID" : '';
+        $ariaID = "{$state['column']}-$index";
+        $ariaID .= $context ? "-$context" : '';
 
         $attributes = [
             'aria-labelledby' => $ariaID,
@@ -169,14 +169,13 @@ class HTML extends HTMLHelper
 
         $class     = $state['class'];
         $iconClass = $class === 'publish' ? 'fa fa-check' : 'fa fa-times';
-        $refKey    = $refID ? ".$refID" : '';
         $return    = '';
         $task      = $state['task'];
         $tip       = Text::_($state['tip']);
 
         $attributes['class']   .= $class === 'publish' ? ' active' : '';
         $attributes['href']    = 'javascript:void(0);';
-        $attributes['onclick'] = $task ? "return Joomla.listItemTask('cb$index','$controller.$task$refKey','adminForm')" : '#';
+        $attributes['onclick'] = $task ? "return Joomla.listItemTask('cb$index','$controller.$task$context','adminForm')" : '#';
 
         $return .= '<a ' . ArrayHelper::toString($attributes) . '>' . self::icon($iconClass) . '</a>';
 

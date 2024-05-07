@@ -30,13 +30,13 @@ class Groups extends Scheduled implements Selectable
         self::PUBLISHED   => [
             'class'  => 'publish',
             'column' => 'published',
-            'task'   => 'publish',
+            'task'   => 'unpublish',
             'tip'    => 'CLICK_TO_UNPUBLISH'
         ],
         self::UNPUBLISHED => [
             'class'  => 'unpublish',
             'column' => 'published',
-            'task'   => 'unpublish',
+            'task'   => 'publish',
             'tip'    => 'CLICK_TO_PUBLISH'
         ]
     ];

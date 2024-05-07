@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Adapters\Toolbar;
+use Joomla\CMS\Toolbar\Toolbar as Dropdown;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Handles code common to resources that can be merged.
@@ -20,13 +20,16 @@ trait Merged
 {
     /**
      * Adds aa button linking the resource merge view to the global toolbar.
-     *
-     * @return void
      */
-    protected function addMerge(): void
+    protected function addMerge(?Dropdown $dropdown = null): void
     {
         /** @var ListView $this */
         $controller = $this->getName();
+
+        if ($dropdown) {
+            $dropdown->standardButton('merge', Text::_('MERGE'), "Merge$controller.display")->icon('fa fa-compress');
+            return;
+        }
 
         Toolbar::getInstance()
             ->standardButton('merge', Text::_('MERGE'), "Merge$controller.display")
