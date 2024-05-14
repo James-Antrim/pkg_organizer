@@ -122,7 +122,7 @@ class Groups extends ListView
             'fullName' => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('FULL_NAME', 'gr.fullName', $direction, 'fullName'),
+                'title'      => HTML::sort('FULL_NAME', 'fullName', $direction, 'fullName'),
                 'type'       => 'text'
             ],
             'this'     => [
