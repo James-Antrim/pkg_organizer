@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
-use Joomla\CMS\Language\Text;
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Views\HTML\ListView;
 
 /**
@@ -20,57 +19,31 @@ use THM\Organizer\Views\HTML\ListView;
 class Batch
 {
     /**
-     * Generates the HTML to be used as the body of the batch modal.
+     * Renders a batch form for a list view.
      *
-     * @param   ListView  $view
-     *
-     * @return string
+     * @param   ListView  $view  the view being rendered
      */
-    public static function renderBody(ListView $view): string
+    public static function render(ListView $view): void
     {
-        $return = '<div class="p-3"><form>';
-        foreach ($view->filterForm->getGroup('batch') as $field) {
-            $return .= '<div class="form-group">' . $field->__get('label') . $field->__get('input') . '</div>';
-        }
-        $return .= '</form></div>';
-
-        return $return;
-    }
-
-    /**
-     * Generates the HTML to be used as the footer of the batch modal.
-     *
-     * @param   ListView  $view
-     *
-     * @return string
-     */
-    public static function renderFooter(ListView $view): string
-    {
-        $template = '<button type="XTYPEX" class="XCLASSX" onclick="XONCLICKX" XEXTRAX>XTEXTX</button>';
-
-        $resets = [];
-        foreach ($view->filterForm->getGroup('batch') as $field) {
-            $default  = $field->getAttribute('default');
-            $default  = is_null($default) ? '' : $default;
-            $fieldID  = $field->__get('id');
-            $resets[] = "document.ElementById('$fieldID').value='$default';";
-        }
-        $onClick = implode('', $resets);
-
-        $reset = str_replace('XCLASSX', 'btn btn-secondary', $template);
-        $reset = str_replace('XEXTRAX', 'data-bs-dismiss="modal"', $reset);
-        $reset = str_replace('XONCLICKX', $onClick, $reset);
-        $reset = str_replace('XTEXTX', Text::_('ORGANIZER_CLOSE'), $reset);
-        $reset = str_replace('XTYPEX', 'button', $reset);
-
-        $onClick = "Joomla.submitbutton('" . Application::getClass($view) . ".batch');return false;";
-
-        $submit = str_replace('XCLASSX', 'btn btn-success', $template);
-        $submit = str_replace('XEXTRAX', '', $submit);
-        $submit = str_replace('XONCLICKX', $onClick, $submit);
-        $submit = str_replace('XTEXTX', Text::_('ORGANIZER_PROCESS'), $submit);
-        $submit = str_replace('XTYPEX', 'submit', $submit);
-
-        return $reset . $submit;
+        $batch = $view->filterForm->getGroup('batch');
+        ?>
+        <div class="p-3">
+            <?php foreach ($batch as $field) : ?>
+                <div class="control-group">
+                    <div class="control-label">
+                        <?php echo $field->__get('label'); ?>
+                    </div>
+                    <div class="controls">
+                        <?php echo $field->__get('input'); ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="btn-toolbar p-3">
+            <joomla-toolbar-button task="<?php echo Application::getClass($view); ?>.batch" class="ms-auto">
+                <button type="button" class="btn btn-success"><?php echo Text::_('PROCESS'); ?></button>
+            </joomla-toolbar-button>
+        </div>
+        <?php
     }
 }

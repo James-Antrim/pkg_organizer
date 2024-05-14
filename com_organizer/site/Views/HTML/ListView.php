@@ -29,6 +29,7 @@ abstract class ListView extends Base
     use Titled;
     use ToCed;
 
+    /** @var bool the value of the relevant authorizations in context. */
     public bool $allowBatch = false;
     /** @var string The default text for an empty result set. */
     public string $empty = '';

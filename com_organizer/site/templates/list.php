@@ -8,8 +8,6 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML};
 use THM\Organizer\Layouts\HTML\{Batch, EmptyList, ListHeaders, ListItem, ListTools};
@@ -51,19 +49,9 @@ $this->renderTasks();
                         </table>
                         <?php echo $this->pagination->getListFooter(); ?>
                         <?php if ($this->allowBatch and $batch = $this->filterForm->getGroup('batch')): ?>
-                            <?php echo HTMLHelper::_(
-                                'bootstrap.renderModal',
-                                'collapseModal',
-                                [
-                                    'title'  => Text::_('ORGANIZER_BATCH_PROCESSING'),
-                                    'footer' => Batch::renderFooter($this),
-                                ],
-                                Batch::renderBody($this)
-                            ); ?>
-                            <?php Batch::renderBody($this); ?>
+                            <template id="organizer-batch"><?php Batch::render($this); ?></template>
                         <?php endif; ?>
                     <?php endif; ?>
-
                     <input type="hidden" name="task" value="">
                     <input type="hidden" name="boxchecked" value="0">
                     <?php echo HTML::token(); ?>

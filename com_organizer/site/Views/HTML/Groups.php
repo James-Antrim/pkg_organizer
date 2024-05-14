@@ -60,19 +60,17 @@ class Groups extends ListView
 
         $this->addActa($functionsBar);
 
-        /*$if          = "alert('" . Text::_('ORGANIZER_LIST_SELECTION_WARNING', true) . "');";
-        $else        = "jQuery('#modal-publishing').modal('show'); return true;";
-        $script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
-        $batchButton = '<button id="group-publishing" data-toggle="modal" class="btn btn-small" ' . $script . '>';
+        // As it stands the controller restricts access to the view to planers, so further restriction would be redundant.
+        $this->allowBatch = true;
+        $functionsBar->popupButton('batch', Text::_('BATCH'))
+            ->popupType('inline')
+            ->textHeader(Text::_('BATCH_GROUPS'))
+            ->url('#organizer-batch')
+            ->modalWidth('800px')
+            ->modalHeight('fit-content')
+            ->listCheck(true);
 
-        $batchButton .= '<span class="icon-stack" title="' . $title . '"></span>' . " $title";
-
-        $batchButton .= '</button>';*/
-
-        $toolbar->popupButton('batch', Text::_('BATCH'))
-            ->buttonClass('btn btn-action');
-
-        // This access level isn't due to a security risk
+        // This authorization level restriction isn't due to a security risk, as would otherwise be the case.
         if (Can::administrate()) {
             $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
                 ->icon('fa fa-reply-all')
@@ -159,22 +157,5 @@ class Groups extends ListView
         ];
 
         $this->headers = $headers;
-    }
-
-    protected function initializeView(): void
-    {
-        parent::initializeView();
-        //$this->batch = ['batch_group_publishing'];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
-    {
-        parent::modifyDocument();
-
-        //Document::style('group_publishing');
-        //Document::style('modal');
     }
 }

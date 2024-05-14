@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text};
 use THM\Organizer\Helpers\Terms;
 
 /**
@@ -37,15 +37,6 @@ class TermPublishing extends FormField
         $yes     = (object) ['disable' => false, 'text' => Text::_('YES'), 'value' => 1];
         $options = [$yes, $no];
 
-        $values = [];
-        if ($groupID = Input::getID()) {
-            $query = Database::getQuery();
-            $query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
-            Database::setQuery($query);
-
-            $values = Database::loadAssocList('termID');
-        }
-
         foreach (Terms::resources() as $term) {
             if ($term['endDate'] < $today) {
                 continue;
@@ -53,21 +44,11 @@ class TermPublishing extends FormField
 
             $subFieldID   = $this->id . "_{$term['id']}";
             $subFieldName = $this->name . "[{$term['id']}]";
-            $value        = empty($values[$term['id']]) ? 1 : $values[$term['id']]['published'];
 
-            $input .= '<div class="term-container">';
-            $input .= "<div class=\"term-label\"><label for=\"$subFieldName\">$term[$nameColumn]</label></div>";
-            $input .= '<div class="term-input">';
-            $input .= HTML::_(
-                'select.genericlist',
-                $options,
-                $subFieldName,
-                null,
-                'value',
-                'text',
-                $value,
-                $subFieldID
-            );
+            $input .= '<div class="control-group">';
+            $input .= "<div class=\"control-label\"><label for=\"$subFieldID\">$term[$nameColumn]</label></div>";
+            $input .= '<div class="controls">';
+            $input .= HTML::selectBox($subFieldName, $options, [], ['class' => 'form-select'], 'text', 'value', $subFieldID);
             $input .= '</div>';
             $input .= '</div>';
         }
