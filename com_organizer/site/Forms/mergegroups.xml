@@ -11,14 +11,6 @@
         <field name="publishing" type="TermPublishing" label="ORGANIZER_PUBLISHING"/>
         <field name="gridID" type="MergeAssociations" label="ORGANIZER_GRID" textcolumn="gd.name" localized="true"
                from="groups AS gp" innerJoins="grids AS gd ON gd.id = gp.gridID"/>
-        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
-            <option value="1">ORGANIZER_YES</option>
-            <option value="0">ORGANIZER_NO</option>
-        </field>
-        <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" default="0">
-            <option value="1">ORGANIZER_YES</option>
-            <option value="0">ORGANIZER_NO</option>
-        </field>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>
 </form>

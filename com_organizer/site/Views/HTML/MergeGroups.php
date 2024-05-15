@@ -11,12 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the plan (subject) pool merge form into display context.
+ * @inheritDoc
  */
-class GroupMerge extends MergeViewOld
+class MergeGroups extends MergeView
 {
-    /**
-     * @inheritDoc
-     */
-    protected string $controller = 'Group';
+    // Everything is taken care of in the inheritance hierarchy.
 }
