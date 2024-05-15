@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\{Groups as Helper, Organizations, Terms};
 use THM\Organizer\Tables\{Groups as Group, GroupPublishing as Publishing, Terms as Term};
 
@@ -20,6 +20,7 @@ use THM\Organizer\Tables\{Groups as Group, GroupPublishing as Publishing, Terms 
 class Groups extends ListController
 {
     use Activated;
+    use Published;
 
     protected string $item = 'Group';
 
@@ -40,17 +41,40 @@ class Groups extends ListController
      */
     public function batch(): void
     {
-//        $model = new Models\Group();
-//
-//        if ($model->batch()) {
-//            Application::message('ORGANIZER_SAVE_SUCCESS');
-//        }
-//        else {
-//            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
-//        }
-//
-//        $url = Helpers\Routing::getRedirectBase() . '&view=' . Application::getClass($this);
-//        $this->setRedirect($url);
+        $this->checkToken();
+        $this->authorize();
+
+        if (!$groupIDs = Input::getSelectedIDs()) {
+            Application::message('NO_SELECTION', Application::WARNING);
+
+            return;
+        }
+
+        $batch      = Input::getBatchItems();
+        $gridID     = (int) $batch->get('gridID');
+        $publishing = (array) $batch->get('publishing');
+        $selected   = count($groupIDs);
+
+        // Individual resource authorization is checked in the called function, making subsequent checking for grids redundant.
+        $updated = $this->savePublishing($groupIDs, $publishing);
+
+        if ($gridID) {
+            $gUpdated = 0;
+            foreach ($groupIDs as $groupID) {
+                $group = new Group();
+                $group->load($groupID);
+                $group->gridID = $gridID;
+
+                if (!$group->store()) {
+                    continue;
+                }
+                $gUpdated++;
+            }
+
+            $updated = min($updated, $gUpdated);
+        }
+
+        $this->farewell($selected, $updated);
     }
 
     /**
@@ -94,23 +118,21 @@ class Groups extends ListController
         $updated  = 0;
 
         foreach ($groupIDs as $groupID) {
+            if (!Helper::schedulable($groupID)) {
+                Application::error(403);
+            }
+
             $group      = new Group();
             $publishing = new Publishing();
             $term       = new Term();
 
-            if (Helper::schedulable($groupID)) {
-                if ($group->load($groupID) and $term->load($termID)) {
-                    $data = ['groupID' => $groupID, 'termID' => $termID];
-                    $publishing->load($data);
-                    $data['published'] = $published;
-                    if ($publishing->save($data)) {
-                        $updated++;
-                    }
+            if ($group->load($groupID) and $term->load($termID)) {
+                $data = ['groupID' => $groupID, 'termID' => $termID];
+                $publishing->load($data);
+                $data['published'] = $published;
+                if ($publishing->save($data)) {
+                    $updated++;
                 }
-            }
-            else {
-                Application::error(403);
-
             }
         }
 
@@ -118,22 +140,39 @@ class Groups extends ListController
     }
 
     /**
-     * Sets the publication status for any group / complete term pairing to true
+     * Sets the publication status for any group / complete term pairing to true.
      * @return void
      */
     public function publishPast(): void
     {
-//        $group = new Models\Group();
-//
-//        if ($group->publishPast()) {
-//            Application::message('ORGANIZER_SAVE_SUCCESS');
-//        }
-//        else {
-//            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
-//        }
-//
-//        $url = Helpers\Routing::getRedirectBase() . '&view=groups';
-//        $this->setRedirect(Route::_($url, false));
+        // Authorization isn't super relevant, but this still shouldn't be publicly available.
+        $this->checkToken();
+
+        $query = DB::getQuery();
+        $terms = Terms::resources();
+        $today = date('Y-m-d');
+        $query->update(DB::qn('#__organizer_group_publishing'))
+            ->set(DB::qc('published', 1))
+            ->where(DB::qc('termID', ':termID'))
+            ->bind(':termID', $termID);
+
+        $updated = 0;
+        foreach ($terms as $term) {
+            if ($term['endDate'] >= $today) {
+                continue;
+            }
+
+            $termID = $term['id'];
+            DB::setQuery($query);
+
+            if (!DB::execute()) {
+                continue;
+            }
+
+            $updated++;
+        }
+
+        $this->farewell($updated, $updated);
     }
 
     /**

@@ -31,8 +31,7 @@ class Groups extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Store the publishing value in the instance directly to make instance queries much better.';
-        $this->toDo[] = 'Batch processing.';
-        // Resource creation occurs in Untis and editing is done via links in the list.
+        // Resource creation occurs in Untis.
 
         $toolbar = Toolbar::getInstance();
 
@@ -73,8 +72,7 @@ class Groups extends ListView
         // This authorization level restriction isn't due to a security risk, as would otherwise be the case.
         if (Can::administrate()) {
             $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
-                ->icon('fa fa-reply-all')
-                ->buttonClass('btn btn-action');
+                ->icon('fa fa-reply-all');
         }
 
 
