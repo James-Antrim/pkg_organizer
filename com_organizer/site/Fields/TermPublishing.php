@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\{Application, HTML, Text};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
 use THM\Organizer\Helpers\Terms;
 
 /**
@@ -37,18 +37,31 @@ class TermPublishing extends FormField
         $yes     = (object) ['disable' => false, 'text' => Text::_('YES'), 'value' => 1];
         $options = [$yes, $no];
 
+        $values = [];
+        if ($groupID = Input::getID()) {
+            $query = DB::getQuery();
+            $query->select(DB::qn(['termID', 'published']))
+                ->from(DB::qn('#__organizer_group_publishing'))
+                ->where(DB::qc('groupID', $groupID));
+            DB::setQuery($query);
+
+            $values = DB::loadAssocList('termID');
+        }
+
         foreach (Terms::resources() as $term) {
             if ($term['endDate'] < $today) {
                 continue;
             }
 
-            $subFieldID   = $this->id . "_{$term['id']}";
-            $subFieldName = $this->name . "[{$term['id']}]";
+            $termID       = $term['id'];
+            $subFieldID   = $this->id . "_$termID";
+            $subFieldName = $this->name . "[$termID]";
+            $value        = empty($values[$termID]) ? 1 : $values[$termID]['published'];
 
             $input .= '<div class="control-group">';
             $input .= "<div class=\"control-label\"><label for=\"$subFieldID\">$term[$nameColumn]</label></div>";
             $input .= '<div class="controls">';
-            $input .= HTML::selectBox($subFieldName, $options, [], ['class' => 'form-select'], 'text', 'value', $subFieldID);
+            $input .= HTML::selectBox($subFieldName, $options, $value, ['class' => 'form-select'], 'text', 'value', $subFieldID);
             $input .= '</div>';
             $input .= '</div>';
         }

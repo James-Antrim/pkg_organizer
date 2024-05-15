@@ -11,9 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 /**
- * Class loads the plan (subject) pool form into display context.
+ * @inheritDoc
  */
-class GroupEdit extends EditViewOld
+class Group extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }
