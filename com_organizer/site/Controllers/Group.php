@@ -22,8 +22,6 @@ class Group extends FormController
     use Associated;
     use Published;
 
-    private array $data;
-
     protected string $list = 'Groups';
 
     /**

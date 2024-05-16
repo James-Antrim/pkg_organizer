@@ -20,8 +20,6 @@ class Person extends FormController
 {
     use Associated;
 
-    private array $data;
-
     protected string $list = 'Persons';
 
     /**
@@ -53,7 +51,9 @@ class Person extends FormController
      */
     protected function process(): int
     {
-        if ($id = parent::process() and !$this->updateAssociations('personID', $id, $this->data['organizationIDs'])) {
+        $id = parent::process();
+
+        if ($id and !$this->updateAssociations('personID', $id, $this->data['organizationIDs'])) {
             Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
         }
 

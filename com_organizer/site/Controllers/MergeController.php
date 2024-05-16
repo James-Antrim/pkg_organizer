@@ -138,7 +138,7 @@ abstract class MergeController extends FormController
         /**
          * Parent makes redundant authorize/token checks and can mess up the merge ID.
          */
-        $data = $this->prepareData();
+        $this->data = $this->prepareData();
 
         // Associations have to be updated before entity references are deleted by foreign keys
         if (!$this->updateReferences()) {
@@ -161,7 +161,7 @@ abstract class MergeController extends FormController
 
             $table = $this->getTable();
 
-            if ($result = $this->store($table, $data, $data['id'])) {
+            if ($result = $this->store($table, $this->data, $this->data['id'])) {
                 Application::message('SAVED');
             }
             else {

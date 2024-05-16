@@ -28,8 +28,8 @@ class FieldColor extends FormController
         $this->checkToken();
         $this->authorize();
 
-        $id   = Input::getID();
-        $data = $this->prepareData();
+        $id         = Input::getID();
+        $this->data = $this->prepareData();
 
         /** @var Table $table */
         $table = $this->getTable();
@@ -37,11 +37,11 @@ class FieldColor extends FormController
         // Pull accurate disabled field values from stored table values.
         if (!empty($id)) {
             $table->load($id);
-            $data['fieldID']        = $table->fieldID;
-            $data['organizationID'] = $table->organizationID;
+            $this->data['fieldID']        = $table->fieldID;
+            $this->data['organizationID'] = $table->organizationID;
         }
 
-        return $this->store($table, $data, $id);
+        return $this->store($table, $this->data, $id);
     }
 
     /**

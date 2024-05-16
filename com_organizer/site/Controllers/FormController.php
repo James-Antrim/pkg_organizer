@@ -26,15 +26,13 @@ use THM\Organizer\Tables\Table;
  */
 abstract class FormController extends Controller
 {
-    /**
-     * The list view to redirect to after completion of form view functions.
-     * @var string
-     */
+    /** @var array The prepared form data. */
+    protected array $data;
+
+    /** @var string The list view to redirect to after completion of form view functions. */
     protected string $list = '';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(
         $config = [],
         MVCFactoryInterface $factory = null,
@@ -182,14 +180,14 @@ abstract class FormController extends Controller
         $this->checkToken();
         $this->authorize();
 
-        $id   = Input::getID();
-        $data = $this->prepareData();
+        $id         = Input::getID();
+        $this->data = $this->prepareData();
 
         // For save to copy, will otherwise be identical.
-        $data['id'] = $id;
-        $table      = $this->getTable();
+        $this->data['id'] = $id;
+        $table            = $this->getTable();
 
-        return $this->store($table, $data, $id);
+        return $this->store($table, $this->data, $id);
     }
 
     /**

@@ -166,22 +166,22 @@ abstract class CurriculumResource extends FormController
         $this->checkToken();
         $this->authorize();
 
-        $id   = Input::getID();
-        $data = $this->prepareData();
+        $id         = Input::getID();
+        $this->data = $this->prepareData();
 
         // For save to copy, will otherwise be identical.
-        $data['id'] = $id;
+        $this->data['id'] = $id;
 
         /** @var Table $table */
         $table = $this->getTable();
 
-        if (!$id = $this->store($table, $data, $id)) {
+        if (!$id = $this->store($table, $this->data, $id)) {
             return $id;
         }
 
-        $data['id'] = $id;
+        $this->data['id'] = $id;
 
-        $this->postProcess($data);
+        $this->postProcess($this->data);
 
         return $id;
     }
