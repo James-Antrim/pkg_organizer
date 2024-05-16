@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Organizations;
 use THM\Organizer\Tables\Associations;
 
@@ -22,22 +23,20 @@ trait Associated
      * Updates associations entries for the resource in the save context. Not to be confused with updateAssociations in
      * the merge context.
      *
-     * @param   string  $column           the name of the column referencing this resource
-     * @param   int     $resourceID       this resource's id
-     * @param   array   $organizationIDs  the ids of the organizations to be associated with this resource
-     *
      * @return bool
      * @see MergeController::updateAssociations()
      */
-    protected function updateAssociations(string $column, int $resourceID, array $organizationIDs): bool
+    protected function updateAssociations(): bool
     {
+        $column     = strtolower(Application::getClass(get_called_class())) . 'ID';
+        $resourceID = $this->data['id'];
         foreach (Organizations::getIDs() as $organizationID) {
 
             $association = new Associations();
             $keys        = [$column => $resourceID, 'organizationID' => $organizationID];
 
             $exists   = $association->load($keys);
-            $unwanted = !in_array($organizationID, $organizationIDs);
+            $unwanted = !in_array($organizationID, $this->data['organizationIDs']);
 
             // Either way no save event
             if ($exists or $unwanted) {

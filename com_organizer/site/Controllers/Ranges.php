@@ -478,13 +478,12 @@ trait Ranges
     /**
      * Updates structure relations based on the superordinates selected in the form.
      *
-     * @param   array  $data  the form data
-     *
      * @return void
      */
-    protected function updateSuperOrdinates(array $data): void
+    protected function updateSuperOrdinates(): void
     {
         $class = Application::getClass(get_called_class());
+        $data  = $this->data;
 
         // Programs cannot have superordinate resources, hard unsupported error.
         if ($class === 'Program') {

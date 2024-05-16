@@ -53,7 +53,7 @@ class Person extends FormController
     {
         $id = parent::process();
 
-        if ($id and !$this->updateAssociations('personID', $id, $this->data['organizationIDs'])) {
+        if ($id and !$this->updateAssociations()) {
             Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
         }
 

@@ -61,7 +61,7 @@ class Group extends FormController
     {
         $id = parent::process();
 
-        if ($id and !$this->updateAssociations('groupID', $id, $this->data['organizationIDs'])) {
+        if ($id and !$this->updateAssociations()) {
             Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
         }
 

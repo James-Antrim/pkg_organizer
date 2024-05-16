@@ -192,12 +192,12 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Processes assignments from the form.
      *
-     * @param   array  $data  the post data
-     *
      * @return bool
      */
-    private function assignments(array $data): bool
+    private function assignments(): bool
     {
+        $data = $this->data;
+
         // More efficient to remove all subject persons associations for the subject than iterate the persons table
         if (!$this->unassign($data['id'])) {
             return false;
@@ -777,20 +777,16 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * @inheritDoc
      */
-    public function postProcess(array $data): void
+    public function postProcess(): void
     {
-        if (!$this->updateAssociations('subjectID', $data['id'], $data['organizationIDs'])) {
-            Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
-        }
-
-        if (!$this->assignments($data)) {
+        if (!$this->assignments()) {
             Application::message('UPDATE_ASSIGNMENT_FAILED', Application::WARNING);
         }
 
-        $this->updateSuperOrdinates($data);
+        $this->updateSuperOrdinates();
 
         // Dependant on curricula entries.
-        if (!$this->processPrerequisites($data['id'], $data['prerequisites'])) {
+        if (!$this->processPrerequisites()) {
             Application::message('UPDATE_DEPENDENCY_FAILED', Application::WARNING);
         }
 
@@ -801,15 +797,14 @@ class Subject extends CurriculumResource implements Stubby
     }
 
     /**
-     * Processes the subject prerequisites selected for the subject
-     *
-     * @param   int    $subjectID      the id of the subject to map prerequisites for
-     * @param   array  $prerequisites  the prerequisites discovered during resolution
+     * Processes the subject prerequisites selected for the subject.
      *
      * @return bool
      */
-    private function processPrerequisites(int $subjectID, array $prerequisites): bool
+    private function processPrerequisites(): bool
     {
+        $subjectID = $this->data['id'];
+
         // Unmapped => impossible to create a dependency hierarchy
         if (!$subjectRanges = $this->ranges($subjectID)) {
             return true;
@@ -817,7 +812,7 @@ class Subject extends CurriculumResource implements Stubby
 
         $programRanges = Programs::rows($subjectRanges);
 
-        if ($prerequisites = array_filter($prerequisites) and !in_array(self::NONE, $prerequisites)) {
+        if ($prerequisites = array_filter($this->data['prerequisites']) and !in_array(self::NONE, $prerequisites)) {
             $prerequisiteRanges = [];
             foreach ($prerequisites as $prerequisiteID) {
                 $prerequisiteRanges = array_merge($prerequisiteRanges, $this->ranges($prerequisiteID));

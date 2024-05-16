@@ -8,9 +8,7 @@
  * @link        www.thm.de
  */
 
-
 namespace THM\Organizer\Controllers;
-
 
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\{Groups as Helper, Terms};
@@ -20,6 +18,7 @@ trait Published
 {
     /**
      * Sets publishing values for groups in term contexts. Also performs authorization checks on individual groups in the process.
+     * Function used outside FormController context, so parameters are required.
      *
      * @param   array|int  $groupIDs    the id or ids of the groups to set the publishing values of
      * @param   array      $publishing  the publishing values set in a form

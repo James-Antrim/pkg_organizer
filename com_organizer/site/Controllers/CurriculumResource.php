@@ -181,7 +181,11 @@ abstract class CurriculumResource extends FormController
 
         $this->data['id'] = $id;
 
-        $this->postProcess($this->data);
+        if (!$this->updateAssociations()) {
+            Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
+        }
+
+        $this->postProcess();
 
         return $id;
     }
@@ -189,11 +193,9 @@ abstract class CurriculumResource extends FormController
     /**
      * The process steps post-store specific to individual resource types.
      *
-     * @param   array  $data  the data to process
-     *
      * @return void
      */
-    abstract protected function postProcess(array $data): void;
+    abstract protected function postProcess(): void;
 
     /**
      * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as

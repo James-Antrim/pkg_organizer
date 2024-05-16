@@ -67,15 +67,17 @@ class Program extends CurriculumResource
         $data['name_en']         = $name;
         $data['organizationIDs'] = [Input::getInt('organizationID')];
         $data['subordinates']    = [];
+        $this->data              = $data;
 
         /** @var Table $table */
         $table = $this->getTable();
 
-        if (!$data['id'] = $this->store($table, $data)) {
+        if (!$this->data['id'] = $this->store($table, $data)) {
             return;
         }
 
-        $this->postProcess($data);
+        $this->updateAssociations();
+        $this->postProcess();
     }
 
     /**
@@ -177,13 +179,14 @@ class Program extends CurriculumResource
     /**
      * @inheritDoc
      */
-    public function postProcess(array $data): void
+    public function postProcess(): void
     {
-        if (!$this->updateAssociations('programID', $data['id'], $data['organizationIDs'])) {
-            Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
-        }
-
-        $range = ['parentID' => null, 'programID' => $data['id'], 'curriculum' => $data['subordinates'], 'ordering' => 0];
+        $range = [
+            'parentID'   => null,
+            'programID'  => $this->data['id'],
+            'curriculum' => $this->data['subordinates'],
+            'ordering'   => 0
+        ];
 
         if (!$this->addRange($range)) {
             Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);

@@ -50,7 +50,7 @@ class Pool extends CurriculumResource implements Stubby
         $data['programIDs']      = Input::getIntArray('programIDs');
         $data['organizationIDs'] = Input::getIntArray('organizationIDs');
         $data['superordinates']  = Input::getIntArray('superordinates');
-        $data['subordinates']  = $this->subordinates();
+        $data['subordinates']    = $this->subordinates();
 
         $this->validate($data, ['abbreviation_de', 'abbreviation_en', 'fullName_de', 'fullName_en', 'organizationIDs']);
 
@@ -60,13 +60,9 @@ class Pool extends CurriculumResource implements Stubby
     /**
      * @inheritDoc
      */
-    public function postProcess(array $data): void
+    public function postProcess(): void
     {
-        if (!$this->updateAssociations('poolID', $data['id'], $data['organizationIDs'])) {
-            Application::message('UPDATE_ASSOCIATION_FAILED', Application::WARNING);
-        }
-
-        $this->updateSuperOrdinates($data);
+        $this->updateSuperOrdinates();
     }
 
     /**
