@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="details">
+        <field name="name_de" type="MergeValues" label="ORGANIZER_NAME"/>
+        <field name="name_en" type="MergeValues" label="ORGANIZER_NAME"/>
+        <field name="code" type="MergeValues" label="ORGANIZER_UNTIS_ID"/>
+        <field name="ids" type="MergeIDs" hidden="true"/>
+    </fieldset>
+</form>

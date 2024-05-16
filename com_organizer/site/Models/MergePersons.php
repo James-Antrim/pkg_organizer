@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class MergePersons extends FormModel
 {
     // Necessary code is performed in inheritance hierarchy.

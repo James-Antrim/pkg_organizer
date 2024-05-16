@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class MergeGroups extends MergeView
 {
     // Everything is taken care of in the inheritance hierarchy.

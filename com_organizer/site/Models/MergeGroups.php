@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * Class loads a form for merging group data.
- */
-class MergeGroups extends OldFormModel
+/** @inheritDoc */
+class MergeGroups extends FormModel
 {
     // Necessary code is performed in inheritance hierarchy.
 }

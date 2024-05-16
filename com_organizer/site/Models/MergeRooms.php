@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * Class loads a form for merging room data.
- */
+/** @inheritDoc */
 class MergeRooms extends FormModel
 {
     // Everything is taken care of in the inheritance hierarchy.

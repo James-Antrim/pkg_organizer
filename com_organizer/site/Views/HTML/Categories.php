@@ -21,6 +21,7 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Categories extends ListView
 {
     use Activated;
+    use Merged;
 
     /**
      * @inheritDoc
@@ -32,6 +33,7 @@ class Categories extends ListView
         $this->addActa();
 
         if (Can::administrate()) {
+            $this->addMerge();
             $toolbar = Toolbar::getInstance();
             $toolbar->delete('Categories.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
         }

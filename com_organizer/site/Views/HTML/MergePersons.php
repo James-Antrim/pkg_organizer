@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the person merge form into display context.
- */
+/** @inheritDoc */
 class MergePersons extends MergeView
 {
     // Everything is taken care of in the inheritance hierarchy.

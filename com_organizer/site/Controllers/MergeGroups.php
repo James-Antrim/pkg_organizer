@@ -20,8 +20,6 @@ class MergeGroups extends MergeController
 {
     use Published;
 
-    private array $data;
-
     protected string $list = 'Groups';
     protected string $mergeContext = 'group';
 
