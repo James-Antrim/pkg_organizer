@@ -10,23 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Helpers\Persons as Helper;
-
 /**
  * @inheritDoc
  */
-class Person extends EditModel
+class Person extends Associated
 {
     protected string $tableClass = 'Persons';
-
-    /**
-     * @inheritDoc
-     */
-    public function getItem(): object
-    {
-        $item                  = parent::getItem();
-        $item->organizationIDs = $item->id ? Helper::organizationIDs($item->id) : [];
-
-        return $item;
-    }
 }

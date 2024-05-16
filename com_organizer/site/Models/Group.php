@@ -10,23 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Helpers\Groups as Helper;
-
 /**
  * Class which manages stored group data.
  */
-class Group extends EditModel
+class Group extends Associated
 {
     protected string $tableClass = 'Groups';
-
-    /**
-     * @inheritDoc
-     */
-    public function getItem(): object
-    {
-        $item                  = parent::getItem();
-        $item->organizationIDs = $item->id ? Helper::organizationIDs($item->id) : [];
-
-        return $item;
-    }
 }
