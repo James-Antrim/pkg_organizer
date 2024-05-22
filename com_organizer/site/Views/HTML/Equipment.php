@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML};
 
 /**
  * Class loads persistent information a filtered set of room types into the display context.
@@ -22,9 +22,7 @@ class Equipment extends ListView
      */
     protected function addToolBar(bool $delete = false): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Equipment.add');
-        $toolbar->delete('Equipment.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+        $this->addBasicButtons();
         parent::addToolBar();
     }
 

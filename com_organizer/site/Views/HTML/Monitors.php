@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Input, Text};
 use THM\Organizer\Helpers\Monitors as Helper;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -25,10 +25,7 @@ class Monitors extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Monitors.add');
-        $toolbar->delete('Monitors.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
-
+        $this->addBasicButtons();
         parent::addToolBar();
     }
 

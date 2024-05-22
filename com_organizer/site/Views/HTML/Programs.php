@@ -22,23 +22,21 @@ class Programs extends ListView
 {
     use Activated;
 
-    private bool $documentAccess = false;
-
     /**
      * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
         if (Organizations::documentableIDs()) {
-            $toolbar = Toolbar::getInstance();
+            $this->addAdd();
 
-            $toolbar->addNew('Programs.add');
+            $toolbar = Toolbar::getInstance();
             $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Programs.import')->listCheck(true)->icon('fa fa-upload');
             $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'), 'Programs.update')
                 ->listCheck(true)->icon('fa fa-sync');
 
             if (Can::administrate()) {
-                $toolbar->delete('Programs.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+                $this->addDelete();
             }
 
             // No implicit basis in scheduling to deactivate programs.

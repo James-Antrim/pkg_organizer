@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text};
 use stdClass;
 use THM\Organizer\Helpers\{Can, Categories as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
@@ -28,14 +28,13 @@ class Categories extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        // Resource creation occurs in Untis and editing is done via links in the list.
+        // Resource creation occurs in Untis.
 
         $this->addActa();
+        $this->addMerge();
 
         if (Can::administrate()) {
-            $this->addMerge();
-            $toolbar = Toolbar::getInstance();
-            $toolbar->delete('Categories.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+            $this->addDelete();
         }
 
         parent::addToolBar();

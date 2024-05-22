@@ -26,7 +26,7 @@ class CleaningGroups extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('CleaningGroups.add');
+        $this->addAdd();
 
         switch ($this->state->get('filter.relevant')) {
             case Helper::EXCLUDED:
@@ -49,7 +49,7 @@ class CleaningGroups extends ListView
                 break;
         }
 
-        $toolbar->delete('CleaningGroups.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+        $this->addDelete();
         parent::addToolBar();
     }
 

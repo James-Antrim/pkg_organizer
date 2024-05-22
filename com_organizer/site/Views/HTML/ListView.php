@@ -64,6 +64,36 @@ abstract class ListView extends Base
     }
 
     /**
+     * Adds the add and delete buttons to the toolbar.
+     * @return void
+     */
+    protected function addBasicButtons()
+    {
+        $this->addAdd();
+        $this->addDelete();
+    }
+
+    /**
+     * Adds a button to delete resources.
+     */
+    protected function addAdd(): void
+    {
+        $controller = $this->getName();
+        $toolbar    = Toolbar::getInstance();
+        $toolbar->addNew("$controller.add");
+    }
+
+    /**
+     * Adds a button to delete resources.
+     */
+    protected function addDelete(): void
+    {
+        $controller = $this->getName();
+        $toolbar    = Toolbar::getInstance();
+        $toolbar->delete("$controller.delete")->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+    }
+
+    /**
      * @inheritDoc
      * ListView adds the title and configuration button if user has access. Inheriting classes are responsible for
      * their own buttons.

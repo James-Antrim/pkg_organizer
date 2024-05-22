@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text};
 use stdClass;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\HTML\ListItem;
@@ -25,9 +25,7 @@ class Campuses extends ListView
      */
     protected function addToolBar(): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Campuses.add');
-        $toolbar->delete('Campuses.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+        $this->addBasicButtons();
         parent::addToolBar();
     }
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -23,10 +23,7 @@ class Methods extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Methods.add');
-        $toolbar->delete('Methods.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
-
+        $this->addBasicButtons();
         parent::addToolBar();
     }
 

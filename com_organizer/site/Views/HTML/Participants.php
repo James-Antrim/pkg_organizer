@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{Application, HTML, Input, Text};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Adapters\{HTML, Input, Text};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -27,10 +26,7 @@ class Participants extends ListView
      */
     protected function addToolBar(): void
     {
-        if (Application::backend() and Can::administrate()) {
-            $this->addMerge();
-        }
-
+        $this->addMerge();
         parent::addToolBar();
     }
 

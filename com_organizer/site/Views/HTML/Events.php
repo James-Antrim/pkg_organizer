@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -24,21 +23,12 @@ class Events extends ListView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = true): void
+    protected function addToolBar(): void
     {
         // Divergent title
-        $this->setTitle('ORGANIZER_EVENT_TEMPLATES');
-
-        if (Can::administrate()) {
-            $this->addMerge();
-
-            $toolbar = Toolbar::getInstance();
-            $toolbar->delete('Events.clean')->icon('fa fa-broom')->listCheck(false)->text(Text::_('CLEAN_ENTRIES'));
-
-            if (Application::backend()) {
-                $toolbar->preferences('com_organizer');
-            }
-        }
+        $this->setTitle('EVENT_TEMPLATES');
+        $this->addMerge();
+        parent::addToolBar();
     }
 
     /**

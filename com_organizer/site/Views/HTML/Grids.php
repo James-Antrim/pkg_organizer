@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\{Dates, Grids as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -25,9 +25,7 @@ class Grids extends ListView
      */
     protected function addToolBar(): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Grids.add');
-        $toolbar->delete('Grids.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+        $this->addBasicButtons();
         parent::addToolBar();
     }
 

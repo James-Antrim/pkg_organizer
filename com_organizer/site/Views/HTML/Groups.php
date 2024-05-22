@@ -53,11 +53,8 @@ class Groups extends ListView
         $functionsBar->standardButton('unpublish-current', Text::sprintf('UNPUBLISH_TERM', $next), 'groups.unpublishNext')
             ->icon('fa fa-eye-slash');
 
-        if (Can::administrate()) {
-            $this->addMerge($functionsBar);
-        }
-
         $this->addActa($functionsBar);
+        $this->addMerge($functionsBar);
 
         // As it stands the controller restricts access to the view to planers, so further restriction would be redundant.
         $this->allowBatch = true;
@@ -74,7 +71,6 @@ class Groups extends ListView
             $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
                 ->icon('fa fa-reply-all');
         }
-
 
         parent::addToolBar();
     }

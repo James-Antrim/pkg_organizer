@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar as Dropdown;
 use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Handles code common to resources that can be merged.
@@ -23,17 +24,19 @@ trait Merged
      */
     protected function addMerge(?Dropdown $dropdown = null): void
     {
-        /** @var ListView $this */
-        $controller = $this->getName();
+        if (Can::administrate()) {
+            /** @var ListView $this */
+            $controller = $this->getName();
 
-        if ($dropdown) {
-            $dropdown->standardButton('merge', Text::_('MERGE'), "Merge$controller.display")->icon('fa fa-compress');
-            return;
+            if ($dropdown) {
+                $dropdown->standardButton('merge', Text::_('MERGE'), "Merge$controller.display")->icon('fa fa-compress');
+                return;
+            }
+
+            Toolbar::getInstance()
+                ->standardButton('merge', Text::_('MERGE'), "Merge$controller.display")
+                ->icon('fa fa-compress')
+                ->listCheck(true);
         }
-
-        Toolbar::getInstance()
-            ->standardButton('merge', Text::_('MERGE'), "Merge$controller.display")
-            ->icon('fa fa-compress')
-            ->listCheck(true);
     }
 }

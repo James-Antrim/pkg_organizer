@@ -61,10 +61,10 @@ class Subjects extends ListView
         $this->setTitle('SUBJECTS', $resourceName);
 
         if ($this->access) {
+            $this->addAdd();
             $toolbar = Toolbar::getInstance();
-            $toolbar->addNew('Subjects.add');
             $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Subjects.import')->icon('fa fa-upload')->listCheck(true);
-            $toolbar->delete('Subjects.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+            $this->addDelete();
 
             if (Application::backend() and Can::administrate()) {
                 $toolbar = Toolbar::getInstance();

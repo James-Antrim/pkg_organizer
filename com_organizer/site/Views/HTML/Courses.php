@@ -80,7 +80,7 @@ class Courses extends ListView
             $button->icon('fa fa-users')->listCheck(true)->task('Courses.participants');
             $toolbar->appendButton($button);
 
-            $toolbar->delete('Courses.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+            $this->addDelete();
 
             return;
         }

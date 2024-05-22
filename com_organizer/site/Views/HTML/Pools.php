@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\Programs;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -23,12 +23,9 @@ class Pools extends ListView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = true): void
+    protected function addToolBar(): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Pools.add');
-        $toolbar->delete('Pools.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
-
+        $this->addBasicButtons();
         parent::addToolBar();
     }
 

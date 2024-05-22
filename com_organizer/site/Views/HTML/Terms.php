@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\Dates;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -26,9 +26,7 @@ class Terms extends ListView
     protected function addToolBar(): void
     {
         $this->toDo[] = 'Be able to mark semesters as inactive so they no longer show up in filters.';
-        $toolbar      = Toolbar::getInstance();
-        $toolbar->addNew('Terms.add');
-        $toolbar->delete('Terms.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+        $this->addBasicButtons();
         parent::addToolBar();
     }
 

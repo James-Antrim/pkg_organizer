@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\{Can, RoomTypes as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -28,19 +28,15 @@ class RoomTypes extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ROOM_TYPES');
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('RoomTypes.add');
-
+        $this->addAdd();
         $this->addSuppression();
 
         // Trust isn't there for this yet.
         if (Can::administrate()) {
-            $toolbar->delete('RoomTypes.delete')->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
-
-            if (Application::backend()) {
-                $toolbar->preferences('com_organizer');
-            }
+            $this->addDelete();
         }
+
+        parent::addToolBar();
     }
 
     /**

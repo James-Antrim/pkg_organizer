@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text};
 use stdClass;
 use THM\Organizer\Helpers\{Can, Persons as Helper};
 use THM\Organizer\Layouts\HTML\ListItem;
@@ -21,19 +21,19 @@ use THM\Organizer\Layouts\HTML\ListItem;
 class Persons extends ListView
 {
     use Activated;
+    use Merged;
 
     /**
      * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Persons.add');
+        $this->addAdd();
         $this->addActa();
+        $this->addMerge();
 
         if (Can::administrate()) {
-            $toolbar->delete('Persons.delete')->message('DELETE_CONFIRM')->listCheck(true);
-            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergePersons.display')->icon('fa fa-compress')->listCheck(true);
+            $this->addDelete();
         }
 
         parent::addToolBar();
