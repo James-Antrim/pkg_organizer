@@ -15,5 +15,7 @@ namespace THM\Organizer\Controllers;
  */
 class Events extends ListController
 {
+    use Scheduled;
+
     protected string $item = 'Event';
 }

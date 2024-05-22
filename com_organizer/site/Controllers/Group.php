@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers\Organizations;
+use THM\Organizer\Adapters\{Application, Input};
 
 /**
  * @inheritDoc
@@ -21,19 +19,9 @@ class Group extends FormController
 {
     use Associated;
     use Published;
+    use Scheduled;
 
     protected string $list = 'Groups';
-
-    /**
-     * Authorization check multiple curriculum resources. Individual resource authorization is later checked as appropriate.
-     * @return void
-     */
-    protected function authorize(): void
-    {
-        if (!Organizations::schedulableIDs()) {
-            Application::error(403);
-        }
-    }
 
     /**
      * Prepares the data to be saved.

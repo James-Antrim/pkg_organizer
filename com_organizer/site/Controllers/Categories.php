@@ -16,6 +16,7 @@ namespace THM\Organizer\Controllers;
 class Categories extends ListController
 {
     use Activated;
+    use Scheduled;
 
     protected string $item = 'Category';
 }

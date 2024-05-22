@@ -11,7 +11,6 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\Organizations;
 
 /**
  * @inheritDoc
@@ -20,21 +19,11 @@ class Category extends FormController
 {
     use Activated;
     use Associated;
+    use Scheduled;
     use Suppressed;
 
     /** @inheritDoc */
     protected string $list = 'Categories';
-
-    /**
-     * Authorization check multiple curriculum resources. Individual resource authorization is later checked as appropriate.
-     * @return void
-     */
-    protected function authorize(): void
-    {
-        if (!Organizations::schedulableIDs()) {
-            Application::error(403);
-        }
-    }
 
     /**
      * Prepares the data to be saved.

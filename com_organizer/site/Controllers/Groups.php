@@ -11,7 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Groups as Helper, Organizations, Terms};
+use THM\Organizer\Helpers\{Groups as Helper, Terms};
 use THM\Organizer\Tables\{Groups as Group, GroupPublishing as Publishing, Terms as Term};
 
 /**
@@ -21,19 +21,9 @@ class Groups extends ListController
 {
     use Activated;
     use Published;
+    use Scheduled;
 
     protected string $item = 'Group';
-
-    /**
-     * Authorization check multiple curriculum resources. Individual resource authorization is later checked as appropriate.
-     * @return void
-     */
-    protected function authorize(): void
-    {
-        if (!Organizations::schedulableIDs()) {
-            Application::error(403);
-        }
-    }
 
     /**
      * Makes call to the model's batch function, and redirects to the manager view.
