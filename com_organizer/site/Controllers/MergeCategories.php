@@ -12,9 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class MergeCategories extends MergeController
 {
     use Published;
@@ -22,24 +20,20 @@ class MergeCategories extends MergeController
     protected string $list = 'Categories';
     protected string $mergeContext = 'category';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
 
         $data['active']   = $this->boolAggregate('active', 'categories', false);
-        $data['suppress'] = $this->boolAggregate('suppress', 'categories', false);
+        $data['suppress'] = $this->boolAggregate('suppress', 'categories', true);
 
         $this->data = $data;
 
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function updateReferences(): bool
     {
         if (!$this->updateAssociations()) {
@@ -65,9 +59,7 @@ class MergeCategories extends MergeController
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         parent::validate($data, ['code', 'name_de', 'name_en']);

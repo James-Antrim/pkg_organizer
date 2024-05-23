@@ -13,24 +13,20 @@ namespace THM\Organizer\Controllers;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Tables\{EventCoordinators as Coordinator, InstancePersons as Assignment, SubjectPersons as Responsibility};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class MergePersons extends MergeController
 {
     protected string $list = 'Persons';
     protected string $mergeContext = 'person';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
 
         $data['active']   = $this->boolAggregate('active', 'persons', false);
         $data['public']   = $this->boolAggregate('public', 'persons', true);
-        $data['suppress'] = $this->boolAggregate('suppress', 'persons', false);
+        $data['suppress'] = $this->boolAggregate('suppress', 'persons', true);
 
         return $data;
     }
@@ -127,9 +123,7 @@ class MergePersons extends MergeController
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function updateReferences(): bool
     {
         if (!$this->updateAssignments()) {
@@ -208,9 +202,7 @@ class MergePersons extends MergeController
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         parent::validate($data, ['surname', 'code']);

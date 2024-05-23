@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 use THM\Organizer\Adapters\{Application, Input};
 use Joomla\Utilities\ArrayHelper;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class MergeGroups extends MergeController
 {
     use Published;
@@ -23,15 +21,13 @@ class MergeGroups extends MergeController
     protected string $list = 'Groups';
     protected string $mergeContext = 'group';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
 
         $data['active']   = $this->boolAggregate('active', 'groups', false);
-        $data['suppress'] = $this->boolAggregate('suppress', 'groups', false);
+        $data['suppress'] = $this->boolAggregate('suppress', 'groups', true);
 
         // Use of Input::getIntArray removes unpublished indexes.
         $data['publishing'] = ArrayHelper::toInteger(Input::getArray('publishing'));
@@ -41,9 +37,7 @@ class MergeGroups extends MergeController
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function updateReferences(): bool
     {
         $this->savePublishing($this->mergeID, $this->data['publishing']);
@@ -71,9 +65,7 @@ class MergeGroups extends MergeController
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         parent::validate($data, ['categoryID', 'fullName_de', 'fullName_en', 'name_de', 'name_en']);
