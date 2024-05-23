@@ -8,15 +8,10 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Views\HTML;
+namespace THM\Organizer\Models;
 
-/**
- * Class loads the event merge form into display context.
- */
-class EventMerge extends MergeViewOld
+/** @inheritDoc */
+class MergeEvents extends FormModel
 {
-    /**
-     * @inheritDoc
-     */
-    protected string $controller = 'Event';
+    // Necessary code is performed in inheritance hierarchy.
 }

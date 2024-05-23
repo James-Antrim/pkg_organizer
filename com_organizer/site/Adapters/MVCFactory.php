@@ -142,9 +142,11 @@ class MVCFactory extends Base
         };
 
         $tables = [];
-        foreach (glob(JPATH_SITE . '/components/com_organizer/Tables/*') as $table) {
-            $table    = str_replace(JPATH_SITE . '/components/com_organizer/Tables/', '', $table);
-            $tables[] = str_replace('.php', '', $table);
+        foreach (glob(JPATH_SITE . '/components/com_organizer/Tables/*') as $file) {
+            $file = str_replace(JPATH_SITE . '/components/com_organizer/Tables/', '', $file);
+            if (str_ends_with($file, '.php')) {
+                $tables[] = str_replace('.php', '', $file);
+            }
         }
 
         if (!in_array($table, $tables)) {

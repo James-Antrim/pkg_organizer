@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the event form into display context.
- */
+/** @inheritDoc */
 class Event extends FormView
 {
-    protected string $layout = 'tabs';
+    // Everything is taken care of in the inheritance hierarchy.
 }

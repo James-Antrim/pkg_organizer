@@ -8,12 +8,10 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads a form for merging event data.
- */
-class EventMerge extends OldFormModel
+/** @inheritDoc */
+class MergeEvents extends MergeView
 {
-    // Necessary code is performed in inheritance hierarchy.
+    // Everything is taken care of in the inheritance hierarchy.
 }
