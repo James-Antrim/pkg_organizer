@@ -11,11 +11,13 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Tables\{EventCoordinators as Coordinator, InstancePersons as Assignment, SubjectPersons as Responsibility};
+use THM\Organizer\Tables\{InstancePersons as Assignment, SubjectPersons as Responsibility};
 
 /** @inheritDoc */
 class MergePersons extends MergeController
 {
+    use Coordinated;
+
     protected string $list = 'Persons';
     protected string $mergeContext = 'person';
 
@@ -83,46 +85,6 @@ class MergePersons extends MergeController
         return true;
     }
 
-    /**
-     * Updates the event coordinators table references to the mergeID.
-     * @return bool
-     */
-    private function updateCoordinators(): bool
-    {
-        if (!$eventIDs = $this->getReferences('event_coordinators', 'eventID')) {
-            return true;
-        }
-
-        foreach ($eventIDs as $eventID) {
-            $existing = null;
-
-            foreach ($this->mergeIDs as $currentID) {
-                $coordinator = new Coordinator();
-                $keys        = ['eventID' => $eventID, 'personID' => $currentID];
-
-                // The current personID is not associated with the current eventID
-                if (!$coordinator->load($keys)) {
-                    continue;
-                }
-
-                // An existing association with the current eventID has already been found, making this a duplicate.
-                if ($existing) {
-                    $coordinator->delete();
-                    continue;
-                }
-
-                $coordinator->personID = $this->mergeID;
-                $existing              = $coordinator;
-            }
-
-            if ($existing and !$existing->store()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /** @inheritDoc */
     protected function updateReferences(): bool
     {
@@ -137,7 +99,7 @@ class MergePersons extends MergeController
             return false;
         }
 
-        if (!$this->updateCoordinators()) {
+        if (!$this->updateCoordinators('personID', 'eventID')) {
             Application::message('MERGE_FAILED_COORDINATORS', Application::ERROR);
 
             return false;
