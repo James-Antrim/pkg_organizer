@@ -9,21 +9,9 @@
                from="events AS e" innerJoins="organizations AS o ON o.id = e.organizationID" textcolumn="o.shortName"/>
         <field name="campusID" type="MergeAssociations" label="ORGANIZER_CAMPUS" localized="true" from="events AS e"
                innerJoins="campuses AS c ON c.id = e.campusID" textcolumn="c.name"/>
-        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
-            <option value="1">ORGANIZER_ACTIVE</option>
-            <option value="0">ORGANIZER_INACTIVE</option>
-        </field>
-        <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" default="0">
-            <option value="0">ORGANIZER_SHOWN</option>
-            <option value="1">ORGANIZER_SUPPRESSED</option>
-        </field>
-        <field name="preparatory" type="MergeValues" label="ORGANIZER_PREP_COURSE" default="0">
-            <option value="1">ORGANIZER_YES</option>
-            <option value="0">ORGANIZER_NO</option>
-        </field>
         <field name="deadline" type="MergeValues" label="ORGANIZER_DEADLINE"/>
         <field name="fee" type="MergeValues" label="ORGANIZER_FEE"/>
-        <field name="maxParticipants" type="MergeValues"/>
+        <field name="maxParticipants" type="MergeValues" label="ORGANIZER_MAX_PARTICIPANTS"/>
         <field name="registrationType" type="list" label="ORGANIZER_REGISTRATION">
             <option value="">ORGANIZER_NO_REGISTRATION</option>
             <option value="0">ORGANIZER_FIFO</option>

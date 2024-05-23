@@ -26,7 +26,7 @@ class MergeHTML extends Options
      */
     protected function getOptions(): array
     {
-        if (!$this->validate()) {
+        if (!$this->validateContext()) {
             return [];
         }
 
