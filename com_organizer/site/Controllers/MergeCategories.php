@@ -37,20 +37,17 @@ class MergeCategories extends MergeController
     protected function updateReferences(): bool
     {
         if (!$this->updateAssociations()) {
-            // Localize
             Application::message('MERGE_FAILED_ASSOCIATIONS', Application::ERROR);
             return false;
         }
 
         if (!$this->updateTable('groups')) {
-            // Localize
             Application::message('MERGE_FAILED_ASSOCIATIONS', Application::ERROR);
 
             return false;
         }
 
         if (!$this->updateTable('programs')) {
-            // Localize
             Application::message('MERGE_FAILED_ASSOCIATIONS', Application::ERROR);
 
             return false;

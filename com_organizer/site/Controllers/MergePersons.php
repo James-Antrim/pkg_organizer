@@ -127,27 +127,23 @@ class MergePersons extends MergeController
     protected function updateReferences(): bool
     {
         if (!$this->updateAssignments()) {
-            // Localize
             Application::message('MERGE_FAILED_ASSIGNMENTS', Application::ERROR);
 
             return false;
         }
 
         if (!$this->updateAssociations()) {
-            // Localize
             Application::message('MERGE_FAILED_ASSOCIATIONS', Application::ERROR);
             return false;
         }
 
         if (!$this->updateCoordinators()) {
-            // Localize
             Application::message('MERGE_FAILED_COORDINATORS', Application::ERROR);
 
             return false;
         }
 
         if (!$this->updateResponsibilities()) {
-            // Localize
             Application::message('MERGE_FAILED_RESPONSIBILITIES', Application::ERROR);
 
             return false;

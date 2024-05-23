@@ -43,20 +43,17 @@ class MergeGroups extends MergeController
         $this->savePublishing($this->mergeID, $this->data['publishing']);
 
         if (!$this->updateAssignments()) {
-            // Localize
             Application::message('MERGE_FAILED_ASSIGNMENTS', Application::ERROR);
 
             return false;
         }
 
         if (!$this->updateAssociations()) {
-            // Localize
             Application::message('MERGE_FAILED_ASSOCIATIONS', Application::ERROR);
             return false;
         }
 
         if (!$this->updateTable('pools')) {
-            // Localize
             Application::message('MERGE_FAILED_COORDINATORS', Application::ERROR);
 
             return false;
