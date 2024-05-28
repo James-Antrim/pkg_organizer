@@ -379,6 +379,9 @@ class Database
 
         foreach ($conditions as $condition) {
             switch (count($condition)) {
+                case 4:
+                    [$leftColumn, $rightColumn, $operator, $literal] = $condition;
+                    break;
                 case 3:
                     [$leftColumn, $rightColumn, $operator] = $condition;
                     break;
@@ -389,8 +392,9 @@ class Database
                     continue 2;
             }
 
+            $literal   = !empty($literal);
             $operator  = empty($operator) ? '=' : $operator;
-            $return [] = self::qc($leftColumn, $rightColumn, $operator);
+            $return [] = self::qc($leftColumn, $rightColumn, $operator, $literal);
         }
 
         return implode(" $separator ", $return);

@@ -85,17 +85,6 @@ abstract class ListController extends Controller
     }
 
     /**
-     * Instances a table object corresponding to the controller's name.
-     * @return Table
-     */
-    protected function getTable(): Table
-    {
-        $fqName = 'THM\\Organizer\\Tables\\' . $this->name;
-
-        return new $fqName();
-    }
-
-    /**
      * An extract for redirecting back to the list view and providing a message for the number of entries updated.
      *
      * @param   int   $selected      the number of accounts selected for processing
@@ -138,6 +127,17 @@ abstract class ListController extends Controller
         catch (Exception $exception) {
             Application::handleException($exception);
         }
+    }
+
+    /**
+     * Instances a table object corresponding to the controller's name.
+     * @return Table
+     */
+    protected function getTable(): Table
+    {
+        $fqName = 'THM\\Organizer\\Tables\\' . $this->name;
+
+        return new $fqName();
     }
 
     /**
