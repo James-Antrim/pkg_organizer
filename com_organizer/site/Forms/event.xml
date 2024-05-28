@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form>
-    <fieldset name="details" label="ORGANIZER_ATTRIBUTES_BASIC">
+    <fieldset name="details" label="ORGANIZER_PROPERTIES_BASIC">
         <field name="id" type="hidden"/>
         <field name="code" type="text" label="ORGANIZER_UNTIS_ID" maxlength="60" required="true"/>
-        <field name="organizationID" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" disabled="true"
-               required="true"/>
         <field name="campusID" type="Campuses" label="ORGANIZER_CAMPUS">
             <option value="">ORGANIZER_NO_CAMPUSES</option>
         </field>
@@ -31,7 +29,7 @@
             <option value="1">ORGANIZER_SUPPRESSED</option>
         </field>
     </fieldset>
-    <fieldset name="de" label="ORGANIZER_ATTRIBUTES_DE">
+    <fieldset name="de" label="ORGANIZER_PROPERTIES_DE">
         <field name="name_de" type="text" label="ORGANIZER_NAME_DE" maxlength="150" required="true"/>
         <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
         <field name="content_de" type="editor" label="ORGANIZER_CONTENT_DE"/>
@@ -40,7 +38,7 @@
         <field name="contact_de" type="editor" label="ORGANIZER_POC_DE"/>
         <field name="courseContact_de" type="editor" label="ORGANIZER_COURSE_POC_DE"/>
     </fieldset>
-    <fieldset name="en" label="ORGANIZER_ATTRIBUTES_EN">
+    <fieldset name="en" label="ORGANIZER_PROPERTIES_EN">
         <field name="name_en" type="text" label="ORGANIZER_NAME_EN" maxlength="150" required="true"/>
         <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
         <field name="content_en" type="editor" label="ORGANIZER_CONTENT_EN"/>

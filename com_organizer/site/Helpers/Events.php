@@ -12,11 +12,12 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, User};
+use THM\Organizer\Tables\Events as Table;
 
 /**
- * Provides general functions for subject access checks, data retrieval and display.
+ * Provides general functions for event access checks, data retrieval and display.
  */
-class Events extends ResourceHelper
+class Events extends ResourceHelper implements Schedulable
 {
     use Active;
     use Terminated;
@@ -103,6 +104,59 @@ class Events extends ResourceHelper
 
         DB::setQuery($query);
 
+        return DB::loadIntColumn();
+    }
+
+    /**
+     * Gets the ids of the persons explicitly assigned as coordinators for an event.
+     *
+     * @param   int  $eventID
+     *
+     * @return int[]
+     */
+    public static function coordinatorIDs(int $eventID): array
+    {
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('personID'))
+            ->from(DB::qn('#__organizer_event_coordinators'))
+            ->where(DB::qc('eventID', $eventID));
+        DB::setQuery($query);
+        return DB::loadIntColumn();
+    }
+
+    /** @inheritDoc */
+    public static function schedulable(int $resourceID): bool
+    {
+        if (!$organizationIDs = Organizations::schedulableIDs()) {
+            return false;
+        }
+        // Scheduling authorization has already been established, allow new
+        elseif (!$resourceID) {
+            return true;
+        }
+
+        $event = new Table();
+
+        if ($event->load($resourceID)) {
+            return in_array($event->organizationID, $organizationIDs);
+        }
+
+        Application::error(412);
+        return false;
+    }
+
+    /** @inheritDoc */
+    public static function schedulableIDs(): array
+    {
+        if (!$organizationIDs = Organizations::schedulableIDs()) {
+            return [];
+        }
+
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('e.id'))
+            ->from(DB::qn('#__organizer_events', 'e'))
+            ->whereIn(DB::qn('organizationID'), $organizationIDs);
+        DB::setQuery($query);
         return DB::loadIntColumn();
     }
 
