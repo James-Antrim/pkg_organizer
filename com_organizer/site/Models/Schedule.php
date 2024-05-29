@@ -420,52 +420,6 @@ class Schedule extends BaseModel
     }
 
     /**
-     * Rebuilds the history of an organization / term context.
-     * @return bool
-     */
-    public function reference(): bool
-    {
-        if (!$referenceID = Input::getSelectedID()) {
-            return false;
-        }
-
-        if (!Helpers\Organizations::schedulable($referenceID)) {
-            Application::error(403);
-        }
-
-        $reference = new Tables\Schedules();
-        if (!$reference->load($referenceID)) {
-            return false;
-        }
-
-        if (!$scheduleIDs = $this->getContextIDs($reference->organizationID, $reference->termID)) {
-            return true;
-        }
-
-        $currentID = array_pop($scheduleIDs);
-        $current   = new Tables\Schedules();
-        if (!$current->load($currentID)) {
-            return false;
-        }
-
-        // The entries up to and including the reference id are ignored. The entries after are deleted.
-        $delete = false;
-        foreach ($scheduleIDs as $scheduleID) {
-            if ($delete) {
-                $this->deleteSingle($scheduleID);
-            }
-
-            if ($scheduleID == $referenceID) {
-                $delete = true;
-            }
-        }
-
-        $this->setCurrent($currentID, $referenceID);
-
-        return true;
-    }
-
-    /**
      * Sets instance person associations and subordinate associations to removed.
      *
      * @param   array  $instances   the collection of instances modeling the reference schedule

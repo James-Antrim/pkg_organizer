@@ -24,20 +24,13 @@ class Schedules extends ListView
      */
     protected function addToolBar(): void
     {
-        Toolbar::setTitle('SCHEDULES');
-        $admin   = Can::administrate();
         $toolbar = Toolbar::getInstance();
 
         $toolbar->standardButton('upload', Text::_('UPLOAD'), 'schedules.add')->icon('fa fa-upload');
 
-        if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID')) {
-            $toolbar->confirmButton('reference', Text::_('REFERENCE'), 'Schedules.reference')
-                ->message(Text::_('REFERENCE_CONFIRM'))->icon('fa fa-share');
-
-            if ($admin) {
-                $toolbar->standardButton('rebuild', Text::_('REBUILD'), 'Schedules.rebuild')->icon('fa fa-sync');
-                $this->addDelete();
-            }
+        if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID') and Can::administrate()) {
+            $toolbar->standardButton('rebuild', Text::_('REBUILD'), 'Schedules.rebuild')->icon('fa fa-sync');
+            $this->addDelete();
         }
 
         parent::addToolBar();
