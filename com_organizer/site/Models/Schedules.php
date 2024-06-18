@@ -14,30 +14,26 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\Organizations;
 
-/**
- * Class retrieves information for a filtered set of schedules.
- */
+/** @inheritDoc */
 class Schedules extends ListModel
 {
     protected $filter_fields = ['organizationID', 'termID'];
 
-    /**
-     * Method to get a list of resources from the database.
-     * @return DatabaseQuery
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
         $query = DB::getQuery();
 
-        $select       = DB::qn(['s.id', 's.creationDate', 's.creationTime']);
         $aliased      = DB::qn(
             ['o.id', "o.shortName_$tag", 'term.id', "term.name_$tag", 'u.name'],
             ['organizationID', 'organizationName', 'termID', 'termName', 'userName']
         );
+        $select       = DB::qn(['s.id', 's.creationDate', 's.creationTime']);
         $createdParts = DB::qn(['s.creationDate', 's.creationTime']);
-        $created      = [$query->concatenate($createdParts, ' ') . ' AS created '];
-        $select       = array_merge($select, $aliased, $created);
+        $manual       = [$query->concatenate($createdParts, ' ') . ' AS created ', DB::quote(1) . ' AS ' . DB::qn('access')];
+        $select       = array_merge($select, $aliased, $manual);
+
         $query->select($select)
             ->select($query->concatenate($createdParts, ' '))
             ->from(DB::qn('#__organizer_schedules', 's'))
@@ -53,14 +49,7 @@ class Schedules extends ListModel
         return $query;
     }
 
-    /**
-     * Method to automatically populate the model state.
-     *
-     * @param   string  $ordering   An optional ordering field.
-     * @param   string  $direction  An optional direction (asc|desc).
-     *
-     * @return void populates state properties
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

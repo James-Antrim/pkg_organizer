@@ -10,38 +10,19 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
-use THM\Organizer\Models;
+use Exception;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Organizations, Schedules as Helper};
+use THM\Organizer\Tables\Schedules as Table;
 
 /**
  * Class receives user actions and performs access checks and redirection.
  */
 class Schedules extends ListController
 {
+    use Scheduled;
+
     protected string $item = 'Schedule';
-
-    /**
-     * Notifies the points of contact for affected organizations of changes made to the schedule.
-     * @return void
-     */
-    /*public function notify()
-    {
-        $model = new Models\Schedule();
-
-        if ($model->notify())
-        {
-            Application::message('NOTIFY_SUCCESS');
-        }
-        else
-        {
-            Application::message('NOTIFY_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=schedules";
-        $this->setRedirect($url);
-    }*/
 
     /**
      * Rebuilds the delta status of planning resources and relations.
@@ -49,75 +30,58 @@ class Schedules extends ListController
      */
     public function rebuild(): void
     {
-        $model = new Models\Schedule();
+        $this->checkToken();
+        $this->authorize();
 
-        if ($model->rebuild()) {
-            Application::message('REBUILD_SUCCESS');
-        }
-        else {
-            Application::message('REBUILD_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=schedules";
-        $this->setRedirect($url);
-    }
-
-    /**
-     * Uses the model's reference function to set the marked schedule as the reference in organization/term context.
-     * @return void
-     */
-    public function reference(): void
-    {
-        $model = new Models\Schedule();
-
-        if ($model->reference()) {
-            Application::message('REFERENCE_SUCCESS');
-        }
-        else {
-            Application::message('REFERENCE_FAIL', Application::ERROR);
+        $organizationID = Input::getFilterID('organizationID');
+        $termID         = Input::getFilterID('termID');
+        if (!$organizationID or !$termID) {
+            Application::error(400);
         }
 
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=schedules";
-        $this->setRedirect($url);
-    }
-
-    /**
-     * Uses the model's upload function to validate and save the file to the database should validation be successful.
-     * @return void
-     */
-    public function upload(): void
-    {
-        $url = Helpers\Routing::getRedirectBase();
-        if (JDEBUG) {
-            Application::message('DEBUG_ON', Application::ERROR);
-            $url .= "&view=schedules";
-            $this->setRedirect($url);
-
-            return;
+        if (!Organizations::schedulable($organizationID)) {
+            Application::error(403);
         }
 
-        $form      = $this->input->files->get('jform', [], '[]');
-        $file      = $form['file'];
-        $url       .= '&view=';
-        $validType = (!empty($file['type']) and $file['type'] == 'text/xml');
+        $conditions = DB::qcs([
+            ['s1.creationDate', 's2.creationDate'],
+            ['s1.creationTime', 's2.creationTime'],
+            ['s1.organizationID', 's2.organizationID'],
+            ['s1.termID', 's2.termID']
+        ]);
 
-        if ($validType) {
-            if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
-                $model = new Models\Schedule();
-                $view  = $model->upload() ? 'schedules' : 'importschedule';
+        $query = DB::getQuery();
+        $query->select(DB::qn('s1.id'))
+            ->from(DB::qn('#__organizer_schedules', 's1'))
+            ->innerJoin(DB::qn('#__organizer_schedules', 's2'), $conditions)
+            ->where(DB::qc('s1.id', 's2.id', '<'));
+        DB::setQuery($query);
+
+        foreach (DB::loadIntColumn() as $duplicateID) {
+            if (!Helper::schedulable($duplicateID)) {
+                Application::error(403);
             }
-            else {
-                $view = 'importschedule';
-                Application::message('FILE_ENCODING_INVALID', Application::ERROR);
+            $table = new Table();
+            $table->delete($duplicateID);
+        }
+
+        if ($scheduleIDs = Helper::contextIDs($organizationID, $termID)) {
+            $this->resetContext($organizationID, $termID, reset($scheduleIDs));
+
+            $referenceID = 0;
+            foreach ($scheduleIDs as $currentID) {
+                $this->update($currentID, $referenceID);
+                $referenceID = $currentID;
             }
         }
-        else {
-            $view = 'importschedule';
-            Application::message('FILE_TYPE_NOT_ALLOWED', Application::ERROR);
-        }
 
-        $this->setRedirect($url . $view);
+        Application::message('REBUILD_SUCCESS');
+
+        try {
+            $this->display();
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
+        }
     }
 }
