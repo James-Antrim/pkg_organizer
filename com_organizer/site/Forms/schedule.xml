@@ -3,6 +3,6 @@
     <fieldset name="details">
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" access="allowScheduling"
                required="true"/>
-        <field name="file" type="File" label="ORGANIZER_SCHEDULE_FILE" required="true" accept=".xml"/>
+        <field name="file" type="file" label="ORGANIZER_UNTIS_FILE" required="true" accept=".xml"/>
     </fieldset>
 </form>

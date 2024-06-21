@@ -20,8 +20,6 @@ use THM\Organizer\Helpers\{Can, Organizations, Routing};
  */
 trait ToCed
 {
-    public string $ToC = '';
-
     public function addToC(): void
     {
         if (!Application::backend()) {
@@ -80,7 +78,7 @@ trait ToCed
 
             // Uploading a schedule should always be the first menu item and will never be the active submenu item.
             $prepend = [
-                Text::_('SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
+                '<span class="fa fa-plus"></span> ' . Text::_('ADD_SCHEDULE') => [
                     'url'    => Routing::getViewURL('importschedule'),
                     'active' => false
                 ]

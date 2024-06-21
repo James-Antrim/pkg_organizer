@@ -13,7 +13,6 @@ use THM\Organizer\Adapters\HTML;
 
 $query = Uri::getInstance()->getQuery();
 ?>
-<?php echo $this->ToC; ?>
 <div id="j-main-container" class="span10">
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post"
           name="adminForm">
