@@ -49,6 +49,17 @@ abstract class ListModel extends Base
         catch (Exception $exception) {
             Application::handleException($exception);
         }
+
+        $this->clean();
+    }
+
+    /**
+     * Function for policing resource data.
+     * @return void
+     */
+    protected function clean()
+    {
+
     }
 
     /**

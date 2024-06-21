@@ -6,7 +6,7 @@
                onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
         </field>
-        <field name="termID" type="Terms" label="ORGANIZER_ORGANIZATION" onchange="this.form.submit();">
+        <field name="termID" type="Terms" label="ORGANIZER_ORGANIZATION" filter="true" onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_TERMS</option>
         </field>
     </fields>

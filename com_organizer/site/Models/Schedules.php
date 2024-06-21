@@ -20,6 +20,24 @@ class Schedules extends ListModel
     protected $filter_fields = ['organizationID', 'termID'];
 
     /** @inheritDoc */
+    protected function clean(): void
+    {
+        $query = DB::getQuery();
+        $query->select(DB::qn('s.id'))
+            ->from(DB::qn('#__organizer_schedules', 's'))
+            ->innerJoin(DB::qn('#__organizer_terms', 't'), DB::qc('t.id', 's.termID'))
+            ->where(DB::qc('t.endDate', date('Y-m-d'), '<', true));
+        DB::setQuery($query);
+
+        if ($deprecated = DB::loadIntColumn()) {
+            $query = DB::getQuery();
+            $query->delete(DB::qn('#__organizer_schedules'))->whereIn(DB::qn('id'), $deprecated);
+            DB::setQuery($query);
+            DB::execute();
+        }
+    }
+
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
