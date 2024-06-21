@@ -14,7 +14,7 @@ use Joomla\Database\ParameterType;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Tables\{Associations, Curricula, Pools as PoolsTable, Subjects, Table};
-use THM\Organizer\Helpers\{Documentable, Pools as PoolsHelper, Programs};
+use THM\Organizer\Helpers\{Can, Documentable, Pools as PoolsHelper, Programs};
 
 /**
  * @inheritDoc
@@ -47,6 +47,10 @@ abstract class CurriculumResource extends FormController
      */
     protected function authorize(): void
     {
+        if (Can::administrate()) {
+            return;
+        }
+
         /** @var Documentable $helper */
         $helper = "THM\\Organizer\\Helpers\\" . $this->list;
         $id     = Input::getID();

@@ -12,7 +12,7 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\{Documentable, Organizations};
+use THM\Organizer\Helpers\{Can, Documentable, Organizations};
 
 /**
  * Class performs access checks, user actions and redirection for listed curriculum resources.
@@ -27,6 +27,10 @@ abstract class CurriculumResources extends ListController
      */
     protected function authorize(): void
     {
+        if (Can::administrate()) {
+            return;
+        }
+
         if (!Organizations::documentableIDs()) {
             Application::error(403);
         }

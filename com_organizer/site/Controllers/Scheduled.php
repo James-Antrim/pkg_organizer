@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Roles, Schedulable};
+use THM\Organizer\Helpers\{Can, Roles, Schedulable};
 use THM\Organizer\Tables\{Blocks, Schedules as Table, Table as BaseTable, Units};
 use THM\Organizer\Tables\{InstanceGroups, InstancePersons, InstanceRooms, Instances, Modified};
 
@@ -113,6 +113,10 @@ trait Scheduled
      */
     protected function authorize(): void
     {
+        if (Can::administrate()) {
+            return;
+        }
+
         $helperClass = empty($this->list) ? Application::getClass(get_called_class()) : $this->list;
 
         /** @var Schedulable $helper */

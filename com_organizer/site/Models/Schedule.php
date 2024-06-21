@@ -125,26 +125,6 @@ class Schedule extends FormModel
     }
 
     /**
-     * Deletes the selected schedules.
-     * @return bool true on successful deletion of all selected schedules, otherwise false
-     */
-    public function delete(): bool
-    {
-        if (!Organizations::schedulableIDs()) {
-            Application::error(403);
-        }
-
-        $scheduleIDs = Input::getSelectedIDs();
-        foreach ($scheduleIDs as $scheduleID) {
-            if (!$this->deleteSingle($scheduleID)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Deletes
      *
      * @param   array  $bookingIDs
@@ -159,28 +139,6 @@ class Schedule extends FormModel
 
         Database::setQuery($query);
         Database::execute();
-    }
-
-    /**
-     * Deletes a single internal schedule entry and any corresponding external schedule entry that may exist.
-     *
-     * @param $scheduleID
-     *
-     * @return bool
-     */
-    private function deleteSingle($scheduleID): bool
-    {
-        if (!Organizations::schedulable($scheduleID)) {
-            Application::error(403);
-        }
-
-        $schedule = new Table();
-
-        if (!$schedule->load($scheduleID) or !$schedule->delete()) {
-            return false;
-        }
-
-        return true;
     }
 
     /**

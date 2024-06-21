@@ -11,7 +11,6 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\Can;
 
 /**
  * @inheritDoc
@@ -19,18 +18,9 @@ use THM\Organizer\Helpers\Can;
 class Person extends FormController
 {
     use Associated;
+    use Personal;
 
     protected string $list = 'Persons';
-
-    /**
-     * @inheritDoc
-     */
-    protected function authorize(): void
-    {
-        if (!Can::manage('persons')) {
-            Application::error(403);
-        }
-    }
 
     /**
      * @inheritDoc

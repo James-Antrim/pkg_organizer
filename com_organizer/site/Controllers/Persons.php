@@ -10,25 +10,13 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers\Can;
-
 /**
  * Class receives user actions and performs access checks and redirection.
  */
 class Persons extends ListController
 {
     use Activated;
+    use Personal;
 
     protected string $item = 'Person';
-
-    /**
-     * @inheritDoc
-     */
-    protected function authorize(): void
-    {
-        if (!Can::manage('persons')) {
-            Application::error(403);
-        }
-    }
 }

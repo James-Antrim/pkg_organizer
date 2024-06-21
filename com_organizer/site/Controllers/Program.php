@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Categories, Documentable, LSF, Organizations, Programs as Helper};
+use THM\Organizer\Helpers\{Can, Categories, Documentable, LSF, Organizations, Programs as Helper};
 use THM\Organizer\Tables\Programs as Table;
 
 /**
@@ -31,6 +31,10 @@ class Program extends CurriculumResource
      */
     protected function authorize(): void
     {
+        if (Can::administrate()) {
+            return;
+        }
+
         /** @var Documentable $helper */
         $helper = "THM\\Organizer\\Helpers\\" . $this->list;
         $id     = Input::getID();
