@@ -11,6 +11,7 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, User};
+use THM\Organizer\Controllers\Bookings;
 use THM\Organizer\Controllers\Scheduled;
 use THM\Organizer\Helpers\{Organizations, Schedules as Helper};
 use THM\Organizer\Tables\Schedules as Table;
@@ -24,82 +25,6 @@ use THM\Organizer\Validators;
 class Schedule extends FormModel
 {
     use Scheduled;
-
-    /**
-     * Cleans bookings according to their current status derived by the state of associated instances, optionally cleans
-     * unattended past bookings.
-     *
-     * @param   bool  $cleanUnattended  whether unattended bookings in the past should be cleaned as well
-     *
-     * @return void
-     */
-    public function cleanBookings(bool $cleanUnattended = false): void
-    {
-        // Earlier bookings will have already been cleaned.
-        $earliest = date('Y-m-d', strtotime('-14 days'));
-
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'i.delta', ['removed'], true, true)
-            ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
-            ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
-            ->where([Database::qn('bl.date') . " > '$earliest'"]);
-        Database::setQuery($query);
-
-        // Bookings associated with non-deprecated appointments.
-        $currentIDs = Database::loadIntColumn();
-
-        /** @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'i.delta', ['removed'], false, true)
-            ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
-            ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
-            ->where([Database::qn('bl.date') . " > '$earliest'"]);
-        Database::setQuery($query);
-
-        // Bookings associated with deprecated appointments.
-        $unattendedIDs = Database::loadIntColumn();
-
-        // Bookings solely with non-deprecated appointments.
-        if ($deprecatedIDs = array_diff($unattendedIDs, $currentIDs)) {
-            $this->deleteBookings($deprecatedIDs);
-        }
-
-        if (!$cleanUnattended) {
-            return;
-        }
-
-        // Unattended past bookings. The inner join to instance participants allows archived bookings to not be selected here.
-
-        $today = date('Y-m-d');
-        /** @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'ip.attended', [1])
-            ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
-            ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
-            ->innerJoinX('instance_participants AS ip', ['ip.instanceID = i.id'])
-            ->where([Database::qn('bl.date') . " < '$today'"]);
-        Database::setQuery($query);
-
-        // Attended bookings.
-        $attendedIDs = Database::loadIntColumn();
-
-        /** @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'ip.attended', [0])
-            ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
-            ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
-            ->innerJoinX('instance_participants AS ip', ['ip.instanceID = i.id'])
-            ->where([Database::qn('bl.date') . " < '$today'"]);
-        Database::setQuery($query);
-
-        // Unattended bookings.
-        $mixedIDs = Database::loadIntColumn();
-
-        if ($unattendedIDs = array_diff($mixedIDs, $attendedIDs)) {
-            $this->deleteBookings($unattendedIDs);
-        }
-    }
 
     /**
      * Removes booking and participation entries made irrelevant by scheduling changes.
@@ -122,23 +47,6 @@ class Schedule extends FormModel
             Database::setQuery($query);
             Database::execute();
         }
-    }
-
-    /**
-     * Deletes
-     *
-     * @param   array  $bookingIDs
-     *
-     * @return void
-     */
-    private function deleteBookings(array $bookingIDs): void
-    {
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->deleteX('bookings', 'id', $bookingIDs);
-
-        Database::setQuery($query);
-        Database::execute();
     }
 
     /**
@@ -273,7 +181,8 @@ class Schedule extends FormModel
             }
         }
 
-        $this->cleanBookings();
+        $bookings = new Bookings();
+        $bookings->clean();
         $this->cleanRegistrations();
         $this->resolveEventSubjects($organizationID);
 

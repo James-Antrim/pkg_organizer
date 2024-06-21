@@ -23,12 +23,11 @@ class Organizer extends Controller
      * Removes unused bookings and deprecated participation data.
      * @return void
      */
-    public function cleanBookings()
+    public function cleanBookings(): void
     {
-        $model = new Models\Schedule();
-        $model->cleanBookings(true);
-        $url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-        $this->setRedirect(Route::_($url, false));
+        $bookings = new Bookings();
+        $bookings->clean(true);
+        $this->setRedirect("$this->baseURL&view=organizer");
     }
 
     /**

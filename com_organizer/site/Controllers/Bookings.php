@@ -12,8 +12,9 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Models;
 
 /**
@@ -97,6 +98,73 @@ class Bookings extends Controller
         $model->checkin();
         $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
         $this->setRedirect(Route::_($url, false));
+    }
+
+    /**
+     * Cleans bookings according to their current status derived by the state of associated instances, optionally cleans
+     * unattended past bookings.
+     *
+     * @param   bool  $removeUnattended  whether unattended bookings in the past should be removed as well
+     *
+     * @return void
+     */
+    public function clean(bool $removeUnattended = false): void
+    {
+        // Earlier bookings will have already been cleaned.
+        $earliest = date('Y-m-d', strtotime('-14 days'));
+        $earliest = DB::qc('bl.date', $earliest, '>', true);
+
+        $select = DB::getQuery();
+        $select->select('DISTINCT ' . DB::qn('bk.id'))
+            ->from(DB::qn('#__organizer_bookings', 'bk'))
+            ->innerJoin(DB::qn('#__organizer_blocks', 'bl'), DB::qc('bl.id', 'bk.blockID'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qcs([['i.blockID', 'bk.blockID'], ['i.unitID', 'bk.unitID']]));
+
+        // Bookings associated with non-deprecated appointments.
+        $select->where($earliest)->where(DB::qc('i.delta', 'removed', 'IS NOT', true));
+        DB::setQuery($select);
+        $currentIDs = DB::loadIntColumn();
+
+        // Bookings associated with deprecated appointments.
+        $select->clear('where');
+        $select->where($earliest)->where(DB::qc('i.delta', 'removed', '=', true));
+        DB::setQuery($select);
+        $removedIDs = DB::loadIntColumn();
+
+        // Because the instance join is on the unitID, not the instanceID, there can be overlap.
+        if ($deprecatedIDs = array_diff($removedIDs, $currentIDs)) {
+            $delete = DB::getQuery();
+            $delete->delete(DB::qn('#__organizer_bookings'))->whereIn(DB::qn('id'), $deprecatedIDs);
+            DB::setQuery($delete);
+            DB::execute();
+        }
+
+        if (!$removeUnattended) {
+            return;
+        }
+
+        // Unattended past bookings. The inner join to instance participants allows archived bookings to not be selected here.
+        $select->innerJoin(DB::qn('#__organizer_instance_participants', 'ip'), DB::qc('ip.instanceID', 'i.id'));
+        $past = DB::qc('bl.date', date('Y-m-d'), '<', true);
+
+        // Attended bookings.
+        $select->clear('where');
+        $select->where($past)->where(DB::qc('ip.attended', Helper::ATTENDED));
+        DB::setQuery($select);
+        $attendedIDs = DB::loadIntColumn();
+
+        // Unattended bookings.
+        $select->clear('where');
+        $select->where($past)->where(DB::qc('ip.attended', Helper::REGISTERED));
+        DB::setQuery($select);
+        $registeredIDs = DB::loadIntColumn();
+
+        if ($unattendedIDs = array_diff($registeredIDs, $attendedIDs)) {
+            $delete = DB::getQuery();
+            $delete->delete(DB::qn('#__organizer_bookings'))->whereIn(DB::qn('id'), $unattendedIDs);
+            DB::setQuery($delete);
+            DB::execute();
+        }
     }
 
     /**
