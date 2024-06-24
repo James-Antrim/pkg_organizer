@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Validators;
+namespace THM\Organizer\Controllers\Validators;
 
 use SimpleXMLElement;
 use stdClass;

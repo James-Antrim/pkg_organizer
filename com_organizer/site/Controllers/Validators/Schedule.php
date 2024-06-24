@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Validators;
+namespace THM\Organizer\Controllers\Validators;
 
 use SimpleXMLElement;
 use stdClass;
@@ -59,29 +59,15 @@ class Schedule
     }
 
     /**
-     * Checks a given untis schedule xml export for data completeness and consistency. Forms the data into structures
-     * for further processing
-     * @return bool true on successful validation w/o errors, false if the schedule was invalid or an error occurred
+     * Checks a given untis schedule xml export for data completeness and consistency. Forms the data into structures for further
+     * processing
+     *
+     * @param   SimpleXMLElement  $xml the xml to validate
+     *
+     * @return bool
      */
-    public function validate(): bool
+    public function validate(SimpleXMLElement $xml): bool
     {
-        $this->organizationID = Input::getInt('organizationID');
-        $formFiles            = Input::getInput()->files->get('jform', [], 'array');
-        $this->xml            = simplexml_load_file($formFiles['file']['tmp_name']);
-
-        // Unused & mostly unfilled nodes
-        unset($this->xml->lesson_date_schemes, $this->xml->lesson_tables, $this->xml->reductions);
-        unset($this->xml->reduction_reasons, $this->xml->studentgroups, $this->xml->students);
-
-        // Creation Date & Time, school year dates, term attributes
-        $this->creationDate = trim((string) $this->xml[0]['date']);
-        $validCreationDate  = $this->validateDate($this->creationDate, 'CREATION_DATE');
-        $this->creationTime = trim((string) $this->xml[0]['time']);
-
-        if ($valid = ($validCreationDate and $this->validateCreationTime())) {
-            // Set the cut-off to the day before schedule generation to avoid inconsistencies on the creation date
-            $this->dateTime = strtotime('-1 day', strtotime("$this->creationDate $this->creationTime"));
-        }
 
         $this->modified = "$this->creationDate $this->creationTime";
 
@@ -115,53 +101,6 @@ class Schedule
         $this->printStatusReport();
 
         return !count($this->errors);
-    }
-
-    /**
-     * Validates a text attribute. Sets the attribute if valid.
-     * @return bool true if the creation time is valid, otherwise false
-     */
-    public function validateCreationTime(): bool
-    {
-        if (empty($this->creationTime)) {
-            $this->errors[] = Text::_("CREATION_TIME_MISSING");
-
-            return false;
-        }
-
-        if (!preg_match('/^[\d]{6}$/', $this->creationTime)) {
-            $this->errors[]     = Text::_("CREATION_TIME_INVALID");
-            $this->creationTime = '';
-
-            return false;
-        }
-
-        $this->creationTime = implode(':', str_split($this->creationTime, 2));
-
-        return true;
-    }
-
-    /**
-     * Validates a date attribute.
-     *
-     * @param   string &$value     the attribute value passed by reference because of reformatting to Y-m-d
-     * @param   string  $constant  the unique text constant fragment
-     *
-     * @return bool true on success, otherwise false
-     */
-    public function validateDate(string &$value, string $constant): bool
-    {
-        if (empty($value)) {
-            $this->errors[] = Text::_("{$constant}_MISSING");
-
-            return false;
-        }
-
-        if ($value = date('Y-m-d', strtotime($value))) {
-            return true;
-        }
-
-        return false;
     }
 
     /**

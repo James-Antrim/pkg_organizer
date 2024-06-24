@@ -25,7 +25,7 @@ trait Scheduled
      * The Y-m-d H:i:s creation timestamp of the schedule being iterated.
      * @var string
      */
-    private string $modified;
+    public string $modified;
 
     /**
      * Gradually fills with a map of deprecated person ids to the ids that succeeded them, as required.

@@ -79,7 +79,7 @@ trait ToCed
             // Uploading a schedule should always be the first menu item and will never be the active submenu item.
             $prepend = [
                 '<span class="fa fa-plus"></span> ' . Text::_('ADD_SCHEDULE') => [
-                    'url'    => Routing::getViewURL('importschedule'),
+                    'url'    => Routing::getViewURL('schedule'),
                     'active' => false
                 ]
             ];
