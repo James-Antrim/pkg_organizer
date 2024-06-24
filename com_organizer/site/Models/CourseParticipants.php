@@ -13,18 +13,14 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Input};
 
-/**
- * Class retrieves information for a filtered set of participants.
- */
+/** @inheritDoc */
 class CourseParticipants extends Participants
 {
     protected string $defaultOrdering = 'fullName';
 
     protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = parent::getListQuery();

@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Degree extends EditModel
 {
     protected string $tableClass = 'Degrees';

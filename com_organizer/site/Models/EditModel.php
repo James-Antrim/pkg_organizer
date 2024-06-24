@@ -71,7 +71,8 @@ abstract class EditModel extends FormModel
     }
 
     /**
-     * Method to get a table object, load it if necessary.
+     * Method to get a table object, load it if necessary. Comment override necessary to prevent throws from being passed down the
+     * chain.
      *
      * @param   string  $name     the table name, unused
      * @param   string  $prefix   the class prefix, unused
@@ -86,9 +87,7 @@ abstract class EditModel extends FormModel
         return new $fqn();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function loadFormData(): ?object
     {
         return $this->getItem();

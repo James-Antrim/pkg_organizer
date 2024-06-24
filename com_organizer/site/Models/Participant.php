@@ -14,16 +14,12 @@ use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\User;
 use THM\Organizer\Fields\{Programs, Text};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Participant extends EditModel
 {
     protected string $tableClass = 'Participants';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function preprocessForm(Form $form, $data, $group = 'content'): void
     {
         if ($data->get('id') !== User::id()) {

@@ -15,9 +15,7 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class retrieves information for a filtered set of rooms.
- */
+/** @inheritDoc */
 class Rooms extends ListModel
 {
     use Activated;
@@ -26,9 +24,7 @@ class Rooms extends ListModel
 
     protected $filter_fields = ['buildingID', 'campusID', 'cleaningID', 'keyID', 'roomtypeID', 'virtual'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function filterFilterForm(Form $form): void
     {
         if (Input::getParams()->get('campusID')) {
@@ -44,9 +40,7 @@ class Rooms extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
@@ -97,9 +91,7 @@ class Rooms extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

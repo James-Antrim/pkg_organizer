@@ -23,9 +23,7 @@ class Events extends ListModel
 
     protected $filter_fields = ['campusID', 'categoryID', 'groupID', 'organizationID', 'preparatory'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

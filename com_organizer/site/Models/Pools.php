@@ -15,16 +15,12 @@ use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers\{Can, Organizations, Pools as Helper};
 
-/**
- * Class retrieves information for a filtered set of (subject) pools.
- */
+/** @inheritDoc */
 class Pools extends ListModel
 {
     protected $filter_fields = ['organizationID', 'fieldID', 'programID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function filterFilterForm(Form $form): void
     {
         if (count(Organizations::documentableIDs()) === 1) {
@@ -33,9 +29,7 @@ class Pools extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         if (!$items = parent::getItems()) {
@@ -97,9 +91,7 @@ class Pools extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

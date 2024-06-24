@@ -35,9 +35,7 @@ abstract class ListModel extends Base
     protected int $defaultLimit = 50;
     protected string $defaultOrdering = 'name';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [], MVCFactoryInterface $factory = null)
     {
         // Preemptively set to avoid unnecessary complications.
@@ -380,9 +378,9 @@ abstract class ListModel extends Base
     }
 
     /**
-     * @inheritDoc
-     * Ensures a standardized return type.
-     * @return  array  An array of data items on success.
+     * Method to get an array of data items. No inheritDoc because the single return type of array.
+     *
+     * @return  array  an array of data items.
      */
     public function getItems(): array
     {
@@ -409,9 +407,7 @@ abstract class ListModel extends Base
         return new $fqn();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTotal(): int
     {
         $total = parent::getTotal();
@@ -437,9 +433,7 @@ abstract class ListModel extends Base
         return !(($value > 1 or $value < 0));
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false): Form
     {
         /** @var Form $form */
@@ -450,9 +444,7 @@ abstract class ListModel extends Base
         return $form;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
@@ -507,9 +499,7 @@ abstract class ListModel extends Base
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

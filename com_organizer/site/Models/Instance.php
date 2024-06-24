@@ -48,17 +48,13 @@ class Instance extends BaseModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTable($name = '', $prefix = '', $options = [])
     {
         return new Tables\Instances();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function save(array $data = [])
     {
         Application::error(503);

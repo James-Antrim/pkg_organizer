@@ -14,9 +14,7 @@ use Joomla\Database\ParameterType;
 use THM\Organizer\Helpers\{Frequencies, Persons, Pools, Programs, Subjects as Helper};
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Subject extends EditModel
 {
     protected string $tableClass = 'Subjects';
@@ -124,9 +122,7 @@ class Subject extends EditModel
         return $return;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItem(): object
     {
         if (!$item = $this->item) {

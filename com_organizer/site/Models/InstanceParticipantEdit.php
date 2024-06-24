@@ -21,10 +21,7 @@ use THM\Organizer\Tables\InstanceParticipants as Table;
  */
 class InstanceParticipantEdit extends EditModelOld
 {
-
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);

@@ -14,9 +14,7 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Database as DB, Input};
 use THM\Organizer\Helpers\{Can, Monitors as Helper};
 
-/**
- * Class retrieves information for a filtered set of monitors.
- */
+/** @inheritDoc */
 class Monitors extends ListModel
 {
     private const CONTENT = 1;
@@ -98,9 +96,7 @@ class Monitors extends ListModel
         $query->where('(' . DB::qn('m.display') . " = $display $defaults)");
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

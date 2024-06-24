@@ -13,16 +13,12 @@ namespace THM\Organizer\Models;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\ParameterType;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class RoomKey extends EditModel
 {
     protected string $tableClass = 'RoomKeys';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItem(): object
     {
         $item = parent::getItem();

@@ -13,9 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 
-/**
- * Class retrieves information for a filtered set of holidays.
- */
+/** @inheritDoc */
 class Holidays extends ListModel
 {
     private const EXPIRED = 1, NOT_EXPIRED = 0;
@@ -65,9 +63,7 @@ class Holidays extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

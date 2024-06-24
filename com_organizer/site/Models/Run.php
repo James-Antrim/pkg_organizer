@@ -14,16 +14,12 @@ use Joomla\CMS\Form\Form as FormAlias;
 use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers\Terms;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Run extends EditModel
 {
     protected string $tableClass = 'Runs';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = true): ?FormAlias
     {
         if ($form = parent::getForm($data, $loadData)) {

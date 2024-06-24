@@ -89,9 +89,7 @@ class Unit extends BaseModel
         return $course->id;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTable($name = '', $prefix = '', $options = [])
     {
         return new Tables\Units();

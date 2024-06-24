@@ -41,9 +41,7 @@ class Instances extends ListModel
     public int $layout = Helper::LIST;
     public bool $noDate = false;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         $session = Application::getSession();
@@ -51,9 +49,7 @@ class Instances extends ListModel
         parent::__construct($config);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
@@ -193,9 +189,7 @@ class Instances extends ListModel
         return Input::getString('interval', $interval);
     }
 
-    /**
-     * @inheritDoc.
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         $items = parent::getItems();
@@ -235,9 +229,7 @@ class Instances extends ListModel
         return $items;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = Helper::getInstanceQuery($this->conditions);
@@ -367,9 +359,7 @@ class Instances extends ListModel
         return $title . $suffix;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

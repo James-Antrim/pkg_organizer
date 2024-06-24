@@ -23,9 +23,7 @@ class Buildings extends ListModel
 
     protected $filter_fields = ['campusID', 'propertyType'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

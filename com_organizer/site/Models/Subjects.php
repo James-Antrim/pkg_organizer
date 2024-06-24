@@ -15,9 +15,7 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 use THM\Organizer\Helpers\{Can, Organizations, Pools, Programs, Subjects as Helper};
 
-/**
- * Class retrieves information for a filtered set of subjects.
- */
+/** @inheritDoc */
 class Subjects extends ListModel
 {
     protected $filter_fields = [
@@ -29,9 +27,7 @@ class Subjects extends ListModel
         'programID'      => 'programID'
     ];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
@@ -55,9 +51,7 @@ class Subjects extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         if (!$items = parent::getItems()) {
@@ -80,9 +74,7 @@ class Subjects extends ListModel
         return $items;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
@@ -201,9 +193,7 @@ class Subjects extends ListModel
         return false;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

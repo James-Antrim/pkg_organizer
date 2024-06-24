@@ -20,9 +20,7 @@ use THM\Organizer\Tables;
  */
 class Profile extends OldFormModel
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!User::id()) {
@@ -30,9 +28,7 @@ class Profile extends OldFormModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = false): Form
     {
         $form = parent::getForm($data, $loadData);

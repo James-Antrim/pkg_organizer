@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Holiday extends EditModel
 {
     protected string $tableClass = 'Holidays';

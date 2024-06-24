@@ -75,9 +75,7 @@ class CourseParticipant extends BaseModel
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTable($name = '', $prefix = '', $options = []): Table
     {
         return new Table();
@@ -170,9 +168,7 @@ class CourseParticipant extends BaseModel
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function toggle(): bool
     {
         $attribute     = Input::getCMD('attribute');

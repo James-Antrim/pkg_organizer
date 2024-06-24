@@ -15,9 +15,7 @@ use THM\Organizer\Helpers\Associated as Helper;
 
 abstract class Associated extends EditModel
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItem(): object
     {
         /** @var Helper $helper */

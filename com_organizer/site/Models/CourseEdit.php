@@ -30,9 +30,7 @@ class CourseEdit extends EditModelOld
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = true)
     {
         $form = parent::getForm($data, $loadData);

@@ -15,18 +15,14 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 
-/**
- * Class retrieves the data regarding a filtered set of courses.
- */
+/** @inheritDoc */
 class Courses extends ListModel
 {
     protected string $defaultOrdering = 'dates';
 
     protected $filter_fields = ['campusID', 'status', 'termID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
@@ -50,9 +46,7 @@ class Courses extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         if (!$items = parent::getItems()) {
@@ -69,9 +63,7 @@ class Courses extends ListModel
         return $items;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
@@ -131,9 +123,7 @@ class Courses extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

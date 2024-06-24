@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class RoomType extends EditModel
 {
     protected string $tableClass = 'RoomTypes';

@@ -24,9 +24,7 @@ class Program extends EditModel
      */
     protected string $tableClass = 'Programs';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = true): ?Form
     {
         $form = parent::getForm($data, $loadData);
@@ -38,9 +36,7 @@ class Program extends EditModel
         return $form;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItem(): object
     {
         $item = parent::getItem();

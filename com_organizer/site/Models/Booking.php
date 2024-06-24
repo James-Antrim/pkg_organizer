@@ -28,9 +28,7 @@ class Booking extends Participants
 
     protected $filter_fields = ['instanceID', 'roomID', 'status'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -487,9 +485,7 @@ class Booking extends Participants
         Application::message('ORGANIZER_BOOKING_NOT_CLOSED', Application::NOTICE);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
@@ -540,9 +536,7 @@ class Booking extends Participants
         return $booking;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $bookingID = Input::getID();
@@ -577,9 +571,7 @@ class Booking extends Participants
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         $bookingID = Input::getID();
@@ -691,9 +683,7 @@ class Booking extends Participants
         Application::message('ORGANIZER_BOOKING_NOT_OPENED', Application::NOTICE);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         if (Input::getListItems()->get('username')) {

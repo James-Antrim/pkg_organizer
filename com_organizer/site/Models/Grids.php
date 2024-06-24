@@ -13,14 +13,10 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 
-/**
- * Class retrieves information for a filtered set of (schedule) grids.
- */
+/** @inheritDoc */
 class Grids extends ListModel
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

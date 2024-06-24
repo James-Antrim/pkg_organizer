@@ -19,10 +19,7 @@ use THM\Organizer\Helpers;
  */
 class Export extends OldFormModel
 {
-
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         // Resolve potential inconsistencies cause by user choices before the form is initialized.
@@ -83,9 +80,7 @@ class Export extends OldFormModel
         // Form has public access
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function filterForm(Form $form)
     {
         if (!User::id()) {
@@ -139,17 +134,13 @@ class Export extends OldFormModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = true)
     {
         return parent::getForm($data, $loadData);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function loadFormData(): array
     {
         return Input::getArray();

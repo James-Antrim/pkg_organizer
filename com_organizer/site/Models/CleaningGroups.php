@@ -21,9 +21,7 @@ class CleaningGroups extends ListModel
 {
     protected $filter_fields = ['relevant'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

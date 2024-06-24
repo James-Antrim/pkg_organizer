@@ -12,16 +12,12 @@ namespace THM\Organizer\Models;
 
 use THM\Organizer\Helpers\{Pools as Helper, Programs};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Pool extends EditModel
 {
     protected string $tableClass = 'Pools';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItem(): object
     {
         if (!$item = $this->item) {

@@ -40,9 +40,7 @@ class Checkin extends OldFormModel
      */
     private $seat = null;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -75,9 +73,7 @@ class Checkin extends OldFormModel
         $this->setInstances();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize()
     {
         if (Input::getCMD('layout') === 'profile' and !User::id()) {

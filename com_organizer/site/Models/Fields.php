@@ -13,18 +13,14 @@ namespace THM\Organizer\Models;
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
 
-/**
- * Class retrieves information for a filtered set of fields (of expertise).
- */
+/** @inheritDoc */
 class Fields extends ListModel
 {
     protected string $defaultOrdering = 'name';
 
     protected $filter_fields = ['colorID', 'organizationID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

@@ -25,9 +25,7 @@ class Categories extends ListModel
 
     protected $filter_fields = ['organizationID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

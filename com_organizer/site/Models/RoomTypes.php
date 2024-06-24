@@ -14,16 +14,12 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class retrieves information for a filtered set of room types.
- */
+/** @inheritDoc */
 class RoomTypes extends ListModel
 {
     protected $filter_fields = ['cleaningID', 'keyID', 'suppress', 'useID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

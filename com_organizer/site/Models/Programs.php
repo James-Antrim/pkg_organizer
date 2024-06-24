@@ -15,18 +15,14 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\{Can, Organizations, Programs as Helper};
 
-/**
- * Class retrieves information for a filtered set of (degree) programs.
- */
+/** @inheritDoc */
 class Programs extends ListModel
 {
     use Activated;
 
     protected $filter_fields = ['accredited', 'degreeID', 'frequencyID', 'organizationID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
@@ -40,9 +36,7 @@ class Programs extends ListModel
 
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = Helper::query();
@@ -75,9 +69,7 @@ class Programs extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

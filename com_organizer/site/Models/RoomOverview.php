@@ -28,9 +28,7 @@ class RoomOverview extends ListModel
 
     protected $filter_fields = ['campusID', 'buildingID', 'effCapacity', 'roomtypeID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
@@ -41,9 +39,7 @@ class RoomOverview extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
@@ -73,9 +69,7 @@ class RoomOverview extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

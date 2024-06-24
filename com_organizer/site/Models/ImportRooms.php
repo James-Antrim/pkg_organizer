@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class ImportRooms extends FormModel
 {
     // Everything is taken care of in the inheritance hierarchy.

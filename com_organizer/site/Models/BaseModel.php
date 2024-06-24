@@ -14,10 +14,10 @@ use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\Can;
-use THM\Organizer\Tables\BaseTable;
+use THM\Organizer\Tables\Table;
 
 /**
- * Class which manages stored building data.
+ * Class which manages stored data.
  */
 abstract class BaseModel extends BaseDatabaseModel
 {
@@ -100,7 +100,7 @@ abstract class BaseModel extends BaseDatabaseModel
         $data = empty($data) ? Input::getFormItems() : $data;
 
         try {
-            /* @var BaseTable $table */
+            /* @var Table $table */
             $table = $this->getTable();
         }
         catch (Exception $exception) {

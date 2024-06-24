@@ -25,16 +25,14 @@ class Equipment extends ListModel
      * Authorizes the user.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();

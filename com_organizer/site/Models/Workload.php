@@ -239,9 +239,7 @@ class Workload extends FormModel
         return array_values($units);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!User::id()) {
@@ -272,9 +270,7 @@ class Workload extends FormModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = null): Form
     {
         $options['load_data'] = true;
@@ -288,9 +284,7 @@ class Workload extends FormModel
         return $form;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function loadFormData(): array
     {
         return [

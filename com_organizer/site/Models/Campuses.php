@@ -21,9 +21,7 @@ class Campuses extends ListModel
 {
     protected $filter_fields = ['city', 'gridID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

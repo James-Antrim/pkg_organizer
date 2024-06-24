@@ -606,9 +606,7 @@ class Statistics extends OldFormModel
         return $grid;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = false)
     {
         $this->authorize();

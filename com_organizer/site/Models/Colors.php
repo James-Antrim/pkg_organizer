@@ -18,9 +18,7 @@ use THM\Organizer\Adapters\{Application, Database as DB};
  */
 class Colors extends ListModel
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();

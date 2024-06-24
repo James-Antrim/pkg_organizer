@@ -18,7 +18,7 @@ use THM\Organizer\Helpers\Roles;
 use THM\Organizer\Tables;
 
 /**
- * Class searches THM Organizer resources for resources and views relevant to the given search query.
+ * Class searches Organizer resources for resources and views relevant to the given search query.
  */
 class Search extends ListModel
 {
@@ -231,9 +231,7 @@ class Search extends ListModel
         'zwischen'
     ];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -359,10 +357,7 @@ class Search extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     * @return  array  An array of data items on success.
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         $this->setTerms();
@@ -555,9 +550,7 @@ class Search extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTotal($idColumn = null): int
     {
         return count($this->items);
@@ -607,9 +600,7 @@ class Search extends ListModel
         return "($deClause $oGlue $enClause)";
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null)
     {
         parent::populateState();

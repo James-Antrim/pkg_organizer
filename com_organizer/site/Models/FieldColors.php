@@ -15,16 +15,12 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\Organizations;
 
-/**
- * Class retrieves information for a filtered set of fields (of expertise).
- */
+/** @inheritDoc */
 class FieldColors extends ListModel
 {
     protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function filterFilterForm(Form $form): void
     {
         if (count(Organizations::documentableIDs()) === 1) {
@@ -33,9 +29,7 @@ class FieldColors extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
@@ -71,9 +65,7 @@ class FieldColors extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

@@ -76,9 +76,7 @@ class ContactTracking extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         $items = [];
@@ -322,9 +320,7 @@ class ContactTracking extends ListModel
         $this->state->set('personID', 0);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null)
     {
         parent::populateState();

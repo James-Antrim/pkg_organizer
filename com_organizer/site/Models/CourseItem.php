@@ -123,9 +123,7 @@ class CourseItem extends ItemModel
         ];
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTable($name = '', $prefix = '', $options = [])
     {
         return new Tables\Courses();

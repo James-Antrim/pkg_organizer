@@ -14,9 +14,7 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\{Organizations, Terms, Units as Helper};
 
-/**
- * Class retrieves the data regarding a filtered set of units.
- */
+/** @inheritDoc */
 class Units extends ListModel
 {
     protected $filter_fields = [
@@ -40,9 +38,7 @@ class Units extends ListModel
         return $items;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $modified = date('Y-m-d h:i:s', strtotime('-2 Weeks'));

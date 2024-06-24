@@ -28,10 +28,7 @@ abstract class EditModelOld extends OldFormModel
      */
     protected string $tableClass = '';
 
-    /**
-     * @inheritDoc
-     * Wraps the parent constructor to ensure inheriting classes specify their respective table classes.
-     */
+    /** @inheritDoc */
     public function __construct($config, MVCFactory $factory, FormFactory $formFactory)
     {
         if (empty($this->tableClass)) {
@@ -78,9 +75,7 @@ abstract class EditModelOld extends OldFormModel
         return new $fqn();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function loadFormData(): ?CMSObject
     {
         return $this->getItem();

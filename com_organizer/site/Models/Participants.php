@@ -15,18 +15,14 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use Joomla\Database\QueryInterface;
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class retrieves information for a filtered set of participants.
- */
+/** @inheritDoc */
 class Participants extends ListModel
 {
     protected string $defaultOrdering = 'fullName';
 
     protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -36,9 +32,7 @@ class Participants extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addAccess(QueryInterface $query): void
     {
         if (Can::administrate()) {
@@ -52,9 +46,7 @@ class Participants extends ListModel
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
@@ -118,9 +110,7 @@ class Participants extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

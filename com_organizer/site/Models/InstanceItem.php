@@ -28,9 +28,7 @@ class InstanceItem extends ListModel
     public stdClass $instance;
     public string $referrer;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -57,9 +55,7 @@ class InstanceItem extends ListModel
         $this->setReferrer();
     }
 
-    /**
-     * @inheritDoc.
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         $items = parent::getItems();
@@ -73,9 +69,7 @@ class InstanceItem extends ListModel
         return $items;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): JDatabaseQuery
     {
         $endDate   = $this->conditions['endDate'];

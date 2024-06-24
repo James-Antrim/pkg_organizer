@@ -13,18 +13,14 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 
-/**
- * Class retrieves information for a filtered set of degrees.
- */
+/** @inheritDoc */
 class Terms extends ListModel
 {
     private const EXPIRED = 1, NOT_EXPIRED = 0;
 
     protected $filter_fields = ['name', 'abbreviation', 'code'];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
@@ -54,9 +50,7 @@ class Terms extends ListModel
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
