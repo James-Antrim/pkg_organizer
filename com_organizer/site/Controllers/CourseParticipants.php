@@ -116,11 +116,7 @@ class CourseParticipants extends Participants
         $this->setRedirect(Route::_($url, false));
     }
 
-    /**
-     * Toggles binary resource properties from a list view.
-     * @return void
-     * @throws Exception
-     */
+    /** @inheritDoc */
     public function toggle()
     {
         $model = new Models\CourseParticipant();

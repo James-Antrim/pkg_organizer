@@ -12,18 +12,14 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Tables\Campuses as Table;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Campus extends FormController
 {
     use FluMoxed;
 
     protected string $list = 'Campuses';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();

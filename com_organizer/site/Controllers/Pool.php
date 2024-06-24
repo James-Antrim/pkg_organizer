@@ -14,16 +14,12 @@ use SimpleXMLElement;
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\{Adapters\Input, Tables, Tables\Pools as Table};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Pool extends CurriculumResource implements Stubby
 {
     protected string $list = 'Pools';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function import(int $resourceID): bool
     {
         /**
@@ -34,10 +30,7 @@ class Pool extends CurriculumResource implements Stubby
         return false;
     }
 
-    /**
-     * Prepares the data to be saved.
-     * @return array
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -57,17 +50,13 @@ class Pool extends CurriculumResource implements Stubby
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function postProcess(): void
     {
         $this->updateSuperOrdinates();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function processStub(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
     {
         if (!$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid) {

@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use THM\Organizer\Tables\{CourseParticipants as CParticipation, InstanceParticipants as IParticipation, Users};
 use Joomla\Database\ParameterType;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class MergeParticipants extends MergeController
 {
     private string $email;
@@ -214,9 +212,7 @@ class MergeParticipants extends MergeController
         $this->deprecatedIDs = $mergeIDs;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function updateReferences(): bool
     {
         if (!$this->courses()) {
@@ -305,9 +301,7 @@ class MergeParticipants extends MergeController
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         parent::validate($data, ['email']);

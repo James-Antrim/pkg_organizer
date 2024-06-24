@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Unit;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Units extends ListController
 {
     protected string $item = 'Unit';

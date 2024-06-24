@@ -13,16 +13,12 @@ namespace THM\Organizer\Controllers;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\Grids as Helper;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Grid extends FormController
 {
     protected string $list = 'Grids';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = Input::getFormItems();

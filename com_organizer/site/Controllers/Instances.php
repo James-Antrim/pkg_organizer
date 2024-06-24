@@ -16,9 +16,7 @@ use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Instance;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Instances extends ListController
 {
     protected string $item = 'Instance';

@@ -12,9 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Group extends FormController
 {
     use Associated;
@@ -23,10 +21,7 @@ class Group extends FormController
 
     protected string $list = 'Groups';
 
-    /**
-     * Prepares the data to be saved.
-     * @return array
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -42,9 +37,7 @@ class Group extends FormController
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function process(): int
     {
         $id = parent::process();

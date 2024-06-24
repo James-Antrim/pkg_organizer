@@ -15,18 +15,14 @@ use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Monitors as Helper;
 use THM\Organizer\Tables\Rooms as Room;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Monitor extends FormController
 {
     use FluMoxed;
 
     protected string $list = 'Monitors';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -45,9 +41,7 @@ class Monitor extends FormController
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         $required = ['display', 'ip', 'roomID'];

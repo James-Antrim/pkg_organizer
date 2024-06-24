@@ -17,9 +17,7 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 use THM\Organizer\Helpers\{LSF, Persons, Programs, Subjects as Helper};
 use THM\Organizer\{Tables, Tables\Subjects as Table};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Subject extends CurriculumResource implements Stubby
 {
     private const POST = 0, PRE = 1;
@@ -524,9 +522,7 @@ class Subject extends CurriculumResource implements Stubby
         return preg_replace('/\s+/', ' ', $text);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function import(int $resourceID): bool
     {
         $table = new Table();
@@ -721,10 +717,7 @@ class Subject extends CurriculumResource implements Stubby
         return empty($text);
     }
 
-    /**
-     * Prepares the data to be saved.
-     * @return array
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -774,9 +767,7 @@ class Subject extends CurriculumResource implements Stubby
         $this->app->close();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function postProcess(): void
     {
         if (!$this->assignments()) {
@@ -865,9 +856,7 @@ class Subject extends CurriculumResource implements Stubby
         return $success;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function processStub(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
     {
         if (!$lsfID = (string) (empty($XMLObject->modulid) ? $XMLObject->pordid : $XMLObject->modulid)) {

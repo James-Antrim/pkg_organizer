@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Persons extends ListController
 {
     use Activated;

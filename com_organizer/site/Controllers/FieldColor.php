@@ -13,16 +13,12 @@ namespace THM\Organizer\Controllers;
 use THM\Organizer\Adapters\Input;
 use THM\Organizer\Tables\FieldColors as Table;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class FieldColor extends FormController
 {
     protected string $list = 'FieldColors';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function process(): int
     {
         $this->checkToken();
@@ -44,14 +40,7 @@ class FieldColor extends FormController
         return $this->store($table, $this->data, $id);
     }
 
-    /**
-     * Validates the form data beyond the implicit type validation performed during prepareData.
-     *
-     * @param   array  $data      the form data to validate
-     * @param   array  $required  the required fields
-     *
-     * @return void
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         if (empty($data['id'])) {

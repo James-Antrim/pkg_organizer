@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\{Organizations, Schedules as Helper};
 use THM\Organizer\Tables\Schedules as Table;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Schedules extends ListController
 {
     use Scheduled;

@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class CleaningGroup extends FormController
 {
     use FluMoxed;

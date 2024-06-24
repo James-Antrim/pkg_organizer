@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Buildings extends ListController
 {
     use FluMoxed;

@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\{Groups as Helper, Terms};
 use THM\Organizer\Tables\{Groups as Group, GroupPublishing as Publishing, Terms as Term};
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Groups extends ListController
 {
     use Activated;

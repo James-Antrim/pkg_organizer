@@ -12,16 +12,12 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\Input;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Run extends FormController
 {
     protected string $list = 'Runs';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data    = Input::getFormItems();

@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers\Events as Helper;
 use THM\Organizer\Tables\EventCoordinators as Coordinator;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Event extends FormController
 {
     use Scheduled;

@@ -12,9 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\Input;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Monitors extends ListController
 {
     use FluMoxed;

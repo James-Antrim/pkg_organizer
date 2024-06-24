@@ -16,19 +16,14 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\{Can, Categories, Documentable, LSF, Organizations, Programs as Helper};
 use THM\Organizer\Tables\Programs as Table;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Program extends CurriculumResource
 {
     use Activated;
 
     protected string $list = 'Programs';
 
-    /**
-     * General or specific resource documentation authorization.
-     * @return void
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Can::administrate()) {
@@ -84,9 +79,7 @@ class Program extends CurriculumResource
         $this->postProcess();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function import(int $resourceID): bool
     {
         if (!Helper::documentable($resourceID)) {
@@ -159,10 +152,7 @@ class Program extends CurriculumResource
         return DB::loadAssoc();
     }
 
-    /**
-     * Prepares the data to be saved.
-     * @return array
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -180,9 +170,7 @@ class Program extends CurriculumResource
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function postProcess(): void
     {
         $range = [

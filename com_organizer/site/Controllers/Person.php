@@ -12,9 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Person extends FormController
 {
     use Associated;
@@ -22,9 +20,7 @@ class Person extends FormController
 
     protected string $list = 'Persons';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data                    = parent::prepareData();
@@ -36,9 +32,7 @@ class Person extends FormController
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function process(): int
     {
         $id = parent::process();
@@ -50,9 +44,7 @@ class Person extends FormController
         return $id;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         $required = ['code', 'surname'];

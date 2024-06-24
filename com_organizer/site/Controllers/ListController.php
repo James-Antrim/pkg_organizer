@@ -28,9 +28,7 @@ abstract class ListController extends Controller
      */
     protected string $item = '';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(
         $config = [],
         MVCFactoryInterface $factory = null,

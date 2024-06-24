@@ -12,17 +12,13 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class MergeRooms extends MergeController
 {
     protected string $list = 'Rooms';
     protected string $mergeContext = 'room';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -33,9 +29,7 @@ class MergeRooms extends MergeController
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function updateReferences(): bool
     {
         if (!$this->updateTable('monitors')) {
@@ -53,9 +47,7 @@ class MergeRooms extends MergeController
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function validate(array &$data, array $required = []): void
     {
         parent::validate($data, ['code', 'name', 'roomtypeID']);

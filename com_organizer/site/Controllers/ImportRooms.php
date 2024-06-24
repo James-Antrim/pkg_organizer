@@ -2,9 +2,7 @@
 
 namespace THM\Organizer\Controllers;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class ImportRooms extends FormController
 {
     use FluMoxed;

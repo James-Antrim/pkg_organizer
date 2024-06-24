@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Colors extends ListController
 {
     protected string $item = 'Color';

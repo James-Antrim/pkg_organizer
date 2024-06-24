@@ -14,17 +14,12 @@ namespace THM\Organizer\Controllers;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\{Can, Documentable, Organizations};
 
-/**
- * Class performs access checks, user actions and redirection for listed curriculum resources.
- */
+/** @inheritDoc */
 abstract class CurriculumResources extends ListController
 {
     use Ranges;
 
-    /**
-     * Authorization check multiple curriculum resources. Individual resource authorization is later checked as appropriate.
-     * @return void
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Can::administrate()) {
@@ -36,10 +31,7 @@ abstract class CurriculumResources extends ListController
         }
     }
 
-    /**
-     * Deletes selected curriculum resources and their subordinate resources as appropriate.
-     * @return void
-     */
+    /** @inheritDoc */
     public function delete(): void
     {
         $this->checkToken();

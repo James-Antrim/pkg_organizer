@@ -10,9 +10,7 @@ use THM\Organizer\Helpers\Can;
  */
 trait FluMoxed
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Can::administrate()) {

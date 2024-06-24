@@ -16,9 +16,7 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Tables\{Associations, Curricula, Pools as PoolsTable, Subjects, Table};
 use THM\Organizer\Helpers\{Can, Documentable, Pools as PoolsHelper, Programs};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 abstract class CurriculumResource extends FormController
 {
     use Associated;
@@ -41,10 +39,7 @@ abstract class CurriculumResource extends FormController
         $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id");
     }
 
-    /**
-     * General or specific resource documentation authorization.
-     * @return void
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Can::administrate()) {
@@ -162,9 +157,7 @@ abstract class CurriculumResource extends FormController
         return DB::loadInt() + 1;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function process(): int
     {
         $this->checkToken();

@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\Grids as Helper;
 use THM\Organizer\Tables\Grids as Table;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Grids extends ListController
 {
     protected string $item = 'Grid';

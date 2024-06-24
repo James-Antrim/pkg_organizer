@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use THM\Organizer\Adapters\Input;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Rooms extends ListController
 {
     use Activated;

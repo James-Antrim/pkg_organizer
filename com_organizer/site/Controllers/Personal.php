@@ -17,9 +17,7 @@ use THM\Organizer\Helpers\Can;
 
 trait Personal
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Can::administrate()) {

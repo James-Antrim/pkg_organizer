@@ -17,9 +17,7 @@ use Joomla\Input\Input as JInput;
 use THM\Organizer\Adapters\{Application, Database as DB, Database, Input};
 use THM\Organizer\Tables\{Associations, InstanceGroups, InstanceRooms, Schedules};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 abstract class MergeController extends FormController
 {
     protected string $mergeContext = '';
@@ -27,9 +25,7 @@ abstract class MergeController extends FormController
     public int $mergeID;
     public array $mergeIDs;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [],
         MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
@@ -76,9 +72,7 @@ abstract class MergeController extends FormController
         return (int) $return;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($cachable = false, $urlparams = []): BaseController
     {
         if (JDEBUG) {
@@ -113,9 +107,7 @@ abstract class MergeController extends FormController
         return Database::loadIntColumn();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data       = parent::prepareData();
@@ -124,10 +116,7 @@ abstract class MergeController extends FormController
         return $data;
     }
 
-    /**
-     * Code common in storing resource data.
-     * @return int
-     */
+    /** @inheritDoc */
     protected function process(): int
     {
         $this->checkToken();

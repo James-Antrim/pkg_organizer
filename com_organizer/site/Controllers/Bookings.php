@@ -17,9 +17,7 @@ use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Models;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Bookings extends Controller
 {
     protected $listView = 'bookings';

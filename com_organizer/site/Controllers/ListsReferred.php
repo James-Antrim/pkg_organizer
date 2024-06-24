@@ -12,9 +12,7 @@ use THM\Organizer\Adapters\{Application, Input};
  */
 abstract class ListsReferred extends FormController
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(
         $config = [],
         MVCFactoryInterface $factory = null,
@@ -26,27 +24,20 @@ abstract class ListsReferred extends FormController
         parent::__construct($config, $factory, $app, $input);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function cancel(): void
     {
         $this->setRedirect("$this->baseURL&view=" . $this->unsetReferrer());
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function save(): void
     {
         $this->process();
         $this->setRedirect("$this->baseURL&view=" . $this->unsetReferrer());
     }
 
-    /**
-     * Saves resource data and redirects to the form view for the copy.
-     * @return void
-     */
+    /** @inheritDoc */
     public function save2copy(): void
     {
         // Force new attribute creation

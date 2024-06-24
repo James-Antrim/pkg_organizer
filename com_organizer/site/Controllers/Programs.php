@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\Programs as Helper;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Programs extends CurriculumResources
 {
     use Activated;

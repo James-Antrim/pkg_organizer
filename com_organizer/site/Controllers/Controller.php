@@ -29,9 +29,7 @@ class Controller extends BaseController
      */
     protected string $baseURL = '';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [],
         MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
@@ -74,9 +72,7 @@ class Controller extends BaseController
         return $valid;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($cachable = false, $urlparams = []): BaseController
     {
         $format = Input::getFormat();

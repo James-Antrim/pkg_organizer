@@ -16,16 +16,12 @@ use THM\Organizer\Helpers\{Can, Participants};
 use Joomla\Database\ParameterType;
 use THM\Organizer\Tables\Table;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Participant extends FormController
 {
     protected string $list = 'Participants';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!$id = Input::getID()) {
@@ -36,9 +32,7 @@ class Participant extends FormController
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -58,9 +52,7 @@ class Participant extends FormController
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function store(JTable $table, array $data, int $id = 0): int
     {
         // The primary key is also a foreign key to users, so there may not be a table entry for a non-zero id.

@@ -15,23 +15,12 @@ use Joomla\CMS\Form\Form as FormAlias;
 use Joomla\CMS\MVC\Model\FormModel as Base;
 use THM\Organizer\Adapters\{Application, FormFactory, MVCFactory};
 
-/**
- * Model for data to be used with a form.
- */
+/** @inheritDoc */
 abstract class FormModel extends Base
 {
     use Named;
 
-    /**
-     * Constructor
-     *
-     * @param   array        $config            An array of configuration options (name, state, dbo, table_path,
-     *                                          ignore_request).
-     * @param   MVCFactory   $factory           The factory.
-     * @param   FormFactory  $formFactory       The form factory.
-     *
-     * @throws Exception
-     */
+    /** @inheritDoc */
     public function __construct($config, MVCFactory $factory, FormFactory $formFactory)
     {
         parent::__construct($config, $factory, $formFactory);
@@ -39,9 +28,7 @@ abstract class FormModel extends Base
         $this->setContext();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = true): ?FormAlias
     {
         $options = ['control' => '', 'load_data' => $loadData];

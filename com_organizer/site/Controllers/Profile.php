@@ -14,9 +14,7 @@ use Joomla\CMS\Router\Route;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
+/** @inheritDoc */
 class Profile extends Controller
 {
     /**

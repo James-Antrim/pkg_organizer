@@ -10,10 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class RoomType extends FormController
 {
     use FluMoxed;

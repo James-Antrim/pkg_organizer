@@ -12,9 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input};
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Category extends FormController
 {
     use Activated;
@@ -25,10 +23,7 @@ class Category extends FormController
     /** @inheritDoc */
     protected string $list = 'Categories';
 
-    /**
-     * Prepares the data to be saved.
-     * @return array
-     */
+    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();
@@ -42,9 +37,7 @@ class Category extends FormController
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function process(): int
     {
         $id = parent::process();

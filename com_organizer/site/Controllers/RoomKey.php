@@ -14,18 +14,14 @@ use THM\Organizer\Tables\{CleaningGroups, RoomKeys};
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Adapters\Input;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class RoomKey extends FormController
 {
     use FluMoxed;
 
     protected string $list = 'RoomKeys';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function process(): int
     {
         $this->checkToken();
