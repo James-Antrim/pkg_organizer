@@ -13,6 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Tables\{Associations, Persons as Table};
 
 /**
@@ -23,9 +24,9 @@ class Persons implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
-        $person       = $model->persons->$code;
+        $person       = $controller->persons->$code;
         $table        = new Table();
         $loadCriteria = [];
 
@@ -50,7 +51,7 @@ class Persons implements UntisXMLValidator
 
                     if (property_exists($table, $key) and empty($table->$key) and !empty($value)) {
                         $table->$key = $value;
-                        $altered = true;
+                        $altered     = true;
                     }
                 }
 
@@ -78,10 +79,10 @@ class Persons implements UntisXMLValidator
         // Only automatically associate the first association.
         $association = new Associations();
         if (!$association->load(['personID' => $table->id])) {
-            $association->save(['organizationID' => $model->organizationID, 'personID' => $table->id]);
+            $association->save(['organizationID' => $controller->organizationID, 'personID' => $table->id]);
         }
 
-        $model->persons->$code->id = $table->id;
+        $controller->persons->$code->id = $table->id;
     }
 
     /**
@@ -109,7 +110,7 @@ class Persons implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $internalID = str_replace('TR_', '', trim((string) $node[0]['id']));
 
@@ -117,13 +118,13 @@ class Persons implements UntisXMLValidator
             $untisID = $externalID;
         }
         else {
-            $model->warnings['PEX'] = empty($model->warnings['PEX']) ? 1 : $model->warnings['PEX'] + 1;
-            $untisID                = $internalID;
+            $controller->warnings['PEX'] = empty($controller->warnings['PEX']) ? 1 : $controller->warnings['PEX'] + 1;
+            $untisID                     = $internalID;
         }
 
         $surname = trim((string) $node->surname);
         if (empty($surname)) {
-            $model->errors[] = Text::sprintf('PERSON_SURNAME_MISSING', $internalID);
+            $controller->errors[] = Text::sprintf('PERSON_SURNAME_MISSING', $internalID);
 
             return;
         }
@@ -136,11 +137,11 @@ class Persons implements UntisXMLValidator
         $person->forename = trim((string) $node->forename);
 
         if (empty($person->forename)) {
-            $model->warnings['PFN'] = empty($model->warnings['PFN']) ? 1 : $model->warnings['PFN'] + 1;
+            $controller->warnings['PFN'] = empty($controller->warnings['PFN']) ? 1 : $controller->warnings['PFN'] + 1;
         }
 
-        $model->persons->$internalID = $person;
+        $controller->persons->$internalID = $person;
 
-        self::setID($model, $internalID);
+        self::setID($controller, $internalID);
     }
 }

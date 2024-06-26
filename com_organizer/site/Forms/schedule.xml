@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
     <fieldset name="details">
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" access="allowScheduling"
-               required="true"/>
         <field name="file" type="file" label="ORGANIZER_UNTIS_FILE" required="true" accept=".xml"/>
     </fieldset>
 </form>

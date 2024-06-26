@@ -13,6 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Tables\Events as Table;
 
 /**
@@ -23,9 +24,9 @@ class Events implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
-        $event = $model->events->$code;
+        $event = $controller->events->$code;
         $table = new Table();
 
         if ($table->load(['organizationID' => $event->organizationID, 'code' => $code])) {
@@ -71,13 +72,13 @@ class Events implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $code = str_replace('SU_', '', trim((string) $node[0]['id']));
         $name = trim((string) $node->longname);
 
         if (empty($name)) {
-            $model->errors[] = Text::sprintf('EVENT_NAME_MISSING', $code);
+            $controller->errors[] = Text::sprintf('EVENT_NAME_MISSING', $code);
 
             return;
         }
@@ -85,20 +86,20 @@ class Events implements UntisXMLValidator
         $subjectNo = trim((string) $node->text);
 
         if (empty($subjectNo)) {
-            $model->warnings['SubjectNumber'] = empty($model->warnings['SubjectNumber']) ?
-                1 : $model->warnings['SubjectNumber'] + 1;
+            $controller->warnings['SubjectNumber'] = empty($controller->warnings['SubjectNumber']) ?
+                1 : $controller->warnings['SubjectNumber'] + 1;
 
             $subjectNo = '';
         }
 
         $event                 = new stdClass();
-        $event->organizationID = $model->organizationID;
+        $event->organizationID = $controller->organizationID;
         $event->code           = $code;
         $event->name_de        = $name;
         $event->name_en        = $name;
         $event->subjectNo      = $subjectNo;
 
-        $model->events->$code = $event;
-        self::setID($model, $code);
+        $controller->events->$code = $event;
+        self::setID($controller, $code);
     }
 }

@@ -184,15 +184,10 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
             $view       = strtolower(Input::getView());
 
             switch ($access) {
-                case 'allowScheduling':
                 case 'schedule':
 
                     $allowedIDs = self::schedulableIDs();
                     $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.organizationID', 'o.id'));
-
-                    if ($access === 'allowScheduling') {
-                        $query->where(DB::qn('o.allowScheduling') . ' = 1');
-                    }
 
                     switch ($view) {
                         case 'categories':

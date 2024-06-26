@@ -13,6 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Tables\Grids as Table;
 
 /**
@@ -37,19 +38,19 @@ class Grids implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
-        if (empty($model->grids->$code)) {
+        if (empty($controller->grids->$code)) {
             return;
         }
 
-        $grid       = $model->grids->$code;
+        $grid       = $controller->grids->$code;
         $grid->grid = json_encode($grid, JSON_UNESCAPED_UNICODE);
         $table      = new Table();
 
         // No overwrites for global resources
         if (!$table->load(['code' => $code])) {
-            $model->errors[] = Text::sprintf('GRID_INVALID', $code);
+            $controller->errors[] = Text::sprintf('GRID_INVALID', $code);
 
             return;
         }
@@ -60,21 +61,21 @@ class Grids implements UntisXMLValidator
     /**
      * Sets IDs for the collection of grids.
      *
-     * @param   Schedule  $model  the model for the schedule being validated
+     * @param   Schedule  $controller  the model for the schedule being validated
      *
      * @return void modifies &$model
      */
-    public static function setIDs(Schedule $model): void
+    public static function setIDs(Schedule $controller): void
     {
-        foreach (array_keys((array) $model->grids) as $gridName) {
-            self::setID($model, $gridName);
+        foreach (array_keys((array) $controller->grids) as $gridName) {
+            self::setID($controller, $gridName);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         // Not actually referenced but evinces data inconsistencies in Untis
         $exportKey = trim((string) $node[0]['id']);
@@ -89,18 +90,18 @@ class Grids implements UntisXMLValidator
         $invalidPeriod = ($invalidKeys or $invalidTimes);
 
         if ($invalidPeriod) {
-            $model->errors['PI'] = Text::_('PERIODS_INCONSISTENT');
+            $controller->errors['PI'] = Text::_('PERIODS_INCONSISTENT');
 
             return;
         }
 
         // Set the grid if not already existent
-        if (empty($model->grids->$gridName)) {
-            $model->grids->$gridName          = new stdClass();
-            $model->grids->$gridName->periods = new stdClass();
+        if (empty($controller->grids->$gridName)) {
+            $controller->grids->$gridName          = new stdClass();
+            $controller->grids->$gridName->periods = new stdClass();
         }
 
-        $grid = $model->grids->$gridName;
+        $grid = $controller->grids->$gridName;
 
         if (!isset($grid->startDay) or $grid->startDay > $day) {
             $grid->startDay = $day;

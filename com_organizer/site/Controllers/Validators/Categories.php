@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
-use THM\Organizer\Controllers\Program;
+use THM\Organizer\Controllers\{Program, Schedule};
 use THM\Organizer\Tables\{Associations, Categories as Table, Degrees};
 
 /**
@@ -58,9 +58,9 @@ class Categories implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
-        $category = $model->categories->$code;
+        $category = $controller->categories->$code;
         $table    = new Table();
 
         if ($exists = $table->load(['code' => $code])) {
@@ -85,7 +85,7 @@ class Categories implements UntisXMLValidator
 
         $association = new Associations();
         if (!$association->load(['categoryID' => $table->id])) {
-            $association->save(['categoryID' => $table->id, 'organizationID' => $model->organizationID]);
+            $association->save(['categoryID' => $table->id, 'organizationID' => $controller->organizationID]);
         }
 
         $category->id = $table->id;
@@ -94,12 +94,12 @@ class Categories implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $code = str_replace('DP_', '', trim((string) $node[0]['id']));
 
         if (!$name = (string) $node->longname) {
-            $model->errors[] = Text::sprintf('CATEGORY_NAME_MISSING', $code);
+            $controller->errors[] = Text::sprintf('CATEGORY_NAME_MISSING', $code);
 
             return;
         }
@@ -109,8 +109,8 @@ class Categories implements UntisXMLValidator
         $category->name_en = $name;
         $category->code    = $code;
 
-        $model->categories->$code = $category;
-        self::setID($model, $code);
+        $controller->categories->$code = $category;
+        self::setID($controller, $code);
 
         if ($keys = self::parseProgramData($code) and $name = trim(substr($name, 0, strpos($name, '(')))) {
             $program = new Program();

@@ -13,6 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\{Database as DB, Text};
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Tables\Units as Table;
 
 /**
@@ -23,13 +24,13 @@ class Units implements UntisXMLValidator
     /**
      * Determines how the missing room attribute will be handled
      *
-     * @param   Schedule  $model  the model for the schedule being validated
+     * @param   Schedule  $controller  the model for the schedule being validated
      *
      * @return void adds a message to the model warnings array
      */
-    private static function addIRMessages(Schedule $model): void
+    private static function addIRMessages(Schedule $controller): void
     {
-        foreach ($model->warnings['IIR'] as $untisID => $invalidRooms) {
+        foreach ($controller->warnings['IIR'] as $untisID => $invalidRooms) {
             asort($invalidRooms);
             $invalidRooms = implode(', ', $invalidRooms);
             $pos          = strrpos(', ', $invalidRooms);
@@ -38,26 +39,26 @@ class Units implements UntisXMLValidator
                 $invalidRooms = substr_replace($invalidRooms, " $and ", $pos, strlen($invalidRooms));
             }
 
-            $model->warnings[] = Text::sprintf('UNIT_ROOM_INCOMPLETE', $untisID, $invalidRooms
+            $controller->warnings[] = Text::sprintf('UNIT_ROOM_INCOMPLETE', $untisID, $invalidRooms
             );
         }
-        unset($model->warnings['IIR']);
+        unset($controller->warnings['IIR']);
     }
 
     /**
      * Determines how the missing room attribute will be handled
      *
-     * @param   Schedule  $model  the model for the schedule being validated
+     * @param   Schedule  $controller  the model for the schedule being validated
      *
      * @return void adds a message to the model warnings array
      */
-    private static function addMRMessages(Schedule $model): void
+    private static function addMRMessages(Schedule $controller): void
     {
-        foreach ($model->warnings['IMR'] as $untisID => $dows) {
+        foreach ($controller->warnings['IMR'] as $untisID => $dows) {
             foreach ($dows as $dow => $periods) {
                 foreach ($periods as $periodNo => $missingDates) {
                     if (count($missingDates) > 2) {
-                        $model->warnings[] = Text::sprintf('UNIT_ROOMS_MISSING', $untisID, $dow, $periodNo);
+                        $controller->warnings[] = Text::sprintf('UNIT_ROOMS_MISSING', $untisID, $dow, $periodNo);
                         continue;
                     }
 
@@ -68,33 +69,33 @@ class Units implements UntisXMLValidator
                         $dates = substr_replace($dates, " $and ", $pos, strlen($dates));
                     }
 
-                    $model->warnings[] = Text::sprintf('UNIT_ROOMS_MISSING', $untisID, $dates, $periodNo);
+                    $controller->warnings[] = Text::sprintf('UNIT_ROOMS_MISSING', $untisID, $dates, $periodNo);
                 }
 
             }
         }
-        unset($model->warnings['IMR']);
+        unset($controller->warnings['IMR']);
     }
 
     /**
      * Adjusts the temporal template ('occurrence' attribute) to the unit's actual dates.
      *
-     * @param   Schedule          $model    the model for the schedule being validated
-     * @param   SimpleXMLElement  $node     the node being validated
-     * @param   string            $untisID  the untis id of the unit being iterated
+     * @param   Schedule          $controller  the model for the schedule being validated
+     * @param   SimpleXMLElement  $node        the node being validated
+     * @param   string            $untisID     the untis id of the unit being iterated
      *
      * @return string[]   the occurrences string modeled by an array
      */
-    private static function filterOccurrences(Schedule $model, SimpleXMLElement $node, string $untisID): array
+    private static function filterOccurrences(Schedule $controller, SimpleXMLElement $node, string $untisID): array
     {
         $rawOccurrences = trim((string) $node->occurence);
-        $unit           = $model->units->$untisID;
+        $unit           = $controller->units->$untisID;
 
         // Increases the end value one day (Untis uses inclusive dates)
         $end = strtotime('+1 day', $unit->endDT);
 
         // 86400 is the number of seconds in a day 24 * 60 * 60
-        $offset = floor(($unit->startDT - strtotime($model->schoolYear->startDate)) / 86400);
+        $offset = floor(($unit->startDT - strtotime($controller->schoolYear->startDate)) / 86400);
         $length = floor(($end - $unit->startDT) / 86400);
 
         $filteredOccurrences = substr($rawOccurrences, $offset, $length);
@@ -121,7 +122,7 @@ class Units implements UntisXMLValidator
         $query = DB::getQuery();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_roles'))
-            ->where(DB::qn('code') . ' = ' . DB::quote(strtoupper($role)));
+            ->where(DB::qc('code', strtoupper($role), '=', true));
         DB::setQuery($query);
 
         return DB::loadInt(1);
@@ -130,14 +131,14 @@ class Units implements UntisXMLValidator
     /**
      * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
      *
-     * @param   Schedule  $model  the model for the schedule being validated
-     * @param   string    $code   the untis id of the unit being iterated
+     * @param   Schedule  $controller  the model for the schedule being validated
+     * @param   string    $code        the untis id of the unit being iterated
      *
      * @return void modifies the model, setting the id property of the resource
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
-        $unit  = $model->units->$code;
+        $unit  = $controller->units->$code;
         $table = new Table();
 
         if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $code])) {
@@ -150,12 +151,12 @@ class Units implements UntisXMLValidator
             }
 
             if ($updated) {
-                $table->modified = $model->modified;
+                $table->modified = $controller->modified;
                 $table->store();
             }
         }
         else {
-            $table->modified = $model->modified;
+            $table->modified = $controller->modified;
             $table->save($unit);
         }
 
@@ -165,31 +166,31 @@ class Units implements UntisXMLValidator
     /**
      * Checks whether nodes have the expected structure and required information
      *
-     * @param   Schedule  $model  the model for the schedule being validated
+     * @param   Schedule  $controller  the model for the schedule being validated
      *
      * @return void modifies &$model
      */
-    public static function setWarnings(Schedule $model): void
+    public static function setWarnings(Schedule $controller): void
     {
-        if (!empty($model->warnings['MID'])) {
-            $warningCount = $model->warnings['MID'];
-            unset($model->warnings['MID']);
-            $model->warnings[] = Text::sprintf('METHOD_ID_WARNING', $warningCount);
+        if (!empty($controller->warnings['MID'])) {
+            $warningCount = $controller->warnings['MID'];
+            unset($controller->warnings['MID']);
+            $controller->warnings[] = Text::sprintf('METHOD_ID_WARNING', $warningCount);
         }
 
-        if (!empty($model->warnings['IMR'])) {
-            self::addMRMessages($model);
+        if (!empty($controller->warnings['IMR'])) {
+            self::addMRMessages($controller);
         }
 
-        if (!empty($model->warnings['IIR'])) {
-            self::addIRMessages($model);
+        if (!empty($controller->warnings['IIR'])) {
+            self::addIRMessages($controller);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         // Unit has no instances and should not have been exported
         if (empty($node->times->count())) {
@@ -198,10 +199,10 @@ class Units implements UntisXMLValidator
 
         $effBeginDT  = isset($node->begindate) ?
             strtotime(trim((string) $node->begindate)) : strtotime(trim((string) $node->effectivebegindate));
-        $termBeginDT = strtotime($model->term->startDate);
+        $termBeginDT = strtotime($controller->term->startDate);
         $effEndDT    = isset($node->enddate) ?
             strtotime(trim((string) $node->enddate)) : strtotime(trim((string) $node->effectiveenddate));
-        $termEndDT   = strtotime($model->term->endDate);
+        $termEndDT   = strtotime($controller->term->endDate);
 
         // Unit starts after term ends or ends before term begins
         if ($effBeginDT > $termEndDT or $effEndDT < $termBeginDT) {
@@ -220,17 +221,17 @@ class Units implements UntisXMLValidator
 
         $gridID = null;
         if (!$gridName = trim((string) $node->timegrid)) {
-            $model->errors[] = Text::sprintf('UNIT_GRID_MISSING', $untisID);
+            $controller->errors[] = Text::sprintf('UNIT_GRID_MISSING', $untisID);
         }
         elseif (!$gridID = Grids::getID($gridName)) {
-            $model->errors[] = Text::sprintf('UNIT_GRID_INVALID', $untisID, $gridName);
+            $controller->errors[] = Text::sprintf('UNIT_GRID_INVALID', $untisID, $gridName);
         }
 
-        if (empty($model->units->$untisID)) {
+        if (empty($controller->units->$untisID)) {
             $comment              = trim((string) $node->text);
             $unit                 = new stdClass();
-            $unit->organizationID = $model->organizationID;
-            $unit->termID         = $model->termID;
+            $unit->organizationID = $controller->organizationID;
+            $unit->termID         = $controller->termID;
             $unit->code           = $untisID;
             $unit->gridID         = $gridID;
             $unit->gridName       = $gridName;
@@ -246,74 +247,74 @@ class Units implements UntisXMLValidator
             $unit->subjects = new stdClass();
         }
         else {
-            $unit = $model->units->$untisID;
+            $unit = $controller->units->$untisID;
         }
 
         $iComment       = trim((string) $node->text2);
         $unit->iComment = !$iComment ? '' : $iComment;
         $unit->roleID   = self::getRoleID(trim((string) $node->text1));
 
-        $model->units->$untisID = $unit;
+        $controller->units->$untisID = $unit;
 
-        $valid = count($model->errors) === 0;
+        $valid = count($controller->errors) === 0;
         if ($valid) {
-            self::setID($model, $untisID);
+            self::setID($controller, $untisID);
         }
 
-        $valid = (self::validateDates($model, $untisID) and $valid);
-        $valid = (self::validateEvent($model, $node, $untisID) and $valid);
-        $valid = (self::validateGroups($model, $node, $untisID) and $valid);
-        $valid = (self::validatePerson($model, $node, $untisID) and $valid);
-        $valid = (self::validateMethod($model, $node, $untisID) and $valid);
+        $valid = (self::validateDates($controller, $untisID) and $valid);
+        $valid = (self::validateEvent($controller, $node, $untisID) and $valid);
+        $valid = (self::validateGroups($controller, $node, $untisID) and $valid);
+        $valid = (self::validatePerson($controller, $node, $untisID) and $valid);
+        $valid = (self::validateMethod($controller, $node, $untisID) and $valid);
 
         // Adjusted dates are used because effective dts are not always accurate for the time frame
-        $filteredOccurrences = self::filterOccurrences($model, $node, $untisID);
+        $filteredOccurrences = self::filterOccurrences($controller, $node, $untisID);
 
         // Cannot produce blocking errors
-        Instances::validateCollection($model, $node->times, $untisID, $filteredOccurrences, $valid);
+        Instances::validateCollection($controller, $node->times, $untisID, $filteredOccurrences, $valid);
     }
 
     /**
      * Checks for the validity and consistency of date values
      *
-     * @param   Schedule  $model    the model for the schedule being validated
-     * @param   string    $untisID  the untis id of the unit being iterated
+     * @param   Schedule  $controller  the model for the schedule being validated
+     * @param   string    $untisID     the untis id of the unit being iterated
      *
      * @return bool  true if dates are valid, otherwise false
      */
-    private static function validateDates(Schedule $model, string $untisID): bool
+    private static function validateDates(Schedule $controller, string $untisID): bool
     {
-        $unit  = $model->units->$untisID;
+        $unit  = $controller->units->$untisID;
         $valid = true;
 
         if (empty($unit->startDT)) {
-            $model->errors[] = Text::sprintf('UNIT_START_DATE_MISSING', $untisID);
-            $valid           = false;
+            $controller->errors[] = Text::sprintf('UNIT_START_DATE_MISSING', $untisID);
+            $valid                = false;
         }
 
-        $syStartTime = strtotime($model->schoolYear->startDate);
-        $syEndTime   = strtotime($model->schoolYear->endDate);
+        $syStartTime = strtotime($controller->schoolYear->startDate);
+        $syEndTime   = strtotime($controller->schoolYear->endDate);
 
         if ($unit->startDT < $syStartTime or $unit->startDT > $syEndTime) {
-            $model->errors[] = Text::sprintf('UNIT_START_DATE_INVALID', $untisID, $unit->startDate);
-            $valid           = false;
+            $controller->errors[] = Text::sprintf('UNIT_START_DATE_INVALID', $untisID, $unit->startDate);
+            $valid                = false;
         }
 
         if (empty($unit->endDT)) {
-            $model->errors[] = Text::sprintf('UNIT_END_DATE_MISSING', $untisID);
-            $valid           = false;
+            $controller->errors[] = Text::sprintf('UNIT_END_DATE_MISSING', $untisID);
+            $valid                = false;
         }
 
         $validEndDate = ($unit->endDT >= $syStartTime and $unit->endDT <= $syEndTime);
         if (!$validEndDate) {
-            $model->errors[] = Text::sprintf('UNIT_END_DATE_INVALID', $untisID, $unit->endDate);
-            $valid           = false;
+            $controller->errors[] = Text::sprintf('UNIT_END_DATE_INVALID', $untisID, $unit->endDate);
+            $valid                = false;
         }
 
         // Checks if start date is before end date
         if ($unit->endDT < $unit->startDT) {
-            $model->errors[] = Text::sprintf('UNIT_DATES_INCONSISTENT', $untisID, $unit->startDate, $unit->endDate);
-            $valid           = false;
+            $controller->errors[] = Text::sprintf('UNIT_DATES_INCONSISTENT', $untisID, $unit->startDate, $unit->endDate);
+            $valid                = false;
         }
 
         return $valid;
@@ -322,44 +323,44 @@ class Units implements UntisXMLValidator
     /**
      * Validates the subjectID and builds dependant structural elements
      *
-     * @param   Schedule          $model    the model for the schedule being validated
-     * @param   SimpleXMLElement  $node     the node being validated
-     * @param   string            $untisID  the untis id of the unit being iterated
+     * @param   Schedule          $controller  the model for the schedule being validated
+     * @param   SimpleXMLElement  $node        the node being validated
+     * @param   string            $untisID     the untis id of the unit being iterated
      *
      * @return bool  true on success, otherwise bool false
      */
-    private static function validateEvent(Schedule $model, SimpleXMLElement $node, string $untisID): bool
+    private static function validateEvent(Schedule $controller, SimpleXMLElement $node, string $untisID): bool
     {
         $eventCode = str_replace('SU_', '', trim((string) $node->lesson_subject[0]['id']));
 
         if (empty($eventCode)) {
-            $model->errors[] = Text::sprintf('UNIT_EVENT_MISSING', $untisID);
+            $controller->errors[] = Text::sprintf('UNIT_EVENT_MISSING', $untisID);
 
             return false;
         }
 
-        if (empty($model->events->$eventCode)) {
-            $model->errors[] = Text::sprintf('UNIT_EVENT_INVALID', $untisID, $eventCode);
+        if (empty($controller->events->$eventCode)) {
+            $controller->errors[] = Text::sprintf('UNIT_EVENT_INVALID', $untisID, $eventCode);
 
             return false;
         }
 
-        $eventID = $model->events->$eventCode->id;
+        $eventID = $controller->events->$eventCode->id;
 
-        $model->units->$untisID->eventID = $eventID;
+        $controller->units->$untisID->eventID = $eventID;
 
         // Backwards compatibility from here on.
-        if (empty($model->units->$untisID->subjects)) {
-            $model->units->$untisID->subjects = new stdClass();
+        if (empty($controller->units->$untisID->subjects)) {
+            $controller->units->$untisID->subjects = new stdClass();
         }
 
-        if (empty($model->units->$untisID->subjects->$eventID)) {
+        if (empty($controller->units->$untisID->subjects->$eventID)) {
             $entry            = new stdClass();
-            $entry->subjectNo = $model->events->$eventCode->subjectNo;
+            $entry->subjectNo = $controller->events->$eventCode->subjectNo;
             $entry->pools     = new stdClass();
             $entry->teachers  = new stdClass();
 
-            $model->units->$untisID->subjects->$eventID = $entry;
+            $controller->units->$untisID->subjects->$eventID = $entry;
         }
 
         return true;
@@ -368,23 +369,23 @@ class Units implements UntisXMLValidator
     /**
      * Validates the groups attribute and sets corresponding schedule elements
      *
-     * @param   Schedule          $model    the model for the schedule being validated
-     * @param   SimpleXMLElement  $node     the node being validated
-     * @param   string            $untisID  the untis id of the unit being iterated
+     * @param   Schedule          $controller  the model for the schedule being validated
+     * @param   SimpleXMLElement  $node        the node being validated
+     * @param   string            $untisID     the untis id of the unit being iterated
      *
      * @return bool  true if valid, otherwise false
      */
-    private static function validateGroups(Schedule $model, SimpleXMLElement $node, string $untisID): bool
+    private static function validateGroups(Schedule $controller, SimpleXMLElement $node, string $untisID): bool
     {
         $rawUntisIDs = str_replace('CL_', '', (string) $node->lesson_classes[0]['id']);
 
         if (empty($rawUntisIDs)) {
-            $model->errors[] = Text::sprintf('UNIT_GROUPS_MISSING', $untisID);
+            $controller->errors[] = Text::sprintf('UNIT_GROUPS_MISSING', $untisID);
 
             return false;
         }
 
-        $unit = $model->units->$untisID;
+        $unit = $controller->units->$untisID;
 
         if (empty($unit->eventID)) {
             // The error would have already been put in place by event validation.
@@ -396,13 +397,13 @@ class Units implements UntisXMLValidator
         $groupCodes   = explode(" ", $rawUntisIDs);
 
         foreach ($groupCodes as $groupCode) {
-            if (empty($model->groups->$groupCode)) {
-                $model->warnings[] = Text::sprintf('UNIT_GROUP_INVALID', $untisID, $groupCode);
+            if (empty($controller->groups->$groupCode)) {
+                $controller->warnings[] = Text::sprintf('UNIT_GROUP_INVALID', $untisID, $groupCode);
 
                 continue;
             }
 
-            $groupID        = $model->groups->$groupCode->id;
+            $groupID        = $controller->groups->$groupCode->id;
             $unit->groups[] = $groupID;
 
             // Backwards compatibility.
@@ -415,28 +416,28 @@ class Units implements UntisXMLValidator
     /**
      * Validates the description
      *
-     * @param   Schedule          $model    the model for the schedule being validated
-     * @param   SimpleXMLElement  $node     the node being validated
-     * @param   string            $untisID  the untis id of the unit being iterated
+     * @param   Schedule          $controller  the model for the schedule being validated
+     * @param   SimpleXMLElement  $node        the node being validated
+     * @param   string            $untisID     the untis id of the unit being iterated
      *
      * @return bool true if valid, otherwise false
      */
-    private static function validateMethod(Schedule $model, SimpleXMLElement $node, string $untisID): bool
+    private static function validateMethod(Schedule $controller, SimpleXMLElement $node, string $untisID): bool
     {
         $methodID = trim((string) $node->lesson_description);
         if (empty($methodID)) {
-            $model->warnings['MID'] = empty($model->warnings['MID']) ? 1 : $model->warnings['MID'] + 1;
+            $controller->warnings['MID'] = empty($controller->warnings['MID']) ? 1 : $controller->warnings['MID'] + 1;
 
             return true;
         }
 
-        if (empty($model->methods->$methodID)) {
-            $model->errors[] = Text::sprintf('UNIT_METHOD_INVALID', $untisID, $methodID);
+        if (empty($controller->tMethods->$methodID)) {
+            $controller->errors[] = Text::sprintf('UNIT_METHOD_INVALID', $untisID, $methodID);
 
             return false;
         }
 
-        $model->units->$untisID->methodID = $model->methods->$methodID;
+        $controller->units->$untisID->methodID = $controller->tMethods->$methodID;
 
         return true;
     }
@@ -444,33 +445,33 @@ class Units implements UntisXMLValidator
     /**
      * Validates the unit's teacher attribute and sets corresponding schedule elements
      *
-     * @param   Schedule          $model    the model for the schedule being validated
-     * @param   SimpleXMLElement  $node     the node being validated
-     * @param   string            $untisID  the untis id of the unit being iterated
+     * @param   Schedule          $controller  the model for the schedule being validated
+     * @param   SimpleXMLElement  $node        the node being validated
+     * @param   string            $untisID     the untis id of the unit being iterated
      *
      * @return bool  true if valid, otherwise false
      */
-    private static function validatePerson(Schedule $model, SimpleXMLElement $node, string $untisID): bool
+    private static function validatePerson(Schedule $controller, SimpleXMLElement $node, string $untisID): bool
     {
         $personCode = str_replace('TR_', '', trim((string) $node->lesson_teacher[0]['id']));
 
         if (empty($personCode)) {
-            $model->errors[] = Text::sprintf('UNIT_PERSON_MISSING', $untisID);
+            $controller->errors[] = Text::sprintf('UNIT_PERSON_MISSING', $untisID);
 
             return false;
         }
 
-        if (empty($model->persons->$personCode)) {
-            $model->errors[] = Text::sprintf('UNIT_PERSON_INVALID', $untisID, $personCode);
+        if (empty($controller->persons->$personCode)) {
+            $controller->errors[] = Text::sprintf('UNIT_PERSON_INVALID', $untisID, $personCode);
 
             return false;
         }
 
-        $personID                         = $model->persons->$personCode->id;
-        $model->units->$untisID->personID = $personID;
+        $personID                              = $controller->persons->$personCode->id;
+        $controller->units->$untisID->personID = $personID;
 
         // Backwards compatibility
-        $unit = $model->units->$untisID;
+        $unit = $controller->units->$untisID;
 
         // Error message already added by the event validation.
         if (empty($unit->eventID)) {

@@ -12,6 +12,7 @@ namespace THM\Organizer\Controllers\Validators;
 
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Database, Text};
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Tables\{Blocks, InstanceGroups, InstancePersons, InstanceRooms, Instances as Table};
 
 /**

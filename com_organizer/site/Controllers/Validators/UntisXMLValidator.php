@@ -11,6 +11,7 @@
 namespace THM\Organizer\Controllers\Validators;
 
 use SimpleXMLElement;
+use THM\Organizer\Controllers\Schedule;
 
 /**
  * Ensures that Helpers which validate Schedule XML Export files have standardized functions.
@@ -20,21 +21,21 @@ interface UntisXMLValidator
     /**
      * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
      *
-     * @param   Schedule  $model  the validating schedule model
-     * @param   string    $code   the id of the resource in Untis
+     * @param   Schedule  $controller  the validating schedule model
+     * @param   string    $code        the id of the resource in Untis
      *
      * @return void modifies the model, setting the id property of the resource
      */
-    public static function setID(Schedule $model, string $code): void;
+    public static function setID(Schedule $controller, string $code): void;
 
     /**
      * Checks whether XML node has the expected structure and required
      * information
      *
-     * @param   Schedule          $model  the model for the schedule being validated
-     * @param   SimpleXMLElement  $node   the node being validated
+     * @param   Schedule          $controller  the model for the schedule being validated
+     * @param   SimpleXMLElement  $node        the node being validated
      *
      * @return void
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void;
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void;
 }

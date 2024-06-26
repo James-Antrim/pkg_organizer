@@ -12,6 +12,7 @@ namespace THM\Organizer\Controllers\Validators;
 
 use SimpleXMLElement;
 use THM\Organizer\Adapters\Text;
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Tables\Methods as Table;
 
 /**
@@ -22,23 +23,23 @@ class Methods implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
         $method = new Table();
 
         // These are set by the administrator, so there is no case for saving a new resource on upload.
         if ($method->load(['code' => $code])) {
-            $model->methods->$code = $method->id;
+            $controller->tMethods->$code = $method->id;
         }
         else {
-            $model->errors[] = Text::sprintf('METHOD_INVALID', $code);
+            $controller->errors[] = Text::sprintf('METHOD_INVALID', $code);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $typeFlag = strtolower(trim((string) $node->flags));
 
@@ -51,11 +52,11 @@ class Methods implements UntisXMLValidator
         $name    = trim((string) $node->longname);
 
         if (empty($name)) {
-            $model->errors[] = Text::sprintf('DESCRIPTION_NAME_MISSING', $untisID);
+            $controller->errors[] = Text::sprintf('DESCRIPTION_NAME_MISSING', $untisID);
 
             return;
         }
 
-        self::setID($model, $untisID);
+        self::setID($controller, $untisID);
     }
 }

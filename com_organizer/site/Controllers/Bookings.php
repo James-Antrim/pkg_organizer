@@ -20,9 +20,9 @@ use THM\Organizer\Models;
 /** @inheritDoc */
 class Bookings extends Controller
 {
-    protected $listView = 'bookings';
+    protected string $listView = 'bookings';
 
-    protected $resource = 'booking';
+    protected string $resource = 'booking';
 
     /**
      * Class constructor
@@ -40,7 +40,7 @@ class Bookings extends Controller
      * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
      * @return void
      */
-    public function add()
+    public function add(): void
     {
         $model = new Models\Booking();
 
@@ -58,7 +58,7 @@ class Bookings extends Controller
      * Supplements the resource.
      * @return void
      */
-    public function addParticipant()
+    public function addParticipant(): void
     {
         $model = new Models\Booking();
         $model->addParticipant();
@@ -71,7 +71,7 @@ class Bookings extends Controller
      * @return void
      * @throws Exception
      */
-    public function batch()
+    public function batch(): void
     {
         $model = new Models\Booking();
 
@@ -90,7 +90,7 @@ class Bookings extends Controller
      * Checks the selected participants into the booking.
      * @return void
      */
-    public function checkin()
+    public function checkin(): void
     {
         $model = new Models\Booking();
         $model->checkin();
@@ -119,7 +119,7 @@ class Bookings extends Controller
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qcs([['i.blockID', 'bk.blockID'], ['i.unitID', 'bk.unitID']]));
 
         // Bookings associated with non-deprecated appointments.
-        $select->where($earliest)->where(DB::qc('i.delta', 'removed', 'IS NOT', true));
+        $select->where($earliest)->where(DB::qc('i.delta', 'removed', '!=', true));
         DB::setQuery($select);
         $currentIDs = DB::loadIntColumn();
 
@@ -169,7 +169,7 @@ class Bookings extends Controller
      * Closes a booking manually.
      * @return void
      */
-    public function close()
+    public function close(): void
     {
         $model = new Models\Booking();
         $model->close();
@@ -182,7 +182,7 @@ class Bookings extends Controller
      * @return void
      * @throws Exception
      */
-    public function editParticipants()
+    public function editParticipants(): void
     {
         $bookingID       = Input::getID();
         $participationID = Input::getSelectedID();
@@ -194,9 +194,12 @@ class Bookings extends Controller
 
     /**
      * Provides a singular point of entry for creation and management of a booking.
+     *
+     * @param   int  $instanceID  the id of an instance associated with a booking
+     *
      * @return void
      */
-    public function manage(int $instanceID = 0)
+    public function manage(int $instanceID = 0): void
     {
         if (!$instanceID) {
             if (!$instanceIDs = Input::getSelectedIDs()) {
@@ -224,7 +227,7 @@ class Bookings extends Controller
      * Provides a directed point of entry for creation and management of a booking from an instance.
      * @return void
      */
-    public function manageThis()
+    public function manageThis(): void
     {
         if (!$instanceID = Input::getID()) {
             Application::error(400);
@@ -237,7 +240,7 @@ class Bookings extends Controller
      * Opens/reopens a booking manually.
      * @return void
      */
-    public function open()
+    public function open(): void
     {
         $model = new Models\Booking();
         $model->open();
@@ -249,7 +252,7 @@ class Bookings extends Controller
      * Removes the selected participants from the list of registered participants.
      * @return void
      */
-    public function removeParticipants()
+    public function removeParticipants(): void
     {
         $model = new Models\Booking();
         $model->removeParticipants();

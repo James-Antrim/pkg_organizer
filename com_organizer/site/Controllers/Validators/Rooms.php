@@ -13,6 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\{Input, Text};
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Helpers\Buildings;
 use THM\Organizer\Tables\Rooms as Table;
 
@@ -24,13 +25,13 @@ class Rooms implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
-        $room  = $model->rooms->$code;
+        $room  = $controller->rooms->$code;
         $table = new Table();
 
         if (!$table->load(['code' => $room->code])) {
-            $model->errors[] = Text::sprintf('ROOM_MISSING_FROM_INVENTORY', $code);
+            $controller->errors[] = Text::sprintf('ROOM_MISSING_FROM_INVENTORY', $code);
 
             return;
         }
@@ -47,7 +48,7 @@ class Rooms implements UntisXMLValidator
             $table->store();
         }
 
-        $model->rooms->$code->id = $table->id;
+        $controller->rooms->$code->id = $table->id;
     }
 
     /**
@@ -69,7 +70,7 @@ class Rooms implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $internalID = strtoupper(str_replace('RM_', '', trim((string) $node[0]['id'])));
 
@@ -77,7 +78,7 @@ class Rooms implements UntisXMLValidator
             $code = $externalID;
         }
         else {
-            $model->warnings['REX'] = empty($model->warnings['REX']) ? 1 : $model->warnings['REX'] + 1;
+            $controller->warnings['REX'] = empty($controller->warnings['REX']) ? 1 : $controller->warnings['REX'] + 1;
 
             $code = str_contains($internalID, 'ONLINE') ? 'ONLINE' : $internalID;
         }
@@ -97,7 +98,7 @@ class Rooms implements UntisXMLValidator
         $room->name        = $code;
         $room->code        = $code;
 
-        $model->rooms->$internalID = $room;
-        self::setID($model, $internalID);
+        $controller->rooms->$internalID = $room;
+        self::setID($controller, $internalID);
     }
 }

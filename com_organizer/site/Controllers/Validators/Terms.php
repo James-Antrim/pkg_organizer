@@ -13,6 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
+use THM\Organizer\Controllers\Schedule;
 use THM\Organizer\Tables\Terms as Table;
 
 /**
@@ -23,11 +24,11 @@ class Terms implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code): void
+    public static function setID(Schedule $controller, string $code): void
     {
         $loadCriteria = [
             ['code' => $code],
-            ['endDate' => $model->term->endDate, 'startDate' => $model->term->startDate]
+            ['endDate' => $controller->term->endDate, 'startDate' => $controller->term->startDate]
         ];
 
         $table = new Table();
@@ -39,7 +40,7 @@ class Terms implements UntisXMLValidator
         }
 
         if (!$exists) {
-            $term         = (array) $model->term;
+            $term         = (array) $controller->term;
             $term['code'] = $code;
             $shortEndYear = date('y', $term['endDate']);
             $startYear    = date('Y', $term['startDate']);
@@ -69,34 +70,34 @@ class Terms implements UntisXMLValidator
             $table->save($term);
         }
 
-        $model->termID = $table->id;
+        $controller->termID = $table->id;
     }
 
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node): void
+    public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
-        $model->schoolYear            = new stdClass();
-        $model->schoolYear->endDate   = trim((string) $node->schoolyearenddate);
-        $model->schoolYear->startDate = trim((string) $node->schoolyearbegindate);
+        $controller->schoolYear            = new stdClass();
+        $controller->schoolYear->endDate   = trim((string) $node->schoolyearenddate);
+        $controller->schoolYear->startDate = trim((string) $node->schoolyearbegindate);
 
-        $validSYED = $model->validateDate($model->schoolYear->endDate, 'SCHOOL_YEAR_END_DATE');
-        $validSYSD = $model->validateDate($model->schoolYear->startDate, 'SCHOOL_YEAR_START_DATE');
+        $validSYED = $controller->validateDate($controller->schoolYear->endDate, 'SCHOOL_YEAR_END_DATE');
+        $validSYSD = $controller->validateDate($controller->schoolYear->startDate, 'SCHOOL_YEAR_START_DATE');
         $valid     = ($validSYED and $validSYSD);
 
         $term            = new stdClass();
         $term->endDate   = trim((string) $node->termenddate);
-        $validTED        = $model->validateDate($term->endDate, 'TERM_END_DATE');
+        $validTED        = $controller->validateDate($term->endDate, 'TERM_END_DATE');
         $term->code      = trim((string) $node->footer);
-        $validTN         = $model->validateText($term->code, 'TERM_NAME', '/[\#\;]/');
+        $validTN         = $controller->validateText($term->code, 'TERM_NAME', '/[\#\;]/');
         $term->startDate = trim((string) $node->termbegindate);
-        $validTSD        = $model->validateDate($term->startDate, 'TERM_START_DATE');
+        $validTSD        = $controller->validateDate($term->startDate, 'TERM_START_DATE');
         $valid           = ($valid and $validTED and $validTN and $validTSD);
 
         // Data type / value checks failed.
         if (!$valid) {
-            $model->errors[] = Text::_('TERM_INVALID');
+            $controller->errors[] = Text::_('TERM_INVALID');
 
             return;
         }
@@ -104,29 +105,29 @@ class Terms implements UntisXMLValidator
         $endTimeStamp = strtotime($term->endDate);
 
         if ($endTimeStamp < strtotime(date('Y-m-d'))) {
-            $model->errors[] = Text::_('TERM_EXPIRED');
+            $controller->errors[] = Text::_('TERM_EXPIRED');
 
             return;
         }
 
-        $invalidEnd = $endTimeStamp > strtotime($model->schoolYear->endDate);
+        $invalidEnd = $endTimeStamp > strtotime($controller->schoolYear->endDate);
 
         $startTimeStamp = strtotime($term->startDate);
-        $invalidStart   = $startTimeStamp < strtotime($model->schoolYear->startDate);
+        $invalidStart   = $startTimeStamp < strtotime($controller->schoolYear->startDate);
 
         $invalidPeriod = $startTimeStamp >= $endTimeStamp;
         $invalid       = ($invalidStart or $invalidEnd or $invalidPeriod);
 
         // Consistency among the dates failed.
         if ($invalid) {
-            $model->errors[] = Text::_('TERM_INVALID');
+            $controller->errors[] = Text::_('TERM_INVALID');
 
             return;
         }
 
-        $model->term = $term;
-        $code        = date('y', strtotime($term->endDate)) . $term->code;
+        $controller->term = $term;
+        $code             = date('y', strtotime($term->endDate)) . $term->code;
 
-        self::setID($model, $code);
+        self::setID($controller, $code);
     }
 }
