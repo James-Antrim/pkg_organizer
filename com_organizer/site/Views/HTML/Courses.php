@@ -15,18 +15,14 @@ use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers\{Campuses, Can, Courses as Helper, Dates, Organizations, Participants};
 
-/**
- * Class which loads data into the view output context
- */
+/** @inheritDoc */
 class Courses extends ListView
 {
     private bool $preparatory;
 
     private bool $manages = false;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -54,9 +50,7 @@ class Courses extends ListView
         $this->preparatory = ($getPrep or $menuPrep);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $resourceName = '';
@@ -100,9 +94,7 @@ class Courses extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Application::backend() and !Organizations::schedulableIDs()) {
@@ -110,10 +102,8 @@ class Courses extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function completeItems(): void
+    /** @inheritDoc */
+    protected function completeItems(array $options = []): void
     {
         $url = Uri::base() . '?option=com_organizer';
         $url .= Application::backend() ? '&view=course_edit&id=' : '&view=course_item&id=';
