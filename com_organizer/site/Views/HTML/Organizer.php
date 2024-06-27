@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Text, Toolbar};
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\Can;
 
 /**
@@ -48,7 +48,6 @@ class Organizer extends HtmlView
     {
         $this->addToC();
         $this->addToolBar();
-        //Document::style('organizer');
 
         parent::display($tpl);
     }
