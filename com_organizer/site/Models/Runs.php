@@ -22,11 +22,8 @@ class Runs extends ListModel
 
     protected $filter_fields = ['termID'];
 
-    /**
-     * Remove runs which have expired.
-     * @return void
-     */
-    private function deleteDeprecated(): void
+    /** @inheritDoc */
+    protected function clean(): void
     {
         $query = DB::getQuery();
         $query->delete(DB::qn('#__organizer_runs'))->where(DB::qn('endDate') . ' < CURDATE()');
@@ -40,8 +37,6 @@ class Runs extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $this->deleteDeprecated();
-
         $query = DB::getQuery();
         $tag   = Application::getTag();
         $url   = 'index.php?option=com_organizer&view=run&id=';

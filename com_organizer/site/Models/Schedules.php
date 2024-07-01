@@ -23,7 +23,7 @@ class Schedules extends ListModel
     protected function clean(): void
     {
         $query = DB::getQuery();
-        $query->delete(DB::qn('#__organizer_schedules'))->whereIn(DB::qn('id'), Terms::expiredIDs());
+        $query->delete(DB::qn('#__organizer_schedules'))->whereIn(DB::qn('termID'), Terms::expiredIDs());
         DB::setQuery($query);
         DB::execute();
     }
