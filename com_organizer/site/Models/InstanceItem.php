@@ -36,8 +36,8 @@ class InstanceItem extends ListModel
         $instanceID = Input::getID();
         $instance   = Helpers\Instances::instance($instanceID);
 
-        $endDate    = Helpers\Terms::getEndDate($instance['termID']);
-        $tStartDate = Helpers\Terms::getStartDate($instance['termID']);
+        $endDate    = Helpers\Terms::endDate($instance['termID']);
+        $tStartDate = Helpers\Terms::startDate($instance['termID']);
         $today      = date('Y-m-d');
         $startDate  = $tStartDate > $today ? $tStartDate : $today;
 

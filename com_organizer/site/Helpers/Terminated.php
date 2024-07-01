@@ -31,7 +31,7 @@ trait Terminated
         switch ($interval) {
             case 'term':
                 $term = new Tables\Terms();
-                $term->load(Terms::getCurrentID($date));
+                $term->load(Terms::currentID($date));
                 $query->where(DB::qn('u.startDate') . ' >= :startDate')->bind(':startDate', $term->startDate)
                     ->where(DB::qn('u.endDate') . ' <= :endDate')->bind(':startDate', $term->endDate);
                 break;

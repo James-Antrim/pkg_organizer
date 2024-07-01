@@ -11,7 +11,6 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\View\HtmlView;
-use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use THM\Organizer\Adapters\{Document, Form, Text, Toolbar};
 use THM\Organizer\Helpers;
@@ -82,9 +81,9 @@ class Statistics extends OldFormView
     protected function setSubtitle(): void
     {
         $termID    = $this->state->get('conditions.termID');
-        $endDate   = Helpers\Terms::getEndDate($termID);
+        $endDate   = Helpers\Terms::endDate($termID);
         $endDate   = Helpers\Dates::formatDate($endDate);
-        $startDate = Helpers\Terms::getStartDate($termID);
+        $startDate = Helpers\Terms::startDate($termID);
         $startDate = Helpers\Dates::formatDate($startDate);
 
         $text = match ($this->state->get('conditions.statistic')) {

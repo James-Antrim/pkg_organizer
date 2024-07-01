@@ -260,7 +260,7 @@ class Workload extends FormModel
         $organizationID       = $organizationIDs ? reset($organizationIDs) : 0;
         $this->organizationID = Input::getInt('organizationID', $organizationID);
         $this->personID       = Input::getInt('personID', $personID);
-        $this->termID         = Input::getInt('termID', Helpers\Terms::getCurrentID());
+        $this->termID         = Input::getInt('termID', Helpers\Terms::currentID());
         $this->weeks          = Input::getInt('weeks', 13);
 
         $incomplete = (!$this->personID or !$this->termID);
@@ -368,9 +368,9 @@ class Workload extends FormModel
     private function setConditions(): void
     {
         $conditions              = [];
-        $conditions['date']      = Helpers\Terms::getStartDate($this->termID);
+        $conditions['date']      = Helpers\Terms::startDate($this->termID);
         $conditions['delta']     = false;
-        $conditions['endDate']   = Helpers\Terms::getEndDate($this->termID);
+        $conditions['endDate']   = Helpers\Terms::endDate($this->termID);
         $conditions['interval']  = 'term';
         $conditions['my']        = false;
         $conditions['personIDs'] = [$this->personID];

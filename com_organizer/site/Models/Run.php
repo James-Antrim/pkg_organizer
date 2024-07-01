@@ -23,7 +23,7 @@ class Run extends EditModel
     public function getForm($data = [], $loadData = true): ?FormAlias
     {
         if ($form = parent::getForm($data, $loadData)) {
-            $defaultID = Input::getFilterID('termID', Terms::getCurrentID());
+            $defaultID = Input::getFilterID('termID', Terms::currentID());
             $form->setValue('termID', null, $form->getValue('termID', null, $defaultID));
         }
 

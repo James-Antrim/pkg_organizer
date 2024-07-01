@@ -60,7 +60,7 @@ class Instance extends BaseModel
         Application::error(503);
 
         $this->authorize();
-        $data           = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data           = empty($data) ? Input::getFormItems() : $data;
         $this->modified = date('Y-m-d H:i:s');
 
         if ($data['layout'] === 'appointment') {
@@ -124,7 +124,7 @@ class Instance extends BaseModel
         }
         else {
             $code   = User::id() . '-1';
-            $termID = Helpers\Terms::getCurrentID($date);
+            $termID = Helpers\Terms::currentID($date);
             $unit   = new Tables\Units();
             $unit->load(['code' => $code, 'termID' => $termID]);
 
@@ -189,6 +189,7 @@ class Instance extends BaseModel
      * @param   string  $time  the time being standardized
      *
      * @return null|string the H:i standardized value, or false if the value syntax was incorrect.
+     * @noinspection GrazieInspection
      */
     private function standardizeTime(string $date, string $time): ?string
     {

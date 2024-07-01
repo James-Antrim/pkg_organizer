@@ -42,12 +42,12 @@ class Groups extends ListView
             ->buttonClass('btn btn-action')
             ->listCheck(true);
         $functionsBar = $functions->getChildToolbar();
-        $current      = Terms::name(Terms::getCurrentID());
+        $current      = Terms::name(Terms::currentID());
         $functionsBar->standardButton('publish-current', Text::sprintf('PUBLISH_TERM', $current), 'groups.publishCurrent')
             ->icon('fa fa-eye');
         $functionsBar->standardButton('unpublish-current', Text::sprintf('UNPUBLISH_TERM', $current), 'groups.unpublishCurrent')
             ->icon('fa fa-eye-slash');
-        $next = Terms::name(Terms::getNextID());
+        $next = Terms::name(Terms::nextID());
         $functionsBar->standardButton('publish-current', Text::sprintf('PUBLISH_TERM', $next), 'groups.publishNext')
             ->icon('fa fa-eye');
         $functionsBar->standardButton('unpublish-current', Text::sprintf('UNPUBLISH_TERM', $next), 'groups.unpublishNext')
@@ -99,7 +99,7 @@ class Groups extends ListView
      */
     protected function completeItems(array $options = []): void
     {
-        $options = ['currentID' => Terms::getCurrentID(), 'nextID' => Terms::getNextID()];
+        $options = ['currentID' => Terms::currentID(), 'nextID' => Terms::nextID()];
         parent::completeItems($options);
     }
 
@@ -119,12 +119,12 @@ class Groups extends ListView
             ],
             'this'     => [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Terms::name(Terms::getCurrentID()),
+                'title'      => Terms::name(Terms::currentID()),
                 'type'       => 'value'
             ],
             'next'     => [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Terms::name(Terms::getNextID()),
+                'title'      => Terms::name(Terms::nextID()),
                 'type'       => 'value'
             ],
             'name'     => [

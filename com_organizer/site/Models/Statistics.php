@@ -583,8 +583,8 @@ class Statistics extends OldFormModel
             }
 
             $termID    = $state->get('conditions.termID');
-            $startDate = Helpers\Terms::getStartDate($termID);
-            $endDate   = Helpers\Terms::getEndDate($termID);
+            $startDate = Helpers\Terms::startDate($termID);
+            $endDate   = Helpers\Terms::endDate($termID);
 
             for ($current = $startDate; $current < $endDate;) {
                 $weekEndDate    = date('Y-m-d', strtotime('+7 days', strtotime($current)));
@@ -675,7 +675,7 @@ class Statistics extends OldFormModel
         }
 
         if (!$this->state->get('conditions.termID')) {
-            $termID = Helpers\Terms::getCurrentID();
+            $termID = Helpers\Terms::currentID();
             $this->setState("conditions.termID", $termID);
         }
     }

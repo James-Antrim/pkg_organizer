@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -27,15 +27,15 @@ class Terms extends ResourceHelper implements Selectable
      *
      * @return int the id of the term for the dates used on success, otherwise 0
      */
-    public static function getCurrentID(string $date = ''): int
+    public static function currentID(string $date = ''): int
     {
         $date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('id')->from('#__organizer_terms');
         Dates::betweenColumns($query, $date, 'startDate', 'endDate');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadInt();
+        return DB::loadInt();
     }
 
     /**
@@ -45,7 +45,7 @@ class Terms extends ResourceHelper implements Selectable
      *
      * @return string|null  string the end date of the term could be resolved, otherwise null
      */
-    public static function getEndDate(int $termID): ?string
+    public static function endDate(int $termID): ?string
     {
         $table = new Tables\Terms();
 
@@ -53,26 +53,18 @@ class Terms extends ResourceHelper implements Selectable
     }
 
     /**
-     * Checks for the term entry in the database, creating it as necessary.
-     *
-     * @param   array  $data  the term's data
-     *
-     * @return int|null  int the id if the room could be resolved/added, otherwise null
+     * The ids of terms that have already expired. Used in various cleaning functions.
+     * @return array
      */
-    public static function getID(array $data): ?int
+    public static function expiredIDs(): array
     {
-        if (empty($data)) {
-            return null;
-        }
+        $query = DB::getQuery();
+        $query->select(DB::qn('id'))
+            ->from(DB::qn('#__organizer_terms'))
+            ->where(DB::qc('endDate', date('Y-m-d'), '<', true));
+        DB::setQuery($query);
 
-        $table        = new Tables\Terms();
-        $loadCriteria = ['startDate' => $data['startDate'], 'endDate' => $data['endDate']];
-
-        if ($table->load($loadCriteria)) {
-            return $table->id;
-        }
-
-        return $table->save($data) ? $table->id : null;
+        return DB::loadIntColumn();
     }
 
     /**
@@ -100,21 +92,21 @@ class Terms extends ResourceHelper implements Selectable
      *
      * @return int the id of the subsequent term if successful, otherwise 0
      */
-    public static function getNextID(int $currentID = 0): int
+    public static function nextID(int $currentID = 0): int
     {
         if (empty($currentID)) {
-            $currentID = self::getCurrentID();
+            $currentID = self::currentID();
         }
 
-        $currentEndDate = self::getEndDate($currentID);
-        $query          = Database::getQuery();
+        $currentEndDate = self::endDate($currentID);
+        $query          = DB::getQuery();
         $query->select('id')
             ->from('#__organizer_terms')
             ->where("startDate > '$currentEndDate'")
             ->order('startDate');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadInt();
+        return DB::loadInt();
     }
 
     /**
@@ -144,37 +136,13 @@ class Terms extends ResourceHelper implements Selectable
     }
 
     /**
-     * Retrieves the ID of the term occurring immediately after the reference term.
-     *
-     * @param   int  $currentID  the id of the reference term
-     *
-     * @return int the id of the subsequent term if successful, otherwise 0
-     */
-    public static function getPreviousID(int $currentID = 0): int
-    {
-        if (empty($currentID)) {
-            $currentID = self::getCurrentID();
-        }
-
-        $currentStartDate = self::getStartDate($currentID);
-        $query            = Database::getQuery();
-        $query->select('id')
-            ->from('#__organizer_terms')
-            ->where("endDate < '$currentStartDate'")
-            ->order('endDate DESC');
-        Database::setQuery($query);
-
-        return Database::loadInt();
-    }
-
-    /**
      * @inheritDoc
      *
      * @param   bool  $filter
      */
     public static function resources(bool $filter = false): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');
 
         if ($view = Input::getView() and $view === 'Schedules') {
@@ -186,9 +154,9 @@ class Terms extends ResourceHelper implements Selectable
             $query->where("term.endDate > '$today'");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 
     /**
@@ -198,7 +166,7 @@ class Terms extends ResourceHelper implements Selectable
      *
      * @return string|null  string the end date of the term could be resolved, otherwise null
      */
-    public static function getStartDate(int $termID): ?string
+    public static function startDate(int $termID): ?string
     {
         $table = new Tables\Terms();
 

@@ -40,7 +40,7 @@ trait Published
             $copacetic = true;
             foreach ($termIDs as $termID) {
                 $data    = ['groupID' => $groupID, 'termID' => $termID];
-                $expired = Terms::getEndDate($termID) < $now;
+                $expired = Terms::endDate($termID) < $now;
                 $table   = new Table();
                 $table->load($data);
 

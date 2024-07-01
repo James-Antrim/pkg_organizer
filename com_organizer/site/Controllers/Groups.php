@@ -71,7 +71,7 @@ class Groups extends ListController
      */
     public function publishCurrent(): void
     {
-        $this->setPublished(Terms::getCurrentID(), Helper::PUBLISHED);
+        $this->setPublished(Terms::currentID(), Helper::PUBLISHED);
     }
 
     /**
@@ -80,7 +80,7 @@ class Groups extends ListController
      */
     public function publishNext(): void
     {
-        $this->setPublished(Terms::getNextID(), Helper::PUBLISHED);
+        $this->setPublished(Terms::nextID(), Helper::PUBLISHED);
     }
 
     /**
@@ -169,7 +169,7 @@ class Groups extends ListController
      */
     public function unpublishCurrent(): void
     {
-        $this->setPublished(Terms::getCurrentID(), Helper::UNPUBLISHED);
+        $this->setPublished(Terms::currentID(), Helper::UNPUBLISHED);
     }
 
     /**
@@ -178,6 +178,6 @@ class Groups extends ListController
      */
     public function unpublishNext(): void
     {
-        $this->setPublished(Terms::getNextID(), Helper::UNPUBLISHED);
+        $this->setPublished(Terms::nextID(), Helper::UNPUBLISHED);
     }
 }

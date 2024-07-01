@@ -99,7 +99,7 @@ class Units extends ListModel
         parent::populateState($ordering, $direction);
 
         if (!$this->state->get('filter.termID')) {
-            $this->setState('filter.termID', Terms::getCurrentID());
+            $this->setState('filter.termID', Terms::currentID());
         }
     }
 }

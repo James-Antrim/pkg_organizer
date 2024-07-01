@@ -42,20 +42,14 @@ class CourseEdit extends EditModelOld
         return empty($form) ? false : $form;
     }
 
-    /**
-     * Method to get a single record.
-     *
-     * @param   int  $pk  The id of the primary key.
-     *
-     * @return mixed    Object on success, false on failure.
-     */
-    public function getItem($pk = 0)
+    /** @inheritDoc */
+    public function getItem()
     {
-        $this->item = parent::getItem($pk);
+        $this->item = parent::getItem();
 
         if (empty($this->item->id)) {
             $this->item->name   = Text::_('ORGANIZER_NONE');
-            $this->item->termID = Terms::getNextID();
+            $this->item->termID = Terms::nextID();
         }
         else {
             $this->item->name = Courses::name($this->item->id);
