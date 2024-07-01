@@ -12,6 +12,7 @@ use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\HTML;
 
 $query = Uri::getInstance()->getQuery();
+$this->renderTasks();
 ?>
 <div id="j-main-container" class="span10">
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post"
