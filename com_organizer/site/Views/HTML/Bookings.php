@@ -22,6 +22,7 @@ class Bookings extends ListView
     {
         $this->toDo[] = 'Encapsulate the executed code in the controller clean function into a separate function.';
         $this->toDo[] = 'Add form and authentication checks to the public facing code in the clean function.';
+        $this->toDo[] = 'The original clean call from organizer had true as a parameter.';
 
         $toolbar = Toolbar::getInstance();
         $toolbar->delete('bookings.clean', Text::_('CLEAN_BOOKINGS'));
