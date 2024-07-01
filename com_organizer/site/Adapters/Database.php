@@ -22,6 +22,24 @@ use stdClass;
 class Database
 {
     /**
+     * Modifies a query with a restriction for a value (not) between two column values.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $value  the date for the restriction
+     * @param   string         $low    the low date column
+     * @param   string         $high   the high date column
+     * @param   bool           $not    whether the restriction should be negated
+     *
+     * @return void
+     */
+    public static function between(DatabaseQuery $query, string $value, string $low, string $high, bool $not = false): void
+    {
+        [$low, $high] = self::qn([$low, $high]);
+        $where = $not ? ":value NOT BETWEEN $low AND $high" : ":value BETWEEN $low AND $high";
+        $query->where($where)->bind(':value', $value);
+    }
+
+    /**
      * Execute the SQL statement.
      * @return  bool  True on success, bool false on failure.
      */

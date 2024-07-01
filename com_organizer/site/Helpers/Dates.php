@@ -22,24 +22,6 @@ class Dates
     /**
      * Modifies a query with a restriction for a value (not) between two column values.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $value  the date for the restriction
-     * @param   string         $low    the low date column
-     * @param   string         $high   the high date column
-     * @param   bool           $not    whether the restriction should be negated
-     *
-     * @return void
-     */
-    public static function betweenColumns(DatabaseQuery $query, string $value, string $low, string $high, bool $not = false): void
-    {
-        [$low, $high] = DB::qn([$low, $high]);
-        $where = $not ? ":value NOT BETWEEN $low AND $high" : ":value BETWEEN $low AND $high";
-        $query->where($where)->bind(':value', $value);
-    }
-
-    /**
-     * Modifies a query with a restriction for a value (not) between two column values.
-     *
      * @param   DatabaseQuery  $query   the query to modify
      * @param   string         $column  the column for the restriction
      * @param   string         $low     the low date value
@@ -248,7 +230,7 @@ class Dates
     {
         $query = DB::getQuery();
         $query->select(DB::qn(['startDate', 'endDate']))->from(DB::qn('#__organizer_terms'));
-        self::betweenColumns($query, $date, 'startDate', 'endDate');
+        DB::between($query, $date, 'startDate', 'endDate');
         DB::setQuery($query);
 
         return DB::loadAssoc();

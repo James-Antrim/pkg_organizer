@@ -36,7 +36,7 @@ trait Terminated
                     ->where(DB::qn('u.endDate') . ' <= :endDate')->bind(':startDate', $term->endDate);
                 break;
             case 'week':
-                Dates::betweenColumns($query, $date, 'u.startDate', 'u.endDate');
+                DB::between($query, $date, 'u.startDate', 'u.endDate');
                 break;
             case 'day':
                 $query->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
