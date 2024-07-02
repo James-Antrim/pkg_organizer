@@ -166,6 +166,18 @@ class Application
     }
 
     /**
+     * Shortcuts configuration access.
+     * @return Registry
+     */
+    public static function getConfig(): Registry
+    {
+        /** @var WebApplication $app */
+        $app = self::getApplication();
+
+        return $app->getConfig();
+    }
+
+    /**
      * Shortcuts document access.
      * @return Document
      */
