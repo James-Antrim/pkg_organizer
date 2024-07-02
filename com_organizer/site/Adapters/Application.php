@@ -12,7 +12,8 @@ namespace THM\Organizer\Adapters;
 
 use Exception;
 use Joomla\CMS\Application\{CMSApplication, CMSApplicationInterface, WebApplication};
-use Joomla\CMS\{Component\ComponentHelper, Document\Document, Factory, Language\Language, Menu\MenuItem, Session\Session, Uri\Uri};
+use Joomla\CMS\{Component\ComponentHelper, Document\Document, Factory, Language\Language, Menu\MenuItem, Plugin\PluginHelper};
+use Joomla\CMS\{Session\Session, Uri\Uri};
 use Joomla\Database\DatabaseDriver;
 use Joomla\DI\Container;
 use Joomla\Registry\Registry;
@@ -31,14 +32,14 @@ class Application
      * default: success
      * @see    CMSApplicationInterface
      */
-    public const ERROR = 'error', INFO = 'info', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
+    public const ERROR = 'error', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
 
     /**
      * Predefined Joomla message types without unnecessary prefixing. Unused locally, but Joomla supported.
      * @ALERT, @CRITICAL, @EMERGENCY: danger
-     * @DEBUG        : info
+     * @DEBUG, @INFO: info
      *
-     * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency';
+     * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency', INFO = 'info';
      * @noinspection GrazieInspection
      */
 
@@ -221,13 +222,30 @@ class Application
     /**
      * Gets the parameter object for the component
      *
-     * @param   string  $component  the component name.
+     * @param   string  $extension  the component name.
      *
      * @return  Registry
      */
-    public static function getParams(string $component = 'com_organizer'): Registry
+    public static function getParams(string $extension = 'com_organizer'): Registry
     {
-        return ComponentHelper::getParams($component);
+        if (str_starts_with($extension, 'plg_')) {
+            return self::getPluginParams(str_replace('plg_', '', $extension));
+        }
+        return ComponentHelper::getParams($extension);
+    }
+
+    /**
+     * Function gets plugin parameters analogous to ComponentHelper.
+     *
+     * @param   string  $plugin
+     *
+     * @return Registry
+     */
+    private static function getPluginParams(string $plugin): Registry
+    {
+        [$type, $element] = explode('_', $plugin, 2);
+        $plugin = PluginHelper::getPlugin($type, $element);
+        return new Registry($plugin->params);
     }
 
     /**
