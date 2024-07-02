@@ -220,6 +220,18 @@ class Application
     }
 
     /**
+     * Shortcuts the message queue.
+     * @return array
+     */
+    public static function getMessageQueue(): array
+    {
+        /** @var CMSApplication $app */
+        $app = self::getApplication();
+
+        return $app->getMessageQueue();
+    }
+
+    /**
      * Gets the parameter object for the component
      *
      * @param   string  $extension  the component name.

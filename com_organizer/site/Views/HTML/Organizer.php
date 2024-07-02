@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\View\HtmlView;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\Can;
 
 /**
@@ -50,9 +50,10 @@ class Organizer extends HtmlView
 
         if (Can::administrate()) {
             $toolbar = Toolbar::getInstance();
-            $toolbar->standardButton('bars', 'Update Participation Numbers', 'organizer.updateNumbers')->icon('fa fa-chart-bar');
-            $toolbar->standardButton('brush', 'Clean DB', 'organizer.clean')->icon('fa fa-broom');
-            $toolbar->standardButton('rekey', 'Re-Key Tables', 'organizer.reKey')->icon('fa fa-key');
+            $toolbar->standardButton('bars', Text::_('UPDATE_PARTICIPATION'), 'organizer.updateNumbers')
+                ->icon('fa fa-chart-bar');
+            $toolbar->standardButton('brush', Text::_('CLEAN_DATABASE'), 'organizer.clean')->icon('fa fa-broom');
+            $toolbar->standardButton('rekey', Text::_('REKEY_TABLES'), 'organizer.reKey')->icon('fa fa-key');
             $toolbar->preferences('com_organizer');
         }
     }

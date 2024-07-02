@@ -11,8 +11,6 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Log\Log;
-use Joomla\CMS\User\User;
-use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers\Terms;
 use THM\Organizer\Tables;
@@ -38,7 +36,7 @@ class Organizer extends BaseModel
      * @todo dynamically add flooring types during room import process
      * @var string[]
      */
-    private $compacTables = [
+    private array $compacTables = [
         'associations',
         'blocks',
         'bookings',
@@ -73,179 +71,24 @@ class Organizer extends BaseModel
     ];
 
     /**
-     * Compensates for MySQL's inability to correctly use NULL values in unique keys by deleting duplicate associations
-     * entries.
-     * @return void
-     */
-    private function cleanAssociations()
-    {
-        $select     = ['duplicate.id'];
-        $from       = ['associations AS duplicate', 'associations AS reference'];
-        $conditions = [
-            Database::qn('duplicate.id') . ' > ' . Database::qn('reference.id'),
-            Database::qn('duplicate.organizationID') . ' = ' . Database::qn('reference.organizationID')
-        ];
-
-        $orConditions   = [];
-        $orConditions[] = [
-            Database::qn('duplicate.categoryID') . ' = ' . Database::qn('reference.categoryID'),
-            Database::qn('duplicate.categoryID') . ' IS NOT NULL'
-        ];
-        $orConditions[] = [
-            Database::qn('duplicate.groupID') . ' = ' . Database::qn('reference.groupID'),
-            Database::qn('duplicate.groupID') . ' IS NOT NULL'
-        ];
-        $orConditions[] = [
-            Database::qn('duplicate.personID') . ' = ' . Database::qn('reference.personID'),
-            Database::qn('duplicate.personID') . ' IS NOT NULL'
-        ];
-        $orConditions[] = [
-            Database::qn('duplicate.poolID') . ' = ' . Database::qn('reference.poolID'),
-            Database::qn('duplicate.poolID') . ' IS NOT NULL'
-        ];
-        $orConditions[] = [
-            Database::qn('duplicate.programID') . ' = ' . Database::qn('reference.programID'),
-            Database::qn('duplicate.programID') . ' IS NOT NULL'
-        ];
-        $orConditions[] = [
-            Database::qn('duplicate.subjectID') . ' = ' . Database::qn('reference.subjectID'),
-            Database::qn('duplicate.subjectID') . ' IS NOT NULL'
-        ];
-        foreach ($orConditions as &$andConditions) {
-            $andConditions = implode(' AND ', $andConditions);
-        }
-        $conditions[] = '((' . implode(') OR (', $orConditions) . '))';
-
-
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->selectX($select, $from)
-            ->where($conditions);
-        Database::setQuery($query);
-
-        if ($duplicateIDs = Database::loadIntColumn()) {
-            /* @var QueryMySQLi $query */
-            $query = Database::getQuery();
-            $query->deleteX('associations', 'id', $duplicateIDs);
-            Database::setQuery($query);
-            Database::execute();
-        }
-    }
-
-    /**
      * Executes functions to clean database tables.
      * @return void
      */
-    public function cleanDB()
+    public function cleanDB(): void
     {
-        $this->cleanAssociations();
-        $this->cleanDeprecated();
         $this->cleanPeople();
 
         Application::message('Tables cleaned.');
     }
 
     /**
-     * Removes entries from the database which have become irrelevant with time.
-     * @return void
-     */
-    private function cleanDeprecated()
-    {
-        // Remove units unreferenced by instances.
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->delete('units AS u')
-            ->leftJoinX('instances AS i', ['i.unitID = u.id'])
-            ->where([Database::qn('i.id') . ' IS NULL']);
-        Database::setQuery($query);
-        Database::execute();
-
-        $currentID = Terms::getCurrentID();
-        $termStart = Terms::getStartDate($currentID);
-
-        $query = Database::getQuery();
-        $query->selectX('id', 'terms')->where("endDate < '$termStart'");
-        Database::setQuery($query);
-
-        // Remove runs, schedules and units (explicitly marked as removed) associated with completed terms.
-        if ($termIDs = Database::loadIntColumn()) {
-            $query = Database::getQuery();
-            $query->deleteX('runs', 'termID', $termIDs);
-            Database::setQuery($query);
-            Database::execute();
-
-            $query = Database::getQuery();
-            $query->deleteX('schedules', 'termID', $termIDs);
-            Database::setQuery($query);
-            Database::execute();
-
-            $query = Database::getQuery();
-            $query->deleteX('units', 'termID', $termIDs)->whereIn('delta', ['removed'], ParameterType::STRING);
-            Database::setQuery($query);
-            Database::execute();
-        }
-
-        $dateCondition = Database::qn('b.date') . " < '$termStart'";
-
-        // Remove instances and instance associations (explicitly marked as removed) from previous terms.
-        $query = Database::getQuery();
-        $query->delete('instances AS i')
-            ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::qn('i.delta') . " = 'removed'"]);
-        Database::setQuery($query);
-        Database::execute();
-
-        $query = Database::getQuery();
-        $query->delete('instance_persons AS ip')
-            ->innerJoinX('instances AS i', ['i.id = ip.instanceID'])
-            ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::qn('ip.delta') . " = 'removed'"]);
-        Database::setQuery($query);
-        Database::execute();
-
-        $query = Database::getQuery();
-        $query->delete('instance_groups AS ig')
-            ->innerJoinX('instance_persons AS ip', ['ip.id = ig.assocID'])
-            ->innerJoinX('instances AS i', ['i.id = ip.instanceID'])
-            ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::qn('ig.delta') . " = 'removed'"]);
-        Database::setQuery($query);
-        Database::execute();
-
-        $query = Database::getQuery();
-        $query->delete('instance_rooms AS ir')
-            ->innerJoinX('instance_persons AS ip', ['ip.id = ir.assocID'])
-            ->innerJoinX('instances AS i', ['i.id = ip.instanceID'])
-            ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::qn('ir.delta') . " = 'removed'"]);
-        Database::setQuery($query);
-        Database::execute();
-
-        // Remove blocks unreferenced by instances.
-        $query = Database::getQuery();
-        $query->delete('blocks AS b')
-            ->leftJoinX('instances AS i', ['i.blockID = b.id'])
-            ->where([$dateCondition, Database::qn('i.id') . ' IS NULL']);
-        Database::setQuery($query);
-        Database::execute();
-
-        // Remove events unreferenced by instances.
-        $query = Database::getQuery();
-        $query->delete('events AS e')
-            ->leftJoinX('instances AS i', ['i.eventID = e.id'])
-            ->where([Database::qn('i.id') . ' IS NULL']);
-        Database::setQuery($query);
-        Database::execute();
-    }
-
-    /**
      * Removes entries related to people from the database.
      * @return void
      */
-    private function cleanPeople()
+    private function cleanPeople(): void
     {
-        $currentID    = Terms::getCurrentID();
-        $currentStart = Terms::getStartDate($currentID);
+        $currentID    = Terms::currentID();
+        $currentStart = Terms::startDate($currentID);
         $byDays       = date('Y-m-d H:i:s', strtotime('-180 days'));
         $byTerm       = date('Y-m-d H:i:s', strtotime($currentStart));
         $cutoff       = min($byDays, $byTerm);
@@ -306,41 +149,13 @@ class Organizer extends BaseModel
     }
 
     /**
-     * Deletes a user contingent. Will not delete if the user is assigned to groups other than registered.
-     *
-     * @param   int[]  $userIDs  the ids of the users to delete
-     *
-     * @return void
-     */
-    private function purgeUsers(array $userIDs, string $adjective)
-    {
-        $deleted    = 0;
-        $registered = 2;
-
-        foreach ($userIDs as $zombieID) {
-            // Let Joomla perform its normal user delete process.
-            $user    = User::getInstance($zombieID);
-            $groups  = $user->groups;
-            $single  = count($groups) === 1;
-            $groupID = (int) array_pop($groups);
-
-            if ($single and $groupID === $registered) {
-                $user->delete();
-                $deleted++;
-            }
-        }
-
-        Application::message("$deleted $adjective users deleted.");
-    }
-
-    /**
      * Re-keys a table
      *
      * @param   string  $table  The name of the table to be compacted without the component prefix.
      *
      * @return void
      */
-    private function reKeyTable(string $table)
+    private function reKeyTable(string $table): void
     {
         Database::setQuery('SET @count = 0');
         Database::execute();
@@ -353,10 +168,10 @@ class Organizer extends BaseModel
     }
 
     /**
-     * Renumbers the ids of the tables declared compactable.
+     * Renumbers the ids of the tables declared compactible.
      * @return void
      */
-    public function reKeyTables()
+    public function reKeyTables(): void
     {
         foreach ($this->compacTables as $table) {
             $this->reKeyTable($table);
