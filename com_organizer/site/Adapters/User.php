@@ -17,6 +17,19 @@ use Joomla\CMS\User\UserFactoryInterface;
 
 class User
 {
+    public const PUBLIC = 1, REGISTERED = 2, AUTHOR = 3, EDITOR = 4, PUBLISHER = 5, MANAGER = 6, ADMIN = 7, SUPER_ADMIN = 8;
+
+    public const STANDARD_GROUPS = [
+        self::ADMIN,
+        self::AUTHOR,
+        self::EDITOR,
+        self::MANAGER,
+        self::PUBLIC,
+        self::PUBLISHER,
+        self::REGISTERED,
+        self::SUPER_ADMIN
+    ];
+
     /**
      * Gets the id of the user, optionally by username.
      *
