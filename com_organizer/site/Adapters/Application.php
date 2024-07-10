@@ -26,16 +26,12 @@ class Application
 {
     /**
      * Predefined Joomla message types without unnecessary prefixing.
-     * @ALERT, @CRITICAL, @EMERGENCY, @ERROR: danger
-     * @DEBUG, @INFO, @NOTICE: info
-     * @WARNING: warning
-     * default: success
      * @see    CMSApplicationInterface
      */
     public const ERROR = 'error', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
 
     /**
-     * Predefined Joomla message types without unnecessary prefixing. Unused locally, but Joomla supported.
+     * Unused locally, but Joomla supported.
      * @ALERT, @CRITICAL, @EMERGENCY: danger
      * @DEBUG, @INFO: info
      *
@@ -217,18 +213,6 @@ class Application
         }
 
         return null;
-    }
-
-    /**
-     * Shortcuts the message queue.
-     * @return array
-     */
-    public static function getMessageQueue(): array
-    {
-        /** @var CMSApplication $app */
-        $app = self::getApplication();
-
-        return $app->getMessageQueue();
     }
 
     /**
