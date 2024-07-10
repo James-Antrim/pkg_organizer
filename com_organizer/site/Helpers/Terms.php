@@ -98,7 +98,7 @@ class Terms extends ResourceHelper implements Selectable
         $currentID = $currentID ?: self::currentID();
 
         $query = DB::getQuery();
-        $query->select('id')
+        $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_terms'))
             ->where(DB::qc('startDate', self::endDate($currentID), '>', true))
             ->order(DB::qn('startDate'));
@@ -131,6 +131,27 @@ class Terms extends ResourceHelper implements Selectable
         }
 
         return $options;
+    }
+
+    /**
+     * Retrieves the id of the term before the reference term, defaults to current term id.
+     *
+     * @param   int  $currentID  the id of the reference term
+     *
+     * @return int
+     */
+    public static function previousID(int $currentID = 0): int
+    {
+        $currentID = $currentID ?: self::currentID();
+
+        $query = DB::getQuery();
+        $query->select(DB::qn('id'))
+            ->from(DB::qn('#__organizer_terms'))
+            ->where(DB::qc('endDate', self::startDate($currentID), '<', true))
+            ->order(DB::qn('endDate') . ' DESC');
+        DB::setQuery($query);
+
+        return DB::loadInt();
     }
 
     /**
