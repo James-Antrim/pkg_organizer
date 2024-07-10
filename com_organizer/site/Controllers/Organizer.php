@@ -30,9 +30,16 @@ class Organizer extends Controller
         $this->checkToken();
         $this->authorize();
 
-        $this->duplicateAssociations();
-        $this->deprecatedPlanning();
-        //$this->inactivePeople();
+        if (JDEBUG) {
+            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
+
+            $this->setRedirect("$this->baseURL&view=organizer");
+            return;
+        }
+
+        //$this->duplicateAssociations();
+        //$this->deprecatedPlanning();
+        $this->inactivePeople();
 
         $this->setRedirect("$this->baseURL&view=organizer");
     }
@@ -236,44 +243,67 @@ class Organizer extends Controller
             return;
         }
 
-        $cutOff = date('Y-m-d H:i:s', strtotime(Terms::startDate()));
+        $cutOff = date('Y-m-d H:i:s', strtotime(Terms::startDate(Terms::previousID())));
 
-        // Past users that were never participants.
+        // Inactive users that were never participants.
         $query = DB::getQuery();
-        $query->select(DB::qn('u.id'))->from(DB::qn('#__users'))
+        $query->select(DB::qn('u.id'))->from(DB::qn('#__users', 'u'))
             ->leftJoin(DB::qn('#__organizer_participants', 'p'), DB::qc('p.id', 'u.id'))
             ->where([DB::qn('p.id') . ' IS NULL', DB::qc('u.lastvisitDate', $cutOff, '<', true)]);
         DB::setQuery($query);
 
-
+        $this->purgeUsers(DB::loadIntColumn(), Text::_('ZOMBIE_USERS'));
     }
 
     /**
      * Deletes a user contingent. Will not delete if the user is assigned to groups other than registered.
      *
-     * @param   int[]  $userIDs  the ids of the users to delete
+     * @param   int[]   $userIDs        the ids of the users to delete
+     * @param   string  $qualifiedNoun  the adjective/noun combination describing the users being purged
      *
-     * @return int
+     * @return void
      */
-    private function purgeUsers(array $userIDs): int
+    private function purgeUsers(array $userIDs, string $qualifiedNoun): void
     {
+        $count      = count($userIDs);
         $deleted    = 0;
+        $protected  = 0;
         $registered = 2;
+        $skipped    = 0;
 
-        foreach ($userIDs as $zombieID) {
-            // Let Joomla perform its normal user delete process.
-            $user    = User::getInstance($zombieID);
-            $groups  = $user->groups;
-            $single  = count($groups) === 1;
-            $groupID = (int) array_pop($groups);
+        foreach ($userIDs as $userID) {
+            $user = User::getInstance($userID);
 
-            if ($single and $groupID === $registered) {
+            // $user->groups set with ArrayHelper::toInteger on line 285 2024-07-10
+            if (count($user->groups) === 1 and reset($user->groups) === $registered) {
                 $user->delete();
                 $deleted++;
+                continue;
             }
+
+            $protected++;
         }
 
-        return $deleted;
+        // Best case all (unprotected) users were deleted
+        if ($deleted === $count or ($deleted + $protected) === $count) {
+            Application::message(Text::sprintf("X_X_DELETED", $deleted, Text::_($qualifiedNoun)));
+        }
+        // Not all users were deleted and protected users do not make up the difference.
+        elseif ($protected !== $count) {
+            Application::message(
+                Text::sprintf("X_OF_X_X_DELETED", $deleted, $count, Text::_($qualifiedNoun)),
+                Application::WARNING
+            );
+        }
+
+        if ($skipped) {
+            Application::message("$skipped skipped.", Application::NOTICE);
+        }
+
+        if ($protected) {
+            Application::message(Text::sprintf("X_X_PROTECTED_NOT_DELETED", $protected, Text::_($qualifiedNoun)),
+                Application::NOTICE);
+        }
     }
 
     /**
