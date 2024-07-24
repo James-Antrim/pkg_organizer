@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use Exception;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\User\User;
 use THM\Organizer\Adapters\{Application, Database as DB, Text};
@@ -37,13 +38,12 @@ class Organizer extends Controller
             return;
         }
 
-        //$this->duplicateAssociations();
-        //$this->deprecatedPlanning();
+        $this->duplicateAssociations();
+        $this->deprecatedPlanning();
         $this->inactivePeople();
 
         $this->setRedirect("$this->baseURL&view=organizer");
     }
-
 
     /**
      * Removes potential duplicates from the associations table resulting from MySQL's inability to use NULL values in unique
@@ -201,6 +201,22 @@ class Organizer extends Controller
         if ($urEventIDs = DB::loadIntColumn()) {
             $this->deleteResources('events', $urEventIDs, $tag, 'EVENTS', self::UNREFERENCED);
         }
+
+        $query = DB::getQuery();
+        $query->select(DB::qn('p.id'))
+            ->from(DB::qn('#__organizer_persons', 'p'))
+            ->leftJoin(DB::qn('#__organizer_event_coordinators', 'ec'), DB::qc('ec.personID', 'p.id'))
+            ->leftJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.personID', 'p.id'))
+            ->leftJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))->where([
+                DB::qn('ec.id') . ' IS NULL',
+                DB::qn('ip.id') . ' IS NULL',
+                DB::qn('sp.id') . ' IS NULL'
+            ]);
+        DB::setQuery($query);
+
+        if ($urPersonIDs = DB::loadIntColumn()) {
+            $this->deleteResources('persons', $urPersonIDs, $tag, 'PERSONS', self::UNREFERENCED);
+        }
     }
 
     /**
@@ -243,16 +259,29 @@ class Organizer extends Controller
             return;
         }
 
-        $cutOff = date('Y-m-d H:i:s', strtotime(Terms::startDate(Terms::previousID())));
+        $cutOff      = date('Y-m-d H:i:s', strtotime(Terms::startDate(Terms::previousID())));
+        $cutOff      = DB::qc('u.lastvisitDate', $cutOff, '<', true);
+        $pConditions = DB::qc('p.id', 'u.id');
+        $pTable      = DB::qn('#__organizer_participants', 'p');
+        $uID         = DB::qn('u.id');
+        $uTable      = DB::qn('#__users', 'u');
 
-        // Inactive users that were never participants.
+        // Inactive users that do not have entries in the participants table.
         $query = DB::getQuery();
-        $query->select(DB::qn('u.id'))->from(DB::qn('#__users', 'u'))
-            ->leftJoin(DB::qn('#__organizer_participants', 'p'), DB::qc('p.id', 'u.id'))
-            ->where([DB::qn('p.id') . ' IS NULL', DB::qc('u.lastvisitDate', $cutOff, '<', true)]);
+        $query->select($uID)->from($uTable)->leftJoin($pTable, $pConditions)->where([DB::qn('p.id') . ' IS NULL', $cutOff]);
         DB::setQuery($query);
 
-        $this->purgeUsers(DB::loadIntColumn(), Text::_('ZOMBIE_USERS'));
+        $this->purgeUsers(DB::loadIntColumn(), Text::_('USERS_WITHOUT_PROFILES'));
+
+        // Inactive users who have no course or instance participation data.
+        $query = DB::getQuery();
+        $query->select($uID)->from($uTable)->innerJoin($pTable, $pConditions)
+            ->leftJoin(DB::qn('#__organizer_course_participants', 'cp'), DB::qc('cp.participantID', 'p.id'))
+            ->leftJoin(DB::qn('#__organizer_instance_participants', 'ip'), DB::qc('ip.participantID', 'p.id'))
+            ->where([DB::qn('cp.id') . ' IS NULL', DB::qn('ip.id') . ' IS NULL', $cutOff]);
+        DB::setQuery($query);
+
+        $this->purgeUsers(DB::loadIntColumn(), Text::_('USERS_WITHOUT_PARTICIPATION'));
     }
 
     /**
@@ -269,7 +298,6 @@ class Organizer extends Controller
         $deleted    = 0;
         $protected  = 0;
         $registered = 2;
-        $skipped    = 0;
 
         foreach ($userIDs as $userID) {
             $user = User::getInstance($userID);
@@ -284,20 +312,19 @@ class Organizer extends Controller
             $protected++;
         }
 
-        // Best case all (unprotected) users were deleted
-        if ($deleted === $count or ($deleted + $protected) === $count) {
-            Application::message(Text::sprintf("X_X_DELETED", $deleted, Text::_($qualifiedNoun)));
-        }
-        // Not all users were deleted and protected users do not make up the difference.
-        elseif ($protected !== $count) {
-            Application::message(
-                Text::sprintf("X_OF_X_X_DELETED", $deleted, $count, Text::_($qualifiedNoun)),
-                Application::WARNING
-            );
-        }
-
-        if ($skipped) {
-            Application::message("$skipped skipped.", Application::NOTICE);
+        // Suppress 0 messages.
+        if ($deleted) {
+            // Best case all (unprotected) users were deleted
+            if ($deleted === $count or ($deleted + $protected) === $count) {
+                Application::message(Text::sprintf("X_X_DELETED", $deleted, Text::_($qualifiedNoun)));
+            }
+            // Not all users were deleted and protected users do not make up the difference.
+            elseif ($protected !== $count) {
+                Application::message(
+                    Text::sprintf("X_OF_X_X_DELETED", $deleted, $count, Text::_($qualifiedNoun)),
+                    Application::WARNING
+                );
+            }
         }
 
         if ($protected) {
@@ -310,12 +337,75 @@ class Organizer extends Controller
      * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
      * @return void
      */
-    public function reKeyTables(): void
+    public function reKey(): void
     {
-        $model = new Models\Organizer();
-        $model->reKeyTables();
-        $url = Routing::getRedirectBase() . "&view=organizer";
-        $this->setRedirect(Route::_($url, false));
+        $this->checkToken();
+        $this->authorize();
+
+        /**
+         * The tables which will be iterated for processing.
+         * Ignored tables:
+         * -campuses, categories, methods & programs are referenced externally from string values in the menu table
+         * -curricula are self referencing and have fk delete mechanisms
+         * -equipment, room_equipment is currently in development
+         * -frequencies, roles, roomkeys, use_codes & use_groups are static values
+         * -groups, instances, persons, roles & rooms are referenced in a JSON string value in the schedules table
+         * -monitors small entry number tables
+         * -organizations are referenced externally from string values in the assets table
+         * -participants are fk references to the users table
+         */
+        $compatibles = [
+            'associations',
+            'blocks',
+            'bookings',
+            'buildings',
+            'cleaning_groups',
+            'colors',
+            'course_participants',
+            'courses',
+            'degrees',
+            'event_coordinators',
+            'events',
+            'field_colors',
+            'fields',
+            'flooring',
+            'grids',
+            'group_publishing',
+            'holidays',
+            'instance_groups',
+            'instance_participants',
+            'instance_persons',
+            'instance_rooms',
+            'pools',
+            'prerequisites',
+            'roomtypes',
+            'runs',
+            'schedules',
+            'subject_events',
+            'subject_persons',
+            'subjects',
+            'terms',
+            'units'
+        ];
+
+        try {
+            foreach ($compatibles as $table) {
+                DB::setQuery('SET @count = 0');
+                DB::execute();
+
+                DB::setQuery("UPDATE #__organizer_$table SET id = @count:= @count + 1");
+                DB::execute();
+
+                DB::setQuery("ALTER TABLE #__organizer_$table AUTO_INCREMENT = 1");
+                DB::execute();
+            }
+        }
+        catch (Exception $exception) {
+            Application::message($exception->getMessage(), Application::ERROR);
+        }
+
+        Application::message('TABLES_REKEYED');
+        $this->setRedirect("$this->baseURL&view=organizer");
     }
 
     /**

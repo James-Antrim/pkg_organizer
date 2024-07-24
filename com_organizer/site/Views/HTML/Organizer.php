@@ -30,8 +30,12 @@ class Organizer extends HtmlView
      */
     public function __construct(array $config)
     {
-        $this->toDo[]     = 'Move the update participation numbers button to participants.';
-        $this->toDo[]     = 'Add booking management to the planning menu.';
+        $this->toDo[] = 'Move the update participation numbers button to participants.';
+        $this->toDo[] = 'Add booking management to the planning menu.';
+        $this->toDO[] = 'Add flooring management.';
+        $this->toDO[] = 'Remove flooring insert values';
+        $this->toDO[] = 'Dynamically add flooring types during room import process';
+
         $this->option     = 'com_organizer';
         $config['layout'] = $this->layout;
 
