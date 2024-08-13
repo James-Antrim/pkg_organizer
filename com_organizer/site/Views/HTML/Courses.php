@@ -55,6 +55,10 @@ class Courses extends ListView
 
         $toolbar = Toolbar::getInstance();
 
+        if (Organizations::schedulableIDs()) {
+            $toolbar->addNew('courses.import', Text::_('IMPORT'))->icon('fa fa-upload');
+        }
+
         if ($this->manages) {
             $button = new FormTarget('participants', Text::_('PARTICIPANTS'));
             $button->icon('fa fa-users')->listCheck(true)->task('Courses.participants');
