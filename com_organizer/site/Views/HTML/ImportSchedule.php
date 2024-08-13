@@ -8,10 +8,12 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Views\HTML;
 
-/** @inheritDoc */
-class Schedule extends FormModel
+/**
+ * Class loads the schedule upload form into display context.
+ */
+class ImportSchedule extends ImportView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

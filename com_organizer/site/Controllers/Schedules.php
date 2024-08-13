@@ -20,7 +20,7 @@ class Schedules extends ListController
 {
     use Scheduled;
 
-    protected string $item = 'Schedule';
+    protected string $item = 'ImportSchedule';
 
     /**
      * Rebuilds the delta status of planning resources and relations.

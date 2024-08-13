@@ -53,10 +53,6 @@ trait ToCed
                 'url'    => Routing::getViewURL('courses'),
                 'active' => $viewName === 'courses'
             ];
-            $items[Text::_('COURSES_IMPORT')]  = [
-                'url'    => Routing::getViewURL('importcourses'),
-                'active' => $viewName === 'importcourses'
-            ];
             $items[Text::_('EVENT_TEMPLATES')] = [
                 'url'    => Routing::getViewURL('events'),
                 'active' => $viewName === 'events'
@@ -78,8 +74,8 @@ trait ToCed
 
             // Uploading a schedule should always be the first menu item and will never be the active submenu item.
             $prepend = [
-                '<span class="fa fa-plus"></span> ' . Text::_('ADD_SCHEDULE') => [
-                    'url'    => Routing::getViewURL('schedule'),
+                '<span class="fa fa-plus"></span> ' . Text::_('IMPORT_SCHEDULE') => [
+                    'url'    => Routing::getViewURL('importschedule'),
                     'active' => false
                 ]
             ];
@@ -163,15 +159,11 @@ trait ToCed
                 'url'    => Routing::getViewURL('rooms'),
                 'active' => $viewName === 'rooms'
             ];
-            /*$items[Text::_('ROOMS_IMPORT')] = [
-                'url'    => Routing::getViewURL('importrooms'),
-                'active' => $viewName === 'importrooms'
-            ];*/
-            $items[Text::_('ROOM_KEYS')]  = [
+            $items[Text::_('ROOM_KEYS')]      = [
                 'url'    => Routing::getViewURL('roomkeys'),
                 'active' => $viewName === 'roomkeys'
             ];
-            $items[Text::_('ROOM_TYPES')] = [
+            $items[Text::_('ROOM_TYPES')]     = [
                 'url'    => Routing::getViewURL('roomtypes'),
                 'active' => $viewName === 'roomtypes'
             ];

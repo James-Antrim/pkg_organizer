@@ -17,7 +17,7 @@ use THM\Organizer\Helpers\{Organizations as oHelper, Schedules as Helper};
 use THM\Organizer\Tables\{Organizations as oTable, Schedules as Table, SubjectEvents};
 
 /** @inheritDoc */
-class Schedule extends Controller
+class ImportSchedule extends FormController
 {
     use Scheduled;
 
@@ -30,14 +30,15 @@ class Schedule extends Controller
     public stdClass $grids;
     public stdClass $groups;
     public array $instances = [];
-    // Prefix made necessary by a reflection method in the base controller. (teaching methods)
-    public stdClass $tMethods;
+    protected string $list = 'Schedules';
     public int $organizationID;
     public stdClass $persons;
     public stdClass $rooms;
     public stdClass $schoolYear;
     public stdClass $term;
     public int $termID;
+    // Prefix made necessary by a reflection method in the base controller. (teaching methods)
+    public stdClass $tMethods;
     public stdClass $units;
     public array $warnings = [];
 
@@ -150,7 +151,7 @@ class Schedule extends Controller
      * Uses the model's upload function to validate and save the file to the database should validation be successful.
      * @return void
      */
-    public function upload(): void
+    public function import(): void
     {
         $this->checkToken();
         $this->authorize();
@@ -167,13 +168,13 @@ class Schedule extends Controller
 
         if (empty($file['type']) or $file['type'] !== 'text/xml') {
             Application::message('FILE_TYPE_INVALID', Application::ERROR);
-            $this->setRedirect("$this->baseURL&view=schedule");
+            $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
 
         if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) !== 'UTF-8') {
             Application::message('FILE_ENCODING_INVALID', Application::ERROR);
-            $this->setRedirect("$this->baseURL&view=schedule");
+            $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
 
@@ -184,7 +185,7 @@ class Schedule extends Controller
         unset($xml->reduction_reasons, $xml->studentgroups, $xml->students);
 
         if (!$this->validateOrganization($xml->general)) {
-            $this->setRedirect("$this->baseURL&view=schedule");
+            $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
 
@@ -204,7 +205,7 @@ class Schedule extends Controller
 
         // Errors at this stage are blocking.
         if ($this->errors) {
-            $this->setRedirect("$this->baseURL&view=schedule");
+            $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
 
@@ -223,7 +224,7 @@ class Schedule extends Controller
 
         if ($schedule->load($contextKeys)) {
             Application::message('SCHEDULE_EXISTS', Application::ERROR);
-            $this->setRedirect("$this->baseURL&view=schedule");
+            $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
 
@@ -290,7 +291,7 @@ class Schedule extends Controller
         $this->printStatusReport();
 
         if ($this->errors) {
-            $this->setRedirect("$this->baseURL&view=schedule");
+            $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
 
@@ -305,7 +306,7 @@ class Schedule extends Controller
         $schedule = new Table();
         if (!$schedule->save($data)) {
             Application::message('500', Application::ERROR);
-            $this->setRedirect("$this->baseURL&view=schedule");
+            $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
 
