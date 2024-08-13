@@ -26,7 +26,7 @@ class Schedules extends ListView
     {
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->addNew('schedules.add');
+        $toolbar->addNew('schedules.import');
 
         if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID') and Can::administrate()) {
             $toolbar->standardButton('rebuild', Text::_('REBUILD'), 'schedules.rebuild')->icon('fa fa-sync');

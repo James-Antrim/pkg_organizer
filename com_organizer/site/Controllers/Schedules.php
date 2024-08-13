@@ -23,6 +23,15 @@ class Schedules extends ListController
     protected string $item = 'ImportSchedule';
 
     /**
+     * Redirects to the form view for the creation of a new resource.
+     * @return void
+     */
+    public function import(): void
+    {
+        $this->setRedirect("$this->baseURL&view=importschedule");
+    }
+
+    /**
      * Rebuilds the delta status of planning resources and relations.
      * @return void
      */
