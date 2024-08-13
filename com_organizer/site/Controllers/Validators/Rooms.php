@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\{Input, Text};
-use THM\Organizer\Controllers\Schedule;
+use THM\Organizer\Controllers\ImportSchedule as Schedule;
 use THM\Organizer\Helpers\Buildings;
 use THM\Organizer\Tables\Rooms as Table;
 

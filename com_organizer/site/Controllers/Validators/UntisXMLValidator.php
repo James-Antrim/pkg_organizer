@@ -11,7 +11,7 @@
 namespace THM\Organizer\Controllers\Validators;
 
 use SimpleXMLElement;
-use THM\Organizer\Controllers\Schedule;
+use THM\Organizer\Controllers\ImportSchedule as Schedule;
 
 /**
  * Ensures that Helpers which validate Schedule XML Export files have standardized functions.
