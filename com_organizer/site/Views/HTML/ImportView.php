@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{Input, Text, Toolbar};
 
 /** @inheritDoc */
-abstract class MergeView extends FormView
+abstract class ImportView extends FormView
 {
     /**
      * @inheritDoc
@@ -22,17 +22,17 @@ abstract class MergeView extends FormView
     {
         Input::set('hidemainmenu', true);
         $controller = $this->getName();
-        $key        = str_replace('Merge', 'MERGE_', $controller);
+        $key        = str_replace('Import', 'IMPORT_', $controller);
         $this->setTitle(strtoupper($key));
 
         $toolbar = Toolbar::getInstance();
-        $toolbar->save($controller . '.save', Text::_('MERGE'))->icon('fa fa-code-merge');
+        $toolbar->save($controller . '.save', Text::_('IMPORT'))->icon('fa fa-upload');
         $toolbar->cancel("$controller.cancel");
     }
 
     /**
      * @inheritDoc
-     * Overrides to avoid calling getItem and getTable as neither makes sense in an import context.
+     * Overrides to avoid calling getItem and getTable as neither makes sense in a merge context.
      */
     protected function initializeView(): void
     {
