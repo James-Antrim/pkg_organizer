@@ -136,10 +136,20 @@ class ListItem
      */
     private static function text(object $item, string $column, bool $administration, int $linkType, bool $localize = false): void
     {
+        $context = '';
+        $tip   = '';
         $value = $item->$column ?? '';
 
         if (is_array($value)) {
-            $properties = HTML::toString($value['properties']);
+            $properties = $value['properties'];
+
+            if (is_array($properties) and !empty($properties['tip'])) {
+                $context = "tip-$item->id-$column";
+                $tip     = '<div role="tooltip" id="' . $context . '">' . $properties['tip'] . '</div>';
+                unset($properties['tip']);
+            }
+
+            $properties = HTML::toString($properties);
             $value      = $value['value'];
         }
         else {
@@ -156,6 +166,10 @@ class ListItem
         }
 
         echo $opener;
+
+        if ($context) {
+            echo '<div aria-describedby="' . $context . '">';
+        }
 
         if ($main and !empty($item->prefix)) {
             echo $item->prefix;
@@ -188,6 +202,10 @@ class ListItem
 
         if ($main and !empty($item->supplement)) {
             echo "<br><span class=\"small\">$item->supplement</span>";
+        }
+
+        if ($context) {
+            echo '</div>' . $tip;
         }
 
         echo $closer;
