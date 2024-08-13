@@ -92,14 +92,14 @@ class Courses extends ListView
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $backend = Application::backend();
-        list($today, $userID) = $options;
+        [$today, $userID] = $options;
 
         if ($item->access) {
             $this->manages = true;
         }
 
-        $campusID   = (int) $item->campusID;
-        $pin        = $backend ? '' : ' ' . Campuses::getPin($campusID);
+        $campusID     = (int) $item->campusID;
+        $pin          = $backend ? '' : ' ' . Campuses::getPin($campusID);
         $item->campus = Campuses::name($campusID) . $pin;
 
         $item->dates = Helper::displayDate($item->id);
@@ -121,55 +121,54 @@ class Courses extends ListView
         $ninety = (!$full and ($item->participants / (int) $item->maxParticipants) >= .9);
 
         if ($expired) {
-            $attributes = ['class' => 'status-display center grey'];
+            $properties = ['class' => 'bg-secondary'];
 
             $item->courseStatus = [
-                'attributes' => $attributes,
+                'properties' => $properties,
                 'value'      => Text::_('EXPIRED')
             ];
 
             if (!$this->manages) {
                 $item->registrationStatus = [
-                    'attributes' => $attributes,
+                    'properties' => $properties,
                     'value'      => Text::_('DEADLINE_EXPIRED_SHORT')
                 ];
             }
         }
         else {
-            $class                = 'status-display center hasTip';
             $item->courseStatus = [];
-            $capacityText         = Text::_('PARTICIPANTS');
-            $capacityText         .= ": $item->participants / $item->maxParticipants<br>";
+            $capacityText       = Text::_('PARTICIPANTS');
+            $capacityText       .= ": $item->participants / $item->maxParticipants<br>";
 
             if ($ongoing) {
-                $courseAttributes = [
-                    'class' => $class . ' bg-danger',
-                    'title' => Text::_('COURSE_ONGOING')
+                $properties = [
+                    'class' => 'bg-danger',
+                    'tip'   => Text::_('COURSE_ONGOING')
                 ];
             }
             elseif ($closed) {
-                $courseAttributes = [
-                    'class' => $class . ' bg-warning',
-                    'title' => Text::_('COURSE_CLOSED')
+                $properties = [
+                    'class' => 'bg-warning',
+                    'tip'   => Text::_('COURSE_CLOSED')
                 ];
             }
             elseif ($full) {
-                $courseAttributes = ['class' => $class . ' bg-danger', 'title' => Text::_('COURSE_FULL')];
+                $properties = ['class' => 'bg-danger', 'title' => Text::_('COURSE_FULL')];
             }
             elseif ($ninety) {
-                $courseAttributes = [
-                    'class' => $class . ' bg-warning',
-                    'title' => Text::_('COURSE_LIMITED')
+                $properties = [
+                    'class' => 'bg-warning',
+                    'tip'   => Text::_('COURSE_LIMITED')
                 ];
             }
             else {
-                $courseAttributes = [
-                    'class' => $class . ' bg-success',
-                    'title' => Text::_('COURSE_OPEN')
+                $properties = [
+                    'class' => 'bg-success',
+                    'tip'   => Text::_('COURSE_OPEN')
                 ];
             }
 
-            $item->courseStatus['properties'] = $courseAttributes;
+            $item->courseStatus['properties'] = $properties;
 
             if ($ongoing or $closed) {
                 $courseText = Text::_('DEADLINE_EXPIRED_SHORT');
@@ -184,21 +183,22 @@ class Courses extends ListView
                 if ($userID) {
                     if ($item->registered) {
                         $item->registrationStatus = [
-                            'properties' => ['class' => 'status-display center bg-success'],
+                            'properties' => ['class' => 'text-center  bg-success'],
                             'value'      => Text::_('REGISTERED')
                         ];
                     }
                     else {
-                        $color                      = ($ongoing or $closed) ? 'bg-danger' : 'bg-warning';
+                        $color = ($ongoing or $closed) ? 'bg-danger' : 'bg-warning';
+
                         $item->registrationStatus = [
-                            'properties' => ['class' => "status-display center $color"],
+                            'properties' => ['class' => "text-center $color"],
                             'value'      => Text::_('NOT_REGISTERED')
                         ];
                     }
                 }
                 else {
                     $item->registrationStatus = [
-                        'properties' => ['class' => 'status-display center bg-secondary'],
+                        'properties' => ['class' => 'text-center  bg-secondary'],
                         'value'      => Text::_('NOT_LOGGED_IN')
                     ];
                 }
@@ -209,7 +209,8 @@ class Courses extends ListView
     /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
-        parent::completeItems(['today' => Dates::standardize(), 'userID' => User::id()]);
+        // Unpacking with list() doesn't work on associative arrays
+        parent::completeItems([Dates::standardize(), User::id()]);
     }
 
     /**
