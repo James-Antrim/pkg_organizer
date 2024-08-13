@@ -11,9 +11,11 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
+use stdClass;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers\{Campuses, Can, Courses as Helper, Dates, Organizations, Participants};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /** @inheritDoc */
 class Courses extends ListView
@@ -25,29 +27,13 @@ class Courses extends ListView
     /** @inheritDoc */
     public function __construct($config = [])
     {
+        $this->toDo[] = 'Simulate front-end and adjust output.';
+        $this->toDo[] = 'Check the non-edit display after squaring away the edit display. (Temp edit to ListView)';
+
         parent::__construct($config);
 
-        $structure = [
-            'name'         => 'link',
-            'campus'       => 'value',
-            'dates'        => 'value',
-            'courseStatus' => 'value'
-        ];
-
-        if (Organizations::schedulableIDs() or Can::coordinate('courses')) {
-            $this->manages = true;
-            $structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];
-            unset($structure['registrationStatus']);
-        }
-        else {
-            $structure = $structure + ['registrationStatus' => 'link'];
-        }
-
-        $this->rowStructure = $structure;
-
-        $getPrep           = Input::getBool('preparatory');
-        $menuPrep          = Input::getBool('onlyPrepCourses');
-        $this->preparatory = ($getPrep or $menuPrep);
+        // GET or menu item settings
+        $this->preparatory = (Input::getBool('preparatory') or Input::getBool('onlyPrepCourses'));
     }
 
     /** @inheritDoc */
@@ -103,132 +89,127 @@ class Courses extends ListView
     }
 
     /** @inheritDoc */
-    protected function completeItems(array $options = []): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $url = Uri::base() . '?option=com_organizer';
-        $url .= Application::backend() ? '&view=course_edit&id=' : '&view=course_item&id=';
+        $backend = Application::backend();
+        list($today, $userID) = $options;
 
-        $structuredItems = [];
+        if ($item->access) {
+            $this->manages = true;
+        }
 
-        $today  = Dates::standardize();
-        $userID = User::id();
+        $campusID   = (int) $item->campusID;
+        $pin        = $backend ? '' : ' ' . Campuses::getPin($campusID);
+        $item->campus = Campuses::name($campusID) . $pin;
 
-        foreach ($this->items as $course) {
-            $campusID   = (int) $course->campusID;
-            $campusName = Campuses::name($campusID);
-            $pin        = Application::backend() ? '' : ' ' . Campuses::getPin($campusID);
+        $item->dates = Helper::displayDate($item->id);
 
-            $course->campus = $campusName . $pin;
+        $expired = $item->endDate < $today;
+        $ongoing = ($item->startDate <= $today and !$expired);
 
-            $course->dates = Helper::displayDate($course->id);
+        if ($item->deadline) {
+            $deadline = date('Y-m-d', strtotime("-$item->deadline Days", strtotime($item->startDate)));
+        }
+        else {
+            $deadline = $item->startDate;
+        }
 
-            $expired = $course->endDate < $today;
-            $ongoing = ($course->startDate <= $today and !$expired);
+        $closed   = (!$expired and !$ongoing and $deadline <= $today);
+        $deadline = Dates::formatDate($deadline);
 
-            if ($course->deadline) {
-                $deadline = date('Y-m-d', strtotime("-$course->deadline Days", strtotime($course->startDate)));
-            }
-            else {
-                $deadline = $course->startDate;
-            }
+        $full   = $item->participants >= $item->maxParticipants;
+        $ninety = (!$full and ($item->participants / (int) $item->maxParticipants) >= .9);
 
-            $closed   = (!$expired and !$ongoing and $deadline <= $today);
-            $deadline = Dates::formatDate($deadline);
+        if ($expired) {
+            $attributes = ['class' => 'status-display center grey'];
 
-            $full   = $course->participants >= $course->maxParticipants;
-            $ninety = (!$full and ($course->participants / (int) $course->maxParticipants) >= .9);
+            $item->courseStatus = [
+                'attributes' => $attributes,
+                'value'      => Text::_('EXPIRED')
+            ];
 
-            if ($expired) {
-                $attributes = ['class' => 'status-display center grey'];
-
-                $course->courseStatus = [
+            if (!$this->manages) {
+                $item->registrationStatus = [
                     'attributes' => $attributes,
-                    'value'      => Text::_('EXPIRED')
+                    'value'      => Text::_('DEADLINE_EXPIRED_SHORT')
                 ];
+            }
+        }
+        else {
+            $class                = 'status-display center hasTip';
+            $item->courseStatus = [];
+            $capacityText         = Text::_('PARTICIPANTS');
+            $capacityText         .= ": $item->participants / $item->maxParticipants<br>";
 
-                if (!$this->manages) {
-                    $course->registrationStatus = [
-                        'attributes' => $attributes,
-                        'value'      => Text::_('DEADLINE_EXPIRED_SHORT')
-                    ];
-                }
+            if ($ongoing) {
+                $courseAttributes = [
+                    'class' => $class . ' bg-danger',
+                    'title' => Text::_('COURSE_ONGOING')
+                ];
+            }
+            elseif ($closed) {
+                $courseAttributes = [
+                    'class' => $class . ' bg-warning',
+                    'title' => Text::_('COURSE_CLOSED')
+                ];
+            }
+            elseif ($full) {
+                $courseAttributes = ['class' => $class . ' bg-danger', 'title' => Text::_('COURSE_FULL')];
+            }
+            elseif ($ninety) {
+                $courseAttributes = [
+                    'class' => $class . ' bg-warning',
+                    'title' => Text::_('COURSE_LIMITED')
+                ];
             }
             else {
-                $class                = 'status-display center hasTip';
-                $course->courseStatus = [];
-                $capacityText         = Text::_('PARTICIPANTS');
-                $capacityText         .= ": $course->participants / $course->maxParticipants<br>";
+                $courseAttributes = [
+                    'class' => $class . ' bg-success',
+                    'title' => Text::_('COURSE_OPEN')
+                ];
+            }
 
-                if ($ongoing) {
-                    $courseAttributes = [
-                        'class' => $class . ' red',
-                        'title' => Text::_('COURSE_ONGOING')
-                    ];
-                }
-                elseif ($closed) {
-                    $courseAttributes = [
-                        'class' => $class . ' yellow',
-                        'title' => Text::_('COURSE_CLOSED')
-                    ];
-                }
-                elseif ($full) {
-                    $courseAttributes = ['class' => $class . ' red', 'title' => Text::_('COURSE_FULL')];
-                }
-                elseif ($ninety) {
-                    $courseAttributes = [
-                        'class' => $class . ' yellow',
-                        'title' => Text::_('COURSE_LIMITED')
-                    ];
-                }
-                else {
-                    $courseAttributes = [
-                        'class' => $class . ' green',
-                        'title' => Text::_('COURSE_OPEN')
-                    ];
-                }
+            $item->courseStatus['properties'] = $courseAttributes;
 
-                $course->courseStatus['attributes'] = $courseAttributes;
+            if ($ongoing or $closed) {
+                $courseText = Text::_('DEADLINE_EXPIRED_SHORT');
+            }
+            else {
+                $courseText = Text::sprintf('DEADLINE_TEXT_SHORT', $deadline);
+            }
 
-                if ($ongoing or $closed) {
-                    $courseText = Text::_('DEADLINE_EXPIRED_SHORT');
-                }
-                else {
-                    $courseText = Text::sprintf('DEADLINE_TEXT_SHORT', $deadline);
-                }
+            $item->courseStatus['value'] = $capacityText . $courseText;
 
-                $course->courseStatus['value'] = $capacityText . $courseText;
-
-                if (!$this->manages) {
-                    if ($userID) {
-                        if ($course->registered) {
-                            $course->registrationStatus = [
-                                'attributes' => ['class' => 'status-display center green'],
-                                'value'      => Text::_('REGISTERED')
-                            ];
-                        }
-                        else {
-                            $color                      = ($ongoing or $closed) ? 'red' : 'yellow';
-                            $course->registrationStatus = [
-                                'attributes' => ['class' => "status-display center $color"],
-                                'value'      => Text::_('NOT_REGISTERED')
-                            ];
-                        }
+            if (!$this->manages) {
+                if ($userID) {
+                    if ($item->registered) {
+                        $item->registrationStatus = [
+                            'properties' => ['class' => 'status-display center bg-success'],
+                            'value'      => Text::_('REGISTERED')
+                        ];
                     }
                     else {
-                        $course->registrationStatus = [
-                            'attributes' => ['class' => 'status-display center grey'],
-                            'value'      => Text::_('NOT_LOGGED_IN')
+                        $color                      = ($ongoing or $closed) ? 'bg-danger' : 'bg-warning';
+                        $item->registrationStatus = [
+                            'properties' => ['class' => "status-display center $color"],
+                            'value'      => Text::_('NOT_REGISTERED')
                         ];
                     }
                 }
+                else {
+                    $item->registrationStatus = [
+                        'properties' => ['class' => 'status-display center bg-secondary'],
+                        'value'      => Text::_('NOT_LOGGED_IN')
+                    ];
+                }
             }
-
-            $index = "$course->startDate $course->name $campusName";
-
-            $structuredItems[$index] = $this->completeItem($index, $course, $url . $course->id);
         }
+    }
 
-        $this->items = $structuredItems;
+    /** @inheritDoc */
+    protected function completeItems(array $options = []): void
+    {
+        parent::completeItems(['today' => Dates::standardize(), 'userID' => User::id()]);
     }
 
     /**
@@ -254,25 +235,36 @@ class Courses extends ListView
         $direction = $this->state->get('list.direction');
 
         $headers = [
-            'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
-            'campus'       => Text::_('CAMPUS'),
-            'dates'        => HTML::sort('DATES', 'dates', $direction, $ordering),
+            'check'        => ['type' => 'check'],
+            'name'         => [
+                'link'       => Application::backend() ? ListItem::DIRECT : ListItem::TAB,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'campus'       => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CAMPUS'),
+                'type'       => 'text'
+            ],
+            'dates'        => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('DATES', 'dates', $direction, $ordering),
+                'type'       => 'text'
+            ],
             'courseStatus' => [
-                'attributes' => ['class' => 'center'],
-                'value'      => Text::_('COURSE_STATUS')
+                'properties' => ['class' => 'w-10 d-md-table-cell text-center', 'scope' => 'col'],
+                'title'      => Text::_('COURSE_STATUS'),
+                'type'       => 'value'
             ]
         ];
 
-        if ($this->manages) {
-            $headers = ['checkbox' => ''] + $headers;
-        }
-        else {
-            $headers = $headers + [
-                    'registrationStatus' => [
-                        'attributes' => ['class' => 'center'],
-                        'value'      => Text::_('REGISTRATION_STATUS')
-                    ]
-                ];
+        if (!$this->manages) {
+            $headers['registrationStatus'] = [
+                'properties' => ['class' => 'w-10 d-md-table-cell text-center', 'scope' => 'col'],
+                'title'      => Text::_('REGISTRATION_STATUS'),
+                'type'       => 'value'
+            ];
         }
 
         $this->headers = $headers;
@@ -291,7 +283,7 @@ class Courses extends ListView
 
         if (!User::id()) {
             $currentURL       = Uri::getInstance()->toString() . '#login-anchor';
-            $this->supplement .= '<div class="tbox-yellow">';
+            $this->supplement .= '<div class="alert alert-warning">';
             $this->supplement .= Text::sprintf('COURSE_LOGIN_WARNING', $currentURL);
             $this->supplement .= '</div>';
         }

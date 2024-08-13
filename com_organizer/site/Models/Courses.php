@@ -11,9 +11,9 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
+use THM\Organizer\Helpers\{Can, Courses as Helper, CourseParticipants as CPH, Organizations};
 
 /** @inheritDoc */
 class Courses extends ListModel
@@ -27,6 +27,7 @@ class Courses extends ListModel
     {
         parent::filterFilterForm($form);
 
+        // No management simplification in the administrative part of the site
         if (Application::backend()) {
             return;
         }
@@ -56,8 +57,8 @@ class Courses extends ListModel
         $userID = User::id();
 
         foreach ($items as $item) {
-            $item->participants = count(Helpers\Courses::participantIDs($item->id));
-            $item->registered   = Helpers\CourseParticipants::state($item->id, $userID);
+            $item->participants = count(Helper::participantIDs($item->id));
+            $item->registered   = CPH::state($item->id, $userID);
         }
 
         return $items;
@@ -68,54 +69,58 @@ class Courses extends ListModel
     {
         $tag   = Application::getTag();
         $query = DB::getQuery();
-        $query->select("c.*, c.name_$tag AS name, MIN(u.startDate) AS startDate, MAX(u.endDate) AS endDate")
-            ->from('#__organizer_courses AS c')
-            ->innerJoin('#__organizer_units AS u ON u.courseID = c.id')
-            ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-            ->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
-            ->group('c.id');
+        $url   = 'index.php?option=com_organizer&view=course&id=';
 
-        $direction = $this->state->get('list.direction');
-
-        switch ($this->state->get('list.ordering')) {
-            case 'name':
-                if ($direction === 'DESC') {
-                    $query->order("c.name_$tag DESC");
-                }
-                else {
-                    $query->order("c.name_$tag ASC");
-                }
-                break;
-            case 'dates':
-            default:
-                if ($direction === 'DESC') {
-                    $query->order('u.endDate DESC');
-                }
-                else {
-                    $query->order('u.startDate ASC');
-                }
-                break;
+        if (Can::administrate()) {
+            $access = DB::quote(1) . ' AS ' . DB::qn('access');
         }
+        elseif ($ids = Helper::coordinates()) {
+            $access = DB::qn('s.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access');
+        }
+        else {
+            $access = DB::quote(0) . ' AS ' . DB::qn('access');
+        }
+
+        $select = [
+            DB::qn('c') . '.*',
+            DB::qn("c.name_$tag", 'name'),
+            'MIN(' . DB::qn('u.startDate') . ') AS ' . DB::qn('startDate'),
+            'MAX(' . DB::qn('u.endDate') . ') AS ' . DB::qn('endDate'),
+            $query->concatenate([DB::quote($url), DB::qn('c.id')], '') . ' AS ' . DB::qn('url'),
+            $access,
+        ];
+
+        $query->select($select)
+            ->from(DB::qn('#__organizer_courses', 'c'))
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.courseID', 'c.id'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
+            ->innerJoin(DB::qn('#__organizer_events', 'e'), DB::qc('e.id', 'i.eventID'))
+            ->group(DB::qn('c.id'));
+
+        $direction = $this->state->get('list.direction') === 'DESC' ? 'DESC' : 'ASC';
+        $column    = match ($this->state->get('list.ordering')) {
+            'name' => DB::qn("c.name_$tag"),
+            default => $direction === 'DESC' ? DB::qn('u.endDate') : DB::qn('u.startDate'),
+        };
+        $query->order("$column $direction");
 
         $this->filterSearch($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
-        if (Application::backend()) {
-            $query->whereIn(DB::qn('u.organizationID'), Helpers\Organizations::schedulableIDs());
+        if ($backend = Application::backend()) {
+            $query->whereIn(DB::qn('u.organizationID'), Organizations::schedulableIDs());
         }
 
-        $params      = Input::getParams();
-        $preparatory = ($params->get('onlyPrepCourses') or Input::getBool('preparatory'));
-
-        if (!Application::backend() and $preparatory) {
+        if (!$backend and (Input::getParams()->get('onlyPrepCourses') or Input::getBool('preparatory'))) {
             $query->where('e.preparatory = 1');
         }
+        // This filter is otherwise removed
         else {
             $this->filterValues($query, ['c.termID']);
         }
 
+        // Empty state / default is only current / future courses.
         if (empty($this->state->get('filter.status'))) {
-            $today = date('Y-m-d');
-            $query->where("endDate >= '$today'");
+            $query->where(DB::qc('endDate', date('Y-m-d'), '>=', true));
         }
 
         $this->filterByCampus($query, 'c');
@@ -128,12 +133,8 @@ class Courses extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        if (!Application::backend()) {
-            $params = Input::getParams();
-
-            if ($campusID = $params->get('campusID')) {
-                $this->state->set('filter.campusID', $campusID);
-            }
+        if (!Application::backend() and $campusID = Input::getParams()->get('campusID')) {
+            $this->state->set('filter.campusID', $campusID);
         }
     }
 }
