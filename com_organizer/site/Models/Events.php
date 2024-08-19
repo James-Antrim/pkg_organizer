@@ -33,8 +33,8 @@ class Events extends ListModel
         if (Can::administrate()) {
             $access = [DB::quote(1) . ' AS ' . DB::qn('access')];
         }
-        elseif ($coordinates = Helper::coordinates()) {
-            $access = [DB::qn('e.id') . ' IN (' . implode(',', $coordinates) . ')' . ' AS ' . DB::qn('access')];
+        elseif ($coordinated = Helper::coordinatedIDs()) {
+            $access = [DB::qn('e.id') . ' IN (' . implode(',', $coordinated) . ')' . ' AS ' . DB::qn('access')];
         }
         else {
             $access = [DB::quote(0) . ' AS ' . DB::qn('access')];

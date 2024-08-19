@@ -73,7 +73,7 @@ class Can
      * 1 - component/site administrator
      * @return bool|null
      */
-    private static function basic(): ?bool
+    public static function basic(): ?bool
     {
         if (!User::id()) {
             return false;
@@ -102,9 +102,8 @@ class Can
 
         // If there is no ID there is no course to match against for new courses => falls back to event coordination
         return match ($resource) {
-            'Course' => $resourceID ? in_array($resourceID, Courses::coordinates()) : Events::coordinates(),
-            'Courses', 'Events' => (bool) Events::coordinates(),
-            'Event' => $resourceID ? in_array($resourceID, Events::coordinates()) : Events::coordinates(),
+            'Course' => $resourceID ? in_array($resourceID, Courses::coordinates()) : Events::coordinatedIDs(),
+            'Courses' => (bool) Events::coordinatedIDs(),
             default => false,
         };
 
@@ -266,8 +265,8 @@ class Can
             'Category', 'Group', 'Unit'
             => self::edit(strtolower($view), $resourceID),
             // Special dispensation for coordinators and teachers
-            'Event' => self::coordinate($resourceID),
-            'Events' => self::coordinate('events'),
+            'Event' => Events::coordinates($resourceID),
+            'Events' => (bool) Events::coordinatedIDs(),
             // Curriculum resources with no intrinsic public value
             'FieldColors', 'Pools', 'PoolSelection', 'SubjectSelection'
             => (bool) Organizations::documentableIDs(),
