@@ -16,4 +16,12 @@ namespace THM\Organizer\Views\HTML;
 class ImportCourses extends ImportView
 {
     // Everything is taken care of in the inheritance hierarchy.
+
+    /** @inheritDoc */
+    public function display($tpl = null): void
+    {
+        $this->toDo[] = 'Add confirmation output with number of newly created courses.';
+
+        parent::display($tpl);
+    }
 }
