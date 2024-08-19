@@ -148,7 +148,7 @@ class ImportSchedule extends FormController
     }
 
     /**
-     * Uses the model's upload function to validate and save the file to the database should validation be successful.
+     * Validates and saves the data contained within the file to the database should validation be successful.
      * @return void
      */
     public function import(): void
