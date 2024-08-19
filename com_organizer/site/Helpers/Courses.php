@@ -12,7 +12,8 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, User};
-use THM\Organizer\Tables\Courses as Table;
+use THM\Organizer\Helpers\Events as eHelper;
+use THM\Organizer\Tables\{Courses as Table, Events as eTable};
 
 /**
  * Provides general functions for course access checks, data retrieval and display.
@@ -27,7 +28,7 @@ class Courses extends ResourceHelper
     public static function coordinates(): array
     {
         // The actual authorization has already occurred
-        if (!$eventIDs = Events::coordinates()) {
+        if (!$eventIDs = eHelper::coordinates()) {
             return [];
         }
 
@@ -170,6 +171,70 @@ class Courses extends ResourceHelper
         }
 
         return true;
+    }
+
+    /**
+     * Creates a new course automatically from unit data according to the requesting view.
+     *
+     * @param   Table  $course   the course being created
+     * @param   array  $unitIDs  the ids of the units which will serve as a basis for the course
+     * @param   int    $termID   the term context of the course
+     * @param   bool   $import   the requesting view is the import courses view
+     *
+     * @return void
+     */
+    public static function fromUnits(Table $course, array $unitIDs, int $termID, bool $import = false): void
+    {
+        sort($unitIDs);
+
+        $eventIDs = [];
+
+        foreach ($unitIDs as $unitID) {
+            $eventIDs = array_merge($eventIDs, Units::getEventIDs($unitID));
+        }
+
+        $event    = new eTable();
+        $eventIDs = array_unique($eventIDs);
+
+        foreach ($eventIDs as $eventID) {
+            $event->load($eventID);
+
+            // The name for a non-imported course
+            if (!$import) {
+                if ($course->name_de === null) {
+                    $course->name_de = $event->name_de;
+                }
+                elseif (!strpos($course->name_de, $event->name_de)) {
+                    $course->name_de .= ' / ' . $event->name_de;
+                }
+
+                if ($course->name_en === null) {
+                    $course->name_en = $event->name_en;
+                }
+                elseif (!strpos($course->name_en, $event->name_en)) {
+                    $course->name_en .= ' / ' . $event->name_en;
+                }
+            }
+
+            if (empty($course->deadline) or $event->deadline < $course->deadline) {
+                $course->deadline = $event->deadline;
+            }
+
+            if (empty($course->fee) or $event->fee < $course->fee) {
+                $course->fee = $event->fee;
+            }
+
+            if (empty($course->maxParticipants) or $event->maxParticipants < $course->maxParticipants) {
+                $course->maxParticipants = $event->maxParticipants;
+            }
+
+            if ($course->registrationType === null or $event->registrationType < $course->registrationType) {
+                $course->registrationType = $event->registrationType;
+            }
+        }
+
+        $course->campusID = Units::getCampusID(reset($unitIDs), $event->campusID);
+        $course->termID   = $termID;
     }
 
     /**

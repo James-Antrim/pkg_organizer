@@ -54,42 +54,12 @@ class Courses extends ListController
     }
 
     /**
-     * Makes call to the model's import function, and redirects to the manager view if the file .
+     * Redirects to the form view for the creation of a new resource.
      * @return void
      */
     public function import(): void
     {
-        $url  = Helpers\Routing::getRedirectBase();
-        $view = 'courses';
-
-        if (JDEBUG) {
-            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
-            $url .= "&view=$view";
-            $this->setRedirect($url);
-
-            return;
-        }
-
-        $form = $this->input->files->get('jform', [], '[]');
-        $file = $form['file'];
-
-        if (!empty($file['type']) and $file['type'] === 'text/plain') {
-            if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
-                $model = new Models\Course();
-                $view  = $model->import() ? 'courses' : 'importcourses';
-            }
-            else {
-                $view = 'importcourses';
-                Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
-            }
-        }
-        else {
-            $view = 'importcourses';
-            Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
-        }
-
-        $url .= "&view=$view";
-        $this->setRedirect($url);
+        $this->setRedirect("$this->baseURL&view=importcourses");
     }
 
     /**
