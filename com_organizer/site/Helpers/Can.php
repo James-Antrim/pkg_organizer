@@ -259,8 +259,8 @@ class Can
             'Methods', 'Organization', 'Organizations', 'Participant', 'Participants', 'Run', 'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
-            'Categories', 'CoursesImport', 'Groups', 'MergeCategories', 'MergeEvents', 'Schedule', 'Schedules',
-            'Units'
+            'Categories', 'Groups', 'MergeCategories', 'MergeGroups', 'MergeEvents', 'ImportCourses', 'ImportSchedule',
+            'Schedules', 'Units'
             => (bool) Organizations::schedulableIDs(),
             // Edit views for scheduling resource with no intrinsic public value
             'Category', 'Group', 'Unit'
@@ -280,22 +280,25 @@ class Can
             // Edit views for curriculum resource with intrinsic public value
             'Program' => (!Application::backend() or Programs::documentable($resourceID)),
             'Subject' => (!Application::backend() or Subjects::documentable($resourceID)),
-            'MergePersons', 'Person', 'Persons'
-            => self::manage('persons'),
+            'MergePersons', 'Person', 'Persons' => self::manage('persons'),
             // Facility resource views
             'Building', 'Buildings', 'Campus', 'Campuses', 'CleaningGroup', 'CleaningGroups', 'Equipment',
-            'EquipmentItem', 'MergeRooms', 'Monitor', 'Monitors', 'Room', 'RoomKey', 'RoomKeys', 'Rooms',
+            'EquipmentItem', 'ImportRooms', 'MergeRooms', 'Monitor', 'Monitors', 'Room', 'RoomKey', 'RoomKeys', 'Rooms',
             => self::manage('facilities'),
 
             /**
              * Restricted views with possible access over a login redirect
              * Booking, ContactTracking, CourseParticipants, Profile
+             *
              * Restricted views with complex authorization
              * MergeParticipants
+             *
              * Views restricted by view access levels
              * Statistics, Workload
+             *
              * Viewing is generally allowed, however functions, layouts and levels may still be restricted elsewhere.
              * Course, Courses, InstanceItem, Instances
+             *
              * Unrestricted
              * Curriculum, Help, Screen
              */
