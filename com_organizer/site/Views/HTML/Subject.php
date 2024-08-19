@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{Application, Document, HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Subjects as Helper;
 
-/**
- * Class loads persistent information about a subject into the display context.
- */
+/** @inheritDoc */
 class Subject extends FormView
 {
     use Documented;
@@ -36,11 +34,11 @@ class Subject extends FormView
             $toolbar   = Toolbar::getInstance();
             $saveGroup = $toolbar->dropdownButton('save-group');
             $saveBar   = $saveGroup->getChildToolbar();
-            $saveBar->apply('Subject.apply');
-            $saveBar->apply('Subject.applyImport', Text::_('APPLY_AND_IMPORT'))->icon('fa fa-file-import');
-            $saveBar->save('Subject.save');
-            $saveBar->save('Subject.saveImport', Text::_('SAVE_AND_IMPORT'))->icon('fa fa-file-import');
-            $toolbar->cancel("Subject.cancel");
+            $saveBar->apply('subject.apply');
+            $saveBar->apply('subject.applyImport', Text::_('APPLY_AND_IMPORT'))->icon('fa fa-file-import');
+            $saveBar->save('subject.save');
+            $saveBar->save('subject.saveImport', Text::_('SAVE_AND_IMPORT'))->icon('fa fa-file-import');
+            $toolbar->cancel("subject.cancel");
         }
         elseif ($this->item->id and $subject = Helper::name($subjectID, true)) {
             $this->addDisclaimer();
