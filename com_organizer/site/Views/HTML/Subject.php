@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Document, HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers\Subjects as Helper;
 
 /** @inheritDoc */
@@ -47,6 +47,14 @@ class Subject extends FormView
         // Subject layout for non-existent / invalid subject
         else {
             Application::error(404);
+        }
+    }
+
+    /** @inheritDoc */
+    protected function authorize(): void
+    {
+        if ($this->layout === 'edit' and !Helper::documentable(Input::getID())) {
+            Application::error(403);
         }
     }
 
