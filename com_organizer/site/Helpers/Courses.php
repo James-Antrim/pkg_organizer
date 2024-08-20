@@ -10,41 +10,16 @@
 
 namespace THM\Organizer\Helpers;
 
+use Joomla\Database\DatabaseQuery;
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, User};
-use THM\Organizer\Helpers\Events as eHelper;
 use THM\Organizer\Tables\{Courses as Table, Events as eTable};
 
 /**
  * Provides general functions for course access checks, data retrieval and display.
  */
-class Courses extends ResourceHelper
+class Courses extends Coordinatable
 {
-    /**
-     * Check if the user is a course coordinator.
-     *
-     * @return int[]
-     */
-    public static function coordinates(): array
-    {
-        // The actual authorization has already occurred
-        if (!$eventIDs = eHelper::coordinates()) {
-            return [];
-        }
-
-        $query = DB::getQuery();
-        $query->select('DISTINCT ' . DB::qn('c.id'))
-            ->from(DB::qn('#__organizer_courses', 'c'))
-            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.courseID', 'c.id'))
-            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
-            ->innerJoin(DB::qn('#__organizer_events', 'e'), DB::qc('e.id', 'ec.eventID'))
-            ->whereIn(DB::qn('e.id'), $eventIDs);
-
-        DB::setQuery($query);
-
-        return DB::loadIntColumn();
-    }
-
     /**
      * Retrieves the campus id associated with the course.
      *
@@ -57,6 +32,73 @@ class Courses extends ResourceHelper
         $course = new Table();
 
         return $course->load($courseID) ? (int) $course->campusID : 0;
+    }
+
+    /** @inheritDoc */
+    protected static function coAccessQuery(array $organizationIDs, int $personID = 0): DatabaseQuery
+    {
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('c.id'))
+            ->from(DB::qn('#__organizer_courses', 'c'));
+
+        // Administrators need no filter
+        if (!Can::administrate()) {
+            $query->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.courseID', 'c.id'));
+
+            $cCondition   = DB::qc('c.eventID', 'e.id');
+            $cTable       = DB::qn('#__organizer_event_coordinators', 'c');
+            $eCondition   = DB::qc('e.id', 'ec.eventID');
+            $eTable       = DB::qn('#__organizer_events', 'e');
+            $iCondition   = DB::qc('i.unitID', 'u.id');
+            $iTable       = DB::qn('#__organizer_instances', 'i');
+            $pRestriction = DB::qc('c.personID', ':personID');
+
+            // Check for scheduler access
+            if ($organizationIDs) {
+                $query->whereIn(DB::qn('u.organizationID'), $organizationIDs);
+
+                // Optional assigned access?
+                if ($personID) {
+                    $query->leftJoin($iTable, $iCondition)->leftJoin($eTable, $eCondition)->leftJoin($cTable, $cCondition)
+                        ->where($pRestriction, 'OR')->bind(':personID', $personID, ParameterType::INTEGER);
+                }
+
+            }
+            // Strict assigned access
+            else {
+                $query->innerJoin($iTable, $iCondition)->innerJoin($eTable, $eCondition)->innerJoin($cTable, $cCondition)
+                    ->where($pRestriction)->bind(':personID', $personID, ParameterType::INTEGER);
+            }
+        }
+
+        return $query;
+    }
+
+    /** @inheritDoc */
+    public static function coordinatable(int $resourceID = 0): bool
+    {
+        $basic = Can::basic();
+        if (is_bool($basic)) {
+            return $basic;
+        }
+
+        $organizationIDs = Organizations::schedulableIDs();
+        $personID        = Persons::getIDByUserID();
+
+        // Not a scheduler or assigned by one
+        if (!$organizationIDs and !$personID) {
+            return false;
+        }
+
+        $query = self::coAccessQuery($organizationIDs, $personID);
+
+        if ($resourceID) {
+            $query->where(DB::qc('c.id', $resourceID));
+        }
+
+        DB::setQuery($query);
+
+        return DB::loadBool();
     }
 
     /**

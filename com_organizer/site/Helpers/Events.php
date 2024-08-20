@@ -17,7 +17,7 @@ use THM\Organizer\Tables\Events as Table;
 /**
  * Provides general functions for event access checks, data retrieval and display.
  */
-class Events extends ResourceHelper implements Coordinated, Schedulable
+class Events extends Coordinatable implements Schedulable
 {
     use Active;
     use Terminated;
@@ -63,24 +63,40 @@ class Events extends ResourceHelper implements Coordinated, Schedulable
     }
 
     /** @inheritDoc */
-    public static function coordinatedIDs(): array
+    protected static function coAccessQuery(array $organizationIDs, int $personID = 0): DatabaseQuery
     {
-        $organizationIDs = Organizations::schedulableIDs();
-        $personID        = Persons::getIDByUserID();
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('e.id'))
+            ->from(DB::qn('#__organizer_events', 'e'));
 
-        // Not a scheduler or assigned by one
-        if (!$organizationIDs and !$personID) {
-            return [];
+        // Administrators need no filter
+        if (!Can::administrate()) {
+            $cCondition   = DB::qc('ec.eventID', 'e.id');
+            $pRestriction = DB::qc('ec.personID', ':personID');
+            $table        = DB::qn('#__organizer_event_coordinators', 'ec');
+
+            // Scheduler access
+            if ($organizationIDs) {
+                $query->whereIn(DB::qn('e.organizationID'), $organizationIDs);
+
+                // Optional assigned access?
+                if ($personID) {
+                    $query->leftJoin($table, $cCondition)->where($pRestriction, 'OR')
+                        ->bind(':personID', $personID, ParameterType::INTEGER);
+                }
+            }
+            // Strict assigned access
+            else {
+                $query->innerJoin($table, $cCondition)->where($pRestriction)
+                    ->bind(':personID', $personID, ParameterType::INTEGER);
+            }
         }
 
-        $query = self::coQuery($organizationIDs, $personID);
-        DB::setQuery($query);
-
-        return DB::loadIntColumn();
+        return $query;
     }
 
     /** @inheritDoc */
-    public static function coordinates(int $resourceID): bool
+    public static function coordinatable(int $resourceID = 0): bool
     {
         $basic = Can::basic();
         if (is_bool($basic)) {
@@ -95,8 +111,12 @@ class Events extends ResourceHelper implements Coordinated, Schedulable
             return false;
         }
 
-        $query = self::coQuery($organizationIDs, $personID);
-        $query->where(DB::qc('e.id', $resourceID));
+        $query = self::coAccessQuery($organizationIDs, $personID);
+
+        if ($resourceID) {
+            $query->where(DB::qc('e.id', $resourceID));
+        }
+
         DB::setQuery($query);
 
         return DB::loadBool();
@@ -117,46 +137,6 @@ class Events extends ResourceHelper implements Coordinated, Schedulable
             ->where(DB::qc('eventID', $eventID));
         DB::setQuery($query);
         return DB::loadIntColumn();
-    }
-
-    /**
-     * Builds a query for coordinator access checks.
-     *
-     * @param   array  $organizationIDs  the organization IDs for which the user has scheduler access
-     * @param   int    $personID         the user's id as a  person resource
-     *
-     * @return DatabaseQuery
-     */
-    private static function coQuery(array $organizationIDs, int $personID = 0): DatabaseQuery
-    {
-        $query = DB::getQuery();
-        $query->select('DISTINCT ' . DB::qn('e.id'))
-            ->from(DB::qn('#__organizer_events', 'e'));
-
-        // Administrators need no filter
-        if (!Can::administrate()) {
-            $cCondition   = DB::qc('ec.eventID', 'e.id');
-            $pRestriction = DB::qc('ec.personID', ':personID');
-            $table        = DB::qn('#__organizer_event_coordinators', 'ec');
-
-            // Check for scheduler access
-            if ($organizationIDs) {
-                $query->whereIn(DB::qn('e.organizationID'), $organizationIDs);
-
-                // Scheduler access leaves assigned access optional to the query's success
-                if ($personID) {
-                    $query->leftJoin($table, $cCondition)->where($pRestriction, 'OR')
-                        ->bind(':personID', $personID, ParameterType::INTEGER);
-                }
-            }
-            // Lack of scheduler access makes assigned access strictly necessary
-            elseif ($personID) {
-                $query->innerJoin($table, $cCondition)->where($pRestriction)
-                    ->bind(':personID', $personID, ParameterType::INTEGER);
-            }
-        }
-
-        return $query;
     }
 
     /** @inheritDoc */
