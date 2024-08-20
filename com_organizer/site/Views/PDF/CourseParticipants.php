@@ -84,7 +84,7 @@ class CourseParticipants extends ListView
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!User::id()) {
             Application::error(401);
@@ -94,7 +94,7 @@ class CourseParticipants extends ListView
             Application::error(400);
         }
 
-        if (!Helpers\Can::coordinate('course', $this->courseID)) {
+        if (!Helpers\Courses::coordinatable($this->courseID)) {
             Application::error(403);
         }
     }
@@ -103,7 +103,7 @@ class CourseParticipants extends ListView
      * Set header items.
      * @return void
      */
-    public function setOverhead()
+    public function setOverhead(): void
     {
         $interval  = ($this->endDate and $this->endDate != $this->startDate);
         $dates     = $interval ? "$this->startDate - $this->endDate" : $this->startDate;

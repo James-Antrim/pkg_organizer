@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Input, Text, User};
-use THM\Organizer\Helpers\{Can, Courses, Mailer, Organizations, Units};
+use THM\Organizer\Adapters\{Application, Input, User};
+use THM\Organizer\Helpers\{Can, Courses, Mailer};
 use THM\Organizer\Tables;
 
 /**
@@ -26,9 +25,9 @@ class Course extends BaseModel
      * Authorizes the user.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if (!Can::coordinate('course', Input::getID())) {
+        if (!Courses::coordinatable(Input::getID())) {
             Application::error(403);
         }
     }
@@ -43,7 +42,7 @@ class Course extends BaseModel
             return false;
         }
 
-        if (!Can::manage('participant', $participantID) and !Can::coordinate('course', $courseID)) {
+        if (!Can::manage('participant', $participantID) and !Courses::coordinatable($courseID)) {
             Application::error(403);
         }
 
@@ -135,27 +134,27 @@ class Course extends BaseModel
      *
      * @param   array  $data  the data from the form
      *
-     * @return int|bool int id of the resource on success, otherwise bool false
+     * @return int
      */
-    public function save(array $data = [])
+    public function save(array $data = []): int
     {
         $this->authorize();
 
-        $data  = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data  = empty($data) ? Input::getFormItems() : $data;
         $table = $this->getTable();
 
         if (empty($data['id'])) {
-            return $table->save($data) ? $table->id : false;
+            return $table->save($data) ? $table->id : 0;
         }
 
         if (!$table->load($data['id'])) {
-            return false;
+            return 0;
         }
 
         foreach ($data as $column => $value) {
             $table->$column = $value;
         }
 
-        return $table->store() ? $table->id : false;
+        return $table->store() ? $table->id : 0;
     }
 }

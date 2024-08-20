@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\Database\DatabaseQuery;
-use Joomla\Database\ParameterType;
+use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB, User};
 use THM\Organizer\Tables\{Courses as Table, Events as eTable};
 

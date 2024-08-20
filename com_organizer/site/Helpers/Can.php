@@ -87,29 +87,6 @@ class Can
     }
 
     /**
-     * Checks for user access to event coordination, optionally a specific event
-     *
-     * @param   string  $resource    the name of the resource to check for coordinating authorization against
-     * @param   int     $resourceID  the id of the resource to check against, optional
-     *
-     * @return bool
-     */
-    public static function coordinate(string $resource, int $resourceID = 0): bool
-    {
-        if (is_bool($authorized = self::basic())) {
-            return $authorized;
-        }
-
-        // If there is no ID there is no course to match against for new courses => falls back to event coordination
-        return match ($resource) {
-            'Course' => $resourceID ? in_array($resourceID, Courses::coordinates()) : Events::coordinatedIDs(),
-            'Courses' => (bool) Events::coordinatedIDs(),
-            default => false,
-        };
-
-    }
-
-    /**
      * Checks whether the user has access to the participant information
      *
      * @param   string          $resourceType  the resource type being checked
@@ -200,7 +177,7 @@ class Can
 
                 $courseIDs = Participants::getCourseIDs($resourceID);
 
-                return (bool) array_intersect($courseIDs, Courses::coordinates());
+                return (bool) array_intersect($courseIDs, Courses::coordinatableIDs());
             case 'persons':
                 return User::instance()->authorise('organizer.hr', 'com_organizer');
             case 'unit':
@@ -265,8 +242,8 @@ class Can
             'Category', 'Group', 'Unit'
             => self::edit(strtolower($view), $resourceID),
             // Special dispensation for coordinators and teachers
-            'Event' => Events::coordinates($resourceID),
-            'Events' => (bool) Events::coordinatedIDs(),
+            'Event' => Events::coordinatable($resourceID),
+            'Events' => Events::coordinatable(),
             // Curriculum resources with no intrinsic public value
             'FieldColors', 'Pools', 'PoolSelection', 'SubjectSelection'
             => (bool) Organizations::documentableIDs(),

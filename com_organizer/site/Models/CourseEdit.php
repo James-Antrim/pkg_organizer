@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Text};
-use THM\Organizer\Helpers\{Can, Courses, Terms};
+use THM\Organizer\Helpers\{Courses, Terms};
 use THM\Organizer\Tables;
 
 /**
@@ -25,7 +25,7 @@ class CourseEdit extends EditModelOld
      */
     protected function authorize()
     {
-        if (!Can::coordinate('course', (int) $this->item->id)) {
+        if (!Courses::coordinatable((int) $this->item->id)) {
             Application::error(403);
         }
     }

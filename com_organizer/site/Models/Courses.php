@@ -74,7 +74,7 @@ class Courses extends ListModel
         if (Can::administrate()) {
             $access = DB::quote(1) . ' AS ' . DB::qn('access');
         }
-        elseif ($ids = Helper::coordinates()) {
+        elseif ($ids = Helper::coordinatableIDs()) {
             $access = DB::qn('s.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access');
         }
         else {

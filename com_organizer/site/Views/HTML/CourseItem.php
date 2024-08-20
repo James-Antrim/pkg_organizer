@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Text, Toolbar, User};
-use THM\Organizer\Helpers\{Campuses, Can, CourseParticipants, Courses, Dates, Participants};
+use THM\Organizer\Helpers\{Campuses, CourseParticipants, Courses, Dates, Participants};
 
 /**
  * Class loads the subject into the display context.
@@ -27,7 +27,7 @@ class CourseItem extends ItemView
     {
         parent::__construct($config);
 
-        if (Can::coordinate('courses')) {
+        if (Courses::coordinatable()) {
             $this->manages = true;
         }
     }
