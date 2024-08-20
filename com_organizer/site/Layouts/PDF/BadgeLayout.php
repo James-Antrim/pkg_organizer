@@ -11,7 +11,7 @@
 namespace THM\Organizer\Layouts\PDF;
 
 use THM\Organizer\Adapters\{Input, Text};
-use THM\Organizer\Views\PDF\CourseParticipants;
+use Organizer\Views\PDF\{BaseView, CourseParticipants};
 
 /**
  * Base class for a Joomla View
@@ -30,7 +30,7 @@ abstract class BadgeLayout extends BaseLayout
     /**
      * @inheritDoc
      */
-    public function __construct(CourseParticipants $view)
+    public function __construct(BaseView $view)
     {
         parent::__construct($view);
         $view->margins();
@@ -163,13 +163,13 @@ abstract class BadgeLayout extends BaseLayout
 
         $view->changeFont($view::BOLD, 12);
         $title       = $view->course;
-        $longTitle   = strlen($title) > 50;
+        $longTitle   = strlen($title) > 35;
         $titleOffset = $longTitle ? $titleOffset - 3 : $titleOffset;
         $view->changePosition($badgeCenter, $titleOffset);
         $view->renderMultiCell(80, 5, $title, $view::CENTER);
 
         $dates      = $view->startDate == $view->endDate ? $view->startDate : "$view->startDate - $view->endDate";
-        $dateOffset = $longTitle ? $titleOffset + 10 : $titleOffset + 6;
+        $dateOffset = $longTitle ? $titleOffset + 12 : $titleOffset + 6;
         $view->changePosition($badgeCenter, $dateOffset);
         $view->changeFont($view::REGULAR, 10);
         $view->renderMultiCell(80, 5, $dates, $view::CENTER);
