@@ -133,7 +133,8 @@ class FormView extends Base
     protected function initializeView(): void
     {
         parent::initializeView();
-
+        $this->setSubTitle();
+        $this->setSupplement();
         $this->modifyDocument();
     }
 
