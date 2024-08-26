@@ -3,6 +3,10 @@ div.item {
     grid-gap: 1rem;
 }
 
+div.item a[target=_blank]:before {
+    content: none;
+}
+
 div.attribute {
     display: flex;
 }

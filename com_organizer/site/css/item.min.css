@@ -1,1 +1,1 @@
-div.item{display:grid;grid-gap:1rem}div.attribute{display:flex}div.label{width:240px;padding:.3rem 1rem .3rem 0}div.value{flex:1;min-width:210px;max-width:100%;position:relative}
+div.item{display:grid;grid-gap:1rem}div.item a[target=_blank]:before{content:none}div.attribute{display:flex}div.label{width:240px;padding:.3rem 1rem .3rem 0}div.value{flex:1;min-width:210px;max-width:100%;position:relative}

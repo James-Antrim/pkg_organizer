@@ -1,6 +1,10 @@
 div.item {
   display: grid;
   grid-gap: 1rem;
+
+  a[target=_blank]:before {
+    content: none;
+  }
 }
 
 div.attribute {
