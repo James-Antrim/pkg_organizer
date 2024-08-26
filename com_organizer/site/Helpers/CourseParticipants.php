@@ -103,7 +103,7 @@ class CourseParticipants extends ResourceHelper
         }
 
         foreach ($requiredProperties as $property) {
-            if (empty($participant->get($property))) {
+            if (empty($participant->$property)) {
                 return false;
             }
         }
