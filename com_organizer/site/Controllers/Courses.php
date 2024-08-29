@@ -12,9 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, User};
-use THM\Organizer\Helpers;
-use THM\Organizer\Models;
+use THM\Organizer\Adapters\Input;
 
 /** @inheritDoc */
 class Courses extends ListController
@@ -31,26 +29,6 @@ class Courses extends ListController
         Input::set('format', 'pdf');
         Input::set('layout', 'Badge');
         parent::display();
-    }
-
-    /**
-     * De-/registers a participant from/to a course.
-     * @return void
-     */
-    public function deregister(): void
-    {
-        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
-
-        $model = new Models\Course();
-
-        if ($model->deregister()) {
-            Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
-        }
-
-        $this->setRedirect($referrer);
     }
 
     /**
@@ -76,33 +54,5 @@ class Courses extends ListController
         }
 
         $this->setRedirect(Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID");
-    }
-
-    /**
-     * De-/registers a participant from/to a course.
-     * @return void
-     */
-    public function register(): void
-    {
-        $courseID      = Input::getID();
-        $referrer      = Input::getInput()->server->getString('HTTP_REFERER');
-        $participantID = User::id();
-
-        if (!Helpers\CourseParticipants::validProfile($courseID, $participantID)) {
-            Application::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', Application::ERROR);
-        }
-        else {
-            $model = new Models\Course();
-
-            if ($model->register()) {
-                Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-            }
-            else {
-                Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
-            }
-        }
-
-
-        $this->setRedirect($referrer);
     }
 }

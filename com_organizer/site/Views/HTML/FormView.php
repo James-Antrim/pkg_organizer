@@ -30,6 +30,9 @@ class FormView extends Base
 
     protected string $baseURL = '';
 
+    /** @inheritdoc */
+    public $item;
+
     /**
      * The name of the layout to use during rendering.
      * @var string

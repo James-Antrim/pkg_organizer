@@ -19,6 +19,8 @@ use THM\Organizer\Tables\{Courses as Table, Events as eTable};
  */
 class Courses extends Coordinatable
 {
+    public const OPEN = null, FIFO = 0, MANUAL = 1;
+
     /**
      * Retrieves the campus id associated with the course.
      *
@@ -142,60 +144,6 @@ class Courses extends Coordinatable
         }
 
         return '';
-    }
-
-    /**
-     * Retrieves events associated with the given course.
-     *
-     * @param   int  $courseID  the id of the course
-     *
-     * @return array[] the events associated with the course
-     */
-    public static function events(int $courseID): array
-    {
-        $tag      = Application::getTag();
-        $aliased  = DB::qn(
-            [
-                "contact_$tag",
-                "content_$tag",
-                "courseContact_$tag",
-                "e.description_$tag",
-                "e.name_$tag",
-                "organization_$tag",
-                "pretests_$tag",
-            ],
-            [
-                'contact',
-                'content',
-                'courseContact',
-                'description',
-                'name',
-                'organization',
-                'pretests',
-            ]
-        );
-        $selected = ['DISTINCT ' . DB::qn('e.id'), DB::qn('preparatory')];
-
-        $query = DB::getQuery();
-        $query->select(array_merge($selected, $aliased))
-            ->from(DB::qn('#__organizer_events', 'e'))
-            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
-            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
-            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
-            ->order(DB::qn('name'));
-        DB::setQuery($query);
-
-        if (!$events = DB::loadAssocList()) {
-            return [];
-        }
-
-        foreach ($events as &$event) {
-            $event['speakers'] = self::persons($courseID, $event['id'], [Roles::SPEAKER]);
-            $event['teachers'] = self::persons($courseID, $event['id'], [Roles::TEACHER]);
-            $event['tutors']   = self::persons($courseID, $event['id'], [Roles::TUTOR]);
-        }
-
-        return $events;
     }
 
     /**
@@ -446,46 +394,6 @@ class Courses extends Coordinatable
         DB::setQuery($query);
 
         return DB::loadIntColumn();
-    }
-
-    /**
-     * Gets persons associated with the given course, optionally filtered by event and role.
-     *
-     * @param   int    $courseID  the id of the course
-     * @param   int    $eventID   the id of the event
-     * @param   array  $roleIDs   the id of the roles the persons should have
-     *
-     * @return string[] the persons matching the search criteria
-     */
-    public static function persons(int $courseID, int $eventID = 0, array $roleIDs = []): array
-    {
-        $query = DB::getQuery();
-        $query->select('DISTINCT ' . DB::qn('ip.personID'))
-            ->from(DB::qn('#__organizer_instance_persons', 'ip'))
-            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
-            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
-            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER);
-
-        if ($eventID) {
-            $query->where(DB::qn('i.eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
-        }
-
-        if ($roleIDs) {
-            $query->whereIn(DB::qn('ip.roleID'), $roleIDs);
-        }
-
-        DB::setQuery($query);
-
-        if (!$personIDs = DB::loadIntColumn()) {
-            return [];
-        }
-
-        $persons = [];
-        foreach ($personIDs as $personID) {
-            $persons[$personID] = Persons::lastNameFirst($personID);
-        }
-
-        return $persons;
     }
 
     /**

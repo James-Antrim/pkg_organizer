@@ -10,68 +10,191 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text};
-use THM\Organizer\Helpers;
+use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar, User};
+use THM\Organizer\Helpers\{Courses as Helper, CourseParticipants as CP, Dates, Participants};
+use THM\Organizer\Buttons\FormTarget;
 
-/**
- * Class loads persistent information about a course into the display context.
- */
+/** @inheritDoc */
 class Course extends FormView
 {
-    protected string $layout = 'tabs';
+    public bool $coordinates = false;
 
-    /**
-     * Adds a toolbar and title to the view.
-     *
-     * @param   array   $buttons
-     * @param   string  $constant  *
-     *
-     * @return void  adds toolbar items to the view
-     */
+    protected string $layout = 'course';
+
+    /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        if ($this->item->id) {
-            $title = Text::_('COURSE_EDIT');
+        $item     = $this->item;
+        $courseID = empty($item->id) ? 0 : $item->id;
+        $toolbar  = Toolbar::getInstance();
 
-            if (Application::backend()) {
-                $campus = Helpers\Campuses::name($this->item->campusID);
-                $dates  = Helpers\Courses::displayDate($this->item->id);
-                $tag    = Application::getTag();
-                $name   = "name_$tag";
-                $name   = $this->item->$name;
-
-                $title .= ": $name - $campus ($dates)";
-            }
-        }
-        else {
-            $title = Text::_('ADD_COURSE');
-        }
-
-        parent::addToolBar();
-        $this->setTitle($title);
-    }
-
-    /**
-     * Creates a subtitle element from the term name and the start and end dates of the course.
-     * @return void modifies the course
-     */
-    protected function setSubtitle(): void
-    {
-        if (empty($this->item->id)) {
-            $this->subtitle = '';
-
+        if ($this->layout === 'edit') {
+            $this->setTitle(empty($courseID) ? Text::_('ADD_COURSE') : Text::_('EDIT_COURSE'));
+            $saveGroup = $toolbar->dropdownButton('save-group');
+            $saveBar   = $saveGroup->getChildToolbar();
+            $saveBar->apply('course.apply');
+            $saveBar->save('course.save');
+            $toolbar->cancel("course.cancel");
             return;
         }
 
-        $subTitle   = [];
-        $subTitle[] = Helpers\Courses::name($this->item->id);
+        $this->setTitle(Helper::name($courseID));
 
-        if ($this->item->campusID) {
-            $subTitle[] = Helpers\Campuses::name($this->item->campusID);
+        if ($this->coordinates) {
+            $toolbar->edit('course.edit');
+            return;
         }
 
-        $subTitle[] = Helpers\Courses::displayDate($this->item->id);
+        if ($userID = User::id()) {
+            $pText = Participants::exists($userID) ? 'EDIT_PROFILE' : 'ADD_PROFILE';
+            $toolbar->linkButton('profile', Text::_($pText))->url("$this->baseURL&view=profile")->icon('fa fa-address-card');
 
-        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
+            $startDate = $item->startDate;
+            $deadline  = $item->deadline ? date('Y-m-d', strtotime("-$item->deadline Days", strtotime($startDate))) : $startDate;
+            $today     = date('Y-m-d');
+
+            if ($deadline < $today) {
+                return;
+            }
+
+            $full  = $item->participants >= $item->maxParticipants;
+            $state = CP::state($item->id, $userID);
+            $valid = CP::validProfile($item->id, $userID);
+
+            if ($state === CP::UNREGISTERED) {
+                if (!$full and $valid) {
+                    $toolbar->standardButton('register', Text::_('REGISTER'), "course.register")->icon('fa fa-sign-in-alt');
+                }
+                return;
+            }
+
+            $toolbar->standardButton('deregister', Text::_('DEREGISTER'), "course.deregister")->icon('fa fa-sign-out-alt');
+
+            if ($state === CP::ACCEPTED and CP::paid($item->id, $userID)) {
+                $button = new FormTarget('badge', Text::_('DOWNLOAD_BADGE'));
+                $button->icon('fa fa-tag')->task('course.badge');
+                $toolbar->appendButton($button);
+            }
+        }
+    }
+
+    /** @inheritDoc */
+    protected function authorize(): void
+    {
+        $courseID = Input::getID();
+
+        // Access >= coordinates works for both layouts.
+        if ($this->coordinates = Helper::coordinatable($courseID)) {
+            return;
+        }
+
+        // Non-authorized edit attempt.
+        if ($this->layout === 'edit' or $courseID === 0) {
+            Application::error(403);
+        }
+    }
+
+    /** @inheritDoc */
+    protected function modifyDocument(): void
+    {
+        if ($this->layout === 'course') {
+            Document::style('item');
+        }
+    }
+
+    /** @inheritDoc */
+    protected function setSubtitle(): void
+    {
+        $this->subtitle = '<h6 class="sub-title">';
+
+        if ($this->item->campusID and $campusName = $this->item->campusName) {
+            $this->subtitle .= Text::_('CAMPUS') . " $campusName: ";
+        }
+
+        $this->subtitle .= Helper::displayDate($this->item->id) . '</h6>';
+    }
+
+    /** @inheritDoc */
+    protected function setSupplement(): void
+    {
+        $item = $this->item;
+
+        $startDate = $item->startDate;
+        $deadline  = $item->deadline ? date('Y-m-d', strtotime("-$item->deadline Days", strtotime($startDate))) : $startDate;
+
+        $today     = Dates::standardize();
+        $textClass = '';
+        $texts     = [];
+
+        if ($item->endDate < $today) {
+            $textClass = 'bg-secondary';
+            $texts[]   = Text::_('COURSE_EXPIRED');
+        }
+        else {
+
+            $full    = $item->participants >= $item->maxParticipants;
+            $ninety  = (!$full and ($item->participants / (int) $item->maxParticipants) >= .9);
+            $ongoing = ($startDate <= $today);
+
+            $closed   = (!$ongoing and $deadline <= $today);
+            $deadline = Dates::formatDate($deadline);
+
+            if ($ongoing or $full) {
+                $textClass = 'bg-danger';
+
+                if ($ongoing) {
+                    $texts['cStatus'] = Text::_('COURSE_ONGOING');
+                }
+                else {
+                    $texts['rStatus'] = Text::_('COURSE_FULL');
+                }
+            }
+            elseif ($closed or $ninety) {
+                $textClass        = 'bg-warning';
+                $texts['rStatus'] = $closed ? Text::_('DEADLINE_EXPIRED') : Text::_('COURSE_LIMITED');
+            }
+
+            $deadlineText = Text::sprintf('DEADLINE_TEXT', $deadline);
+
+            // Personal registration texts only if registration is (still) possible.
+            if (!$this->coordinates and !$closed and !$ongoing) {
+
+                if ($userID = User::id()) {
+                    if (!Participants::exists() or !CP::validProfile($item->id, $userID)) {
+                        $textClass         = 'bg-warning';
+                        $texts['myStatus'] = Text::_('COURSE_PROFILE_REQUIRED');
+                    }
+                    elseif ($item->registrationStatus === CP::UNREGISTERED) {
+                        $textClass         = 'bg-info';
+                        $texts['myStatus'] = Text::_('COURSE_UNREGISTERED');
+                    }
+                    else {
+                        // Irrelevant if already registered
+                        unset($texts['cStatus'], $texts['rStatus']);
+
+                        if ($item->registrationStatus) {
+                            $textClass         = 'bg-success';
+                            $texts['myStatus'] = Text::_('COURSE_ACCEPTED');
+                        }
+                        else {
+                            $textClass         = 'bg-info';
+                            $texts['myStatus'] = Text::_('COURSE_WAITLIST');
+                        }
+                    }
+                }
+                else {
+                    $currentURL     = Uri::getInstance()->toString() . '#login-anchor';
+                    $textClass      = 'bg-warning';
+                    $texts['login'] = Text::sprintf('COURSE_LOGIN_WARNING', $currentURL, $currentURL);
+                }
+
+                $texts['deadline'] = $deadlineText;
+            }
+        }
+
+        if (true) {//!$this->coordinates) {
+            $this->supplement = '<div class="p-2 ' . $textClass . '">' . implode('<br>', $texts) . '</div>';
+        }
     }
 }
