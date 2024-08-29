@@ -22,7 +22,8 @@ class CourseParticipants extends ResourceHelper
     public const UNREGISTERED = null, WAITLIST = 0, ACCEPTED = 1;
 
     /**
-     * Determines whether the participant has paid for the course.
+     * Determines whether the participant has paid for the course. Courses without a fee return true regardless of the
+     * course participants table field contents.
      *
      * @param   int  $courseID       the course id
      * @param   int  $participantID  the participant id
