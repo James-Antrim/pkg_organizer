@@ -33,11 +33,7 @@ class FormView extends Base
      */
     protected string $layout = 'edit';
 
-    /**
-     * Constructor
-     *
-     * @param   array  $config  An optional associative array of configuration settings.
-     */
+    /** @inheritDoc */
     public function __construct(array $config)
     {
         // Joomla ignores the property value and overwrites it.
@@ -64,13 +60,7 @@ class FormView extends Base
         // See comment.
     }
 
-    /**
-     * Adds resource related title, cancel/close and eventually help buttons.
-     *
-     * @param   string[]  $buttons  the names of the available button functions
-     *
-     * @return  void adds buttons to the global toolbar object
-     */
+    /** @inheritDoc */
     protected function addToolbar(array $buttons = [], string $constant = ''): void
     {
         Input::set('hidemainmenu', true);
@@ -117,9 +107,7 @@ class FormView extends Base
         //TODO help!
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->authorize();
@@ -127,9 +115,7 @@ class FormView extends Base
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeView(): void
     {
         parent::initializeView();
