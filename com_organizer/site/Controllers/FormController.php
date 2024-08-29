@@ -91,6 +91,16 @@ abstract class FormController extends Controller
     }
 
     /**
+     * Redirects to the edit layout of the same view for the editing of an existing resource.
+     * @return void
+     */
+    public function edit(): void
+    {
+        $id = Input::getID();
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id&layout=edit");
+    }
+
+    /**
      * Instances a table object corresponding to the registered list.
      * @return JTable
      */

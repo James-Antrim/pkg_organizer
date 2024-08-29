@@ -49,7 +49,7 @@ abstract class ListController extends Controller
      */
     public function add(): void
     {
-        $this->setRedirect("$this->baseURL&view=" . strtolower($this->item));
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->item) . "&layout=edit");
     }
 
     /**
