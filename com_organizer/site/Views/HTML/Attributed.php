@@ -24,6 +24,11 @@ trait Attributed
      */
     private function listValues(array $values): string
     {
+        // There is only one value and the array key has no informational value.
+        if (count($values) === 1 and is_numeric(array_key_first($values))) {
+            return reset($values);
+        }
+
         $return = '<ul>';
 
         foreach ($values as $key => $value) {
