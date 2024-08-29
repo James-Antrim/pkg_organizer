@@ -24,8 +24,8 @@ trait Titled
     public string $title = '';
 
     /**
-     * Creates a subtitle element from the term name and the start and end dates of the course.
-     * @return void modifies the course
+     * Creates a subtitle element for the resource.
+     * @return void
      */
     protected function setSubTitle(): void
     {
@@ -33,8 +33,8 @@ trait Titled
     }
 
     /**
-     * Adds supplemental information to the display output.
-     * @return void modifies the object property supplement
+     * Adds supplemental information typically related to the context of the resource to its output.
+     * @return void
      */
     protected function setSupplement(): void
     {
