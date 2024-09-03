@@ -431,6 +431,15 @@ class Input
     }
 
     /**
+     * Retrieves the layout parameter.
+     * @return string
+     */
+    public static function layout(): string
+    {
+        return (string) self::getInput()->get('layout');
+    }
+
+    /**
      * Sets an input property with a value.
      *
      * @param   string  $property  the name of the property to set
