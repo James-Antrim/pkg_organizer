@@ -27,8 +27,8 @@ class Courses extends ListView
     /** @inheritDoc */
     public function __construct($config = [])
     {
-        $this->toDo[] = 'Simulate front-end and adjust output.';
-        $this->toDo[] = 'Check the non-edit display after squaring away the edit display. (Temp edit to ListView)';
+        $this->toDo[] = 'Add the ability to set the course virtuality.';
+        $this->toDo[] = 'Change campus column to location and add more specificity (building/virtuality).';
 
         parent::__construct($config);
 
