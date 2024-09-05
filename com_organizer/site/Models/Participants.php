@@ -14,10 +14,13 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use Joomla\Database\QueryInterface;
 use THM\Organizer\Helpers\{Can, Terms};
+use THM\Organizer\Controllers\Participation;
 
 /** @inheritDoc */
 class Participants extends ListModel
 {
+    use Participation;
+
     protected string $defaultOrdering = 'fullName';
 
     protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
@@ -49,12 +52,30 @@ class Participants extends ListModel
     /** @inheritDoc */
     protected function clean(): void
     {
-        // Clean up participation entries from before the previous term.
+        // The data shows around 500,000 entries per term. If debug is on a timeout will be produced.
+        if (JDEBUG) {
+            Application::message('ORGANIZER_DEBUG_ON', Application::WARNING);
+            return;
+        }
+
+        // Store any remaining participation data in the referenced instances
         $query = DB::getQuery();
-        $query->delete(DB::qn('#__organizer_instance_participants', 'ip'))
+        $query->select('DISTINCT ' . DB::qn('ip.instanceID'))
+            ->from(DB::qn('#__organizer_instance_participants', 'ip'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
             ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
             ->where(DB::qc('date', Terms::startDate(Terms::previousID()), '<', true));
+        DB::setQuery($query);
+
+        $instanceIDs = DB::loadIntColumn();
+
+        foreach ($instanceIDs as $instanceID) {
+            $this->updateParticipation($instanceID);
+        }
+
+        // Mostly the same query for deletion of the same participation entries.
+        $query->clear('select')->clear('from');
+        $query->delete(DB::qn('#__organizer_instance_participants', 'ip'));
 
         // Joomla does not currently allow explicit setting of the table to be deleted from when join is used.
         $query = (string) $query;
