@@ -10,9 +10,13 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Database as DB;
+
 /** @inheritDoc */
 class Participants extends ListController
 {
+    use Participation;
+
     protected string $item = 'Participant';
 
 //	private function anonymize()
@@ -42,4 +46,30 @@ class Participants extends ListController
 //		 *
 //		 */
 //	}
+
+    /**
+     * Updates all instance participation numbers.
+     * @return void
+     */
+    public function update(): void
+    {
+        $this->checkToken();
+        $this->authorize();
+
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('instanceID'))->from(DB::qn('#__organizer_instance_participants'));
+        DB::setQuery($query);
+
+        $instanceIDs = DB::loadIntColumn();
+        $relevant    = count($instanceIDs);
+        $updated     = 0;
+
+        foreach ($instanceIDs as $instanceID) {
+            if ($this->updateParticipation($instanceID)) {
+                $updated++;
+            }
+        }
+
+        $this->farewell($relevant, $updated);
+    }
 }

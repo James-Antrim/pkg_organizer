@@ -1566,39 +1566,4 @@ class Instances extends ResourceHelper
     {
         return self::hasResponsibility($instanceID, $personID, Roles::TEACHER);
     }
-
-    /**
-     * Updates participation numbers for a single instance.
-     *
-     * @param   int  $instanceID
-     *
-     * @return void
-     */
-    public static function updateNumbers(int $instanceID): void
-    {
-        $query = DB::getQuery();
-        $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");
-        DB::setQuery($query);
-
-        if (!$results = DB::loadAssocList()) {
-            return;
-        }
-
-        $attended   = 0;
-        $bookmarked = 0;
-        $registered = 0;
-
-        foreach ($results as $result) {
-            $bookmarked++;
-            $attended   = $attended + $result['attended'];
-            $registered = $registered + $result['registered'];
-        }
-
-        $table = new Tables\Instances();
-        $table->load($instanceID);
-        $table->attended   = $attended;
-        $table->bookmarked = $bookmarked;
-        $table->registered = $registered;
-        $table->store();
-    }
 }

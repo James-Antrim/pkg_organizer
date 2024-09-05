@@ -30,7 +30,6 @@ class Organizer extends HtmlView
      */
     public function __construct(array $config)
     {
-        $this->toDo[] = 'Move the update participation numbers button to participants.';
         $this->toDo[] = 'Add booking management to the planning menu.';
         $this->toDO[] = 'Add flooring management.';
         $this->toDO[] = 'Remove flooring insert values';
@@ -54,8 +53,6 @@ class Organizer extends HtmlView
 
         if (Can::administrate()) {
             $toolbar = Toolbar::getInstance();
-            $toolbar->standardButton('bars', Text::_('UPDATE_PARTICIPATION'), 'organizer.updateNumbers')
-                ->icon('fa fa-chart-bar');
             $toolbar->standardButton('brush', Text::_('CLEAN_DATABASE'), 'organizer.clean')->icon('fa fa-broom');
             $toolbar->standardButton('rekey', Text::_('REKEY_TABLES'), 'organizer.reKey')->icon('fa fa-key');
             $toolbar->preferences('com_organizer');

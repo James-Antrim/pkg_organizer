@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use Joomla\Database\QueryInterface;
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\{Can, Terms};
 
 /** @inheritDoc */
 class Participants extends ListModel
@@ -44,6 +44,24 @@ class Participants extends ListModel
         else {
             $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
         }
+    }
+
+    /** @inheritDoc */
+    protected function clean(): void
+    {
+        // Clean up participation entries from before the previous term.
+        $query = DB::getQuery();
+        $query->delete(DB::qn('#__organizer_instance_participants', 'ip'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
+            ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
+            ->where(DB::qc('date', Terms::startDate(Terms::previousID()), '<', true));
+
+        // Joomla does not currently allow explicit setting of the table to be deleted from when join is used.
+        $query = (string) $query;
+        $query = str_replace('DELETE ', 'DELETE ' . DB::qn('ip'), $query);
+
+        DB::setQuery($query);
+        DB::execute();
     }
 
     /** @inheritDoc */

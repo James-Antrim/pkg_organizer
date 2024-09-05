@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
-use THM\Organizer\Controllers\Participant;
+use THM\Organizer\Controllers\{Participant, Participation};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\{Can, Dates, Participation as Helper, Instances};
 use THM\Organizer\Tables;
@@ -22,6 +22,8 @@ use THM\Organizer\Tables\InstanceParticipants as Table;
  */
 class InstanceParticipant extends BaseModel
 {
+    use Participation;
+
     // Constants providing context for adding/removing instances to/from personal schedules though the interface.
     private const BLOCK = 2, SELECTED = 0, THIS = 1;
 
@@ -128,7 +130,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->save($keys)) {
                 $bookmarked = true;
-                Instances::updateNumbers($instanceID);
+                $this->updateParticipation($instanceID);
             }
         }
 
@@ -208,7 +210,7 @@ class InstanceParticipant extends BaseModel
                 return false;
             }
 
-            Instances::updateNumbers($instanceID);
+            $this->updateParticipation($instanceID);
         }
 
         Application::message(Text::_('ORGANIZER_CHECKIN_SUCCEEDED'));
@@ -256,7 +258,7 @@ class InstanceParticipant extends BaseModel
             if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
                 $participation->delete();
                 Application::message('ORGANIZER_EVENT_CONFIRMED');
-                Instances::updateNumbers($instanceID);
+                $this->updateParticipation($instanceID);
             }
             else {
                 Application::message('ORGANIZER_412', Application::ERROR);
@@ -333,7 +335,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->save($keys)) {
                 $deregistered = true;
-                Instances::updateNumbers($instanceID);
+                $this->updateParticipation($instanceID);
             }
         }
 
@@ -581,7 +583,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->save($keys)) {
                 $registered = true;
-                Instances::updateNumbers($instanceID);
+                $this->updateParticipation($instanceID);
             }
         }
 
@@ -627,7 +629,7 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->delete()) {
                 $removed = true;
-                Instances::updateNumbers($instanceID);
+                $this->updateParticipation($instanceID);
             }
         }
 
@@ -689,7 +691,7 @@ class InstanceParticipant extends BaseModel
         $success = $table->store();
 
         foreach ($instanceIDs as $instanceID) {
-            Instances::updateNumbers($instanceID);
+            $this->updateParticipation($instanceID);
         }
 
         return $success;

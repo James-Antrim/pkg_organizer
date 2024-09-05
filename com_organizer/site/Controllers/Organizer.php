@@ -11,11 +11,9 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\Router\Route;
 use Joomla\CMS\User\User;
 use THM\Organizer\Adapters\{Application, Database as DB, Text};
-use THM\Organizer\Helpers\{Routing, Terms};
-use THM\Organizer\Models;
+use THM\Organizer\Helpers\Terms;
 
 /** @inheritDoc */
 class Organizer extends Controller
@@ -406,17 +404,5 @@ class Organizer extends Controller
 
         Application::message('TABLES_REKEYED');
         $this->setRedirect("$this->baseURL&view=organizer");
-    }
-
-    /**
-     * Updates all instance participation numbers.
-     * @return void
-     */
-    public function updateNumbers(): void
-    {
-        $model = new Models\Instance();
-        $model->updateNumbers();
-        $url = Routing::getRedirectBase() . "&view=organizer";
-        $this->setRedirect(Route::_($url, false));
     }
 }

@@ -11,7 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{HTML, Input, Text};
+use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
+use THM\Organizer\Helpers\Can;
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
@@ -27,6 +28,11 @@ class Participants extends ListView
     protected function addToolBar(): void
     {
         $this->addMerge();
+        if (Can::administrate()) {
+            $toolbar = Toolbar::getInstance();
+            $toolbar->standardButton('bars', Text::_('UPDATE_PARTICIPATION'), 'participants.update')
+                ->icon('fa fa-chart-bar');
+        }
         parent::addToolBar();
     }
 

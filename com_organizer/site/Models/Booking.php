@@ -12,9 +12,9 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\{Form\Form, User\User};
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text, User as UAdapter};
-use THM\Organizer\Controllers\Participant;
-use THM\Organizer\Helpers\{Can, Bookings as Helper, Instances, Participants as PHelper};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text, User as UAdapter};
+use THM\Organizer\Controllers\{Participant, Participation};
+use THM\Organizer\Helpers\{Can, Bookings as Helper, Participants as PHelper};
 use THM\Organizer\Tables;
 
 /**
@@ -22,6 +22,8 @@ use THM\Organizer\Tables;
  */
 class Booking extends Participants
 {
+    use Participation;
+
     public Tables\Bookings $booking;
 
     protected string $defaultOrdering = 'fullName';
@@ -107,11 +109,11 @@ class Booking extends Participants
         Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
 
         $existing = true;
-        $query    = Database::getQuery();
+        $query    = DB::getQuery();
         $query->select('id')->from('#__users')->where("username = " . $query->quote($input));
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if ($participantID = Database::loadInt()) {
+        if ($participantID = DB::loadInt()) {
             if (!PHelper::exists($participantID)) {
                 Participant::supplement($participantID);
                 $existing = false;
@@ -185,8 +187,8 @@ class Booking extends Participants
 
             $query->clear('where');
             $query->where("username = '$username'");
-            Database::setQuery($query);
-            $userNameID = Database::loadInt();
+            DB::setQuery($query);
+            $userNameID = DB::loadInt();
 
             $query->clear('where');
             $query->where("email = '$email'");
@@ -195,8 +197,8 @@ class Booking extends Participants
                 $query->where("id != $userNameID");
             }
 
-            Database::setQuery($query);
-            $emailID = Database::loadInt();
+            DB::setQuery($query);
+            $emailID = DB::loadInt();
 
             // These cannot be the same because of the email query's construction
             if ($userNameID and $emailID) {
@@ -268,14 +270,14 @@ class Booking extends Participants
 
         // Check for existing entries in an existing participant's personal schedule
         if ($existing) {
-            $query = Database::getQuery();
+            $query = DB::getQuery();
             $query->select('id')
                 ->from('#__organizer_instance_participants')
                 ->where("participantID = $participantID")
                 ->where('instanceID IN (' . implode(',', $instanceIDs) . ')');
-            Database::setQuery($query);
+            DB::setQuery($query);
 
-            if ($ipaIDs = Database::loadIntColumn()) {
+            if ($ipaIDs = DB::loadIntColumn()) {
                 foreach ($ipaIDs as $ipaID) {
                     $participation = new Tables\InstanceParticipants();
                     $participation->load($ipaID);
@@ -287,7 +289,7 @@ class Booking extends Participants
                         return;
                     }
 
-                    Instances::updateNumbers($participation->instanceID);
+                    $this->updateParticipation($participation->instanceID);
                 }
 
                 Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -306,7 +308,7 @@ class Booking extends Participants
                 return;
             }
 
-            Instances::updateNumbers($instanceID);
+            $this->updateParticipation($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -373,14 +375,14 @@ class Booking extends Participants
     public function clean(): void
     {
         $today = date('Y-m-d');
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT bk.id')
             ->from('#__organizer_bookings AS bk')
             ->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
             ->where("bl.date < '$today'");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$allIDs = Database::loadColumn()) {
+        if (!$allIDs = DB::loadColumn()) {
             Application::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), Application::NOTICE);
 
             return;
@@ -389,9 +391,9 @@ class Booking extends Participants
         $query->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
             ->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
             ->where('ip.attended = 1');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$attendedIDs = Database::loadColumn()) {
+        if (!$attendedIDs = DB::loadColumn()) {
             Application::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), Application::NOTICE);
 
             return;
@@ -403,11 +405,11 @@ class Booking extends Participants
             return;
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->delete('#__organizer_bookings')->where('id IN (' . implode(',', $unAttendedIDs) . ')');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (Database::execute()) {
+        if (DB::execute()) {
             $constant = 'ORGANIZER_BOOKINGS_DELETED';
             $type     = Application::MESSAGE;
         }
@@ -440,7 +442,7 @@ class Booking extends Participants
                 $participation->attended = true;
 
                 if ($participation->store()) {
-                    Instances::updateNumbers($participation->instanceID);
+                    $this->updateParticipation($participation->instanceID);
                     $count++;
                 }
             }
@@ -575,7 +577,7 @@ class Booking extends Participants
     public function getItems(): array
     {
         $bookingID = Input::getID();
-        $query     = Database::getQuery();
+        $query     = DB::getQuery();
         $tag       = Application::getTag();
         $query->select("e.name_$tag AS event")
             ->from('#__organizer_events AS e')
@@ -623,9 +625,9 @@ class Booking extends Participants
 
             $query->clear('where');
             $query->where("b.id = $bookingID")->where("ip.participantID = $item->id");
-            Database::setQuery($query);
+            DB::setQuery($query);
 
-            if ($events = Database::loadColumn()) {
+            if ($events = DB::loadColumn()) {
                 $item->event = count($events) > 1 ? $eventWarning : $events[0];
             }
             else {
@@ -724,7 +726,7 @@ class Booking extends Participants
                 return;
             }
 
-            Instances::updateNumbers($instanceID);
+            $this->updateParticipation($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANTS_REMOVED');
@@ -746,10 +748,10 @@ class Booking extends Participants
         $fqClass   = 'THM\\Organizer\\Tables\\' . ucfirst($table) . 'Participants';
         $protected = ['id', 'instanceID', $fkColumn];
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('*')->from("#__organizer_{$table}_participants")->where("instanceID IN ($toID, $fromID)");
-        Database::setQuery($query);
-        $references = Database::loadAssocList();
+        DB::setQuery($query);
+        $references = DB::loadAssocList();
 
         // Delete redundant entries buffering necessary values
         foreach ($references as $reference) {
