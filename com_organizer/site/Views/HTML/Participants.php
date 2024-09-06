@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -54,49 +54,29 @@ class Participants extends ListView
         $direction = $this->state->get('list.direction');
 
         $headers = [
-            'check'    => ['type' => 'check'],
-            'fullName' => [
+            'check'        => ['type' => 'check'],
+            'fullName'     => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'fullName', $direction, $ordering),
-                'type'       => 'value'
+                'type'       => 'text'
             ],
-            'email'    => [
+            'email'        => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('EMAIL'),
                 'type'       => 'text'
             ],
-            'program'  => [
+            'program'      => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('PROGRAM'),
+                'title'      => HTML::sort('PROGRAM', 'program', $direction, $ordering),
                 'type'       => 'text'
             ],
-        ];
-
-        if ($courseID = Input::getFilterID('courseID') and $courseID !== -1) {
-            $headers['status']   = [
-                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('STATUS'),
-                'type'       => 'value'
-            ];
-            $headers['paid']     = [
-                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('PAID'),
-                'type'       => 'value'
-            ];
-            $headers['attended'] = [
-                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('ATTENDED'),
-                'type'       => 'value'
-            ];
-        }
-        else {
-            $headers['registerDate'] = [
+            'registerDate' => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('REGISTRATION_DATE', 'registerDate', $direction, $ordering),
                 'type'       => 'text'
-            ];
-        }
+            ]
+        ];
 
         $this->headers = $headers;
     }
