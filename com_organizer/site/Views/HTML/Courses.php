@@ -61,7 +61,7 @@ class Courses extends ListView
 
         if ($this->manages) {
             $button = new FormTarget('participants', Text::_('PARTICIPANTS'));
-            $button->icon('fa fa-users')->listCheck(true)->task('Courses.participants');
+            $button->icon('fa fa-users')->listCheck(true)->task('courses.participants');
             $toolbar->appendButton($button);
 
             $this->addDelete();

@@ -11,7 +11,6 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\Input;
 
 /** @inheritDoc */
@@ -53,6 +52,6 @@ class Courses extends ListController
             return;
         }
 
-        $this->setRedirect(Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID");
+        $this->setRedirect("$this->baseURL&view=courseparticipants&id=$courseID");
     }
 }
