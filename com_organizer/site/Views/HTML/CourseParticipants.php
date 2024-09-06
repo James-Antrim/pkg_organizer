@@ -10,9 +10,11 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Campuses, Courses as cHelper, CourseParticipants as Helper};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
@@ -24,16 +26,16 @@ class CourseParticipants extends Participants
      */
     protected function setSubTitle(): void
     {
-        $courseID = Input::getID();
+        $courseID = Input::getInt('courseID');
 
         $subTitle   = [];
-        $subTitle[] = Helpers\Courses::name($courseID);
+        $subTitle[] = cHelper::name($courseID);
 
-        if ($campusID = Helpers\Courses::campusID($courseID)) {
-            $subTitle[] = Helpers\Campuses::name($campusID);
+        if ($campusID = cHelper::campusID($courseID)) {
+            $subTitle[] = Campuses::name($campusID);
         }
 
-        $subTitle[] = Helpers\Courses::displayDate($courseID);
+        $subTitle[] = cHelper::displayDate($courseID);
 
         $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
     }
@@ -47,11 +49,11 @@ class CourseParticipants extends Participants
 
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->standardButton('checkin', Text::_('ACCEPT'), 'CourseParticipants.accept')
+        $toolbar->standardButton('checkin', Text::_('ACCEPT'), 'courseparticipants.accept')
             ->listCheck(true)
             ->icon('fa fa-check-square');
 
-        $toolbar->standardButton('wait', Text::_('WAITLIST'), 'CourseParticipants.waitlist')
+        $toolbar->standardButton('wait', Text::_('WAITLIST'), 'courseparticipants.waitlist')
             ->listCheck(true)
             ->icon('fa fa-square');
 
@@ -93,84 +95,48 @@ class CourseParticipants extends Participants
             Application::error(401);
         }
 
-        if (!$courseID = Input::getID()) {
+        if (!$courseID = Input::getInt('courseID')) {
             Application::error(400);
         }
 
-        if (!Helpers\Courses::coordinatable($courseID)) {
+        if (!cHelper::coordinatable($courseID)) {
             Application::error(403);
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function completeItems(): void
+    /** @inheritDoc */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=participant_edit&id=';
-        $structuredItems = [];
+        extract($options);
+        $aContext = "attended-$index";
+        $pContext = "paid-$index";
+        $rContext = "registration-$index";
 
-        $admin     = Helpers\Can::administrate();
-        $checked   = '<span class="icon-checkbox-checked"></span>';
-        $courseID  = Input::getID();
-        $expired   = Helpers\Courses::expired($courseID);
-        $unchecked = '<span class="icon-checkbox-unchecked"></span>';
-
-        foreach ($this->items as $item) {
-            if (!$expired) {
-                $item->status = $this->getAssocToggle(
-                    'course_participants',
-                    'courseID',
-                    $courseID,
-                    'participantID',
-                    $item->id,
-                    $item->status,
-                    Text::_('TOGGLE_ACCEPTED'),
-                    'status'
-                );
-            }
-            else {
-                $item->status = $item->status ? $checked : $unchecked;
-            }
-
-            if ($admin or !$item->attended) {
-                $item->attended = $this->getAssocToggle(
-                    'course_participants',
-                    'courseID',
-                    $courseID,
-                    'participantID',
-                    $item->id,
-                    $item->attended,
-                    Text::_('TOGGLE_ATTENDED'),
-                    'attended'
-                );
-            }
-            else {
-                $item->attended = $checked;
-            }
-
-            if ($admin or !$item->paid) {
-                $item->paid = $this->getAssocToggle(
-                    'course_participants',
-                    'courseID',
-                    $courseID,
-                    'participantID',
-                    $item->id,
-                    $item->paid,
-                    Text::_('TOGGLE_PAID'),
-                    'paid'
-                );
-            }
-            else {
-                $item->paid = $checked;
-            }
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
+        if ($expired) {
+            $item->attended = $item->attended ?
+                HTML::tip($checked, $aContext, 'ATTENDED') : HTML::tip($unchecked, $aContext, 'UNATTENDED');
+            $item->paid     = $item->paid ?
+                HTML::tip($checked, $pContext, 'PAID') : HTML::tip($unchecked, $pContext, 'UNPAID');
+            $item->status   = $item->status ?
+                HTML::tip($checked, $rContext, 'REGISTERED') : HTML::tip($unchecked, $rContext, 'UNREGISTERED');
         }
+        else {
+            $item->attended = HTML::toggle($index, Helper::ATTENDANCE_STATES[$item->attended], 'courseparticipants');
+            $item->paid     = HTML::toggle($index, Helper::PAYMENT_STATES[$item->paid], 'courseparticipants');
+            $item->status   = HTML::toggle($index, Helper::REGISTRATION_STATES[$item->status], 'courseparticipants');
+        }
+    }
 
-        $this->items = $structuredItems;
+    /** @inheritDoc */
+    protected function completeItems(array $options = []): void
+    {
+        $options = [
+            'checked'   => HTML::icon('fa fa-check'),
+            'expired'   => cHelper::expired(Input::getInt('courseID')),
+            'unchecked' => HTML::icon('fa fa-times')
+        ];
+
+        parent::completeItems($options);
     }
 
     /**
@@ -189,16 +155,41 @@ class CourseParticipants extends Participants
      */
     protected function initializeColumns(): void
     {
-        $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => HTML::checkAll(),
-            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'email'    => HTML::sort('EMAIL', 'email', $direction, $ordering),
-            'program'  => HTML::sort('PROGRAM', 'program', $direction, $ordering),
-            'status'   => Text::_('STATUS'),
-            'paid'     => Text::_('PAID'),
-            'attended' => Text::_('ATTENDED')
+
+        $headers = [
+            'check'    => ['type' => 'check'],
+            'fullName' => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'fullName', $direction, 'fullName'),
+                'type'       => 'text'
+            ],
+            'email'    => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('EMAIL'),
+                'type'       => 'text'
+            ],
+            'program'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('PROGRAM'),
+                'type'       => 'text'
+            ],
+            'status'   => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STATUS'),
+                'type'       => 'value'
+            ],
+            'paid'     => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('PAID'),
+                'type'       => 'value'
+            ],
+            'attended' => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ATTENDED'),
+                'type'       => 'value'
+            ]
         ];
 
         $this->headers = $headers;

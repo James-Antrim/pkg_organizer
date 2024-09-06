@@ -19,7 +19,55 @@ use THM\Organizer\Tables;
  */
 class CourseParticipants extends ResourceHelper
 {
-    public const UNREGISTERED = null, WAITLIST = 0, ACCEPTED = 1;
+
+    public const ACCEPTED = 1, UNREGISTERED = null, WAITLIST = 0;
+    public const ATTENDED = 1, UNATTENDED = 0;
+    public const PAID = 1, UNPAID = 0;
+
+    public const ATTENDANCE_STATES = [
+        self::ATTENDED   => [
+            'class'  => 'publish',
+            'column' => 'attended',
+            'task'   => 'denyAttendance',
+            'tip'    => 'CLICK_TO_DENY_ATTENDANCE'
+        ],
+        self::UNATTENDED => [
+            'class'  => 'unpublish',
+            'column' => 'attended',
+            'task'   => 'confirmAttendance',
+            'tip'    => 'CLICK_TO_CONFIRM_ATTENDANCE'
+        ]
+    ];
+
+    public const PAYMENT_STATES = [
+        self::PAID   => [
+            'class'  => 'publish',
+            'column' => 'paid',
+            'task'   => 'denyPayment',
+            'tip'    => 'CLICK_TO_DENY_PAYMENT'
+        ],
+        self::UNPAID => [
+            'class'  => 'unpublish',
+            'column' => 'paid',
+            'task'   => 'confirmPayment',
+            'tip'    => 'CLICK_TO_CONFIRM_PAYMENT'
+        ]
+    ];
+
+    public const REGISTRATION_STATES = [
+        self::ACCEPTED => [
+            'class'  => 'publish',
+            'column' => 'status',
+            'task'   => 'waitlist',
+            'tip'    => 'CLICK_TO_WAITLIST'
+        ],
+        self::WAITLIST => [
+            'class'  => 'unpublish',
+            'column' => 'status',
+            'task'   => 'accept',
+            'tip'    => 'CLICK_TO_ACCEPT'
+        ]
+    ];
 
     /**
      * Determines whether the participant has paid for the course. Courses without a fee return true regardless of the

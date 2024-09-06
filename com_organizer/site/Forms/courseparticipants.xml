@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
+    <fields name="batch">
+        <field name="subject" type="text" label="ORGANIZER_NOTIFY_SUBJECT" maxlength="200"/>
+        <field name="body" type="Box" label="ORGANIZER_NOTIFY_BODY"/>
+    </fields>
     <fields name="filter">
         <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
-        <field name="courseID" type="hidden"/>
         <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" onchange="this.form.submit();" participant="1">
             <option value="">ORGANIZER_ALL_PROGRAMS</option>
         </field>
@@ -21,11 +24,10 @@
             <option value="1">ORGANIZER_DUPLICATES_FILTER_ACTIVE</option>
         </field>
     </fields>
+    <fields name="hidden">
+        <field name="courseID" type="hidden"/>
+    </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
-    </fields>
-    <fields name="batch">
-        <field name="subject" type="text" label="ORGANIZER_NOTIFY_SUBJECT" maxlength="200"/>
-        <field name="body" type="Box" label="ORGANIZER_NOTIFY_BODY"/>
     </fields>
 </form>

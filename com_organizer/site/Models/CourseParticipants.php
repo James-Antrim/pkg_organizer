@@ -10,15 +10,29 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Input};
+use Joomla\Database\{DatabaseQuery, QueryInterface};
+use THM\Organizer\Adapters\{Database as DB, Input};
+use THM\Organizer\Helpers\Courses as cHelper;
 
 /** @inheritDoc */
 class CourseParticipants extends Participants
 {
-    protected string $defaultOrdering = 'fullName';
+    /** @inheritDoc */
+    protected function addAccess(QueryInterface $query): void
+    {
+        if (cHelper::coordinatable(Input::getInt('courseID'))) {
+            $query->select(DB::quote(1) . ' AS ' . DB::qn('access'));
+        }
+        else {
+            $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
+        }
+    }
 
-    protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
+    /** @inheritDoc */
+    protected function clean(): void
+    {
+        // No cleaning in extending views.
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
@@ -27,11 +41,25 @@ class CourseParticipants extends Participants
 
         $this->filterValues($query, ['attended', 'paid']);
 
-        $courseID = Input::getID();
-        $query->select('cp.attended, cp.paid, cp.status')
-            ->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
-            ->where("cp.courseID = $courseID");
+        $courseID = Input::getInt('courseID');
+        $query->select(DB::qn(['cp.attended', 'cp.paid', 'cp.status']))
+            ->innerJoin(DB::qn('#__organizer_course_participants', 'cp'), DB::qc('cp.participantID', 'pa.id'))
+            ->where(DB::qc('cp.courseID', $courseID));
 
         return $query;
+    }
+
+    /** @inheritDoc */
+    protected function loadFormData()
+    {
+        $data = parent::loadFormData();
+
+        if (!property_exists($data, 'hidden')) {
+            $data->hidden = [];
+        }
+
+        $data->hidden['courseID'] = Input::getInt('courseID');
+
+        return $data;
     }
 }

@@ -18,10 +18,6 @@ use THM\Organizer\Models;
 
 class CourseParticipants extends Participants
 {
-    protected $listView = 'course_participants';
-
-    protected $resource = 'course_participant';
-
     /**
      * Accepts the selected participants into the course.
      * @return void
@@ -113,22 +109,6 @@ class CourseParticipants extends Participants
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-        $this->setRedirect(Route::_($url, false));
-    }
-
-    /** @inheritDoc */
-    public function toggle()
-    {
-        $model = new Models\CourseParticipant();
-
-        if ($model->toggle()) {
-            Application::message('ORGANIZER_TOGGLE_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_TOGGLE_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getInt('courseID');
         $this->setRedirect(Route::_($url, false));
     }
 
