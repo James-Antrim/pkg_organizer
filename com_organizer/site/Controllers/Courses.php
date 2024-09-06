@@ -52,6 +52,6 @@ class Courses extends ListController
             return;
         }
 
-        $this->setRedirect("$this->baseURL&view=courseparticipants&courseID=$courseID");
+        $this->setRedirect("$this->baseURL&view=courseparticipants&id=$courseID");
     }
 }
