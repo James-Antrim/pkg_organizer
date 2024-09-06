@@ -10,7 +10,7 @@
 
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML, Toolbar};
-use THM\Organizer\Layouts\HTML\{Batch, EmptyList, ListHeaders, ListItem, ListTools};
+use THM\Organizer\Layouts\HTML\{Batch, EmptyList, ListHeaders, ListHidden, ListItem, ListTools};
 use THM\Organizer\Views\HTML\ListView;
 
 /** @var ListView $this */
@@ -59,6 +59,7 @@ if (!Application::backend()) {
                             <template id="organizer-batch"><?php Batch::render($this); ?></template>
                         <?php endif; ?>
                     <?php endif; ?>
+                    <?php ListHidden::render($this); ?>
                     <input type="hidden" name="task" value="">
                     <input type="hidden" name="boxchecked" value="0">
                     <?php echo HTML::token(); ?>
