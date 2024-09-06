@@ -12,18 +12,19 @@ use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\HTML;
 
 $query = Uri::getInstance()->getQuery();
-$this->renderTasks();
 ?>
-<div id="j-main-container" class="span10">
-    <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post"
-          name="adminForm">
-        <h2 class="organizer-header">Organizer</h2>
+<form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post"
+      name="adminForm">
+    <div class="row">
         <div id="j-sidebar-container" class="col-md-2">
             <?php echo $this->sidebar; ?>
+        </div>
+        <div class="col-md-10 right">
+            <?php $this->renderTasks(); ?>
         </div>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="organizer"/>
         <?php echo HTML::token(); ?>
-    </form>
-</div>
+    </div>
+</form>
