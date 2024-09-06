@@ -147,14 +147,4 @@ class Participants extends ListModel
 
         return $query;
     }
-
-    /** @inheritDoc */
-    protected function populateState($ordering = null, $direction = null): void
-    {
-        parent::populateState($ordering, $direction);
-
-        if ($courseID = Input::getFilterID('courseID')) {
-            $this->setState('filter.courseID', $courseID);
-        }
-    }
 }

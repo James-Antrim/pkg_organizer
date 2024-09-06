@@ -20,7 +20,7 @@ class CourseParticipants extends Participants
     /** @inheritDoc */
     protected function addAccess(QueryInterface $query): void
     {
-        if (cHelper::coordinatable(Input::getInt('courseID'))) {
+        if (cHelper::coordinatable(Input::getID())) {
             $query->select(DB::quote(1) . ' AS ' . DB::qn('access'));
         }
         else {
@@ -41,25 +41,11 @@ class CourseParticipants extends Participants
 
         $this->filterValues($query, ['attended', 'paid']);
 
-        $courseID = Input::getInt('courseID');
+        $courseID = Input::getID();
         $query->select(DB::qn(['cp.attended', 'cp.paid', 'cp.status']))
             ->innerJoin(DB::qn('#__organizer_course_participants', 'cp'), DB::qc('cp.participantID', 'pa.id'))
             ->where(DB::qc('cp.courseID', $courseID));
 
         return $query;
-    }
-
-    /** @inheritDoc */
-    protected function loadFormData()
-    {
-        $data = parent::loadFormData();
-
-        if (!property_exists($data, 'hidden')) {
-            $data->hidden = [];
-        }
-
-        $data->hidden['courseID'] = Input::getInt('courseID');
-
-        return $data;
     }
 }

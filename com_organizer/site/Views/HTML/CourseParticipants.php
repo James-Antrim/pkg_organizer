@@ -26,7 +26,7 @@ class CourseParticipants extends Participants
      */
     protected function setSubTitle(): void
     {
-        $courseID = Input::getInt('courseID');
+        $courseID = Input::getID();
 
         $subTitle   = [];
         $subTitle[] = cHelper::name($courseID);
@@ -95,7 +95,7 @@ class CourseParticipants extends Participants
             Application::error(401);
         }
 
-        if (!$courseID = Input::getInt('courseID')) {
+        if (!$courseID = Input::getID()) {
             Application::error(400);
         }
 
@@ -132,7 +132,7 @@ class CourseParticipants extends Participants
     {
         $options = [
             'checked'   => HTML::icon('fa fa-check'),
-            'expired'   => cHelper::expired(Input::getInt('courseID')),
+            'expired'   => cHelper::expired(Input::getID()),
             'unchecked' => HTML::icon('fa fa-times')
         ];
 
