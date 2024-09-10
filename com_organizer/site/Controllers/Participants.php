@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Database as DB;
 /** @inheritDoc */
 class Participants extends ListController
 {
-    use Participation;
+    use Participated;
 
     protected string $item = 'Participant';
 
@@ -65,7 +65,7 @@ class Participants extends ListController
         $updated     = 0;
 
         foreach ($instanceIDs as $instanceID) {
-            if ($this->updateParticipation($instanceID)) {
+            if ($this->updateIPNumbers($instanceID)) {
                 $updated++;
             }
         }

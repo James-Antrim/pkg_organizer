@@ -13,12 +13,12 @@ namespace THM\Organizer\Models;
 use Joomla\Database\{DatabaseQuery, QueryInterface};
 use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
 use THM\Organizer\Helpers\{Can, Terms};
-use THM\Organizer\Controllers\Participation;
+use THM\Organizer\Controllers\Participated;
 
 /** @inheritDoc */
 class Participants extends ListModel
 {
-    use Participation;
+    use Participated;
 
     protected string $defaultOrdering = 'fullName';
 
@@ -69,7 +69,7 @@ class Participants extends ListModel
         $instanceIDs = DB::loadIntColumn();
 
         foreach ($instanceIDs as $instanceID) {
-            $this->updateParticipation($instanceID);
+            $this->updateIPNumbers($instanceID);
         }
 
         // Mostly the same query for deletion of the same participation entries.

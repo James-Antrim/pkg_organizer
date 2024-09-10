@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\{Form\Form, User\User};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text, User as UAdapter};
-use THM\Organizer\Controllers\{Participant, Participation};
+use THM\Organizer\Controllers\{Participant, Participated};
 use THM\Organizer\Helpers\{Can, Bookings as Helper, Participants as PHelper};
 use THM\Organizer\Tables;
 
@@ -22,7 +22,7 @@ use THM\Organizer\Tables;
  */
 class Booking extends Participants
 {
-    use Participation;
+    use Participated;
 
     public Tables\Bookings $booking;
 
@@ -289,7 +289,7 @@ class Booking extends Participants
                         return;
                     }
 
-                    $this->updateParticipation($participation->instanceID);
+                    $this->updateIPNumbers($participation->instanceID);
                 }
 
                 Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -308,7 +308,7 @@ class Booking extends Participants
                 return;
             }
 
-            $this->updateParticipation($instanceID);
+            $this->updateIPNumbers($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -442,7 +442,7 @@ class Booking extends Participants
                 $participation->attended = true;
 
                 if ($participation->store()) {
-                    $this->updateParticipation($participation->instanceID);
+                    $this->updateIPNumbers($participation->instanceID);
                     $count++;
                 }
             }
@@ -726,7 +726,7 @@ class Booking extends Participants
                 return;
             }
 
-            $this->updateParticipation($instanceID);
+            $this->updateIPNumbers($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANTS_REMOVED');

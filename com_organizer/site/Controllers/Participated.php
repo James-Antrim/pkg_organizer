@@ -14,11 +14,10 @@ use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Tables\Instances as Table;
 
 /**
- * Standard implementation for updating instance participation numbers.
+ * Standard implementation for updating participation numbers.
  */
-trait Participation
+trait Participated
 {
-
     /**
      * Updates participation numbers for a single instance.
      *
@@ -26,7 +25,7 @@ trait Participation
      *
      * @return bool
      */
-    private function updateParticipation(int $instanceID): bool
+    private function updateIPNumbers(int $instanceID): bool
     {
         $query = DB::getQuery();
         $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");
