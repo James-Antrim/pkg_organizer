@@ -133,7 +133,7 @@ abstract class ListController extends Controller
      */
     protected function getTable(): Table
     {
-        $fqName = 'THM\\Organizer\\Tables\\' . $this->name;
+        $fqName = 'THM\\Organizer\\Tables\\' . Application::ucClassName($this->name);
 
         return new $fqName();
     }

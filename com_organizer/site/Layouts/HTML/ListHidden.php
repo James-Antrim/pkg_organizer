@@ -36,7 +36,7 @@ class ListHidden
         foreach ($fields as $field) {
             // Undo Joomla packaging of names by group
             $name = str_replace(['hidden[', ']'], '', $field->__get('name'));
-            echo '<input name="' . $name . '" type="hidden" value="' . $field->__get('value') . '"/>';
+            echo '<input type="hidden" name="' . $name . '" value="' . $field->__get('value') . '"/>';
         }
     }
 }
