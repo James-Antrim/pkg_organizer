@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Exception;
 use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers\{Can, CourseParticipants, Courses, Mailer};
+use THM\Organizer\Helpers\{Can, Courses, Mailer};
 use THM\Organizer\Tables\CourseParticipants as Table;
 
 /**
@@ -20,61 +19,6 @@ use THM\Organizer\Tables\CourseParticipants as Table;
  */
 class CourseParticipant extends BaseModel
 {
-    /**
-     * Sets the status for the course participant to accepted
-     * @return bool true on success, otherwise false
-     * @throws Exception
-     */
-    public function accept(): bool
-    {
-        return $this->batch(CourseParticipants::ACCEPTED);
-    }
-
-    /**
-     * Sets the property the given property to the given value for the selected participants.
-     *
-     * @param   mixed  $value  the new value for the property
-     *
-     * @return bool true on success, otherwise false
-     * @throws Exception
-     */
-    private function batch(int $value): bool
-    {
-        if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs()) {
-            return false;
-        }
-
-        if (!Courses::coordinatable($courseID)) {
-            Application::error(403);
-        }
-
-        foreach ($participantIDs as $participantID) {
-            if (!Can::manage('participant', $participantID)) {
-                Application::error(403);
-            }
-
-            $table = $this->getTable();
-
-            if (!$table->load(['courseID' => $courseID, 'participantID' => $participantID])) {
-                return false;
-            }
-
-            if ($table->status === $value) {
-                continue;
-            }
-
-            $table->status = $value;
-
-            if (!$table->store()) {
-                return false;
-            }
-
-            Mailer::registrationUpdate($courseID, $participantID, $value);
-        }
-
-        return true;
-    }
-
     /** @inheritDoc */
     public function getTable($name = '', $prefix = '', $options = []): Table
     {
@@ -203,15 +147,5 @@ class CourseParticipant extends BaseModel
         }
 
         return true;
-    }
-
-    /**
-     * Sets the status for the course participant to accepted
-     * @return bool true on success, otherwise false
-     * @throws Exception
-     */
-    public function waitlist(): bool
-    {
-        return $this->batch(CourseParticipants::WAITLIST);
     }
 }

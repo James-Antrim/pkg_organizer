@@ -356,14 +356,42 @@ class Courses extends Coordinatable
      *
      * @return int[] the instances which are a part of the course
      */
-    public static function instanceIDs(int $courseID): array
+
+    /**
+     * Gets instances associated with the given course optionally filtered by future or past.
+     *
+     * @param   int        $courseID the id of the course
+     * @param   bool|null  $future   whether to filter for future instances (null => no filter, 0 => past, 1 => future)
+     *
+     * @return array
+     */
+    public static function instanceIDs(int $courseID, bool|null $future = null): array
     {
         $query = DB::getQuery();
         $query->select('DISTINCT ' . DB::qn('i.id'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
-            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->where(DB::qc('u.courseID', ':courseID'))->bind(':courseID', $courseID, ParameterType::INTEGER)
             ->order(DB::qn('i.id'));
+
+        if ($future !== null) {
+            $now     = date('H:i:s');
+            $today   = date('Y-m-d');
+            $isToday = DB::qc('b.date', $today, '=', true);
+
+            if ($future) {
+                $conditionOne = DB::qc('b.date', $today, '>', true);
+                $conditionTwo = DB::qc('b.startTime', $now, '>', true);
+            }
+            else {
+                $conditionOne = DB::qc('b.date', $today, '<', true);
+                $conditionTwo = DB::qc('b.startTime', $now, '<', true);
+            }
+
+            $query->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
+                ->where("($conditionOne OR ($isToday AND $conditionTwo))");
+        }
+
         DB::setQuery($query);
 
         return DB::loadIntColumn();
