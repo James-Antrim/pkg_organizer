@@ -22,7 +22,11 @@ use THM\Organizer\Tables\{Instances as Instance, InstanceParticipants as Partici
  */
 class InstanceParticipants extends Controller
 {
+    use Participated;
+
     private const BLOCK = 2, SELECTED = 0, THIS = 1;
+
+    protected string $context = 'instanceID';
 
     protected string $listView = 'instance_participants';
 
