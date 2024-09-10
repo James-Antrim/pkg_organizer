@@ -25,7 +25,7 @@
         </field>
     </fields>
     <fields name="hidden">
-        <field name="courseID" type="hidden"/>
+        <field name="id" type="hidden"/>
     </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
