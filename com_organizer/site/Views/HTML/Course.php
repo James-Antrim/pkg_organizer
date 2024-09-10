@@ -25,6 +25,9 @@ class Course extends FormView
     /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
+        $this->toDo[] = 'Course registration functionality.';
+        $this->toDo[] = 'Course badge functionality.';
+
         $item     = $this->item;
         $courseID = empty($item->id) ? 0 : $item->id;
         $toolbar  = Toolbar::getInstance();

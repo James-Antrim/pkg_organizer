@@ -10,21 +10,14 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\{Can, Courses, Mailer};
-use THM\Organizer\Tables\CourseParticipants as Table;
 
 /**
  * Class which manages stored course data.
  */
 class CourseParticipant extends BaseModel
 {
-    /** @inheritDoc */
-    public function getTable($name = '', $prefix = '', $options = []): Table
-    {
-        return new Table();
-    }
-
     /**
      * Sends a circular mail to all course participants.
      * @return bool true on success, false on error
@@ -55,58 +48,6 @@ class CourseParticipant extends BaseModel
 
         foreach ($participantIDs as $participantID) {
             Mailer::notifyParticipant($participantID, $subject, $body);
-        }
-
-        return true;
-    }
-
-    /**
-     * Removes the participation record.
-     * @return bool true on success, otherwise false
-     */
-    public function remove(): bool
-    {
-        if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs()) {
-            return false;
-        }
-
-        if (!Courses::coordinatable($courseID)) {
-            Application::error(403);
-        }
-
-        $dates = Courses::dates($courseID);
-
-        if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d')) {
-            return false;
-        }
-
-        $instanceIDs = Courses::instanceIDs($courseID);
-        $instanceIDs = implode(',', $instanceIDs);
-
-        foreach ($participantIDs as $participantID) {
-            if (!Can::manage('participant', $participantID)) {
-                Application::error(403);
-            }
-
-            $courseParticipant = new Table();
-            $cpData            = ['courseID' => $courseID, 'participantID' => $participantID];
-
-            if (!$courseParticipant->load($cpData) or !$courseParticipant->delete()) {
-                return false;
-            }
-
-            // TODO Only delete associations to future instances
-            $query = Database::getQuery();
-            $query->delete('#__organizer_instance_participants')
-                ->where("instanceID IN ($instanceIDs)")
-                ->where("participantID = $participantID");
-            Database::setQuery($query);
-
-            if (!Database::execute()) {
-                return false;
-            }
-
-            Mailer::registrationUpdate($courseID, $participantID, null);
         }
 
         return true;

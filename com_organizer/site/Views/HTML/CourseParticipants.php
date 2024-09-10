@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\Toolbar\Button\DropdownButton;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
@@ -49,30 +50,35 @@ class CourseParticipants extends Participants
 
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->standardButton('checkin', Text::_('ACCEPT'), 'courseparticipants.accept')
-            ->listCheck(true)
-            ->icon('fa fa-check-square');
-
-        $toolbar->standardButton('wait', Text::_('WAITLIST'), 'courseparticipants.waitlist')
-            ->listCheck(true)
-            ->icon('fa fa-square');
-
-        $toolbar->delete('CourseParticipants.remove')
-            ->message(Text::_('DELETE_CONFIRM'))
-            ->icon('fa fa-user-minus')
+        /** @var DropdownButton $functions */
+        $functions    = $toolbar->dropdownButton('functions-group', 'ORGANIZER_FUNCTIONS')
+            ->toggleSplit(false)
+            ->icon('fa fa-users-cog')
+            ->buttonClass('btn btn-action')
             ->listCheck(true);
+        $functionsBar = $functions->getChildToolbar();
+        $functionsBar->standardButton('checkin', Text::_('ACCEPT'), 'courseparticipants.accept')->icon('fa fa-check-square');
+        $functionsBar->standardButton('wait', Text::_('WAITLIST'), 'courseparticipants.waitlist')->icon('fa fa-square');
+        $functionsBar->delete('courseparticipants.delete')->message(Text::_('DELETE_CONFIRM'))->icon('fa fa-times');
 
-        $button = new FormTarget('badges', Text::_('DOWNLOAD_BADGES'));
+        /** @var DropdownButton $documents */
+        $documents    = $toolbar->dropdownButton('documents-group', 'ORGANIZER_FILES')
+            ->toggleSplit(false)
+            ->icon('fa fa-copy')
+            ->buttonClass('btn btn-action');
+        $documentsBar = $documents->getChildToolbar();
+
+        $button = new FormTarget('badges', Text::_('BADGES'));
         $button->icon('fa fa-tags')->task('CourseParticipants.badges');
-        $toolbar->appendButton($button);
+        $documentsBar->appendButton($button);
 
         $button = new FormTarget('attendance', Text::_('ATTENDANCE'));
         $button->icon('fa fa-list')->task('CourseParticipants.attendance');
-        $toolbar->appendButton($button);
+        $documentsBar->appendButton($button);
 
         $button = new FormTarget('participation', Text::_('GROUPED_PARTICIPATION'));
         $button->icon('fa fa-list-ul')->task('CourseParticipants.participation');
-        $toolbar->appendButton($button);
+        $documentsBar->appendButton($button);
 
         // todo jq???
         $script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
@@ -86,9 +92,7 @@ class CourseParticipants extends Participants
         $toolbar->appendButton('Custom', $batchButton, 'batch');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!User::id()) {
@@ -139,9 +143,7 @@ class CourseParticipants extends Participants
         parent::completeItems($options);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         // Set batch template path
@@ -150,9 +152,7 @@ class CourseParticipants extends Participants
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');
@@ -195,9 +195,7 @@ class CourseParticipants extends Participants
         $this->headers = $headers;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         parent::modifyDocument();

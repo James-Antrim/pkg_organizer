@@ -12,8 +12,9 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\{Can, Courses as cHelper, CourseParticipants as Helper};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Helpers\{Can, Courses as cHelper, CourseParticipants as Helper, Mailer};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Models;
 
 class CourseParticipants extends Participants
@@ -34,7 +35,7 @@ class CourseParticipants extends Participants
      * @return void
      * @throws Exception
      */
-    public function attendance()
+    public function attendance(): void
     {
         Input::set('format', 'pdf');
         Input::set('layout', 'Attendance');
@@ -93,6 +94,40 @@ class CourseParticipants extends Participants
         $this->toggleAssoc('paid', Helper::PAID);
     }
 
+    /** @inheritDoc */
+    public function delete(): void
+    {
+        $this->checkToken();
+        $this->authorize();
+
+        $courseID    = Input::getID();
+        $deleted     = 0;
+        $keys        = ['courseID' => $courseID];
+        $selectedIDs = Input::getSelectedIDs();
+        $selected    = count($selectedIDs);
+
+        $query = DB::getQuery();
+        $query->delete(DB::qn('#__organizer_instance_participants'))
+            ->whereIn(DB::qn('instanceID'), cHelper::instanceIDs($courseID, true))
+            ->where(DB::qc('participantID', ':participantID'))
+            ->bind(':participantID', $selectedID, ParameterType::INTEGER);
+
+        foreach ($selectedIDs as $selectedID) {
+            $keys['participantID'] = $selectedID;
+            $table                 = $this->getTable();
+
+            if ($table->load($keys) and $table->delete()) {
+                $deleted++;
+            }
+
+            DB::setQuery($query);
+            DB::execute();
+            Mailer::registrationUpdate($courseID, $selectedID, null);
+        }
+
+        $this->farewell($selected, $deleted, true);
+    }
+
     /**
      * Sets the participant's attendance status to unattended.
      * @return void
@@ -140,25 +175,6 @@ class CourseParticipants extends Participants
         Input::set('format', 'pdf');
         Input::set('layout', 'Participation');
         parent::display();
-    }
-
-    /**
-     * Accepts the selected participants into the course.
-     * @return void
-     */
-    public function remove(): void
-    {
-        $model = new Models\CourseParticipant();
-
-        if ($model->remove()) {
-            Application::message('ORGANIZER_REMOVE_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_REMOVE_FAIL', Application::ERROR);
-        }
-
-        //$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-        //$this->setRedirect(Route::_($url, false));
     }
 
     /**
