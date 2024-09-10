@@ -48,4 +48,18 @@ class CourseParticipants extends Participants
 
         return $query;
     }
+
+    /** @inheritDoc */
+    protected function loadFormData()
+    {
+        $data = parent::loadFormData();
+
+        if (!property_exists($data, 'hidden')) {
+            $data->hidden = [];
+        }
+
+        $data->hidden['id'] = Input::getID();
+
+        return $data;
+    }
 }

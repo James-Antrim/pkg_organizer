@@ -13,29 +13,20 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Courses as cHelper, CourseParticipants as Helper};
 use THM\Organizer\Models;
 
 class CourseParticipants extends Participants
 {
+    protected string $context = 'courseID';
+
     /**
-     * Accepts the selected participants into the course.
+     * Sets the participant's registration status to accepted.
      * @return void
-     * @throws Exception
      */
-    public function accept()
+    public function accept(): void
     {
-        $model = new Models\CourseParticipant();
-
-        if ($model->accept()) {
-            Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-        $this->setRedirect(Route::_($url, false));
+        $this->toggleAssoc('status', Helper::ACCEPTED);
     }
 
     /**
@@ -50,11 +41,81 @@ class CourseParticipants extends Participants
         parent::display();
     }
 
+    /** @inheritDoc */
+    protected function authorize(): void
+    {
+        if ($basic = Can::basic()) {
+            return;
+        }
+
+        if ($basic === false) {
+            Application::error(401);
+            return;
+        }
+
+        if (!$courseID = Input::getID()) {
+            Application::error(400);
+            return;
+        }
+
+        if (!cHelper::coordinatable($courseID)) {
+            Application::error(403);
+        }
+    }
+
+    /**
+     * Prints badges for the selected participants.
+     * @return void
+     * @throws Exception
+     */
+    public function badges(): void
+    {
+        Input::set('format', 'pdf');
+        Input::set('layout', 'Badges');
+        parent::display();
+    }
+
+    /**
+     * Sets the participant's attendance status to attended.
+     * @return void
+     */
+    public function confirmAttendance(): void
+    {
+        $this->toggleAssoc('attended', Helper::ATTENDED);
+    }
+
+    /**
+     * Sets the participant's payment status to paid.
+     * @return void
+     */
+    public function confirmPayment(): void
+    {
+        $this->toggleAssoc('paid', Helper::PAID);
+    }
+
+    /**
+     * Sets the participant's attendance status to unattended.
+     * @return void
+     */
+    public function denyAttendance(): void
+    {
+        $this->toggleAssoc('attended', Helper::UNATTENDED);
+    }
+
+    /**
+     * Sets the participant's payment status to paid.
+     * @return void
+     */
+    public function denyPayment(): void
+    {
+        $this->toggleAssoc('paid', Helper::UNPAID);
+    }
+
     /**
      * Sends an circular email to all course participants
      * @return void
      */
-    public function notify()
+    public function notify(): void
     {
         $model = new Models\CourseParticipant();
 
@@ -65,8 +126,8 @@ class CourseParticipants extends Participants
             Application::message('ORGANIZER_NOTIFY_FAIL', Application::ERROR);
         }
 
-        $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-        $this->setRedirect(Route::_($url, false));
+        //$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+        //$this->setRedirect(Route::_($url, false));
     }
 
     /**
@@ -74,19 +135,7 @@ class CourseParticipants extends Participants
      * @return void
      * @throws Exception
      */
-    public function badges()
-    {
-        Input::set('format', 'pdf');
-        Input::set('layout', 'Badges');
-        parent::display();
-    }
-
-    /**
-     * Prints badges for the selected participants.
-     * @return void
-     * @throws Exception
-     */
-    public function participation()
+    public function participation(): void
     {
         Input::set('format', 'pdf');
         Input::set('layout', 'Participation');
@@ -97,7 +146,7 @@ class CourseParticipants extends Participants
      * Accepts the selected participants into the course.
      * @return void
      */
-    public function remove()
+    public function remove(): void
     {
         $model = new Models\CourseParticipant();
 
@@ -108,27 +157,16 @@ class CourseParticipants extends Participants
             Application::message('ORGANIZER_REMOVE_FAIL', Application::ERROR);
         }
 
-        $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-        $this->setRedirect(Route::_($url, false));
+        //$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+        //$this->setRedirect(Route::_($url, false));
     }
 
     /**
-     * Accepts the selected participants into the course.
+     * Sets the participant's registration status to waitlist.
      * @return void
-     * @throws Exception
      */
-    public function waitlist()
+    public function waitlist(): void
     {
-        $model = new Models\CourseParticipant();
-
-        if ($model->waitlist()) {
-            Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-        }
-        else {
-            Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-        $this->setRedirect(Route::_($url, false));
+        $this->toggleAssoc('status', Helper::WAITLIST);
     }
 }
