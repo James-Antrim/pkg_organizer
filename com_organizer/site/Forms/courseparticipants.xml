@@ -2,7 +2,7 @@
 <form>
     <fields name="batch">
         <field name="subject" type="text" label="ORGANIZER_NOTIFY_SUBJECT" maxlength="200"/>
-        <field name="body" type="Box" label="ORGANIZER_NOTIFY_BODY"/>
+        <field name="body" type="textarea" label="ORGANIZER_NOTIFY_BODY"/>
     </fields>
     <fields name="filter">
         <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>

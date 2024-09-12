@@ -46,6 +46,8 @@ class CourseParticipants extends Participants
      */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->toDo[] = 'Cancel functionality (item/list/menuitem)';
+
         $this->setTitle('PARTICIPANTS');
 
         $toolbar = Toolbar::getInstance();
@@ -80,16 +82,16 @@ class CourseParticipants extends Participants
         $button->icon('fa fa-list-ul')->task('CourseParticipants.participation');
         $documentsBar->appendButton($button);
 
-        // todo jq???
-        $script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
-        $batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
+        $this->allowBatch = true;
+        $toolbar->popupButton('batch', Text::_('NOTIFY'))
+            ->popupType('inline')
+            ->textHeader(Text::_('NOTIFY_HEADER'))
+            ->url('#organizer-batch')
+            ->modalWidth('800px')
+            ->modalHeight('fit-content');
 
-        $title       = Text::_('NOTIFY');
-        $batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
-
-        $batchButton .= '</button>';
-
-        $toolbar->appendButton('Custom', $batchButton, 'batch');
+        $batchBar = Toolbar::getInstance('batch');
+        $batchBar->confirmButton('batch', Text::_('SEND'), 'courseparticipants.notify')->message(Text::_('NOTIFY_CONFIRM'));
     }
 
     /** @inheritDoc */

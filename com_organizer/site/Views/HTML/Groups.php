@@ -66,6 +66,9 @@ class Groups extends ListView
             ->modalHeight('fit-content')
             ->listCheck(true);
 
+        $batchBar = Toolbar::getInstance('batch');
+        $batchBar->standardButton('batch', Text::_('PROCESS'), 'groups.batch');
+
         // This authorization level restriction isn't due to a security risk, as would otherwise be the case.
         if (Can::administrate()) {
             $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')

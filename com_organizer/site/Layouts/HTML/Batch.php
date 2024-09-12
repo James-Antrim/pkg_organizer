@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\Toolbar;
 use THM\Organizer\Views\HTML\ListView;
 
 /**
@@ -39,10 +39,9 @@ class Batch
                 </div>
             <?php endforeach; ?>
         </div>
+
         <div class="btn-toolbar p-3">
-            <joomla-toolbar-button task="<?php echo Application::getClass($view); ?>.batch" class="ms-auto">
-                <button type="button" class="btn btn-success"><?php echo Text::_('PROCESS'); ?></button>
-            </joomla-toolbar-button>
+            <?php echo Toolbar::render('batch'); ?>
         </div>
         <?php
     }
