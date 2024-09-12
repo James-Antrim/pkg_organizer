@@ -198,7 +198,6 @@ class Booking extends Participants
         $this->batch   = ['batch_participation', 'form_modal'];
         $this->booking = $this->getModel()->booking;
         $this->empty   = '';
-        $this->sameTab = true;
 
         parent::display($tpl);
     }

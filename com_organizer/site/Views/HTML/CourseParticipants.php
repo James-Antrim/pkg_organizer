@@ -100,7 +100,8 @@ class CourseParticipants extends Participants
         }
 
         if (!$courseID = Input::getID()) {
-            Application::error(400);
+            Application::message(400, Application::ERROR);
+            Application::redirect($this->baseurl, 400);
         }
 
         if (!cHelper::coordinatable($courseID)) {

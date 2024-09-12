@@ -10,14 +10,12 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\ListView as Base;
 use Joomla\CMS\Uri\Uri;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers\Can;
-use THM\Organizer\Models\ListModel;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -39,9 +37,6 @@ abstract class ListView extends Base
      */
     public array $headers = [];
     protected string $layout = 'list';
-    /** @var ListModel */
-    protected BaseDatabaseModel $model;
-    protected bool $sameTab = false;
     protected bool $structureEmpty = false;
     /** @var array the open items. */
     public array $toDo = [];
@@ -60,6 +55,7 @@ abstract class ListView extends Base
 
         parent::__construct($config);
 
+        $this->baseURL = $this->baseURL ?: Uri::base() . 'index.php?option=com_organizer';
         $this->configure();
     }
 
@@ -67,7 +63,7 @@ abstract class ListView extends Base
      * Adds the add and delete buttons to the toolbar.
      * @return void
      */
-    protected function addBasicButtons()
+    protected function addBasicButtons(): void
     {
         $this->addAdd();
         $this->addDelete();
