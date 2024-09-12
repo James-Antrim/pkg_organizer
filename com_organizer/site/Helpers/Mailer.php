@@ -25,24 +25,24 @@ class Mailer
      * @param   string  $subject        the subject of the notification
      * @param   string  $body           the notification message
      *
-     * @return void
+     * @return bool
      */
-    public static function notifyParticipant(int $participantID, string $subject, string $body): void
+    public static function notifyParticipant(int $participantID, string $subject, string $body): bool
     {
         $user = User::instance($participantID);
 
         if (!$user->id) {
-            return;
+            return false;
         }
 
         $participant = new Participants();
         if (!$participant->load($participantID)) {
-            return;
+            return false;
         }
 
         $sender = User::instance();
         if (!$sender->id) {
-            return;
+            return false;
         }
 
         $mailer = Factory::getMailer();
@@ -52,10 +52,12 @@ class Mailer
             $mailer->addRecipient($user->email);
             $mailer->setBody($body);
             $mailer->setSubject($subject);
-            $mailer->Send();
+
+            return $mailer->Send();
         }
         catch (Exception $exception) {
             Application::handleException($exception);
+            return false;
         }
     }
 
