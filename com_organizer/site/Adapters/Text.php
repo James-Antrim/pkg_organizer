@@ -153,7 +153,7 @@ class Text extends Base
      */
     private static function prefaceKey(string $key): string
     {
-        preg_match('/^([A-Z_]+|\d{3})$/', $key, $matches);
+        preg_match('/^(([01]_)?[A-Z_]+||\d{3})$/', $key, $matches);
         $isKey = !empty($matches);
 
         // The key is in fact a localization key and the component preface is missing.
