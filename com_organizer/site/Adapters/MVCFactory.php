@@ -11,7 +11,7 @@
 namespace THM\Organizer\Adapters;
 
 use Exception;
-use Joomla\CMS\{Application\CMSApplicationInterface, Form\FormFactoryAwareInterface};
+use Joomla\CMS\{Application\CMSApplicationInterface, Form\FormFactoryAwareInterface, MVC\View\ViewInterface};
 use Joomla\CMS\MVC\Factory\{MVCFactory as Base, MVCFactoryInterface};
 use Joomla\CMS\Table\Table;
 use Joomla\Event\DispatcherAwareInterface;
@@ -106,9 +106,9 @@ class MVCFactory extends Base
     /**
      * @inheritDoc
      */
-    public function createView($name, $prefix = '', $type = 'HTML', array $config = [])
+    public function createView($name, $prefix = '', $type = 'HTML', array $config = []): ViewInterface
     {
-        $format = Input::getFormat();
+        $format = strtoupper(Input::format());
         $view   = "THM\Organizer\Views\\$format\\" . Application::ucClassName($name);
         $view   = new $view($config);
         $this->addDispatcher($view);

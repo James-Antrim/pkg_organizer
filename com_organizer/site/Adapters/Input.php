@@ -74,6 +74,27 @@ class Input
     }
 
     /**
+     * Accessor for the format parameter and document type. Joomla handles them redundantly internally leading to format
+     * overwrites to html if the document type is not explicitly set.
+     *
+     * @param   string  $format
+     *
+     * @return string
+     */
+    public static function format(string $format = ''): string
+    {
+        $document  = Application::getDocument();
+        $supported = ['html', 'ics', 'json', 'pdf', 'xls', 'xml'];
+
+        if ($format and in_array($format, $supported)) {
+            self::set('format', $format);
+            return Document::type($format);
+        }
+
+        return $document->getType();
+    }
+
+    /**
      * Provides a shortcut to retrieve an array from the request.
      *
      * @param   string  $name     the name of the array item
@@ -200,24 +221,6 @@ class Input
     public static function getFormItems(): array
     {
         return self::getInput()->post->getArray();
-    }
-
-    /**
-     * The file format of the document to be displayed.
-     * @return string defaults to 'HTML'
-     */
-    public static function getFormat(): string
-    {
-        $document  = Application::getDocument();
-        $supported = ['HTML', 'ICS', 'JSON', 'PDF', 'XLS', 'XML'];
-        $format    = (string) self::getInput()->get('format', strtoupper($document->getType()));
-
-        if (!in_array($format, $supported)) {
-            self::set('format', 'HTML');
-            $format = 'HTML';
-        }
-
-        return $format;
     }
 
     /**

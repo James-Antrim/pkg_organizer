@@ -21,7 +21,6 @@ use Joomla\CMS\WebAsset\WebAssetManager;
  */
 class Document
 {
-
     /**
      * Gets the path for the given file and type.
      *
@@ -126,6 +125,29 @@ class Document
         if ($path = self::getPath($file, 'css')) {
             self::webAssetManager()->registerAndUseStyle("oz.$file", $path);
         }
+    }
+
+    /**
+     * Wrapper for document type property accessors.
+     *
+     * @param   string  $type  the optional type to set the document to.
+     *
+     * @return string
+     */
+    public static function type(string $type = ''): string
+    {
+        $document = Application::getDocument();
+
+        /**
+         * The Joomla\CMS\Document\Document _type property is public. Function use is to future-proof it should they
+         * decide to remove the underscore prefix.
+         */
+
+        if ($type) {
+            $document->setType($type);
+        }
+
+        return $document->getType();
     }
 
     /**
