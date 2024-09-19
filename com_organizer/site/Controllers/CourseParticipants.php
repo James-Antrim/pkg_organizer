@@ -11,11 +11,9 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Can, Courses as cHelper, CourseParticipants as Helper, Mailer};
 use Joomla\Database\ParameterType;
-use THM\Organizer\Models;
+use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
+use THM\Organizer\Helpers\{Can, Courses as cHelper, CourseParticipants as Helper, Mailer};
 
 class CourseParticipants extends Participants
 {
@@ -152,17 +150,61 @@ class CourseParticipants extends Participants
      */
     public function notify(): void
     {
-        $model = new Models\CourseParticipant();
+        $this->checkToken();
+        $this->authorize();
 
-        if ($model->notify()) {
-            Application::message('ORGANIZER_NOTIFY_SUCCESS');
+        $courseID    = Input::getID();
+        $selectedIDs = Input::getSelectedIDs();
+        $selected    = count($selectedIDs);
+
+        // getSelectedIDs will return the id parameter if empty, which here is used for the course id
+        if ($selected === 1 and $courseID === reset($selectedIDs)) {
+            $selectedIDs = [];
+            $selected    = 0;
+        }
+
+        $participantIDs = $selectedIDs ?: cHelper::participantIDs($courseID);
+        $notified       = 0;
+
+        $form = Input::getBatchItems();
+        if ($subject = trim($form->get('subject', '')) and $body = trim($form->get('body', ''))) {
+            foreach ($participantIDs as $participantID) {
+                if (Mailer::notifyParticipant($participantID, $subject, $body)) {
+                    $notified++;
+                }
+            }
         }
         else {
-            Application::message('ORGANIZER_NOTIFY_FAIL', Application::ERROR);
+            Application::message('NOTIFY_INVALID', Application::WARNING);
         }
 
-        //$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-        //$this->setRedirect(Route::_($url, false));
+
+        if ($selected) {
+            if ($selected === $notified) {
+                $message = $notified === 1 ? Text::_('1_NOTIFIED') : Text::sprintf('X_NOTIFIED', $notified);
+                $type    = Application::MESSAGE;
+            }
+            else {
+                $message = Text::sprintf('X_OF_X_NOTIFIED', $notified, $selected);
+                $type    = Application::WARNING;
+            }
+
+            Application::message($message, $type);
+        }
+        elseif ($notified) {
+            $key = $notified === 1 ? '1_NOTIFIED' : 'X_NOTIFIED';
+            Application::message(Text::sprintf($key, $notified));
+        }
+        else {
+            Application::message('0_NOTIFIED', Application::NOTICE);
+        }
+
+        try {
+            $this->display();
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
+        }
     }
 
     /**

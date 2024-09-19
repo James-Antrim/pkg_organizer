@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\{DatabaseQuery, QueryInterface};
-use THM\Organizer\Adapters\{Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\Courses as cHelper;
 
 /** @inheritDoc */
@@ -58,8 +58,22 @@ class CourseParticipants extends Participants
             $data->hidden = [];
         }
 
-        $data->hidden['id'] = Input::getID();
+        $data->hidden['id']     = $this->state->get('hidden.id');
+        $data->hidden['Itemid'] = $this->state->get('hidden.Itemid');
 
         return $data;
+    }
+
+    /** @inheritDoc */
+    protected function populateState($ordering = null, $direction = null): void
+    {
+        parent::populateState($ordering, $direction);
+
+        $context  = 'com_organizer.courseparticipants.hidden';
+        $courseID = Application::getUserRequestState("$context.id", 'id', Input::getID(), 'int');
+        $itemID   = Application::getUserRequestState("$context.Itemid", 'Itemid', Input::getInt('Itemid'), 'int');
+
+        $this->state->set('hidden.id', $courseID);
+        $this->state->set('hidden.Itemid', $itemID);
     }
 }

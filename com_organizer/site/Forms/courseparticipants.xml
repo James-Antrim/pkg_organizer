@@ -26,6 +26,7 @@
     </fields>
     <fields name="hidden">
         <field name="id" type="hidden"/>
+        <field name="Itemid" type="hidden"/>
     </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>

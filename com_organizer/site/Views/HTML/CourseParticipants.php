@@ -46,7 +46,8 @@ class CourseParticipants extends Participants
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->toDo[] = 'Cancel functionality (item/list/menuitem)';
+        $this->toDo[] = 'Paid/Unpaid/Attended/Unattended buttons';
+        $this->toDo[] = 'Cancel (bar?) functionality (item/list/menuitem)';
 
         $this->setTitle('PARTICIPANTS');
 
@@ -101,7 +102,7 @@ class CourseParticipants extends Participants
             Application::error(401);
         }
 
-        if (!$courseID = Input::getID()) {
+        if (!$courseID = $this->state->get('hidden.id')) {
             Application::message(400, Application::ERROR);
             Application::redirect($this->baseurl, 400);
         }
@@ -151,6 +152,9 @@ class CourseParticipants extends Participants
     {
         // Set batch template path
         $this->batch = ['batch_participant_notify'];
+
+        // Sets the state before authorization checks because otherwise refresh may cause a cache miss.
+        $this->state = $this->get('State');
 
         parent::display($tpl);
     }
