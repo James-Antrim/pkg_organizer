@@ -1,4 +1,3 @@
-// noinspection JSUnusedGlobalSymbols
 /**
  * Submits the form to a new tab.
  *
@@ -6,8 +5,7 @@
  *
  * @returns  {void}
  */
-function formTarget(task)
-{
+Joomla.formTarget = function (task) {
     const button = document.createElement('input'),
         form = document.getElementById('adminForm');
 

@@ -18,6 +18,8 @@ use THM\Organizer\Adapters\{Document, Text};
  */
 class FormTarget extends StandardButton
 {
+    public string $task = '';
+
     /**
      * @inheritDoc
      */
@@ -25,7 +27,7 @@ class FormTarget extends StandardButton
     {
         Document::script('formTarget');
 
-        $cmd = "formTarget('" . $this->getTask() . "');";
+        $cmd = "Joomla.formTarget('" . $this->task . "');";
 
         if ($this->getListCheck()) {
             Text::script('ORGANIZER_MAKE_SELECTION');
