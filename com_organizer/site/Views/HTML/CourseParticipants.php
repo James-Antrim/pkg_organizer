@@ -71,16 +71,18 @@ class CourseParticipants extends Participants
             ->buttonClass('btn btn-action');
         $documentsBar = $documents->getChildToolbar();
 
-        $button = new FormTarget('badges', Text::_('BADGES'));
-        $button->icon('fa fa-tags')->task('CourseParticipants.badges');
+        $button       = new FormTarget('badges', Text::_('BADGES'), ['icon' => 'fa fa-tags']);
+        $button->task = 'courseparticipants.badges';
         $documentsBar->appendButton($button);
 
         $button = new FormTarget('attendance', Text::_('ATTENDANCE'));
-        $button->icon('fa fa-list')->task('CourseParticipants.attendance');
+        $button->icon('fa fa-list');
+        $button->task = 'courseparticipants.attendance';
         $documentsBar->appendButton($button);
 
         $button = new FormTarget('participation', Text::_('GROUPED_PARTICIPATION'));
-        $button->icon('fa fa-list-ul')->task('CourseParticipants.participation');
+        $button->icon('fa fa-list-ul');
+        $button->task = 'courseparticipants.participation';
         $documentsBar->appendButton($button);
 
         $this->allowBatch = true;

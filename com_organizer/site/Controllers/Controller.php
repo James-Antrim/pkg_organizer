@@ -96,7 +96,7 @@ class Controller extends BaseController
      */
     public function pdf(): void
     {
-        Input::set('format', 'pdf');
+        Input::format('pdf');
         $this->display();
     }
 
@@ -107,7 +107,7 @@ class Controller extends BaseController
      */
     public function xls(): void
     {
-        Input::set('format', 'xls');
+        Input::format('xls');
         $this->display();
     }
 }

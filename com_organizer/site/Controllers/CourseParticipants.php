@@ -35,7 +35,7 @@ class CourseParticipants extends Participants
      */
     public function attendance(): void
     {
-        Input::set('format', 'pdf');
+        Input::format('pdf');
         Input::set('layout', 'Attendance');
         parent::display();
     }
@@ -69,7 +69,7 @@ class CourseParticipants extends Participants
      */
     public function badges(): void
     {
-        Input::set('format', 'pdf');
+        Input::format('pdf');
         Input::set('layout', 'Badges');
         parent::display();
     }
@@ -214,7 +214,7 @@ class CourseParticipants extends Participants
      */
     public function participation(): void
     {
-        Input::set('format', 'pdf');
+        Input::format('pdf');
         Input::set('layout', 'Participation');
         parent::display();
     }

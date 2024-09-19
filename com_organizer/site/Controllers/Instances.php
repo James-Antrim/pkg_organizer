@@ -46,7 +46,7 @@ class Instances extends ListController
      */
     public function gridA3(): void
     {
-        Input::set('format', 'pdf');
+        Input::format('pdf');
         Input::set('layout', 'GridA3');
         parent::display();
     }
@@ -58,7 +58,7 @@ class Instances extends ListController
      */
     public function gridA4(): void
     {
-        Input::set('format', 'pdf');
+        Input::format('pdf');
         Input::set('layout', 'GridA4');
         parent::display();
     }
@@ -123,8 +123,8 @@ class Instances extends ListController
     public function xls(): void
     {
         // prevents parameter name from biting here
+        Input::format('xls');
         Input::set('layout', 'Instances');
-        Input::set('format', 'xls');
         $this->display();
     }
 }

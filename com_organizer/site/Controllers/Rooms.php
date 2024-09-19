@@ -28,8 +28,8 @@ class Rooms extends ListController
      */
     public function uniNow(): void
     {
+        Input::format('xls');
         Input::set('layout', 'UniNow');
-        Input::set('format', 'xls');
         $this->display();
     }
 
@@ -40,7 +40,7 @@ class Rooms extends ListController
      */
     public function xls(): void
     {
-        Input::set('format', 'xls');
+        Input::format('xls');
         $this->display();
     }
 }

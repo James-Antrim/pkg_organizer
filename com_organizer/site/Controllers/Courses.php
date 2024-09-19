@@ -25,7 +25,7 @@ class Courses extends ListController
      */
     public function badge(): void
     {
-        Input::set('format', 'pdf');
+        Input::format('pdf');
         Input::set('layout', 'Badge');
         parent::display();
     }
