@@ -145,6 +145,7 @@ abstract class BaseView extends TCPDF implements ViewInterface
     {
         $this->Output($this->filename, $this->destination);
         ob_flush();
+        exit();
     }
 
     /**
