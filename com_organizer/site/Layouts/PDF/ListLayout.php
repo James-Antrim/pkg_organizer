@@ -16,50 +16,67 @@ use TCPDF_FONTS;
 
 abstract class ListLayout extends BaseLayout
 {
-    protected $headers;
+    protected array $headers;
 
-    /**
-     * @var ListView
-     */
-    protected $view;
+    protected array $widths = [];
 
-    protected $widths;
-
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(ListView $view)
     {
         parent::__construct($view);
-        $view->showPrintOverhead(true);
+        $view->showHeaderFooter(true);
     }
 
     /**
-     * Adds a new line, if the length exceeds page length a new page is added.
+     * Formats the list item borders.
+     *
+     * @param   int  $startX     the horizontal start of the line
+     * @param   int  $startY     the vertical start of the line
+     * @param   int  $maxLength  the maximum number of rows of information to be presented on the iterated line
+     *
      * @return void
      */
-    protected function addLine()
+    protected function borders(int $startX, int $startY, int $maxLength): void
+    {
+        $view = $this->view;
+
+        $view->reposition($startX, $startY);
+
+        $columns = array_keys($this->widths);
+        $initial = reset($columns);
+
+        foreach ($this->widths as $index => $width) {
+            $border = $index === $initial ? ['BLR' => $view->border] : ['BR' => $view->border];
+            $view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
+        }
+    }
+
+    /**
+     * Adds a line, if the length exceeds page length a page is added.
+     * @return void
+     */
+    protected function line(): void
     {
         $view = $this->view;
         $view->Ln();
 
         if ($view->GetY() > 275) {
-            $this->addListPage();
+            $this->page();
         }
     }
 
     /**
-     * Adds a new page to the document and creates the column headers for the table
+     * Adds a list page to the document.
      * @return void
      */
-    protected function addListPage()
+    protected function page(): void
     {
         $view = $this->view;
         $view->AddPage();
 
         // create the column headers for the page
         $view->SetFillColor(210);
-        $view->changeSize(10);
+        $view->resize(10);
         $columns = array_keys($this->headers);
         $initial = reset($columns);
 
@@ -83,30 +100,6 @@ abstract class ListLayout extends BaseLayout
 
         // reset styles
         $view->SetFillColor(255);
-        $view->changeSize(8);
-    }
-
-    /**
-     * Formats the line with the set borders.
-     *
-     * @param   int  $startX     the horizontal start of the line
-     * @param   int  $startY     the vertical start of the line
-     * @param   int  $maxLength  the maximum number of rows of information to be presented on the iterated line
-     *
-     * @return void
-     */
-    protected function addLineBorders(int $startX, int $startY, int $maxLength)
-    {
-        $view = $this->view;
-
-        $view->changePosition($startX, $startY);
-
-        $columns = array_keys($this->widths);
-        $initial = reset($columns);
-
-        foreach ($this->widths as $index => $width) {
-            $border = $index === $initial ? ['BLR' => $view->border] : ['BR' => $view->border];
-            $view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
-        }
+        $view->resize(8);
     }
 }

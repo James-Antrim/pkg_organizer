@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -15,18 +15,19 @@ namespace THM\Organizer\Views\PDF;
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\MVC\View\ViewInterface;
+use TCPDF;
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\BaseLayout;
-use THM\Organizer\Models;
 use THM\Organizer\Views\Named;
-use TCPDF;
 
 /**
  * Base class for a Joomla View
  * Class holding methods for displaying presentation data.
  */
-abstract class BaseView extends TCPDF
+abstract class BaseView extends TCPDF implements ViewInterface
 {
     use Named;
 
@@ -74,23 +75,13 @@ abstract class BaseView extends TCPDF
     // UOM point (~0.35 mm)
     public const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
 
-    public $border = ['width' => '.1', 'color' => 220];
-
-    public $dataFont = ['helvetica', '', 8];
-
-    protected $filename;
-
-    protected $headerFont = ['helvetica', '', 10];
-
-    /**
-     * @var BaseLayout
-     */
-    protected $layout;
-
-    /**
-     * @var Models\BaseModel
-     */
-    protected $model;
+    public array $border = ['width' => '.1', 'color' => 220];
+    public array $dataFont = ['helvetica', '', 8];
+    protected string $destination = self::DOWNLOAD;
+    protected string $filename;
+    protected array $headerFont = ['helvetica', '', 10];
+    protected BaseLayout $layout;
+    protected BaseDatabaseModel $model;
 
     /**
      * Performs initial construction of the TCPDF Object.
@@ -117,17 +108,16 @@ abstract class BaseView extends TCPDF
         $layout = Input::getCMD('layout', $name);
         $layout = Helpers\OrganizerHelper::classDecode($layout);
         $layout = "THM\\Organizer\\Layouts\\PDF\\$name\\$layout";
-        $model  = "THM\\Organizer\\Models\\$name";
 
         $this->layout = new $layout($this);
-        $this->model  = new $model();
+        $this->model  = $this->getModel();
     }
 
     /**
      * Checks user authorization and initiates redirects accordingly.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::administrate()) {
             Application::error(403);
@@ -145,77 +135,41 @@ abstract class BaseView extends TCPDF
      */
     public function changeFont(string $style = self::REGULAR,
         int $size = self::CURRENT_SIZE,
-        string $family = self::CURRENT_FAMILY)
+        string $family = self::CURRENT_FAMILY): void
     {
         $this->SetFont($family, $style, $size);
     }
 
-    /**
-     * Defines the abscissa and ordinate of the current position.
-     * If the passed values are negative, they are relative respectively to the right and bottom of the page.
-     *
-     * @param   int  $horizontal  the horizontal coordinate
-     * @param   int  $vertical    the vertical coordinate
-     *
-     * @return void repositions the documents point of reference
-     */
-    public function changePosition(int $horizontal, int $vertical)
+    /** @inheritDoc */
+    public function display($tpl = null): void
     {
-        $this->SetXY($horizontal, $vertical);
-    }
-
-    /**
-     * Changes the current font size used for rendering.
-     *
-     * @param   int  $size  the font size
-     *
-     * @return void sets the font size value for use in rendering until set otherwise
-     */
-    public function changeSize(int $size)
-    {
-        $this->SetFontSize($size);
-    }
-
-    /**
-     * Method to get data from a registered model or a property of the view.
-     *
-     * @param   string  $property  the model function name or view property to access
-     * @param   mixed   $default   the optional default value
-     *
-     * @return  mixed  The return value of the method
-     */
-    public function get(string $property, $default = null)
-    {
-        if ($this->model) {
-            $method = 'get' . ucfirst($property);
-
-            if (method_exists($this->model, $method)) {
-                return $this->model->$method();
-            }
-        }
-
-        if (isset($this->$property)) {
-            return $this->$property;
-        }
-
-        return $default;
-    }
-
-    /**
-     * Method to generate output. Overwriting functions should place class specific code before the parent call.
-     *
-     * @param   string  $destination
-     *
-     * @return void
-     */
-    public function display(string $destination = self::DOWNLOAD)
-    {
-        $this->Output($this->filename, $destination);
+        $this->Output($this->filename, $this->destination);
         ob_flush();
     }
 
     /**
-     * Defines the left, top and right margins.
+     * Wraps the protected function setPageFormat to make it publicly accessible. Array and string values defined in the
+     * referenced functions.
+     *
+     * @param   array|string  $format  the format to set the page to string format constant, [width, height], [options]
+     *
+     * @return void
+     * @see TCPDF::setPageFormat(), TCPDF::setPageOrientation(), TCPDF::getPageSizeFromFormat()
+     */
+    public function format(array|string $format): void
+    {
+        $this->setPageFormat($format, $this->CurOrientation);
+    }
+
+    /** @inheritDoc */
+    public function getModel($name = null): BaseDatabaseModel
+    {
+        $model = "THM\\Organizer\\Models\\" . $this->getName();
+        return new $model();
+    }
+
+    /**
+     * Defines the document margins.
      *
      * @param   int  $left    the left margin
      * @param   int  $top     the top margin
@@ -224,10 +178,14 @@ abstract class BaseView extends TCPDF
      * @param   int  $header  the header margin
      * @param   int  $footer  the footer margin
      *
-     * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(),
-     *        SetTopMargin()
+     * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
      */
-    public function margins(int $left = 15, int $top = 27, int $right = -1, int $bottom = 25, int $header = 5, int $footer = 10)
+    public function margins(int $left = 15,
+        int $top = 27,
+        int $right = -1,
+        int $bottom = 25,
+        int $header = 5,
+        int $footer = 10): void
     {
         $this->SetAutoPageBreak(true, $bottom);
         $this->setFooterMargin($footer);
@@ -236,7 +194,8 @@ abstract class BaseView extends TCPDF
     }
 
     /**
-     * Renders a cell. Borders
+     * Wraps the TCPDF::Cell() function to arrange the parameters for brevity, with more infrequently used parameters moved
+     * further back.
      *
      * @param   int     $width   the cell width
      * @param   int     $height  the cell height
@@ -250,27 +209,26 @@ abstract class BaseView extends TCPDF
      * @param   mixed   $link    URL or identifier returned by AddLink().
      *
      * @return void renders the cell
-     * @see   AddLink()
+     * @see   TCPDF::AddLink(), TCPDF::Cell()
      */
     public function renderCell(
         int $width,
         int $height,
         string $text,
         string $hAlign = self::LEFT,
-        $border = self::NONE,
+        mixed $border = self::NONE,
         bool $fill = false,
         string $vAlign = self::CENTER,
-        $link = ''
-    )
+        mixed $link = ''
+    ): void
     {
         $this->Cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
     }
 
     /**
-     * This method allows printing text with line breaks.
-     * They can be automatic (as soon as the text reaches the right border of the cell) or explicit (via the \n
-     * character). As many cells as necessary are output, one below the other.<br /> Text can be aligned, centered or
-     * justified. The cell block can be framed and the background painted.
+     * Wraps the TCPDF::MultiCell() function to arrange the parameters for brevity, with more infrequently used parameters moved
+     * further back. MultiCell prints multiple cells with line breaks being either automatic (width exhausted) or explicit (\n).
+     * Alignment is applied to all cells in the block. Border and fill are applied to the block of cells.
      *
      * @param   int     $width      the cell width
      * @param   int     $height     the cell height
@@ -285,15 +243,14 @@ abstract class BaseView extends TCPDF
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
-     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), Cell(), Write(),
-     *        SetAutoPageBreak()
+     * @see   Cell(), SetDrawColor(),SetFillColor(), SetFont(), SetTextColor(), SetLineWidth(), SetAutoPageBreak(), Write()
      */
     public function renderMultiCell(
         int $width,
         int $height,
         string $text,
         string $hAlign = self::LEFT,
-        $border = self::NONE,
+        mixed $border = self::NONE,
         bool $fill = false,
         string $vAlign = self::MIDDLE,
         int $maxHeight = 0
@@ -314,48 +271,75 @@ abstract class BaseView extends TCPDF
             false,
             true,
             $maxHeight,
-            $vAlign,
-            false
+            $vAlign
         );
     }
 
     /**
-     * Wraps the protected function setPageFormat to make it publicly accessible.
+     * Redefines the abscissa and ordinate of the current position. If the passed values are negative, they are relative
+     * respectively to the right and bottom of the page.
      *
-     * @param   array|string  $format  the format to set the page to string format constant, [width, height], [options]
+     * @param   int  $horizontal  the horizontal coordinate
+     * @param   int  $vertical    the vertical coordinate
      *
      * @return void
-     * @see TCPDF::setPageOrientation(), TCPDF::getPageSizeFromFormat()
+     * @see TCPDF::SetXY()
      */
-    public function setFormat($format)
+    public function reposition(int $horizontal, int $vertical): void
     {
-        $this->setPageFormat($format, $this->CurOrientation);
+        $this->SetXY($horizontal, $vertical);
     }
 
     /**
-     * Sets the document title and file name properties. File name defaults to a safe revision of the document title.
+     * Changes the current font size used for rendering.
+     *
+     * @param   int  $size  the font size
+     *
+     * @return void
+     * @see TCPDF::SetFontSize()
+     */
+    public function resize(int $size): void
+    {
+        $this->SetFontSize($size);
+    }
+
+    /**
+     * Toggles display of the document's header and footer.
+     *
+     * @param   bool  $display  whether to display the header and footer
+     *
+     * @return void
+     * @see SetPrintFooter(), SetPrintHeader()
+     */
+    public function showHeaderFooter(bool $display): void
+    {
+        $this->setPrintHeader($display);
+        $this->setPrintFooter($display);
+    }
+
+    /**
+     * Gets the title used within the document.
+     *
+     * @return string
+     */
+    public function title(): string
+    {
+        return $this->title;
+    }
+
+    /**
+     * Sets the document and file titles. File title defaults to a safe revision of the document title.
      *
      * @param   string  $documentTitle  the document title
      * @param   string  $fileName       the file name
+     *
+     * @return void
      */
-    public function setNames(string $documentTitle, string $fileName = '')
+    public function titles(string $documentTitle, string $fileName = ''): void
     {
         $this->title    = $documentTitle;
         $fileName       = $fileName ?: $documentTitle;
         $fileName       = preg_replace('/ +/', ' ', $fileName);
         $this->filename = ApplicationHelper::stringURLSafe($fileName) . '.pdf';
-    }
-
-    /**
-     * Enables display of the document header and footer.
-     *
-     * @param   bool  $display  true if the document should display a header and footer, otherwise false
-     *
-     * @see SetPrintFooter(), SetPrintHeader()
-     */
-    public function showPrintOverhead(bool $display)
-    {
-        $this->setPrintHeader($display);
-        $this->setPrintFooter($display);
     }
 }

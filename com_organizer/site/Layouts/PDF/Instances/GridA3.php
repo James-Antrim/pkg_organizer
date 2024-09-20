@@ -17,11 +17,12 @@ use THM\Organizer\Views\PDF\Instances;
  */
 class GridA3 extends GridLayout
 {
-    protected const DATA_WIDTH = 66, FONT_SIZE = 6, LINE_HEIGHT = 3.5, LINE_LENGTH = 40;
+    protected const DATA_WIDTH = 66, FONT_SIZE = 6, LINE_LENGTH = 40;
 
+    /** @inheritDoc */
     public function __construct(Instances $view)
     {
         parent::__construct($view);
-        $view->setFormat('A3');
+        $view->format('A3');
     }
 }

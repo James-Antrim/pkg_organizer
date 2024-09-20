@@ -8,30 +8,26 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Layouts\PDF\CourseItem;
+namespace THM\Organizer\Layouts\PDF\Course;
 
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Layouts\PDF\BadgeLayout;
 use THM\Organizer\Tables;
-use THM\Organizer\Views\PDF\CourseItem;
+use THM\Organizer\Views\PDF\Course;
 
 /**
  * Class loads persistent information about a course into the display context.
  */
 class Badge extends BadgeLayout
 {
-    /**
-     * @inheritDoc
-     */
-    public function __construct(CourseItem $view)
+    /** @inheritDoc */
+    public function __construct(Course $view)
     {
         parent::__construct($view);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function fill(array $data)
+    /** @inheritDoc */
+    public function fill(array $data): void
     {
         $participant = new Tables\Participants();
         /** @noinspection PhpPossiblePolymorphicInvocationInspection */
@@ -41,19 +37,18 @@ class Badge extends BadgeLayout
 
         $this->view->AddPage();
         $xOffset = 10;
-        $this->addBadge($participant, $xOffset, $yOffset);
+        $this->front($participant, $xOffset, $yOffset);
         $xOffset += 92;
-        $this->addBadgeBack($xOffset, $yOffset);
+        $this->back($xOffset, $yOffset);
     }
 
-    /**
-     * Generates the title and sets name related properties.
-     */
-    public function setTitle()
+    /** @inheritDoc */
+    public function title(): void
     {
-        /* @var CourseItem $view */
-        $view         = $this->view;
+        /* @var Course $view */
+        $view = $this->view;
+
         $documentName = "$view->course - $view->campus - $view->startDate - " . Text::_('ORGANIZER_BADGE');
-        $view->setNames($documentName);
+        $view->titles($documentName);
     }
 }

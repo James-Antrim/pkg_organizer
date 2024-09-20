@@ -17,14 +17,12 @@ use THM\Organizer\Views\PDF\CourseParticipants;
 
 class Participation extends ListLayout
 {
-    protected $widths = [
+    protected array $widths = [
         'grouping'     => 130,
         'participants' => 60
     ];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(CourseParticipants $view)
     {
         parent::__construct($view);
@@ -39,16 +37,14 @@ class Participation extends ListLayout
         ];
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function fill(array $data)
+    /** @inheritDoc */
+    public function fill(array $data): void
     {
         /* @var CourseParticipants $view */
         $view                 = $this->view;
         $groupedParticipation = Helpers\Courses::groupedParticipation($view->courseID);
 
-        $this->addListPage();
+        $this->page();
 
         foreach ($groupedParticipation as $organization => $programs) {
             $maxLength = 0;
@@ -66,14 +62,14 @@ class Participation extends ListLayout
             }
             $view->SetFillColor(255);
 
-            $view->changePosition($startX, $startY);
+            $view->reposition($startX, $startY);
 
             foreach ($this->widths as $oIndex => $width) {
                 $border = $oIndex === 'grouping' ? ['BLRT' => $view->border] : ['BRT' => $view->border];
                 $view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
             }
 
-            $this->addLine();
+            $this->line();
 
             foreach ($programs as $key => $program) {
                 if ($key === 'participants') {
@@ -93,26 +89,25 @@ class Participation extends ListLayout
                     }
                 }
 
-                $view->changePosition($startX, $startY);
+                $view->reposition($startX, $startY);
 
                 foreach ($this->widths as $iIndex => $width) {
                     $border = $iIndex === 'grouping' ? ['BLR' => $view->border] : ['BR' => $view->border];
                     $view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
                 }
 
-                $this->addLine();
+                $this->line();
             }
         }
     }
 
-    /**
-     * Generates the title and sets name related properties.
-     */
-    public function setTitle()
+    /** @inheritDoc */
+    public function title(): void
     {
         /* @var CourseParticipants $view */
-        $view         = $this->view;
+        $view = $this->view;
+
         $documentName = "$view->course - $view->campus - $view->startDate - " . Text::_('ORGANIZER_ATTENDANCE');
-        $view->setNames($documentName);
+        $view->titles($documentName);
     }
 }

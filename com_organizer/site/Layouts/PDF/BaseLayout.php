@@ -18,12 +18,7 @@ use THM\Organizer\Views\PDF\BaseView;
  */
 abstract class BaseLayout
 {
-    protected $filename;
-
-    /**
-     * @var BaseView
-     */
-    protected $view;
+    protected BaseView $view;
 
     /**
      * Performs initial construction of the TCPDF Object.
@@ -42,10 +37,10 @@ abstract class BaseLayout
      *
      * @return void
      */
-    abstract public function fill(array $data);
+    abstract public function fill(array $data): void;
 
     /**
-     * Generates the title and sets name related properties.
+     * Generates the title and sets related properties.
      */
-    abstract public function setTitle();
+    abstract public function title();
 }

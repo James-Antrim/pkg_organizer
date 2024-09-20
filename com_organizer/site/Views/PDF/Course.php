@@ -12,70 +12,31 @@ namespace THM\Organizer\Views\PDF;
 
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
+use THM\Organizer\Models\EditModel;
 use THM\Organizer\Tables;
 
 /**
  * Class loads persistent information about a course into the display context.
  */
-class CourseItem extends BaseView
+class Course extends BaseView
 {
-    /**
-     * The campus where the course takes place
-     * @var string
-     */
-    public $campus;
+    use CourseRelated;
 
-    /**
-     * The name of the course
-     * @var string
-     */
-    public $course;
+    public array $item;
+    public int $participantID;
 
-    /**
-     * The id of the associated course.
-     * @var int
-     */
-    public $courseID;
-
-    /**
-     * The dates as displayed in the generated document.
-     * @var string
-     */
-    public $dates;
-
-    /**
-     * The course end date
-     * @var string
-     */
-    public $endDate;
-
-    /**
-     * The fee required for participation in the course
-     * @var int
-     */
-    public $fee;
-
-    public $item;
-
-    /**
-     * The course start date
-     * @var string
-     */
-    public $startDate;
-
-    public $participantID;
-
-    /**
-     * Constructor
-     */
+    /** @inheritDoc */
     public function __construct()
     {
         parent::__construct();
 
         $this->margins();
-        $this->showPrintOverhead(false);
+        $this->showHeaderFooter(false);
 
-        $item            = $this->get('item');
+        /** @var EditModel $model */
+        $model = $this->model;
+
+        $item            = (array) $model->getItem();
         $this->campus    = Helpers\Campuses::name($item['campusID']);
         $this->course    = $item['name']['value'];
         $this->endDate   = Helpers\Dates::formatDate($item['endDate']);
@@ -84,10 +45,8 @@ class CourseItem extends BaseView
         $this->item      = $item;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function authorize()
+    /** @inheritDoc */
+    protected function authorize(): void
     {
         // TODO revamp this to make a authorize according to the layout context course => true, badge = auth
         if (!$this->courseID = Input::getID()) {
@@ -105,14 +64,12 @@ class CourseItem extends BaseView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function display($destination = self::DOWNLOAD)
+    /** @inheritDoc */
+    public function display($tpl = null): void
     {
-        $this->layout->setTitle();
+        $this->layout->title();
         $this->layout->fill($this->item);
 
-        parent::display($destination);
+        parent::display($tpl);
     }
 }

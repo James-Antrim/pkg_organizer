@@ -14,56 +14,12 @@ use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
-/**
- * Class loads persistent information about a course into the display context.
- */
+/** @inheritDoc */
 class CourseParticipants extends ListView
 {
-    /**
-     * The campus where the course takes place
-     * @var string
-     */
-    public $campus;
+    use CourseRelated;
 
-    /**
-     * The name of the course
-     * @var string
-     */
-    public $course;
-
-    /**
-     * The id of the associated course.
-     * @var int
-     */
-    public $courseID;
-
-    /**
-     * The dates as displayed in the generated document.
-     * @var string
-     */
-    public $dates;
-
-    /**
-     * The course end date
-     * @var string
-     */
-    public $endDate;
-
-    /**
-     * The fee required for participation in the course
-     * @var int
-     */
-    public $fee;
-
-    /**
-     * The course start date
-     * @var string
-     */
-    public $startDate;
-
-    /**
-     * Constructor
-     */
+    /** @inheritDoc */
     public function __construct()
     {
         parent::__construct();
@@ -81,9 +37,7 @@ class CourseParticipants extends ListView
         $this->startDate = Helpers\Dates::formatDate($dates['startDate']);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!User::id()) {
@@ -99,10 +53,7 @@ class CourseParticipants extends ListView
         }
     }
 
-    /**
-     * Set header items.
-     * @return void
-     */
+    /** @inheritDoc */
     public function setOverhead(): void
     {
         $interval  = ($this->endDate and $this->endDate != $this->startDate);

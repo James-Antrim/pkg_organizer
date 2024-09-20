@@ -18,12 +18,7 @@ class ContactTracking extends ListLayout
 {
     private const BY_DAY = 1, BY_EVENT = 2;
 
-    /**
-     * @var View
-     */
-    protected $view;
-
-    protected $widths = [
+    protected array $widths = [
         'contacts' => 65,
         'data'     => 70,
         'dates'    => 20,
@@ -32,9 +27,7 @@ class ContactTracking extends ListLayout
         'person'   => 50
     ];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(View $view)
     {
         parent::__construct($view);
@@ -56,15 +49,13 @@ class ContactTracking extends ListLayout
         $this->headers = array_merge($headers, $otherHeaders);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function fill(array $data)
+    /** @inheritDoc */
+    public function fill(array $data): void
     {
         $itemNo = 1;
         $mText  = Text::_('ORGANIZER_MINUTES');
         $view   = $this->view;
-        $this->addListPage();
+        $this->page();
 
         foreach ($data as $person) {
             // Get the starting coordinates for later use with borders
@@ -127,25 +118,26 @@ class ContactTracking extends ListLayout
             }
 
             // Reset for borders
-            $view->changePosition($startX, $startY);
+            $view->reposition($startX, $startY);
 
             foreach (array_keys($this->headers) as $columnName) {
                 $border = $columnName === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
                 $view->renderMultiCell($this->widths[$columnName], $maxLength * 5, '', $view::LEFT, $border);
             }
 
-            $this->addLine();
+            $this->line();
 
             $itemNo++;
         }
     }
 
-    /**
-     * Generates the title and sets name related properties.
-     */
-    public function setTitle()
+    /** @inheritDoc */
+    public function title(): void
     {
-        $documentName = $this->view->participantName;
-        $this->view->setNames($documentName);
+        /** @var View $view */
+        $view = $this->view;
+
+        $documentName = $view->participantName;
+        $this->view->titles($documentName);
     }
 }

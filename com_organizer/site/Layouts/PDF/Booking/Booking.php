@@ -20,24 +20,17 @@ use THM\Organizer\Views\PDF\Booking as View;
  */
 class Booking extends ListLayout
 {
-    /**
-     * @var View
-     */
-    protected $view;
-
-    protected $widths = [];
-
-    /**
-     * @inheritDoc
-     */
-    public function fill(array $data)
+    /** @inheritDoc */
+    public function fill(array $data): void
     {
+        /** @var View $view */
+        $view = $this->view;
+
         $itemNo = 1;
-        $view   = $this->view;
-        $height = 7.5 * $view->overhead;
+        $height = 7.5 * $view->headerLines;
         $view->margins(10, $height, -1, 0, 8);
         $this->setColumns();
-        $this->addListPage();
+        $this->page();
 
         foreach ($data as $participant) {
             // Get the starting coordinates for later use with borders
@@ -61,8 +54,8 @@ class Booking extends ListLayout
                 }
             }
 
-            $this->addLineBorders($startX, $startY, $maxLength);
-            $this->addLine();
+            $this->borders($startX, $startY, $maxLength);
+            $this->line();
             $itemNo++;
         }
     }
@@ -71,7 +64,7 @@ class Booking extends ListLayout
      * Sets the names and widths of columns dependent upon booking properties and selected filters.
      * @return void
      */
-    private function setColumns()
+    private function setColumns(): void
     {
         $this->headers = [
             'checkbox'   => '',
@@ -84,7 +77,9 @@ class Booking extends ListLayout
             'seat'       => Text::_('ORGANIZER_SEAT')
         ];
 
-        $view     = $this->view;
+        /** @var View $view */
+        $view = $this->view;
+
         $showCR   = $view->formState->get('filter.status') === Helper::ALL;
         $showRoom = (count(Helper::rooms($view->bookingID)) > 1 and !$view->formState->get('filter.roomID'));
 
@@ -138,13 +133,12 @@ class Booking extends ListLayout
         }
     }
 
-    /**
-     * Generates the title and sets name related properties.
-     */
-    public function setTitle()
+    /** @inheritDoc */
+    public function title(): void
     {
+        /** @var View $view */
         $view = $this->view;
         $name = Text::_('ORGANIZER_EVENT') . '-' . $view->booking->code . '-' . Text::_('ORGANIZER_PARTICIPANTS');
-        $view->setNames($name);
+        $view->titles($name);
     }
 }

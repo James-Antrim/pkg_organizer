@@ -13,19 +13,14 @@ namespace THM\Organizer\Layouts\PDF\CourseParticipants;
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\ListLayout;
-use THM\Organizer\Views\PDF\CourseParticipants;
+use THM\Organizer\Views\PDF\CourseParticipants as View;
 
 /**
  * Class loads persistent information about a course into the display context.
  */
 class Attendance extends ListLayout
 {
-    /**
-     * @var CourseParticipants
-     */
-    protected $view;
-
-    protected $widths = [
+    protected array $widths = [
         'index'        => 10,
         'name'         => 55,
         'organization' => 25,
@@ -33,10 +28,8 @@ class Attendance extends ListLayout
         'room'         => 15
     ];
 
-    /**
-     * @inheritDoc
-     */
-    public function __construct(CourseParticipants $view)
+    /** @inheritDoc */
+    public function __construct(View $view)
     {
         parent::__construct($view);
         $view->margins(10, 30, -1, 0, 8);
@@ -58,14 +51,12 @@ class Attendance extends ListLayout
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function fill(array $data)
+    /** @inheritDoc */
+    public function fill(array $data): void
     {
         $itemNo = 1;
         $view   = $this->view;
-        $this->addListPage();
+        $this->page();
 
         foreach ($data as $participant) {
             // Get the starting coordinates for later use with borders
@@ -90,19 +81,19 @@ class Attendance extends ListLayout
                 }
             }
 
-            $this->addLineBorders($startX, $startY, $maxLength);
-            $this->addLine();
+            $this->borders($startX, $startY, $maxLength);
+            $this->line();
             $itemNo++;
         }
     }
 
-    /**
-     * Generates the title and sets name related properties.
-     */
-    public function setTitle()
+    /** @inheritDoc */
+    public function title(): void
     {
-        $view         = $this->view;
+        /** @var View $view */
+        $view = $this->view;
+
         $documentName = "$view->course - $view->campus - $view->startDate - " . Text::_('ORGANIZER_PARTICIPANTS');
-        $view->setNames($documentName);
+        $view->titles($documentName);
     }
 }

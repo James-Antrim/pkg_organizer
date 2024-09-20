@@ -15,5 +15,5 @@ namespace THM\Organizer\Layouts\PDF\Instances;
  */
 class GridA4 extends GridLayout
 {
-    protected const DATA_WIDTH = 45, FONT_SIZE = 8, LINE_HEIGHT = 4.5, LINE_LENGTH = 32;
+    protected const DATA_WIDTH = 45, FONT_SIZE = 8, LINE_LENGTH = 32;
 }

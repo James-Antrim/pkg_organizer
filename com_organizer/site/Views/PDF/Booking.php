@@ -14,7 +14,7 @@ use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Models\Booking as Model;
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\Bookings as Table;
 use TCPDF_FONTS;
 
 /**
@@ -22,56 +22,28 @@ use TCPDF_FONTS;
  */
 class Booking extends ListView
 {
-    /**
-     * @var Tables\Bookings
-     */
-    public $booking;
+    public Table $booking;
+    public int $bookingID;
+    public string $dateTime;
+    public string $events;
+    public int $headerLines;
 
-    /**
-     * The id of the booking.
-     * @var int
-     */
-    public $bookingID;
-
-    /**
-     * The date and time of the booking.
-     * @var string
-     */
-    public $dateTime;
-
-    /**
-     * The name of the events associated with the booking
-     * @var string
-     */
-    public $events;
-
-    /**
-     * @var Model
-     */
-    protected $model;
-
-    /**
-     * The number of lines used by the header texts.
-     * @var int
-     */
-    public $overhead;
-
-    /**
-     * Constructor
-     */
+    /** @inheritDoc */
     public function __construct()
     {
         parent::__construct();
 
-        $this->booking  = $this->model->getBooking();
-        $this->events   = Helper::name($this->bookingID);
-        $this->dateTime = Helper::dateTimeDisplay($this->bookingID);
+        /** @var Model $model */
+        $model = $this->model;
+
+        $this->booking     = $model->getBooking();
+        $this->destination = self::INLINE;
+        $this->events      = Helper::name($this->bookingID);
+        $this->dateTime    = Helper::dateTimeDisplay($this->bookingID);
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function authorize()
+    /** @inheritDoc */
+    protected function authorize(): void
     {
         if (!User::id()) {
             Application::error(401);
@@ -86,18 +58,8 @@ class Booking extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function display($destination = self::INLINE)
-    {
-        parent::display($destination);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function Footer()
+    /** @inheritDoc */
+    public function Footer(): void
     {
         if ($this->formState->get('filter.status') === Helper::ALL) {
             //set style for cell border
@@ -124,11 +86,8 @@ class Booking extends ListView
         parent::Footer();
     }
 
-    /**
-     * Set header items.
-     * @return void
-     */
-    public function setOverhead()
+    /** @inheritDoc */
+    public function setOverhead(): void
     {
         $title    = Text::_('ORGANIZER_EVENT_CODE') . ': ' . $this->booking->code;
         $subTitle = Helpers\Bookings::names($this->bookingID);
@@ -163,8 +122,9 @@ class Booking extends ListView
                 break;
         }
 
-        $this->overhead = max(4, count($subTitle));
-        $subTitle       = implode("\n", $subTitle);
+        $this->headerLines = max(4, count($subTitle));
+
+        $subTitle = implode("\n", $subTitle);
 
         $this->setHeaderData('pdf_logo.png', '55', $title, $subTitle, self::BLACK, self::WHITE);
         $this->setFooterData(self::BLACK, self::WHITE);

@@ -19,35 +19,28 @@ use THM\Organizer\Models\Instances as Model;
  */
 class Instances extends ListView
 {
-    /**
-     * @var array
-     */
-    public $conditions;
-
-    /**
-     * @var Model
-     */
-    protected $model;
+    public array $conditions;
 
     /**
      * @var string
      */
     public $title;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
     {
         parent::__construct($orientation, $unit, $format);
-        $this->title      = $this->model->getTitle();
-        $this->conditions = $this->model->conditions;
+
+        /** @var Model $model */
+        $model = $this->model;
+
+        $this->conditions  = $model->conditions;
+        $this->destination = self::INLINE;
+        $this->title       = $model->getTitle();
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function authorize()
+    /** @inheritDoc */
+    protected function authorize(): void
     {
         // State has not been established => redundant checks :(
         $filters  = Input::getFilterItems();
@@ -66,19 +59,8 @@ class Instances extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function display($destination = self::INLINE)
-    {
-        parent::display($destination);
-    }
-
-    /**
-     * Set header items.
-     * @return void
-     */
-    public function setOverhead()
+    /** @inheritDoc */
+    public function setOverhead(): void
     {
         // Header data is set per page.
         $this->setFooterData(self::BLACK, self::WHITE);

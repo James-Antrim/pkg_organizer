@@ -19,17 +19,9 @@ use THM\Organizer\Tables\{Participants, Persons};
  */
 class ContactTracking extends ListView
 {
-    public $participantName;
+    public string $participantName;
 
-    /**
-     * Performs initial construction of the TCPDF Object.
-     *
-     * @param   string  $orientation  page orientation
-     * @param   string  $unit         unit of measure
-     * @param   mixed   $format       page format; possible values: string - common format name, array - parameters
-     *
-     * @see \TCPDF_STATIC::getPageSizeFromFormat(), setPageFormat()
-     */
+    /** @inheritDoc */
     public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
     {
         parent::__construct($orientation, $unit, $format);
@@ -59,10 +51,8 @@ class ContactTracking extends ListView
         $this->participantName = $name;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function authorize()
+    /** @inheritDoc */
+    protected function authorize(): void
     {
         if (!User::id()) {
             Application::error(401);
@@ -73,10 +63,8 @@ class ContactTracking extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function Footer()
+    /** @inheritDoc */
+    public function Footer(): void
     {
         //set style for cell border
         $pageWidth = (0.85 / $this->k);
@@ -90,11 +78,8 @@ class ContactTracking extends ListView
         $this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
     }
 
-    /**
-     * Set header items.
-     * @return void
-     */
-    public function setOverhead()
+    /** @inheritDoc */
+    public function setOverhead(): void
     {
         $title = Text::_('ORGANIZER_COVID_CONTACTS') . $this->participantName;
 
