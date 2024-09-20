@@ -13,6 +13,7 @@ namespace THM\Organizer\Layouts\PDF\CourseParticipants;
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\ListLayout;
+use THM\Organizer\Views\PDF\CourseParticipants;
 use THM\Organizer\Views\PDF\CourseParticipants as View;
 
 /**
@@ -41,6 +42,15 @@ class Attendance extends ListLayout
             'program'      => Text::_('ORGANIZER_PROGRAM'),
             'room'         => Text::_('ORGANIZER_ROOM')
         ];
+    }
+
+    /** @inheritDoc */
+    public function fill(array $data): void
+    {
+        $itemNo = 1;
+
+        /** @var CourseParticipants $view */
+        $view = $this->view;
 
         // Adjust for more information
         if ($view->fee) {
@@ -49,13 +59,7 @@ class Attendance extends ListLayout
             $this->widths['paid']  = 14;
             $this->widths['room']  = 14;
         }
-    }
 
-    /** @inheritDoc */
-    public function fill(array $data): void
-    {
-        $itemNo = 1;
-        $view   = $this->view;
         $this->page();
 
         foreach ($data as $participant) {

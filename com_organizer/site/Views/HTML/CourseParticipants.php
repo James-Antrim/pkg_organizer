@@ -47,6 +47,7 @@ class CourseParticipants extends Participants
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Paid/Unpaid/Attended/Unattended buttons';
+        $this->toDo[] = 'The borders/fill in attendance by FB/DP needs adjusting.';
         $this->toDo[] = 'Cancel (bar?) functionality (item/list/menuitem)';
 
         $this->setTitle('PARTICIPANTS');
