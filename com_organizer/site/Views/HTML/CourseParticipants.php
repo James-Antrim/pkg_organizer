@@ -27,7 +27,7 @@ class CourseParticipants extends Participants
      */
     protected function setSubTitle(): void
     {
-        $courseID = Input::getID();
+        $courseID = (int) $this->state->get('hidden.id');
 
         $subTitle   = [];
         $subTitle[] = cHelper::name($courseID);
@@ -46,9 +46,7 @@ class CourseParticipants extends Participants
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->toDo[] = 'Paid/Unpaid/Attended/Unattended buttons';
-        $this->toDo[] = 'The borders/fill in attendance by FB/DP needs adjusting.';
-        $this->toDo[] = 'Cancel (bar?) functionality (item/list/menuitem)';
+        $this->toDo[] = 'The borders/fill in grouped attendance needs adjusting. (Vertical overlap.)';
 
         $this->setTitle('PARTICIPANTS');
 
@@ -61,9 +59,16 @@ class CourseParticipants extends Participants
             ->buttonClass('btn btn-action')
             ->listCheck(true);
         $functionsBar = $functions->getChildToolbar();
-        $functionsBar->standardButton('checkin', Text::_('ACCEPT'), 'courseparticipants.accept')->icon('fa fa-check-square');
-        $functionsBar->standardButton('wait', Text::_('WAITLIST'), 'courseparticipants.waitlist')->icon('fa fa-square');
-        $functionsBar->delete('courseparticipants.delete')->message(Text::_('DELETE_CONFIRM'))->icon('fa fa-times');
+        $functionsBar->standardButton('checkin', Text::_('ACCEPT'), 'courseparticipants.accept')->icon('fa fa-user-check');
+        $functionsBar->standardButton('wait', Text::_('WAITLIST'), 'courseparticipants.waitlist')->icon('fa fa-user-clock');
+        $functionsBar->delete('courseparticipants.delete')->message(Text::_('DELETE_CONFIRM'))->icon('fa fa-user-minus');
+        $functionsBar->standardButton('cp', Text::_('CONFIRM_PAYMENT'), 'courseparticipants.confirmPayment')
+            ->icon('fa fa-check-square');
+        $functionsBar->standardButton('dp', Text::_('DENY_PAYMENT'), 'courseparticipants.denyPayment')->icon('fa fa-square');
+        $functionsBar->standardButton('ca', Text::_('CONFIRM_ATTENDANCE'), 'courseparticipants.confirmAttendance')
+            ->icon('fa fa-clipboard-check');
+        $functionsBar->standardButton('da', Text::_('DENY_ATTENDANCE'), 'courseparticipants.denyAttendance')
+            ->icon('fa fa-clipboard-list');
 
         /** @var DropdownButton $documents */
         $documents    = $toolbar->dropdownButton('documents-group', 'ORGANIZER_FILES')
