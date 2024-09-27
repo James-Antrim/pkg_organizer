@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Input, Text, User};
+use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
 use THM\Organizer\Tables;
@@ -25,7 +25,6 @@ class Instances extends ListModel
     private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
     public array $conditions = [];
-    protected string $defaultOrdering = 'name';
     protected $filter_fields = [
         'campusID',
         'categoryID',
@@ -242,6 +241,7 @@ class Instances extends ListModel
                 ->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
             $this->filterByCampus($query, 'bd');
         }
+        Database::setQuery($query);
 
         return $query;
     }

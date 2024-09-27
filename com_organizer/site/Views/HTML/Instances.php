@@ -15,12 +15,11 @@ use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, U
 use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\{Dates, Instances as Helper};
+use THM\Organizer\Layouts\HTML\ListItem;
 use THM\Organizer\Models\Instances as Model;
 use stdClass;
 
-/**
- * Class loads persistent information a filtered set of instances into the display context.
- */
+/** @inheritDoc */
 class Instances extends ListView
 {
     use ListsInstances;
@@ -63,12 +62,18 @@ class Instances extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->toDo[] = 'Access from model.';
+        $this->toDo[] = 'Item URL from model.';
+        $this->toDo[] = 'Resources not being output.';
+        $this->toDo[] = 'Revisit tools.';
+        $this->toDo[] = 'Jump button icons inconsistent.';
+
         $this->setTitle($this->get('title'));
         $toolbar = Toolbar::getInstance();
         $expURL  = Helpers\Routing::getViewURL('export');
 
         /** @var Model $model */
-        $model = $this->model;
+        $model = $this->getModel();
         if (User::id() and $model->layout === Helper::LIST) {
             if (!$this->expired and !$this->teachesALL) {
                 $bookmarkDD = $toolbar->dropdownButton('bookmark-dd', Text::_('INSTANCES'));
@@ -167,18 +172,22 @@ class Instances extends ListView
             Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function completeItems(): void
+    /** @inheritDoc */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        if (!empty($this->items)) {
+
+    }
+
+    /** @inheritDoc */
+    protected function completeItems(array $options = []): void
+    {
+        if ($this->items) {
             $this->noInstances = false;
-            $this->setDerived($this->items);
+            parent::completeItems($options);
         }
 
         /** @var Model $model */
-        $model = $this->model;
+        $model = $this->getModel();
         if ($model->layout === Helper::GRID) {
 
             // Prevent setting the grid id without having the context from items at least once
@@ -252,10 +261,10 @@ class Instances extends ListView
     private function getGrid(array $blocks, array &$headers, bool $allDay): array
     {
         /** @var Model $model */
-        $model      = $this->model;
+        $model      = $this->getModel();
         $conditions = $model->conditions;
-        $holidays   = $model->holidays;
         $rawGrid    = $model->grid;
+        $holidays   = $model->holidays;
 
         $endDate   = $conditions['endDate'];
         $endDoW    = empty($rawGrid['endDay']) ? 6 : $rawGrid['endDay'];
@@ -527,16 +536,41 @@ class Instances extends ListView
     public function initializeColumns(): void
     {
         $this->headers = [
-            'tools'   => '',
-            'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Text::_('ORGANIZER_INSTANCE')],
-            'status'  => Text::_('ORGANIZER_STATUS'),
-            'persons' => Text::_('ORGANIZER_PERSONS'),
-            'groups'  => Text::_('ORGANIZER_GROUPS'),
-            'rooms'   => Text::_('ORGANIZER_ROOMS')
+            'check'   => [
+                'properties' => ['class' => 'w-1 d-md-table-cell', 'scope' => 'col'],
+                'title'      => '',
+                'type'       => 'text'
+            ],
+            'name'    => [
+                'link'       => Application::backend() ? ListItem::DIRECT : ListItem::TAB,
+                'properties' => ['class' => 'w-20 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('INSTANCE'),
+                'type'       => 'text'
+            ],
+            'status'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STATUS'),
+                'type'       => 'text'
+            ],
+            'persons' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('PERSONS'),
+                'type'       => 'text'
+            ],
+            'groups'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('GROUPS'),
+                'type'       => 'text'
+            ],
+            'rooms'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ROOMS'),
+                'type'       => 'text'
+            ],
         ];
 
         if (User::id() and !Application::mobile()) {
-            $this->headers['tools'] = HTML::checkAll();
+            $this->headers['check'] = ['type' => 'check'];
         }
     }
 
@@ -548,8 +582,8 @@ class Instances extends ListView
         parent::modifyDocument();
 
         /** @var Model $model */
-        $model = $this->model;
-        $state = $model->getState();
+        $model = $this->getModel();
+        $state = $this->state;
         $url   = '';
 
         $fields = [
@@ -641,8 +675,8 @@ class Instances extends ListView
             $supplement = '<div class="tbox-yellow">';
 
             /** @var Model $model */
-            $model = $this->model;
-            if (!$model->noDate and $dates = Helper::getJumpDates($model->conditions)) {
+            $model = $this->getModel();
+            if (!$model->noDate and $dates = Helper::jumpDates($model->conditions)) {
                 $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
                 $supplement .= '<ul><li>';
 
@@ -684,7 +718,7 @@ class Instances extends ListView
     private function structureGrid(): void
     {
         /** @var Model $model */
-        $model = $this->model;
+        $model = $this->getModel();
         $this->filterForm->setValue('gridID', 'list', $model->gridID);
 
         $allDay  = false;
@@ -717,17 +751,14 @@ class Instances extends ListView
      */
     private function structureList(): void
     {
-        $index     = 0;
-        $listItems = [];
-
+        $index = 0;
         foreach ($this->items as $item) {
-            $listItems[$index] = [];
 
             if (!$item->expired) {
                 $this->expired = false;
 
                 if ($item->bookmarked) {
-                    $listItems[$index]['attributes'] = ['class' => 'bookmarked'];
+                    $item->attributes = ['class' => 'bookmarked'];
                 }
             }
 
@@ -739,14 +770,11 @@ class Instances extends ListView
                 $this->registration = true;
             }
 
-            $listItems[$index]['tools']  = $this->getToolsColumn($item, $index);
-            $listItems[$index]['title']  = $this->getTitle($item);
-            $listItems[$index]['status'] = $this->getStatus($item);
-            $this->addResources($listItems[$index], $item);
+            $item->check  = $this->getToolsColumn($item, $index);
+            $item->name   = $this->getTitle($item);
+            $item->status = $this->getStatus($item);
 
             $index++;
         }
-
-        $this->items = $listItems;
     }
 }

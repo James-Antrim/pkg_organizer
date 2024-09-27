@@ -34,8 +34,8 @@ class Dates
     {
         $column = DB::qn($column);
         [$low, $high] = DB::quote([$low, $high]);
-        $where = $not ? "$column NOT BETWEEN :low AND :high" : "$column BETWEEN :low AND :high";
-        $query->where($where)->bind(':low', $low)->bind(':high', $high);
+        $where = $not ? "$column NOT BETWEEN $low AND $high" : "$column BETWEEN $low AND $high";
+        $query->where($where);
     }
 
     /**

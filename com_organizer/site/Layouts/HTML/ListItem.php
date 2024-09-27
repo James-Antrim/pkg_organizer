@@ -137,20 +137,26 @@ class ListItem
     private static function text(object $item, string $column, bool $administration, int $linkType, bool $localize = false): void
     {
         $context = '';
-        $tip   = '';
-        $value = $item->$column ?? '';
+        $tip     = '';
+        $value   = $item->$column ?? '';
 
         if (is_array($value)) {
             $properties = $value['properties'];
 
-            if (is_array($properties) and !empty($properties['tip'])) {
-                $context = "tip-$item->id-$column";
-                $tip     = '<div role="tooltip" id="' . $context . '">' . $properties['tip'] . '</div>';
-                unset($properties['tip']);
+            if (is_array($properties)) {
+                if (!empty($properties['tip'])) {
+                    $context = "tip-$item->id-$column";
+                    $tip     = '<div role="tooltip" id="' . $context . '">' . $properties['tip'] . '</div>';
+                    unset($properties['tip']);
+                }
+
+                $properties = HTML::toString($properties);
+            }
+            else {
+                $properties = '';
             }
 
-            $properties = HTML::toString($properties);
-            $value      = $value['value'];
+            $value = $value['value'];
         }
         else {
             $properties = '';

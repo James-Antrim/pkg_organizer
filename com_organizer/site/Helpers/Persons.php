@@ -107,29 +107,6 @@ class Persons extends Scheduled implements Selectable
     }
 
     /**
-     * Checks for multiple person entries (roles) for a subject and removes the lesser
-     *
-     * @param   array &$list  the list of persons with a role for the subject
-     *
-     * @return void  removes duplicate list entries dependent on role
-     */
-    private static function ensureUnique(array &$list): void
-    {
-        $keysToIds = [];
-        foreach ($list as $key => $item) {
-            $keysToIds[$key] = $item['id'];
-        }
-
-        $valueCount = array_count_values($keysToIds);
-        foreach ($list as $key => $item) {
-            $unset = ($valueCount[$item['id']] > 1 and $item['role'] > 1);
-            if ($unset) {
-                unset($list[$key]);
-            }
-        }
-    }
-
-    /**
      * Retrieves the person's forenames.
      *
      * @param   int  $personID  the person's id
@@ -142,54 +119,6 @@ class Persons extends Scheduled implements Selectable
         $person->load($personID);
 
         return $person->forename ?: '';
-    }
-
-    /**
-     * Retrieves the persons associated with a given subject, optionally filtered by role.
-     *
-     * @param   int   $subjectID  the subject's id
-     * @param   int   $roleID     represents the person's role for the subject
-     * @param   bool  $multiple   whether multiple results are desired
-     * @param   bool  $unique     whether unique results are desired
-     *
-     * @return array|array[]  an array of person data
-     */
-    public static function getDataBySubject(
-        int $subjectID,
-        int $roleID = 0,
-        bool $multiple = false,
-        bool $unique = true
-    ): array
-    {
-        $aliased  = DB::qn(['u.id'], ['userID']);
-        $selected = DB::qn(['p.id', 'p.surname', 'p.forename', 'p.title', 'p.username', 'sp.role', 'code']);
-        $query    = DB::getQuery();
-        $query->select(array_merge($selected, $aliased))
-            ->from(DB::qn('#__organizer_persons', 'p'))
-            ->innerJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))
-            ->leftJoin(DB::qn('#__users', 'u'), DB::qc('u.username', 'p.username'))
-            ->where(DB::qn('sp.subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER)
-            ->order(DB::qn('surname'));
-
-        if ($roleID) {
-            $query->where(DB::qn('sp.role') . ' = :roleID')->bind(':roleID', $roleID, ParameterType::INTEGER);
-        }
-
-        DB::setQuery($query);
-
-        if ($multiple) {
-            if (!$persons = DB::loadAssocList()) {
-                return [];
-            }
-
-            if ($unique) {
-                self::ensureUnique($persons);
-            }
-
-            return $persons;
-        }
-
-        return DB::loadAssoc();
     }
 
     /**
@@ -267,7 +196,7 @@ class Persons extends Scheduled implements Selectable
 
         $query = DB::getQuery();
         $query->select('DISTINCT ' . DB::qn('p') . '.*')
-            ->from(DB::qn('#__organizer_persons AS p'))
+            ->from(DB::qn('#__organizer_persons', 'p'))
             ->where(DB::qn('p.active') . ' = 1')
             ->order(DB::qn(['p.surname', 'p.forename']));
 
@@ -279,21 +208,24 @@ class Persons extends Scheduled implements Selectable
         }
 
         if (count($organizationIDs)) {
+            $conditions = [];
             $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'));
-
-            $where = DB::qn('a.organizationID') . ' IN (' . implode(',', $query->bindArray($organizationIDs)) . ')';
 
             if ($categoryID = Input::getInt('categoryID')) {
                 $query->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.personID', 'p.id'))
                     ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
-                    ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'))
-                    ->bind(':categoryID', $categoryID, ParameterType::INTEGER);
+                    ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'));
 
-                $where .= ' AND ' . DB::qn('g.categoryID') . " = :categoryID";
-                $where = "($where)";
+                $conditions[] = DB::qc('g.categoryID', $categoryID);
             }
 
-            $wherray[] = $where;
+            if (!Can::administrate()) {
+                $conditions[] = DB::qn('a.organizationID') . ' IN (' . implode(',', $organizationIDs) . ')';
+            }
+
+            if ($conditions) {
+                $wherray[] = count($conditions) === 1 ? reset($conditions) : '(' . implode(' AND ', $conditions) . ')';
+            }
         }
         elseif ($organizationID) {
             $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'))

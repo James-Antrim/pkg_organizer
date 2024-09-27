@@ -651,12 +651,10 @@ class InstanceItem extends ListView
         $this->supplement = $text;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function completeItems(): void
+    /** @inheritDoc */
+    protected function completeItems(array $options = []): void
     {
-        $this->setDerived($this->items);
+        parent::completeItems();
 
         $buttons = [
             //'deregister'      => false,
@@ -754,7 +752,6 @@ class InstanceItem extends ListView
             $structuredItems[$index]['tools']    = $this->getToolsColumn($item, $index);
             $structuredItems[$index]['instance'] = $this->getTitle($item);
             $structuredItems[$index]['status']   = $this->getStatus($item);
-            $this->addResources($structuredItems[$index], $item);
 
             $index++;
         }

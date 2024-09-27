@@ -585,7 +585,7 @@ class Instances extends ResourceHelper
     {
         $instanceIDs = self::instanceIDs($conditions);
         if (empty($instanceIDs)) {
-            return self::getJumpDates($conditions);
+            return self::jumpDates($conditions);
         }
 
         $instances = [];
@@ -801,12 +801,6 @@ class Instances extends ResourceHelper
 
         $person['rooms'] = $rooms;
     }
-
-
-
-
-    ####################################################################################################################
-
 
     /**
      * Builds the array of parameters used for instance retrieval.
@@ -1276,35 +1270,6 @@ class Instances extends ResourceHelper
         }
     }
 
-    /**
-     * Searches for the next and most recent previous date where events matching the query can be found.
-     *
-     * @param   array  $conditions  the schedule configuration parameters
-     *
-     * @return string[] next and latest available dates
-     */
-    public static function getJumpDates(array $conditions): array
-    {
-        $dates = [];
-
-        $pastQuery = self::getInstanceQuery($conditions, self::PAST);
-        $pastQuery->select('MAX(DATE)')->where("date < '" . $conditions['startDate'] . "'");
-        DB::setQuery($pastQuery);
-
-        if ($pastDate = DB::loadString()) {
-            $dates['pastDate'] = $pastDate;
-        }
-
-        $futureQuery = self::getInstanceQuery($conditions, self::FUTURE);
-        $futureQuery->select('MIN(DATE)')->where("date > '" . $conditions['endDate'] . "'");
-        DB::setQuery($futureQuery);
-
-        if ($futureDate = DB::loadString()) {
-            $dates['futureDate'] = $futureDate;
-        }
-
-        return $dates;
-    }
 
     /**
      * Checks whether the instance takes place exclusively online.
@@ -1389,6 +1354,36 @@ class Instances extends ResourceHelper
         }
 
         return self::currentCapacity($instanceID) >= $capacity;
+    }
+
+    /**
+     * Searches for the next and most recent previous date where events matching the query can be found.
+     *
+     * @param   array  $conditions  the schedule configuration parameters
+     *
+     * @return string[] next and latest available dates
+     */
+    public static function jumpDates(array $conditions): array
+    {
+        $dates = [];
+
+        $pastQuery = self::getInstanceQuery($conditions, self::PAST);
+        $pastQuery->select('MAX(DATE)')->where("date < '" . $conditions['startDate'] . "'");
+        DB::setQuery($pastQuery);
+
+        if ($pastDate = DB::loadString()) {
+            $dates['pastDate'] = $pastDate;
+        }
+
+        $futureQuery = self::getInstanceQuery($conditions, self::FUTURE);
+        $futureQuery->select('MIN(DATE)')->where("date > '" . $conditions['endDate'] . "'");
+        DB::setQuery($futureQuery);
+
+        if ($futureDate = DB::loadString()) {
+            $dates['futureDate'] = $futureDate;
+        }
+
+        return $dates;
     }
 
     /**

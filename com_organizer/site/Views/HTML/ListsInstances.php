@@ -24,21 +24,6 @@ trait ListsInstances
     private bool $teachesALL = true;
 
     /**
-     * Adds previously set resources to the structured item.
-     *
-     * @param   array     $index
-     * @param   stdClass  $instance
-     *
-     * @return void
-     */
-    private function addResources(array &$index, stdClass $instance): void
-    {
-        $index['persons'] = $instance->persons;
-        $index['groups']  = $instance->groups;
-        $index['rooms']   = $instance->rooms;
-    }
-
-    /**
      * Searches for a pattern specified link in commentary text. If found it is added to the tools and removed from the
      * text.
      *
@@ -407,20 +392,6 @@ trait ListsInstances
     }
 
     /**
-     * Adds derived attributes/resource output for the instances.
-     *
-     * @param   array  $instances
-     *
-     * @return void
-     */
-    private function setDerived(array $instances): void
-    {
-        foreach ($instances as $instance) {
-            $this->setSingle($instance);
-        }
-    }
-
-    /**
      * Determines whether the item is conducted virtually: every person is assigned rooms, all assigned rooms are
      * virtual.
      *
@@ -554,52 +525,46 @@ trait ListsInstances
         $instance->rooms = implode($glue, $rooms);
     }
 
-    /**
-     * Sets derived attributes for a single instance.
-     *
-     * @param   stdClass  $instance
-     *
-     * @return void
-     */
-    private function setSingle(stdClass $instance): void
+    /** @inheritDoc */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $now    = date('H:i');
         $today  = date('Y-m-d');
         $userID = User::id();
 
-        $this->setResources($instance);
+        $this->setResources($item);
 
-        $instanceID = $instance->instanceID;
-        $isToday    = $instance->date === $today;
-        $then       = date('Y-m-d', strtotime('-2 days', strtotime($instance->date)));
+        $instanceID = $item->instanceID;
+        $isToday    = $item->date === $today;
+        $then       = date('Y-m-d', strtotime('-2 days', strtotime($item->date)));
 
-        $instance->expired = ($instance->date < $today or ($isToday and $instance->endTime < $now));
-        $instance->full    = (!empty($instance->capacity) and $instance->current >= $instance->capacity);
-        $instance->link    = Routing::getViewURL('InstanceItem', $instanceID);
+        $item->expired = ($item->date < $today or ($isToday and $item->endTime < $now));
+        $item->full    = (!empty($item->capacity) and $item->current >= $item->capacity);
+        $item->link    = Routing::getViewURL('InstanceItem', $instanceID);
 
         // Administrator, planer, or person of responsibility
         if ($userID and Can::manage('instance', $instanceID)) {
-            $instance->manageable = true;
+            $item->manageable = true;
 
             $teaches          = Helper::hasResponsibility($instanceID);
-            $instance->taught = $teaches;
+            $item->taught     = $teaches;
             $this->teachesOne = $teaches;
         }
         else {
-            $instance->manageable = false;
-            $instance->taught     = false;
-            $this->teachesALL     = false;
+            $item->manageable = false;
+            $item->taught     = false;
+            $this->teachesALL = false;
         }
 
-        $instance->premature         = $today < $then;
-        $instance->registration      = false;
-        $instance->registrationStart = Dates::formatDate($then);
-        $instance->running           = (!$instance->expired and $instance->date === $today and $instance->startTime < $now);
+        $item->premature         = $today < $then;
+        $item->registration      = false;
+        $item->registrationStart = Dates::formatDate($then);
+        $item->running           = (!$item->expired and $item->date === $today and $item->startTime < $now);
 
-        $validTiming = (!$instance->expired and !$instance->running);
+        $validTiming = (!$item->expired and !$item->running);
 
-        if ($validTiming and $instance->presence !== Helper::ONLINE and !$instance->full) {
-            $instance->registration = true;
+        if ($validTiming and $item->presence !== Helper::ONLINE and !$item->full) {
+            $item->registration = true;
         }
     }
 }
