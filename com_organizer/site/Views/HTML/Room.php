@@ -17,7 +17,7 @@ class Room extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
     public array $toDo = [
-        'Add additional fields for FM relevant attributes and values.',
+        'Add additional fields for FM relevant attributes and values. IE Flooring.',
         'Add sanity checks for eff./max. capacity.'
     ];
 }
