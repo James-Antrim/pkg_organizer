@@ -50,7 +50,7 @@ class Page extends FormField
         $target  = '';
 
         if ($direction === 'forward') {
-            $icon = '<span class="icon-next" aria-hidden="true"></span>';
+            $icon = '<span class="fa fa-step-forward" aria-hidden="true"></span>';
 
             switch ($interval) {
                 case 'day':
@@ -70,7 +70,7 @@ class Page extends FormField
             }
         }
         else {
-            $icon = '<span class="icon-previous" aria-hidden="true"></span>';
+            $icon = '<span class="fa fa-step-backward" aria-hidden="true"></span>';
 
             switch ($interval) {
                 case 'day':
@@ -93,7 +93,7 @@ class Page extends FormField
         $target     = date('Y-m-d', $target);
         $attributes = [
             "aria-label=\"$title\"",
-            'class="btn hasTooltip"',
+            'class="btn btn-primary hasTooltip"',
             "onclick=\"document.getElementById('list_date').value='$target';this.form.submit();\"",
             "title=\"$title\"",
             'type="submit"'

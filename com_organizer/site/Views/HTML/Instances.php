@@ -63,7 +63,7 @@ class Instances extends ListView
         $this->toDo[] = 'Access from model.';
         $this->toDo[] = 'Item URL from model.';
         $this->toDo[] = 'Revisit tools.';
-        $this->toDo[] = 'Jump button icons inconsistent.';
+        $this->toDo[] = 'Title key incomplete.';
 
         $this->setTitle($this->get('title'));
         $toolbar = Toolbar::getInstance();
