@@ -38,12 +38,18 @@ class Rooms extends ListView
         $this->setTitle($title);
 
         if (Can::manage('facilities')) {
+            $admin   = Can::administrate();
             $toolbar = Toolbar::getInstance();
             $toolbar->addNew('Rooms.add');
+
+            if ($admin) {
+                $toolbar->addNew('rooms.import', Text::_('IMPORT'))->icon('fa fa-upload');
+            }
+
             $this->addActa();
             $this->addMerge();
 
-            if (Can::administrate()) {
+            if ($admin) {
                 $this->addDelete();
             }
 

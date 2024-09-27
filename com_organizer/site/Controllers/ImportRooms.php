@@ -2,10 +2,15 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Tables\Rooms as Table;
+
 /** @inheritDoc */
 class ImportRooms extends FormController
 {
     use FluMoxed;
+
+    protected string $list = 'Rooms';
 
     /**
      * Cleans an individual row for later processing.
@@ -33,16 +38,37 @@ class ImportRooms extends FormController
 
     /**
      * Imports room data from a csv file.
-     * @return bool
+     * @return void
      */
-    public function import(): bool
+    public function import(): void
     {
-        return false;
-        /*$this->authorize();
+        $this->checkToken();
+        $this->authorize();
+        Application::message('503', Application::NOTICE);
+        $this->setRedirect("$this->baseURL&view=rooms");
 
-        $input = Input::getInput();
+        // Too big for joomla's comprehensive debugging.
+        /*if (JDEBUG) {
+            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
 
-        $file = $input->files->get('jform', [], 'array')['file'];
+            $this->setRedirect("$this->baseURL&view=rooms");
+            return;
+        }
+
+        $file = Input::getInput()->files->get('file');
+
+        if (empty($file['type']) or $file['type'] !== 'text/csv') {
+            Application::message('FILE_TYPE_INVALID', Application::ERROR);
+            $this->setRedirect("$this->baseURL&view=importrooms");
+            return;
+        }
+
+        if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) !== 'UTF-8') {
+            Application::message('FILE_ENCODING_INVALID', Application::ERROR);
+            $this->setRedirect("$this->baseURL&view=importrooms");
+            return;
+        }
+
         $file = fopen($file['tmp_name'], 'r');
 
         $headers = fgets($file);
@@ -55,7 +81,6 @@ class ImportRooms extends FormController
         $expected = count($headers);
 
         $codeIndex = array_search('code', $headers);
-
 
         if ($codeIndex === false) {
             Application::message('No code column.', Application::ERROR);

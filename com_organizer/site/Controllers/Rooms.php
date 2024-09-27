@@ -22,6 +22,15 @@ class Rooms extends ListController
     protected string $item = 'Room';
 
     /**
+     * Redirects to the form view for the creation of a new resource.
+     * @return void
+     */
+    public function import(): void
+    {
+        $this->setRedirect("$this->baseURL&view=importrooms");
+    }
+
+    /**
      * Creates an UniNow xls file based on form data.
      * @return void
      * @throws Exception
