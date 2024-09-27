@@ -41,7 +41,7 @@ abstract class FormController extends Controller
     )
     {
         if (empty($this->list)) {
-            Application::error(501);
+            Application::error(501, 'List property not defined or initialized.');
         }
 
         parent::__construct($config, $factory, $app, $input);
