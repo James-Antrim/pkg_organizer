@@ -46,8 +46,6 @@ class Instances extends ListView
 
     private string $statusDate;
 
-    protected bool $structureEmpty = true;
-
     /**
      * @inheritDoc
      */
@@ -64,7 +62,6 @@ class Instances extends ListView
     {
         $this->toDo[] = 'Access from model.';
         $this->toDo[] = 'Item URL from model.';
-        $this->toDo[] = 'Resources not being output.';
         $this->toDo[] = 'Revisit tools.';
         $this->toDo[] = 'Jump button icons inconsistent.';
 
@@ -170,12 +167,6 @@ class Instances extends ListView
         $organizationID = Input::getParams()->get('organizationID', 0);
         $this->manages  = $organizationID ?
             Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
-    }
-
-    /** @inheritDoc */
-    protected function completeItem(int $index, stdClass $item, array $options = []): void
-    {
-
     }
 
     /** @inheritDoc */

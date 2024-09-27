@@ -1172,7 +1172,7 @@ abstract class GridLayout extends BaseLayout
         /** @var iModel $model */
         $model = $this->view->getModel();
 
-        $title = $model->getTitle();
+        $title = $model->title();
         $this->view->titles($title);
     }
 }

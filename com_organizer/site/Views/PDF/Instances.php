@@ -36,7 +36,7 @@ class Instances extends ListView
 
         $this->conditions  = $model->conditions;
         $this->destination = self::INLINE;
-        $this->title       = $model->getTitle();
+        $this->title       = $model->title();
     }
 
     /** @inheritDoc */

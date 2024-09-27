@@ -14,7 +14,7 @@ use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Instances as Helper;
+use THM\Organizer\Helpers\{Instances as Helper, Organizations};
 use THM\Organizer\Tables;
 
 /**
@@ -48,6 +48,22 @@ class Instances extends ListModel
         parent::__construct($config);
     }
 
+    /**
+     * Standardizes date value retrieval across views and request methods.
+     * @return string
+     */
+    private function date(): string
+    {
+        // Instances view
+        $date = Application::getUserRequestState("$this->context.list.date", "list_date", '', 'string');
+
+        // Export view, GET, POST
+        $date = Input::getString('date', $date);
+
+        // Defaults to today
+        return Helpers\Dates::standardize($date);
+    }
+
     /** @inheritDoc */
     public function filterFilterForm(Form $form): void
     {
@@ -73,7 +89,7 @@ class Instances extends ListModel
         }
 
         if (Application::backend()) {
-            if (count(Helpers\Organizations::schedulableIDs()) === 1) {
+            if (count(Organizations::schedulableIDs()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
             }
@@ -159,35 +175,6 @@ class Instances extends ListModel
         }
     }
 
-    /**
-     * Standardizes date value retrieval across views and request methods.
-     * @return string
-     */
-    private function getDate(): string
-    {
-        // Instances view
-        $date = Application::getUserRequestState("$this->context.list.date", "list_date", '', 'string');
-
-        // Export view, GET, POST
-        $date = Input::getString('date', $date);
-
-        // Defaults to today
-        return Helpers\Dates::standardize($date);
-    }
-
-    /**
-     * Standardizes interval value retrieval across views and request methods.
-     * @return string
-     */
-    private function getInterval(): string
-    {
-        // Instances view
-        $interval = Application::getUserRequestState("$this->context.list.interval", "list_interval", '', 'string');
-
-        // Export view, GET, POST
-        return Input::getString('interval', $interval);
-    }
-
     /** @inheritDoc */
     public function getItems(): array
     {
@@ -195,13 +182,15 @@ class Instances extends ListModel
 
         // Prevents out of memory errors.
         if (count($items) >= 12500) {
-            Application::error(413);
+            Application::message('413', Application::NOTICE);
+            return [];
         }
 
         $usedGrids = [];
 
         foreach ($items as $key => $instance) {
-            $instance                       = Helper::instance($instance->id);
+            $instance = Helper::instance($instance->id);
+
             $usedGrids[$instance['gridID']] = empty($usedGrids[$instance['gridID']]) ? 1 : $usedGrids[$instance['gridID']] + 1;
             Helper::fill($instance, $this->conditions);
             $items[$key] = (object) $instance;
@@ -247,116 +236,16 @@ class Instances extends ListModel
     }
 
     /**
-     * Creates a dynamic title for the instances view.
+     * Standardizes interval value retrieval across views and request methods.
      * @return string
      */
-    public function getTitle(): string
+    private function interval(): string
     {
-        $params = Input::getParams();
+        // Instances view
+        $interval = Application::getUserRequestState("$this->context.list.interval", "list_interval", '', 'string');
 
-        if ($params->get('show_page_heading')) {
-            return $params->get('page_heading') ?: $params->get('page_title');
-        }
-
-        $methods   = '';
-        $suffix    = '';
-        $title     = $this->layout === Helper::GRID ? Text::_('ORGANIZER_SCHEDULE') : Text::_("ORGANIZER_INSTANCES");
-        $methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
-
-        if ($methodIDs and $methodIDs = array_filter($methodIDs)) {
-            if (count($methodIDs) === 1) {
-                $methods = Helpers\Methods::getPlural($methodIDs[0]);
-            }
-            else {
-                $methods = [];
-
-                foreach ($methodIDs as $methodID) {
-                    $methods[] = Helpers\Methods::getPlural($methodID);
-                }
-
-                $lastName = array_pop($methods);
-                $methods  = implode(', ', $methods) . " & $lastName";
-            }
-        }
-
-        if ($my = (int) $this->state->get('list.my')) {
-            $username = ($username = User::userName()) ? " ($username)" : '';
-
-            if ($methods) {
-                $title = Text::_('ORGANIZER_MY') . ' ' . $methods;
-            }
-            else {
-                $title = $my === Helper::BOOKMARKS ?
-                    Text::_("ORGANIZER_MY_INSTANCES") : Text::_("ORGANIZER_MY_REGISTRATIONS");
-            }
-            $title .= $username;
-        }
-        else {
-            // Replace the title
-            if ($dow = $params->get('dow')) {
-                switch ($dow) {
-                    case self::MONDAY:
-                        $title = Text::_("ORGANIZER_MONDAY_INSTANCES");
-                        break;
-                    case self::TUESDAY:
-                        $title = Text::_("ORGANIZER_TUESDAY_INSTANCES");
-                        break;
-                    case self::WEDNESDAY:
-                        $title = Text::_("ORGANIZER_WEDNESDAY_INSTANCES");
-                        break;
-                    case self::THURSDAY:
-                        $title = Text::_("ORGANIZER_THURSDAY_INSTANCES");
-                        break;
-                    case self::FRIDAY:
-                        $title = Text::_("ORGANIZER_FRIDAY_INSTANCES");
-                        break;
-                    case self::SATURDAY:
-                        $title = Text::_("ORGANIZER_SATURDAY_INSTANCES");
-                        break;
-                    case self::SUNDAY:
-                        $title = Text::_("ORGANIZER_SUNDAY_INSTANCES");
-                        break;
-                }
-            }
-            elseif ($methods) {
-                $title = $methods;
-            }
-
-            // Which resource
-            if ($eventID = $this->state->get('filter.eventID')) {
-                $suffix .= ': ' . Helpers\Events::name($eventID);
-            }
-            elseif ($personID = $this->state->get('filter.personID')) {
-                $suffix .= ': ' . Helpers\Persons::defaultName($personID);
-            }
-            elseif ($groupID = $this->state->get('filter.groupID')) {
-                $suffix .= ': ' . Helpers\Groups::getFullName($groupID);
-            }
-            elseif ($categoryID = $this->state->get('filter.categoryID')) {
-                $suffix .= ': ' . Helpers\Categories::name($categoryID);
-            }
-            elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID'))) {
-                $fullName  = Helpers\Organizations::getFullName($organizationID);
-                $shortName = Helpers\Organizations::getShortName($organizationID);
-                $name      = (Application::mobile() or strlen($fullName) > 40) ? $shortName : $fullName;
-                $suffix    .= ': ' . $name;
-            }
-            elseif ($campusID = $params->get('campusID')) {
-                $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::name($campusID);
-            }
-
-            if ($roleID = Input::getInt('roleID')) {
-                $plural = Helpers\Roles::getPlural($roleID);
-                $suffix .= $suffix ? " - $plural" : ": $plural";
-            }
-            elseif ($instances = Input::getCMD('instances') and $instances === 'person') {
-                $persons = Text::_('ORGANIZER_PERSONS');
-                $suffix  .= $suffix ? " - $persons" : ": $persons";
-            }
-
-        }
-
-        return $title . $suffix;
+        // Export view, GET, POST
+        return Input::getString('interval', $interval);
     }
 
     /** @inheritDoc */
@@ -402,7 +291,7 @@ class Instances extends ListModel
 
             if (Application::backend()) {
                 // Empty would have already resulted in a redirect from the view authorization check.
-                $authorized = Helpers\Organizations::schedulableIDs();
+                $authorized = Organizations::schedulableIDs();
                 if (count($authorized) === 1) {
                     $organizationID = $authorized[0];
                 }
@@ -429,7 +318,7 @@ class Instances extends ListModel
 
                 $instances = Input::getCMD('instances');
                 if (Helpers\Can::view('organization', $organizationID) and $instances === 'person') {
-                    $conditions['personIDs'] = Helpers\Organizations::personIDs($organizationID);
+                    $conditions['personIDs'] = Organizations::personIDs($organizationID);
                     $byPerson                = true;
                 }
             }
@@ -541,16 +430,16 @@ class Instances extends ListModel
             case 'pdf':
                 $conditions['separate'] = Input::getBool('separate');
 
-                $date      = $this->getDate();
-                $interval  = $bound ? 'half' : $this->getInterval();
+                $date      = $this->date();
+                $interval  = $bound ? 'half' : $this->interval();
                 $intervals = ['half', 'month', 'quarter', 'term', 'week'];
                 $interval  = in_array($interval, $intervals) ? $interval : 'week';
                 $layout    = Helper::GRID;
                 break;
 
             case 'xls':
-                $date      = $this->getDate();
-                $interval  = $bound ? 'half' : $this->getInterval();
+                $date      = $this->date();
+                $interval  = $bound ? 'half' : $this->interval();
                 $intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
                 $interval  = in_array($interval, $intervals) ? $interval : 'week';
                 $layout    = Helper::LIST;
@@ -559,7 +448,7 @@ class Instances extends ListModel
 
             case 'html':
             default:
-                $date     = $this->getDate();
+                $date     = $this->date();
                 $status   = Application::getUserRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
                 $status   = Input::getInt('status', $status);
                 $statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
@@ -574,7 +463,7 @@ class Instances extends ListModel
                         $interval = Application::mobile() ? 'day' : 'week';
                     }
                     else {
-                        $interval  = $this->getInterval();
+                        $interval  = $this->interval();
                         $intervals = ['day', 'month', 'quarter', 'term', 'week'];
                         $interval  = in_array($interval, $intervals) ? $interval : 'day';
                     }
@@ -640,5 +529,118 @@ class Instances extends ListModel
         }
 
         $this->conditions = $conditions;
+    }
+
+    /**
+     * Creates a dynamic title for the instances view.
+     * @return string
+     */
+    public function title(): string
+    {
+        $params = Input::getParams();
+
+        if ($params->get('show_page_heading')) {
+            return $params->get('page_heading') ?: $params->get('page_title');
+        }
+
+        $methods   = '';
+        $suffix    = '';
+        $title     = $this->layout === Helper::GRID ? Text::_('ORGANIZER_SCHEDULE') : Text::_("ORGANIZER_INSTANCES");
+        $methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
+
+        if ($methodIDs and $methodIDs = array_filter($methodIDs)) {
+            if (count($methodIDs) === 1) {
+                $methods = Helpers\Methods::getPlural($methodIDs[0]);
+            }
+            else {
+                $methods = [];
+
+                foreach ($methodIDs as $methodID) {
+                    $methods[] = Helpers\Methods::getPlural($methodID);
+                }
+
+                $lastName = array_pop($methods);
+                $methods  = implode(', ', $methods) . " & $lastName";
+            }
+        }
+
+        if ($my = (int) $this->state->get('list.my')) {
+            $username = ($username = User::userName()) ? " ($username)" : '';
+
+            if ($methods) {
+                $title = Text::_('ORGANIZER_MY') . ' ' . $methods;
+            }
+            else {
+                $title = $my === Helper::BOOKMARKS ?
+                    Text::_("ORGANIZER_MY_INSTANCES") : Text::_("ORGANIZER_MY_REGISTRATIONS");
+            }
+            $title .= $username;
+        }
+        else {
+            // Replace the title
+            if ($dow = $params->get('dow')) {
+                switch ($dow) {
+                    case self::MONDAY:
+                        $title = Text::_("ORGANIZER_MONDAY_INSTANCES");
+                        break;
+                    case self::TUESDAY:
+                        $title = Text::_("ORGANIZER_TUESDAY_INSTANCES");
+                        break;
+                    case self::WEDNESDAY:
+                        $title = Text::_("ORGANIZER_WEDNESDAY_INSTANCES");
+                        break;
+                    case self::THURSDAY:
+                        $title = Text::_("ORGANIZER_THURSDAY_INSTANCES");
+                        break;
+                    case self::FRIDAY:
+                        $title = Text::_("ORGANIZER_FRIDAY_INSTANCES");
+                        break;
+                    case self::SATURDAY:
+                        $title = Text::_("ORGANIZER_SATURDAY_INSTANCES");
+                        break;
+                    case self::SUNDAY:
+                        $title = Text::_("ORGANIZER_SUNDAY_INSTANCES");
+                        break;
+                }
+            }
+            elseif ($methods) {
+                $title = $methods;
+            }
+
+            // Which resource
+            if ($eventID = $this->state->get('filter.eventID')) {
+                $suffix .= ': ' . Helpers\Events::name($eventID);
+            }
+            elseif ($personID = $this->state->get('filter.personID')) {
+                $suffix .= ': ' . Helpers\Persons::defaultName($personID);
+            }
+            elseif ($groupID = $this->state->get('filter.groupID')) {
+                $suffix .= ': ' . Helpers\Groups::getFullName($groupID);
+            }
+            elseif ($categoryID = $this->state->get('filter.categoryID')) {
+                $suffix .= ': ' . Helpers\Categories::name($categoryID);
+            }
+            elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID'))) {
+                $fullName  = Organizations::getFullName($organizationID);
+                $shortName = Organizations::getShortName($organizationID);
+                $name      = (Application::mobile() or strlen($fullName) > 40) ? $shortName : $fullName;
+                $suffix    .= ': ' . $name;
+            }
+            elseif ($campusID = $params->get('campusID')) {
+                $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::name($campusID);
+            }
+
+            if ($roleID = Input::getInt('roleID')) {
+                $plural = Helpers\Roles::getPlural($roleID);
+                $suffix .= $suffix ? " - $plural" : ": $plural";
+            }
+            elseif ($instances = Input::getCMD('instances') and $instances === 'person') {
+                $persons = Text::_('ORGANIZER_PERSONS');
+                $suffix  .= $suffix ? " - $persons" : ": $persons";
+            }
+
+        }
+
+        return $title . $suffix;
     }
 }

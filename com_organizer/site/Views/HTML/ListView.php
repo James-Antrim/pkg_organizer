@@ -37,7 +37,6 @@ abstract class ListView extends Base
      */
     public array $headers = [];
     protected string $layout = 'list';
-    protected bool $structureEmpty = false;
     /** @var array the open items. */
     public array $toDo = [];
 
