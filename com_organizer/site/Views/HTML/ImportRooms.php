@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /** @inheritDoc */
-class ImportSchedule extends ImportView
+class ImportRooms extends ImportView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

@@ -12,7 +12,9 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Input, Text, Toolbar};
 
-/** @inheritDoc */
+/**
+ * Import classes provide a form for uploading files.
+ */
 abstract class ImportView extends FormView
 {
     /**

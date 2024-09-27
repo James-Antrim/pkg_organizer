@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class provides an interface for uploading a file containing room data.
- */
+/** @inheritDoc */
 class ImportCourses extends ImportView
 {
     // Everything is taken care of in the inheritance hierarchy.
