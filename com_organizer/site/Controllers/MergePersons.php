@@ -73,12 +73,15 @@ class MergePersons extends MergeController
                 }
 
                 $existing->delete();
-                $current->personID = $this->mergeID;
-                $existing          = $current;
+                $existing = $current;
             }
 
-            if ($existing and !$existing->store()) {
-                return false;
+            // If the only instance was 'removed' there may not be an existing after the above deletions.
+            if ($existing) {
+                $existing->personID = $this->mergeID;
+                if (!$existing->store()) {
+                    return false;
+                }
             }
         }
 
