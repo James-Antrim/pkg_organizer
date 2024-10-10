@@ -187,6 +187,7 @@ class Persons extends Scheduled implements Selectable
     public static function resources(): array
     {
         $organizationID = Input::getInt('organizationID');
+
         if ($organizationID) {
             $organizationIDs = Can::view('organization', $organizationID) ? [$organizationID] : [];
         }
@@ -203,14 +204,14 @@ class Persons extends Scheduled implements Selectable
         $wherray = [];
 
         if (self::getIDByUserID() and $userName = User::userName()) {
-            $wherray[] = DB::qn('p.username') . ' = :username';
-            $query->bind(':username', $userName);
+            $wherray[] = DB::qc('p.username', $userName, '=', true);
         }
 
         if (count($organizationIDs)) {
             $conditions = [];
             $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'));
 
+            // In order of specificity
             if ($categoryID = Input::getInt('categoryID')) {
                 $query->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.personID', 'p.id'))
                     ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
@@ -219,13 +220,8 @@ class Persons extends Scheduled implements Selectable
                 $conditions[] = DB::qc('g.categoryID', $categoryID);
             }
 
-            if (!Can::administrate()) {
-                $conditions[] = DB::qn('a.organizationID') . ' IN (' . implode(',', $organizationIDs) . ')';
-            }
-
-            if ($conditions) {
-                $wherray[] = count($conditions) === 1 ? reset($conditions) : '(' . implode(' AND ', $conditions) . ')';
-            }
+            $conditions[] = DB::qn('a.organizationID') . ' IN (' . implode(',', $organizationIDs) . ')';
+            $wherray[]    = count($conditions) === 1 ? reset($conditions) : '(' . implode(' AND ', $conditions) . ')';
         }
         elseif ($organizationID) {
             $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'))
