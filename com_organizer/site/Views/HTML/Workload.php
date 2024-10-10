@@ -10,39 +10,43 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Text, Toolbar};
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Buttons\FormTarget;
 
 /**
- * Class loads personnal workload statistics into the display context.
+ * Class loads personnel workload statistics into the display context.
  */
-class Workload extends OldFormView
+class Workload extends FormView
 {
-    /**
-     * Adds a toolbar and title to the view.
-     * @return void  sets context variables
-     */
-    protected function addToolBar(): void
+    protected string $defaultTask = 'workload.display';
+
+    /** @inheritDoc */
+    protected function authorize(): void
+    {
+        // Authorization performed in the model constructor to avoid redundancy and set context variables used later by the model.
+    }
+
+    /** @inheritDoc */
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $this->setTitle('ORGANIZER_WORKLOAD');
         $toolbar = Toolbar::getInstance();
 
-        if ($this->form->getValue('personID'))//Input::getInt('personID'))
-        {
-            $button = new FormTarget('export', Text::_('DOWNLOAD'));
-            $button->icon('fa fa-file-excel')->task('Workloads.xls');
+        if ($this->form->getValue('personID')) {
+            $button = new FormTarget('spreadsheet', Text::_('DOWNLOAD'));
+            $button->icon('fa fa-file-excel');
+            $button->task = 'workload.spreadsheet';
             $toolbar->appendButton($button);
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
+    /** @inheritDoc */
+    protected function initializeView(): void
     {
-        parent::modifyDocument();
+        $this->form  = $this->get('Form');
+        $this->item  = $this->get('Item');
+        $this->state = $this->get('State');
 
-        //Document::style('list');
+        // Overwritten so as not to add a non-existent table instance to the object properties.
     }
 }

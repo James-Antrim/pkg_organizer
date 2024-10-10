@@ -10,9 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
-use Joomla\CMS\Form\Form;
+use Joomla\CMS\Form\{Form};
+use THM\Organizer\Adapters\{Application, Database as DB, FormFactory, Input, MVCFactory, Text};
 use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, Dates, Instances, Persons, Terms};
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -22,28 +23,71 @@ class Workload extends FormModel
     private const CURRENT_ITEMS = 1;
 
     public int $bachelors = 0;
-
+    private array $conditions;
     public int $doctors = 0;
 
-    private array $conditions;
-
     public array $items;
-
-    public array $methods;
-
-    private int $organizationID;
-
     public int $masters = 0;
-
-    private int $personID;
-
+    public array $methods;
+    public int $organizationID = 0;
+    private int $personID = 0;
     public int $projects = 0;
-
     public array $programs;
 
-    private int $termID;
+    /** @inheritDoc */
+    public function __construct($config, MVCFactory $factory, FormFactory $formFactory)
+    {
+        // Integrated authorization
+        if (Can::basic() === false) {
+            Application::error(401);
+        }
 
-    private int $weeks;
+        $myPersonID     = Persons::getIDByUserID();
+        $organizationID = Input::getInt('organizationID');
+        $personID       = Input::getInt('personID');
+
+        if ($authOIDs = Can::manageTheseOrganizations()) {
+            if ($organizationID) {
+                if (in_array($organizationID, $authOIDs)) {
+                    $this->organizationID = $organizationID;
+                    Input::set('organizationID', $this->organizationID);
+                }
+                else {
+                    Application::error(403);
+                }
+            }
+            // Default
+            else {
+                $this->organizationID = reset($authOIDs);
+                Input::set('organizationID', $this->organizationID);
+            }
+
+            // Persons can only be selected in an organization context.
+            if ($personID) {
+                if (in_array($this->organizationID, Persons::organizationIDs($personID)) or $personID === $myPersonID) {
+                    $this->personID = $personID;
+                    Input::set('personID', $this->personID);
+                }
+                else {
+                    Application::error(403);
+                }
+            }
+        }
+        // Default with no authorization
+        elseif ($myPersonID) {
+            $this->personID = $myPersonID;
+            Input::set('personID', $this->personID);
+        }
+        else {
+            Application::error(403);
+        }
+
+        if (Input::format() === 'xls' and !$this->personID) {
+            Application::error(400);
+        }
+
+        parent::__construct($config, $factory, $formFactory);
+    }
 
     /**
      * Aggregates by concurrent blocks.
@@ -240,37 +284,6 @@ class Workload extends FormModel
     }
 
     /** @inheritDoc */
-    protected function authorize(): void
-    {
-        if (!User::id()) {
-            Application::error(401);
-        }
-
-        $organizationIDs = Helpers\Can::manageTheseOrganizations();
-        $thisPersonID    = Helpers\Persons::getIDByUserID();
-        $personID        = Input::getInt('personID', $thisPersonID);
-
-        // Someone without extended access requested to access a person other than themselves
-        $unAuthorized = (!$organizationIDs and $personID and $personID != $thisPersonID);
-
-        if ((!$organizationIDs and !$thisPersonID) or $unAuthorized) {
-            Application::error(403);
-        }
-
-        $organizationID       = $organizationIDs ? reset($organizationIDs) : 0;
-        $this->organizationID = Input::getInt('organizationID', $organizationID);
-        $this->personID       = Input::getInt('personID', $personID);
-        $this->termID         = Input::getInt('termID', Helpers\Terms::currentID());
-        $this->weeks          = Input::getInt('weeks', 13);
-
-        $incomplete = (!$this->personID or !$this->termID);
-
-        if ($format = Input::getCMD('format') and $format === 'xls' and $incomplete) {
-            Application::error(400);
-        }
-    }
-
-    /** @inheritDoc */
     protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = null): Form
     {
         $options['load_data'] = true;
@@ -290,8 +303,8 @@ class Workload extends FormModel
         return [
             'organizationID' => $this->organizationID,
             'personID'       => $this->personID,
-            'termID'         => $this->termID,
-            'weeks'          => $this->weeks
+            'termID'         => Input::getInt('termID', Terms::currentID()),
+            'weeks'          => Input::getInt('weeks', 13)
         ];
     }
 
@@ -367,10 +380,12 @@ class Workload extends FormModel
      */
     private function setConditions(): void
     {
+        $termID = Input::getInt('termID', Terms::currentID());
+
         $conditions              = [];
-        $conditions['date']      = Helpers\Terms::startDate($this->termID);
+        $conditions['date']      = Terms::startDate($termID);
         $conditions['delta']     = false;
-        $conditions['endDate']   = Helpers\Terms::endDate($this->termID);
+        $conditions['endDate']   = Terms::endDate($termID);
         $conditions['interval']  = 'term';
         $conditions['my']        = false;
         $conditions['personIDs'] = [$this->personID];
@@ -388,13 +403,13 @@ class Workload extends FormModel
     private function setMethods(): void
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select("code, name_$tag AS method")->from('#__organizer_methods')->where('relevant = 1');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
         $methods = [];
 
-        foreach (Database::loadAssocList() as $method) {
+        foreach (DB::loadAssocList() as $method) {
             $methods[$method['code']] = $method['method'];
         }
 
@@ -412,7 +427,7 @@ class Workload extends FormModel
     {
         $conditions = $this->conditions;
         $tag        = Application::getTag();
-        $query      = Helpers\Instances::getInstanceQuery($this->conditions);
+        $query      = Instances::getInstanceQuery($this->conditions);
         $query->select('DISTINCT i.id AS instanceID, u.id AS unitID')
             ->select('b.id AS blockID, b.date, b.dow, b.startTime, b.endTime')
             ->select("e.id AS eventID, e.code, e.name_$tag AS event, e.subjectNo")
@@ -421,10 +436,10 @@ class Workload extends FormModel
             ->order('b.date, b.startTime, b.endTime')
             ->where('ipe.roleID = 1')
             ->where('m.relevant = 1');
-        Database::setQuery($query);
-        $instances = Database::loadAssocList('instanceID');
+        DB::setQuery($query);
+        $instances = DB::loadAssocList('instanceID');
 
-        $query = Helpers\Instances::getInstanceQuery($this->conditions);
+        $query = Instances::getInstanceQuery($this->conditions);
         $query->select("i.id AS instanceID, g.name_$tag AS 'group'")
             ->select("a.organizationID, o.shortName_$tag AS organization")
             ->select("p.name_$tag AS program, d.abbreviation AS degree")
@@ -436,10 +451,10 @@ class Workload extends FormModel
             ->order('b.date, b.startTime, b.endTime')
             ->where('ipe.roleID = 1')
             ->where('m.relevant = 1');
-        Helpers\Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
-        Database::setQuery($query);
+        Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
+        DB::setQuery($query);
 
-        $this->supplement($instances, Database::loadAssocList());
+        $this->supplement($instances, DB::loadAssocList());
         $units      = $this->aggregateByUnit($instances);
         $aggregates = $this->aggregateByBlock($units);
         $this->aggregateByEvent($aggregates);
@@ -458,7 +473,6 @@ class Workload extends FormModel
      */
     public function setUp(): void
     {
-        $this->authorize();
         $this->setPrograms();
         $this->setMethods();
         $this->setConditions();
@@ -473,15 +487,15 @@ class Workload extends FormModel
     private function setPrograms(): void
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select("p.id, categoryID, p.degreeID, p.name_$tag AS program, fee, frequencyID, nc, special")
             ->select('d.abbreviation AS degree')
             ->from('#__organizer_programs AS p')
             ->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
             ->where('active = 1');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        $results = Database::loadAssocList();
+        $results = DB::loadAssocList();
 
         $programs = [];
 
@@ -551,8 +565,8 @@ class Workload extends FormModel
                 }
 
                 foreach ($dates as $data) {
-                    $endDate                   = Helpers\Dates::formatDate($data['endDate']);
-                    $startDate                 = Helpers\Dates::formatDate($data['startDate']);
+                    $endDate                   = Dates::formatDate($data['endDate']);
+                    $startDate                 = Dates::formatDate($data['startDate']);
                     $items[$eIndex]['minutes'] += $data['minutes'];
                     $dateDisplay               = $startDate !== $endDate ? "$startDate - $endDate" : $startDate;
                     $hoursDisplay              = ceil($data['minutes'] / 45) . ' ' . Text::_('ORGANIZER_HOURS_ABBR');
@@ -626,8 +640,8 @@ class Workload extends FormModel
                 $suffix       = strtoupper(date('l', strtotime("Sunday +{$block['dow']} days")));
                 $day          = Text::_("ORGANIZER_$suffix");
                 $hoursDisplay = $hours . ' ' . Text::_('ORGANIZER_HOURS_ABBR');
-                $endTime      = Helpers\Dates::formatTime($block['endTime']);
-                $startTime    = Helpers\Dates::formatTime($block['startTime']);
+                $endTime      = Dates::formatTime($block['endTime']);
+                $startTime    = Dates::formatTime($block['startTime']);
 
                 $items[$eIndex]['items'][] = "$day $startTime-$endTime $hoursDisplay";
             }
