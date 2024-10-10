@@ -44,10 +44,7 @@ class Options extends ListField
         return $this;
     }
 
-    /**
-     * Method to get the field options.
-     * @return  stdClass[]  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options = [];

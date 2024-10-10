@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Persons as Helper;
 
 /**
  * Class creates a form field for room type selection
@@ -19,14 +19,11 @@ class Persons extends Options
 {
     use Dependent;
 
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /* @inheritDoc */
     protected function getOptions(): array
     {
         $options = parent::getOptions();
-        $persons = Helpers\Persons::options();
+        $persons = Helper::options();
 
         return array_merge($options, $persons);
     }
