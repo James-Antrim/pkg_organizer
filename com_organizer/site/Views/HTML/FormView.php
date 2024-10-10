@@ -30,6 +30,8 @@ class FormView extends Base
 
     protected string $baseURL = '';
 
+    protected string $defaultTask = '';
+
     /** @inheritdoc */
     public $item;
 

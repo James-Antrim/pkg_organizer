@@ -62,7 +62,7 @@ $this->renderTasks();
                 </div>
             </fieldset>
         <?php endif; ?>
-        <input type="hidden" name="task" value="">
+        <input type="hidden" name="task" value="<?php echo $this->defaultTask; ?>">
         <input type="hidden" name="return" value="<?php echo $return; ?>">
         <input type="hidden" name="forcedLanguage" value="<?php echo $forcedLanguage; ?>">
         <?php echo HTML::token(); ?>
