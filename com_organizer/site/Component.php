@@ -10,7 +10,7 @@
 
 namespace THM\Organizer;
 
-use Joomla\CMS\{Application\CMSApplicationInterface, HTML\HTMLRegistryAwareTrait, Menu\AbstractMenu};
+use Joomla\CMS\{Application\CMSApplicationInterface, Application\SiteApplication, HTML\HTMLRegistryAwareTrait, Menu\AbstractMenu};
 use Joomla\CMS\Component\Router\{RouterInterface, RouterServiceInterface};
 use Joomla\CMS\Extension\MVCComponent;
 
@@ -21,11 +21,13 @@ class Component extends MVCComponent implements RouterServiceInterface
     /** @inheritDoc */
     public function createRouter(CMSApplicationInterface $application, AbstractMenu $menu): RouterInterface
     {
-        // TODO: Implement createRouter() method.
+        /** @var SiteApplication $application */
+        return new Router($application, $menu);
     }
 
     public function setRouterFactory($get)
     {
+
     }
 }
 
