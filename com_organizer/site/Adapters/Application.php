@@ -12,8 +12,9 @@ namespace THM\Organizer\Adapters;
 
 use Exception;
 use Joomla\CMS\Application\{CMSApplication, CMSApplicationInterface, WebApplication};
-use Joomla\CMS\{Component\ComponentHelper, Document\Document, Factory, Language\Language, Menu\MenuItem, Plugin\PluginHelper};
-use Joomla\CMS\{Session\Session, Uri\Uri};
+use Joomla\CMS\{Component\ComponentHelper, Document\Document, Factory, Language\Language};
+use Joomla\CMS\{Menu\MenuItem, Plugin\PluginHelper, Session\Session, Uri\Uri};
+use Joomla\CMS\Extension\{ComponentInterface, ExtensionHelper};
 use Joomla\Database\DatabaseDriver;
 use Joomla\DI\Container;
 use Joomla\Registry\Registry;
@@ -58,6 +59,32 @@ class Application
         $app = self::instance();
 
         return $app->getConfig();
+    }
+
+    /**
+     * Returns the organizer component object.
+     * @return ComponentInterface
+     */
+    public static function component(): ComponentInterface
+    {
+        $component = 'organizer';
+        $type      = ComponentInterface::class;
+
+        // Check if the extension is already loaded
+        if (!empty(ExtensionHelper::$extensions[$type][$component])) {
+            return ExtensionHelper::$extensions[$type][$component];
+        }
+
+        $application = self::instance();
+        $container   = self::container()->createChild();
+
+        $provider = require_once JPATH_ADMINISTRATOR . '/components/com_organizer/services/provider.php';
+        $provider->register($container);
+
+        $extension                                      = $container->get($type);
+        ExtensionHelper::$extensions[$type][$component] = $extension;
+
+        return $extension;
     }
 
     /**
