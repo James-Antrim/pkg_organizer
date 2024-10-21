@@ -18,6 +18,7 @@ use Joomla\CMS\Extension\{ComponentInterface, ExtensionHelper};
 use Joomla\Database\DatabaseDriver;
 use Joomla\DI\Container;
 use Joomla\Registry\Registry;
+use THM\Organizer\Component;
 
 /**
  * Aggregates various core joomla functions spread around multiple core classes and offers shortcuts to them with no
@@ -63,9 +64,9 @@ class Application
 
     /**
      * Returns the organizer component object.
-     * @return ComponentInterface
+     * @return Component
      */
-    public static function component(): ComponentInterface
+    public static function component(): Component
     {
         $component = 'organizer';
         $type      = ComponentInterface::class;
@@ -124,6 +125,16 @@ class Application
     public static function dynamic(): bool
     {
         return !self::menuItem();
+    }
+
+    /**
+     * Gets the component's MVC factory.
+     *
+     * @return MVCFactory
+     */
+    public static function factory(): MVCFactory
+    {
+        return self::component()->mvcFactory();
     }
 
     /**

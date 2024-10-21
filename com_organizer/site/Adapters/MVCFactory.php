@@ -11,7 +11,8 @@
 namespace THM\Organizer\Adapters;
 
 use Exception;
-use Joomla\CMS\{Application\CMSApplicationInterface, Form\FormFactoryAwareInterface, MVC\View\ViewInterface};
+use Joomla\CMS\{Application\CMSApplicationInterface, Form\FormFactoryAwareInterface};
+use Joomla\CMS\MVC\{Model\ModelInterface, View\ViewInterface};
 use Joomla\CMS\MVC\Factory\{MVCFactory as Base, MVCFactoryInterface};
 use Joomla\CMS\Table\Table;
 use Joomla\Event\DispatcherAwareInterface;
@@ -90,9 +91,16 @@ class MVCFactory extends Base
     }
 
     /**
-     * @inheritDoc
+     * Method to load and return a model object. Explicit commentary to suppress an expression that would not be thrown
+     * in Organizer.
+     *
+     * @param   string  $name    The name of the model.
+     * @param   string  $prefix  Optional model prefix.
+     * @param   array   $config  Optional configuration array for the model.
+     *
+     * @return  ModelInterface
      */
-    public function createModel($name, $prefix = '', array $config = [])
+    public function createModel($name, $prefix = '', array $config = []): ModelInterface
     {
         $className   = 'THM\Organizer\Models\\' . Application::ucClass($name);
         $formFactory = $this->getFormFactory();

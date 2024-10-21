@@ -13,6 +13,7 @@ namespace THM\Organizer;
 use Joomla\CMS\{Application\CMSApplicationInterface, Application\SiteApplication, HTML\HTMLRegistryAwareTrait, Menu\AbstractMenu};
 use Joomla\CMS\Component\Router\{RouterInterface, RouterServiceInterface};
 use Joomla\CMS\Extension\MVCComponent;
+use THM\Organizer\Adapters\MVCFactory;
 
 class Component extends MVCComponent implements RouterServiceInterface
 {
@@ -23,6 +24,18 @@ class Component extends MVCComponent implements RouterServiceInterface
     {
         /** @var SiteApplication $application */
         return new Router($application, $menu);
+    }
+
+    /**
+     * Wrapper for the getMVCFactory function to accurately return type the unnecessarily private property mvcFactory.
+     * @return MVCFactory
+     */
+    public function mvcFactory(): MVCFactory
+    {
+        /** @var MVCFactory $factory */
+        $factory = $this->getMVCFactory();
+
+        return $factory;
     }
 
     public function setRouterFactory($get)

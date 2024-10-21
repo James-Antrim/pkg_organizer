@@ -76,7 +76,7 @@ class Controller extends BaseController
     public function display($cachable = false, $urlparams = []): BaseController
     {
         $format = strtoupper(Input::format());
-        $view   = Application::ucClass($this->input->get('view', 'Organizer'));
+        $view   = Application::uqClass($this);
 
         if (!class_exists("\\THM\\Organizer\\Views\\$format\\$view")) {
             Application::error(503);
