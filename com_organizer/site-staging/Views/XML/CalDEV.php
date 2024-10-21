@@ -47,7 +47,7 @@ class CalDEV extends BaseView
         $response = '';
 
         /** @var CMSApplication $app */
-        $app = Application::getApplication();
+        $app = Application::instance();
         switch ($this->method) {
             case 'GET':
                 $get = new SimpleXMLElement('<response/>');
@@ -112,7 +112,7 @@ class CalDEV extends BaseView
                     $category->addAttribute('id', $table->id);
                     $code = htmlspecialchars($table->code);
                     $category->addChild('code', $code);
-                    $nameColumn = 'name_' . Application::getTag();
+                    $nameColumn = 'name_' . Application::tag();
                     $name       = htmlspecialchars($table->$nameColumn);
                     $category->addChild('name', $name);
                     $response = $category->asXML();
@@ -129,7 +129,7 @@ class CalDEV extends BaseView
                     $group->addAttribute('id', $table->id);
                     $code = htmlspecialchars($table->code);
                     $group->addChild('code', $code);
-                    $nameColumn = 'fullName_' . Application::getTag();
+                    $nameColumn = 'fullName_' . Application::tag();
                     $name       = htmlspecialchars($table->$nameColumn);
                     $group->addChild('name', $name);
                     $response = $group->asXML();

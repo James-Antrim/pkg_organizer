@@ -88,7 +88,7 @@ class Participants extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=participant&id=';
 
         $nameParts    = [DB::qn('pa.surname'), "', '", DB::qn('pa.forename')];

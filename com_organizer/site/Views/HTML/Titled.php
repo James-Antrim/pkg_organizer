@@ -66,6 +66,6 @@ trait Titled
         // Internally implemented title & toolbar output for frontend use.
         $this->title = $title;
 
-        Document::setTitle(strip_tags($title) . ' - ' . Application::getApplication()->get('sitename'));
+        Document::setTitle(strip_tags($title) . ' - ' . Application::instance()->get('sitename'));
     }
 }

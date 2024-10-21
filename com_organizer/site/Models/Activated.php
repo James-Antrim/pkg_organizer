@@ -55,7 +55,7 @@ trait Activated
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         parent::populateState($ordering, $direction);
 
-        $filters = Application::getUserRequestState($this->context . '.filter', 'filter', [], 'array');
+        $filters = Application::userRequestState($this->context . '.filter', 'filter', [], 'array');
 
         if (!array_key_exists('active', $filters) or $filters['active'] === '') {
             $this->setState('filter.active', 1);

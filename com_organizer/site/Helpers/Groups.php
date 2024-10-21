@@ -89,7 +89,7 @@ class Groups extends Scheduled implements Selectable
             return Text::_('ORGANIZER_NO_CATEGORIES');
         }
 
-        $column = 'name_' . Application::getTag();
+        $column = 'name_' . Application::tag();
 
         return $category->$column;
     }
@@ -103,7 +103,7 @@ class Groups extends Scheduled implements Selectable
      */
     public static function getEvents(int $groupID): array
     {
-        $tag      = Application::getTag();
+        $tag      = Application::tag();
         $aliased  = DB::qn(["e.description_$tag", "e.name_$tag"], ['description', 'name']);
         $selected = ['DISTINCT ' . DB::qn('e.id'), DB::qn('e.code')];
 
@@ -127,7 +127,7 @@ class Groups extends Scheduled implements Selectable
     public static function options(string $access = ''): array
     {
         $categoryID = Input::getInt('categoryID');
-        $tag        = Application::getTag();
+        $tag        = Application::tag();
         $name       = $categoryID ? "name_$tag" : "fullName_$tag";
 
         $options = [];
@@ -183,7 +183,7 @@ class Groups extends Scheduled implements Selectable
     public static function getUnits(int $groupID, string $date, string $interval = 'term'): array
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method, eventID")
             ->from('#__organizer_units AS u')
             ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')

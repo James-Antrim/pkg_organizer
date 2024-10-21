@@ -117,7 +117,7 @@ trait Scheduled
             return;
         }
 
-        $helperClass = empty($this->list) ? Application::getClass(get_called_class()) : $this->list;
+        $helperClass = empty($this->list) ? Application::uqClass(get_called_class()) : $this->list;
 
         /** @var Schedulable $helper */
         $helper = "THM\\Organizer\\Helpers\\" . $helperClass;

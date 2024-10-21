@@ -165,7 +165,7 @@ class Pools extends Curricula implements Selectable
         $fieldID         = $table->fieldID ?: 0;
         $organizationIDs = self::organizationIDs($table->id);
         $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
-        $tag             = Application::getTag();
+        $tag             = Application::tag();
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
@@ -208,7 +208,7 @@ class Pools extends Curricula implements Selectable
         $poolsTable = new Table();
 
         if ($poolsTable->load($range['poolID'])) {
-            $nameColumn   = 'fullName_' . Application::getTag();
+            $nameColumn   = 'fullName_' . Application::tag();
             $indentedName = Pools::indentName($poolsTable->$nameColumn, $range['level']);
 
             $option           = HTML::option($range['id'], $indentedName);
@@ -263,7 +263,7 @@ class Pools extends Curricula implements Selectable
         }
 
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select(['DISTINCT ' . DB::qn('p') . '.*', DB::qn("p.fullName_$tag", 'name')])
             ->from(DB::qn('#__organizer_pools', 'p'))
             ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.poolID', 'p.id'))

@@ -106,7 +106,7 @@ class MergeAssociations extends Options
         $localized   = $this->getAttribute('localized', false);
 
         if ($localized) {
-            $textColumns[0] = $textColumns[0] . '_' . Application::getTag();
+            $textColumns[0] = $textColumns[0] . '_' . Application::tag();
         }
 
         $glue = $this->getAttribute('glue');

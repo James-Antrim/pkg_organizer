@@ -37,7 +37,7 @@ class Subject extends EditModel
         }
 
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $aliased  = DB::qn(
             ['s1.id', "s1.fullName_$tag", 's1.code', 's2.id', "s2.fullName_$tag", 's2.code'],
@@ -149,7 +149,7 @@ class Subject extends EditModel
             if ($item->id and !Input::getCMD('layout')) {
                 $dependencies = $this->dependencies($item);
                 $model        = [];
-                $tag          = Application::getTag();
+                $tag          = Application::tag();
 
                 $model['code'] = $item->code ?: '';
                 $model['id']   = $item->id;
@@ -360,7 +360,7 @@ class Subject extends EditModel
             if ($semesterNumbers) {
                 $first = min($semesterNumbers);
                 $last  = max($semesterNumbers);
-                $tag   = Application::getTag();
+                $tag   = Application::tag();
 
                 if ($first !== $last) {
                     $suffix   = Text::_('ORGANIZER_SEMESTERS');

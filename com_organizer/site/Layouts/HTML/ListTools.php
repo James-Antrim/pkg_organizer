@@ -40,7 +40,7 @@ class ListTools
         $options = [
             'activeDirection' => $view->escape($state->get('list.direction')),
             'activeOrder'     => $view->escape($state->get('list.ordering')),
-            'defaultLimit'    => Application::getApplication()->get('list_limit', 50),
+            'defaultLimit'    => Application::instance()->get('list_limit', 50),
             'orderSelector'   => '#list_fullordering',
             'searchSelector'  => '#filter_search'
         ];

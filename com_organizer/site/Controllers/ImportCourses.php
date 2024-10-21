@@ -119,7 +119,7 @@ class ImportCourses extends FormController
     private function importCourse(oTable $organization, Terms $term, array $courseCodes): void
     {
         $course    = new Table();
-        $localized = 'name_' . Application::getTag();
+        $localized = 'name_' . Application::tag();
         $units     = [];
 
         foreach ($courseCodes as $code) {

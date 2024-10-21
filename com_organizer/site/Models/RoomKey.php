@@ -24,7 +24,7 @@ class RoomKey extends EditModel
         $item = parent::getItem();
 
         if ($item and !empty($item->useID)) {
-            $tag   = Application::getTag();
+            $tag   = Application::tag();
             $query = DB::getQuery();
             $query->select(DB::qn("name_$tag"))
                 ->from(DB::qn('#__organizer_use_groups'))

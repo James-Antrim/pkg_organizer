@@ -34,7 +34,7 @@ class MergeOrganizations extends Options
 
         $query      = Database::getQuery();
         $table      = $resource === 'category' ? 'categories' : 'persons';
-        $textColumn = 'shortName_' . Application::getTag();
+        $textColumn = 'shortName_' . Application::tag();
         $query->select("DISTINCT o.id AS value, o.$textColumn AS text")
             ->from("#__organizer_organizations AS o")
             ->innerJoin("#__organizer_associations AS a ON a.organizationID = o.id")

@@ -32,7 +32,7 @@ class FieldColors extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $url   = 'index.php?option=com_organizer&view=fieldcolor&id=';
 

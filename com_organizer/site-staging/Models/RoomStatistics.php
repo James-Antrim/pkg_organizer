@@ -249,7 +249,7 @@ class RoomStatistics extends BaseModel
      */
     private function setData(int $roomID): bool
     {
-        $tag       = Application::getTag();
+        $tag       = Application::tag();
         $ringQuery = DB::getQuery();
         $ringQuery->select('DISTINCT ccm.id AS ccmID')
             ->from('#__organizer_calendar_configuration_map AS ccm')
@@ -365,7 +365,7 @@ class RoomStatistics extends BaseModel
      */
     private function setLSData(array $lcrsIDs): void
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
 
         $select = 'DISTINCT lcrs.id AS lcrsID, ';
@@ -435,7 +435,7 @@ class RoomStatistics extends BaseModel
      */
     private function setRoomTypes(): void
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
 
         $query->select("id, name_$tag AS name, description_$tag AS description")

@@ -157,7 +157,7 @@ class InstanceParticipants extends Controller
 
         if ($model->save()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-            Application::getSession()->set('organizer.participation.referrer', '');
+            Application::session()->set('organizer.participation.referrer', '');
             $referrer = Input::getString('referrer');
             $this->setRedirect(Route::_($referrer, false));
         }

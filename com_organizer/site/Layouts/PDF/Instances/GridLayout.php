@@ -715,7 +715,7 @@ abstract class GridLayout extends BaseLayout
      */
     protected function label(array $block): string
     {
-        $label = 'label_' . Application::getTag();
+        $label = 'label_' . Application::tag();
 
         if ($block[$label]) {
             $value = $block[$label];
@@ -910,7 +910,7 @@ abstract class GridLayout extends BaseLayout
     {
         $role = new Roles();
         $role->load($roleID);
-        $tag    = Application::getTag();
+        $tag    = Application::tag();
         $column = count($rolePersons) > 1 ? "plural_$tag" : "name_$tag";
 
         return $role->$column . ":<br>";

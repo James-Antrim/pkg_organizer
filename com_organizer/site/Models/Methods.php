@@ -27,7 +27,7 @@ class Methods extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=method&id=';
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];

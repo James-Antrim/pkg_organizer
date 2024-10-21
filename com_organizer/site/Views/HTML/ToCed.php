@@ -28,7 +28,7 @@ trait ToCed
 
         Document::style('sidebar');
 
-        $viewName = strtolower(Application::getClass($this));
+        $viewName = strtolower(Application::uqClass($this));
 
         Sidebar::addEntry(
             '<span class="icon-home"></span> Organizer',

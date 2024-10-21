@@ -30,7 +30,7 @@ class Roles extends ResourceHelper implements Selectable
      */
     public static function getLabel(int $roleID, int $count): string
     {
-        $tag    = Application::getTag();
+        $tag    = Application::tag();
         $column = $count > 1 ? "plural_$tag" : "name_$tag";
         $table  = new Table();
 
@@ -56,7 +56,7 @@ class Roles extends ResourceHelper implements Selectable
     public static function resources(): array
     {
         $query = Database::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select("DISTINCT *, name_$tag AS name")
             ->from('#__organizer_roles')
             ->order('name');

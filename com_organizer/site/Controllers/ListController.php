@@ -116,7 +116,7 @@ abstract class ListController extends Controller
         }
 
         if ($autoRedirect) {
-            $this->setRedirect("$this->baseURL&view=" . strtolower(Application::getClass($this)));
+            $this->setRedirect("$this->baseURL&view=" . strtolower(Application::uqClass($this)));
         }
 
         try {
@@ -133,7 +133,7 @@ abstract class ListController extends Controller
      */
     protected function getTable(): Table
     {
-        $fqName = 'THM\\Organizer\\Tables\\' . Application::ucClassName($this->name);
+        $fqName = 'THM\\Organizer\\Tables\\' . Application::ucClass($this->name);
 
         return new $fqName();
     }
@@ -205,7 +205,7 @@ abstract class ListController extends Controller
      */
     protected function zeroColumn(string $table, string $column): bool
     {
-        $db = Application::getDB();
+        $db = Application::database();
 
         // Perform one query to set the column values to 0 instead of two for search and replace
         $query = $db->getQuery(true)

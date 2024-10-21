@@ -44,7 +44,7 @@ class Rooms extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=room&id=';
 
         $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];

@@ -77,7 +77,7 @@ class Campuses extends Table
      */
     public function __construct(DatabaseInterface $dbo = null)
     {
-        $dbo = $dbo ?? Application::getDB();
+        $dbo = $dbo ?? Application::database();
 
         /** @var DatabaseDriver $dbo */
         parent::__construct('#__organizer_campuses', 'id', $dbo);

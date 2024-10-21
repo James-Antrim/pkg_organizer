@@ -27,7 +27,7 @@ class Instances extends ListController
      */
     public function cancel(): void
     {
-        $session  = Application::getSession();
+        $session  = Application::session();
         $instance = $session->get('organizer.instance', []);
 
         if (!empty($instance['referrer'])) {
@@ -69,7 +69,7 @@ class Instances extends ListController
      */
     public function reset(): void
     {
-        $session  = Application::getSession();
+        $session  = Application::session();
         $instance = $session->get('organizer.instance', []);
 
         if (!empty($instance['referrer'])) {
@@ -88,7 +88,7 @@ class Instances extends ListController
     public function save(): void
     {
         $model    = new Instance();
-        $session  = Application::getSession();
+        $session  = Application::session();
         $instance = $session->get('organizer.instance', []);
         $referrer = empty($instance['referrer']) ? '' : $instance['referrer'];
 

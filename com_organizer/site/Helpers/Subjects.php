@@ -101,7 +101,7 @@ class Subjects extends Curricula
         }
 
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $select = DB::qn(["abbreviation_$tag", 'code', "fullName_$tag"], ['abbreviation', 'subjectNo', 'name']);
         $query->select($select)->from(DB::qn('#__organizer_subjects'))
@@ -153,7 +153,7 @@ class Subjects extends Curricula
         }
 
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $subjectID = DB::qn('s.id');
         $aliased   = [DB::qn("s.fullName_$tag", 'name')];
@@ -243,7 +243,7 @@ class Subjects extends Curricula
         $fieldID         = $table->fieldID ?: 0;
         $organizationIDs = self::organizationIDs($table->id);
         $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
-        $tag             = Application::getTag();
+        $tag             = Application::tag();
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},

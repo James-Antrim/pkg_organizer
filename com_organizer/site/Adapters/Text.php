@@ -117,7 +117,7 @@ class Text extends Base
             return self::useLocalization($string);
         }
 
-        return Application::getLanguage()->_($string, $jsSafe, $interpretBackSlashes);
+        return Application::language()->_($string, $jsSafe, $interpretBackSlashes);
     }
 
     /**
@@ -133,7 +133,7 @@ class Text extends Base
         $key = strtoupper($key);
 
         // Normalize the key and translate the string.
-        static::$strings[$key] = Application::getLanguage()->_($key);
+        static::$strings[$key] = Application::language()->_($key);
 
         // Load core.js dependency
         HTML::_('behavior.core');
@@ -171,7 +171,7 @@ class Text extends Base
      */
     public static function sprintf($string): string
     {
-        $lang    = Application::getLanguage();
+        $lang    = Application::language();
         $args    = func_get_args();
         $args[0] = $lang->_(self::prefaceKey($string));
 

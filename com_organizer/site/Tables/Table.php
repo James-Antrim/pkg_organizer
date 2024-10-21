@@ -50,7 +50,7 @@ abstract class Table extends Base
      */
     protected function fail(): bool
     {
-        Application::message(Text::sprintf('TABLE_CHECK_FAIL', Application::getClass(get_called_class())), Application::ERROR);
+        Application::message(Text::sprintf('TABLE_CHECK_FAIL', Application::uqClass(get_called_class())), Application::ERROR);
         return false;
     }
 

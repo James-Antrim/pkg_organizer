@@ -45,7 +45,49 @@ class Application
      */
     public static function backend(): bool
     {
-        return self::getApplication()->isClient('administrator');
+        return self::instance()->isClient('administrator');
+    }
+
+    /**
+     * Shortcuts configuration access.
+     * @return Registry
+     */
+    public static function configuration(): Registry
+    {
+        /** @var WebApplication $app */
+        $app = self::instance();
+
+        return $app->getConfig();
+    }
+
+    /**
+     * Shortcuts container access.
+     * @return Container
+     */
+    public static function container(): Container
+    {
+        return Factory::getContainer();
+    }
+
+    /**
+     * Shortcuts container access.
+     * @return DatabaseDriver
+     */
+    public static function database(): DatabaseDriver
+    {
+        return self::container()->get('DatabaseDriver');
+    }
+
+    /**
+     * Shortcuts document access.
+     * @return Document
+     */
+    public static function document(): Document
+    {
+        /** @var WebApplication $app */
+        $app = self::instance();
+
+        return $app->getDocument();
     }
 
     /**
@@ -54,7 +96,7 @@ class Application
      */
     public static function dynamic(): bool
     {
-        return !self::getMenuItem();
+        return !self::menuItem();
     }
 
     /**
@@ -108,204 +150,6 @@ class Application
     }
 
     /**
-     * Surrounds the call to the application with a try catch so that not every function needs to have a throws tag. If
-     * the application has an error it would have never made it to the component in the first place, so the error would
-     * not have been thrown in this call regardless.
-     * @return CMSApplicationInterface|null
-     */
-    public static function getApplication(): ?CMSApplicationInterface
-    {
-        $application = null;
-
-        try {
-            $application = Factory::getApplication();
-        }
-        catch (Exception $exception) {
-            self::handleException($exception);
-        }
-
-        return $application;
-    }
-
-    /**
-     * Gets the name of an object's class without its namespace.
-     *
-     * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
-     *                                  loaded
-     *
-     * @return string the name of the class without its namespace
-     */
-    public static function getClass(object|string $object): string
-    {
-        $fqName   = is_string($object) ? $object : get_class($object);
-        $nsParts  = explode('\\', $fqName);
-        $lastItem = array_pop($nsParts);
-
-        return empty($lastItem) ? 'Organizer' : $lastItem;
-    }
-
-    /**
-     * Shortcuts container access.
-     * @return Container
-     */
-    public static function getContainer(): Container
-    {
-        return Factory::getContainer();
-    }
-
-    /**
-     * Shortcuts container access.
-     * @return DatabaseDriver
-     */
-    public static function getDB(): DatabaseDriver
-    {
-        return self::getContainer()->get('DatabaseDriver');
-    }
-
-    /**
-     * Shortcuts configuration access.
-     * @return Registry
-     */
-    public static function getConfig(): Registry
-    {
-        /** @var WebApplication $app */
-        $app = self::getApplication();
-
-        return $app->getConfig();
-    }
-
-    /**
-     * Shortcuts document access.
-     * @return Document
-     */
-    public static function getDocument(): Document
-    {
-        /** @var WebApplication $app */
-        $app = self::getApplication();
-
-        return $app->getDocument();
-    }
-
-    /**
-     * Method to get the application language object.
-     * @return  Language  The language object
-     */
-    public static function getLanguage(): Language
-    {
-        return self::getApplication()->getLanguage();
-    }
-
-    /**
-     * Gets the current menu item.
-     * @return MenuItem|null the current menu item or null
-     */
-    public static function getMenuItem(int $itemID = 0): ?MenuItem
-    {
-        /** @var CMSApplication $app */
-        $app = self::getApplication();
-
-        if ($menu = $app->getMenu()) {
-            if ($itemID) {
-                return $menu->getItem($itemID);
-            }
-
-            return $menu->getActive();
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the parameter object for the component
-     *
-     * @param   string  $extension  the component name.
-     *
-     * @return  Registry
-     */
-    public static function getParams(string $extension = 'com_organizer'): Registry
-    {
-        if (str_starts_with($extension, 'plg_')) {
-            return self::getPluginParams(str_replace('plg_', '', $extension));
-        }
-        return ComponentHelper::getParams($extension);
-    }
-
-    /**
-     * Function gets plugin parameters analogous to ComponentHelper.
-     *
-     * @param   string  $plugin
-     *
-     * @return Registry
-     */
-    private static function getPluginParams(string $plugin): Registry
-    {
-        [$type, $element] = explode('_', $plugin, 2);
-        $plugin = PluginHelper::getPlugin($type, $element);
-        return new Registry($plugin->params);
-    }
-
-    /**
-     * Gets the session from the application container.
-     * @return Session
-     */
-    public static function getSession(): Session
-    {
-        return self::getApplication()->getSession();
-    }
-
-    /**
-     * Gets the language portion of the localization tag.
-     * @return string
-     */
-    public static function getTag(): string
-    {
-        $language = self::getApplication()->getLanguage();
-
-        return explode('-', $language->getTag())[0];
-    }
-
-    /**
-     * Gets the user's state's property value.
-     *
-     * @param   string  $property  the property name
-     * @param   mixed   $default   the optional default value
-     *
-     * @return  mixed  the property value or null
-     * @see CMSApplication::getUserState()
-     */
-    public static function getUserState(string $property, mixed $default = null): mixed
-    {
-        /** @var CMSApplication $app */
-        $app = self::getApplication();
-
-        return $app->getUserState($property, $default);
-    }
-
-    /**
-     * Gets the property value from the state, overwriting the value from the request if available.
-     *
-     * @param   string  $property  the property name
-     * @param   string  $request   the name of the property as passed in a request.
-     * @param   mixed   $default   the optional default value
-     * @param   string  $type      the optional name of the type filter to use on the variable
-     *
-     * @return  mixed  The request user state.
-     * @see CMSApplication::getUserStateFromRequest(), InputFilter::clean()
-     */
-    public static function getUserRequestState(
-        string $property,
-        string $request,
-        mixed $default = null,
-        string $type = 'none'
-    ): mixed
-    {
-        /** @var CMSApplication $app */
-        $app = self::getApplication();
-
-        return $app->getUserStateFromRequest($property, $request, $default, $type);
-    }
-
-    /**
      * Performs handling for joomla's internal errors not handled by joomla.
      *
      * @param   Exception  $exception  the joomla internal error being thrown instead of handled
@@ -321,6 +165,55 @@ class Application
     }
 
     /**
+     * Surrounds the call to the application with a try catch so that not every function needs to have a throws tag. If
+     * the application has an error it would have never made it to the component in the first place, so the error would
+     * not have been thrown in this call regardless.
+     * @return CMSApplicationInterface|null
+     */
+    public static function instance(): ?CMSApplicationInterface
+    {
+        $application = null;
+
+        try {
+            $application = Factory::getApplication();
+        }
+        catch (Exception $exception) {
+            self::handleException($exception);
+        }
+
+        return $application;
+    }
+
+    /**
+     * Method to get the application language object.
+     * @return  Language  The language object
+     */
+    public static function language(): Language
+    {
+        return self::instance()->getLanguage();
+    }
+
+    /**
+     * Gets the current menu item.
+     * @return MenuItem|null the current menu item or null
+     */
+    public static function menuItem(int $itemID = 0): ?MenuItem
+    {
+        /** @var CMSApplication $app */
+        $app = self::instance();
+
+        if ($menu = $app->getMenu()) {
+            if ($itemID) {
+                return $menu->getItem($itemID);
+            }
+
+            return $menu->getActive();
+        }
+
+        return null;
+    }
+
+    /**
      * Masks the Joomla application enqueueMessage function
      *
      * @param   string  $message  the message to enqueue
@@ -330,7 +223,7 @@ class Application
      */
     public static function message(string $message, string $type = self::MESSAGE): void
     {
-        self::getApplication()->enqueueMessage(Text::_($message), $type);
+        self::instance()->enqueueMessage(Text::_($message), $type);
     }
 
     /**
@@ -340,11 +233,40 @@ class Application
     public static function mobile(): bool
     {
         /** @var CMSApplication $app */
-        $app     = self::getApplication();
+        $app     = self::instance();
         $client  = $app->client;
         $tablets = [$client::IPAD, $client::ANDROIDTABLET];
 
         return ($client->mobile and !in_array($client->platform, $tablets));
+    }
+
+    /**
+     * Gets the parameter object for the component
+     *
+     * @param   string  $extension  the component name.
+     *
+     * @return  Registry
+     */
+    public static function parameters(string $extension = 'com_organizer'): Registry
+    {
+        if (str_starts_with($extension, 'plg_')) {
+            return self::pluginParameters(str_replace('plg_', '', $extension));
+        }
+        return ComponentHelper::getParams($extension);
+    }
+
+    /**
+     * Function gets plugin parameters analogous to ComponentHelper.
+     *
+     * @param   string  $plugin
+     *
+     * @return Registry
+     */
+    private static function pluginParameters(string $plugin): Registry
+    {
+        [$type, $element] = explode('_', $plugin, 2);
+        $plugin = PluginHelper::getPlugin($type, $element);
+        return new Registry($plugin->params);
     }
 
     /**
@@ -360,8 +282,28 @@ class Application
         $url = $url ?: Uri::getInstance()::base();
 
         /** @var CMSApplication $app */
-        $app = self::getApplication();
+        $app = self::instance();
         $app->redirect($url, $status);
+    }
+
+    /**
+     * Gets the session from the application container.
+     * @return Session
+     */
+    public static function session(): Session
+    {
+        return self::instance()->getSession();
+    }
+
+    /**
+     * Gets the language portion of the localization tag.
+     * @return string
+     */
+    public static function tag(): string
+    {
+        $language = self::instance()->getLanguage();
+
+        return explode('-', $language->getTag())[0];
     }
 
     /**
@@ -371,7 +313,7 @@ class Application
      *
      * @return string
      */
-    public static function ucClassName(string $name = ''): string
+    public static function ucClass(string $name = ''): string
     {
         $name = empty($name) ? Input::getView() : $name;
         $name = preg_replace('/[^A-Z0-9_]/i', '', $name);
@@ -404,5 +346,63 @@ class Application
 
             default => ucfirst($name),
         };
+    }
+
+    /**
+     * Gets the name of an object's class without its namespace.
+     *
+     * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
+     *                                  loaded
+     *
+     * @return string the name of the class without its namespace
+     */
+    public static function uqClass(object|string $object): string
+    {
+        $fqName   = is_string($object) ? $object : get_class($object);
+        $nsParts  = explode('\\', $fqName);
+        $lastItem = array_pop($nsParts);
+
+        return empty($lastItem) ? 'Organizer' : $lastItem;
+    }
+
+    /**
+     * Gets the property value from the state, overwriting the value from the request if available.
+     *
+     * @param   string  $property  the property name
+     * @param   string  $request   the name of the property as passed in a request.
+     * @param   mixed   $default   the optional default value
+     * @param   string  $type      the optional name of the type filter to use on the variable
+     *
+     * @return  mixed  The request user state.
+     * @see CMSApplication::getUserStateFromRequest(), InputFilter::clean()
+     */
+    public static function userRequestState(
+        string $property,
+        string $request,
+        mixed $default = null,
+        string $type = 'none'
+    ): mixed
+    {
+        /** @var CMSApplication $app */
+        $app = self::instance();
+
+        return $app->getUserStateFromRequest($property, $request, $default, $type);
+    }
+
+    /**
+     * Gets the user's state's property value.
+     *
+     * @param   string  $property  the property name
+     * @param   mixed   $default   the optional default value
+     *
+     * @return  mixed  the property value or null
+     * @see CMSApplication::getUserState()
+     */
+    public static function userState(string $property, mixed $default = null): mixed
+    {
+        /** @var CMSApplication $app */
+        $app = self::instance();
+
+        return $app->getUserState($property, $default);
     }
 }

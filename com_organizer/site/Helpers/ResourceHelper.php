@@ -75,7 +75,7 @@ abstract class ResourceHelper
             return (string) $table->$columnName;
         }
 
-        $localizedName = "{$columnName}_" . Application::getTag();
+        $localizedName = "{$columnName}_" . Application::tag();
         if (array_key_exists($localizedName, $tableFields)) {
             // Some name columns may contain a null value
             return (string) $table->$localizedName;
@@ -126,7 +126,7 @@ abstract class ResourceHelper
      */
     public static function getTable(): Tables\Table
     {
-        $fqn = "THM\\Organizer\\Tables\\" . Application::getClass(get_called_class());
+        $fqn = "THM\\Organizer\\Tables\\" . Application::uqClass(get_called_class());
 
         return new $fqn();
     }

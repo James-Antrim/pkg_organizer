@@ -30,7 +30,7 @@ abstract class CurriculumResource extends FormController
      */
     public function applyImport(): void
     {
-        if (Application::getClass(get_called_class()) === 'Pool') {
+        if (Application::uqClass(get_called_class()) === 'Pool') {
             Application::error(501);
         }
 
@@ -136,7 +136,7 @@ abstract class CurriculumResource extends FormController
      */
     protected function ordering(int $parentID, int $resourceID): int
     {
-        $column = strtolower(Application::getClass($this)) . 'ID';
+        $column = strtolower(Application::uqClass($this)) . 'ID';
         $query  = DB::getQuery();
         $query->select(DB::qn('ordering'))
             ->from(DB::qn('#__organizer_curricula'))
@@ -238,7 +238,7 @@ abstract class CurriculumResource extends FormController
      */
     public function saveImport(): void
     {
-        if (Application::getClass(get_called_class()) === 'Pool') {
+        if (Application::uqClass(get_called_class()) === 'Pool') {
             Application::error(501);
         }
 
@@ -282,7 +282,7 @@ abstract class CurriculumResource extends FormController
             $this->app->close();
         }
 
-        $type = strtolower(Application::getClass(get_called_class()));
+        $type = strtolower(Application::uqClass(get_called_class()));
 
         if (!in_array($type, ['pool', 'subject'])) {
             http_response_code(501);

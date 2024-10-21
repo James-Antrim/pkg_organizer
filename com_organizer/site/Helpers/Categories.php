@@ -58,7 +58,7 @@ class Categories extends Scheduled implements Filterable, Selectable
      */
     public static function groups(int $categoryID, bool $active = true): array
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select(array_merge(DB::qn(['id', 'code']), [DB::qn("name_$tag", 'name')]))
             ->from(DB::qn('#__organizer_groups', 'g'))
@@ -81,7 +81,7 @@ class Categories extends Scheduled implements Filterable, Selectable
      */
     public static function options(string $access = ''): array
     {
-        $name    = Application::getTag() === 'en' ? 'name_en' : 'name_de';
+        $name    = Application::tag() === 'en' ? 'name_en' : 'name_de';
         $options = [];
         foreach (self::resources($access) as $category) {
             if ($category['active']) {
@@ -104,7 +104,7 @@ class Categories extends Scheduled implements Filterable, Selectable
      */
     public static function resources(string $access = ''): array
     {
-        $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
+        $order = Application::tag() === 'en' ? 'name_en' : 'name_de';
         $query = DB::getQuery();
         $query->select('DISTINCT ' . DB::qn('c') . '.*')
             ->from(DB::qn('#__organizer_categories', 'c'))

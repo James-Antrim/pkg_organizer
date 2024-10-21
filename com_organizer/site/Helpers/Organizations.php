@@ -50,7 +50,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
      */
     public static function categories(int $organizationID, bool $active = true): array
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select(array_merge(DB::qn(['c.id', 'code'], [DB::qn("name_$tag", 'name')])))
             ->from(DB::qn('#__organizer_categories', 'c'))
@@ -175,7 +175,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     public static function resources(string $access = ''): array
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select(['DISTINCT ' . DB::qn('o') . '.*', DB::qn("o.shortName_$tag", 'shortName'), DB::qn("o.name_$tag", 'name')])
             ->from(DB::qn('#__organizer_organizations', 'o'));
 

@@ -264,7 +264,7 @@ class Courses extends Coordinatable
             return [];
         }
 
-        $tag      = Application::getTag();
+        $tag      = Application::tag();
         $aliased  = DB::qn(['d.abbreviation', "pr.name_$tag", 'pr.accredited'], ['degree', 'program', 'year']);
         $selected = [DB::qn('pr.id'), 'COUNT(*) AS ' . DB::qn('participants')];
 
@@ -360,8 +360,8 @@ class Courses extends Coordinatable
     /**
      * Gets instances associated with the given course optionally filtered by future or past.
      *
-     * @param   int        $courseID the id of the course
-     * @param   bool|null  $future   whether to filter for future instances (null => no filter, 0 => past, 1 => future)
+     * @param   int        $courseID  the id of the course
+     * @param   bool|null  $future    whether to filter for future instances (null => no filter, 0 => past, 1 => future)
      *
      * @return array
      */

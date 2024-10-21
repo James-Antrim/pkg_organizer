@@ -70,8 +70,8 @@ class CourseParticipants extends Participants
         parent::populateState($ordering, $direction);
 
         $context  = 'com_organizer.courseparticipants.hidden';
-        $courseID = Application::getUserRequestState("$context.id", 'id', Input::getID(), 'int');
-        $itemID   = Application::getUserRequestState("$context.Itemid", 'Itemid', Input::getInt('Itemid'), 'int');
+        $courseID = Application::userRequestState("$context.id", 'id', Input::getID(), 'int');
+        $itemID   = Application::userRequestState("$context.Itemid", 'Itemid', Input::getInt('Itemid'), 'int');
 
         $this->state->set('hidden.id', $courseID);
         $this->state->set('hidden.Itemid', $itemID);

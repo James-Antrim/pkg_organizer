@@ -79,7 +79,7 @@ class Fields extends ResourceHelper implements Selectable
     public static function resources(): array
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select('DISTINCT *, ' . DB::qn("name_$tag", 'name'))
             ->from(DB::qn('#__organizer_fields'))
             ->order(DB::qn('name'));

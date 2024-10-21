@@ -35,7 +35,7 @@ class Equipment extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
+        $tag = Application::tag();
 
         $query = Database::getQuery();
         $query->select("DISTINCT e.*, e.name_$tag AS name")

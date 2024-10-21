@@ -131,7 +131,7 @@ class Persons extends Scheduled implements Selectable
     public static function getOrganizationNames(int $personID): array
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select(DB::qn("o.shortName_$tag", 'name'))
             ->from(DB::qn('#__organizer_organizations', 'o'))
             ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qn('a.organizationID') . ' = ' . DB::qn('o.id'))

@@ -466,7 +466,7 @@ class Search extends ListModel
      * Fills an array with filter clauses for subordinate groups & pools. Both of these resources share a large portion
      * of their name with their parent resources.
      *
-     * @param   JDatabaseQuery  $query      the query providing the charlength function for the clauses
+     * @param   JDatabaseQuery  $query      the query providing the character length function for the clauses
      * @param   string          $subType    the type of subordinate resource being sought (group|pool)
      * @param   array           $semesters  the semester terms previously parsed from the search terms
      * @param   array           $poolTerms  the pool terms used in coverage checks
@@ -606,7 +606,7 @@ class Search extends ListModel
         parent::populateState();
 
         $get     = Input::getString('search');
-        $session = Application::getSession();
+        $session = Application::session();
         $pSearch = (string) $session->get('organizer.search.search');
 
         // No previous and there now is one or previous and the current one is different
@@ -2484,7 +2484,7 @@ class Search extends ListModel
      */
     private function searchRooms(array &$items)
     {
-        $tag         = Application::getTag();
+        $tag         = Application::tag();
         $terms       = $this->terms;
         $quotedTerms = Database::quote($terms);
 

@@ -190,7 +190,7 @@ class Instances extends ResourceHelper
             return;
         }
 
-        $tag                      = Application::getTag();
+        $tag                      = Application::tag();
         $instance['campusID']     = $coursesTable->campusID ?: $instance['campusID'];
         $instance['courseGroups'] = $coursesTable->groups ?: '';
         $instance['courseName']   = $coursesTable->{"name_$tag"} ?: '';
@@ -347,7 +347,7 @@ class Instances extends ResourceHelper
      */
     private static function groups(array &$person, array $conditions): void
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
 
         $aliased  = DB::qn(['g.code', "g.fullName_$tag", "g.name_$tag"], ['code', 'fullName', 'name']);
@@ -403,7 +403,7 @@ class Instances extends ResourceHelper
      */
     public static function instance(int $instanceID): array
     {
-        $tag = Application::getTag();
+        $tag = Application::tag();
 
         $table = new Instance();
         if (!$table->load($instanceID)) {
@@ -698,7 +698,7 @@ class Instances extends ResourceHelper
         $conditions['instanceStatus'] = $instance['instanceStatus'] ?? 'new';
 
         $query    = DB::getQuery();
-        $tag      = Application::getTag();
+        $tag      = Application::tag();
         $aliased  = DB::qn(
             ['ip.id', "r.name_$tag", "r.abbreviation_$tag", 'ip.delta'],
             ['assocID', 'role', 'roleCode', 'status']
@@ -1479,7 +1479,7 @@ class Instances extends ResourceHelper
      */
     public static function subjects(array &$instance, array $conditions): void
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName")
             ->select("s.description_$tag AS description")

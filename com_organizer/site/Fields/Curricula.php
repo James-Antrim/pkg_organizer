@@ -49,7 +49,7 @@ class Curricula extends ListField
         Document::script('multiple');
 
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "', '", DB::qn('p.accredited'), "')'"];
 

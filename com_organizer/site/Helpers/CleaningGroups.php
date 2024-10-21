@@ -41,7 +41,7 @@ class CleaningGroups extends ResourceHelper implements Selectable
      */
     public static function options(string $access = ''): array
     {
-        $name    = Application::getTag() === 'en' ? 'name_en' : 'name_de';
+        $name    = Application::tag() === 'en' ? 'name_en' : 'name_de';
         $options = [];
         foreach (self::resources() as $group) {
             $options[] = HTML::option($group['id'], $group[$name]);
@@ -62,7 +62,7 @@ class CleaningGroups extends ResourceHelper implements Selectable
      */
     public static function resources(): array
     {
-        $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
+        $order = Application::tag() === 'en' ? 'name_en' : 'name_de';
         $query = DB::getQuery();
         $query->select('*')
             ->from(DB::qn('#__organizer_categories', 'c'))

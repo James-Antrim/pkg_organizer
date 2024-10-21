@@ -43,7 +43,7 @@ class Instances extends ListModel
     /** @inheritDoc */
     public function __construct($config = [])
     {
-        $session = Application::getSession();
+        $session = Application::session();
         $session->set('organizer.instance.item.referrer', '');
         parent::__construct($config);
     }
@@ -55,7 +55,7 @@ class Instances extends ListModel
     private function date(): string
     {
         // Instances view
-        $date = Application::getUserRequestState("$this->context.list.date", "list_date", '', 'string');
+        $date = Application::userRequestState("$this->context.list.date", "list_date", '', 'string');
 
         // Export view, GET, POST
         $date = Input::getString('date', $date);
@@ -242,7 +242,7 @@ class Instances extends ListModel
     private function interval(): string
     {
         // Instances view
-        $interval = Application::getUserRequestState("$this->context.list.interval", "list_interval", '', 'string');
+        $interval = Application::userRequestState("$this->context.list.interval", "list_interval", '', 'string');
 
         // Export view, GET, POST
         return Input::getString('interval', $interval);
@@ -265,7 +265,7 @@ class Instances extends ListModel
 
         // What? Personal...
         $personal         = (int) $params->get('my');
-        $personal         = ($personal or Application::getUserRequestState("{$lc}my", "{$lp}my", 0, 'int'));
+        $personal         = ($personal or Application::userRequestState("{$lc}my", "{$lp}my", 0, 'int'));
         $personal         = ($personal or Input::getInt('my'));
         $personal         = ($personal or (int) $listItems->get('my'));
         $conditions['my'] = $personal;
@@ -278,7 +278,7 @@ class Instances extends ListModel
         } // or attribute/resource based.
         else {
             $campusID = $params->get('campusID', 0);
-            $campusID = Application::getUserRequestState("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
+            $campusID = Application::userRequestState("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
             $campusID = Input::getInt('campusID', $campusID);
 
             if ($campusID) {
@@ -297,15 +297,15 @@ class Instances extends ListModel
                 }
             }
             else {
-                $organizationID = Application::getUserRequestState("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
+                $organizationID = Application::userRequestState("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
                 $organizationID = Input::getInt('organizationID', $organizationID);
                 $organizationID = $params->get('organizationID', $organizationID);
             }
 
             $byPerson   = false;
-            $categoryID = Application::getUserRequestState("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
+            $categoryID = Application::userRequestState("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
             $categoryID = Input::getInt('categoryID', $categoryID);
-            $groupID    = Application::getUserRequestState("{$fc}groupID", "{$fp}groupID", 0, 'int');
+            $groupID    = Application::userRequestState("{$fc}groupID", "{$fp}groupID", 0, 'int');
             $groupID    = Input::getInt('groupID', $groupID);
 
             $conditions['roleID'] = Input::getInt('roleID');
@@ -353,7 +353,7 @@ class Instances extends ListModel
                     $this->state->set('filter.eventID', $eventID);
                 }
 
-                $personID = Application::getUserRequestState("{$fc}personID", "{$fp}personID", 0, 'int');
+                $personID = Application::userRequestState("{$fc}personID", "{$fp}personID", 0, 'int');
                 if ($personID = Input::getInt('personID', $personID)) {
                     $personIDs = [$personID];
                     $userID    = User::id();
@@ -374,7 +374,7 @@ class Instances extends ListModel
                     }
                 }
 
-                $roomID = Application::getUserRequestState("{$fc}roomID", "{$fp}roomID", 0, 'int');
+                $roomID = Application::userRequestState("{$fc}roomID", "{$fp}roomID", 0, 'int');
                 if ($roomID = Input::getInt('roomID', $roomID)) {
                     $conditions['roomIDs'] = [$roomID];
                     $filterItems->set('roomID', $roomID);
@@ -443,19 +443,19 @@ class Instances extends ListModel
                 $intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
                 $interval  = in_array($interval, $intervals) ? $interval : 'week';
                 $layout    = Helper::LIST;
-                $status    = Application::getUserRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
+                $status    = Application::userRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
                 break;
 
             case 'html':
             default:
                 $date     = $this->date();
-                $status   = Application::getUserRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
+                $status   = Application::userRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
                 $status   = Input::getInt('status', $status);
                 $statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
                 $status   = in_array($status, $statuses) ? $status : Helper::CURRENT;
 
                 if ($dynamic) {
-                    $sLayout = Application::getUserRequestState("{$lc}layout", "{$lp}layout", Helper::LIST, 'int');
+                    $sLayout = Application::userRequestState("{$lc}layout", "{$lp}layout", Helper::LIST, 'int');
                     $gLayout = str_starts_with(strtolower(Input::getString('layout')), 'grid');
                     $layout  = ($sLayout or $gLayout) ? Helper::GRID : Helper::LIST;
 
@@ -493,7 +493,7 @@ class Instances extends ListModel
                         }
                     }
                     else {
-                        $sInterval = Application::getUserRequestState("{$lc}interval", "{$lp}interval", '', 'string');
+                        $sInterval = Application::userRequestState("{$lc}interval", "{$lp}interval", '', 'string');
                         $interval  = Input::getString('interval', $sInterval);
                         $intervals = ['day', 'month', 'quarter', 'term', 'week'];
                         $interval  = in_array($interval, $intervals) ? $interval : 'day';

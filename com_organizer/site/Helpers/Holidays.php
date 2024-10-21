@@ -31,7 +31,7 @@ class Holidays
     {
         $endDate   = Dates::standardize($endDate);
         $startDate = Dates::standardize($startDate);
-        $tag       = Application::getTag();
+        $tag       = Application::tag();
 
         $query = Database::getQuery();
         $query->select('*')

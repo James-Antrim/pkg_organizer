@@ -564,7 +564,7 @@ class Subject extends CurriculumResource implements Stubby
             return $this->delete($table->id);
         }
 
-        $tag           = Application::getTag();
+        $tag           = Application::tag();
         $titleProperty = "titel$tag";
         $title         = $subject->$titleProperty;
 

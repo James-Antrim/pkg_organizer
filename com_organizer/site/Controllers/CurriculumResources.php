@@ -44,7 +44,7 @@ abstract class CurriculumResources extends ListController
         }
 
         /** @var Documentable $helper */
-        $helper     = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
+        $helper     = "THM\\Organizer\\Helpers\\" . Application::uqClass(get_called_class());
         $controller = "THM\\Organizer\\Controllers\\" . $this->item;
         $deleted    = 0;
         $selected   = count($selectedIDs);
@@ -70,7 +70,7 @@ abstract class CurriculumResources extends ListController
      */
     public function import(): void
     {
-        if (Application::getClass($this) === 'Pools') {
+        if (Application::uqClass($this) === 'Pools') {
             Application::error(501);
         }
 
@@ -91,7 +91,7 @@ abstract class CurriculumResources extends ListController
         $controller = new $controller();
 
         /** @var Documentable $helper */
-        $helper = "THM\\Organizer\\Helpers\\" . Application::getClass(get_called_class());
+        $helper = "THM\\Organizer\\Helpers\\" . Application::uqClass(get_called_class());
 
         foreach ($selectedIDs as $selectedID) {
             if (!$helper::documentable($selectedID)) {

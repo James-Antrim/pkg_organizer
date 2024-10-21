@@ -95,7 +95,7 @@ class Programs extends Curricula implements Selectable
         }
 
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('p.accredited'), "')'"];
         $query->select($query->concatenate($parts, "") . ' AS ' . DB::qn('name'))
@@ -154,7 +154,7 @@ class Programs extends Curricula implements Selectable
         self::filterByOrganization($query, 'p', Input::getInt('organizationID'));
 
         if (self::useCurrent()) {
-            $tag = Application::getTag();
+            $tag = Application::tag();
 
             $conditions = DB::qcs([
                 ["grouped.name_$tag", "p.name_$tag"],
@@ -183,7 +183,7 @@ class Programs extends Curricula implements Selectable
     public static function query(): DatabaseQuery
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=Program&id=';
 
         $start = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation')];

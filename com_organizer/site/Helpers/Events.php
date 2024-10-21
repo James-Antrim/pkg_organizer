@@ -32,7 +32,7 @@ class Events extends Coordinatable implements Schedulable
      */
     public static function categoryNames(int $eventID): array
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
 
         $nameParts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('p.accredited'), "')'"];
@@ -214,7 +214,7 @@ class Events extends Coordinatable implements Schedulable
     public static function units(int $eventID, string $date, string $interval = 'term'): array
     {
         [$id, $comment] = DB::qn(['u.id', 'u.comment']);
-        $method = DB::qn('m.abbreviation_' . Application::getTag(), 'method');
+        $method = DB::qn('m.abbreviation_' . Application::tag(), 'method');
 
         $query = DB::getQuery();
         $query->select("DISTINCT $id, $comment, $method")

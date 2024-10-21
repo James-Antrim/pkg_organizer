@@ -67,7 +67,7 @@ class Units extends ResourceHelper
      */
     public static function getContexts(int $unitID, int $eventID): array
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select("g.id AS groupID, g.categoryID, g.fullName_$tag AS fqGroup, g.name_$tag AS nqGroup")
             ->from('#__organizer_instances AS i')
@@ -120,7 +120,7 @@ class Units extends ResourceHelper
      */
     public static function getEventNames(int $unitID): array
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select('DISTINCT ' . DB::qn("name_$tag"))
             ->from(DB::qn('#__organizer_events', 'e'))

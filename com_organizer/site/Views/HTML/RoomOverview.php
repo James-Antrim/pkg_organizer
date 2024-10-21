@@ -121,7 +121,7 @@ class RoomOverview extends TableView
             }
         }
 
-        $labelIndex = 'label_' . Application::getTag();
+        $labelIndex = 'label_' . Application::tag();
 
         foreach ($grid['periods'] as $number => $data) {
             $endTime   = Helpers\Dates::formatEndTime($data['endTime']);

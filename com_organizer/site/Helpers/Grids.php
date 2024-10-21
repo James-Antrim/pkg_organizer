@@ -96,7 +96,7 @@ class Grids extends ResourceHelper implements Selectable
     public static function resources(): array
     {
         $query = Database::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $select = ['*', DB::qn("name_$tag", 'name')];
         $query->select($select)

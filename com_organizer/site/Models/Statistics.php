@@ -669,7 +669,7 @@ class Statistics extends OldFormModel
      */
     protected function populateState(): void
     {
-        $conditions = Application::getUserRequestState($this->context . '.conditions', 'jform', [], 'array');
+        $conditions = Application::userRequestState($this->context . '.conditions', 'jform', [], 'array');
         foreach ($conditions as $input => $value) {
             $this->setState("conditions.$input", $value);
         }

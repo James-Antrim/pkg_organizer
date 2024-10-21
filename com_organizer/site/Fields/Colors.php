@@ -27,7 +27,7 @@ class Colors extends ColoredOptions
     {
         $options = parent::getOptions();
 
-        $tag = Application::getTag();
+        $tag = Application::tag();
 
         $query = DB::getQuery();
         $query->select(['DISTINCT ' . DB::qn('c.id', 'value'), DB::qn("c.name_$tag", 'text'), DB::qn('c.color')])

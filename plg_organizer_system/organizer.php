@@ -121,7 +121,7 @@ class PlgSystemOrganizer extends CMSPlugin
         $return = array_key_exists('return', $query) ? base64_decode($query['return']) : '';
 
         /** @var CMSApplication $app */
-        $app = Application::getApplication();
+        $app = Application::instance();
 
         if ($app->login($this->getCredentials()) and $return) {
             $app->redirect($return);
@@ -162,7 +162,7 @@ class PlgSystemOrganizer extends CMSPlugin
 
         // An attempt was made to register using official credentials.
         /** @var CMSApplication $app */
-        $app = Application::getApplication();
+        $app = Application::instance();
 
         if ($app->login($this->getCredentials())) {
             Application::message(sprintf(Text::_('REGISTER_INTERNAL_SUCCESS'), $filter), 'success');

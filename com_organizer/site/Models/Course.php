@@ -47,7 +47,7 @@ class Course extends EditModel
 
                 $endDate   = is_array($eProperties['endDate']) ? max($eProperties['endDate']) : $eProperties['endDate'];
                 $startDate = is_array($eProperties['startDate']) ? min($eProperties['startDate']) : $eProperties['startDate'];
-                $tag       = Application::getTag();
+                $tag       = Application::tag();
                 $userID    = User::id();
 
                 $model = [
@@ -140,7 +140,7 @@ class Course extends EditModel
      */
     private function eventProperties(int $courseID): array
     {
-        $tag      = Application::getTag();
+        $tag      = Application::tag();
         $aliased  = DB::qn(
             [
                 "contact_$tag",

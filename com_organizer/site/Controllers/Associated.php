@@ -28,7 +28,7 @@ trait Associated
      */
     protected function updateAssociations(): bool
     {
-        $column     = strtolower(Application::getClass(get_called_class())) . 'ID';
+        $column     = strtolower(Application::uqClass(get_called_class())) . 'ID';
         $resourceID = $this->data['id'];
         foreach (Organizations::getIDs() as $organizationID) {
 

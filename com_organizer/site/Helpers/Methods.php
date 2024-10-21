@@ -41,7 +41,7 @@ class Methods extends ResourceHelper implements Selectable
     public static function resources(): array
     {
         $query = Database::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select("DISTINCT m.*, m.name_$tag AS name")
             ->from('#__organizer_methods AS m')
             ->innerJoin('#__organizer_instances AS i ON i.methodID = m.id')

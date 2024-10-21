@@ -18,7 +18,7 @@ use THM\Organizer\Views\HTML\ListView;
 $action = Route::_('index.php?option=com_organizer&view=' . $this->_name);
 
 if (count($this->headers) > 4) {
-    $wa = Application::getDocument()->getWebAssetManager();
+    $wa = Application::document()->getWebAssetManager();
     $wa->useScript('table.columns');
 }
 

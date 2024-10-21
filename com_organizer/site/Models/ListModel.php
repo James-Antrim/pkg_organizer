@@ -90,7 +90,7 @@ abstract class ListModel extends Base
      */
     protected function filterByAccess(DatabaseQuery $query, string $alias, string $access): void
     {
-        $helper = '\THM\Organizer\Helpers\\' . Application::ucClassName();
+        $helper = '\THM\Organizer\Helpers\\' . Application::ucClass();
 
         /** @var Associated $helper */
         $helper::filterByAccess($query, $alias, $access);
@@ -182,7 +182,7 @@ abstract class ListModel extends Base
      */
     protected function filterByOrganization(DatabaseQuery $query, string $alias): void
     {
-        $helper = '\THM\Organizer\Helpers\\' . Application::ucClassName();
+        $helper = '\THM\Organizer\Helpers\\' . Application::ucClass();
 
         /** @var Associated $helper */
         $helper::filterByOrganization($query, $alias, (int) $this->state->get('filter.organizationID'));
@@ -401,7 +401,7 @@ abstract class ListModel extends Base
     public function getTable($name = '', $prefix = '', $options = []): Table
     {
         // With few exception the table and list class names are identical
-        $class = Application::getClass($this);
+        $class = Application::uqClass($this);
         $fqn   = "\\THM\\Organizer\\Tables\\$class";
 
         return new $fqn();
@@ -448,7 +448,7 @@ abstract class ListModel extends Base
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
-        $data = Application::getUserState($this->context, new stdClass());
+        $data = Application::userState($this->context, new stdClass());
 
         // Pre-create the list options
         if (!property_exists($data, 'list')) {
@@ -505,12 +505,12 @@ abstract class ListModel extends Base
         parent::populateState($ordering, $direction);
 
         // Receive & set filters
-        $filters = Application::getUserRequestState($this->context . '.filter', 'filter', [], 'array');
+        $filters = Application::userRequestState($this->context . '.filter', 'filter', [], 'array');
         foreach ($filters as $input => $value) {
             $this->state->set('filter.' . $input, $value);
         }
 
-        $list = Application::getUserRequestState($this->context . '.list', 'list', [], 'array');
+        $list = Application::userRequestState($this->context . '.list', 'list', [], 'array');
         foreach ($list as $input => $value) {
             $this->state->set("list.$input", $value);
         }

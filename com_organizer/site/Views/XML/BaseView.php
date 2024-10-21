@@ -42,7 +42,7 @@ abstract class BaseView
      */
     public function display(string $response = '')
     {
-        $app = Application::getApplication();
+        $app = Application::instance();
 
         // Send xml mime type.
         $app->setHeader('Content-Type', 'text/xml' . '; charset=' . $app->charSet);

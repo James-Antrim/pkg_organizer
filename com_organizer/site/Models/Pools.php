@@ -66,7 +66,7 @@ class Pools extends ListModel
             'DISTINCT ' . DB::qn('p.id'),
             $access,
             DB::qn('p.fieldID'),
-            DB::qn('p.fullName_' . Application::getTag(), 'name'),
+            DB::qn('p.fullName_' . Application::tag(), 'name'),
             $query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')
         ];
 

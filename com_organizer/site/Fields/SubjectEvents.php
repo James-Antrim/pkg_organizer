@@ -29,7 +29,7 @@ class SubjectEvents extends FormField
     {
         $query     = Database::getQuery();
         $subjectID = Input::getID();
-        $tag       = Application::getTag();
+        $tag       = Application::tag();
         $query->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
         Database::setQuery($query);
         $events  = Database::loadAssocList();

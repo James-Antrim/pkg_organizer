@@ -125,7 +125,7 @@ trait Ranges
      */
     protected function addSubordinate(array $data, array $superOrdinates): bool
     {
-        switch (Application::getClass(get_called_class())) {
+        switch (Application::uqClass(get_called_class())) {
             case 'Pool':
                 $range = [
                     'poolID'     => $data['id'],
@@ -253,7 +253,7 @@ trait Ranges
      */
     protected function deleteRanges(int $resourceID): bool
     {
-        $helper = Application::getClass(get_called_class());
+        $helper = Application::uqClass(get_called_class());
         $helper = "THM\\Organizer\\Helpers\\" . $helper;
         $helper = str_ends_with($helper, 's') ? $helper : $helper . 's';
 
@@ -320,7 +320,7 @@ trait Ranges
      */
     protected function ranges(int $resourceID): array
     {
-        $helper = Application::getClass(get_called_class());
+        $helper = Application::uqClass(get_called_class());
         $helper = "THM\\Organizer\\Helpers\\" . $helper;
         $helper = str_ends_with($helper, 's') ? $helper : $helper . 's';
 
@@ -440,7 +440,7 @@ trait Ranges
      */
     protected function subordinates(): array
     {
-        if (Application::getClass(get_called_class()) === 'Subject') {
+        if (Application::uqClass(get_called_class()) === 'Subject') {
             return [];
         }
 
@@ -482,7 +482,7 @@ trait Ranges
      */
     protected function updateSuperOrdinates(): void
     {
-        $class = Application::getClass(get_called_class());
+        $class = Application::uqClass(get_called_class());
         $data  = $this->data;
 
         // Programs cannot have superordinate resources, hard unsupported error.

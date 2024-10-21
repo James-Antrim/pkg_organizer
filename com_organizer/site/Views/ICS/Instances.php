@@ -120,7 +120,7 @@ class Instances
         $left  = date('Ymd') . 'T' . date('His') . date('T');
         $right = $uri->getHost() . $uri->getPath();
 
-        $this->language    = strtoupper(Application::getTag());
+        $this->language    = strtoupper(Application::tag());
         $this->instances   = $model->getItems();
         $this->state       = $model->getState();
         $this->tzID        = date_default_timezone_get();

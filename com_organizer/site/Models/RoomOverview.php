@@ -42,7 +42,7 @@ class RoomOverview extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = Database::getQuery();
 
         $query->select('r.id, r.name AS name, r.effCapacity')
@@ -76,7 +76,7 @@ class RoomOverview extends ListModel
 
         $list = Input::getListItems();
 
-        $date = Application::getUserRequestState("$this->context.list.date", "list_date", '', 'string');
+        $date = Application::userRequestState("$this->context.list.date", "list_date", '', 'string');
         $date = (string) $list->get('date', $date);
         $date = Helpers\Dates::standardize($date);
 
@@ -87,10 +87,10 @@ class RoomOverview extends ListModel
             $this->setState('filter.campusID', $campusID);
         }
 
-        $gridID = Application::getUserRequestState("$this->context.list.gridID", "list_gridID", $defaultGrid, 'int');
+        $gridID = Application::userRequestState("$this->context.list.gridID", "list_gridID", $defaultGrid, 'int');
         $gridID = (int) $list->get('gridID', $gridID);
 
-        $template = Application::getUserRequestState("$this->context.list.template", "list_template", self::DAY, 'int');
+        $template = Application::userRequestState("$this->context.list.template", "list_template", self::DAY, 'int');
         $template = (int) $list->get('template', $template);
 
         $this->setState('list.date', $date);

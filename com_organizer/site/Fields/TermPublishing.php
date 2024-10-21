@@ -29,7 +29,7 @@ class TermPublishing extends FormField
     protected function getInput(): string
     {
         $input      = '';
-        $nameColumn = 'name_' . Application::getTag();
+        $nameColumn = 'name_' . Application::tag();
         $today      = date('Y-m-d');
         $container  = '<div class="publishing-container">XXXX</div>';
 

@@ -48,7 +48,7 @@ class Checkin extends OldFormModel
         // Force component template
         if (Input::getCMD('tmpl') !== 'component') {
             $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
-            Application::getApplication()->redirect(Uri::current() . "?$query");
+            Application::instance()->redirect(Uri::current() . "?$query");
         }
 
         $form    = $this->getForm();

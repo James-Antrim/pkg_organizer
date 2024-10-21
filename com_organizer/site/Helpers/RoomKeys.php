@@ -39,7 +39,7 @@ class RoomKeys extends ResourceHelper implements Selectable
     public static function resources(): array
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $nameColumns = DB::qn(['k.key', "k.name_$tag"]);
         $select      = [

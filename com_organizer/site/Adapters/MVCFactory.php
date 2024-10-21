@@ -80,7 +80,7 @@ class MVCFactory extends Base
      */
     public function createController($name, $prefix, array $config, CMSApplicationInterface $app, JInput $input): Controller
     {
-        $className      = 'THM\Organizer\Controllers\\' . Application::ucClassName($name);
+        $className      = 'THM\Organizer\Controllers\\' . Application::ucClass($name);
         $config['name'] = $name;
         $controller     = new $className($config, $this, $app, $input);
         $this->addDispatcher($controller);
@@ -94,7 +94,7 @@ class MVCFactory extends Base
      */
     public function createModel($name, $prefix = '', array $config = [])
     {
-        $className   = 'THM\Organizer\Models\\' . Application::ucClassName($name);
+        $className   = 'THM\Organizer\Models\\' . Application::ucClass($name);
         $formFactory = $this->getFormFactory();
         $model       = new $className($config, $this, $formFactory);
         $this->addDispatcher($model);
@@ -109,7 +109,7 @@ class MVCFactory extends Base
     public function createView($name, $prefix = '', $type = 'HTML', array $config = []): ViewInterface
     {
         $format = strtoupper(Input::format());
-        $view   = "THM\Organizer\Views\\$format\\" . Application::ucClassName($name);
+        $view   = "THM\Organizer\Views\\$format\\" . Application::ucClass($name);
         $view   = new $view($config);
         $this->addDispatcher($view);
         $this->addFormFactory($view);
@@ -130,7 +130,7 @@ class MVCFactory extends Base
      */
     public function createTable($name, $prefix = '', array $config = []): Table
     {
-        $caller = Application::ucClassName($name);
+        $caller = Application::ucClass($name);
         $table  = str_ends_with($caller, 's') ? $caller : match ($caller) {
             // Unusual plurals
             'Campus' => 'Campuses',

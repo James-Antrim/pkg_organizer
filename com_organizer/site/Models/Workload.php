@@ -402,7 +402,7 @@ class Workload extends FormModel
      */
     private function setMethods(): void
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select("code, name_$tag AS method")->from('#__organizer_methods')->where('relevant = 1');
         DB::setQuery($query);
@@ -426,7 +426,7 @@ class Workload extends FormModel
     private function calculate(): void
     {
         $conditions = $this->conditions;
-        $tag        = Application::getTag();
+        $tag        = Application::tag();
         $query      = Instances::getInstanceQuery($this->conditions);
         $query->select('DISTINCT i.id AS instanceID, u.id AS unitID')
             ->select('b.id AS blockID, b.date, b.dow, b.startTime, b.endTime')
@@ -486,7 +486,7 @@ class Workload extends FormModel
      */
     private function setPrograms(): void
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select("p.id, categoryID, p.degreeID, p.name_$tag AS program, fee, frequencyID, nc, special")
             ->select('d.abbreviation AS degree')

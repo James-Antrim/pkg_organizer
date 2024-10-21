@@ -39,7 +39,7 @@ class InstanceEvents extends Options
             return $options;
         }
 
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = Database::getQuery();
         $query->select("DISTINCT e.id, e.name_$tag AS name, e.organizationID")
             ->from('#__organizer_events AS e');

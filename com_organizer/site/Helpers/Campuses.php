@@ -86,7 +86,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
             return '';
         }
 
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select(DB::qn(["c1.name_$tag", "c2.name_$tag"], ['name', 'parentName']))
             ->from(DB::qn('#__organizer_campuses', 'c1'))
@@ -123,7 +123,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
      */
     public static function resources(): array
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
         $query->select([DB::qn('c1') . '.*', DB::qn("c1.name_$tag", 'name'), DB::qn("c2.name_$tag", 'parentName')])
             ->from(DB::qn('#__organizer_campuses', 'c1'))

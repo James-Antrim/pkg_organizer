@@ -56,6 +56,6 @@ class Grids extends ListController
         }
 
         Application::message($message, $type);
-        $this->setRedirect("$this->baseURL&view=" . strtolower(Application::getClass($this)));
+        $this->setRedirect("$this->baseURL&view=" . strtolower(Application::uqClass($this)));
     }
 }

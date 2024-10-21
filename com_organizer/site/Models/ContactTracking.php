@@ -185,7 +185,7 @@ class ContactTracking extends ListModel
             ->innerJoin('#__organizer_instance_participants AS ipa ON ipa.participantID = p.id')
             ->select('ipa.participantID, ipa.roomID, ipa.seat');
 
-        $tag     = Application::getTag();
+        $tag     = Application::tag();
         $peQuery = Database::getQuery();
         $peQuery->from('#__organizer_persons AS pe')
             ->select('pe.forename AS defaultForename, pe.surname AS defaultSurname')

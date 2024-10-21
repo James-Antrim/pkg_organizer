@@ -81,7 +81,7 @@ abstract class MergeController extends FormController
             $this->setRedirect("$this->baseURL&view=" . strtolower($this->list));
         }
 
-        $this->input->set('view', Application::getClass($this));
+        $this->input->set('view', Application::uqClass($this));
 
         return parent::display($cachable, $urlparams);
     }

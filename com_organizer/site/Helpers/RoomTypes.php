@@ -42,7 +42,7 @@ class RoomTypes extends ResourceHelper implements Selectable
      */
     public static function resources(bool $associated = self::YES, bool $suppressed = self::NO): array
     {
-        $tag    = Application::getTag();
+        $tag    = Application::tag();
         $select = [
             'DISTINCT ' . DB::qn('t') . '.*',
             DB::qn('t.id', 'id'),

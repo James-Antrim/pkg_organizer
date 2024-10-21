@@ -31,7 +31,7 @@ class Holidays extends ListModel
         $hED   = DB::qn('h.endDate');
         $url   = 'index.php?option=com_organizer&view=holiday&id=';
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $access     = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased    = DB::qn(["h.name_$tag", "t.name_$tag"], ['name', 'term']);

@@ -83,7 +83,7 @@ class Input
      */
     public static function format(string $format = ''): string
     {
-        $document  = Application::getDocument();
+        $document  = Application::document();
         $supported = ['html', 'ics', 'json', 'pdf', 'xls', 'xml'];
 
         if ($format and in_array($format, $supported)) {
@@ -186,7 +186,7 @@ class Input
     {
         if (empty(self::$filterItems)) {
             $view     = self::getView();
-            $previous = Application::getSession()->get('registry')->get("com_organizer.$view.filter", []);
+            $previous = Application::session()->get('registry')->get("com_organizer.$view.filter", []);
 
             self::$filterItems = new Registry(self::getArray('filter', $previous));
         }
@@ -300,7 +300,7 @@ class Input
      */
     public static function getItemid(): int
     {
-        $item    = Application::getMenuItem();
+        $item    = Application::menuItem();
         $default = $item ? $item->id : 0;
 
         return (int) self::getInput()->get('Itemid', $default, 'int');
@@ -313,7 +313,7 @@ class Input
     public static function getInput(): Base
     {
         if (empty(self::$input)) {
-            self::$input = Application::getApplication()->input;
+            self::$input = Application::instance()->input;
         }
 
         return self::$input;
@@ -327,7 +327,7 @@ class Input
     {
         if (empty(self::$listItems)) {
             $view            = self::getView();
-            $previous        = Application::getSession()->get('registry')->get("com_organizer.$view.list", []);
+            $previous        = Application::session()->get('registry')->get("com_organizer.$view.list", []);
             self::$listItems = new Registry(self::getArray('list', $previous));
         }
 
@@ -341,9 +341,9 @@ class Input
     public static function getParams(): Registry
     {
         if (empty(self::$params)) {
-            $app          = Application::getApplication();
+            $app          = Application::instance();
             self::$params = method_exists($app, 'getParams') ?
-                $app->getParams() : Application::getParams();
+                $app->getParams() : Application::parameters();
         }
 
         return self::$params;

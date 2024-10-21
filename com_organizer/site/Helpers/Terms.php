@@ -115,7 +115,7 @@ class Terms extends ResourceHelper implements Selectable
      */
     public static function options(bool $showDates = false, bool $filter = false): array
     {
-        $tag     = Application::getTag();
+        $tag     = Application::tag();
         $options = [];
 
         foreach (Terms::resources($filter) as $term) {

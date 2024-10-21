@@ -31,7 +31,7 @@ class Schedules extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query = DB::getQuery();
 
         $aliased      = DB::qn(
@@ -63,7 +63,7 @@ class Schedules extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $filters = Application::getUserRequestState($this->context . '.filter', 'filter', [], 'array');
+        $filters = Application::userRequestState($this->context . '.filter', 'filter', [], 'array');
 
         if (!array_key_exists('active', $filters) or $filters['active'] === '') {
             $this->state->set('filter.active', -1);

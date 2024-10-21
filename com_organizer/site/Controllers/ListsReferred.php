@@ -53,8 +53,8 @@ abstract class ListsReferred extends FormController
      */
     private function setReferrer(): void
     {
-        $class   = strtolower(Application::getClass($this));
-        $session = Application::getSession();
+        $class   = strtolower(Application::uqClass($this));
+        $session = Application::session();
         if (!$session->get("organizer.$class.referrer")) {
             $query = explode('?', Input::getReferrer())[1];
             parse_str($query, $pairs);
@@ -70,9 +70,9 @@ abstract class ListsReferred extends FormController
      */
     private function unsetReferrer(): string
     {
-        $class   = strtolower(Application::getClass($this));
+        $class   = strtolower(Application::uqClass($this));
         $key     = "organizer.$class.referrer";
-        $session = Application::getSession();
+        $session = Application::session();
 
         $referrer = $session->get($key, $this->list);
         $session->set($key, null);

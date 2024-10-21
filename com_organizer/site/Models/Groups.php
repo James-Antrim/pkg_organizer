@@ -29,7 +29,7 @@ class Groups extends ListModel
         $authorized = Organizations::schedulableIDs();
 
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=group&id=';
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];

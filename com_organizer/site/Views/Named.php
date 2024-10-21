@@ -31,7 +31,7 @@ trait Named
     public function getName(): string
     {
         if (empty($this->_name)) {
-            $this->_name = Application::getClass($this);
+            $this->_name = Application::uqClass($this);
         }
 
         return $this->_name;

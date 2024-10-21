@@ -34,7 +34,7 @@ class FilterBar
             return;
         }
 
-        $wam = Application::getDocument()->getWebAssetManager();
+        $wam = Application::document()->getWebAssetManager();
 
         foreach ($filters as $fieldName => $field) {
             if ($fieldName !== 'filter_search') {

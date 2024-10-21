@@ -39,7 +39,7 @@ class GenericOptions extends Options
 
         // SELECT
         $textColumns = explode(',', $textColumn);
-        $tag         = $this->getAttribute('localized', false) ? '_' . Application::getTag() : '';
+        $tag         = $this->getAttribute('localized', false) ? '_' . Application::tag() : '';
 
         foreach ($textColumns as $key => $value) {
             $textColumns[$key] = DB::qn($value . $tag);

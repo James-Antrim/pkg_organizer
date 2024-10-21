@@ -55,7 +55,7 @@ class Units extends ListModel
         $modified = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
         $termID   = $this->state->get('filter.termID');
         $query    = DB::getQuery();
-        $tag      = Application::getTag();
+        $tag      = Application::tag();
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["g.name_$tag", "m.name_de", 'u.delta'], ['grid', 'method', 'status']);

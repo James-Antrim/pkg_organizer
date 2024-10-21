@@ -68,7 +68,7 @@ class Form extends Base
             $default = (string) ($element['default'] ? $element['default'] : $element->default);
 
             if (($translate = $element['translate_default']) && ((string) $translate === 'true' || (string) $translate === '1')) {
-                $lang = Application::getLanguage();
+                $lang = Application::language();
 
                 if ($lang->hasKey($default)) {
                     $debug   = $lang->setDebug(false);
@@ -126,7 +126,7 @@ class Form extends Base
 
             // Instantiate the form.
             $factory = new FormFactory();
-            $factory->setDatabase(Application::getDB());
+            $factory->setDatabase(Application::database());
             $forms[$name] = $factory->createForm($name, $options);
 
             // Load the data.

@@ -32,7 +32,7 @@ class Checkin extends Controller
 
         if (!User::id()) {
             /** @var CMSApplication $app */
-            $app = Application::getApplication();
+            $app = Application::instance();
             $app->login(['username' => $data['username'], 'password' => $data['password']]);
             $session->set('organizer.checkin.username', $data['username']);
         }

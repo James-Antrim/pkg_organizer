@@ -217,7 +217,7 @@ class Instances extends ListView
     private function getBlocks(array $periods, bool &$allDay): array
     {
         $blocks = [];
-        $tag    = Application::getTag();
+        $tag    = Application::tag();
 
         foreach ($periods as $period) {
             $block              = [];

@@ -52,14 +52,14 @@ class User
     public static function instance(int|string $userID = 0): Instance
     {
         /** @var UserFactory $userFactory */
-        $userFactory = Application::getContainer()->get(UserFactoryInterface::class);
+        $userFactory = Application::container()->get(UserFactoryInterface::class);
 
         // Get a specific user.
         if ($userID) {
             return is_int($userID) ? $userFactory->loadUserById($userID) : $userFactory->loadUserByUsername($userID);
         }
 
-        $current = Application::getApplication()->getIdentity();
+        $current = Application::instance()->getIdentity();
 
         // Enforce type consistency, by overwriting the potential null from getIdentity.
         return $current ?: $userFactory->loadUserById(0);

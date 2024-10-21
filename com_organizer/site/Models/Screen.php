@@ -96,12 +96,12 @@ class Screen extends BaseModel
             }
         }
         else {
-            Application::getApplication()->redirect('index.php', 400);
+            Application::instance()->redirect('index.php', 400);
         }
 
         if (Input::getCMD('tmpl') !== 'component') {
             $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
-            Application::getApplication()->redirect(Uri::root() . "?$query");
+            Application::instance()->redirect(Uri::root() . "?$query");
         }
 
         $gridLayouts  = ['current_instances', 'upcoming_instances'];
@@ -149,7 +149,7 @@ class Screen extends BaseModel
     private function setInstances()
     {
         $query = Database::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
         $query->select('DISTINCT i.id')
             ->select('b.date, b.endTime, b.startTime')
             ->select("e.id AS eventID, e.name_$tag AS event")

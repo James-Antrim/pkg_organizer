@@ -89,7 +89,7 @@ class Organizer extends Controller
     private function deprecatedPlanning(): void
     {
         $iTable = DB::qn('#__organizer_instances', 'i');
-        $tag    = Application::getTag();
+        $tag    = Application::tag();
 
         // Units unreferenced by instances.
         $query = DB::getQuery();
@@ -252,7 +252,7 @@ class Organizer extends Controller
      */
     private function inactivePeople(): void
     {
-        if (Application::getParams('plg_user_joomla')->get('mail_to_user')) {
+        if (Application::parameters('plg_user_joomla')->get('mail_to_user')) {
             Application::message('USER_PLUGIN_NOTIFICATIONS_ACTIVE', Application::WARNING);
             return;
         }

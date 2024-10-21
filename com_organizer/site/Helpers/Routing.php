@@ -31,8 +31,8 @@ class Routing
         }
 
         // If the menu is plausible redirect
-        if ($menuID = Input::getItemid() and !Application::getMenuItem($menuID)->home) {
-            return $base . Application::getMenuItem($menuID)->route . '?';
+        if ($menuID = Input::getItemid() and !Application::menuItem($menuID)->home) {
+            return $base . Application::menuItem($menuID)->route . '?';
         }
 
         return "$base?option=com_organizer";

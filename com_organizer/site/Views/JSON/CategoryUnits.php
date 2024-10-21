@@ -30,7 +30,7 @@ class CategoryUnits extends BaseView
         $date         = $this->getDate();
         $groups       = [];
         $interval     = $this->getInterval();
-        $nameProperty = 'name_' . Application::getTag();
+        $nameProperty = 'name_' . Application::tag();
 
         $active     = Input::getBool('active', true);
         $categoryID = Input::getInt('categoryID');

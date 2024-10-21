@@ -21,7 +21,7 @@ $direction = $this->escape($this->state->get('list.direction'));
 $orderBy   = $this->escape($this->state->get('list.ordering'));
 
 if (count($this->headers) > 4) {
-    $wa = Application::getDocument()->getWebAssetManager();
+    $wa = Application::document()->getWebAssetManager();
     $wa->useScript('table.columns');
 }
 

@@ -108,7 +108,7 @@ class Organizations extends Table
      */
     public function __construct(DatabaseInterface $dbo = null)
     {
-        $dbo = $dbo ?? Application::getDB();
+        $dbo = $dbo ?? Application::database();
 
         /** @var DatabaseDriver $dbo */
         parent::__construct('#__organizer_organizations', 'id', $dbo);
@@ -137,7 +137,7 @@ class Organizations extends Table
      */
     protected function _getAssetParentId(JTable $table = null, $id = null): int
     {
-        $asset = new Asset(Application::getDB());
+        $asset = new Asset(Application::database());
         $asset->loadByName('com_organizer');
 
         return $asset->id;

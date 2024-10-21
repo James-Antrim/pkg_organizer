@@ -99,7 +99,7 @@ class Mailer
 
         $userParams = json_decode($user->params);
         if (empty($userParams->language)) {
-            $tag = Application::getTag();
+            $tag = Application::tag();
         }
         else {
             // TODO see what variable Joomla needs set here and set it.

@@ -270,7 +270,7 @@ class OrganizationOccupancy extends BaseModel
      */
     private function setData(int $roomID)
     {
-        $tag     = Application::getTag();
+        $tag     = Application::tag();
         $cSelect = "c.schedule_date AS date, TIME_FORMAT(c.startTime, '%H:%i') AS startTime, ";
         $cSelect .= "TIME_FORMAT(c.endTime, '%H:%i') AS endTime";
 
@@ -330,7 +330,7 @@ class OrganizationOccupancy extends BaseModel
     private function setRoomTypes()
     {
         $query = DB::getQuery();
-        $tag   = Application::getTag();
+        $tag   = Application::tag();
 
         $query->select("id, name_$tag AS name, description_$tag AS description");
         $query->from('#__organizer_roomtypes');
