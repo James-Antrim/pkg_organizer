@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
-use THM\Organizer\Views\HTML\ListView;
+use THM\Organizer\Views\HTML\{GridView, ListView};
 
 /**
  * Creates the HTML 'list' bar element, where list formatting elements and filters which should always be displayed are
@@ -21,9 +21,9 @@ class ListHidden
     /**
      * Renders any hidden fields specific to this list.
      *
-     * @param   ListView  $view
+     * @param   GridView|ListView  $view
      */
-    public static function render(ListView $view): void
+    public static function render(GridView|ListView $view): void
     {
         if (empty($view->filterForm)) {
             return;

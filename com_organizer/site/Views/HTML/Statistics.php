@@ -11,24 +11,17 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\View\HtmlView;
-use Joomla\Registry\Registry;
 use THM\Organizer\Adapters\{Document, Form, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
  * Class loads statistical information about appointments into the display context.
  */
-class Statistics extends OldFormView
+class Statistics extends GridView
 {
     public const METHOD_USE = 1, PLANNED_PRESENCE_TYPE = 2, PRESENCE_USE = 3, REGISTRATIONS = 4;
 
-    public Form $filterForm;
-
     public array $grid;
-
-    protected string $layout = 'statistics-wrapper';
-
-    public Registry $state;
 
     /**
      * @inheritDoc
@@ -68,9 +61,9 @@ class Statistics extends OldFormView
      */
     protected function modifyDocument(): void
     {
-        BaseView::modifyDocument();
+        parent::modifyDocument();
 
-        Document::script('statistics');
+        //Document::script('statistics');
         //Document::style('statistics');
     }
 
@@ -95,5 +88,13 @@ class Statistics extends OldFormView
         };
 
         $this->subtitle = $text ? "<h4>$text</h4>" : $text;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function initializeColumns(): void
+    {
+        // TODO: Implement initializeColumns() method.
     }
 }

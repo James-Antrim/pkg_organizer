@@ -11,7 +11,7 @@
 namespace THM\Organizer\Layouts\HTML;
 
 use Joomla\CMS\Language\Text;
-use THM\Organizer\Views\HTML\ListView;
+use THM\Organizer\Views\HTML\{GridView, ListView};
 
 /**
  * Class renders a message pertaining to an empty result set for the list view.
@@ -21,7 +21,7 @@ class EmptyList
     /**
      * Renders a notice for an empty result set.
      */
-    public static function render(ListView $view): void
+    public static function render(GridView|ListView $view): void
     {
         ?>
         <div class="alert alert-info">

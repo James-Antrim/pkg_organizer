@@ -18,7 +18,7 @@ use THM\Organizer\Views\HTML\Statistics as View;
 /**
  * Class calculates lesson statistics and loads them into the view context.
  */
-class Statistics extends OldFormModel
+class Statistics extends GridModel
 {
     /**
      * Authorizes the user.
@@ -663,11 +663,8 @@ class Statistics extends OldFormModel
         return $form;
     }
 
-    /**
-     * Method to auto-populate the model state.
-     * @return void
-     */
-    protected function populateState(): void
+    /** @inheritDoc */
+    protected function populateState($ordering = null, $direction = null): void
     {
         $conditions = Application::userRequestState($this->context . '.conditions', 'jform', [], 'array');
         foreach ($conditions as $input => $value) {

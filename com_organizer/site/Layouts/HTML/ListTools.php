@@ -11,7 +11,7 @@
 namespace THM\Organizer\Layouts\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML};
-use THM\Organizer\Views\HTML\ListView;
+use THM\Organizer\Views\HTML\{GridView, ListView};
 
 /**
  * Creates the HTML element with list filtering, formatting and search control elements.
@@ -21,9 +21,9 @@ class ListTools
     /**
      * Renders list headers.
      *
-     * @param   ListView  $view  the view being displayed
+     * @param   GridView|ListView  $view  the view being displayed
      */
-    public static function render(ListView $view): void
+    public static function render(GridView|ListView $view): void
     {
         if (empty($view->filterForm)) {
             return;
