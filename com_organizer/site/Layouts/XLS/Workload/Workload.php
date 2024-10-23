@@ -11,13 +11,14 @@
 namespace THM\Organizer\Layouts\XLS\Workload;
 
 use Exception;
+use PHPExcel_Exception;
+use PHPExcel_Worksheet_Drawing;
 use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\XLS\BaseLayout;
+use THM\Organizer\Models\Workload as Model;
 use THM\Organizer\Views\XLS\BaseView;
 use THM\Organizer\Views\XLS\XLConstants;
-use PHPExcel_Exception;
-use PHPExcel_Worksheet_Drawing;
 
 /**
  * Class generates the room statistics XLS file.
@@ -649,7 +650,10 @@ class Workload extends BaseLayout
 
         $row = 2;
 
-        foreach ($this->view->model->methods as $code => $method) {
+        /** @var Model $model */
+        $model = $view->model;
+
+        foreach ($model->methods as $code => $method) {
             $sheet->setCellValue("A$row", $code);
             $sheet->setCellValue("B$row", $method);
 
@@ -694,7 +698,10 @@ class Workload extends BaseLayout
 
         $row = 2;
 
-        foreach ($this->view->model->programs as $name => $program) {
+        /** @var Model $model */
+        $model = $view->model;
+
+        foreach ($model->programs as $name => $program) {
             $sheet->setCellValue("A$row", $name);
 
             if ($program['frequencyID']) {
@@ -849,6 +856,7 @@ class Workload extends BaseLayout
 
         $this->addColumnHeader("M$startRow", "M$endRow", "Gemeldetes\nDeputat\n(SWS)", $comments, 105);
 
+        /** @var Model $model */
         $model = $this->view->model;
         $row   = $row + 5;
         $start = $row;
@@ -948,11 +956,10 @@ class Workload extends BaseLayout
         $this->addColumnHeader("M$startRow", "M$endRow", "Gemeldetes\nDeputat\n(SWS)");
         $row = $endRow + 1;
 
+        /** @var Model $model */
         $model = $this->view->model;
 
         $startRow = $row;
-        $diploma  = ['text' => 'Betreuung von Diplomarbeit(en) ', 'weight' => .4, 'value' => $model->diplomas];
-        $this->addSupervisionRow($row++, $diploma);
         $bachelor = ['text' => 'Betreuung von Bachelorarbeit(en) ', 'weight' => .3, 'value' => $model->bachelors];
         $this->addSupervisionRow($row++, $bachelor);
         $master = ['text' => 'Betreuung von Masterarbeit(en)', 'weight' => .6, 'value' => $model->masters];

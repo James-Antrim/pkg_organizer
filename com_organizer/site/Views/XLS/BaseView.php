@@ -14,25 +14,25 @@ require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
 
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\CMS\MVC\Model\{BaseDatabaseModel, ModelInterface};
+use Joomla\CMS\MVC\View\ViewInterface;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Worksheet;
-use THM\Organizer\Adapters\{Input, User};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Layouts\XLS\BaseLayout;
-use THM\Organizer\Models\BaseModel;
 use THM\Organizer\Views\Named;
 
 /**
  * Base class for a Joomla View
  * Class holding methods for displaying presentation data.
  */
-abstract class BaseView extends PHPExcel
+abstract class BaseView extends PHPExcel implements ViewInterface
 {
     use Named;
 
     protected BaseLayout $layout;
-    public BaseModel $model;
+    public ModelInterface $model;
 
     /**
      * @inheritDoc
@@ -44,12 +44,11 @@ abstract class BaseView extends PHPExcel
         $name = $this->getName();
 
         $layout = Input::getCMD('layout', $name);
-        $layout = Helpers\OrganizerHelper::classDecode($layout);
+        $layout = Application::ucClass($layout);
         $layout = "THM\\Organizer\\Layouts\\XLS\\$name\\$layout";
-        $model  = "THM\\Organizer\\Models\\$name";
 
         $this->layout = new $layout($this);
-        $this->model  = new $model();
+        $this->model  = Application::factory()->createModel(Application::uqClass($this));
 
         $properties = $this->getProperties();
         $properties->setCreator('Organizer');
@@ -86,13 +85,24 @@ abstract class BaseView extends PHPExcel
 
     /**
      * Sets context variables and renders the view.
+     *
+     * @param   string|null  $tpl
+     *
      * @return void
      * @throws Exception
      */
-    public function display(): void
+    public function display($tpl = null): void
     {
         $this->layout->fill();
         $this->render();
+    }
+
+    /** @inheritDoc */
+    public function getModel($name = null): BaseDatabaseModel
+    {
+        /** @var BaseDatabaseModel $model */
+        $model = $this->model;
+        return $model;
     }
 
     /**
@@ -100,7 +110,7 @@ abstract class BaseView extends PHPExcel
      * @return void
      * @throws Exception
      */
-    #[NoReturn] protected function render(): void
+    protected function render(): void
     {
         $documentTitle = ApplicationHelper::stringURLSafe($this->getProperties()->getTitle());
         $objWriter     = PHPExcel_IOFactory::createWriter($this, 'Excel2007');

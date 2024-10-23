@@ -86,6 +86,8 @@ class Workload extends FormModel
             Application::error(400);
         }
 
+        $this->programs();
+
         parent::__construct($config, $factory, $formFactory);
     }
 
@@ -96,7 +98,7 @@ class Workload extends FormModel
      *
      * @return array[]
      */
-    private function aggregateByBlock(array $units): array
+    private function byBlock(array $units): array
     {
         $count = count($units);
 
@@ -141,7 +143,7 @@ class Workload extends FormModel
      *
      * @return void
      */
-    private function aggregateByDate(array &$items): void
+    private function byDate(array &$items): void
     {
         $count = count($items);
 
@@ -173,7 +175,7 @@ class Workload extends FormModel
      *
      * @return void
      */
-    private function aggregateByEvent(array &$items): void
+    private function byEvent(array &$items): void
     {
         $count = count($items);
 
@@ -215,7 +217,7 @@ class Workload extends FormModel
      *
      * @return array[]
      */
-    private function aggregateByUnit(array $instances): array
+    private function byUnit(array $instances): array
     {
         $units = [];
 
@@ -281,6 +283,83 @@ class Workload extends FormModel
 
         // Replace the actual unit ids which complicate iteration.
         return array_values($units);
+    }
+
+    /**
+     * Creates workload entry items.
+     *
+     * @return void
+     */
+    private function calculate(): void
+    {
+        $conditions = $this->conditions;
+        $tag        = Application::tag();
+
+        $aliased     = DB::qn(['b.id', 'e.id', "e.name_$tag", 'm.code', 'u.id'],
+            ['blockID', 'eventID', 'event', 'method', 'unitID']);
+        $mConditions = DB::qc('m.id', 'i.methodID');
+        $mTable      = DB::qn('#__organizer_methods', 'm');
+        $order       = DB::qn(['b.date', 'b.startTime', 'b.endTime']);
+        $restriction = DB::qcs([['ipe.roleID', 1], ['m.relevant', 1]]);
+        $selected    = DB::qn(['b.date', 'b.dow', 'b.endTime', 'b.startTime', 'e.code', 'e.subjectNo']);
+
+        $query = Instances::getInstanceQuery($this->conditions);
+        $query->select(array_merge(['DISTINCT ' . DB::qn('i.id', 'instanceID')], $aliased, $selected))
+            ->innerJoin($mTable, $mConditions)
+            ->order($order)
+            ->where($restriction);
+        DB::setQuery($query);
+        $instances = DB::loadAssocList('instanceID');
+
+        $aliased = DB::qn(
+            ['d.abbreviation', "g.name_$tag", 'i.id', "o.shortName_$tag", "p.name_$tag"],
+            ['degree', 'group', 'instanceID', 'organization', 'program']
+        );
+
+        $query = Instances::getInstanceQuery($this->conditions);
+        $query->select(array_merge(['a.organizationID'], $aliased))
+            ->innerJoin($mTable, $mConditions)
+            ->leftJoin(DB::qn('#__organizer_programs', 'p'), DB::qc('p.categoryID', 'g.categoryID'))
+            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->leftJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.programID', 'p.id'))
+            ->leftJoin(DB::qn('#__organizer_organizations', 'o'), DB::qc('o.id', 'a.organizationID'))
+            ->order($order)
+            ->where($restriction);
+        Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
+        DB::setQuery($query);
+
+        $this->supplement($instances, DB::loadAssocList());
+        $units      = $this->byUnit($instances);
+        $aggregates = $this->byBlock($units);
+        $this->byEvent($aggregates);
+        $this->byDate($aggregates);
+        $items = $this->itemize($aggregates);
+        $this->structureOutliers($items);
+        $this->structureRepeaters($items);
+
+        $this->items = $items;
+    }
+
+    /**
+     * Builds the array of parameters used for instance retrieval.
+     *
+     * @return void
+     */
+    private function conditions(): void
+    {
+        $termID = Input::getInt('termID', Terms::currentID());
+
+        $conditions              = [];
+        $conditions['date']      = Terms::startDate($termID);
+        $conditions['delta']     = false;
+        $conditions['endDate']   = Terms::endDate($termID);
+        $conditions['interval']  = 'term';
+        $conditions['my']        = false;
+        $conditions['personIDs'] = [$this->personID];
+        $conditions['startDate'] = $conditions['date'];
+        $conditions['status']    = self::CURRENT_ITEMS;
+
+        $this->conditions = $conditions;
     }
 
     /** @inheritDoc */
@@ -374,37 +453,17 @@ class Workload extends FormModel
     }
 
     /**
-     * Builds the array of parameters used for instance retrieval.
-     *
-     * @return void
-     */
-    private function setConditions(): void
-    {
-        $termID = Input::getInt('termID', Terms::currentID());
-
-        $conditions              = [];
-        $conditions['date']      = Terms::startDate($termID);
-        $conditions['delta']     = false;
-        $conditions['endDate']   = Terms::endDate($termID);
-        $conditions['interval']  = 'term';
-        $conditions['my']        = false;
-        $conditions['personIDs'] = [$this->personID];
-        $conditions['startDate'] = $conditions['date'];
-        $conditions['status']    = self::CURRENT_ITEMS;
-
-        $this->conditions = $conditions;
-    }
-
-    /**
      * Sets program data.
      *
      * @return void
      */
-    private function setMethods(): void
+    private function methods(): void
     {
         $tag   = Application::tag();
         $query = DB::getQuery();
-        $query->select("code, name_$tag AS method")->from('#__organizer_methods')->where('relevant = 1');
+        $query->select([DB::qn('code'), DB::qn("name_$tag", 'method')])
+            ->from(DB::qn('#__organizer_methods'))
+            ->where(DB::qc('relevant', 1));
         DB::setQuery($query);
 
         $methods = [];
@@ -419,63 +478,15 @@ class Workload extends FormModel
     }
 
     /**
-     * Creates workload entry items.
-     *
-     * @return void
-     */
-    private function calculate(): void
-    {
-        $conditions = $this->conditions;
-        $tag        = Application::tag();
-        $query      = Instances::getInstanceQuery($this->conditions);
-        $query->select('DISTINCT i.id AS instanceID, u.id AS unitID')
-            ->select('b.id AS blockID, b.date, b.dow, b.startTime, b.endTime')
-            ->select("e.id AS eventID, e.code, e.name_$tag AS event, e.subjectNo")
-            ->select('m.code AS method')
-            ->innerJoin('#__organizer_methods AS m ON m.id = i.methodID')
-            ->order('b.date, b.startTime, b.endTime')
-            ->where('ipe.roleID = 1')
-            ->where('m.relevant = 1');
-        DB::setQuery($query);
-        $instances = DB::loadAssocList('instanceID');
-
-        $query = Instances::getInstanceQuery($this->conditions);
-        $query->select("i.id AS instanceID, g.name_$tag AS 'group'")
-            ->select("a.organizationID, o.shortName_$tag AS organization")
-            ->select("p.name_$tag AS program, d.abbreviation AS degree")
-            ->innerJoin('#__organizer_methods AS m ON m.id = i.methodID')
-            ->leftJoin('#__organizer_programs AS p ON p.categoryID = g.categoryID')
-            ->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-            ->leftJoin('#__organizer_associations AS a ON a.programID = p.id')
-            ->leftJoin('#__organizer_organizations AS o ON o.id = a.organizationID')
-            ->order('b.date, b.startTime, b.endTime')
-            ->where('ipe.roleID = 1')
-            ->where('m.relevant = 1');
-        Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
-        DB::setQuery($query);
-
-        $this->supplement($instances, DB::loadAssocList());
-        $units      = $this->aggregateByUnit($instances);
-        $aggregates = $this->aggregateByBlock($units);
-        $this->aggregateByEvent($aggregates);
-        $this->aggregateByDate($aggregates);
-        $items = $this->itemize($aggregates);
-        $this->structureOutliers($items);
-        $this->structureRepeaters($items);
-
-        $this->items = $items;
-    }
-
-    /**
      * Set dynamic data.
      *
      * @return void
      */
     public function setUp(): void
     {
-        $this->setPrograms();
-        $this->setMethods();
-        $this->setConditions();
+        $this->programs();
+        $this->methods();
+        $this->conditions();
         $this->calculate();
     }
 
@@ -484,15 +495,15 @@ class Workload extends FormModel
      *
      * @return void
      */
-    private function setPrograms(): void
+    private function programs(): void
     {
-        $tag   = Application::tag();
-        $query = DB::getQuery();
-        $query->select("p.id, categoryID, p.degreeID, p.name_$tag AS program, fee, frequencyID, nc, special")
-            ->select('d.abbreviation AS degree')
-            ->from('#__organizer_programs AS p')
-            ->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-            ->where('active = 1');
+        $aliased = DB::qn(['p.name_' . Application::tag(), 'd.abbreviation'], ['program', 'degree']);
+        $select  = DB::qn(['p.id', 'categoryID', 'p.degreeID', 'fee', 'frequencyID', 'nc', 'special']);
+        $query   = DB::getQuery();
+        $query->select(array_merge($select, $aliased))
+            ->from(DB::qn('#__organizer_programs', 'p'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->where(DB::qc('active', 1));
         DB::setQuery($query);
 
         $results = DB::loadAssocList();

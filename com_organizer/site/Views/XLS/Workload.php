@@ -10,6 +10,8 @@
 
 namespace THM\Organizer\Views\XLS;
 
+use THM\Organizer\Models\Workload as Model;
+
 /**
  * Class creates a XLS file for the display of the filtered schedule information.
  */
@@ -22,6 +24,8 @@ class Workload extends BaseView
     {
         parent::__construct();
 
-        $this->model->setUp();
+        /** @var Model $model */
+        $model = $this->model;
+        $model->setUp();
     }
 }
