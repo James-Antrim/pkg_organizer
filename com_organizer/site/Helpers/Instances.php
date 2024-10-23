@@ -916,8 +916,10 @@ class Instances extends ResourceHelper
                 ->innerJoin(DB::qn('#__organizer_units', 'u2'), DB::qc('u2.id', 'i2.unitID'))
                 ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe2'), DB::qc('ipe2.instanceID', 'i2.id'))
                 ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig2'), DB::qc('ig2.assocID', 'ipe2.id'))
-                ->innerJoin(DB::qn('#__organizer_group_publishing', 'gp'), DB::qc('gp.groupID',
-                    'ig2.groupID AND gp.termID', 'u2.termID'))
+                ->innerJoin(
+                    DB::qn('#__organizer_group_publishing', 'gp'),
+                    DB::qcs([['gp.groupID', 'ig2.groupID'], ['gp.termID', 'u2.termID']])
+                )
                 ->where("gp.published = 0")
                 ->where("i2.delta != 'removed'")
                 ->where("ig2.delta != 'removed'")
