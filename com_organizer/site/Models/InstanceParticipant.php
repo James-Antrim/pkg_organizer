@@ -453,7 +453,7 @@ class InstanceParticipant extends BaseModel
 
         if (!Can::manageTheseOrganizations() and !Instances::teaches($instanceID))
         {
-            OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $participants = Instances::getParticipantIDs($instanceID);

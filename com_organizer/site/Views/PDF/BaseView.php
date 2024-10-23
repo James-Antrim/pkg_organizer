@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpUnused */
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -8,7 +8,8 @@
  * @link        www.thm.de
  */
 
-/** @noinspection PhpTooManyParametersInspection */
+/** @noinspection PhpUnused TCPDF Constants spread across multiple files are aggregated here for potential use. */
+/** @noinspection PhpTooManyParametersInspection TCPDF function calls have an obscene number of parameters. */
 
 namespace THM\Organizer\Views\PDF;
 
@@ -106,7 +107,7 @@ abstract class BaseView extends TCPDF implements ViewInterface
 
         $name   = $this->getName();
         $layout = Input::getCMD('layout', $name);
-        $layout = Helpers\OrganizerHelper::classDecode($layout);
+        $layout = Application::uqClass($layout);
         $layout = "THM\\Organizer\\Layouts\\PDF\\$name\\$layout";
 
         $this->layout = new $layout($this);

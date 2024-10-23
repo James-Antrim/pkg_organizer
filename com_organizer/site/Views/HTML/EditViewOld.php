@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use THM\Organizer\Adapters\{Input, Toolbar};
-use THM\Organizer\Helpers;
+use stdClass;
+use THM\Organizer\Adapters\{Application, Input, Toolbar};
 use THM\Organizer\Models\EditModelOld;
 
 /**
@@ -20,7 +20,7 @@ use THM\Organizer\Models\EditModelOld;
  */
 abstract class EditViewOld extends OldFormView
 {
-    public $item = null;
+    public stdClass|null $item = null;
 
     /**
      * @var EditModelOld
@@ -32,9 +32,9 @@ abstract class EditViewOld extends OldFormView
      */
     protected function addToolBar(): void
     {
-        $resource   = Helpers\OrganizerHelper::classEncode($this->getName());
+        $resource   = Application::ucClass($this->getName());
         $constant   = strtoupper($resource);
-        $controller = Helpers\OrganizerHelper::getPlural($resource);
+        $controller = $this->getName();
 
         if ($this->item->id) {
             $title = "ORGANIZER_{$constant}_EDIT";
@@ -45,8 +45,8 @@ abstract class EditViewOld extends OldFormView
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', 'sevetextfrombutton', "$controller.save", false);
-        $toolbar->appendButton('Standard', 'cancel', 'canceltextfrombutton', "$controller.cancel", false);
+        $toolbar->appendButton('Standard', 'save', 'SAVE_BUTTON_CONSTANT', "$controller.save", false);
+        $toolbar->appendButton('Standard', 'cancel', 'CANCEL_BUTTON_CONSTANT', "$controller.cancel", false);
     }
 
     /**
