@@ -120,28 +120,6 @@ abstract class GridView extends Base
     }
 
     /**
-     * Generates a string containing attribute information for an HTML element to be output
-     *
-     * @param   mixed &$element  the element being processed
-     *
-     * @return string the HTML attribute output for the item
-     */
-    public function getAttributesOutput(array &$element): string
-    {
-        $output = '';
-
-        $relevant = (!empty($element['attributes']) and is_array($element['attributes']));
-        if ($relevant) {
-            foreach ($element['attributes'] as $attribute => $attributeValue) {
-                $output .= $attribute . '="' . $attributeValue . '" ';
-            }
-        }
-        unset($element['attributes']);
-
-        return $output;
-    }
-
-    /**
      * Initializes the headers after the form and state properties have been initialized.
      * @return void
      */
@@ -152,14 +130,13 @@ abstract class GridView extends Base
      */
     protected function initializeView(): void
     {
-        // TODO: check submenu viability
-
         parent::initializeView();
 
         $this->empty = $this->empty ?: Text::_('EMPTY_RESULT_SET');
 
         $this->setSubTitle();
         $this->setSupplement();
+        $this->grid = $this->get('Grid');
         $this->completeItems();
         $this->initializeColumns();
         $this->modifyDocument();

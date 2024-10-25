@@ -54,23 +54,23 @@ require_once 'titles.php';
                     <tr>
                         <?php
                         foreach ($this->headers as $header) {
-                            $colAttributes = $this->getAttributesOutput($header);
+                            $colAttributes = HTML::attributes($header);
                             $colValue      = is_array($header) ? $header['value'] : $header;
                             echo "<th $colAttributes>$colValue</th>";
                         }
                         ?>
                     </tr>
                     </thead>
-                    <tbody <?php echo $this->getAttributesOutput($items); ?>>
+                    <tbody <?php echo HTML::attributes($items); ?>>
                     <?php foreach ($items as $row) : ?>
-                        <tr <?php echo $this->getAttributesOutput($row); ?>>
+                        <tr <?php echo HTML::attributes($row); ?>>
                             <?php
                             foreach ($row as $key => $column) {
                                 if ($key === 'attributes') {
                                     continue;
                                 }
 
-                                $colAttributes = $this->getAttributesOutput($column);
+                                $colAttributes = HTML::attributes($column);
                                 $colValue      = is_array($column) ? $column['value'] : $column;
                                 echo "<td $colAttributes>$colValue</td>";
                             }

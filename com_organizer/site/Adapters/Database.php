@@ -396,6 +396,8 @@ class Database
         $return = [];
 
         foreach ($conditions as $condition) {
+            $operator = '';
+            $literal  = false;
             switch (count($condition)) {
                 case 4:
                     [$leftColumn, $rightColumn, $operator, $literal] = $condition;

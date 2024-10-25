@@ -23,6 +23,28 @@ use stdClass;
 class HTML extends HTMLHelper
 {
     /**
+     * Generates a string containing attribute information for an HTML element to be output
+     *
+     * @param   mixed &$element  the element being processed
+     *
+     * @return string the HTML attribute output for the item
+     */
+    public static function attributes(array &$element): string
+    {
+        $output = '';
+
+        $relevant = (!empty($element['attributes']) and is_array($element['attributes']));
+        if ($relevant) {
+            foreach ($element['attributes'] as $attribute => $attributeValue) {
+                $output .= $attribute . '="' . $attributeValue . '" ';
+            }
+        }
+        unset($element['attributes']);
+
+        return $output;
+    }
+
+    /**
      * Method to check all checkboxes in a resource table.
      * @return  string
      * @see Grid::checkall()

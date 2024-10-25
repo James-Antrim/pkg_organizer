@@ -48,8 +48,5 @@ abstract class GridModel extends Base
     {
         parent::populateState($ordering, $direction);
         $this->setFilters();
-
-        $this->state->set('list.limit', 0);
-        $this->state->set('list.start', 0);
     }
 }

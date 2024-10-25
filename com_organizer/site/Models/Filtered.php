@@ -402,6 +402,5 @@ trait Filtered
         foreach ($list as $input => $value) {
             $this->state->set("list.$input", $value);
         }
-
     }
 }
