@@ -12,7 +12,6 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\View\ListView as Base;
 use Joomla\CMS\Uri\Uri;
-use stdClass;
 use THM\Organizer\Adapters\{Document, Text};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers\Can;
@@ -29,10 +28,10 @@ abstract class GridView extends Base
     /** @var string The default text for an empty result set. */
     public string $empty = '';
     /**
-     * The header information to display indexed by the referenced attribute.
+     * A multidimensional array structuring the retrieved data into a grid for display.
      * @var array
      */
-    public array $headers = [];
+    public array $grid = [];
     protected string $layout = 'grid';
     /** @var array the open items. */
     public array $toDo = [];
@@ -79,51 +78,16 @@ abstract class GridView extends Base
     }
 
     /**
-     * Readies an item for output.
-     *
-     * @param   int       $index  the current iteration number
-     * @param   stdClass  $item   the current item being iterated
-     * @param   array     $options
-     *
+     * Fills a grid structure as appropriate in the inheriting view.
      * @return void
      */
-    protected function completeItem(int $index, stdClass $item, array $options = []): void
-    {
-        // Overridable as needed.
-    }
+    abstract protected function fill(): void;
 
     /**
-     * Processes items for output.
-     *
-     * @param   array  $options
-     *
+     * Creates a grid structure as appropriate in the inheriting view.
      * @return void
      */
-    protected function completeItems(array $options = []): void
-    {
-        $index = 0;
-
-        foreach ($this->items as $item) {
-            $this->completeItem($index, $item, $options);
-            $index++;
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function display($tpl = null): void
-    {
-        $this->authorize();
-
-        parent::display($tpl);
-    }
-
-    /**
-     * Initializes the headers after the form and state properties have been initialized.
-     * @return void
-     */
-    abstract protected function initializeColumns(): void;
+    abstract protected function grid(): void;
 
     /**
      * @inheritDoc
@@ -136,9 +100,8 @@ abstract class GridView extends Base
 
         $this->setSubTitle();
         $this->setSupplement();
-        $this->grid = $this->get('Grid');
-        $this->completeItems();
-        $this->initializeColumns();
+        $this->grid();
+        $this->fill();
         $this->modifyDocument();
     }
 
