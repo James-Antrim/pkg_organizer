@@ -51,35 +51,52 @@ class ListHeaders
     public static function render(ListView $view): void
     {
         $state     = $view->get('state');
-        $direction = $view->escape($state->get('list.direction', 'ASC'));
+        $direction = $view->escape($state->get('list.direction'));
         $column    = $view->escape($state->get('list.ordering'));
 
-        ?>
-        <thead>
-        <tr>
-            <?php
-            foreach ($view->headers as $header) {
-                $header['properties'] = $header['properties'] ?? [];
-                switch ($header['type']) {
-                    case 'check':
-                        self::check();
-                        break;
-                    case 'ordering':
-                        self::ordering();
-                        break;
-                    case 'sort':
-                        self::sort($header['properties'], $header['title'], $header['column'], $column, $direction);
-                        break;
-                    case 'text':
-                    default:
-                        self::text($header['properties'], $header['title']);
-                        break;
-                }
+        echo '<thead>';
+        if (is_int(array_key_first($view->headers))) {
+            foreach ($view->headers as $row) {
+                self::renderRow($row, $column, $direction);
             }
-            ?>
-        </tr>
-        </thead>
-        <?php
+        }
+        else {
+            self::renderRow($view->headers, $column, $direction);
+        }
+        echo '</thead>';
+    }
+
+    /**
+     * Renders an individual list header row.
+     *
+     * @param   array   $row        the row headers
+     * @param   string  $column     the column that the results are being sorted by
+     * @param   string  $direction  the current
+     *
+     * @return void
+     */
+    private static function renderRow(array $row, string $column, string $direction = 'ASC'): void
+    {
+        echo '<tr>';
+        foreach ($row as $header) {
+            $header['properties'] = $header['properties'] ?? [];
+            switch ($header['type']) {
+                case 'check':
+                    self::check();
+                    break;
+                case 'ordering':
+                    self::ordering();
+                    break;
+                case 'sort':
+                    self::sort($header['properties'], $header['title'], $header['column'], $column, $direction);
+                    break;
+                case 'text':
+                default:
+                    self::text($header['properties'], $header['title']);
+                    break;
+            }
+        }
+        echo '</tr>';
     }
 
     /**

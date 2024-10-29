@@ -175,8 +175,8 @@ abstract class ListView extends Base
         $this->setSubTitle();
         $this->setSupplement();
         $this->addToC();
-        $this->completeItems();
         $this->initializeColumns();
+        $this->completeItems();
         $this->modifyDocument();
     }
 
