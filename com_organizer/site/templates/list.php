@@ -60,7 +60,7 @@ if (!Application::backend()) {
                         <?php endif; ?>
                     <?php endif; ?>
                     <?php ListHidden::render($this); ?>
-                    <input type="hidden" name="task" value="">
+                    <input type="hidden" name="task" value="<?php echo strtolower($this->_name); ?>.display">
                     <input type="hidden" name="boxchecked" value="0">
                     <?php echo HTML::token(); ?>
                 </div>
