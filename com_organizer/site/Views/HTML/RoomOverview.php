@@ -29,6 +29,10 @@ class RoomOverview extends TableView
      */
     protected function addToolBar(): void
     {
+        $this->toDo[] = 'Ensure header colspan properties are set as necessary. Automatically integrated in the list headers layout.';
+        $this->toDo[] = 'Ensure the grid id is set during the model\'s populate state call.';
+
+
         $resourceName = Text::_('ORGANIZER_ROOM_OVERVIEW');
         if (!Application::backend()) {
             if ($campusID = Input::getInt('campusID')) {
@@ -333,7 +337,7 @@ class RoomOverview extends TableView
      * Sets the table header information
      * @return void sets the headers property
      */
-    protected function setHeaders(): void
+    protected function initializeColumns(): void
     {
         $date     = $this->state->get('list.date');
         $headers  = [];
