@@ -11,18 +11,17 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\{Bookings, Categories, Dates, Instances, Methods, Organizations, Terms};
-use THM\Organizer\Views\HTML\Statistics as View;
+
+//use THM\Organizer\Helpers\Bookings;
+use THM\Organizer\Helpers\{Categories, Dates, Instances, Methods, Organizations, Terms};
 
 /**
  * Class loads statistical information about appointments into the display context.
  */
 class Statistics extends TableView
 {
-    public const CAPACITY = 3;
-    public const METHOD = 1;
-    public const PRESENCE_TYPE = 2;
-    public const REGISTRATIONS = 4;
+    public const METHOD = 1, PRESENCE_TYPE = 2;
+    //public const CAPACITY = 3, REGISTRATIONS = 4;
 
     /**
      * Set in setSubtitle to avoid multiple
@@ -34,7 +33,7 @@ class Statistics extends TableView
      * Creates lesson statistics about actual attendance vs lesson capacity.
      * @return void
      */
-    private function byCapacity(): void
+    /*private function byCapacity(): void
     {
         $categoryID     = $this->state->get('list.categoryID');
         $columnKeys     = array_keys($this->headers);
@@ -115,7 +114,7 @@ class Statistics extends TableView
         }
 
         $this->removePRUnused($usedMondays, $usedResources);
-    }
+    }*/
 
     /**
      * Creates lesson statistics about the planning of lessons by method of instruction.
@@ -237,7 +236,7 @@ class Statistics extends TableView
      * Creates lesson statistics in regard to registrations vs attendance.
      * @return void
      */
-    private function byRegistrations(): void
+    /*private function byRegistrations(): void
     {
         $categoryID     = $this->state->get('list.categoryID');
         $columnKeys     = array_keys($this->headers);
@@ -317,21 +316,21 @@ class Statistics extends TableView
         }
 
         $this->removePRUnused($usedMondays, $usedResources);
-    }
+    }*/
 
     /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         switch ($this->statistic) {
-            case self::CAPACITY:
+            /*case self::CAPACITY:
                 $this->byCapacity();
-                break;
+                break;*/
             case self::PRESENCE_TYPE:
                 $this->byPresenceType();
                 break;
-            case self::REGISTRATIONS:
+            /*case self::REGISTRATIONS:
                 $this->byRegistrations();
-                break;
+                break;*/
             case self::METHOD:
             default:
                 $this->byMethod();
@@ -371,7 +370,8 @@ class Statistics extends TableView
                 'sum'  =>
                     [
                         'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                        'title'      => self::CAPACITY ? Text::_('AVERAGE') : Text::_('SUM'),
+                        //self::CAPACITY ? Text::_('AVERAGE') : Text::_('SUM'),
+                        'title'      => Text::_('SUM'),
                         'type'       => 'text'
                     ]
             ];
@@ -415,9 +415,9 @@ class Statistics extends TableView
     protected function initializeRows(): void
     {
         switch ($this->statistic) {
+            //case self::CAPACITY:
             case self::PRESENCE_TYPE:
-            case self::CAPACITY:
-            case self:: REGISTRATIONS:
+                //case self::REGISTRATIONS:
                 $this->participationRows();
                 break;
             case self::METHOD:
@@ -482,21 +482,22 @@ class Statistics extends TableView
         $rows =& $this->rows;
 
         $template = match ($this->statistic) {
-            self::REGISTRATIONS => ['attended' => 0, 'no-shows' => 0, 'registered' => 0, 'unregistered' => 0],
+            //self::REGISTRATIONS => ['attended' => 0, 'no-shows' => 0, 'registered' => 0, 'unregistered' => 0],
             self::PRESENCE_TYPE => [
                 Instances::HYBRID   => 0,
                 Instances::ONLINE   => 0,
                 Instances::PRESENCE => 0,
                 'total'             => 0
             ],
-            self::CAPACITY => ['attended' => 0, 'capacity' => 0, 'total' => 0]
+            //self::CAPACITY => ['attended' => 0, 'capacity' => 0, 'total' => 0]
         };
 
         $columnIDs = array_keys($this->headers);
 
         foreach ($columnIDs as $columnID) {
             if ($columnID === 'week') {
-                $rows['sum'][$columnID] = $this->statistic === View::CAPACITY ? Text::_('AVERAGE') : Text::_('SUM');
+                //$this->statistic === self::CAPACITY ? Text::_('AVERAGE') : Text::_('SUM');
+                $rows['sum'][$columnID] = Text::_('SUM');
                 continue;
             }
 
@@ -576,9 +577,9 @@ class Statistics extends TableView
         $this->statistic = (int) $this->state->get('list.statistic', self::METHOD);
 
         $text = match ($this->statistic) {
-            self::CAPACITY => Text::sprintf('ORGANIZER_PRESENCE_USE_DESC', $startDate, $endDate),
-            self::REGISTRATIONS => Text::sprintf('ORGANIZER_REGISTRATIONS_DESC', $startDate, $endDate),
+            //self::CAPACITY => Text::sprintf('ORGANIZER_PRESENCE_USE_DESC', $startDate, $endDate),
             self::PRESENCE_TYPE => Text::sprintf('ORGANIZER_PLANNED_PRESENCE_TYPE_DESC', $startDate, $endDate),
+            //self::REGISTRATIONS => Text::sprintf('ORGANIZER_REGISTRATIONS_DESC', $startDate, $endDate),
             default => Text::sprintf('ORGANIZER_METHOD_USE_DESC', $startDate, $endDate),
         };
 
