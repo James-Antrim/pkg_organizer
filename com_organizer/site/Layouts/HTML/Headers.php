@@ -17,7 +17,7 @@ use THM\Organizer\Views\HTML\ListView;
 /**
  * Class provides standardized rendering functions for table headers in list views.
  */
-class ListHeaders
+class Headers
 {
     /**
      * Renders a check all box style list header.

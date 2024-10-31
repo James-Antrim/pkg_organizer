@@ -13,10 +13,9 @@ namespace THM\Organizer\Layouts\HTML;
 use THM\Organizer\Views\HTML\{GridView, ListView};
 
 /**
- * Creates the HTML 'list' bar element, where list formatting elements and filters which should always be displayed are
- * located.
+ * Outputs grouped hidden inputs together.
  */
-class ListHidden
+class HiddenInputs
 {
     /**
      * Renders any hidden fields specific to this list.

@@ -11,7 +11,7 @@
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML};
-use THM\Organizer\Layouts\HTML\{EmptyList, ListHeaders, ListItem, ListTools};
+use THM\Organizer\Layouts\HTML\{EmptySet, Headers, ListItem, Tools};
 use THM\Organizer\Views\HTML\ListView;
 
 /** @var ListView $this */
@@ -30,9 +30,9 @@ if (count($this->headers) > 4) {
     <div class="row">
         <div class="col-md-12">
             <div id="j-main-container" class="j-main-container groups">
-                <?php ListTools::render($this); ?>
+                <?php Tools::render($this); ?>
                 <?php if (empty($this->items)) : ?>
-                    <?php EmptyList::render($this); ?>
+                    <?php EmptySet::render($this); ?>
                 <?php else : ?>
                     <table class="table" id="<?php echo $this->_name ?>List">
                         <caption class="visually-hidden">
@@ -40,7 +40,7 @@ if (count($this->headers) > 4) {
                             <span id="orderedBy"><?php echo Text::_('JGLOBAL_SORTED_BY'); ?> </span>,
                             <span id="filteredBy"><?php echo Text::_('JGLOBAL_FILTERED_BY'); ?></span>
                         </caption>
-                        <?php ListHeaders::render($this); ?>
+                        <?php Headers::render($this); ?>
                         <tbody>
                         <?php foreach ($this->items as $rowNo => $item) : ?>
                             <?php ListItem::render($this, $rowNo, $item); ?>

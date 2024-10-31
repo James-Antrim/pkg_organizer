@@ -10,7 +10,7 @@
 
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML, Toolbar};
-use THM\Organizer\Layouts\HTML\{Batch, EmptyList, ListHeaders, ListHidden, ListItem, ListTools};
+use THM\Organizer\Layouts\HTML\{Batch, EmptySet, Headers, HiddenInputs, ListItem, Tools};
 use THM\Organizer\Views\HTML\ListView;
 
 /** @var ListView $this */
@@ -42,12 +42,12 @@ if (!Application::backend()) {
             <div class="col-md-12">
                 <?php endif; ?>
                 <div id="j-main-container" class="j-main-container groups">
-                    <?php ListTools::render($this); ?>
+                    <?php Tools::render($this); ?>
                     <?php if (empty($this->items)) : ?>
-                        <?php EmptyList::render($this); ?>
+                        <?php EmptySet::render($this); ?>
                     <?php else : ?>
                         <table class="table" id="<?php echo $this->_name ?>List">
-                            <?php ListHeaders::render($this); ?>
+                            <?php Headers::render($this); ?>
                             <tbody>
                             <?php foreach ($this->items as $rowNo => $item) : ?>
                                 <?php ListItem::render($this, $rowNo, $item); ?>
@@ -59,7 +59,7 @@ if (!Application::backend()) {
                             <template id="organizer-batch"><?php Batch::render($this); ?></template>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <?php ListHidden::render($this); ?>
+                    <?php HiddenInputs::render($this); ?>
                     <input type="hidden" name="task" value="<?php echo strtolower($this->_name); ?>.display">
                     <input type="hidden" name="boxchecked" value="0">
                     <?php echo HTML::token(); ?>

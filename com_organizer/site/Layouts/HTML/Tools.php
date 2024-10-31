@@ -16,7 +16,7 @@ use THM\Organizer\Views\HTML\{GridView, ListView};
 /**
  * Creates the HTML element with list filtering, formatting and search control elements.
  */
-class ListTools
+class Tools
 {
     /**
      * Renders list headers.

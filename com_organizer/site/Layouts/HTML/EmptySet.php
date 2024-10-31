@@ -16,7 +16,7 @@ use THM\Organizer\Views\HTML\{GridView, ListView};
 /**
  * Class renders a message pertaining to an empty result set for the list view.
  */
-class EmptyList
+class EmptySet
 {
     /**
      * Renders a notice for an empty result set.
