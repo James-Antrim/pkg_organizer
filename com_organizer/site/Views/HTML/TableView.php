@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\MVC\View\ListView as Grandpa;
 use THM\Organizer\Adapters\Text;
 
 /**
@@ -18,6 +19,7 @@ use THM\Organizer\Adapters\Text;
  */
 abstract class TableView extends ListView
 {
+    protected string $layout = 'table';
     public array $rows = [];
 
     /**
@@ -95,7 +97,7 @@ abstract class TableView extends ListView
      */
     protected function initializeView(): void
     {
-        parent::initializeView();
+        Grandpa::initializeView();
 
         $this->empty = $this->empty ?: Text::_('EMPTY_RESULT_SET');
 
