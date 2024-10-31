@@ -107,6 +107,9 @@ class Row
                     case 'check':
                         self::check($rowNo, $item);
                         break;
+                    case 'header':
+                        self::text($item, $column, Application::backend(), $linkType, false, true);
+                        break;
                     case 'ordering':
                         self::ordering($item, $dragEnabled);
                         break;
@@ -134,7 +137,12 @@ class Row
      * @param   bool    $administration  the display context (false: public, true: admin)
      * @param   int     $linkType        the link type to use for the displayed column value
      */
-    private static function text(object $item, string $column, bool $administration, int $linkType, bool $localize = false): void
+    private static function text(object $item,
+        string $column,
+        bool $administration,
+        int $linkType,
+        bool $localize = false,
+        bool $header = false): void
     {
         $context = '';
         $tip     = '';
@@ -162,7 +170,7 @@ class Row
             $properties = '';
         }
 
-        if ($main = $column === 'name') {
+        if ($main = $column === 'name' or $header) {
             $opener = "<th $properties scope=\"row\">";
             $closer = "</th>";
         }

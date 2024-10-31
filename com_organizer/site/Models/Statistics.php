@@ -13,7 +13,6 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Helpers\{Categories, Terms};
-use THM\Organizer\Tables\Methods;
 use THM\Organizer\Views\HTML\Statistics as View;
 
 /**
@@ -54,9 +53,9 @@ class Statistics extends ListModel
             }
         }
 
-        $statistic = (int) $state->get('list.statistic');
+        //$statistic = (int) $state->get('list.statistic');
 
-        if ($statistic === View::CAPACITY or $statistic === View::REGISTRATIONS) {
+        /*if ($statistic === View::CAPACITY or $statistic === View::REGISTRATIONS) {
             $finals = new Methods();
             $finals->load(['code' => 'KLA']);
 
@@ -74,7 +73,7 @@ class Statistics extends ListModel
                         DB::qcs([['book.blockID', 'i.blockID'], ['book.unitID ', 'i.unitID']])
                     );
             }
-        }
+        }*/
 
         return $query;
     }
@@ -110,9 +109,9 @@ class Statistics extends ListModel
 
             // Perform sanity check
             $statistic = match ($statistic) {
-                View::REGISTRATIONS => View::REGISTRATIONS,
+                //View::CAPACITY => View::CAPACITY,
                 View::PRESENCE_TYPE => View::PRESENCE_TYPE,
-                View::CAPACITY => View::CAPACITY,
+                //View::REGISTRATIONS => View::REGISTRATIONS,
                 default => View::METHOD
             };
             $state->set('list.statistic', $statistic);

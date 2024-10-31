@@ -351,13 +351,13 @@ class Statistics extends TableView
                     [
                         'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                         'title'      => Text::_('METHOD_SIMPLE'),
-                        'type'       => 'text'
+                        'type'       => 'header'
                     ],
                 'sum'    =>
                     [
                         'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
                         'title'      => Text::_('SUM'),
-                        'type'       => 'text'
+                        'type'       => 'header'
                     ]
             ] :
             [
@@ -365,14 +365,14 @@ class Statistics extends TableView
                     [
                         'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                         'title'      => Text::_('WEEK'),
-                        'type'       => 'text'
+                        'type'       => 'header'
                     ],
                 'sum'  =>
                     [
                         'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
                         //self::CAPACITY ? Text::_('AVERAGE') : Text::_('SUM'),
                         'title'      => Text::_('SUM'),
-                        'type'       => 'text'
+                        'type'       => 'header'
                     ]
             ];
 

@@ -19,7 +19,6 @@ use THM\Organizer\Adapters\Text;
  */
 abstract class TableView extends ListView
 {
-    protected string $layout = 'table';
     public array $rows = [];
 
     /**
@@ -106,7 +105,14 @@ abstract class TableView extends ListView
         $this->initializeColumns();
         $this->initializeRows();
         $this->completeItems();
-        unset($this->items);
+
+        // Layouts expect an array of object items named items
+        $this->items = [];
+        foreach ($this->rows as $key => $row) {
+            $this->items[$key] = (object) $row;
+        }
+        $this->rows = [];
+
         $this->modifyDocument();
     }
 }
