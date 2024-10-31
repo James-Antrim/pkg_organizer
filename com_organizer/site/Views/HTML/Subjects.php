@@ -14,7 +14,7 @@ use Joomla\Registry\Registry;
 use stdClass;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Organizations, Persons, Pools, Programs};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of subjects into the display context.
@@ -129,7 +129,7 @@ class Subjects extends ListView
         $headers = [
             'check' => ['type' => 'check'],
             'name'  => [
-                'link'       => Application::backend() ? ListItem::DIRECT : ListItem::TAB,
+                'link'       => Application::backend() ? Row::DIRECT : Row::TAB,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
                 'type'       => 'text'

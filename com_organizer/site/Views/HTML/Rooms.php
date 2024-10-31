@@ -14,7 +14,7 @@ use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 use stdClass;
 use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers\{Campuses, Can, Rooms as Helper};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of rooms into the display context.
@@ -77,7 +77,7 @@ class Rooms extends ListView
         $headers   = [
             'check'        => ['type' => 'check'],
             'roomName'     => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-none d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'roomName', $direction, $ordering),
                 'type'       => 'value'

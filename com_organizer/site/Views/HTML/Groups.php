@@ -14,7 +14,7 @@ use Joomla\CMS\Toolbar\Button\DropdownButton;
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Grids, Groups as Helper, Terms};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 use THM\Organizer\Tables\GroupPublishing;
 
 /**
@@ -115,7 +115,7 @@ class Groups extends ListView
         $headers   = [
             'check'    => ['type' => 'check'],
             'fullName' => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('FULL_NAME', 'fullName', $direction, 'fullName'),
                 'type'       => 'text'
@@ -131,7 +131,7 @@ class Groups extends ListView
                 'type'       => 'value'
             ],
             'name'     => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('SELECT_BOX_DISPLAY'),
                 'type'       => 'text'

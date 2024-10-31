@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{HTML, Text};
 use stdClass;
 use THM\Organizer\Helpers;
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads a filtered set of campuses into the display context.
@@ -110,7 +110,7 @@ class Campuses extends ListView
         $this->headers = [
             'check'    => ['type' => 'check'],
             'name'     => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('NAME'),
                 'type'       => 'text'

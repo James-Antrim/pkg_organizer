@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, U
 use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\{Dates, Instances as Helper};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 use THM\Organizer\Models\Instances as Model;
 use stdClass;
 
@@ -533,7 +533,7 @@ class Instances extends ListView
                 'type'       => 'text'
             ],
             'name'    => [
-                'link'       => Application::backend() ? ListItem::DIRECT : ListItem::TAB,
+                'link'       => Application::backend() ? Row::DIRECT : Row::TAB,
                 'properties' => ['class' => 'w-20 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('INSTANCE'),
                 'type'       => 'text'

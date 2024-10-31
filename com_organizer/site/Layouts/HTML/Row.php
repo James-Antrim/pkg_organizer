@@ -18,7 +18,7 @@ use THM\Organizer\Views\HTML\ListView;
 /**
  * Class provides standardized rendering functions for table cells in list views.
  */
-class ListItem
+class Row
 {
     private const ADMIN = true;
 

@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Can;
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads a filtered set of buildings into the display context.
@@ -45,7 +45,7 @@ class RoomKeys extends ListView
         $headers   = [
             'check'         => ['type' => 'check'],
             'name'          => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
                 'type'       => 'value'

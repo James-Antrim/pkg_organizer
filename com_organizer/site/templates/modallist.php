@@ -11,7 +11,7 @@
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML};
-use THM\Organizer\Layouts\HTML\{EmptySet, Headers, ListItem, Tools};
+use THM\Organizer\Layouts\HTML\{EmptySet, Headers, Row, Tools};
 use THM\Organizer\Views\HTML\ListView;
 
 /** @var ListView $this */
@@ -43,7 +43,7 @@ if (count($this->headers) > 4) {
                         <?php Headers::render($this); ?>
                         <tbody>
                         <?php foreach ($this->items as $rowNo => $item) : ?>
-                            <?php ListItem::render($this, $rowNo, $item); ?>
+                            <?php Row::render($this, $rowNo, $item); ?>
                         <?php endforeach; ?>
                         </tbody>
                     </table>

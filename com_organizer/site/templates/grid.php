@@ -10,7 +10,7 @@
 
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML, Toolbar};
-use THM\Organizer\Layouts\HTML\{EmptySet, Headers, HiddenInputs, ListItem, Tools};
+use THM\Organizer\Layouts\HTML\{EmptySet, Headers, HiddenInputs, Row, Tools};
 use THM\Organizer\Views\HTML\GridView;
 
 /** @var GridView $this */
@@ -37,7 +37,7 @@ if (!Application::backend()) {
                         <?php Headers::render($this); ?>
                         <tbody>
                         <?php foreach ($this->items as $rowNo => $item) : ?>
-                            <?php ListItem::render($this, $rowNo, $item); ?>
+                            <?php Row::render($this, $rowNo, $item); ?>
                         <?php endforeach; ?>
                         </tbody>
                     </table>

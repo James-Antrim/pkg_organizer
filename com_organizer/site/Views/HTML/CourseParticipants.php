@@ -15,7 +15,7 @@ use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers\{Campuses, Courses as cHelper, CourseParticipants as Helper};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
@@ -175,7 +175,7 @@ class CourseParticipants extends Participants
         $headers = [
             'check'    => ['type' => 'check'],
             'fullName' => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'fullName', $direction, 'fullName'),
                 'type'       => 'text'

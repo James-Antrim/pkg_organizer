@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Can;
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
@@ -56,7 +56,7 @@ class Participants extends ListView
         $headers = [
             'check'        => ['type' => 'check'],
             'fullName'     => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'fullName', $direction, $ordering),
                 'type'       => 'text'

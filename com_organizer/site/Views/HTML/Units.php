@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\{Dates};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class which loads data into the view output context
@@ -82,7 +82,7 @@ class Units extends ListView
                 'type'       => 'value'
             ],
             'name'   => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('NAME'),
                 'type'       => 'text'

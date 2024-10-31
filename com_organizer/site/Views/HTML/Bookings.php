@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use stdClass;
 use THM\Organizer\Adapters\{Text, Toolbar};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /** @inheritDoc */
 class Bookings extends ListView
@@ -41,7 +41,7 @@ class Bookings extends ListView
         $this->headers = [
             'check'   => ['type' => 'check'],
             'subject' => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('SUBJECT'),
                 'type'       => 'text'

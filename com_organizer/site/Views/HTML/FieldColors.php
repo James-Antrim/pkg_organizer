@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use stdClass;
 use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Colors};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of fields (of expertise) into the display context.
@@ -58,13 +58,13 @@ class FieldColors extends ListView
         $this->headers = [
             'check'        => ['type' => 'check'],
             'field'        => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('FIELD'),
                 'type'       => 'text'
             ],
             'organization' => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('ORGANIZATION'),
                 'type'       => 'text'

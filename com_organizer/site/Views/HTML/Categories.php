@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{HTML, Text};
 use stdClass;
 use THM\Organizer\Helpers\{Can, Categories as Helper};
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of event categories into the display context.
@@ -58,7 +58,7 @@ class Categories extends ListView
         $headers   = [
             'check'   => ['type' => 'check'],
             'name'    => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
                 'type'       => 'text'

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\HTML;
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of (lesson) methods into the display context.
@@ -37,7 +37,7 @@ class Methods extends ListView
         $headers   = [
             'check'        => ['type' => 'check'],
             'name'         => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
                 'type'       => 'value'

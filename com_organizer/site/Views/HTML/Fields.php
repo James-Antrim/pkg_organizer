@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Layouts\HTML\ListItem;
+use THM\Organizer\Layouts\HTML\Row;
 
 /**
  * Class loads persistent information a filtered set of fields (of expertise) into the display context.
@@ -57,7 +57,7 @@ class Fields extends ListView
         $this->headers = [
             'check'  => ['type' => 'check'],
             'name'   => [
-                'link'       => ListItem::DIRECT,
+                'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
                 'type'       => 'value'
