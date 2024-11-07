@@ -23,6 +23,10 @@ use THM\Organizer\Helpers\{Associated, Campuses};
  */
 trait Filtered
 {
+    protected const NONE = -1, UNSELECTED = '', UNSET = null;
+
+    protected const CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+
     /**
      * Sets an access filter for a given resource. Wrapper for uniformity of filter function calls.
      *
@@ -316,15 +320,6 @@ trait Filtered
         }
 
         return null;
-    }
-
-    /** @inheritDoc */
-    public function getItems(): array
-    {
-        /** @noinspection PhpMultipleClassDeclarationsInspection */
-        $items = parent::getItems();
-
-        return $items ?: [];
     }
 
     /**

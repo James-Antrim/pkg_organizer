@@ -26,10 +26,6 @@ abstract class ListModel extends Base
     use Filtered;
     use Named;
 
-    protected const NONE = -1, UNSELECTED = '', UNSET = null;
-
-    protected const CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
-
     protected int $defaultLimit = 50;
     protected string $defaultOrdering = 'name';
 
@@ -68,6 +64,14 @@ abstract class ListModel extends Base
     protected function addAccess(DatabaseQuery $query): void
     {
         // As needed
+    }
+
+    /** @inheritDoc */
+    public function getItems(): array
+    {
+        $items = parent::getItems();
+
+        return $items ?: [];
     }
 
     /** @inheritDoc */
