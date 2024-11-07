@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML};
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -22,9 +22,7 @@ class Methods extends ResourceHelper implements Selectable
      */
     public const FINALCODE = 'KLA';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -36,18 +34,35 @@ class Methods extends ResourceHelper implements Selectable
     }
 
     /**
-     * @inheritDoc
+     * Returns a list of workload relevant methods
+     *
+     * @param   bool  $ids  whether only the relevant ids should be returned
+     *
+     * @return array
      */
+    public static function relevant(bool $ids = true): array
+    {
+        $methods = self::resources();
+        foreach ($methods as $id => $method) {
+            if (empty($method['relevant'])) {
+                unset($methods[$id]);
+            }
+        }
+
+        return $ids ? array_keys($methods) : $methods;
+    }
+
+    /** @inheritDoc */
     public static function resources(): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::tag();
-        $query->select("DISTINCT m.*, m.name_$tag AS name")
-            ->from('#__organizer_methods AS m')
-            ->innerJoin('#__organizer_instances AS i ON i.methodID = m.id')
-            ->order('name');
-        Database::setQuery($query);
+        $query->select(['DISTINCT ' . DB::qn('m') . '.*', DB::qn("m.name_$tag", 'name')])
+            ->from(DB::qn('#__organizer_methods', 'm'))
+            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.methodID', 'm.id'))
+            ->order(DB::qn('name'));
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 }
