@@ -78,12 +78,12 @@ class Row
     /**
      * Renders a list item.
      *
-     * @param   ListView  $view         the view being rendered
-     * @param   int       $rowNo        the row number being rendered
-     * @param   object    $item         the item being rendered
-     * @param   bool      $dragEnabled  whether the table has drag enabled
+     * @param   ListView    $view         the view being rendered
+     * @param   int|string  $index        the row index being rendered
+     * @param   object      $item         the item being rendered
+     * @param   bool        $dragEnabled  whether the table has drag enabled
      */
-    public static function render(ListView $view, int $rowNo, object $item, bool $dragEnabled = false): void
+    public static function render(ListView $view, int|string $index, object $item, bool $dragEnabled = false): void
     {
         $dragAttributes = '';
 
@@ -105,7 +105,7 @@ class Row
                 $header['properties'] = $header['properties'] ?? [];
                 switch ($header['type']) {
                     case 'check':
-                        self::check($rowNo, $item);
+                        self::check($index, $item);
                         break;
                     case 'header':
                         self::text($item, $column, Application::backend(), $linkType, false, true);

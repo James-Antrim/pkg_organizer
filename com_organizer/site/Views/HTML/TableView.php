@@ -14,7 +14,7 @@ use Joomla\CMS\MVC\View\ListView as Grandpa;
 use THM\Organizer\Adapters\Text;
 
 /**
- * Class loads information into a tabular grid. The table format is kept largely in part to continue use of the web asset
+ * Class loads information into a tabular grid. The list template is kept largely to continue use of the web asset
  * 'table.columns'.
  */
 abstract class TableView extends ListView

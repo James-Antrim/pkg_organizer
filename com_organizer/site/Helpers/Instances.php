@@ -327,11 +327,13 @@ class Instances extends ResourceHelper
             ->from(DB::qn('#__organizer_instance_groups', 'ig'))
             ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.id', 'ig.assocID'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
-            ->where(DB::qn('i.delta ') . ' != :id')->bind(':id', $removed)
-            ->where(DB::qn('i.blockID') . ' = :blockID')->bind(':blockID', $instance->blockID, ParameterType::INTEGER)
-            ->where(DB::qn('i.unitID') . ' = :unitID')->bind(':unitID', $instance->unitID, ParameterType::INTEGER)
-            ->where(DB::qn('ig.delta ') . ' != :igd')->bind(':igd', $removed)
-            ->where(DB::qn('ip.delta ') . ' != :ipd')->bind(':ipd', $removed);
+            ->where(DB::qcs([
+                ['i.delta', $removed, '!=', true],
+                ['ig.delta', $removed, '!=', true],
+                ['ip.delta', $removed, '!=', true],
+                ['i.blockID', $instance->blockID],
+                ['i.unitID', $instance->unitID],
+            ]));
         DB::setQuery($query);
 
         return DB::loadIntColumn();

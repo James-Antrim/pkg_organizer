@@ -52,7 +52,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     {
         $tag   = Application::tag();
         $query = DB::getQuery();
-        $query->select(array_merge(DB::qn(['c.id', 'code'], [DB::qn("name_$tag", 'name')])))
+        $query->select(array_merge(DB::qn(['c.id', 'code']), [DB::qn("name_$tag", 'name')]))
             ->from(DB::qn('#__organizer_categories', 'c'))
             ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'c.id'))
             ->where(DB::qn('a.organizationID') . ' = :organizationID')
