@@ -377,6 +377,7 @@ class Application
             'mergerooms' => 'MergeRooms',
             'roomkey' => 'RoomKey',
             'roomkeys' => 'RoomKeys',
+            'roomoverview' => 'RoomOverview',
             'roomtype' => 'RoomType',
             'roomtypes' => 'RoomTypes',
             'selectpools' => 'SelectPools',
