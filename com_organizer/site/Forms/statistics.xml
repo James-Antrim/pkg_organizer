@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
     <fields name="list">
-        <field name="statistic" type="list" label="ORGANIZER_CALCULATION" class="input-12" onchange="this.form.submit();">
-            <option value="">ORGANIZER_SELECT_STATISTIC</option>
-            <option value="1">ORGANIZER_METHOD_USE</option>
-            <option value="2">ORGANIZER_PLANNED_PRESENCE_TYPE</option>
-            <!--<option value="3">ORGANIZER_PRESENCE_USE</option>-->
-            <!--<option value="4">ORGANIZER_REGISTRATIONS</option>-->
-        </field>
         <field name="termID" type="Terms" label="ORGANIZER_TERM" class="input-8" onchange="this.form.submit();"/>
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
