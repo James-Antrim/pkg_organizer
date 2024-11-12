@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
-use Joomla\CMS\Language\Text;
 use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Views\HTML\ListView;
 
@@ -56,8 +55,8 @@ class Headers
 
         echo '<thead>';
         if (is_int(array_key_first($view->headers))) {
-            foreach ($view->headers as $row) {
-                self::renderRow($row, $column, $direction);
+            foreach ($view->headers as $index => $row) {
+                self::renderRow($row, $column, $direction, $index);
             }
         }
         else {
@@ -69,16 +68,17 @@ class Headers
     /**
      * Renders an individual list header row.
      *
-     * @param   array   $row        the row headers
-     * @param   string  $column     the column that the results are being sorted by
-     * @param   string  $direction  the current
+     * @param   array       $row        the row headers
+     * @param   string      $column     the column that the results are being sorted by
+     * @param   string      $direction  the current
+     * @param   int|string  $rIndex     the index of the header row among header rows
      *
      * @return void
      */
-    private static function renderRow(array $row, string $column, string $direction = 'ASC'): void
+    private static function renderRow(array $row, string $column, string $direction = 'ASC', int|string $rIndex = ''): void
     {
         echo '<tr>';
-        foreach ($row as $header) {
+        foreach ($row as $cIndex => $header) {
             $header['properties'] = $header['properties'] ?? [];
             switch ($header['type']) {
                 case 'check':
@@ -89,6 +89,15 @@ class Headers
                     break;
                 case 'sort':
                     self::sort($header['properties'], $header['title'], $header['column'], $column, $direction);
+                    break;
+                case 'tip':
+                    if (!empty($header['tip'])) {
+                        $context = $rIndex ? "context-$rIndex-$cIndex" : "context-$cIndex";
+                        self::tip($header['properties'], $header['title'], $header['tip'], $context);
+                    }
+                    else {
+                        self::text($header['properties'], $header['title']);
+                    }
                     break;
                 case 'text':
                 default:
@@ -127,7 +136,26 @@ class Headers
     {
         ?>
         <th <?php echo HTML::toString($properties); ?>>
-            <?php echo Text::_($title); ?>
+            <?php echo $title; ?>
+        </th>
+        <?php
+    }
+
+    /**
+     * Renders the cell information with a tooltip.
+     *
+     * @param   array   $properties  the properties for the containing tag
+     * @param   string  $title       the information to display in the table
+     * @param   string  $tip         the information to display as the tip to the information in the table
+     * @param   string  $context     the unique context used for the tip to reference the information
+     *
+     * @return void
+     */
+    private static function tip(array $properties, string $title, string $tip, string $context): void
+    {
+        ?>
+        <th <?php echo HTML::toString($properties); ?>>
+            <?php echo HTML::tip($title, $context, $tip); ?>
         </th>
         <?php
     }

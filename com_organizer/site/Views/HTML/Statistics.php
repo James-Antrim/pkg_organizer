@@ -11,9 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\Text;
-
-//use THM\Organizer\Helpers\Bookings;
-use THM\Organizer\Helpers\{Categories, Dates, Instances, Methods, Organizations, Terms};
+use THM\Organizer\Helpers\{Categories, Dates, Methods, Organizations, Terms};
 
 /**
  * Class loads statistical information about appointments into the display context.
@@ -95,32 +93,60 @@ class Statistics extends TableView
         ];
 
         $resources = [];
+
         if ($categoryID = $state->get('list.categoryID')) {
+            $type = 'groups';
             foreach (Categories::groups($categoryID) as $group) {
-                $resources[$group['id']] = $group['name'];
+                $resources[$group['id']] = $group;
             }
         }
         elseif ($organizationID = $state->get('list.organizationID')) {
+            $type = 'categories';
             foreach (Organizations::categories($organizationID) as $category) {
-                $resources[$category['id']] = $category['name'];
+                $resources[$category['id']] = $category;
             }
         }
         else {
+            $type = 'organizations';
             foreach (Organizations::resources() as $organization) {
                 if (!$organization['active']) {
                     continue;
                 }
 
-                $resources[$organization['id']] = $organization['shortName'];
+                $resources[$organization['id']] = $organization;
             }
         }
 
+        $condense = count($resources) > 8;
         asort($resources);
-        foreach ($resources as $columnID => $columnName) {
+
+        foreach ($resources as $columnID => $resource) {
+            $class = $condense ? 'w-5 d-md-table-cell' : 'w-10 d-md-table-cell';
+            $title = $tip = '';
+
+            switch ($type) {
+                case 'categories':
+                case 'groups':
+                    if ($condense or strlen($resource['name']) > 25) {
+                        $title = $resource['code'];
+                        $tip   = $resource['name'];
+                    }
+                    else {
+                        $title = $resource['name'];
+                    }
+                    break;
+                case 'organizations':
+                    $class = 'w-5 d-md-table-cell';
+                    $title = $resource['abbreviation'];
+                    $tip   = $resource['fullName'];
+                    break;
+            }
+
             $headers[$columnID] = [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => $columnName,
-                'type'       => 'text'
+                'properties' => ['class' => $class, 'scope' => 'col'],
+                'tip'        => $tip,
+                'title'      => $title,
+                'type'       => 'tip'
             ];
         }
 

@@ -176,7 +176,13 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     {
         $query = DB::getQuery();
         $tag   = Application::tag();
-        $query->select(['DISTINCT ' . DB::qn('o') . '.*', DB::qn("o.shortName_$tag", 'shortName'), DB::qn("o.name_$tag", 'name')])
+        $query->select([
+            'DISTINCT ' . DB::qn('o') . '.*',
+            DB::qn("o.abbreviation_$tag", 'abbreviation'),
+            DB::qn("o.fullName_$tag", 'fullName'),
+            DB::qn("o.shortName_$tag", 'shortName'),
+            DB::qn("o.name_$tag", 'name')
+        ])
             ->from(DB::qn('#__organizer_organizations', 'o'));
 
         if ($access) {

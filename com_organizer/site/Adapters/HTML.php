@@ -239,10 +239,9 @@ class HTML extends HTMLHelper
             $properties['target'] = '_blank';
         }
 
-        $content = Text::_($content);
         $url     = $url ?: '#';
         $content = self::link($url, $content, $properties);
-        $tip     = "<div role=\"tooltip\" id=\"$context\">" . Text::_($tip) . '</div>';
+        $tip     = "<div role=\"tooltip\" id=\"$context\"> " . Text::_($tip) . '</div>';
 
         return $content . $tip;
     }
