@@ -29,12 +29,10 @@ abstract class ListView extends Base
 
     /** @var bool the value of the relevant authorizations in context. */
     public bool $allowBatch = false;
+    protected string $baseURL = '';
     /** @var string The default text for an empty result set. */
     public string $empty = '';
-    /**
-     * The header information to display indexed by the referenced attribute.
-     * @var array
-     */
+    /** @var array The header information to display indexed by the referenced attribute. */
     public array $headers = [];
     protected string $layout = 'list';
     /** @var array the open items. */

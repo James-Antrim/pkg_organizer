@@ -25,6 +25,8 @@ abstract class GridView extends Base
     use Tasked;
     use Titled;
 
+    protected string $baseURL = '';
+
     /** @var string The default text for an empty result set. */
     public string $empty = '';
     /**
