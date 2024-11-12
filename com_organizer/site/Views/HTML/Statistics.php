@@ -19,6 +19,14 @@ use THM\Organizer\Helpers\{Categories, Dates, Methods, Organizations, Terms};
 class Statistics extends TableView
 {
     /** @inheritDoc */
+    public function __construct(array $config)
+    {
+        $this->toDo[] = 'Add export functionality.';
+        $this->toDo[] = 'Figure out a way to improve the text/tip handling of the column selection tool.';
+        parent::__construct($config);
+    }
+
+    /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         $columnKeys    = array_keys($this->headers);

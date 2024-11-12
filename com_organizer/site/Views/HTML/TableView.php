@@ -21,69 +21,12 @@ abstract class TableView extends ListView
 {
     public array $rows = [];
 
-    /**
-     * Generates the HTML output for the table headers.
-     * @return void outputs HTML
-     */
-//    public function renderHeaders(): void
-//    {
-//        $levelOne = '';
-//        $levelTwo = '';
-//
-//        foreach ($this->headers as $header) {
-//            $colspan   = 1;
-//            $dataClass = $header['text'] ? 'data-column' : 'resource-column';
-//
-//            if (isset($header['columns'])) {
-//                if ($header['columns']) {
-//                    $colspan           = count($header['columns']) ?: 1;
-//                    $this->columnCount += $colspan;
-//                    foreach ($header['columns'] as $column) {
-//                        $levelTwo .= $this->getHeaderCell($column, $dataClass);
-//                    }
-//                }
-//                else {
-//                    $levelTwo .= $this->getHeaderCell([], $dataClass);
-//                }
-//
-//            }
-//            elseif ($header['text']) {
-//                $this->columnCount++;
-//            }
-//
-//            $levelOne .= $this->getHeaderCell($header, $dataClass, $colspan);
-//        }
-//
-//        $this->columnCount = max($this->columnCount, count($this->headers));
-//        $columnClass       = "columns-$this->columnCount";
-//        echo "<tr class=\"$columnClass\">$levelOne</tr>";
-//
-//        if ($levelTwo) {
-//            echo "<tr class=\"level-2 $columnClass\">$levelTwo</tr>";
-//        }
-//    }
-
-    /**
-     * Generates the HTML output for the individual rows.
-     * @return void outputs HTML
-     */
-//    public function renderRows(): void
-//    {
-//        $columnClass = "class=\"columns-$this->columnCount\"";
-//
-//        foreach ($this->rows as $row) {
-//            echo "<tr $columnClass>";
-//            foreach ($row as $cell) {
-//                if (isset($cell['label'])) {
-//                    echo "<th class=\"resource-column\">{$cell['label']}</th>";
-//                }
-//                elseif (isset($cell['text'])) {
-//                    echo "<td class=\"data-column\">{$cell['text']}</td>";
-//                }
-//            }
-//            echo "</tr>";
-//        }
-//    }
+    /** @inheritDoc */
+    public function __construct(array $config)
+    {
+        $this->toDo[] = 'Add automatic row re-summation after the table.columns WA hides a column.';
+        parent::__construct($config);
+    }
 
     /**
      * Initializes the rows after the form and state properties have been initialized.
