@@ -90,13 +90,13 @@ class Statistics extends TableView
                 [
                     'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                     'title'      => Text::_('METHOD_SIMPLE'),
-                    'type'       => 'header'
+                    'type'       => 'text'
                 ],
             'sum'    =>
                 [
                     'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
                     'title'      => Text::_('SUM'),
-                    'type'       => 'header'
+                    'type'       => 'text'
                 ]
         ];
 
