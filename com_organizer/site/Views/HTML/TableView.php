@@ -19,6 +19,8 @@ use THM\Organizer\Adapters\Text;
  */
 abstract class TableView extends ListView
 {
+    protected bool $identity = false;
+    public bool|int|string $colScope = false;
     public array $rows = [];
 
     /** @inheritDoc */
@@ -49,12 +51,14 @@ abstract class TableView extends ListView
         $this->initializeRows();
         $this->completeItems();
 
-        // Layouts expect an array of object items named items
-        $this->items = [];
-        foreach ($this->rows as $key => $row) {
-            $this->items[$key] = (object) $row;
+        // The information displayed is not directly identified by the resources selected
+        if (!$this->identity) {
+            $this->items = [];
+            foreach ($this->rows as $key => $row) {
+                $this->items[$key] = (object) $row;
+            }
+            $this->rows = [];
         }
-        $this->rows = [];
 
         $this->modifyDocument();
     }
