@@ -98,7 +98,8 @@ class Row
         <tr <?php echo $dragAttributes ?>>
             <?php
 
-            foreach ($view->headers as $column => $header) {
+            $headers = (!isset($view->colScope) or $view->colScope === false) ? $view->headers : $view->headers[$view->colScope];
+            foreach ($headers as $column => $header) {
                 $linkType = (!empty($header['link']) and in_array($header['link'], self::LINK_TYPES)) ?
                     $header['link'] : self::NO;
 
@@ -144,17 +145,15 @@ class Row
         bool $localize = false,
         bool $header = false): void
     {
-        $context = '';
-        $tip     = '';
-        $value   = $item->$column ?? '';
+        $tip   = '';
+        $value = $item->$column ?? '';
 
         if (is_array($value)) {
             $properties = $value['properties'];
 
             if (is_array($properties)) {
                 if (!empty($properties['tip'])) {
-                    $context = "tip-$item->id-$column";
-                    $tip     = '<div role="tooltip" id="' . $context . '">' . $properties['tip'] . '</div>';
+                    $tip = $properties['tip'];
                     unset($properties['tip']);
                 }
 
@@ -162,6 +161,10 @@ class Row
             }
             else {
                 $properties = '';
+            }
+
+            if (!$tip and !empty($value['tip'])) {
+                $tip = $value['tip'];
             }
 
             $value = $value['value'];
@@ -181,8 +184,10 @@ class Row
 
         echo $opener;
 
-        if ($context) {
-            echo '<div aria-describedby="' . $context . '">';
+        if ($tip) {
+            $context = "$item->id-$column";
+            $tip     = '<div role="tooltip" id="' . $context . '">' . $tip . '</div>';
+            echo '<div aria-describedby="tip-$context">';
         }
 
         if ($main and !empty($item->prefix)) {
@@ -218,7 +223,7 @@ class Row
             echo "<br><span class=\"small\">$item->supplement</span>";
         }
 
-        if ($context) {
+        if ($tip) {
             echo '</div>' . $tip;
         }
 

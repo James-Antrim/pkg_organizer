@@ -154,7 +154,7 @@ class Statistics extends TableView
                 'properties' => ['class' => $class, 'scope' => 'col'],
                 'tip'        => $tip,
                 'title'      => $title,
-                'type'       => 'tip'
+                'type'       => 'text'
             ];
         }
 

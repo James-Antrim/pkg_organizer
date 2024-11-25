@@ -54,13 +54,13 @@ class Headers
         $column    = $view->escape($state->get('list.ordering'));
 
         echo '<thead>';
-        if (is_int(array_key_first($view->headers))) {
+        if (!isset($view->colScope) or $view->colScope === false) {
+            self::renderRow($view->headers, $column, $direction);
+        }
+        else {
             foreach ($view->headers as $index => $row) {
                 self::renderRow($row, $column, $direction, $index);
             }
-        }
-        else {
-            self::renderRow($view->headers, $column, $direction);
         }
         echo '</thead>';
     }
@@ -90,7 +90,8 @@ class Headers
                 case 'sort':
                     self::sort($header['properties'], $header['title'], $header['column'], $column, $direction);
                     break;
-                case 'tip':
+                case 'text':
+                default:
                     if (!empty($header['tip'])) {
                         $context = $rIndex ? "context-$rIndex-$cIndex" : "context-$cIndex";
                         self::tip($header['properties'], $header['title'], $header['tip'], $context);
@@ -98,10 +99,6 @@ class Headers
                     else {
                         self::text($header['properties'], $header['title']);
                     }
-                    break;
-                case 'text':
-                default:
-                    self::text($header['properties'], $header['title']);
                     break;
             }
         }

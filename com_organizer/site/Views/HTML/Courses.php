@@ -145,34 +145,28 @@ class Courses extends ListView
             $capacityText       .= ": $item->participants / $item->maxParticipants<br>";
 
             if ($ongoing) {
-                $properties = [
-                    'class' => 'bg-danger',
-                    'tip'   => Text::_('COURSE_ONGOING')
-                ];
+                $properties = ['class' => 'bg-danger'];
+                $tip        = Text::_('COURSE_ONGOING');
             }
             elseif ($closed) {
-                $properties = [
-                    'class' => 'bg-warning',
-                    'tip'   => Text::_('COURSE_CLOSED')
-                ];
+                $properties = ['class' => 'bg-warning'];
+                $tip        = Text::_('COURSE_CLOSED');
             }
             elseif ($full) {
-                $properties = ['class' => 'bg-danger', 'title' => Text::_('COURSE_FULL')];
+                $properties = ['class' => 'bg-danger'];
+                $tip        = Text::_('COURSE_FULL');
             }
             elseif ($ninety) {
-                $properties = [
-                    'class' => 'bg-warning',
-                    'tip'   => Text::_('COURSE_LIMITED')
-                ];
+                $properties = ['class' => 'bg-warning'];
+                $tip        = Text::_('COURSE_LIMITED');
             }
             else {
-                $properties = [
-                    'class' => 'bg-success',
-                    'tip'   => Text::_('COURSE_OPEN')
-                ];
+                $properties = ['class' => 'bg-success'];
+                $tip        = Text::_('COURSE_OPEN');
             }
 
             $item->courseStatus['properties'] = $properties;
+            $item->courseStatus['tip']        = $tip;
 
             if ($ongoing or $closed) {
                 $courseText = Text::_('DEADLINE_EXPIRED_SHORT');
