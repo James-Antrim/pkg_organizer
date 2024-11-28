@@ -187,7 +187,7 @@ class Row
         if ($tip) {
             $context = "$item->id-$column";
             $tip     = '<div role="tooltip" id="' . $context . '">' . $tip . '</div>';
-            echo '<div aria-describedby="tip-$context">';
+            echo '<div aria-describedby="tip-' . $context . '">';
         }
 
         if ($main and !empty($item->prefix)) {

@@ -29,7 +29,6 @@ class RoomTypes extends ListView
     {
         $this->toDo[] = 'Remove tags added per default by the description type having been editor.';
 
-        $this->setTitle('ROOM_TYPES');
         $this->addAdd();
         $this->addSuppression();
 
@@ -38,7 +37,7 @@ class RoomTypes extends ListView
             $this->addDelete();
         }
 
-        parent::addToolBar();
+        $this->setTitle('ROOM_TYPES');
     }
 
     /**
