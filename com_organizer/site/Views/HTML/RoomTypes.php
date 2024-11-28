@@ -27,6 +27,8 @@ class RoomTypes extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->toDo[] = 'Remove tags added per default by the description type having been editor.';
+
         $this->setTitle('ROOM_TYPES');
         $this->addAdd();
         $this->addSuppression();

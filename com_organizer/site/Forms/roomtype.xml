@@ -8,14 +8,14 @@
                table="organizer_use_codes" textcolumn="name" valuecolumn="id">
             <option value="">ORGANIZER_SELECT_ROOM_KEY</option>
         </field>
-        <field name="capacity" type="Integer" label="ORGANIZER_CAPACITY" default="-1" first="9" last="999" step="1">
+        <field name="capacity" type="integer" label="ORGANIZER_CAPACITY" default="-1" first="9" last="999" step="1">
             <option value="-1">ORGANIZER_NO_INPUT</option>
         </field>
         <field name="suppress" type="list" label="ORGANIZER_SUPPRESS" default="0">
             <option value="0">ORGANIZER_NO</option>
             <option value="1">ORGANIZER_YES</option>
         </field>
-        <field name="description_de" type="editor" label="ORGANIZER_DESC_DE"/>
-        <field name="description_en" type="editor" label="ORGANIZER_DESC_EN"/>
+        <field name="description_de" type="textarea" label="ORGANIZER_DESC_DE"/>
+        <field name="description_en" type="textarea" label="ORGANIZER_DESC_EN"/>
     </fieldset>
 </form>
