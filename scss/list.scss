@@ -1,3 +1,18 @@
 #adminForm a[target=_blank]::before {
   content: none;
 }
+
+table.table div[role=tooltip] {
+  background: var(--main-bg);
+  border: var(--border-color) solid var(--border-width);
+
+  div {
+    background: var(--body-bg);
+    border: var(--border-color) solid var(--border-width);
+    padding: calc(var(--border-width) * 8);
+
+    &:not(:first-child) {
+      margin-top: calc(var(--border-width) * 8);
+    }
+  }
+}

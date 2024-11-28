@@ -1,1 +1,1 @@
-#adminForm a[target=_blank]::before{content:none}
+#adminForm a[target=_blank]::before{content:none}table.table div[role=tooltip]{background:var(--main-bg);border:var(--border-color) solid var(--border-width)}table.table div[role=tooltip] div{background:var(--body-bg);border:var(--border-color) solid var(--border-width);padding:calc(var(--border-width)*8)}table.table div[role=tooltip] div:not(:first-child){margin-top:calc(var(--border-width)*8)}
