@@ -2,17 +2,44 @@
   content: none;
 }
 
-table.table div[role=tooltip] {
-  background: var(--main-bg);
-  border: var(--border-color) solid var(--border-width);
+table.table {
+  th, td {
+    &.ta-center {
+      text-align: center;
+    }
 
-  div {
-    background: var(--body-bg);
+    &.ta-right {
+      text-align: right;
+    }
+
+    &.lb-thick {
+      border-left: var(--border-color) solid calc(var(--border-width) * 3);
+    }
+
+    //noinspection ALL
+    &.lb-thin {
+      border-left: var(--border-color) solid calc(var(--border-width));
+    }
+  }
+
+  &#RoomOverviewList {
+    th, td {
+      padding: .75rem .5rem;
+    }
+  }
+
+  div[role=tooltip] {
+    background: var(--main-bg);
     border: var(--border-color) solid var(--border-width);
-    padding: calc(var(--border-width) * 8);
 
-    &:not(:first-child) {
-      margin-top: calc(var(--border-width) * 8);
+    div {
+      background: var(--body-bg);
+      border: var(--border-color) solid var(--border-width);
+      padding: calc(var(--border-width) * 8);
+
+      &:not(:first-child) {
+        margin-top: calc(var(--border-width) * 8);
+      }
     }
   }
 }

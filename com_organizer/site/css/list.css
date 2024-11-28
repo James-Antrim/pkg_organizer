@@ -2,6 +2,26 @@
     content: none;
 }
 
+table.table th.ta-center, table.table td.ta-center {
+    text-align: center;
+}
+
+table.table th.ta-right, table.table td.ta-right {
+    text-align: right;
+}
+
+table.table th.lb-thick, table.table td.lb-thick {
+    border-left: var(--border-color) solid calc(var(--border-width) * 3);
+}
+
+table.table th.lb-thin, table.table td.lb-thin {
+    border-left: var(--border-color) solid calc(var(--border-width));
+}
+
+table.table#RoomOverviewList th, table.table#RoomOverviewList td {
+    padding: .75rem .5rem;
+}
+
 table.table div[role=tooltip] {
     background: var(--main-bg);
     border: var(--border-color) solid var(--border-width);
