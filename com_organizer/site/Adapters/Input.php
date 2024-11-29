@@ -355,7 +355,8 @@ class Input
      */
     public static function getReferrer(): string
     {
-        return (string) self::getInput()->server->get('HTTP_REFERER');
+        // The command filter removes syntax elements from the URL
+        return (string) self::getInput()->server->get('HTTP_REFERER', null, 'string');
     }
 
     /**
