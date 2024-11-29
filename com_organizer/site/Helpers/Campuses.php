@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use Joomla\Database\{DatabaseQuery, ParameterType};
+use Joomla\Utilities\ArrayHelper;
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -21,6 +22,51 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
 {
     use Active;
     use Pinned;
+
+    /**
+     * Retrieves the ids of buildings associated with this campus.
+     *
+     * @param   int  $campusID  the id of the campus
+     *
+     * @return int[]
+     */
+    public static function buildings(int $campusID): array
+    {
+        $campus = self::getTable();
+
+        if (!$campus->load($campusID)) {
+            return [];
+        }
+
+        $campusIDs   = self::children($campusID);
+        $campusIDs[] = $campusID;
+        $campusIDs   = array_filter(ArrayHelper::toInteger($campusIDs));
+
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('id'))
+            ->from(DB::qn('#__organizer_buildings'))
+            ->whereIN(DB::qn('campusID'), $campusIDs);
+
+        DB::setQuery($query);
+
+        return DB::loadIntColumn();
+    }
+
+    /**
+     * Retrieves the ids of subordinate campuses.
+     *
+     * @param   int  $parentID  the id of the superordinate campus
+     *
+     * @return int[]
+     */
+    public static function children(int $parentID): array
+    {
+        $query = DB::getQuery();
+        $query->select(DB::qn('id'))->from(DB::qn('#__organizer_campuses'))->where(DB::qc('parentID', $parentID));
+        DB::setQuery($query);
+
+        return DB::loadIntColumn();
+    }
 
     /**
      * @inheritDoc

@@ -10,34 +10,27 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Text, User};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Roles;
+use stdClass;
+use THM\Organizer\Adapters\{Application, HTML, Input, Text};
+use THM\Organizer\Helpers\{Campuses, Dates, Roles};
+use THM\Organizer\Models\RoomOverview as Model;
 
 /**
  * Loads lesson and event data for a filtered set of rooms into the view context.
  */
 class RoomOverview extends TableView
 {
-    private const WEEK = 2, LAB = 14, UNKNOWN = 49;
-
-    private array $grid;
-
     /**
      * Adds a toolbar and title to the view.
      * @return void  sets context variables
      */
     protected function addToolBar(): void
     {
-        $this->toDo[] = 'Ensure header colspan properties are set as necessary. Automatically integrated in the list headers layout.';
-        $this->toDo[] = 'Ensure the grid id is set during the model\'s populate state call.';
-
-
         $resourceName = Text::_('ORGANIZER_ROOM_OVERVIEW');
         if (!Application::backend()) {
             if ($campusID = Input::getInt('campusID')) {
                 $resourceName .= ': ' . Text::_('ORGANIZER_CAMPUS');
-                $resourceName .= ' ' . Helpers\Campuses::name($campusID);
+                $resourceName .= ' ' . Campuses::name($campusID);
             }
         }
 
@@ -45,238 +38,211 @@ class RoomOverview extends TableView
     }
 
     /**
-     * Gets the cells for an individual day.
-     *
-     * @param   object  $room  the room to retrieve the cells for
-     * @param   string  $date  the Y-m-d date to retrieve the cells for
-     *
-     * @return array[] the cells for the specific day
-     */
-    private function getDailyCells(object $room, string $date): array
-    {
-        $cells      = [];
-        $conditions = [
-            'date'            => $date,
-            'delta'           => false,
-            'endDate'         => $date,
-            'interval'        => 'day',
-            'my'              => false,
-            'roomIDs'         => [$room->id],
-            'showUnpublished' => Helpers\Can::administrate(),
-            'startDate'       => $date,
-            'status'          => 1,
-            'userID'          => User::id()
-        ];
-
-        $instances = Helpers\Instances::items($conditions);
-        if (isset($instances['futureDate']) or isset($instances['pastDate'])) {
-            $instances = [];
-        }
-
-        $data = ['date' => $date, 'instances' => $instances, 'name' => $room->name];
-
-        if (empty($this->grid['periods'])) {
-            if (empty($data['instances'])) {
-                $cells[] = ['text' => ''];
-            }
-            else {
-                $cells[] = $this->getDataCell($data);
-            }
-        }
-        else {
-            foreach (array_keys($this->grid['periods']) as $blockNo) {
-                if (empty($data['instances'])) {
-                    $cells[] = ['text' => ''];
-                    continue;
-                }
-
-                $data['blockNo'] = $blockNo;
-                $cells[]         = $this->getDataCell($data);
-            }
-        }
-
-        return $cells;
-    }
-
-    /**
-     * Creates an array of blocks.
+     * Generates column headers for the blocks header row.
      *
      * @param   bool  $short  true if the block labels should be abbreviated
      *
      * @return array[] the blocks of the time grid
      */
-    private function getHeaderBlocks(bool $short = false): array
+    private function blockColumns(bool $short = false): array
     {
-        $blocks = [];
-        $grid   = $this->grid;
+        /** @var Model $model */
+        $model  = $this->getModel();
+        $blocks = $model->blocks;
+        $dates  = $model->dates;
 
-        if (empty($grid['periods'])) {
-            return $blocks;
-        }
+        $supplement = count($dates) > 1;
 
-        // Suppress blocks for all day display
-        if (count($grid['periods']) === 1) {
-            $block     = reset($grid['periods']);
-            $endTime   = Helpers\Dates::formatEndTime($block['endTime']);
-            $startTime = Helpers\Dates::formatTime($block['startTime']);
+        $class      = 'd-md-table-cell';
+        $properties = ['class' => "$class ta-right", 'scope' => 'col'];
+        $row        = ['name' => ['properties' => $properties, 'title' => Text::_('ROOMS'), 'type' => 'text']];
 
-            if ($endTime === '00:00' and $endTime === $startTime) {
-                return $blocks;
+        $label               = 'label_' . Application::tag();
+        $properties['class'] = "$class ta-center";
+
+        // The unformatted dates are being used for structure and column keys
+        foreach ($dates as $rawDate => $fDate) {
+            $leftBorder = true;
+            foreach ($blocks as $blockNo => $block) {
+                $key = "$rawDate-$blockNo";
+                // Special case where the time would otherwise technically be the beginning of the next day
+                $endTime    = $block['endTime'] !== '00:00' ? $block['endTime'] : '23:59';
+                $timeText   = "{$block['startTime']} - $endTime";
+                $extendedTT = $supplement ? "$fDate $timeText" : $timeText;
+
+                if ($block[$label]) {
+                    $alias = $block[$label];
+                    $tip   = $short ? "$alias ($extendedTT)" : '';
+                    $title = $short ? mb_substr($alias, 0, 1) : $alias;
+                }
+                else {
+                    $tip   = $short ? $extendedTT : '';
+                    $title = $short ? $blockNo : $timeText;
+                }
+
+                $row[$key] = [
+                    'properties' => $properties,
+                    'tip'        => $tip,
+                    'title'      => $title,
+                    'type'       => 'tip'
+                ];
+
+                if ($leftBorder) {
+                    $row[$key]['properties']['class'] .= ' lb-thick';
+                    $leftBorder                       = false;
+                }
+                else {
+                    $row[$key]['properties']['class'] .= ' lb-thin';
+                }
             }
         }
-
-        $labelIndex = 'label_' . Application::tag();
-
-        foreach ($grid['periods'] as $number => $data) {
-            $endTime   = Helpers\Dates::formatEndTime($data['endTime']);
-            $endTime   = $endTime !== '00:00' ? $endTime : '23:59';
-            $startTime = Helpers\Dates::formatTime($data['startTime']);
-            $timeText  = "$startTime - $endTime";
-
-            if (!empty($data[$labelIndex])) {
-                $alias = $data[$labelIndex];
-                $text  = $short ? mb_substr($alias, 0, 1) : $alias;
-                $tip   = $short ? "<div class=\"cellTip\">$alias ($timeText)</div>" : '';
-            }
-            else {
-                $text = $short ? $number : $timeText;
-                $tip  = $short ? "<div class=\"cellTip\">$timeText</div>" : '';
-            }
-
-            if ($tip) {
-                $tip  = htmlentities($tip);
-                $html = "<span class=\"hasTooltip\" title=\"$tip\">$text</span>";
-            }
-            else {
-                $html = $text;
-            }
-
-            $block = ['text' => $html];
-
-            $blocks[$number] = $block;
-        }
-
-        return $blocks;
-    }
-
-    /**
-     * Processes an individual list item resolving it to an array of table data values.
-     *
-     * @param   object  $resource  the resource whose information is displayed in the row
-     *
-     * @return array[] an array of property columns with their values
-     */
-    protected function getRow(object $resource): array
-    {
-        $date = $this->state->get('list.date');
-
-        if ((int) $this->state->get('list.template') === self::WEEK) {
-            $row         = [];
-            $dates       = Helpers\Dates::week($date, $this->grid['startDay'], $this->grid['endDay']);
-            $currentDate = $dates['startDate'];
-            while ($currentDate <= $dates['endDate']) {
-                $dailyCells  = $this->getDailyCells($resource, $currentDate);
-                $row         = array_merge($row, $dailyCells);
-                $currentDate = date('Y-m-d', strtotime("$currentDate + 1 days"));
-            }
-        }
-        else {
-            $row = $this->getDailyCells($resource, $date);
-        }
-
-        $label = $this->getRowLabel($resource);
-        array_unshift($row, $label);
 
         return $row;
     }
 
     /**
-     * Creates a label with tooltip for the resource row.
+     * Readies an item for output.
      *
-     * @param   object  $resource  the resource to be displayed in the row
+     * @param   int       $index  the current iteration number
+     * @param   stdClass  $item   the current item being iterated
+     * @param   array     $options
      *
-     * @return string[]  the label inclusive tooltip to be displayed
+     * @return void
      */
-    protected function getRowLabel(object $resource): array
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $tip = "<div class=\"cellTip\"><span class=\"cellTitle\">$resource->name</span>";
-        $tip .= ($resource->typeName or $resource->effCapacity) ? "<div class=\"labelTip\">" : '';
+        $headers = $this->colScope === false ? $this->headers : $this->headers[$this->colScope];
 
-        if ($resource->typeName) {
-            $tip .= $resource->typeName;
-            if ((int) $resource->roomtypeID === self::LAB) {
-                if (!empty($resource->roomDesc)) {
-                    $tip .= ":<br>$resource->roomDesc";
-                }
+        foreach (array_keys($headers) as $column) {
+            if ($column === 'name') {
+                $item->name = [
+                    'properties' => ['class' => 'd-md-table-cell ta-right'],
+                    'value'      => $item->name,
+                    'tip'        => $this->roomTip($item),
+                    'type'       => 'header'
+                ];
+                continue;
             }
-            elseif ((int) $resource->roomtypeID !== self::UNKNOWN and !empty($resource->typeDesc)) {
-                $tip .= ":<br>$resource->typeDesc";
-            }
-            $tip .= $resource->effCapacity ? '<br>' : '';
+
+            $keyParts = explode('-', $column);
+            $blockNo  = count($keyParts) === 4 ? (int) array_pop($keyParts) : 0;
+
+            $class = 'd-md-table-cell ta-center';
+            $class .= ($blockNo === 0 or $blockNo === 1) ? ' lb-thick' : ' lb-thin';
+
+            $icon = match (count($item->$column)) {
+                0 => '',
+                1 => HTML::icon('fa fa-square-full'),
+                2, 3 => HTML::icon('fa fa-clone'),
+                4, 5, 6 => HTML::icon('fa fa-th-large'),
+                default => HTML::icon('fa fa-th')
+            };
+
+            $item->$column = [
+                'properties' => ['class' => $class],
+                'value'      => $icon,
+                'tip'        => empty($item->$column) ? '' : $this->instances($blockNo, $item->$column),
+                'type'       => 'text'
+            ];
+        }
+    }
+
+    /**
+     * Generates column headers for the dates header row.
+     *
+     * @param   array  $dates  an array of Y-m-d => display formatted dates
+     * @param   int    $blocks
+     *
+     * @return array[]
+     */
+    private function dateColumns(array $dates, int $blocks): array
+    {
+        $class = 'd-md-table-cell ta-center';
+        if ($blocksShown = $blocks > 1) {
+            $properties = ['class' => "$class lb-thick"];
+            $title      = '';
+        }
+        else {
+            $properties = ['class' => $class, 'scope' => 'col'];
+            $title      = Text::_('ROOM');
         }
 
-        if ($resource->effCapacity) {
-            $tip .= Text::_('ORGANIZER_CAPACITY');
-            $tip .= ": $resource->effCapacity";
+        $columns = ['name' => ['properties' => $properties, 'title' => $title, 'type' => 'text']];
+
+        if ($blocksShown) {
+            $properties['colspan'] = $blocks;
         }
 
-        $tip  .= ($resource->typeName or $resource->effCapacity) ? '</div></div>' : '</div>';
-        $tip  = htmlentities($tip);
-        $text = "<span class=\"hasTooltip\" title=\"$tip\">$resource->name</span>";
+        foreach ($dates as $key => $date) {
+            $columns[$key] = ['properties' => $properties, 'title' => $date, 'type' => 'text'];
+        }
 
-        return ['label' => $text];
+        return $columns;
+    }
+
+    /** @inheritDoc */
+    protected function initializeColumns(): void
+    {
+        /** @var Model $model */
+        $model  = $this->getModel();
+        $blocks = $model->blocks;
+        $dates  = $model->dates;
+        $count  = count($blocks);
+
+        $dateColumns = $this->dateColumns($dates, $count);
+        if ($count === 1) {
+            $this->headers = $dateColumns;
+            return;
+        }
+
+        $this->colScope = 'blocks';
+        $this->headers  = ['dates' => $dateColumns, 'blocks' => $this->blockColumns(count($dates) > 1)];
+    }
+
+    /** @inheritDoc */
+    protected function initializeRows(): void
+    {
+        // The rows have identity with actual resources, no implementation is needed here.
+        $this->identity = true;
     }
 
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param   array  $data  the data to be used to generate the cell contents
+     * @param   int    $blockNo      the block number currently being iterated
+     * @param   array  $instanceIDs  the ids of instances associated with the block & room being iterated
      *
-     * @return string[] an array of property columns with their values
+     * @return string an array of property columns with their values
      */
-    protected function getDataCell(array $data): array
+    protected function instances(int $blockNo, array $instanceIDs): string
     {
-        if (empty($data['blockNo'])) {
-            $noGrid    = true;
-            $dEndTime  = '';
-            $endTime   = '';
-            $startTime = '';
+        /** @var Model $model */
+        $model     = $this->getModel();
+        $instances = $model->instances;
+
+        if (empty($model->blocks[$blockNo])) {
+            $endTime = $startTime = null;
         }
         else {
-            $blockNo   = $data['blockNo'];
-            $endTime   = $this->grid['periods'][$blockNo]['endTime'];
-            $endTime   = Helpers\Dates::formatEndTime($endTime);
-            $dEndTime  = $endTime !== '00:00' ? $endTime : '23:59';
-            $noGrid    = false;
-            $startTime = Helpers\Dates::formatTime($this->grid['periods'][$blockNo]['startTime']);
+            $endTime   = Dates::formatEndTime($model->blocks[$blockNo]['endTime']);
+            $startTime = $model->blocks[$blockNo]['startTime'];
         }
 
-        $instances = $data['instances'];
-
         $tips = [];
-
-        foreach ($instances as $instance) {
-            if (!$noGrid) {
-                $allDay   = $startTime === $endTime;
-                $tooEarly = $instance['endTime'] <= $startTime;
-                $tooLate  = $instance['startTime'] >= $endTime;
-
-                if (!$allDay and ($tooEarly or $tooLate)) {
-                    continue;
-                }
+        foreach ($instanceIDs as $instanceID) {
+            if (empty($instances[$instanceID])) {
+                continue;
             }
 
-            $times = "{$instance['startTime']} - {$instance['endTime']}";
-            $tip   = '<div class="cellTip">';
-            if ($noGrid or $instance['endTime'] !== $endTime or $instance['startTime'] !== $startTime) {
-                $tip .= "($times)<br>";
-            }
+            $instance = $instances[$instanceID];
 
-            $tip .= '<span class="cellTitle">' . $instance['name'];
+            $tip = "<h6>{$instance['name']}";
             $tip .= $instance['method'] ? " - {$instance['method']}" : '';
-            $tip .= '</span><br>';
+            $tip .= ($instance['endTime'] !== $endTime or $instance['startTime'] !== $startTime) ?
+                " ({$instance['startTime']} - {$instance['endTime']})" : '';
+            $tip .= '</h6>';
 
-            $tip .= Text::_('ORGANIZER_ORGANIZATION') . ":";
+            $tip .= Text::_('ORGANIZATION') . ":";
             $tip .= strlen($instance['organization']) > 20 ? '<br>' : ' ';
             $tip .= "{$instance['organization']}<br>";
 
@@ -294,93 +260,46 @@ class RoomOverview extends TableView
                 $tip     .= "$persons<br>";
             }
 
-            if ($instance['comment']) {
-                $tip .= Text::_('ORGANIZER_EXTRA_INFORMATION') . ":";
-                $tip .= strlen($instance['comment']) > 20 ? '<br>' : ' ';
-                $tip .= "{$instance['comment']}<br>";
-            }
-
-            $index = "$times {$instance['organizationID']} {$instance['name']} {$instance['method']}";
-
-            $tip          .= '</div>';
-            $tips[$index] = $tip;
+            $tips[] = $tip;
         }
 
-        $cell['text'] = '';
-
-        if ($tips) {
-            if ($noGrid) {
-                $icons = [];
-                foreach ($tips as $tip) {
-                    $tip     = htmlentities($tip);
-                    $icons[] = "<span class=\"icon-square hasTooltip\" title=\"$tip\"'></span>";
-                }
-
-                $cell['text'] = implode(' ', $icons);
-            }
-            else {
-                $iconClass    = count($tips) > 1 ? 'grid' : 'square';
-                $date         = Helpers\Dates::formatDate($data['date'], true);
-                $cellTip      = '<div class="cellTip">';
-                $cellTip      .= "<span class=\"cellTitle\">$date<br>$startTime - $dEndTime</span>";
-                $cellTip      .= implode('', $tips);
-                $cellTip      .= '<div>';
-                $cellTip      = htmlentities($cellTip);
-                $cell['text'] = "<span class=\"icon-$iconClass hasTooltip\" title=\"$cellTip\"></span>";
-            }
+        if (empty($tips)) {
+            return '';
         }
 
-        return $cell;
+        return count($tips) > 1 ? '<div>' . implode('</div><div>', $tips) . '</div>' : reset($tips);
     }
 
     /**
-     * Sets the table header information
-     * @return void sets the headers property
+     * Creates a tip for the room being iterated
+     *
+     * @param   object  $room  the room to be displayed in the row
+     *
+     * @return string
      */
-    protected function initializeColumns(): void
+    protected function roomTip(object $room): string
     {
-        $date     = $this->state->get('list.date');
-        $headers  = [];
-        $template = $this->state->get('list.template');
+        if (empty($room->effCapacity) and empty($room->type)) {
+            return '';
+        }
 
-        if ((int) $template === self::WEEK) {
-            $blocks    = $this->getHeaderBlocks(true);
-            $headers[] = ['text' => '', 'columns' => []];
-            $dates     = Helpers\Dates::week($date, $this->grid['startDay'], $this->grid['endDay']);
+        $tip = "<h6>$room->name</h6>";
 
-            $currentDate = $dates['startDate'];
-            while ($currentDate <= $dates['endDate']) {
-                $formattedDate           = Helpers\Dates::formatDate($currentDate);
-                $headers[$formattedDate] = ['text' => $formattedDate, 'columns' => $blocks];
-                $currentDate             = date('Y-m-d', strtotime("$currentDate + 1 days"));
+        if ($room->type) {
+            $tip .= $room->type;
+            if ($room->description) {
+                // Room types with high specificity regarding their equipment
+                $tip .= strlen($room->type) > 20 ? ':<br>' : ': ';
+
+                $tip .= strip_tags($room->description);
             }
-        }
-        elseif (empty($this->grid['periods'])) {
-            $headers = [['text' => ''], ['text' => Helpers\Dates::formatDate($date)]];
-        }
-        else {
-            $blocks  = $this->getHeaderBlocks();
-            $headers = $blocks;
-            array_unshift($headers, ['text' => '']);
+            $tip .= $room->effCapacity ? '<br>' : '';
         }
 
-        $this->headers = $headers;
-    }
-
-    /**
-     * Function to set attributes unique to individual tables.
-     * @return void sets attributes specific to individual tables
-     */
-    protected function setOverrides(): void
-    {
-        if (!$gridID = $this->state->get('list.gridID') and $campusID = Input::getParams()->get('campusID')) {
-            $gridID = Helpers\Campuses::gridID($campusID);
+        if ($room->effCapacity) {
+            $tip .= Text::_('CAPACITY') . ": $room->effCapacity";
         }
 
-        if (empty($gridID)) {
-            $gridID = Helpers\Grids::getDefault();
-        }
-
-        $this->grid = json_decode(Helpers\Grids::getGrid($gridID), true);
+        return $tip;
     }
 }

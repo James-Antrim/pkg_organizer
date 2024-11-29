@@ -15,7 +15,7 @@ use Exception;
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
-use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Form};
 use THM\Organizer\Helpers\{Associated, Campuses};
 
 /**
@@ -222,23 +222,13 @@ trait Filtered
      */
     protected function filterValues(DatabaseQuery $query, array $queryColumns): void
     {
-        $filters = Input::getFilterItems();
-        $lists   = Input::getListItems();
-        $state   = $this->getState();
+        $state = $this->getState();
 
         // The view level filters
         foreach ($queryColumns as $column) {
             $filterName = !str_contains($column, '.') ? $column : explode('.', $column)[1];
 
-            $value = $filters->get($filterName);
-
-            if (!$value and $value !== '0') {
-                $value = $lists->get($filterName);
-            }
-
-            if (!$value and $value !== '0') {
-                $value = $state->get("filter.$filterName");
-            }
+            $value = $state->get("filter.$filterName");
 
             if (!$value and $value !== '0') {
                 $value = $state->get("list.$filterName");

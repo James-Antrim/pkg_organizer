@@ -39,7 +39,7 @@ class Buildings extends ResourceHelper implements Filterable, Selectable
         $table     = DB::qn("#__organizer_buildings", 'buildingAlias');
 
         if ($resourceID === self::NONE) {
-            $query->leftJoin($table, $condition)->where("$tableID.id IS NULL");
+            $query->leftJoin($table, $condition)->where("$tableID IS NULL");
             return;
         }
 
