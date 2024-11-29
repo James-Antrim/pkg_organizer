@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the color form into display context.
- */
-class EquipmentEdit extends EditViewOld
+/** @inheritDoc */
+class EquipmentEdit extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }

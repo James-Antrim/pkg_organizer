@@ -20,7 +20,7 @@ use THM\Organizer\Tables\Instances as Table;
 /**
  * Class loads a form for editing instance data.
  */
-class InstanceEdit extends EditModelOld
+class InstanceEdit extends EditModel
 {
     // Default role
     private const NONE = -1;

@@ -13,10 +13,8 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\Toolbar;
 use THM\Organizer\Models\UnitEdit as Model;
 
-/**
- * Class loads the grid form into display context.
- */
-class UnitEdit extends EditViewOld
+/** @inheritDoc */
+class UnitEdit extends FormView
 {
     public string $orientation = 'vertical';
 

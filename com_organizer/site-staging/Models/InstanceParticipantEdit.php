@@ -19,7 +19,7 @@ use THM\Organizer\Tables\InstanceParticipants as Table;
 /**
  * Class loads a form for editing campus data.
  */
-class InstanceParticipantEdit extends EditModelOld
+class InstanceParticipantEdit extends EditModel
 {
     /** @inheritDoc */
     public function __construct($config = [])

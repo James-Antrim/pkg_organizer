@@ -19,7 +19,7 @@ use stdClass;
 /**
  * Class loads a form for editing instance data.
  */
-class UnitEdit extends EditModelOld
+class UnitEdit extends EditModel
 {
     public $instances = [];
 

@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the campus form into display context.
- */
-class InstanceParticipantEdit extends EditViewOld
+/** @inheritDoc */
+class InstanceParticipantEdit extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.
 }
