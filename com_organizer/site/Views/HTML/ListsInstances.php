@@ -64,13 +64,17 @@ trait ListsInstances
 
                 if ($userID) {
                     if ($instance->bookmarked) {
-                        $value .= ' ' . HTML::tip(HTML::icon('fa fa-bookmark'), "instance-bookmark-$instance->id", 'BOOKMARKED');
+                        $value .= ' ' . HTML::tip(
+                                HTML::icon('fa fa-bookmark'), "instance-bookmark-$instance->instanceID", 'BOOKMARKED'
+                            );
 
                     }
 
                     if ($instance->manageable) {
                         $value .= '<br>' . $instance->interested . ' ';
-                        $value .= HTML::tip(HTML::icon('fa fa-bookmark'), "instance-subscribers-$instance->id", 'SUBSCRIBERS');
+                        $value .= HTML::tip(
+                            HTML::icon('fa fa-bookmark'), "instance-subscribers-$instance->instanceID", 'SUBSCRIBERS'
+                        );
                     }
 
                 }
@@ -81,11 +85,13 @@ trait ListsInstances
 
                 if ($userID) {
                     if ($instance->bookmarked) {
-                        $value .= ' ' . HTML::tip(HTML::icon('fa fa-bookmark'), "instance-bookmark-$instance->id", 'BOOKMARKED');
+                        $value .= ' ' . HTML::tip(
+                                HTML::icon('fa fa-bookmark'), "instance-bookmark-$instance->instanceID", 'BOOKMARKED'
+                            );
 
                         if ($instance->registered) {
                             $icon  = HTML::icon('fa fa-sign-in-alt');
-                            $value .= ' ' . HTML::tip($icon, "instance-registration-$instance->id", 'REGISTERED');
+                            $value .= ' ' . HTML::tip($icon, "instance-registration-$instance->instanceID", 'REGISTERED');
                         }
                     }
 
@@ -93,7 +99,7 @@ trait ListsInstances
                         if ($interested) {
                             $icon  = HTML::icon('fa fa-bookmark');
                             $value .= "<br>$interested ";
-                            $value .= HTML::tip($icon, "instance-subscribers-$instance->id", 'SUBSCRIBERS');
+                            $value .= HTML::tip($icon, "instance-subscribers-$instance->instanceID", 'SUBSCRIBERS');
                         }
                     }
                 }
@@ -111,32 +117,32 @@ trait ListsInstances
                     if ($instance->premature)
                     {
                         $icon  =  HTML::icon('fa fa-unlock');
-                        $value .= HTML::tip($icon, "instance-status-$instance->id", 'REGISTRATION_PREMATURE');
+                        $value .= HTML::tip($icon, "instance-status-$instance->instanceID", 'REGISTRATION_PREMATURE');
                         $value .= ' ' . $instance->registrationStart;
                     }
                     elseif ($instance->running)
                     {
                         $icon  =  HTML::icon('fa fa-stop');
-                        $value .= HTML::tip($icon, "instance-status-$instance->id", 'REGISTRATION_CLOSED');
+                        $value .= HTML::tip($icon, "instance-status-$instance->instanceID", 'REGISTRATION_CLOSED');
                     }
                     else
                     {
                         if ($instance->full)
                         {
                             $icon  =  HTML::icon('fa fa-pause');
-                            $value .= HTML::tip($icon, "instance-status-$instance->id", 'INSTANCE_FULL') . ' ';
+                            $value .= HTML::tip($icon, "instance-status-$instance->instanceID", 'INSTANCE_FULL') . ' ';
                         }
                         else
                         {
                             $icon  =  HTML::icon('fa fa-play');
-                            $value .= HTML::tip($icon, "instance-status-$instance->id", 'REGISTRATION_OPEN') . ' ';
+                            $value .= HTML::tip($icon, "instance-status-$instance->instanceID", 'REGISTRATION_OPEN') . ' ';
                         }
 
                         // Forced output
                         $capacity = $instance->capacity ?: 'X';
                         $icon = HTML::icon('fa fa-users');
                         $value    .= "$instance->current/$capacity ";
-                        $value .= HTML::tip($icon, "participants-$instance->id", 'PARTICIPANTS') . ' ';
+                        $value .= HTML::tip($icon, "participants-$instance->instanceID", 'PARTICIPANTS') . ' ';
                     }
                 }*/
             }
@@ -196,11 +202,11 @@ trait ListsInstances
                     // Always allow management of existing
                     if ($instance->bookingID) {
                         $url       = Routing::getViewURL('booking', $instance->bookingID);
-                        $buttons[] = HTML::tip($icon, "manage-$instance->id", 'MANAGE_BOOKING', $attribs, $url);
+                        $buttons[] = HTML::tip($icon, "manage-$instance->instanceID", 'MANAGE_BOOKING', $attribs, $url);
                     } // Never allow creation of bookings for past instances
                     elseif ($instance->registration) {
                         $url       = Routing::getTaskURL('bookings.manage', $instanceID);
-                        $buttons[] = HTML::tip($icon, "manage-$instance->id", 'MANAGE_BOOKING', $attribs, $url);
+                        $buttons[] = HTML::tip($icon, "manage-$instance->instanceID", 'MANAGE_BOOKING', $attribs, $url);
                     }
 
                 }
@@ -281,7 +287,7 @@ trait ListsInstances
             // Premature
         }
 
-        return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => $value] : $value;
+        return $title ? ['properties' => ['class' => $class, 'title' => $title], 'value' => $value] : $value;
     }
 
     /**
@@ -297,7 +303,7 @@ trait ListsInstances
         $comment = $this->resolveLinks($instance->comment);
 
         if ($instance->courseID) {
-            $title .= '<br>' . HTML::tip(HTML::icon('fa fa-link'), "course-$instance->id", 'REGISTRATION_LINKED') . ' ';
+            $title .= '<br>' . HTML::tip(HTML::icon('fa fa-link'), "course-$instance->instanceID", 'REGISTRATION_LINKED') . ' ';
             $title .= Text::_('ORGANIZER_INSTANCE_SERIES') . ": $instance->courseID";
         }
 

@@ -23,28 +23,6 @@ use stdClass;
 class HTML extends HTMLHelper
 {
     /**
-     * Generates a string containing attribute information for an HTML element to be output
-     *
-     * @param   mixed &$element  the element being processed
-     *
-     * @return string the HTML attribute output for the item
-     */
-    public static function attributes(array &$element): string
-    {
-        $output = '';
-
-        $relevant = (!empty($element['attributes']) and is_array($element['attributes']));
-        if ($relevant) {
-            foreach ($element['attributes'] as $attribute => $attributeValue) {
-                $output .= $attribute . '="' . $attributeValue . '" ';
-            }
-        }
-        unset($element['attributes']);
-
-        return $output;
-    }
-
-    /**
      * Method to check all checkboxes in a resource table.
      * @return  string
      * @see Grid::checkall()
@@ -127,6 +105,25 @@ class HTML extends HTMLHelper
     public static function option(int|string $value, string $text, bool $disable = false): stdClass
     {
         return Select::option((string) $value, $text, 'value', 'text', $disable);
+    }
+
+    /**
+     * Generates a string containing property information for an HTML element to be output
+     *
+     * @param   mixed &$element  the element being processed
+     *
+     * @return string the HTML attribute output for the item
+     */
+    public static function properties(array &$element): string
+    {
+        $return = '';
+
+        if (!empty($element['properties']) and is_array($element['properties'])) {
+            $return = ArrayHelper::toString($element['properties']);
+        }
+        unset($element['properties']);
+
+        return $return;
     }
 
     /**
@@ -244,18 +241,5 @@ class HTML extends HTMLHelper
         $tip     = "<div role=\"tooltip\" id=\"$context\"> " . Text::_($tip) . '</div>';
 
         return $content . $tip;
-    }
-
-    /**
-     * Converts an array $property => $value to a string for use in HTML tags.
-     *
-     * @param   array  $array  the properties and their values
-     *
-     * @return string
-     * @see ArrayHelper::toString()
-     */
-    public static function toString(array $array): string
-    {
-        return ArrayHelper::toString($array);
     }
 }

@@ -46,7 +46,7 @@ require_once 'titles.php';
     <?php endif; ?>
     <?php if ($this->items): ?>
         <h2 class="section-head"><?php echo Text::_('ORGANIZER_UPCOMING_INSTANCES'); ?></h2>
-        <?php echo Toolbar::getInstance()->render(); ?>
+        <?php echo Toolbar::render(); ?>
         <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
             <?php if (count($items)) : ?>
                 <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
@@ -54,23 +54,23 @@ require_once 'titles.php';
                     <tr>
                         <?php
                         foreach ($this->headers as $header) {
-                            $colAttributes = HTML::attributes($header);
+                            $colAttributes = HTML::properties($header);
                             $colValue      = is_array($header) ? $header['value'] : $header;
                             echo "<th $colAttributes>$colValue</th>";
                         }
                         ?>
                     </tr>
                     </thead>
-                    <tbody <?php echo HTML::attributes($items); ?>>
+                    <tbody <?php echo HTML::properties($items); ?>>
                     <?php foreach ($items as $row) : ?>
-                        <tr <?php echo HTML::attributes($row); ?>>
+                        <tr <?php echo HTML::properties($row); ?>>
                             <?php
                             foreach ($row as $key => $column) {
                                 if ($key === 'attributes') {
                                     continue;
                                 }
 
-                                $colAttributes = HTML::attributes($column);
+                                $colAttributes = HTML::properties($column);
                                 $colValue      = is_array($column) ? $column['value'] : $column;
                                 echo "<td $colAttributes>$colValue</td>";
                             }

@@ -51,19 +51,21 @@ class Row
      */
     private static function ordering(object $item, bool $enabled): void
     {
-        $attributes = ['class' => 'sortable-handler'];
+        $properties = ['class' => 'sortable-handler'];
 
         if (!$item->access) {
-            $attributes['class'] .= ' inactive';
+            $properties['class'] .= ' inactive';
         }
         elseif (!$enabled) {
-            $attributes['class'] .= ' inactive';
-            $attributes['title'] = Text::_('JORDERINGDISABLED');
+            $properties['class'] .= ' inactive';
+            $properties['title'] = Text::_('JORDERINGDISABLED');
         }
+
+        $item->properties = $properties;
 
         ?>
         <td class="text-center d-none d-md-table-cell">
-            <span <?php echo HTML::toString($attributes); ?>>
+            <span <?php echo HTML::properties($item); ?>>
                 <span class="icon-ellipsis-v"></span>
             </span>
             <?php if ($item->access and $enabled) : ?>
@@ -149,21 +151,9 @@ class Row
         $value = $item->$column ?? '';
 
         if (is_array($value)) {
-            $properties = $value['properties'];
+            $properties = HTML::properties($value);
 
-            if (is_array($properties)) {
-                if (!empty($properties['tip'])) {
-                    $tip = $properties['tip'];
-                    unset($properties['tip']);
-                }
-
-                $properties = HTML::toString($properties);
-            }
-            else {
-                $properties = '';
-            }
-
-            if (!$tip and !empty($value['tip'])) {
+            if (!empty($value['tip'])) {
                 $tip = $value['tip'];
             }
 

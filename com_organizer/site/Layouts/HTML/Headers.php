@@ -88,16 +88,16 @@ class Headers
                     self::ordering();
                     break;
                 case 'sort':
-                    self::sort($header['properties'], $header['title'], $header['column'], $column, $direction);
+                    self::sort($header, $column, $direction);
                     break;
                 case 'text':
                 default:
                     if (!empty($header['tip'])) {
                         $context = $rIndex ? "context-$rIndex-$cIndex" : "context-$cIndex";
-                        self::tip($header['properties'], $header['title'], $header['tip'], $context);
+                        self::tip($header, $context);
                     }
                     else {
-                        self::text($header['properties'], $header['title']);
+                        self::text($header);
                     }
                     break;
             }
@@ -108,17 +108,15 @@ class Headers
     /**
      * Renders a check all box style list header.
      *
-     * @param   array   $properties  the properties for the containing tag
-     * @param   string  $title       the title text to display
-     * @param   string  $column      the table column represented by the data displayed in this column
-     * @param   string  $orderBy     the column the results are currently ordered by
-     * @param   string  $direction   the current sort direction
+     * @param   array   $header     the header to be rendered
+     * @param   string  $orderBy    the column the results are currently ordered by
+     * @param   string  $direction  the current sort direction
      */
-    private static function sort(array $properties, string $title, string $column, string $orderBy, string $direction): void
+    private static function sort(array $header, string $orderBy, string $direction): void
     {
         ?>
-        <th <?php echo HTML::toString($properties); ?>>
-            <?php echo HTML::sort($title, $column, $direction, $orderBy); ?>
+        <th <?php echo HTML::properties($header); ?>>
+            <?php echo HTML::sort($header['title'], $header['column'], $direction, $orderBy); ?>
         </th>
         <?php
     }
@@ -126,14 +124,13 @@ class Headers
     /**
      * Renders a check all box style list header.
      *
-     * @param   array   $properties  the properties for the containing tag
-     * @param   string  $title       the title text to display. optional for default processing
+     * @param   array  $header  the header to be rendered
      */
-    private static function text(array $properties, string $title = ''): void
+    private static function text(array $header): void
     {
         ?>
-        <th <?php echo HTML::toString($properties); ?>>
-            <?php echo $title; ?>
+        <th <?php echo HTML::properties($header); ?>>
+            <?php echo $header['title']; ?>
         </th>
         <?php
     }
@@ -141,18 +138,16 @@ class Headers
     /**
      * Renders the cell information with a tooltip.
      *
-     * @param   array   $properties  the properties for the containing tag
-     * @param   string  $title       the information to display in the table
-     * @param   string  $tip         the information to display as the tip to the information in the table
-     * @param   string  $context     the unique context used for the tip to reference the information
+     * @param   array   $header   the header to be rendered
+     * @param   string  $context  the unique context used for the tip to reference the information
      *
      * @return void
      */
-    private static function tip(array $properties, string $title, string $tip, string $context): void
+    private static function tip(array $header, string $context): void
     {
         ?>
-        <th <?php echo HTML::toString($properties); ?>>
-            <?php echo HTML::tip($title, $context, $tip); ?>
+        <th <?php echo HTML::properties($header); ?>>
+            <?php echo HTML::tip($header['title'], $context, $header['tip']); ?>
         </th>
         <?php
     }
