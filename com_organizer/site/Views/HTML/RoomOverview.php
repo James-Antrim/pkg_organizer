@@ -34,7 +34,7 @@ class RoomOverview extends TableView
             }
         }
 
-        $this->setTitle('ORGANIZER_ROOM_OVERVIEW', $resourceName);
+        $this->title('ORGANIZER_ROOM_OVERVIEW', $resourceName);
     }
 
     /**

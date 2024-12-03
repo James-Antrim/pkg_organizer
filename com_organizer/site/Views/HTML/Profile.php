@@ -10,22 +10,19 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Adapters\Toolbar;
 
 /**
  * Class loads the profile form into display context.
  */
 class Profile extends OldFormView
 {
-    /**
-     * Adds a toolbar and title to the view.
-     * @return void  adds toolbar items to the view
-     */
-    protected function addToolBar()
+    /** @inheritDoc */
+    protected function addToolBar(): void
     {
-        $this->setTitle('ORGANIZER_MY_PROFILE');
+        $this->title('MY_PROFILE');
 
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Text::_('ORGANIZER_SAVE'), 'profile.save', false);
+        $toolbar->save('profile.save');
     }
 }

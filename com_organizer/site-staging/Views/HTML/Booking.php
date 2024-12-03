@@ -12,33 +12,26 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
-use THM\Organizer\Helpers\{Bookings as Helper, Can};
 use THM\Organizer\Buttons\FormTarget;
-use THM\Organizer\Tables;
+use THM\Organizer\Helpers\{Bookings as Helper, Can};
+use THM\Organizer\Models\Booking as Model;
+use THM\Organizer\Tables\Bookings as Table;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
  */
 class Booking extends Participants
 {
-    /**
-     * @var Tables\Bookings
-     */
-    public $booking;
+    public Table $booking;
 
-    /**
-     * @var int
-     */
     public int $bookingID;
 
     private bool $hasRegistered = false;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle(Text::_('EVENT_CODE') . ": {$this->booking->code}");
+        $this->title(Text::_('EVENT_CODE') . ": {$this->booking->code}");
 
         $toolbar = Toolbar::getInstance();
 
@@ -108,9 +101,7 @@ class Booking extends Participants
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!User::id()) {
@@ -126,10 +117,8 @@ class Booking extends Participants
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function completeItems(): void
+    /** @inheritDoc */
+    protected function completeItems(array $options = []): void
     {
         $index = 0;
 
@@ -189,22 +178,22 @@ class Booking extends Participants
         $this->items = $structuredItems;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         // Set batch template path
-        $this->batch   = ['batch_participation', 'form_modal'];
-        $this->booking = $this->getModel()->booking;
-        $this->empty   = '';
+        $this->batch = ['batch_participation', 'form_modal'];
+        $this->empty = '';
+
+        /** @var Model $model */
+        $model = $this->getModel();
+
+        $this->booking = $model->booking;
 
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');
@@ -222,9 +211,7 @@ class Booking extends Participants
         $this->headers = $headers;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         if ($this->layout === 'qrcode') {
@@ -236,10 +223,8 @@ class Booking extends Participants
         parent::modifyDocument();
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function setSubTitle(): void
+    /** @inheritDoc */
+    protected function subTitle(): void
     {
         $bookingID      = Input::getID();
         $subTitle       = Helper::names($bookingID);
@@ -247,10 +232,8 @@ class Booking extends Participants
         $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function setSupplement(): void
+    /** @inheritDoc */
+    protected function supplement(): void
     {
         $bookingDate = $this->booking->get('date');
         $expiredText = Text::_('BOOKING_CLOSED');

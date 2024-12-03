@@ -81,7 +81,7 @@ class FormView extends Base
         $new = empty($this->item->id);
 
         $title = $new ? "ORGANIZER_ADD_$constant" : "ORGANIZER_EDIT_$constant";
-        $this->setTitle($title);
+        $this->title($title);
 
         $toolbar = Document::getToolbar();
 
@@ -129,8 +129,8 @@ class FormView extends Base
     protected function initializeView(): void
     {
         parent::initializeView();
-        $this->setSubTitle();
-        $this->setSupplement();
+        $this->subTitle();
+        $this->supplement();
         $this->modifyDocument();
     }
 

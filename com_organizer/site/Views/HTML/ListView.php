@@ -95,7 +95,7 @@ abstract class ListView extends Base
     {
         // MVC name identity is now the internal standard
         $controller = $this->getName();
-        $this->setTitle(strtoupper($controller));
+        $this->title(strtoupper($controller));
 
         if (Application::backend() and Can::administrate()) {
             $toolbar = Toolbar::getInstance();
@@ -170,8 +170,8 @@ abstract class ListView extends Base
 
         $this->empty = $this->empty ?: Text::_('EMPTY_RESULT_SET');
 
-        $this->setSubTitle();
-        $this->setSupplement();
+        $this->subTitle();
+        $this->supplement();
         $this->addToC();
         $this->initializeColumns();
         $this->completeItems();

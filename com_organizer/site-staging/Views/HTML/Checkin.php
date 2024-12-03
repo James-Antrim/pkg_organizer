@@ -11,7 +11,6 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, Input};
 use THM\Organizer\Tables\Participants as Table;
 
@@ -20,35 +19,21 @@ use THM\Organizer\Tables\Participants as Table;
  */
 class Checkin extends OldFormView
 {
-    public $complete = true;
+    public bool $complete = true;
 
-    public $edit = false;
+    public bool $edit = false;
 
-    public $privacy = false;
+    public bool $privacy = false;
 
-    /**
-     * @var array
-     */
-    public $instances;
+    public array $instances;
 
-    /**
-     * @var Table
-     */
-    public $participant;
+    public Table $participant;
 
-    /**
-     * @var int|null
-     */
-    public $roomID;
+    public int|null $roomID;
 
-    /**
-     * @var null|string
-     */
-    public $seat;
+    public string|null $seat;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         if ($this->privacy) {
@@ -72,12 +57,10 @@ class Checkin extends OldFormView
             $title = 'CHECKIN';
         }
 
-        $this->setTitle($title);
+        $this->title($title);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $session = Factory::getSession();
@@ -117,9 +100,7 @@ class Checkin extends OldFormView
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         parent::modifyDocument();

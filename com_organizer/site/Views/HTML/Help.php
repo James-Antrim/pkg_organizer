@@ -27,7 +27,7 @@ class Help extends BaseView
     {
         $topic    = strtoupper(Input::getCMD('topic', 'toc'));
         $constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
-        $this->setTitle($constant);
+        $this->title($constant);
     }
 
     /**

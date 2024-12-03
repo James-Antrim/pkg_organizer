@@ -45,8 +45,8 @@ abstract class TableView extends ListView
 
         $this->empty = $this->empty ?: Text::_('EMPTY_RESULT_SET');
 
-        $this->setSubTitle();
-        $this->setSupplement();
+        $this->subTitle();
+        $this->supplement();
         $this->initializeColumns();
         $this->initializeRows();
         $this->completeItems();

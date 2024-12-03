@@ -21,9 +21,7 @@ class ContactTracking extends ListView
 {
     private const BY_DAY = 1, BY_EVENT = 2;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -39,22 +37,18 @@ class ContactTracking extends ListView
         $this->rowStructure = $structure;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function setSubTitle(): void
+    /** @inheritDoc */
+    protected function subTitle(): void
     {
         $then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
         $today          = Helpers\Dates::formatDate(date('Y-m-d'));
         $this->subtitle = Text::_('INTERVAL') . ": $then - $today";
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('CONTACT_TRACKING');
+        $this->title('CONTACT_TRACKING');
 
         if (($this->state->get('participantID') or $this->state->get('personID')) and count($this->items)) {
             $toolbar = Toolbar::getInstance();
@@ -65,9 +59,7 @@ class ContactTracking extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!User::id()) {
@@ -79,10 +71,10 @@ class ContactTracking extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
+    /** @inheritDoc
+     * @param   array  $options
      */
-    protected function completeItems()
+    protected function completeItems(array $options = []): void
     {
         $index           = 1;
         $link            = '';
@@ -142,10 +134,8 @@ class ContactTracking extends ListView
         $this->items = $structuredItems;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function display($tpl = null)
+    /** @inheritDoc */
+    public function display($tpl = null): void
     {
         $filterItems = Input::getFilterItems();
 
@@ -160,10 +150,8 @@ class ContactTracking extends ListView
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function initializeColumns()
+    /** @inheritDoc */
+    public function initializeColumns(): void
     {
         $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
         $headers    = [

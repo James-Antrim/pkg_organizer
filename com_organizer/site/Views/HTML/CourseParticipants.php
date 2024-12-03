@@ -22,33 +22,13 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class CourseParticipants extends Participants
 {
-    /**
-     * @inheritDoc
-     */
-    protected function setSubTitle(): void
-    {
-        $courseID = (int) $this->state->get('hidden.id');
 
-        $subTitle   = [];
-        $subTitle[] = cHelper::name($courseID);
-
-        if ($campusID = cHelper::campusID($courseID)) {
-            $subTitle[] = Campuses::name($campusID);
-        }
-
-        $subTitle[] = cHelper::displayDate($courseID);
-
-        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
-    }
-
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'The borders/fill in grouped attendance needs adjusting. (Vertical overlap.)';
 
-        $this->setTitle('PARTICIPANTS');
+        $this->title('PARTICIPANTS');
 
         $toolbar = Toolbar::getInstance();
 
@@ -216,5 +196,22 @@ class CourseParticipants extends Participants
         parent::modifyDocument();
 
         Document::style('modal');
+    }
+
+    /** @inheritDoc */
+    protected function subTitle(): void
+    {
+        $courseID = (int) $this->state->get('hidden.id');
+
+        $subTitle   = [];
+        $subTitle[] = cHelper::name($courseID);
+
+        if ($campusID = cHelper::campusID($courseID)) {
+            $subTitle[] = Campuses::name($campusID);
+        }
+
+        $subTitle[] = cHelper::displayDate($courseID);
+
+        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
     }
 }

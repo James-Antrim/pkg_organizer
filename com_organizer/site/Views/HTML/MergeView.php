@@ -23,7 +23,7 @@ abstract class MergeView extends FormView
         Input::set('hidemainmenu', true);
         $controller = $this->getName();
         $key        = str_replace('Merge', 'MERGE_', $controller);
-        $this->setTitle(strtoupper($key));
+        $this->title(strtoupper($key));
 
         $toolbar = Toolbar::getInstance();
         $toolbar->save($controller . '.save', Text::_('MERGE'))->icon('fa fa-code-merge');

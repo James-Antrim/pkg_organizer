@@ -58,7 +58,7 @@ class Subjects extends ListView
             }
         }
 
-        $this->setTitle('SUBJECTS', $resourceName);
+        $this->title('SUBJECTS', $resourceName);
 
         if ($this->access) {
             $this->addAdd();

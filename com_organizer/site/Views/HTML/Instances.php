@@ -65,7 +65,7 @@ class Instances extends ListView
         $this->toDo[] = 'Revisit tools.';
         $this->toDo[] = 'Title key incomplete.';
 
-        $this->setTitle($this->get('title'));
+        $this->title($this->get('title'));
         $toolbar = Toolbar::getInstance();
         $expURL  = Helpers\Routing::getViewURL('export');
 
@@ -646,7 +646,7 @@ class Instances extends ListView
     /**
      * @inheritDoc
      */
-    protected function setSubTitle(): void
+    protected function subTitle(): void
     {
         if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
             $date           = $this->state->get('list.date');

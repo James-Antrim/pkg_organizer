@@ -26,7 +26,7 @@ class Events extends ListView
     protected function addToolBar(): void
     {
         // Divergent title
-        $this->setTitle('EVENT_TEMPLATES');
+        $this->title('EVENT_TEMPLATES');
         $this->addMerge();
         parent::addToolBar();
     }

@@ -30,7 +30,7 @@ class Subject extends FormView
     {
         $subjectID = empty($this->item->id) ? 0 : $this->item->id;
         if ($this->layout === 'edit') {
-            $this->setTitle(empty($subjectID) ? Text::_('ADD_SUBJECT') : Text::_('EDIT_SUBJECT'));
+            $this->title(empty($subjectID) ? Text::_('ADD_SUBJECT') : Text::_('EDIT_SUBJECT'));
             $toolbar   = Toolbar::getInstance();
             $saveGroup = $toolbar->dropdownButton('save-group');
             $saveBar   = $saveGroup->getChildToolbar();
@@ -42,7 +42,7 @@ class Subject extends FormView
         }
         elseif ($this->item->id and $subject = Helper::name($subjectID, true)) {
             $this->addDisclaimer();
-            $this->setTitle($subject);
+            $this->title($subject);
         }
         // Subject layout for non-existent / invalid subject
         else {

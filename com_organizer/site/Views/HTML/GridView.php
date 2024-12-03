@@ -65,7 +65,7 @@ abstract class GridView extends Base
     {
         // MVC name identity is now the internal standard
         $controller = $this->getName();
-        $this->setTitle(strtoupper($controller));
+        $this->title(strtoupper($controller));
     }
 
     /**
@@ -100,8 +100,8 @@ abstract class GridView extends Base
 
         $this->empty = $this->empty ?: Text::_('EMPTY_RESULT_SET');
 
-        $this->setSubTitle();
-        $this->setSupplement();
+        $this->subTitle();
+        $this->supplement();
         $this->grid();
         $this->fill();
         $this->modifyDocument();

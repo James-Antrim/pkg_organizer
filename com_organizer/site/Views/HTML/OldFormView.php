@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Form\Form;
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, HTML};
+use THM\Organizer\Adapters\{Document, HTML};
 
 /**
  * Class loads a non-item based resource form (merge) into the display context. Specific resource determined by
@@ -46,8 +45,8 @@ abstract class OldFormView extends BaseView
 
         // Allows for view specific toolbar handling
         $this->addToolBar();
-        $this->setSubtitle();
-        $this->setSupplement();
+        $this->subTitle();
+        $this->supplement();
         $this->modifyDocument();
         parent::display($tpl);
     }

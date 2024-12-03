@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, HTML};
+use THM\Organizer\Adapters\HTML;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
@@ -42,13 +41,13 @@ abstract class ItemView extends BaseView
         $this->item = $this->get('Item');
 
         $this->addToolBar();
-        $this->setSubtitle();
-        $this->setSupplement();
+        $this->subTitle();
+        $this->supplement();
         $this->modifyDocument();
 
         $defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
         $itemName        = is_array($this->item['name']) ? $this->item['name']['value'] : $this->item['name'];
-        $this->setTitle($defaultConstant, $itemName);
+        $this->title($defaultConstant, $itemName);
         unset($this->item['name']);
 
         // This has to be after the title has been set so that it isn't prematurely removed.

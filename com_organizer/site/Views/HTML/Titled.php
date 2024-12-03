@@ -27,7 +27,7 @@ trait Titled
      * Creates a subtitle element for the resource.
      * @return void
      */
-    protected function setSubTitle(): void
+    protected function subTitle(): void
     {
         // Overwritten as necessary.
     }
@@ -36,7 +36,7 @@ trait Titled
      * Adds supplemental information typically related to the context of the resource to its output.
      * @return void
      */
-    protected function setSupplement(): void
+    protected function supplement(): void
     {
         // Overwritten as necessary.
     }
@@ -49,7 +49,7 @@ trait Titled
      *
      * @return void
      */
-    protected function setTitle(string $standard, string $conditional = ''): void
+    protected function title(string $standard, string $conditional = ''): void
     {
         $params = Input::getParams();
 

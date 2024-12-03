@@ -29,7 +29,7 @@ class Workload extends FormView
     /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        $this->setTitle('ORGANIZER_WORKLOAD');
+        $this->title('ORGANIZER_WORKLOAD');
         $toolbar = Toolbar::getInstance();
 
         if ($this->form->getValue('personID')) {

@@ -47,7 +47,7 @@ class Courses extends ListView
             }
         }
 
-        $this->setTitle('COURSES', $resourceName);
+        $this->title('COURSES', $resourceName);
 
         if (!User::id()) {
             return;
@@ -272,7 +272,7 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    protected function setSupplement(): void
+    protected function supplement(): void
     {
         $this->supplement = '';
 

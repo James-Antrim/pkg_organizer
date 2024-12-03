@@ -33,7 +33,7 @@ class Course extends FormView
         $toolbar  = Toolbar::getInstance();
 
         if ($this->layout === 'edit') {
-            $this->setTitle(empty($courseID) ? Text::_('ADD_COURSE') : Text::_('EDIT_COURSE'));
+            $this->title(empty($courseID) ? Text::_('ADD_COURSE') : Text::_('EDIT_COURSE'));
             $saveGroup = $toolbar->dropdownButton('save-group');
             $saveBar   = $saveGroup->getChildToolbar();
             $saveBar->apply('course.apply');
@@ -42,7 +42,7 @@ class Course extends FormView
             return;
         }
 
-        $this->setTitle(Helper::name($courseID));
+        $this->title(Helper::name($courseID));
 
         if ($this->coordinates) {
             $toolbar->edit('course.edit');
@@ -107,7 +107,7 @@ class Course extends FormView
     }
 
     /** @inheritDoc */
-    protected function setSubtitle(): void
+    protected function subtitle(): void
     {
         $this->subtitle = '<h6 class="sub-title">';
 
@@ -119,7 +119,7 @@ class Course extends FormView
     }
 
     /** @inheritDoc */
-    protected function setSupplement(): void
+    protected function supplement(): void
     {
         $item = $this->item;
 

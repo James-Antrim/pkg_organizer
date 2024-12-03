@@ -13,14 +13,15 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 
 /** @inheritDoc */
-class InstanceEdit extends FormView
+class Instance extends FormView
 {
     protected string $layout = 'instance-wrapper';
 
-    /**
-     * @inheritDoc
+    /** @inheritDoc
+     * @param   array   $buttons
+     * @param   string  $constant
      */
-    protected function addToolBar(): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         //$appointment = Input::getCMD('layout') === 'appointment';
 
@@ -31,9 +32,9 @@ class InstanceEdit extends FormView
             $title = 'ORGANIZER_INSTANCE_NEW';
         }
 
-        $this->setTitle($title);
+        $this->title($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', 'button-text', 'instances.save', false);
+        $toolbar->save('instance.save');
 
         $layout  = Input::getCMD('layout');
         $layouts = ['appointment', 'simple'];
@@ -41,15 +42,13 @@ class InstanceEdit extends FormView
 
         // One less button for the people Ralph wants to present as mentally impaired.
         if ($layout !== 'appointment') {
-            $toolbar->appendButton('Standard', 'reset', Text::_('ORGANIZER_RESET'), 'instances.reset', false);
+            $toolbar->standardButton('reset', Text::_('RESET'), 'instance.reset')->icon('fa fa-undo');
         }
 
-        $toolbar->appendButton('Standard', 'cancel', 'button-text', 'instances.cancel', false);
+        $toolbar->cancel('instance.cancel');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         parent::modifyDocument();

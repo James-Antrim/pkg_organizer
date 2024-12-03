@@ -28,7 +28,7 @@ class RoomKeys extends ListView
     protected function addToolBar(): void
     {
         // MVC name identity is now the internal standard
-        $this->setTitle('ROOM_KEYS');
+        $this->title('ROOM_KEYS');
 
         if (Application::backend() and Can::administrate()) {
             $toolbar = Toolbar::getInstance();

@@ -37,7 +37,7 @@ class RoomTypes extends ListView
             $this->addDelete();
         }
 
-        $this->setTitle('ROOM_TYPES');
+        $this->title('ROOM_TYPES');
     }
 
     /**

@@ -35,7 +35,7 @@ class Rooms extends ListView
             $title .= ': ' . Text::_('CAMPUS');
             $title .= ' ' . Campuses::name($campusID);
         }
-        $this->setTitle($title);
+        $this->title($title);
 
         if (Can::manage('facilities')) {
             $admin   = Can::administrate();
