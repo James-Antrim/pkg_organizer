@@ -46,7 +46,6 @@ abstract class ListView extends Base
     public function __construct(array $config)
     {
         $this->option = 'com_organizer';
-        $this->toDo[] = 'Fix column sorting.';
 
         // If this is not explicitly set going in Joomla will default to default without looking at the object property value.
         $config['layout'] = $this->layout;

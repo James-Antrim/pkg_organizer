@@ -124,12 +124,8 @@ abstract class ListModel extends Base
         parent::populateState($ordering, $direction);
         $this->setFilters();
 
-        $direction    = 'ASC';
-        $fullOrdering = "$this->defaultOrdering ASC";
-        $ordering     = $this->defaultOrdering;
-
-        if (!empty($list['fullordering']) and !str_contains($list['fullordering'], 'null')) {
-            $pieces          = explode(' ', $list['fullordering']);
+        if ($fullOrdering = $this->state->get('list.fullordering')) {
+            $pieces          = explode(' ', $fullOrdering);
             $validDirections = ['ASC', 'DESC', ''];
 
             if (in_array(end($pieces), $validDirections)) {
@@ -141,6 +137,11 @@ abstract class ListModel extends Base
             }
 
             $fullOrdering = "$ordering $direction";
+        }
+        else {
+            $direction    = 'ASC';
+            $fullOrdering = "$this->defaultOrdering ASC";
+            $ordering     = $this->defaultOrdering;
         }
 
         $this->state->set('list.fullordering', $fullOrdering);
