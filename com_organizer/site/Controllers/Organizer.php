@@ -12,14 +12,13 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\User\User;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Text};
 use THM\Organizer\Helpers\Terms;
 
 /** @inheritDoc */
 class Organizer extends Controller
 {
-    private const DEPRECATED = -1, UNREFERENCED = 0;
-
     /**
      * Cleans various tables of inconsistency creep.
      * @return void
@@ -60,18 +59,18 @@ class Organizer extends Controller
 
         $conditions[] = '((' . implode(') OR (', $orConditions) . '))';
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('d.id'))
             ->from(DB::qn('#__organizer_associations', 'd'))
             ->from(DB::qn('#__organizer_associations', 'r'))
             ->where($conditions);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if ($duplicateIDs = DB::loadIntColumn()) {
-            $query = DB::getQuery();
+        if ($duplicateIDs = DB::integers()) {
+            $query = DB::query();
             $query->delete(DB::qn('#__organizer_associations'))
                 ->whereIn('id', $duplicateIDs);
-            DB::setQuery($query);
+            DB::set($query);
 
             if (DB::execute()) {
                 Application::message('X_DUPLICATE_ASSOCIATIONS_DELETED');
@@ -88,161 +87,116 @@ class Organizer extends Controller
      */
     private function deprecatedPlanning(): void
     {
-        $iTable = DB::qn('#__organizer_instances', 'i');
-        $tag    = Application::tag();
+        // Runs
+        $query = DB::query();
+        $query->delete(DB::qn('#__organizer_runs'))->where(DB::qn('endDate') . ' < CURDATE()');
+        $this->executeStatement($query, 'DEPRECATED', 'RUNS');
 
-        // Units unreferenced by instances.
-        $query = DB::getQuery();
-        $query->select('DISTINCT ' . DB::qn('u.id'))
-            ->from(DB::qn('#__organizer_units', 'u'))
-            ->leftJoin($iTable, DB::qc('i.unitID', 'u.id'))
-            ->where(DB::qn('i.id') . ' IS NULL');
-        DB::setQuery($query);
+        // Schedules
+        $query = DB::query();
+        $query->delete(DB::qn('#__organizer_schedules'))->whereIn(DB::qn('termID'), Terms::expiredIDs());
+        $this->executeStatement($query, 'DEPRECATED', 'SCHEDULES');
 
-        if ($urUnitIDs = DB::loadIntColumn()) {
-            $this->deleteResources('units', $urUnitIDs, $tag, 'UNITS', self::UNREFERENCED);
-        }
+        $conditions   = ['delta', 'removed', '=', true];
+        $iTable       = DB::qn('#__organizer_instances', 'i');
+        $unreferenced = DB::qn('i.id') . ' IS NULL';
+        $uTable       = DB::qn('#__organizer_units', 'u');
 
-        $query = DB::getQuery();
-        $query->select(DB::qn('id'))->from(DB::qn('#__organizer_runs'))->where(DB::qn('endDate') . ' < CURDATE()');
-        DB::setQuery($query);
+        // Removed units from expired terms
+        $query = DB::query();
+        $query->delete(DB::qn('#__organizer_units'))
+            ->where(DB::qcs([$conditions]))->whereIn(DB::qn('termID'), Terms::expiredIDs());
+        $this->executeStatement($query, 'DEPRECATED', 'UNITS');
 
-        if ($dpRunIDs = DB::loadIntColumn()) {
-            $this->deleteResources('runs', $dpRunIDs, $tag, 'RUNS', self::DEPRECATED);
-        }
+        // Units unreferenced by instances
+        $query = DB::query();
+        $query->select('u.id')->from($uTable)->leftJoin($iTable, DB::qc('i.unitID', 'u.id'))->where($unreferenced);
+        $query = $this->prepareStatement($query, $uTable, 'u');
+        $this->executeStatement($query, 'UNREFERENCED', 'UNITS');
 
-        if ($termIDs = Terms::expiredIDs()) {
-            $query = DB::getQuery();
-            $query->select(DB::qn('id'))->from(DB::qn('#__organizer_schedules'))->whereIn(DB::qn('termID'), $termIDs);
-            DB::setQuery($query);
+        $bConditions  = DB::qc('b.id', 'i.blockID');
+        $bTable       = DB::qn('#__organizer_blocks', 'b');
+        $eTable       = DB::qn('#__organizer_events', 'e');
+        $edConditions = ['date', Terms::endDate(Terms::previousID()), '<', true];
+        $iConditions  = DB::qc('i.id', 'ip.instanceID');
+        $iTable       = DB::qn('#__organizer_instances', 'i');
+        $igTable      = DB::qn('#__organizer_instance_groups', 'ig');
+        $ipTable      = DB::qn('#__organizer_instance_persons', 'ip');
+        $irTable      = DB::qn('#__organizer_instance_rooms', 'ir');
 
-            if ($dpScheduleIDs = DB::loadIntColumn()) {
-                $this->deleteResources('schedules', $dpScheduleIDs, $tag, 'SCHEDULES', self::DEPRECATED);
-            }
+        // Removed instances from expired terms
+        $query = DB::query();
+        $query->select('i.id')->from($iTable)->innerJoin($bTable, $bConditions)
+            ->where(DB::qcs([$edConditions, $conditions]));
+        $query = $this->prepareStatement($query, $iTable, 'i');
+        $this->executeStatement($query, 'DEPRECATED', 'INSTANCES');
 
-            $query = DB::getQuery();
-            $query->select(DB::qn('id'))
-                ->from(DB::qn('#__organizer_units'))
-                ->where(DB::qc('delta', 'removed', '=', true))
-                ->whereIn(DB::qn('termID'), $termIDs);
-            DB::setQuery($query);
+        // Blocks unreferenced by instances
+        $query = DB::query();
+        $query->select('b.id')->from($bTable)->leftJoin($iTable, DB::qc('i.blockID', 'b.id'))->where($unreferenced);
+        $query = $this->prepareStatement($query, $bTable, 'b');
+        $this->executeStatement($query, 'UNREFERENCED', 'BLOCKS');
 
-            if ($dpUnitIDs = DB::loadIntColumn()) {
-                $this->deleteResources('units', $dpUnitIDs, $tag, 'UNITS', self::DEPRECATED);
-            }
-        }
+        // Events unreferenced by instances
+        $query = DB::query();
+        $query->select('e.id')->from($eTable)->leftJoin($iTable, DB::qc('i.eventID', 'e.id'))->where($unreferenced);
+        $query = $this->prepareStatement($query, $eTable, 'e');
+        $this->executeStatement($query, 'UNREFERENCED', 'EVENTS');
 
-        // Expired and removed resources and associations.
-        $aTable     = DB::qn('#__organizer_instance_persons', 'assoc');
-        $bCondition = DB::qc('b.id', 'i.blockID');
-        $bTable     = DB::qn('#__organizer_blocks', 'b');
-        $dCondition = DB::qc('b.date', Terms::startDate(), '<', true);
-        $iCondition = DB::qc('assoc.instanceID', 'i.id');
+        // Removed instance => person relationships from expired terms
+        $query = DB::query();
+        $query->select('ip.id')->from($ipTable)->innerJoin($iTable, $iConditions)->innerJoin($bTable, $bConditions)
+            ->where(DB::qcs([$edConditions, ['ip.delta', 'removed', '=', true]]));
+        $query = $this->prepareStatement($query, $ipTable, 'ip');
+        $this->executeStatement($query, 'DEPRECATED', 'INSTANCE_PERSONS');
 
-        $query = DB::getQuery();
-        $query->select(DB::qn('i.id'))->from($iTable)->innerJoin($bTable, $bCondition)
-            ->where([$dCondition, DB::qc('i.delta', 'removed', '=', true)]);
-        DB::setQuery($query);
+        // Removed instance => person => group relationships from expired terms
+        $query = DB::query();
+        $query->select('ig.id')->from($igTable)
+            ->innerJoin($ipTable, DB::qc('ip.id', 'ig.assocID'))
+            ->innerJoin($iTable, $iConditions)->innerJoin($bTable, $bConditions)
+            ->where(DB::qcs([$edConditions, ['ig.delta', 'removed', '=', true]]));
+        $query = $this->prepareStatement($query, $igTable, 'ig');
+        $this->executeStatement($query, 'DEPRECATED', 'INSTANCE_GROUPS');
 
-        if ($dpInstanceIDs = DB::loadIntColumn()) {
-            $this->deleteResources('instances', $dpInstanceIDs, $tag, 'INSTANCES', self::DEPRECATED);
-        }
+        // Removed instance => person => room relationships from expired terms
+        $query = DB::query();
+        $query->select('ir.id')->from($irTable)
+            ->innerJoin($ipTable, DB::qc('ip.id', 'ir.assocID'))
+            ->innerJoin($iTable, $iConditions)->innerJoin($bTable, $bConditions)
+            ->where(DB::qcs([$edConditions, ['ir.delta', 'removed', '=', true]]));
+        $query = $this->prepareStatement($query, $irTable, 'ir');
+        $this->executeStatement($query, 'DEPRECATED', 'INSTANCE_ROOMS');
 
-        $query = DB::getQuery();
-        $query->select(DB::qn('assoc.id'))->from($aTable)->innerJoin($iTable, $iCondition)->innerJoin($bTable, $bCondition)
-            ->where([$dCondition, DB::qc('assoc.delta', 'removed', '=', true)]);
-        DB::setQuery($query);
+        $pTable = DB::qn('#__organizer_persons', 'p');
 
-        if ($dpAssocIDs = DB::loadIntColumn()) {
-            $this->deleteResources('instance_persons', $dpAssocIDs, $tag, 'INSTANCE_PERSONS', self::DEPRECATED);
-        }
-
-        $query = DB::getQuery();
-        $query->select(DB::qn('ig.id'))->from(DB::qn('#__organizer_instance_groups', 'ig'))
-            ->innerJoin($aTable, DB::qc('assoc.id', 'ig.assocID'))->innerJoin($iTable, $iCondition)
-            ->innerJoin($bTable, $bCondition)->where([$dCondition, DB::qc('ig.delta', 'removed', '=', true)]);
-        DB::setQuery($query);
-
-        if ($dpGroupIDs = DB::loadIntColumn()) {
-            $this->deleteResources('instance_groups', $dpGroupIDs, $tag, 'INSTANCE_GROUPS', self::DEPRECATED);
-        }
-
-        $query = DB::getQuery();
-        $query->select(DB::qn('ir.id'))->from(DB::qn('#__organizer_instance_rooms', 'ir'))->innerJoin($aTable,
-            DB::qc('assoc.id', 'ir.assocID'))
-            ->innerJoin($iTable, $iCondition)->innerJoin($bTable, $bCondition)
-            ->where([$dCondition, DB::qc('ir.delta', 'removed', '=', true)]);
-        DB::setQuery($query);
-
-        if ($dpRoomIDs = DB::loadIntColumn()) {
-            $this->deleteResources('instance_rooms', $dpRoomIDs, $tag, 'INSTANCE_ROOMS', self::DEPRECATED);
-        }
-
-        $iCondition = DB::qn('i.id') . ' IS NULL';
-
-        // Unreferenced blocks
-        $query = DB::getQuery();
-        $query->select(DB::qn('b.id'))->from($bTable)->leftJoin($iTable, DB::qc('i.blockID', 'b.id'))
-            ->where([$dCondition, $iCondition]);
-        DB::setQuery($query);
-
-        if ($urBlockIDs = DB::loadIntColumn()) {
-            $this->deleteResources('blocks', $urBlockIDs, $tag, 'BLOCKS', self::UNREFERENCED);
-        }
-
-        // Unreferenced events
-        $query = DB::getQuery();
-        $query->select(DB::qn('e.id'))->from(DB::qn('#__organizer_events', 'e'))->leftJoin($iTable, DB::qc('i.eventID', 'e.id'))
-            ->where($iCondition);
-        DB::setQuery($query);
-
-        if ($urEventIDs = DB::loadIntColumn()) {
-            $this->deleteResources('events', $urEventIDs, $tag, 'EVENTS', self::UNREFERENCED);
-        }
-
-        $query = DB::getQuery();
-        $query->select(DB::qn('p.id'))
-            ->from(DB::qn('#__organizer_persons', 'p'))
+        // Persons unreferenced by any referencing table
+        $query = DB::query();
+        $query->select('p.id')->from($pTable)
             ->leftJoin(DB::qn('#__organizer_event_coordinators', 'ec'), DB::qc('ec.personID', 'p.id'))
             ->leftJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.personID', 'p.id'))
-            ->leftJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))->where([
-                DB::qn('ec.id') . ' IS NULL',
-                DB::qn('ip.id') . ' IS NULL',
-                DB::qn('sp.id') . ' IS NULL'
-            ]);
-        DB::setQuery($query);
-
-        if ($urPersonIDs = DB::loadIntColumn()) {
-            $this->deleteResources('persons', $urPersonIDs, $tag, 'PERSONS', self::UNREFERENCED);
-        }
+            ->leftJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))
+            ->where([DB::qn('ec.id') . ' IS NULL', DB::qn('ip.id') . ' IS NULL', DB::qn('sp.id') . ' IS NULL']);
+        $query = $this->prepareStatement($query, $pTable, 'p');
+        $this->executeStatement($query, 'UNREFERENCED', 'PERSONS');
     }
 
     /**
-     * Deletes entries from a resource table by id.
+     * Executes a delete statement on a prepared query statement and creates a feedback message as applicable.
      *
-     * @param   string  $table        the table to delete from
-     * @param   array   $resourceIDs  the ids of the entries to delete
-     * @param   string  $tag          the code for the active language
-     * @param   string  $constant     the localization key
-     * @param   int     $reason       the reason for deletion
+     * @param   DatabaseQuery|string  $query      the query to be executed
+     * @param   string                $adjective  the reason for resource deletion
+     * @param   string                $resource   the resource being deleted
      *
      * @return void
      */
-    private function deleteResources(string $table, array $resourceIDs, string $tag, string $constant, int $reason): void
+    private function executeStatement(DatabaseQuery|string $query, string $adjective, string $resource): void
     {
-        $count     = count($resourceIDs);
-        $resources = $tag === 'en' ? strtolower(Text::_($constant)) : ucfirst(strtolower(Text::_($constant)));
-        $query     = DB::getQuery();
-        $query->delete(DB::qn("#__organizer_$table"))->whereIn(DB::qn('id'), $resourceIDs);
-        DB::setQuery($query);
+        DB::set($query);
+        DB::execute();
 
-        $adjective = $reason === self::DEPRECATED ? 'DEPRECATED' : 'UNREFERENCED';
-
-        if (DB::execute()) {
-            Application::message(Text::sprintf("X_{$adjective}_X_DELETED", $count, $resources));
-        }
-        else {
-            Application::message(Text::sprintf("X_{$adjective}_X_NOT_DELETED", $count, $resources), Application::WARNING);
+        if ($affected = DB::affected()) {
+            Application::message(Text::sprintf("X_{$adjective}_X_DELETED", $affected, Text::_($resource)));
         }
     }
 
@@ -265,21 +219,37 @@ class Organizer extends Controller
         $uTable      = DB::qn('#__users', 'u');
 
         // Inactive users that do not have entries in the participants table.
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($uID)->from($uTable)->leftJoin($pTable, $pConditions)->where([DB::qn('p.id') . ' IS NULL', $cutOff]);
-        DB::setQuery($query);
+        DB::set($query);
 
-        $this->purgeUsers(DB::loadIntColumn(), Text::_('USERS_WITHOUT_PROFILES'));
+        $this->purgeUsers(DB::integers(), Text::_('USERS_WITHOUT_PROFILES'));
 
         // Inactive users who have no course or instance participation data.
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($uID)->from($uTable)->innerJoin($pTable, $pConditions)
             ->leftJoin(DB::qn('#__organizer_course_participants', 'cp'), DB::qc('cp.participantID', 'p.id'))
             ->leftJoin(DB::qn('#__organizer_instance_participants', 'ip'), DB::qc('ip.participantID', 'p.id'))
             ->where([DB::qn('cp.id') . ' IS NULL', DB::qn('ip.id') . ' IS NULL', $cutOff]);
-        DB::setQuery($query);
+        DB::set($query);
 
-        $this->purgeUsers(DB::loadIntColumn(), Text::_('USERS_WITHOUT_PARTICIPATION'));
+        $this->purgeUsers(DB::integers(), Text::_('USERS_WITHOUT_PARTICIPATION'));
+    }
+
+    /**
+     * Creates a joined deletion query string based on a select query object.
+     *
+     * @param   DatabaseQuery  $query  the source query
+     * @param   string         $table  the table to delete from
+     * @param   string         $alias  the table alias
+     *
+     * @return string
+     */
+    private function prepareStatement(DatabaseQuery $query, string $table, string $alias): string
+    {
+        $query->clear('select')->clear('from')->delete($table);
+        $query = (string) $query;
+        return str_replace('DELETE ', 'DELETE ' . DB::qn($alias), $query);
     }
 
     /**
@@ -388,13 +358,13 @@ class Organizer extends Controller
 
         try {
             foreach ($compatibles as $table) {
-                DB::setQuery('SET @count = 0');
+                DB::set('SET @count = 0');
                 DB::execute();
 
-                DB::setQuery("UPDATE #__organizer_$table SET id = @count:= @count + 1");
+                DB::set("UPDATE #__organizer_$table SET id = @count:= @count + 1");
                 DB::execute();
 
-                DB::setQuery("ALTER TABLE #__organizer_$table AUTO_INCREMENT = 1");
+                DB::set("ALTER TABLE #__organizer_$table AUTO_INCREMENT = 1");
                 DB::execute();
             }
         }

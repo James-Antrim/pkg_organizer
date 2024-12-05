@@ -42,7 +42,6 @@ abstract class BaseModel extends BaseDatabaseModel
         }
 
         $this->setContext();
-        $this->clean();
     }
 
     /**
@@ -54,15 +53,6 @@ abstract class BaseModel extends BaseDatabaseModel
         if (!Can::administrate()) {
             Application::error(403);
         }
-    }
-
-    /**
-     * Function for policing resource data.
-     * @return void
-     */
-    protected function clean()
-    {
-        // Implementation in inheriting classes as appropriate.
     }
 
     /**
