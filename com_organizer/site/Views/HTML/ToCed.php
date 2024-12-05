@@ -61,6 +61,10 @@ trait ToCed
                 'url'    => Routing::getViewURL('groups'),
                 'active' => $viewName === 'groups'
             ];
+            $items[Text::_('INSTANCES')]       = [
+                'url'    => Routing::getViewURL('instances'),
+                'active' => $viewName === 'instances'
+            ];
             $items[Text::_('SCHEDULES')]       = [
                 'url'    => Routing::getViewURL('schedules'),
                 'active' => $viewName === 'schedules'
