@@ -25,13 +25,13 @@ class RoomKey extends EditModel
 
         if ($item and !empty($item->useID)) {
             $tag   = Application::tag();
-            $query = DB::getQuery();
+            $query = DB::query();
             $query->select(DB::qn("name_$tag"))
                 ->from(DB::qn('#__organizer_use_groups'))
                 ->where(DB::qn('id') . ' = :useID')
                 ->bind(':useID', $item->useID, ParameterType::INTEGER);
-            DB::setQuery($query);
-            $item->useGroup = DB::loadString();
+            DB::set($query);
+            $item->useGroup = DB::string();
         }
 
         return $item;

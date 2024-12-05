@@ -58,15 +58,15 @@ class Participants extends ListModel
         }
 
         // Store any remaining participation data in the referenced instances
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('ip.instanceID'))
             ->from(DB::qn('#__organizer_instance_participants', 'ip'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
             ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
             ->where(DB::qc('date', Terms::startDate(Terms::previousID()), '<', true));
-        DB::setQuery($query);
+        DB::set($query);
 
-        $instanceIDs = DB::loadIntColumn();
+        $instanceIDs = DB::integers();
 
         foreach ($instanceIDs as $instanceID) {
             $this->updateIPNumbers($instanceID);
@@ -80,14 +80,14 @@ class Participants extends ListModel
         $query = (string) $query;
         $query = str_replace('DELETE ', 'DELETE ' . DB::qn('ip'), $query);
 
-        DB::setQuery($query);
+        DB::set($query);
         DB::execute();
     }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=participant&id=';
 

@@ -29,7 +29,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      */
     private static function allRows(array $rows): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('*')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('lft') . ' >= :left')
@@ -41,9 +41,9 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         foreach ($rows as $row) {
             $query->bind(':left', $row['lft'], ParameterType::INTEGER)
                 ->bind(':right', $row['rgt'], ParameterType::INTEGER);
-            DB::setQuery($query);
+            DB::set($query);
 
-            if (!$results = DB::loadAssocList()) {
+            if (!$results = DB::arrays()) {
                 continue;
             }
 
@@ -69,7 +69,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         }
 
         $nextLevel = $curriculum['level'] + 1;
-        $query     = DB::getQuery();
+        $query     = DB::query();
         $query->select('*')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('lft') . ' > :left')->bind(':left', $curriculum['lft'], ParameterType::INTEGER)
@@ -82,9 +82,9 @@ abstract class Curricula extends Associated implements Documentable, Selectable
             $query->where(DB::qn('poolID') . ' IS NOT NULL');
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$subOrdinates = DB::loadAssocList('id')) {
+        if (!$subOrdinates = DB::arrays('id')) {
             $curriculum['curriculum'] = [];
 
             return;
@@ -350,14 +350,14 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      */
     public static function row(int $rowID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('*')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('id') . ' = :rowID')
             ->bind(':rowID', $rowID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssoc();
+        return DB::array();
     }
 
     /**
@@ -399,7 +399,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      */
     public static function subjects(int $resourceID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT *')
             ->from(DB::qn('#__organizer_curricula'))
             ->order(DB::qn('lft'));
@@ -408,9 +408,9 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         $resource = get_called_class();
         self::filterSubjects($query, $resource::rows($resourceID));
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**

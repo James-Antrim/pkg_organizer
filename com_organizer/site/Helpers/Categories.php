@@ -59,7 +59,7 @@ class Categories extends Scheduled implements Filterable, Selectable
     public static function groups(int $categoryID, bool $active = true): array
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(array_merge(DB::qn(['id', 'code']), [DB::qn("name_$tag", 'name')]))
             ->from(DB::qn('#__organizer_groups', 'g'))
             ->where(DB::qn('categoryID') . ' = :categoryID')
@@ -69,9 +69,9 @@ class Categories extends Scheduled implements Filterable, Selectable
             $query->where(DB::qn('active') . ' = 1');
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**
@@ -105,15 +105,15 @@ class Categories extends Scheduled implements Filterable, Selectable
     public static function resources(string $access = ''): array
     {
         $order = Application::tag() === 'en' ? 'name_en' : 'name_de';
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('c') . '.*')
             ->from(DB::qn('#__organizer_categories', 'c'))
             ->order($order);
 
         self::filterByAccess($query, 'c', $access);
         self::filterByOrganization($query, 'c', Input::getInt('organizationID'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 }

@@ -228,12 +228,12 @@ class Dates
      */
     public static function term(string $date): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['startDate', 'endDate']))->from(DB::qn('#__organizer_terms'));
         DB::between($query, $date, 'startDate', 'endDate');
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssoc();
+        return DB::array();
     }
 
     /**

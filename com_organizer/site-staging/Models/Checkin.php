@@ -109,7 +109,7 @@ class Checkin extends OldFormModel
     private function getQuery(int $participantID): JDatabaseQuery
     {
         $today = date('Y-m-d');
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('instanceID, roomID, seat')
             ->from('#__organizer_instance_participants AS ip')
             ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -160,16 +160,16 @@ class Checkin extends OldFormModel
         // Ongoing
         $query = $this->getQuery($participantID);
         $query->where("b.startTime <= '$now'")->where("b.endTime >= '$now'");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if (!$participation = Database::loadAssocList()) {
+        if (!$participation = Database::arrays()) {
             // Upcoming
             $then  = date('H:i:s', strtotime('+60 minutes'));
             $query = $this->getQuery($participantID);
             $query->where("b.startTime >= '$now'")->where("b.startTime <= '$then'");
-            Database::setQuery($query);
+            Database::set($query);
 
-            $participation = Database::loadAssocList();
+            $participation = Database::arrays();
         }
 
         $form = $this->getForm();

@@ -33,7 +33,7 @@ class FieldColors extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $url   = 'index.php?option=com_organizer&view=fieldcolor&id=';
 
         $aliased = DB::qn(["c.name_$tag", "f.name_$tag", "o.shortName_$tag"], ['color', 'field', 'organization']);

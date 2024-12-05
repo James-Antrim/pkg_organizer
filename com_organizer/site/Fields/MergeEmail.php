@@ -25,14 +25,14 @@ class MergeEmail extends MergeValues
      */
     protected function getValues(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(['DISTINCT ' . DB::qn('email', 'value'), DB::qn('email', 'text')])
             ->from(DB::qn('#__users'))
             ->whereIn(DB::qn('id'), $this->selectedIDs)
             ->order(DB::qn('value') . ' ASC');
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$addresses = DB::loadColumn()) {
+        if (!$addresses = DB::column()) {
             return [];
         }
 

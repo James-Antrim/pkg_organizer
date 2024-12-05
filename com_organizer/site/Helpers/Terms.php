@@ -30,12 +30,12 @@ class Terms extends ResourceHelper implements Selectable
     public static function currentID(string $date = ''): int
     {
         $date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))->from(DB::qn('#__organizer_terms'));
         DB::between($query, $date, 'startDate', 'endDate');
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -59,13 +59,13 @@ class Terms extends ResourceHelper implements Selectable
      */
     public static function expiredIDs(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_terms'))
             ->where(DB::qc('endDate', date('Y-m-d'), '<', true));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -97,14 +97,14 @@ class Terms extends ResourceHelper implements Selectable
     {
         $currentID = $currentID ?: self::currentID();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_terms'))
             ->where(DB::qc('startDate', self::endDate($currentID), '>', true))
             ->order(DB::qn('startDate'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -144,14 +144,14 @@ class Terms extends ResourceHelper implements Selectable
     {
         $currentID = $currentID ?: self::currentID();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_terms'))
             ->where(DB::qc('endDate', self::startDate($currentID), '<', true))
             ->order(DB::qn('endDate') . ' DESC');
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -161,7 +161,7 @@ class Terms extends ResourceHelper implements Selectable
      */
     public static function resources(bool $filter = false): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('term') . '.*')
             ->from(DB::qn('#__organizer_terms', 'term'))
             ->order(DB::qn('startDate'));
@@ -174,9 +174,9 @@ class Terms extends ResourceHelper implements Selectable
             $query->where(DB::qc('term.endDate', date('Y-m-d'), '>', true));
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 
     /**

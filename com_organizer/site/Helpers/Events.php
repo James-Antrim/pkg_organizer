@@ -33,7 +33,7 @@ class Events extends Coordinatable implements Schedulable
     public static function categoryNames(int $eventID): array
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $nameParts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('p.accredited'), "')'"];
         $program   = [$query->concatenate($nameParts, '') . ' AS ' . DB::qn('program')];
@@ -48,9 +48,9 @@ class Events extends Coordinatable implements Schedulable
             ->leftJoin(DB::qn('#__organizer_programs', 'p'), DB::qc('p.categoryID', 'c.id'))
             ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('p.degreeID', 'd.id'))
             ->where(DB::qn('i.eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$results = DB::loadAssocList()) {
+        if (!$results = DB::arrays()) {
             return [];
         }
 
@@ -65,7 +65,7 @@ class Events extends Coordinatable implements Schedulable
     /** @inheritDoc */
     protected static function coAccessQuery(array $organizationIDs, int $personID = 0): DatabaseQuery
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('e.id'))
             ->from(DB::qn('#__organizer_events', 'e'));
 
@@ -117,9 +117,9 @@ class Events extends Coordinatable implements Schedulable
             $query->where(DB::qc('e.id', $resourceID));
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -131,12 +131,12 @@ class Events extends Coordinatable implements Schedulable
      */
     public static function coordinatorIDs(int $eventID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('personID'))
             ->from(DB::qn('#__organizer_event_coordinators'))
             ->where(DB::qc('eventID', $eventID));
-        DB::setQuery($query);
-        return DB::loadIntColumn();
+        DB::set($query);
+        return DB::integers();
     }
 
     /** @inheritDoc */
@@ -167,12 +167,12 @@ class Events extends Coordinatable implements Schedulable
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('e.id'))
             ->from(DB::qn('#__organizer_events', 'e'))
             ->whereIn(DB::qn('organizationID'), $organizationIDs);
-        DB::setQuery($query);
-        return DB::loadIntColumn();
+        DB::set($query);
+        return DB::integers();
     }
 
     /**
@@ -186,7 +186,7 @@ class Events extends Coordinatable implements Schedulable
     public static function teaches(int $eventID = 0, int $personID = 0): bool
     {
         $personID = $personID ?: Persons::getIDByUserID(User::id());
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.instanceID', 'i.id'))
@@ -197,9 +197,9 @@ class Events extends Coordinatable implements Schedulable
             $query->where(DB::qn('i.eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -216,15 +216,15 @@ class Events extends Coordinatable implements Schedulable
         [$id, $comment] = DB::qn(['u.id', 'u.comment']);
         $method = DB::qn('m.abbreviation_' . Application::tag(), 'method');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select("DISTINCT $id, $comment, $method")
             ->from(DB::qn('#__organizer_units', 'u'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
             ->leftJoin(DB::qn('#__organizer_methods', 'm'), DB::qc('m.id', 'i.methodID'))
             ->where(DB::qn('eventID') . ' = :eventID')->bind(':eventID', $eventID, ParameterType::INTEGER);
         self::terminate($query, $date, $interval);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 }

@@ -48,18 +48,18 @@ class ImportSchedule extends FormController
      */
     private function cleanRegistrations(): void
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('i.id'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
             ->innerJoin(DB::qn('#__organizer_instance_participants', 'ip'), DB::qc('ip.instanceID', 'i.id'))
             ->where(DB::qc('i.delta', 'removed', '=', true));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if ($deprecated = DB::loadIntColumn()) {
-            $query = DB::getQuery();
+        if ($deprecated = DB::integers()) {
+            $query = DB::query();
             $query->delete(DB::qn('#__organizer_instance_participants'))->whereIn(DB::qn('instanceID'), $deprecated);
-            DB::setQuery($query);
+            DB::set($query);
             DB::execute();
         }
     }
@@ -93,18 +93,18 @@ class ImportSchedule extends FormController
      */
     private function resolveEventSubjects(int $organizationID): void
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['id', 'subjectNo']))
             ->from(DB::qn('#__organizer_events'))
             ->where(DB::qcs([['organizationID', $organizationID], ['subjectNo', '', '!=', true]]));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$events = DB::loadAssocList()) {
+        if (!$events = DB::arrays()) {
             return;
         }
 
         foreach ($events as $event) {
-            $query = DB::getQuery();
+            $query = DB::query();
             $query->select(['DISTINCT ' . DB::qn('lft'), DB::qn('rgt')])
                 ->from(DB::qn('#__organizer_curricula', 'c'))
                 ->innerJoin(DB::qn('#__organizer_programs', 'prg'), DB::qc('prg.id', 'c.programID'))
@@ -115,13 +115,13 @@ class ImportSchedule extends FormController
                 ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
                 ->where(DB::qc('i.eventID', $event['id']))
                 ->order(DB::qn('lft') . ' DESC');
-            DB::setQuery($query);
+            DB::set($query);
 
-            if (!$boundaries = DB::loadAssoc()) {
+            if (!$boundaries = DB::array()) {
                 continue;
             }
 
-            $subjectQuery = DB::getQuery();
+            $subjectQuery = DB::query();
             $subjectQuery->select('subjectID')
                 ->from(DB::qn('#__organizer_curricula', 'm'))
                 ->innerJoin(DB::qn('#__organizer_subjects', 's'), DB::qc('m.subjectID', 's.id'))
@@ -130,9 +130,9 @@ class ImportSchedule extends FormController
                     ['m.rgt', $boundaries['rgt'], '<'],
                     ['s.code', $event['subjectNo'], '=', true]
                 ]));
-            DB::setQuery($subjectQuery);
+            DB::set($subjectQuery);
 
-            if (!$subjectID = DB::loadInt()) {
+            if (!$subjectID = DB::integer()) {
                 continue;
             }
 

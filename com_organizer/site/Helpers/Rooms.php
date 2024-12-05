@@ -68,7 +68,7 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function getPlannedRooms(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['r.id', 'r.name', 'r.roomtypeID']))
             ->from(DB::qn('#__organizer_rooms', 'r'))
             ->innerJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.roomID', 'r.id'))
@@ -85,9 +85,9 @@ class Rooms extends ResourceHelper implements Selectable
             }
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$results = DB::loadAssocList()) {
+        if (!$results = DB::arrays()) {
             return [];
         }
 
@@ -104,7 +104,7 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function resources(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(['DISTINCT ' . DB::qn('r.id'), DB::qn('r') . '.*'])
             ->from(DB::qn('#__organizer_rooms', 'r'))
             ->innerJoin(DB::qn('#__organizer_roomtypes', 'rt'), DB::qc('rt.id', 'r.roomtypeID'))
@@ -123,9 +123,9 @@ class Rooms extends ResourceHelper implements Selectable
             Campuses::filterBy($query, 'b2', $campusID);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**
@@ -160,7 +160,7 @@ class Rooms extends ResourceHelper implements Selectable
         $pID = DB::qn('c.parentID');
         $rID = DB::qn('r.id');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($rID)
             ->from(DB::qn('#__organizer_rooms', 'r'))
             ->innerJoin(DB::qn('#__organizer_buildings', 'b'), DB::qc('b.id', 'r.buildingID'))
@@ -170,8 +170,8 @@ class Rooms extends ResourceHelper implements Selectable
             ->bind(':campusID', $campusID, ParameterType::INTEGER)
             ->bind(':parentID', $campusID, ParameterType::INTEGER)
             ->bind(':roomID', $roomID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 }

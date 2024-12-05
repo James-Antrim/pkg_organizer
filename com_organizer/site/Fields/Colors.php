@@ -29,13 +29,13 @@ class Colors extends ColoredOptions
 
         $tag = Application::tag();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(['DISTINCT ' . DB::qn('c.id', 'value'), DB::qn("c.name_$tag", 'text'), DB::qn('c.color')])
             ->from(DB::qn('#__organizer_colors', 'c'))
             ->order(DB::qn('text'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$colors = DB::loadAssocList()) {
+        if (!$colors = DB::arrays()) {
             return $options;
         }
 

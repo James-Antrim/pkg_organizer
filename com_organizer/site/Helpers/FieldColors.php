@@ -34,16 +34,16 @@ class FieldColors implements Documentable
         $idColumn       = DB::qn('id');
         $organizationID = DB::qn('organizationID');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($idColumn)
             ->from(DB::qn('#__organizer_field_colors'))
             ->where("$idColumn = :resourceID")
             ->bind(':resourceID', $resourceID, ParameterType::INTEGER)
             ->whereIn($organizationID, $organizationIDs);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -58,13 +58,13 @@ class FieldColors implements Documentable
         $idColumn       = DB::qn('id');
         $organizationID = DB::qn('organizationID');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($idColumn)
             ->from(DB::qn('#__organizer_field_colors'))
             ->whereIn($organizationID, $organizationIDs);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 }

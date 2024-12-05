@@ -28,7 +28,7 @@ class SubjectPersons extends ListField
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['p.id', 'surname', 'forename']))
             ->from(DB::qn('#__organizer_persons', 'p'))
             ->order(DB::qn(['surname', 'forename']));
@@ -57,10 +57,10 @@ class SubjectPersons extends ListField
             }
         }
 
-        DB::setQuery($query);
+        DB::set($query);
         $options = parent::getOptions();
 
-        if (!$persons = DB::loadAssocList('id')) {
+        if (!$persons = DB::arrays('id')) {
             return $options;
         }
 

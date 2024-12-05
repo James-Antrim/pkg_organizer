@@ -243,13 +243,13 @@ class Organizations extends Table
         if (!$this->asset_id or $currentAssetId !== $this->asset_id) {
             $this->asset_id = $asset->id;
 
-            $query = DB::getQuery();
+            $query = DB::query();
             $query->update(DB::qn('#__organizer_organizations'))
                 ->set(DB::qn('asset_id') . ' = :assetID')
                 ->bind(':assetID', $this->asset_id, ParameterType::INTEGER)
                 ->where(DB::qn('id') . ' = :tableID')
                 ->bind(':tableID', $this->id, ParameterType::INTEGER);
-            DB::setQuery($query);
+            DB::set($query);
 
             if (!DB::execute()) {
                 return false;

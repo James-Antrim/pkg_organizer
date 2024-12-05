@@ -25,12 +25,12 @@ class Coordinators extends Options
     protected function getInput(): string
     {
         $eventID = Input::getID();
-        $query   = Database::getQuery();
+        $query   = Database::query();
         $query->select('DISTINCT personID')
             ->from('#__organizer_event_coordinators')
             ->where("eventID = $eventID");
-        Database::setQuery($query);
-        $this->value = Database::loadIntColumn();
+        Database::set($query);
+        $this->value = Database::integers();
 
         return parent::getInput();
     }
@@ -49,15 +49,15 @@ class Coordinators extends Options
             return $options;
         }
 
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('DISTINCT p.id, p.forename, p.surname')
             ->from('#__organizer_persons AS p')
             ->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
             ->where("a.organizationID = $organizationID")
             ->order('p.surname, p.forename');
-        Database::setQuery($query);
+        Database::set($query);
 
-        if (!$persons = Database::loadAssocList()) {
+        if (!$persons = Database::arrays()) {
             return $options;
         }
 

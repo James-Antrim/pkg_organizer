@@ -63,13 +63,13 @@ class CleaningGroups extends ResourceHelper implements Selectable
     public static function resources(): array
     {
         $order = Application::tag() === 'en' ? 'name_en' : 'name_de';
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('*')
             ->from(DB::qn('#__organizer_categories', 'c'))
             ->order(DB::qn($order));
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 }

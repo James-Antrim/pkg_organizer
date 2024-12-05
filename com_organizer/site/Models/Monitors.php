@@ -99,7 +99,7 @@ class Monitors extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $url   = 'index.php?option=com_organizer&view=monitor&id=';
 
         $access = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];

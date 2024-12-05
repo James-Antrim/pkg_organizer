@@ -83,7 +83,7 @@ class Participant extends FormController
         $forename = DB::qn('forename');
         $id       = DB::qn('id');
         $names    = self::parseNames($participantID);
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $surname  = DB::qn('surname');
         $table    = DB::qn('#__organizer_participants');
 
@@ -98,7 +98,7 @@ class Participant extends FormController
             ->bind(':id', $participantID, ParameterType::INTEGER)
             ->bind(':surname', $names['surname']);
 
-        DB::setQuery($query);
+        DB::set($query);
         DB::execute();
     }
 

@@ -55,14 +55,14 @@ class Methods extends ResourceHelper implements Selectable
     /** @inheritDoc */
     public static function resources(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $query->select(['DISTINCT ' . DB::qn('m') . '.*', DB::qn("m.name_$tag", 'name')])
             ->from(DB::qn('#__organizer_methods', 'm'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.methodID', 'm.id'))
             ->order(DB::qn('name'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 }

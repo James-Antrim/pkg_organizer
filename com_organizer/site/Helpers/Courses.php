@@ -38,7 +38,7 @@ class Courses extends Coordinatable
     /** @inheritDoc */
     protected static function coAccessQuery(array $organizationIDs, int $personID = 0): DatabaseQuery
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('c.id'))
             ->from(DB::qn('#__organizer_courses', 'c'));
 
@@ -97,9 +97,9 @@ class Courses extends Coordinatable
             $query->where(DB::qc('c.id', $resourceID));
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -120,14 +120,14 @@ class Courses extends Coordinatable
         $startDate = DB::qn('startDate');
         $startDate = "DISTINCT MIN($startDate) AS $startDate";
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select([$startDate, $endDate])
             ->from(DB::qn('#__organizer_units'))
             ->where(DB::qn('courseID') . ' = :courseID')
             ->bind(':courseID', $courseID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssoc();
+        return DB::array();
     }
 
     /**
@@ -241,14 +241,14 @@ class Courses extends Coordinatable
         }
 
         $accepted = CourseParticipants::ACCEPTED;
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_course_participants'))
             ->where(DB::qn('courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
             ->where(DB::qn('status') . ' = :status')->bind(':status', $accepted, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt() >= $maxParticipants;
+        return DB::integer() >= $maxParticipants;
     }
 
     /**
@@ -268,7 +268,7 @@ class Courses extends Coordinatable
         $aliased  = DB::qn(['d.abbreviation', "pr.name_$tag", 'pr.accredited'], ['degree', 'program', 'year']);
         $selected = [DB::qn('pr.id'), 'COUNT(*) AS ' . DB::qn('participants')];
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(array_merge($selected, $aliased))
             ->from(DB::qn('#__organizer_programs', 'pr'))
             ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'pr.degreeID'))
@@ -277,9 +277,9 @@ class Courses extends Coordinatable
             ->where(DB::qn('courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
             ->order([DB::qn("pr.name_$tag"), DB::qn('d.abbreviation'), DB::qn('pr.accredited') . ' DESC'])
             ->group("pr.id");
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$programCounts = DB::loadAssocList()) {
+        if (!$programCounts = DB::arrays()) {
             return $programCounts;
         }
 
@@ -329,7 +329,7 @@ class Courses extends Coordinatable
             return false;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_instance_persons', 'ip'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
@@ -344,9 +344,9 @@ class Courses extends Coordinatable
             $query->where(DB::qn('ip.roleID') . ' = :roleID')->bind(':roleID', $roleID, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -367,7 +367,7 @@ class Courses extends Coordinatable
      */
     public static function instanceIDs(int $courseID, bool|null $future = null): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('i.id'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
@@ -392,9 +392,9 @@ class Courses extends Coordinatable
                 ->where("($conditionOne OR ($isToday AND $conditionTwo))");
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -412,16 +412,16 @@ class Courses extends Coordinatable
 
         $participantID = DB::qn('participantID');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($participantID)
             ->from(DB::qn('#__organizer_course_participants'))
             ->where(DB::qn('courseID') . ' = :courseID')
             ->bind(':courseID', $courseID, ParameterType::INTEGER)
             ->order($participantID);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -433,7 +433,7 @@ class Courses extends Coordinatable
      */
     public static function preparatory(int $courseID): bool
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_units', 'u'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
@@ -441,9 +441,9 @@ class Courses extends Coordinatable
             ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
             ->where(DB::qn('e.preparatory') . ' = 1');
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**

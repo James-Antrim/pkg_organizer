@@ -34,16 +34,16 @@ abstract class Associated extends ResourceHelper
         $organizationIDs = is_int($organizationIDs) ? [$organizationIDs] : $organizationIDs;
         $rColumn         = static::$resource . 'ID';
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_associations'))
             ->where("$rColumn = :resourceID")
             ->bind(':resourceID', $resourceID, ParameterType::INTEGER)
             ->whereIn(DB::qn($oColumn), $organizationIDs);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -58,15 +58,15 @@ abstract class Associated extends ResourceHelper
         $oColumn = DB::qn('organizationID');
         $rColumn = DB::qn(static::$resource . 'ID');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select("DISTINCT $rColumn")
             ->from(DB::qn('#__organizer_associations'))
             ->where("$rColumn IS NOT NULL")
             ->whereIn($oColumn, $organizationIDs);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
 
@@ -145,12 +145,12 @@ abstract class Associated extends ResourceHelper
     public static function organizationIDs(int $resourceID): array
     {
         $column = DB::qn(static::$resource . 'ID');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->select('DISTINCT ' . DB::qn('organizationID'))
             ->from(DB::qn('#__organizer_associations'))
             ->where("$column = :resourceID")->bind(':resourceID', $resourceID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 }

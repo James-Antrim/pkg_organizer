@@ -144,14 +144,14 @@ trait Scheduled
         }
 
         $personID = DB::qn('personID');
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $query->select($personID)
             ->from(DB::qn('#__organizer_instance_persons'))
             ->whereNotIn($personID, $personIDs)
             ->where(DB::qc('instanceID', $instanceID));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if ($mergedID = DB::loadInt()) {
+        if ($mergedID = DB::integer()) {
             $this->personIDMap[$deprecatedID] = $mergedID;
         }
 
@@ -231,81 +231,81 @@ trait Scheduled
         $today      = date('Y-m-d');
         $conditions = [DB::qc('delta', 'removed', '=', true), DB::qc('modified', $modified, '=', true)];
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_units'))
             ->where(DB::qc('code', '%-%', 'NOT LIKE', true))
             ->where(DB::qcs([['organizationID', $organizationID], ['startDate', $today, '>', true], ['termID', $termID]]));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$unitIDs = DB::loadIntColumn()) {
+        if (!$unitIDs = DB::integers()) {
             return;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->update("#__organizer_units")->set($conditions)->whereIn(DB::qn('id'), $unitIDs);
-        DB::setQuery($query);
+        DB::set($query);
         DB::execute();
 
         $startTime   = date('H:i:s');
         $tCondition1 = DB::qc('b.date', $today, '>', true);
         $tCondition2 = DB::qcs([['b.date', $today, '=', true], ['b.startTime', $startTime, '>', true]]);
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('i.id'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where("($tCondition1 OR ($tCondition2))")
             ->where(DB::qcs([['u.organizationID', $organizationID], ['u.termID', $termID], ['u.startDate', $today, '>', true]]));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$instanceIDs = DB::loadIntColumn()) {
+        if (!$instanceIDs = DB::integers()) {
             return;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->update("#__organizer_instances")->set($conditions)->whereIn(DB::qn('id'), $instanceIDs);
-        DB::setQuery($query);
+        DB::set($query);
         DB::execute();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('id')->from("#__organizer_instance_persons")->whereIn(DB::qn('instanceID'), $instanceIDs);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$assocIDs = DB::loadIntColumn()) {
+        if (!$assocIDs = DB::integers()) {
             return;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->update("#__organizer_instance_persons")->set($conditions)->whereIn(DB::qn('id'), $assocIDs);
-        DB::setQuery($query);
+        DB::set($query);
         DB::execute();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('id')->from("#__organizer_instance_groups")->whereIn(DB::qn('assocID'), $assocIDs);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$igIDs = DB::loadIntColumn()) {
+        if (!$igIDs = DB::integers()) {
             return;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->update("#__organizer_instance_groups")->set($conditions)->whereIn(DB::qn('id'), $igIDs);
-        DB::setQuery($query);
+        DB::set($query);
         DB::execute();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('id')->from("#__organizer_instance_rooms")->whereIn(DB::qn('assocID'), $assocIDs);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$irIDs = DB::loadIntColumn()) {
+        if (!$irIDs = DB::integers()) {
             return;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->update("#__organizer_instance_rooms")->set($conditions)->whereIn(DB::qn('id'), $irIDs);
-        DB::setQuery($query);
+        DB::set($query);
         DB::execute();
     }
 

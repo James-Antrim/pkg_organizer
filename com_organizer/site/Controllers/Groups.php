@@ -136,7 +136,7 @@ class Groups extends ListController
         // Authorization isn't super relevant, but this still shouldn't be publicly available.
         $this->checkToken();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $terms = Terms::resources();
         $today = date('Y-m-d');
         $query->update(DB::qn('#__organizer_group_publishing'))
@@ -151,7 +151,7 @@ class Groups extends ListController
             }
 
             $termID = $term['id'];
-            DB::setQuery($query);
+            DB::set($query);
 
             if (!DB::execute()) {
                 continue;

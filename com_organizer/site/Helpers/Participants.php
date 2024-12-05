@@ -67,12 +67,12 @@ class Participants extends ResourceHelper
      */
     public static function getCourseIDs(int $participantID): array
     {
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('courseID')
             ->from('#__organizer_course_participants')
             ->where("participantID = $participantID");
-        Database::setQuery($query);
+        Database::set($query);
 
-        return Database::loadIntColumn();
+        return Database::integers();
     }
 }

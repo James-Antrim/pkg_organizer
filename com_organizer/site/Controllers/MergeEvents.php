@@ -41,16 +41,16 @@ class MergeEvents extends MergeController
      */
     private function updateInstances(): bool
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['blockID', 'unitID']))
             ->from(DB::qn('#__organizer_instances'))
             ->where(DB::qc('eventID', $this->mergeID));
-        DB::setQuery($query);
+        DB::set($query);
 
         // If there are existing delete any deprecated assignments to the same block and unit combination.
-        if ($existing = DB::loadAssocList()) {
+        if ($existing = DB::arrays()) {
             $deprecated = array_diff($this->mergeIDs, [$this->mergeID]);
-            $query      = DB::getQuery();
+            $query      = DB::query();
             $query->delete(DB::qn('#__organizer_instances'))
                 ->where(DB::qc('blockID', ':blockID'))
                 ->bind(':blockID', $blockID)
@@ -60,7 +60,7 @@ class MergeEvents extends MergeController
             foreach ($existing as $assignment) {
                 $blockID = $assignment['blockID'];
                 $unitID  = $assignment['unitID'];
-                DB::setQuery($query);
+                DB::set($query);
                 DB::execute();
             }
         }

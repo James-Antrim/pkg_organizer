@@ -33,15 +33,15 @@ class Holidays
         $startDate = Dates::standardize($startDate);
         $tag       = Application::tag();
 
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('*')
             ->from('#__organizer_holidays')
             ->where("startDate >= '$startDate'")
             ->where("endDate <= '$endDate'");
-        Database::setQuery($query);
+        Database::set($query);
 
         $holidays = [];
-        $results  = Database::loadAssocList();
+        $results  = Database::arrays();
 
         for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);) {
             $date            = date('Y-m-d', $currentDT);

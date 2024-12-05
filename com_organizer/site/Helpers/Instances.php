@@ -58,16 +58,16 @@ class Instances extends ResourceHelper
      */
     public static function attendance(int $instanceID): int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('i.attended'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where("i.id = $instanceID")
             ->where("i.delta != 'removed'")
             ->where("u.delta != 'removed'");
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -133,7 +133,7 @@ class Instances extends ResourceHelper
     public static function capacity(int $instanceID): int
     {
         $physical = Rooms::PHYSICAL;
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $removed  = 'removed';
 
         $query->select(['DISTINCT ' . DB::qn('r.id'), DB::qn('r.effCapacity')])
@@ -148,9 +148,9 @@ class Instances extends ResourceHelper
             ->where(DB::qn('ipe.delta') . ' != :pDelta')->bind(':pDelta', $removed)
             ->where(DB::qn('ir.delta') . ' != :rDelta')->bind(':rDelta', $removed)
             ->order(DB::qn('r.effCapacity') . ' DESC');
-        DB::setQuery($query);
+        DB::set($query);
 
-        if ($capacities = DB::loadIntColumn(1)) {
+        if ($capacities = DB::integers(1)) {
             return array_sum($capacities);
         }
 
@@ -213,7 +213,7 @@ class Instances extends ResourceHelper
      */
     public static function currentCapacity(int $instanceID): int
     {
-        $query   = DB::getQuery();
+        $query   = DB::query();
         $removed = 'removed';
 
         $query->select('SUM(' . DB::qn('i2.registered') . ')')
@@ -224,9 +224,9 @@ class Instances extends ResourceHelper
             ->where(DB::qn('i1.delta') . ' != :d1')->bind(':d1', $removed)
             ->where(DB::qn('i2.delta') . ' != :d2')->bind(':d2', $removed);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -320,7 +320,7 @@ class Instances extends ResourceHelper
             return [];
         }
 
-        $query   = DB::getQuery();
+        $query   = DB::query();
         $removed = 'removed';
 
         $query->select('DISTINCT groupID')
@@ -334,9 +334,9 @@ class Instances extends ResourceHelper
                 ['i.blockID', $instance->blockID],
                 ['i.unitID', $instance->unitID],
             ]));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -350,7 +350,7 @@ class Instances extends ResourceHelper
     private static function groups(array &$person, array $conditions): void
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $aliased  = DB::qn(['g.code', "g.fullName_$tag", "g.name_$tag"], ['code', 'fullName', 'name']);
         $selected = DB::qn(['ig.groupID', 'ig.delta', 'ig.modified', 'g.gridID']);
@@ -373,9 +373,9 @@ class Instances extends ResourceHelper
             $query->whereIn(DB::qn('a.organizationID'), $conditions['organizationIDs']);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$associations = DB::loadAssocList()) {
+        if (!$associations = DB::arrays()) {
             return;
         }
 
@@ -547,9 +547,9 @@ class Instances extends ResourceHelper
         $query = self::getInstanceQuery($conditions);
         $query->select('DISTINCT ' . DB::qn('i.id'))->order(DB::qn(['b.date', 'b.startTime', 'b.endTime']));
         Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -562,7 +562,7 @@ class Instances extends ResourceHelper
      */
     public static function interested(int $instanceID): int
     {
-        $query   = DB::getQuery();
+        $query   = DB::query();
         $removed = 'removed';
 
         $query->select('COUNT(DISTINCT ipa.participantID)')
@@ -573,9 +573,9 @@ class Instances extends ResourceHelper
             ->where(DB::qn('i1.id') . ' = :instanceID')->bind(':instanceID', $instanceID, ParameterType::INTEGER)
             ->where(DB::qn('i1.delta') . ' != :d1')->bind(':d1', $removed)
             ->where(DB::qn('i2.delta') . ' != :d2')->bind(':d2', $removed);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -699,7 +699,7 @@ class Instances extends ResourceHelper
     {
         $conditions['instanceStatus'] = $instance['instanceStatus'] ?? 'new';
 
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $tag      = Application::tag();
         $aliased  = DB::qn(
             ['ip.id', "r.name_$tag", "r.abbreviation_$tag", 'ip.delta'],
@@ -720,8 +720,8 @@ class Instances extends ResourceHelper
 
         self::filterResourceStatus($query, 'ip', $conditions);
 
-        DB::setQuery($query);
-        if (!$associations = DB::loadAssocList()) {
+        DB::set($query);
+        if (!$associations = DB::arrays()) {
             return;
         }
 
@@ -759,7 +759,7 @@ class Instances extends ResourceHelper
     {
         $aliased  = DB::qn(['c1.location', 'c2.location', 'b.location'], ['campusLocation', 'defaultLocation', 'location']);
         $selected = DB::qn(['ir.roomID', 'ir.delta', 'ir.modified', 'r.name', 'r.virtual']);
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $query->select(array_merge($selected, $aliased))
             ->from(DB::qn('#__organizer_instance_rooms', 'ir'))
             ->innerJoin(DB::qn('#__organizer_rooms', 'r'), DB::qc('r.id', 'ir.roomID'))
@@ -771,8 +771,8 @@ class Instances extends ResourceHelper
 
         self::filterResourceStatus($query, 'ir', $conditions);
 
-        DB::setQuery($query);
-        if (!$associations = DB::loadAssocList()) {
+        DB::set($query);
+        if (!$associations = DB::arrays()) {
             return;
         }
 
@@ -898,7 +898,7 @@ class Instances extends ResourceHelper
      */
     public static function getInstanceQuery(array $conditions, int $jump = self::NONE): DatabaseQuery
     {
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $subQuery = null;
 
         $query->from(DB::qn('#__organizer_instances', 'i'))
@@ -911,7 +911,7 @@ class Instances extends ResourceHelper
             ->leftJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.assocID', 'ipe.id'));
 
         if (empty($conditions['showUnpublished'])) {
-            $subQuery = DB::getQuery();
+            $subQuery = DB::query();
             $subQuery->select('DISTINCT ' . DB::qn('i2.id', 'suppressed'))
                 ->from(DB::qn('#__organizer_instances', 'i2'))
                 ->innerJoin(DB::qn('#__organizer_blocks', 'b2'), DB::qc('b2.id', 'i2.blockID'))
@@ -1164,7 +1164,7 @@ class Instances extends ResourceHelper
      */
     public static function getPersonIDs(int $instanceID, int $roleID = 0): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('personID')
             ->from(DB::qn('#__organizer_instance_persons'))
             ->where("instanceID = $instanceID")
@@ -1174,9 +1174,9 @@ class Instances extends ResourceHelper
             $query->where("roleID = $roleID");
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -1188,16 +1188,16 @@ class Instances extends ResourceHelper
      */
     public static function getRegistered(int $instanceID): int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('i.registered')
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where("i.id = $instanceID")
             ->where("i.delta != 'removed'")
             ->where("u.delta != 'removed'");
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -1228,16 +1228,16 @@ class Instances extends ResourceHelper
      */
     public static function getRoomIDs(int $instanceID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT roomID')
             ->from(DB::qn('#__organizer_instance_rooms', 'ir'))
             ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.id', 'ir.assocID'))
             ->where("ip.instanceID = $instanceID")
             ->where("ir.delta != 'removed'")
             ->where("ip.delta != 'removed'");
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -1284,7 +1284,7 @@ class Instances extends ResourceHelper
      */
     public static function getPresence(int $instanceID): int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT r.virtual')
             ->from(DB::qn('#__organizer_rooms', 'r'))
             ->innerJoin(DB::qn('#__organizer_instance_rooms', 'ir'), DB::qc('ir.roomID', 'r.id'))
@@ -1293,9 +1293,9 @@ class Instances extends ResourceHelper
             ->where("i.id = $instanceID")
             ->where("ir.delta != 'removed'")
             ->where("ipe.delta != 'removed'");
-        DB::setQuery($query);
+        DB::set($query);
 
-        $results = DB::loadIntColumn();
+        $results = DB::integers();
 
         $online   = in_array(1, $results);
         $presence = in_array(0, $results);
@@ -1326,7 +1326,7 @@ class Instances extends ResourceHelper
             return false;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_instance_persons'))
             ->where("personID = $personID");
@@ -1339,9 +1339,9 @@ class Instances extends ResourceHelper
             $query->where("roleID = $roleID");
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -1373,17 +1373,17 @@ class Instances extends ResourceHelper
 
         $pastQuery = self::getInstanceQuery($conditions, self::PAST);
         $pastQuery->select('MAX(DATE)')->where("date < '" . $conditions['startDate'] . "'");
-        DB::setQuery($pastQuery);
+        DB::set($pastQuery);
 
-        if ($pastDate = DB::loadString()) {
+        if ($pastDate = DB::string()) {
             $dates['pastDate'] = $pastDate;
         }
 
         $futureQuery = self::getInstanceQuery($conditions, self::FUTURE);
         $futureQuery->select('MIN(DATE)')->where("date > '" . $conditions['endDate'] . "'");
-        DB::setQuery($futureQuery);
+        DB::set($futureQuery);
 
-        if ($futureDate = DB::loadString()) {
+        if ($futureDate = DB::string()) {
             $dates['futureDate'] = $futureDate;
         }
 
@@ -1484,19 +1484,19 @@ class Instances extends ResourceHelper
     public static function subjects(array &$instance, array $conditions): void
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName")
             ->select("s.description_$tag AS description")
             ->from(DB::qn('#__organizer_subjects', 's'))
             ->innerJoin(DB::qn('#__organizer_subject_events', 'se'), DB::qc('se.subjectID', 's.id'))
             ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.subjectID', 's.id'))
             ->where("se.eventID = {$instance['eventID']}");
-        DB::setQuery($query);
+        DB::set($query);
 
         $default = ['id' => null, 'code' => '', 'fullName' => ''];
 
         // No subject <-> event associations
-        if (!$subjects = DB::loadAssocList()) {
+        if (!$subjects = DB::arrays()) {
             self::subject($instance, $default);
 
             return;
@@ -1533,14 +1533,14 @@ class Instances extends ResourceHelper
 
         // Find the programs associated with the event categories
         if ($categoryIDs) {
-            $pQuery = DB::getQuery();
+            $pQuery = DB::query();
             $pQuery->select('DISTINCT id')
                 ->from('#__organizer_programs')
                 ->whereIn('categoryID', $categoryIDs)
                 ->order('accredited');
-            DB::setQuery($pQuery);
+            DB::set($pQuery);
 
-            foreach (DB::loadColumn() as $programID) {
+            foreach (DB::column() as $programID) {
                 if (isset($programMap[$programID])) {
                     // First match is the best match because of the accredited sort
                     self::subject($instance, $subjects[$programMap[$programID]]);

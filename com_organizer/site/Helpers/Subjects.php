@@ -37,7 +37,7 @@ class Subjects extends Curricula
         }
 
         $coordinates = Persons::COORDINATES;
-        $query       = DB::getQuery();
+        $query       = DB::query();
         $query->select('COUNT(*)')->from(DB::qn('#__organizer_subject_persons'))
             ->where(DB::qn('personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER)
             ->where(DB::qn('role') . ' = :coordinates')->bind(':coordinates', $coordinates, ParameterType::INTEGER);
@@ -46,9 +46,9 @@ class Subjects extends Curricula
             $query->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 
     /**
@@ -60,12 +60,12 @@ class Subjects extends Curricula
      */
     private static function eventID(int $subjectID): int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('eventID'))->from(DB::qn('#__organizer_subject_events'))
             ->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**
@@ -100,15 +100,15 @@ class Subjects extends Curricula
             return '';
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
 
         $select = DB::qn(["abbreviation_$tag", 'code', "fullName_$tag"], ['abbreviation', 'subjectNo', 'name']);
         $query->select($select)->from(DB::qn('#__organizer_subjects'))
             ->where(DB::qn('id') . ' = :subjectID')->bind(':subjectID', $resourceID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$names = DB::loadAssoc()) {
+        if (!$names = DB::array()) {
             return '';
         }
 
@@ -152,7 +152,7 @@ class Subjects extends Curricula
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
 
         $subjectID = DB::qn('s.id');
@@ -196,9 +196,9 @@ class Subjects extends Curricula
 
         $query->leftJoin(DB::qn('#__organizer_persons', 'p'), DB::qc('p.id', 'sp.personID'));
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 
     /**
@@ -268,7 +268,7 @@ class Subjects extends Curricula
      */
     public static function persons(int $subjectID, int $roleID = 0): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['p.id', 'p.surname', 'p.forename', 'p.title', 'sp.role']))
             ->from(DB::qn('#__organizer_persons', 'p'))
             ->innerJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))
@@ -278,9 +278,9 @@ class Subjects extends Curricula
             $query->where(DB::qn('sp.role') . ' = :roleID')->bind(':roleID', $roleID, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$results = DB::loadAssocList()) {
+        if (!$results = DB::arrays()) {
             return [];
         }
 
@@ -414,14 +414,14 @@ class Subjects extends Curricula
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT *')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $identifiers, ParameterType::INTEGER)
             ->order(DB::qn('lft'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**
@@ -443,15 +443,15 @@ class Subjects extends Curricula
             $toColumn   = 'subjectID';
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('target.subjectID'))
             ->from(DB::qn('#__organizer_curricula', 'target'))
             ->innerJoin(DB::qn('#__organizer_prerequisites', 'p'), DB::qc("p.$toColumn", 'target.id'))
             ->innerJoin(DB::qn('#__organizer_curricula', 'source'), DB::qc('source.id', "p.$fromColumn"))
             ->where(DB::qn('source.subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -469,7 +469,7 @@ class Subjects extends Curricula
         }
 
         $teaches = Persons::TEACHES;
-        $query   = DB::getQuery();
+        $query   = DB::query();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_subject_persons'))
             ->where(DB::qn('personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER)
@@ -479,8 +479,8 @@ class Subjects extends Curricula
             $query->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 }

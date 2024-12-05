@@ -83,15 +83,15 @@ class Bookings extends ResourceHelper
      */
     public static function instanceIDs(int $bookingID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('i.id'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_bookings', 'b'), DB::qcs([['b.blockID', 'i.blockID'], ['b.unitID', 'i.unitID']]))
             ->where("b.id = $bookingID")
             ->order('i.id');
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -181,7 +181,7 @@ class Bookings extends ResourceHelper
      */
     public static function participantCount(int $bookingID, int $roomID = 0): int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('SUM(' . DB::qn('i.attended') . ')')
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_bookings', 'b'), DB::qcs([['b.unitID', 'i.unitID'], ['b.blockID', 'i.blockID']]))
@@ -192,9 +192,9 @@ class Bookings extends ResourceHelper
                 ->where(DB::qn('ip.roomID') . ' = :roomID')->bind(':roomID', $roomID, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt();
+        return DB::integer();
     }
 
     /**

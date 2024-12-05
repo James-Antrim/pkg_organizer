@@ -51,7 +51,7 @@ class RoomOverview extends ListModel
     {
         $items = parent::getItems();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('i.id'))
             ->from(DB::qn('#__organizer_instances', 'i'))
             ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
@@ -93,8 +93,8 @@ class RoomOverview extends ListModel
                         $column     = "$date-$blockNo";
                         $endTime1   = $endTime2 = $block['endTime'];
                         $startTime1 = $startTime2 = $block['startTime'];
-                        DB::setQuery($query);
-                        $instanceIDs     = DB::loadIntColumn();
+                        DB::set($query);
+                        $instanceIDs     = DB::integers();
                         $room->$column   = $instanceIDs;
                         $this->instances = array_merge($this->instances, $instanceIDs);
                     }
@@ -102,8 +102,8 @@ class RoomOverview extends ListModel
                 }
 
                 $column = $date;
-                DB::setQuery($query);
-                $instanceIDs     = DB::loadIntColumn();
+                DB::set($query);
+                $instanceIDs     = DB::integers();
                 $room->$column   = $instanceIDs;
                 $this->instances = array_merge($this->instances, $instanceIDs);
             }
@@ -129,7 +129,7 @@ class RoomOverview extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $tag     = Application::tag();
-        $query   = DB::getQuery();
+        $query   = DB::query();
         $aliased = DB::qn(["t.name_$tag", "t.description_$tag"], ['type', 'description']);
         $select  = DB::qn(['r.id', 'r.effCapacity', 'r.roomtypeID', 'r.name']);
 

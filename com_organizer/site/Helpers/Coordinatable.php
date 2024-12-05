@@ -54,8 +54,8 @@ abstract class Coordinatable extends ResourceHelper
         }
 
         $query = static::coAccessQuery($organizationIDs, $personID);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 }

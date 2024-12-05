@@ -32,7 +32,7 @@ class MergeOrganizations extends Options
             return [];
         }
 
-        $query      = Database::getQuery();
+        $query      = Database::query();
         $table      = $resource === 'category' ? 'categories' : 'persons';
         $textColumn = 'shortName_' . Application::tag();
         $query->select("DISTINCT o.id AS value, o.$textColumn AS text")
@@ -41,9 +41,9 @@ class MergeOrganizations extends Options
             ->innerJoin("#__organizer_$table AS res ON res.id = a.{$resource}ID")
             ->where("res.id IN ( '" . implode("', '", $selectedIDs) . "' )")
             ->order('text ASC');
-        Database::setQuery($query);
+        Database::set($query);
 
-        if (!$valuePairs = Database::loadAssocList()) {
+        if (!$valuePairs = Database::arrays()) {
             return [];
         }
 

@@ -49,7 +49,7 @@ class RoomTypes extends ResourceHelper implements Selectable
             DB::qn("t.name_$tag", 'name'),
         ];
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($select)->from(DB::qn('#__organizer_roomtypes', 't'));
 
         // Unsuppressed or all
@@ -73,8 +73,8 @@ class RoomTypes extends ResourceHelper implements Selectable
         }
 
         $query->order('name');
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 }

@@ -109,7 +109,7 @@ class CourseParticipants extends ResourceHelper
      */
     public static function state(int $courseID, int $participantID, int $eventID = 0): ?int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('status'))
             ->from(DB::qn('#__organizer_course_participants', 'cp'))
             ->where(DB::qn('cp.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
@@ -125,8 +125,8 @@ class CourseParticipants extends ResourceHelper
                 ->bind(':iParticipantID', $participantID, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
-        return DB::loadResult();
+        DB::set($query);
+        return DB::result();
     }
 
     /**

@@ -45,7 +45,7 @@ class InstanceParticipant extends BaseModel
             $instance = new Tables\Instances();
             $instance->load($instanceID);
 
-            $query = Database::getQuery();
+            $query = Database::query();
             $query->select('i1.id')
                 ->from('#__organizer_instances AS i1')
                 ->innerJoin('#__organizer_blocks AS b1 ON b1.id = i1.blockID')
@@ -65,8 +65,8 @@ class InstanceParticipant extends BaseModel
                 ->where("(b1.date > '$today' OR (b1.date = '$today' and b1.startTime > '$now'))")
                 ->where("b1.date <= '$then'");
 
-            Database::setQuery($query);
-            $results = Database::loadIntColumn();
+            Database::set($query);
+            $results = Database::integers();
 
             $supplementalIDs = array_merge($supplementalIDs, $results);
         }
@@ -169,7 +169,7 @@ class InstanceParticipant extends BaseModel
         }
 
         $now   = date('H:i:s');
-        $query = Database::getQuery();
+        $query = Database::query();
         $then  = date('H:i:s', strtotime('+60 minutes'));
         $today = date('Y-m-d');
         $query->select('i.id')
@@ -180,23 +180,23 @@ class InstanceParticipant extends BaseModel
             ->where("bl.date = '$today'")
             ->where("((bk.startTime IS NOT NULL and bk.startTime < '$then') or bl.startTime < '$then')")
             ->where("bl.endTime > '$now'");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if (!$instanceIDs = Database::loadIntColumn()) {
+        if (!$instanceIDs = Database::integers()) {
             Application::message('ORGANIZER_UNIT_CODE_INVALID', Application::ERROR);
 
             return false;
         }
 
         // Filter for bookmarked/registered
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('instanceID')
             ->from('#__organizer_instance_participants')
             ->where("instanceID IN (" . implode(',', $instanceIDs) . ")")
             ->where("participantID = $participantID");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if ($plannedIDs = Database::loadIntColumn()) {
+        if ($plannedIDs = Database::integers()) {
             $instanceIDs = array_intersect($plannedIDs, $instanceIDs);
         }
 
@@ -247,15 +247,15 @@ class InstanceParticipant extends BaseModel
         }
 
         // Get all other instances relevant to the booking
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('id')
             ->from('#__organizer_instances')
             ->where("unitID = $instance->unitID")
             ->where("blockID = $instance->blockID")
             ->where("id != $instanceID");
-        Database::setQuery($query);
+        Database::set($query);
 
-        foreach (Database::loadIntColumn() as $instanceID) {
+        foreach (Database::integers() as $instanceID) {
             $participation = new Tables\InstanceParticipants();
 
             if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
@@ -375,7 +375,7 @@ class InstanceParticipant extends BaseModel
     private function getInstanceIDs(int $method, bool $virtual = false): array
     {
         $now   = date('H:i:s');
-        $query = Database::getQuery();
+        $query = Database::query();
         $today = date('Y-m-d');
 
         $query->select('i.id')
@@ -405,8 +405,8 @@ class InstanceParticipant extends BaseModel
                     ->where("i.unitID = $instance->unitID")->where("b.dow = $block->dow")
                     ->where("b.endTime = '$block->endTime'")
                     ->where("b.startTime = '$block->startTime'");
-                Database::setQuery($query);
-                $instanceIDs = Database::loadIntColumn();
+                Database::set($query);
+                $instanceIDs = Database::integers();
                 break;
 
             // Called from instance item context, selected ids are not relevant
@@ -427,8 +427,8 @@ class InstanceParticipant extends BaseModel
 
                 $selected = implode(',', $instanceIDs);
                 $query->where("i.id IN ($selected)");
-                Database::setQuery($query);
-                $instanceIDs = Database::loadIntColumn();
+                Database::set($query);
+                $instanceIDs = Database::integers();
                 break;
         }
 
@@ -554,7 +554,7 @@ class InstanceParticipant extends BaseModel
                 continue;
             }*/
 
-            $query = Database::getQuery();
+            $query = Database::query();
             $query->select('i.id')
                 ->from('#__organizer_instance_participants AS ip')
                 ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -562,9 +562,9 @@ class InstanceParticipant extends BaseModel
                 ->where("i.blockID = $block->id")
                 ->where('ip.registered = 1')
                 ->where("ip.participantID = $participantID");
-            Database::setQuery($query);
+            Database::set($query);
 
-            if ($otherInstanceID = Database::loadInt()) {
+            if ($otherInstanceID = Database::integer()) {
                 $otherName = Instances::name($otherInstanceID);
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT', $date, $startTime, $endTime,
@@ -665,7 +665,7 @@ class InstanceParticipant extends BaseModel
         $table->roomID     = $data['roomID'];
         $table->seat       = $data['seat'];
 
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('ip.*')
             ->from('#__organizer_instance_participants AS ip')
             ->innerJoin('#__organizer_instances AS i1 ON i1.id = ip.instanceID')
@@ -673,10 +673,10 @@ class InstanceParticipant extends BaseModel
             ->innerJoin('#__organizer_instances AS i2 ON i2.blockID = b.blockID AND i2.unitID = b.unitID')
             ->where("i2.id = $table->instanceID")
             ->where("ip.participantID = $table->participantID");
-        Database::setQuery($query);
+        Database::set($query);
 
         $instanceIDs = [];
-        foreach (Database::loadAssocList() as $entry) {
+        foreach (Database::arrays() as $entry) {
             $instanceIDs[$entry['instanceID']] = $entry['instanceID'];
             $table->registered                 = $table->registered ?: !empty($entry['registered']);
 

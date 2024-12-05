@@ -27,12 +27,12 @@ class SubjectEvents extends FormField
      */
     public function getInput(): string
     {
-        $query     = Database::getQuery();
+        $query     = Database::query();
         $subjectID = Input::getID();
         $tag       = Application::tag();
         $query->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
-        Database::setQuery($query);
-        $events  = Database::loadAssocList();
+        Database::set($query);
+        $events  = Database::arrays();
         $options = [HTML::option('', Text::_('SELECT_EVENT'))];
 
         foreach ($events as $event) {
@@ -42,10 +42,10 @@ class SubjectEvents extends FormField
         $fieldName  = $this->getAttribute('name');
         $attributes = ['multiple' => 'multiple', 'size' => '10'];
 
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = $subjectID");
-        Database::setQuery($query);
-        $selected = Database::loadIntColumn();
+        Database::set($query);
+        $selected = Database::integers();
 
         return HTML::selectBox($fieldName, $options, $attributes, $selected);
     }

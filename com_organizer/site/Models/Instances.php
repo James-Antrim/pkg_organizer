@@ -230,7 +230,7 @@ class Instances extends ListModel
                 ->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
             $this->filterByCampus($query, 'bd');
         }
-        DB::setQuery($query);
+        DB::set($query);
 
         return $query;
     }

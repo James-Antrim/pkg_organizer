@@ -38,7 +38,7 @@ class RoomKeys extends ResourceHelper implements Selectable
      */
     public static function resources(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
 
         $nameColumns = DB::qn(['k.key', "k.name_$tag"]);
@@ -65,8 +65,8 @@ class RoomKeys extends ResourceHelper implements Selectable
         }
 
         $query->order(DB::qn('name'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 }

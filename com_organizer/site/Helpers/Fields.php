@@ -78,7 +78,7 @@ class Fields extends ResourceHelper implements Selectable
      */
     public static function resources(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $query->select('DISTINCT *, ' . DB::qn("name_$tag", 'name'))
             ->from(DB::qn('#__organizer_fields'))
@@ -98,9 +98,9 @@ class Fields extends ResourceHelper implements Selectable
             $query->where("id IN ($string)");
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 
     /**

@@ -37,7 +37,7 @@ class Equipment extends ListModel
     {
         $tag = Application::tag();
 
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select("DISTINCT e.*, e.name_$tag AS name")
             ->from('#__organizer_equipment AS e');
 

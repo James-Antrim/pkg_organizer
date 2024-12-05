@@ -123,13 +123,13 @@ class MergePersons extends MergeController
      */
     private function updateResponsibilities(): bool
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(['DISTINCT ' . DB::qn('subjectID'), DB::qn('role')])
             ->from(DB::qn('#__organizer_subject_persons'))
             ->whereIn(DB::qn('personID'), $this->mergeIDs);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$keyChain = DB::loadAssocList()) {
+        if (!$keyChain = DB::arrays()) {
             return true;
         }
 

@@ -44,14 +44,14 @@ class OrganizationAssociations extends ListField
             return ($table->load($resourceID) and !empty($table->organizationID)) ? [$table->organizationID] : [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('organizationID'))
             ->from(DB::qn('#__organizer_associations'))
             ->where(DB::qn("{$resource}ID") . ' = :resourceID')
             ->bind(':resourceID', $resourceID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**

@@ -51,7 +51,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     public static function categories(int $organizationID, bool $active = true): array
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(array_merge(DB::qn(['c.id', 'code']), [DB::qn("name_$tag", 'name')]))
             ->from(DB::qn('#__organizer_categories', 'c'))
             ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.categoryID', 'c.id'))
@@ -62,9 +62,9 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
             $query->where(DB::qn('c.active') . ' = 1');
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**
@@ -76,7 +76,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
      */
     public static function defaultGrid(int $organizationID): int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select([DB::qn('u.gridID'), 'COUNT(*) AS ' . DB::qn('occurrences')])
             ->from(DB::qn('#__organizer_units', 'u'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.unitID', 'u.id'))
@@ -87,9 +87,9 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
             ->bind(':organizationID', $organizationID, ParameterType::INTEGER)
             ->group(DB::qn('u.gridID'))
             ->order(DB::qn('occurrences') . ' DESC');
-        DB::setQuery($query);
+        DB::set($query);
 
-        if ($results = DB::loadAssoc()) {
+        if ($results = DB::array()) {
             return (int) $results['gridID'];
         }
 
@@ -158,13 +158,13 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
      */
     public static function personIDs(int $organizationID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('personID'))
             ->from(DB::qn('#__organizer_associations'))
             ->whereIn(DB::qn('organizationID'), [$organizationID]);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -174,7 +174,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
      */
     public static function resources(string $access = ''): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $query->select([
             'DISTINCT ' . DB::qn('o') . '.*',
@@ -248,9 +248,9 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
             $query->whereIn(DB::qn('o.id'), $allowedIDs);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 
     /**

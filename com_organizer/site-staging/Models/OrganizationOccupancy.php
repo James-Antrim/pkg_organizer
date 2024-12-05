@@ -246,11 +246,11 @@ class OrganizationOccupancy extends BaseModel
     {
         $options = [];
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT YEAR(schedule_date) AS year')->from('#__organizer_calendar')->order('year');
 
-        DB::setQuery($query);
-        $years = DB::loadColumn();
+        DB::set($query);
+        $years = DB::column();
 
         if (!empty($years)) {
             foreach ($years as $year) {
@@ -274,7 +274,7 @@ class OrganizationOccupancy extends BaseModel
         $cSelect = "c.schedule_date AS date, TIME_FORMAT(c.startTime, '%H:%i') AS startTime, ";
         $cSelect .= "TIME_FORMAT(c.endTime, '%H:%i') AS endTime";
 
-        $ringQuery = DB::getQuery();
+        $ringQuery = DB::query();
         $ringQuery->select('DISTINCT ccm.id AS ccmID')
             ->from('#__organizer_calendar_configuration_map AS ccm')
             ->select($cSelect)
@@ -295,9 +295,9 @@ class OrganizationOccupancy extends BaseModel
 
         $regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
         $ringQuery->where("conf.configuration REGEXP '$regexp'");
-        DB::setQuery($ringQuery);
+        DB::set($ringQuery);
 
-        if (!$roomConfigurations = DB::loadAssocList()) {
+        if (!$roomConfigurations = DB::arrays()) {
             return false;
         }
 
@@ -329,15 +329,15 @@ class OrganizationOccupancy extends BaseModel
      */
     private function setRoomTypes()
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
 
         $query->select("id, name_$tag AS name, description_$tag AS description");
         $query->from('#__organizer_roomtypes');
         $query->order('name');
-        DB::setQuery($query);
+        DB::set($query);
 
-        $this->roomtypes = DB::loadAssocList('id');
+        $this->roomtypes = DB::arrays('id');
     }
 
     /**
@@ -349,13 +349,13 @@ class OrganizationOccupancy extends BaseModel
      */
     private function setTerms(string $year): void
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('*')->from('#__organizer_terms')
             ->where("(YEAR(startDate) = $year OR YEAR(endDate) = $year)")
             ->order('startDate');
-        DB::setQuery($query);
+        DB::set($query);
 
-        $this->terms = DB::loadAssocList('id');
+        $this->terms = DB::arrays('id');
 
     }
 

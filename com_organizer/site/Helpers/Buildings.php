@@ -124,7 +124,7 @@ class Buildings extends ResourceHelper implements Filterable, Selectable
      */
     public static function resources(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(['DISTINCT ' . DB::qn('b') . '.*', DB::qn('c.parentID')])
             ->from(DB::qn('#__organizer_buildings', 'b'))
             ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'b.campusID'))
@@ -132,8 +132,8 @@ class Buildings extends ResourceHelper implements Filterable, Selectable
 
         Campuses::filterBy($query, 'b', Input::getInt('campusID'));
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 }

@@ -87,7 +87,7 @@ class ContactTracking extends ListModel
         $bookings = [];
 
         if ($participantID = $this->state->get('participantID')) {
-            $query = Database::getQuery();
+            $query = Database::query();
             $query->from('#__organizer_instance_participants AS ipa')
                 ->select('ipa.instanceID, ipa.roomID, ipa.seat')
                 ->where('ipa.attended = 1')
@@ -100,9 +100,9 @@ class ContactTracking extends ListModel
                 ->innerJoin('#__organizer_bookings AS bo ON bo.blockID = bl.id AND bo.unitID = i.unitID')
                 ->select('bo.id AS bookingID, bo.startTime, bo.endTime')
                 ->order('bl.date DESC, bl.startTime DESC');
-            Database::setQuery($query);
+            Database::set($query);
 
-            foreach (Database::loadAssocList() as $result) {
+            foreach (Database::arrays() as $result) {
                 $date      = $result['date'];
                 $endTime   = $result['endTime'] ?: $result['defaultEnd'];
                 $startTime = $result['startTime'] ?: $result['defaultStart'];
@@ -131,7 +131,7 @@ class ContactTracking extends ListModel
         }
 
         if ($personID = $this->state->get('personID', 0)) {
-            $query = Database::getQuery();
+            $query = Database::query();
             $query->from('#__organizer_instance_persons AS ipe')
                 ->select('ipe.instanceID')
                 ->where("ipe.personID = $personID")
@@ -145,9 +145,9 @@ class ContactTracking extends ListModel
                 ->innerJoin('#__organizer_bookings AS bo ON bo.blockID = bl.id AND bo.unitID = i.unitID')
                 ->select('bo.id AS bookingID, bo.startTime, bo.endTime')
                 ->order('bl.date DESC, bl.startTime DESC');
-            Database::setQuery($query);
+            Database::set($query);
 
-            foreach (Database::loadAssocList() as $result) {
+            foreach (Database::arrays() as $result) {
                 $date      = $result['date'];
                 $endTime   = $result['endTime'] ?: $result['defaultEnd'];
                 $startTime = $result['startTime'] ?: $result['defaultStart'];
@@ -177,7 +177,7 @@ class ContactTracking extends ListModel
 
         krsort($bookings);
 
-        $paQuery = Database::getQuery();
+        $paQuery = Database::query();
         $paQuery->from('#__organizer_participants AS p')
             ->select('p.forename, p.surname, p.address, p.city, p.telephone, p.zipCode')
             ->innerJoin('#__users AS u ON u.id = p.id')
@@ -186,7 +186,7 @@ class ContactTracking extends ListModel
             ->select('ipa.participantID, ipa.roomID, ipa.seat');
 
         $tag     = Application::tag();
-        $peQuery = Database::getQuery();
+        $peQuery = Database::query();
         $peQuery->from('#__organizer_persons AS pe')
             ->select('pe.forename AS defaultForename, pe.surname AS defaultSurname')
             ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.personID = pe.id')
@@ -214,9 +214,9 @@ class ContactTracking extends ListModel
                 $paQuery->where("ipa.participantID != $participantID");
             }
 
-            Database::setQuery($paQuery);
+            Database::set($paQuery);
 
-            foreach (Database::loadAssocList() as $person) {
+            foreach (Database::arrays() as $person) {
                 $data = [
                     'address'   => $person['address'],
                     'city'      => $person['city'],
@@ -246,9 +246,9 @@ class ContactTracking extends ListModel
                 $peQuery->where("ipe.personID != $personID");
             }
 
-            Database::setQuery($peQuery);
+            Database::set($peQuery);
 
-            foreach (Database::loadAssocList() as $person) {
+            foreach (Database::arrays() as $person) {
                 $data = [
                     'address'   => $person['address'] ?: '',
                     'city'      => $person['city'] ?: '',
@@ -337,14 +337,14 @@ class ContactTracking extends ListModel
         $search  = explode(' ', $search);
 
         // Users/participants by username
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('p.id')
             ->from('#__organizer_participants AS p')
             ->innerJoin('#__users AS u ON u.id = p.id')
             ->where("(u.username = '" . implode("' OR u.username = '", $search) . "')");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1) {
+        if ($participantIDs = Database::column() and count($participantIDs) > 1) {
             $this->forceEmpty();
             Application::message($tooMany, Application::NOTICE);
 
@@ -352,13 +352,13 @@ class ContactTracking extends ListModel
         }
 
         // Person by username
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('id')
             ->from('#__organizer_persons')
             ->where("(username = '" . implode("' OR username = '", $search) . "')");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if ($personIDs = Database::loadColumn() and count($personIDs) > 1) {
+        if ($personIDs = Database::column() and count($personIDs) > 1) {
             $this->forceEmpty();
             Application::message($tooMany, Application::NOTICE);
 
@@ -372,17 +372,17 @@ class ContactTracking extends ListModel
         }
 
         // Participants by full name
-        $subQuery = Database::getQuery();
+        $subQuery = Database::query();
         $subQuery->select('id, ' . $subQuery->concatenate(['surname', 'forename'], ' ') . ' AS fullName')
             ->from('#__organizer_participants');
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('p1.id, p2.fullname')
             ->from('#__organizer_participants AS p1')
             ->innerJoin("($subQuery) AS p2 ON p2.id = p1.id")
             ->where("(p2.fullName LIKE '%" . implode("%' AND p2.fullName LIKE '%", $search) . "%')");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1) {
+        if ($participantIDs = Database::column() and count($participantIDs) > 1) {
             $this->forceEmpty();
             Application::message($tooMany, Application::NOTICE);
 
@@ -390,17 +390,17 @@ class ContactTracking extends ListModel
         }
 
         // Persons by full name
-        $subQuery = Database::getQuery();
+        $subQuery = Database::query();
         $subQuery->select('id, ' . $subQuery->concatenate(['surname', 'forename'], ' ') . ' AS fullName')
             ->from('#__organizer_persons');
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('p1.id, p2.fullname')
             ->from('#__organizer_persons AS p1')
             ->innerJoin("($subQuery) AS p2 ON p2.id = p1.id")
             ->where("(p2.fullName LIKE '%" . implode("%' AND p2.fullName LIKE '%", $search) . "%')");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if ($personIDs = Database::loadColumn() and count($personIDs) > 1) {
+        if ($personIDs = Database::column() and count($personIDs) > 1) {
             $this->forceEmpty();
             Application::message($tooMany, Application::NOTICE);
 

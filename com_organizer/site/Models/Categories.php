@@ -28,7 +28,7 @@ class Categories extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=category&id=';
 

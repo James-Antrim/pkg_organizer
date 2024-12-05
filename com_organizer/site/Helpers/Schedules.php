@@ -29,14 +29,14 @@ class Schedules implements Schedulable
      */
     public static function contextIDs(int $organizationID, int $termID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_schedules'))
             ->where(DB::qcs([['organizationID', $organizationID], ['termID', $termID]]))
             ->order(DB::qn(['creationDate', 'creationTime']));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -65,13 +65,13 @@ class Schedules implements Schedulable
         $idColumn       = DB::qn('id');
         $organizationID = DB::qn('organizationID');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select($idColumn)
             ->from(DB::qn('#__organizer_schedules'))
             ->whereIn($organizationID, $organizationIDs);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 }

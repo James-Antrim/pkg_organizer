@@ -148,7 +148,7 @@ class Screen extends BaseModel
      */
     private function setInstances()
     {
-        $query = Database::getQuery();
+        $query = Database::query();
         $tag   = Application::tag();
         $query->select('DISTINCT i.id')
             ->select('b.date, b.endTime, b.startTime')
@@ -193,9 +193,9 @@ class Screen extends BaseModel
                 break;
         }
 
-        Database::setQuery($query);
+        Database::set($query);
 
-        if (!$instances = Database::loadAssocList('id')) {
+        if (!$instances = Database::arrays('id')) {
             return;
         }
 

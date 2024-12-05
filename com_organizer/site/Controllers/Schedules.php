@@ -57,14 +57,14 @@ class Schedules extends ListController
             ['s1.termID', 's2.termID']
         ]);
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('s1.id'))
             ->from(DB::qn('#__organizer_schedules', 's1'))
             ->innerJoin(DB::qn('#__organizer_schedules', 's2'), $conditions)
             ->where(DB::qc('s1.id', 's2.id', '<'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        foreach (DB::loadIntColumn() as $duplicateID) {
+        foreach (DB::integers() as $duplicateID) {
             if (!Helper::schedulable($duplicateID)) {
                 Application::error(403);
             }

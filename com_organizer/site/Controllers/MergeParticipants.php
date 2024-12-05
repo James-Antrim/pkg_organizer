@@ -90,28 +90,28 @@ class MergeParticipants extends MergeController
         $mGroupID = DB::qn('group_id');
         $mUserID  = DB::qn('user_id');
 
-        $insert = DB::getQuery()->insert($map)->columns([$mGroupID, $mUserID])->values(":groupID, :userID");
-        $select = DB::getQuery()->select('*')->from($map)->where("$mUserID = :userID")->where("$mGroupID = :groupID");
+        $insert = DB::query()->insert($map)->columns([$mGroupID, $mUserID])->values(":groupID, :userID");
+        $select = DB::query()->select('*')->from($map)->where("$mUserID = :userID")->where("$mGroupID = :groupID");
 
         foreach ($groupIDs as $groupID) {
             $select->bind(':groupID', $groupID, ParameterType::INTEGER)->bind(':userID', $this->mergeID, ParameterType::INTEGER);
-            DB::setQuery($select);
+            DB::set($select);
 
-            if (DB::loadAssoc()) {
+            if (DB::array()) {
                 continue;
             }
 
             $insert->bind(':groupID', $groupID, ParameterType::INTEGER)->bind(':userID', $this->mergeID, ParameterType::INTEGER);
-            DB::setQuery($insert);
+            DB::set($insert);
             DB::execute();
         }
 
-        $delete = DB::getQuery();
+        $delete = DB::query();
         $delete->delete($map)
             ->where("$mUserID = :userID")
             ->whereNotIn($mGroupID, $groupIDs)
             ->bind(':userID', $this->mergeID, ParameterType::INTEGER);
-        DB::setQuery($delete);
+        DB::set($delete);
         DB::execute();
     }
 
@@ -183,14 +183,14 @@ class MergeParticipants extends MergeController
         $mergeIDs = Input::getIntCollection('ids');
         asort($mergeIDs);
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['id', 'email']))
             ->from(DB::qn('#__users'))
             ->whereIn(DB::qn('id'), $mergeIDs)
             ->order(DB::qn('id'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$results = DB::loadAssocList('id') or count($results) !== count($mergeIDs)) {
+        if (!$results = DB::arrays('id') or count($results) !== count($mergeIDs)) {
             Application::error(500);
         }
 

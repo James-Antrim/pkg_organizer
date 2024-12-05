@@ -250,7 +250,7 @@ class RoomStatistics extends BaseModel
     private function setData(int $roomID): bool
     {
         $tag       = Application::tag();
-        $ringQuery = DB::getQuery();
+        $ringQuery = DB::query();
         $ringQuery->select('DISTINCT ccm.id AS ccmID')
             ->from('#__organizer_calendar_configuration_map AS ccm')
             ->select('c.schedule_date AS date, c.startTime, c.endTime')
@@ -271,9 +271,9 @@ class RoomStatistics extends BaseModel
 
         $regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
         $ringQuery->where("conf.configuration REGEXP '$regexp'");
-        DB::setQuery($ringQuery);
-        $ringData = DB::loadAssocList();
-        $lcrsIDs  = DB::loadIntColumn(7);
+        DB::set($ringQuery);
+        $ringData = DB::arrays();
+        $lcrsIDs  = DB::integers(7);
 
         if (empty($ringData) or empty($lcrsIDs)) {
             return false;
@@ -325,7 +325,7 @@ class RoomStatistics extends BaseModel
      */
     private function setGrid(): void
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('grid')->from('#__organizer_grids');
 
         if (empty($this->parameters['gridID'])) {
@@ -335,9 +335,9 @@ class RoomStatistics extends BaseModel
             $query->where("id = {$this->parameters['gridID']}");
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$rawGrid = DB::loadString()) {
+        if (!$rawGrid = DB::string()) {
             return;
         }
 
@@ -366,7 +366,7 @@ class RoomStatistics extends BaseModel
     private function setLSData(array $lcrsIDs): void
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $select = 'DISTINCT lcrs.id AS lcrsID, ';
         $query->from('#__organizer_lesson_courses AS lcrs');
@@ -400,9 +400,9 @@ class RoomStatistics extends BaseModel
         $query->select($select);
         $query->where("lg.delta != 'removed'");
         $query->where("lcrs.id IN ('" . implode("', '", $lcrsIDs) . "')");
-        DB::setQuery($query);
+        DB::set($query);
 
-        $results = DB::loadAssocList('lcrsID');
+        $results = DB::arrays('lcrsID');
         if (empty($results)) {
             return;
         }
@@ -436,15 +436,15 @@ class RoomStatistics extends BaseModel
     private function setRoomTypes(): void
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $query->select("id, name_$tag AS name, description_$tag AS description")
             ->from('#__organizer_roomtypes')
             ->order('name');
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        $this->roomtypes = DB::loadAssocList('id');
+        $this->roomtypes = DB::arrays('id');
     }
 
     /**

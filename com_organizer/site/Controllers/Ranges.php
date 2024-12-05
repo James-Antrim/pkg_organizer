@@ -96,15 +96,15 @@ trait Ranges
             }
 
             if ($subRangeIDs) {
-                $query = DB::getQuery();
+                $query = DB::query();
                 $query->select(DB::qn('id'))
                     ->from(DB::qn('#__organizer_curricula'))
                     ->whereNotIn(DB::qn('id'), $subRangeIDs)
                     ->where(DB::qn('parentID') . ' = :curriculaID')
                     ->bind(':curriculaID', $curricula->id, ParameterType::INTEGER);
-                DB::setQuery($query);
+                DB::set($query);
 
-                if ($zombieIDs = DB::loadIntColumn()) {
+                if ($zombieIDs = DB::integers()) {
                     foreach ($zombieIDs as $zombieID) {
                         $this->deleteRange($zombieID);
                     }
@@ -184,24 +184,24 @@ trait Ranges
     protected function curriculum(int $poolID): array
     {
         // Subordinate structures are the same for every superordinate resource
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('poolID') . ' = :poolID')->bind(':poolID', $poolID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$firstID = DB::loadInt()) {
+        if (!$firstID = DB::integer()) {
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('*')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('parentID') . ' = :firstID')->bind(':firstID', $firstID, ParameterType::INTEGER)
             ->order(DB::qn('lft'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$subOrdinates = DB::loadAssocList()) {
+        if (!$subOrdinates = DB::arrays()) {
             return $subOrdinates;
         }
 
@@ -281,32 +281,32 @@ trait Ranges
     protected function left(?int $parentID, int $ordering): int
     {
         if (!$parentID) {
-            $query = DB::getQuery();
+            $query = DB::query();
             $query->select('MAX(' . DB::qn('rgt') . ') + 1')->from(DB::qn('#__organizer_curricula'));
-            DB::setQuery($query);
+            DB::set($query);
 
-            return DB::loadInt();
+            return DB::integer();
         }
 
         // Right value of the next lowest sibling
-        $rgtQuery = DB::getQuery();
+        $rgtQuery = DB::query();
         $rgtQuery->select('MAX(' . DB::qn('rgt') . ')')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER)
             ->where(DB::qn('ordering') . ' < :ordering')->bind(':ordering', $ordering, ParameterType::INTEGER);
-        DB::setQuery($rgtQuery);
+        DB::set($rgtQuery);
 
-        if ($rgt = DB::loadInt()) {
+        if ($rgt = DB::integer()) {
             return $rgt + 1;
         }
 
         // No siblings => use parent left for reference
-        $lftQuery = DB::getQuery();
+        $lftQuery = DB::query();
         $lftQuery->select(DB::qn('lft'))
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('id') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
-        DB::setQuery($lftQuery);
-        $lft = DB::loadInt();
+        DB::set($lftQuery);
+        $lft = DB::integer();
 
         return $lft ? $lft + 1 : 0;
     }
@@ -339,14 +339,14 @@ trait Ranges
     private function shiftDown(int $parentID, int $ordering): bool
     {
         $column = DB::qn('ordering');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->update(DB::qn('#__organizer_curricula'))
             ->set("$column = $column - 1")
             ->where("$column > :ordering")
             ->bind(':ordering', $ordering, ParameterType::INTEGER)
             ->where(DB::qn('parentID') . ' = :parentID')
             ->bind(':parentID', $parentID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
         return DB::execute();
     }
@@ -362,22 +362,22 @@ trait Ranges
     private function shiftLeft(int $left, int $width): bool
     {
         $column = DB::qn('lft');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->update(DB::qn('#__organizer_curricula'))
             ->set("$column = $column - :width")->bind(':width', $width, ParameterType::INTEGER)
             ->where("$column > :left")->bind(':left', $left, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
         if (!DB::execute()) {
             return false;
         }
 
         $column = DB::qn('rgt');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->update(DB::qn('#__organizer_curricula'))
             ->set("$column = $column - :width")->bind(':width', $width, ParameterType::INTEGER)
             ->where("$column > :left")->bind(':left', $left, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
         return DB::execute();
     }
@@ -393,22 +393,22 @@ trait Ranges
     protected function shiftRight(int $left): bool
     {
         $column = DB::qn('lft');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->update(DB::qn('#__organizer_curricula'))
             ->set("$column = $column + 2")
             ->where("$column >= :left")->bind(':left', $left, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
         if (!DB::execute()) {
             return false;
         }
 
         $column = DB::qn('rgt');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->update(DB::qn('#__organizer_curricula'))
             ->set("$column = $column + 2")
             ->where("$column >= :left")->bind(':left', $left, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
         return DB::execute();
     }
@@ -424,12 +424,12 @@ trait Ranges
     protected function shiftUp(int $parentID, int $ordering): bool
     {
         $column = DB::qn('ordering');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->update(DB::qn('#__organizer_curricula'))
             ->set("$column = $column + 1")
             ->where("$column >= :ordering")->bind(':ordering', $ordering, ParameterType::INTEGER)
             ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
         return DB::execute();
     }

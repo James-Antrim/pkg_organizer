@@ -27,7 +27,7 @@ class GenericOptions extends Options
     {
         $defaultOptions = parent::getOptions();
 
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $glue = $this->getAttribute('glue');
 
@@ -126,9 +126,9 @@ class GenericOptions extends Options
             $query->order("$orderColumn $orderDirection");
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$resources = DB::loadAssocList()) {
+        if (!$resources = DB::arrays()) {
             return $defaultOptions;
         }
 

@@ -34,16 +34,16 @@ class CheckinRooms extends Options
         // Ongoing
         $query = $this->getQuery($participantID);
         $query->where("b.startTime <= '$now'")->where("b.endTime >= '$now'");
-        Database::setQuery($query);
+        Database::set($query);
 
-        if (!$instanceID = Database::loadInt()) {
+        if (!$instanceID = Database::integer()) {
             // Upcoming
             $then  = date('H:i:s', strtotime('+60 minutes'));
             $query = $this->getQuery($participantID);
             $query->where("b.startTime >= '$now'")->where("b.startTime <= '$then'");
-            Database::setQuery($query);
+            Database::set($query);
 
-            $instanceID = Database::loadInt();
+            $instanceID = Database::integer();
         }
 
         $rooms = [];
@@ -72,7 +72,7 @@ class CheckinRooms extends Options
     private function getQuery(int $participantID): JDatabaseQuery
     {
         $today = date('Y-m-d');
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('instanceID')
             ->from('#__organizer_instance_participants AS ip')
             ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')

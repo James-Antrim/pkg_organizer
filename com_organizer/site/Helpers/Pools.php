@@ -56,7 +56,7 @@ class Pools extends Curricula implements Selectable
      */
     private static function filterExclusions(array $range): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('*')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('poolID') . ' IS NOT NULL')
@@ -64,9 +64,9 @@ class Pools extends Curricula implements Selectable
             ->bind(':left', $range['lft'], ParameterType::INTEGER)
             ->bind(':right', $range['rgt'], ParameterType::INTEGER)
             ->order('lft');
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$exclusions = DB::loadAssocList()) {
+        if (!$exclusions = DB::arrays()) {
             return [$range];
         }
 
@@ -230,7 +230,7 @@ class Pools extends Curricula implements Selectable
         }
 
         $poolID = DB::qn('poolID');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->select('DISTINCT *')
             ->from(DB::qn('#__organizer_curricula'))
             ->where("$poolID IS NOT NULL")
@@ -243,9 +243,9 @@ class Pools extends Curricula implements Selectable
             $query->where("$poolID = :poolID")->bind(':poolID', $identifiers, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**
@@ -262,7 +262,7 @@ class Pools extends Curricula implements Selectable
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $query->select(['DISTINCT ' . DB::qn('p') . '.*', DB::qn("p.fullName_$tag", 'name')])
             ->from(DB::qn('#__organizer_pools', 'p'))
@@ -280,9 +280,9 @@ class Pools extends Curricula implements Selectable
             $query->bind(':left', $left, ParameterType::INTEGER)
                 ->bind(':right', $right, ParameterType::INTEGER);
 
-            DB::setQuery($query);
+            DB::set($query);
 
-            $results = DB::loadAssocList('id');
+            $results = DB::arrays('id');
 
             if ($results and (count($results) > 1 or !$programID)) {
                 return $results;
@@ -294,9 +294,9 @@ class Pools extends Curricula implements Selectable
             $query->bind(':left', $ranges[0]['lft'], ParameterType::INTEGER)
                 ->bind(':right', $ranges[0]['rgt'], ParameterType::INTEGER);
 
-            DB::setQuery($query);
+            DB::set($query);
 
-            if ($results = DB::loadAssocList('id')) {
+            if ($results = DB::arrays('id')) {
                 return $results;
             }
         }

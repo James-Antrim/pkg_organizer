@@ -308,8 +308,8 @@ class Workload extends FormModel
             ->innerJoin($mTable, $mConditions)
             ->order($order)
             ->where($restriction);
-        DB::setQuery($query);
-        $instances = DB::loadAssocList('instanceID');
+        DB::set($query);
+        $instances = DB::arrays('instanceID');
 
         $aliased = DB::qn(
             ['d.abbreviation', "g.name_$tag", 'i.id', "o.shortName_$tag", "p.name_$tag"],
@@ -326,9 +326,9 @@ class Workload extends FormModel
             ->order($order)
             ->where($restriction);
         Dates::betweenValues($query, 'b.date', $conditions['startDate'], $conditions['endDate']);
-        DB::setQuery($query);
+        DB::set($query);
 
-        $this->supplement($instances, DB::loadAssocList());
+        $this->supplement($instances, DB::arrays());
         $units      = $this->byUnit($instances);
         $aggregates = $this->byBlock($units);
         $this->byEvent($aggregates);
@@ -460,15 +460,15 @@ class Workload extends FormModel
     private function methods(): void
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select([DB::qn('code'), DB::qn("name_$tag", 'method')])
             ->from(DB::qn('#__organizer_methods'))
             ->where(DB::qc('relevant', 1));
-        DB::setQuery($query);
+        DB::set($query);
 
         $methods = [];
 
-        foreach (DB::loadAssocList() as $method) {
+        foreach (DB::arrays() as $method) {
             $methods[$method['code']] = $method['method'];
         }
 
@@ -499,14 +499,14 @@ class Workload extends FormModel
     {
         $aliased = DB::qn(['p.name_' . Application::tag(), 'd.abbreviation'], ['program', 'degree']);
         $select  = DB::qn(['p.id', 'categoryID', 'p.degreeID', 'fee', 'frequencyID', 'nc', 'special']);
-        $query   = DB::getQuery();
+        $query   = DB::query();
         $query->select(array_merge($select, $aliased))
             ->from(DB::qn('#__organizer_programs', 'p'))
             ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
             ->where(DB::qc('active', 1));
-        DB::setQuery($query);
+        DB::set($query);
 
-        $results = DB::loadAssocList();
+        $results = DB::arrays();
 
         $programs = [];
 

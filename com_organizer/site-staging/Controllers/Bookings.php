@@ -112,7 +112,7 @@ class Bookings extends Controller
         $earliest = date('Y-m-d', strtotime('-14 days'));
         $earliest = DB::qc('bl.date', $earliest, '>', true);
 
-        $select = DB::getQuery();
+        $select = DB::query();
         $select->select('DISTINCT ' . DB::qn('bk.id'))
             ->from(DB::qn('#__organizer_bookings', 'bk'))
             ->innerJoin(DB::qn('#__organizer_blocks', 'bl'), DB::qc('bl.id', 'bk.blockID'))
@@ -120,20 +120,20 @@ class Bookings extends Controller
 
         // Bookings associated with non-deprecated appointments.
         $select->where($earliest)->where(DB::qc('i.delta', 'removed', '!=', true));
-        DB::setQuery($select);
-        $currentIDs = DB::loadIntColumn();
+        DB::set($select);
+        $currentIDs = DB::integers();
 
         // Bookings associated with deprecated appointments.
         $select->clear('where');
         $select->where($earliest)->where(DB::qc('i.delta', 'removed', '=', true));
-        DB::setQuery($select);
-        $removedIDs = DB::loadIntColumn();
+        DB::set($select);
+        $removedIDs = DB::integers();
 
         // Because the instance join is on the unitID, not the instanceID, there can be overlap.
         if ($deprecatedIDs = array_diff($removedIDs, $currentIDs)) {
-            $delete = DB::getQuery();
+            $delete = DB::query();
             $delete->delete(DB::qn('#__organizer_bookings'))->whereIn(DB::qn('id'), $deprecatedIDs);
-            DB::setQuery($delete);
+            DB::set($delete);
             DB::execute();
         }
 
@@ -148,19 +148,19 @@ class Bookings extends Controller
         // Attended bookings.
         $select->clear('where');
         $select->where($past)->where(DB::qc('ip.attended', Helper::ATTENDED));
-        DB::setQuery($select);
-        $attendedIDs = DB::loadIntColumn();
+        DB::set($select);
+        $attendedIDs = DB::integers();
 
         // Unattended bookings.
         $select->clear('where');
         $select->where($past)->where(DB::qc('ip.attended', Helper::REGISTERED));
-        DB::setQuery($select);
-        $registeredIDs = DB::loadIntColumn();
+        DB::set($select);
+        $registeredIDs = DB::integers();
 
         if ($unattendedIDs = array_diff($registeredIDs, $attendedIDs)) {
-            $delete = DB::getQuery();
+            $delete = DB::query();
             $delete->delete(DB::qn('#__organizer_bookings'))->whereIn(DB::qn('id'), $unattendedIDs);
-            DB::setQuery($delete);
+            DB::set($delete);
             DB::execute();
         }
     }

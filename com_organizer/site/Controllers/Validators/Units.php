@@ -119,13 +119,13 @@ class Units implements UntisXMLValidator
             return 1;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_roles'))
             ->where(DB::qc('code', strtoupper($role), '=', true));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt(1);
+        return DB::integer(1);
     }
 
     /**

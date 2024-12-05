@@ -43,27 +43,27 @@ class Units extends ListController
             return;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(['id', 'courseID', 'organizationID', 'termID']))
             ->from(DB::qn('#__organizer_units'))
             ->whereIn(DB::qn('id'), $unitIDs);
-        DB::setQuery($query);
+        DB::set($query);
 
         // Some number of the ids from the request are inconsistent with existing unit ids.
-        if (!$pulledIDs = DB::loadIntColumn() or count($pulledIDs) !== count($unitIDs)) {
+        if (!$pulledIDs = DB::integers() or count($pulledIDs) !== count($unitIDs)) {
             Application::message(Text::sprintf('UNIT_X_INCONSISTENT', Text::_('UNITS')), Application::WARNING);
             $this->setRedirect("$this->baseURL&view=units");
             return;
         }
 
         // Ensure all units are schedulable for the user.
-        $organizationIDs = DB::loadIntColumn(2);
+        $organizationIDs = DB::integers(2);
         if (count($organizationIDs) !== count(array_intersect($organizationIDs, $this->schedulableIDs))) {
             Application::error(403);
         }
 
-        $courseIDs = DB::loadIntColumn(1);
-        $termIDs   = DB::loadIntColumn(3);
+        $courseIDs = DB::integers(1);
+        $termIDs   = DB::integers(3);
 
         // Referenced resources would create an inconsistent context for the course.
         if (!$this->consistent($courseIDs, 'COURSES') or !$this->consistent($termIDs, 'TERMS')) {

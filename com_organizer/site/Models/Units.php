@@ -43,7 +43,7 @@ class Units extends ListModel
     {
         $modified = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
         $termID   = $this->state->get('filter.termID');
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $tag      = Application::tag();
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];

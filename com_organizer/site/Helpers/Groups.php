@@ -107,16 +107,16 @@ class Groups extends Scheduled implements Selectable
         $aliased  = DB::qn(["e.description_$tag", "e.name_$tag"], ['description', 'name']);
         $selected = ['DISTINCT ' . DB::qn('e.id'), DB::qn('e.code')];
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(array_merge($selected, $aliased))
             ->from(DB::qn('#__organizer_events', 'e'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
             ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.instanceID', 'i.id'))
             ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
             ->where(DB::qn('groupID') . ' = :groupID')->bind(':groupID', $groupID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**
@@ -159,16 +159,16 @@ class Groups extends Scheduled implements Selectable
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('g') . '.*')->from(DB::qn('#__organizer_groups', 'g'));
 
         self::filterByAccess($query, 'g', $access);
         Categories::filterBy($query, 'g', $categoryID);
         self::filterByOrganization($query, 'g', $organizationID);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 
     /**
@@ -182,7 +182,7 @@ class Groups extends Scheduled implements Selectable
      */
     public static function getUnits(int $groupID, string $date, string $interval = 'term'): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method, eventID")
             ->from('#__organizer_units AS u')
@@ -193,8 +193,8 @@ class Groups extends Scheduled implements Selectable
             ->where("groupID = $groupID")
             ->where("u.delta != 'removed'");
         self::terminate($query, $date, $interval);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 }

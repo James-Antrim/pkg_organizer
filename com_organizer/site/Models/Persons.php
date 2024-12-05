@@ -32,7 +32,7 @@ class Persons extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $personID = DB::qn('p.id');
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $url      = 'index.php?option=com_organizer&view=person&id=';
 
         $access = [DB::quote((int) Can::manage('persons')) . ' AS ' . DB::qn('access')];

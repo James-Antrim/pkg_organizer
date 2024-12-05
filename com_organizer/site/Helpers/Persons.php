@@ -34,7 +34,7 @@ class Persons extends Scheduled implements Selectable
      */
     public static function byProgramOrPool(): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT p.id, p.forename, p.surname')
             ->from(DB::qn('#__organizer_persons', 'p'))
             ->innerJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))
@@ -69,9 +69,9 @@ class Persons extends Scheduled implements Selectable
             $query->where($where . ')');
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$persons = DB::loadObjectList()) {
+        if (!$persons = DB::objects()) {
             return [];
         }
 
@@ -130,16 +130,16 @@ class Persons extends Scheduled implements Selectable
      */
     public static function getOrganizationNames(int $personID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $query->select(DB::qn("o.shortName_$tag", 'name'))
             ->from(DB::qn('#__organizer_organizations', 'o'))
             ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qn('a.organizationID') . ' = ' . DB::qn('o.id'))
             ->where(DB::qn('personID') . ' = :personID')
             ->bind(':personID', $personID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadColumn();
+        return DB::column();
     }
 
     /**
@@ -195,7 +195,7 @@ class Persons extends Scheduled implements Selectable
             $organizationIDs = Can::manageTheseOrganizations();
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('p') . '.*')
             ->from(DB::qn('#__organizer_persons', 'p'))
             ->where(DB::qn('p.active') . ' = 1')
@@ -231,9 +231,9 @@ class Persons extends Scheduled implements Selectable
 
         if ($wherray) {
             $query->where('(' . implode(' OR ', $wherray) . ')');
-            DB::setQuery($query);
+            DB::set($query);
 
-            return DB::loadAssocList('id');
+            return DB::arrays('id');
         }
 
         return [];
@@ -345,15 +345,15 @@ class Persons extends Scheduled implements Selectable
             return [];
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT a.organizationID')
             ->from(DB::qn('#__organizer_associations', 'a'))
             ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.groupID', 'a.groupID'))
             ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe'), DB::qc('ipe.id', 'ig.assocID'))
             ->where("ipe.personID = $personID")
             ->where("ipe.roleID = 1");
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 }

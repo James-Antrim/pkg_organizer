@@ -48,7 +48,7 @@ class Curricula extends ListField
         Document::script('curricula');
         Document::script('multiple');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
 
         $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "', '", DB::qn('p.accredited'), "')'"];
@@ -59,10 +59,10 @@ class Curricula extends ListField
             ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
             ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
             ->order('name ASC');
-        DB::setQuery($query);
+        DB::set($query);
 
 
-        foreach (DB::loadAssocList() as $program) {
+        foreach (DB::arrays() as $program) {
             if (Programs::documentable($program['id'])) {
                 $options[] = HTML::option($program['id'], $program['name']);
             }

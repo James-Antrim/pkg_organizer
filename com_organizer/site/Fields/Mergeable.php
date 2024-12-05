@@ -61,15 +61,15 @@ trait Mergeable
     protected function getValues(): array
     {
         $column = DB::qn($this->getAttribute('name'), 'value');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $table  = strtolower($this->resource);
         $query->select(["DISTINCT BINARY $column"])
             ->from(DB::qn("#__organizer_$table"))
             ->whereIn(DB::qn('id'), $this->selectedIDs)
             ->order(DB::qn('value') . ' ASC');
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadColumn();
+        return DB::column();
     }
 
     /**

@@ -144,7 +144,7 @@ class Instances
                 $table->modified = $model->modified;
                 $table->save($instanceGroup);
             }
-            elseif ($table->modified === Database::getNullDate()) {
+            elseif ($table->modified === Database::nullDate()) {
                 $table->modified = $model->modified;
                 $table->store();
             }
@@ -186,7 +186,7 @@ class Instances
         if ($table->load($instance)) {
             $table->comment  = $unit->iComment;
             $table->methodID = $methodID;
-            $table->modified = $table->modified === Database::getNullDate() ? $model->modified : $table->modified;
+            $table->modified = $table->modified === Database::nullDate() ? $model->modified : $table->modified;
             $table->store();
         }
         else {
@@ -231,7 +231,7 @@ class Instances
 
         if ($table->load($instancePerson)) {
             $table->roleID   = $roleID;
-            $table->modified = $table->modified === Database::getNullDate() ? $model->modified : $table->modified;
+            $table->modified = $table->modified === Database::nullDate() ? $model->modified : $table->modified;
             $table->store();
         }
         else {
@@ -284,7 +284,7 @@ class Instances
                 $table->modified = $model->modified;
                 $table->save($instanceRoom);
             }
-            elseif ($table->modified === Database::getNullDate()) {
+            elseif ($table->modified === Database::nullDate()) {
                 $table->modified = $model->modified;
                 $table->store();
             }

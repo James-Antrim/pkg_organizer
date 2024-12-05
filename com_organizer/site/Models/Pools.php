@@ -59,7 +59,7 @@ class Pools extends ListModel
             $access = DB::quote(0) . ' AS ' . DB::qn('access');
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $url   = 'index.php?option=com_organizer&view=pool&id=';
 
         $select = [

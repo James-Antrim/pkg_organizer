@@ -68,7 +68,7 @@ class Courses extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $url   = 'index.php?option=com_organizer&view=course&id=';
 
         if (Can::administrate()) {

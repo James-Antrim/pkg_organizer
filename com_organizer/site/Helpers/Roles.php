@@ -55,13 +55,13 @@ class Roles extends ResourceHelper implements Selectable
      */
     public static function resources(): array
     {
-        $query = Database::getQuery();
+        $query = Database::query();
         $tag   = Application::tag();
         $query->select("DISTINCT *, name_$tag AS name")
             ->from('#__organizer_roles')
             ->order('name');
-        Database::setQuery($query);
+        Database::set($query);
 
-        return Database::loadAssocList('id');
+        return Database::arrays('id');
     }
 }

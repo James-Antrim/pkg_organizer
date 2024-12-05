@@ -42,14 +42,14 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
         $campusIDs[] = $campusID;
         $campusIDs   = array_filter(ArrayHelper::toInteger($campusIDs));
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('id'))
             ->from(DB::qn('#__organizer_buildings'))
             ->whereIN(DB::qn('campusID'), $campusIDs);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -61,11 +61,11 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
      */
     public static function children(int $parentID): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))->from(DB::qn('#__organizer_campuses'))->where(DB::qc('parentID', $parentID));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -133,14 +133,14 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
         }
 
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn(["c1.name_$tag", "c2.name_$tag"], ['name', 'parentName']))
             ->from(DB::qn('#__organizer_campuses', 'c1'))
             ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'))
             ->where(DB::qn('c1.id') . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$names = DB::loadAssoc()) {
+        if (!$names = DB::array()) {
             return '';
         }
 
@@ -170,7 +170,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
     public static function resources(): array
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select([DB::qn('c1') . '.*', DB::qn("c1.name_$tag", 'name'), DB::qn("c2.name_$tag", 'parentName')])
             ->from(DB::qn('#__organizer_campuses', 'c1'))
             ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'))
@@ -186,8 +186,8 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
             }
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 }

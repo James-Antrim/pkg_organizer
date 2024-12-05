@@ -147,7 +147,7 @@ class SubOrdinates extends FormField
      */
     private function getSubordinates(): array
     {
-        $query    = DB::getQuery();
+        $query    = DB::query();
         $column   = DB::qn(strtolower(Input::getView()) . 'ID');
         $parentID = Input::getID();
 
@@ -156,21 +156,21 @@ class SubOrdinates extends FormField
             ->where("$column = :parentID")
             ->bind(':parentID', $parentID, ParameterType::INTEGER)
             ->group('id');
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$parentID = DB::loadInt()) {
+        if (!$parentID = DB::integer()) {
             return [];
         }
 
         $column = DB::qn('parentID');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->select('*')
             ->from(DB::qn('#__organizer_curricula'))
             ->where("$column = :parentID")
             ->bind(':parentID', $parentID, ParameterType::INTEGER)
             ->order(DB::qn('lft'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('ordering');
+        return DB::arrays('ordering');
     }
 }

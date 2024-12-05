@@ -104,7 +104,7 @@ class CourseParticipants extends Participants
         $selectedIDs = Input::getSelectedIDs();
         $selected    = count($selectedIDs);
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->delete(DB::qn('#__organizer_instance_participants'))
             ->whereIn(DB::qn('instanceID'), cHelper::instanceIDs($courseID, true))
             ->where(DB::qc('participantID', ':participantID'))
@@ -118,7 +118,7 @@ class CourseParticipants extends Participants
                 $deleted++;
             }
 
-            DB::setQuery($query);
+            DB::set($query);
             DB::execute();
             Mailer::registrationUpdate($courseID, $selectedID, null);
         }

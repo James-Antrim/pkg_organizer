@@ -94,7 +94,7 @@ class Programs extends Curricula implements Selectable
             return Text::_('NO_PROGRAM');
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
 
         $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('p.accredited'), "')'"];
@@ -104,9 +104,9 @@ class Programs extends Curricula implements Selectable
             ->where(DB::qn('p.id') . ' = :programID')
             ->bind(':programID', $resourceID, ParameterType::INTEGER);
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadString();
+        return DB::string();
     }
 
     /**
@@ -166,14 +166,14 @@ class Programs extends Curricula implements Selectable
             $p2Name = DB::qn("p2.name_$tag");
             $select = [$p2Name, $p2id, 'MAX(' . DB::qn('p2.accredited') . ') AS ' . DB::qn('accredited')];
 
-            $join = DB::getQuery()->select($select)->from(DB::qn('#__organizer_programs', 'p2'))->group([$p2Name, 'p2.degreeID']);
+            $join = DB::query()->select($select)->from(DB::qn('#__organizer_programs', 'p2'))->group([$p2Name, 'p2.degreeID']);
 
             $query->innerJoin("($join) AS " . DB::qn('grouped'), $conditions);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('id');
+        return DB::arrays('id');
     }
 
     /**
@@ -182,7 +182,7 @@ class Programs extends Curricula implements Selectable
      */
     public static function query(): DatabaseQuery
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=Program&id=';
 
@@ -213,7 +213,7 @@ class Programs extends Curricula implements Selectable
         }
 
         $programID = DB::qn('programID');
-        $query     = DB::getQuery();
+        $query     = DB::query();
         $query->select('DISTINCT *')
             ->from(DB::qn('#__organizer_curricula'))
             ->where("$programID IS NOT NULL")
@@ -226,9 +226,9 @@ class Programs extends Curricula implements Selectable
             $query->where("$programID = :programID")->bind(':programID', $identifiers, ParameterType::INTEGER);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList();
+        return DB::arrays();
     }
 
     /**
@@ -244,9 +244,9 @@ class Programs extends Curricula implements Selectable
     {
         $query = self::query();
         $query->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $range['programID'], ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if ($program = DB::loadAssoc()) {
+        if ($program = DB::array()) {
             $option           = HTML::option($range['id'], $program['name']);
             $option->disable  = $type !== 'pool' ? 'disabled' : '';
             $option->selected = in_array($range['id'], $parentIDs) ? 'selected' : '';

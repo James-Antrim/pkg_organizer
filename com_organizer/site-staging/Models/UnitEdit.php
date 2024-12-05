@@ -289,13 +289,13 @@ class UnitEdit extends EditModel
 
     private function setInstances(object $item)
     {
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('id, eventID')
             ->from('#__organizer_instances')
             ->where("blockID = $item->blockID")
             ->where("unitID = $item->unitID");
-        Database::setQuery($query);
-        $instances = Database::loadAssocList();
+        Database::set($query);
+        $instances = Database::arrays();
         echo "<pre>" . print_r($instances, true) . "</pre><br>";
     }
 }

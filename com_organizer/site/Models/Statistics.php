@@ -33,7 +33,7 @@ class Statistics extends ListModel
         $state  = $this->state;
         $termID = (int) $state->get('list.termID');
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select([DB::qn('u.id', 'unitID'), DB::qn('blockID'), DB::qn('methodID'), DB::qn('date')])
             ->from(DB::qn('#__organizer_units', 'u'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('u.id', 'i.unitID'))

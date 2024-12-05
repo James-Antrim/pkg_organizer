@@ -50,15 +50,15 @@ abstract class MergeController extends FormController
      */
     protected function boolAggregate(string $column, string $table, bool $all): int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn($column))
             ->from(DB::qn("#__organizer_$table"))
             ->whereIn(DB::qn('id'), $this->mergeIDs);
-        DB::setQuery($query);
+        DB::set($query);
 
         $return = null;
 
-        foreach (DB::loadIntColumn() as $result) {
+        foreach (DB::integers() as $result) {
 
             // Don't add weight with an extrinsic initial value
             if (is_null($return)) {
@@ -100,11 +100,11 @@ abstract class MergeController extends FormController
 
         [$table, $refColumn, $fkColumn] = DB::qn(["#__organizer_$table", $refColumn, $fkColumn]);
 
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select("DISTINCT $fkColumn")->from($table)->whereIn($refColumn, $this->mergeIDs)->order($fkColumn);
-        Database::setQuery($query);
+        Database::set($query);
 
-        return Database::loadIntColumn();
+        return Database::integers();
     }
 
     /** @inheritDoc */
@@ -184,14 +184,14 @@ abstract class MergeController extends FormController
     {
         $column = $this->mergeContext . 'ID';
         $table  = DB::qn('#__organizer_instance_' . $this->mergeContext . 's');
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->select('*')
             ->from($table)
             ->whereIn(DB::qn($column), $this->mergeIDs)
             ->order(DB::qn(['assocID', 'modified']));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$results = DB::loadAssocList()) {
+        if (!$results = DB::arrays()) {
             return true;
         }
 
@@ -272,14 +272,14 @@ abstract class MergeController extends FormController
     {
         $fkColumn = $this->mergeContext . 'ID';
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('organizationID'))
             ->from(DB::qn("#__organizer_associations"))
             ->whereIn(DB::qn($fkColumn), $this->mergeIDs)
             ->order(DB::qn('organizationID'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$organizationIDs = DB::loadIntColumn()) {
+        if (!$organizationIDs = DB::integers()) {
             return true;
         }
 
@@ -397,11 +397,11 @@ abstract class MergeController extends FormController
      */
     protected function updateSchedules(): bool
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))->from(DB::qn('#__organizer_schedules'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$scheduleIDs = DB::loadIntColumn()) {
+        if (!$scheduleIDs = DB::integers()) {
             return true;
         }
 
@@ -422,11 +422,11 @@ abstract class MergeController extends FormController
     protected function updateTable(string $table): bool
     {
         $column = DB::qn($this->mergeContext . 'ID');
-        $query  = Database::getQuery();
+        $query  = Database::query();
         $query->update("#__organizer_$table")
             ->set("$column = :mergeID")->bind(':mergeID', $this->mergeID)
             ->whereIn($column, $this->mergeIDs);
-        Database::setQuery($query);
+        Database::set($query);
 
         return Database::execute();
     }

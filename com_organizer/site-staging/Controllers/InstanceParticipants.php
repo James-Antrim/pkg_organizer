@@ -180,17 +180,17 @@ class InstanceParticipants extends Controller
 
         $then = date('Y-m-d', strtotime("-$threshold days"));
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('ip') . '.*')
             ->from(DB::qn('#__organizer_instance_participants', 'ip'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
             ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
             ->where(DB::qn('b.date') . ' <= :then')->bind(':then', $then);
-        DB::setQuery($query);
+        DB::set($query);
 
         $instances = [];
 
-        foreach (DB::loadObjectList() as $entry) {
+        foreach (DB::objects() as $entry) {
             $instanceID = $entry->instanceID;
 
             if (empty($instances[$instanceID])) {

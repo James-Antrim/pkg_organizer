@@ -89,11 +89,11 @@ trait Participated
      */
     private function updateIPNumbers(int $instanceID): bool
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$results = DB::loadAssocList()) {
+        if (!$results = DB::arrays()) {
             return false;
         }
 

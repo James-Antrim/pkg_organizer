@@ -30,7 +30,7 @@ class Units extends ResourceHelper
      */
     public static function getCampusID(int $unitID, ?int $defaultID): ?int
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('c.id AS campusID, c.parentID, COUNT(*) AS campusCount')
             ->from('#__organizer_campuses AS c')
             ->innerJoin('#__organizer_buildings AS b ON b.campusID = c.id')
@@ -42,9 +42,9 @@ class Units extends ResourceHelper
             ->where("r.virtual = 0")
             ->group('c.id')
             ->order('campusCount DESC');
-        DB::setQuery($query);
+        DB::set($query);
 
-        $plannedCampus = DB::loadAssoc();
+        $plannedCampus = DB::array();
 
         if ($defaultID) {
             if ($plannedCampus['campusID'] === $defaultID or $plannedCampus['parentID'] === $defaultID) {
@@ -68,7 +68,7 @@ class Units extends ResourceHelper
     public static function getContexts(int $unitID, int $eventID): array
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select("g.id AS groupID, g.categoryID, g.fullName_$tag AS fqGroup, g.name_$tag AS nqGroup")
             ->from('#__organizer_instances AS i')
             ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
@@ -76,9 +76,9 @@ class Units extends ResourceHelper
             ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
             ->where("i.eventID = $eventID")
             ->where("i.unitID = $unitID");
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadAssocList('groupID');
+        return DB::arrays('groupID');
     }
 
     /**
@@ -91,7 +91,7 @@ class Units extends ResourceHelper
      */
     public static function getEventIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $query->select('DISTINCT i.eventID')
             ->from('#__organizer_instances AS i')
@@ -106,9 +106,9 @@ class Units extends ResourceHelper
             }
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -121,13 +121,13 @@ class Units extends ResourceHelper
     public static function getEventNames(int $unitID): array
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn("name_$tag"))
             ->from(DB::qn('#__organizer_events', 'e'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
             ->where(DB::qn('i.unitID') . ' = :unitID')->bind(':unitID', $unitID, ParameterType::INTEGER);
-        DB::setQuery($query);
-        return DB::loadColumn();
+        DB::set($query);
+        return DB::column();
     }
 
     /**
@@ -155,7 +155,7 @@ class Units extends ResourceHelper
      */
     public static function getGroupIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $query->select('DISTINCT ig.groupID')
             ->from('#__organizer_instance_groups AS ig')
@@ -173,9 +173,9 @@ class Units extends ResourceHelper
             }
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -210,7 +210,7 @@ class Units extends ResourceHelper
      */
     public static function getRoomIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $query->select('DISTINCT ir.roomID')
             ->from('#__organizer_instance_rooms AS ir')
@@ -228,9 +228,9 @@ class Units extends ResourceHelper
             }
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadIntColumn();
+        return DB::integers();
     }
 
     /**
@@ -245,7 +245,7 @@ class Units extends ResourceHelper
     {
         $personID = $personID ?: Persons::getIDByUserID(User::id());
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('COUNT(*)')
             ->from('#__organizer_instance_persons AS ip')
             ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -256,8 +256,8 @@ class Units extends ResourceHelper
             $query->where("i.unitID = $unitID");
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadBool();
+        return DB::bool();
     }
 }

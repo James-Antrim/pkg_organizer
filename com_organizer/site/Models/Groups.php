@@ -28,7 +28,7 @@ class Groups extends ListModel
     {
         $authorized = Organizations::schedulableIDs();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=group&id=';
 

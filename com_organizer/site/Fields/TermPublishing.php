@@ -39,13 +39,13 @@ class TermPublishing extends FormField
 
         $values = [];
         if ($groupID = Input::getID()) {
-            $query = DB::getQuery();
+            $query = DB::query();
             $query->select(DB::qn(['termID', 'published']))
                 ->from(DB::qn('#__organizer_group_publishing'))
                 ->where(DB::qc('groupID', $groupID));
-            DB::setQuery($query);
+            DB::set($query);
 
-            $values = DB::loadAssocList('termID');
+            $values = DB::arrays('termID');
         }
 
         foreach (Terms::resources() as $term) {

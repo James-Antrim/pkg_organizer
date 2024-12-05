@@ -23,7 +23,7 @@ class Schedules extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $tag   = Application::tag();
-        $query = DB::getQuery();
+        $query = DB::query();
 
         $aliased      = DB::qn(
             ['o.id', "o.shortName_$tag", 'term.id', "term.name_$tag", 'u.name'],

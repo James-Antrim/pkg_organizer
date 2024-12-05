@@ -21,7 +21,7 @@ class Degrees extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $url   = 'index.php?option=com_organizer&view=degree&id=';
 
         $access = [DB::quote(1) . ' AS ' . DB::qn('access')];

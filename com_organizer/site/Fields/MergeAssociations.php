@@ -32,7 +32,7 @@ class MergeAssociations extends Options
             return $default;
         }
 
-        $query      = Database::getQuery();
+        $query      = Database::query();
         $textColumn = $this->resolveTextColumn($query);
 
         if (empty($textColumn)) {
@@ -67,9 +67,9 @@ class MergeAssociations extends Options
             $query->innerJoin("#__organizer_$innerJoin");
         }
 
-        Database::setQuery($query);
+        Database::set($query);
 
-        if (!$valuePairs = Database::loadAssocList()) {
+        if (!$valuePairs = Database::arrays()) {
             return $default;
         }
 

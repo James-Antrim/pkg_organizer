@@ -56,11 +56,11 @@ class Participants extends ListController
         $this->checkToken();
         $this->authorize();
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('instanceID'))->from(DB::qn('#__organizer_instance_participants'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        $instanceIDs = DB::loadIntColumn();
+        $instanceIDs = DB::integers();
         $relevant    = count($instanceIDs);
         $updated     = 0;
 

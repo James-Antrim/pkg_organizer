@@ -167,16 +167,16 @@ class Course extends EditModel
         $startDate = DB::qn('startDate');
         $dates     = ["MIN($startDate) AS $startDate", "MAX($endDate) AS $endDate"];
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(array_merge($selected, $dates, $aliased))
             ->from(DB::qn('#__organizer_events', 'e'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
             ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
             ->order(DB::qn('name'));
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$events = DB::loadObjectList('name')) {
+        if (!$events = DB::objects('name')) {
             return [];
         }
 
@@ -277,7 +277,7 @@ class Course extends EditModel
      */
     private function persons(int $courseID, int $eventID = 0, array $roleIDs = []): array
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('DISTINCT ' . DB::qn('ip.personID'))
             ->from(DB::qn('#__organizer_instance_persons', 'ip'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
@@ -292,9 +292,9 @@ class Course extends EditModel
             $query->whereIn(DB::qn('ip.roleID'), $roleIDs);
         }
 
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$personIDs = DB::loadIntColumn()) {
+        if (!$personIDs = DB::integers()) {
             return [];
         }
 

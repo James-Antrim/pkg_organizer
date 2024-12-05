@@ -57,7 +57,7 @@ class Participation
         ];
         $timeConditions = '((' . implode(') OR (', $timeConditions) . '))';
 
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select('ip.id')
             ->from('#__organizer_instance_participants AS ip')
             ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -65,8 +65,8 @@ class Participation
             ->where($timeConditions)
             ->where("b.date = '$date'")
             ->where("ip.participantID = $userID");
-        Database::setQuery($query);
+        Database::set($query);
 
-        return Database::loadBool();
+        return Database::bool();
     }
 }

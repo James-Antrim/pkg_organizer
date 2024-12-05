@@ -57,11 +57,11 @@ class Grids extends ResourceHelper implements Selectable
      */
     public static function getDefault(bool $onlyID = true): int|Table
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(DB::qn('id'))->from(DB::qn('#__organizer_grids'))->where(DB::qn('isDefault') . ' = 1');
-        DB::setQuery($query);
+        DB::set($query);
 
-        if (!$gridID = DB::loadInt()) {
+        if (!$gridID = DB::integer()) {
             return 0;
         }
 
@@ -95,16 +95,16 @@ class Grids extends ResourceHelper implements Selectable
      */
     public static function resources(): array
     {
-        $query = Database::getQuery();
+        $query = Database::query();
         $tag   = Application::tag();
 
         $select = ['*', DB::qn("name_$tag", 'name')];
         $query->select($select)
             ->from(DB::qn('#__organizer_grids'))
             ->order(DB::qn('name'));
-        Database::setQuery($query);
+        Database::set($query);
 
-        return Database::loadAssocList('id');
+        return Database::arrays('id');
     }
 
 
@@ -114,9 +114,9 @@ class Grids extends ResourceHelper implements Selectable
      */
     public static function resetDefault(): bool
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->update(DB::qn('#__organizer_grids'))->set(DB::qn('isDefault') . ' = 0');
-        DB::setQuery($query);
+        DB::set($query);
 
         return DB::execute();
     }

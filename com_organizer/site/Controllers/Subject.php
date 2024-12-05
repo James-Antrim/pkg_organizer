@@ -821,11 +821,11 @@ class Subject extends CurriculumResource implements Stubby
                 }
 
                 // Remove deprecated associations
-                $query = DB::getQuery();
+                $query = DB::query();
                 $query->delete('#__organizer_prerequisites')
                     ->whereIn(DB::qn('subjectID'), Helper::curriculumIDs($rsRanges))
                     ->whereNotIn(DB::qn('prerequisiteID'), Helper::curriculumIDs($rprRanges));
-                DB::setQuery($query);
+                DB::set($query);
 
                 if (!DB::execute()) {
                     return false;
@@ -905,7 +905,7 @@ class Subject extends CurriculumResource implements Stubby
     {
         if ($rangeIDs = Helper::curriculumIDs($this->ranges($subjectID))) {
 
-            $query = DB::getQuery();
+            $query = DB::query();
             $query->delete(DB::qn('#__organizer_prerequisites'));
 
             if ($direction) {
@@ -914,7 +914,7 @@ class Subject extends CurriculumResource implements Stubby
             else {
                 $query->whereIn(DB::qn('prerequisiteID'), $rangeIDs);
             }
-            DB::setQuery($query);
+            DB::set($query);
 
             return DB::execute();
         }
@@ -1081,9 +1081,9 @@ class Subject extends CurriculumResource implements Stubby
 
             // Delete any and all old prerequisites in case there are now fewer.
             if ($subjectIDs) {
-                $query = DB::getQuery();
+                $query = DB::query();
                 $query->delete(DB::qn('#__organizer_prerequisites'))->whereIn(DB::qn('subjectID'), $subjectIDs);
-                DB::setQuery($query);
+                DB::set($query);
                 DB::execute();
             }
 
@@ -1114,12 +1114,12 @@ class Subject extends CurriculumResource implements Stubby
      */
     private function unassign(int $subjectID): bool
     {
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->delete(DB::qn('#__organizer_subject_persons'))
             ->where(DB::qn('subjectID') . ' = :subjectID')
             ->bind(':subjectID', $subjectID, ParameterType::INTEGER);
 
-        DB::setQuery($query);
+        DB::set($query);
 
         return DB::execute();
     }
@@ -1138,7 +1138,7 @@ class Subject extends CurriculumResource implements Stubby
         $bound    = [':programID AS programID'];
         $selected = DB::qn(['abbreviation_de', 'abbreviation_en', 'code', 'fullName_de', 'fullName_en', 'c.lft', 'c.rgt']);
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select(array_merge($aliased, $bound, $selected))
             ->from(DB::qn('#__organizer_subjects', 's'))
             ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.subjectID', 's.id'))
@@ -1156,9 +1156,9 @@ class Subject extends CurriculumResource implements Stubby
                     ->bind(':programID', $program['id'], ParameterType::INTEGER)
                     ->bind(':right', $program['rgt'], ParameterType::INTEGER);
 
-                DB::setQuery($query);
+                DB::set($query);
 
-                if (!$results = DB::loadAssocList('curriculumID')) {
+                if (!$results = DB::arrays('curriculumID')) {
                     continue;
                 }
 

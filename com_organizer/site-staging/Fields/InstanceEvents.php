@@ -40,7 +40,7 @@ class InstanceEvents extends Options
         }
 
         $tag   = Application::tag();
-        $query = Database::getQuery();
+        $query = Database::query();
         $query->select("DISTINCT e.id, e.name_$tag AS name, e.organizationID")
             ->from('#__organizer_events AS e');
 
@@ -59,11 +59,11 @@ class InstanceEvents extends Options
 
         $where = implode(' OR ', $wherray);
         $query->where("($where)");
-        Database::setQuery($query);
+        Database::set($query);
         $events = [];
         $free   = [];
 
-        foreach (Database::loadAssocList() as $result) {
+        foreach (Database::arrays() as $result) {
             // Prioritize the events associated with an organization in the first pass.
             if ($result['organizationID']) {
                 // Associated events can overwrite each other.

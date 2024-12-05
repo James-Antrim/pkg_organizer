@@ -36,7 +36,7 @@ class Subject extends EditModel
             return $return;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $tag   = Application::tag();
 
         $aliased  = DB::qn(
@@ -72,9 +72,9 @@ class Subject extends EditModel
                 ->bind(':right1', $program['rgt'], ParameterType::INTEGER)
                 ->bind(':right2', $program['rgt'], ParameterType::INTEGER);
 
-            DB::setQuery($query);
+            DB::set($query);
 
-            if (!$dependencies = DB::loadAssocList('id')) {
+            if (!$dependencies = DB::arrays('id')) {
                 continue;
             }
 

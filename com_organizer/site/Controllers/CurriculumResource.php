@@ -137,24 +137,24 @@ abstract class CurriculumResource extends FormController
     protected function ordering(int $parentID, int $resourceID): int
     {
         $column = strtolower(Application::uqClass($this)) . 'ID';
-        $query  = DB::getQuery();
+        $query  = DB::query();
         $query->select(DB::qn('ordering'))
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER)
             ->where(DB::qn($column) . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        if ($existingOrdering = DB::loadInt()) {
+        if ($existingOrdering = DB::integer()) {
             return $existingOrdering;
         }
 
-        $query = DB::getQuery();
+        $query = DB::query();
         $query->select('MAX(' . DB::qn('ordering') . ')')
             ->from(DB::qn('#__organizer_curricula'))
             ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
-        DB::setQuery($query);
+        DB::set($query);
 
-        return DB::loadInt() + 1;
+        return DB::integer() + 1;
     }
 
     /** @inheritDoc */
