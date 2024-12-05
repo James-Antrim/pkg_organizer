@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\{Instances as Helper, Organizations};
 use THM\Organizer\Tables;
@@ -230,7 +230,7 @@ class Instances extends ListModel
                 ->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
             $this->filterByCampus($query, 'bd');
         }
-        Database::setQuery($query);
+        DB::setQuery($query);
 
         return $query;
     }

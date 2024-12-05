@@ -46,15 +46,6 @@ abstract class ListModel extends Base
     }
 
     /**
-     * Function for policing resource data.
-     * @return void
-     */
-    protected function clean()
-    {
-
-    }
-
-    /**
      * Area where overrideable resource access conditions can be written.
      *
      * @param   DatabaseQuery  $query
@@ -72,6 +63,15 @@ abstract class ListModel extends Base
         $items = parent::getItems();
 
         return $items ?: [];
+    }
+
+    /**
+     * Function for policing resource data.
+     * @return void
+     */
+    protected function clean()
+    {
+        // Implementation in inheriting classes as appropriate.
     }
 
     /** @inheritDoc */

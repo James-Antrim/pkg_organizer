@@ -23,17 +23,6 @@ class Units extends ListModel
         'status'
     ];
 
-    /** @inheritDoc */
-    protected function clean(): void
-    {
-        $query = DB::getQuery();
-        $query->delete(DB::qn('#__organizer_units'))
-            ->where(DB::qc('delta', 'removed', '=', true))
-            ->whereIn(DB::qn('termID'), Terms::expiredIDs());
-        DB::setQuery($query);
-        DB::execute();
-    }
-
     /**
      * Method to get an array of data items.
      * @return  array  An array of data items on success, false on failure.

@@ -12,21 +12,12 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\{Organizations, Terms};
+use THM\Organizer\Helpers\Organizations;
 
 /** @inheritDoc */
 class Schedules extends ListModel
 {
     protected $filter_fields = ['organizationID', 'termID'];
-
-    /** @inheritDoc */
-    protected function clean(): void
-    {
-        $query = DB::getQuery();
-        $query->delete(DB::qn('#__organizer_schedules'))->whereIn(DB::qn('termID'), Terms::expiredIDs());
-        DB::setQuery($query);
-        DB::execute();
-    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

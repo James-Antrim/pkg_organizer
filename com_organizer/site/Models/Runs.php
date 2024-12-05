@@ -22,15 +22,6 @@ class Runs extends ListModel
 
     protected $filter_fields = ['termID'];
 
-    /** @inheritDoc */
-    protected function clean(): void
-    {
-        $query = DB::getQuery();
-        $query->delete(DB::qn('#__organizer_runs'))->where(DB::qn('endDate') . ' < CURDATE()');
-        DB::setQuery($query);
-        DB::execute();
-    }
-
     /**
      * Method to get a list of resources from the database.
      * @return DatabaseQuery
