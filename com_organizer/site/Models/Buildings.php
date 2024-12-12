@@ -29,7 +29,7 @@ class Buildings extends ListModel
         $query = DB::query();
         $url   = 'index.php?option=com_organizer&view=building&id=';
 
-        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
+        $access  = [DB::quote((int) Can::fm()) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(['c2.city'], ['parentCity']);
         $select  = DB::qn(['b.id', 'b.name', 'propertyType', 'campusID', 'c1.parentID', 'b.address', 'c1.city']);
         $url     = [$query->concatenate([DB::quote($url), DB::qn('b.id')], '') . ' AS ' . DB::qn('url')];

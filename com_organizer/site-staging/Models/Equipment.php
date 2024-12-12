@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 use THM\Organizer\Tables;
 
 /**
@@ -27,7 +27,7 @@ class Equipment extends ListModel
      */
     protected function authorize(): void
     {
-        if (!Helpers\Can::manage('facilities')) {
+        if (!Can::fm()) {
             Application::error(403);
         }
     }
@@ -69,11 +69,11 @@ class Equipment extends ListModel
      *
      * @return int|bool int id of the resource on success, otherwise bool false
      */
-    public function save(array $data = [])
+    public function save(array $data = []): bool|int
     {
         $this->authorize();
 
-        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems() : $data;
 
         try {
             $table = $this->getTable();

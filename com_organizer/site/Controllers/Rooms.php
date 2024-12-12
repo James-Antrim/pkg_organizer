@@ -17,7 +17,7 @@ use THM\Organizer\Adapters\Input;
 class Rooms extends ListController
 {
     use Activated;
-    use FluMoxed;
+    use FacilityManageable;
 
     protected string $item = 'Room';
 

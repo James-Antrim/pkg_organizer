@@ -2,13 +2,15 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Tables\Rooms as Table;
+use THM\Organizer\Adapters\Application;
+
+//use THM\Organizer\Adapters\Input;
+//use THM\Organizer\Tables\Rooms as Table;
 
 /** @inheritDoc */
 class ImportRooms extends FormController
 {
-    use FluMoxed;
+    //use FacilityManageable;
 
     protected string $list = 'Rooms';
 
@@ -20,6 +22,7 @@ class ImportRooms extends FormController
      * @param   string  $row  the row to clean
      *
      * @return void
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private function cleanRow(string &$row): void
     {

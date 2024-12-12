@@ -26,7 +26,7 @@ class RoomTypes extends ListModel
         $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=roomtype&id=';
 
-        $access   = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
+        $access   = [DB::quote((int) Can::fm()) . ' AS ' . DB::qn('access')];
         $aliased  = DB::qn(["t.name_$tag", 'k.key'], ['name', 'rns']);
         $selected = ['DISTINCT ' . DB::qn('t.id'), DB::qn('t.suppress')];
         $url      = [$query->concatenate([DB::quote($url), DB::qn('t.id')], '') . ' AS ' . DB::qn('url')];

@@ -18,7 +18,7 @@ use THM\Organizer\Tables\Rooms as Room;
 /** @inheritDoc */
 class Monitor extends FormController
 {
-    use FluMoxed;
+    use FacilityManageable;
 
     protected string $list = 'Monitors';
 

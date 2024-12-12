@@ -133,6 +133,19 @@ class Can
     }
 
     /**
+     * Returns whether the user has access to manage facilities.
+     * @return bool
+     */
+    public static function fm(): bool
+    {
+        if (is_bool($authorized = self::basic())) {
+            return $authorized;
+        }
+
+        return User::instance()->authorise('organizer.fm', 'com_organizer');
+    }
+
+    /**
      * Checks whether the user can manage the given resource.
      *
      * @param   string  $resourceType  the resource type being checked
@@ -166,8 +179,6 @@ class Can
                 $managedOrganizations  = self::manageTheseOrganizations();
 
                 return (bool) array_intersect($managedOrganizations, $instanceOrganizations);
-            case 'facilities':
-                return User::instance()->authorise('organizer.fm', 'com_organizer');
             case 'organization':
                 return User::instance()->authorise('organizer.manage', "com_organizer.organization.$resourceID");
             case 'participant':
@@ -230,13 +241,14 @@ class Can
         }
 
         return match ($view) {
-            // Administrative views and admin access was already checked
-            'Color', 'Colors', 'Degree', 'Degrees', 'Field', 'Fields', 'Grid', 'Grids', 'Holiday', 'Holidays', 'Method',
-            'Methods', 'Organization', 'Organizations', 'Participant', 'Participants', 'Run', 'Runs', 'Term', 'Terms'
+            // Administrative / developmental views and admin access was already checked
+            'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields', 'Grid', 'Grids',
+            'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents', 'MergeGroups', 'MergePersons',
+            'MergeRooms', 'Method', 'Methods', 'Organization', 'Organizations', 'Participant', 'Participants', 'Run',
+            'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
-            'Categories', 'Groups', 'MergeCategories', 'MergeGroups', 'MergeEvents', 'ImportCourses', 'ImportSchedule',
-            'Schedules', 'Units'
+            'Categories', 'Groups', 'ImportCourses', 'ImportSchedule', 'Schedules', 'Units'
             => (bool) Organizations::schedulableIDs(),
             // Edit views for scheduling resource with no intrinsic public value
             'Category', 'Group', 'Unit'
@@ -256,11 +268,11 @@ class Can
             // Edit views for curriculum resource with intrinsic public value
             'Program' => (!Application::backend() or Programs::documentable($resourceID)),
             'Subject' => (!Application::backend() or Subjects::documentable($resourceID)),
-            'MergePersons', 'Person', 'Persons' => self::manage('persons'),
+            'Person', 'Persons' => self::manage('persons'),
             // Facility resource views
-            'Building', 'Buildings', 'Campus', 'Campuses', 'CleaningGroup', 'CleaningGroups', 'Equipment',
-            'EquipmentItem', 'ImportRooms', 'MergeRooms', 'Monitor', 'Monitors', 'Room', 'RoomKey', 'RoomKeys', 'Rooms',
-            => self::manage('facilities'),
+            'Building', 'Buildings', 'Campus', 'Campuses', 'CleaningGroup', 'CleaningGroups', 'Monitor', 'Monitors',
+            'Room', 'RoomKey', 'RoomKeys', 'Rooms',
+            => self::fm(),
 
             /**
              * Restricted views with possible access over a login redirect

@@ -47,7 +47,7 @@ class Rooms extends ListModel
         $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=room&id=';
 
-        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
+        $access  = [DB::quote((int) Can::fm()) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(
             ['b.id', 'b.name', "c1.name_$tag", "c2.name_$tag", 'r.name', 't.id', "t.name_$tag"],
             ['buildingID', 'buildingName', 'campus', 'parent', 'roomName', 'roomtypeID', 'roomType']

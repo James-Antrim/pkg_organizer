@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class RoomKeys extends ListController
 {
-    use FluMoxed;
+    use FacilityManageable;
 
     protected string $item = 'RoomKey';
 }

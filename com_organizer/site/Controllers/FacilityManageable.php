@@ -8,7 +8,7 @@ use THM\Organizer\Helpers\Can;
 /**
  * Encapsulates authorization for FM controllers.
  */
-trait FluMoxed
+trait FacilityManageable
 {
     /** @inheritDoc */
     protected function authorize(): void
@@ -17,7 +17,7 @@ trait FluMoxed
             return;
         }
 
-        if (!Can::manage('facilities')) {
+        if (!Can::fm()) {
             Application::error(403);
         }
     }

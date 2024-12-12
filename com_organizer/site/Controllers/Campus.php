@@ -15,7 +15,7 @@ use THM\Organizer\Tables\Campuses as Table;
 /** @inheritDoc */
 class Campus extends FormController
 {
-    use FluMoxed;
+    use FacilityManageable;
 
     protected string $list = 'Campuses';
 

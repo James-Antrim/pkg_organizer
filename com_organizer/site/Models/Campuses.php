@@ -53,7 +53,7 @@ class Campuses extends ListModel
             "g2.name_$tag"
         ];
 
-        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
+        $access  = [DB::quote((int) Can::fm()) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn($columns, $aliases);
         $select  = DB::qn(['c1.id', 'c1.address', 'c1.city', 'c1.zipCode', 'c1.location']);
         $url     = [$query->concatenate([DB::quote($url), DB::qn('c1.id')], '') . ' AS ' . DB::qn('url')];

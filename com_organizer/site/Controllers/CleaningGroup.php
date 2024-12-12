@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class CleaningGroup extends FormController
 {
-    use FluMoxed;
+    use FacilityManageable;
 
     protected string $list = 'CleaningGroups';
 }

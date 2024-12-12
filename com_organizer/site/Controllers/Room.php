@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Room extends FormController
 {
-    use FluMoxed;
+    use FacilityManageable;
 
     protected string $list = 'Rooms';
 }

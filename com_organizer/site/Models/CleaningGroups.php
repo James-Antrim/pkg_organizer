@@ -30,7 +30,7 @@ class CleaningGroups extends ListModel
 
         $select = [
             '*',
-            DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access'),
+            DB::quote((int) Can::fm()) . ' AS ' . DB::qn('access'),
             DB::qn("name_$tag", 'name'),
             $query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')
         ];

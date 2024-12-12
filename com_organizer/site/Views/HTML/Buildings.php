@@ -34,7 +34,7 @@ class Buildings extends ListView
      */
     protected function authorize(): void
     {
-        if (!Can::manage('facilities')) {
+        if (!Can::fm()) {
             Application::error(403);
         }
     }

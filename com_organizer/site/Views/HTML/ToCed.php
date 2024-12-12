@@ -135,7 +135,7 @@ trait ToCed
             );
         }
 
-        if (Can::manage('facilities')) {
+        if (Can::fm()) {
             $spanText = Text::_('FACILITY_MANAGEMENT');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';

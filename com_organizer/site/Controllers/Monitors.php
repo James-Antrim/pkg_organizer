@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Input;
 /** @inheritDoc */
 class Monitors extends ListController
 {
-    use FluMoxed;
+    use FacilityManageable;
 
     protected string $item = 'Monitor';
 
