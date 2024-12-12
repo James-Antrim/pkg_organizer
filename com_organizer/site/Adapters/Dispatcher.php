@@ -18,22 +18,17 @@ use THM\Organizer\Controllers\Controller;
 /**
  * @inheritDoc
  * Adjusts the component dispatcher which kept calling for a controller named 'display'.
+ * Adds the singular language path for the component localizations.
  */
 class Dispatcher extends ComponentDispatcher
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected $mvcFactory;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected $option = 'com_organizer';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function dispatch(): void
     {
         // Check component access permission
@@ -84,9 +79,7 @@ class Dispatcher extends ComponentDispatcher
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getController(string $name, string $client = '', array $config = []): BaseController
     {
         // Set up the client
@@ -100,5 +93,13 @@ class Dispatcher extends ComponentDispatcher
             $this->app,
             $this->input
         );
+    }
+
+    /** @inheritDoc */
+    protected function loadLanguage(): void
+    {
+        // Load common and local language files.
+        $this->app->getLanguage()->load($this->option);
+        $this->app->getLanguage()->load($this->option, JPATH_ADMINISTRATOR . '/components/com_organizer');
     }
 }

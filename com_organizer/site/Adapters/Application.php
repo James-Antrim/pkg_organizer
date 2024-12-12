@@ -119,12 +119,19 @@ class Application
     }
 
     /**
-     * Determines whether the view was called from a dynamic context
-     * @return bool true if the view was called dynamically, otherwise false
+     * Determines whether the view was called from a dynamic context: no active menu item or the active item does not
+     * belong to the component.
+     * @return bool
      */
     public static function dynamic(): bool
     {
-        return !self::menuItem();
+        $menuItem = self::menuItem();
+
+        if (!empty($menuItem) and $menuItem->type === 'component' and $menuItem->component === 'organizer') {
+            return false;
+        }
+
+        return true;
     }
 
     /**
