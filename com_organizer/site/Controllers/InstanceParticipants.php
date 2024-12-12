@@ -28,10 +28,6 @@ class InstanceParticipants extends Controller
 
     protected string $context = 'instanceID';
 
-    protected string $listView = 'instance_participants';
-
-    protected string $resource = 'instance_participant';
-
     /**
      * Triggers the model to add instances to the participant's personal schedule.
      *
