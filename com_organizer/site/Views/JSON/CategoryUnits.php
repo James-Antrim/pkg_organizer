@@ -41,7 +41,7 @@ class CategoryUnits extends BaseView
             $groupID = $group['id'];
             unset($group['id']);
 
-            foreach (Helpers\Groups::getUnits($groupID, $date, $interval) as $unit) {
+            foreach (Helpers\Groups::units($groupID, $date, $interval) as $unit) {
                 $eventID = $unit['eventID'];
                 unset($unit['eventID']);
 

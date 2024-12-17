@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Text};
-use THM\Organizer\Helpers\Organizations;
+use THM\Organizer\Helpers\{Groups as Helper, Organizations};
 
 /** @inheritDoc */
 class Groups extends ListModel
@@ -26,17 +26,7 @@ class Groups extends ListModel
     /** @inheritDoc */
     protected function clean(): void
     {
-        $query = DB::query();
-        $today = date('Y-m-d');
-
-        $query->update(DB::qn('#__organizer_group_publishing', 'gp'))
-            ->innerJoin(DB::qn('#__organizer_terms', 't'), DB::qc('t.id', 'gp.termID'))
-            ->set(DB::qc('gp.published', 1))
-            ->where(DB::qc('t.endDate', $today, '<=', true));
-        DB::set($query);
-        DB::execute();
-
-        if ($affected = DB::affected()) {
+        if ($affected = Helper::publishPast()) {
             $message = $affected === 1 ? Text::_('ORGANIZER_1_UPDATED') : Text::sprintf('ORGANIZER_X_UPDATED', $affected);
             Application::message($message);
         }

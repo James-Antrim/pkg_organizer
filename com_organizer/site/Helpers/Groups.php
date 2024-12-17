@@ -81,7 +81,7 @@ class Groups extends Scheduled implements Selectable
      *
      * @return string
      */
-    public static function getCategoryName(int $groupID): string
+    public static function categoryName(int $groupID): string
     {
         $category = self::category($groupID);
 
@@ -101,7 +101,7 @@ class Groups extends Scheduled implements Selectable
      *
      * @return array[]
      */
-    public static function getEvents(int $groupID): array
+    public static function events(int $groupID): array
     {
         $tag      = Application::tag();
         $aliased  = DB::qn(["e.description_$tag", "e.name_$tag"], ['description', 'name']);
@@ -146,6 +146,25 @@ class Groups extends Scheduled implements Selectable
     }
 
     /**
+     * Publishes groups for expired terms.
+     * @return int
+     */
+    public static function publishPast(): int
+    {
+        $query = DB::query();
+        $today = date('Y-m-d');
+
+        $query->update(DB::qn('#__organizer_group_publishing', 'gp'))
+            ->innerJoin(DB::qn('#__organizer_terms', 't'), DB::qc('t.id', 'gp.termID'))
+            ->set(DB::qc('gp.published', 1))
+            ->where(DB::qc('t.endDate', $today, '<=', true));
+        DB::set($query);
+        DB::execute();
+
+        return DB::affected();
+    }
+
+    /**
      * @inheritDoc
      *
      * @param   string  $access  any access restriction which should be performed
@@ -180,7 +199,7 @@ class Groups extends Scheduled implements Selectable
      *
      * @return array[]
      */
-    public static function getUnits(int $groupID, string $date, string $interval = 'term'): array
+    public static function units(int $groupID, string $date, string $interval = 'term'): array
     {
         $query = DB::query();
         $tag   = Application::tag();

@@ -788,7 +788,7 @@ class Search extends ListModel
                 $label = Text::_('ORGANIZER_GROUP') . ': ';
                 $name  = Helpers\Groups::getFullName($groupID);
 
-                $description = Helpers\Groups::getCategoryName($groupID);
+                $description = Helpers\Groups::categoryName($groupID);
             }
 
             if ($groupID) {
