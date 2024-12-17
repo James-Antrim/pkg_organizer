@@ -70,6 +70,13 @@ class Instances extends Table
     public int|null $methodID = null;
 
     /**
+     * Whether the specific instance is published.
+     * TINYINT(1) UNSIGNED NOT NULL
+     * @var int
+     */
+    public int $published = 1;
+
+    /**
      * The number of participants who registered to participate in this instance.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int
