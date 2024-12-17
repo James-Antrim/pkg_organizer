@@ -24,14 +24,6 @@ class Instances extends ListView
 {
     use ListsInstances;
 
-    /**
-     * Will later determine whether an edit button will be displayed
-     * @var bool
-     */
-    private bool $allowEdit = false;
-
-    private array $courses = [];
-
     private bool $expired = true;
 
     public bool $noInstances = true;
@@ -46,18 +38,14 @@ class Instances extends ListView
 
     private string $statusDate;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
         $this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Access from model.';
@@ -147,9 +135,7 @@ class Instances extends ListView
         $exportCB->linkButton('export', Text::_('ADVANCED_EXPORT'))->url($expURL)->target('_blank')->icon('fa fa-sliders-h');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Application::backend()) {
@@ -196,9 +182,7 @@ class Instances extends ListView
         $this->structureList();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->empty = '';

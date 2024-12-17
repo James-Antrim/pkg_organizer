@@ -12,10 +12,8 @@ namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
 use THM\Organizer\Controllers\{Participant, Participated};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\{Can, Dates, Participation as Helper, Instances};
-use THM\Organizer\Tables;
-use THM\Organizer\Tables\InstanceParticipants as Table;
+use THM\Organizer\Helpers\{Can, Dates, Participation as Helper, Instances as iHelper, Methods};
+use THM\Organizer\Tables\{Blocks, Instances as iTable, InstanceParticipants as Table};
 
 /**
  * Class which manages stored course data.
@@ -42,7 +40,7 @@ class InstanceParticipant extends BaseModel
         $then            = date('Y-m-d', strtotime('+2 days'));
 
         foreach ($instanceIDs as $instanceID) {
-            $instance = new Tables\Instances();
+            $instance = new iTable();
             $instance->load($instanceID);
 
             $query = Database::query();
@@ -118,7 +116,7 @@ class InstanceParticipant extends BaseModel
         $responsible = false;
 
         foreach ($instanceIDs as $instanceID) {
-            if (Instances::hasResponsibility($instanceID)) {
+            if (iHelper::hasResponsibility($instanceID)) {
                 $responsible = true;
                 continue;
             }
@@ -239,7 +237,7 @@ class InstanceParticipant extends BaseModel
             return;
         }
 
-        $instance = new Tables\Instances();
+        $instance = new iTable();
         if (!$instance->load($instanceID)) {
             Application::message('ORGANIZER_412', Application::ERROR);
 
@@ -256,7 +254,7 @@ class InstanceParticipant extends BaseModel
         Database::set($query);
 
         foreach (Database::integers() as $instanceID) {
-            $participation = new Tables\InstanceParticipants();
+            $participation = new Table();
 
             if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
                 $participation->delete();
@@ -394,8 +392,8 @@ class InstanceParticipant extends BaseModel
         switch ($method) {
             // Called from instance item context, selected ids are not relevant
             case self::BLOCK:
-                $block      = new Tables\Blocks();
-                $instance   = new Tables\Instances();
+                $block      = new Blocks();
+                $instance   = new iTable();
                 $instanceID = Input::getID();
                 if (!$instanceID or !$instance->load($instanceID) or !$block->load($instance->blockID)) {
                     return [];
@@ -411,7 +409,7 @@ class InstanceParticipant extends BaseModel
 
             // Called from instance item context, selected ids are not relevant
             case self::THIS:
-                $instance   = new Tables\Instances();
+                $instance   = new iTable();
                 $instanceID = Input::getID();
 
                 $instanceIDs = (!$instanceID or !$instance->load($instanceID)) ? [] : [$instanceID];
@@ -508,7 +506,7 @@ class InstanceParticipant extends BaseModel
         $responsible = false;
 
         foreach ($instanceIDs as $instanceID) {
-            if (Instances::hasResponsibility($instanceID)) {
+            if (iHelper::hasResponsibility($instanceID)) {
                 $responsible = true;
                 continue;
             }
@@ -521,15 +519,15 @@ class InstanceParticipant extends BaseModel
                 continue;
             }
 
-            $name  = Instances::name($instanceID);
-            $block = Instances::block($instanceID);
+            $name  = iHelper::name($instanceID);
+            $block = iHelper::block($instanceID);
             $date  = Dates::formatDate($block->date);
             //$earliest  = Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
             $endTime   = Dates::formatEndTime($block->endTime);
             $startTime = Dates::formatTime($block->startTime);
             //$then      = date('Y-m-d', strtotime('+2 days'));
 
-            if (Instances::methodCode($instanceID) === Helpers\Methods::FINALCODE) {
+            if (iHelper::methodCode($instanceID) === Methods::FINALCODE) {
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_EXTERNAL_REGISTRATION', $name, $date, $startTime, $endTime),
                     Application::NOTICE
@@ -537,7 +535,7 @@ class InstanceParticipant extends BaseModel
                 continue;
             }
 
-            if (Instances::getPresence($instanceID) === Instances::ONLINE) {
+            if (iHelper::getPresence($instanceID) === iHelper::ONLINE) {
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_ONLINE', $name, $date, $startTime, $endTime),
                     Application::NOTICE
@@ -565,7 +563,7 @@ class InstanceParticipant extends BaseModel
             Database::set($query);
 
             if ($otherInstanceID = Database::integer()) {
-                $otherName = Instances::name($otherInstanceID);
+                $otherName = iHelper::name($otherInstanceID);
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT', $date, $startTime, $endTime,
                         $otherName),
@@ -574,7 +572,7 @@ class InstanceParticipant extends BaseModel
                 continue;
             }
 
-            if (Instances::isFull($instanceID)) {
+            if (iHelper::isFull($instanceID)) {
                 Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_FULL_MESSAGE', $name, $date, $startTime, $endTime),
                     Application::NOTICE
