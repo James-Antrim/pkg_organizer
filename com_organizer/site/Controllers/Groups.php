@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\{Groups as Helper, Terms};
 use THM\Organizer\Tables\{Groups as Group, GroupPublishing as Publishing, Terms as Term};
 
@@ -125,42 +125,6 @@ class Groups extends ListController
         }
 
         $this->farewell($selected, $updated);
-    }
-
-    /**
-     * Sets the publication status for any group / complete term pairing to true.
-     * @return void
-     */
-    public function publishPast(): void
-    {
-        // Authorization isn't super relevant, but this still shouldn't be publicly available.
-        $this->checkToken();
-
-        $query = DB::query();
-        $terms = Terms::resources();
-        $today = date('Y-m-d');
-        $query->update(DB::qn('#__organizer_group_publishing'))
-            ->set(DB::qc('published', 1))
-            ->where(DB::qc('termID', ':termID'))
-            ->bind(':termID', $termID);
-
-        $updated = 0;
-        foreach ($terms as $term) {
-            if ($term['endDate'] >= $today) {
-                continue;
-            }
-
-            $termID = $term['id'];
-            DB::set($query);
-
-            if (!DB::execute()) {
-                continue;
-            }
-
-            $updated++;
-        }
-
-        $this->farewell($updated, $updated);
     }
 
     /**

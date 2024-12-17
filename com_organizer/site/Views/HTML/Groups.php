@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\Toolbar\Button\DropdownButton;
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
-use THM\Organizer\Helpers\{Can, Grids, Groups as Helper, Terms};
+use THM\Organizer\Helpers\{Grids, Groups as Helper, Terms};
 use THM\Organizer\Layouts\HTML\Row;
 use THM\Organizer\Tables\GroupPublishing;
 
@@ -68,12 +68,6 @@ class Groups extends ListView
 
         $batchBar = Toolbar::getInstance('batch');
         $batchBar->standardButton('batch', Text::_('PROCESS'), 'groups.batch');
-
-        // This authorization level restriction isn't due to a security risk, as would otherwise be the case.
-        if (Can::administrate()) {
-            $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
-                ->icon('fa fa-reply-all');
-        }
 
         parent::addToolBar();
     }

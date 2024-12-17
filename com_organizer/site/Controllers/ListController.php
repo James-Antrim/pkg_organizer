@@ -98,7 +98,7 @@ abstract class ListController extends Controller
             if ($selected === $updated) {
                 $key     = $updated === 1 ? 'ORGANIZER_1_' : 'ORGANIZER_X_';
                 $key     .= $delete === true ? 'DELETED' : 'UPDATED';
-                $message = $updated === 1 ? Text::_($key, $updated) : Text::sprintf($key, $updated);
+                $message = $updated === 1 ? Text::_($key) : Text::sprintf($key, $updated);
                 $type    = Application::MESSAGE;
             }
             else {
