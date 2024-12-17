@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Can;
 
 /**
@@ -28,7 +27,7 @@ trait Tasked
      */
     public function renderTasks(): void
     {
-        if (Application::backend() and Can::administrate() and $this->toDo) {
+        if (Can::administrate() and $this->toDo) {
             echo '<h6>Tasks:</h6>';
             echo '<ul>';
             foreach ($this->toDo as $toDo) {
