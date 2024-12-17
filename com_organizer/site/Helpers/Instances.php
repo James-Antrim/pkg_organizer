@@ -1565,4 +1565,42 @@ class Instances extends ResourceHelper
     {
         return self::hasResponsibility($instanceID, $personID, Roles::TEACHER);
     }
+
+    /**
+     * Sets the publishing value for individual instances.
+     * @return void
+     */
+    public static function updatePublishing(): void
+    {
+        $table = DB::qn('#__organizer_instances', 'i');
+
+        // Set all instances to published.
+        $query = DB::query();
+        $query->update($table)->set(DB::qc('i.published', 1));
+        DB::set($query);
+        DB::execute();
+
+        // Set those instances to unpublished whose terms are not expired and whose groups are not published in those terms.
+        $query->update($table)
+            ->set(DB::qc('i.published', 0))
+
+            // Group relevance
+            ->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.instanceID', 'i.id'))
+            ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
+            ->where(DB::qcs([['ip.delta', 'removed', '!=', true], ['ig.delta', 'removed', '!=', true]]))
+
+            // Term relevance
+            ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
+            ->innerJoin(DB::qn('#__organizer_terms', 't'), DB::qc('t.id', 'u.termID'))
+            ->where(DB::qc('t.endDate', date('Y-m-d'), '>', true))
+
+            // Tying the knot
+            ->innerJoin(
+                DB::qn('#__organizer_group_publishing', 'gp'),
+                DB::qcs([['gp.groupID', 'ig.groupID'], ['gp.termID', 't.id']])
+            )
+            ->where(DB::qc('gp.published', 0));
+        DB::set($query);
+        DB::execute();
+    }
 }

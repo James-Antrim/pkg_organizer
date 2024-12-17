@@ -11,10 +11,11 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
+use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\User\User;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Text};
-use THM\Organizer\Helpers\Terms;
+use THM\Organizer\Helpers\{Groups, Instances, Terms};
 
 /** @inheritDoc */
 class Organizer extends Controller
@@ -40,6 +41,20 @@ class Organizer extends Controller
         $this->inactivePeople();
 
         $this->setRedirect("$this->baseURL&view=organizer");
+    }
+
+    /** @inheritDoc */
+    public function display($cachable = false, $urlparams = []): BaseController
+    {
+        $query = DB::query();
+        $query->select('*')->from(DB::qn('#__organizer_instances'))->setLimit(1);
+        DB::set($query);
+
+        if (!array_search('published', array_keys(DB::array()))) {
+            $this->migrate();
+        }
+
+        return parent::display($cachable, $urlparams);
     }
 
     /**
@@ -234,6 +249,24 @@ class Organizer extends Controller
         DB::set($query);
 
         $this->purgeUsers(DB::integers(), Text::_('USERS_WITHOUT_PARTICIPATION'));
+    }
+
+    /**
+     * Migrates structures and data.
+     * @return void
+     */
+    private function migrate(): void
+    {
+        Groups::publishPast();
+
+        $query = "ALTER TABLE `#__organizer_instances`
+                  ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`";
+        DB::set($query);
+        DB::execute();
+
+        Instances::updatePublishing();
+
+        $this->setRedirect("$this->baseURL&view=organizer");
     }
 
     /**
