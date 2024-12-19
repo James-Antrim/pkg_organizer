@@ -234,8 +234,10 @@ trait Scheduled
         $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_units'))
-            ->where(DB::qc('code', '%-%', 'NOT LIKE', true))
-            ->where(DB::qcs([['organizationID', $organizationID], ['startDate', $today, '>', true], ['termID', $termID]]));
+            ->where(DB::qcs([['organizationID', $organizationID], ['startDate', $today, '>=', true], ['termID', $termID]]))
+
+            // Units created in organizer itself (future feature)
+            ->where(DB::qc('code', '%-%', 'NOT LIKE', true));
         DB::set($query);
 
         if (!$unitIDs = DB::integers()) {
@@ -243,7 +245,7 @@ trait Scheduled
         }
 
         $query = DB::query();
-        $query->update("#__organizer_units")->set($conditions)->whereIn(DB::qn('id'), $unitIDs);
+        $query->update(DB::qn("#__organizer_units"))->set($conditions)->whereIn(DB::qn('id'), $unitIDs);
         DB::set($query);
         DB::execute();
 
@@ -265,12 +267,12 @@ trait Scheduled
         }
 
         $query = DB::query();
-        $query->update("#__organizer_instances")->set($conditions)->whereIn(DB::qn('id'), $instanceIDs);
+        $query->update(DB::qn("#__organizer_instances"))->set($conditions)->whereIn(DB::qn('id'), $instanceIDs);
         DB::set($query);
         DB::execute();
 
         $query = DB::query();
-        $query->select('id')->from("#__organizer_instance_persons")->whereIn(DB::qn('instanceID'), $instanceIDs);
+        $query->select(DB::qn('id'))->from(DB::qn("#__organizer_instance_persons"))->whereIn(DB::qn('instanceID'), $instanceIDs);
         DB::set($query);
 
         if (!$assocIDs = DB::integers()) {
@@ -278,12 +280,12 @@ trait Scheduled
         }
 
         $query = DB::query();
-        $query->update("#__organizer_instance_persons")->set($conditions)->whereIn(DB::qn('id'), $assocIDs);
+        $query->update(DB::qn("#__organizer_instance_persons"))->set($conditions)->whereIn(DB::qn('id'), $assocIDs);
         DB::set($query);
         DB::execute();
 
         $query = DB::query();
-        $query->select('id')->from("#__organizer_instance_groups")->whereIn(DB::qn('assocID'), $assocIDs);
+        $query->select(DB::qn('id'))->from(DB::qn("#__organizer_instance_groups"))->whereIn(DB::qn('assocID'), $assocIDs);
         DB::set($query);
 
         if (!$igIDs = DB::integers()) {
@@ -291,12 +293,12 @@ trait Scheduled
         }
 
         $query = DB::query();
-        $query->update("#__organizer_instance_groups")->set($conditions)->whereIn(DB::qn('id'), $igIDs);
+        $query->update(DB::qn("#__organizer_instance_groups"))->set($conditions)->whereIn(DB::qn('id'), $igIDs);
         DB::set($query);
         DB::execute();
 
         $query = DB::query();
-        $query->select('id')->from("#__organizer_instance_rooms")->whereIn(DB::qn('assocID'), $assocIDs);
+        $query->select(DB::qn('id'))->from(DB::qn("#__organizer_instance_rooms"))->whereIn(DB::qn('assocID'), $assocIDs);
         DB::set($query);
 
         if (!$irIDs = DB::integers()) {
@@ -304,7 +306,7 @@ trait Scheduled
         }
 
         $query = DB::query();
-        $query->update("#__organizer_instance_rooms")->set($conditions)->whereIn(DB::qn('id'), $irIDs);
+        $query->update(DB::qn("#__organizer_instance_rooms"))->set($conditions)->whereIn(DB::qn('id'), $irIDs);
         DB::set($query);
         DB::execute();
     }
