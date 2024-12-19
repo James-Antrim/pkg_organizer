@@ -15,8 +15,9 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Form\{Form, FormHelper};
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Text, User};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
 use THM\Organizer\Controllers\InstanceParticipants as Controller;
+use THM\Organizer\Helpers\{Groups, Instances};
 
 defined('_JEXEC') or die;
 
@@ -51,6 +52,29 @@ class PlgSystemOrganizer extends CMSPlugin
         $form = Input::getFormItems();
 
         return ['username' => $form['username'], 'password' => $form['password1']];
+    }
+
+    /**
+     * Initiates database table migration as necessary.
+     *
+     * @return  void
+     */
+    public function onAfterInitialise(): void
+    {
+        $query = DB::query();
+        $query->select('*')->from(DB::qn('#__organizer_instances'))->setLimit(1);
+        DB::set($query);
+
+        if (!array_key_exists('published', DB::array())) {
+            Groups::publishPast();
+
+            $query = "ALTER TABLE `#__organizer_instances`
+                  ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`";
+            DB::set($query);
+            DB::execute();
+
+            Instances::updatePublishing();
+        }
     }
 
     /**
