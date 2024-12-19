@@ -2,5 +2,10 @@
 <form>
     <fieldset name="details">
         <field name="file" type="file" label="ORGANIZER_UNTIS_FILE" required="true" accept=".xml"/>
+        <field name="backDate" type="list" label="ORGANIZER_BACKDATE" default="0">
+            <option value="0">ORGANIZER_NO</option>
+            <option value="1">ORGANIZER_YES</option>
+        </field>
+        <field name="date" type="Date" label="ORGANIZER_DATE" description="ORGANIZER_BACKDATE_DESC" showon="backDate:1"/>
     </fieldset>
 </form>
