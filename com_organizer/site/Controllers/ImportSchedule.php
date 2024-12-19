@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
-use THM\Organizer\Helpers\{Organizations as oHelper, Schedules as Helper};
+use THM\Organizer\Helpers\{Instances, Organizations as oHelper, Schedules as Helper};
 use THM\Organizer\Tables\{Organizations as oTable, Schedules as Table, SubjectEvents};
 
 /** @inheritDoc */
@@ -344,6 +344,7 @@ class ImportSchedule extends FormController
 
         $this->cleanRegistrations();
         $this->resolveEventSubjects($this->organizationID);
+        Instances::updatePublishing();
 
         $this->setRedirect("$this->baseURL&view=schedules");
     }
