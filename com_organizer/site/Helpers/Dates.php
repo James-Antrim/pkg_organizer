@@ -237,6 +237,26 @@ class Dates
     }
 
     /**
+     * Checks whether the string is a valid date in the Y-m-d format.
+     *
+     * @param   string  $date  the date to validate
+     *
+     * @return bool
+     */
+    public static function validate(string $date): bool
+    {
+        $pieces = explode('-', $date);
+
+        if (count($pieces) !== 3) {
+            return false;
+        }
+
+        [$year, $month, $day] = $pieces;
+
+        return checkdate($month, $day, $year);
+    }
+
+    /**
      * Returns the end date and start date of the week for the given date
      *
      * @param   string  $date      the date
