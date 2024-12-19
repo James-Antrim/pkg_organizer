@@ -372,7 +372,7 @@ class Instances
         $unit        = $model->units->$untisID;
         $unit->rooms = [];
 
-        if (!$roomAttribute = trim((string) $node->assigned_room[0]['id'])) {
+        if (empty($node->assigned_room) or !$roomAttribute = trim((string) $node->assigned_room[0]['id'])) {
             self::addMissingRoomData($model, $untisID, $currentDT, $periodNo);
         }
         else {
