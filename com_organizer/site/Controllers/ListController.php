@@ -31,7 +31,7 @@ abstract class ListController extends Controller
     /** @inheritDoc */
     public function __construct(
         $config = [],
-        MVCFactoryInterface $factory = null,
+        ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
         ?JInput $input = null
     )

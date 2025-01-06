@@ -103,9 +103,7 @@ class Organizations extends Table
      */
     public string $URL = '';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -135,7 +133,7 @@ class Organizations extends Table
     /**
      * @inheritDoc
      */
-    protected function _getAssetParentId(JTable $table = null, $id = null): int
+    protected function _getAssetParentId(?JTable $table = null, $id = null): int
     {
         $asset = new Asset(Application::database());
         $asset->loadByName('com_organizer');

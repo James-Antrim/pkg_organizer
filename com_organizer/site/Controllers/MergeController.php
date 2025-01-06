@@ -27,7 +27,7 @@ abstract class MergeController extends FormController
 
     /** @inheritDoc */
     public function __construct($config = [],
-        MVCFactoryInterface $factory = null,
+        ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
         ?JInput $input = null
     )

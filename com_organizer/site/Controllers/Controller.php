@@ -31,7 +31,7 @@ class Controller extends BaseController
 
     /** @inheritDoc */
     public function __construct($config = [],
-        MVCFactoryInterface $factory = null,
+        ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
         ?JInput $input = null
     )
