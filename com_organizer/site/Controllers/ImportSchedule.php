@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
-use THM\Organizer\Helpers\{Instances, Organizations as oHelper, Schedules as Helper};
+use THM\Organizer\Helpers\{Dates, Instances, Organizations as oHelper, Schedules as Helper};
 use THM\Organizer\Tables\{Organizations as oTable, Schedules as Table, SubjectEvents};
 
 /** @inheritDoc */
@@ -189,8 +189,10 @@ class ImportSchedule extends FormController
             return;
         }
 
+        $backDate = Input::getString('date');
+
         // Creation Date & Time, school year dates, term attributes
-        $this->creationDate = trim((string) $xml[0]['date']);
+        $this->creationDate = ($backDate and Dates::validate($backDate)) ? $backDate : trim((string) $xml[0]['date']);
         $validCreationDate  = $this->validateDate($this->creationDate, 'CREATION_DATE');
         $this->creationTime = trim((string) $xml[0]['time']);
 
@@ -303,6 +305,7 @@ class ImportSchedule extends FormController
             'termID'         => $this->termID,
             'userID'         => User::id()
         ];
+
         $schedule = new Table();
         if (!$schedule->save($data)) {
             Application::message('500', Application::ERROR);
@@ -310,37 +313,37 @@ class ImportSchedule extends FormController
             return;
         }
 
-        $refScheduleIDs = Helper::contextIDs($this->organizationID, $this->termID);
+        $currentID = $schedule->id;
 
-        // Get the last element without removing it from iteration.
-        $referenceID = end($refScheduleIDs);
+        // Sorted by date / time
+        $contextIDs = Helper::contextIDs($this->organizationID, $this->termID);
+        $current = array_search($currentID, $contextIDs);
 
-        // Remove current from iteration.
-        array_pop($refScheduleIDs);
-
-        // Ensures a clean reset if there were previous schedules that have been removed.
-        if (!$referenceID) {
-            $this->resetContext($this->organizationID, $this->termID, $schedule->id);
-
-            // end() of empty is false this future proofs the typing
-            $referenceID = 0;
-        }
-
-        $this->update($schedule->id, $referenceID);
-
-        // With the deltas current it is now safe to remove any schedules of the same day as the schedule itself.
-        foreach ($refScheduleIDs as $refScheduleID) {
+        $earlier = array_splice($contextIDs, 0, $current - 1);
+        foreach (array_reverse($earlier) as $referenceID) {
             $refSchedule = new Table();
-            $refSchedule->load($refScheduleID);
+            $refSchedule->load($referenceID);
 
             if ($refSchedule->creationDate === $schedule->creationDate) {
                 $refSchedule->delete();
+                continue;
             }
+            break;
         }
 
+        $referenceID = empty($referenceID) ? 0 : $referenceID;
 
-        $bookings = new Bookings();
-        $bookings->clean();
+        if ($later = array_splice($contextIDs, $current + 1)) {
+            $query = DB::query();
+            $query->delete(DB::qn('#__organizer_schedules'))->whereIn(DB::qn('id'), $later);
+            DB::set($query);
+            DB::execute();
+        }
+
+        $this->update($currentID, $referenceID);
+
+        //$bookings = new Bookings();
+        //$bookings->clean();
 
         $this->cleanRegistrations();
         $this->resolveEventSubjects($this->organizationID);
