@@ -14,7 +14,7 @@ use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\{Controller\BaseController, Factory\MVCFactoryInterface};
 use Joomla\CMS\Uri\Uri;
-use Joomla\Input\Input as JInput;
+use Joomla\Input\Input as CoreInput;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\Can;
 
@@ -33,7 +33,7 @@ class Controller extends BaseController
     public function __construct($config = [],
         ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
-        ?JInput $input = null
+        ?CoreInput $input = null
     )
     {
         $this->baseURL = $this->baseURL ?: Uri::base() . 'index.php?option=com_organizer';

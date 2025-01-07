@@ -11,7 +11,7 @@
 namespace THM\Organizer\Adapters;
 
 use InvalidArgumentException;
-use Joomla\CMS\Form\{Form as Base, FormField, FormHelper};
+use Joomla\CMS\Form\{Form as Core, FormField, FormHelper};
 use Joomla\Database\DatabaseAwareInterface;
 use RuntimeException;
 use SimpleXMLElement;
@@ -20,7 +20,7 @@ use SimpleXMLElement;
  * @inheritDoc
  * Adapts the Form to load properly namespaced fields.
  */
-class Form extends Base
+class Form extends Core
 {
     /**
      * @inheritDoc
@@ -111,7 +111,7 @@ class Form extends Base
     /**
      * @inheritDoc
      */
-    public static function getInstance($name, $data = null, $options = [], $replace = true, $xpath = false): Base|Form
+    public static function getInstance($name, $data = null, $options = [], $replace = true, $xpath = false): Core|Form
     {
         // Reference to array with form instances
         $forms = &self::$forms;

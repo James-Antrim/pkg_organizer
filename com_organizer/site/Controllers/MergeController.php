@@ -11,9 +11,8 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Input\Input as JInput;
+use Joomla\CMS\MVC\{Controller\BaseController, Factory\MVCFactoryInterface};
+use Joomla\Input\Input as CoreInput;
 use THM\Organizer\Adapters\{Application, Database as DB, Database, Input};
 use THM\Organizer\Tables\{Associations, InstanceGroups, InstanceRooms, Schedules};
 
@@ -29,7 +28,7 @@ abstract class MergeController extends FormController
     public function __construct($config = [],
         ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
-        ?JInput $input = null
+        ?CoreInput $input = null
     )
     {
         if (empty($this->mergeContext)) {

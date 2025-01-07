@@ -11,7 +11,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\MVC\View\FormView as Base;
+use Joomla\CMS\MVC\View\FormView as Core;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\Document;
 use THM\Organizer\Adapters\Input;
@@ -20,7 +20,7 @@ use THM\Organizer\Views\Named;
 /**
  * Class loads form data into the HTML view context.
  */
-class FormView extends Base
+class FormView extends Core
 {
     use Attributed;
     use Configured;

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Base};
+use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Core};
 use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseQuery};
 use THM\Organizer\Adapters\{Application, Input};
@@ -21,7 +21,7 @@ use THM\Organizer\Adapters\{Application, Input};
  * - Overrides/-writes to avoid deprecated code in the platform or promote ease of use
  * - Supplemental functions to extract common code from list models
  */
-abstract class ListModel extends Base
+abstract class ListModel extends Core
 {
     use Filtered;
     use Named;

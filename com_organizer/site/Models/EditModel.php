@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Table\Table as JTable;
+use Joomla\CMS\Table\Table as CoreTable;
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, FormFactory, MVCFactory};
 use THM\Organizer\Tables\Table;
@@ -78,9 +78,9 @@ abstract class EditModel extends FormModel
      * @param   string  $prefix   the class prefix, unused
      * @param   array   $options  configuration array for model, unused
      *
-     * @return  JTable  a table object
+     * @return  CoreTable  a table object
      */
-    public function getTable($name = '', $prefix = '', $options = []): JTable
+    public function getTable($name = '', $prefix = '', $options = []): CoreTable
     {
         $fqn = "\\THM\\Organizer\\Tables\\$this->tableClass";
 

@@ -4,7 +4,7 @@ namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Input\Input as JInput;
+use Joomla\Input\Input as CoreInput;
 use THM\Organizer\Adapters\{Application, Input};
 
 /**
@@ -17,7 +17,7 @@ abstract class ListsReferred extends FormController
         $config = [],
         ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
-        ?JInput $input = null
+        ?CoreInput $input = null
     )
     {
         $this->setReferrer();

@@ -11,10 +11,9 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\Input\Input as JInput;
-use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\{Application\CMSApplication, Table\Table};
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\Table\Table;
+use Joomla\Input\Input as CoreInput;
 use THM\Organizer\Adapters\{Application, Input, Text};
 
 /**
@@ -33,7 +32,7 @@ abstract class ListController extends Controller
         $config = [],
         ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
-        ?JInput $input = null
+        ?CoreInput $input = null
     )
     {
         if (empty($this->item)) {

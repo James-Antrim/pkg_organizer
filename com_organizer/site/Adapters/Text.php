@@ -10,12 +10,12 @@
 
 namespace THM\Organizer\Adapters;
 
-use Joomla\CMS\Language\Text as Base;
+use Joomla\CMS\Language\Text as Core;
 
 /**
  * Class handles localization resolution.
  */
-class Text extends Base
+class Text extends Core
 {
     private static array $baggage = [
         // 's' so as not to replace &shy; with & shy;

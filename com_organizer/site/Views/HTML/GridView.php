@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\MVC\View\ListView as Base;
+use Joomla\CMS\MVC\View\ListView as Core;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, Text};
 use THM\Organizer\Controllers\Controller;
@@ -19,7 +19,7 @@ use THM\Organizer\Helpers\Can;
 /**
  * Class loads a grid into the display context.
  */
-abstract class GridView extends Base
+abstract class GridView extends Core
 {
     use Configured;
     use Tasked;

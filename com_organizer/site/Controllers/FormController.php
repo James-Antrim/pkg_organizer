@@ -11,10 +11,9 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\{Application\CMSApplication, Table\Table as CoreTable};
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\Table\Table as JTable;
-use Joomla\Input\Input as JInput;
+use Joomla\Input\Input as CoreInput;
 use ReflectionNamedType;
 use ReflectionObject;
 use ReflectionUnionType;
@@ -37,7 +36,7 @@ abstract class FormController extends Controller
         $config = [],
         ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
-        ?JInput $input = null
+        ?CoreInput $input = null
     )
     {
         if (empty($this->list)) {
@@ -102,9 +101,9 @@ abstract class FormController extends Controller
 
     /**
      * Instances a table object corresponding to the registered list.
-     * @return JTable
+     * @return CoreTable
      */
-    protected function getTable(): JTable
+    protected function getTable(): CoreTable
     {
         $fqName = 'THM\\Organizer\\Tables\\' . $this->list;
 
@@ -235,14 +234,14 @@ abstract class FormController extends Controller
     /**
      * Reusable function to store data in an Incremented table.
      *
-     * @param   JTable  $table  an Incremented table
-     * @param   array   $data   the data to store
-     * @param   int     $id     the id of the row in which to store the data
+     * @param   CoreTable  $table  an Incremented table
+     * @param   array      $data   the data to store
+     * @param   int        $id     the id of the row in which to store the data
      *
      * @return int the id of the table row on success, otherwise the id parameter
      * @uses Table
      */
-    protected function store(JTable $table, array $data, int $id = 0): int
+    protected function store(CoreTable $table, array $data, int $id = 0): int
     {
         if ($id and !$table->load($id)) {
             Application::message('412', Application::ERROR);

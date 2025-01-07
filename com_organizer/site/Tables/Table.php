@@ -3,7 +3,7 @@
 namespace THM\Organizer\Tables;
 
 use Exception;
-use Joomla\CMS\Table\Table as Base;
+use Joomla\CMS\Table\Table as Core;
 use ReflectionClass;
 use ReflectionProperty;
 use THM\Organizer\Adapters\Application;
@@ -14,7 +14,7 @@ use THM\Organizer\Adapters\Text;
  * Wrapper to prevent unnecessary try/catch handling in client objects and standardized property retrieval after Joomla
  * declared their implementation deprecated.
  */
-abstract class Table extends Base
+abstract class Table extends Core
 {
     /**
      * INT(11) UNSIGNED NOT NULL AUTO_INCREMENT

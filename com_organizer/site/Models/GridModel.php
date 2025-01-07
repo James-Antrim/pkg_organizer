@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Base};
+use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Core};
 use THM\Organizer\Adapters\Application;
 
 /**
@@ -20,7 +20,7 @@ use THM\Organizer\Adapters\Application;
  * - Supplemental functions to extract common code from list models
  * - Ignores ListModel functions getTable, getTotal
  */
-abstract class GridModel extends Base
+abstract class GridModel extends Core
 {
     use Filtered;
     use Named;

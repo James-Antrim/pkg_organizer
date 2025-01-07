@@ -12,17 +12,16 @@ namespace THM\Organizer\Adapters;
 
 use Exception;
 use Joomla\CMS\{Application\CMSApplicationInterface, Form\FormFactoryAwareInterface};
-use Joomla\CMS\MVC\{Model\ModelInterface, View\ViewInterface};
-use Joomla\CMS\MVC\Factory\{MVCFactory as Base, MVCFactoryInterface};
+use Joomla\CMS\MVC\{Factory\MVCFactory as Core, Factory\MVCFactoryInterface, Model\ModelInterface, View\ViewInterface};
 use Joomla\CMS\Table\Table;
 use Joomla\Event\DispatcherAwareInterface;
-use Joomla\Input\Input as JInput;
+use Joomla\Input\Input as CoreInput;
 use THM\Organizer\Controllers\Controller;
 
 /**
  * Factory for MVC Object creation.
  */
-class MVCFactory extends Base
+class MVCFactory extends Core
 {
     /**
      * Sets the internal event dispatcher on the given object. Parent has private access. :(
@@ -75,11 +74,11 @@ class MVCFactory extends Base
      * @param   string                   $prefix  The controller prefix
      * @param   array                    $config  The configuration array for the controller
      * @param   CMSApplicationInterface  $app     The app
-     * @param   JInput                   $input   The input
+     * @param   CoreInput                $input   The input
      *
      * @return  Controller
      */
-    public function createController($name, $prefix, array $config, CMSApplicationInterface $app, JInput $input): Controller
+    public function createController($name, $prefix, array $config, CMSApplicationInterface $app, CoreInput $input): Controller
     {
         $className      = 'THM\Organizer\Controllers\\' . Application::ucClass($name);
         $config['name'] = $name;

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\MVC\View\ListView as Base;
+use Joomla\CMS\MVC\View\ListView as Core;
 use Joomla\CMS\Uri\Uri;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Document, Text, Toolbar};
@@ -20,7 +20,7 @@ use THM\Organizer\Helpers\Can;
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
  */
-abstract class ListView extends Base
+abstract class ListView extends Core
 {
     use Configured;
     use Tasked;

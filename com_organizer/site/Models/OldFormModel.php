@@ -12,13 +12,13 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Form\Form as FormAlias;
-use Joomla\CMS\MVC\Model\FormModel as Base;
+use Joomla\CMS\MVC\Model\FormModel as Core;
 use THM\Organizer\Adapters\{Application, Form, FormFactory, MVCFactory};
 
 /**
  * Model for data to be used with a form.
  */
-abstract class OldFormModel extends Base
+abstract class OldFormModel extends Core
 {
     use Named;
 

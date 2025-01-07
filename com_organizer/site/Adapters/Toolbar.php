@@ -12,7 +12,7 @@ namespace THM\Organizer\Adapters;
 
 use Exception;
 use Joomla\CMS\Document\HtmlDocument;
-use Joomla\CMS\Toolbar\{Toolbar as Base, ToolbarHelper as Helper};
+use Joomla\CMS\Toolbar\{Toolbar as Core, ToolbarHelper as Helper};
 
 /**
  * Class integrates toolbar and toolbar helper into one interface for dealing with toolbars.
@@ -26,10 +26,10 @@ class Toolbar
      *
      * @param   string  $name  The name of the toolbar.
      *
-     * @return  Base  The Toolbar object.
+     * @return  Core  The Toolbar object.
      * @see HtmlDocument::getToolbar()
      */
-    public static function getInstance(string $name = 'toolbar'): Base
+    public static function getInstance(string $name = 'toolbar'): Core
     {
         return Document::getToolbar($name);
     }
@@ -41,7 +41,7 @@ class Toolbar
      * @param   array   $options  the options used to render the toolbar
      *
      * @return string
-     * @see Base::render()
+     * @see Core::render()
      */
     public static function render(string $name = 'toolbar', array $options = []): string
     {

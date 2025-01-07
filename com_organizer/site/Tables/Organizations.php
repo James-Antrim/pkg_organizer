@@ -11,7 +11,7 @@
 namespace THM\Organizer\Tables;
 
 use Joomla\CMS\Access\Rules;
-use Joomla\CMS\Table\{Asset, Table as JTable};
+use Joomla\CMS\Table\{Asset, Table as CoreTable};
 use Joomla\Database\{DatabaseDriver, DatabaseInterface, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
 
@@ -133,7 +133,7 @@ class Organizations extends Table
     /**
      * @inheritDoc
      */
-    protected function _getAssetParentId(?JTable $table = null, $id = null): int
+    protected function _getAssetParentId(?CoreTable $table = null, $id = null): int
     {
         $asset = new Asset(Application::database());
         $asset->loadByName('com_organizer');

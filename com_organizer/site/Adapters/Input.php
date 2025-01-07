@@ -11,7 +11,7 @@
 namespace THM\Organizer\Adapters;
 
 use Joomla\Filter\InputFilter;
-use Joomla\Input\Input as Base;
+use Joomla\Input\Input as Core;
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
@@ -24,7 +24,7 @@ class Input
 
     private static InputFilter $filter;
     private static Registry $filterItems;
-    private static Base $input;
+    private static Core $input;
     private static Registry $listItems;
     private static Registry $params;
 
@@ -308,9 +308,9 @@ class Input
 
     /**
      * Returns the application's input object.
-     * @return Base
+     * @return Core
      */
-    public static function getInput(): Base
+    public static function getInput(): Core
     {
         if (empty(self::$input)) {
             self::$input = Application::instance()->input;
