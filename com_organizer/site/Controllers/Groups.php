@@ -11,7 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\{Groups as Helper, Terms};
+use THM\Organizer\Helpers\{Groups as Helper, Instances, Terms};
 use THM\Organizer\Tables\{Groups as Group, GroupPublishing as Publishing, Terms as Term};
 
 /** @inheritDoc */
@@ -45,6 +45,7 @@ class Groups extends ListController
 
         // Individual resource authorization is checked in the called function, making subsequent checking for grids redundant.
         $updated = $this->savePublishing($groupIDs, $publishing);
+        Instances::updatePublishing();
 
         if ($gridID) {
             $gUpdated = 0;
@@ -72,6 +73,7 @@ class Groups extends ListController
     public function publishCurrent(): void
     {
         $this->setPublished(Terms::currentID(), Helper::PUBLISHED);
+        Instances::updatePublishing();
     }
 
     /**
@@ -81,6 +83,7 @@ class Groups extends ListController
     public function publishNext(): void
     {
         $this->setPublished(Terms::nextID(), Helper::PUBLISHED);
+        Instances::updatePublishing();
     }
 
     /**
@@ -124,6 +127,8 @@ class Groups extends ListController
             }
         }
 
+        Instances::updatePublishing();
+
         $this->farewell($selected, $updated);
     }
 
@@ -134,6 +139,7 @@ class Groups extends ListController
     public function unpublishCurrent(): void
     {
         $this->setPublished(Terms::currentID(), Helper::UNPUBLISHED);
+        Instances::updatePublishing();
     }
 
     /**
@@ -143,5 +149,6 @@ class Groups extends ListController
     public function unpublishNext(): void
     {
         $this->setPublished(Terms::nextID(), Helper::UNPUBLISHED);
+        Instances::updatePublishing();
     }
 }
