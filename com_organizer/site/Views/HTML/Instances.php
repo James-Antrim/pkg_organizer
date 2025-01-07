@@ -51,14 +51,15 @@ class Instances extends ListView
         $this->toDo[] = 'Access from model.';
         $this->toDo[] = 'Item URL from model.';
         $this->toDo[] = 'Revisit tools.';
-        $this->toDo[] = 'Title key incomplete.';
-
-        $this->title($this->get('title'));
-        $toolbar = Toolbar::getInstance();
-        $expURL  = Helpers\Routing::getViewURL('export');
+        $this->toDo[] = 'Title in view from model conditions.';
 
         /** @var Model $model */
         $model = $this->getModel();
+
+        $this->title($model->title());
+        $toolbar = Toolbar::getInstance();
+        $expURL  = Helpers\Routing::getViewURL('export');
+
         if (User::id() and $model->layout === Helper::LIST) {
             if (!$this->expired and !$this->teachesALL) {
                 $bookmarkDD = $toolbar->dropdownButton('bookmark-dd', Text::_('INSTANCES'));
