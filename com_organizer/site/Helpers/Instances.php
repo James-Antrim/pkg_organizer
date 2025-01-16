@@ -158,25 +158,6 @@ class Instances extends ResourceHelper
     }
 
     /**
-     * Retrieves the ids of the categories associated with the instance.
-     *
-     * @param   int  $instanceID
-     *
-     * @return int[]
-     */
-    public static function categoryIDs(int $instanceID): array
-    {
-        $categoryIDs = [];
-
-        foreach (self::groupIDs($instanceID) as $groupID) {
-            $categoryID               = Groups::categoryID($groupID);
-            $categoryIDs[$categoryID] = $categoryID;
-        }
-
-        return $categoryIDs;
-    }
-
-    /**
      * Sets/overwrites instance course attributes.
      *
      * @param   array &$instance  the array of instance attributes
