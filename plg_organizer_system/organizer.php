@@ -74,6 +74,20 @@ class PlgSystemOrganizer extends CMSPlugin
             DB::execute();
 
             Instances::updatePublishing();
+
+            $query = DB::query();
+            $query->update(DB::qn('#__menu'))
+                ->set(DB::qn('params') . ' = REPLACE(' . DB::qn('params') . ', \'"layout":"0"\', \'"layout":"list"\')')
+                ->where(DB::qc('link', 'index.php?option=com_organizer&view=instances', '=', true));
+            DB::set($query);
+            DB::execute();
+
+            $query = DB::query();
+            $query->update(DB::qn('#__menu'))
+                ->set(DB::qn('params') . ' = REPLACE(' . DB::qn('params') . ', \'"layout":"1"\', \'"layout":"grid"\')')
+                ->where(DB::qc('link', 'index.php?option=com_organizer&view=instances', '=', true));
+            DB::set($query);
+            DB::execute();
         }
     }
 
