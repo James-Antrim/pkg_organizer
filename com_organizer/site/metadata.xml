@@ -13,7 +13,7 @@
             <option name="ORGANIZER_ORGANIZATION_OCCUPANCY" msg="ORGANIZER_ORGANIZATION_OCCUPANCY_DESC"
                     value="organization_statistics"/>
             <option name="ORGANIZER_PROFILE" msg="ORGANIZER_PROFILE_DESC" value="profile"/>
-            <option name="ORGANIZER_ROOM_OVERVIEW" msg="ORGANIZER_ROOM_OVERVIEW_DESC" value="room_overview"/>
+            <option name="ORGANIZER_ROOM_OVERVIEW" msg="ORGANIZER_ROOM_OVERVIEW_DESC" value="roomoverview"/>
             <option name="ORGANIZER_ROOM_STATISTICS" msg="ORGANIZER_ROOM_STATISTICS_DESC" value="room_statistics"/>
             <option name="ORGANIZER_ROOMS" msg="ORGANIZER_ROOMS_DESC" value="rooms"/>
             <option name="ORGANIZER_SEARCH" msg="ORGANIZER_SEARCH_DESC" value="search"/>

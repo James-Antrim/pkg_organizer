@@ -75,6 +75,15 @@ class PlgSystemOrganizer extends CMSPlugin
 
             Instances::updatePublishing();
 
+            // Updated naming standards
+            $query = DB::query();
+            $query->update(DB::qn('#__menu'))
+                ->set(DB::qc('link', 'index.php?option=com_organizer&view=roomoverview', '=', true))
+                ->where(DB::qc('link', 'index.php?option=com_organizer&view=room_overview', '=', true));
+            DB::set($query);
+            DB::execute();
+
+            // Updated menu parameters
             $query = DB::query();
             $query->update(DB::qn('#__menu'))
                 ->set(DB::qn('params') . ' = REPLACE(' . DB::qn('params') . ', \'"layout":"0"\', \'"layout":"list"\')')

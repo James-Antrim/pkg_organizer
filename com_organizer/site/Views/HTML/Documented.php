@@ -13,6 +13,9 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, Document, HTML, Text};
 
+/**
+ * Adds a disclaimer as requested by the legal team.
+ */
 trait Documented
 {
     public string $disclaimer = '';
@@ -38,7 +41,7 @@ trait Documented
             $attributes
         );
         $poLink  = HTML::link(
-            'https://www.thm.de/site/studium/sie-studieren/pruefungsordnung.html',
+            'https://www.thm.de/site/thm-dokumente/studium/modulhandbuecher-studien-und-pruefungsordnungen-studienganginfos.html',
             Text::_('DISCLAIMER_PO_TITLE'),
             $attributes
         );
