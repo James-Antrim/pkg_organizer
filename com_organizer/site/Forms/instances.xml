@@ -36,8 +36,8 @@
         <field name="date" type="Date" label="ORGANIZER_DATE" class="input-8" empty="false" onchange="this.form.submit();"/>
         <field name="forward" type="Page" direction="forward"/>
         <field name="layout" type="list" label="ORGANIZER_PRESENTATION" class="input-10" onchange="this.form.submit();">
-            <option value="0">ORGANIZER_LIST</option>
-            <option value="1">ORGANIZER_GRID</option>
+            <option value="list">ORGANIZER_LIST</option>
+            <option value="grid">ORGANIZER_GRID</option>
         </field>
         <field name="gridID" type="Grids" label="ORGANIZER_GRID" onchange="this.form.submit();"/>
         <field name="interval" type="list" label="ORGANIZER_Language" class="input-10" onchange="this.form.submit();"
