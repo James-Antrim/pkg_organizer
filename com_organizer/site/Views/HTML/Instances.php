@@ -11,10 +11,10 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\MVC\View\ListView as Core;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\{FormTarget, Highlander};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\{Dates, Instances as Helper};
+use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Organizations, Participation, Routing, Methods};
 use THM\Organizer\Layouts\HTML\Row;
 use THM\Organizer\Models\Instances as Model;
 use stdClass;
@@ -23,6 +23,29 @@ use stdClass;
 class Instances extends ListView
 {
     use ListsInstances;
+
+    protected Model $model;
+
+    /**
+     * @inheritDoc
+     */
+    protected function initializeView(): void
+    {
+        Core::initializeView();
+
+        /** @var Model $model */
+        $model = $this->getModel();
+
+        $this->empty      = '';
+        $this->model      = $model;
+        $this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
+
+        $this->subTitle();
+        $this->initializeColumns();
+        $this->completeItems();
+        $this->modifyDocument();
+    }
+
 
     private bool $expired = true;
 
@@ -38,12 +61,6 @@ class Instances extends ListView
 
     private string $statusDate;
 
-    /** @inheritDoc */
-    public function __construct($config = [])
-    {
-        parent::__construct($config);
-        $this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
-    }
 
     /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
@@ -51,14 +68,14 @@ class Instances extends ListView
         $this->toDo[] = 'Access from model.';
         $this->toDo[] = 'Item URL from model.';
         $this->toDo[] = 'Revisit tools.';
+        $this->toDo[] = 'Add the module number to the XLS output.';
         $this->toDo[] = 'Title in view from model conditions.';
 
-        /** @var Model $model */
-        $model = $this->getModel();
+        $model = $this->model;
 
         $this->title($model->title());
         $toolbar = Toolbar::getInstance();
-        $expURL  = Helpers\Routing::getViewURL('export');
+        $expURL  = Routing::getViewURL('export');
 
         if (User::id() and $model->layout === Helper::LIST) {
             if (!$this->expired and !$this->teachesALL) {
@@ -140,7 +157,7 @@ class Instances extends ListView
     protected function authorize(): void
     {
         if (Application::backend()) {
-            if (!$this->manages = (bool) Helpers\Organizations::schedulableIDs()) {
+            if (!$this->manages = (bool) Organizations::schedulableIDs()) {
                 Application::error(403);
             }
 
@@ -153,7 +170,7 @@ class Instances extends ListView
 
         $organizationID = Input::getParams()->get('organizationID', 0);
         $this->manages  = $organizationID ?
-            Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
+            Can::manage('organization', $organizationID) : (bool) Can::manageTheseOrganizations();
     }
 
     /** @inheritDoc */
@@ -272,7 +289,7 @@ class Instances extends ListView
                         $grid[$key]['type']  = $block['type'];
                     }
 
-                    $busy = Helpers\Participation::busy($current, $block['startTime'], $block['endTime']);
+                    $busy = Participation::busy($current, $block['startTime'], $block['endTime']);
 
                     $grid[$key]['endTime']   = $block['endTime'] === '00:00' ? '23:59' : $block['endTime'];
                     $grid[$key]['startTime'] = $block['startTime'];
@@ -305,7 +322,7 @@ class Instances extends ListView
     {
         $name = '<span class="event">' . $item->name . '</span>';
 
-        $title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
+        $title = '<span class="date">' . Dates::formatDate($item->date) . '</span> ';
         $title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
         $title .= HTML::link($item->link, $name, ['target' => '_blank']);
         $title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
@@ -407,10 +424,10 @@ class Instances extends ListView
                         $url  = '';
 
                         if ($item->bookingID) {
-                            $url = Helpers\Routing::getViewURL('booking', $item->bookingID);
+                            $url = Routing::getViewURL('booking', $item->bookingID);
                         }
                         elseif ($item->registration and !$item->expired) {
-                            $url = Helpers\Routing::getTaskURL('bookings.manage', $instanceID);
+                            $url = Routing::getTaskURL('bookings.manage', $instanceID);
                         }
 
                         if ($url) {
@@ -425,12 +442,12 @@ class Instances extends ListView
                         if ($item->bookmarked) {
                             $label = 'REMOVE_BOOKMARK';
                             $icon  = HTML::icon('fa fa-bookmark');
-                            $url   = Helpers\Routing::getTaskURL('InstanceParticipants.removeBookmarkBlock', $instanceID);
+                            $url   = Routing::getTaskURL('InstanceParticipants.removeBookmarkBlock', $instanceID);
                         }
                         else {
                             $label = 'BOOKMARK';
                             $icon  = HTML::icon('far fa-bookmark');
-                            $url   = Helpers\Routing::getTaskURL('InstanceParticipants.bookmarkBlock', $instanceID);
+                            $url   = Routing::getTaskURL('InstanceParticipants.bookmarkBlock', $instanceID);
                         }
 
                         $tools[] = HTML::tip($icon, "$context-bookmark", $label, [], $url);
@@ -442,7 +459,7 @@ class Instances extends ListView
                         {
                             $tools[] = HTML::tip(HTML::icon('fa fa-stop'), "$context-instance-status", 'REGISTRATION_CLOSED');
                         }
-                        elseif (Helper::getMethodCode($item->instanceID) === Helpers\Methods::FINALCODE)
+                        elseif (Helper::getMethodCode($item->instanceID) === Methods::FINALCODE)
                         {
                             $icon    = HTML::icon('fa fa-share');
                             $url     = "https://ecampus.thm.de";
@@ -461,13 +478,13 @@ class Instances extends ListView
                         elseif ($item->registered)
                         {
                             $icon    = HTML::icon('fa fa-sign-in-alt');
-                            $url     = Helpers\Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
+                            $url     = Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
                             $tools[] = HTML::tip($icon, "$context-instance-status", 'REGISTERED_DEREGISTER', [], $url);
                         }
                         else
                         {
                             $icon    = HTML::icon('fa fa-play');
-                            $url     = Helpers\Routing::getTaskURL('InstanceParticipants.register', $instanceID);
+                            $url     = Routing::getTaskURL('InstanceParticipants.register', $instanceID);
                             $tools[] = HTML::tip($icon, "$context-instance-status", 'REGISTER', [], $url);
                         }
                     }*/
@@ -477,7 +494,7 @@ class Instances extends ListView
             if ($item->subjectID) {
                 $icon    = HTML::icon('fa fa-book');
                 $tip     = 'READ_SUBJECT_DOCUMENTATION';
-                $url     = Helpers\Routing::getViewURL('SubjectItem', $item->subjectID);
+                $url     = Routing::getViewURL('SubjectItem', $item->subjectID);
                 $tools[] = HTML::tip($icon, "$context-instance-documentation", $tip, [], $url);
             }
 
@@ -635,8 +652,8 @@ class Instances extends ListView
     {
         if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
             $date           = $this->state->get('list.date');
-            $interval       = Helpers\Dates::ninetyDays($date);
-            $interval       = Helpers\Dates::intervalText($interval['startDate'], $interval['endDate']);
+            $interval       = Dates::ninetyDays($date);
+            $interval       = Dates::intervalText($interval['startDate'], $interval['endDate']);
             $this->subtitle = "<h6 class=\"sub-title\">$interval</h6>";
         }
     }
@@ -742,7 +759,7 @@ class Instances extends ListView
                 $this->premature = false;
             }
 
-            if (Helper::methodCode($item->instanceID) !== Helpers\Methods::FINALCODE and $item->registration === true) {
+            if (Helper::methodCode($item->instanceID) !== Methods::FINALCODE and $item->registration === true) {
                 $this->registration = true;
             }
 
