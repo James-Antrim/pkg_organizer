@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, Text, User};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Roles;
+use THM\Organizer\Helpers\{Organizations, Roles};
 use THM\Organizer\Tables;
 
 /**
@@ -235,7 +235,7 @@ class Search extends ListModel
     {
         parent::__construct($config);
 
-        $this->authorized = Helpers\Can::manageTheseOrganizations();
+        $this->authorized = Organizations::manageableIDs();
     }
 
     /**
@@ -600,7 +600,7 @@ class Search extends ListModel
     }
 
     /** @inheritDoc */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState();
 

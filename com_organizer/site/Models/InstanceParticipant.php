@@ -449,7 +449,7 @@ class InstanceParticipant extends BaseModel
             return false;
         }
 
-        if (!Can::manageTheseOrganizations() and !Instances::teaches($instanceID))
+        if (!Organizations::manageableIDs() and !Instances::teaches($instanceID))
         {
             Application::error(403);
         }

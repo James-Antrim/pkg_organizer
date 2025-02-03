@@ -14,7 +14,7 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\MVC\View\ListView as Core;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\{FormTarget, Highlander};
-use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Organizations, Participation, Routing, Methods};
+use THM\Organizer\Helpers\{Dates, Instances as Helper, Organizations, Participation, Routing, Methods};
 use THM\Organizer\Layouts\HTML\Row;
 use THM\Organizer\Models\Instances as Model;
 use stdClass;
@@ -169,8 +169,7 @@ class Instances extends ListView
         }
 
         $organizationID = Input::getParams()->get('organizationID', 0);
-        $this->manages  = $organizationID ?
-            Can::manage('organization', $organizationID) : (bool) Can::manageTheseOrganizations();
+        $this->manages  = $organizationID ? Organizations::manageable($organizationID) : (bool) Organizations::manageableIDs();
     }
 
     /** @inheritDoc */

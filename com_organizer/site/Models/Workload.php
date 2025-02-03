@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\{Form};
 use THM\Organizer\Adapters\{Application, Database as DB, FormFactory, Input, MVCFactory, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\{Can, Dates, Instances, Persons, Terms};
+use THM\Organizer\Helpers\{Can, Dates, Instances, Organizations, Persons, Terms};
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -46,7 +46,7 @@ class Workload extends FormModel
         $organizationID = Input::getInt('organizationID');
         $personID       = Input::getInt('personID');
 
-        if ($authOIDs = Can::manageTheseOrganizations()) {
+        if ($authOIDs = Organizations::manageableIDs()) {
             if ($organizationID) {
                 if (in_array($organizationID, $authOIDs)) {
                     $this->organizationID = $organizationID;

@@ -1236,7 +1236,7 @@ class Instances extends ResourceHelper
         }
 
         $thisPersonID = Persons::getIDByUserID($userID);
-        $authorized   = Can::viewTheseOrganizations();
+        $authorized   = Organizations::viewableIDs();
 
         foreach ($personIDs as $key => $personID) {
             // Identity or publicly released
@@ -1422,7 +1422,7 @@ class Instances extends ResourceHelper
      */
     public static function setPublishingAccess(array &$conditions): void
     {
-        $allowedIDs   = Can::viewTheseOrganizations();
+        $allowedIDs   = Organizations::viewableIDs();
         $overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
         $overlapCount = count($overlap);
 

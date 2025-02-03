@@ -192,7 +192,7 @@ class Persons extends Scheduled implements Selectable
             $organizationIDs = Can::view('organization', $organizationID) ? [$organizationID] : [];
         }
         else {
-            $organizationIDs = Can::manageTheseOrganizations();
+            $organizationIDs = Organizations::manageableIDs();
         }
 
         $query = DB::query();

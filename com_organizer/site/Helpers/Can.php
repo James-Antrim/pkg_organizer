@@ -33,40 +33,6 @@ class Can
     }
 
     /**
-     * Gets the organization ids of for which the user is authorized access
-     *
-     * @param   string  $function  the action for authorization
-     *
-     * @return int[]
-     */
-    private static function authorizedIDs(string $function): array
-    {
-        if (!User::id()) {
-            return [];
-        }
-
-        $organizationIDs = Organizations::getIDs();
-
-        if (self::administrate()) {
-            return $organizationIDs;
-        }
-
-        if (!method_exists('THM\\Organizer\\Helpers\\Can', $function)) {
-            return [];
-        }
-
-        $authorized = [];
-
-        foreach ($organizationIDs as $organizationID) {
-            if (self::$function('organization', $organizationID)) {
-                $authorized[] = $organizationID;
-            }
-        }
-
-        return $authorized;
-    }
-
-    /**
      * Performs ubiquitous authorization checks for three fundamental values:
      * 0 - unauthenticated
      * null - indeterminate
@@ -176,11 +142,9 @@ class Can
                 }
 
                 $instanceOrganizations = Instances::getOrganizationIDs($resourceID);
-                $managedOrganizations  = self::manageTheseOrganizations();
+                $managedOrganizations  = Organizations::manageableIDs();
 
                 return (bool) array_intersect($managedOrganizations, $instanceOrganizations);
-            case 'organization':
-                return User::instance()->authorise('organizer.manage', "com_organizer.organization.$resourceID");
             case 'participant':
                 if ($resourceID === User::id()) {
                     return true;
@@ -197,19 +161,10 @@ class Can
                     return true;
                 }
 
-                return in_array(Units::getOrganizationID($resourceID), self::manageTheseOrganizations());
+                return in_array(Units::getOrganizationID($resourceID), Organizations::manageableIDs());
             default:
                 return false;
         }
-    }
-
-    /**
-     * Gets the ids of organizations for which the user is authorized managing access
-     * @return int[]
-     */
-    public static function manageTheseOrganizations(): array
-    {
-        return self::authorizedIDs('manage');
     }
 
     /**
@@ -292,14 +247,5 @@ class Can
              */
             default => true
         };
-    }
-
-    /**
-     * Gets the ids of organizations for which the user is authorized privileged view access
-     * @return int[]
-     */
-    public static function viewTheseOrganizations(): array
-    {
-        return self::authorizedIDs('view');
     }
 }

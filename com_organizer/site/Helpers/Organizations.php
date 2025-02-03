@@ -96,17 +96,13 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
         return 0;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {
         return User::instance()->authorise('organizer.document', "com_organizer.organization.$resourceID");
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function documentableIDs(): array
     {
         if (!User::id()) {
@@ -125,11 +121,40 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     }
 
     /**
-     * @inheritDoc
+     * Checks whether the user is authorized to view schedule information for the given organization.
      *
-     * @param   bool    $short   whether abbreviated names should be returned
-     * @param   string  $access  any access restriction which should be performed
+     * @param   int  $organizationID  the id of the resource to check documentation access for.
+     *
+     * @return bool
      */
+    public static function manageable(int $organizationID): bool
+    {
+        return User::instance()->authorise('organizer.manage', "com_organizer.organization.$organizationID");
+    }
+
+    /**
+     * Retrieves the ids for organizations for which the user can view schedule information.
+     *
+     * @return int[]
+     */
+    public static function manageableIDs(): array
+    {
+        if (!User::id()) {
+            return [];
+        }
+
+        $organizationIDs = self::getIDs();
+
+        foreach ($organizationIDs as $index => $organizationID) {
+            if (!self::manageable($organizationID)) {
+                unset($organizationIDs[$index]);
+            }
+        }
+
+        return $organizationIDs;
+    }
+
+    /** @inheritDoc */
     public static function options(bool $short = true, string $access = ''): array
     {
         $options = [];
@@ -234,10 +259,10 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
 
                     break;
                 case 'teach':
-                    $managedIDs     = Can::manageTheseOrganizations();
+                    $managedIDs     = self::manageableIDs();
                     $schedulableIDs = self::schedulableIDs();
                     $taughtIDs      = Persons::taughtOrganizations();
-                    $viewedIDs      = Can::viewTheseOrganizations();
+                    $viewedIDs      = self::viewableIDs();
                     $allowedIDs     = array_merge($managedIDs, $schedulableIDs, $taughtIDs, $viewedIDs);
                     break;
                 default:
@@ -253,17 +278,13 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
         return DB::arrays('id');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function schedulable(int $resourceID): bool
     {
         return User::instance()->authorise('organizer.schedule', "com_organizer.organization.$resourceID");
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function schedulableIDs(): array
     {
         if (!User::id()) {
@@ -274,6 +295,50 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
 
         foreach ($organizationIDs as $index => $organizationID) {
             if (!self::schedulable($organizationID)) {
+                unset($organizationIDs[$index]);
+            }
+        }
+
+        return $organizationIDs;
+    }
+
+    /**
+     * Checks whether the user is authorized to view schedule information for the given organization.
+     *
+     * @param   int  $organizationID  the id of the resource to check documentation access for.
+     *
+     * @return bool
+     */
+    public static function viewable(int $organizationID): bool
+    {
+        $user = User::instance();
+
+        if ($user->authorise('organizer.view', "com_organizer.organization.$organizationID")) {
+            return true;
+        }
+
+        if ($user->authorise('organizer.schedule', "com_organizer.organization.$organizationID")) {
+            return true;
+        }
+
+        return $user->authorise('organizer.manage', "com_organizer.organization.$organizationID");
+    }
+
+    /**
+     * Retrieves the ids for organizations for which the user can view schedule information.
+     *
+     * @return int[]
+     */
+    public static function viewableIDs(): array
+    {
+        if (!User::id()) {
+            return [];
+        }
+
+        $organizationIDs = self::getIDs();
+
+        foreach ($organizationIDs as $index => $organizationID) {
+            if (!self::viewable($organizationID)) {
                 unset($organizationIDs[$index]);
             }
         }

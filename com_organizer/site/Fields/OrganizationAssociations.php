@@ -67,7 +67,7 @@ class OrganizationAssociations extends ListField
             'category', 'event', 'group' => Organizations::schedulableIDs(),
             'fieldcolor', 'pool', 'program', 'subject' => Organizations::documentableIDs(),
             'person' => Can::manage('persons') ? Organizations::getIDs() : [],
-            'workload' => Can::manageTheseOrganizations(),
+            'workload' => Organizations::manageableIDs(),
             default => [],
         };
     }

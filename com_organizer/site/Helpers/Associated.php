@@ -86,13 +86,13 @@ abstract class Associated extends ResourceHelper
                 $authorized = Organizations::documentableIDs();
                 break;
             case 'manage':
-                $authorized = Can::manageTheseOrganizations();
+                $authorized = Organizations::manageableIDs();
                 break;
             case 'schedule':
                 $authorized = Organizations::schedulableIDs();
                 break;
             case 'view':
-                $authorized = Can::viewTheseOrganizations();
+                $authorized = Organizations::viewableIDs();
                 break;
             default:
                 return;

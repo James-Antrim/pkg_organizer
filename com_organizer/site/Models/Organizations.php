@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\{Can, Organizations as Helper};
 
 /**
  * Class retrieves information for a filtered set of organizations.
@@ -32,7 +32,7 @@ class Organizations extends ListModel
         if (Can::administrate()) {
             $access = [DB::quote(1) . ' AS ' . DB::qn('access')];
         }
-        elseif ($ids = Can::manageTheseOrganizations()) {
+        elseif ($ids = Helper::manageableIDs()) {
             $access = [DB::qn('o.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access')];
         }
         else {
