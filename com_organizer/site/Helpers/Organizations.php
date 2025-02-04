@@ -99,7 +99,11 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {
-        return User::instance()->authorise('organizer.document', "com_organizer.organization.$resourceID");
+        if (User::instance()->authorise('organizer.document', "com_organizer.organization.$resourceID")) {
+            return true;
+        }
+
+        return Can::administrate();
     }
 
     /** @inheritDoc */
@@ -110,6 +114,10 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
         }
 
         $organizationIDs = self::getIDs();
+
+        if (Can::administrate()) {
+            return $organizationIDs;
+        }
 
         foreach ($organizationIDs as $index => $organizationID) {
             if (!self::documentable($organizationID)) {
@@ -129,7 +137,11 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
      */
     public static function manageable(int $organizationID): bool
     {
-        return User::instance()->authorise('organizer.manage', "com_organizer.organization.$organizationID");
+        if (User::instance()->authorise('organizer.manage', "com_organizer.organization.$organizationID")) {
+            return true;
+        }
+
+        return Can::administrate();
     }
 
     /**
@@ -144,6 +156,10 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
         }
 
         $organizationIDs = self::getIDs();
+
+        if (Can::administrate()) {
+            return $organizationIDs;
+        }
 
         foreach ($organizationIDs as $index => $organizationID) {
             if (!self::manageable($organizationID)) {
@@ -281,7 +297,11 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /** @inheritDoc */
     public static function schedulable(int $resourceID): bool
     {
-        return User::instance()->authorise('organizer.schedule', "com_organizer.organization.$resourceID");
+        if (User::instance()->authorise('organizer.schedule', "com_organizer.organization.$resourceID")) {
+            return true;
+        }
+
+        return Can::administrate();
     }
 
     /** @inheritDoc */
@@ -292,6 +312,10 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
         }
 
         $organizationIDs = self::getIDs();
+
+        if (Can::administrate()) {
+            return $organizationIDs;
+        }
 
         foreach ($organizationIDs as $index => $organizationID) {
             if (!self::schedulable($organizationID)) {
@@ -321,7 +345,11 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
             return true;
         }
 
-        return $user->authorise('organizer.manage', "com_organizer.organization.$organizationID");
+        if ($user->authorise('organizer.manage', "com_organizer.organization.$organizationID")) {
+            return true;
+        }
+
+        return Can::administrate();
     }
 
     /**
@@ -336,6 +364,10 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
         }
 
         $organizationIDs = self::getIDs();
+
+        if (Can::administrate()) {
+            return $organizationIDs;
+        }
 
         foreach ($organizationIDs as $index => $organizationID) {
             if (!self::viewable($organizationID)) {
