@@ -306,17 +306,12 @@ class RoomStatistics extends BaseModel
 
         $dateFormat = Input::getParams()->get('dateFormat');
         $date       = Input::getCMD('date', date($dateFormat));
-        $startDoWNo = empty($this->startDoW) ? 1 : $this->startDoW;
-        $endDoWNo   = empty($this->endDoW) ? 6 : $this->endDoW;
         $interval   = Input::getCMD('interval', 'week');
-
-        $dates = match ($interval) {
-            'month' => Dates::oneMonth($date),
-            default => Dates::week($date, $startDoWNo, $endDoWNo),
+        $dateTime   = strtotime($date);
+        [$this->startDate, $this->endDate] = match ($interval) {
+            'month' => Dates::month($dateTime),
+            default => Dates::week($dateTime),
         };
-
-        $this->startDate = $dates['startDate'];
-        $this->endDate   = $dates['endDate'];
     }
 
     /**

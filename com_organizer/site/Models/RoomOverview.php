@@ -194,9 +194,8 @@ class RoomOverview extends ListModel
 
         // Preformatting for later use in queries here and display in the view.
         if ($template === self::WEEK) {
-            $dates       = Dates::week($date, $grid['startDay'], $grid['endDay']);
-            $currentDate = $dates['startDate'];
-            while ($currentDate <= $dates['endDate']) {
+            [$currentDate, $endDate] = Dates::week(strtotime($date));
+            while ($currentDate <= $endDate) {
                 $this->dates[$currentDate] = Dates::formatDate($currentDate);
                 $currentDate               = date('Y-m-d', strtotime("$currentDate + 1 days"));
             }

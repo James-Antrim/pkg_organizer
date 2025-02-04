@@ -22,6 +22,9 @@ class Input
 {
     const NONE = -1;
 
+    // (File) Formats
+    public const HTML = 'html', ICS = 'ics', JSON = 'json', PDF = 'pdf', XLS = 'xls';// XML = 'xml';
+
     private static InputFilter $filter;
     private static Registry $filterItems;
     private static Core $input;

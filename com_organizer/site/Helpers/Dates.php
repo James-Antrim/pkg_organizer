@@ -19,6 +19,8 @@ use THM\Organizer\Adapters\{Database as DB, Input, Text};
  */
 class Dates
 {
+    public const SUNDAY = 0;
+
     /**
      * Modifies a query with a restriction for a value (not) between two column values.
      *
@@ -128,57 +130,34 @@ class Dates
     }
 
     /**
-     * Returns the end and start dates of a three-month period beginning with the date given.
+     * Calculates the start and end dates of a month.
      *
-     * @param   string  $date  the date
-     * @param   int     $startDay
+     * @param   int  $dateTime  the datetime reference to calculate the dates with
      *
-     * @return string[]
+     * @return array
      */
-    public static function ninetyDays(string $date, int $startDay = 1): array
+    public static function month(int $dateTime): array
     {
-        $dateTime = strtotime($date);
+        return [
+            date('Y-m-d', strtotime('first day of this month', $dateTime)),
+            date('Y-m-d', strtotime('last day of this month', $dateTime))
+        ];
+    }
 
-        switch (Input::getCMD('format')) {
-            case 'pdf':
-                $startDayName = date('l', strtotime("Sunday + $startDay days"));
-                $dateTime     = strtotime("$startDayName this week", $dateTime);
-                break;
-            default:
-                break;
+    /**
+     * Calculates the start and end dates of a month.
+     *
+     * @param   int  $dateTime  the datetime reference to calculate the dates with
+     *
+     * @return array
+     */
+    public static function ninetyDays(int $dateTime): array
+    {
+        if (Input::getCMD('format') === Input::PDF) {
+            $dateTime = strtotime("Monday this week", $dateTime);
         }
 
-        return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+90 days', $dateTime))];
-    }
-
-    /**
-     * Returns the end date and start date of the month for the given date
-     *
-     * @param   string  $date  the date
-     *
-     * @return string[]
-     */
-    public static function oneMonth(string $date): array
-    {
-        $dateTime = strtotime($date);
-        $endDT    = strtotime('last day of this month', $dateTime);
-        $startDT  = strtotime('first day of this month', $dateTime);
-
-        return ['startDate' => date('Y-m-d', $startDT), 'endDate' => date('Y-m-d', $endDT)];
-    }
-
-    /**
-     * Returns the end and start dates of a six-month period beginning with the date given.
-     *
-     * @param   string  $date  the date
-     *
-     * @return string[]
-     */
-    public static function sixMonths(string $date): array
-    {
-        $dateTime = strtotime($date);
-
-        return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+6 month', $dateTime))];
+        return [date('Y-m-d', $dateTime), date('Y-m-d', strtotime('+90 days', $dateTime))];
     }
 
     /**
@@ -220,23 +199,6 @@ class Dates
     }
 
     /**
-     * Returns the end date and start date of the term for the given date
-     *
-     * @param   string  $date  the date in format Y-m-d
-     *
-     * @return string[]
-     */
-    public static function term(string $date): array
-    {
-        $query = DB::query();
-        $query->select(DB::qn(['startDate', 'endDate']))->from(DB::qn('#__organizer_terms'));
-        DB::between($query, $date, 'startDate', 'endDate');
-        DB::set($query);
-
-        return DB::array();
-    }
-
-    /**
      * Checks whether the string is a valid date in the Y-m-d format.
      *
      * @param   string  $date  the date to validate
@@ -257,22 +219,17 @@ class Dates
     }
 
     /**
-     * Returns the end date and start date of the week for the given date
+     * Calculates the start and end dates of week.
      *
-     * @param   string  $date      the date
-     * @param   int     $startDay  0-6 number of the starting day of the week
-     * @param   int     $endDay    0-6 number of the ending day of the week
+     * @param   int  $dateTime  the datetime reference to calculate the dates with
      *
-     * @return string[]
+     * @return array
      */
-    public static function week(string $date, int $startDay = 1, int $endDay = 6): array
+    public static function week(int $dateTime): array
     {
-        $dateTime     = strtotime($date);
-        $startDayName = date('l', strtotime("Sunday + $startDay days"));
-        $endDayName   = date('l', strtotime("Sunday + $endDay days"));
-        $startDate    = date('Y-m-d', strtotime("$startDayName this week", $dateTime));
-        $endDate      = date('Y-m-d', strtotime("$endDayName this week", $dateTime));
-
-        return ['startDate' => $startDate, 'endDate' => $endDate];
+        return [
+            date('Y-m-d', strtotime("Monday this week", $dateTime)),
+            date('Y-m-d', strtotime("Saturday this week", $dateTime))
+        ];
     }
 }
