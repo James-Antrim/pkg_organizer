@@ -5,7 +5,7 @@
         <action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC"/>
         <action name="organizer.fm" title="ORGANIZER_FACILITY_MANAGEMENT" description="ORGANIZER_FACILITY_MANAGEMENT_DESC"/>
         <action name="organizer.hr" title="ORGANIZER_HUMAN_RESOURCES" description="ORGANIZER_HUMAN_RESOURCES_DESC"/>
-        <action name="organizer.ct" title="ORGANIZER_CONTACT_TRACKING" description="ORGANIZER_CONTACT_TRACKING_DESC"/>
+        <!--<action name="organizer.ct" title="ORGANIZER_CONTACT_TRACKING" description="ORGANIZER_CONTACT_TRACKING_DESC"/>-->
     </section>
     <section name="organization">
         <action name="organizer.document" title="ORGANIZER_DOCUMENTATION_ACCESS"
