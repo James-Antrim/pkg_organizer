@@ -13,7 +13,6 @@ namespace THM\Organizer\Adapters;
 use Joomla\Filter\InputFilter;
 use Joomla\Input\Input as Core;
 use Joomla\Registry\Registry;
-use Joomla\Utilities\ArrayHelper;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -242,10 +241,10 @@ class Input
      *
      * @return int[] the ids
      */
-    public static function getIntArray(string $name): array
+    public static function getIntArray(string $name, array $default = []): array
     {
-        $array = array_filter(ArrayHelper::toInteger(self::getArray($name)));
-        return in_array(self::NONE, $array) ? [] : $array;
+        $array = array_filter(self::getArray($name), 'intval');
+        return in_array(self::NONE, $array) ? $default : $array;
     }
 
     /**
@@ -266,7 +265,7 @@ class Input
         }
 
         $collection = explode(',', $collection);
-        $collection = array_filter(ArrayHelper::toInteger($collection));
+        $collection = array_filter($collection, 'intval');
 
         return in_array(self::NONE, $collection) ? [] : $collection;
     }
