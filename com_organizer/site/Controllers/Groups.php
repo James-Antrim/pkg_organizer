@@ -45,7 +45,6 @@ class Groups extends ListController
 
         // Individual resource authorization is checked in the called function, making subsequent checking for grids redundant.
         $updated = $this->savePublishing($groupIDs, $publishing);
-        Instances::updatePublishing();
 
         if ($gridID) {
             $gUpdated = 0;
@@ -73,7 +72,6 @@ class Groups extends ListController
     public function publishCurrent(): void
     {
         $this->setPublished(Terms::currentID(), Helper::PUBLISHED);
-        Instances::updatePublishing();
     }
 
     /**
@@ -83,7 +81,6 @@ class Groups extends ListController
     public function publishNext(): void
     {
         $this->setPublished(Terms::nextID(), Helper::PUBLISHED);
-        Instances::updatePublishing();
     }
 
     /**
@@ -139,7 +136,6 @@ class Groups extends ListController
     public function unpublishCurrent(): void
     {
         $this->setPublished(Terms::currentID(), Helper::UNPUBLISHED);
-        Instances::updatePublishing();
     }
 
     /**
@@ -149,6 +145,5 @@ class Groups extends ListController
     public function unpublishNext(): void
     {
         $this->setPublished(Terms::nextID(), Helper::UNPUBLISHED);
-        Instances::updatePublishing();
     }
 }

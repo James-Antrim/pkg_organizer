@@ -11,7 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers\{Groups as Helper, Terms};
+use THM\Organizer\Helpers\{Groups as Helper, Instances, Terms};
 use THM\Organizer\Tables\GroupPublishing as Table;
 
 trait Published
@@ -60,6 +60,8 @@ trait Published
                 $updated++;
             }
         }
+
+        Instances::updatePublishing();
 
         return $updated;
     }
