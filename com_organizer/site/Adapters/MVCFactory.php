@@ -80,7 +80,12 @@ class MVCFactory extends Core
      */
     public function createController($name, $prefix, array $config, CMSApplicationInterface $app, CoreInput $input): Controller
     {
-        $className      = 'THM\Organizer\Controllers\\' . Application::ucClass($name);
+        $className = 'THM\Organizer\Controllers\\' . Application::ucClass($name);
+
+        if (!class_exists($className)) {
+            $className = 'THM\Organizer\Controllers\Controller';
+        }
+
         $config['name'] = $name;
         $controller     = new $className($config, $this, $app, $input);
         $this->addDispatcher($controller);
