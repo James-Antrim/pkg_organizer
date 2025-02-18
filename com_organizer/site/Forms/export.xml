@@ -7,7 +7,7 @@
         </field>
         <!-- changes display of the category, group and person options -->
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" onchange="this.form.submit();"
-               showon="my:0" size="3">
+               showon="my:0">
             <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
         </field>
         <field name="instances" type="list" label="ORGANIZER_INSTANCES" class="input-15" default="organization" showon="my:0">
