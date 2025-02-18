@@ -10,17 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Helpers\RoomTypes as Helper;
 
-/**
- * Class creates a form field for room type selection
- */
-class RoomTypes extends Options
+/** @inheritDoc */
+class RoomTypes extends ListField
 {
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         return array_merge(parent::getOptions(), Helper::options());

@@ -10,18 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Helpers;
-use stdClass;
 
-/**
- * Class creates a form field for building selection.
- */
-class Buildings extends Options
+/** @inheritDoc */
+class Buildings extends ListField
 {
-    /**
-     * Returns a select box where stored buildings can be chosen
-     * @return stdClass[]  the available buildings
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $defaultOptions = parent::getOptions();

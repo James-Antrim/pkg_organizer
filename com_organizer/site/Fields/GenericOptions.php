@@ -10,19 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
-use stdClass;
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 
-/**
- * Class replaces form field type sql by using Joomla's database objects to avoid database language dependency. While
- * the display text can be localized, the value cannot be.
- */
-class GenericOptions extends Options
+/** @inheritDoc */
+class GenericOptions extends ListField
 {
-    /**
-     * Retrieve an array of options by building and executing a database query.
-     * @return stdClass[]
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $defaultOptions = parent::getOptions();

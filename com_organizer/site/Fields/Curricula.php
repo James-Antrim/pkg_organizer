@@ -15,14 +15,10 @@ use Joomla\CMS\{Session\Session, Uri\Uri};
 use THM\Organizer\Adapters\{Application, Database as DB, Document, Form, HTML, Input, Text};
 use THM\Organizer\Helpers\Programs;
 
-/**
- * Class creates a select box for programs to filter the context for subordinate resources.
- */
+/** @inheritDoc */
 class Curricula extends ListField
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getOptions(): array
     {
         $options = [HTML::option(-1, Text::_('NO_PROGRAMS'))];

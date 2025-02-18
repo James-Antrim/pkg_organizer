@@ -14,17 +14,13 @@ use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{Database as DB, HTML, Input};
 use THM\Organizer\Helpers\Subjects;
 
-/**
- * Class creates a select box for the association of persons with subject documentation.
- */
+/** @inheritDoc */
 class SubjectPersons extends ListField
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
-        if (!$subjectID = Input::getID() or !$role = $this->getAttribute('role')) {
+        if (!$subjectID = Input::getID()) {
             return [];
         }
 

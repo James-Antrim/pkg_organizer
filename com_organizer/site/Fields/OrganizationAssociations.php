@@ -15,9 +15,7 @@ use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Database as DB, Form, HTML, Input};
 use THM\Organizer\Helpers\{Can, Organizations};
 
-/**
- * Class creates a select box for organizations based on column values in resource tables.
- */
+/** @inheritDoc */
 class OrganizationAssociations extends ListField
 {
     // Resources associated by values in their respective tables => not in the associations table.
@@ -72,9 +70,7 @@ class OrganizationAssociations extends ListField
         };
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         /**

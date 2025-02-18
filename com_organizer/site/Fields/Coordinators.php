@@ -10,18 +10,14 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{Database, HTML, Input};
 use THM\Organizer\Tables;
 
-/**
- * Class creates a select box for organizations.
- */
-class Coordinators extends Options
+/** @inheritDoc */
+class Coordinators extends ListField
 {
-    /**
-     * Method to get the field input markup.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $eventID = Input::getID();
@@ -35,10 +31,7 @@ class Coordinators extends Options
         return parent::getInput();
     }
 
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     public function getOptions(): array
     {
         $eventID = Input::getID();

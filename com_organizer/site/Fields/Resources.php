@@ -12,15 +12,10 @@ namespace THM\Organizer\Fields;
 
 use THM\Organizer\Adapters\{HTML, Text};
 
-/**
- * Class creates a select box for predefined colors.
- */
+/** @inheritDoc */
 class Resources extends ColoredOptions
 {
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options = parent::getOptions();

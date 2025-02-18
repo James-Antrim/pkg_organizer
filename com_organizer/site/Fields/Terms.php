@@ -10,17 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Helpers\Terms as Helper;
 
-/**
- * Class creates a select box for terms.
- */
-class Terms extends Options
+/** @inheritDoc */
+class Terms extends ListField
 {
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options   = parent::getOptions();

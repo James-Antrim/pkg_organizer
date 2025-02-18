@@ -10,14 +10,12 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use stdClass;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers\Organizations;
+use THM\Organizer\{Adapters\Application, Helpers\Organizations};
 
-/**
- * Class creates a select box for organizations.
- */
-class OrganizationFilter extends Options
+/** @inheritDoc */
+class OrganizationFilter extends ListField
 {
     /**
      * Returns an array of options

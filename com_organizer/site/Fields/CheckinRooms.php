@@ -11,19 +11,14 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{Database, HTML, User};
 use THM\Organizer\Helpers;
-use stdClass;
 
-/**
- * Class creates a select box for booking instances.
- */
-class CheckinRooms extends Options
+/** @inheritDoc */
+class CheckinRooms extends ListField
 {
-    /**
-     * Returns an array of booking room options
-     * @return stdClass[]  the pool options
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options       = parent::getOptions();

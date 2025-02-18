@@ -10,21 +10,12 @@
 
 namespace THM\Organizer\Fields;
 
-/**
- * Class creates a select box for predefined colors.
- */
-class InstanceGroups extends Options
-{
-    /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'InstanceGroups';
+use Joomla\CMS\Form\Field\ListField;
 
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+/** @inheritDoc */
+class InstanceGroups extends ListField
+{
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         return parent::getOptions();

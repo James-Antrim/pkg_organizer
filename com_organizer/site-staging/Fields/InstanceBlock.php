@@ -10,25 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\HTML;
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables\Blocks;
+use Joomla\CMS\Form\Field\ListField;
+use THM\Organizer\{Adapters\HTML, Helpers, Tables\Blocks};
 
-/**
- * Class creates a select box for predefined colors.
- */
-class InstanceBlock extends Options
+/** @inheritDoc */
+class InstanceBlock extends ListField
 {
-    /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'InstanceBlock';
-
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $form    = $this->form;

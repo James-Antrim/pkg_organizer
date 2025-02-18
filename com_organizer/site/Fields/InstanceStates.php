@@ -12,15 +12,10 @@ namespace THM\Organizer\Fields;
 
 use THM\Organizer\Adapters\Text;
 
-/**
- * Class creates a select box for predefined colors.
- */
+/** @inheritDoc */
 class InstanceStates extends ColoredOptions
 {
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         return [

@@ -10,15 +10,12 @@
 
 namespace THM\Organizer\Fields;
 
-/**
- * Class creates a select box for predefined colors.
- */
-abstract class ColoredOptions extends Options
+use Joomla\CMS\Form\Field\ListField;
+
+/** @inheritDoc */
+abstract class ColoredOptions extends ListField
 {
-    /**
-     * Returns a select box which contains the colors
-     * @return string  the HTML for the color select box
-     */
+    /** @inheritDoc */
     public function getInput(): string
     {
         $onChange = empty($this->getAttribute('onchange')) ?

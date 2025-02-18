@@ -10,19 +10,14 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use Joomla\Database\DatabaseQuery;
-use stdClass;
 use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 
-/**
- * Class creates a generalized select box for selection of a single id column value among those already selected.
- */
-class MergeAssociations extends Options
+/** @inheritDoc */
+class MergeAssociations extends ListField
 {
-    /**
-     * Returns a select box where resource attributes can be selected
-     * @return stdClass[] the options for the select box
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $default     = [HTML::option('', Text::_('NONE_GIVEN'))];

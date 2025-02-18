@@ -10,20 +10,16 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text};
 use THM\Organizer\Helpers;
 
-/**
- * Class creates a select box for (degree) programs.
- */
-class Programs extends Options
+/** @inheritDoc */
+class Programs extends ListField
 {
     use Malleable;
 
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options = parent::getOptions();

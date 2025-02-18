@@ -10,20 +10,15 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{HTML, Text};
-use stdClass;
 
-/**
- * Class creates a generalized select box for selection of a single column value among those already selected.
- */
-class MergeHTML extends Options
+/** @inheritDoc */
+class MergeHTML extends ListField
 {
     use Mergeable;
 
-    /**
-     * Returns a select box where resource attributes can be selected
-     * @return stdClass[] the options for the select box
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         if (!$this->validateContext()) {

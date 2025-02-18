@@ -10,24 +10,14 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{Application, Database, HTML};
 use THM\Organizer\Helpers;
 
-/**
- * Class creates a select box for predefined colors.
- */
-class InstanceEvents extends Options
+/** @inheritDoc */
+class InstanceEvents extends ListField
 {
-    /**
-     * Type
-     * @var    String
-     */
-    protected $type = 'InstanceEvents';
-
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options = parent::getOptions();

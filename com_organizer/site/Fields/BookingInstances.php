@@ -10,19 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
-use stdClass;
+use Joomla\CMS\Form\Field\ListField;
+use THM\Organizer\{Adapters\Input, Helpers};
 
-/**
- * Class creates a select box for booking instances.
- */
-class BookingInstances extends Options
+/** @inheritDoc */
+class BookingInstances extends ListField
 {
-    /**
-     * Returns an array of booking instance options
-     * @return stdClass[]  the pool options
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options   = parent::getOptions();

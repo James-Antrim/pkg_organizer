@@ -14,14 +14,10 @@ use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{HTML, Input, Text};
 use THM\Organizer\Helpers\Subjects;
 
-/**
- * Class creates a select box for superordinate pool resources.
- */
+/** @inheritDoc */
 class Prerequisites extends ListField
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options = [0 => HTML::option(-1, Text::_('NO_PREREQUISITES'))];

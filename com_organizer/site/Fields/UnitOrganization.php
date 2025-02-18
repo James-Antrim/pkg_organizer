@@ -10,19 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
-use stdClass;
-use THM\Organizer\Adapters\HTML;
-use THM\Organizer\Helpers\Organizations;
+use Joomla\CMS\Form\Field\ListField;
+use THM\Organizer\{Adapters\HTML, Helpers\Organizations};
 
-/**
- * Class creates a select box for organizations.
- */
-class UnitOrganization extends Options
+/** @inheritDoc */
+class UnitOrganization extends ListField
 {
-    /**
-     * Method to get the field input markup for a generic list.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $onchange = $this->onchange ? ['onchange' => $this->onchange] : [];
@@ -38,10 +32,7 @@ class UnitOrganization extends Options
         );
     }
 
-    /**
-     * Returns an array of options
-     * @return stdClass[]  the organization options
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options       = parent::getOptions();

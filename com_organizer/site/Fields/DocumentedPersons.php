@@ -10,18 +10,14 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Adapters\{HTML, Input};
 use THM\Organizer\Helpers;
 
-/**
- * Class creates a select box for the association of persons with subject documentation.
- */
-class DocumentedPersons extends Options
+/** @inheritDoc */
+class DocumentedPersons extends ListField
 {
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options   = parent::getOptions();

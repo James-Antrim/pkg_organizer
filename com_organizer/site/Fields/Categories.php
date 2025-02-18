@@ -10,18 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Helpers;
-use stdClass;
 
-/**
- * Class creates a select box for plan programs.
- */
-class Categories extends Options
+/** @inheritDoc */
+class Categories extends ListField
 {
-    /**
-     * Returns a select box where resource attributes can be selected
-     * @return stdClass[] the options for the select box
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options    = parent::getOptions();

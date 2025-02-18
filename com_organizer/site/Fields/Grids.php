@@ -10,19 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
-use stdClass;
+use Joomla\CMS\Form\Field\ListField;
+use THM\Organizer\{Adapters\Input, Helpers};
 
-/**
- * Class creates a select box for (subject) pools.
- */
-class Grids extends Options
+/** @inheritDoc */
+class Grids extends ListField
 {
-    /**
-     * Method to get the field input markup for a generic list.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         if (empty($this->value) and $campusID = Input::getParams()->get('campusID')) {
@@ -32,10 +26,7 @@ class Grids extends Options
         return parent::getInput();
     }
 
-    /**
-     * Returns an array of pool options
-     * @return stdClass[]  the pool options
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options  = parent::getOptions();

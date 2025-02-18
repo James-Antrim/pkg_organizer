@@ -16,9 +16,7 @@ use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
 
-/**
- * Class creates select input.
- */
+/** @inheritDoc */
 class Options extends ListField
 {
     /**
@@ -27,9 +25,7 @@ class Options extends ListField
      */
     public array $options = [];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function addOption($text, $attributes = []): Options
     {
         if ($text && $this->element instanceof SimpleXMLElement) {

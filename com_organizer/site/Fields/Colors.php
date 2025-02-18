@@ -14,15 +14,10 @@ use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\Colors as Helper;
 
-/**
- * Class creates a select box for predefined colors.
- */
+/** @inheritDoc */
 class Colors extends ColoredOptions
 {
-    /**
-     * Method to get the field options.
-     * @return  array  The field option objects.
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options = parent::getOptions();

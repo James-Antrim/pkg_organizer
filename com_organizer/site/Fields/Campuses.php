@@ -10,18 +10,13 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Field\ListField;
 use THM\Organizer\Helpers;
-use stdClass;
 
-/**
- * Class creates a form field for campus selection.
- */
-class Campuses extends Options
+/** @inheritDoc */
+class Campuses extends ListField
 {
-    /**
-     * Returns an array of options
-     * @return stdClass[]  the options
-     */
+    /** @inheritDoc */
     protected function getOptions(): array
     {
         $options  = parent::getOptions();
