@@ -15,6 +15,8 @@ use THM\Organizer\Adapters\{Input, Text, Toolbar};
 /** @inheritDoc */
 abstract class MergeView extends FormView
 {
+    use Abstracted;
+
     /**
      * @inheritDoc
      */
@@ -28,15 +30,5 @@ abstract class MergeView extends FormView
         $toolbar = Toolbar::getInstance();
         $toolbar->save($controller . '.save', Text::_('MERGE'))->icon('fa fa-code-merge');
         $toolbar->cancel("$controller.cancel");
-    }
-
-    /**
-     * @inheritDoc
-     * Overrides to avoid calling getItem and getTable as neither makes sense in an import context.
-     */
-    protected function initializeView(): void
-    {
-        $this->form  = $this->get('Form');
-        $this->state = $this->get('State');
     }
 }

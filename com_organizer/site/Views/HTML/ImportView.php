@@ -17,9 +17,9 @@ use THM\Organizer\Adapters\{Input, Text, Toolbar};
  */
 abstract class ImportView extends FormView
 {
-    /**
-     * @inheritDoc
-     */
+    use Abstracted;
+
+    /** @inheritDoc */
     protected function addToolbar(array $buttons = [], string $constant = ''): void
     {
         Input::set('hidemainmenu', true);
@@ -30,15 +30,5 @@ abstract class ImportView extends FormView
         $toolbar = Toolbar::getInstance();
         $toolbar->save($controller . '.import', Text::_('IMPORT'))->icon('fa fa-upload');
         $toolbar->cancel("$controller.cancel");
-    }
-
-    /**
-     * @inheritDoc
-     * Overrides to avoid calling getItem and getTable as neither makes sense in a merge context.
-     */
-    protected function initializeView(): void
-    {
-        $this->form  = $this->get('Form');
-        $this->state = $this->get('State');
     }
 }

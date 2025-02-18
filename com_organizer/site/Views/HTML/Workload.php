@@ -18,6 +18,8 @@ use THM\Organizer\Buttons\FormTarget;
  */
 class Workload extends FormView
 {
+    use Abstracted;
+
     protected string $defaultTask = 'workload.display';
 
     /** @inheritDoc */
@@ -38,15 +40,5 @@ class Workload extends FormView
             $button->task = 'workload.spreadsheet';
             $toolbar->appendButton($button);
         }
-    }
-
-    /** @inheritDoc */
-    protected function initializeView(): void
-    {
-        $this->form  = $this->get('Form');
-        $this->item  = $this->get('Item');
-        $this->state = $this->get('State');
-
-        // Overwritten so as not to add a non-existent table instance to the object properties.
     }
 }
