@@ -15,15 +15,15 @@ namespace THM\Organizer\Fields;
  */
 trait Dependent
 {
-    /**
-     * Suppresses field display when there are no options available because of context dependencies.
-     * @return  string  The field input markup.
-     */
+    protected array $options = [];
+
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $this->options = $this->getOptions();
 
-        if (count($this->options) === count($this->manifestOptions())) {
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
+        if (count($this->options) === count(parent::getOptions())) {
             return '';
         }
 
@@ -31,10 +31,7 @@ trait Dependent
         return parent::getInput();
     }
 
-    /**
-     * Suppresses the label display when there are no options available.
-     * @return string
-     */
+    /** @inheritDoc */
     protected function getLabel(): string
     {
         if (!$this->getInput()) {
