@@ -10,13 +10,8 @@
 
 require_once JPATH_ADMINISTRATOR . '/components/com_organizer/services/autoloader.php';
 
-use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Form\{Form, FormHelper};
-use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
-use THM\Organizer\Controllers\InstanceParticipants as Controller;
+use Joomla\CMS\{Application\CMSApplication, Component\ComponentHelper, Form\Form, Plugin\CMSPlugin, Uri\Uri};
+use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 use THM\Organizer\Helpers\{Groups, Instances};
 
 defined('_JEXEC') or die;
@@ -110,46 +105,18 @@ class PlgSystemOrganizer extends CMSPlugin
      */
     public function onContentPrepareForm(Form $form, mixed $data): void
     {
-        switch ($form->getName()) {
-            // Menu item => Load form path
-            case 'com_menus.item' :
+        if ($form->getName() === 'com_menus.item') {
+            // Invalid
+            if (!is_object($data) or empty($data->request) or empty($data->request['option']) or empty($data->request['view'])) {
+                return;
+            }
 
-                // Invalid
-                if (!is_object($data) or empty($data->request) or empty($data->request['option']) or empty($data->request['view'])) {
-                    return;
-                }
-
-                if ($data->request['option'] === 'com_organizer') {
-                    FormHelper::addFormPath(JPATH_ROOT . '/components/com_organizer/Forms/MenuItems');
-                    $form->loadFile($data->request['view']);
-                }
-
-                break;
-            // Configuration => Load field path
-            case 'com_config.component':
-
-                if (Input::getView() === 'component' and Input::getString('component') === 'com_organizer') {
-                    Form::addFieldPath(JPATH_SITE . '/components/com_organizer/Fields');
-                }
-
-                break;
+            if ($data->request['option'] === 'com_organizer') {
+                Form::addFieldPath(JPATH_ROOT . '/components/com_organizer/Fields');
+                Form::addFormPath(JPATH_ROOT . '/components/com_organizer/Forms/MenuItems');
+                $form->loadFile($data->request['view']);
+            }
         }
-    }
-
-    /**
-     * Method simulating the effect of a chron job by performing tasks on superuser login.
-     *
-     * @return  bool  True on success.
-     */
-    public function onUserAfterLogin(): bool
-    {
-        $user = User::instance();
-
-        if ($user->authorise('core.admin')) {
-            Controller::truncate();
-        }
-
-        return true;
     }
 
     /**

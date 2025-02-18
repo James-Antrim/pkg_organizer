@@ -11,11 +11,8 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, Database as DB};
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers\Can;
-use THM\Organizer\Models;
-use THM\Organizer\Tables\{Instances as Instance, InstanceParticipants as Participation};
+use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Models\InstanceParticipant;
 
 /**
  * Class provides methods for participant interaction with instances.
@@ -37,7 +34,7 @@ class InstanceParticipants extends Controller
      */
     public function bookmark(int $method = self::SELECTED): void
     {
-        $model = new Models\InstanceParticipant();
+        $model = new InstanceParticipant();
         $model->bookmark($method);
         $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
@@ -70,7 +67,7 @@ class InstanceParticipants extends Controller
      */
     public function deregister(int $method = self::SELECTED): void
     {
-        $model = new Models\InstanceParticipant();
+        $model = new InstanceParticipant();
         $model->deregister($method);
         $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
@@ -94,7 +91,7 @@ class InstanceParticipants extends Controller
      */
     public function register(int $method = self::SELECTED): void
     {
-        $model = new Models\InstanceParticipant();
+        $model = new InstanceParticipant();
         $model->register($method);
         $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
@@ -118,7 +115,7 @@ class InstanceParticipants extends Controller
      */
     public function removeBookmark(int $method = self::SELECTED): void
     {
-        $model = new Models\InstanceParticipant();
+        $model = new InstanceParticipant();
         $model->removeBookmark($method);
         $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
@@ -149,7 +146,7 @@ class InstanceParticipants extends Controller
      */
     public function save(): void
     {
-        $model = new Models\InstanceParticipant();
+        $model = new InstanceParticipant();
 
         if ($model->save()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
@@ -159,68 +156,6 @@ class InstanceParticipants extends Controller
         }
         else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
-        }
-    }
-
-    /**
-     * Truncates the participation to the threshold set in the component parameters.
-     *
-     * @return void
-     * @see \PlgSystemOrganizer::onUserAfterLogin()
-     */
-    public static function truncate(): void
-    {
-        if (!Can::administrate() or !$threshold = (int) Input::getParams()->get('truncateHistory')) {
-            return;
-        }
-
-        $then = date('Y-m-d', strtotime("-$threshold days"));
-
-        $query = DB::query();
-        $query->select(DB::qn('ip') . '.*')
-            ->from(DB::qn('#__organizer_instance_participants', 'ip'))
-            ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.id', 'ip.instanceID'))
-            ->innerJoin(DB::qn('#__organizer_blocks', 'b'), DB::qc('b.id', 'i.blockID'))
-            ->where(DB::qn('b.date') . ' <= :then')->bind(':then', $then);
-        DB::set($query);
-
-        $instances = [];
-
-        foreach (DB::objects() as $entry) {
-            $instanceID = $entry->instanceID;
-
-            if (empty($instances[$instanceID])) {
-                $instances[$instanceID] = [
-                    'attended'   => (int) $entry->attended,
-                    'bookmarked' => 1,
-                    'registered' => (int) $entry->registered
-                ];
-            }
-            else {
-                $instances[$instanceID]['attended']   += (int) $entry->attended;
-                $instances[$instanceID]['bookmarked'] += 1;
-                $instances[$instanceID]['registered'] += (int) $entry->registered;
-            }
-
-            $participation = new Participation();
-
-            if ($participation->load($entry->id)) {
-                $participation->delete();
-            }
-        }
-
-        foreach ($instances as $instanceID => $participation) {
-            $instance = new Instance();
-
-            if (!$instance->load($instanceID)) {
-                continue;
-            }
-
-            $instance->attended   = $participation['attended'];
-            $instance->bookmarked = $participation['bookmarked'];
-            $instance->registered = $participation['registered'];
-
-            $instance->store();
         }
     }
 }

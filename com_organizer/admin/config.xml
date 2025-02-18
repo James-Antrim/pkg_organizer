@@ -4,8 +4,6 @@
         <field name="buildingRegex" type="text" label="ORGANIZER_BUILDING_REGEX" description="ORGANIZER_BUILDING_REGEX_DESC"
                required="false"/>
         <field name="emailFilter" type="text" label="ORGANIZER_EMAIL_FILTER" required="false"/>
-        <!--<field name="truncateHistory" type="Integer" label="ORGANIZER_TRUNCATE_PARTICIPATION_HISTORY"
-               description="ORGANIZER_TRUNCATE_PARTICIPATION_HISTORY_DESC" default="0" first="0" last="60" step="1"/>-->
     </fieldset>
     <fieldset name="appearance" label="ORGANIZER_APPEARANCE" description="ORGANIZER_APPEARANCE_DESC">
         <field name="dateFormat" type="text" label="ORGANIZER_DATE_FORMAT" required="true" default="d.m.Y"/>
