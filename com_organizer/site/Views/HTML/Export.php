@@ -17,8 +17,11 @@ use THM\Organizer\Helpers;
 /**
  * Class loads persistent information a filtered set of instances into the display context.
  */
-class Export extends OldFormView
+class Export extends FormView
 {
+    use Abstracted;
+    use Tasked;
+
     protected string $layout = 'export';
 
     /**
@@ -27,11 +30,15 @@ class Export extends OldFormView
      */
     public string $url;
 
-    /**
-     * @inheritDoc
-     */
-    protected function addToolBar(): void
+    /** @inheritDoc */
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
+        $this->toDo[] = 'Output the title.';
+        $this->toDo[] = 'Migrate toolbar.';
+        $this->toDo[] = 'Add the subscription button as a distinct toolbar.';
+        $this->toDo[] = 'Re-add refreshing to all selections.';
+        $this->toDo[] = 'Finish model migration: resetting, state setting, selection suppression, ....';
+
         Toolbar::setTitle('EXPORT_TITLE');
         $toolbar = Toolbar::getInstance();
 
@@ -46,7 +53,7 @@ class Export extends OldFormView
             'roomID'         => 0
         ];
 
-        $form = ($task = Input::getTask() and $task === 'export.reset') ? [] : Input::getArray();
+        $form = ($task = Input::getTask() and $task === 'export.reset') ? [] : Input::getFormItems();
 
         foreach (array_keys($fields) as $field) {
             if (empty($form[$field])) {

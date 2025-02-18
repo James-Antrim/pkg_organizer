@@ -17,71 +17,34 @@ use THM\Organizer\Helpers;
 /**
  * Class retrieves information for a filtered set of instances.
  */
-class Export extends OldFormModel
+class Export extends FormModel
 {
-    /** @inheritDoc */
-    public function __construct($config = [])
-    {
-        // Resolve potential inconsistencies cause by user choices before the form is initialized.
-        if ($task = Input::getTask() and $task === 'export.reset') {
-            $form = [];
-        }
-        else {
-            $fields = ['categoryID' => 0, 'groupID' => 0, 'organizationID' => 0, 'personID' => 0, 'roomID' => 0];
-            $form   = Input::getArray();
-
-            if (!empty($form['my'])) {
-                foreach (array_keys($fields) as $field) {
-                    unset($form[$field]);
-                }
-            }
-            else {
-                $categoryID     = empty($form['categoryID']) ? 0 : $form['categoryID'];
-                $organizationID = empty($form['organizationID']) ? 0 : $form['organizationID'];
-                $groupID        = empty($form['groupID']) ? 0 : $form['groupID'];
-                $personID       = empty($form['personID']) ? 0 : $form['personID'];
-                if ($organizationID) {
-                    if ($categoryID and !in_array($organizationID, Helpers\Categories::organizationIDs($categoryID))) {
-                        $categoryID = 0;
-                        unset($form['categoryID']);
-                    }
-
-                    if ($groupID and !in_array($organizationID, Helpers\Groups::organizationIDs($groupID))) {
-                        $groupID = 0;
-                        unset($form['groupID']);
-                    }
-
-                    if ($personID and !in_array($organizationID, Helpers\Persons::organizationIDs($personID))) {
-                        unset($form['groupID']);
-                    }
-                }
-
-                if ($categoryID and $groupID and $categoryID !== Helpers\Groups::category($groupID)->id) {
-                    unset($form['groupID']);
-                }
-            }
-        }
-
-        // Post: where the data was actually transmitted
-        Input::set('jform', $form, 'post');
-
-        // Data: where Joomla preemptively aggregates request information
-        Input::set('jform', $form);
-
-        parent::__construct($config);
-    }
-
-    /**
-     * Provides a strict access check which can be overwritten by extending classes.
-     * @return void performs error management via redirects as appropriate
-     */
-    protected function authorize()
-    {
-        // Form has public access
-    }
+//            $categoryID     = empty($form['categoryID']) ? 0 : $form['categoryID'];
+//            $organizationID = empty($form['organizationID']) ? 0 : $form['organizationID'];
+//            $groupID        = empty($form['groupID']) ? 0 : $form['groupID'];
+//            $personID       = empty($form['personID']) ? 0 : $form['personID'];
+//            if ($organizationID) {
+//                if ($categoryID and !in_array($organizationID, Helpers\Categories::organizationIDs($categoryID))) {
+//                    $categoryID = 0;
+//                    unset($form['categoryID']);
+//                }
+//
+//                if ($groupID and !in_array($organizationID, Helpers\Groups::organizationIDs($groupID))) {
+//                    $groupID = 0;
+//                    unset($form['groupID']);
+//                }
+//
+//                if ($personID and !in_array($organizationID, Helpers\Persons::organizationIDs($personID))) {
+//                    unset($form['groupID']);
+//                }
+//            }
+//
+//            if ($categoryID and $groupID and $categoryID !== Helpers\Groups::category($groupID)->id) {
+//                unset($form['groupID']);
+//            }
 
     /** @inheritDoc */
-    protected function filterForm(Form $form)
+    protected function filterForm(Form $form): void
     {
         if (!User::id()) {
             $form->removeField('instances');
@@ -135,14 +98,20 @@ class Export extends OldFormModel
     }
 
     /** @inheritDoc */
-    public function getForm($data = [], $loadData = true)
+    protected function loadFormData(): array
     {
-        return parent::getForm($data, $loadData);
+        if ($task = Input::getTask() and $task === 'export.reset') {
+            return [];
+        }
+
+        $return = Input::getFormItems();
+
+        return $return;
     }
 
     /** @inheritDoc */
-    protected function loadFormData(): array
-    {
-        return Input::getArray();
-    }
+//    public function getForm($data = [], $loadData = true): ?Form
+//    {
+//
+//    }
 }
