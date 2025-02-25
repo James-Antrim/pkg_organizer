@@ -18,12 +18,12 @@ use THM\Organizer\Tables\{Persons as Table};
 /**
  * Provides general functions for person access checks, data retrieval and display.
  */
-class Persons extends Scheduled implements Selectable
+class Persons extends Scheduled implements Selectable, Viewable
 {
     use Active;
     use Suppressed;
 
-    public const COORDINATES = 1, TEACHES = 2;
+    public const PUBLIC = 1, COORDINATES = 1, TEACHES = 2;
 
     protected static string $resource = 'person';
 
@@ -352,6 +352,33 @@ class Persons extends Scheduled implements Selectable
             ->innerJoin(DB::qn('#__organizer_instance_persons', 'ipe'), DB::qc('ipe.id', 'ig.assocID'))
             ->where("ipe.personID = $personID")
             ->where("ipe.roleID = 1");
+        DB::set($query);
+
+        return DB::integers();
+    }
+
+    /** @inheritDoc */
+    public static function viewable(int $resourceID): bool
+    {
+        return in_array($resourceID, self::viewableIDs());
+    }
+
+    /** @inheritDoc */
+    public static function viewableIDs(): array
+    {
+        $organizationIDs = Organizations::viewableIDs();
+        $query           = DB::query();
+
+        $associated = DB::qn('a.personID') . ' IS NOT NULL';
+        $identity   = DB::qc('p.id', self::getIDByUserID());
+        $public     = DB::qc('p.public', self::PUBLIC);
+
+        $query->select('DISTINCT ' . DB::qn('p.id'))
+            ->from(DB::qn('#__organizer_persons', 'p'))
+            ->leftJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'))
+            ->where([$associated, $identity, $public], 'OR')
+            ->whereIn(DB::qn('a.organizationID'), $organizationIDs);
+
         DB::set($query);
 
         return DB::integers();

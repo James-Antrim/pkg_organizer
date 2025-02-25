@@ -17,7 +17,7 @@ use THM\Organizer\Tables\Organizations as Table;
 /**
  * Provides general functions for organization access checks, data retrieval and display.
  */
-class Organizations extends ResourceHelper implements Documentable, Schedulable, Selectable
+class Organizations extends ResourceHelper implements Documentable, Schedulable, Selectable, Viewable
 {
     use Active;
     use Numbered;
@@ -329,23 +329,23 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /**
      * Checks whether the user is authorized to view schedule information for the given organization.
      *
-     * @param   int  $organizationID  the id of the resource to check documentation access for.
+     * @param   int  $resourceID  the id of the resource to check documentation access for.
      *
      * @return bool
      */
-    public static function viewable(int $organizationID): bool
+    public static function viewable(int $resourceID): bool
     {
         $user = User::instance();
 
-        if ($user->authorise('organizer.view', "com_organizer.organization.$organizationID")) {
+        if ($user->authorise('organizer.view', "com_organizer.organization.$resourceID")) {
             return true;
         }
 
-        if ($user->authorise('organizer.schedule', "com_organizer.organization.$organizationID")) {
+        if ($user->authorise('organizer.schedule', "com_organizer.organization.$resourceID")) {
             return true;
         }
 
-        if ($user->authorise('organizer.manage', "com_organizer.organization.$organizationID")) {
+        if ($user->authorise('organizer.manage', "com_organizer.organization.$resourceID")) {
             return true;
         }
 
