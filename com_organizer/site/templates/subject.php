@@ -10,18 +10,11 @@
 
 defined('_JEXEC') or die;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
 use THM\Organizer\Views\HTML\Subject;
 
 /** @var Subject $this */
 $this->renderTasks();
-
-if (!Application::backend()) {
-    echo "<h1>$this->title</h1>";
-    echo $this->subtitle ? "<h4>$this->subtitle</h4>" : '';
-    echo $this->supplement;
-    echo Toolbar::render();
-}
+require_once 'header.php';
 ?>
     <div class="item subject">
         <?php foreach ($this->item as $label => $value) : ?>

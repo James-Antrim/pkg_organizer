@@ -11,7 +11,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Input, Text};
 use THM\Organizer\Views\HTML\Course;
 
 $formName  = strtoupper($this->getName());
@@ -40,14 +40,7 @@ $rawData = [
 ];
 
 $courseID = Input::getID();
-
-if (!Application::backend()) {
-    echo "<h1>$this->title</h1>";
-    echo $this->subtitle ? "<h4>$this->subtitle</h4>" : '';
-    echo $this->supplement;
-    echo Toolbar::render();
-}
-
+require_once 'header.php';
 ?>
 <form action="<?php echo Route::_('index.php?option=com_organizer'); ?>"
       aria-label="<?php echo $ariaLabel; ?>"

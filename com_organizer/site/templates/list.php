@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, HTML, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML};
 use THM\Organizer\Layouts\HTML\{Batch, EmptySet, Headers, HiddenInputs, Row, Tools};
 use THM\Organizer\Views\HTML\ListView;
 
@@ -23,13 +23,7 @@ if (count($this->headers) > 4) {
 }
 
 $this->renderTasks();
-
-if (!Application::backend()) {
-    echo "<h1>$this->title</h1>";
-    echo $this->subtitle ? "<h4>$this->subtitle</h4>" : '';
-    echo $this->supplement;
-    echo Toolbar::render();
-}
+require_once 'header.php';
 ?>
 <form action="<?php echo $action; ?>" method="post" name="adminForm" id="adminForm">
     <div class="row">

@@ -9,21 +9,14 @@
  */
 
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, HTML, Toolbar};
+use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Layouts\HTML\{EmptySet, Headers, HiddenInputs, Row, Tools};
 use THM\Organizer\Views\HTML\GridView;
 
 /** @var GridView $this */
-
 $action = Route::_('index.php?option=com_organizer&view=' . $this->_name);
 $this->renderTasks();
-
-if (!Application::backend()) {
-    echo "<h1>$this->title</h1>";
-    echo $this->subtitle ? "<h4>$this->subtitle</h4>" : '';
-    echo $this->supplement;
-    echo Toolbar::render();
-}
+require_once 'header.php';
 ?>
 <form action="<?php echo $action; ?>" method="post" name="adminForm" id="adminForm">
     <div class="row">
