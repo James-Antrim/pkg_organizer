@@ -43,7 +43,10 @@ class Options extends ListField
     /** @inheritDoc */
     protected function getOptions(): array
     {
-        $options = [];
+        // Prevents rewrites from Joomla
+        if ($this->options) {
+            return $this->options;
+        }
 
         foreach ($this->element->xpath('option') as $optionTag) {
 
@@ -80,10 +83,10 @@ class Options extends ListField
             }
 
             // Add the option object to the result set.
-            $options[] = $option;
+            $this->options[] = $option;
         }
 
-        return $options;
+        return $this->options;
     }
 
     /**
@@ -93,5 +96,17 @@ class Options extends ListField
     protected function manifestOptions(): array
     {
         return self::getOptions();
+    }
+
+    /**
+     * Method to set the field options.
+     *
+     * @param   object[]  $options  the options to display
+     *
+     * @return void
+     */
+    public function setOptions(array $options): void
+    {
+        $this->options = $options;
     }
 }
