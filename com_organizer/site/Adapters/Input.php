@@ -464,4 +464,34 @@ class Input
 
         self::getInput()->set($property, $value);
     }
+
+    /**
+     * Ensures the requested value is valid and returns the default value if not.
+     *
+     * @param   string    $field   the field with the cmd value
+     * @param   string[]  $values  the values to validate against
+     *
+     * @return string
+     */
+    public static function validCMD(string $field, array $values): string
+    {
+        $value = Input::getCMD($field);
+
+        return in_array($value, $values) ? $value : $values['default'];
+    }
+
+    /**
+     * Ensures the requested value is valid and returns the default value if not.
+     *
+     * @param   string  $field   the field with the int value
+     * @param   int[]   $values  the values to validate against
+     *
+     * @return int
+     */
+    public static function validInt(string $field, array $values): int
+    {
+        $value = self::getInt($field);
+
+        return in_array($value, $values) ? $value : 0;
+    }
 }

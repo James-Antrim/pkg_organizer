@@ -1,57 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
     <fieldset name="selection" label="ORGANIZER_SELECTION">
-        <field name="my" type="list" label="ORGANIZER_MY_SCHEDULE" default="0">
+        <field name="my" type="list" label="ORGANIZER_MY_SCHEDULE" default="0" onchange="this.form.submit();">
             <option value="0">ORGANIZER_NO</option>
             <option value="1">ORGANIZER_YES</option>
         </field>
-        <!-- changes display of the category, group and person options -->
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZER_ORGANIZATION" onchange="this.form.submit();"
-               showon="my:0">
+        <field name="organizationIDs" type="OrganizationFilter" label="ORGANIZER_ORGANIZATIONS" multiple="multiple"
+               onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
         </field>
-        <field name="instances" type="list" label="ORGANIZER_INSTANCES" class="input-15" default="organization" showon="my:0">
+        <field name="instances" type="list" label="ORGANIZER_INSTANCES" class="input-15" default="organization"
+               onchange="this.form.submit();">
             <option value="organization">ORGANIZER_ORGANIZATION_INSTANCES</option>
             <option value="person">ORGANIZER_ORGANIZATION_PERSON_INSTANCES</option>
         </field>
-        <field name="roleID" type="Roles" label="ORGANIZER_ROLE" showon="my:0">
+        <field name="roleID" type="Roles" label="ORGANIZER_ROLE" onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_ROLES</option>
         </field>
-        <!-- changes display of the group options -->
         <field name="categoryIDs" type="Categories" label="ORGANIZER_CATEGORIES" multiple="multiple"
-               onchange="this.form.submit();" showon="my:0" size="5">
+               onchange="this.form.submit();" size="5">
             <option value="">ORGANIZER_ALL_CATEGORIES</option>
         </field>
-        <field name="groupIDs" type="Groups" label="ORGANIZER_GROUPS" multiple="multiple" showon="my:0" size="5">
+        <field name="groupIDs" type="Groups" label="ORGANIZER_GROUPS" multiple="multiple" onchange="this.form.submit();" size="5">
             <option value="">ORGANIZER_ALL_GROUPS</option>
         </field>
-        <field name="personIDs" type="Persons" label="ORGANIZER_PERSONS" multiple="multiple" showon="my:0" size="5">
+        <field name="personIDs" type="Persons" label="ORGANIZER_PERSONS" multiple="multiple" onchange="this.form.submit();"
+               size="5">
             <option value="">ORGANIZER_ALL_PERSONS</option>
         </field>
-        <field name="roomIDs" type="Rooms" label="ORGANIZER_ROOMS" multiple="multiple" showon="my:0" size="5">
+        <field name="roomIDs" type="Rooms" label="ORGANIZER_ROOMS" multiple="multiple" onchange="this.form.submit();" size="5">
             <option value="">ORGANIZER_ALL_ROOMS</option>
         </field>
-        <field name="methodIDs" type="Methods" label="ORGANIZER_METHODS" multiple="multiple" showon="my:0" size="5">
+        <field name="methodIDs" type="Methods" label="ORGANIZER_METHODS" multiple="multiple" onchange="this.form.submit();"
+               size="5">
             <option value="">ORGANIZER_ALL_METHODS</option>
         </field>
     </fieldset>
     <fieldset name="settings" label="ORGANIZER_SETTINGS">
-        <!-- changes display of the subscription dialog -->
-        <field name="export" type="list" label="ORGANIZER_EXPORT_TEMPLATE" class="input-15" default="pdf.grid.A4"
+        <field name="exportFormat" type="list" label="ORGANIZER_EXPORT_TEMPLATE" class="input-15" default="pdf.grid.A4"
                onchange="this.form.submit();">
             <option value="pdf.grid.A3">ORGANIZER_PDF_GRID_A3</option>
             <option value="pdf.grid.A4">ORGANIZER_PDF_GRID_A4</option>
             <option value="xls.list">ORGANIZER_XLS_LIST</option>
-            <option value="ics">ORGANIZER_ICS_URL</option>
         </field>
-        <field name="date" type="Date" label="ORGANIZER_DATE" class="input-8" empty="false"/>
-        <field name="interval" type="list" label="ORGANIZER_INTERVAL" default="week">
+        <field name="date" type="Date" label="ORGANIZER_DATE" class="input-8" empty="false" onchange="this.form.submit();"/>
+        <field name="interval" type="list" label="ORGANIZER_INTERVAL" default="week" onchange="this.form.submit();">
             <option value="week">ORGANIZER_WEEK</option>
             <option value="month">ORGANIZER_MONTH</option>
             <option value="quarter">ORGANIZER_QUARTER</option>
             <option value="term">ORGANIZER_TERM</option>
         </field>
-        <field name="separate" type="list" label="ORGANIZER_SEPARATE_GROUP_PLANS" default="0" showon="instances:organization">
+        <field name="separate" type="list" label="ORGANIZER_SEPARATE_GROUP_PLANS" default="0" onchange="this.form.submit();">
             <option value="1">ORGANIZER_YES</option>
             <option value="0">ORGANIZER_NO</option>
         </field>

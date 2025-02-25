@@ -33,13 +33,12 @@ class Export extends FormView
     /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        $this->toDo[] = 'Output the title.';
+        $this->toDo[] = 'The category options don\'t reflect the selected organizations.';
         $this->toDo[] = 'Migrate toolbar.';
         $this->toDo[] = 'Add the subscription button as a distinct toolbar.';
-        $this->toDo[] = 'Re-add refreshing to all selections.';
-        $this->toDo[] = 'Finish model migration: resetting, state setting, selection suppression, ....';
+        $this->toDo[] = 'Finish model migration: viewable persons';
 
-        Toolbar::setTitle('EXPORT_TITLE');
+        $this->title('EXPORT_TITLE');
         $toolbar = Toolbar::getInstance();
 
         $fields = [
