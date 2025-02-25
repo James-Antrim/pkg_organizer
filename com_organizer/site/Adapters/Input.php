@@ -19,7 +19,7 @@ use Joomla\Registry\Registry;
  */
 class Input
 {
-    const NONE = -1;
+    public const NO = 0, NONE = -1, YES = 1;
 
     // (File) Formats
     public const HTML = 'html', ICS = 'ics', JSON = 'json', PDF = 'pdf', XLS = 'xls';// XML = 'xml';
