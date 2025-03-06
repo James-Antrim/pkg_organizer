@@ -446,6 +446,47 @@ class Input
     }
 
     /**
+     * Gets the selected resources as an array.
+     *
+     * @param   string  $field
+     *
+     * @return int[]
+     */
+    public static function resourceIDs(string $field): array
+    {
+        $alt   = str_ends_with($field, 's') ? substr($field, -1) : $field . 's';
+        $value = self::find($field) ?? self::find($alt);
+
+        // Null (not found) and zero (invalid)
+        if (!$value) {
+            return [];
+        }
+
+        if (is_array($value)) {
+            $value = array_filter($value, 'intval');
+            return in_array(self::NONE, $value) ? [] : $value;
+        }
+
+        if (is_int($value)) {
+            return $value === self::NONE ? [] : [$value];
+        }
+
+        // Unsupported type
+        if (!is_string($value)) {
+            return [];
+        }
+
+        if (is_numeric($value)) {
+            $value = (int) $value;
+            return $value === self::NONE ? [] : [$value];
+        }
+
+        // CSV array
+        $value = array_filter(explode(',', $value), 'intval');
+        return in_array(self::NONE, $value) ? [] : $value;
+    }
+
+    /**
      * Sets an input property with a value.
      *
      * @param   string  $property  the name of the property to set

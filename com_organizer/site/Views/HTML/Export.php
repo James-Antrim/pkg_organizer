@@ -37,6 +37,7 @@ class Export extends FormView
         $this->toDo[] = 'Migrate toolbar.';
         $this->toDo[] = 'Add the subscription button as a distinct toolbar.';
         $this->toDo[] = 'Finish model migration: viewable persons';
+        $this->toDo[] = 'Router';
 
         $this->title('EXPORT_TITLE');
         $toolbar = Toolbar::getInstance();
