@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Database as DB, HTML, Input};
 use Joomla\Database\DatabaseQuery;
-use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Database as DB, HTML, Input};
 use THM\Organizer\Tables\Buildings as Table;
 
 /**
@@ -25,12 +24,10 @@ class Buildings extends ResourceHelper implements Filterable, Selectable
 
     public const OWNED = 1, RENTED = 2, USED = 3;
 
-    /**
-     * @inheritDoc
-     */
-    public static function filterBy(DatabaseQuery $query, string $alias, int $resourceID): void
+    /** @inheritDoc */
+    public static function filterBy(DatabaseQuery $query, string $alias, array $resourceIDs): void
     {
-        if ($resourceID === self::UNSELECTED) {
+        if (!$resourceIDs) {
             return;
         }
 
@@ -38,19 +35,15 @@ class Buildings extends ResourceHelper implements Filterable, Selectable
         $condition = DB::qc('buildingAlias.id', "$alias.buildingID");
         $table     = DB::qn("#__organizer_buildings", 'buildingAlias');
 
-        if ($resourceID === self::NONE) {
+        if (in_array(self::NONE, $resourceIDs)) {
             $query->leftJoin($table, $condition)->where("$tableID IS NULL");
             return;
         }
 
-        $query->innerJoin($table, $condition)
-            ->where("$tableID = :buildingID")
-            ->bind(':buildingID', $resourceID, ParameterType::INTEGER);
+        $query->innerJoin($table, $condition)->whereIn($tableID, $resourceIDs);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         // Array values allows easier manipulation of entries for buildings of the same name on different campuses.
@@ -119,9 +112,7 @@ class Buildings extends ResourceHelper implements Filterable, Selectable
         return $table->save($data) ? $table->id : 0;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $query = DB::query();
@@ -130,7 +121,7 @@ class Buildings extends ResourceHelper implements Filterable, Selectable
             ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'b.campusID'))
             ->order(DB::qn('name'));
 
-        Campuses::filterBy($query, 'b', Input::getInt('campusID'));
+        Campuses::filterBy($query, 'b', Input::resourceIDs('campusID'));
 
         DB::set($query);
 

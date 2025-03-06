@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\Field\ListField;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Groups as Helper;
 
 /** @inheritDoc */
 class Groups extends ListField
@@ -22,7 +22,7 @@ class Groups extends ListField
     protected function getOptions(): array
     {
         $options = parent::getOptions();
-        $groups  = Helpers\Groups::options();
+        $groups  = Helper::options();
 
         return array_merge($options, $groups);
     }

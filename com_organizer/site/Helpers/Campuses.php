@@ -68,12 +68,10 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
         return DB::integers();
     }
 
-    /**
-     * @inheritDoc
-     */
-    public static function filterBy(DatabaseQuery $query, string $alias, int $resourceID): void
+    /** @inheritDoc */
+    public static function filterBy(DatabaseQuery $query, string $alias, array $resourceIDs): void
     {
-        if ($resourceID === self::UNSELECTED) {
+        if (!$resourceIDs) {
             return;
         }
 
@@ -81,17 +79,14 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
         $condition = DB::qc('campusAlias.id', "$alias.campusID");
         $table     = DB::qn('#__organizer_campuses', 'campusAlias');
 
-        if ($resourceID === self::NONE) {
+        if (in_array(self::NONE, $resourceIDs)) {
             $query->leftJoin($table, $condition)->where("$tableID IS NULL");
-
             return;
         }
 
-        $parentID = DB::qn('campusAlias.parentID');
-        $query->innerJoin($table, $condition)
-            ->where("($tableID = :campusID OR $parentID = :pCampusID)")
-            ->bind(':campusID', $resourceID, ParameterType::INTEGER)
-            ->bind(':pCampusID', $resourceID, ParameterType::INTEGER);
+        $parentID    = DB::qn('campusAlias.parentID');
+        $resourceIDs = implode(', ', $resourceIDs);
+        $query->innerJoin($table, $condition)->where("($tableID IN ($resourceIDs) OR $parentID  IN ($resourceIDs))");
     }
 
     /**
@@ -147,9 +142,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
         return empty($names['parentName']) ? $names['name'] : "{$names['parentName']} / {$names['name']}";
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -164,9 +157,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
         return $options;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $tag   = Application::tag();

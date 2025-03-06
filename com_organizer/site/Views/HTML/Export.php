@@ -34,7 +34,6 @@ class Export extends FormView
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $this->toDo[] = 'Update the ICS descriptive text.';
-        $this->toDo[] = 'Displayed groups do not reflect the selected categories.';
         $this->toDo[] = 'Finish model & view migration: viewable persons';
         $this->toDo[] = 'Router';
 

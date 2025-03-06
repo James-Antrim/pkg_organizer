@@ -47,9 +47,7 @@ class Rooms extends ResourceHelper implements Selectable
         return 0;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -99,9 +97,7 @@ class Rooms extends ResourceHelper implements Selectable
         return $plannedRooms;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $query = DB::query();
@@ -115,12 +111,12 @@ class Rooms extends ResourceHelper implements Selectable
         }
 
         self::activeFilter($query, 'r');
-        Buildings::filterBy($query, 'r', Input::getInt('buildingID'));
+        Buildings::filterBy($query, 'r', Input::resourceIDs('buildingID'));
         self::suppressedFilter($query, 'r');
 
-        if ($campusID = Input::getInt('campusID')) {
+        if ($campusIDs = Input::resourceIDs('campusID')) {
             $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
-            Campuses::filterBy($query, 'b2', $campusID);
+            Campuses::filterBy($query, 'b2', $campusIDs);
         }
 
         DB::set($query);

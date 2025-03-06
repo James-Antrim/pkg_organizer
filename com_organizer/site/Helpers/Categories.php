@@ -25,12 +25,10 @@ class Categories extends Scheduled implements Filterable, Selectable
 
     protected static string $resource = 'category';
 
-    /**
-     * @inheritDoc
-     */
-    public static function filterBy(DatabaseQuery $query, string $alias, int $resourceID): void
+    /** @inheritDoc */
+    public static function filterBy(DatabaseQuery $query, string $alias, array $resourceIDs): void
     {
-        if ($resourceID === self::UNSELECTED) {
+        if (!$resourceIDs) {
             return;
         }
 
@@ -38,14 +36,12 @@ class Categories extends Scheduled implements Filterable, Selectable
         $condition = DB::qc('categoryAlias.id', "$alias.categoryID");
         $table     = DB::qn("#__organizer_categories", 'categoryAlias');
 
-        if ($resourceID === self::NONE) {
+        if (in_array(self::NONE, $resourceIDs)) {
             $query->leftJoin($table, $condition)->where("$tableID.id IS NULL");
             return;
         }
 
-        $query->innerJoin($table, $condition)
-            ->where("$tableID = :categoryID")
-            ->bind(':categoryID', $resourceID, ParameterType::INTEGER);
+        $query->innerJoin($table, $condition)->whereIn($tableID, $resourceIDs);
     }
 
     /**
