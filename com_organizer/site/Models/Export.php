@@ -102,7 +102,7 @@ class Export extends FormModel
             $form->removeField('personIDs');
         }
 
-        if ($data['my'] or empty($data['organizationIDs'])) {
+        if ($data['my'] or !$data['organizationIDs']) {
             $form->removeField('categoryIDs');
             $form->removeField('groupIDs');
             $form->removeField('instances');
@@ -116,6 +116,7 @@ class Export extends FormModel
 
             if (array_diff($data['organizationIDs'], Organizations::viewableIDs())) {
                 $form->removeField('instances');
+                $form->removeField('roleID');
             }
             elseif ($data['instances'] === Conditions::PERSON) {
                 $form->removeField('categoryIDs');

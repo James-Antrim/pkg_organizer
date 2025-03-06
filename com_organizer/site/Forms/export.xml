@@ -9,14 +9,6 @@
                onchange="this.form.submit();">
             <option value="">ORGANIZER_ALL_ORGANIZATIONS</option>
         </field>
-        <field name="instances" type="list" label="ORGANIZER_INSTANCES" class="input-15" default="organization"
-               onchange="this.form.submit();">
-            <option value="organization">ORGANIZER_ORGANIZATION_INSTANCES</option>
-            <option value="person">ORGANIZER_ORGANIZATION_PERSON_INSTANCES</option>
-        </field>
-        <field name="roleID" type="Roles" label="ORGANIZER_ROLE" onchange="this.form.submit();">
-            <option value="">ORGANIZER_ALL_ROLES</option>
-        </field>
         <field name="categoryIDs" type="Categories" label="ORGANIZER_CATEGORIES" multiple="multiple"
                onchange="this.form.submit();" size="5">
             <option value="">ORGANIZER_ALL_CATEGORIES</option>
@@ -53,6 +45,14 @@
         <field name="separate" type="list" label="ORGANIZER_SEPARATE_GROUP_PLANS" default="0" onchange="this.form.submit();">
             <option value="1">ORGANIZER_YES</option>
             <option value="0">ORGANIZER_NO</option>
+        </field>
+        <field name="instances" type="list" label="ORGANIZER_INSTANCES" class="input-15" default="organization"
+               onchange="this.form.submit();">
+            <option value="organization">ORGANIZER_ORGANIZATION_INSTANCES</option>
+            <option value="person">ORGANIZER_ORGANIZATION_PERSON_INSTANCES</option>
+        </field>
+        <field name="roleID" type="Roles" label="ORGANIZER_ROLE" onchange="this.form.submit();">
+            <option value="">ORGANIZER_ALL_ROLES</option>
         </field>
     </fieldset>
 </form>
