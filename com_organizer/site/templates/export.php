@@ -22,8 +22,8 @@ $formName  = strtoupper($this->getName());
 $ariaLabel = Text::_("ORGANIZER_{$formName}_FORM");
 
 $query  = Uri::getInstance()->getQuery();
-$script = "document.getElementById('download-url').select();";
-$script .= "document.getElementById('download-url').setSelectionRange(0,99999);";
+$script = "document.getElementById('ics-url').select();";
+$script .= "document.getElementById('ics-url').setSelectionRange(0,99999);";
 $script .= "document.execCommand('copy');";
 
 $sets = $this->form->getFieldSets();
@@ -32,12 +32,16 @@ $this->renderTasks();
 require_once 'header.php';
 ?>
 <?php if ($this->url): ?>
-    <div class="tbox-green">
-        <h6><?php echo Text::_('ORGANIZER_DOWNLOAD_URL_DESC'); ?></h6>
-        <input type="text" id="download-url" class="download-url" value="<?php echo $this->url; ?>"/>
-        <button class="btn copy-button" onclick="<?php echo $script; ?>">
-            <span class="icon-copy"></span><?php echo Text::_('ORGANIZER_COPY'); ?>
-        </button>
+    <div class="control-group">
+        <div class="control-label">
+            <label id="ics-url-lbl" for="ics-url"><?php echo Text::_('ORGANIZER_ICS_URL_DESC'); ?></label>
+        </div>
+        <div class="controls">
+            <input type="text" id="ics-url" class="ics-url" value="<?php echo $this->url; ?>"/>
+            <button class="button-copy btn" onclick="<?php echo $script; ?>">
+                <span class="icon-copy"></span><?php echo Text::_('ORGANIZER_COPY'); ?>
+            </button>
+        </div>
     </div>
 <?php endif; ?>
 <form action="<?php echo Route::_($url); ?>"
@@ -49,11 +53,11 @@ require_once 'header.php';
       name="adminForm">
     <div class="main-card row">
         <div class="col-lg-6">
-            <h5><?php echo Text::_($sets['selection']->label); ?></h5>
+            <h4><?php echo Text::_($sets['selection']->label); ?></h4>
             <?php echo $this->form->renderFieldset('selection'); ?>
         </div>
         <div class="col-lg-6">
-            <h5><?php echo Text::_($sets['settings']->label); ?></h5>
+            <h4><?php echo Text::_($sets['settings']->label); ?></h4>
             <?php echo $this->form->renderFieldset('settings'); ?>
         </div>
         <div class="col-lg-6"></div>
