@@ -291,7 +291,7 @@ abstract class CurriculumResource extends FormController
         }
 
         $options = '';
-        $ranges  = Programs::programs(Input::getIntCollection('programIDs'));
+        $ranges  = Programs::programs(Input::resourceIDs('programIDs'));
 
         foreach (PoolsHelper::superOptions($id, $type, $ranges) as $option) {
             $options .= "<option value='$option->value' $option->selected $option->disable>$option->text</option>";

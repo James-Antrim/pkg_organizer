@@ -248,29 +248,6 @@ class Input
     }
 
     /**
-     * Resolves a comma separated list of id values to an array of id values.
-     *
-     * @param   string  $name  the input field name at which the value should be found
-     *
-     * @return int[]
-     */
-    public static function getIntCollection(string $name): array
-    {
-        $collection = self::getString($name);
-
-        // Single number collection
-        if (is_numeric($collection)) {
-            $value = (int) $collection;
-            return $value === self::NONE ? [] : [$value];
-        }
-
-        $collection = explode(',', $collection);
-        $collection = array_filter($collection, 'intval');
-
-        return in_array(self::NONE, $collection) ? [] : $collection;
-    }
-
-    /**
      * Retrieves the specified parameter.
      *
      * @param   string  $property  Name of the property to get

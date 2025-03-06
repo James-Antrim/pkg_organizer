@@ -165,7 +165,7 @@ abstract class MergeController extends FormController
      */
     protected function resolveIDs(): void
     {
-        $ids = Input::getIntCollection('ids');
+        $ids = Input::resourceIDs('ids');
         asort($ids);
 
         $this->mergeIDs      = $ids;

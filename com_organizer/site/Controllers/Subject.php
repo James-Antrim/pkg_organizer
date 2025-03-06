@@ -756,7 +756,7 @@ class Subject extends CurriculumResource implements Stubby
         }
 
         $options = '';
-        $ranges  = Programs::programs(Input::getIntCollection('programIDs'));
+        $ranges  = Programs::programs(Input::resourceIDs('programIDs'));
 
         foreach (Helper::preOptions($id, $ranges) as $option) {
             $options .= "<option value='$option->value' $option->selected $option->disable>$option->text</option>";

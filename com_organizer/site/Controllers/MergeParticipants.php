@@ -180,7 +180,7 @@ class MergeParticipants extends MergeController
      */
     protected function resolveIDs(): void
     {
-        $mergeIDs = Input::getIntCollection('ids');
+        $mergeIDs = Input::resourceIDs('ids');
         asort($mergeIDs);
 
         $query = DB::query();
