@@ -20,7 +20,7 @@ use THM\Organizer\Helpers\{Categories, Dates, Groups, Organizations, Roles};
 class Export extends FormModel
 {
     public const EXPORT_FORMATS = ['pdf.grid.A3', 'default' => 'pdf.grid.A4', 'xls.list'];
-    private const INTERVALS = [Conditions::MONTH, Conditions::QUARTER, Conditions::TERM, 'default' => Conditions::WEEK];
+    public const INTERVALS = [Conditions::MONTH, Conditions::QUARTER, Conditions::TERM, 'default' => Conditions::WEEK];
 
 //            $personID       = empty($form['personID']) ? 0 : $form['personID'];
 
@@ -44,7 +44,7 @@ class Export extends FormModel
             'separate'        => Input::NO,
         ];
 
-        if ($task = Input::getTask() and $task === 'export.reset') {
+        if ($task = Input::getTask() and $task === 'reset') {
             return $return;
         }
 
@@ -52,24 +52,22 @@ class Export extends FormModel
             $return['my'] = $my;
         }
         else {
-            $organizationIDs = Input::getIntArray('organizationIDs');
+            $organizationIDs = Input::resourceIDs('organizationIDs');
             if ($organizationIDs and $organizationIDs = array_intersect($organizationIDs, Organizations::getIDs())) {
                 $return['organizationIDs'] = $organizationIDs;
 
-                if ($categoryIDs = Input::getIntArray('categoryIDs')) {
-                    echo "<pre>" . print_r($categoryIDs, true) . "</pre>";
+                if ($categoryIDs = Input::resourceIDs('categoryIDs')) {
                     $return['categoryIDs'] = [];
                     foreach ($categoryIDs as $categoryID) {
-                        echo "<pre>" . print_r(Categories::organizationIDs($categoryID), true) . "</pre>";
                         if (array_intersect($organizationIDs, Categories::organizationIDs($categoryID))) {
                             $return['categoryIDs'][$categoryID] = $categoryID;
                         }
                     }
 
-                    if ($groupIDs = Input::getIntArray('groupIDs')) {
+                    if ($groupIDs = Input::resourceIDs('groupIDs')) {
                         $return['groupIDs'] = [];
                         foreach ($groupIDs as $groupID) {
-                            if (array_intersect($return['categoryIDs'], Groups::categoryID($groupID))) {
+                            if (array_intersect($return['categoryIDs'], [Groups::categoryID($groupID)])) {
                                 $return['groupIDs'][$groupID] = $groupID;
                             }
                         }
@@ -77,16 +75,16 @@ class Export extends FormModel
                 }
             }
 
-            // the other resources
+            // Simple fields
             $return['instances'] = Input::validCMD('instances', Conditions::INSTANCES);
-            $return['methodIDs'] = Input::getIntArray('methodIDs');
+            $return['methodIDs'] = Input::resourceIDs('methodIDs');
             $return['roleID']    = Input::validInt('roleID', array_keys(Roles::resources()));
             $return['separate']  = (int) ($separate = Input::getInt('separate') and $separate === Input::YES);
-            $return['roomIDs']   = Input::getIntArray('roomIDs');
+            $return['roomIDs']   = Input::resourceIDs('roomIDs');
 //            'personIDs'       => [],
         }
 
-        $return['date']         = Dates::standardize(Input::getCMD('date', $return['date']));
+        $return['date']         = Dates::standardize(Input::getCMD('date', date('Y-m-d')));
         $return['exportFormat'] = Input::validCMD('exportFormat', self::EXPORT_FORMATS);
         $return['interval']     = Input::validCMD('interval', self::INTERVALS);
 
