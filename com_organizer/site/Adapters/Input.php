@@ -235,19 +235,6 @@ class Input
     }
 
     /**
-     * Retrieves the id parameter.
-     *
-     * @param   string  $name  the input field name at which the value should be found
-     *
-     * @return int[] the ids
-     */
-    public static function getIntArray(string $name, array $default = []): array
-    {
-        $array = array_filter(self::getArray($name), 'intval');
-        return in_array(self::NONE, $array) ? $default : $array;
-    }
-
-    /**
      * Retrieves the specified parameter.
      *
      * @param   string  $property  Name of the property to get
@@ -359,7 +346,7 @@ class Input
     public static function getSelectedIDs(): array
     {
         // List Views
-        if ($selectedIDs = self::getIntArray('cid')) {
+        if ($selectedIDs = self::resourceIDs('cid')) {
             return $selectedIDs;
         }
 

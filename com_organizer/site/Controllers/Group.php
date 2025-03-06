@@ -27,8 +27,8 @@ class Group extends FormController
         $data = parent::prepareData();
 
         // External references are not in the table and as such won't be automatically prepared.
-        $data['organizationIDs'] = Input::getIntArray('organizationIDs');
-        $data['publishing']      = Input::getIntArray('publishing');
+        $data['organizationIDs'] = Input::resourceIDs('organizationIDs');
+        $data['publishing']      = Input::resourceIDs('publishing');
 
         // Because most values are imported this is the only item that is technically required.
         $this->validate($data, ['categoryID', 'fullName_de', 'fullName_en', 'name_de', 'name_en', 'organizationIDs']);

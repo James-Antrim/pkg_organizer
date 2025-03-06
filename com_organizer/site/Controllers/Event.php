@@ -30,7 +30,7 @@ class Event extends FormController
         unset($data['organizationID']);
 
         // External references are not in the table and as such won't be automatically prepared.
-        $data['coordinatorIDs'] = Input::getIntArray('coordinatorIDs');
+        $data['coordinatorIDs'] = Input::resourceIDs('coordinatorIDs');
 
         // Because most values are imported this is the only item that is technically required.
         $this->validate($data, ['code', 'name_de', 'name_en']);

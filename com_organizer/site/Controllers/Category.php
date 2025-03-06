@@ -29,7 +29,7 @@ class Category extends FormController
         $data = parent::prepareData();
 
         // External references are not in the table and as such won't be automatically prepared.
-        $data['organizationIDs'] = Input::getIntArray('organizationIDs');
+        $data['organizationIDs'] = Input::resourceIDs('organizationIDs');
 
         // Because most values are imported this is the only item that is technically required.
         $this->validate($data, ['name_de', 'name_en']);
