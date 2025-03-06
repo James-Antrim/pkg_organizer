@@ -15,7 +15,7 @@ use Exception;
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
-use THM\Organizer\Adapters\{Application, Database as DB, Form};
+use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
 use THM\Organizer\Helpers\{Associated, Campuses};
 
 /**
@@ -125,12 +125,12 @@ trait Filtered
      * @param   DatabaseQuery  $query  the query to modify
      * @param   string         $alias  the alias for the linking table
      */
-    protected function filterByOrganization(DatabaseQuery $query, string $alias): void
+    protected function filterByOrganizations(DatabaseQuery $query, string $alias): void
     {
         $helper = '\THM\Organizer\Helpers\\' . Application::ucClass();
 
         /** @var Associated $helper */
-        $helper::filterByOrganization($query, $alias, (int) $this->state->get('filter.organizationID'));
+        $helper::filterByOrganizations($query, $alias, Input::resourceIDs('organizationID'));
     }
 
     /**

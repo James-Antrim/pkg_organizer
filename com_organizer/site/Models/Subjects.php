@@ -117,7 +117,7 @@ class Subjects extends ListModel
             $this->filterByAccess($query, 's', 'document');
         }
 
-        $this->filterByOrganization($query, 's');
+        $this->filterByOrganizations($query, 's');
         $this->filterSearch($query, $searchFields, 's');
 
         if ($programID = (int) $this->state->get('filter.programID')) {

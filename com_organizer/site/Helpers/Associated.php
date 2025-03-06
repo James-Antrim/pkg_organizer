@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\{DatabaseQuery, ParameterType};
-use THM\Organizer\Adapters\Database as DB;
+use THM\Organizer\Adapters\{Database as DB, Input};
 
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.
@@ -108,15 +108,15 @@ abstract class Associated extends ResourceHelper
      * should use the filterByKey function. Explicitly named because of its availability through inheriting classes and not the
      * organizations helper.
      *
-     * @param   DatabaseQuery  $query           the query to modify
-     * @param   string         $alias           the alias of the table where the campusID is a column
-     * @param   int            $organizationID  the id of the organization to use as a filter
+     * @param   DatabaseQuery  $query            the query to modify
+     * @param   string         $alias            the alias of the table where the campusID is a column
+     * @param   array          $organizationIDs  the id sof the organizations to use as a filter
      *
      * @return void
      */
-    public static function filterByOrganization(DatabaseQuery $query, string $alias, int $organizationID): void
+    public static function filterByOrganizations(DatabaseQuery $query, string $alias, array $organizationIDs): void
     {
-        if ($organizationID === Selectable::UNSELECTED) {
+        if (!$organizationIDs) {
             return;
         }
 
@@ -124,15 +124,13 @@ abstract class Associated extends ResourceHelper
         $table     = DB::qn('#__organizer_associations', 'aof');
         $condition = "$column = " . DB::qn("$alias.id");
 
-        if ($organizationID === Selectable::NONE) {
+        if (in_array(Input::NONE, $organizationIDs)) {
             $query->leftJoin($table, $condition)->where(DB::qn('aof.id') . ' IS NULL');
 
             return;
         }
 
-        $query->innerJoin($table, $condition)
-            ->where(DB::qn('aof.organizationID') . ' = :organizationID')
-            ->bind(':organizationID', $organizationID, ParameterType::INTEGER);
+        $query->innerJoin($table, $condition)->whereIn(DB::qn('aof.organizationID'), $organizationIDs);
     }
 
     /**

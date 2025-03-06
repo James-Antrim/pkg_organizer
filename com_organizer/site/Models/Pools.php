@@ -76,7 +76,7 @@ class Pools extends ListModel
             $this->filterByAccess($query, 'p', 'document');
         }
 
-        $this->filterByOrganization($query, 'p');
+        $this->filterByOrganizations($query, 'p');
 
         $searchColumns = ['p.fullName_de', 'p.abbreviation_de', 'p.fullName_en', 'p.abbreviation_en'];
         $this->filterSearch($query, $searchColumns);

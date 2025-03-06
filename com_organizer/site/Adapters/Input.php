@@ -463,12 +463,11 @@ class Input
         }
 
         if (is_array($value)) {
-            $value = array_filter($value, 'intval');
-            return in_array(self::NONE, $value) ? [] : $value;
+            return array_filter($value, 'intval');
         }
 
         if (is_int($value)) {
-            return $value === self::NONE ? [] : [$value];
+            return [$value];
         }
 
         // Unsupported type
@@ -477,13 +476,11 @@ class Input
         }
 
         if (is_numeric($value)) {
-            $value = (int) $value;
-            return $value === self::NONE ? [] : [$value];
+            return [(int) $value];
         }
 
-        // CSV array
-        $value = array_filter(explode(',', $value), 'intval');
-        return in_array(self::NONE, $value) ? [] : $value;
+        // Array represented as CS values
+        return array_filter(explode(',', $value), 'intval');
     }
 
     /**

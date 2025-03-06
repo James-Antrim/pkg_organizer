@@ -111,7 +111,7 @@ class Categories extends Scheduled implements Filterable, Selectable
             ->order($order);
 
         self::filterByAccess($query, 'c', $access);
-        self::filterByOrganization($query, 'c', Input::getInt('organizationID'));
+        self::filterByOrganizations($query, 'c', Input::resourceIDs('organizationID'));
         DB::set($query);
 
         return DB::arrays('id');

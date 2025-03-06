@@ -171,10 +171,10 @@ class Groups extends Scheduled implements Selectable
      */
     public static function resources(string $access = ''): array
     {
-        $categoryID     = Input::getInt('categoryID');
-        $organizationID = Input::getInt('organizationID');
+        $categoryID      = Input::getInt('categoryID');
+        $organizationIDs = Input::resourceIDs('organizationID');
 
-        if (!$categoryID and !$organizationID) {
+        if (!$categoryID and !$organizationIDs) {
             return [];
         }
 
@@ -183,7 +183,7 @@ class Groups extends Scheduled implements Selectable
 
         self::filterByAccess($query, 'g', $access);
         Categories::filterBy($query, 'g', $categoryID);
-        self::filterByOrganization($query, 'g', $organizationID);
+        self::filterByOrganizations($query, 'g', $organizationIDs);
 
         DB::set($query);
 

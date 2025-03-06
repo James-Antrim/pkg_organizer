@@ -57,7 +57,7 @@ class Programs extends ListModel
             $this->filterByAccess($query, 'p', 'document');
         }
 
-        $this->filterByOrganization($query, 'p');
+        $this->filterByOrganizations($query, 'p');
 
         $searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
         $this->filterSearch($query, $searchColumns);
