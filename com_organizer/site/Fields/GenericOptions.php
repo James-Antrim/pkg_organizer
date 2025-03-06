@@ -61,7 +61,7 @@ class GenericOptions extends ListField
 
                 $conditional = str_contains($predicate, ' ON ');
 
-                // Join conditions in from table or no conditions in join table => error
+                // Join conditions for the from (first) table or no join conditions for join tables => error
                 if (($conditional and $from) or (!$conditional and !$from)) {
                     return $defaultOptions;
                 }
@@ -72,7 +72,7 @@ class GenericOptions extends ListField
                     continue;
                 }
 
-                [$alias, $condition] = explode(' AS ', $predicate);
+                [$alias, $condition] = explode(' ON ', $predicate);
                 $pieces = explode(' ', $condition);
 
                 // column1Value = column2Value condition format was not adhered to
