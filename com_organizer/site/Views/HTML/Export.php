@@ -33,7 +33,6 @@ class Export extends FormView
     /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        $this->toDo[] = 'Finish model & view migration: viewable persons';
         $this->toDo[] = 'Router';
 
         $this->title('EXPORT_TITLE');
@@ -106,10 +105,10 @@ class Export extends FormView
                     $url .= '&methodIDs=' . implode(',', $methodIDs);
                 }
 
-                /*if (!empty($form['personIDs'])) {
-                    // access checks
+                if ($personIDs = $form->getValue('personIDs', null, [])) {
+                    $url         .= '&personIDs=' . implode(',', $personIDs);
                     $credentials = true;
-                }*/
+                }
 
                 if ($roomIDs = $form->getValue('roomIDs', null, [])) {
                     $url .= '&roomIDs=' . implode(',', $roomIDs);

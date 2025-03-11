@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Input, User};
-use THM\Organizer\Helpers\{Categories, Dates, Groups, Organizations, Roles};
+use THM\Organizer\Helpers\{Categories, Dates, Groups, Organizations, Persons, Roles};
 
 /**
  * Class retrieves information for a filtered set of instances.
@@ -75,13 +75,12 @@ class Export extends FormModel
                 }
             }
 
-            // Simple fields
             $return['instances'] = Input::validCMD('instances', Conditions::INSTANCES);
             $return['methodIDs'] = Input::resourceIDs('methodIDs');
             $return['roleID']    = Input::validInt('roleID', array_keys(Roles::resources()));
             $return['separate']  = (int) ($separate = Input::getInt('separate') and $separate === Input::YES);
+            $return['personIDs'] = array_intersect(Input::resourceIDs('personIDs'), Persons::viewableIDs());
             $return['roomIDs']   = Input::resourceIDs('roomIDs');
-//            'personIDs'       => [],
         }
 
         $return['date']         = Dates::standardize(Input::getCMD('date', date('Y-m-d')));
