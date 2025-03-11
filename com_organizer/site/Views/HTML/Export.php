@@ -33,8 +33,6 @@ class Export extends FormView
     /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        $this->toDo[] = 'Router';
-
         $this->title('EXPORT_TITLE');
 
         // No selections were made or the form was reset.
