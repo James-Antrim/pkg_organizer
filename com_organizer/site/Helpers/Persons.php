@@ -375,9 +375,14 @@ class Persons extends Scheduled implements Selectable, Viewable
 
         $query->select('DISTINCT ' . DB::qn('p.id'))
             ->from(DB::qn('#__organizer_persons', 'p'))
-            ->leftJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'))
-            ->where([$associated, $identity, $public], 'OR')
-            ->whereIn(DB::qn('a.organizationID'), $organizationIDs);
+            ->leftJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'));
+
+        if ($organizationIDs) {
+            $query->where([$associated, $identity, $public], 'OR')->whereIn(DB::qn('a.organizationID'), $organizationIDs);
+        }
+        else {
+            $query->where([$associated, $identity, $public]);
+        }
 
         DB::set($query);
 
