@@ -51,18 +51,6 @@ class Application
     }
 
     /**
-     * Shortcuts configuration access.
-     * @return Registry
-     */
-    public static function configuration(): Registry
-    {
-        /** @var WebApplication $app */
-        $app = self::instance();
-
-        return $app->getConfig();
-    }
-
-    /**
      * Returns the organizer component object.
      * @return Component
      */
@@ -86,6 +74,18 @@ class Application
         ExtensionHelper::$extensions[$type][$component] = $extension;
 
         return $extension;
+    }
+
+    /**
+     * Shortcuts configuration access.
+     * @return Registry
+     */
+    public static function configuration(): Registry
+    {
+        /** @var WebApplication $app */
+        $app = self::instance();
+
+        return $app->getConfig();
     }
 
     /**
@@ -135,16 +135,6 @@ class Application
     }
 
     /**
-     * Gets the component's MVC factory.
-     *
-     * @return MVCFactory
-     */
-    public static function factory(): MVCFactory
-    {
-        return self::component()->mvcFactory();
-    }
-
-    /**
      * Performs a redirect on error.
      *
      * @param   int     $code  the error code
@@ -181,8 +171,9 @@ class Application
             };
 
             if ($severity === self::ERROR) {
+                // TODO turn this into logging before productive release
                 echo "<pre>" . print_r($message, true) . "</pre>";
-                $exc = new Exception;
+                $exc = new Exception();
                 echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
                 die;
             }
@@ -192,6 +183,16 @@ class Application
 
         self::message($message, $severity);
         self::redirect($url, $code);
+    }
+
+    /**
+     * Gets the component's MVC factory.
+     *
+     * @return MVCFactory
+     */
+    public static function factory(): MVCFactory
+    {
+        return self::component()->mvcFactory();
     }
 
     /**
