@@ -12,7 +12,7 @@ namespace THM\Organizer\Adapters;
 
 use Exception;
 use Joomla\CMS\{Application\CMSApplicationInterface, Form\FormFactoryAwareInterface};
-use Joomla\CMS\MVC\{Factory\MVCFactory as Core, Factory\MVCFactoryInterface, Model\ModelInterface, View\ViewInterface};
+use Joomla\CMS\MVC\{Factory\MVCFactory as Core, Model\ModelInterface, View\ViewInterface};
 use Joomla\CMS\Table\Table;
 use Joomla\Event\DispatcherAwareInterface;
 use Joomla\Input\Input as CoreInput;
@@ -29,7 +29,6 @@ class MVCFactory extends Core
      * @param   object  $object  the object
      *
      * @return  void
-     * @todo check this
      */
     private function addDispatcher(object $object): void
     {
@@ -51,7 +50,6 @@ class MVCFactory extends Core
      * @param   object  $object  the object
      *
      * @return  void
-     * @todo check this
      */
     private function addFormFactory(object $object): void
     {
@@ -94,16 +92,7 @@ class MVCFactory extends Core
         return $controller;
     }
 
-    /**
-     * Method to load and return a model object. Explicit commentary to suppress an expression that would not be thrown
-     * in Organizer.
-     *
-     * @param   string  $name    The name of the model.
-     * @param   string  $prefix  Optional model prefix.
-     * @param   array   $config  Optional configuration array for the model.
-     *
-     * @return  ModelInterface
-     */
+    /** @inheritDoc */
     public function createModel($name, $prefix = '', array $config = []): ModelInterface
     {
         $className   = 'THM\Organizer\Models\\' . Application::ucClass($name);
@@ -115,9 +104,7 @@ class MVCFactory extends Core
         return $model;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function createView($name, $prefix = '', $type = 'HTML', array $config = []): ViewInterface
     {
         $format = strtoupper(Input::format());
@@ -129,29 +116,20 @@ class MVCFactory extends Core
         return $view;
     }
 
-    /**
-     * Method to load and return a table object. This function is not yet to my knowledge used, but necessary to fulfill
-     * the MVCFactoryInterface.
-     *
-     * @param   string  $name    The name of the table.
-     * @param   string  $prefix  Optional table prefix.
-     * @param   array   $config  Optional configuration array for the table.
-     *
-     * @return  Table  The table object
-     * @see MVCFactoryInterface
-     */
+    /** @inheritDoc */
     public function createTable($name, $prefix = '', array $config = []): Table
     {
         $caller = Application::ucClass($name);
-        $table  = str_ends_with($caller, 's') ? $caller : match ($caller) {
-            // Unusual plurals
-            'Campus' => 'Campuses',
-            'Category' => 'Categories',
-            'Course' => 'Courses',
-            'Frequency' => 'Frequencies',
-            // Potentially derivative classes: Import-, Merge-, Select-
-            default => $caller . 's'
-        };
+
+        // Typically class names already in plural, which match table class names
+        if (str_ends_with($caller, 's')) {
+            $singlesWithS = ['Campus' => 'Campuses'];
+            $table        = array_key_exists($caller, $singlesWithS) ? $singlesWithS[$caller] : $caller;
+        }
+        else {
+            $irregularPlurals = ['Category' => 'Categories', 'Course' => 'Courses', 'Frequency' => 'Frequencies'];
+            $table            = array_key_exists($caller, $irregularPlurals) ? $irregularPlurals[$caller] : $caller . 's';
+        }
 
         $tables = [];
         foreach (glob(JPATH_SITE . '/components/com_organizer/Tables/*') as $file) {

@@ -145,6 +145,29 @@ class Text extends Core
     }
 
     /**
+     * Filters texts to their alphabetic or alphanumeric components
+     *
+     * @param   string  $text  the text to be filtered
+     * @param   string  $type  the way in which the text should be filtered
+     *
+     * @return string the filtered text
+     */
+    public static function filter(string $text, string $type = 'alpha'): string
+    {
+        $pattern = match ($type) {
+            'alphanum' => '/[^\p{L}\p{N}]/',
+            default => '/[^\p{L}]/',
+        };
+
+        $text = preg_replace($pattern, ' ', $text);
+
+        // The letter filter seems to include periods
+        $text = str_replace('.', '', $text);
+
+        return self::trim($text);
+    }
+
+    /**
      * Supplements a non-prefaced key as necessary.
      *
      * @param   string  $key
