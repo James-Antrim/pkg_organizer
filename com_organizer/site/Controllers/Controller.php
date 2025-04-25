@@ -11,11 +11,10 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\{Application\CMSApplication, Uri\Uri};
 use Joomla\CMS\MVC\{Controller\BaseController, Factory\MVCFactoryInterface};
-use Joomla\CMS\Uri\Uri;
 use Joomla\Input\Input as CoreInput;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers\Can;
 
 /**
@@ -48,6 +47,18 @@ class Controller extends BaseController
     {
         if (!Can::administrate()) {
             Application::error(403);
+        }
+    }
+
+    /**
+     * Default authorization check. Level component administrator. Override for nuance.
+     * @return void
+     */
+    protected function authorizeAJAX(): void
+    {
+        if (!Can::administrate()) {
+            echo Text::_('403');
+            $this->app->close();
         }
     }
 

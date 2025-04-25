@@ -8,7 +8,6 @@
  * @link        www.thm.de
  */
 
-
 namespace THM\Organizer\Adapters;
 
 use Joomla\CMS\User\User as Instance;
