@@ -91,8 +91,13 @@ class Can
 
             case 'person':
             case 'persons':
-
-                return $resource ? Persons::schedulable($resource) : self::manage('persons');
+                if (self::manage('persons')) {
+                    return true;
+                }
+                elseif ($resource) {
+                    return Persons::schedulable($resource);
+                }
+                return false;
         }
 
         return false;

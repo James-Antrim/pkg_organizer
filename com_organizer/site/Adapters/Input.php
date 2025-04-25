@@ -269,7 +269,7 @@ class Input
         $item    = Application::menuItem();
         $default = $item ? $item->id : 0;
 
-        return (int) self::getInput()->get('Itemid', $default, 'int');
+        return self::getInt('Itemid', $default);
     }
 
     /**
