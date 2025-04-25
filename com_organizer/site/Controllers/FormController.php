@@ -189,12 +189,13 @@ abstract class FormController extends Controller
         $this->checkToken();
         $this->authorize();
 
-        $id         = Input::getID();
-        $this->data = $this->prepareData();
+        $id = Input::getID();
 
+        $this->data = $this->prepareData();
         // For save to copy, will otherwise be identical.
         $this->data['id'] = $id;
-        $table            = $this->getTable();
+
+        $table = $this->getTable();
 
         return $this->store($table, $this->data, $id);
     }
@@ -249,15 +250,14 @@ abstract class FormController extends Controller
             return $id;
         }
 
-        if (!$table->save($data)) {
-            Application::message('NOT_SAVED');
-            return $id;
-        }
-        else {
+        if ($table->save($data)) {
             Application::message('SAVED');
             /** @var Table $table */
             return $table->id;
         }
+
+        Application::message('NOT_SAVED');
+        return $id;
     }
 
     /**
@@ -282,8 +282,8 @@ abstract class FormController extends Controller
     /**
      * Validates the form data beyond the implicit type validation performed during prepareData.
      *
-     * @param   array  $data      the form data to validate
-     * @param   array  $required  the required fields
+     * @param   array  &$data      the form data to validate
+     * @param   array   $required  the required fields
      *
      * @return void
      */

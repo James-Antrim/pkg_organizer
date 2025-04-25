@@ -95,22 +95,22 @@ abstract class ListController extends Controller
     {
         if ($selected) {
             if ($selected === $updated) {
-                $key     = $updated === 1 ? 'ORGANIZER_1_' : 'ORGANIZER_X_';
+                $key     = $updated === 1 ? '1_' : 'X_';
                 $key     .= $delete === true ? 'DELETED' : 'UPDATED';
                 $message = $updated === 1 ? Text::_($key) : Text::sprintf($key, $updated);
                 $type    = Application::MESSAGE;
             }
             else {
                 $message = $delete ?
-                    Text::sprintf('ORGANIZER_X_OF_X_DELETED', $updated, $selected) :
-                    Text::sprintf('ORGANIZER_X_OF_X_UPDATED', $updated, $selected);
+                    Text::sprintf('X_OF_X_DELETED', $updated, $selected) :
+                    Text::sprintf('X_OF_X_UPDATED', $updated, $selected);
                 $type    = Application::WARNING;
             }
 
             Application::message($message, $type);
         }
         elseif ($updated) {
-            $key = $updated === 1 ? 'ORGANIZER_1_UPDATED' : 'ORGANIZER_X_UPDATED';
+            $key = $updated === 1 ? '1_UPDATED' : 'X_UPDATED';
             Application::message(Text::sprintf($key, $updated));
         }
 
@@ -171,7 +171,7 @@ abstract class ListController extends Controller
         $table = $this->getTable();
 
         if (!property_exists($table, $column)) {
-            Application::message('ORGANIZER_TABLE_COLUMN_NONEXISTENT', Application::ERROR);
+            Application::message('TABLE_COLUMN_NONEXISTENT', Application::ERROR);
 
             return 0;
         }

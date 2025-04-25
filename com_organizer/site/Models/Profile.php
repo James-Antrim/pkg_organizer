@@ -76,7 +76,7 @@ class Profile extends OldFormModel
         $data = Input::getFormItems();
 
         if (!$participant->save($data)) {
-            Application::message('ORGANIZER_PROFILE_NOT_SAVED', Application::ERROR);
+            Application::message('NOT_SAVED', Application::ERROR);
 
             return;
         }
@@ -85,18 +85,18 @@ class Profile extends OldFormModel
 
         if ($personID = Helpers\Persons::getIDByUserID($userID)) {
             if (!$person->load($personID)) {
-                Application::message('ORGANIZER_412', Application::NOTICE);
+                Application::message('412', Application::NOTICE);
 
                 return;
             }
 
             if (!$person->save($data)) {
-                Application::message('ORGANIZER_PROFILE_NOT_SAVED', Application::ERROR);
+                Application::message('NOT_SAVED', Application::ERROR);
 
                 return;
             }
         }
 
-        Application::message('ORGANIZER_PROFILE_SAVED');
+        Application::message('SAVED');
     }
 }
