@@ -14,7 +14,6 @@ use Exception;
 use Joomla\CMS\Table\Table as CoreTable;
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, FormFactory, MVCFactory};
-use THM\Organizer\Tables\Table;
 
 /**
  * Class for editing a single resource record, based loosely on AdminModel, but without all the extra code it now caries
@@ -58,8 +57,6 @@ abstract class EditModel extends FormModel
     {
         if (!$this->item) {
             $rowID = Input::getSelectedID();
-
-            /** @var Table $table */
             $table = $this->getTable();
             $table->load($rowID);
             $properties = $table->getProperties();

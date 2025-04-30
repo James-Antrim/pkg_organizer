@@ -41,9 +41,7 @@ abstract class BaseView extends HtmlView
 
     public int $refresh = 0;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -51,8 +49,14 @@ abstract class BaseView extends HtmlView
     }
 
     /**
-     * @inheritDoc
-     * Does not dump the responsibility for exception handling onto inheriting classes.
+     * Execute and display a template script.
+     * Wrapper for parent to avoid dumping the responsibility for exception handling onto inheriting classes.
+     *
+     * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+     *
+     * @return  void
+     *
+     * @see     HtmlView::display(), HtmlView::loadTemplate()
      */
     public function display($tpl = null): void
     {
@@ -64,9 +68,7 @@ abstract class BaseView extends HtmlView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getLayout(): string
     {
         return $this->layout ?: strtolower($this->_name);
@@ -85,9 +87,7 @@ abstract class BaseView extends HtmlView
         //HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function setModel($model, $default = false): BaseDatabaseModel
     {
         $this->model = parent::setModel($model, $default);

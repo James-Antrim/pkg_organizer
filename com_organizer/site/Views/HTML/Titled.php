@@ -11,11 +11,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 
 trait Titled
 {
