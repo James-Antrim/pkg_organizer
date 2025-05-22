@@ -29,6 +29,9 @@ class Rooms extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->toDo[] = 'Add filter for lessons.';
+        $this->toDo[] = 'Apply the lesson filter automatically frontend.';
+
         $title = Text::_('ROOMS');
 
         if ($campusID = Input::getInt('campusID')) {

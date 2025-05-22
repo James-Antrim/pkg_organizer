@@ -38,16 +38,16 @@ class Pools extends Table
     /**
      * The resource's German description.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_de = '';
+    public string|null $description_de = '';
 
     /**
      * The resource's English description.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_en = '';
+    public string|null $description_en = '';
 
     /**
      * The id of the field entry referenced. Independent of FK cascading, this can legitimately not reference a field.

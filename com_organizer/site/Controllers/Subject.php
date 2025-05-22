@@ -628,6 +628,12 @@ class Subject extends CurriculumResource implements Stubby
                 }
                 break;
 
+            case 'Bewertung, Note':
+                if (str_contains(strtolower($germanText), 'unbenotet')) {
+                    $table->setColumn('evaluated', 0, 0);
+                }
+                break;
+
             case 'Bonuspunkte':
                 $this->bonus($table, $germanText);
                 break;

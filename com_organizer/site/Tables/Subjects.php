@@ -98,6 +98,13 @@ class Subjects extends Table
     public int $duration = 1;
 
     /**
+     * Whether the subject is evaluated.
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
+     * @var int
+     */
+    public int $evaluated;
+
+    /**
      * The total number of scholastic hours (45 minutes) estimated to be necessary for this subject.
      * INT(4) UNSIGNED NOT NULL DEFAULT 0
      * @var int

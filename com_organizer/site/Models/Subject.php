@@ -297,7 +297,7 @@ class Subject extends EditModel
                     $model[Text::_('PROOF')] = $item->{"proof_$tag"};
                 }
 
-                $model[Text::_('EVALUATION')] = Text::_('EVALUATION_TEXT');
+                $model[Text::_('EVALUATION')] = $item->evaluated ? Text::_('EVALUATION_TEXT') : Text::_('UNEVALUATED');
 
                 if ($dependencies['applicability']) {
                     $model[Text::_('APPLICABILITY')] = $dependencies['applicability'];
