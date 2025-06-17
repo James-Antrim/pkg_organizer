@@ -24,6 +24,9 @@ class Schedules extends ListView
      */
     protected function addToolBar(): void
     {
+        $this->toDo[] = 'Update event names in the department context directly.';
+        $this->toDo[] = 'Add general regex validation of abbreviations to ensure no more spaces, periods, and the like are there.';
+
         $toolbar = Toolbar::getInstance();
 
         $toolbar->addNew('schedules.import', Text::_('IMPORT'))->icon('fa fa-upload');
