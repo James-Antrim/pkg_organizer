@@ -8,19 +8,17 @@
  * @link        www.thm.de
  */
 
-
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\View\FormView as Core;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Document, Input};
 use THM\Organizer\Views\Named;
 
 /**
  * Class loads form data into the HTML view context.
  */
-class FormView extends Core
+abstract class FormView extends Core
 {
     use Attributed;
     use Configured;
@@ -40,6 +38,14 @@ class FormView extends Core
      * @var string
      */
     protected string $layout = 'edit';
+
+    public array $todo = [];
+
+    /**
+     * Seems to be used somewhere to decide between Joomla Core UI (true) and bootstrap (false)
+     * @var bool
+     */
+    public bool $useCoreUI = true;
 
     /** @inheritDoc */
     public function __construct(array $config)
