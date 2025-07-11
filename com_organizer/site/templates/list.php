@@ -15,7 +15,7 @@ use THM\Organizer\Views\HTML\ListView;
 
 /** @var ListView $this */
 
-$action = Route::_('index.php?option=com_organizer&view=' . $this->_name);
+$action = Route::_('index.php?option=com_organizer&view=' . strtolower($this->_name));
 
 if (count($this->headers) > 4) {
     $wa = Application::document()->getWebAssetManager();
@@ -35,7 +35,7 @@ require_once 'header.php';
             <?php else: ?>
             <div class="col-md-12">
                 <?php endif; ?>
-                <div id="j-main-container" class="j-main-container groups">
+                <div id="j-main-container" class="j-main-container organizer">
                     <?php Tools::render($this); ?>
                     <?php if (empty($this->items)) : ?>
                         <?php EmptySet::render($this); ?>

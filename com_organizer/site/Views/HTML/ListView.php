@@ -17,9 +17,7 @@ use THM\Organizer\Adapters\{Application, Document, Text, Toolbar};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
- */
+/** @inheritDoc */
 abstract class ListView extends Core
 {
     use Configured;
@@ -86,11 +84,7 @@ abstract class ListView extends Core
         $toolbar->delete("$controller.delete")->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
     }
 
-    /**
-     * @inheritDoc
-     * ListView adds the title and configuration button if user has access. Inheriting classes are responsible for
-     * their own buttons.
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         // MVC name identity is now the internal standard
@@ -145,9 +139,7 @@ abstract class ListView extends Core
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->authorize();

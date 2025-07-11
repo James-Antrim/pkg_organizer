@@ -17,10 +17,7 @@ use THM\Organizer\Adapters\Application;
  */
 trait Named
 {
-    /**
-     * @var string The name of the view class
-     * @noinspection PhpPropertyNamingConventionInspection
-     */
+    /** @var string The name of the view class */
     protected $_name;
 
     /**
