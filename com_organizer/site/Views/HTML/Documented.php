@@ -30,8 +30,8 @@ trait Documented
 
         $attributes = ['target' => '_blank'];
 
-        $lsfLink = HTML::link(
-            'https://ecampus.thm.de',
+        $eCampusLink = HTML::link(
+            'https://ecampus.thm.de/service/pages/cs/sys/portal/subMenu.faces?navigationPosition=studiesOffered',
             Text::_('DISCLAIMER_HIS_TITLE'),
             $attributes
         );
@@ -41,7 +41,7 @@ trait Documented
             $attributes
         );
         $poLink  = HTML::link(
-            'https://www.thm.de/site/thm-dokumente/studium/modulhandbuecher-studien-und-pruefungsordnungen-studienganginfos.html',
+            'https://www.thm.de/amb/pruefungsordnungen.html',
             Text::_('DISCLAIMER_PO_TITLE'),
             $attributes
         );
@@ -49,7 +49,7 @@ trait Documented
         $disclaimer = '<div class="disclaimer">';
         $disclaimer .= '<h4>' . Text::_('DISCLAIMER_LEGAL') . '</h4>';
         $disclaimer .= '<ul>';
-        $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_HIS_TEXT', $lsfLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_HIS_TEXT', $eCampusLink) . '</li>';
         $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_AMB_TEXT', $ambLink) . '</li>';
         $disclaimer .= '<li>' . Text::sprintf('DISCLAIMER_PO_TEXT', $poLink) . '</li>';
         $disclaimer .= '</ul>';
