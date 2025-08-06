@@ -99,7 +99,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {
-        if (User::instance()->authorise('organizer.document', "com_organizer.organization.$resourceID")) {
+        if (User::authorise('organizer.document', "com_organizer.organization.$resourceID")) {
             return true;
         }
 
@@ -297,7 +297,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /** @inheritDoc */
     public static function schedulable(int $resourceID): bool
     {
-        if (User::instance()->authorise('organizer.schedule', "com_organizer.organization.$resourceID")) {
+        if (User::authorise('organizer.schedule', "com_organizer.organization.$resourceID")) {
             return true;
         }
 

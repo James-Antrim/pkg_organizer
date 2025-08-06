@@ -14,20 +14,24 @@ use Joomla\CMS\User\User as Instance;
 use Joomla\CMS\User\UserFactory;
 use Joomla\CMS\User\UserFactoryInterface;
 
+/**
+ * Class wraps functions of user related classes for easier access and inclusion.
+ */
 class User
 {
-    public const PUBLIC = 1, REGISTERED = 2, AUTHOR = 3, EDITOR = 4, PUBLISHER = 5, MANAGER = 6, ADMIN = 7, SUPER_ADMIN = 8;
-
-    public const STANDARD_GROUPS = [
-        self::ADMIN,
-        self::AUTHOR,
-        self::EDITOR,
-        self::MANAGER,
-        self::PUBLIC,
-        self::PUBLISHER,
-        self::REGISTERED,
-        self::SUPER_ADMIN
-    ];
+    /**
+     * Method to check User object authorisation against an access control
+     * object and optionally an access extension object
+     *
+     * @param   string       $action  the name of the action to check for permission.
+     * @param   string|null  $asset   the name of the asset on which to perform the action.
+     *
+     * @return  bool
+     */
+    public static function authorise(string $action = 'core.admin', string $asset = null): bool
+    {
+        return self::instance()->authorise($action, $asset);
+    }
 
     /**
      * Gets the id of the user, optionally by username.

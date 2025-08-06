@@ -50,7 +50,7 @@ class Schedules implements Schedulable
             return (bool) Organizations::schedulableIDs();
         }
 
-        return User::instance()->authorise('organizer.schedule', "com_organizer.organization.$table->organizationID");
+        return User::authorise('organizer.schedule', "com_organizer.organization.$table->organizationID");
     }
 
     /**

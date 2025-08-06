@@ -23,13 +23,11 @@ class Can
      */
     public static function administrate(): bool
     {
-        $user = User::instance();
-
-        if (!$user->id) {
+        if (!User::id()) {
             return false;
         }
 
-        return ($user->authorise('core.admin') or $user->authorise('core.admin', 'com_organizer'));
+        return (User::authorise() or User::authorise('core.admin', 'com_organizer'));
     }
 
     /**
@@ -113,7 +111,7 @@ class Can
             return $authorized;
         }
 
-        return User::instance()->authorise('organizer.fm', 'com_organizer');
+        return User::authorise('organizer.fm', 'com_organizer');
     }
 
     /**
@@ -146,10 +144,10 @@ class Can
                     return true;
                 }
 
-                $instanceOrganizations = Instances::getOrganizationIDs($resourceID);
-                $managedOrganizations  = Organizations::manageableIDs();
+                $iOrganizations = Instances::getOrganizationIDs($resourceID);
+                $mOrganizations  = Organizations::manageableIDs();
 
-                return (bool) array_intersect($managedOrganizations, $instanceOrganizations);
+                return (bool) array_intersect($mOrganizations, $iOrganizations);
             case 'participant':
                 if ($resourceID === User::id()) {
                     return true;
@@ -159,7 +157,7 @@ class Can
 
                 return (bool) array_intersect($courseIDs, Courses::coordinatableIDs());
             case 'persons':
-                return User::instance()->authorise('organizer.hr', 'com_organizer');
+                return User::authorise('organizer.hr', 'com_organizer');
             case 'unit':
             case 'units':
                 if (Units::teaches($resourceID)) {
@@ -182,7 +180,7 @@ class Can
             return $authorized;
         }
 
-        return User::instance()->authorise('organizer.ct', 'com_organizer');
+        return User::authorise('organizer.ct', 'com_organizer');
     }
 
     /**
