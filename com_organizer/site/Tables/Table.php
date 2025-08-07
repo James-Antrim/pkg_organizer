@@ -107,7 +107,7 @@ abstract class Table extends Core
             }
 
             // Text derivatives default irredeemably to null, which will always conflict with PHP typing.
-            if (in_array($definition->Type, ['mediumtext', 'text'])) {
+            if (in_array($definition->Type, ['longtext', 'mediumtext', 'text'])) {
                 $definition->Default = '';
             }
 
