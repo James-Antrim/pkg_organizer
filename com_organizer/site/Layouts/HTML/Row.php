@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
-use Joomla\CMS\Language\Text;
-use Joomla\CMS\Router\Route;
+use Joomla\CMS\{Language\Text, Router\Route};
 use THM\Organizer\Adapters\{Application, HTML};
 use THM\Organizer\Views\HTML\ListView;
 
@@ -61,11 +60,11 @@ class Row
             $properties['title'] = Text::_('JORDERINGDISABLED');
         }
 
-        $item->properties = $properties;
+        $props = ['properties' => $properties];
 
         ?>
         <td class="text-center d-none d-md-table-cell">
-            <span <?php echo HTML::properties($item); ?>>
+            <span <?php echo HTML::properties($props); ?>>
                 <span class="icon-ellipsis-v"></span>
             </span>
             <?php if ($item->access and $enabled) : ?>

@@ -207,6 +207,7 @@ class ImportSchedule extends FormController
 
         // Errors at this stage are blocking.
         if ($this->errors) {
+            $this->printStatusReport();
             $this->setRedirect("$this->baseURL&view=importschedule");
             return;
         }
@@ -297,7 +298,7 @@ class ImportSchedule extends FormController
             return;
         }
 
-        $data     = [
+        $data = [
             'creationDate'   => $this->creationDate,
             'creationTime'   => $this->creationTime,
             'organizationID' => $this->organizationID,
@@ -317,7 +318,7 @@ class ImportSchedule extends FormController
 
         // Sorted by date / time
         $contextIDs = Helper::contextIDs($this->organizationID, $this->termID);
-        $current = array_search($currentID, $contextIDs);
+        $current    = array_search($currentID, $contextIDs);
 
         $earlier = array_splice($contextIDs, 0, $current - 1);
         foreach (array_reverse($earlier) as $referenceID) {
