@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metadata>
-    <menu>ORGANIZER_HELP_TOPICS
+    <menu>
         <options var="view">
             <option name="ORGANIZER_CHECKIN" msg="ORGANIZER_CHECKIN_DESC" value="checkin"/>
             <option name="ORGANIZER_CONTACT_TRACKING" msg="ORGANIZER_CONTACT_TRACKING_DESC" value="contact_tracking"/>
