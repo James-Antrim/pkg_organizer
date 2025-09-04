@@ -50,7 +50,7 @@ class RoomKeys extends ResourceHelper implements Selectable
         $query->select($select)
             ->from(DB::qn('#__organizer_roomkeys', 'k'));
 
-        switch (Input::getView()) {
+        switch (Input::view()) {
             case 'Rooms':
                 $query->innerJoin(DB::qn('#__organizer_use_codes', 'uc'), DB::qc('uc.keyID', 'k.id'))
                     ->innerJoin(DB::qn('#__organizer_roomtypes', 't'), DB::qc('t.useCode', 'uc.id'))

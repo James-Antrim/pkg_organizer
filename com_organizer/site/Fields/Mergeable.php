@@ -79,8 +79,8 @@ trait Mergeable
      */
     protected function validateContext(): bool
     {
-        $this->selectedIDs = Input::getSelectedIDs();
-        $this->resource    = str_replace('Merge', '', Input::getView());
+        $this->selectedIDs = Input::selectedIDs();
+        $this->resource    = str_replace('Merge', '', Input::view());
 
         $validResources = [
             'Categories',

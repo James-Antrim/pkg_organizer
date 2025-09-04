@@ -23,7 +23,7 @@ class Curricula extends ListField
     {
         $options = [HTML::option(-1, Text::_('NO_PROGRAMS'))];
 
-        if (!$subjectID = Input::getID()) {
+        if (!$subjectID = Input::id()) {
             return $options;
         }
 

@@ -37,7 +37,7 @@ class MergeEmail extends MergeValues
         }
 
         // Prefilter domain matches if configured
-        if ($domain = Input::getParams()->get('emailFilter')) {
+        if ($domain = Input::parameters()->get('emailFilter')) {
             foreach ($addresses as $address) {
                 if (strpos($address, $domain)) {
                     return [$address];

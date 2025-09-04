@@ -13,7 +13,7 @@ use THM\Organizer\Adapters\{Application, HTML, Input, Toolbar};
 
 $action = Uri::base() . '?' . Uri::getInstance()->getQuery();
 $oClass = "form-$this->orientation";
-$layout = Input::getCMD('type', 'appointment');
+$layout = Input::cmd('type', 'appointment');
 
 if (!Application::backend()) {
     echo $this->title;
@@ -36,7 +36,7 @@ if (!Application::backend()) {
             // Simple instance edit layout
             <?php //require_once 'Instance/simple.php'; ?>
         <?php endif; ?>
-        <input type="hidden" name="Itemid" value="<?php echo Input::getInt('Itemid'); ?>"/>
+        <input type="hidden" name="Itemid" value="<?php echo Input::integer('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="InstanceEdit"/>

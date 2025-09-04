@@ -23,7 +23,7 @@ $wa->useScript('keepalive')->useScript('form.validate');
 $formName  = strtoupper($this->getName());
 $ariaLabel = Text::_("ORGANIZER_{$formName}_FORM");
 
-$input          = Input::getInput();
+$input          = Input::instance();
 $forcedLanguage = $input->get('forcedLanguage', '');
 $return         = $input->getBase64('return');
 

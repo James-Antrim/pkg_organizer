@@ -49,7 +49,7 @@ class Course extends BaseView
     protected function authorize(): void
     {
         // TODO revamp this to make a authorize according to the layout context course => true, badge = auth
-        if (!$this->courseID = Input::getID()) {
+        if (!$this->courseID = Input::id()) {
             Application::error(400);
         }
 

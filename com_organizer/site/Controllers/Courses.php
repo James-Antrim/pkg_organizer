@@ -46,7 +46,7 @@ class Courses extends ListController
      */
     public function participants(): void
     {
-        if (!$courseID = Input::getSelectedIDs()[0]) {
+        if (!$courseID = Input::selectedIDs()[0]) {
             parent::display();
 
             return;

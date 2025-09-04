@@ -21,7 +21,7 @@ class Grid extends FormController
     /** @inheritDoc */
     protected function prepareData(): array
     {
-        $data = Input::getFormItems();
+        $data = Input::post();
 
         // Re-key the field row names away
         $periods      = empty($data['grid']) ? [] : array_values($data['grid']);

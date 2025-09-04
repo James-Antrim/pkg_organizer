@@ -60,7 +60,7 @@ abstract class ListController extends Controller
         $this->checkToken();
         $this->authorize();
 
-        if (!$selectedIDs = Input::getSelectedIDs()) {
+        if (!$selectedIDs = Input::selectedIDs()) {
             Application::message('NO_SELECTION', Application::WARNING);
 
             return;
@@ -150,7 +150,7 @@ abstract class ListController extends Controller
         $this->checkToken();
         $this->authorize();
 
-        $selectedIDs = Input::getSelectedIDs();
+        $selectedIDs = Input::selectedIDs();
         $selected    = count($selectedIDs);
         $updated     = $this->updateBool($column, $selectedIDs, $value);
 

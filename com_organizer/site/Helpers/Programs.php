@@ -296,10 +296,10 @@ class Programs extends Curricula implements Selectable
      */
     private static function useCurrent(): bool
     {
-        $selectedIDs = Input::getSelectedIDs();
+        $selectedIDs = Input::selectedIDs();
         $useCurrent  = false;
 
-        if (Input::getView() === 'participant_edit') {
+        if (Input::view() === 'participant_edit') {
             $participantID = empty($selectedIDs) ? User::id() : $selectedIDs[0];
             $table         = new Participants();
 

@@ -228,7 +228,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
 
         if ($access) {
             $allowedIDs = [];
-            $view       = strtolower(Input::getView());
+            $view       = strtolower(Input::view());
 
             switch ($access) {
                 case 'schedule':

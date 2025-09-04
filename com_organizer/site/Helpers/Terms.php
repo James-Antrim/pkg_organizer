@@ -166,7 +166,7 @@ class Terms extends ResourceHelper implements Selectable
             ->from(DB::qn('#__organizer_terms', 'term'))
             ->order(DB::qn('startDate'));
 
-        if ($view = Input::getView() and $view === 'Schedules') {
+        if ($view = Input::view() and $view === 'Schedules') {
             $query->innerJoin(DB::qn('#__organizer_schedules', 's'), DB::qc('s.termID', 'term.id'));
         }
 

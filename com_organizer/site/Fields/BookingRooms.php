@@ -20,7 +20,7 @@ class BookingRooms extends ListField
     protected function getOptions(): array
     {
         $options = parent::getOptions();
-        $rooms   = Helpers\Bookings::roomOptions(Input::getID());
+        $rooms   = Helpers\Bookings::roomOptions(Input::id());
 
         return array_merge($options, $rooms);
     }

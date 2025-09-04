@@ -52,7 +52,7 @@ class CourseParticipants extends Participants
             return;
         }
 
-        if (!$courseID = Input::getID()) {
+        if (!$courseID = Input::id()) {
             Application::error(400);
             return;
         }
@@ -98,10 +98,10 @@ class CourseParticipants extends Participants
         $this->checkToken();
         $this->authorize();
 
-        $courseID    = Input::getID();
+        $courseID    = Input::id();
         $deleted     = 0;
         $keys        = ['courseID' => $courseID];
-        $selectedIDs = Input::getSelectedIDs();
+        $selectedIDs = Input::selectedIDs();
         $selected    = count($selectedIDs);
 
         $query = DB::query();
@@ -153,8 +153,8 @@ class CourseParticipants extends Participants
         $this->checkToken();
         $this->authorize();
 
-        $courseID    = Input::getID();
-        $selectedIDs = Input::getSelectedIDs();
+        $courseID    = Input::id();
+        $selectedIDs = Input::selectedIDs();
         $selected    = count($selectedIDs);
 
         // getSelectedIDs will return the id parameter if empty, which here is used for the course id
@@ -166,7 +166,7 @@ class CourseParticipants extends Participants
         $participantIDs = $selectedIDs ?: cHelper::participantIDs($courseID);
         $notified       = 0;
 
-        $form = Input::getBatchItems();
+        $form = Input::batches();
         if ($subject = trim($form->get('subject', '')) and $body = trim($form->get('body', ''))) {
             foreach ($participantIDs as $participantID) {
                 if (Mailer::notifyParticipant($participantID, $subject, $body)) {

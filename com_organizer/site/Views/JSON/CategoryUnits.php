@@ -32,8 +32,8 @@ class CategoryUnits extends BaseView
         $interval     = $this->getInterval();
         $nameProperty = 'name_' . Application::tag();
 
-        $active     = Input::getBool('active', true);
-        $categoryID = Input::getInt('categoryID');
+        $active     = Input::bool('active', true);
+        $categoryID = Input::integer('categoryID');
 
         foreach (Helpers\Categories::groups($categoryID, $active) as $group) {
             $group['events'] = [];

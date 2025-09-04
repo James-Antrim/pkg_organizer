@@ -20,7 +20,7 @@ class CourseParticipants extends Participants
     /** @inheritDoc */
     protected function addAccess(QueryInterface $query): void
     {
-        if (cHelper::coordinatable(Input::getID())) {
+        if (cHelper::coordinatable(Input::id())) {
             $query->select(DB::quote(1) . ' AS ' . DB::qn('access'));
         }
         else {
@@ -41,7 +41,7 @@ class CourseParticipants extends Participants
 
         $this->filterValues($query, ['attended', 'paid']);
 
-        $courseID = Input::getID();
+        $courseID = Input::id();
         $query->select(DB::qn(['cp.attended', 'cp.paid', 'cp.status']))
             ->innerJoin(DB::qn('#__organizer_course_participants', 'cp'), DB::qc('cp.participantID', 'pa.id'))
             ->where(DB::qc('cp.courseID', $courseID));
@@ -70,8 +70,8 @@ class CourseParticipants extends Participants
         parent::populateState($ordering, $direction);
 
         $context  = 'com_organizer.courseparticipants.hidden';
-        $courseID = Application::userRequestState("$context.id", 'id', Input::getID(), 'int');
-        $itemID   = Application::userRequestState("$context.Itemid", 'Itemid', Input::getInt('Itemid'), 'int');
+        $courseID = Application::userRequestState("$context.id", 'id', Input::id(), 'int');
+        $itemID   = Application::userRequestState("$context.Itemid", 'Itemid', Input::integer('Itemid'), 'int');
 
         $this->state->set('hidden.id', $courseID);
         $this->state->set('hidden.Itemid', $itemID);

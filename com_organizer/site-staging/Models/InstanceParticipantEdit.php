@@ -29,7 +29,7 @@ class InstanceParticipantEdit extends EditModel
         $session = Factory::getSession();
 
         if (!$session->get('organizer.participation.referrer')) {
-            $referrer = Input::getInput()->server->getString('HTTP_REFERER');
+            $referrer = Input::instance()->server->getString('HTTP_REFERER');
             $session->set('organizer.participation.referrer', $referrer);
         }
     }
@@ -42,7 +42,7 @@ class InstanceParticipantEdit extends EditModel
     {
         $bookingID = 0;
 
-        if (!$participationID = Input::getID() or !$bookingID = Helper::bookingID($participationID)) {
+        if (!$participationID = Input::id() or !$bookingID = Helper::bookingID($participationID)) {
             Application::error(400);
         }
 
@@ -51,16 +51,10 @@ class InstanceParticipantEdit extends EditModel
         }
     }
 
-    /**
-     * Method to get a single record.
-     *
-     * @param   int  $pk  The id of the primary key.
-     *
-     * @return mixed    Object on success, false on failure.
-     */
-    public function getItem($pk = 0)
+    /** @inheritDoc */
+    public function getItem(): object
     {
-        $this->item           = parent::getItem($pk);
+        $this->item           = parent::getItem();
         $this->item->referrer = Factory::getSession()->get('organizer.participation.referrer');
 
         return $this->item;

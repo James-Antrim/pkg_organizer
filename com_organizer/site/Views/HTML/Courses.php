@@ -33,7 +33,7 @@ class Courses extends ListView
         parent::__construct($config);
 
         // GET or menu item settings
-        $this->preparatory = (Input::getBool('preparatory') or Input::getBool('onlyPrepCourses'));
+        $this->preparatory = (Input::bool('preparatory') or Input::bool('onlyPrepCourses'));
     }
 
     /** @inheritDoc */
@@ -216,7 +216,7 @@ class Courses extends ListView
      */
     public function display($tpl = null): void
     {
-        $params = Input::getParams();
+        $params = Input::parameters();
 
         if ($params->get('onlyPrepCourses')) {
             $this->empty = Text::_('PREP_COURSE_PLANNING_INCOMPLETE');

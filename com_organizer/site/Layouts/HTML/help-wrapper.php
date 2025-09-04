@@ -10,7 +10,7 @@
 
 use THM\Organizer\Adapters\Input;
 
-$topic = Input::getCMD('topic', 'toc');
+$topic = Input::cmd('topic', 'toc');
 
 echo $this->title;
 ?>

@@ -61,7 +61,7 @@ class GenericOptions extends ListField
 
                 $conditional = str_contains($predicate, ' ON ');
 
-                // Join conditions for the from (first) table or no join conditions for join tables => error
+                // Join conditions for the "from" table or no join conditions for join tables => error
                 if (($conditional and $from) or (!$conditional and !$from)) {
                     return $defaultOptions;
                 }
@@ -160,7 +160,7 @@ class GenericOptions extends ListField
         }
 
         $valueParameters     = explode(',', $valueParameter);
-        $componentParameters = Input::getParams();
+        $componentParameters = Input::parameters();
 
         foreach ($valueParameters as $parameter) {
             $componentParameter = $componentParameters->get($parameter);

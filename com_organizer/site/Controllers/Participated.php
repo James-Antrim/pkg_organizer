@@ -31,8 +31,8 @@ trait Participated
         $this->checkToken();
         $this->authorize();
 
-        $contextID   = Input::getID();
-        $selectedIDs = Input::getSelectedIDs();
+        $contextID   = Input::id();
+        $selectedIDs = Input::selectedIDs();
         $selected    = count($selectedIDs);
         $updated     = $this->updateAssoc($column, $contextID, $selectedIDs, $value);
 

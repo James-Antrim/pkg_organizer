@@ -32,7 +32,7 @@ class Fields extends ResourceHelper implements Selectable
         $exists = $table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]);
 
         if (!$exists or empty($table->colorID)) {
-            return Input::getParams()->get('backgroundColor', '#f2f5f6');
+            return Input::parameters()->get('backgroundColor', '#f2f5f6');
         }
 
         return Colors::color($table->colorID);
@@ -86,10 +86,10 @@ class Fields extends ResourceHelper implements Selectable
 
         $rows = [];
 
-        if ($poolID = Input::getInt('poolID')) {
+        if ($poolID = Input::integer('poolID')) {
             $rows = Pools::subjects($poolID);
         }
-        elseif ($programID = Input::getInt('programID')) {
+        elseif ($programID = Input::integer('programID')) {
             $rows = Programs::subjects($programID);
         }
 

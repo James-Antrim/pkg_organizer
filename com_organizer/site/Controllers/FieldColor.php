@@ -24,7 +24,7 @@ class FieldColor extends FormController
         $this->checkToken();
         $this->authorize();
 
-        $id         = Input::getID();
+        $id         = Input::id();
         $this->data = $this->prepareData();
 
         /** @var Table $table */

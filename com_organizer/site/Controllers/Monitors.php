@@ -28,7 +28,7 @@ class Monitors extends ListController
         $this->checkToken();
         $this->authorize();
 
-        $selectedIDs = Input::getSelectedIDs();
+        $selectedIDs = Input::selectedIDs();
         $selected    = count($selectedIDs);
         $updated     = $this->updateBool('useDefaults', $selectedIDs, false);
         $this->farewell($selected, $updated);
@@ -43,7 +43,7 @@ class Monitors extends ListController
         $this->checkToken();
         $this->authorize();
 
-        $selectedIDs = Input::getSelectedIDs();
+        $selectedIDs = Input::selectedIDs();
         $selected    = count($selectedIDs);
         $updated     = $this->updateBool('useDefaults', $selectedIDs, true);
         $this->farewell($selected, $updated);

@@ -128,7 +128,7 @@ class CourseParticipants extends Participants
     {
         $options = [
             'checked'   => HTML::icon('fa fa-check'),
-            'expired'   => cHelper::expired(Input::getID()),
+            'expired'   => cHelper::expired(Input::id()),
             'unchecked' => HTML::icon('fa fa-times')
         ];
 

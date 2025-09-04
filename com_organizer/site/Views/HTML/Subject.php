@@ -53,7 +53,7 @@ class Subject extends FormView
     /** @inheritDoc */
     protected function authorize(): void
     {
-        if ($this->layout === 'edit' and !Helper::documentable(Input::getID())) {
+        if ($this->layout === 'edit' and !Helper::documentable(Input::id())) {
             Application::error(403);
         }
     }

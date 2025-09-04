@@ -85,7 +85,7 @@ class Course extends FormView
     /** @inheritDoc */
     protected function authorize(): void
     {
-        $courseID = Input::getID();
+        $courseID = Input::id();
 
         // Access >= coordinates works for both layouts.
         if ($this->coordinates = Helper::coordinatable($courseID)) {

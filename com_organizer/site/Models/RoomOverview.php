@@ -40,7 +40,7 @@ class RoomOverview extends ListModel
     {
         parent::filterFilterForm($form);
 
-        if (Input::getParams()->get('campusID')) {
+        if (Input::parameters()->get('campusID')) {
             $form->removeField('campusID', 'filter');
             unset($this->filter_fields[array_search('campusID', $this->filter_fields)]);
         }
@@ -160,7 +160,7 @@ class RoomOverview extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $list = Input::getListItems();
+        $list = Input::lists();
 
         $date = Application::userRequestState("$this->context.list.date", "list_date", '', 'string');
         $date = (string) $list->get('date', $date);
@@ -168,7 +168,7 @@ class RoomOverview extends ListModel
 
         $defaultGrid = Grids::getDefault();
 
-        if ($campusID = Input::getParams()->get('campusID')) {
+        if ($campusID = Input::parameters()->get('campusID')) {
             $defaultGrid = Campuses::gridID($campusID);
             $this->setState('filter.campusID', $campusID);
         }

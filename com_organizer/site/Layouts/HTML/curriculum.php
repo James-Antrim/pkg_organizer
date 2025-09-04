@@ -10,7 +10,7 @@
 
 use THM\Organizer\Adapters\Input;
 
-if (!$componentTemplate = Input::getCMD('tmpl') === 'component') {
+if (!$componentTemplate = Input::cmd('tmpl') === 'component') {
     echo $this->title;
 }
 ?>

@@ -28,7 +28,7 @@ class LSF
      */
     public function __construct()
     {
-        $uri          = Input::getParams()->get('wsURI');
+        $uri          = Input::parameters()->get('wsURI');
         $this->client = new SoapClient(null, ['uri' => $uri, 'location' => $uri]);
     }
 
@@ -107,7 +107,7 @@ class LSF
      */
     private function header(string $objectType): string
     {
-        $params = Input::getParams();
+        $params = Input::parameters();
 
         $header = '<?xml version="1.0" encoding="UTF-8"?><SOAPDataService>';
         $header .= "<general><object>$objectType</object></general><user-auth>";

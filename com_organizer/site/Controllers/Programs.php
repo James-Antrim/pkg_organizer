@@ -50,7 +50,7 @@ class Programs extends CurriculumResources
         $this->checkToken();
         $this->authorize();
 
-        if (!$selectedIDs = Input::getSelectedIDs()) {
+        if (!$selectedIDs = Input::selectedIDs()) {
             Application::message('NO_SELECTION', Application::WARNING);
 
             $this->farewell();

@@ -17,7 +17,7 @@ use THM\Organizer\Views\HTML\Course;
 $formName  = strtoupper($this->getName());
 $ariaLabel = Text::_("ORGANIZER_{$formName}_FORM");
 
-$input          = Input::getInput();
+$input          = Input::instance();
 $forcedLanguage = $input->get('forcedLanguage', '');
 $return         = $input->getBase64('return');
 
@@ -39,7 +39,7 @@ $rawData = [
     'termID'
 ];
 
-$courseID = Input::getID();
+$courseID = Input::id();
 require_once 'header.php';
 ?>
 <form action="<?php echo Route::_('index.php?option=com_organizer'); ?>"

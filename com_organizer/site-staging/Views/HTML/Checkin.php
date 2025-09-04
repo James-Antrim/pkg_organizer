@@ -65,12 +65,12 @@ class Checkin extends OldFormView
     {
         $session = Factory::getSession();
 
-        if ($layout = Input::getCMD('layout')) {
+        if ($layout = Input::cmd('layout')) {
             if ($this->privacy = $layout === 'privacy') {
                 if (!$session->get('organizer.checkin.referrer')) {
                     $session->set(
                         'organizer.checkin.referrer',
-                        Input::getInput()->server->getString('HTTP_REFERER')
+                        Input::instance()->server->getString('HTTP_REFERER')
                     );
                 }
             }

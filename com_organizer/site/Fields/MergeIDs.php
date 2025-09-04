@@ -27,7 +27,7 @@ class MergeIDs extends FormField
      */
     protected function getInput(): string
     {
-        $selectedIDs = Input::getSelectedIDs();
+        $selectedIDs = Input::selectedIDs();
         asort($selectedIDs);
         $values = implode(',', $selectedIDs);
 

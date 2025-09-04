@@ -30,7 +30,7 @@ class MergeGroups extends MergeController
         $data['suppress'] = $this->boolAggregate('suppress', 'groups', true);
 
         // Use of Input::getIntArray removes unpublished indexes.
-        $data['publishing'] = ArrayHelper::toInteger(Input::getArray('publishing'));
+        $data['publishing'] = ArrayHelper::toInteger(Input::array('publishing'));
 
         $this->data = $data;
 

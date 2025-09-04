@@ -67,7 +67,7 @@ class Colors extends ResourceHelper
         $green = hexdec(substr($color, 2, 2));
         $blue  = hexdec(substr($color, 4, 2));
 
-        $params             = Input::getParams();
+        $params             = Input::parameters();
         $relativeBrightness = ($red * 299) + ($green * 587) + ($blue * 114);
         $brightness         = $relativeBrightness / 1000;
         if ($brightness >= 128) {

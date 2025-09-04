@@ -129,7 +129,7 @@ trait Ranges
             case 'Pool':
                 $range = [
                     'poolID'     => $data['id'],
-                    'curriculum' => Input::getTask() !== 'Pool.save2copy' ? $this->subordinates() : []
+                    'curriculum' => Input::task() !== 'Pool.save2copy' ? $this->subordinates() : []
                 ];
                 break;
             case 'Subject':
@@ -447,9 +447,9 @@ trait Ranges
         $index        = 1;
         $subOrdinates = [];
 
-        while (Input::getInt("sub{$index}Order")) {
-            $ordering      = Input::getInt("sub{$index}Order");
-            $aggregateInfo = Input::getCMD("sub$index");
+        while (Input::integer("sub{$index}Order")) {
+            $ordering      = Input::integer("sub{$index}Order");
+            $aggregateInfo = Input::cmd("sub$index");
 
             if (!empty($aggregateInfo)) {
                 $resourceID   = substr($aggregateInfo, 0, strlen($aggregateInfo) - 1);

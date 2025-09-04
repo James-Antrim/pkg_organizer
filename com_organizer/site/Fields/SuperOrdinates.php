@@ -28,7 +28,7 @@ class SuperOrdinates extends ListField
         /** @var Form $form */
         $form       = $this->form;
         $resource   = strtolower($form->view());
-        $resourceID = Input::getID();
+        $resourceID = Input::id();
 
         // Initial program ranges are dependent on existing ranges.
         $ranges = $resource === 'pool' ? Pools::programs($resourceID) : Subjects::programs($resourceID);

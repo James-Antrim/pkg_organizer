@@ -43,8 +43,8 @@ class Workload extends FormModel
         }
 
         $myPersonID     = Persons::getIDByUserID();
-        $organizationID = Input::getInt('organizationID');
-        $personID       = Input::getInt('personID');
+        $organizationID = Input::integer('organizationID');
+        $personID       = Input::integer('personID');
 
         if ($authOIDs = Organizations::manageableIDs()) {
             if ($organizationID) {
@@ -347,7 +347,7 @@ class Workload extends FormModel
      */
     private function conditions(): void
     {
-        $termID = Input::getInt('termID', Terms::currentID());
+        $termID = Input::integer('termID', Terms::currentID());
 
         $conditions              = [];
         $conditions['date']      = Terms::startDate($termID);
@@ -382,8 +382,8 @@ class Workload extends FormModel
         return [
             'organizationID' => $this->organizationID,
             'personID'       => $this->personID,
-            'termID'         => Input::getInt('termID', Terms::currentID()),
-            'weeks'          => Input::getInt('weeks', 13)
+            'termID'         => Input::integer('termID', Terms::currentID()),
+            'weeks'          => Input::integer('weeks', 13)
         ];
     }
 

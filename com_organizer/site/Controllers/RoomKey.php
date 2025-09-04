@@ -27,7 +27,7 @@ class RoomKey extends FormController
         $this->checkToken();
         $this->authorize();
 
-        $data = Input::getFormItems();
+        $data = Input::post();
 
         /** @var RoomKeys $table */
         $table = $this->getTable();

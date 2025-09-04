@@ -19,8 +19,8 @@ class MergeOrganizations extends ListField
     /** @inheritDoc */
     protected function getOptions(): array
     {
-        $selectedIDs    = Input::getSelectedIDs();
-        $resource       = str_replace('_merge', '', Input::getView());
+        $selectedIDs    = Input::selectedIDs();
+        $resource       = str_replace('_merge', '', Input::view());
         $validResources = ['category', 'person'];
         $invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
         if ($invalid) {

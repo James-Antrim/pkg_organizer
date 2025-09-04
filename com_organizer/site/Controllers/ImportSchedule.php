@@ -164,7 +164,7 @@ class ImportSchedule extends FormController
             return;
         }
 
-        $file = Input::getInput()->files->get('file');
+        $file = Input::instance()->files->get('file');
 
         if (empty($file['type']) or $file['type'] !== 'text/xml') {
             Application::message('FILE_TYPE_INVALID', Application::ERROR);
@@ -189,7 +189,7 @@ class ImportSchedule extends FormController
             return;
         }
 
-        $backDate = Input::getString('date');
+        $backDate = Input::string('date');
 
         // Creation Date & Time, school year dates, term attributes
         $this->creationDate = ($backDate and Dates::validate($backDate)) ? $backDate : trim((string) $xml[0]['date']);

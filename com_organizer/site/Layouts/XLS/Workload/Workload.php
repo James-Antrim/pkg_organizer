@@ -148,11 +148,11 @@ class Workload extends BaseLayout
     public function __construct(BaseView $view)
     {
         parent::__construct($view);
-        $this->organizationID = Input::getInt('organizationID');
-        $this->personID       = Input::getInt('personID');
-        $this->separate       = Input::getBool('separate');
-        $this->termID         = Input::getInt('termID');
-        $this->weeks          = Input::getInt('weeks', 13);
+        $this->organizationID = Input::integer('organizationID');
+        $this->personID       = Input::integer('personID');
+        $this->separate       = Input::bool('separate');
+        $this->termID         = Input::integer('termID');
+        $this->weeks          = Input::integer('weeks', 13);
     }
 
     /**

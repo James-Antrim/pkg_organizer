@@ -24,7 +24,7 @@ class Persons extends BaseView
      */
     public function display()
     {
-        $function = Input::getTask();
+        $function = Input::task();
         if (method_exists('Organizer\\Helpers\\Persons', $function)) {
             echo json_encode(Helpers\Persons::$function(), JSON_UNESCAPED_UNICODE);
         }

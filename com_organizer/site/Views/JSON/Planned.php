@@ -20,7 +20,7 @@ trait Planned
      */
     public function getDate()
     {
-        $date = Input::getString('date');
+        $date = Input::string('date');
 
         return ($dts = strtotime($date)) ? date('Y-m-d', $dts) : date('Y-m-d');
     }
@@ -32,7 +32,7 @@ trait Planned
     public function getInterval(): string
     {
         $intervals = ['day', 'week', 'term'];
-        $interval  = Input::getString('interval');
+        $interval  = Input::string('interval');
 
         return in_array($interval, $intervals) ? $interval : 'term';
     }

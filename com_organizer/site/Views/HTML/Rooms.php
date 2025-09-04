@@ -34,7 +34,7 @@ class Rooms extends ListView
 
         $title = Text::_('ROOMS');
 
-        if ($campusID = Input::getInt('campusID')) {
+        if ($campusID = Input::integer('campusID')) {
             $title .= ': ' . Text::_('CAMPUS');
             $title .= ' ' . Campuses::name($campusID);
         }

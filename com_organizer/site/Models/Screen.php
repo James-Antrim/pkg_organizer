@@ -41,7 +41,7 @@ class Screen extends BaseModel
         parent::__construct();
 
         $imagePath = JPATH_ROOT . '/images/organizer/';
-        $ipData    = ['ip' => Input::getInput()->server->getString('REMOTE_ADDR', '')];
+        $ipData    = ['ip' => Input::instance()->server->getString('REMOTE_ADDR', '')];
         $layout    = 'upcoming_instances';
         $monitor   = new Tables\Monitors();
         $roomID    = 0;
@@ -85,13 +85,13 @@ class Screen extends BaseModel
                     break;
             }
         }
-        elseif ($name = Input::getCMD('room') and $roomID = Helpers\Rooms::getID($name)) {
+        elseif ($name = Input::cmd('room') and $roomID = Helpers\Rooms::getID($name)) {
             if (Application::mobile()) {
                 $layout = 'current_instances';
             }
             else {
                 $layouts = ['current_instances', 'image', 'upcoming_instances'];
-                $layout  = Input::getCMD('layout', 'upcoming_instances');
+                $layout  = Input::cmd('layout', 'upcoming_instances');
                 $layout  = in_array($layout, $layouts) ? $layout : 'upcoming_instances';
             }
         }
@@ -99,8 +99,8 @@ class Screen extends BaseModel
             Application::instance()->redirect('index.php', 400);
         }
 
-        if (Input::getCMD('tmpl') !== 'component') {
-            $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
+        if (Input::cmd('tmpl') !== 'component') {
+            $query = Input::instance()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
             Application::instance()->redirect(Uri::root() . "?$query");
         }
 

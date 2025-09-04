@@ -141,7 +141,7 @@ class InstanceItem extends ListView
      */
     protected function authorize(): void
     {
-        if (!$instanceID = Input::getID()) {
+        if (!$instanceID = Input::id()) {
             Application::error(400);
         }
 
@@ -179,16 +179,6 @@ class InstanceItem extends ListView
         $title = HTML::link($item->link, $title);
 
         return $this->liGetTitle($item, $title);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
-    {
-        parent::modifyDocument();
-
-        //Document::style('item');
     }
 
     /**

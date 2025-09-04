@@ -11,7 +11,7 @@
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Input, Text};
 
-if (Input::getCMD('tmpl') === 'component') {
+if (Input::cmd('tmpl') === 'component') {
     return;
 }
 
@@ -19,7 +19,7 @@ $contents = [];
 $dynamic  = Application::dynamic();
 $folder   = dirname(__FILE__);
 $iterator = new DirectoryIterator($folder);
-$layout   = Input::getCMD('topic');
+$layout   = Input::cmd('topic');
 $link     = $dynamic ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
 foreach ($iterator as $node) {

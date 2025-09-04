@@ -40,7 +40,7 @@ class Instances extends ListView
             Application::error(403);
         }
 
-        if (Input::getBool('my') and !User::id()) {
+        if (Input::bool('my') and !User::id()) {
             Application::error(401);
         }
     }

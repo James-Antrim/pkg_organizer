@@ -48,7 +48,7 @@ class Booking extends Participants
             Application::error(401);
         }
 
-        if (!$instanceIDs = Input::getSelectedIDs()) {
+        if (!$instanceIDs = Input::selectedIDs()) {
             Application::error(400);
         }
 
@@ -96,17 +96,17 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        $listItems = Input::getListItems();
+        $listItems = Input::lists();
         $input     = $listItems->get('username');
 
         if (empty($input) or !$input = trim($input)) {
             Application::error(400);
         }
 
-        $bookingID = Input::getID();
+        $bookingID = Input::id();
 
         // Manually unset the username, so it isn't later added to the state
-        Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
+        Input::instance()->set('list', ['fullordering' => $listItems->get('fullordering')]);
 
         $existing = true;
         $query    = DB::query();
@@ -320,7 +320,7 @@ class Booking extends Participants
      */
     private function authorize(): void
     {
-        if (!$bookingID = Input::getID()) {
+        if (!$bookingID = Input::id()) {
             Application::error(400);
         }
 
@@ -337,7 +337,7 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        $batch      = Input::getBatchItems();
+        $batch      = Input::batches();
         $instanceID = (int) $batch->get('instanceID');
         $roomID     = (int) $batch->get('roomID');
 
@@ -345,7 +345,7 @@ class Booking extends Participants
             return true;
         }
 
-        foreach (Input::getSelectedIDs() as $participationID) {
+        foreach (Input::selectedIDs() as $participationID) {
             $participation = new Tables\InstanceParticipants();
 
             if (!$participation->load($participationID)) {
@@ -429,13 +429,13 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        if (!Helper::instanceIDs(Input::getID())) {
+        if (!Helper::instanceIDs(Input::id())) {
             Application::error(400);
         }
 
         $count = 0;
 
-        foreach (Input::getSelectedIDs() as $participationID) {
+        foreach (Input::selectedIDs() as $participationID) {
             $participation = new Tables\InstanceParticipants();
 
             if ($participation->load($participationID)) {
@@ -463,7 +463,7 @@ class Booking extends Participants
 
         $block     = new Tables\Blocks();
         $booking   = new Tables\Bookings();
-        $bookingID = Input::getID();
+        $bookingID = Input::id();
 
         if (!$booking->load($bookingID) or !$block->load($booking->blockID)) {
             Application::message('ORGANIZER_412', Application::ERROR);
@@ -492,7 +492,7 @@ class Booking extends Participants
     {
         parent::filterFilterForm($form);
 
-        $bookingID = Input::getID();
+        $bookingID = Input::id();
 
         if (!Application::backend()) {
             $form->removeField('limit', 'list');
@@ -525,7 +525,7 @@ class Booking extends Participants
      */
     public function getBooking(): Tables\Bookings
     {
-        $bookingID = Input::getID();
+        $bookingID = Input::id();
         $booking   = new Tables\Bookings();
         $booking->load($bookingID);
 
@@ -541,7 +541,7 @@ class Booking extends Participants
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        $bookingID = Input::getID();
+        $bookingID = Input::id();
         $query     = parent::getListQuery();
         $query->select('r.name AS room, ip.id AS ipaID, ip.attended, ip.seat, ip.registered')
             ->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
@@ -576,7 +576,7 @@ class Booking extends Participants
     /** @inheritDoc */
     public function getItems(): array
     {
-        $bookingID = Input::getID();
+        $bookingID = Input::id();
         $query     = DB::query();
         $tag       = Application::tag();
         $query->select("e.name_$tag AS event")
@@ -649,7 +649,7 @@ class Booking extends Participants
 
         $block     = new Tables\Blocks();
         $booking   = new Tables\Bookings();
-        $bookingID = Input::getID();
+        $bookingID = Input::id();
 
         if (!$booking->load($bookingID) or !$block->load($booking->blockID)) {
             Application::message('ORGANIZER_412', Application::ERROR);
@@ -688,7 +688,7 @@ class Booking extends Participants
     /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
-        if (Input::getListItems()->get('username')) {
+        if (Input::lists()->get('username')) {
             $this->addParticipant();
         }
 
@@ -703,7 +703,7 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        if (!$participationIDs = Input::getSelectedIDs()) {
+        if (!$participationIDs = Input::selectedIDs()) {
             Application::message('ORGANIZER_400', Application::WARNING);
 
             return;

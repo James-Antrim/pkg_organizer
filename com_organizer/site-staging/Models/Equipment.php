@@ -73,7 +73,7 @@ class Equipment extends ListModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Input::getFormItems() : $data;
+        $data = empty($data) ? Input::post() : $data;
 
         try {
             $table = $this->getTable();

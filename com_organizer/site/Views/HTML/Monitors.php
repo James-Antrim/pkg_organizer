@@ -50,7 +50,7 @@ class Monitors extends ListView
      */
     protected function completeItems(array $options = []): void
     {
-        $params   = Input::getParams();
+        $params   = Input::parameters();
         $template = $params->get('display');
         $content  = $params->get('content');
 

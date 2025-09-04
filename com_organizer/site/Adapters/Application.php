@@ -178,7 +178,7 @@ class Application
                 die;
             }
 
-            $url = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
+            $url = Input::instance()->server->getString('HTTP_REFERER', Uri::base());
         }
 
         self::message($message, $severity);
@@ -361,7 +361,7 @@ class Application
      */
     public static function ucClass(string $name = ''): string
     {
-        $name = empty($name) ? Input::getView() : $name;
+        $name = empty($name) ? Input::view() : $name;
         $name = preg_replace('/[^A-Z0-9_]/i', '', $name);
 
         // First letter UC assume already correct

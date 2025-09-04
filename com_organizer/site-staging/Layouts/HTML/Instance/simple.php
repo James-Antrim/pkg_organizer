@@ -16,7 +16,7 @@ echo $this->form->renderField('blockID');
 echo $this->form->renderField('startTime');
 echo $this->form->renderField('endTime');
 
-if (Input::getBool('advanced')) {
+if (Input::bool('advanced')) {
     echo $this->form->renderFieldset('advanced');
 }
 else {

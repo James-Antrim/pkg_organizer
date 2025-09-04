@@ -87,7 +87,7 @@ class Conditions
         #region basics
         $dateFormat = 'Y-m-d';
         $docFormat  = Input::format();
-        $parameters = Input::getParams();
+        $parameters = Input::parameters();
 
         $this->delta  = date($dateFormat, strtotime('-14 days'));
         $this->userID = User::id();
@@ -96,7 +96,7 @@ class Conditions
             $bound     = false;
             $startDate = null;
 
-            if ($instances = Input::getCMD('instances') and in_array($instances, self::INSTANCES)) {
+            if ($instances = Input::cmd('instances') and in_array($instances, self::INSTANCES)) {
                 $this->instances = $instances;
             }
         }
@@ -111,18 +111,18 @@ class Conditions
 
         #region when & how
         $date     = Application::userRequestState("$context.list.date", "list_date", '', 'cmd');
-        $date     = Input::getCMD('date', $date);
+        $date     = Input::cmd('date', $date);
         $date     = Dates::standardize($date);
         $interval = Application::userRequestState("$context.list.interval", "list_interval", '', 'cmd');
-        $interval = Input::getCMD('interval', $interval);
+        $interval = Input::cmd('interval', $interval);
 
         // For now only used for HTML, but will someday also be used for PDF & XLS
         $layout = Application::userRequestState("$context.list.layout", "list_layout", '', 'cmd');
-        $layout = Input::getCMD('layout', $layout);
+        $layout = Input::cmd('layout', $layout);
         $layout = in_array($layout, self::LAYOUTS) ? $layout : self::LAYOUTS['default'];
 
         $status = Application::userRequestState("$context.filter.status", "filter_status", self::STATUSES['default'], 'int');
-        $status = Input::getInt('status', $status);
+        $status = Input::integer('status', $status);
         $status = in_array($status, self::STATUSES) ? $status : self::STATUSES['default'];
 
         $this->layout = $layout;
@@ -143,7 +143,7 @@ class Conditions
                     $interval : self::INTERVALS[Input::PDF]['default'];
                 // List is not supported at this time
                 $this->layout   = self::GRID;
-                $this->separate = Input::getBool('separate');
+                $this->separate = Input::bool('separate');
 
                 break;
 
@@ -199,7 +199,7 @@ class Conditions
 
         #region what & whether
         $personal = Application::userRequestState("$context.list.my", "list_my", 0, 'int');
-        $personal = Input::getInt('my', $personal);
+        $personal = Input::integer('my', $personal);
 
         // Personal plans preempt filtering
         if ($personal) {
@@ -296,7 +296,7 @@ class Conditions
      */
     public static function ninetyDays(int $dateTime): array
     {
-        if (Input::getCMD('format') === Input::PDF) {
+        if (Input::cmd('format') === Input::PDF) {
             $dateTime = strtotime("Monday this week", $dateTime);
         }
 

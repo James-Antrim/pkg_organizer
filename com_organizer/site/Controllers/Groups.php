@@ -32,13 +32,13 @@ class Groups extends ListController
         $this->checkToken();
         $this->authorize();
 
-        if (!$groupIDs = Input::getSelectedIDs()) {
+        if (!$groupIDs = Input::selectedIDs()) {
             Application::message('NO_SELECTION', Application::WARNING);
 
             return;
         }
 
-        $batch      = Input::getBatchItems();
+        $batch      = Input::batches();
         $gridID     = (int) $batch->get('gridID');
         $publishing = (array) $batch->get('publishing');
         $selected   = count($groupIDs);
@@ -96,7 +96,7 @@ class Groups extends ListController
         $this->checkToken();
         $this->authorize();
 
-        if (!$groupIDs = Input::getSelectedIDs()) {
+        if (!$groupIDs = Input::selectedIDs()) {
             Application::message('NO_SELECTION', Application::WARNING);
 
             return;

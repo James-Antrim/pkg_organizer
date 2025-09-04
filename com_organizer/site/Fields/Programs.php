@@ -24,7 +24,7 @@ class Programs extends ListField
     {
         $options = parent::getOptions();
 
-        $participantEdit = (strtolower(str_replace('_', '', Input::getView())) === 'Participant');
+        $participantEdit = (strtolower(str_replace('_', '', Input::view())) === 'Participant');
         if ($participantEdit and Helpers\Can::administrate()) {
             $options[] = HTML::option(-1, Text::_('UNKNOWN'));
         }

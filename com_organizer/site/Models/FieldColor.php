@@ -25,7 +25,7 @@ class FieldColor extends EditModel
             return null;
         }
 
-        if (Input::getID()) {
+        if (Input::id()) {
             $form->setFieldAttribute('fieldID', 'disabled', true);
             $form->setFieldAttribute('organizationID', 'disabled', true);
         }

@@ -41,8 +41,8 @@ class Persons extends Scheduled implements Selectable, Viewable
             ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.subjectID', 'sp.subjectID'))
             ->order(DB::qn(['p.surname', 'p.forename']));
 
-        $programID = Input::getInt('programID', self::NONE);
-        $poolID    = Input::getInt('poolID', self::NONE);
+        $programID = Input::integer('programID', self::NONE);
+        $poolID    = Input::integer('poolID', self::NONE);
 
         $boundarySet = $poolID > 0 ? Pools::rows($poolID) : Programs::rows($programID);
 
@@ -186,7 +186,7 @@ class Persons extends Scheduled implements Selectable, Viewable
      */
     public static function resources(): array
     {
-        $organizationID = Input::getInt('organizationID');
+        $organizationID = Input::integer('organizationID');
 
         if ($organizationID) {
             $organizationIDs = Can::view('organization', $organizationID) ? [$organizationID] : [];
@@ -212,7 +212,7 @@ class Persons extends Scheduled implements Selectable, Viewable
             $query->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.personID', 'p.id'));
 
             // In order of specificity
-            if ($categoryID = Input::getInt('categoryID')) {
+            if ($categoryID = Input::integer('categoryID')) {
                 $query->innerJoin(DB::qn('#__organizer_instance_persons', 'ip'), DB::qc('ip.personID', 'p.id'))
                     ->innerJoin(DB::qn('#__organizer_instance_groups', 'ig'), DB::qc('ig.assocID', 'ip.id'))
                     ->innerJoin(DB::qn('#__organizer_groups', 'g'), DB::qc('g.id', 'ig.groupID'));

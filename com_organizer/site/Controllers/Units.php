@@ -37,7 +37,7 @@ class Units extends ListController
         $this->checkToken();
         $this->authorize();
 
-        if (!$unitIDs = Input::getSelectedIDs()) {
+        if (!$unitIDs = Input::selectedIDs()) {
             Application::message('LIST_SELECTION_WARNING', Application::WARNING);
             $this->setRedirect("$this->baseURL&view=units");
             return;

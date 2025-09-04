@@ -106,7 +106,7 @@ abstract class BaseView extends TCPDF implements ViewInterface
         $this->setImageScale(1.25);
 
         $name   = $this->getName();
-        $layout = Input::getCMD('layout', $name);
+        $layout = Input::cmd('layout', $name);
         $layout = Application::uqClass($layout);
         $layout = "THM\\Organizer\\Layouts\\PDF\\$name\\$layout";
 

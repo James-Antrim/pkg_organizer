@@ -43,7 +43,7 @@ trait Active
      */
     public static function activeFilter(DatabaseQuery $query, string $alias): void
     {
-        $active = Input::getCMD('active');
+        $active = Input::cmd('active');
 
         if ($active === self::ALL) {
             return;

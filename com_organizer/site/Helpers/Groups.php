@@ -126,7 +126,7 @@ class Groups extends Scheduled implements Selectable
      */
     public static function options(string $access = ''): array
     {
-        $categoryID = Input::getInt('categoryID');
+        $categoryID = Input::integer('categoryID');
         $tag        = Application::tag();
         $name       = $categoryID ? "name_$tag" : "fullName_$tag";
 

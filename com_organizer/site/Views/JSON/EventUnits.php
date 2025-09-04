@@ -27,7 +27,7 @@ class EventUnits extends BaseView
     public function display()
     {
         $date     = $this->getDate();
-        $eventID  = Input::getInt('eventID');
+        $eventID  = Input::integer('eventID');
         $interval = $this->getInterval();
         $units    = [];
 

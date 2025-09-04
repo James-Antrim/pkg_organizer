@@ -33,7 +33,7 @@ class InstanceItem extends ListModel
     {
         parent::__construct($config);
 
-        $instanceID = Input::getID();
+        $instanceID = Input::id();
         $instance   = Helpers\Instances::instance($instanceID);
 
         $endDate    = Helpers\Terms::endDate($instance['termID']);
@@ -95,7 +95,7 @@ class InstanceItem extends ListModel
 
         if (!$this->referrer = $session->get('organizer.instance.item.referrer', '')) {
             $root     = Uri::root();
-            $referrer = Uri::getInstance(Input::getInput()->server->getString('HTTP_REFERER'));
+            $referrer = Uri::getInstance(Input::instance()->server->getString('HTTP_REFERER'));
 
             // Site external => irrelevant
             if (!str_starts_with((string) $referrer, $root)) {

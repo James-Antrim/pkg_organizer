@@ -73,7 +73,7 @@ class Profile extends OldFormModel
             return;
         }
 
-        $data = Input::getFormItems();
+        $data = Input::post();
 
         if (!$participant->save($data)) {
             Application::message('NOT_SAVED', Application::ERROR);

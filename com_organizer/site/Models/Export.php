@@ -44,11 +44,11 @@ class Export extends FormModel
             'separate'        => Input::NO,
         ];
 
-        if ($task = Input::getTask() and $task === 'reset') {
+        if ($task = Input::task() and $task === 'reset') {
             return $return;
         }
 
-        if (User::id() and $my = Input::getInt('my') and $my === Input::YES) {
+        if (User::id() and $my = Input::integer('my') and $my === Input::YES) {
             $return['my'] = $my;
         }
         else {
@@ -78,12 +78,12 @@ class Export extends FormModel
             $return['instances'] = Input::validCMD('instances', Conditions::INSTANCES);
             $return['methodIDs'] = Input::resourceIDs('methodIDs');
             $return['roleID']    = Input::validInt('roleID', array_keys(Roles::resources()));
-            $return['separate']  = (int) ($separate = Input::getInt('separate') and $separate === Input::YES);
+            $return['separate']  = (int) ($separate = Input::integer('separate') and $separate === Input::YES);
             $return['personIDs'] = array_intersect(Input::resourceIDs('personIDs'), Persons::viewableIDs());
             $return['roomIDs']   = Input::resourceIDs('roomIDs');
         }
 
-        $return['date']         = Dates::standardize(Input::getCMD('date', date('Y-m-d')));
+        $return['date']         = Dates::standardize(Input::cmd('date', date('Y-m-d')));
         $return['exportFormat'] = Input::validCMD('exportFormat', self::EXPORT_FORMATS);
         $return['interval']     = Input::validCMD('interval', self::INTERVALS);
 

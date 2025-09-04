@@ -46,8 +46,8 @@ class Checkin extends OldFormModel
         parent::__construct($config);
 
         // Force component template
-        if (Input::getCMD('tmpl') !== 'component') {
-            $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
+        if (Input::cmd('tmpl') !== 'component') {
+            $query = Input::instance()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
             Application::instance()->redirect(Uri::current() . "?$query");
         }
 
@@ -58,7 +58,7 @@ class Checkin extends OldFormModel
             $form->setValue('username', null, $username);
         }
 
-        if ($code = $session->get('organizer.checkin.code') or $code = Input::getCMD('code')) {
+        if ($code = $session->get('organizer.checkin.code') or $code = Input::cmd('code')) {
             $form->setValue('code', null, $code);
         }
 
@@ -76,7 +76,7 @@ class Checkin extends OldFormModel
     /** @inheritDoc */
     protected function authorize()
     {
-        if (Input::getCMD('layout') === 'profile' and !User::id()) {
+        if (Input::cmd('layout') === 'profile' and !User::id()) {
             Application::error(401);
         }
     }

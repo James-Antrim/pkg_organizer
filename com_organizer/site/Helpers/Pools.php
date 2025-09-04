@@ -255,8 +255,8 @@ class Pools extends Curricula implements Selectable
      */
     public static function resources(string $access = ''): array
     {
-        $programID = Input::getInt('programID');
-        $poolID    = Input::getInt('poolID');
+        $programID = Input::integer('programID');
+        $poolID    = Input::integer('poolID');
 
         if (!$programID and !$poolID) {
             return [];

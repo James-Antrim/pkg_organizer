@@ -82,7 +82,7 @@ class InstanceParticipant extends BaseModel
     {
         $bookingID = 0;
 
-        if (!$participationID = Input::getID() or !$bookingID = Helper::bookingID($participationID)) {
+        if (!$participationID = Input::id() or !$bookingID = Helper::bookingID($participationID)) {
             Application::error(400);
         }
 
@@ -159,7 +159,7 @@ class InstanceParticipant extends BaseModel
 
         Participant::supplement($participantID);
 
-        $data = Input::getFormItems();
+        $data = Input::post();
         if (!$code = $data['code'] or !preg_match('/^[a-f0-9]{4}-[a-f0-9]{4}$/', $code)) {
             Application::message('ORGANIZER_UNIT_CODE_INVALID', Application::ERROR);
 
@@ -231,7 +231,7 @@ class InstanceParticipant extends BaseModel
             return;
         }
 
-        if (!$instanceID = Input::getID()) {
+        if (!$instanceID = Input::id()) {
             Application::message('ORGANIZER_400', Application::ERROR);
 
             return;
@@ -279,7 +279,7 @@ class InstanceParticipant extends BaseModel
             return;
         }
 
-        if (!$instanceID = Input::getInt('instanceID') or !$roomID = Input::getInt('roomID')) {
+        if (!$instanceID = Input::integer('instanceID') or !$roomID = Input::integer('roomID')) {
             Application::message('ORGANIZER_400', Application::ERROR);
 
             return;
@@ -294,7 +294,7 @@ class InstanceParticipant extends BaseModel
         }
 
         $table->roomID = $roomID;
-        $table->seat   = Input::getString('seat');
+        $table->seat   = Input::string('seat');
 
         $table->store();
     }
@@ -394,7 +394,7 @@ class InstanceParticipant extends BaseModel
             case self::BLOCK:
                 $block      = new Blocks();
                 $instance   = new iTable();
-                $instanceID = Input::getID();
+                $instanceID = Input::id();
                 if (!$instanceID or !$instance->load($instanceID) or !$block->load($instance->blockID)) {
                     return [];
                 }
@@ -410,7 +410,7 @@ class InstanceParticipant extends BaseModel
             // Called from instance item context, selected ids are not relevant
             case self::THIS:
                 $instance   = new iTable();
-                $instanceID = Input::getID();
+                $instanceID = Input::id();
 
                 $instanceIDs = (!$instanceID or !$instance->load($instanceID)) ? [] : [$instanceID];
                 break;
@@ -419,7 +419,7 @@ class InstanceParticipant extends BaseModel
             case self::SELECTED:
             default:
 
-                if (!$instanceIDs = Input::getSelectedIDs()) {
+                if (!$instanceIDs = Input::selectedIDs()) {
                     return [];
                 }
 
@@ -652,7 +652,7 @@ class InstanceParticipant extends BaseModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Input::getFormItems() : $data;
+        $data = empty($data) ? Input::post() : $data;
 
         $table = new Table();
         if (!$table->load($data['id'])) {

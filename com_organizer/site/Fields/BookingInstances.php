@@ -20,7 +20,7 @@ class BookingInstances extends ListField
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $instances = Helpers\Bookings::instanceOptions(Input::getID());
+        $instances = Helpers\Bookings::instanceOptions(Input::id());
 
         return array_merge($options, $instances);
     }

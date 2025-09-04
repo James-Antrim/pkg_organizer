@@ -24,7 +24,7 @@ class Participant extends FormController
     /** @inheritDoc */
     protected function authorize(): void
     {
-        if (!$id = Input::getID()) {
+        if (!$id = Input::id()) {
             Application::error(400);
         }
         elseif (!Can::edit('participant', $id)) {

@@ -36,7 +36,7 @@ class Export extends FormView
         $this->title('EXPORT_TITLE');
 
         // No selections were made or the form was reset.
-        if (!Input::getFormItems() or Input::getTask() === 'reset') {
+        if (!Input::post() or Input::task() === 'reset') {
             return;
         }
 

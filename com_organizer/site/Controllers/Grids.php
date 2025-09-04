@@ -27,7 +27,7 @@ class Grids extends ListController
     {
         $this->authorize();
 
-        $selected = Input::getSelectedID();
+        $selected = Input::selectedID();
         $table    = new Table();
 
         // Entry not found or already set to default

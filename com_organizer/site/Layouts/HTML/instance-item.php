@@ -17,7 +17,7 @@ $instance    = $this->instance;
 $items       = $this->items;
 $iteration   = 0;
 $action      = Application::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
-$resourceID  = Input::getID();
+$resourceID  = Input::id();
 
 require_once 'titles.php';
 ?>
@@ -86,8 +86,8 @@ require_once 'titles.php';
                 </table>
             <?php endif; ?>
             <input type="hidden" name="boxchecked" value="0"/>
-            <input type="hidden" name="id" value="<?php echo Input::getID(); ?>"/>
-            <input type="hidden" name="Itemid" value="<?php echo Input::getInt('Itemid'); ?>"/>
+            <input type="hidden" name="id" value="<?php echo Input::id(); ?>"/>
+            <input type="hidden" name="Itemid" value="<?php echo Input::integer('Itemid'); ?>"/>
             <input type="hidden" name="option" value="com_organizer"/>
             <input type="hidden" name="task" value=""/>
             <input type="hidden" name="view" value="InstanceItem"/>

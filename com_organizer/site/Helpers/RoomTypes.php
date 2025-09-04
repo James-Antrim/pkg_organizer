@@ -65,9 +65,9 @@ class RoomTypes extends ResourceHelper implements Selectable
             $query->where(DB::qn('r.roomtypeID') . ' IS NULL');
         }
 
-        Buildings::filterBy($query, 'r', Input::getInt('buildingID'));
+        Buildings::filterBy($query, 'r', Input::integer('buildingID'));
 
-        if ($campusID = Input::getInt('campusID')) {
+        if ($campusID = Input::integer('campusID')) {
             $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
             Campuses::filterBy($query, 'b2', $campusID);
         }

@@ -61,7 +61,7 @@ abstract class BaseModel extends BaseDatabaseModel
      */
     public function delete(): bool
     {
-        if (!$this->selected = Input::getSelectedIDs()) {
+        if (!$this->selected = Input::selectedIDs()) {
             return false;
         }
 
@@ -97,7 +97,7 @@ abstract class BaseModel extends BaseDatabaseModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Input::getFormItems() : $data;
+        $data = empty($data) ? Input::post() : $data;
 
         try {
             /* @var Table $table */
@@ -121,7 +121,7 @@ abstract class BaseModel extends BaseDatabaseModel
      */
     public function save2copy(array $data = []): int
     {
-        $data = empty($data) ? Input::getFormItems() : $data;
+        $data = empty($data) ? Input::post() : $data;
         unset($data['id']);
 
         return $this->save($data);
@@ -134,7 +134,7 @@ abstract class BaseModel extends BaseDatabaseModel
      */
     public function toggle(): bool
     {
-        if (!$resourceID = Input::getID()) {
+        if (!$resourceID = Input::id()) {
             return false;
         }
 
@@ -142,7 +142,7 @@ abstract class BaseModel extends BaseDatabaseModel
         $this->selected = [$resourceID];
         $this->authorize();
 
-        $attribute = Input::getCMD('attribute');
+        $attribute = Input::cmd('attribute');
         $table     = $this->getTable();
 
         $tableFields = $table->getFields();

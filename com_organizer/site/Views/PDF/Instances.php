@@ -43,9 +43,9 @@ class Instances extends ListView
     protected function authorize(): void
     {
         // State has not been established => redundant checks :(
-        $filters  = Input::getFilterItems();
-        $params   = Input::getParams();
-        $my       = Input::getInt('my', $params->get('my', 0));
+        $filters  = Input::filters();
+        $params   = Input::parameters();
+        $my       = Input::integer('my', $params->get('my', 0));
         $personID = $filters->get('personID');
 
         if ($my or $personID) {

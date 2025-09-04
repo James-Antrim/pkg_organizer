@@ -43,7 +43,7 @@ class Instance extends BaseModel
             Application::error(403);
         }
 
-        if ($instanceID = Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
+        if ($instanceID = Input::id() and !Helpers\Can::manage('instance', $instanceID)) {
             Application::error(403);
         }
     }
@@ -60,7 +60,7 @@ class Instance extends BaseModel
         Application::error(503);
 
         $this->authorize();
-        $data           = empty($data) ? Input::getFormItems() : $data;
+        $data           = empty($data) ? Input::post() : $data;
         $this->modified = date('Y-m-d H:i:s');
 
         if ($data['layout'] === 'appointment') {

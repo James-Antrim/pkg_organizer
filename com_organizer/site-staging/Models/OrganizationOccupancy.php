@@ -43,14 +43,14 @@ class OrganizationOccupancy extends BaseModel
     {
         parent::__construct($config);
 
-        $format = Input::getCMD('format', 'html');
+        $format = Input::cmd('format', 'html');
 
         switch ($format) {
             case 'xls':
                 $this->setRoomTypes();
                 $this->setRooms();
 
-                $year            = Input::getCMD('year', date('Y'));
+                $year            = Input::cmd('year', date('Y'));
                 $this->startDate = "$year-01-01";
                 $this->endDate   = "$year-12-31";
 

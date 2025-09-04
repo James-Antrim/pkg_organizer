@@ -148,8 +148,8 @@ class SubOrdinates extends FormField
     private function getSubordinates(): array
     {
         $query    = DB::query();
-        $column   = DB::qn(strtolower(Input::getView()) . 'ID');
-        $parentID = Input::getID();
+        $column   = DB::qn(strtolower(Input::view()) . 'ID');
+        $parentID = Input::id();
 
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_curricula'))

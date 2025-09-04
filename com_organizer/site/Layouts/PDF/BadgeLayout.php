@@ -108,7 +108,7 @@ abstract class BadgeLayout extends BaseLayout
         $view->reposition($badgeCenter, $labelOffset);
         $view->renderCell(80, 5, Text::_('ORGANIZER_REPRESENTATIVE'), $view::CENTER);
 
-        $params = Input::getParams();
+        $params = Input::parameters();
         if (!empty($params->get('signatureFile'))) {
             $signaturePath = K_PATH_IMAGES . $params->get('signatureFile');
             $view->Image($signaturePath, $xOffset + 35, $signatureOffset, 20);

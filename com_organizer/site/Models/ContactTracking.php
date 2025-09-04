@@ -294,7 +294,7 @@ class ContactTracking extends ListModel
     {
         $participantID = $participantIDs ? $participantIDs[0] : 0;
         $personID      = $personIDs ? $personIDs[0] : 0;
-        $filters       = Input::getFilterItems();
+        $filters       = Input::filters();
         $search        = $filters->get('search');
         $tooMany       = Text::sprintf('ORGANIZER_TOO_MANY_RESULTS', $search);
 
@@ -325,7 +325,7 @@ class ContactTracking extends ListModel
     {
         parent::populateState();
 
-        $filters = Input::getFilterItems();
+        $filters = Input::filters();
 
         if (!$search = $filters->get('search')) {
             $this->forceEmpty();

@@ -92,7 +92,7 @@ class CalDEV extends BaseView
         $response = '';
 
         foreach ($accessibleResources as $key => $table) {
-            if (!$id = Input::getInt($key)) {
+            if (!$id = Input::integer($key)) {
                 continue;
             }
 

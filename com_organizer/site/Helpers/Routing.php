@@ -31,7 +31,7 @@ class Routing
         }
 
         // If the menu is plausible redirect
-        if ($menuID = Input::getItemid() and !Application::menuItem($menuID)->home) {
+        if ($menuID = Input::itemID() and !Application::menuItem($menuID)->home) {
             return $base . Application::menuItem($menuID)->route . '?';
         }
 

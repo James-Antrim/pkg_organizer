@@ -25,7 +25,7 @@ class Help extends BaseView
      */
     protected function addToolBar(): void
     {
-        $topic    = strtoupper(Input::getCMD('topic', 'toc'));
+        $topic    = strtoupper(Input::cmd('topic', 'toc'));
         $constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
         $this->title($constant);
     }

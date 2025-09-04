@@ -146,7 +146,7 @@ class Subject extends EditModel
             $item->superordinates = Pools::superValues($item->id, 'subject');
 
             // Reformat values for labeled display of an existing subject
-            if ($item->id and !Input::getCMD('layout')) {
+            if ($item->id and !Input::cmd('layout')) {
                 $dependencies = $this->dependencies($item);
                 $model        = [];
                 $tag          = Application::tag();

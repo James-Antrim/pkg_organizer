@@ -604,7 +604,7 @@ class Search extends ListModel
     {
         parent::populateState();
 
-        $get     = Input::getString('search');
+        $get     = Input::string('search');
         $session = Application::session();
         $pSearch = (string) $session->get('organizer.search.search');
 

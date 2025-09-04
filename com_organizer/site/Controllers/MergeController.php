@@ -172,7 +172,7 @@ abstract class MergeController extends FormController
         $this->mergeID       = array_shift($ids);
         $this->deprecatedIDs = $ids;
 
-        Input::getInput()->post->set('id', $this->mergeID);
+        Input::instance()->post->set('id', $this->mergeID);
     }
 
     /**

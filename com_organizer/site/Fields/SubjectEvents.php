@@ -28,7 +28,7 @@ class SubjectEvents extends FormField
     public function getInput(): string
     {
         $query     = Database::query();
-        $subjectID = Input::getID();
+        $subjectID = Input::id();
         $tag       = Application::tag();
         $query->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
         Database::set($query);

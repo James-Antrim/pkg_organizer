@@ -85,7 +85,7 @@ class Rooms implements UntisXMLValidator
 
         $capacity      = (int) $node->capacity;
         $buildingID    = null;
-        $buildingREGEX = Input::getParams()->get('buildingRegex');
+        $buildingREGEX = Input::parameters()->get('buildingRegex');
 
         if (!empty($buildingREGEX) and preg_match("/$buildingREGEX/", $code, $matches)) {
             $buildingID = Buildings::resolveID($matches[1]);

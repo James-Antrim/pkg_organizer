@@ -108,7 +108,7 @@ class Booking extends Participants
             Application::error(401);
         }
 
-        if (!$this->bookingID = Input::getID()) {
+        if (!$this->bookingID = Input::id()) {
             Application::error(400);
         }
 
@@ -226,7 +226,7 @@ class Booking extends Participants
     /** @inheritDoc */
     protected function subTitle(): void
     {
-        $bookingID      = Input::getID();
+        $bookingID      = Input::id();
         $subTitle       = Helper::names($bookingID);
         $subTitle[]     = Helper::dateTimeDisplay($bookingID);
         $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';

@@ -36,7 +36,7 @@ class InstanceParticipants extends Controller
     {
         $model = new InstanceParticipant();
         $model->bookmark($method);
-        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -69,7 +69,7 @@ class InstanceParticipants extends Controller
     {
         $model = new InstanceParticipant();
         $model->deregister($method);
-        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -93,7 +93,7 @@ class InstanceParticipants extends Controller
     {
         $model = new InstanceParticipant();
         $model->register($method);
-        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -117,7 +117,7 @@ class InstanceParticipants extends Controller
     {
         $model = new InstanceParticipant();
         $model->removeBookmark($method);
-        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -151,7 +151,7 @@ class InstanceParticipants extends Controller
         if ($model->save()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
             Application::session()->set('organizer.participation.referrer', '');
-            $referrer = Input::getString('referrer');
+            $referrer = Input::string('referrer');
             $this->setRedirect(Route::_($referrer, false));
         }
         else {

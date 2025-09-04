@@ -59,7 +59,7 @@ class Subjects extends ListModel
         }
 
         $backend = Application::backend();
-        $role    = Input::getParams()->get('role', 1);
+        $role    = Input::parameters()->get('role', 1);
 
         foreach ($items as $item) {
             $item->name = $item->name ?: sprintf(Text::_('SUBJECT_WITHOUT_NAME'), $item->id);
@@ -204,12 +204,12 @@ class Subjects extends ListModel
                 $organizationID = $authorized[0];
             }
             else {
-                $organizationID = Input::getInt('organizationID');
+                $organizationID = Input::integer('organizationID');
             }
         }
         else {
             // Can only be explicitly called by a subjects filter where no called parameters prevented its output.
-            $organizationID = Input::getInt('organizationID');
+            $organizationID = Input::integer('organizationID');
         }
 
         if ($organizationID) {
@@ -217,10 +217,10 @@ class Subjects extends ListModel
         }
 
         $disassociated = $organizationID === self::NONE;
-        $personID      = Input::getInt('personID');
-        $poolID        = Input::getInt('poolID');
+        $personID      = Input::integer('personID');
+        $poolID        = Input::integer('poolID');
         $misconfigured = $poolID === self::NONE;
-        $programID     = Input::getInt('programID');
+        $programID     = Input::integer('programID');
         $lost          = $programID === self::NONE;
 
         // Curriculum plausibility checks //////////////////////////////////////////////////////////////////////////////
@@ -275,11 +275,11 @@ class Subjects extends ListModel
 
 
         if (!$organizationID) {
-            $cPersonID  = Input::getInt('personID', 0, 'GET') ?: (int) $this->state->get('calledPersonID', 0);
+            $cPersonID  = Input::integer('personID', 0, 'GET') ?: (int) $this->state->get('calledPersonID', 0);
             $cPersonID  = $cPersonID === self::NONE ? 0 : $cPersonID;
-            $cPoolID    = Input::getInt('poolID', 0, 'GET') ?: (int) $this->state->get('calledPoolID', 0);
+            $cPoolID    = Input::integer('poolID', 0, 'GET') ?: (int) $this->state->get('calledPoolID', 0);
             $cPoolID    = $cPoolID === self::NONE ? 0 : $cPoolID;
-            $cProgramID = Input::getInt('programID', 0, 'GET') ?: (int) Input::getParams()->get('programID', 0);
+            $cProgramID = Input::integer('programID', 0, 'GET') ?: (int) Input::parameters()->get('programID', 0);
             $cProgramID = $cProgramID ?: (int) $this->state->get('calledProgramID', 0);
             $cProgramID = $cProgramID === self::NONE ? 0 : $cProgramID;
 

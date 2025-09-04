@@ -33,7 +33,7 @@ class Subjects extends ListView
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->params = Input::getParams();
+        $this->params = Input::parameters();
     }
 
     /**
@@ -48,7 +48,7 @@ class Subjects extends ListView
                 $resourceName .= ": " . Text::_('ORGANIZER_SUBJECTS');
             }
             else {
-                if ($programID = Input::getInt('programID')) {
+                if ($programID = Input::integer('programID')) {
                     $resourceName = Programs::name($programID);
                 }
                 if ($poolID = $this->state->get('calledPoolID', 0)) {
@@ -151,7 +151,7 @@ class Subjects extends ListView
         else {
             if (!$this->state->get('calledPersonID', 0)) {
 
-                if ($role = (int) Input::getParams()->get('role') and $role === Persons::COORDINATES) {
+                if ($role = (int) Input::parameters()->get('role') and $role === Persons::COORDINATES) {
                     $personsText = Text::_('COORDINATORS');
                 }
                 else {
@@ -185,7 +185,7 @@ class Subjects extends ListView
     private function getPersonDisplay(object $subject): string
     {
         $names = [];
-        $role  = (int) Input::getParams()->get('role');
+        $role  = (int) Input::parameters()->get('role');
 
         if (count($subject->persons) > 3) {
             return $role === Persons::COORDINATES ?

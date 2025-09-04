@@ -37,7 +37,7 @@ abstract class CurriculumResources extends ListController
         $this->checkToken();
         $this->authorize();
 
-        if (!$selectedIDs = Input::getSelectedIDs()) {
+        if (!$selectedIDs = Input::selectedIDs()) {
             Application::message('NO_SELECTION', Application::WARNING);
 
             return;
@@ -77,7 +77,7 @@ abstract class CurriculumResources extends ListController
         $this->checkToken();
         $this->authorize();
 
-        if (!$selectedIDs = Input::getSelectedIDs()) {
+        if (!$selectedIDs = Input::selectedIDs()) {
             Application::message('NO_SELECTION', Application::WARNING);
 
             $this->farewell();

@@ -41,7 +41,7 @@ class InstanceEdit extends EditModel
             Application::error(403);
         }
 
-        if ($instanceID = Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
+        if ($instanceID = Input::id() and !Helpers\Can::manage('instance', $instanceID)) {
             Application::error(403);
         }
     }
@@ -56,7 +56,7 @@ class InstanceEdit extends EditModel
      */
     private function checkString(string $field, string $pattern): string
     {
-        $value = Input::getString($field);
+        $value = Input::string($field);
 
         return preg_match($pattern, $value) ? $value : '';
     }
@@ -70,12 +70,12 @@ class InstanceEdit extends EditModel
      */
     private function getSelection(string $field): array
     {
-        $request = Input::getFormItems();
+        $request = Input::post();
 
-        if ($selection = $request->get($field)) {
-            $selection = ArrayHelper::toInteger($selection);
+        if (!empty($request[$field])) {
+            $selection = ArrayHelper::toInteger($request[$field]);
 
-            if ($position = in_array(-1, $selection)) {
+            if ($position = array_search(-1, $selection)) {
                 unset($selection[$position]);
             }
 
@@ -93,7 +93,7 @@ class InstanceEdit extends EditModel
         $form = parent::getForm($data, $loadData);
 
         $item     = $this->item;
-        $request  = Input::getFormItems();
+        $request  = Input::post();
         $session  = Factory::getSession();
         $instance = $session->get('organizer.instance', []);
 
@@ -104,7 +104,7 @@ class InstanceEdit extends EditModel
 
         // Immutable once set
         if (empty($instance['referrer'])) {
-            $instance['referrer'] = Input::getInput()->server->getString('HTTP_REFERER');
+            $instance['referrer'] = Input::instance()->server->getString('HTTP_REFERER');
         }
 
         $instance['id'] = $this->item->id;
@@ -136,14 +136,14 @@ class InstanceEdit extends EditModel
         $instance['eventIDs']  = $rEventIDs ?: $dEventIDs;
         $instance['gridID']    = empty($request->get('gridID')) ? $dGridID : (int) $request->get('gridID');
         $instance['groupIDs']  = $rGroupIDs ?: $dGroupIDs;
-        $instance['layout']    = Input::getCMD('layout', 'appointment');
+        $instance['layout']    = Input::cmd('layout', 'appointment');
         $instance['personID']  = $this->personID;
         $instance['roleID']    = empty($request->get('roleID')) ? $dRoleID : (int) $request->get('roleID');
         $instance['roomIDs']   = $rRoomIDs ?: $dRoomIDs;
         $instance['startTime'] = $rStartTime ?: $dStartTime;
 
         $today            = date('Y-m-d');
-        $instance['date'] = $instance['date'] < $today ? $today : $instance['date'];
+        $instance['date'] = max($instance['date'], $today);
 
         $form->bind($instance);
 
@@ -161,12 +161,10 @@ class InstanceEdit extends EditModel
         return $form;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getItem($pk = 0)
+    /** @inheritDoc */
+    public function getItem(): object
     {
-        $item = parent::getItem($pk);
+        $item = parent::getItem();
 
         // block ID, eventID, methodID & unitID are directly accessible/null from the table
         if ($item->id) {

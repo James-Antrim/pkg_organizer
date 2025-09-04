@@ -45,7 +45,7 @@ class Bookings extends Controller
         $model = new Models\Booking();
 
         if (!$bookingID = $model->add()) {
-            $this->setRedirect(Input::getString('referrer'));
+            $this->setRedirect(Input::string('referrer'));
 
             return;
         }
@@ -62,7 +62,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->addParticipant();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::id();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -82,7 +82,7 @@ class Bookings extends Controller
             Application::message('ORGANIZER_UPDATE_FAIL', Application::ERROR);
         }
 
-        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -94,7 +94,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->checkin();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::id();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -173,7 +173,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->close();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::id();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -184,8 +184,8 @@ class Bookings extends Controller
      */
     public function editParticipants(): void
     {
-        $bookingID       = Input::getID();
-        $participationID = Input::getSelectedID();
+        $bookingID       = Input::id();
+        $participationID = Input::selectedID();
         Input::set('id', $participationID);
         Input::set('bookingID', $bookingID);
         Input::set('view', 'instance_participant_edit');
@@ -202,7 +202,7 @@ class Bookings extends Controller
     public function manage(int $instanceID = 0): void
     {
         if (!$instanceID) {
-            if (!$instanceIDs = Input::getSelectedIDs()) {
+            if (!$instanceIDs = Input::selectedIDs()) {
                 Application::error(400);
             }
 
@@ -213,7 +213,7 @@ class Bookings extends Controller
             $model = new Models\Booking();
 
             if (!$bookingID = $model->add()) {
-                $this->setRedirect(Input::getString('referrer'));
+                $this->setRedirect(Input::string('referrer'));
 
                 return;
             }
@@ -229,7 +229,7 @@ class Bookings extends Controller
      */
     public function manageThis(): void
     {
-        if (!$instanceID = Input::getID()) {
+        if (!$instanceID = Input::id()) {
             Application::error(400);
         }
 
@@ -244,7 +244,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->open();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::id();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -256,7 +256,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->removeParticipants();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::id();
         $this->setRedirect(Route::_($url, false));
     }
 }

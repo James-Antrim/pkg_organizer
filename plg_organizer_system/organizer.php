@@ -30,7 +30,7 @@ class PlgSystemOrganizer extends CMSPlugin
      */
     private function getAssocQuery(): array
     {
-        $referrer = Input::getInput()->server->get('HTTP_REFERER', '', 'raw');
+        $referrer = Input::instance()->server->get('HTTP_REFERER', '', 'raw');
         $query    = parse_url($referrer, PHP_URL_QUERY);
         parse_str($referrer, $query);
 
@@ -44,7 +44,7 @@ class PlgSystemOrganizer extends CMSPlugin
      */
     private function getCredentials(): array
     {
-        $form = Input::getFormItems();
+        $form = Input::post();
 
         return ['username' => $form['username'], 'password' => $form['password1']];
     }
@@ -127,7 +127,7 @@ class PlgSystemOrganizer extends CMSPlugin
     public function onUserAfterSave(): void
     {
         // Not a save from a registration or the function has already been called.
-        if (!$task = Input::getTask() or $task !== 'register' or self::$called) {
+        if (!$task = Input::task() or $task !== 'register' or self::$called) {
             return;
         }
 
@@ -155,7 +155,7 @@ class PlgSystemOrganizer extends CMSPlugin
     public function onUserBeforeSave(array $existing, bool $newFlag, array $user): bool
     {
         // Irrelevant or already called
-        if (!$task = Input::getTask() or $task !== 'register' or self::$called) {
+        if (!$task = Input::task() or $task !== 'register' or self::$called) {
             return true;
         }
 

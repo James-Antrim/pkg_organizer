@@ -36,7 +36,7 @@ class Instance extends FormView
         $toolbar = Toolbar::getInstance();
         $toolbar->save('instance.save');
 
-        $layout  = Input::getCMD('layout');
+        $layout  = Input::cmd('layout');
         $layouts = ['appointment', 'simple'];
         $layout  = in_array($layout, $layouts) ? $layout : 'appointment';
 

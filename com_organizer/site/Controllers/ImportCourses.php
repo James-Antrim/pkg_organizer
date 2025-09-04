@@ -45,7 +45,7 @@ class ImportCourses extends FormController
             return;
         }
 
-        $file = Input::getInput()->files->get('file');
+        $file = Input::instance()->files->get('file');
 
         if (empty($file['type']) or $file['type'] !== 'text/plain') {
             Application::message('FILE_TYPE_INVALID', Application::ERROR);
@@ -59,8 +59,8 @@ class ImportCourses extends FormController
             return;
         }
 
-        $organizationID = Input::getInt('organizationID');
-        $termID         = Input::getInt('termID');
+        $organizationID = Input::integer('organizationID');
+        $termID         = Input::integer('termID');
 
         if (!$organizationID or !$termID) {
             Application::message('400', Application::ERROR);

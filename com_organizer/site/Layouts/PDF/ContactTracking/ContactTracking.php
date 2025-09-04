@@ -39,7 +39,7 @@ class ContactTracking extends ListLayout
             'data'   => Text::_('ORGANIZER_CONTACT_INFORMATION')
         ];
 
-        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat = (int) Input::lists()->get('listFormat', self::BY_DAY);
 
         $otherHeaders = match ($listFormat) {
             self::BY_EVENT => ['contacts' => Text::_('ORGANIZER_CONTACTS')],

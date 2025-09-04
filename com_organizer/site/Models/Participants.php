@@ -131,7 +131,7 @@ class Participants extends ListModel
                 ->where("$paid != " . DB::qn('pa2.id'))
                 ->group($paid);
 
-            if ($domain = Input::getParams()->get('emailFilter')) {
+            if ($domain = Input::parameters()->get('emailFilter')) {
                 $domain = DB::quote("%$domain");
                 $email1 = DB::qn('u.email');
                 $email2 = DB::qn('u2.email');

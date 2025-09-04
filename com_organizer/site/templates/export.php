@@ -11,7 +11,7 @@
 use Joomla\CMS\{Router\Route, Uri\Uri};
 use THM\Organizer\Adapters\{Application, HTML, Input, Text};
 
-$itemID = Input::getInt('Itemid');
+$itemID = Input::integer('Itemid');
 $url    = $itemID ? "index.php?Itemid=$itemID" : "index.php?option=com_organizer&view=$this->_name";
 
 // Core behaviour scripts

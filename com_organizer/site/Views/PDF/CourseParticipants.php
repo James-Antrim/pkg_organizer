@@ -44,7 +44,7 @@ class CourseParticipants extends ListView
             Application::error(401);
         }
 
-        if (!$this->courseID = Input::getID()) {
+        if (!$this->courseID = Input::id()) {
             Application::error(400);
         }
 

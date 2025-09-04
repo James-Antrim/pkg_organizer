@@ -38,7 +38,7 @@ class TermPublishing extends FormField
         $options = [$yes, $no];
 
         $values = [];
-        if ($groupID = Input::getID()) {
+        if ($groupID = Input::id()) {
             $query = DB::query();
             $query->select(DB::qn(['termID', 'published']))
                 ->from(DB::qn('#__organizer_group_publishing'))

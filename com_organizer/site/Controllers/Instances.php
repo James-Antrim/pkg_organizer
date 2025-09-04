@@ -104,11 +104,11 @@ class Instances extends ListController
 
         $url = Helpers\Routing::getRedirectBase() . "&view=instance_edit";
 
-        if ($id = Input::getID()) {
+        if ($id = Input::id()) {
             $url .= "&id=$id";
         }
 
-        if (Input::getCMD('layout', 'appointment') === 'appointment') {
+        if (Input::cmd('layout', 'appointment') === 'appointment') {
             $url .= '&appointment=1';
         }
 

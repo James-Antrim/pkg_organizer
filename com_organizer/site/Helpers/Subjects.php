@@ -74,11 +74,11 @@ class Subjects extends Curricula
      */
     private static function filterRanges(): array
     {
-        if (!$programRanges = Programs::rows(Input::getInt('programID'))) {
+        if (!$programRanges = Programs::rows(Input::integer('programID'))) {
             return [];
         }
 
-        if ($poolRanges = Pools::rows(Input::getInt('poolID'))
+        if ($poolRanges = Pools::rows(Input::integer('poolID'))
             and self::included($poolRanges, $programRanges)) {
             return $poolRanges;
         }
@@ -96,7 +96,7 @@ class Subjects extends Curricula
      */
     public static function name(int $resourceID = 0, bool $withNumber = false): string
     {
-        if (!$resourceID = $resourceID ?: Input::getID()) {
+        if (!$resourceID = $resourceID ?: Input::id()) {
             return '';
         }
 
@@ -143,9 +143,9 @@ class Subjects extends Curricula
      */
     public static function resources(): array
     {
-        $poolID    = Input::getInt('poolID', self::NONE);
-        $programID = Input::getInt('programID', self::NONE);
-        $personID  = Input::getInt('personID', self::NONE);
+        $poolID    = Input::integer('poolID', self::NONE);
+        $programID = Input::integer('programID', self::NONE);
+        $personID  = Input::integer('personID', self::NONE);
 
         // Without a valid restriction there are too many results.
         if ($poolID === self::NONE and $programID === self::NONE and $personID === self::NONE) {

@@ -43,7 +43,7 @@ abstract class BaseView extends PHPExcel implements ViewInterface
 
         $name = $this->getName();
 
-        $layout = Input::getCMD('layout', $name);
+        $layout = Input::cmd('layout', $name);
         $layout = Application::ucClass($layout);
         $layout = "THM\\Organizer\\Layouts\\XLS\\$name\\$layout";
 

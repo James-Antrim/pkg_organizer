@@ -48,7 +48,7 @@ abstract class CurriculumResource extends FormController
 
         /** @var Documentable $helper */
         $helper = "THM\\Organizer\\Helpers\\" . $this->list;
-        $id     = Input::getID();
+        $id     = Input::id();
 
         if ($id ? !$helper::documentable($id) : !$helper::documentableIDs()) {
             Application::error(403);
@@ -163,7 +163,7 @@ abstract class CurriculumResource extends FormController
         $this->checkToken();
         $this->authorize();
 
-        $id         = Input::getID();
+        $id         = Input::id();
         $this->data = $this->prepareData();
 
         // For save to copy, will otherwise be identical.
@@ -276,7 +276,7 @@ abstract class CurriculumResource extends FormController
             $this->app->close();
         }
 
-        if (!$id = Input::getID()) {
+        if (!$id = Input::id()) {
             http_response_code(400);
             echo '';
             $this->app->close();

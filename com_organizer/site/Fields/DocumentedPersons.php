@@ -21,8 +21,8 @@ class DocumentedPersons extends ListField
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $poolID    = Input::getFilterID('poolID', Input::getInt('poolID'));
-        $programID = Input::getFilterID('programID', Input::getInt('programID'));
+        $poolID    = Input::integer('poolID');
+        $programID = Input::integer('programID');
 
         if (!$poolID and !$programID) {
             return $options;

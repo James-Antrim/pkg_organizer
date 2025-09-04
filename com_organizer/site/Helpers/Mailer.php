@@ -91,7 +91,7 @@ class Mailer
             return;
         }
 
-        $params = Input::getParams();
+        $params = Input::parameters();
         $sender = User::instance($params->get('mailSender'));
         if (empty($sender->id)) {
             return;

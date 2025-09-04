@@ -98,7 +98,7 @@ class Dates
      */
     public static function formatParameter(): string
     {
-        return Input::getParams()->get('dateFormat', 'd.m.Y');
+        return Input::parameters()->get('dateFormat', 'd.m.Y');
     }
 
     /**
@@ -153,7 +153,7 @@ class Dates
      */
     public static function ninetyDays(int $dateTime): array
     {
-        if (Input::getCMD('format') === Input::PDF) {
+        if (Input::cmd('format') === Input::PDF) {
             $dateTime = strtotime("Monday this week", $dateTime);
         }
 

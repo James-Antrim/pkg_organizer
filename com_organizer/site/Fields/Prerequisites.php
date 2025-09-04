@@ -22,7 +22,7 @@ class Prerequisites extends ListField
     {
         $options = [0 => HTML::option(-1, Text::_('NO_PREREQUISITES'))];
 
-        if (!$subjectID = Input::getID()) {
+        if (!$subjectID = Input::id()) {
             return $options;
         }
 

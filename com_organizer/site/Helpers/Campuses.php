@@ -168,11 +168,11 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
             ->order(DB::qn(['parentName', 'name']));
 
         // Only parents
-        if (strtolower(Input::getView()) === 'campus') {
+        if (strtolower(Input::view()) === 'campus') {
             $query->where(DB::qn('c1.parentID') . ' IS NULL');
 
             // Not self
-            if ($campusID = Input::getID()) {
+            if ($campusID = Input::id()) {
                 $query->where(DB::qn('c1.id') . ' != :campusID')->bind(':campusID', $campusID, ParameterType::INTEGER);
             }
         }

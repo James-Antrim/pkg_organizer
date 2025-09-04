@@ -20,7 +20,7 @@ class SubjectPersons extends ListField
     /** @inheritDoc */
     protected function getOptions(): array
     {
-        if (!$subjectID = Input::getID()) {
+        if (!$subjectID = Input::id()) {
             return [];
         }
 

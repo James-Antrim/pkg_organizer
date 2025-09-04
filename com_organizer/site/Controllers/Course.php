@@ -28,9 +28,9 @@ class Course extends FormController
     {
         $this->checkToken();
 
-        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
 
-        if (!$courseID = Input::getID() or !$participantID = User::id()) {
+        if (!$courseID = Input::id() or !$participantID = User::id()) {
             Application::message('400', Application::WARNING);
             $this->setRedirect($referrer);
             return;
@@ -86,8 +86,8 @@ class Course extends FormController
     {
         $this->checkToken();
 
-        $courseID      = Input::getID();
-        $referrer      = Input::getInput()->server->getString('HTTP_REFERER');
+        $courseID      = Input::id();
+        $referrer      = Input::instance()->server->getString('HTTP_REFERER');
         $participantID = User::id();
 
         if (!cpHelper::validProfile($courseID, $participantID)) {

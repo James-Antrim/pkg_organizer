@@ -47,7 +47,7 @@ trait Titled
      */
     protected function title(string $standard, string $conditional = ''): void
     {
-        $params = Input::getParams();
+        $params = Input::parameters();
 
         if ($params->get('show_page_heading')) {
             $title = $params->get('page_heading') ?: $params->get('page_title');

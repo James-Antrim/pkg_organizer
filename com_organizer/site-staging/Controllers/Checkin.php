@@ -27,7 +27,7 @@ class Checkin extends Controller
      */
     public function checkin(): void
     {
-        $data    = Input::getFormItems();
+        $data    = Input::post();
         $session = Factory::getSession();
 
         if (!User::id()) {

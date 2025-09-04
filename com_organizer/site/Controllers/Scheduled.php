@@ -121,7 +121,7 @@ trait Scheduled
 
         /** @var Schedulable $helper */
         $helper = "THM\\Organizer\\Helpers\\" . $helperClass;
-        $id     = Input::getID();
+        $id     = Input::id();
 
         if ($id ? !$helper::schedulable($id) : !$helper::schedulableIDs()) {
             Application::error(403);

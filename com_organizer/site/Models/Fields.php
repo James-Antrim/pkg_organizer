@@ -39,8 +39,8 @@ class Fields extends ListModel
 
         $this->filterSearch($query, ['f.name_de', 'f.name_en', 'code']);
 
-        $color        = Input::getFilterID('colorID');
-        $organization = Input::getFilterID('organizationID');
+        $color        = Input::integer('colorID');
+        $organization = Input::integer('organizationID');
         if ($color or $organization) {
             $fc  = DB::qn('#__organizer_field_colors', 'fc');
             $fcc = DB::qn('fc.fieldID') . ' = ' . DB::qn('f.id');

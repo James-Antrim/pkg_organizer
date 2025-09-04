@@ -82,7 +82,7 @@ class OrganizationAssociations extends ListField
         /** @var Form $form */
         $form       = $this->form;
         $resource   = $form->view();
-        $resourceID = Input::getSelectedID(Input::getID());
+        $resourceID = Input::selectedID(Input::id());
 
         $authorizedIDs = $this->authorizedIDs($resource);
         $disabled      = false;

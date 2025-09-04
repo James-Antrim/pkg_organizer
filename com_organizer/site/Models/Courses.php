@@ -34,7 +34,7 @@ class Courses extends ListModel
 
         $form->removeField('termID', 'filter');
 
-        $params = Input::getParams();
+        $params = Input::parameters();
 
         if ($params->get('campusID')) {
             $form->removeField('campusID', 'filter');
@@ -110,7 +110,7 @@ class Courses extends ListModel
             $query->whereIn(DB::qn('u.organizationID'), Organizations::schedulableIDs());
         }
 
-        if (!$backend and (Input::getParams()->get('onlyPrepCourses') or Input::getBool('preparatory'))) {
+        if (!$backend and (Input::parameters()->get('onlyPrepCourses') or Input::bool('preparatory'))) {
             $query->where('e.preparatory = 1');
         }
         // This filter is otherwise removed
@@ -133,7 +133,7 @@ class Courses extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        if (!Application::backend() and $campusID = Input::getParams()->get('campusID')) {
+        if (!Application::backend() and $campusID = Input::parameters()->get('campusID')) {
             $this->state->set('filter.campusID', $campusID);
         }
     }

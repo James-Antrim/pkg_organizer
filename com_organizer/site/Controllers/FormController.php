@@ -95,7 +95,7 @@ abstract class FormController extends Controller
      */
     public function edit(): void
     {
-        $id = Input::getID();
+        $id = Input::id();
         $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id&layout=edit");
     }
 
@@ -117,7 +117,7 @@ abstract class FormController extends Controller
     protected function prepareData(): array
     {
         $data      = [];
-        $formItems = Input::getFormItems();
+        $formItems = Input::post();
 
         /** @var Table $table */
         $table      = $this->getTable();
@@ -189,7 +189,7 @@ abstract class FormController extends Controller
         $this->checkToken();
         $this->authorize();
 
-        $id = Input::getID();
+        $id = Input::id();
 
         $this->data = $this->prepareData();
         // For save to copy, will otherwise be identical.

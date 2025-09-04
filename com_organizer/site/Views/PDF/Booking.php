@@ -49,7 +49,7 @@ class Booking extends ListView
             Application::error(401);
         }
 
-        if (!$this->bookingID = Input::getID()) {
+        if (!$this->bookingID = Input::id()) {
             Application::error(400);
         }
 

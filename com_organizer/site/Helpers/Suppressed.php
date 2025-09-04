@@ -61,7 +61,7 @@ trait Suppressed
      */
     public static function suppressedFilter(DatabaseQuery $query, string $alias): void
     {
-        $suppressed = Input::getCMD('active');
+        $suppressed = Input::cmd('active');
 
         if ($suppressed === self::ALL) {
             return;

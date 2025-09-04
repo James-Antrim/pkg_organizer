@@ -26,7 +26,7 @@ class ContactTracking extends ListView
     {
         parent::__construct($config);
 
-        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat = (int) Input::lists()->get('listFormat', self::BY_DAY);
         $structure  = ['index' => 'value', 'person' => 'value', 'data' => 'value'];
 
         $structure = match ($listFormat) {
@@ -78,7 +78,7 @@ class ContactTracking extends ListView
     {
         $index           = 1;
         $link            = '';
-        $listFormat      = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat      = (int) Input::lists()->get('listFormat', self::BY_DAY);
         $mText           = Text::_('MINUTES');
         $structuredItems = [];
 
@@ -137,7 +137,7 @@ class ContactTracking extends ListView
     /** @inheritDoc */
     public function display($tpl = null): void
     {
-        $filterItems = Input::getFilterItems();
+        $filterItems = Input::filters();
 
         // If a query string was entered feedback is a part of a system message.
         if ($filterItems->get('search')) {
@@ -153,7 +153,7 @@ class ContactTracking extends ListView
     /** @inheritDoc */
     public function initializeColumns(): void
     {
-        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat = (int) Input::lists()->get('listFormat', self::BY_DAY);
         $headers    = [
             'index'  => '#',
             'person' => Text::_('PERSON'),

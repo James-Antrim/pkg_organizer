@@ -755,7 +755,7 @@ class Subject extends CurriculumResource implements Stubby
             $this->app->close();
         }
 
-        if (!$id = Input::getID()) {
+        if (!$id = Input::id()) {
             http_response_code(400);
             echo '';
             $this->app->close();

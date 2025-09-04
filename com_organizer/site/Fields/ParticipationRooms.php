@@ -19,7 +19,7 @@ class ParticipationRooms extends ListField
     /** @inheritDoc */
     protected function getOptions(): array
     {
-        $bookingID = Helpers\Participation::bookingID(Input::getID());
+        $bookingID = Helpers\Participation::bookingID(Input::id());
         $rooms     = Helpers\Bookings::roomOptions($bookingID);
 
         if (count($rooms) === 1) {

@@ -37,7 +37,7 @@ class Monitors extends ListModel
             return;
         }
 
-        $default = (bool) Input::getParams()->get('content');
+        $default = (bool) Input::parameters()->get('content');
 
         $cColumn  = DB::qn('m.content');
         $udColumn = DB::qn('m.useDefaults');
@@ -79,7 +79,7 @@ class Monitors extends ListModel
             return;
         }
 
-        $default     = (int) Input::getParams()->get('display');
+        $default     = (int) Input::parameters()->get('display');
         $useDefaults = DB::qn('m.useDefaults');
 
         if (!in_array($display, Helper::DISPLAYS)) {

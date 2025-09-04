@@ -24,7 +24,7 @@ if (!Application::backend()) {
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"
           class="form-<?php echo $this->orientation; ?> form-validate" enctype="multipart/form-data">
         <?php echo $this->form->renderFieldset('details'); ?>
-        <input type="hidden" name="Itemid" value="<?php echo Input::getInt('Itemid'); ?>"/>
+        <input type="hidden" name="Itemid" value="<?php echo Input::integer('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>

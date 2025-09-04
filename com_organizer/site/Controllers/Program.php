@@ -32,7 +32,7 @@ class Program extends CurriculumResource
 
         /** @var Documentable $helper */
         $helper = "THM\\Organizer\\Helpers\\" . $this->list;
-        $id     = Input::getID();
+        $id     = Input::id();
 
         // Existing over document access, new explicitly over document access and implicitly over schedule access.
         if ($id ? !$helper::documentable($id) : !(Organizations::documentableIDs() or Organizations::schedulableIDs())) {
@@ -64,7 +64,7 @@ class Program extends CurriculumResource
         $data['categoryID']      = $categoryID;
         $data['name_de']         = $name;
         $data['name_en']         = $name;
-        $data['organizationIDs'] = [Input::getInt('organizationID')];
+        $data['organizationIDs'] = [Input::integer('organizationID')];
         $data['subordinates']    = [];
         $this->data              = $data;
 

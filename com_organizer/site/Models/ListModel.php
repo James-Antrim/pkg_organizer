@@ -148,7 +148,7 @@ abstract class ListModel extends Core
         $this->state->set('list.ordering', $ordering);
         $this->state->set('list.direction', $direction);
 
-        if ($format = Input::getCMD('format') and $format !== 'html') {
+        if ($format = Input::cmd('format') and $format !== 'html') {
             $limit = 0;
             $start = 0;
         }

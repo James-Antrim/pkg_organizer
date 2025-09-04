@@ -11,7 +11,7 @@
 
 use THM\Organizer\Adapters\{Input, Text};
 
-$task = Input::getCMD('view') . '.supplement';
+$task = Input::cmd('view') . '.supplement';
 
 ?>
 <div class="modal hide fade form-modal" id="form-modal">

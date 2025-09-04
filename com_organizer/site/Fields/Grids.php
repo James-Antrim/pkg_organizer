@@ -19,7 +19,7 @@ class Grids extends ListField
     /** @inheritDoc */
     protected function getInput(): string
     {
-        if (empty($this->value) and $campusID = Input::getParams()->get('campusID')) {
+        if (empty($this->value) and $campusID = Input::parameters()->get('campusID')) {
             $this->value = Helpers\Campuses::gridID($campusID);
         }
 

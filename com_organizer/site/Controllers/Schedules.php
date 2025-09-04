@@ -40,8 +40,8 @@ class Schedules extends ListController
         $this->checkToken();
         $this->authorize();
 
-        $organizationID = Input::getFilterID('organizationID');
-        $termID         = Input::getFilterID('termID');
+        $organizationID = Input::integer('organizationID');
+        $termID         = Input::integer('termID');
         if (!$organizationID or !$termID) {
             Application::error(400);
         }

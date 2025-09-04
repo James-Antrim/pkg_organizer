@@ -58,7 +58,7 @@ class RoomStatistics extends BaseModel
     {
         parent::__construct($config);
 
-        $format = Input::getCMD('format', 'html');
+        $format = Input::cmd('format', 'html');
 
         switch ($format) {
             case 'xls':
@@ -291,7 +291,7 @@ class RoomStatistics extends BaseModel
      */
     private function setDates(): void
     {
-        $termID = Input::getFilterID('termID');
+        $termID = Input::integer('termID');
 
         if ($termID) {
             $table = new Terms();
@@ -304,9 +304,9 @@ class RoomStatistics extends BaseModel
             }
         }
 
-        $dateFormat = Input::getParams()->get('dateFormat');
-        $date       = Input::getCMD('date', date($dateFormat));
-        $interval   = Input::getCMD('interval', 'week');
+        $dateFormat = Input::parameters()->get('dateFormat');
+        $date       = Input::cmd('date', date($dateFormat));
+        $interval   = Input::cmd('interval', 'week');
         $dateTime   = strtotime($date);
         [$this->startDate, $this->endDate] = match ($interval) {
             'month' => Dates::month($dateTime),

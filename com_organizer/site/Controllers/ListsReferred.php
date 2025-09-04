@@ -56,7 +56,7 @@ abstract class ListsReferred extends FormController
         $class   = strtolower(Application::uqClass($this));
         $session = Application::session();
         if (!$session->get("organizer.$class.referrer")) {
-            $query = explode('?', Input::getReferrer())[1];
+            $query = explode('?', Input::referrer())[1];
             parse_str($query, $pairs);
             $referrer = $pairs['view'] ?? $this->list;
             $session->set("organizer.$class.referrer", $referrer);

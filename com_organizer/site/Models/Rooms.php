@@ -27,7 +27,7 @@ class Rooms extends ListModel
     /** @inheritDoc */
     protected function filterFilterForm(Form $form): void
     {
-        if (Input::getParams()->get('campusID')) {
+        if (Input::parameters()->get('campusID')) {
             $form->removeField('campusID', 'filter');
 
             // No virtual rooms in a physical area
@@ -97,11 +97,11 @@ class Rooms extends ListModel
         parent::populateState($ordering, $direction);
 
         // GET
-        if ($format = Input::getCMD('format') and in_array($format, ['pdf', 'xls'])) {
+        if ($format = Input::cmd('format') and in_array($format, ['pdf', 'xls'])) {
             $this->setState('list.limit', 0);
         }
 
-        if ($campusID = Input::getInt('campusID')) {
+        if ($campusID = Input::integer('campusID')) {
             $this->setState('filter.campusID', $campusID);
         }
     }

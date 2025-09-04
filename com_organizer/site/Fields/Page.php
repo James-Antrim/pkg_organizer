@@ -28,7 +28,7 @@ class Page extends FormField
     {
         $context   = 'com_organizer.instances';
         $interval  = Application::userRequestState("$context.list.interval", 'list_interval', '', 'string');
-        $interval  = Input::getListItems()->get('interval', $interval);
+        $interval  = Input::lists()->get('interval', $interval);
         $intervals = ['day', 'week', 'month'];
 
         if (!in_array($interval, $intervals)) {
@@ -44,7 +44,7 @@ class Page extends FormField
 
         $default = Application::userRequestState("$context.list.date", 'list_date', '', 'string');
         $default = $default ?: date('Y-m-d');
-        $date    = Input::getListItems()->get('date', $default);
+        $date    = Input::lists()->get('date', $default);
         $title   = '';
         $stamp   = strtotime($date);
         $target  = '';

@@ -28,7 +28,7 @@ class RoomOverview extends TableView
     {
         $resourceName = Text::_('ORGANIZER_ROOM_OVERVIEW');
         if (!Application::backend()) {
-            if ($campusID = Input::getInt('campusID')) {
+            if ($campusID = Input::integer('campusID')) {
                 $resourceName .= ': ' . Text::_('ORGANIZER_CAMPUS');
                 $resourceName .= ' ' . Campuses::name($campusID);
             }

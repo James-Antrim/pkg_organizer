@@ -41,7 +41,7 @@ class Course extends EditModel
             $item = parent::getItem();
 
             // Reformat values for labeled display of a standing course
-            if ($courseID = $item->id and !Input::getCMD('layout')) {
+            if ($courseID = $item->id and !Input::cmd('layout')) {
 
                 $eProperties = $this->eventProperties($courseID);
 

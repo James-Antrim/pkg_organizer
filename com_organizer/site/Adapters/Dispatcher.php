@@ -34,7 +34,7 @@ class Dispatcher extends ComponentDispatcher
         // Check component access permission
         $this->checkAccess();
 
-        $command = Input::getTask();
+        $command = Input::task();
         $args    = [];
         $task    = '';
 
@@ -53,7 +53,7 @@ class Dispatcher extends ComponentDispatcher
             Input::set('args', $args);
 
         }
-        elseif (!$controller = Input::getController()) {
+        elseif (!$controller = Input::controller()) {
             if (Application::backend()) {
                 $controller = 'Organizer';
             }

@@ -20,7 +20,7 @@ class Coordinators extends ListField
     /** @inheritDoc */
     protected function getInput(): string
     {
-        $eventID = Input::getID();
+        $eventID = Input::id();
         $query   = Database::query();
         $query->select('DISTINCT personID')
             ->from('#__organizer_event_coordinators')
@@ -34,7 +34,7 @@ class Coordinators extends ListField
     /** @inheritDoc */
     public function getOptions(): array
     {
-        $eventID = Input::getID();
+        $eventID = Input::id();
         $event   = new Tables\Events();
         $options = [];
 

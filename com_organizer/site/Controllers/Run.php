@@ -20,7 +20,7 @@ class Run extends FormController
     /** @inheritDoc */
     protected function prepareData(): array
     {
-        $data    = Input::getFormItems();
+        $data    = Input::post();
         $endDate = '';
 
         foreach ($data['run'] as $section) {

@@ -21,7 +21,7 @@ class MergeAssociations extends ListField
     protected function getOptions(): array
     {
         $default     = [HTML::option('', Text::_('NONE_GIVEN'))];
-        $selectedIDs = Input::getSelectedIDs();
+        $selectedIDs = Input::selectedIDs();
         $valueColumn = $this->getAttribute('name');
         if (empty($selectedIDs) or empty($valueColumn)) {
             return $default;
