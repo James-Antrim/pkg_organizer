@@ -22,3 +22,7 @@ div.value {
     max-width: 100%;
     position: relative;
 }
+
+.right {
+    float: right;
+}
