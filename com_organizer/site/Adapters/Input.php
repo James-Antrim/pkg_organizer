@@ -354,7 +354,7 @@ class Input
         }
 
         if (is_array($value)) {
-            return array_filter($value, 'intval');
+            return array_filter(array_map('intval', $value));
         }
 
         if (is_int($value)) {
@@ -371,7 +371,7 @@ class Input
         }
 
         // Array represented as CS values
-        return array_filter(explode(',', $value), 'intval');
+        return array_filter(array_map('intval', explode(',', $value)));
     }
 
     /**
