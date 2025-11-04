@@ -158,6 +158,10 @@ class Instances extends ListView
                 'text'  => Text::_('ORGANIZER_NAME'),
                 'width' => 30
             ],
+            'subjectNo'    => [
+                'text'  => Text::_('ORGANIZER_MODULE_CODE'),
+                'width' => 30
+            ],
             'method'       => [
                 'text'  => Text::_('ORGANIZER_METHOD'),
                 'width' => 15
@@ -306,6 +310,7 @@ class Instances extends ListView
             'method'       => $item->method,
             'organization' => $this->showOrganizations ? $item->organization : '',
             'rooms'        => $roomNames,
+            'subjectNo'    => $item->subjectNo,
             'teachers'     => $this->getPersonTexts($teachers, $persons, $showGroups, $showRooms),
             'times'        => "$item->startTime - $item->endTime",
             'title'        => $item->name,
