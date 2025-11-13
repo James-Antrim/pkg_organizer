@@ -14,6 +14,7 @@ use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Controllers\ImportSchedule as Schedule;
+use THM\Organizer\Helpers\Grids;
 use THM\Organizer\Tables\{Associations, Groups as Table};
 
 /**
@@ -35,7 +36,7 @@ class Groups implements UntisXMLValidator
             $altered = false;
             foreach ($group as $key => $value) {
                 if (property_exists($table, $key) and empty($table->$key) and !empty($value)) {
-                    $table->set($key, $value);
+                    $table->$key = $value;
                     $altered = true;
                 }
             }
@@ -87,15 +88,21 @@ class Groups implements UntisXMLValidator
             return;
         }
 
-        if (!$gridName = (string) $node->timegrid) {
-            $controller->errors[] = Text::sprintf('GROUP_GRID_MISSING', $fullName, $code);
+        if ($controller->grids) {
+            if (!$gridName = (string) $node->timegrid) {
+                $controller->errors[] = Text::sprintf('GROUP_GRID_MISSING', $fullName, $code);
 
-            return;
+                return;
+            }
+            elseif (!$grid = $controller->grids->$gridName) {
+                $controller->errors[] = Text::sprintf('GROUP_GRID_INCOMPLETE', $fullName, $code, $gridName);
+
+                return;
+            }
+            $gridID = $grid->id;
         }
-        elseif (!$grid = $controller->grids->$gridName) {
-            $controller->errors[] = Text::sprintf('GROUP_GRID_INCOMPLETE', $fullName, $code, $gridName);
-
-            return;
+        else {
+            $gridID = Grids::getDefault();
         }
 
         $group              = new stdClass();
@@ -105,7 +112,7 @@ class Groups implements UntisXMLValidator
         $group->fullName_en = $fullName;
         $group->name_de     = $name;
         $group->name_en     = $name;
-        $group->gridID      = $grid->id;
+        $group->gridID      = $gridID;
 
         $controller->groups->$code = $group;
         self::setID($controller, $code);

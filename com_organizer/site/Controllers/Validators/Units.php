@@ -13,7 +13,8 @@ namespace THM\Organizer\Controllers\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\{Database as DB, Text};
-use THM\Organizer\Controllers\ImportSchedule as Schedule;
+use THM\Organizer\Controllers\{ImportSchedule as Schedule, Validators\Grids as GValidator};
+use THM\Organizer\Helpers\Grids as GHelper;
 use THM\Organizer\Tables\Units as Table;
 
 /**
@@ -146,7 +147,7 @@ class Units implements UntisXMLValidator
             foreach ($unit as $key => $value) {
                 if (property_exists($table, $key) and $table->$key != $value) {
                     $updated = true;
-                    $table->set($key, $value);
+                    $table->$key = $value;
                 }
             }
 
@@ -219,12 +220,17 @@ class Units implements UntisXMLValidator
         $rawUntisID = str_replace("LS_", '', trim((string) $node[0]['id']));
         $untisID    = substr($rawUntisID, 0, strlen($rawUntisID) - 2);
 
-        $gridID = null;
-        if (!$gridName = trim((string) $node->timegrid)) {
-            $controller->errors[] = Text::sprintf('UNIT_GRID_MISSING', $untisID);
+        if ($controller->grids) {
+            $gridID = null;
+            if (!$gridName = trim((string) $node->timegrid)) {
+                $controller->errors[] = Text::sprintf('UNIT_GRID_MISSING', $untisID);
+            }
+            elseif (!$gridID = GValidator::getID($gridName)) {
+                $controller->errors[] = Text::sprintf('UNIT_GRID_INVALID', $untisID, $gridName);
+            }
         }
-        elseif (!$gridID = Grids::getID($gridName)) {
-            $controller->errors[] = Text::sprintf('UNIT_GRID_INVALID', $untisID, $gridName);
+        else {
+            $gridID = GHelper::getDefault();
         }
 
         if (empty($controller->units->$untisID)) {
@@ -234,7 +240,6 @@ class Units implements UntisXMLValidator
             $unit->termID         = $controller->termID;
             $unit->code           = $untisID;
             $unit->gridID         = $gridID;
-            $unit->gridName       = $gridName;
             $unit->startDate      = date('Y-m-d', $effBeginDT);
             $unit->startDT        = $effBeginDT;
             $unit->endDate        = date('Y-m-d', $effEndDT);

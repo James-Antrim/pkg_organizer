@@ -27,7 +27,7 @@ class ImportSchedule extends FormController
     public int $dateTime;
     public array $errors = [];
     public stdClass $events;
-    public stdClass $grids;
+    public stdClass|null $grids;
     public stdClass $groups;
     public array $instances = [];
     protected string $list = 'Schedules';

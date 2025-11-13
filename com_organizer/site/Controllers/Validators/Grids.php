@@ -77,6 +77,12 @@ class Grids implements UntisXMLValidator
      */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
+        // Untis didn't output the name, because in the local context it's redundant. In the global context we assume the default.
+        if (!property_exists($node, 'timegrid')) {
+            $controller->grids = null;
+            return;
+        }
+
         // Not actually referenced but evinces data inconsistencies in Untis
         $exportKey = trim((string) $node[0]['id']);
         $gridName  = (string) $node->timegrid;
