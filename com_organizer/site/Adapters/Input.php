@@ -24,7 +24,7 @@ class Input
     public const BINARY = [self::NO, self::YES];
 
     // (File) Formats
-    public const HTML = 'html', ICS = 'ics', JSON = 'json', PDF = 'pdf', XLS = 'xls';// XML = 'xml';
+    public const HTML = 'html', ICS = 'ics', JSON = 'json', PDF = 'pdf', VCF = 'vcf', XLS = 'xls', XML = 'xml';
 
     private static InputFilter $filter;
     private static Registry $filters;
@@ -35,8 +35,8 @@ class Input
     /**
      * Retrieves the specified array from the input context.
      *
-     * @param   string  $name     the name of the array item
-     * @param   array   $default  the default array
+     * @param string $name    the name of the array item
+     * @param array  $default the default array
      *
      * @return array
      */
@@ -57,8 +57,8 @@ class Input
     /**
      * Retrieves the specified boolean from the input context.
      *
-     * @param   string  $property  Name of the property to get.
-     * @param   mixed   $default   Default value to return if variable does not exist.
+     * @param string $property Name of the property to get.
+     * @param mixed  $default  Default value to return if variable does not exist.
      *
      * @return bool
      */
@@ -76,8 +76,8 @@ class Input
     /**
      * Retrieves the specified string value with a CMD filter.
      *
-     * @param   string  $property  Name of the property to get.
-     * @param   mixed   $default   Default value to return if variable does not exist.
+     * @param string $property Name of the property to get.
+     * @param mixed  $default  Default value to return if variable does not exist.
      *
      * @return string
      */
@@ -98,8 +98,8 @@ class Input
     /**
      * Filters the given source data according to the type parameter.
      *
-     * @param   mixed   $source  the data to be filtered
-     * @param   string  $type    the type against which to filter the source data
+     * @param mixed  $source the data to be filtered
+     * @param string $type   the type against which to filter the source data
      *
      * @return mixed
      */
@@ -131,7 +131,7 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param   string  $property  Name of the property to get.
+     * @param string $property Name of the property to get.
      *
      * @return mixed the value found, or false if the property could not be found
      */
@@ -159,8 +159,8 @@ class Input
     /**
      * Retrieves the specified float from the input context.
      *
-     * @param   string  $property  Name of the property to get.
-     * @param   float   $default   Default value to return if variable does not exist.
+     * @param string $property Name of the property to get.
+     * @param float  $default  Default value to return if variable does not exist.
      *
      * @return float
      */
@@ -180,7 +180,7 @@ class Input
      * Accessor for the format parameter and document type. Joomla handles them redundantly internally leading to format
      * overwrites to html if the document type is not explicitly set.
      *
-     * @param   string  $format
+     * @param string $format
      *
      * @return string
      */
@@ -222,9 +222,9 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param   string  $property  Name of the property to get
-     * @param   int     $default   Default value to return if variable does not exist
-     * @param   string  $method    Explicit method where the value should be
+     * @param string $property Name of the property to get
+     * @param int    $default  Default value to return if variable does not exist
+     * @param string $method   Explicit method where the value should be
      *
      * @return int
      */
@@ -318,7 +318,7 @@ class Input
     /**
      * Removes tags without visual output from an HTML markup string.
      *
-     * @param   string  $original
+     * @param string $original
      *
      * @return string
      */
@@ -339,7 +339,7 @@ class Input
     /**
      * Gets the selected resources as an array.
      *
-     * @param   string  $field
+     * @param string $field
      *
      * @return int[]
      */
@@ -377,7 +377,7 @@ class Input
     /**
      * Returns the selected resource id.
      *
-     * @param   int  $default  the default value
+     * @param int $default the default value
      *
      * @return int
      */
@@ -408,9 +408,9 @@ class Input
     /**
      * Sets an input property with a value.
      *
-     * @param   string  $property  the name of the property to set
-     * @param   mixed   $value     the value to set to the property
-     * @param   string  $method    the method group of the property
+     * @param string $property the name of the property to set
+     * @param mixed  $value    the value to set to the property
+     * @param string $method   the method group of the property
      *
      * @return void
      */
@@ -428,8 +428,8 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param   string  $property  Name of the property to get.
-     * @param   string  $default   $default  Default value to return if variable does not exist.
+     * @param string $property Name of the property to get.
+     * @param string $default  $default  Default value to return if variable does not exist.
      *
      * @return string
      */
@@ -454,8 +454,8 @@ class Input
     /**
      * Ensures the requested value is valid and returns the default value if not.
      *
-     * @param   string    $field   the field with the cmd value
-     * @param   string[]  $values  the values to validate against
+     * @param string   $field  the field with the cmd value
+     * @param string[] $values the values to validate against
      *
      * @return string
      */
@@ -469,8 +469,8 @@ class Input
     /**
      * Ensures the requested value is valid and returns the default value if not.
      *
-     * @param   string  $field   the field with the int value
-     * @param   int[]   $values  the values to validate against
+     * @param string $field  the field with the int value
+     * @param int[]  $values the values to validate against
      *
      * @return int
      */

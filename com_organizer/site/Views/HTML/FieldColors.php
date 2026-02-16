@@ -20,15 +20,17 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class FieldColors extends ListView
 {
+    use Titled;
+
     /**
      * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
         // Divergent naming scheme
-        Toolbar::setTitle('FIELD_COLORS');
+        $this->title('FIELD_COLORS');
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $toolbar->addNew('FieldColors.add')->icon('fa fa-link');
         $this->addDelete();
 
@@ -37,7 +39,7 @@ class FieldColors extends ListView
 
 
         if (Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->preferences('com_organizer');
         }
     }

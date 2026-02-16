@@ -51,7 +51,7 @@ class ContactTracking extends ListView
         $this->title('CONTACT_TRACKING');
 
         if (($this->state->get('participantID') or $this->state->get('personID')) and count($this->items)) {
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             //$toolbar->standardButton('notify', Text::_('NOTIFY'));
             $button = new FormTarget('contactmap', 'Download as PDF');
             $button->icon('fa fa-file-pdf')->task('ContactTracking.pdf');
@@ -72,7 +72,7 @@ class ContactTracking extends ListView
     }
 
     /** @inheritDoc
-     * @param   array  $options
+     * @param array $options
      */
     protected function completeItems(array $options = []): void
     {
@@ -127,7 +127,7 @@ class ContactTracking extends ListView
 
             }
 
-            $structuredItems[$index] = $this->completeItem($index, $item, $link);
+            $this->completeItem($index, $item);
             $index++;
         }
 

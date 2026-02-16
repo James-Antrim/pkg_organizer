@@ -19,14 +19,14 @@ use THM\Organizer\Helpers\Can;
  */
 class Organizer extends HtmlView
 {
-    use Configured, Tasked, ToCed;
+    use Configured, Tasked, Titled, ToCed;
 
     protected string $layout = 'organizer';
 
     /**
      * Constructor
      *
-     * @param   array  $config  An optional associative array of configuration settings.
+     * @param array $config An optional associative array of configuration settings.
      */
     public function __construct(array $config)
     {
@@ -53,10 +53,10 @@ class Organizer extends HtmlView
      */
     protected function addToolBar(): void
     {
-        Toolbar::setTitle('MAIN');
+        $this->title('MAIN');
 
         if (Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->standardButton('brush', Text::_('CLEAN_DATABASE'), 'organizer.clean')->icon('fa fa-broom');
             $toolbar->standardButton('rekey', Text::_('REKEY_TABLES'), 'organizer.reKey')->icon('fa fa-key');
             $toolbar->preferences('com_organizer');

@@ -24,7 +24,7 @@ class Database
     /**
      * Get the number of affected rows for the previous executed SQL statement.
      *
-     * @return  integer
+     * @return  int
      */
     public static function affected(): int
     {
@@ -45,8 +45,7 @@ class Database
             $result = $dbo->loadAssoc();
 
             return $result ?: [];
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
@@ -61,8 +60,8 @@ class Database
      * NOTE: Choosing to key the result array by a non-unique field name can result in unwanted
      * behavior and should be avoided.
      *
-     * @param   string  $key     The name of a field on which to key the result array.
-     * @param   string  $column  An optional column name. Instead of the whole row, only this column value will be in
+     * @param string $key        The name of a field on which to key the result array.
+     * @param string $column     An optional column name. Instead of the whole row, only this column value will be in
      *                           the result array.
      *
      * @return  array[]   The return value or an empty array if the query failed.
@@ -74,8 +73,7 @@ class Database
             $result = $dbo->loadAssocList($key, $column);
 
             return $result ?: [];
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
@@ -86,11 +84,11 @@ class Database
     /**
      * Modifies a query with a restriction for a value (not) between two column values.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $value  the date for the restriction
-     * @param   string         $low    the low date column
-     * @param   string         $high   the high date column
-     * @param   bool           $not    whether the restriction should be negated
+     * @param DatabaseQuery $query the query to modify
+     * @param string        $value the date for the restriction
+     * @param string        $low   the low date column
+     * @param string        $high  the high date column
+     * @param bool          $not   whether the restriction should be negated
      *
      * @return void
      */
@@ -105,7 +103,7 @@ class Database
      * Method to get the first field of the first row of the result set from the database query and return it as an int
      * value.
      *
-     * @param   bool  $default  the default value
+     * @param bool $default the default value
      *
      * @return  bool  The return value if successful, otherwise the default value
      */
@@ -120,7 +118,7 @@ class Database
      * Method to get an array of values from the <var>$offset</var> field in each row of the result set from
      * the database query.
      *
-     * @param   int  $offset  The row offset to use to build the result array.
+     * @param int $offset The row offset to use to build the result array.
      *
      * @return  array    The return value or null if the query failed.
      */
@@ -131,13 +129,24 @@ class Database
             $result = $dbo->loadColumn($offset);
 
             return $result ?: [];
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
             return [];
         }
+    }
+
+    /**
+     * Escapes a string for usage in an SQL statement.
+     *
+     * @param string $text
+     *
+     * @return  string
+     */
+    public static function escape(string $text): string
+    {
+        return Application::database()->escape($text);
     }
 
     /**
@@ -149,8 +158,7 @@ class Database
         $dbo = Application::database();
         try {
             return $dbo->execute();
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
@@ -161,9 +169,9 @@ class Database
     /**
      * Inserts a row into a table based on an object's properties.
      *
-     * @param   string   $table   The name of the database table to insert into.
-     * @param   object  &$object  A reference to an object whose public properties match the table fields.
-     * @param   string   $key     The name of the primary key. If provided the object property is updated.
+     * @param string   $table  The name of the database table to insert into.
+     * @param object  &$object A reference to an object whose public properties match the table fields.
+     * @param string   $key    The name of the primary key. If provided the object property is updated.
      *
      * @return  bool    True on success.
      */
@@ -173,8 +181,7 @@ class Database
 
         try {
             return $dbo->insertObject($table, $object, $key);
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
@@ -186,7 +193,7 @@ class Database
      * Method to get the first field of the first row of the result set from the database query and return it as an int
      * value.
      *
-     * @param   int  $default  the default value
+     * @param int $default the default value
      *
      * @return  int  The return value if successful, otherwise the default value
      */
@@ -201,7 +208,7 @@ class Database
      * Method to get an array of values from the <var>$offset</var> field in each row of the result set from
      * the database query.
      *
-     * @param   int  $offset  The row offset to use to build the result array.
+     * @param int $offset The row offset to use to build the result array.
      *
      * @return  int[]    The return value or null if the query failed.
      */
@@ -217,7 +224,7 @@ class Database
     /**
      * Logs the exception.
      *
-     * @param   Exception  $exception
+     * @param Exception $exception
      *
      * @return void
      */
@@ -239,9 +246,9 @@ class Database
     /**
      * Formats the values to form a set used in the predicate of a query restriction. <NOT> IN <value set>
      *
-     * @param   array  $values  the values to aggregate
-     * @param   bool   $negate  whether the set should be negated
-     * @param   false  $quote   whether to quote the values
+     * @param array $values the values to aggregate
+     * @param bool  $negate whether the set should be negated
+     * @param false $quote  whether to quote the values
      *
      * @return string the comma separated values surrounded by braces
      */
@@ -267,7 +274,7 @@ class Database
     /**
      * Method to get the first row of the result set from the database query as an object.
      *
-     * @param   string  $class  The class name to use for the returned row object.
+     * @param string $class The class name to use for the returned row object.
      *
      * @return  object  The return value or an empty array if the query failed.
      */
@@ -278,8 +285,7 @@ class Database
             $result = $dbo->loadObject($class);
 
             return $result ?: new stdClass();
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
@@ -293,8 +299,8 @@ class Database
      * NOTE: Choosing to key the result array by a non-unique field name can result in unwanted
      * behavior and should be avoided.
      *
-     * @param   string  $key    The name of a field on which to key the result array.
-     * @param   string  $class  The class name to use for the returned row objects.
+     * @param string $key   The name of a field on which to key the result array.
+     * @param string $class The class name to use for the returned row objects.
      *
      * @return  array   The return value or an empty array if the query failed.
      */
@@ -305,8 +311,7 @@ class Database
             $result = $dbo->loadObjectList($key, $class);
 
             return $result ?: [];
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
@@ -317,10 +322,10 @@ class Database
     /**
      * Creates a condition with appropriate quotes.
      *
-     * @param   string      $subject   the column alias/name used as the subject of the comparison
-     * @param   int|string  $basis     the column alias/name, placeholder, or value being used as the basis of comparison
-     * @param   string      $standard  the standard of comparison; the operator used to compare
-     * @param   bool        $literal   flag denoting a string literal value's use as the basis of comparison
+     * @param string     $subject  the column alias/name used as the subject of the comparison
+     * @param int|string $basis    the column alias/name, placeholder, or value being used as the basis of comparison
+     * @param string     $standard the standard of comparison; the operator used to compare
+     * @param bool       $literal  flag denoting a string literal value's use as the basis of comparison
      *
      * @return string an accurate representation of what is actually returned from the dbo quoteName function
      */
@@ -346,8 +351,8 @@ class Database
     /**
      * Creates conditions in name quotes from a multidimensional array.
      *
-     * @param   array[]  $conditions  the conditions to quote [leftColumn, rightColumn <, operator>]
-     * @param   string   $separator   the operator between the conditions themselves
+     * @param array[] $conditions the conditions to quote [leftColumn, rightColumn <, operator>]
+     * @param string  $separator  the operator between the conditions themselves
      *
      * @return string an accurate representation of what is actually returned from the dbo quoteName function
      */
@@ -384,8 +389,8 @@ class Database
      * Wraps the database quote name function for use outside a query class without PhpStorm complaining about
      * resolution.
      *
-     * @param   string|string[]    $name   the column name or names
-     * @param   array|string|null  $alias  the column alias or aliases, if arrays and incongruent sizes => empty array
+     * @param string|string[]   $name      the column name or names
+     * @param array|string|null $alias     the column alias or aliases, if arrays and incongruent sizes => empty array
      *                                     return value
      *
      * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
@@ -399,7 +404,7 @@ class Database
     /**
      * Get the current query object or a new JDatabaseQuery object.
      *
-     * @param   bool  $new  True to return a new DatabaseQuery object, otherwise false
+     * @param bool $new True to return a new DatabaseQuery object, otherwise false
      *
      * @return  DatabaseQuery
      */
@@ -414,8 +419,8 @@ class Database
      * Wraps the database quote function for use outside a query class without PhpStorm complaining about resolution and
      * inaccurate return typing.
      *
-     * @param   string|string[]  $term    the term or terms to quote
-     * @param   bool             $escape  whether to escape the name provided
+     * @param string|string[] $term   the term or terms to quote
+     * @param bool            $escape whether to escape the name provided
      *
      * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
      */
@@ -427,7 +432,7 @@ class Database
     /**
      * Method to get the first field of the first row of the result set from the database query.
      *
-     * @param   mixed  $default  the default return value
+     * @param mixed $default the default return value
      *
      * @return  mixed  The return value if successful, otherwise the default value
      */
@@ -438,8 +443,7 @@ class Database
             $result = $dbo->loadResult();
 
             return $result ?: $default;
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::logException($exception);
             Application::message($exception->getMessage(), Application::ERROR);
 
@@ -450,22 +454,27 @@ class Database
     /**
      * Sets the SQL statement string for later execution.
      *
-     * @param   string|DatabaseQuery  $query   The SQL statement to set either as a DatabaseQuery object or a string.
-     * @param   int                   $offset  The affected row offset to set.
-     * @param   int                   $limit   The maximum affected rows to set.
+     * @param string|DatabaseQuery $query  The SQL statement to set either as a DatabaseQuery object or a string.
+     * @param int                  $offset The affected row offset to set.
+     * @param int                  $limit  The maximum affected rows to set.
      *
      * @return  void
      */
     public static function set(string|DatabaseQuery $query, int $offset = 0, int $limit = 0): void
     {
-        Application::database()->setQuery($query, $offset, $limit);
+        try {
+            Application::database()->setQuery($query, $offset, $limit);
+        } catch (Exception $exception) {
+            echo "<pre>" . print_r((string) $query, true) . "</pre>";
+            Application::handleException($exception);
+        }
     }
 
     /**
      * Method to get the first field of the first row of the result set from the database query and return it as an int
      * value.
      *
-     * @param   string  $default  the default return value
+     * @param string $default the default return value
      *
      * @return  string  The return value if successful, otherwise the default value
      */

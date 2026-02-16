@@ -11,9 +11,10 @@
 namespace THM\Organizer\Adapters;
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Joomla\CMS\Application\{CMSApplication, CMSApplicationInterface, WebApplication};
-use Joomla\CMS\{Component\ComponentHelper, Document\Document, Factory, Language\Language};
-use Joomla\CMS\{Menu\MenuItem, Plugin\PluginHelper, Session\Session, Uri\Uri};
+use Joomla\CMS\{Component\ComponentHelper, Document\Document, Factory, Language\Language, Menu\MenuItem};
+use Joomla\CMS\{Pathway\Pathway, Plugin\PluginHelper, Router\Router, Session\Session, Uri\Uri};
 use Joomla\CMS\Extension\{ComponentInterface, ExtensionHelper};
 use Joomla\Database\DatabaseDriver;
 use Joomla\DI\Container;
@@ -30,16 +31,25 @@ class Application
      * Predefined Joomla message types without unnecessary prefixing.
      * @see    CMSApplicationInterface
      */
-    public const ERROR = 'error', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
+    public const ERROR = 'error', INFO = 'info', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
 
     /**
      * Unused locally, but Joomla supported.
      * @ALERT, @CRITICAL, @EMERGENCY: danger
-     * @DEBUG, @INFO: info
+     * @DEBUG        : info
      *
-     * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency', INFO = 'info';
+     * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency';
      * @noinspection GrazieInspection
      */
+
+    /**
+     * Returns whether the platform was opened in an api context.
+     * @return bool
+     */
+    public static function api(): bool
+    {
+        return self::instance()->isClient('api');
+    }
 
     /**
      * Checks whether the current context is the administrator context.
@@ -48,6 +58,26 @@ class Application
     public static function backend(): bool
     {
         return self::instance()->isClient('administrator');
+    }
+
+    /**
+     * Retrieves the contents of the response body.
+     *
+     * @param string $body the modified contents of the body to set as applicable
+     *
+     * @return string
+     */
+    public static function body(string $body = ''): string
+    {
+        /** @var CMSApplication $app */
+        $app = self::instance();
+
+        if ($body) {
+            $app->setBody($body);
+            return '';
+        }
+
+        return $app->getBody();
     }
 
     /**
@@ -98,6 +128,17 @@ class Application
     }
 
     /**
+     * Closes the application.
+     *
+     * @return void
+     */
+    #[NoReturn]
+    public static function close(): void
+    {
+        exit(0);
+    }
+
+    /**
      * Shortcuts container access.
      * @return DatabaseDriver
      */
@@ -137,8 +178,8 @@ class Application
     /**
      * Performs a redirect on error.
      *
-     * @param   int     $code  the error code
-     * @param   string  $key   the localization key for a message
+     * @param int    $code the error code
+     * @param string $key  the localization key for a message
      *
      * @return void
      */
@@ -198,7 +239,7 @@ class Application
     /**
      * Performs handling for joomla's internal errors not handled by joomla.
      *
-     * @param   Exception  $exception  the joomla internal error being thrown instead of handled
+     * @param Exception $exception the joomla internal error being thrown instead of handled
      *
      * @return void
      */
@@ -208,6 +249,22 @@ class Application
         $message = $exception->getMessage();
         echo "<pre>" . print_r($exception->getTraceAsString(), true) . "</pre>";
         self::error($code, $message);
+    }
+
+    /**
+     * Method to set a response header. If the replace-parameter is set then all headers with the given name will be replaced by the new one. The headers are stored in an internal array to be sent when the site is sent to the browser.
+     *
+     * @param string $name    the name of the header property to set
+     * @param string $value   the value to set
+     * @param bool   $replace whether to replace existing
+     *
+     * @return void
+     */
+    public static function header(string $name, string $value, bool $replace = false): void
+    {
+        /** @var CMSApplication $app */
+        $app = self::instance();
+        $app->setHeader($name, $value, $replace);
     }
 
     /**
@@ -222,8 +279,7 @@ class Application
 
         try {
             $application = Factory::getApplication();
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             self::handleException($exception);
         }
 
@@ -237,6 +293,45 @@ class Application
     public static function language(): Language
     {
         return self::instance()->getLanguage();
+    }
+
+    /**
+     * Login authentication function.
+     *
+     * @param array $credentials array('username' => string, 'password' => string)
+     * @param array $options     array('remember' => boolean)
+     *
+     * @return  bool
+     * @see CMSApplication::login()
+     */
+    public static function login(array $credentials, array $options = []): bool
+    {
+        /** @var CMSApplication $app */
+        $app      = self::instance();
+        $response = $app->login($credentials, $options);
+
+        if (is_bool($response)) {
+            return $response;
+        }
+
+        Application::message($response->getMessage(), Application::ERROR);
+        return false;
+    }
+
+    /**
+     * Logout authentication function.
+     *
+     * @param int|string $userID  user id, can technically also be the username
+     * @param array      $options array('clientid' => array of client id's)
+     *
+     * @return  bool
+     * @see CMSApplication::logout()
+     */
+    public static function logout(int|string $userID = 0, array $options = []): bool
+    {
+        /** @var CMSApplication $app */
+        $app = self::instance();
+        return $app->logout($userID, $options);
     }
 
     /**
@@ -260,10 +355,10 @@ class Application
     }
 
     /**
-     * Masks the Joomla application enqueueMessage function
+     * Masks the Joomla application enqueueMessage function. (Implicit localization.)
      *
-     * @param   string  $message  the message to enqueue
-     * @param   string  $type     how the message is to be presented
+     * @param string $message the message to enqueue
+     * @param string $type    how the message is to be presented
      *
      * @return void
      */
@@ -289,7 +384,7 @@ class Application
     /**
      * Gets the parameter object for the component
      *
-     * @param   string  $extension  the component name.
+     * @param string $extension the component name.
      *
      * @return  Registry
      */
@@ -302,9 +397,27 @@ class Application
     }
 
     /**
+     * Returns the application Pathway object.
+     *
+     * @return  Pathway
+     */
+    public static function pathway(): Pathway
+    {
+        try {
+            /** @var CMSApplication $app */
+            $app = self::instance();
+            return $app->getPathway();
+        } catch (Exception $exception) {
+            self::handleException($exception);
+        }
+
+        return new Pathway();
+    }
+
+    /**
      * Function gets plugin parameters analogous to ComponentHelper.
      *
-     * @param   string  $plugin
+     * @param string $plugin
      *
      * @return Registry
      */
@@ -318,8 +431,8 @@ class Application
     /**
      * Redirect to another URL.
      *
-     * @param   string  $url     The URL to redirect to. Can only be http/https URL
-     * @param   int     $status  The HTTP 1.1 status code to be provided. 303 is assumed by default.
+     * @param string $url    The URL to redirect to. Can only be http/https URL
+     * @param int    $status The HTTP 1.1 status code to be provided. 303 is assumed by default.
      *
      * @return  void
      */
@@ -330,6 +443,17 @@ class Application
         /** @var CMSApplication $app */
         $app = self::instance();
         $app->redirect($url, $status);
+    }
+
+    /**
+     * Returns the container's router.
+     *
+     * @return  Router
+     */
+    public static function router(): Router
+    {
+        $container = self::container();
+        return $container->get('Router');
     }
 
     /**
@@ -347,15 +471,13 @@ class Application
      */
     public static function tag(): string
     {
-        $language = self::instance()->getLanguage();
-
-        return explode('-', $language->getTag())[0];
+        return explode('-', self::language()->getTag())[0];
     }
 
     /**
      * Resolves the upper case class name for the given string.
      *
-     * @param   string  $name  the name of the class to resolve
+     * @param string $name the name of the class to resolve
      *
      * @return string
      */
@@ -398,7 +520,7 @@ class Application
     /**
      * Gets the name of an object's class without its namespace.
      *
-     * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
+     * @param object|string $object     the object whose namespace free name is requested or the fq name of the class to be
      *                                  loaded
      *
      * @return string the name of the class without its namespace
@@ -415,10 +537,10 @@ class Application
     /**
      * Gets the property value from the state, overwriting the value from the request if available.
      *
-     * @param   string  $property  the property name
-     * @param   string  $request   the name of the property as passed in a request.
-     * @param   mixed   $default   the optional default value
-     * @param   string  $type      the optional name of the type filter to use on the variable
+     * @param string $property the property name
+     * @param string $request  the name of the property as passed in a request.
+     * @param mixed  $default  the optional default value
+     * @param string $type     the optional name of the type filter to use on the variable
      *
      * @return  mixed  The request user state.
      * @see CMSApplication::getUserStateFromRequest(), InputFilter::clean()
@@ -426,7 +548,7 @@ class Application
     public static function userRequestState(
         string $property,
         string $request,
-        mixed $default = null,
+        mixed  $default = null,
         string $type = 'none'
     ): mixed
     {
@@ -439,8 +561,8 @@ class Application
     /**
      * Gets the user's state's property value.
      *
-     * @param   string  $property  the property name
-     * @param   mixed   $default   the optional default value
+     * @param string $property the property name
+     * @param mixed  $default  the optional default value
      *
      * @return  mixed  the property value or null
      * @see CMSApplication::getUserState()

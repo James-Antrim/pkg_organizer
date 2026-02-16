@@ -39,7 +39,7 @@ abstract class ListView extends Core
     /**
      * Constructor
      *
-     * @param   array  $config  An optional associative array of configuration settings.
+     * @param array $config An optional associative array of configuration settings.
      */
     public function __construct(array $config)
     {
@@ -70,7 +70,7 @@ abstract class ListView extends Core
     protected function addAdd(): void
     {
         $controller = $this->getName();
-        $toolbar    = Toolbar::getInstance();
+        $toolbar    = Toolbar::instance();
         $toolbar->addNew("$controller.add");
     }
 
@@ -80,7 +80,7 @@ abstract class ListView extends Core
     protected function addDelete(): void
     {
         $controller = $this->getName();
-        $toolbar    = Toolbar::getInstance();
+        $toolbar    = Toolbar::instance();
         $toolbar->delete("$controller.delete")->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
     }
 
@@ -92,7 +92,7 @@ abstract class ListView extends Core
         $this->title(strtoupper($controller));
 
         if (Application::backend() and Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->preferences('com_organizer');
         }
     }
@@ -111,9 +111,9 @@ abstract class ListView extends Core
     /**
      * Readies an item for output.
      *
-     * @param   int       $index  the current iteration number
-     * @param   stdClass  $item   the current item being iterated
-     * @param   array     $options
+     * @param int      $index the current iteration number
+     * @param stdClass $item  the current item being iterated
+     * @param array    $options
      *
      * @return void
      */
@@ -125,7 +125,7 @@ abstract class ListView extends Core
     /**
      * Processes items for output.
      *
-     * @param   array  $options
+     * @param array $options
      *
      * @return void
      */

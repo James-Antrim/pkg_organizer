@@ -18,8 +18,8 @@ class Instance extends FormView
     protected string $layout = 'instance-wrapper';
 
     /** @inheritDoc
-     * @param   array   $buttons
-     * @param   string  $constant
+     * @param array  $buttons
+     * @param string $constant
      */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
@@ -33,7 +33,7 @@ class Instance extends FormView
         }
 
         $this->title($title);
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $toolbar->save('instance.save');
 
         $layout  = Input::cmd('layout');

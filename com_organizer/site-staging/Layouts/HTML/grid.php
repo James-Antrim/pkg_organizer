@@ -25,7 +25,7 @@ $lastRow    = end($rows);
 
 ?>
 <div id="j-main-container" class="span10">
-    <?php echo Toolbar::getInstance()->render(); ?>
+    <?php echo Toolbar::render(); ?>
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
         <?php require_once 'filters.php'; ?>
         <div class="<?php echo $class; ?>" id="instances-grid">

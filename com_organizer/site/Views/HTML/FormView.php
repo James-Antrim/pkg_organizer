@@ -44,6 +44,7 @@ abstract class FormView extends Core
     /**
      * Seems to be used somewhere to decide between Joomla Core UI (true) and bootstrap (false)
      * @var bool
+     * @noinspection PhpUnused
      */
     public bool $useCoreUI = true;
 
@@ -91,7 +92,7 @@ abstract class FormView extends Core
         $title = $new ? "ORGANIZER_ADD_$constant" : "ORGANIZER_EDIT_$constant";
         $this->title($title);
 
-        $toolbar = Document::getToolbar();
+        $toolbar = Document::toolbar();
 
         if (count($buttons) > 1) {
             $saveGroup = $toolbar->dropdownButton('save-group');

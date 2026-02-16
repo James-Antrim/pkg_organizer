@@ -22,7 +22,7 @@ class Profile extends OldFormView
     {
         $this->title('MY_PROFILE');
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $toolbar->save('profile.save');
     }
 }

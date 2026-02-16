@@ -11,7 +11,7 @@
 use Joomla\CMS\Layout\LayoutHelper;
 use THM\Organizer\Adapters\{HTML, Toolbar};
 
-$toolbar     = Toolbar::getInstance();
+$toolbar     = Toolbar::instance();
 $columnCount = count($this->headers);
 $data        = ['view' => $this, 'options' => []];
 $showSearch  = !empty($filters['filter_search']);

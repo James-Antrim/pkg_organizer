@@ -23,7 +23,7 @@ if (!Application::backend()) {
 ?>
 <div id="j-main-container" class="span10">
     <?php if (!Application::backend()): ?>
-        <?php echo Toolbar::getInstance()->render(); ?>
+        <?php echo Toolbar::render(); ?>
     <?php endif; ?>
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm" enctype="multipart/form-data"
           class="<?php echo $oClass; ?> form-validate">

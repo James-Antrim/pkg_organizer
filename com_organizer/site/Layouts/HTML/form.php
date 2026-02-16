@@ -19,7 +19,7 @@ if (!Application::backend()) {
 ?>
 <div id="j-main-container" class="span10">
     <?php if (!Application::backend()) : ?>
-        <?php echo Toolbar::getInstance()->render(); ?>
+        <?php echo Toolbar::render(); ?>
     <?php endif; ?>
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"
           class="form-<?php echo $this->orientation; ?> form-validate" enctype="multipart/form-data">

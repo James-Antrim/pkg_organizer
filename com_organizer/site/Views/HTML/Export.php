@@ -53,7 +53,7 @@ class Export extends FormView
             }
         }
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
 
         if ($my or $selection) {
             $url = Uri::base() . '?option=com_organizer&view=instances';

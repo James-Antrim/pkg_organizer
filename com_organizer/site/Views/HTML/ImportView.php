@@ -27,7 +27,7 @@ abstract class ImportView extends FormView
         $key        = str_replace('Import', 'IMPORT_', $controller);
         $this->title(strtoupper($key));
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $toolbar->save($controller . '.import', Text::_('IMPORT'))->icon('fa fa-upload');
         $toolbar->cancel("$controller.cancel");
     }

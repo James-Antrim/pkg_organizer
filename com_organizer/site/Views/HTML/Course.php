@@ -30,7 +30,7 @@ class Course extends FormView
 
         $item     = $this->item;
         $courseID = empty($item->id) ? 0 : $item->id;
-        $toolbar  = Toolbar::getInstance();
+        $toolbar  = Toolbar::instance();
 
         if ($this->layout === 'edit') {
             $this->title(empty($courseID) ? Text::_('ADD_COURSE') : Text::_('EDIT_COURSE'));

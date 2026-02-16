@@ -32,7 +32,7 @@ class Workload extends FormView
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $this->title('ORGANIZER_WORKLOAD');
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
 
         if ($this->form->getValue('personID')) {
             $button = new FormTarget('spreadsheet', Text::_('DOWNLOAD'));

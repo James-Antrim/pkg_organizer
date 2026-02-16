@@ -62,12 +62,12 @@ class Subjects extends ListView
 
         if ($this->access) {
             $this->addAdd();
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Subjects.import')->icon('fa fa-upload')->listCheck(true);
             $this->addDelete();
 
             if (Application::backend() and Can::administrate()) {
-                $toolbar = Toolbar::getInstance();
+                $toolbar = Toolbar::instance();
                 $toolbar->preferences('com_organizer');
             }
         }
@@ -96,7 +96,7 @@ class Subjects extends ListView
     }
 
     /**
-     * @param   array  $options  *
+     * @param array $options *
      *
      * @inheritDoc
      */
@@ -178,7 +178,7 @@ class Subjects extends ListView
     /**
      * Retrieves the person texts and formats them according to their roles for the subject being iterated
      *
-     * @param   object  $subject  the subject being iterated
+     * @param object $subject the subject being iterated
      *
      * @return string
      */
@@ -217,7 +217,7 @@ class Subjects extends ListView
     /**
      * Generates the person text (surname(, forename)?( title)?) for the given person
      *
-     * @param   array  $person  the subject person
+     * @param array $person the subject person
      *
      * @return string
      */

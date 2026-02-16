@@ -46,8 +46,8 @@ class InstanceItem extends ListView
         $this->title($instance->name . $method);
         $this->addSubtitle();
 
-        $itembar = Toolbar::getInstance('itembar');
-        $listbar = Toolbar::getInstance();
+        $itembar = Toolbar::instance('itembar');
+        $listbar = Toolbar::instance();
 
         if ($this->referrer) {
             $itembar->linkButton('back', Text::_('BACK_TO_OVERVIEW'))->url($this->referrer)->icon('fa fa-undo');
@@ -166,7 +166,7 @@ class InstanceItem extends ListView
     /**
      * Creates the event title.
      *
-     * @param   stdClass  $item  the event item being iterated
+     * @param stdClass $item the event item being iterated
      *
      * @return array the title column
      */
@@ -330,9 +330,9 @@ class InstanceItem extends ListView
     /**
      * Renders the individual resource output.
      *
-     * @param   string  $name      the resource name
-     * @param   string  $status    the resource's status
-     * @param   string  $dateTime  the date time of the resource's last status update
+     * @param string $name     the resource name
+     * @param string $status   the resource's status
+     * @param string $dateTime the date time of the resource's last status update
      *
      * @return void
      */
@@ -358,8 +358,8 @@ class InstanceItem extends ListView
     /**
      * Renders the persons section of the item.
      *
-     * @param   string  $label      the resources displayed in this section
-     * @param   array   $resources  the resource items
+     * @param string $label     the resources displayed in this section
+     * @param array  $resources the resource items
      *
      * @return void
      */
@@ -396,7 +396,7 @@ class InstanceItem extends ListView
     /**
      * Processes the instance to aid in simplifying/supplementing the item display.
      *
-     * @param   stdClass  $instance  the instance data
+     * @param stdClass $instance the instance data
      *
      * @return void
      */
@@ -559,22 +559,22 @@ class InstanceItem extends ListView
     }
 
     /**
-     * @param   array   &$collection  the aggregated collection for the resource
-     * @param   array   &$filtered    the resource filtered of attributes obfuscating resource uniqueness
-     * @param   string  &$modified    the date time string denoting the last modification date for the whole instance
-     * @param   int      $key         the resource's id in the database
-     * @param   string   $name        the name of the resource
-     * @param   array    $resource    the resource being iterated
+     * @param array   &$collection the aggregated collection for the resource
+     * @param array   &$filtered   the resource filtered of attributes obfuscating resource uniqueness
+     * @param string  &$modified   the date time string denoting the last modification date for the whole instance
+     * @param int      $key        the resource's id in the database
+     * @param string   $name       the name of the resource
+     * @param array    $resource   the resource being iterated
      *
      * @return void
      */
     private function setResource(
-        array &$collection,
-        array &$filtered,
+        array  &$collection,
+        array  &$filtered,
         string &$modified,
-        int $key,
+        int    $key,
         string $name,
-        array $resource
+        array  $resource
     ): void
     {
         $dateTime = $resource['statusDate'];

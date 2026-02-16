@@ -27,7 +27,7 @@ trait Suppressed
     protected function addSuppression(): void
     {
         $controller = $this->getName();
-        $toolbar    = Toolbar::getInstance();
+        $toolbar    = Toolbar::instance();
 
         switch ((int) $this->state->get('filter.suppress', self::ALL)) {
             case self::REVEALED:

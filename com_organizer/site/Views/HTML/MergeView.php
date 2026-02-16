@@ -27,7 +27,7 @@ abstract class MergeView extends FormView
         $key        = str_replace('Merge', 'MERGE_', $controller);
         $this->title(strtoupper($key));
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $toolbar->save($controller . '.save', Text::_('MERGE'))->icon('fa fa-code-merge');
         $toolbar->cancel("$controller.cancel");
     }

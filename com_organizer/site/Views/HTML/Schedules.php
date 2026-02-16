@@ -28,7 +28,7 @@ class Schedules extends ListView
         $this->toDo[] = 'Add notice texts for cross-department resources whose full names diverge from those saved.';
         $this->toDo[] = 'Add general regex validation of abbreviations to ensure no more spaces, periods, and the like are there.';
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
 
         $toolbar->addNew('schedules.import', Text::_('IMPORT'))->icon('fa fa-upload');
 

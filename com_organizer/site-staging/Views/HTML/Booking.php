@@ -33,7 +33,7 @@ class Booking extends Participants
     {
         $this->title(Text::_('EVENT_CODE') . ": {$this->booking->code}");
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
 
         $url = Uri::base() . "?option=com_organizer&view=instances&my=1";
         $toolbar->linkButton('my', Text::_('MY_INSTANCES'))->url($url)->icon('fa fa-th-list');
@@ -171,7 +171,7 @@ class Booking extends Participants
 
             $item->complete = HTML::tip(HTML::icon($icon), "profile-status-$item->id", $label);
 
-            $structuredItems[$index] = $this->completeItem($index, $item, $thisLink);
+            $this->completeItem($index, $item, ['link' => $thisLink]);
             $index++;
         }
 

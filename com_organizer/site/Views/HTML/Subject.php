@@ -31,7 +31,7 @@ class Subject extends FormView
         $subjectID = empty($this->item->id) ? 0 : $this->item->id;
         if ($this->layout === 'edit') {
             $this->title(empty($subjectID) ? Text::_('ADD_SUBJECT') : Text::_('EDIT_SUBJECT'));
-            $toolbar   = Toolbar::getInstance();
+            $toolbar   = Toolbar::instance();
             $saveGroup = $toolbar->dropdownButton('save-group');
             $saveBar   = $saveGroup->getChildToolbar();
             $saveBar->apply('subject.apply');
@@ -76,8 +76,8 @@ class Subject extends FormView
     /**
      * Creates a standardized output for resource attributes.
      *
-     * @param   string      $label     the label for the subjects as an attribute
-     * @param   array|null  $programs  the programs mapped to the subjects in context
+     * @param string     $label    the label for the subjects as an attribute
+     * @param array|null $programs the programs mapped to the subjects in context
      *
      * @return void
      */

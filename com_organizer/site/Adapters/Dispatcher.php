@@ -73,8 +73,7 @@ class Dispatcher extends ComponentDispatcher
             /** @var Controller $controller */
             $controller->execute($task);
             $controller->redirect();
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             Application::handleException($exception);
         }
     }
@@ -98,8 +97,8 @@ class Dispatcher extends ComponentDispatcher
     /** @inheritDoc */
     protected function loadLanguage(): void
     {
-        // Load common and local language files.
-        $this->app->getLanguage()->load($this->option);
-        $this->app->getLanguage()->load($this->option, JPATH_ADMINISTRATOR . '/components/com_organizer');
+        $language = Application::language();
+        $language->load($this->option);
+        $language->load($this->option, JPATH_ADMINISTRATOR . '/components/com_organizer');
     }
 }

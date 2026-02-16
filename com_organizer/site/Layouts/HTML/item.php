@@ -15,7 +15,7 @@ require_once 'titles.php';
 ?>
 <div id="j-main-container" class="span10">
     <?php if (!Application::backend()) : ?>
-        <?php echo Toolbar::getInstance()->render(); ?>
+        <?php echo Toolbar::render(); ?>
     <?php endif; ?>
     <?php
     foreach ($this->item as $key => $attribute) {

@@ -30,7 +30,7 @@ class Programs extends ListView
         if (Organizations::documentableIDs()) {
             $this->addAdd();
 
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Programs.import')->listCheck(true)->icon('fa fa-upload');
             $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'), 'Programs.update')
                 ->listCheck(true)->icon('fa fa-sync');

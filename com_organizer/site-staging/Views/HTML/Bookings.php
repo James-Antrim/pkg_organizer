@@ -24,7 +24,7 @@ class Bookings extends ListView
         $this->toDo[] = 'Add form and authentication checks to the public facing code in the clean function.';
         $this->toDo[] = 'The original clean call from organizer had true as a parameter.';
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $toolbar->delete('bookings.clean', Text::_('CLEAN_BOOKINGS'));
         parent::addToolBar();
     }

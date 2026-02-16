@@ -25,7 +25,7 @@ class CleaningGroups extends ListView
      */
     protected function addToolBar(): void
     {
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $this->addAdd();
 
         switch ($this->state->get('filter.relevant')) {

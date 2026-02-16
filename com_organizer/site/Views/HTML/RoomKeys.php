@@ -31,7 +31,7 @@ class RoomKeys extends ListView
         $this->title('ROOM_KEYS');
 
         if (Application::backend() and Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->preferences('com_organizer');
         }
     }

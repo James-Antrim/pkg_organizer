@@ -30,7 +30,7 @@ class CourseParticipants extends Participants
 
         $this->title('PARTICIPANTS');
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
 
         /** @var DropdownButton $functions */
         $functions    = $toolbar->dropdownButton('functions-group', 'ORGANIZER_FUNCTIONS')
@@ -79,7 +79,7 @@ class CourseParticipants extends Participants
             ->modalWidth('800px')
             ->modalHeight('fit-content');
 
-        $batchBar = Toolbar::getInstance('batch');
+        $batchBar = Toolbar::instance('batch');
         $batchBar->confirmButton('batch', Text::_('SEND'), 'courseparticipants.notify')->message(Text::_('NOTIFY_CONFIRM'));
     }
 

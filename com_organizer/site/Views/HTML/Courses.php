@@ -53,7 +53,7 @@ class Courses extends ListView
             return;
         }
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
 
         if (Organizations::schedulableIDs()) {
             $toolbar->addNew('courses.import', Text::_('IMPORT'))->icon('fa fa-upload');
@@ -79,7 +79,7 @@ class Courses extends ListView
         }
 
         if (Application::backend() and Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->preferences('com_organizer');
         }
     }

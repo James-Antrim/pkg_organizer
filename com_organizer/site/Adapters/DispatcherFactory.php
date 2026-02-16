@@ -28,8 +28,8 @@ class DispatcherFactory implements ComponentDispatcherFactoryInterface
     /**
      * ComponentDispatcherFactory constructor.
      *
-     * @param   string               $namespace   The namespace
-     * @param   MVCFactoryInterface  $mvcFactory  The MVC factory
+     * @param string              $namespace  The namespace
+     * @param MVCFactoryInterface $mvcFactory The MVC factory
      */
     public function __construct(string $namespace, MVCFactoryInterface $mvcFactory)
     {
@@ -37,9 +37,7 @@ class DispatcherFactory implements ComponentDispatcherFactoryInterface
         $this->mvcFactory = $mvcFactory;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function createDispatcher(CMSApplicationInterface $application, Input $input = null): DispatcherInterface
     {
         if ($application->isClient('api')) {

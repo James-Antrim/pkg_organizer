@@ -23,8 +23,8 @@ class User
      * Method to check User object authorisation against an access control
      * object and optionally an access extension object
      *
-     * @param   string       $action  the name of the action to check for permission.
-     * @param   string|null  $asset   the name of the asset on which to perform the action.
+     * @param string      $action the name of the action to check for permission.
+     * @param string|null $asset  the name of the asset on which to perform the action.
      *
      * @return  bool
      */
@@ -36,7 +36,7 @@ class User
     /**
      * Gets the id of the user, optionally by username.
      *
-     * @param   string  $userName
+     * @param string $userName
      *
      * @return int
      */
@@ -48,7 +48,7 @@ class User
     /**
      * Gets a user object (specified or current).
      *
-     * @param   int|string  $userID  the user identifier (id or name)
+     * @param int|string $userID the user identifier (id or name)
      *
      * @return Instance
      */
@@ -69,9 +69,22 @@ class User
     }
 
     /**
+     * Retrieves the view access level ids allowed the user.
+     *
+     * @param int $userID
+     *
+     * @return array
+     */
+    public static function levels(int $userID = 0): array
+    {
+        $user = self::instance($userID);
+        return $user->getAuthorisedViewLevels();
+    }
+
+    /**
      * Gets the name of the user.
      *
-     * @param   int|string  $userID
+     * @param int|string $userID
      *
      * @return string
      */
@@ -99,7 +112,7 @@ class User
     /**
      * Gets the account name of the user, optionally by id.
      *
-     * @param   int  $userID  the id of
+     * @param int $userID the id of
      *
      * @return string
      */

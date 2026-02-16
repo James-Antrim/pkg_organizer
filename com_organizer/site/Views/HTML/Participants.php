@@ -29,7 +29,7 @@ class Participants extends ListView
     {
         $this->addMerge();
         if (Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
+            $toolbar = Toolbar::instance();
             $toolbar->standardButton('bars', Text::_('UPDATE_PARTICIPATION'), 'participants.update')
                 ->icon('fa fa-chart-bar');
         }

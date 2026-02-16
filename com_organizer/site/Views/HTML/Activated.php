@@ -27,7 +27,7 @@ trait Activated
     {
         /** @var ListView $this */
         $controller = $this->getName();
-        $toolbar    = $dropdown ?: Toolbar::getInstance();
+        $toolbar    = $dropdown ?: Toolbar::instance();
 
         switch ((int) $this->state->get('filter.active', self::ACTIVE)) {
             case self::ACTIVE:

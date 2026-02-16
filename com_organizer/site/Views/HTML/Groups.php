@@ -33,7 +33,7 @@ class Groups extends ListView
         $this->toDo[] = 'Store the publishing value in the instance directly to make instance queries much better.';
         // Resource creation occurs in Untis.
 
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
 
         /** @var DropdownButton $functions */
         $functions    = $toolbar->dropdownButton('functions-group', 'ORGANIZER_FUNCTIONS')
@@ -66,7 +66,7 @@ class Groups extends ListView
             ->modalHeight('fit-content')
             ->listCheck(true);
 
-        $batchBar = Toolbar::getInstance('batch');
+        $batchBar = Toolbar::instance('batch');
         $batchBar->standardButton('batch', Text::_('PROCESS'), 'groups.batch');
 
         parent::addToolBar();

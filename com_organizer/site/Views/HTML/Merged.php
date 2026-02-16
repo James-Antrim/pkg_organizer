@@ -33,7 +33,7 @@ trait Merged
                 return;
             }
 
-            Toolbar::getInstance()
+            Toolbar::instance()
                 ->standardButton('merge', Text::_('MERGE'), "Merge$controller.display")
                 ->icon('fa fa-compress')
                 ->listCheck(true);

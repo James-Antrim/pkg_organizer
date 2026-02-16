@@ -74,7 +74,7 @@ class Instances extends ListView
         $model = $this->model;
 
         $this->title($model->title());
-        $toolbar = Toolbar::getInstance();
+        $toolbar = Toolbar::instance();
         $expURL  = Routing::getViewURL('export');
 
         if (User::id() and $model->layout === Helper::LIST) {
@@ -164,11 +164,11 @@ class Instances extends ListView
             return;
         }
 
-        if (Input::getBool('my') and !User::id()) {
+        if (Input::bool('my') and !User::id()) {
             Application::error(401);
         }
 
-        $organizationID = Input::getParams()->get('organizationID', 0);
+        $organizationID = Input::parameters()->get('organizationID', 0);
         $this->manages  = $organizationID ? Organizations::manageable($organizationID) : (bool) Organizations::manageableIDs();
     }
 
@@ -210,8 +210,8 @@ class Instances extends ListView
     /**
      * Creates the blocks used to display a grid schedule from the raw grid periods.
      *
-     * @param   array  $periods  the raw periods data
-     * @param   bool   $allDay   whether the grid consists of a single block for the whole day
+     * @param array $periods the raw periods data
+     * @param bool  $allDay  whether the grid consists of a single block for the whole day
      *
      * @return array[]
      */
@@ -244,9 +244,9 @@ class Instances extends ListView
     /**
      * Generates a grid structure based upon the frame parameters, which can then later be filled with appointments.
      *
-     * @param   array   $blocks   the daily structure of the grid
-     * @param   array  &$headers  the column headers
-     * @param   bool    $allDay   whether the grid consists of a single block lasting the whole day
+     * @param array   $blocks  the daily structure of the grid
+     * @param array  &$headers the column headers
+     * @param bool    $allDay  whether the grid consists of a single block lasting the whole day
      *
      * @return array[] the grid structure to fill with appointments
      */
@@ -313,7 +313,7 @@ class Instances extends ListView
     /**
      * Creates the event title.
      *
-     * @param   stdClass  $item  the event item being iterated
+     * @param stdClass $item the event item being iterated
      *
      * @return array the title column
      */
@@ -333,7 +333,7 @@ class Instances extends ListView
      * Creates output for individual instances and assigns them to the day/block coordinates in which they will be
      * displayed.
      *
-     * @param   array  $grid  the grid used to structure the instances for display
+     * @param array $grid the grid used to structure the instances for display
      *
      * @return void
      */
@@ -590,7 +590,7 @@ class Instances extends ListView
             'roomID'         => $state->get('filter.roomID', 0)
         ];
 
-        $params = Input::getParams();
+        $params = Input::parameters();
 
         foreach ($fields as $field => $value) {
             if (empty($value)) {
@@ -685,7 +685,7 @@ class Instances extends ListView
 
                 $supplement .= implode('</li><li>', $dates) . '</li></ul>';
             }
-            elseif (Input::getInt('my')) {
+            elseif (Input::bool('my')) {
                 if (User::id()) {
                     $supplement .= Text::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
                 }
