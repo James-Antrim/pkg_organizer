@@ -267,11 +267,13 @@ CREATE TABLE IF NOT EXISTS `#__organizer_curricula`
 
 CREATE TABLE IF NOT EXISTS `#__organizer_degrees`
 (
-    `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`        VARCHAR(255) DEFAULT NULL,
-    `abbreviation` VARCHAR(25)      NOT NULL,
-    `code`         VARCHAR(60)      NOT NULL,
-    `name`         VARCHAR(150)     NOT NULL,
+    `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `alias`           VARCHAR(255)        DEFAULT NULL,
+    `abbreviation`    VARCHAR(50)         NOT NULL,
+    `active`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `code`            VARCHAR(60)         NOT NULL,
+    `name`            VARCHAR(150)        NOT NULL,
+    `statistic-code`  TINYINT(2) UNSIGNED NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `alias` (`alias`),
     UNIQUE KEY `code` (`code`)
@@ -280,15 +282,37 @@ CREATE TABLE IF NOT EXISTS `#__organizer_degrees`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT INTO `#__organizer_degrees`
-VALUES (1, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering'),
-       (2, 'bsc', 'B.Sc.', 'BS', 'Bachelor of Science'),
-       (3, 'ba', 'B.A.', 'BA', 'Bachelor of Arts'),
-       (4, 'meng', 'M.Eng.', 'ME', 'Master of Engineering'),
-       (5, 'msc', 'M.Sc.', 'MS', 'Master of Science'),
-       (6, 'ma', 'M.A.', 'MA', 'Master of Arts'),
-       (7, 'mba', 'M.B.A.', 'MB', 'Master of Business Administration and Engineering'),
-       (8, 'med', 'M.Ed.', 'MH', 'Master of Education');
+INSERT IGNORE INTO `#__organizer_degrees`
+VALUES (1, 'auslaendischer-abschluss', 'ausländischer Abschluss', 0, 'AD', 'Abschluss ausserhalb Deutschlands', 96),
+       (2, 'ba', 'B.A.', 1, 'BA', 'Bachelor of Arts', 84),
+       (3, 'bba', 'B.B.A.', 1, 'BB', 'Bachelor of Business Administration', 84),
+       (4, 'bbae', 'B.B.A.E.', 1, 'BD', 'Bachelor of Business Administration and Engineering', 84),
+       (5, 'bed', 'B.E.', 1, 'BU', 'Bachelor of Education', 84),
+       (6, 'beng', 'B.Eng.', 1, 'BE', 'Bachelor of Engineering', 84),
+       (7, 'bsc', 'B.Sc.', 1, 'BS', 'Bachelor of Science', 84),
+       (8, 'dipl-bioinformatik', 'Dipl.-Bioinformatiker (FH)', 0, 'BI', 'Diplom-Bioinformatiker (FH)', 51),
+       (9, 'dipl-betriebswirt', 'Dipl.-Betriebswirt (FH)', 0, 'BW', 'Diplom-Betriebswirt (FH)', 51),
+       (10, 'dipl-informatik', 'Dipl.-Informatiker (FH)', 0, 'IF', 'Diplom-Informatiker (FH)', 51),
+       (11, 'dipl-ingenieur', 'Dipl.-Ingenieur (FH)', 0, 'IN', 'Diplom-Ingenieur (FH)', 51),
+       (12, 'dipl-logistik', 'Dipl.-Logistiker (FH)', 0, 'LO', 'Diplom-Logistiker (FH)', 51),
+       (13, 'dipl-mathematik', 'Dipl.-Mathematiker (FH)', 0, 'MK', 'Diplom-Mathematiker (FH)', 51),
+       (14, 'dipl-projektmanager', 'Dipl.-Projektmanager (FH)', 0, 'PM', 'Diplom-Projektmanager (FH)', 51),
+       (15, 'dipl-vertriebsingenieur', 'Dipl.-Vertriebsingenieur (FH)', 0, 'VI', 'Diplom-Vertriebsingenieur (FH)', 51),
+       (16, 'dipl-wirtschaftsinformatik', 'Dipl.-Wirtschaftsinformatiker (FH)', 0, 'WF', 'Diplom-Wirtschaftsinformatiker (FH)', 51),
+       (17, 'dipl-wirtschaftsingenieur', 'Dipl.-Wirtschaftsingenieur (FH)', 0, 'WI', 'Diplom-Wirtschaftsingenieur (FH)', 51),
+       (18, 'feststellungspruefung', 'Feststellungsprüfung', 0, 'FP', 'Feststellungsprüfung', 17),
+       (19, 'hochschulzugangspruefung', 'Hochschulzugangsprüfung', 0, 'HZ', 'Hochschulzugangsprüfung', 17),
+       (20, 'ma', 'M.A.', 1, 'MA', 'Master of Arts', 90),
+       (21, 'mba', 'M.B.A.', 1, 'MB', 'Master of Business Administration', 90),
+       (22, 'mbae', 'M.B.A.', 1, 'MD', 'Master of Business Administration and Engineering', 90),
+       (23, 'meng', 'M.Eng.', 1, 'ME', 'Master of Engineering', 90),
+       (24, 'med', 'M.Ed.', 1, 'MH', 'Master of Higher Education', 90), -- Higher
+       (25, 'msc', 'M.Sc.', 1, 'MS', 'Master of Science', 90),
+       (26, 'ohne-abschluss', 'ohne Abschluss', 0, '01', 'ohne Abschluss', 97),
+       (27, 'promotion', 'Promotion', 1, 'PR', 'Promotion', 06),
+       (28, 'promotion-haw', 'Promotion (HAW)', 1, 'PH', 'Promotion mit HAW Abschluss', 92),
+       (29, 'zertifikat', 'Zertifikat', 1, '00', 'Zertifikat', 94);
+
 
 CREATE TABLE IF NOT EXISTS `#__organizer_equipment`
 (
@@ -1030,7 +1054,7 @@ VALUES (11, '011', 'Wohnflächen im Freien', 'Outdoor Residential Areas', 1, 0),
        (374, '374', 'Pilzzuchtraum', 'Fungus Cultivation Rooms', 7, 3),
        (375, '375', 'Pflanzenzuchtvorbereitungsraum', 'Preparation Rooms, Plant Cultivation', 7, 3),
        (382, '382', 'Teilküche', 'Kitchenettes', 11, 3),
-       (383, '383', 'Großküche', 'Kitchens, Industral', 16, 3),
+       (383, '383', 'Großküche', 'Kitchens, Industrial', 16, 3),
        (384, '384', 'Spezialküche', 'Kitchens, Specialized', 16, 3),
        (385, '385', 'Küchenvorbereitungsraum', 'Kitchens, Food Preparation', 16, 3),
        (386, '386', 'Backraum', 'Baking Rooms', 16, 3),
@@ -1976,7 +2000,7 @@ VALUES (110, '0110', 'Wohnfläche im Freien', 'Outdoor Residential Area', 11, 0,
        (7143, '7143', 'Baderaum behindertengerecht', 'Bath Room, Accessible', 714, 4, 6),
        (7144, '7144', 'Patientenbad', 'Bathroom, Patient', 714, 4, 6),
        (7145, '7145', 'Sanitärzelle Patientenzimmer', 'Sanitary Cell, Patient', 714, 4, 6),
-       (7146, '7146', 'Sanitärzelle Patientenzimmmer mit besonderen hygienischen und RLT-Anforderungen', 'Sanitary Cell, Patient w/ Heightened Hygiene & Special Ventilation Requirements', 714, 5, 7),
+       (7146, '7146', 'Sanitärzelle Patientenzimmer mit besonderen hygienischen und RLT-Anforderungen', 'Sanitary Cell, Patient w/ Heightened Hygiene & Special Ventilation Requirements', 714, 5, 7),
        (7147, '7147', 'Sanitärzelle mit Strahlenschutzmassnahmen', 'Sanitary Cell w/ Radiation Protections', 714, 5, 7),
        (7150, '7150', 'Sauna (Kabine)', 'Sauna', 715, 3, 5),
        (7161, '7161', 'Zwangsdusche mit Abluft', 'Compulsory Shower w/ Ventilation', 716, 4, 6),
