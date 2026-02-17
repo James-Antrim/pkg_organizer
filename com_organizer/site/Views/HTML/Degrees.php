@@ -10,7 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text};
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text};
+use THM\Organizer\Helpers\Degrees as Helper;
 use THM\Organizer\Layouts\HTML\Row;
 
 /**
@@ -18,37 +20,53 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Degrees extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    use Activated;
+
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
-        $this->addBasicButtons();
+        $this->addAdd();
+        $this->addActa();
+        $this->addDelete();
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Degrees');
+    }
+
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [
-            'check'        => ['type' => 'check'],
-            'name'         => [
+            'check'         => ['type' => 'check'],
+            'name'          => [
                 'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('NAME'),
                 'type'       => 'text'
             ],
-            'abbreviation' => [
+            'abbreviation'  => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('ABBREVIATION'),
                 'type'       => 'text'
             ],
-            'code'         => [
+            'code'          => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('DEGREE_CODE'),
                 'type'       => 'text'
+            ],
+            'statisticCode' => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STATISTIC_CODE'),
+                'type'       => 'text'
+            ],
+            'active'        => [
+                'properties' => ['class' => 'w-5 d-none d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ACTIVE'),
+                'type'       => 'value'
             ],
         ];
     }

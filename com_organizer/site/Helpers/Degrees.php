@@ -16,10 +16,12 @@ namespace THM\Organizer\Helpers;
  */
 class Degrees extends ResourceHelper
 {
+    use Active;
+
     /**
      * Gets the academic level of the degree. (Bachelor|Master)
      *
-     * @param   int  $degreeID  the id of the degree
+     * @param int $degreeID the id of the degree
      *
      * @return string
      */

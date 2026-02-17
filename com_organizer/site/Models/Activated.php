@@ -22,10 +22,10 @@ trait Activated
     /**
      * Sets a campus filter for a given resource.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the alias for the linking table
+     * @param DatabaseQuery $query the query to modify
+     * @param string        $alias the alias for the linking table
      */
-    protected function activeFilter(DatabaseQuery $query, string $alias): void
+    protected function activeFilter(DatabaseQuery $query, string $alias = ''): void
     {
         /** @var ListModel $this */
         $status = $this->state->get('filter.active');
@@ -39,14 +39,19 @@ trait Activated
             return;
         }
 
-        $query->where("$alias.active = $status");
+        if ($alias) {
+            $query->where("$alias.active = $status");
+        }
+        else {
+            $query->where("active = $status");
+        }
     }
 
     /**
-     * Method to auto-populate the model state.
+     * Method to autopopulate the model state.
      *
-     * @param   string  $ordering   An optional ordering field.
-     * @param   string  $direction  An optional direction (asc|desc).
+     * @param string $ordering  An optional ordering field.
+     * @param string $direction An optional direction (asc|desc).
      *
      * @return void populates state properties
      */

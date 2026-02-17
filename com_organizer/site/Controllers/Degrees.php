@@ -13,5 +13,7 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Degrees extends ListController
 {
+    use Activated;
+
     protected string $item = 'Degree';
 }

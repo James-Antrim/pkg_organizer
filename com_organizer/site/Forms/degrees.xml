@@ -1,2 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form/>
+<form>
+    <fields name="filter">
+        <field name="search" type="text" label="ORGANIZER_SEARCH" class="form-control" hint="SEARCH"/>
+        <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ORGANIZER_ALL_STATES</option>
+            <option value="1">ORGANIZER_ACTIVE</option>
+            <option value="0">ORGANIZER_INACTIVE</option>
+        </field>
+    </fields>
+    <fields name="list">
+        <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
+    </fields>
+</form>
