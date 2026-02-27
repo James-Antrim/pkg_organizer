@@ -60,6 +60,10 @@ class LSF
             return false;
         }
 
+        // Since I have to debug ITS responses every time just leave this here.
+        /*if (Can::administrate()) {
+            echo "<pre>" . print_r("<?xml version='1.0' encoding='utf-8'?>" . $result, true) . "</pre>";die;
+        }*/
         return simplexml_load_string("<?xml version='1.0' encoding='utf-8'?>" . $result);
     }
 
