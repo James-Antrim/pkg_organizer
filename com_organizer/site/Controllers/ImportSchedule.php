@@ -87,7 +87,7 @@ class ImportSchedule extends FormController
     /**
      * Attempts to resolve events to subjects via associations and curriculum mapping.
      *
-     * @param   int  $organizationID  the id of the organization with which the events are associated
+     * @param int $organizationID the id of the organization with which the events are associated
      *
      * @return void
      */
@@ -238,9 +238,7 @@ class ImportSchedule extends FormController
         unset($xml->departments);
 
         $this->tMethods = new stdClass();
-        foreach ($xml->descriptions->children() as $node) {
-            Validators\Methods::validate($this, $node);
-        }
+        Validators\Methods::methods($this->tMethods);
         unset($xml->descriptions);
 
         $this->grids = new stdClass();
@@ -380,8 +378,8 @@ class ImportSchedule extends FormController
     /**
      * Validates a date attribute.
      *
-     * @param   string &$value     the attribute value passed by reference because of reformatting to Y-m-d
-     * @param   string  $constant  the unique text constant fragment
+     * @param string &$value    the attribute value passed by reference because of reformatting to Y-m-d
+     * @param string  $constant the unique text constant fragment
      *
      * @return bool
      */
@@ -403,7 +401,7 @@ class ImportSchedule extends FormController
     /**
      * Validates the organization context for the schedule and rights related to it.
      *
-     * @param   SimpleXMLElement  $node
+     * @param SimpleXMLElement $node
      *
      * @return bool
      */
@@ -437,9 +435,9 @@ class ImportSchedule extends FormController
     /**
      * Validates a text attribute. Sets the attribute if valid.
      *
-     * @param   string  $value     the attribute value
-     * @param   string  $constant  the unique text constant fragment
-     * @param   string  $regex     the regex to check the text against
+     * @param string $value    the attribute value
+     * @param string $constant the unique text constant fragment
+     * @param string $regex    the regex to check the text against
      *
      * @return bool false if blocking errors were found, otherwise true
      */
