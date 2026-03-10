@@ -20,6 +20,8 @@ class Program extends FormView
      */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
+        $this->toDo[] = 'Add a no category option.';
+
         parent::addToolbar(['apply', 'save', 'save2copy']);
     }
 }

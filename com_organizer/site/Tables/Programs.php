@@ -21,7 +21,6 @@ class Programs extends Table
 {
     use Activated;
     use Aliased;
-    use Coded;
     use Localized;
 
     /**
@@ -81,6 +80,13 @@ class Programs extends Table
      * @bool
      */
     public int $nc = 0;
+
+    /**
+     * The id of the nomen entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
+     */
+    public int|null $nomenID = null;
 
     /**
      * The associated organization id.

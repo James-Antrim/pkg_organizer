@@ -13,5 +13,11 @@ namespace THM\Organizer\Views\HTML;
 /** @inheritDoc */
 class ImportSchedule extends ImportView
 {
-    // Everything is taken care of in the inheritance hierarchy.
+
+    /** @inheritDoc */
+    protected function addToolbar(array $buttons = [], string $constant = ''): void
+    {
+        $this->toDo[] = 'Update program code resolution to reflect changes to the programs table.';
+        parent::addToolbar($buttons, $constant);
+    }
 }
