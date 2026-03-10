@@ -195,7 +195,9 @@ UPDATE `v7ocf_organizer_programs` SET `code` = 'WI' WHERE `code` = 'WID';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'WI' WHERE `code` = 'WIF';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'W' WHERE `code` = 'WWD';
 
-ALTER TABLE `v7ocf_organizer_programs` ADD COLUMN `nomenID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`;
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `nomenID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
+    ADD KEY `nomenID` (`nomenID`);
 
 UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_nomen` AS `n` ON `n`.`code` = `p`.`code` SET `p`.`nomenID` = `n`.`id`;
 
@@ -205,3 +207,29 @@ ALTER TABLE `v7ocf_organizer_programs`
 ALTER TABLE `v7ocf_organizer_programs` DROP COLUMN `code`;
 
 ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `nomenID` INT(11) UNSIGNED NOT NULL;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_minors`
+(
+    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`        VARCHAR(255)     NOT NULL,
+    `alias_en`        VARCHAR(255)     NOT NULL,
+    `code`            VARCHAR(60)      NOT NULL,
+    `name_de`         VARCHAR(255)     NOT NULL,
+    `name_en`         VARCHAR(255)     NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+    )
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `minorID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
+    ADD KEY `minorID` (`minorID`);
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD CONSTRAINT `program_minorID_fk` FOREIGN KEY (`minorID`) REFERENCES `v7ocf_organizer_minors` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;

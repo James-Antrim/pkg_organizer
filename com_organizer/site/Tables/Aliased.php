@@ -15,6 +15,7 @@ namespace THM\Organizer\Tables;
  */
 trait Aliased
 {
+    //todo add localizations!!!!!!!!!!!!!!!!!!!!!!!!!!
     /**
      * The alias used to reference the resource in a URL
      * VARCHAR(255) DEFAULT NULL
