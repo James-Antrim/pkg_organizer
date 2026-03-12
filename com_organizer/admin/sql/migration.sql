@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_minors`
     UNIQUE KEY `code` (`code`),
     UNIQUE KEY `name_de` (`name_de`),
     UNIQUE KEY `name_en` (`name_en`)
-    )
+)
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
@@ -233,3 +233,6 @@ ALTER TABLE `v7ocf_organizer_programs`
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_minorID_fk` FOREIGN KEY (`minorID`) REFERENCES `v7ocf_organizer_minors` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `attendance` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER `nomenID`;

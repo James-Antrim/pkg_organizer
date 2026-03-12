@@ -24,10 +24,32 @@ class Programs extends Curricula implements Selectable
 
     protected static string $resource = 'program';
 
+    public const IN_PERSON = 1, INTERNSHIP = 3, REMOTE     = 2;
+    public const                                ATTENDANCE = [
+        self::IN_PERSON  => [
+            'alias'          => 'IN_PERSON_ALIAS',
+            'code'           => 'P',
+            'name'           => 'IN_PERSON',
+            'statistic-code' => '1',
+        ],
+        self::INTERNSHIP => [
+            'alias'          => 'INTERNSHIP_ALIAS',
+            'code'           => 'S',
+            'name'           => 'INTERNSHIP',
+            'statistic-code' => '3',
+        ],
+        self::REMOTE     => [
+            'alias'          => 'REMOTE_ALIAS',
+            'code'           => 'F',
+            'name'           => 'REMOTE',
+            'statistic-code' => '2',
+        ]
+    ];
+
     /**
      * Retrieves the id of the degree associated with the program.
      *
-     * @param   int  $programID
+     * @param int $programID
      *
      * @return int
      */
@@ -46,7 +68,7 @@ class Programs extends Curricula implements Selectable
     /**
      * Gets the programIDs for the given resource
      *
-     * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
+     * @param mixed $identifiers int resourceID | array ranges of subordinate resources
      *
      * @return int[] the program ids
      */
@@ -70,7 +92,7 @@ class Programs extends Curricula implements Selectable
     /**
      * Checks whether the given program has configured subordinates.
      *
-     * @param   int  $programID
+     * @param int $programID
      *
      * @return bool
      */
@@ -112,7 +134,7 @@ class Programs extends Curricula implements Selectable
     /**
      * Gets the academic level of the program. (Bachelor|Master)
      *
-     * @param   int  $programID  the id of the program
+     * @param int $programID the id of the program
      *
      * @return string
      */
@@ -124,7 +146,7 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function options(string $access = ''): array
     {
@@ -141,7 +163,7 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function resources(string $access = ''): array
     {
@@ -234,9 +256,9 @@ class Programs extends Curricula implements Selectable
     /**
      * Gets an option based upon a program curriculum association
      *
-     * @param   array   $range      the program curriculum range
-     * @param   array   $parentIDs  the selected parents
-     * @param   string  $type       the resource type of the form
+     * @param array  $range     the program curriculum range
+     * @param array  $parentIDs the selected parents
+     * @param string $type      the resource type of the form
      *
      * @return null|stdClass
      */
@@ -259,8 +281,8 @@ class Programs extends Curricula implements Selectable
     /**
      * Retrieves the organizationIDs associated with the program
      *
-     * @param   int   $programID  the table id for the program
-     * @param   bool  $short      whether to display an abbreviated version of fhe organization name
+     * @param int  $programID the table id for the program
+     * @param bool $short     whether to display an abbreviated version of fhe organization name
      *
      * @return string the organization associated with the program's documentation
      */
