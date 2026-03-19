@@ -24,28 +24,6 @@ class Programs extends Curricula implements Selectable
 
     protected static string $resource = 'program';
 
-    public const IN_PERSON = 1, INTERNSHIP = 3, REMOTE     = 2;
-    public const                                ATTENDANCE = [
-        self::IN_PERSON  => [
-            'alias'          => 'IN_PERSON_ALIAS',
-            'code'           => 'P',
-            'name'           => 'IN_PERSON',
-            'statistic-code' => '1',
-        ],
-        self::INTERNSHIP => [
-            'alias'          => 'INTERNSHIP_ALIAS',
-            'code'           => 'S',
-            'name'           => 'INTERNSHIP',
-            'statistic-code' => '3',
-        ],
-        self::REMOTE     => [
-            'alias'          => 'REMOTE_ALIAS',
-            'code'           => 'F',
-            'name'           => 'REMOTE',
-            'statistic-code' => '2',
-        ]
-    ];
-
     /**
      * Retrieves the id of the degree associated with the program.
      *

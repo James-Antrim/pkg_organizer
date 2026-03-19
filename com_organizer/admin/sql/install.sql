@@ -273,7 +273,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_degrees`
     `active`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `code`            VARCHAR(60)         NOT NULL,
     `name`            VARCHAR(150)        NOT NULL,
-    `statistic-code`  TINYINT(2) UNSIGNED NOT NULL,
+    `statisticCode`   VARCHAR(10)         NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `alias` (`alias`),
     UNIQUE KEY `code` (`code`)
@@ -723,7 +723,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_nomen`
     `code`            VARCHAR(60)      NOT NULL,
     `name_de`         VARCHAR(255)     NOT NULL,
     `name_en`         VARCHAR(255)     NOT NULL,
-    `statistic-code`  VARCHAR(10)      NOT NULL,
+    `statisticCode`  VARCHAR(10)      NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `alias_de` (`alias_de`),
     UNIQUE KEY `alias_en` (`alias_en`),
