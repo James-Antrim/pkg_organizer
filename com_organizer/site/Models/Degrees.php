@@ -16,8 +16,6 @@ use THM\Organizer\Adapters\Database as DB;
 /** @inheritDoc */
 class Degrees extends ListModel
 {
-    use Activated;
-
     protected $filter_fields = ['name', 'abbreviation', 'code'];
 
     /** @inheritDoc */
@@ -27,14 +25,13 @@ class Degrees extends ListModel
         $url   = 'index.php?option=com_organizer&view=degree&id=';
 
         $access = [DB::quote(1) . ' AS ' . DB::qn('access')];
-        $select = DB::qn(['id', 'name', 'abbreviation', 'active', 'code', 'statisticCode']);
+        $select = DB::qn(['id', 'name', 'abbreviation', 'code', 'statisticCode']);
         $url    = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
 
         $query->select(array_merge($select, $access, $url))
             ->from(DB::qn('#__organizer_degrees'))
             ->order(DB::qn('name'));
 
-        $this->activeFilter($query);
         $this->filterSearch($query, ['abbreviation', 'code', 'name']);
 
         return $query;

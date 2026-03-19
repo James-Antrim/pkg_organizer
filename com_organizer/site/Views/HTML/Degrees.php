@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use stdClass;
-use THM\Organizer\Adapters\{HTML, Text};
-use THM\Organizer\Helpers\Degrees as Helper;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Layouts\HTML\Row;
 
 /**
@@ -20,23 +18,6 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Degrees extends ListView
 {
-    use Activated;
-
-    /** @inheritDoc */
-    protected function addToolBar(): void
-    {
-        $this->addAdd();
-        $this->addActa();
-        $this->addDelete();
-        parent::addToolBar();
-    }
-
-    /** @inheritDoc */
-    protected function completeItem(int $index, stdClass $item, array $options = []): void
-    {
-        $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Degrees');
-    }
-
     /** @inheritDoc */
     public function initializeColumns(): void
     {
@@ -62,11 +43,6 @@ class Degrees extends ListView
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('STATISTIC_CODE'),
                 'type'       => 'text'
-            ],
-            'active'        => [
-                'properties' => ['class' => 'w-5 d-none d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('ACTIVE'),
-                'type'       => 'value'
             ],
         ];
     }
