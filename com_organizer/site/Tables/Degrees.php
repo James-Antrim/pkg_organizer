@@ -18,9 +18,9 @@ use THM\Organizer\Adapters\Application;
  */
 class Degrees extends Table
 {
-    use Activated;
     use Aliased;
     use Coded;
+    use StatisticCoded;
 
     /**
      * The resource's abbreviation.
@@ -35,13 +35,6 @@ class Degrees extends Table
      * @var string
      */
     public string $name;
-
-    /**
-     * ITS key for statistics for rough categories of degrees. (Bachelor => 84, Master => 90)
-     * TINYINT(2) UNSIGNED NOT NULL
-     * @var string
-     */
-    public string $statisticCode;
 
     /**
      * @inheritDoc

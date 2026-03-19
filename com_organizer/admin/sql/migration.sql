@@ -1,19 +1,20 @@
 ALTER TABLE `v7ocf_organizer_degrees`
     MODIFY COLUMN `abbreviation` VARCHAR(50)         NOT NULL,
-    ADD COLUMN `active`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER `abbreviation`,
     ADD COLUMN `statisticCode`   VARCHAR(10);
 
 UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 84 WHERE `id` IN (1,2,3);
-UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 90 WHERE `id` IN (4,5,6,7,8);
+UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 90 WHERE `id` IN (4,5,6,7);
 UPDATE `v7ocf_organizer_degrees` SET `name` = 'Master of Business Administration' WHERE `id` = 7;
-UPDATE `v7ocf_organizer_degrees` SET `name` = 'Master of Higher Education' WHERE `id` = 8;
+UPDATE `v7ocf_organizer_programs` SET `degreeID` = 6 WHERE `degreeID` = 8;
+DELETE FROM `v7ocf_organizer_degrees` WHERE `id` = 8;
 
 INSERT IGNORE INTO `v7ocf_organizer_degrees`
-VALUES (9, 'feststellungspruefung', 'FSP', 0, 'FP', 'Feststellungsprüfung', 17),
-       (10, 'hochschulzugangspruefung', 'HZP', 0, 'HZ', 'Hochschulzugangsprüfung', 17),
-       (11, 'mbae', 'M.B.A.E.', 1, 'MD', 'Master of Business Administration and Engineering', 90),
-       (12, 'ohne-abschluss', 'ohne Abschluss', 0, '01', 'ohne Abschluss', 97),
-       (13, 'zertifikat', 'Zertifikat', 1, '00', 'Zertifikat', 94);
+VALUES (9, 'zertifikat', 'Zertifikat', '00', 'Zertifikat', 94),
+       (10, 'ohne-abschluss', 'ohne Abschluss', '01', 'ohne Abschluss', 97),
+       (11, 'bed', 'B.Ed.', 'BU', 'Bachelor of Education', 84),
+       (12, 'feststellungspruefung', 'FSP', 'FP', 'Feststellungsprüfung', 17),
+       (13, 'hochschulzugangspruefung', 'HZP', 'HZ', 'Hochschulzugangsprüfung', 17),
+       (14, 'mbae', 'M.B.A.E.', 'MD', 'Master of Business Administration and Engineering', 90);
 
 ALTER TABLE `v7ocf_organizer_degrees` MODIFY COLUMN `statisticCode`  VARCHAR(10) NOT NULL;
 

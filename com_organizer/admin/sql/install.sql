@@ -270,7 +270,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_degrees`
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255)        DEFAULT NULL,
     `abbreviation`    VARCHAR(50)         NOT NULL,
-    `active`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `code`            VARCHAR(60)         NOT NULL,
     `name`            VARCHAR(150)        NOT NULL,
     `statisticCode`   VARCHAR(10)         NOT NULL,
@@ -283,25 +282,15 @@ CREATE TABLE IF NOT EXISTS `#__organizer_degrees`
     COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `#__organizer_degrees`
-VALUES (1, 'auslaendischer-abschluss', 'ausländischer Abschluss', 0, 'AD', 'Abschluss ausserhalb Deutschlands', 96),
-       (2, 'ba', 'B.A.', 1, 'BA', 'Bachelor of Arts', 84),
-       (3, 'bba', 'B.B.A.', 1, 'BB', 'Bachelor of Business Administration', 84),
-       (4, 'bbae', 'B.B.A.E.', 1, 'BD', 'Bachelor of Business Administration and Engineering', 84),
-       (5, 'bed', 'B.E.', 1, 'BU', 'Bachelor of Education', 84),
-       (6, 'beng', 'B.Eng.', 1, 'BE', 'Bachelor of Engineering', 84),
-       (7, 'bsc', 'B.Sc.', 1, 'BS', 'Bachelor of Science', 84),
-       (18, 'feststellungspruefung', 'Feststellungsprüfung', 0, 'FP', 'Feststellungsprüfung', 17),
-       (19, 'hochschulzugangspruefung', 'Hochschulzugangsprüfung', 0, 'HZ', 'Hochschulzugangsprüfung', 17),
-       (20, 'ma', 'M.A.', 1, 'MA', 'Master of Arts', 90),
-       (21, 'mba', 'M.B.A.', 1, 'MB', 'Master of Business Administration', 90),
-       (22, 'mbae', 'M.B.A.', 1, 'MD', 'Master of Business Administration and Engineering', 90),
-       (23, 'meng', 'M.Eng.', 1, 'ME', 'Master of Engineering', 90),
-       (24, 'med', 'M.Ed.', 1, 'MH', 'Master of Higher Education', 90), -- Higher
-       (25, 'msc', 'M.Sc.', 1, 'MS', 'Master of Science', 90),
-       (26, 'ohne-abschluss', 'ohne Abschluss', 0, '01', 'ohne Abschluss', 97),
-       (27, 'promotion', 'Promotion', 1, 'PR', 'Promotion', 06),
-       (28, 'promotion-haw', 'Promotion (HAW)', 1, 'PH', 'Promotion mit HAW Abschluss', 92),
-       (29, 'zertifikat', 'Zertifikat', 1, '00', 'Zertifikat', 94);
+VALUES (1, 'ba', 'B.A.', 'BA', 'Bachelor of Arts', 84),
+       (2, 'bed', 'B.E.', 'BU', 'Bachelor of Education', 84),
+       (3, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering', 84),
+       (4, 'bsc', 'B.Sc.', 'BS', 'Bachelor of Science', 84),
+       (5, 'ma', 'M.A.', 'MA', 'Master of Arts', 90),
+       (6, 'mba', 'M.B.A.', 'MB', 'Master of Business Administration', 90),
+       (7, 'mbae', 'M.B.A.', 'MD', 'Master of Business Administration and Engineering', 90),
+       (8, 'meng', 'M.Eng.', 'ME', 'Master of Engineering', 90),
+       (9, 'msc', 'M.Sc.', 'MS', 'Master of Science', 90);
 
 
 CREATE TABLE IF NOT EXISTS `#__organizer_equipment`
