@@ -10,13 +10,22 @@
 
 namespace THM\Organizer\Helpers;
 
-
 /**
  * Class provides basic methods to retrieve degree attributes.
  */
 class Degrees extends ResourceHelper
 {
-    use Active;
+    use Statistical;
+
+    public const BACHELOR = 84, CERTIFICATE = 94, MASTER = 90, NO_DEGREE = 97, TEST = 17;
+
+    public const STATISTIC_CODES = [
+        self::BACHELOR    => 'BACHELOR_DEGREE',
+        self::CERTIFICATE => 'CERTIFICATE',
+        self::MASTER      => 'MASTER_DEGREE',
+        self::NO_DEGREE   => 'NO_DEGREE',
+        self::TEST        => 'TEST'
+    ];
 
     /**
      * Gets the academic level of the degree. (Bachelor|Master)

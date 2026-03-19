@@ -3,9 +3,16 @@
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="name" type="text" label="ORGANIZER_NAME" class="required" maxlength="150" required="true"/>
-        <field name="abbreviation" type="text" label="ORGANIZER_ABBREVIATION" class="required" maxlength="25" required="true"/>
-        <field name="alias" type="text" label="ORGANIZER_ALIAS" description="ORGANIZER_ALIAS_DESC" maxlength="255"/>
-        <field name="code" type="text" label="ORGANIZER_DEGREE_CODE" class="required" description="ORGANIZER_DEGREE_CODE_DESC"
+        <field name="abbreviation" type="text" label="ORGANIZER_ABBREVIATION" class="required" maxlength="25"
+               required="true"/>
+        <field name="alias" type="text" label="ORGANIZER_ALIAS" class="required" description="ORGANIZER_ALIAS_DESC"
+               maxlength="255" required="true"/>
+        <field name="code" type="text" label="ORGANIZER_DEGREE_CODE" class="required"
+               description="ORGANIZER_DEGREE_CODE_DESC"
                maxlength="60" required="true"/>
+        <field name="statisticCode" type="StatisticCodes" label="ORGANIZER_STATISTIC_CODE" class="required"
+               required="true">
+            <option value="">ORGANIZER_SELECT_STATISTIC_CODE</option>
+        </field>
     </fieldset>
 </form>
