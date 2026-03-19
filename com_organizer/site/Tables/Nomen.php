@@ -20,6 +20,7 @@ class Nomen extends Table
 {
     use Localized;
     use Coded;
+    use StatisticCoded;
 
     /**
      * VARCHAR(255) NOT NULL
@@ -32,13 +33,6 @@ class Nomen extends Table
      * @var string
      */
     public string $alias_en;
-
-    /**
-     * ITS key for statistics.
-     * VARCHAR(10) NOT NULL
-     * @var string
-     */
-    public string $statisticCode;
 
     /**
      * @inheritDoc
