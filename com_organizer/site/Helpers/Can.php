@@ -53,8 +53,8 @@ class Can
     /**
      * Checks whether the user has access to the participant information
      *
-     * @param   string          $resourceType  the resource type being checked
-     * @param   array|int|null  $resource      the resource id being checked or an array if resource ids to check
+     * @param string         $resourceType the resource type being checked
+     * @param array|int|null $resource     the resource id being checked or an array if resource ids to check
      *
      * @return bool
      */
@@ -117,8 +117,8 @@ class Can
     /**
      * Checks whether the user can manage the given resource.
      *
-     * @param   string  $resourceType  the resource type being checked
-     * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
+     * @param string $resourceType the resource type being checked
+     * @param int    $resourceID   the resource id being checked or an array if resource ids to check
      *
      * @return bool
      */
@@ -145,7 +145,7 @@ class Can
                 }
 
                 $iOrganizations = Instances::getOrganizationIDs($resourceID);
-                $mOrganizations  = Organizations::manageableIDs();
+                $mOrganizations = Organizations::manageableIDs();
 
                 return (bool) array_intersect($mOrganizations, $iOrganizations);
             case 'participant':
@@ -186,8 +186,8 @@ class Can
     /**
      * Checks whether the user has viewing access to the view.
      *
-     * @param   string  $view        the name of the view being accessed
-     * @param   int     $resourceID  the optional resource id
+     * @param string $view       the name of the view being accessed
+     * @param int    $resourceID the optional resource id
      *
      * @return bool
      */
@@ -202,8 +202,8 @@ class Can
             // Administrative / developmental views and admin access was already checked
             'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields', 'Grid', 'Grids',
             'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents', 'MergeGroups', 'MergePersons',
-            'MergeRooms', 'Method', 'Methods', 'Organization', 'Organizations', 'Participant', 'Participants', 'Run',
-            'Runs', 'Term', 'Terms'
+            'MergeRooms', 'Method', 'Methods', 'Nomen', 'Nomina', 'Organization', 'Organizations', 'Participant',
+            'Participants', 'Run', 'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
             'Categories', 'Groups', 'ImportCourses', 'ImportSchedule', 'Schedules', 'Units'
