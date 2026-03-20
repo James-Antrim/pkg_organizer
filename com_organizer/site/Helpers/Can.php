@@ -202,8 +202,8 @@ class Can
             // Administrative / developmental views and admin access was already checked
             'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields', 'Grid', 'Grids',
             'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents', 'MergeGroups', 'MergePersons',
-            'MergeRooms', 'Method', 'Methods', 'Nomina', 'Organization', 'Organizations', 'Participant', 'Participants',
-            'Run', 'Runs', 'Term', 'Terms'
+            'MergeRooms', 'Method', 'Methods', 'Minors', 'Nomina', 'Organization', 'Organizations', 'Participant',
+            'Participants', 'Run', 'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
             'Categories', 'Groups', 'ImportCourses', 'ImportSchedule', 'Schedules', 'Units'
@@ -222,6 +222,7 @@ class Can
             => (!Application::backend() or Organizations::documentableIDs()),
             // Edit views for curriculum resource with no intrinsic public value
             'FieldColor' => FieldColors::documentable($resourceID),
+            'Minor' => Minors::documentable($resourceID),
             'Nomen' => Nomina::documentable($resourceID),
             'Pool' => Pools::documentable($resourceID),
             // Edit views for curriculum resource with intrinsic public value

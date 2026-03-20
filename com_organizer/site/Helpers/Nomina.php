@@ -13,7 +13,7 @@ namespace THM\Organizer\Helpers;
 use THM\Organizer\Adapters\Database as DB;
 
 /**
- * Provides general functions for nomina access checks, data retrieval and display.
+ * Provides general functions for nomen access checks, data retrieval and display.
  */
 class Nomina implements Documentable
 {

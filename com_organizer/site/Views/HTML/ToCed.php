@@ -210,6 +210,10 @@ trait ToCed
                 'url'    => Routing::getViewURL('methods'),
                 'active' => $viewName === 'methods'
             ];
+            $items[Text::_('MINORS')]        = [
+                'url'    => Routing::getViewURL('minors'),
+                'active' => $viewName === 'minors'
+            ];
             $items[Text::_('NOMINA')]        = [
                 'url'    => Routing::getViewURL('nomina'),
                 'active' => $viewName === 'nomina'
