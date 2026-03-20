@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="name_de" type="text" label="ORGANIZER_NAME_DE" class="required" maxlength="255" required="true"/>
+        <field name="name_en" type="text" label="ORGANIZER_NAME_EN" class="required" maxlength="255" required="true"/>
+        <field name="alias_de" type="text" label="ORGANIZER_ALIAS_DE" class="required" maxlength="255" required="true"/>
+        <field name="alias_en" type="text" label="ORGANIZER_ALIAS_EN" class="required" maxlength="255" required="true"/>
+        <field name="code" type="text" label="ORGANIZER_CODE" class="required" maxlength="60" required="true"/>
+        <field name="statisticCode" type="text" label="ORGANIZER_STATISTIC_CODE" class="required" maxlength="10"
+               required="true"/>
+    </fieldset>
+</form>
