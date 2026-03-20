@@ -14,13 +14,11 @@ use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\Database as DB;
 
 /**
- * Provides general functions for room type access checks, data retrieval and display.
+ * Provides general functions for field color access checks, data retrieval and display.
  */
 class FieldColors implements Documentable
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {
         if (!$organizationIDs = Organizations::documentableIDs()) {
@@ -46,9 +44,7 @@ class FieldColors implements Documentable
         return DB::bool();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function documentableIDs(): array
     {
         if (!$organizationIDs = Organizations::documentableIDs()) {
