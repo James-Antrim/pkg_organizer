@@ -16,8 +16,6 @@ use THM\Organizer\Adapters\Database as DB;
 /** @inheritDoc */
 class Degrees extends ListModel
 {
-    protected $filter_fields = ['name', 'abbreviation', 'code'];
-
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
