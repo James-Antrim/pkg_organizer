@@ -16,7 +16,7 @@ use THM\Organizer\Adapters\Application;
 /**
  * @inheritDoc
  */
-class Nomen extends Table
+class Nomina extends Table
 {
     use Localized;
     use Coded;
@@ -42,6 +42,6 @@ class Nomen extends Table
         $dbo = $dbo ?? Application::database();
 
         /** @var DatabaseDriver $dbo */
-        parent::__construct('#__organizer_nomen', 'id', $dbo);
+        parent::__construct('#__organizer_nomina', 'id', $dbo);
     }
 }

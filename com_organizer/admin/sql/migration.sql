@@ -18,7 +18,7 @@ VALUES (9, 'zertifikat', 'Zertifikat', '00', 'Zertifikat', 94),
 
 ALTER TABLE `v7ocf_organizer_degrees` MODIFY COLUMN `statisticCode`  VARCHAR(10) NOT NULL;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_nomen`
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_nomina`
 (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias_de`        VARCHAR(255)     NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_nomen`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_nomen`
+INSERT IGNORE INTO `v7ocf_organizer_nomina`
 VALUES (1, 'architektur', 'architecture', 'A', 'Architektur', 'Architecture', '0013'),
        (2, 'angewandte-physik', 'applied-physics', 'APH', 'Angewandte Physik', 'Applied Physics', '0224'),
        (3, 'angewandte-vakuumtechnik', 'applied-vacuum-technology', 'AV', 'Angewandte Vakuumtechnik', 'Applied Vacuum Technology', '0c69'),
@@ -172,7 +172,7 @@ ALTER TABLE `v7ocf_organizer_programs`
     ADD COLUMN `nomenID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
     ADD KEY `nomenID` (`nomenID`);
 
-UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_nomen` AS `n` ON `n`.`code` = `p`.`code` SET `p`.`nomenID` = `n`.`id`;
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_nomina` AS `n` ON `n`.`code` = `p`.`code` SET `p`.`nomenID` = `n`.`id`;
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `v7ocf_organizer_nomen` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

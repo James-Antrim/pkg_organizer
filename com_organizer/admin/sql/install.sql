@@ -704,7 +704,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_monitors`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_nomen`
+CREATE TABLE IF NOT EXISTS `#__organizer_nomina`
 (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias_de`        VARCHAR(255)     NOT NULL,
@@ -2243,7 +2243,7 @@ ALTER TABLE `#__organizer_programs`
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `#__organizer_degrees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `#__organizer_frequencies` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_minorID_fk` FOREIGN KEY (`minorID`) REFERENCES `#__organizer_minors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `#__organizer_nomen` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `#__organizer_nomina` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_room_equipment`
     ADD CONSTRAINT `room_equipment_equipmentID_fk` FOREIGN KEY (`equipmentID`) REFERENCES `#__organizer_equipment` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
