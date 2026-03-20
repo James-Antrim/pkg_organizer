@@ -175,7 +175,7 @@ ALTER TABLE `v7ocf_organizer_programs`
 UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_nomina` AS `n` ON `n`.`code` = `p`.`code` SET `p`.`nomenID` = `n`.`id`;
 
 ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `v7ocf_organizer_nomen` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `v7ocf_organizer_nomina` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_programs` DROP COLUMN `code`;
 
