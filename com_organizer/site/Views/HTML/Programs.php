@@ -86,16 +86,29 @@ class Programs extends ListView
      */
     public function initializeColumns(): void
     {
-        $direction = $this->state->get('list.direction');
-
         $headers = [
-            'check' => ['type' => 'check'],
-            'name'  => [
+            'check'    => ['type' => 'check'],
+            'fullName' => [
                 'link'       => Row::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'title'      => Text::_('Name'),
                 'type'       => 'text'
             ],
+            'degree'   => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('DEGREE'),
+                'type'       => 'text'
+            ],
+            'year'     => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('YEAR'),
+                'type'       => 'text'
+            ],
+            /*'minor'  => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('MINOR'),
+                'type'       => 'text'
+            ],*/
         ];
 
         if (!Application::backend()) {

@@ -131,7 +131,7 @@ class Programs extends Curricula implements Selectable
         $options = [];
         foreach (self::resources($access) as $program) {
             if ($program['active']) {
-                $options[] = HTML::option($program['id'], $program['name']);
+                $options[] = HTML::option($program['id'], $program['fullName']);
             }
         }
 
@@ -146,8 +146,7 @@ class Programs extends Curricula implements Selectable
     public static function resources(string $access = ''): array
     {
         $query = self::query();
-        $query->select(DB::qn('d.abbreviation', 'degree'))
-            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
+        $query->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
             ->order(DB::qn('name'));
 
         self::filterByAccess($query, 'p', $access);
@@ -186,18 +185,18 @@ class Programs extends Curricula implements Selectable
         $tag   = Application::tag();
         $url   = 'index.php?option=com_organizer&view=Program&id=';
 
-        $start = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation')];
-        $end   = self::useCurrent() ? ["')'"] : ["', '", DB::qn('p.accredited'), "')'"];
-        $parts = array_merge($start, $end);
-        $url   = [$query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')];
+        $selected   = DB::qn(['p.id', 'p.active']);
+        $start      = [DB::qn("n.name_$tag"), "' ('", DB::qn('d.abbreviation')];
+        $end        = self::useCurrent() ? ["')'"] : ["', '", DB::qn('p.accredited'), "')'"];
+        $parts      = array_merge($start, $end);
+        $selected[] = $query->concatenate($parts, '') . ' AS ' . DB::qn('fullName');
 
-        $select = [
-            'DISTINCT ' . DB::qn('p.id', 'id'),
-            $query->concatenate($parts, '') . ' AS ' . DB::qn('name'),
-            DB::qn('p.active')
-        ];
-        $query->select(array_merge($select, $url))
+        $aliased = DB::qn(["n.name_$tag", 'd.abbreviation', 'p.accredited'], ['name', 'degree', 'year']);
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($selected, $aliased, $url))
             ->from(DB::qn('#__organizer_programs', 'p'))
+            ->innerJoin(DB::qn('#__organizer_nomina', 'n'), DB::qn('n.id') . ' = ' . DB::qn('p.nomenID'))
             ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qn('d.id') . ' = ' . DB::qn('p.degreeID'));
 
         return $query;
@@ -247,7 +246,7 @@ class Programs extends Curricula implements Selectable
         DB::set($query);
 
         if ($program = DB::array()) {
-            $option           = HTML::option($range['id'], $program['name']);
+            $option           = HTML::option($range['id'], $program['fullName']);
             $option->disable  = $type !== 'pool' ? 'disabled' : '';
             $option->selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
             return $option;
