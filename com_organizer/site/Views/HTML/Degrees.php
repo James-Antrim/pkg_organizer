@@ -19,6 +19,13 @@ use THM\Organizer\Layouts\HTML\Row;
 class Degrees extends ListView
 {
     /** @inheritDoc */
+    protected function addToolBar(): void
+    {
+        $this->addBasicButtons();
+        parent::addToolBar();
+    }
+
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [
