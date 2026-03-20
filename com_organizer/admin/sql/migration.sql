@@ -200,6 +200,33 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_minors`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+INSERT IGNORE INTO `v7ocf_organizer_minors`
+VALUES (1, 'allgemeine-elektrotechnik', 'general-electrical-engineering', 'AET', 'Allgemeine Elektrotechnik', 'General Electrical Engineering'),
+       (2, 'allgemeiner-maschinenbau', 'general-mechanical-engineering', 'AMB', 'Allgemeiner Maschinenbau', 'General Mechanical Engineering'),
+       (3, 'angewandte-medizinische-wissenschaften', 'applied-medical-science', 'AMW', 'Angewandte Medizinische Wissenschaften', 'Applied Medical Science'),
+       (4, 'baumanagement-konstruktion-infrastruktur', 'construction-management-infrastructure', 'BKI', 'Baumanagement, Konstruktion und Infrastruktur', 'Construction Management and Infrastructure'),
+       (5, 'controlling', 'controlling', 'CTR', 'Controlling', 'Controlling'),
+       (6, 'data-science', 'data-science', 'DS', 'Data Science', 'Data Science'),
+       (7, 'elektrotechnik', 'electrical-engineering', 'ELT', 'Elektrotechnik', 'Electrical Engineering'),
+       (8, 'hygiene-design', 'hygiene-design', 'HD', 'Hygiene Design', 'Hygiene Design'),
+       (9, 'it-security', 'it-security', 'ITS', 'IT-Security', 'IT-Security'),
+       (10, 'ingenieurwissenschaft', 'engineering', 'IWI', 'Ingenieurwissenschaft', 'Engineering'),
+       (11, 'kaelte-klimatechnik', 'cold-climate-technology', 'KK', 'Kälte- und Klimatechnik', 'Cold and Climate Technology'),
+       (12, 'krankenversicherungsmanagement', 'health-insurance-management', 'KM', 'Krankenversicherungsmanagement', 'Health Insurance Management'),
+       (13, 'medical-data-science', 'medical-data-science', 'MDS', 'Medical Data Science', 'Medical Data Science'),
+       (14, 'mittelstandsmanagement', 'sme-management', 'MM', 'Mittelstandsmanagement', 'SME Management'),
+       (15, 'management-marketing', 'management-marketing', 'MMA', 'Management und Marketing', 'Management and Marketing'),
+       (16, 'maschinenbau', 'mechanical-engineering', 'MSB', 'Maschinenbau', 'Mechanical Engineering'),
+       (17, 'metalltechnik', 'metal-technology', 'MT', 'Metalltechnik', 'Metal Technology'),
+       (18, 'regulatory-affairs-management', 'regulatory-affairs-management', 'RAM', 'Regulatory Affairs Management', 'Regulatory Affairs Management'),
+       (19, 'softwareentwicklung', 'software-development', 'SE', 'Softwareentwicklung', 'Software Development'),
+       (20, 'steuerung-geschaeftsprozessen', 'controlling-business-processes', 'SG', 'Steuerung von Geschäftsprozessen', 'Controlling Business Processes'),
+       (21, 'technische-gebaeudeausruestung', 'building-services-engineering', 'TGA', 'Technische Gebäudeausrüstung', 'Building Services Engineering'),
+       (22, 'technische-informatik', 'technical-informatics', 'TI', 'Technische Informatik', 'Technical Informatics'),
+       (23, 'technische-prozesse', 'technical-processes', 'TP', 'Technische Prozesse', 'Technical Processes'),
+       (24, 'veranstaltungstechnik', 'event-technology', 'VTK', 'Veranstaltungstechnik', 'Event Technology'),
+       (25, 'vertrieb', 'sales', 'VWU', 'Vertrieb', 'Sales');
+
 ALTER TABLE `v7ocf_organizer_programs`
     ADD COLUMN `minorID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
     ADD KEY `minorID` (`minorID`);
