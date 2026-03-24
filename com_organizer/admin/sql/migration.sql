@@ -236,3 +236,34 @@ ALTER TABLE `v7ocf_organizer_programs`
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD COLUMN `attendance` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER `nomenID`;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_foci`
+(
+    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`        VARCHAR(255)     NOT NULL,
+    `alias_en`        VARCHAR(255)     NOT NULL,
+    `code`            VARCHAR(60)      NOT NULL,
+    `name_de`         VARCHAR(255)     NOT NULL,
+    `name_en`         VARCHAR(255)     NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `v7ocf_organizer_foci`
+VALUES (1, 'getting-started', 'getting-started', 'GS', 'GettING Started', 'GettING Started');
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `focusID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
+    ADD KEY `focusID` (`focusID`);
+
+UPDATE `v7ocf_organizer_programs` SET `focusID` = 1 WHERE `name_de` LIKE '%getting%';
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD CONSTRAINT `program_focusID_fk` FOREIGN KEY (`focusID`) REFERENCES `v7ocf_organizer_foci` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;

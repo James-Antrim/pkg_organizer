@@ -446,6 +446,25 @@ VALUES (1, 'PVC', 'PVC'),
        (16, 'Teppich', 'Carpet'),
        (17, 'Teppich/Parkett', 'Carpet/Parquet');
 
+CREATE TABLE IF NOT EXISTS `#__organizer_foci`
+(
+    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`        VARCHAR(255)     NOT NULL,
+    `alias_en`        VARCHAR(255)     NOT NULL,
+    `code`            VARCHAR(60)      NOT NULL,
+    `name_de`         VARCHAR(255)     NOT NULL,
+    `name_en`         VARCHAR(255)     NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__organizer_frequencies`
 (
     `id`      INT(1) UNSIGNED NOT NULL,
@@ -719,7 +738,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_nomina`
     UNIQUE KEY `code` (`code`),
     UNIQUE KEY `name_de` (`name_de`),
     UNIQUE KEY `name_en` (`name_en`)
-    )
+)
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
@@ -842,6 +861,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     `alias`          VARCHAR(255)                 DEFAULT NULL,
     `accredited`     YEAR(4)             NOT NULL,
     `degreeID`       INT(11) UNSIGNED             DEFAULT NULL,
+    `focusID`        INT(11) UNSIGNED             DEFAULT NULL
     `minorID`        INT(11) UNSIGNED             DEFAULT NULL,
     `nomenID`        INT(11) UNSIGNED    NOT NULL,
     `attendance`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -860,6 +880,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     UNIQUE KEY `alias` (`alias`),
     KEY `categoryID` (`categoryID`),
     KEY `degreeID` (`degreeID`),
+    KEY `focusID` (`focusID`),
     KEY `frequencyID` (`frequencyID`),
     KEY `minorID` (`minorID`),
     KEY `nomenID` (`nomenID`)
@@ -2241,6 +2262,7 @@ ALTER TABLE `#__organizer_prerequisites`
 ALTER TABLE `#__organizer_programs`
     ADD CONSTRAINT `program_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `#__organizer_categories` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `#__organizer_degrees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_focusID_fk` FOREIGN KEY (`focusID`) REFERENCES `#__organizer_foci` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
     ADD CONSTRAINT `program_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `#__organizer_frequencies` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_minorID_fk` FOREIGN KEY (`minorID`) REFERENCES `#__organizer_minors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `#__organizer_nomina` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
