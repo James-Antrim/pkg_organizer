@@ -21,6 +21,26 @@ CREATE TABLE IF NOT EXISTS `#__organizer_associations`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_attendance_types`
+(
+    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`        VARCHAR(255)     NOT NULL,
+    `alias_en`        VARCHAR(255)     NOT NULL,
+    `code`            VARCHAR(60)      NOT NULL,
+    `name_de`         VARCHAR(255)     NOT NULL,
+    `name_en`         VARCHAR(255)     NOT NULL,
+    `statisticCode`   VARCHAR(10)      NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__organizer_blocks`
 (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -860,6 +880,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`          VARCHAR(255)                 DEFAULT NULL,
     `accredited`     YEAR(4)             NOT NULL,
+    `aTypeID`        INT(11) UNSIGNED    NOT NULL,
     `degreeID`       INT(11) UNSIGNED             DEFAULT NULL,
     `focusID`        INT(11) UNSIGNED             DEFAULT NULL
     `minorID`        INT(11) UNSIGNED             DEFAULT NULL,
@@ -878,6 +899,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     `special`        TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `alias` (`alias`),
+    KEY `aTypeID` (`aTypeID`),
     KEY `categoryID` (`categoryID`),
     KEY `degreeID` (`degreeID`),
     KEY `focusID` (`focusID`),
@@ -2260,6 +2282,7 @@ ALTER TABLE `#__organizer_prerequisites`
     ADD CONSTRAINT `prerequisite_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `#__organizer_curricula` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_programs`
+    ADD CONSTRAINT `program_aTypeID_fk` FOREIGN KEY (`aTypeID`) REFERENCES `#__organizer_attendance_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `program_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `#__organizer_categories` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `#__organizer_degrees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_focusID_fk` FOREIGN KEY (`focusID`) REFERENCES `#__organizer_foci` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;

@@ -267,3 +267,40 @@ UPDATE `v7ocf_organizer_programs` SET `focusID` = 1 WHERE `name_de` LIKE '%getti
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_focusID_fk` FOREIGN KEY (`focusID`) REFERENCES `v7ocf_organizer_foci` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_attendance_types`
+(
+    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`        VARCHAR(255)     NOT NULL,
+    `alias_en`        VARCHAR(255)     NOT NULL,
+    `code`            VARCHAR(60)      NOT NULL,
+    `name_de`         VARCHAR(255)     NOT NULL,
+    `name_en`         VARCHAR(255)     NOT NULL,
+    `statisticCode`   VARCHAR(10)      NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `v7ocf_organizer_attendance_types`
+VALUES (1, 'praesenzstudium', 'on-campus-study', 'P', 'Präsenzstudium', 'On-Campus Study', '1'),
+       (2, 'fernstudium', 'remote-study', 'F', 'Fernstudium', 'Remote Study', '2');
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `aTypeID` INT(11) UNSIGNED DEFAULT NULL AFTER `accredited`,
+    ADD KEY `aTypeID` (`aTypeID`);
+
+UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 2 WHERE `name_de` LIKE '%Fernstudium%';
+UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 1 WHERE `name_de` NOT LIKE '%Fernstudium%';
+
+ALTER TABLE `v7ocf_organizer_programs`
+    MODIFY COLUMN `aTypeID` INT(11) UNSIGNED NOT NULL;
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD CONSTRAINT `program_aTypeID_fk` FOREIGN KEY (`aTypeID`) REFERENCES `v7ocf_organizer_attendance_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
