@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Pools extends Table
 {
     use Aliased;
@@ -91,9 +89,7 @@ class Pools extends Table
      */
     public int $minCrP = 0;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -102,9 +98,7 @@ class Pools extends Table
         parent::__construct('#__organizer_pools', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         // These can be blank, but non-empty values should be unique.

@@ -36,9 +36,7 @@ class InstanceItem extends ListView
     private int $userID;
     private string $referrer = '';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $instance = $this->instance;
@@ -136,9 +134,7 @@ class InstanceItem extends ListView
         $this->minibar .= Toolbar::render('itembar') . '</div>';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!$instanceID = Input::id()) {
@@ -150,9 +146,7 @@ class InstanceItem extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         /** @var Model $model */
@@ -378,9 +372,7 @@ class InstanceItem extends ListView
         echo '</ul></div></div>';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [
@@ -720,9 +712,7 @@ class InstanceItem extends ListView
         $this->items   = $structuredItems;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function supplement(): void
     {
         $color    = 'blue';

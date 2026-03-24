@@ -22,9 +22,7 @@ use THM\Organizer\Adapters\DispatcherFactory;
  */
 class Dispatcher implements ServiceProviderInterface
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function register(Container $container): void
     {
         $container->set(

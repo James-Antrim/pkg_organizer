@@ -34,9 +34,7 @@ abstract class BaseView extends PHPExcel implements ViewInterface
     protected BaseLayout $layout;
     public ModelInterface $model;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct()
     {
         parent::__construct();

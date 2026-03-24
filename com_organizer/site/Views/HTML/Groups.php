@@ -25,9 +25,7 @@ class Groups extends ListView
     use Activated;
     use Merged;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Store the publishing value in the instance directly to make instance queries much better.';
@@ -72,9 +70,7 @@ class Groups extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Groups');
@@ -91,18 +87,14 @@ class Groups extends ListView
         $item->next     = HTML::toggle($index, Helper::PUBLISHED_STATES[$nextValue], 'Groups', 'Next');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         $options = ['currentID' => Terms::currentID(), 'nextID' => Terms::nextID()];
         parent::completeItems($options);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');

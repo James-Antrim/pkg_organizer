@@ -26,9 +26,7 @@ class Instances extends ListView
 
     protected Model $model;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeView(): void
     {
         Core::initializeView();
@@ -522,9 +520,7 @@ class Instances extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [
@@ -566,9 +562,7 @@ class Instances extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         parent::modifyDocument();
@@ -644,9 +638,7 @@ class Instances extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function subTitle(): void
     {
         if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {

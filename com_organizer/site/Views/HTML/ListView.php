@@ -153,9 +153,7 @@ abstract class ListView extends Core
      */
     abstract protected function initializeColumns(): void;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeView(): void
     {
         parent::initializeView();

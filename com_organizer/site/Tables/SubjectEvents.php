@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class SubjectEvents extends Table
 {
     /**
@@ -32,9 +30,7 @@ class SubjectEvents extends Table
      */
     public int $subjectID;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();

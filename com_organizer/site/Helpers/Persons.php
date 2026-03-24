@@ -162,9 +162,7 @@ class Persons extends Scheduled implements Selectable, Viewable
         return $person->id ?: 0;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -181,9 +179,7 @@ class Persons extends Scheduled implements Selectable, Viewable
         return $options;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $organizationID = Input::integer('organizationID');

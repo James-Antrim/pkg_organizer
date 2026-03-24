@@ -18,14 +18,10 @@ class Subject extends FormView
 {
     use Documented;
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritDoc */
     protected string $layout = 'subject';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $subjectID = empty($this->item->id) ? 0 : $this->item->id;
@@ -58,9 +54,7 @@ class Subject extends FormView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         $this->toDo[] = 'Front-end toolbar:';

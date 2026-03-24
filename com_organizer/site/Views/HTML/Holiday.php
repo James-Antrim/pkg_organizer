@@ -10,14 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Holiday extends FormView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $buttons = empty($this->item->id) ? [] : ['save', 'save2copy'];

@@ -15,9 +15,7 @@ namespace THM\Organizer\Views\HTML;
  */
 class FieldColor extends FormView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolbar(array $buttons = [], string $constant = 'FIELD_COLOR'): void
     {
         parent::addToolbar($buttons, $constant);

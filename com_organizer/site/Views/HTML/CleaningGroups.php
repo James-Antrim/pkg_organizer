@@ -20,9 +20,7 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class CleaningGroups extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::instance();
@@ -53,9 +51,7 @@ class CleaningGroups extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->days      = $item->days === '0.00' ? '-' : $item->days;
@@ -63,9 +59,7 @@ class CleaningGroups extends ListView
         $item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');

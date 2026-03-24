@@ -20,9 +20,7 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Campuses extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->addBasicButtons();
@@ -58,9 +56,7 @@ class Campuses extends ListView
         $item->gridID = $gridName;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         parent::completeItems($options);
@@ -102,9 +98,7 @@ class Campuses extends ListView
         return strcmp($item1->name, $item2->name);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [

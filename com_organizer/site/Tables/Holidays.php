@@ -14,9 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Holidays as Helper;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Holidays extends Table
 {
     use Ends;
@@ -37,9 +35,7 @@ class Holidays extends Table
      */
     public int $type = Helper::HOLIDAY;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -48,9 +44,7 @@ class Holidays extends Table
         parent::__construct('#__organizer_holidays', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         if ($this->endDate < $this->startDate) {

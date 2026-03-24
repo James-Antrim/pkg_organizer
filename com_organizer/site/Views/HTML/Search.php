@@ -111,9 +111,7 @@ class Search extends ListView
         $this->items = $structuredItems;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->state = $this->get('State');
@@ -123,9 +121,7 @@ class Search extends ListView
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeColumns(): void
     {
         $this->headers = ['result' => Text::_('RESOURCE'), 'links' => Text::_('LINKS')];

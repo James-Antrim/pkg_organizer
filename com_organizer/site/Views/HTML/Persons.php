@@ -23,9 +23,7 @@ class Persons extends ListView
     use Activated;
     use Merged;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->addAdd();
@@ -39,9 +37,7 @@ class Persons extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->forename = empty($item->forename) ? '' : $item->forename;
@@ -61,9 +57,7 @@ class Persons extends ListView
         $item->code = empty($item->code) ? '' : $item->code;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');

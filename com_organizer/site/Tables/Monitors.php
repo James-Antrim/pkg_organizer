@@ -14,9 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Monitors as Helper;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Monitors extends Table
 {
     /**
@@ -77,9 +75,7 @@ class Monitors extends Table
      */
     public int $useDefaults = 0;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();

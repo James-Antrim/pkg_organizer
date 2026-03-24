@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Persons extends Table
 {
     use Activated;
@@ -66,9 +64,7 @@ class Persons extends Table
      */
     public string|null $username = null;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -77,9 +73,7 @@ class Persons extends Table
         parent::__construct('#__organizer_persons', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         $nullColumns = ['alias', 'code', 'username'];

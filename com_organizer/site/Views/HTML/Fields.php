@@ -20,35 +20,27 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Fields extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->addBasicButtons();
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->colors = Helpers\Fields::swatch($item->id, $options['organizationID']);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         $options = ['organizationID' => (int) $this->state->get('filter.organizationID')];
         parent::completeItems($options);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');

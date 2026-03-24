@@ -18,18 +18,14 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Organizations extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->addBasicButtons();
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');

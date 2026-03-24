@@ -211,9 +211,7 @@ class Courses extends ListView
         parent::completeItems([Dates::standardize(), User::id()]);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $params = Input::parameters();
@@ -225,9 +223,7 @@ class Courses extends ListView
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');
@@ -269,9 +265,7 @@ class Courses extends ListView
         $this->headers = $headers;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function supplement(): void
     {
         $this->supplement = '';

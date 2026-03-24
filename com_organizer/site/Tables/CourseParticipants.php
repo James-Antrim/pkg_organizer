@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class CourseParticipants extends Table
 {
     /**
@@ -76,9 +74,7 @@ class CourseParticipants extends Table
      */
     public string|null $statusDate = null;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -87,9 +83,7 @@ class CourseParticipants extends Table
         parent::__construct('#__organizer_course_participants', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         if (!$this->participantDate) {

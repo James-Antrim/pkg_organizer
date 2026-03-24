@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Runs extends Table
 {
     use Ends;
@@ -35,9 +33,7 @@ class Runs extends Table
      */
     public int $termID;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();

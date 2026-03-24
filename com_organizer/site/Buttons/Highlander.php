@@ -18,9 +18,7 @@ use THM\Organizer\Adapters\Text;
  */
 class Highlander extends StandardButton
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function _getCommand(): string
     {
         Text::script('ERROR');

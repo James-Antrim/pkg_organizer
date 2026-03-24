@@ -125,9 +125,7 @@ class Subjects extends Curricula
         return $names['abbreviation'] . $suffix;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -138,9 +136,7 @@ class Subjects extends Curricula
         return $options;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $poolID    = Input::integer('poolID', self::NONE);
@@ -404,9 +400,7 @@ class Subjects extends Curricula
         return $options;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function rows(array|int $identifiers): array
     {
         // Signature demands allowing an array to this point.

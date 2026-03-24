@@ -65,9 +65,7 @@ class UnitEdit extends EditModel
         $item->startDate      = $table->startDate;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = true)
     {
         $form = parent::getForm($data, $loadData);

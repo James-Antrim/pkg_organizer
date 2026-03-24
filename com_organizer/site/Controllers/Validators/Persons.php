@@ -21,9 +21,7 @@ use THM\Organizer\Tables\{Associations, Persons as Table};
  */
 class Persons implements UntisXMLValidator
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function setID(Schedule $controller, string $code): void
     {
         $person       = $controller->persons->$code;
@@ -107,9 +105,7 @@ class Persons implements UntisXMLValidator
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $internalID = str_replace('TR_', '', trim((string) $node[0]['id']));

@@ -27,18 +27,14 @@ class Subjects extends ListView
 
     private Registry $params;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct($config = [])
     {
         parent::__construct($config);
         $this->params = Input::parameters();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $resourceName = '';
@@ -73,17 +69,13 @@ class Subjects extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         $this->access = (bool) Organizations::documentableIDs();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         if (!$options['backend']) {
@@ -118,9 +110,7 @@ class Subjects extends ListView
         parent::display($tpl);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');

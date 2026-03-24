@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Associations extends Table
 {
     /**
@@ -67,9 +65,7 @@ class Associations extends Table
      */
     public int|null $subjectID;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -78,9 +74,7 @@ class Associations extends Table
         parent::__construct('#__organizer_associations', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         if (empty($this->organizationID)) {

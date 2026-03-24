@@ -220,9 +220,7 @@ class Pools extends Curricula implements Selectable
         return null;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function rows(array|int $identifiers): array
     {
         if (empty($identifiers) or $identifiers === self::NONE) {

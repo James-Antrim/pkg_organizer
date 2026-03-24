@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Term extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.

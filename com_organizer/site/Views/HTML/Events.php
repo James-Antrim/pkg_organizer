@@ -20,9 +20,7 @@ class Events extends ListView
 {
     use Merged;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         // Divergent title
@@ -31,9 +29,7 @@ class Events extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');

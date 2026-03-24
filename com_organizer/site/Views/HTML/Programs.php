@@ -22,9 +22,7 @@ class Programs extends ListView
 {
     use Activated;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Add a no category option.';
@@ -48,9 +46,7 @@ class Programs extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         if (Application::backend()) {
@@ -68,9 +64,7 @@ class Programs extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         $options['links'] = [
@@ -81,9 +75,7 @@ class Programs extends ListView
         parent::completeItems($options);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $headers = [

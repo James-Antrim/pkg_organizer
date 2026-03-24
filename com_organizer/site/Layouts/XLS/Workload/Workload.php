@@ -1330,9 +1330,7 @@ class Workload extends BaseLayout
         $row++;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function fill(): void
     {
         $this->view->getDefaultStyle()->getFont()->setName('Arial')->setSize();
@@ -1375,9 +1373,7 @@ class Workload extends BaseLayout
 
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getDescription(): string
     {
         $person = Helpers\Persons::defaultName($this->personID);
@@ -1387,9 +1383,7 @@ class Workload extends BaseLayout
         return Text::sprintf('ORGANIZER_WORKLOAD_XLS_DESCRIPTION', $person, $term, $date);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTitle(): string
     {
         $person = Helpers\Persons::lastNameFirst($this->personID);

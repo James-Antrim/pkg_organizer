@@ -188,9 +188,7 @@ class Units implements UntisXMLValidator
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         // Unit has no instances and should not have been exported

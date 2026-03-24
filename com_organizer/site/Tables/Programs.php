@@ -14,9 +14,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Programs extends Table
 {
     use Activated;
@@ -105,9 +103,7 @@ class Programs extends Table
      */
     public int $special = 0;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -116,9 +112,7 @@ class Programs extends Table
         parent::__construct('#__organizer_programs', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         if (empty($this->alias)) {

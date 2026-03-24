@@ -38,9 +38,7 @@ class Fields extends ResourceHelper implements Selectable
         return Colors::color($table->colorID);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -73,9 +71,7 @@ class Fields extends ResourceHelper implements Selectable
         return $fieldIDs;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $query = DB::query();

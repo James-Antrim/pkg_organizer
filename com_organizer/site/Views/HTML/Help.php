@@ -30,9 +30,7 @@ class Help extends BaseView
         $this->title($constant);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->addToolBar();

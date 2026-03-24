@@ -85,9 +85,7 @@ class InstanceEdit extends EditModel
         return [];
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getForm($data = [], $loadData = true)
     {
         $form = parent::getForm($data, $loadData);
@@ -216,9 +214,7 @@ class InstanceEdit extends EditModel
 
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTable($name = '', $prefix = '', $options = []): Table
     {
         return new Table();

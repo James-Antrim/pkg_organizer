@@ -20,9 +20,7 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Units extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::instance();
@@ -32,9 +30,7 @@ class Units extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $date      = Dates::formatDate($item->modified);
@@ -60,18 +56,14 @@ class Units extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         $options['statusDate'] = date('Y-m-d H:i:s', strtotime('-14 days'));
         parent::completeItems($options);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [

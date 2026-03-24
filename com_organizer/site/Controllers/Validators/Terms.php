@@ -21,9 +21,7 @@ use THM\Organizer\Tables\Terms as Table;
  */
 class Terms implements UntisXMLValidator
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function setID(Schedule $controller, string $code): void
     {
         $loadCriteria = [
@@ -73,9 +71,7 @@ class Terms implements UntisXMLValidator
         $controller->termID = $table->id;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $controller->schoolYear            = new stdClass();

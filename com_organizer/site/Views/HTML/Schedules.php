@@ -19,9 +19,7 @@ use stdClass;
  */
 class Schedules extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->toDo[] = 'Update event names in the department context directly.';
@@ -40,9 +38,7 @@ class Schedules extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [
@@ -70,9 +66,7 @@ class Schedules extends ListView
         ];
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $creationDate  = Dates::formatDate($item->creationDate);

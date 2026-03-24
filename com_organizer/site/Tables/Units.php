@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Units extends Table
 {
     use Coded;
@@ -77,9 +75,7 @@ class Units extends Table
      */
     public int $termID;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -88,9 +84,7 @@ class Units extends Table
         parent::__construct('#__organizer_units', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         $nullColumns = ['courseID', 'endDate', 'gridID', 'runID', 'startDate'];

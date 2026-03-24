@@ -33,9 +33,7 @@ abstract class ItemView extends BaseView
         // On demand abstract function.
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->item = $this->get('Item');

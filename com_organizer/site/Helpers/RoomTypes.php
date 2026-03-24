@@ -21,9 +21,7 @@ class RoomTypes extends ResourceHelper implements Selectable
 
     private const NO = false, YES = true;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];

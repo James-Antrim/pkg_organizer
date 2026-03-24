@@ -71,9 +71,7 @@ class Instances extends ListLayout
         $sheet->setAutoFilter("A1:B$lastRow");
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function fill()
     {
         $view = $this->view;
@@ -90,17 +88,13 @@ class Instances extends ListLayout
         $this->view->setActiveSheetIndex();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getDescription(): string
     {
         return $this->view->model->getTitle();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTitle(): string
     {
         return $this->view->model->getTitle();

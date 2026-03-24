@@ -91,9 +91,7 @@ abstract class GridView extends Core
      */
     abstract protected function grid(): void;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeView(): void
     {
         parent::initializeView();

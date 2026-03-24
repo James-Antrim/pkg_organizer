@@ -24,9 +24,7 @@ class Screen extends BaseView
 
     public BaseDatabaseModel $model;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         // Examples

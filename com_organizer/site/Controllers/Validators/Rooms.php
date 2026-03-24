@@ -22,9 +22,7 @@ use THM\Organizer\Tables\Rooms as Table;
  */
 class Rooms implements UntisXMLValidator
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function setID(Schedule $controller, string $code): void
     {
         $room  = $controller->rooms->$code;
@@ -67,9 +65,7 @@ class Rooms implements UntisXMLValidator
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $internalID = strtoupper(str_replace('RM_', '', trim((string) $node[0]['id'])));

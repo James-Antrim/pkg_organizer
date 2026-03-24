@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class RoomKeys extends Table
 {
     use Localized;
@@ -48,9 +46,7 @@ class RoomKeys extends Table
      */
     public int $useID;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -59,9 +55,7 @@ class RoomKeys extends Table
         parent::__construct('#__organizer_roomkeys', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         if (empty($this->cleaningID)) {

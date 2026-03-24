@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class PoolSelection extends Pools
 {
     // Everything taken care of in the inheritance hierarchy.

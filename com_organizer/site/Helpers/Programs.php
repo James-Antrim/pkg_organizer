@@ -85,9 +85,7 @@ class Programs extends Curricula implements Selectable
         return $curriculum->rgt - $curriculum->lft > 1;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function name(int $resourceID): string
     {
         if (!$resourceID) {
@@ -202,9 +200,7 @@ class Programs extends Curricula implements Selectable
         return $query;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function rows(array|int $identifiers): array
     {
         if (!$identifiers or $identifiers === self::NONE) {
@@ -276,9 +272,7 @@ class Programs extends Curricula implements Selectable
         return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::name($organizationIDs[0]);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function programs(array|int $identifiers): array
     {
         $ranges = [];

@@ -63,9 +63,7 @@ class Organizer extends HtmlView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->addToC();

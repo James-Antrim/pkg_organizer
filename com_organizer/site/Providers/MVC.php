@@ -25,9 +25,7 @@ use THM\Organizer\Adapters\MVCFactory;
  */
 class MVC implements ServiceProviderInterface
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function register(Container $container): void
     {
         $container->set(

@@ -17,18 +17,14 @@ use THM\Organizer\Adapters\{HTML};
  */
 class Equipment extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = false): void
     {
         $this->addBasicButtons();
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');

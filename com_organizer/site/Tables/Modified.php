@@ -29,9 +29,7 @@ trait Modified
      */
     public string $modified = '';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         if (!$this->modified or $this->modified === '0000-00-00 00:00:00') {

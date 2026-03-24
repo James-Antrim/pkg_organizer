@@ -13,9 +13,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Rooms extends Table
 {
     use Activated;
@@ -79,9 +77,7 @@ class Rooms extends Table
      */
     public int $virtual = 0;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -90,9 +86,7 @@ class Rooms extends Table
         parent::__construct('#__organizer_rooms', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         $nullColumns = ['alias', 'buildingID'];

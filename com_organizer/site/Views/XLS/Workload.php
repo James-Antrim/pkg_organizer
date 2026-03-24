@@ -17,9 +17,7 @@ use THM\Organizer\Models\Workload as Model;
  */
 class Workload extends BaseView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct()
     {
         parent::__construct();

@@ -14,26 +14,20 @@ use THM\Organizer\Layouts\XLS\BaseLayout;
 
 class Rooms extends BaseLayout
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function fill()
     {
         // TODO: Implement fill() method.
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getDescription(): string
     {
         // TODO: Implement getDescription() method.
         return 'Default description.';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTitle(): string
     {
         // TODO: Implement getTitle() method.

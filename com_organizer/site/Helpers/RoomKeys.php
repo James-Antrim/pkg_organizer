@@ -17,9 +17,7 @@ use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
  */
 class RoomKeys extends ResourceHelper implements Selectable
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];

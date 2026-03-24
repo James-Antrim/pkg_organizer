@@ -22,9 +22,7 @@ class Participants extends ListView
 {
     use Merged;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->addMerge();
@@ -36,18 +34,14 @@ class Participants extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->fullName = $item->forename ? $item->fullName : $item->surname;
         $item->program  = $item->programID ? $item->program : '';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');

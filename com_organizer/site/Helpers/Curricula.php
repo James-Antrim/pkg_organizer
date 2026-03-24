@@ -126,9 +126,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         return $ids;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {
         if (!$organizationIDs = Organizations::documentableIDs()) {
@@ -142,9 +140,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         return self::associated($organizationIDs, $resourceID);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function documentableIDs(): array
     {
         if (!$organizationIDs = Organizations::documentableIDs()) {

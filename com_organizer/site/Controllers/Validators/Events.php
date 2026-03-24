@@ -21,9 +21,7 @@ use THM\Organizer\Tables\Events as Table;
  */
 class Events implements UntisXMLValidator
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function setID(Schedule $controller, string $code): void
     {
         $event = $controller->events->$code;
@@ -69,9 +67,7 @@ class Events implements UntisXMLValidator
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $code = str_replace('SU_', '', trim((string) $node[0]['id']));

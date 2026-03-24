@@ -35,9 +35,7 @@ class Grids implements UntisXMLValidator
         return $table->load(['code' => $code]) ? $table->id : 0;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function setID(Schedule $controller, string $code): void
     {
         if (empty($controller->grids->$code)) {
@@ -72,9 +70,7 @@ class Grids implements UntisXMLValidator
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         // Untis didn't output the name, because in the local context it's redundant. In the global context we assume the default.

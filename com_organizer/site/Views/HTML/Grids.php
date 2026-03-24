@@ -20,18 +20,14 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Grids extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->addBasicButtons();
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $grid = json_decode($item->grid, true);
@@ -56,9 +52,7 @@ class Grids extends ListView
         $item->isDefault = HTML::toggle($index, Helper::PUBLISHED_STATES[$item->isDefault], 'Grids');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [

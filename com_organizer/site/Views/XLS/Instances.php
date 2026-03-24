@@ -31,9 +31,7 @@ class Instances extends ListView
 
     public BaseModel $model;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (Application::backend() and !Helpers\Organizations::schedulableIDs()) {
@@ -136,9 +134,7 @@ class Instances extends ListView
         return $names;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function setHeaders(): void
     {
         $this->headers = [
@@ -193,9 +189,7 @@ class Instances extends ListView
         ];
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function structureItems(): void
     {
         $conditions = $this->model->conditions;
@@ -243,9 +237,7 @@ class Instances extends ListView
         parent::structureItems();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function structureItem(object $item): array
     {
         // Aggregation containers

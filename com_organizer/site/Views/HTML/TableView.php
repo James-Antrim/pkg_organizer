@@ -36,9 +36,7 @@ abstract class TableView extends ListView
      */
     abstract protected function initializeRows(): void;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function initializeView(): void
     {
         Grandpa::initializeView();

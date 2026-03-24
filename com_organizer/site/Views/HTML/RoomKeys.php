@@ -36,9 +36,7 @@ class RoomKeys extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');

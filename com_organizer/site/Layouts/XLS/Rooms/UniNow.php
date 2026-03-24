@@ -379,9 +379,7 @@ class UniNow extends BaseLayout
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function fill()
     {
         $this->setPageFormatting();
@@ -389,17 +387,13 @@ class UniNow extends BaseLayout
         $this->addRows();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getDescription(): string
     {
         return 'An export of the current room inventory of the Organizer component, suitable for import in the UniNow system.';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getTitle(): string
     {
         return 'UniNow Room Export';

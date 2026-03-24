@@ -37,9 +37,7 @@ class Roles extends ResourceHelper implements Selectable
         return $table->load($roleID) ? $table->$column : '';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -50,9 +48,7 @@ class Roles extends ResourceHelper implements Selectable
         return $options;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $query = Database::query();

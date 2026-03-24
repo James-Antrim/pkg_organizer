@@ -14,9 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Persons;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class SubjectPersons extends Table
 {
     /**
@@ -40,9 +38,7 @@ class SubjectPersons extends Table
      */
     public int $subjectID;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();

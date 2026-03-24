@@ -16,9 +16,7 @@ use THM\Organizer\Adapters\Document;
 
 trait Subordinate
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         /** @noinspection PhpMultipleClassDeclarationsInspection */

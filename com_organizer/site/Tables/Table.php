@@ -146,9 +146,7 @@ abstract class Table extends Core
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function store($updateNulls = true): bool
     {
         return parent::store($updateNulls);

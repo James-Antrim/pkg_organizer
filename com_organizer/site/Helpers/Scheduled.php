@@ -15,9 +15,7 @@ namespace THM\Organizer\Helpers;
  */
 abstract class Scheduled extends Associated implements Schedulable
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function schedulable(int $resourceID): bool
     {
         if (!$organizationIDs = Organizations::schedulableIDs()) {
@@ -31,9 +29,7 @@ abstract class Scheduled extends Associated implements Schedulable
         return self::associated($organizationIDs, $resourceID);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function schedulableIDs(): array
     {
         if (!$organizationIDs = Organizations::schedulableIDs()) {

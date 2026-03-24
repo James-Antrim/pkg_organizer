@@ -22,9 +22,7 @@ class RoomTypes extends ListView
 {
     use Suppressed;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Remove tags added per default by the description type having been editor.';
@@ -40,17 +38,13 @@ class RoomTypes extends ListView
         $this->title('ROOM_TYPES');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->suppress = HTML::toggle($index, Helper::SUPPRESSION_STATES[$item->suppress], 'RoomTypes');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');

@@ -39,9 +39,7 @@ class Schedules implements Schedulable
         return DB::integers();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function schedulable(int $resourceID): bool
     {
         $table = new Table();
@@ -53,9 +51,7 @@ class Schedules implements Schedulable
         return User::authorise('organizer.schedule', "com_organizer.organization.$table->organizationID");
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function schedulableIDs(): array
     {
         if (!$organizationIDs = Organizations::schedulableIDs()) {

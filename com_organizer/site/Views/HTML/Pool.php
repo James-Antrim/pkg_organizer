@@ -10,14 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Pool extends FormView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         parent::addToolbar(['apply', 'save', 'save2copy']);

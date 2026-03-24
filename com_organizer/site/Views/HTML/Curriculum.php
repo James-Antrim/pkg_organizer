@@ -41,9 +41,7 @@ class Curriculum extends ItemView
         // Nothing filtered
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         parent::modifyDocument();

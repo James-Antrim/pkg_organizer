@@ -14,9 +14,7 @@ use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers\Roles;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class InstancePersons extends Table
 {
     use Modified;
@@ -50,9 +48,7 @@ class InstancePersons extends Table
     public int $roleID = Roles::TEACHER;
 
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();

@@ -24,9 +24,7 @@ class Rooms extends ListView
     use Activated;
     use Merged;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $this->toDo[] = 'Add filter for lessons.';
@@ -62,17 +60,13 @@ class Rooms extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Rooms');
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');

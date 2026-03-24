@@ -55,9 +55,7 @@ class Categories implements UntisXMLValidator
             ['code' => $pieces[0], 'degreeID' => $degreeID, 'accredited' => $pieces[2]] : [];
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function setID(Schedule $controller, string $code): void
     {
         $category = $controller->categories->$code;
@@ -91,9 +89,7 @@ class Categories implements UntisXMLValidator
         $category->id = $table->id;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $code = str_replace('DP_', '', trim((string) $node[0]['id']));

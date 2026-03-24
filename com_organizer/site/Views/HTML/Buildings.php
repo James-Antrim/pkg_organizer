@@ -20,18 +20,14 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Buildings extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->addBasicButtons();
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function authorize(): void
     {
         if (!Can::fm()) {
@@ -39,9 +35,7 @@ class Buildings extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->campusID     = Campuses::name($item->campusID);
@@ -53,9 +47,7 @@ class Buildings extends ListView
         };
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction     = $this->state->get('list.direction');

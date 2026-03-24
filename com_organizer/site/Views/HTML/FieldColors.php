@@ -22,9 +22,7 @@ class FieldColors extends ListView
 {
     use Titled;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         // Divergent naming scheme
@@ -44,17 +42,13 @@ class FieldColors extends ListView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->color = Colors::swatch($item->color, $item->colorID);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [

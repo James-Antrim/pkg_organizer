@@ -24,9 +24,7 @@ abstract class OldFormView extends BaseView
      */
     public $form = null;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected string $layout = 'form';
 
     /**
@@ -36,9 +34,7 @@ abstract class OldFormView extends BaseView
     protected string $orientation = 'horizontal';
     public array $toDo = [];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         $this->form = $this->get('Form');
@@ -57,9 +53,7 @@ abstract class OldFormView extends BaseView
      */
     abstract protected function addToolBar(): void;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         parent::modifyDocument();

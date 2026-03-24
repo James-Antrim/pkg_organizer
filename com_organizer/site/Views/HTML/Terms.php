@@ -20,9 +20,7 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Terms extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->toDo[] = 'Be able to mark semesters as inactive so they no longer show up in filters.';
@@ -30,18 +28,14 @@ class Terms extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->endDate   = Dates::formatDate($item->endDate);
         $item->startDate = Dates::formatDate($item->startDate);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $this->headers = [

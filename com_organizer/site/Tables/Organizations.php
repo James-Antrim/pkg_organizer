@@ -112,17 +112,13 @@ class Organizations extends Table
         parent::__construct('#__organizer_organizations', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function _getAssetTitle(): string
     {
         return $this->shortName_en;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function _getAssetName(): string
     {
         $key = $this->_tbl_key;
@@ -130,9 +126,7 @@ class Organizations extends Table
         return 'com_organizer.organization.' . (int) $this->$key;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function _getAssetParentId(?CoreTable $table = null, $id = null): int
     {
         $asset = new Asset(Application::database());
@@ -141,9 +135,7 @@ class Organizations extends Table
         return $asset->id;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function bind($src, $ignore = ''): bool
     {
         if (isset($src['rules']) and is_array($src['rules'])) {
@@ -155,9 +147,7 @@ class Organizations extends Table
         return parent::bind($src, $ignore);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         if (!$this->alias) {
@@ -190,9 +180,7 @@ class Organizations extends Table
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function store($updateNulls = true): bool
     {
         $currentAssetId = 0;

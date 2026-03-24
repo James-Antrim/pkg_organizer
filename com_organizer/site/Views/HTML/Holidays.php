@@ -20,18 +20,14 @@ use THM\Organizer\Layouts\HTML\Row;
  */
 class Holidays extends ListView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(): void
     {
         $this->addBasicButtons();
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->dates = Dates::intervalText($item->startDate, $item->endDate);
@@ -44,9 +40,7 @@ class Holidays extends ListView
         $item->type   = Text::_($options['map'][$item->type]);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItems(array $options = []): void
     {
         $options = [
@@ -60,9 +54,7 @@ class Holidays extends ListView
         parent::completeItems($options);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');

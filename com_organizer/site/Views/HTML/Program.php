@@ -15,9 +15,7 @@ namespace THM\Organizer\Views\HTML;
  */
 class Program extends FormView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $this->toDo[] = 'Add a no category option.';

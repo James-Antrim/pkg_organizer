@@ -10,14 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class RoomKey extends FormView
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolbar(array $buttons = [], string $constant = ''): void
     {
         parent::addToolbar($buttons, 'ROOM_KEY');

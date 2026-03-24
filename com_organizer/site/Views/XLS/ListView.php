@@ -33,9 +33,7 @@ abstract class ListView extends BaseView
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     #[NoReturn] public function display(): void
     {
         $this->authorize();

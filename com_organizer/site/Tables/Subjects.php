@@ -14,9 +14,7 @@ namespace THM\Organizer\Tables;
 use Joomla\Database\{DatabaseDriver, DatabaseInterface};
 use THM\Organizer\Adapters\Application;
 
-/**
- * @inheritDoc
- */
+/** @inheritDoc */
 class Subjects extends Table
 {
     use Aliased;
@@ -363,9 +361,7 @@ class Subjects extends Table
      */
     public int $sws = 0;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
     {
         $dbo = $dbo ?? Application::database();
@@ -374,9 +370,7 @@ class Subjects extends Table
         parent::__construct('#__organizer_subjects', 'id', $dbo);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function check(): bool
     {
         $nullColumns = ['alias', 'fieldID', 'frequencyID', 'lsfID'];

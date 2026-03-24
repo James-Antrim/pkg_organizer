@@ -22,9 +22,7 @@ use THM\Organizer\Tables\{Associations, Groups as Table};
  */
 class Groups implements UntisXMLValidator
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function setID(Schedule $controller, string $code): void
     {
         $group = $controller->groups->$code;
@@ -57,9 +55,7 @@ class Groups implements UntisXMLValidator
         $controller->groups->$code->id = $table->id;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function validate(Schedule $controller, SimpleXMLElement $node): void
     {
         $code     = str_replace('CL_', '', trim((string) $node[0]['id']));

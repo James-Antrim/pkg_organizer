@@ -35,9 +35,7 @@ class Grids extends ResourceHelper implements Selectable
         ]
     ];
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function options(): array
     {
         $options = [];
@@ -90,9 +88,7 @@ class Grids extends ResourceHelper implements Selectable
         return $table->grid ?: '';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function resources(): array
     {
         $query = Database::query();

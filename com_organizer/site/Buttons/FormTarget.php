@@ -20,9 +20,7 @@ class FormTarget extends StandardButton
 {
     public string $task = '';
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function _getCommand(): string
     {
         Document::script('formTarget');

@@ -23,9 +23,7 @@ class Categories extends ListView
     use Activated;
     use Merged;
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         // Resource creation occurs in Untis.
@@ -40,18 +38,14 @@ class Categories extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->active  = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Categories');
         $item->program = Helper::name($item->id);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');
