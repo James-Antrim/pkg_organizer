@@ -15,11 +15,9 @@ use Joomla\Database\DatabaseQuery;
 /** @inheritDoc */
 class Foci extends ListModel
 {
-    use Tossed;
-
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        return $this->query('focus', 'foci');
+        return $this->tossed('focus');
     }
 }

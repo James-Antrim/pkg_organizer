@@ -15,11 +15,9 @@ use Joomla\Database\DatabaseQuery;
 /** @inheritDoc */
 class Minors extends ListModel
 {
-    use Tossed;
-
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        return $this->query('minor', 'minors');
+        return $this->tossed('minor');
     }
 }

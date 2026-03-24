@@ -14,7 +14,7 @@ use Exception;
 use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Core};
 use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseQuery};
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
 
 /**
  * Model class for handling lists of items.
@@ -37,8 +37,7 @@ abstract class ListModel extends Core
 
         try {
             parent::__construct($config, $factory);
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             Application::handleException($exception);
         }
 
@@ -48,7 +47,7 @@ abstract class ListModel extends Core
     /**
      * Area where overrideable resource access conditions can be written.
      *
-     * @param   DatabaseQuery  $query
+     * @param DatabaseQuery $query
      *
      * @return void
      */
@@ -95,7 +94,7 @@ abstract class ListModel extends Core
     /**
      * Adds a standardized order by clause for the given $query;
      *
-     * @param   DatabaseQuery  $query  the query to modify
+     * @param DatabaseQuery $query the query to modify
      *
      * @return void
      */
@@ -160,5 +159,33 @@ abstract class ListModel extends Core
 
         $this->state->set('list.limit', $limit);
         $this->state->set('list.start', $start);
+    }
+
+    /**
+     * Creates a standardized list query for rudimentary resources.
+     *
+     * @param string $singular      the name of the resource
+     * @param bool   $statisticCode whether the resource has a statisticCode column
+     * @return DatabaseQuery
+     */
+    protected function tossed(string $singular, bool $statisticCode = false): DatabaseQuery
+    {
+        $plural = strtolower(Application::uqClass($this));
+        $query  = DB::query();
+        $tag    = Application::tag();
+        $url    = "index.php?option=com_organizer&view=$singular&id=";
+
+        $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
+        $aliased = DB::qn(["alias_$tag", "name_$tag"], ['alias', 'name']);
+        $select  = $statisticCode ? DB::qn(['id', 'code', 'statisticCode']) : DB::qn(['id', 'code']);
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($select, $access, $aliased, $url))
+            ->from(DB::qn("#__organizer_$plural"))
+            ->order(DB::qn("name_$tag"));
+
+        $this->filterSearch($query, ['alias_de', 'alias_en', 'code', 'name_de', 'name_en', 'statisticCode']);
+
+        return $query;
     }
 }

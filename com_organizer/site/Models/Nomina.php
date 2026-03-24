@@ -15,11 +15,9 @@ use Joomla\Database\DatabaseQuery;
 /** @inheritDoc */
 class Nomina extends ListModel
 {
-    use Tossed;
-
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        return $this->query('nomen', 'nomina', true);
+        return $this->tossed('nomen', true);
     }
 }
