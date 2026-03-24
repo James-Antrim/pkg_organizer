@@ -24,6 +24,8 @@ class Programs extends Curricula implements Selectable
 
     protected static string $resource = 'program';
 
+    public const UNVERSIONED = 1996;
+
     /**
      * Retrieves the id of the degree associated with the program.
      *

@@ -13,13 +13,13 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 
 /** @inheritDoc */
-class Minors extends ListModel
+class Foci extends ListModel
 {
     use Rudimentary;
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        return $this->query('minor', 'minors');
+        return $this->query('focus', 'foci');
     }
 }

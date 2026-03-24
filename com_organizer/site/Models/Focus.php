@@ -10,16 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\Database\DatabaseQuery;
-
 /** @inheritDoc */
-class Minors extends ListModel
+class Focus extends EditModel
 {
-    use Rudimentary;
-
-    /** @inheritDoc */
-    protected function getListQuery(): DatabaseQuery
-    {
-        return $this->query('minor', 'minors');
-    }
+    protected string $tableClass = 'Foci';
 }
