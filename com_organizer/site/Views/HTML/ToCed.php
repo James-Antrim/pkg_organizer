@@ -198,6 +198,10 @@ trait ToCed
                 'url'    => Routing::getViewURL('fields'),
                 'active' => $viewName === 'fields'
             ];
+            $items[Text::_('FOCI')]          = [
+                'url'    => Routing::getViewURL('foci'),
+                'active' => $viewName === 'foci'
+            ];
             $items[Text::_('GRIDS')]         = [
                 'url'    => Routing::getViewURL('grids'),
                 'active' => $viewName === 'grids'

@@ -222,6 +222,7 @@ class Can
             => (!Application::backend() or Organizations::documentableIDs()),
             // Edit views for curriculum resource with no intrinsic public value
             'FieldColor' => FieldColors::documentable($resourceID),
+            'Focus' => Foci::documentable($resourceID),
             'Minor' => Minors::documentable($resourceID),
             'Nomen' => Nomina::documentable($resourceID),
             'Pool' => Pools::documentable($resourceID),

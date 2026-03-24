@@ -128,6 +128,7 @@ class MVCFactory extends Core
             $irregularPlurals = [
                 'Category'  => 'Categories',
                 'Course'    => 'Courses',
+                'Focus'     => 'Foci',
                 'Frequency' => 'Frequencies',
                 'Nomen'     => 'Nomina',
             ];
