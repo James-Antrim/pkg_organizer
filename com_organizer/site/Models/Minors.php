@@ -15,7 +15,7 @@ use Joomla\Database\DatabaseQuery;
 /** @inheritDoc */
 class Minors extends ListModel
 {
-    use Rudimentary;
+    use Tossed;
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

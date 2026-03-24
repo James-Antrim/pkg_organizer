@@ -17,16 +17,17 @@ use THM\Organizer\Adapters\{Application, Database as DB};
 /**
  * Common code base for filtered views.
  */
-trait Rudimentary
+trait Tossed
 {
     /**
      * Creates a standardized list query for rudimentary resources.
      *
-     * @param string $singular the name of the resource
-     * @param string $plural   the plural of the resource name
+     * @param string $singular      the name of the resource
+     * @param string $plural        the plural of the resource name
+     * @param bool   $statisticCode whether the resource has a statisticCode column
      * @return DatabaseQuery
      */
-    protected function query(string $singular, string $plural): DatabaseQuery
+    protected function query(string $singular, string $plural, bool $statisticCode = false): DatabaseQuery
     {
         $query = DB::query();
         $tag   = Application::tag();
@@ -34,14 +35,14 @@ trait Rudimentary
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["alias_$tag", "name_$tag"], ['alias', 'name']);
-        $select  = DB::qn(['id', 'code']);
+        $select  = $statisticCode ? DB::qn(['id', 'code', 'statisticCode']) : DB::qn(['id', 'code']);
         $url     = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
 
         $query->select(array_merge($select, $access, $aliased, $url))
             ->from(DB::qn("#__organizer_$plural"))
             ->order(DB::qn("name_$tag"));
 
-        $this->filterSearch($query, ['alias_de', 'alias_en', 'code', 'name_de', 'name_en']);
+        $this->filterSearch($query, ['alias_de', 'alias_en', 'code', 'name_de', 'name_en', 'statisticCode']);
 
         return $query;
     }

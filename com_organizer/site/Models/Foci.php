@@ -15,7 +15,7 @@ use Joomla\Database\DatabaseQuery;
 /** @inheritDoc */
 class Foci extends ListModel
 {
-    use Rudimentary;
+    use Tossed;
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
