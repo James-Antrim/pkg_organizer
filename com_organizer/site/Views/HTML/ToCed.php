@@ -186,55 +186,59 @@ trait ToCed
 
             $items = [];
 
-            $items[Text::_('COLORS')]        = [
+            $items[Text::_('ATTENDANCE_TYPES')] = [
+                'url'    => Routing::getViewURL('attendancetypes'),
+                'active' => $viewName === 'attendancetypes'
+            ];
+            $items[Text::_('COLORS')]           = [
                 'url'    => Routing::getViewURL('colors'),
                 'active' => $viewName === 'colors'
             ];
-            $items[Text::_('DEGREES')]       = [
+            $items[Text::_('DEGREES')]          = [
                 'url'    => Routing::getViewURL('degrees'),
                 'active' => $viewName === 'degrees'
             ];
-            $items[Text::_('FIELDS')]        = [
+            $items[Text::_('FIELDS')]           = [
                 'url'    => Routing::getViewURL('fields'),
                 'active' => $viewName === 'fields'
             ];
-            $items[Text::_('FOCI')]          = [
+            $items[Text::_('FOCI')]             = [
                 'url'    => Routing::getViewURL('foci'),
                 'active' => $viewName === 'foci'
             ];
-            $items[Text::_('GRIDS')]         = [
+            $items[Text::_('GRIDS')]            = [
                 'url'    => Routing::getViewURL('grids'),
                 'active' => $viewName === 'grids'
             ];
-            $items[Text::_('HOLIDAYS')]      = [
+            $items[Text::_('HOLIDAYS')]         = [
                 'url'    => Routing::getViewURL('holidays'),
                 'active' => $viewName === 'holidays'
             ];
-            $items[Text::_('METHODS')]       = [
+            $items[Text::_('METHODS')]          = [
                 'url'    => Routing::getViewURL('methods'),
                 'active' => $viewName === 'methods'
             ];
-            $items[Text::_('MINORS')]        = [
+            $items[Text::_('MINORS')]           = [
                 'url'    => Routing::getViewURL('minors'),
                 'active' => $viewName === 'minors'
             ];
-            $items[Text::_('NOMINA')]        = [
+            $items[Text::_('NOMINA')]           = [
                 'url'    => Routing::getViewURL('nomina'),
                 'active' => $viewName === 'nomina'
             ];
-            $items[Text::_('ORGANIZATIONS')] = [
+            $items[Text::_('ORGANIZATIONS')]    = [
                 'url'    => Routing::getViewURL('organizations'),
                 'active' => $viewName === 'organizations'
             ];
-            $items[Text::_('PARTICIPANTS')]  = [
+            $items[Text::_('PARTICIPANTS')]     = [
                 'url'    => Routing::getViewURL('participants'),
                 'active' => $viewName === 'participants'
             ];
-            $items[Text::_('RUNS')]          = [
+            $items[Text::_('RUNS')]             = [
                 'url'    => Routing::getViewURL('runs'),
                 'active' => $viewName === 'runs'
             ];
-            $items[Text::_('TERMS')]         = [
+            $items[Text::_('TERMS')]            = [
                 'url'    => Routing::getViewURL('terms'),
                 'active' => $viewName === 'terms'
             ];

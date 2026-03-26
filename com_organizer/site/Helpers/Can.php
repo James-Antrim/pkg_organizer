@@ -200,10 +200,10 @@ class Can
 
         return match ($view) {
             // Administrative / developmental views and admin access was already checked
-            'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields', 'Grid', 'Grids',
-            'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents', 'MergeGroups', 'MergePersons',
-            'MergeRooms', 'Method', 'Methods', 'Minors', 'Nomina', 'Organization', 'Organizations', 'Participant',
-            'Participants', 'Run', 'Runs', 'Term', 'Terms'
+            'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields', 'Foci', 'Grid',
+            'Grids', 'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents', 'MergeGroups',
+            'MergePersons', 'MergeRooms', 'Method', 'Methods', 'Minors', 'Nomina', 'Organization', 'Organizations',
+            'Participant', 'Participants', 'Run', 'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
             'Categories', 'Groups', 'ImportCourses', 'ImportSchedule', 'Schedules', 'Units'
@@ -221,6 +221,7 @@ class Can
             'Programs', 'Subjects'
             => (!Application::backend() or Organizations::documentableIDs()),
             // Edit views for curriculum resource with no intrinsic public value
+            'AttendanceType' => AttendanceTypes::documentable($resourceID),
             'FieldColor' => FieldColors::documentable($resourceID),
             'Focus' => Foci::documentable($resourceID),
             'Minor' => Minors::documentable($resourceID),

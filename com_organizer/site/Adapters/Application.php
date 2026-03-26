@@ -493,6 +493,8 @@ class Application
 
         return match ($name) {
             // Compound nouns
+            'attendancetypes' => 'AttendanceTypes',
+            'attendancetype' => 'AttendanceType',
             'cleaninggroup' => 'CleaningGroup',
             'cleaninggroups' => 'CleaningGroups',
             'courseparticipants' => 'CourseParticipants',
