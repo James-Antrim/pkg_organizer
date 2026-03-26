@@ -10,9 +10,6 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Layouts\HTML\Row;
-
 /**
  * Class loads persistent information a filtered set of degrees into the display context.
  */
@@ -28,24 +25,6 @@ class Minors extends ListView
     /** @inheritDoc */
     public function initializeColumns(): void
     {
-        $this->headers = [
-            'check' => ['type' => 'check'],
-            'name'  => [
-                'link'       => Row::DIRECT,
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('NAME'),
-                'type'       => 'text'
-            ],
-            'alias' => [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('ALIAS'),
-                'type'       => 'text'
-            ],
-            'code'  => [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('CODE'),
-                'type'       => 'text'
-            ],
-        ];
+        $this->tossed();
     }
 }

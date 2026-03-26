@@ -166,14 +166,15 @@ abstract class ListModel extends Core
      *
      * @param string $singular      the name of the resource
      * @param bool   $statisticCode whether the resource has a statisticCode column
+     * @param string $table         the unique portion of the table name, often implicitly matches class name
      * @return DatabaseQuery
      */
-    protected function tossed(string $singular, bool $statisticCode = false): DatabaseQuery
+    protected function tossed(string $singular, bool $statisticCode = false, string $table = ''): DatabaseQuery
     {
-        $plural = strtolower(Application::uqClass($this));
-        $query  = DB::query();
-        $tag    = Application::tag();
-        $url    = "index.php?option=com_organizer&view=$singular&id=";
+        $query = DB::query();
+        $table = $table ?: strtolower(Application::uqClass($this));
+        $tag   = Application::tag();
+        $url   = "index.php?option=com_organizer&view=$singular&id=";
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["alias_$tag", "name_$tag"], ['alias', 'name']);
@@ -181,10 +182,14 @@ abstract class ListModel extends Core
         $url     = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
 
         $query->select(array_merge($select, $access, $aliased, $url))
-            ->from(DB::qn("#__organizer_$plural"))
+            ->from(DB::qn("#__organizer_$table"))
             ->order(DB::qn("name_$tag"));
 
-        $this->filterSearch($query, ['alias_de', 'alias_en', 'code', 'name_de', 'name_en', 'statisticCode']);
+        $columns = ['alias_de', 'alias_en', 'code', 'name_de', 'name_en'];
+        if ($statisticCode) {
+            $columns[] = 'statisticCode';
+        }
+        $this->filterSearch($query, $columns);
 
         return $query;
     }

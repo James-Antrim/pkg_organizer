@@ -16,6 +16,7 @@ use stdClass;
 use THM\Organizer\Adapters\{Application, Document, Text, Toolbar};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers\Can;
+use THM\Organizer\Layouts\HTML\Row;
 
 /** @inheritDoc */
 abstract class ListView extends Core
@@ -175,5 +176,41 @@ abstract class ListView extends Core
     {
         Document::script('cacheMiss');
         Document::style('list');
+    }
+
+    /**
+     * Standardized execution of column initialization for tossed resources.
+     * @param bool $statisticCode whether the resource has the statisticCode column
+     * @return void
+     */
+    protected function tossed(bool $statisticCode = false): void
+    {
+        $this->headers = [
+            'check' => ['type' => 'check'],
+            'name'  => [
+                'link'       => Row::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('NAME'),
+                'type'       => 'text'
+            ],
+            'alias' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ALIAS'),
+                'type'       => 'text'
+            ],
+            'code'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CODE'),
+                'type'       => 'text'
+            ],
+        ];
+
+        if ($statisticCode) {
+            $this->headers['statisticCode'] = [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STATISTIC_CODE'),
+                'type'       => 'text'
+            ];
+        }
     }
 }
