@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\{Dates, Holidays as Helper};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of holidays into the display context.
- */
+/** @inheritDoc */
 class Holidays extends ListView
 {
     /** @inheritDoc */

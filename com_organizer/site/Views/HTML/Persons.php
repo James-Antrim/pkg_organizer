@@ -15,9 +15,7 @@ use stdClass;
 use THM\Organizer\Helpers\{Can, Persons as Helper};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of persons into the display context.
- */
+/** @inheritDoc */
 class Persons extends ListView
 {
     use Activated;

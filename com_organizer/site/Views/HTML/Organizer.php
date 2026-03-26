@@ -14,9 +14,7 @@ use Joomla\CMS\MVC\View\HtmlView;
 use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class modifies the document for the output of a menu like list of resource management views.
- */
+/** @inheritDoc */
 class Organizer extends HtmlView
 {
     use Configured, Tasked, Titled, ToCed;

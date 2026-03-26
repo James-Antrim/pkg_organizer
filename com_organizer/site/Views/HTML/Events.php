@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of events into the display context.
- */
+/** @inheritDoc */
 class Events extends ListView
 {
     use Merged;

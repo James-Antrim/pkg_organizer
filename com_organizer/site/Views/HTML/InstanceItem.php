@@ -16,9 +16,7 @@ use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Routing};
 use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Models\InstanceItem as Model;
 
-/**
- * Class loads information about a given instance.
- */
+/** @inheritDoc */
 class InstanceItem extends ListView
 {
     use ListsInstances;
@@ -44,32 +42,32 @@ class InstanceItem extends ListView
         $this->title($instance->name . $method);
         $this->addSubtitle();
 
-        $itembar = Toolbar::instance('itembar');
-        $listbar = Toolbar::instance();
+        $itemBar = Toolbar::instance('itembar');
+        $listBar = Toolbar::instance();
 
         if ($this->referrer) {
-            $itembar->linkButton('back', Text::_('BACK_TO_OVERVIEW'))->url($this->referrer)->icon('fa fa-undo');
+            $itemBar->linkButton('back', Text::_('BACK_TO_OVERVIEW'))->url($this->referrer)->icon('fa fa-undo');
         }
 
         if ($this->userID and $this->buttons) {
             $buttons = $this->buttons;
 
             if ($buttons['schedule']) {
-                $itembar->standardButton('bookmark', Text::_('ADD_INSTANCE'), 'InstanceParticipants.bookmarkThis')
+                $itemBar->standardButton('bookmark', Text::_('ADD_INSTANCE'), 'InstanceParticipants.bookmarkThis')
                     ->icon('fas fa-bookmark');
             }
             elseif ($buttons['deschedule']) {
-                $itembar->standardButton('unbookmark', Text::_('DELETE_INSTANCE'), 'InstanceParticipants.removeBookmarkThis')
+                $itemBar->standardButton('unbookmark', Text::_('DELETE_INSTANCE'), 'InstanceParticipants.removeBookmarkThis')
                     ->icon('far fa-bookmark');
             }
 
             if ($buttons['scheduleBlock']) {
-                $itembar->standardButton('bookmark-block', Text::_('ADD_BLOCK_INSTANCES'), 'InstanceParticipants.bookmarkBlock')
+                $itemBar->standardButton('bookmark-block', Text::_('ADD_BLOCK_INSTANCES'), 'InstanceParticipants.bookmarkBlock')
                     ->icon('fas fa-bookmark');
             }
 
             if ($buttons['descheduleBlock']) {
-                $itembar->standardButton(
+                $itemBar->standardButton(
                     'unbookmark-block',
                     Text::_('DELETE_BLOCK_INSTANCES'),
                     'InstanceParticipants.removeBookmarkBlock'
@@ -78,36 +76,36 @@ class InstanceItem extends ListView
 
             /*if ($buttons['register'])
             {
-                $itembar->standardButton('register', Text::_('REGISTER'), 'InstanceParticipants.registerThis')
+                $itemBar->standardButton('register', Text::_('REGISTER'), 'InstanceParticipants.registerThis')
                     ->icon('fa fa-sign-in-alt');
             }
             elseif ($buttons['deregister'])
             {
-                $itembar->standardButton('deregister', Text::_('DEREGISTER'), 'InstanceParticipants.deregisterThis')
+                $itemBar->standardButton('deregister', Text::_('DEREGISTER'), 'InstanceParticipants.deregisterThis')
                     ->icon('fa fa-sign-out-alt');
             }*/
 
             if ($buttons['scheduleList']) {
-                $listbar->standardButton('bookmark-list', Text::_('ADD_INSTANCES'), 'InstanceParticipants.bookmark')
+                $listBar->standardButton('bookmark-list', Text::_('ADD_INSTANCES'), 'InstanceParticipants.bookmark')
                     ->icon('fas fa-bookmark')
                     ->listCheck(true);
             }
 
             if ($buttons['descheduleList']) {
-                $listbar->standardButton('unbookmark-list', Text::_('DELETE_INSTANCES'), 'InstanceParticipants.removeBookmark')
+                $listBar->standardButton('unbookmark-list', Text::_('DELETE_INSTANCES'), 'InstanceParticipants.removeBookmark')
                     ->icon('far fa-bookmark')
                     ->listCheck(true);
             }
 
             /*if ($buttons['registerList'])
             {
-                $listbar->standardButton('register-list', Text::_('REGISTER'), 'InstanceParticipants.register')->listCheck(true)
+                $listBar->standardButton('register-list', Text::_('REGISTER'), 'InstanceParticipants.register')->listCheck(true)
                     ->icon('fa fa-sign-in-alt');;
             }
 
             if ($buttons['deregisterList'])
             {
-                $listbar->standardButton('deregister-list', Text::_('DEREGISTER'), 'InstanceParticipants.deregister')
+                $listBar->standardButton('deregister-list', Text::_('DEREGISTER'), 'InstanceParticipants.deregister')
                     ->listCheck(true)
                     ->icon('fa fa-sign-out-alt');
             }*/
@@ -115,19 +113,19 @@ class InstanceItem extends ListView
             if ($buttons['manage']) {
                 $button = new FormTarget('booking', Text::_('MANAGE_BOOKING'));
                 $button->icon('fa fa-users')->task('Booking.manageThis');
-                $itembar->appendButton($button);
+                $itemBar->appendButton($button);
             }
 
             if ($buttons['manageList']) {
                 $button = new Highlander('bookings', Text::_('MANAGE_BOOKINGS'));
                 $button->icon('fa fa-users')->task('Bookings.manage');
-                $listbar->appendButton($button);
+                $listBar->appendButton($button);
             }
         }
 
         if ($instance->subjectID) {
             $url = Routing::getViewURL('SubjectItem', $instance->subjectID);
-            $itembar->linkButton('subject', Text::_('SUBJECT_ITEM'))->target('_blank')->url($url)->icon('fa fa-book');
+            $itemBar->linkButton('subject', Text::_('SUBJECT_ITEM'))->target('_blank')->url($url)->icon('fa fa-book');
         }
 
         $this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';

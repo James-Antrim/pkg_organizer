@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Dates};
 use stdClass;
 
-/**
- * Class loads persistent information a filtered set of schedules into the display context.
- */
+/** @inheritDoc */
 class Schedules extends ListView
 {
     /** @inheritDoc */

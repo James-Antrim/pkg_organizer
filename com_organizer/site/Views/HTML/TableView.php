@@ -13,10 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\MVC\View\ListView as Grandpa;
 use THM\Organizer\Adapters\Text;
 
-/**
- * Class loads information into a tabular grid. The list template is kept largely to continue use of the web asset
- * 'table.columns'.
- */
+/** @inheritDoc */
 abstract class TableView extends ListView
 {
     protected bool $identity = false;

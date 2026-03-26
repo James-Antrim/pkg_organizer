@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the (degree) program form into display context.
- */
+/** @inheritDoc */
 class Program extends FormView
 {
     /** @inheritDoc */

@@ -15,9 +15,7 @@ use stdClass;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads a filtered set of campuses into the display context.
- */
+/** @inheritDoc */
 class Campuses extends ListView
 {
     /** @inheritDoc */
@@ -67,8 +65,8 @@ class Campuses extends ListView
     /**
      * Compares the long names of the campuses for sorting.
      *
-     * @param   stdClass  $item1  the first item
-     * @param   stdClass  $item2  the second item
+     * @param stdClass $item1 the first item
+     * @param stdClass $item2 the second item
      *
      * @return int -1 if $item1 is before $item2; 1 if $item1 is after $item2
      */

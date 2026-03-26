@@ -11,13 +11,10 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Text};
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Models\Screen as Model;
 
-/**
- * Class loads filtered events into the display context.
- */
+/** @inheritDoc */
 class Screen extends BaseView
 {
     protected string $layout = 'upcoming_instances';
@@ -46,7 +43,7 @@ class Screen extends BaseView
     /**
      * Resolves any links/link parameters to links with icons or texts.
      *
-     * @param   string  $comment  the comment to process
+     * @param string $comment the comment to process
      *
      * @return string
      */

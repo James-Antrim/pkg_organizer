@@ -15,9 +15,7 @@ use stdClass;
 use THM\Organizer\Helpers\{Can, Organizations, Programs as Helper};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of degree programs into the display context.
- */
+/** @inheritDoc */
 class Programs extends ListView
 {
     use Activated;

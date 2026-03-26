@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\HTML;
 
-/**
- * Class loads the resource form into display context. Specific resource determined by extending class.
- */
+/** @inheritDoc */
 abstract class ItemView extends BaseView
 {
     protected string $layout = 'item';
@@ -86,7 +84,7 @@ abstract class ItemView extends BaseView
     /**
      * Recursively outputs an array of items as a list.
      *
-     * @param   array  $items  the items to be displayed.
+     * @param array $items the items to be displayed.
      *
      * @return void outputs the items as a html list
      */

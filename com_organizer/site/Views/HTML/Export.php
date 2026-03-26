@@ -14,9 +14,7 @@ use Joomla\CMS\{Form\Form, Uri\Uri};
 use THM\Organizer\Adapters\{Application, Input, Text, Toolbar, User};
 use THM\Organizer\Models\{Conditions, Export as Model};
 
-/**
- * Class loads persistent information a filtered set of instances into the display context.
- */
+/** @inheritDoc */
 class Export extends FormView
 {
     use Abstracted;

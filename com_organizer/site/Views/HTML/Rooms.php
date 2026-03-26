@@ -16,9 +16,7 @@ use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers\{Campuses, Can, Rooms as Helper};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of rooms into the display context.
- */
+/** @inheritDoc */
 class Rooms extends ListView
 {
     use Activated;

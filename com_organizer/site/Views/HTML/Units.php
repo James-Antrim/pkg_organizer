@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\{Dates};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class which loads data into the view output context
- */
+/** @inheritDoc */
 class Units extends ListView
 {
     /** @inheritDoc */

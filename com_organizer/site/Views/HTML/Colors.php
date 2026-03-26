@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of colors into the display context.
- */
+/** @inheritDoc */
 class Colors extends ListView
 {
     /** @inheritDoc */

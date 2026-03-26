@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads a filtered set of buildings into the display context.
- */
+/** @inheritDoc */
 class RoomKeys extends ListView
 {
 

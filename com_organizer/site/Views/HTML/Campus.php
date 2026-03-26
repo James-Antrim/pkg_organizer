@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the campus form into display context.
- */
+/** @inheritDoc */
 class Campus extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.

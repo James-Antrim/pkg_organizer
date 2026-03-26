@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the monitor form into display context.
- */
+/** @inheritDoc */
 class Monitor extends FormView
 {
     // Everything is taken care of in the inheritance hierarchy.

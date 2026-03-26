@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of fields (of expertise) into the display context.
- */
+/** @inheritDoc */
 class Fields extends ListView
 {
     /** @inheritDoc */

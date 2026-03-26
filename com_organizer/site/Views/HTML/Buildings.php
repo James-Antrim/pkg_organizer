@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{Application, HTML, Text};
 use THM\Organizer\Helpers\{Buildings as Helper, Campuses, Can};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads a filtered set of buildings into the display context.
- */
+/** @inheritDoc */
 class Buildings extends ListView
 {
     /** @inheritDoc */

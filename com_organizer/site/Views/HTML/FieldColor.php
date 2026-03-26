@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-/**
- * Class loads the field form into display context.
- */
+/** @inheritDoc */
 class FieldColor extends FormView
 {
     /** @inheritDoc */

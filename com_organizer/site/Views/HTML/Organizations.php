@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of organizations into the display context.
- */
+/** @inheritDoc */
 class Organizations extends ListView
 {
     /** @inheritDoc */

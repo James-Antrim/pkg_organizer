@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Buttons\FormTarget;
 
-/**
- * Class loads personnel workload statistics into the display context.
- */
+/** @inheritDoc */
 class Workload extends FormView
 {
     use Abstracted;

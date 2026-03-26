@@ -16,9 +16,7 @@ use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Organizations, Persons, Pools, Programs};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of subjects into the display context.
- */
+/** @inheritDoc */
 class Subjects extends ListView
 {
     use Documented;

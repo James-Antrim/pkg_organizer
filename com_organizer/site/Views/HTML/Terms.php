@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\Dates;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of degrees into the display context.
- */
+/** @inheritDoc */
 class Terms extends ListView
 {
     /** @inheritDoc */

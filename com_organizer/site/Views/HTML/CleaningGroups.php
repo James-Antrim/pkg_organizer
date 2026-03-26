@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\CleaningGroups as Helper;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads a filtered set of buildings into the display context.
- */
+/** @inheritDoc */
 class CleaningGroups extends ListView
 {
     /** @inheritDoc */

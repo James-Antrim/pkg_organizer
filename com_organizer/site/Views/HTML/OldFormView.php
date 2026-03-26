@@ -13,10 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Document, HTML};
 
-/**
- * Class loads a non-item based resource form (merge) into the display context. Specific resource determined by
- * extending class.
- */
+/** @inheritDoc */
 abstract class OldFormView extends BaseView
 {
     /**

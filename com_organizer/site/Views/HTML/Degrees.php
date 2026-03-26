@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of degrees into the display context.
- */
+/** @inheritDoc */
 class Degrees extends ListView
 {
     /** @inheritDoc */

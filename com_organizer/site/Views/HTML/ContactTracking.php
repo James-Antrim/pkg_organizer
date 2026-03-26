@@ -14,9 +14,7 @@ use THM\Organizer\Adapters\{Application, Input, Text, Toolbar, User};
 use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers;
 
-/**
- * Class loads persistent information a filtered set of colors into the display context.
- */
+/** @inheritDoc */
 class ContactTracking extends ListView
 {
     private const BY_DAY = 1, BY_EVENT = 2;
@@ -77,7 +75,6 @@ class ContactTracking extends ListView
     protected function completeItems(array $options = []): void
     {
         $index           = 1;
-        $link            = '';
         $listFormat      = (int) Input::lists()->get('listFormat', self::BY_DAY);
         $mText           = Text::_('MINUTES');
         $structuredItems = [];

@@ -14,9 +14,7 @@ use Joomla\CMS\Uri\Uri;
 use stdClass;
 use THM\Organizer\Adapters\{HTML, Text};
 
-/**
- * Class loads the query's results into the display context.
- */
+/** @inheritDoc */
 class Search extends ListView
 {
     public $query;
@@ -26,9 +24,9 @@ class Search extends ListView
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param   int|string  $index  the row index, typically an int value, but can also be string
-     * @param   stdClass    $item   the item to be displayed in a table row
-     * @param   string      $link   the link to the individual resource
+     * @param int|string $index the row index, typically an int value, but can also be string
+     * @param stdClass   $item  the item to be displayed in a table row
+     * @param string     $link  the link to the individual resource
      *
      * @return array an array of property columns with their values
      */

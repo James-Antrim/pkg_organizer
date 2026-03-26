@@ -16,9 +16,7 @@ use THM\Organizer\Adapters\{Document, Text};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class loads a grid into the display context.
- */
+/** @inheritDoc */
 abstract class GridView extends Core
 {
     use Configured;
@@ -41,7 +39,7 @@ abstract class GridView extends Core
     /**
      * Constructor
      *
-     * @param   array  $config  An optional associative array of configuration settings.
+     * @param array $config An optional associative array of configuration settings.
      */
     public function __construct(array $config)
     {

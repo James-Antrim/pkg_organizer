@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\Programs;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of (subject) pools into the display context.
- */
+/** @inheritDoc */
 class Pools extends ListView
 {
     /** @inheritDoc */

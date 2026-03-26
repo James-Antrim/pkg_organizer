@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\{Categories, Dates, Methods, Organizations, Terms};
 
-/**
- * Class loads statistical information about appointments into the display context.
- */
+/** @inheritDoc */
 class Statistics extends TableView
 {
     /** @inheritDoc */

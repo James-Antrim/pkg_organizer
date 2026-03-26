@@ -15,9 +15,7 @@ use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, Input};
 use THM\Organizer\Views\Named;
 
-/**
- * Class loads form data into the HTML view context.
- */
+/** @inheritDoc */
 abstract class FormView extends Core
 {
     use Attributed;

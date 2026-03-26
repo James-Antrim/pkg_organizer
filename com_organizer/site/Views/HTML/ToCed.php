@@ -16,7 +16,7 @@ use THM\Organizer\Adapters\{Application, Document, Text};
 use THM\Organizer\Helpers\{Can, Organizations, Routing};
 
 /**
- * Class adds an administrative menu component menu to the given view.
+ * Adds a function for an administrative menu / table of contents
  */
 trait ToCed
 {

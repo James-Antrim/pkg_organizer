@@ -12,9 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\Toolbar;
 
-/**
- * Class loads the profile form into display context.
- */
+/** @inheritDoc */
 class Profile extends OldFormView
 {
     /** @inheritDoc */

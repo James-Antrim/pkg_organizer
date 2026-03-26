@@ -15,9 +15,7 @@ use stdClass;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of runs into the display context.
- */
+/** @inheritDoc */
 class Runs extends ListView
 {
     /** @inheritDoc */

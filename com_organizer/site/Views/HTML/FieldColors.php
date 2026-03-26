@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Colors};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of fields (of expertise) into the display context.
- */
+/** @inheritDoc */
 class FieldColors extends ListView
 {
     use Titled;

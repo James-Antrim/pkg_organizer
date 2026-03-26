@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Views\Named;
 
 /**
- * Class sets commonly configured view properties.
+ * Adds a configuration function for view property configurations.
  */
 trait Configured
 {

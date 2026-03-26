@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Input, Text};
 use THM\Organizer\Helpers\Monitors as Helper;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of monitors into the display context.
- */
+/** @inheritDoc */
 class Monitors extends ListView
 {
     /** @inheritDoc */

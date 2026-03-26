@@ -15,9 +15,7 @@ use stdClass;
 use THM\Organizer\Helpers\{Can, Categories as Helper};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of event categories into the display context.
- */
+/** @inheritDoc */
 class Categories extends ListView
 {
     use Activated;

@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\{Dates, Grids as Helper};
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of schedule grids into the display context.
- */
+/** @inheritDoc */
 class Grids extends ListView
 {
     /** @inheritDoc */

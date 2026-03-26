@@ -15,9 +15,7 @@ use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Layouts\HTML\Row;
 
-/**
- * Class loads persistent information a filtered set of course participants into the display context.
- */
+/** @inheritDoc */
 class Participants extends ListView
 {
     use Merged;

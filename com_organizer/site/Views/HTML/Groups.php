@@ -17,9 +17,7 @@ use THM\Organizer\Helpers\{Grids, Groups as Helper, Terms};
 use THM\Organizer\Layouts\HTML\Row;
 use THM\Organizer\Tables\GroupPublishing;
 
-/**
- * Class loads persistent information a filtered set of (scheduled subject) pools into the display context.
- */
+/** @inheritDoc */
 class Groups extends ListView
 {
     use Activated;
