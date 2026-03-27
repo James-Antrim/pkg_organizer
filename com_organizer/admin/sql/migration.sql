@@ -304,3 +304,55 @@ ALTER TABLE `v7ocf_organizer_programs`
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_aTypeID_fk` FOREIGN KEY (`aTypeID`) REFERENCES `v7ocf_organizer_attendance_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_campuses`
+    ADD COLUMN `code`          VARCHAR(10) DEFAULT NULL AFTER `name_en`,
+    ADD COLUMN `statisticCode` VARCHAR(10) DEFAULT NULL,
+    ADD UNIQUE KEY `code` (`code`);
+
+UPDATE `v7ocf_organizer_campuses` SET `code` = 'F', `statisticCode` = '6232' WHERE `id` = 9;
+UPDATE `v7ocf_organizer_campuses` SET `code` = 'G', `statisticCode` = '6231' WHERE `id` = 1;
+UPDATE `v7ocf_organizer_campuses` SET `code` = 'W', `statisticCode` = '6233' WHERE `id` = 14;
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `campusID` INT(11) UNSIGNED DEFAULT NULL AFTER `aTypeID`,
+    ADD KEY `campusID` (`campusID`),
+    ADD CONSTRAINT `program_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `v7ocf_organizer_campuses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Friedberg programs identifiable by FB association
+UPDATE `v7ocf_organizer_programs` AS `p`
+    INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id`
+    SET `p`.`campusID` = 9
+WHERE `a`.`organizationID` IN (15, 16, 17, 18, 23) AND `p`.`campusID` IS NULL;
+
+-- Gießen programs identifiable by FB association
+UPDATE `v7ocf_organizer_programs` AS `p`
+    INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id`
+    SET `p`.`campusID` = 1
+WHERE `a`.`organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14) AND `p`.`campusID` IS NULL;
+
+-- Wetzlar programs identifiable by FB association
+UPDATE `v7ocf_organizer_programs` AS `p`
+    INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id`
+    SET `p`.`campusID` = 14
+WHERE `a`.`organizationID` IN (13) AND `p`.`campusID` IS NULL;
+
+-- Friedberg programs identifiable by organizationID column
+UPDATE `v7ocf_organizer_programs`
+SET `campusID` = 9
+WHERE `organizationID` IN (15, 16, 17, 18, 19, 23) AND `campusID` IS NULL;
+
+-- Gießen programs identifiable by organizationID column
+UPDATE `v7ocf_organizer_programs`
+SET `campusID` = 1
+WHERE `organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14) AND `campusID` IS NULL;
+
+-- Friedberg MuK programs
+UPDATE `v7ocf_organizer_programs`
+SET `campusID` = 9
+WHERE (`name_de` LIKE ('Logistik%') OR `name_de` LIKE ('Supply%') OR`name_de` LIKE ('Methoden%')) AND `campusID` IS NULL;
+
+-- Friedberg MuK programs
+UPDATE `v7ocf_organizer_programs`
+SET `campusID` = 1
+WHERE (`name_de` LIKE ('Event%') OR `name_de` LIKE ('Strat%')) AND `campusID` IS NULL;
