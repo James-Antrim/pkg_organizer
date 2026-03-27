@@ -18,6 +18,6 @@ class AttendanceTypes extends ListModel
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
     {
-        return $this->tossed('attendancetype', 'attendance_types', true);
+        return $this->tossed('attendancetype', true, 'attendance_types');
     }
 }
