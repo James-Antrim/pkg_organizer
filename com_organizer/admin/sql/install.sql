@@ -878,6 +878,26 @@ CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_program_types`
+(
+    `id`            INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`      VARCHAR(255)     NOT NULL,
+    `alias_en`      VARCHAR(255)     NOT NULL,
+    `code`          VARCHAR(60)      NOT NULL,
+    `name_de`       VARCHAR(255)     NOT NULL,
+    `name_en`       VARCHAR(255)     NOT NULL,
+    `statisticCode` VARCHAR(10)      NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__organizer_programs`
 (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -886,10 +906,10 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     `aTypeID`        INT(11) UNSIGNED    NOT NULL,
     `campusID`       INT(11) UNSIGNED             DEFAULT NULL,
     `degreeID`       INT(11) UNSIGNED             DEFAULT NULL,
-    `focusID`        INT(11) UNSIGNED             DEFAULT NULL
+    `focusID`        INT(11) UNSIGNED             DEFAULT NULL,
     `minorID`        INT(11) UNSIGNED             DEFAULT NULL,
     `nomenID`        INT(11) UNSIGNED    NOT NULL,
-    `attendance`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `typeID`        INT(11) UNSIGNED              DEFAULT NULL,
     `name_de`        VARCHAR(150)        NOT NULL,
     `name_en`        VARCHAR(150)        NOT NULL,
     `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -910,7 +930,8 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     KEY `focusID` (`focusID`),
     KEY `frequencyID` (`frequencyID`),
     KEY `minorID` (`minorID`),
-    KEY `nomenID` (`nomenID`)
+    KEY `nomenID` (`nomenID`),
+    KEY `typeID` (`typeID`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -2294,7 +2315,8 @@ ALTER TABLE `#__organizer_programs`
     ADD CONSTRAINT `program_focusID_fk` FOREIGN KEY (`focusID`) REFERENCES `#__organizer_foci` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
     ADD CONSTRAINT `program_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `#__organizer_frequencies` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_minorID_fk` FOREIGN KEY (`minorID`) REFERENCES `#__organizer_minors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `#__organizer_nomina` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `#__organizer_nomina` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_typeID_fk` FOREIGN KEY (`typeID`) REFERENCES `#__organizer_program_types` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_room_equipment`
     ADD CONSTRAINT `room_equipment_equipmentID_fk` FOREIGN KEY (`equipmentID`) REFERENCES `#__organizer_equipment` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

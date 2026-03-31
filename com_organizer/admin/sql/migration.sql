@@ -356,3 +356,44 @@ WHERE (`name_de` LIKE ('Logistik%') OR `name_de` LIKE ('Supply%') OR`name_de` LI
 UPDATE `v7ocf_organizer_programs`
 SET `campusID` = 1
 WHERE (`name_de` LIKE ('Event%') OR `name_de` LIKE ('Strat%')) AND `campusID` IS NULL;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_types`
+(
+    `id`            INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`      VARCHAR(255)     NOT NULL,
+    `alias_en`      VARCHAR(255)     NOT NULL,
+    `code`          VARCHAR(60)      NOT NULL,
+    `name_de`       VARCHAR(255)     NOT NULL,
+    `name_en`       VARCHAR(255)     NOT NULL,
+    `statisticCode` VARCHAR(10)      NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+    )
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `v7ocf_organizer_program_types`
+VALUES (1, 'erststudium', 'first-degree', '1', 'Erststudium', 'First Degree', '1'),
+       (2, 'weiterbildungsstudium', 'continuing-education-degree', '6', 'Weiterbildungsstudium', 'Continuing Education Degree', '6'),
+       (3, 'konsekutiver-master', 'consecutive-degree', '7', 'konsekutiver Master', 'Consecutive Degree', '7'),
+       (4, 'kein-abschluss''', 'no-degree', '9', 'kein Abschluss', 'No Degree', '9');
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `typeID` INT(11) UNSIGNED DEFAULT NULL AFTER `nomenID`,
+    ADD KEY `typeID` (`typeID`),
+    ADD CONSTRAINT `program_typeID_fk` FOREIGN KEY (`typeID`) REFERENCES `v7ocf_organizer_program_types` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+UPDATE `v7ocf_organizer_programs` AS `p`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    SET `p`.`typeID` = 1
+WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`typeID` IS NULL;
+
+UPDATE `v7ocf_organizer_programs` AS `p`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    SET `p`.`typeID` = 3
+WHERE `d`.`name` LIKE 'Master%' AND `p`.`typeID` IS NULL;
