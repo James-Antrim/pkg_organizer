@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class InstanceParticipant extends ListsReferred
 {
-    protected string $list = 'InstanceParticipants';
+    // Everything is taken care of in the inheritance hierarchy.
 }

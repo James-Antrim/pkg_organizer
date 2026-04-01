@@ -18,9 +18,6 @@ class MergePersons extends MergeController
 {
     use Coordinated;
 
-    protected string $list = 'Persons';
-    protected string $mergeContext = 'person';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

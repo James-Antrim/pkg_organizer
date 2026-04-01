@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Focus extends FormController
 {
-    protected string $list = 'Foci';
+    // Everything is taken care of in the inheritance hierarchy.
 }

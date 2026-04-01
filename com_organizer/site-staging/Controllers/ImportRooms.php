@@ -12,14 +12,12 @@ class ImportRooms extends FormController
 {
     //use FacilityManageable;
 
-    protected string $list = 'Rooms';
-
     /**
      * Cleans an individual row for later processing.
      * - Replaces escaped quotes "" and commas in quoted values with HTML entities.
      * - Removes newline carriage return.
      *
-     * @param   string  $row  the row to clean
+     * @param string $row the row to clean
      *
      * @return void
      * @noinspection PhpUnusedPrivateMethodInspection

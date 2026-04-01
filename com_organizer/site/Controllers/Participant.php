@@ -19,8 +19,6 @@ use THM\Organizer\Tables\Table;
 /** @inheritDoc */
 class Participant extends FormController
 {
-    protected string $list = 'Participants';
-
     /** @inheritDoc */
     protected function authorize(): void
     {
@@ -69,8 +67,8 @@ class Participant extends FormController
     /**
      * Adds an organizer participant based on the information in the users table.
      *
-     * @param   int   $participantID  the id of the participant/user entries
-     * @param   bool  $force          forces update of the columns derived from information in the user table
+     * @param int  $participantID the id of the participant/user entries
+     * @param bool $force         forces update of the columns derived from information in the user table
      *
      * @return void
      */
@@ -105,7 +103,7 @@ class Participant extends FormController
     /**
      * Resolves a username attribute into forename and surname attributes.
      *
-     * @param   int  $userID  the id of the user whose full name should be resolved
+     * @param int $userID the id of the user whose full name should be resolved
      *
      * @return string[] the first and last names of the user
      */

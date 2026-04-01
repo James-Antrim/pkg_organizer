@@ -18,9 +18,6 @@ class MergeGroups extends MergeController
 {
     use Published;
 
-    protected string $list = 'Groups';
-    protected string $mergeContext = 'group';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

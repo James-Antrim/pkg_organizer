@@ -17,8 +17,6 @@ use THM\Organizer\Tables\{CourseParticipants as cpTable, InstanceParticipants as
 /** @inheritDoc */
 class Course extends FormController
 {
-    protected string $list = 'Courses';
-
     /**
      * Removes a participant's registration for a course and related instance registrations.
      *

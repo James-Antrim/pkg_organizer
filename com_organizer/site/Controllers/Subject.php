@@ -22,14 +22,12 @@ class Subject extends CurriculumResource implements Stubby
 {
     private const POST = 0, PRE = 1;
 
-    protected string $list = 'Subjects';
-
     /**
      * Adds a Subject => Event association. No access checks => this is not directly accessible and requires
      * differing checks according to its calling context.
      *
-     * @param   int    $subjectID  the id of the subject
-     * @param   array  $eventIDs   the ids of the events
+     * @param int   $subjectID the id of the subject
+     * @param array $eventIDs  the ids of the events
      *
      * @return bool  true on success, otherwise false
      */
@@ -52,7 +50,7 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Processes the events to be associated with the subject
      *
-     * @param   array &$data  the post data
+     * @param array &$data the post data
      *
      * @return bool  true on success, otherwise false
      */
@@ -84,7 +82,7 @@ class Subject extends CurriculumResource implements Stubby
      * Removes planSubject associations for the given subject. No access checks => this is not directly accessible and
      * requires differing checks according to its calling context.
      *
-     * @param   int  $subjectID  the subject id
+     * @param int $subjectID the subject id
      *
      * @return bool
      */
@@ -100,8 +98,8 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Creates an association between persons, subjects and their roles for that subject.
      *
-     * @param   int               $subjectID   the id of the subject
-     * @param   SimpleXMLElement  $dataObject  an object containing the lsf response
+     * @param int              $subjectID  the id of the subject
+     * @param SimpleXMLElement $dataObject an object containing the lsf response
      *
      * @return bool  true on success, otherwise false
      */
@@ -132,9 +130,9 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Maps persons, roles and subjects.
      *
-     * @param   int    $subjectID  the subject's id
-     * @param   array  $persons    an array containing information about the subject's persons
-     * @param   int    $role       the person's role
+     * @param int   $subjectID the subject's id
+     * @param array $persons   an array containing information about the subject's persons
+     * @param int   $role      the person's role
      *
      * @return bool
      */
@@ -237,8 +235,8 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Parses the object and sets table properties.
      *
-     * @param   Table             $table    the subjects table object
-     * @param   SimpleXMLElement  $subject  an object representing the data from the LSF response
+     * @param Table            $table   the subjects table object
+     * @param SimpleXMLElement $subject an object representing the data from the LSF response
      *
      * @return void
      */
@@ -268,8 +266,8 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Sets attributes dealing with the availability to improve grades through supplemental learning.
      *
-     * @param   Table   $table  the subjects table object
-     * @param   string  $text   the bonus text
+     * @param Table  $table the subjects table object
+     * @param string $text  the bonus text
      *
      * @return void
      */
@@ -310,8 +308,8 @@ class Subject extends CurriculumResource implements Stubby
      * Checks for best fit values for credit points, hours of investiture and the proportion of hours in independent study and
      * presence.
      *
-     * @param   Table             $table    the subjects table object
-     * @param   SimpleXMLElement  $subject  the subject object
+     * @param Table            $table   the subjects table object
+     * @param SimpleXMLElement $subject the subject object
      *
      * @return void
      */
@@ -370,10 +368,10 @@ class Subject extends CurriculumResource implements Stubby
      * Sets text values describing competences recommended as a prerequisite for subject attendance or competences acquired by
      * subject attendance.
      *
-     * @param   Table   $table      the subjects table object
-     * @param   string  $attribute  the attribute's name in the xml response
-     * @param   string  $deValue    the attribute's German value
-     * @param   string  $enValue    the attribute's English value
+     * @param Table  $table     the subjects table object
+     * @param string $attribute the attribute's name in the xml response
+     * @param string $deValue   the attribute's German value
+     * @param string $enValue   the attribute's English value
      *
      * @return void
      */
@@ -431,7 +429,7 @@ class Subject extends CurriculumResource implements Stubby
      * Checks whether proof and method values are valid and set, and filling them with values from other languages if necessary
      * and available.
      *
-     * @param   Table  $table  the subjects table object
+     * @param Table $table the subjects table object
      *
      * @return void
      */
@@ -449,8 +447,8 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Sets attributes dealing with required student expenditures.
      *
-     * @param   Table   $table  the subjects table object
-     * @param   string  $text   the expenditure text
+     * @param Table  $table the subjects table object
+     * @param string $text  the expenditure text
      *
      * @return void
      */
@@ -479,8 +477,8 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Filters subject ranges to those contained within a given program range.
      *
-     * @param   array  $programRange   the program range being iterated
-     * @param   array  $subjectRanges  the ranges for the given subject
+     * @param array $programRange  the program range being iterated
+     * @param array $subjectRanges the ranges for the given subject
      *
      * @return array[]
      */
@@ -503,7 +501,7 @@ class Subject extends CurriculumResource implements Stubby
      * Filters text of excess white space, HTML tags, and irrelevant characters to reduce the parse load during pre- & post-
      * requisite resolution.
      *
-     * @param   string  $text  the text to be processed
+     * @param string $text the text to be processed
      *
      * @return string
      */
@@ -539,8 +537,7 @@ class Subject extends CurriculumResource implements Stubby
 
         try {
             $client = new LSF();
-        }
-        catch (Exception) {
+        } catch (Exception) {
             Application::message('LSF_CLIENT_FAILED', Application::ERROR);
 
             return false;
@@ -596,8 +593,8 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Sets text/html based attributes.
      *
-     * @param   Table             $table     the subjects table object
-     * @param   SimpleXMLElement  $property  the object containing a text blob
+     * @param Table            $table    the subjects table object
+     * @param SimpleXMLElement $property the object containing a text blob
      *
      * @return void
      */
@@ -696,9 +693,9 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Checks whether the text only consists of references to pre- & post- requisites.
      *
-     * @param   string  $text           the text to be checked
-     * @param   array   $attributes     the attributes whose values are considered to be human-readable references
-     * @param   array   $codeGroupings  array code (module number) => [curriculumID => subject information]
+     * @param string $text          the text to be checked
+     * @param array  $attributes    the attributes whose values are considered to be human-readable references
+     * @param array  $codeGroupings array code (module number) => [curriculumID => subject information]
      *
      * @return bool
      */
@@ -903,7 +900,7 @@ class Subject extends CurriculumResource implements Stubby
      * Removes prerequisite associations for the given subject. No access checks => this is not directly
      * accessible and requires differing checks according to its calling context.
      *
-     * @param   int  $subjectID  the subject id
+     * @param int $subjectID the subject id
      *
      * @return bool true on success, otherwise false
      */
@@ -931,7 +928,7 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Parses the prerequisites text and replaces module numbers with subject links
      *
-     * @param   Table  $table  the subjects table object
+     * @param Table $table the subjects table object
      *
      * @return bool
      */
@@ -1001,7 +998,7 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Removes various inconsistencies that have appeared in the object values over the years.
      *
-     * @param   string  $text  the xml node as a string
+     * @param string $text the xml node as a string
      *
      * @return string
      */
@@ -1052,8 +1049,7 @@ class Subject extends CurriculumResource implements Stubby
 
             // Remove non-self closing tags containing only white space
             $text = preg_replace('/<[^\/>][^>]*>\s*<\/[^>]+>/', '', $text);
-        }
-        while ($text != $startText);
+        } while ($text != $startText);
 
         return $text;
     }
@@ -1061,9 +1057,9 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Saves the dependencies to the prerequisites table
      *
-     * @param   array  $programs      the programs that the schedule should be associated with
-     * @param   int    $subjectID     the id of the subject being processed
-     * @param   array  $dependencies  the subject dependencies
+     * @param array $programs     the programs that the schedule should be associated with
+     * @param int   $subjectID    the id of the subject being processed
+     * @param array $dependencies the subject dependencies
      *
      * @return bool
      */
@@ -1114,7 +1110,7 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Removes person associations for the given subject and role.
      *
-     * @param   int  $subjectID  the subject id
+     * @param int $subjectID the subject id
      *
      * @return bool
      */
@@ -1133,8 +1129,8 @@ class Subject extends CurriculumResource implements Stubby
     /**
      * Checks for subjects with the given possible module number associated with to the same programs.
      *
-     * @param   array  $codes   the possible code values used in the attribute text
-     * @param   array  $ranges  the program ranges whose curricula contain the subject being processed
+     * @param array $codes  the possible code values used in the attribute text
+     * @param array $ranges the program ranges whose curricula contain the subject being processed
      *
      * @return array[]
      */

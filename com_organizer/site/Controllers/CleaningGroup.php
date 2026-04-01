@@ -14,6 +14,4 @@ namespace THM\Organizer\Controllers;
 class CleaningGroup extends FormController
 {
     use FacilityManageable;
-
-    protected string $list = 'CleaningGroups';
 }

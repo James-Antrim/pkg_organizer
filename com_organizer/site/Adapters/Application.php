@@ -39,7 +39,6 @@ class Application
      * @DEBUG, @INFO : info
      *
      * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency';
-     * @noinspection GrazieInspection
      */
 
     /**
@@ -437,18 +436,17 @@ class Application
     {
         // Typically class names already in plural, which match table class names
         if (str_ends_with($class, 's')) {
-            $singlesWithS = ['Campus' => 'Campuses'];
-            return array_key_exists($class, $singlesWithS) ? $singlesWithS[$class] : $class;
+            $irregular = ['Campus' => 'Campuses'];
+            return array_key_exists($class, $irregular) ? $irregular[$class] : $class;
         }
         else {
-            $irregularPlurals = [
+            $irregular = [
                 'Category'  => 'Categories',
-                'Course'    => 'Courses',
                 'Focus'     => 'Foci',
                 'Frequency' => 'Frequencies',
                 'Nomen'     => 'Nomina',
             ];
-            return array_key_exists($class, $irregularPlurals) ? $irregularPlurals[$class] : $class . 's';
+            return array_key_exists($class, $irregular) ? $irregular[$class] : $class . 's';
         }
     }
 
@@ -487,6 +485,23 @@ class Application
     public static function session(): Session
     {
         return self::instance()->getSession();
+    }
+
+    /**
+     * Returns the singular of a given class name.
+     * @param string $class the class name to get the singular of
+     * @return string
+     */
+    public static function singularize(string $class): string
+    {
+        $irregular = [
+            'Categories'  => 'Category',
+            'Campuses'    => 'Campus',
+            'Foci'        => 'Focus',
+            'Frequencies' => 'Frequency',
+            'Nomina'      => 'Nomen',
+        ];
+        return array_key_exists($class, $irregular) ? $irregular[$class] : substr($class, 0, -1);
     }
 
     /**

@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Degree extends FormController
 {
-    protected string $list = 'Degrees';
+    // Everything is taken care of in the inheritance hierarchy.
 }

@@ -17,9 +17,6 @@ class MergeCategories extends MergeController
 {
     use Published;
 
-    protected string $list = 'Categories';
-    protected string $mergeContext = 'category';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

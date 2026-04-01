@@ -40,44 +40,44 @@ class Events extends Table
     /**
      * The organization's German contact information for a group of courses.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $contact_de;
+    public string|null $contact_de;
 
     /**
      * The organization's English contact information for a group of courses.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $contact_en;
+    public string|null $contact_en;
 
     /**
      * The German description of the event's contents.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $content_de;
+    public string|null $content_de;
 
     /**
      * The English description of the event's contents.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $content_en;
+    public string|null $content_en;
 
     /**
      * The organization's German contact information for courses of this event type.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $courseContact_de;
+    public string|null $courseContact_de;
 
     /**
      * The organization's English contact information for courses of this event type.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $courseContact_en;
+    public string|null $courseContact_en;
 
     /**
      * The number of days before course begin when registration is closed.
@@ -89,16 +89,16 @@ class Events extends Table
     /**
      * The resource's German description.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_de;
+    public string|null $description_de;
 
     /**
      * The resource's English description.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_en;
+    public string|null $description_en;
 
     /**
      * The fee for participation in the course.
@@ -117,16 +117,16 @@ class Events extends Table
     /**
      * A German description of how courses implementing this event are organized.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $organization_de;
+    public string|null $organization_de;
 
     /**
      * An English description of how courses implementing this event are organized.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $organization_en;
+    public string|null $organization_en;
 
     /**
      * The id of the organization entry referenced.
@@ -139,17 +139,17 @@ class Events extends Table
      * A German description how to test one's self to see if one should attend or is qualified to attend courses
      * implementing this event.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $pretests_de;
+    public string|null $pretests_de;
 
     /**
      * An English description how to test one's self to see if one should attend or is qualified to attend courses
      * implementing this event.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $pretests_en;
+    public string|null $pretests_en;
 
     /**
      * Whether the event is a preparatory event.

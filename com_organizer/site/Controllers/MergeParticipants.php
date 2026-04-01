@@ -18,8 +18,6 @@ use Joomla\Database\ParameterType;
 class MergeParticipants extends MergeController
 {
     private string $email;
-    protected string $list = 'Participants';
-    protected string $mergeContext = 'participant';
 
     /**
      * Updates the course participants table to only reference the mergeID.
@@ -80,7 +78,7 @@ class MergeParticipants extends MergeController
     /**
      * Maps the user id to the relevant group ids.
      *
-     * @param   int[]  $groupIDs  the group ids
+     * @param int[] $groupIDs the group ids
      *
      * @return void
      */

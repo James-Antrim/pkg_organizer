@@ -14,6 +14,4 @@ namespace THM\Organizer\Controllers;
 class RoomType extends FormController
 {
     use FacilityManageable;
-
-    protected string $list = 'RoomTypes';
 }

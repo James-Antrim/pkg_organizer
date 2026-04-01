@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Minor extends FormController
 {
-    protected string $list = 'Minors';
+    // Everything is taken care of in the inheritance hierarchy.
 }

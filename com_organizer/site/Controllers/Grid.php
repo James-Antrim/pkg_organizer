@@ -16,8 +16,6 @@ use THM\Organizer\Helpers\Grids as Helper;
 /** @inheritDoc */
 class Grid extends FormController
 {
-    protected string $list = 'Grids';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Color extends ListsReferred
 {
-    protected string $list = 'Colors';
+    // Everything is taken care of in the inheritance hierarchy.
 }

@@ -15,8 +15,6 @@ use THM\Organizer\Adapters\Input;
 /** @inheritDoc */
 class Run extends FormController
 {
-    protected string $list = 'Runs';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

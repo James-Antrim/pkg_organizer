@@ -30,7 +30,6 @@ class ImportSchedule extends FormController
     public stdClass|null $grids;
     public stdClass $groups;
     public array $instances = [];
-    protected string $list = 'Schedules';
     public int $organizationID;
     public stdClass $persons;
     public stdClass $rooms;

@@ -40,7 +40,9 @@ abstract class FormController extends Controller
     )
     {
         if (empty($this->list)) {
-            Application::error(501, 'List property not defined or initialized.');
+            $class      = Application::ucClass(Application::uqClass($this));
+            $class      = str_starts_with($class, 'Import') ? substr($class, 6) : $class;
+            $this->list = Application::pluralize($class);
         }
 
         parent::__construct($config, $factory, $app, $input);
@@ -68,7 +70,7 @@ abstract class FormController extends Controller
     /**
      * Filters field data for actual letters and accepted special characters.
      *
-     * @param   string  $value  the raw value
+     * @param string $value the raw value
      *
      * @return string
      */
@@ -80,7 +82,7 @@ abstract class FormController extends Controller
     /**
      * Filters field data for actual letters, accepted special characters and numbers.
      *
-     * @param   string  $value  the raw value
+     * @param string $value the raw value
      *
      * @return string
      */
@@ -128,8 +130,7 @@ abstract class FormController extends Controller
 
             try {
                 $property = $reflection->getProperty($column);
-            }
-            catch (Exception $exception) {
+            } catch (Exception $exception) {
                 Application::handleException($exception);
             }
 
@@ -235,9 +236,9 @@ abstract class FormController extends Controller
     /**
      * Reusable function to store data in an Incremented table.
      *
-     * @param   CoreTable  $table  an Incremented table
-     * @param   array      $data   the data to store
-     * @param   int        $id     the id of the row in which to store the data
+     * @param CoreTable $table an Incremented table
+     * @param array     $data  the data to store
+     * @param int       $id    the id of the row in which to store the data
      *
      * @return int the id of the table row on success, otherwise the id parameter
      * @uses Table
@@ -263,7 +264,7 @@ abstract class FormController extends Controller
     /**
      * Removes excess spaces from a form value.
      *
-     * @param   string  $value
+     * @param string $value
      *
      * @return string
      */
@@ -282,8 +283,8 @@ abstract class FormController extends Controller
     /**
      * Validates the form data beyond the implicit type validation performed during prepareData.
      *
-     * @param   array  &$data      the form data to validate
-     * @param   array   $required  the required fields
+     * @param array  &$data     the form data to validate
+     * @param array   $required the required fields
      *
      * @return void
      */

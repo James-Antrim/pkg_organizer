@@ -20,8 +20,6 @@ class Monitor extends FormController
 {
     use FacilityManageable;
 
-    protected string $list = 'Monitors';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

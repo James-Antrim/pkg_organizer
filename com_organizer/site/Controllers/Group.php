@@ -19,8 +19,6 @@ class Group extends FormController
     use Published;
     use Scheduled;
 
-    protected string $list = 'Groups';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

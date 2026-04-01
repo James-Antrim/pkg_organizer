@@ -19,8 +19,6 @@ class Event extends FormController
 {
     use Scheduled;
 
-    protected string $list = 'Events';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

@@ -21,8 +21,6 @@ class Program extends CurriculumResource
 {
     use Activated;
 
-    protected string $list = 'Programs';
-
     /** @inheritDoc */
     protected function authorize(): void
     {
@@ -43,9 +41,9 @@ class Program extends CurriculumResource
     /**
      * Creates a program stub from imported category data
      *
-     * @param   array   $data
-     * @param   string  $name
-     * @param   int     $categoryID
+     * @param array  $data
+     * @param string $name
+     * @param int    $categoryID
      *
      * @return void
      */
@@ -95,8 +93,7 @@ class Program extends CurriculumResource
 
         try {
             $client = new LSF();
-        }
-        catch (Exception) {
+        } catch (Exception) {
             Application::message('LSF_CLIENT_FAILED', Application::WARNING);
 
             return false;
@@ -133,7 +130,7 @@ class Program extends CurriculumResource
     /**
      * Retrieves program information relevant for soap queries to the LSF system.
      *
-     * @param   int  $programID  the id of the degree program
+     * @param int $programID the id of the degree program
      *
      * @return array  empty if the program could not be found
      */

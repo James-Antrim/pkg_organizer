@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Holiday extends FormController
 {
-    protected string $list = 'Holidays';
+    // Everything is taken care of in the inheritance hierarchy.
 }

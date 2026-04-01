@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class AttendanceType extends FormController
 {
-    protected string $list = 'AttendanceTypes';
+    // Everything is taken care of in the inheritance hierarchy.
 }

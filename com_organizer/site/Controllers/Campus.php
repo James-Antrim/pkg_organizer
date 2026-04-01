@@ -17,8 +17,6 @@ class Campus extends FormController
 {
     use FacilityManageable;
 
-    protected string $list = 'Campuses';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

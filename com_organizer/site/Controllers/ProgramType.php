@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class ProgramType extends FormController
 {
-    protected string $list = 'ProgramTypes';
+    // Everything is taken care of in the inheritance hierarchy.
 }

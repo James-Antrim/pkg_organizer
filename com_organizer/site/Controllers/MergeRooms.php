@@ -15,9 +15,6 @@ use THM\Organizer\Adapters\Application;
 /** @inheritDoc */
 class MergeRooms extends MergeController
 {
-    protected string $list = 'Rooms';
-    protected string $mergeContext = 'room';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

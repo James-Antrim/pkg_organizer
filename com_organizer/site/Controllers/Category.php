@@ -21,9 +21,6 @@ class Category extends FormController
     use Suppressed;
 
     /** @inheritDoc */
-    protected string $list = 'Categories';
-
-    /** @inheritDoc */
     protected function prepareData(): array
     {
         $data = parent::prepareData();

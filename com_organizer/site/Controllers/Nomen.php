@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Nomen extends FormController
 {
-    protected string $list = 'Nomina';
+    // Everything is taken care of in the inheritance hierarchy.
 }

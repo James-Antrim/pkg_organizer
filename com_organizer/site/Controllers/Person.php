@@ -18,8 +18,6 @@ class Person extends FormController
     use Associated;
     use Personal;
 
-    protected string $list = 'Persons';
-
     /** @inheritDoc */
     protected function prepareData(): array
     {

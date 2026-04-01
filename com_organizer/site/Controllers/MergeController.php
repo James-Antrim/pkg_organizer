@@ -25,15 +25,15 @@ abstract class MergeController extends FormController
     public array $mergeIDs;
 
     /** @inheritDoc */
-    public function __construct($config = [],
+    public function __construct(
+        $config = [],
         ?MVCFactoryInterface $factory = null,
         ?CMSApplication $app = null,
         ?CoreInput $input = null
     )
     {
-        if (empty($this->mergeContext)) {
-            Application::error(501);
-        }
+        $this->list         = substr(Application::uqClass($this), 5);
+        $this->mergeContext = strtolower(Application::singularize($this->list));
 
         parent::__construct($config, $factory, $app, $input);
     }
@@ -41,9 +41,9 @@ abstract class MergeController extends FormController
     /**
      * Checks the aggregate value of a "bool" column.
      *
-     * @param   string  $column  the column value to aggregate as bool
-     * @param   string  $table   the table suffix
-     * @param   bool    $all     true => all values must be 1, false => any value can be 1
+     * @param string $column the column value to aggregate as bool
+     * @param string $table  the table suffix
+     * @param bool   $all    true => all values must be 1, false => any value can be 1
      *
      * @return int
      */
@@ -88,8 +88,8 @@ abstract class MergeController extends FormController
     /**
      * Gets the resource ids associated with persons in association tables.
      *
-     * @param   string  $table     the unique portion of the table name
-     * @param   string  $fkColumn  the name of the fk column referencing the other resource
+     * @param string $table    the unique portion of the table name
+     * @param string $fkColumn the name of the fk column referencing the other resource
      *
      * @return int[] the ids of the resources associated
      */
@@ -253,8 +253,7 @@ abstract class MergeController extends FormController
                     $nextIndex++;
                     continue 2;
                 }
-            }
-            while (true);
+            } while (true);
         }
 
         return true;
@@ -302,8 +301,8 @@ abstract class MergeController extends FormController
     /**
      * Updates resource associations in a schedule instance.
      *
-     * @param   array  &$instance  the instance being iterated
-     * @param   int     $mergeID   the id onto which the entries will be merged
+     * @param array  &$instance the instance being iterated
+     * @param int     $mergeID  the id onto which the entries will be merged
      *
      * @return bool true if the instance has been updated, otherwise false
      */
@@ -344,7 +343,7 @@ abstract class MergeController extends FormController
     /**
      * Updates resource associations in a schedule.
      *
-     * @param   int  $scheduleID  the id of the schedule being iterated
+     * @param int $scheduleID the id of the schedule being iterated
      *
      * @return void
      */
@@ -414,7 +413,7 @@ abstract class MergeController extends FormController
     /**
      * Updates an association where the associated resource itself has a fk reference to the resource being merged.
      *
-     * @param   string  $table  the unique part of the table name
+     * @param string $table the unique part of the table name
      *
      * @return bool
      */

@@ -19,8 +19,6 @@ class RoomKey extends FormController
 {
     use FacilityManageable;
 
-    protected string $list = 'RoomKeys';
-
     /** @inheritDoc */
     protected function process(): int
     {

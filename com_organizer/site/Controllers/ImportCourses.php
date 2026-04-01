@@ -18,8 +18,6 @@ use THM\Organizer\Tables\{Courses as Table, Organizations as oTable, Terms, Unit
 /** @inheritDoc */
 class ImportCourses extends FormController
 {
-    protected string $list = 'Courses';
-
     /** @inheritDoc */
     protected function authorize(): void
     {
@@ -110,9 +108,9 @@ class ImportCourses extends FormController
     /**
      * Imports a courses based on the information associated with the given units.
      *
-     * @param   oTable  $organization  the table for the organizational context of the course to be created
-     * @param   Terms   $term          the table for the term context of the course to be created
-     * @param   array   $courseCodes   the id of the units which will be associated with the course
+     * @param oTable $organization the table for the organizational context of the course to be created
+     * @param Terms  $term         the table for the term context of the course to be created
+     * @param array  $courseCodes  the id of the units which will be associated with the course
      *
      * @return void
      */

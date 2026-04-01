@@ -16,8 +16,6 @@ use THM\Organizer\Tables\FieldColors as Table;
 /** @inheritDoc */
 class FieldColor extends FormController
 {
-    protected string $list = 'FieldColors';
-
     /** @inheritDoc */
     protected function process(): int
     {
