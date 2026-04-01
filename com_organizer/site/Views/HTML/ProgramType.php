@@ -11,20 +11,11 @@
 namespace THM\Organizer\Views\HTML;
 
 /** @inheritDoc */
-class AttendanceTypes extends ListView
+class ProgramType extends FormView
 {
     /** @inheritDoc */
-    protected function addToolBar(): void
+    protected function addToolbar(array $buttons = [], string $constant = ''): void
     {
-        $this->addBasicButtons();
-        parent::addToolBar();
-
-        $this->title('ATTENDANCE_TYPES');
-    }
-
-    /** @inheritDoc */
-    public function initializeColumns(): void
-    {
-        $this->tossed(true);
+        parent::addToolbar($buttons, 'PROGRAM_TYPE');
     }
 }

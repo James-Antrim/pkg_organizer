@@ -234,6 +234,10 @@ trait ToCed
                 'url'    => Routing::getViewURL('participants'),
                 'active' => $viewName === 'participants'
             ];
+            $items[Text::_('PROGRAM_TYPES')]    = [
+                'url'    => Routing::getViewURL('programtypes'),
+                'active' => $viewName === 'programtypes'
+            ];
             $items[Text::_('RUNS')]             = [
                 'url'    => Routing::getViewURL('runs'),
                 'active' => $viewName === 'runs'

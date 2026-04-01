@@ -200,10 +200,10 @@ class Can
 
         return match ($view) {
             // Administrative / developmental views and admin access was already checked
-            'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields', 'Foci', 'Grid',
-            'Grids', 'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents', 'MergeGroups',
-            'MergePersons', 'MergeRooms', 'Method', 'Methods', 'Minors', 'Nomina', 'Organization', 'Organizations',
-            'Participant', 'Participants', 'Run', 'Runs', 'Term', 'Terms'
+            'AttendanceTypes', 'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields',
+            'Foci', 'Grid', 'Grids', 'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents',
+            'MergeGroups', 'MergePersons', 'MergeRooms', 'Method', 'Methods', 'Minors', 'Nomina', 'Organization',
+            'Organizations', 'Participant', 'Participants', 'ProgramTypes', 'Run', 'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
             'Categories', 'Groups', 'ImportCourses', 'ImportSchedule', 'Schedules', 'Units'
@@ -229,6 +229,7 @@ class Can
             'Pool' => Pools::documentable($resourceID),
             // Edit views for curriculum resource with intrinsic public value
             'Program' => (!Application::backend() or Programs::documentable($resourceID)),
+            'ProgramType' => ProgramTypes::documentable($resourceID),
             'Subject' => (!Application::backend() or Subjects::documentable($resourceID)),
             'Person', 'Persons' => self::manage('persons'),
             // Facility resource views

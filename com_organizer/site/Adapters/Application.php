@@ -507,6 +507,8 @@ class Application
             'mergeparticipants' => 'MergeParticipants',
             'mergepersons' => 'MergePersons',
             'mergerooms' => 'MergeRooms',
+            'programtypes' => 'ProgramTypes',
+            'programtype' => 'ProgramType',
             'roomkey' => 'RoomKey',
             'roomkeys' => 'RoomKeys',
             'roomoverview' => 'RoomOverview',

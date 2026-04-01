@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 /** @inheritDoc */
-class AttendanceTypes extends ListView
+class ProgramTypes extends ListView
 {
     /** @inheritDoc */
     protected function addToolBar(): void
@@ -19,7 +19,7 @@ class AttendanceTypes extends ListView
         $this->addBasicButtons();
         parent::addToolBar();
 
-        $this->title('ATTENDANCE_TYPES');
+        $this->title('PROGRAM_TYPES');
     }
 
     /** @inheritDoc */

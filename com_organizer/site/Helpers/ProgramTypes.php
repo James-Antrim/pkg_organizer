@@ -13,9 +13,9 @@ namespace THM\Organizer\Helpers;
 use THM\Organizer\Adapters\Database as DB;
 
 /**
- * Provides general functions for attendance type access checks, data retrieval and display.
+ * Provides general functions for program type access checks, data retrieval and display.
  */
-class AttendanceTypes implements Documentable
+class ProgramTypes implements Documentable
 {
     /** @inheritDoc */
     public static function documentable(int $resourceID): bool
@@ -37,7 +37,7 @@ class AttendanceTypes implements Documentable
     {
         if (Can::administrate()) {
             $query = DB::query();
-            $query->select(DB::qn('id'))->from(DB::qn('#__organizer_attendance_types'));
+            $query->select(DB::qn('id'))->from(DB::qn('#__organizer_program_types'));
             DB::set($query);
             return DB::integers();
         }
