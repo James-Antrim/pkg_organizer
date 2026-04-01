@@ -31,12 +31,12 @@ class Application
      * Predefined Joomla message types without unnecessary prefixing.
      * @see    CMSApplicationInterface
      */
-    public const ERROR = 'error', INFO = 'info', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
+    public const ERROR = 'error', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
 
     /**
      * Unused locally, but Joomla supported.
      * @ALERT, @CRITICAL, @EMERGENCY: danger
-     * @DEBUG        : info
+     * @DEBUG, @INFO : info
      *
      * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency';
      * @noinspection GrazieInspection
@@ -426,6 +426,30 @@ class Application
         [$type, $element] = explode('_', $plugin, 2);
         $plugin = PluginHelper::getPlugin($type, $element);
         return new Registry($plugin->params);
+    }
+
+    /**
+     * Returns the plural of a given class name.
+     * @param string $class the class name to get the plural of
+     * @return string
+     */
+    public static function pluralize(string $class): string
+    {
+        // Typically class names already in plural, which match table class names
+        if (str_ends_with($class, 's')) {
+            $singlesWithS = ['Campus' => 'Campuses'];
+            return array_key_exists($class, $singlesWithS) ? $singlesWithS[$class] : $class;
+        }
+        else {
+            $irregularPlurals = [
+                'Category'  => 'Categories',
+                'Course'    => 'Courses',
+                'Focus'     => 'Foci',
+                'Frequency' => 'Frequencies',
+                'Nomen'     => 'Nomina',
+            ];
+            return array_key_exists($class, $irregularPlurals) ? $irregularPlurals[$class] : $class . 's';
+        }
     }
 
     /**

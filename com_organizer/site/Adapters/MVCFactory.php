@@ -117,23 +117,7 @@ class MVCFactory extends Core
     /** @inheritDoc */
     public function createTable($name, $prefix = '', array $config = []): Table
     {
-        $caller = Application::ucClass($name);
-
-        // Typically class names already in plural, which match table class names
-        if (str_ends_with($caller, 's')) {
-            $singlesWithS = ['Campus' => 'Campuses'];
-            $table        = array_key_exists($caller, $singlesWithS) ? $singlesWithS[$caller] : $caller;
-        }
-        else {
-            $irregularPlurals = [
-                'Category'  => 'Categories',
-                'Course'    => 'Courses',
-                'Focus'     => 'Foci',
-                'Frequency' => 'Frequencies',
-                'Nomen'     => 'Nomina',
-            ];
-            $table            = array_key_exists($caller, $irregularPlurals) ? $irregularPlurals[$caller] : $caller . 's';
-        }
+        $table = Application::pluralize(Application::ucClass($name));
 
         $tables = [];
         foreach (glob(JPATH_SITE . '/components/com_organizer/Tables/*') as $file) {
