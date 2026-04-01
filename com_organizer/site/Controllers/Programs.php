@@ -18,12 +18,10 @@ class Programs extends CurriculumResources
 {
     use Activated;
 
-    protected string $item = 'Program';
-
     /**
      * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
      *
-     * @param   int  $programID  the id of the program
+     * @param int $programID the id of the program
      *
      * @return int[] the associated programs
      */

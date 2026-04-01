@@ -19,8 +19,6 @@ class Rooms extends ListController
     use Activated;
     use FacilityManageable;
 
-    protected string $item = 'Room';
-
     /**
      * Redirects to the form view for the creation of a new resource.
      * @return void

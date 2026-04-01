@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class ProgramTypes extends ListController
 {
-    protected string $item = 'ProgramType';
+    // Everything is taken care of in the inheritance hierarchy.
 }

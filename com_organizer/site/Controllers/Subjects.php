@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Subjects extends CurriculumResources
 {
-    protected string $item = 'Subject';
+    // Everything is taken care of in the inheritance hierarchy.
 }

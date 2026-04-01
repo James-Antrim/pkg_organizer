@@ -15,6 +15,4 @@ class Persons extends ListController
 {
     use Activated;
     use Personal;
-
-    protected string $item = 'Person';
 }

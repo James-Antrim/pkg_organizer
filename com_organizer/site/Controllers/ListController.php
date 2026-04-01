@@ -36,7 +36,8 @@ abstract class ListController extends Controller
     )
     {
         if (empty($this->item)) {
-            Application::error(501);
+            $class      = Application::ucClass(Application::uqClass($this));
+            $this->item = Application::singularize($class);
         }
 
         parent::__construct($config, $factory, $app, $input);
@@ -84,10 +85,10 @@ abstract class ListController extends Controller
     /**
      * An extract for redirecting back to the list view and providing a message for the number of entries updated.
      *
-     * @param   int   $selected      the number of accounts selected for processing
-     * @param   int   $updated       the number of accounts changed by the calling function
-     * @param   bool  $delete        whether the change affected by the calling function was a deletion
-     * @param   bool  $autoRedirect  whether the function should initiate redirection automatically
+     * @param int  $selected     the number of accounts selected for processing
+     * @param int  $updated      the number of accounts changed by the calling function
+     * @param bool $delete       whether the change affected by the calling function was a deletion
+     * @param bool $autoRedirect whether the function should initiate redirection automatically
      *
      * @return void
      */
@@ -120,8 +121,7 @@ abstract class ListController extends Controller
 
         try {
             $this->display();
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             Application::handleException($exception);
         }
     }
@@ -140,8 +140,8 @@ abstract class ListController extends Controller
     /**
      * Initiates toggling of boolean values in a column.
      *
-     * @param   string  $column  the column in which the values are stored
-     * @param   bool    $value   the target value
+     * @param string $column the column in which the values are stored
+     * @param bool   $value  the target value
      *
      * @return void
      */
@@ -160,9 +160,9 @@ abstract class ListController extends Controller
     /**
      * Updates a boolean column for multiple entries in a
      *
-     * @param   string  $column       the table column / object property
-     * @param   array   $selectedIDs  the ids of the resources whose properties will be updated
-     * @param   bool    $value        the value to update to
+     * @param string $column      the table column / object property
+     * @param array  $selectedIDs the ids of the resources whose properties will be updated
+     * @param bool   $value       the value to update to
      *
      * @return int
      */
@@ -197,8 +197,8 @@ abstract class ListController extends Controller
     /**
      * Zeros out the values of the given column
      *
-     * @param   string  $table   the table where the column is located
-     * @param   string  $column  the column to be zeroed
+     * @param string $table  the table where the column is located
+     * @param string $column the column to be zeroed
      *
      * @return bool true on success, otherwise, false
      */

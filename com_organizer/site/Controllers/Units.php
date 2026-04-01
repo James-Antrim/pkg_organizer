@@ -17,7 +17,6 @@ use THM\Organizer\Tables\{Courses as cTable, Units as Table};
 /** @inheritDoc */
 class Units extends ListController
 {
-    protected string $item = 'Unit';
     private array $schedulableIDs = [];
 
     /** @inheritDoc */
@@ -103,8 +102,8 @@ class Units extends ListController
     /**
      * Checks whether resources referenced by the units from which the course is being generated are identical.
      *
-     * @param   array   $resourceIDs  the ids to check for internal consistency
-     * @param   string  $resource     the resource referenced by the ids
+     * @param array  $resourceIDs the ids to check for internal consistency
+     * @param string $resource    the resource referenced by the ids
      *
      * @return bool
      */

@@ -14,6 +14,4 @@ namespace THM\Organizer\Controllers;
 class Buildings extends ListController
 {
     use FacilityManageable;
-
-    protected string $item = 'Building';
 }

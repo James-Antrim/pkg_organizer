@@ -17,28 +17,8 @@ use THM\Organizer\Helpers;
 use THM\Organizer\Models\Instance;
 
 /** @inheritDoc */
-class Instances extends ListController
+class Instances extends ListsReferred
 {
-    protected string $item = 'Instance';
-
-    /**
-     * Ends the instance create/edit process and empties the session container.
-     * @return void
-     */
-    public function cancel(): void
-    {
-        $session  = Application::session();
-        $instance = $session->get('organizer.instance', []);
-
-        if (!empty($instance['referrer'])) {
-            Input::set('referrer', $instance['referrer']);
-        }
-
-        $session->set('organizer.instance', '');
-
-        parent::cancel();
-    }
-
     /**
      * Prints badges for the selected participants.
      * @return void

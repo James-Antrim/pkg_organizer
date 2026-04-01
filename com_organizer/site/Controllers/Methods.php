@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Methods extends ListController
 {
-    protected string $item = 'Method';
+    // Everything is taken care of in the inheritance hierarchy.
 }

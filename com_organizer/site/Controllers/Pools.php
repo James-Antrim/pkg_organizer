@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Pools extends CurriculumResources
 {
-    protected string $item = 'Pool';
+    // Everything is taken care of in the inheritance hierarchy.
 }

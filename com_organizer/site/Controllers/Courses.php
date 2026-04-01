@@ -16,8 +16,6 @@ use THM\Organizer\Adapters\Input;
 /** @inheritDoc */
 class Courses extends ListController
 {
-    protected string $item = 'Course';
-
     /**
      * Prints badges for the selected participants.
      * @return void

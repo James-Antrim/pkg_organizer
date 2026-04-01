@@ -15,6 +15,4 @@ class RoomTypes extends ListController
 {
     use FacilityManageable;
     use Suppressed;
-
-    protected string $item = 'RoomType';
 }

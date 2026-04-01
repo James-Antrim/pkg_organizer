@@ -21,8 +21,6 @@ class Groups extends ListController
     use Published;
     use Scheduled;
 
-    protected string $item = 'Group';
-
     /**
      * Makes call to the model's batch function, and redirects to the manager view.
      * @return void
@@ -86,8 +84,8 @@ class Groups extends ListController
     /**
      * Common code for setting group publication values.
      *
-     * @param   int  $termID     the publication term context
-     * @param   int  $published  the publication value
+     * @param int $termID    the publication term context
+     * @param int $published the publication value
      *
      * @return void
      */

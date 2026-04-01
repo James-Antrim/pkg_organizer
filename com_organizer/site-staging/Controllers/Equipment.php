@@ -10,10 +10,25 @@
 
 namespace THM\Organizer\Controllers;
 
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\Input\Input as CoreInput;
+
 /** @inheritDoc */
 class Equipment extends ListController
 {
     use FacilityManageable;
 
-    protected string $item = 'EquipmentItem';
+    /** @inheritDoc */
+    public function __construct(
+        $config = [],
+        ?MVCFactoryInterface $factory = null,
+        ?CMSApplication $app = null,
+        ?CoreInput $input = null
+    )
+    {
+        $this->item = 'EquipmentItem';
+
+        parent::__construct($config, $factory, $app, $input);
+    }
 }

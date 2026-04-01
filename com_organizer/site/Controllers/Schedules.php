@@ -12,6 +12,9 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\Input\Input as CoreInput;
 use THM\Organizer\Helpers\{Organizations, Schedules as Helper};
 use THM\Organizer\Tables\Schedules as Table;
 
@@ -21,6 +24,19 @@ class Schedules extends ListController
     use Scheduled;
 
     protected string $item = 'ImportSchedule';
+
+    /** @inheritDoc */
+    public function __construct(
+        $config = [],
+        ?MVCFactoryInterface $factory = null,
+        ?CMSApplication $app = null,
+        ?CoreInput $input = null
+    )
+    {
+        $this->item = 'ImportSchedule';
+
+        parent::__construct($config, $factory, $app, $input);
+    }
 
     /**
      * Redirects to the form view for the creation of a new resource.
@@ -86,8 +102,7 @@ class Schedules extends ListController
 
         try {
             $this->display();
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             Application::handleException($exception);
         }
     }

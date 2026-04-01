@@ -17,8 +17,6 @@ use THM\Organizer\Tables\Grids as Table;
 /** @inheritDoc */
 class Grids extends ListController
 {
-    protected string $item = 'Grid';
-
     /**
      * Toggles the selected grid to be the new default.
      * @return void

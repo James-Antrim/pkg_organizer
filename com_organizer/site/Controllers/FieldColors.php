@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class FieldColors extends ListController
 {
-    protected string $item = 'FieldColor';
+    // Everything is taken care of in the inheritance hierarchy.
 }

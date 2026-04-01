@@ -17,8 +17,6 @@ class Monitors extends ListController
 {
     use FacilityManageable;
 
-    protected string $item = 'Monitor';
-
     /**
      * Activates selected resources.
      * @return void

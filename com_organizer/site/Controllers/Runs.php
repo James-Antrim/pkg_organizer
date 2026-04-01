@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class Runs extends ListController
 {
-    protected string $item = 'Run';
+    // Everything is taken care of in the inheritance hierarchy.
 }

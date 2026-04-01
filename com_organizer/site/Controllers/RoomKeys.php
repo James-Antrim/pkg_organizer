@@ -14,6 +14,4 @@ namespace THM\Organizer\Controllers;
 class RoomKeys extends ListController
 {
     use FacilityManageable;
-
-    protected string $item = 'RoomKey';
 }

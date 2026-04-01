@@ -13,5 +13,5 @@ namespace THM\Organizer\Controllers;
 /** @inheritDoc */
 class AttendanceTypes extends ListController
 {
-    protected string $item = 'AttendanceType';
+    // Everything is taken care of in the inheritance hierarchy.
 }

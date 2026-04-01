@@ -14,6 +14,4 @@ namespace THM\Organizer\Controllers;
 class Campuses extends ListController
 {
     use FacilityManageable;
-
-    protected string $item = 'Campus';
 }

@@ -17,8 +17,6 @@ class Participants extends ListController
 {
     use Participated;
 
-    protected string $item = 'Participant';
-
 //	private function anonymize()
 //	{
 //		/**

@@ -15,8 +15,6 @@ class CleaningGroups extends ListController
 {
     use FacilityManageable;
 
-    protected string $item = 'CleaningGroup';
-
     /**
      * Activates selected resources.
      * @return void
