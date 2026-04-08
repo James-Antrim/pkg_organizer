@@ -17,7 +17,12 @@ use THM\Organizer\Helpers\Can;
 /** @inheritDoc */
 class RoomTypes extends ListModel
 {
-    protected $filter_fields = ['cleaningID', 'keyID', 'suppress', 'useID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['cleaningID', 'keyID', 'suppress', 'useID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

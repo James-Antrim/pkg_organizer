@@ -18,7 +18,12 @@ class Terms extends ListModel
 {
     private const EXPIRED = 1, NOT_EXPIRED = 0;
 
-    protected $filter_fields = ['name', 'abbreviation', 'code'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['name', 'abbreviation', 'code'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

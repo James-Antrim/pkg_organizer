@@ -18,9 +18,13 @@ class Holidays extends ListModel
 {
     private const EXPIRED = 1, NOT_EXPIRED = 0;
 
-    protected string $defaultOrdering = 'startDate';
-
-    protected $filter_fields = ['termID', 'type'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'startDate';
+        $this->filter_fields   = ['termID', 'type'];
+        parent::__construct($config);
+    }
 
     /**
      * Method to get a list of resources from the database.

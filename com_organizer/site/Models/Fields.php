@@ -16,9 +16,12 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input};
 /** @inheritDoc */
 class Fields extends ListModel
 {
-    protected string $defaultOrdering = 'name';
-
-    protected $filter_fields = ['colorID', 'organizationID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['colorID', 'organizationID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

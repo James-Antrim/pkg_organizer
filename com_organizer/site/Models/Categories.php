@@ -14,16 +14,17 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\Organizations;
 
-/**
- * Class retrieves information for a filtered set of categories.
- */
+/** @inheritDoc */
 class Categories extends ListModel
 {
     use Activated;
 
-    protected string $defaultOrdering = 'name';
-
-    protected $filter_fields = ['organizationID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['organizationID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

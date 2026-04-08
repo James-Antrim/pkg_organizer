@@ -13,9 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 
-/**
- * Class retrieves information for a filtered set of colors.
- */
+/** @inheritDoc */
 class Colors extends ListModel
 {
     /** @inheritDoc */

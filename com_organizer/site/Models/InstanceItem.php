@@ -10,21 +10,17 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Table\Menu;
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
+use Joomla\CMS\{Table\Menu, Uri\Uri};
+use Joomla\Database\DatabaseQuery;
 use stdClass;
+use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Helpers\{Can, Instances, Terms};
 
-/**
- * Class retrieves information for an instance and related instances.
- */
+/** @inheritDoc */
 class InstanceItem extends ListModel
 {
     public array $conditions = [];
-    protected $defaultLimit = 0;
+    protected int $defaultLimit = 0;
     public stdClass $instance;
     public string $referrer;
 
@@ -34,10 +30,10 @@ class InstanceItem extends ListModel
         parent::__construct($config);
 
         $instanceID = Input::id();
-        $instance   = Helpers\Instances::instance($instanceID);
+        $instance   = Instances::instance($instanceID);
 
-        $endDate    = Helpers\Terms::endDate($instance['termID']);
-        $tStartDate = Helpers\Terms::startDate($instance['termID']);
+        $endDate    = Terms::endDate($instance['termID']);
+        $tStartDate = Terms::startDate($instance['termID']);
         $today      = date('Y-m-d');
         $startDate  = $tStartDate > $today ? $tStartDate : $today;
 
@@ -45,12 +41,12 @@ class InstanceItem extends ListModel
             'delta'           => date('Y-m-d 00:00:00', strtotime('-14 days')),
             'endDate'         => $endDate,
             'eventIDs'        => [$instance['eventID']],
-            'showUnpublished' => Helpers\Can::manage('instance', $instanceID),
+            'showUnpublished' => Can::manage('instance', $instanceID),
             'startDate'       => $startDate,
             'status'          => self::CURRENT
         ];
 
-        Helpers\Instances::fill($instance, $this->conditions);
+        Instances::fill($instance, $this->conditions);
         $this->instance = (object) $instance;
         $this->setReferrer();
     }
@@ -61,8 +57,8 @@ class InstanceItem extends ListModel
         $items = parent::getItems();
 
         foreach ($items as $key => $instance) {
-            $instance = Helpers\Instances::instance($instance->id);
-            Helpers\Instances::fill($instance, $this->conditions);
+            $instance = Instances::instance($instance->id);
+            Instances::fill($instance, $this->conditions);
             $items[$key] = (object) $instance;
         }
 
@@ -70,11 +66,11 @@ class InstanceItem extends ListModel
     }
 
     /** @inheritDoc */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $endDate   = $this->conditions['endDate'];
         $endTime   = date('H:i:s');
-        $query     = Helpers\Instances::getInstanceQuery($this->conditions);
+        $query     = Instances::getInstanceQuery($this->conditions);
         $startDate = $this->conditions['startDate'];
 
         $query->select("DISTINCT i.id")
@@ -89,9 +85,9 @@ class InstanceItem extends ListModel
      * Sets the referrer to the item view in order to return to the list/schedule view from which it was called.
      * @return void
      */
-    private function setReferrer()
+    private function setReferrer(): void
     {
-        $session = Factory::getSession();
+        $session = Application::session();
 
         if (!$this->referrer = $session->get('organizer.instance.item.referrer', '')) {
             $root     = Uri::root();
@@ -135,13 +131,12 @@ class InstanceItem extends ListModel
             }
 
             // Menu item?
-            $menu = new Menu(Factory::getDbo());
+            $menu = new Menu(Application::database());
 
             if ($menu->load(['path' => $path])) {
                 // Typically index.php?key=value...
-                /** @noinspection PhpUndefinedFieldInspection */
-                $query = explode('?', $menu->link)[1];
-                parse_str($query, $query);
+                $queryString = explode('?', $menu->link)[1];
+                parse_str($queryString, $query);
 
                 $option = (!empty($query['option']) and $query['option'] === 'com_organizer');
                 $view   = (!empty($query['view']) and $query['view'] === 'instances');

@@ -17,16 +17,14 @@ use THM\Organizer\Helpers\{Organizations, Terms, Units as Helper};
 /** @inheritDoc */
 class Units extends ListModel
 {
-    protected $filter_fields = [
-        'gridID',
-        'organizationID',
-        'status'
-    ];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['gridID', 'organizationID', 'status'];
+        parent::__construct($config);
+    }
 
-    /**
-     * Method to get an array of data items.
-     * @return  array  An array of data items on success, false on failure.
-     */
+    /** @inheritDoc */
     public function getItems(): array
     {
         $items = parent::getItems();
@@ -86,14 +84,7 @@ class Units extends ListModel
         return $query;
     }
 
-    /**
-     * Method to auto-populate the model state.
-     *
-     * @param   string  $ordering   An optional ordering field.
-     * @param   string  $direction  An optional direction (asc|desc).
-     *
-     * @return void populates state properties
-     */
+    /** @inheritDoc */
     protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);

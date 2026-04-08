@@ -17,7 +17,12 @@ use THM\Organizer\Helpers\Organizations;
 /** @inheritDoc */
 class Schedules extends ListModel
 {
-    protected $filter_fields = ['organizationID', 'termID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['organizationID', 'termID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

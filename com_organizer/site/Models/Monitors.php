@@ -19,14 +19,18 @@ class Monitors extends ListModel
 {
     private const CONTENT = 1;
 
-    protected string $defaultOrdering = 'r.name';
-
-    protected $filter_fields = ['content', 'display', 'useDefaults'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'r.name';
+        $this->filter_fields   = ['content', 'display', 'useDefaults'];
+        parent::__construct($config);
+    }
 
     /**
      * Adds the filter settings for displayed content
      *
-     * @param   DatabaseQuery  $query  the query to modify
+     * @param DatabaseQuery $query the query to modify
      *
      * @return void
      */
@@ -59,7 +63,7 @@ class Monitors extends ListModel
     /**
      * Adds the filter settings for display behaviour
      *
-     * @param   DatabaseQuery  $query  the query to modify
+     * @param DatabaseQuery $query the query to modify
      *
      * @return void
      */

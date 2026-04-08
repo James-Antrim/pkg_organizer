@@ -14,14 +14,17 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class retrieves the data regarding a filtered set of buildings.
- */
+/** @inheritDoc */
 class Buildings extends ListModel
 {
     use Activated;
 
-    protected $filter_fields = ['campusID', 'propertyType'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['campusID', 'propertyType'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

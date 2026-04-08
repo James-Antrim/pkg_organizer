@@ -484,4 +484,24 @@ class Database
 
         return $result ? (string) self::result() : $default;
     }
+
+    /**
+     * Retrieves field information about the given tables.
+     *
+     * @param string  $table    The name of the database table.
+     * @param boolean $typeOnly True (default) to only return field types.
+     *
+     * @return  array
+     */
+    public static function tableColumns(string $table, bool $typeOnly = true): array
+    {
+        try {
+            return Application::database()->getTableColumns($table, $typeOnly);
+        } catch (Exception $exception) {
+            self::logException($exception);
+            Application::message($exception->getMessage(), Application::ERROR);
+
+            return [];
+        }
+    }
 }

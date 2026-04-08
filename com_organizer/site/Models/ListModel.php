@@ -11,16 +11,12 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Core};
+use Joomla\CMS\MVC\{Model\ListModel as Core};
 use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseQuery};
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
 
-/**
- * Model class for handling lists of items.
- * - Overrides/-writes to avoid deprecated code in the platform or promote ease of use
- * - Supplemental functions to extract common code from list models
- */
+/** @inheritDoc */
 abstract class ListModel extends Core
 {
     use Filtered;
@@ -30,13 +26,13 @@ abstract class ListModel extends Core
     protected string $defaultOrdering = 'name';
 
     /** @inheritDoc */
-    public function __construct($config = [], MVCFactoryInterface $factory = null)
+    public function __construct($config = [])
     {
         // Preemptively set to avoid unnecessary complications.
         $this->setContext();
 
         try {
-            parent::__construct($config, $factory);
+            parent::__construct($config);
         } catch (Exception $exception) {
             Application::handleException($exception);
         }

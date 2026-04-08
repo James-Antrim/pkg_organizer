@@ -18,14 +18,12 @@ use THM\Organizer\Helpers\{Can, Organizations, Pools, Programs, Subjects as Help
 /** @inheritDoc */
 class Subjects extends ListModel
 {
-    protected $filter_fields = [
-        'language'       => 'language',
-        'fieldID'        => 'fieldID',
-        'organizationID' => 'organizationID',
-        'personID'       => 'personID',
-        'poolID'         => 'poolID',
-        'programID'      => 'programID'
-    ];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['language', 'fieldID', 'organizationID', 'personID', 'poolID', 'programID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     public function filterFilterForm(Form $form): void
@@ -152,9 +150,9 @@ class Subjects extends ListModel
     /**
      * Checks whether the person in question is assigned to a subject in the given pool or program
      *
-     * @param   int  $personID   the id of the person filtered against
-     * @param   int  $programID  the optional id of the program being filtered against
-     * @param   int  $poolID     the optional id of the pool being filtered against
+     * @param int $personID  the id of the person filtered against
+     * @param int $programID the optional id of the program being filtered against
+     * @param int $poolID    the optional id of the pool being filtered against
      *
      * @return bool
      */
@@ -341,9 +339,9 @@ class Subjects extends ListModel
     /**
      * Sets the resource id filter states after plausibility checks.
      *
-     * @param   int  $personID   the id for the person filter
-     * @param   int  $programID  the id for the program filter
-     * @param   int  $poolID     the id for the p
+     * @param int $personID  the id for the person filter
+     * @param int $programID the id for the program filter
+     * @param int $poolID    the id for the p
      *
      * @return void
      */

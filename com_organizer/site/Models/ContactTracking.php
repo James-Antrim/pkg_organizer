@@ -19,17 +19,17 @@ use stdClass;
  */
 class ContactTracking extends ListModel
 {
-    protected $defaultLimit = 0;
+    protected int $defaultLimit = 0;
 
     /**
      * Adds entries to the items structure.
      *
-     * @param   array  &$items  the items to be displayed
-     * @param   array   $data   the data from the resource
+     * @param array  &$items the items to be displayed
+     * @param array   $data  the data from the resource
      *
      * @return void
      */
-    private function addItem(array &$items, array $data)
+    private function addItem(array &$items, array $data): void
     {
         $date  = $data['date'];
         $index = "{$data['surname']}-{$data['forename']}-{$data['username']}";
@@ -285,12 +285,12 @@ class ContactTracking extends ListModel
     /**
      * Performs final the final integrity check between the participants and persons result sets.
      *
-     * @param   array  $participantIDs  the participants id results
-     * @param   array  $personIDs       the persons id results
+     * @param array $participantIDs the participants id results
+     * @param array $personIDs      the persons id results
      *
      * @return void
      */
-    private function finalCheck(array $participantIDs, array $personIDs)
+    private function finalCheck(array $participantIDs, array $personIDs): void
     {
         $participantID = $participantIDs ? $participantIDs[0] : 0;
         $personID      = $personIDs ? $personIDs[0] : 0;
@@ -314,14 +314,14 @@ class ContactTracking extends ListModel
      * Sets selection criteria to empty values to avoid positive results from previous queries.
      * @return void
      */
-    private function forceEmpty()
+    private function forceEmpty(): void
     {
         $this->state->set('participantID', 0);
         $this->state->set('personID', 0);
     }
 
     /** @inheritDoc */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState();
 

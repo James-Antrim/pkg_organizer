@@ -14,14 +14,15 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\{Can, Events as Helper};
 
-/**
- * Class retrieves information for a filtered set of events.
- */
+/** @inheritDoc */
 class Events extends ListModel
 {
-    protected string $defaultOrdering = 'name';
-
-    protected $filter_fields = ['campusID', 'categoryID', 'groupID', 'organizationID', 'preparatory'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['campusID', 'categoryID', 'groupID', 'organizationID', 'preparatory'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery

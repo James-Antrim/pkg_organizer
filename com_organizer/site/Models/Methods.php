@@ -13,12 +13,15 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 
-/**
- * Class provides a standardized framework for the display of listed methods.
- */
+/** @inheritDoc */
 class Methods extends ListModel
 {
-    protected string $defaultOrdering = 'abbreviation';
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'abbreviation';
+        parent::__construct($config);
+    }
 
     /**
      * Method to get a list of resources from the database.

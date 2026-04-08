@@ -18,7 +18,12 @@ use THM\Organizer\Helpers\Organizations;
 /** @inheritDoc */
 class FieldColors extends ListModel
 {
-    protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function filterFilterForm(Form $form): void

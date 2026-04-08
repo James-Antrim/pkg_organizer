@@ -20,9 +20,13 @@ class Rooms extends ListModel
 {
     use Activated;
 
-    protected string $defaultOrdering = 'roomName';
-
-    protected $filter_fields = ['buildingID', 'campusID', 'cleaningID', 'keyID', 'roomtypeID', 'virtual'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'roomName';
+        $this->filter_fields   = ['buildingID', 'campusID', 'cleaningID', 'roomtypeID', 'virtual'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function filterFilterForm(Form $form): void

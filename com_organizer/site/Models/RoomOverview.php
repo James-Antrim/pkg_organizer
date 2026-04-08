@@ -15,9 +15,7 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\{Campuses, Dates, Grids, Instances};
 
-/**
- * Retrieves lesson and event data for a filtered set of rooms.
- */
+/** @inheritDoc */
 class RoomOverview extends ListModel
 {
     public const DAY = 1, WEEK = 2;
@@ -28,12 +26,16 @@ class RoomOverview extends ListModel
 
     protected int $defaultLimit = 25;
 
-    protected string $defaultOrdering = 'r.name';
-
-    protected $filter_fields = ['campusID', 'buildingID', 'effCapacity', 'roomtypeID'];
-
     /** @var array Stores the instances for single search */
     public array $instances = [];
+
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'r.name';
+        $this->filter_fields   = ['campusID', 'buildingID', 'effCapacity', 'roomtypeID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function filterFilterForm(Form $form): void

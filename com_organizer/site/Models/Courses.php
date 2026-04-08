@@ -18,9 +18,13 @@ use THM\Organizer\Helpers\{Can, Courses as Helper, CourseParticipants as CPH, Or
 /** @inheritDoc */
 class Courses extends ListModel
 {
-    protected string $defaultOrdering = 'dates';
-
-    protected $filter_fields = ['campusID', 'status', 'termID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'dates';
+        $this->filter_fields   = ['campusID', 'status', 'termID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function filterFilterForm(Form $form): void

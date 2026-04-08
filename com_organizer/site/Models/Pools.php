@@ -18,7 +18,12 @@ use THM\Organizer\Helpers\{Can, Organizations, Pools as Helper};
 /** @inheritDoc */
 class Pools extends ListModel
 {
-    protected $filter_fields = ['organizationID', 'fieldID', 'programID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['organizationID', 'fieldID', 'programID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     public function filterFilterForm(Form $form): void

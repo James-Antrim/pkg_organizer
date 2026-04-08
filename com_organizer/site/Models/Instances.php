@@ -17,23 +17,12 @@ use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\{Instances as Helper, Organizations};
 use THM\Organizer\Tables;
 
-/**
- * Class retrieves information for a filtered set of instances.
- */
+/** @inheritDoc */
 class Instances extends ListModel
 {
     private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
     public array $conditions = [];
-    protected $filter_fields = [
-        'campusID',
-        'categoryID',
-        'groupID',
-        'methodID',
-        'organizationID',
-        'personID',
-        'roomID'
-    ];
     public array $grid;
     public int $gridID;
     public array $holidays;
@@ -45,6 +34,7 @@ class Instances extends ListModel
     {
         $session = Application::session();
         $session->set('organizer.instance.item.referrer', '');
+        $this->filter_fields = ['campusID', 'categoryID', 'groupID', 'methodID', 'organizationID', 'personID', 'roomID'];
         parent::__construct($config);
     }
 
@@ -58,7 +48,7 @@ class Instances extends ListModel
         $date = Application::userRequestState("$this->context.list.date", "list_date", '', 'string');
 
         // Export view, GET, POST
-        $date = Input::getString('date', $date);
+        $date = Input::string('date', $date);
 
         // Defaults to today
         return Helpers\Dates::standardize($date);
@@ -69,8 +59,8 @@ class Instances extends ListModel
     {
         parent::filterFilterForm($form);
 
-        $params     = Input::getParams();
-        $getLayout  = Input::getString('layout');
+        $params     = Input::parameters();
+        $getLayout  = Input::string('layout');
         $getSet     = ($getLayout and in_array($getLayout, ['grid', 'list']));
         $menuLayout = $params->get('layout');
         $menuSet    = (is_numeric($menuLayout) and in_array($menuLayout, [Helper::LIST, Helper::GRID]));
@@ -123,12 +113,12 @@ class Instances extends ListModel
                 $form->removeField('roomID', 'filter');
             }
 
-            if ($params->get('organizationID') or Input::getInt('organizationID')) {
+            if ($params->get('organizationID') or Input::integer('organizationID')) {
                 $form->removeField('campusID', 'filter');
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields[array_search('organizationID', $this->filter_fields)]);
             }
-            elseif (Input::getInt('categoryID')) {
+            elseif (Input::integer('categoryID')) {
                 $form->removeField('campusID', 'filter');
                 $form->removeField('organizationID', 'filter');
                 $form->removeField('categoryID', 'filter');
@@ -137,7 +127,7 @@ class Instances extends ListModel
                     $this->filter_fields[array_search('categoryID', $this->filter_fields)]
                 );
             }
-            elseif (Input::getInt('groupID')) {
+            elseif (Input::integer('groupID')) {
                 $form->removeField('campusID', 'filter');
                 $form->removeField('organizationID', 'filter');
                 $form->removeField('categoryID', 'filter');
@@ -245,7 +235,7 @@ class Instances extends ListModel
         $interval = Application::userRequestState("$this->context.list.interval", "list_interval", '', 'string');
 
         // Export view, GET, POST
-        return Input::getString('interval', $interval);
+        return Input::string('interval', $interval);
     }
 
     /** @inheritDoc */
@@ -254,9 +244,9 @@ class Instances extends ListModel
         parent::populateState($ordering, $direction);
 
         $conditions  = ['delta' => date('Y-m-d', strtotime('-14 days'))];
-        $filterItems = Input::getFilterItems();
-        $listItems   = Input::getListItems();
-        $params      = Input::getParams();
+        $filterItems = Input::filters();
+        $listItems   = Input::lists();
+        $params      = Input::parameters();
 
         $fc = "$this->context.filter.";
         $fp = "filter_";
@@ -266,7 +256,7 @@ class Instances extends ListModel
         // What? Personal...
         $personal         = (int) $params->get('my');
         $personal         = ($personal or Application::userRequestState("{$lc}my", "{$lp}my", 0, 'int'));
-        $personal         = ($personal or Input::getInt('my'));
+        $personal         = ($personal or Input::integer('my'));
         $personal         = ($personal or (int) $listItems->get('my'));
         $conditions['my'] = $personal;
         $listItems->set('my', $personal);
@@ -279,7 +269,7 @@ class Instances extends ListModel
         else {
             $campusID = $params->get('campusID', 0);
             $campusID = Application::userRequestState("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
-            $campusID = Input::getInt('campusID', $campusID);
+            $campusID = Input::integer('campusID', $campusID);
 
             if ($campusID) {
                 $conditions['campusIDs'] = [$campusID];
@@ -298,17 +288,17 @@ class Instances extends ListModel
             }
             else {
                 $organizationID = Application::userRequestState("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
-                $organizationID = Input::getInt('organizationID', $organizationID);
+                $organizationID = Input::integer('organizationID', $organizationID);
                 $organizationID = $params->get('organizationID', $organizationID);
             }
 
             $byPerson   = false;
             $categoryID = Application::userRequestState("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
-            $categoryID = Input::getInt('categoryID', $categoryID);
+            $categoryID = Input::integer('categoryID', $categoryID);
             $groupID    = Application::userRequestState("{$fc}groupID", "{$fp}groupID", 0, 'int');
-            $groupID    = Input::getInt('groupID', $groupID);
+            $groupID    = Input::integer('groupID', $groupID);
 
-            $conditions['roleID'] = Input::getInt('roleID');
+            $conditions['roleID'] = Input::integer('roleID');
 
             if ($organizationID) {
                 $conditions['organizationIDs'] = [$organizationID];
@@ -316,7 +306,7 @@ class Instances extends ListModel
                 $this->state->set('filter.organizationID', $organizationID);
                 Helper::setPublishingAccess($conditions);
 
-                $instances = Input::getCMD('instances');
+                $instances = Input::cmd('instances');
                 if (Helpers\Can::view('organization', $organizationID) and $instances === 'person') {
                     $conditions['personIDs'] = Organizations::personIDs($organizationID);
                     $byPerson                = true;
@@ -348,13 +338,13 @@ class Instances extends ListModel
                     $this->state->set('filter.groupID', $groupID);
                 }
 
-                if ($eventID = Input::getInt('eventID')) {
+                if ($eventID = Input::integer('eventID')) {
                     $conditions['eventIDs'] = [$eventID];
                     $this->state->set('filter.eventID', $eventID);
                 }
 
                 $personID = Application::userRequestState("{$fc}personID", "{$fp}personID", 0, 'int');
-                if ($personID = Input::getInt('personID', $personID)) {
+                if ($personID = Input::integer('personID', $personID)) {
                     $personIDs = [$personID];
                     $userID    = User::id();
                     Helper::filterPersons($personIDs, $userID);
@@ -375,7 +365,7 @@ class Instances extends ListModel
                 }
 
                 $roomID = Application::userRequestState("{$fc}roomID", "{$fp}roomID", 0, 'int');
-                if ($roomID = Input::getInt('roomID', $roomID)) {
+                if ($roomID = Input::integer('roomID', $roomID)) {
                     $conditions['roomIDs'] = [$roomID];
                     $filterItems->set('roomID', $roomID);
                     $this->state->set('filter.roomID', $roomID);
@@ -383,7 +373,7 @@ class Instances extends ListModel
             }
         }
 
-        $methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
+        $methodIDs = $params->get('methodIDs') ?: Input::resourceIDs('methodID');
         if ($methodIDs = array_filter($methodIDs)) {
             $conditions['methodIDs'] = $methodIDs;
             $filterItems->set('methodID', $methodIDs);
@@ -400,7 +390,7 @@ class Instances extends ListModel
             $startDate = null;
             $bound     = false;
 
-            if ($instances = Input::getCMD('instances')) {
+            if ($instances = Input::cmd('instances')) {
                 $conditions['instances'] = $instances;
             }
         }
@@ -411,7 +401,7 @@ class Instances extends ListModel
             $bound     = ($dow or $endDate or $methodIDs);
         }
 
-        switch ($format = Input::getCMD('format')) {
+        switch ($format = Input::cmd('format')) {
             case 'ics':
                 // When/how is fixed in this format
                 $interval = 'half';
@@ -420,15 +410,15 @@ class Instances extends ListModel
 
             case 'json':
                 // Always GET
-                $date      = Input::getString('date', $date);
-                $interval  = Input::getString('interval');
+                $date      = Input::string('date', $date);
+                $interval  = Input::string('interval');
                 $intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
                 $interval  = in_array($interval, $intervals) ? $interval : 'week';
                 $layout    = Helper::LIST;
                 break;
 
             case 'pdf':
-                $conditions['separate'] = Input::getBool('separate');
+                $conditions['separate'] = Input::bool('separate');
 
                 $date      = $this->date();
                 $interval  = $bound ? 'half' : $this->interval();
@@ -450,13 +440,13 @@ class Instances extends ListModel
             default:
                 $date     = $this->date();
                 $status   = Application::userRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
-                $status   = Input::getInt('status', $status);
+                $status   = Input::integer('status', $status);
                 $statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
                 $status   = in_array($status, $statuses) ? $status : Helper::CURRENT;
 
                 if ($dynamic) {
                     $sLayout = Application::userRequestState("{$lc}layout", "{$lp}layout", Helper::LIST, 'int');
-                    $gLayout = str_starts_with(strtolower(Input::getString('layout')), 'grid');
+                    $gLayout = str_starts_with(strtolower(Input::string('layout')), 'grid');
                     $layout  = ($sLayout or $gLayout) ? Helper::GRID : Helper::LIST;
 
                     if ($layout === Helper::GRID) {
@@ -494,7 +484,7 @@ class Instances extends ListModel
                     }
                     else {
                         $sInterval = Application::userRequestState("{$lc}interval", "{$lp}interval", '', 'string');
-                        $interval  = Input::getString('interval', $sInterval);
+                        $interval  = Input::string('interval', $sInterval);
                         $intervals = ['day', 'month', 'quarter', 'term', 'week'];
                         $interval  = in_array($interval, $intervals) ? $interval : 'day';
                     }
@@ -537,7 +527,7 @@ class Instances extends ListModel
      */
     public function title(): string
     {
-        $params = Input::getParams();
+        $params = Input::parameters();
 
         if ($params->get('show_page_heading')) {
             return $params->get('page_heading') ?: $params->get('page_title');
@@ -546,7 +536,7 @@ class Instances extends ListModel
         $methods   = '';
         $suffix    = '';
         $title     = $this->layout === Helper::GRID ? Text::_('ORGANIZER_SCHEDULE') : Text::_("ORGANIZER_INSTANCES");
-        $methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
+        $methodIDs = $params->get('methodIDs') ?: Input::resourceIDs('methodID');
 
         if ($methodIDs and $methodIDs = array_filter($methodIDs)) {
             if (count($methodIDs) === 1) {
@@ -620,7 +610,7 @@ class Instances extends ListModel
             elseif ($categoryID = $this->state->get('filter.categoryID')) {
                 $suffix .= ': ' . Helpers\Categories::name($categoryID);
             }
-            elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID'))) {
+            elseif ($organizationID = $params->get('organizationID', Input::integer('organizationID'))) {
                 $fullName  = Organizations::getFullName($organizationID);
                 $shortName = Organizations::getShortName($organizationID);
                 $name      = (Application::mobile() or strlen($fullName) > 40) ? $shortName : $fullName;
@@ -630,11 +620,11 @@ class Instances extends ListModel
                 $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::name($campusID);
             }
 
-            if ($roleID = Input::getInt('roleID')) {
+            if ($roleID = Input::integer('roleID')) {
                 $plural = Helpers\Roles::getPlural($roleID);
                 $suffix .= $suffix ? " - $plural" : ": $plural";
             }
-            elseif ($instances = Input::getCMD('instances') and $instances === 'person') {
+            elseif ($instances = Input::cmd('instances') and $instances === 'person') {
                 $persons = Text::_('ORGANIZER_PERSONS');
                 $suffix  .= $suffix ? " - $persons" : ": $persons";
             }

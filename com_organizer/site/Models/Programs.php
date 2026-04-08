@@ -20,7 +20,12 @@ class Programs extends ListModel
 {
     use Activated;
 
-    protected $filter_fields = ['accredited', 'degreeID', 'frequencyID', 'organizationID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['accredited', 'degreeID', 'frequencyID', 'organizationID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     public function filterFilterForm(Form $form): void

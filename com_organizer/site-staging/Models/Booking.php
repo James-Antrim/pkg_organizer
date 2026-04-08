@@ -26,13 +26,11 @@ class Booking extends Participants
 
     public Tables\Bookings $booking;
 
-    protected string $defaultOrdering = 'fullName';
-
-    protected $filter_fields = ['instanceID', 'roomID', 'status'];
-
     /** @inheritDoc */
     public function __construct($config = [])
     {
+        $this->defaultOrdering = 'fullName';
+        $this->filter_fields   = ['instanceID', 'roomID', 'status'];
         parent::__construct($config);
 
         $this->booking = $this->getBooking();
@@ -220,7 +218,7 @@ class Booking extends Participants
                     $deleteID      = $emailID;
                     $participantID = $userNameID;
 
-                    foreach (array_keys($this->_db->getTableColumns('#__organizer_participants')) as $column) {
+                    foreach (array_keys(DB::tableColumns('#__organizer_participants')) as $column) {
                         if ($column === 'id') {
                             continue;
                         }
@@ -498,9 +496,9 @@ class Booking extends Participants
             $form->removeField('limit', 'list');
         }
 
-        $bookingDate = $this->booking->get('date');
+        $bookingDate = $this->booking->date;
         $now         = date('H:i:s');
-        $start       = $this->booking->startTime ?: $this->booking->get('defaultStartTime');
+        $start       = $this->booking->startTime ?: $this->booking->defaultStartTime;
         $started     = $now > $start;
         $today       = date('Y-m-d');
 
@@ -531,9 +529,9 @@ class Booking extends Participants
 
         $block = new Tables\Blocks();
         $block->load($booking->blockID);
-        $booking->set('date', $block->date);
-        $booking->set('defaultEndTime', $block->endTime);
-        $booking->set('defaultStartTime', $block->startTime);
+        $booking->date             = $block->date;
+        $booking->defaultEndTime   = $block->endTime;
+        $booking->defaultStartTime = $block->startTime;
 
         return $booking;
     }
@@ -735,10 +733,10 @@ class Booking extends Participants
     /**
      * Re-references entries in the course/instance participants tables for the given participant ids.
      *
-     * @param   string  $table     the unique part of the table name (course|instance)
-     * @param   int     $toID      the id to use in the reference tables
-     * @param   int     $fromID    the id to replace/delete in the reference tables
-     * @param   string  $fkColumn  the fk column name away from the instances table (courseID|instanceID)
+     * @param string $table    the unique part of the table name (course|instance)
+     * @param int    $toID     the id to use in the reference tables
+     * @param int    $fromID   the id to replace/delete in the reference tables
+     * @param string $fkColumn the fk column name away from the instances table (courseID|instanceID)
      *
      * @return void
      */

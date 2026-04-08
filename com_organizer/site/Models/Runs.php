@@ -13,14 +13,16 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 
-/**
- * Class retrieves information for a filtered set of runs.
- */
+/** @inheritDoc */
 class Runs extends ListModel
 {
-    protected string $defaultOrdering = 't.startDate, name';
-
-    protected $filter_fields = ['termID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 't.startDate, name';
+        $this->filter_fields   = ['termID'];
+        parent::__construct($config);
+    }
 
     /**
      * Method to get a list of resources from the database.

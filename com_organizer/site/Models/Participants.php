@@ -20,13 +20,11 @@ class Participants extends ListModel
 {
     use Participated;
 
-    protected string $defaultOrdering = 'fullName';
-
-    protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
-
     /** @inheritDoc */
     public function __construct($config = [])
     {
+        $this->defaultOrdering = 'fullName';
+        $this->filter_fields   = ['attended', 'duplicates', 'paid', 'programID'];
         parent::__construct($config);
 
         if (!Application::backend()) {

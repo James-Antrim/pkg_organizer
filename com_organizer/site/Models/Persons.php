@@ -14,16 +14,18 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\Database as DB;
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class retrieves information for a filtered set of persons.
- */
+/** @inheritDoc */
 class Persons extends ListModel
 {
     use Activated;
 
-    protected string $defaultOrdering = 'surname, forename';
-
-    protected $filter_fields = ['organizationID', 'suppress'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'surname, forename';
+        $this->filter_fields   = ['organizationID', 'suppress'];
+        parent::__construct($config);
+    }
 
     /**
      * Method to get a list of resources from the database.

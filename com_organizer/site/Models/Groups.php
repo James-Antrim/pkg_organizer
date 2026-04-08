@@ -19,9 +19,13 @@ class Groups extends ListModel
 {
     use Activated;
 
-    protected string $defaultOrdering = 'fullName';
-
-    protected $filter_fields = ['categoryID', 'organizationID', 'gridID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->defaultOrdering = 'fullName';
+        $this->filter_fields   = ['categoryID', 'organizationID', 'gridID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function clean(): void

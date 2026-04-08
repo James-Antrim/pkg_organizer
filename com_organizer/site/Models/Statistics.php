@@ -14,9 +14,7 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Database as DB, Form};
 use THM\Organizer\Helpers\{Categories, Methods, Terms};
 
-/**
- * Class calculates lesson statistics and loads them into the view context.
- */
+/** @inheritDoc */
 class Statistics extends ListModel
 {
     /** @inheritDoc */
@@ -59,7 +57,7 @@ class Statistics extends ListModel
         else {
             if ($organizationID = (int) $state->get('list.organizationID')) {
                 $query->select($query->groupConcat('DISTINCT ' . DB::qn('g.categoryID')) . ' AS ' . DB::qn('resourceIDs'))
-                    ->where(DB::qc('a.organizationID', $organizationID));;
+                    ->where(DB::qc('a.organizationID', $organizationID));
             }
             else {
                 $query->select($query->groupConcat('DISTINCT ' . DB::qn('a.organizationID')) . ' AS ' . DB::qn('resourceIDs'));

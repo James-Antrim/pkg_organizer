@@ -14,12 +14,15 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class retrieves information for a filtered set of campuses.
- */
+/** @inheritDoc */
 class Campuses extends ListModel
 {
-    protected $filter_fields = ['city', 'gridID'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['city', 'gridID'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
@@ -85,7 +88,7 @@ class Campuses extends ListModel
     /**
      * Filters according to the selected city.
      *
-     * @param   DatabaseQuery  $query  the query to modify
+     * @param DatabaseQuery $query the query to modify
      *
      * @return void
      */
@@ -114,7 +117,7 @@ class Campuses extends ListModel
     /**
      * Filters according to the selected grid.
      *
-     * @param   DatabaseQuery  $query  the query to modify
+     * @param DatabaseQuery $query the query to modify
      *
      * @return void
      */

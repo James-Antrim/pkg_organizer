@@ -14,9 +14,7 @@ use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\{Can, Organizations as Helper};
 
-/**
- * Class retrieves information for a filtered set of organizations.
- */
+/** @inheritDoc */
 class Organizations extends ListModel
 {
     /**

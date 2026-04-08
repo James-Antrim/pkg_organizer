@@ -14,12 +14,15 @@ use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers\Can;
 
-/**
- * Class retrieves the data regarding a filtered set of buildings.
- */
+/** @inheritDoc */
 class CleaningGroups extends ListModel
 {
-    protected $filter_fields = ['relevant'];
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->filter_fields = ['relevant'];
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     protected function getListQuery(): DatabaseQuery
