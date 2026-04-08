@@ -15,8 +15,6 @@ use THM\Organizer\Helpers\{Pools as Helper, Programs};
 /** @inheritDoc */
 class Pool extends EditModel
 {
-    protected string $tableClass = 'Pools';
-
     /** @inheritDoc */
     public function getItem(): object
     {

@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use Exception;
 use Joomla\CMS\Table\Table as CoreTable;
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, FormFactory, MVCFactory};
+use THM\Organizer\Tables\Table;
 
 /**
  * Class for editing a single resource record, based loosely on AdminModel, but without all the extra code it now caries
@@ -41,9 +41,8 @@ abstract class EditModel extends FormModel
     public function __construct($config, MVCFactory $factory, FormFactory $formFactory)
     {
         if (empty($this->tableClass)) {
-            $childClass = get_called_class();
-            $exception  = new Exception("$childClass has not specified its associated table.");
-            Application::handleException($exception);
+            $class            = Application::ucClass(Application::uqClass($this));
+            $this->tableClass = Application::pluralize($class);
         }
 
         parent::__construct($config, $factory, $formFactory);
@@ -57,6 +56,8 @@ abstract class EditModel extends FormModel
     {
         if (!$this->item) {
             $rowID = Input::selectedID();
+
+            /** @var Table $table */
             $table = $this->getTable();
             $table->load($rowID);
             $properties = $table->getProperties();
@@ -71,9 +72,9 @@ abstract class EditModel extends FormModel
      * Method to get a table object, load it if necessary. Comment override necessary to prevent throws from being passed down the
      * chain.
      *
-     * @param   string  $name     the table name, unused
-     * @param   string  $prefix   the class prefix, unused
-     * @param   array   $options  configuration array for model, unused
+     * @param string $name    the table name, unused
+     * @param string $prefix  the class prefix, unused
+     * @param array  $options configuration array for model, unused
      *
      * @return  CoreTable  a table object
      */

@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class Person extends Associated
 {
-    protected string $tableClass = 'Persons';
+    // Everything is taken care of in the inheritance hierarchy.
 }

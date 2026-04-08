@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class Minor extends EditModel
 {
-    protected string $tableClass = 'Minors';
+    // Everything is taken care of in the inheritance hierarchy.
 }

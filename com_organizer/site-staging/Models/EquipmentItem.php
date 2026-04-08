@@ -18,8 +18,6 @@ use THM\Organizer\Helpers\Can;
  */
 class EquipmentItem extends EditModel
 {
-    protected string $tableClass = 'Equipment';
-
     /**
      * Checks access to edit the resource.
      * @return void

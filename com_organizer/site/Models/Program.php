@@ -18,12 +18,6 @@ use THM\Organizer\Helpers\Programs as Helper;
  */
 class Program extends EditModel
 {
-    /**
-     * The resource's table class.
-     * @var string
-     */
-    protected string $tableClass = 'Programs';
-
     /** @inheritDoc */
     public function getForm($data = [], $loadData = true): ?Form
     {

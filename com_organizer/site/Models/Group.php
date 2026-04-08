@@ -15,5 +15,5 @@ namespace THM\Organizer\Models;
  */
 class Group extends Associated
 {
-    protected string $tableClass = 'Groups';
+    // Everything is taken care of in the inheritance hierarchy.
 }

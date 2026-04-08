@@ -15,5 +15,5 @@ namespace THM\Organizer\Models;
  */
 class Campus extends EditModel
 {
-    protected string $tableClass = 'Campuses';
+    // Everything is taken care of in the inheritance hierarchy.
 }

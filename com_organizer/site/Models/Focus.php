@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class Focus extends EditModel
 {
-    protected string $tableClass = 'Foci';
+    // Everything is taken care of in the inheritance hierarchy.
 }

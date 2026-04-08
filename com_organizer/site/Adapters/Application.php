@@ -441,10 +441,11 @@ class Application
         }
         else {
             $irregular = [
-                'Category'  => 'Categories',
-                'Focus'     => 'Foci',
-                'Frequency' => 'Frequencies',
-                'Nomen'     => 'Nomina',
+                'Category'      => 'Categories',
+                'EquipmentItem' => 'Equipment',
+                'Focus'         => 'Foci',
+                'Frequency'     => 'Frequencies',
+                'Nomen'         => 'Nomina',
             ];
             return array_key_exists($class, $irregular) ? $irregular[$class] : $class . 's';
         }
@@ -497,6 +498,7 @@ class Application
         $irregular = [
             'Categories'  => 'Category',
             'Campuses'    => 'Campus',
+            'Equipment'   => 'EquipmentItem',
             'Foci'        => 'Focus',
             'Frequencies' => 'Frequency',
             'Nomina'      => 'Nomen',

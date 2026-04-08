@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class Grid extends EditModel
 {
-    protected string $tableClass = 'Grids';
+    // Everything is taken care of in the inheritance hierarchy.
 }

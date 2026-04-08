@@ -16,8 +16,6 @@ use Joomla\Database\ParameterType;
 /** @inheritDoc */
 class RoomKey extends EditModel
 {
-    protected string $tableClass = 'RoomKeys';
-
     /** @inheritDoc */
     public function getItem(): object
     {

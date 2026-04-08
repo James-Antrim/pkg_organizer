@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class CleaningGroup extends EditModel
 {
-    protected string $tableClass = 'CleaningGroups';
+    // Everything is taken care of in the inheritance hierarchy.
 }

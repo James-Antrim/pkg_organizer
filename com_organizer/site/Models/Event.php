@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class Event extends EditModel
 {
-    protected string $tableClass = 'Events';
+    // Everything is taken care of in the inheritance hierarchy.
 }

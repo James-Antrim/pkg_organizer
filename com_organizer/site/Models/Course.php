@@ -20,8 +20,6 @@ use Joomla\Database\ParameterType;
  */
 class Course extends EditModel
 {
-    protected string $tableClass = 'Courses';
-
     /** @inheritDoc */
     public function getForm($data = [], $loadData = true): ?FormAlias
     {
@@ -134,7 +132,7 @@ class Course extends EditModel
     /**
      * Retrieves events associated with the given course.
      *
-     * @param   int  $courseID  the id of the course
+     * @param int $courseID the id of the course
      *
      * @return array[] the events associated with the course
      */
@@ -269,9 +267,9 @@ class Course extends EditModel
     /**
      * Gets persons associated with the given course, optionally filtered by event and role.
      *
-     * @param   int    $courseID  the id of the course
-     * @param   int    $eventID   the id of the event
-     * @param   array  $roleIDs   the id of the roles the persons should have
+     * @param int   $courseID the id of the course
+     * @param int   $eventID  the id of the event
+     * @param array $roleIDs  the id of the roles the persons should have
      *
      * @return string[] the persons matching the search criteria
      */

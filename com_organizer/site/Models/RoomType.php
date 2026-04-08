@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class RoomType extends EditModel
 {
-    protected string $tableClass = 'RoomTypes';
+    // Everything is taken care of in the inheritance hierarchy.
 }

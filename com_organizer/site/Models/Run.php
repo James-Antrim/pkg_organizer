@@ -17,8 +17,6 @@ use THM\Organizer\Helpers\Terms;
 /** @inheritDoc */
 class Run extends EditModel
 {
-    protected string $tableClass = 'Runs';
-
     /** @inheritDoc */
     public function getForm($data = [], $loadData = true): ?FormAlias
     {

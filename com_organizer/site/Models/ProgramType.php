@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class ProgramType extends EditModel
 {
-    protected string $tableClass = 'ProgramTypes';
+    // Everything is taken care of in the inheritance hierarchy.
 }

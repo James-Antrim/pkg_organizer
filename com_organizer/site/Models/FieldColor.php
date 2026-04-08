@@ -16,8 +16,6 @@ use THM\Organizer\Adapters\Input;
 /** @inheritDoc */
 class FieldColor extends EditModel
 {
-    protected string $tableClass = 'FieldColors';
-
     /** @inheritDoc */
     public function getForm($data = [], $loadData = true): ?FormAlias
     {

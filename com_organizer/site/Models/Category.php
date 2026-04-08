@@ -15,5 +15,5 @@ namespace THM\Organizer\Models;
  */
 class Category extends Associated
 {
-    protected string $tableClass = 'Categories';
+    // Everything is taken care of in the inheritance hierarchy.
 }

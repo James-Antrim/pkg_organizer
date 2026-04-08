@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class Organization extends EditModel
 {
-    protected string $tableClass = 'Organizations';
+    // Everything is taken care of in the inheritance hierarchy.
 }

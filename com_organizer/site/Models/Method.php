@@ -13,5 +13,5 @@ namespace THM\Organizer\Models;
 /** @inheritDoc */
 class Method extends EditModel
 {
-    protected string $tableClass = 'Methods';
+    // Everything is taken care of in the inheritance hierarchy.
 }

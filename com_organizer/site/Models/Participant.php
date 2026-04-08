@@ -17,8 +17,6 @@ use THM\Organizer\Fields\{Programs, Text};
 /** @inheritDoc */
 class Participant extends EditModel
 {
-    protected string $tableClass = 'Participants';
-
     /** @inheritDoc */
     protected function preprocessForm(Form $form, $data, $group = 'content'): void
     {

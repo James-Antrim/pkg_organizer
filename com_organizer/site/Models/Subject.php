@@ -17,12 +17,10 @@ use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 /** @inheritDoc */
 class Subject extends EditModel
 {
-    protected string $tableClass = 'Subjects';
-
     /**
      * Loads an array of names and links into the subject model for subjects for which this subject is a prerequisite.
      *
-     * @param   object  $subject  the subject being displayed
+     * @param object $subject the subject being displayed
      *
      * @return array
      */
@@ -322,7 +320,7 @@ class Subject extends EditModel
     /**
      * Aggregates pool assignments by program context as texts.
      *
-     * @param   object  $subject  the subject item being displayed
+     * @param object $subject the subject item being displayed
      *
      * @return array
      */
