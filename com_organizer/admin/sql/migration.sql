@@ -234,9 +234,6 @@ ALTER TABLE `v7ocf_organizer_programs`
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_minorID_fk` FOREIGN KEY (`minorID`) REFERENCES `v7ocf_organizer_minors` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `attendance` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER `nomenID`;
-
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_foci`
 (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
