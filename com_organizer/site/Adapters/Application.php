@@ -35,8 +35,8 @@ class Application
 
     /**
      * Unused locally, but Joomla supported.
-     * @ALERT, @CRITICAL, @EMERGENCY: danger
-     * @DEBUG, @INFO : info
+     * @ALERT @CRITICAL @EMERGENCY: danger
+     * @DEBUG @INFO : info
      *
      * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency';
      */
@@ -546,6 +546,8 @@ class Application
             'mergeparticipants' => 'MergeParticipants',
             'mergepersons' => 'MergePersons',
             'mergerooms' => 'MergeRooms',
+            'programforms' => 'ProgramForms',
+            'programform' => 'ProgramForm',
             'programtypes' => 'ProgramTypes',
             'programtype' => 'ProgramType',
             'roomkey' => 'RoomKey',
