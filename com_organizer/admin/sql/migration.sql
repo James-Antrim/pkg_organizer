@@ -442,3 +442,16 @@ UPDATE `v7ocf_organizer_programs` AS `p`
     INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
     SET `p`.`formID` = 4
 WHERE `d`.`name` LIKE 'Master%' AND `p`.`name_de` LIKE '%dual%';
+
+ALTER TABLE `v7ocf_organizer_programs`
+DROP COLUMN `alias`,
+    DROP COLUMN `name_de`,
+    DROP COLUMN `name_en`,
+    DROP COLUMN `organizationID`;
+
+ALTER TABLE `v7ocf_organizer_programs` DROP CONSTRAINT `program_degreeID_fk`;
+
+ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `degreeID` INT(11) UNSIGNED NOT NULL;
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `v7ocf_organizer_degrees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
