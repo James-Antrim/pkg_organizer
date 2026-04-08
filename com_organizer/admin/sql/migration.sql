@@ -397,3 +397,48 @@ UPDATE `v7ocf_organizer_programs` AS `p`
     INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
     SET `p`.`typeID` = 3
 WHERE `d`.`name` LIKE 'Master%' AND `p`.`typeID` IS NULL;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_forms`
+(
+    `id`            INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`      VARCHAR(255)     NOT NULL,
+    `alias_en`      VARCHAR(255)     NOT NULL,
+    `code`          VARCHAR(60)      NOT NULL,
+    `name_de`       VARCHAR(255)     NOT NULL,
+    `name_en`       VARCHAR(255)     NOT NULL,
+    `statisticCode` VARCHAR(10)      NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+    )
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `v7ocf_organizer_program_forms`
+VALUES (1, 'vollzeit', 'full-time', 'V', 'Vollzeit', 'Full-Time', '1'),
+       (2, 'teilzeit', 'part-time', 'S', 'Teilzeit', 'Part-Time', '2'),
+       (3, 'duales-studium-erstausbildung', 'dual-study-initial', '5', 'Duales Studium (Erstausbildung)', 'Dual Study (Initial)', '5'),
+       (4, 'duales-studium-weiterbildung', 'dual-study-consecutive', '7', 'Duales Studium (Weiterbildung)', 'Dual Study (Consecutive)', '7');
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `formID` INT(11) UNSIGNED DEFAULT NULL AFTER `focusID`,
+    ADD KEY `formID` (`formID`),
+    ADD CONSTRAINT `program_formID_fk` FOREIGN KEY (`formID`) REFERENCES `v7ocf_organizer_program_forms` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+UPDATE `v7ocf_organizer_programs` SET `formID` = 1;
+
+UPDATE `v7ocf_organizer_programs` SET `formID` = 2 WHERE `id` = 28;
+
+UPDATE `v7ocf_organizer_programs` AS `p`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    SET `p`.`formID` = 3
+WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`name_de` LIKE '%dual%';
+
+UPDATE `v7ocf_organizer_programs` AS `p`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    SET `p`.`formID` = 4
+WHERE `d`.`name` LIKE 'Master%' AND `p`.`name_de` LIKE '%dual%';
