@@ -18,46 +18,51 @@ use THM\Organizer\Adapters\Application;
 class Programs extends Table
 {
     use Activated;
-    use Aliased;
-    use Localized;
 
     /**
-     * The year in which the program was accredited.
      * YEAR(4) NOT NULL
      * @var int
      */
     public int $accredited;
 
     /**
-     * The id of the category entry referenced. Independent of FK cascading, this can legitimately not reference a category.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
+     */
+    public int|null $aTypeID = null;
+
+    /**
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
     public int|null $categoryID = null;
 
     /**
-     * The id of the degree entry referenced. Null is available as the referenced purposefully does not cascade on delete.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
+     */
+    public int|null $campusID = null;
+
+    /**
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
     public int|null $degreeID = null;
 
     /**
-     * The resource's German description.
      * TEXT
      * @var string
      */
     public string $description_de = '';
 
     /**
-     * The resource's English description.
      * TEXT
      * @var string
      */
     public string $description_en = '';
 
     /**
-     * A flag which displays whether the program has a fee.
+     * A flag which displays whether the program has a fee, not the actual fee.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var int
      * @bool
@@ -65,14 +70,19 @@ class Programs extends Table
     public int $fee = 0;
 
     /**
-     * The id of the frequency entry referenced. Independent of FK cascading, this can legitimately not reference a frequency.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
+     */
+    public int|null $focusID = null;
+
+    /**
      * INT(1) UNSIGNED DEFAULT NULL
      * @var int|null
      */
     public int|null $frequencyID = null;
 
     /**
-     * A flag which displays whether the program has a restricted number of participants.
+     * Numerus clausus.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var int
      * @bool
@@ -80,20 +90,17 @@ class Programs extends Table
     public int $nc = 0;
 
     /**
-     * The id of the nomen entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
+     */
+    public int|null $minorID = null;
+
+    /**
+     * The id of the nomen (base name) for the program.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
     public int|null $nomenID = null;
-
-    /**
-     * The associated organization id.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int|null
-     * @deprecated is this still filled to show priority or was this replaced completely by the associations table?
-     */
-    public int|null $organizationID = null;
 
     /**
      * A flag which displays whether the program has special participation requirements
@@ -102,6 +109,12 @@ class Programs extends Table
      * @bool
      */
     public int $special = 0;
+
+    /**
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
+     */
+    public int|null $typeID = null;
 
     /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
@@ -115,12 +128,11 @@ class Programs extends Table
     /** @inheritDoc */
     public function check(): bool
     {
-        if (empty($this->alias)) {
-            $this->alias = null;
-        }
-
-        if (empty($this->categoryID)) {
-            $this->categoryID = null;
+        $nullable = ['campusID', 'categoryID', 'focusID', 'formID', 'frequencyID', 'minorID', 'typeID'];
+        foreach ($nullable as $property) {
+            if (empty($this->$property)) {
+                $this->$property = null;
+            }
         }
 
         return true;

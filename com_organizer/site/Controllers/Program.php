@@ -162,7 +162,7 @@ class Program extends CurriculumResource
         $data['organizationIDs'] = Input::resourceIDs('organizationIDs');
         $data['subordinates']    = $this->subordinates();
 
-        $this->validate($data, ['accredited', 'code', 'degreeID', 'name_de', 'name_en', 'organizationIDs']);
+        $this->validate($data, ['accredited', 'aTypeID', 'campusID', 'degreeID', 'formID', 'nomenID', 'organizationIDs', 'typeID']);
 
         return $data;
     }
