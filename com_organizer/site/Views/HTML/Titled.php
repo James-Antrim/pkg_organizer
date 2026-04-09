@@ -70,7 +70,7 @@ trait Titled
 
         // Title for the document / the browser tab
         $title = strip_tags($title) . ' - ' . Application::instance()->get('sitename');
-        $title .= Application::backend() ? ' - ' . Text::_('SITE_ADMINISTRATION') : '';
+        $title .= Application::backend() ? ' - ' . Text::_('ADMINISTRATION') : '';
 
         Document::title($title);
     }
