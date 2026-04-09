@@ -35,8 +35,8 @@ class RoomTypes extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   bool  $associated  whether the type needs to be associated with a room
-     * @param   bool  $suppressed  whether suppressed types should also be included in the result set
+     * @param bool $associated whether the type needs to be associated with a room
+     * @param bool $suppressed whether suppressed types should also be included in the result set
      */
     public static function resources(bool $associated = self::YES, bool $suppressed = self::NO): array
     {
@@ -63,9 +63,9 @@ class RoomTypes extends ResourceHelper implements Selectable
             $query->where(DB::qn('r.roomtypeID') . ' IS NULL');
         }
 
-        Buildings::filterBy($query, 'r', Input::integer('buildingID'));
+        Buildings::filterBy($query, 'r', Input::resourceIDs('buildingID'));
 
-        if ($campusID = Input::integer('campusID')) {
+        if ($campusID = Input::resourceIDs('campusID')) {
             $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
             Campuses::filterBy($query, 'b2', $campusID);
         }
