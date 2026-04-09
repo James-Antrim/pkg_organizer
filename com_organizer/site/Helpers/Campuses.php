@@ -26,7 +26,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
     /**
      * Retrieves the ids of buildings associated with this campus.
      *
-     * @param   int  $campusID  the id of the campus
+     * @param int $campusID the id of the campus
      *
      * @return int[]
      */
@@ -55,7 +55,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
     /**
      * Retrieves the ids of subordinate campuses.
      *
-     * @param   int  $parentID  the id of the superordinate campus
+     * @param int $parentID the id of the superordinate campus
      *
      * @return int[]
      */
@@ -92,7 +92,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
     /**
      * Retrieves the default grid id for the given campus
      *
-     * @param   int  $campusID  the id of the campus
+     * @param int $campusID the id of the campus
      *
      * @return int
      */
@@ -117,7 +117,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
     /**
      * Gets the qualified campus name
      *
-     * @param   int  $resourceID  the campus' id
+     * @param int $resourceID the campus' id
      *
      * @return string
      */
@@ -168,7 +168,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
             ->order(DB::qn(['parentName', 'name']));
 
         // Only parents
-        if (strtolower(Input::view()) === 'campus') {
+        if (in_array(strtolower(Input::view()), ['campus', 'campuses', 'program', 'programs'])) {
             $query->where(DB::qn('c1.parentID') . ' IS NULL');
 
             // Not self
