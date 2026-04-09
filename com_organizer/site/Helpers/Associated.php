@@ -18,8 +18,6 @@ use THM\Organizer\Adapters\{Database as DB, Input};
  */
 abstract class Associated extends ResourceHelper
 {
-    protected static string $resource = '';
-
     /**
      * Checks whether a given resource is associated with a given organization.
      *

@@ -22,6 +22,9 @@ class Programs extends Curricula implements Selectable
 {
     use Active;
 
+    // Default values that should not appear in names.
+    public const FULLTIME = 1, ON_CAMPUS = 1;
+
     protected static string $resource = 'program';
 
     public const UNVERSIONED = 1996;
@@ -43,6 +46,37 @@ class Programs extends Curricula implements Selectable
         }
 
         return $degreeID;
+    }
+
+    public static function fullName(stdClass $program): string
+    {
+        $fullName = $program->name;
+
+        $attRelevant  = ($program->aTypeID and $program->aTypeID != self::ON_CAMPUS);
+        $formRelevant = ($program->formID and $program->formID != self::FULLTIME);
+        if ($attRelevant or $formRelevant or $program->degree or $program->year) {
+            $parantheticals   = [$program->degree, $program->year];
+            $parantheticals[] = $attRelevant ? $program->attendanceType : null;
+            if ($formRelevant) {
+                // Configured values are redundantly differentiated by the type attribute
+                if (str_contains(strtolower($program->form), 'dual')) {
+                    $parantheticals[] = preg_replace('/ \([^)]+\)/', '', $program->form);
+                }
+                else {
+                    $parantheticals[] = $program->form;
+                }
+            }
+            $parantheticals = array_filter($parantheticals);
+            $fullName       .= ' (' . implode(', ', $parantheticals) . ')';
+        }
+
+        if ($program->minor or $program->focus) {
+            $specifics = [$program->minor, $program->focus];
+            $specifics = array_filter($specifics);
+            $fullName  .= ', ' . implode(', ', $specifics);
+        }
+
+        return $fullName;
     }
 
     /**
@@ -94,19 +128,12 @@ class Programs extends Curricula implements Selectable
             return Text::_('NO_PROGRAM');
         }
 
-        $query = DB::query();
-        $tag   = Application::tag();
-
-        $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('p.accredited'), "')'"];
-        $query->select($query->concatenate($parts, "") . ' AS ' . DB::qn('name'))
-            ->from(DB::qn('#__organizer_programs', 'p'))
-            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
-            ->where(DB::qn('p.id') . ' = :programID')
-            ->bind(':programID', $resourceID, ParameterType::INTEGER);
+        $query = self::query();
+        $query->where(DB::qc('p.id', $resourceID));
 
         DB::set($query);
 
-        return DB::string();
+        return self::fullName(DB::object());
     }
 
     /**
@@ -130,8 +157,8 @@ class Programs extends Curricula implements Selectable
     {
         $options = [];
         foreach (self::resources($access) as $program) {
-            if ($program['active']) {
-                $options[] = HTML::option($program['id'], $program['fullName']);
+            if ($program->active) {
+                $options[] = HTML::option($program->id, self::fullName($program));
             }
         }
 
@@ -146,8 +173,7 @@ class Programs extends Curricula implements Selectable
     public static function resources(string $access = ''): array
     {
         $query = self::query();
-        $query->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
-            ->order(DB::qn('name'));
+        $query->innerJoin(DB::qn('#__organizer_curricula', 'cr'), DB::qc('cr.programID', 'p.id'));
 
         self::filterByAccess($query, 'p', $access);
         self::filterByOrganizations($query, 'p', Input::resourceIDs('organizationID'));
@@ -156,7 +182,7 @@ class Programs extends Curricula implements Selectable
             $tag = Application::tag();
 
             $conditions = DB::qcs([
-                ["grouped.name_$tag", "p.name_$tag"],
+                ["grouped.name_$tag", "n.name_$tag"],
                 ['grouped.degreeID', 'p.degreeID'],
                 ['grouped.accredited', 'p.accredited'],
             ]);
@@ -172,7 +198,7 @@ class Programs extends Curricula implements Selectable
 
         DB::set($query);
 
-        return DB::arrays('id');
+        return DB::objects('id');
     }
 
     /**
@@ -183,21 +209,33 @@ class Programs extends Curricula implements Selectable
     {
         $query = DB::query();
         $tag   = Application::tag();
-        $url   = 'index.php?option=com_organizer&view=Program&id=';
+        $url   = 'index.php?option=com_organizer&view=program&id=';
 
-        $selected   = DB::qn(['p.id', 'p.active']);
-        $start      = [DB::qn("n.name_$tag"), "' ('", DB::qn('d.abbreviation')];
-        $end        = self::useCurrent() ? ["')'"] : ["', '", DB::qn('p.accredited'), "')'"];
-        $parts      = array_merge($start, $end);
-        $selected[] = $query->concatenate($parts, '') . ' AS ' . DB::qn('fullName');
+        $distinct = ['DISTINCT' . DB::qn('p.id')];
+        $aliased  = DB::qn(
+            ["at.name_$tag", "c.name_$tag", 'd.abbreviation', "fc.name_$tag", "fq.name_$tag", "m.name_$tag", "n.name_$tag", 'p.accredited', "pf.name_$tag", "pt.name_$tag"],
+            ['attendanceType', 'campus', 'degree', 'focus', 'frequency', 'minor', 'name', 'year', 'form', 'type']
+        );
+        $selected = DB::qn([
+            'p.active', 'aTypeID', 'campusID', 'degreeID', 'fee', 'focusID', 'formID', 'frequencyID', 'minorID', 'nc',
+            'nomenID', 'special', 'p.typeID'
+        ]);
 
-        $aliased = DB::qn(["n.name_$tag", 'd.abbreviation', 'p.accredited'], ['name', 'degree', 'year']);
-        $url     = [$query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')];
+        $url = [$query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')];
 
-        $query->select(array_merge($selected, $aliased, $url))
+        $query->select(array_merge($distinct, $selected, $aliased, $url))
             ->from(DB::qn('#__organizer_programs', 'p'))
+            ->leftJoin(DB::qn('#__organizer_attendance_types', 'at'), DB::qn('at.id') . ' = ' . DB::qn('p.aTypeID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qn('c.id') . ' = ' . DB::qn('p.campusID'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qn('d.id') . ' = ' . DB::qn('p.degreeID'))
+            ->leftJoin(DB::qn('#__organizer_foci', 'fc'), DB::qn('fc.id') . ' = ' . DB::qn('p.focusID'))
+            ->leftJoin(DB::qn('#__organizer_frequencies', 'fq'), DB::qn('fq.id') . ' = ' . DB::qn('p.frequencyID'))
+            ->leftJoin(DB::qn('#__organizer_program_forms', 'pf'), DB::qn('pf.id') . ' = ' . DB::qn('p.formID'))
+            ->leftJoin(DB::qn('#__organizer_program_types', 'pt'), DB::qn('pt.id') . ' = ' . DB::qn('p.typeID'))
+            ->leftJoin(DB::qn('#__organizer_minors', 'm'), DB::qn('m.id') . ' = ' . DB::qn('p.minorID'))
             ->innerJoin(DB::qn('#__organizer_nomina', 'n'), DB::qn('n.id') . ' = ' . DB::qn('p.nomenID'))
-            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qn('d.id') . ' = ' . DB::qn('p.degreeID'));
+            ->innerJoin(DB::qn('#__organizer_program_types', 't'), DB::qn('t.id') . ' = ' . DB::qn('p.typeID'))
+            ->order(DB::qn(['name', 'degree', 'year', 'minor', 'focus', 'campus', 'attendanceType', 'form']));
 
         return $query;
     }

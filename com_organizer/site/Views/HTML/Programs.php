@@ -47,19 +47,22 @@ class Programs extends ListView
     /** @inheritDoc */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        if (Application::backend()) {
-            $item->active = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Programs');
-        }
-        else {
-            $item->links = '';
+        $item->fullName = Helper::fullName($item);
 
-            foreach ($options['links'] as $view => $icon) {
-                $context     = strtolower($view) . "-$item->id";
-                $tip         = strtoupper($view);
-                $url         = "index.php?option=com_organizer&view=$view&programID=$item->id";
-                $item->links .= HTML::tip($icon, $context, $tip, [], $url, true);
-            }
+        $item->active    = HTML::toggle($index, Helper::ACTIVE_STATES[$item->active], 'Programs');
+        $item->campus    = $item->campus ?? '-';
+        $item->focus     = $item->focus ?? '-';
+        $item->frequency = $item->frequency ?? '-';
+        $item->links     = '';
+        $item->minor     = $item->minor ?? '-';
+
+        foreach ($options['links'] as $view => $icon) {
+            $context     = strtolower($view) . "-$item->id";
+            $tip         = strtoupper($view);
+            $url         = "index.php?option=com_organizer&view=$view&programID=$item->id";
+            $item->links .= HTML::tip($icon, $context, $tip, [], $url, true);
         }
+        //echo "<pre>" . print_r($item, true) . "</pre>";
     }
 
     /** @inheritDoc */
@@ -84,21 +87,11 @@ class Programs extends ListView
                 'title'      => Text::_('Name'),
                 'type'       => 'text'
             ],
-            'degree'   => [
+            'campus'   => [
                 'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('DEGREE'),
+                'title'      => Text::_('CAMPUS'),
                 'type'       => 'text'
             ],
-            'year'     => [
-                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('YEAR'),
-                'type'       => 'text'
-            ],
-            /*'minor'  => [
-                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('MINOR'),
-                'type'       => 'text'
-            ],*/
         ];
 
         if (!Application::backend()) {

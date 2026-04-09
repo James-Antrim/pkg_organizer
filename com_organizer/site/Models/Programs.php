@@ -64,12 +64,15 @@ class Programs extends ListModel
 
         $this->filterByOrganizations($query, 'p');
 
-        $searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
+        $searchColumns = [
+            'at.name_de', 'at.name_en', 'c.name_de', 'c.name_en', 'fc.name_de', 'fc.name_en', 'pf.name_de', 'pf.name_en', 'm.name_de', 'm.name_en',
+            'n.name_de', 'n.name_en', 'accredited', 'd.name', 'description_de', 'description_en'
+        ];
         $this->filterSearch($query, $searchColumns);
 
         $this->filterValues($query, ['degreeID', 'frequencyID', 'accredited']);
 
-        $this->orderBy($query);
+        //echo "<pre>" . print_r((string) $query, true) . "</pre>";
 
         return $query;
     }
