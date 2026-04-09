@@ -23,8 +23,8 @@ abstract class Associated extends ResourceHelper
     /**
      * Checks whether a given resource is associated with a given organization.
      *
-     * @param   array|int  $organizationIDs  the id of the organization or organizations
-     * @param   int        $resourceID       the id of the resource
+     * @param array|int $organizationIDs the id of the organization or organizations
+     * @param int       $resourceID      the id of the resource
      *
      * @return bool
      */
@@ -49,7 +49,7 @@ abstract class Associated extends ResourceHelper
     /**
      * Gets the ids of inheriting resources associated with the given organization ids.
      *
-     * @param   int[]  $organizationIDs  the organization ids with which the resources should be associated
+     * @param int[] $organizationIDs the organization ids with which the resources should be associated
      *
      * @return array
      */
@@ -73,14 +73,19 @@ abstract class Associated extends ResourceHelper
     /**
      * Adds access filter clauses to the given query.
      *
-     * @param   DatabaseQuery  $query   the query to modify
-     * @param   string         $alias   the alias being used for the resource table
-     * @param   string         $access  the access right to be filtered against
+     * @param DatabaseQuery $query  the query to modify
+     * @param string        $alias  the alias being used for the resource table
+     * @param string        $access the access right to be filtered against
      *
      * @return void
      */
     public static function filterByAccess(DatabaseQuery $query, string $alias, string $access): void
     {
+        // Administrators can access anything and this precludes access rights prefiltering unassociated resources.
+        if (Can::administrate()) {
+            return;
+        }
+
         switch ($access) {
             case 'document':
                 $authorized = Organizations::documentableIDs();
@@ -108,9 +113,9 @@ abstract class Associated extends ResourceHelper
      * should use the filterByKey function. Explicitly named because of its availability through inheriting classes and not the
      * organizations helper.
      *
-     * @param   DatabaseQuery  $query            the query to modify
-     * @param   string         $alias            the alias of the table where the campusID is a column
-     * @param   array          $organizationIDs  the id sof the organizations to use as a filter
+     * @param DatabaseQuery $query           the query to modify
+     * @param string        $alias           the alias of the table where the campusID is a column
+     * @param array         $organizationIDs the id sof the organizations to use as a filter
      *
      * @return void
      */
@@ -136,7 +141,7 @@ abstract class Associated extends ResourceHelper
     /**
      * The ids of organizations associated with the resource.
      *
-     * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
+     * @param int $resourceID the id of the resource for which the associated organizations are requested
      *
      * @return int[]
      */
