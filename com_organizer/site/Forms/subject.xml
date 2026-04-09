@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-    <fieldset name="details" label="ORGANIZER_PROPERTIES_BASIC">
+    <fieldset name="details" label="ORGANIZER_BASIC_PROPERTIES">
         <field name="id" type="hidden"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
                required="true"/>

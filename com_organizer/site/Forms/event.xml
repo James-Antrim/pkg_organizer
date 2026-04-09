@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form>
-    <fieldset name="details" label="ORGANIZER_PROPERTIES_BASIC">
+    <fieldset name="details" label="ORGANIZER_BASIC_PROPERTIES">
         <field name="id" type="hidden"/>
         <field name="code" type="text" label="ORGANIZER_UNTIS_ID" maxlength="60" required="true"/>
         <field name="campusID" type="Campuses" label="ORGANIZER_CAMPUS">
