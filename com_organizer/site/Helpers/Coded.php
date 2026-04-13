@@ -30,7 +30,7 @@ trait Coded
         }
 
 
-        if (is_int($identifier) and $table->load(['code' => $identifier])) {
+        if (is_string($identifier) and $table->load(['code' => $identifier])) {
             /** @var Table $table */
             return $table->code;
         }
