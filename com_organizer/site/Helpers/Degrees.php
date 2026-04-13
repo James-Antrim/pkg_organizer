@@ -15,6 +15,7 @@ namespace THM\Organizer\Helpers;
  */
 class Degrees extends ResourceHelper
 {
+    use Coded;
     use Statistical;
 
     public const BACHELOR = 84, CERTIFICATE = 94, MASTER = 90, NO_DEGREE = 97, TEST = 17;
@@ -36,8 +37,16 @@ class Degrees extends ResourceHelper
      */
     public static function level(int $degreeID): string
     {
-        $code = self::getCode($degreeID);
+        $code = self::code($degreeID);
 
-        return str_starts_with($code, 'M') ? 'Master' : 'Bachelor';
+        if (str_starts_with($code, 'B')) {
+            return 'Bachelor';
+        }
+
+        if (str_starts_with($code, 'M')) {
+            return 'Master';
+        }
+
+        return '';
     }
 }

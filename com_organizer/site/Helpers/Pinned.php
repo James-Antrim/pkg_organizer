@@ -19,13 +19,13 @@ trait Pinned
     /**
      * Gets the resource's coordinates.
      *
-     * @param   int  $resourceID  the id of the campus
+     * @param int $resourceID the id of the campus
      *
      * @return string the HTML for the location link
      */
     public static function getLocation(int $resourceID): string
     {
-        $table = self::getTable();
+        $table = self::table();
         $table->load($resourceID);
 
         return empty($table->location) ? '' : $table->location;
@@ -34,7 +34,7 @@ trait Pinned
     /**
      * Returns a pin icon with a link for the location
      *
-     * @param   int|string  $input  int the id of the campus, string the location coordinates
+     * @param int|string $input int the id of the campus, string the location coordinates
      *
      * @return string the html output of the pin
      */

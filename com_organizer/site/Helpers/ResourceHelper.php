@@ -19,33 +19,9 @@ use THM\Organizer\Tables;
 abstract class ResourceHelper
 {
     /**
-     * Attempts to retrieve the code of the resource.
-     *
-     * @param   int  $resourceID  the id of the resource
-     *
-     * @return string
-     */
-    public static function getAbbreviation(int $resourceID): string
-    {
-        return self::getNameAttribute('abbreviation', $resourceID);
-    }
-
-    /**
-     * Attempts to retrieve the code of the resource.
-     *
-     * @param   int  $resourceID  the id of the resource
-     *
-     * @return string
-     */
-    public static function getCode(int $resourceID): string
-    {
-        return self::getNameAttribute('code', $resourceID);
-    }
-
-    /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param   int  $resourceID  the id of the resource
+     * @param int $resourceID the id of the resource
      *
      * @return string
      */
@@ -57,14 +33,14 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param   string  $columnName  the substantive part of the column name to search for
-     * @param   int     $resourceID  the id of the resource
+     * @param string $columnName the substantive part of the column name to search for
+     * @param int    $resourceID the id of the resource
      *
      * @return string
      */
     public static function getNameAttribute(string $columnName, int $resourceID): string
     {
-        $table = self::getTable();
+        $table = self::table();
         if (!$table->load($resourceID)) {
             return '';
         }
@@ -87,7 +63,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param   int  $resourceID  the id of the resource
+     * @param int $resourceID the id of the resource
      *
      * @return string
      */
@@ -99,7 +75,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the plural of the resource.
      *
-     * @param   int  $resourceID  the id of the resource
+     * @param int $resourceID the id of the resource
      *
      * @return string
      */
@@ -111,7 +87,7 @@ abstract class ResourceHelper
     /**
      * Attempts to retrieve the name of the resource.
      *
-     * @param   int  $resourceID  the id of the resource
+     * @param int $resourceID the id of the resource
      *
      * @return string
      */
@@ -124,7 +100,7 @@ abstract class ResourceHelper
      * Returns a table based on the called class.
      * @return Tables\Table
      */
-    public static function getTable(): Tables\Table
+    public static function table(): Tables\Table
     {
         $fqn = "THM\\Organizer\\Tables\\" . Application::uqClass(get_called_class());
 

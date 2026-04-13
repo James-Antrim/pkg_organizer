@@ -18,12 +18,13 @@ use THM\Organizer\Tables;
  */
 class Terms extends ResourceHelper implements Selectable
 {
+    use Coded;
     use Numbered;
 
     /**
      * Gets the id of the term whose dates encompass the current date, defaults to the current date.
      *
-     * @param   string  $date  the reference date
+     * @param string $date the reference date
      *
      * @return int
      */
@@ -41,7 +42,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Checks for the term end date for a given term id, defaults to current term id.
      *
-     * @param   int  $termID  the term's id
+     * @param int $termID the term's id
      *
      * @return string|null
      */
@@ -71,7 +72,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Gets the ids of term resources.
      *
-     * @param   bool  $filter  if true only current and future terms will be displayed
+     * @param bool $filter if true only current and future terms will be displayed
      *
      * @return int[]
      */
@@ -89,7 +90,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Retrieves the id of the term after the reference term, defaults to current term id.
      *
-     * @param   int  $currentID  the id of the reference term
+     * @param int $currentID the id of the reference term
      *
      * @return int
      */
@@ -110,8 +111,8 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
-     * @param   bool  $filter     if true only current and future terms will be displayed
+     * @param bool $showDates if true the start and end date will be displayed as part of the name
+     * @param bool $filter    if true only current and future terms will be displayed
      */
     public static function options(bool $showDates = false, bool $filter = false): array
     {
@@ -136,7 +137,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Retrieves the id of the term before the reference term, defaults to current term id.
      *
-     * @param   int  $currentID  the id of the reference term
+     * @param int $currentID the id of the reference term
      *
      * @return int
      */
@@ -157,7 +158,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   bool  $filter
+     * @param bool $filter
      */
     public static function resources(bool $filter = false): array
     {
@@ -182,7 +183,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Checks for the term start date for a given term id, defaults to current term id.
      *
-     * @param   int  $termID  the term's id
+     * @param int $termID the term's id
      *
      * @return string|null
      */

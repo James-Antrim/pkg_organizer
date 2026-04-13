@@ -18,13 +18,15 @@ use THM\Organizer\Tables\Roles as Table;
  */
 class Roles extends ResourceHelper implements Selectable
 {
+    use Coded;
+
     public const TEACHER = 1, TUTOR = 2, SUPERVISOR = 3, SPEAKER = 4;
 
     /**
      * Returns the color value for a given colorID.
      *
-     * @param   int  $roleID  the id of the color
-     * @param   int  $count   the number of entries
+     * @param int $roleID the id of the color
+     * @param int $count  the number of entries
      *
      * @return string the label text for the role
      */

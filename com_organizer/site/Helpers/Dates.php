@@ -24,11 +24,11 @@ class Dates
     /**
      * Modifies a query with a restriction for a value (not) between two column values.
      *
-     * @param   DatabaseQuery  $query   the query to modify
-     * @param   string         $column  the column for the restriction
-     * @param   string         $low     the low date value
-     * @param   string         $high    the high date value
-     * @param   bool           $not     whether the restriction should be negated
+     * @param DatabaseQuery $query  the query to modify
+     * @param string        $column the column for the restriction
+     * @param string        $low    the low date value
+     * @param string        $high   the high date value
+     * @param bool          $not    whether the restriction should be negated
      *
      * @return void
      */
@@ -43,9 +43,9 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param   string  $date      the date to be formatted
-     * @param   bool    $withText  if the day name should be part of the output
-     * @param   bool    $short     if the day name output should be abbreviated
+     * @param string $date     the date to be formatted
+     * @param bool   $withText if the day name should be part of the output
+     * @param bool   $short    if the day name output should be abbreviated
      *
      * @return string
      */
@@ -67,7 +67,7 @@ class Dates
     /**
      * Converts a raw date time into a formatted date time string.
      *
-     * @param   int|string  $dateTime  the raw date time
+     * @param int|string $dateTime the raw date time
      *
      * @return string
      */
@@ -82,7 +82,7 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param   string  $time  the date to be formatted
+     * @param string $time the date to be formatted
      *
      * @return string
      */
@@ -104,7 +104,7 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param   string  $time  the date to be formatted
+     * @param string $time the date to be formatted
      *
      * @return string
      */
@@ -116,8 +116,8 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param   string  $startDate  the start date of the resource
-     * @param   string  $endDate    the end date of the resource
+     * @param string $startDate the start date of the resource
+     * @param string $endDate   the end date of the resource
      *
      * @return string
      */
@@ -132,7 +132,7 @@ class Dates
     /**
      * Calculates the start and end dates of a month.
      *
-     * @param   int  $dateTime  the datetime reference to calculate the dates with
+     * @param int $dateTime the datetime reference to calculate the dates with
      *
      * @return array
      */
@@ -147,7 +147,7 @@ class Dates
     /**
      * Calculates the start and end dates of a month.
      *
-     * @param   int  $dateTime  the datetime reference to calculate the dates with
+     * @param int $dateTime the datetime reference to calculate the dates with
      *
      * @return array
      */
@@ -161,9 +161,23 @@ class Dates
     }
 
     /**
+     * Returns the end and start dates of a six-month period beginning with the date given.
+     *
+     * @param string $date the date
+     *
+     * @return string[]
+     */
+    public static function sixMonths(string $date): array
+    {
+        $dateTime = strtotime($date);
+
+        return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+6 month', $dateTime))];
+    }
+
+    /**
      * Converts a date string from the format in the component settings into the format used by the database
      *
-     * @param   string  $date  the date string
+     * @param string $date the date string
      *
      * @return string
      */
@@ -187,7 +201,7 @@ class Dates
     /**
      * Checks whether a date is a valid date in the standard Y-m-d format.
      *
-     * @param   string  $date  the date to be checked
+     * @param string $date the date to be checked
      *
      * @return bool
      */
@@ -199,9 +213,26 @@ class Dates
     }
 
     /**
+     * Returns the end date and start date of the term for the given date
+     *
+     * @param string $date the date in format Y-m-d
+     *
+     * @return string[]
+     */
+    public static function term(string $date): array
+    {
+        $query = DB::query();
+        $query->select(DB::qn(['startDate', 'endDate']))->from(DB::qn('#__organizer_terms'));
+        DB::between($query, $date, 'startDate', 'endDate');
+        DB::set($query);
+
+        return DB::array();
+    }
+
+    /**
      * Checks whether the string is a valid date in the Y-m-d format.
      *
-     * @param   string  $date  the date to validate
+     * @param string $date the date to validate
      *
      * @return bool
      */
@@ -221,7 +252,7 @@ class Dates
     /**
      * Calculates the start and end dates of week.
      *
-     * @param   int  $dateTime  the datetime reference to calculate the dates with
+     * @param int $dateTime the datetime reference to calculate the dates with
      *
      * @return array
      */

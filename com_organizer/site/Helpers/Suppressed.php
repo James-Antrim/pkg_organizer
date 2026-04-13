@@ -34,15 +34,15 @@ trait Suppressed
     ];
 
     /**
-     * Retrieves the suppress attribute of the table.
+     * Retrieves the suppress-attribute of the table.
      *
-     * @param   int  $resourceID
+     * @param int $resourceID
      *
      * @return bool
      */
     public static function getSuppressed(int $resourceID): bool
     {
-        $table = self::getTable();
+        $table = self::table();
         if ($table->load($resourceID)) {
             /* @var $table SuppressedTable */
             return (bool) $table->suppress;
@@ -52,10 +52,10 @@ trait Suppressed
     }
 
     /**
-     * Adds a query restriction for the suppress column of the aliased table.
+     * Adds a query restriction for the suppress-column of the aliased table.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the alias of the table with the active column
+     * @param DatabaseQuery $query the query to modify
+     * @param string        $alias the alias of the table with the active column
      *
      * @return void
      */

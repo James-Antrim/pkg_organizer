@@ -20,6 +20,8 @@ use THM\Organizer\Tables\{Bookings as Table, Blocks, Instances as ITable, Rooms 
  */
 class Bookings extends ResourceHelper
 {
+    use Coded;
+
     public const ALL = '', ATTENDEES = 1, IMPROPER = 3, ONLY_REGISTERED = -1, PROPER = 2;
 
     public const ATTENDED = 1, REGISTERED = 0;
@@ -27,7 +29,7 @@ class Bookings extends ResourceHelper
     /**
      * Retrieves the number of current registrations for the booking.
      *
-     * @param   int  $bookingID  the id of the booking
+     * @param int $bookingID the id of the booking
      *
      * @return int
      */
@@ -43,7 +45,7 @@ class Bookings extends ResourceHelper
     /**
      * Creates a display of formatted times for a booking.
      *
-     * @param   int  $bookingID  the id of the booking entry
+     * @param int $bookingID the id of the booking entry
      *
      * @return string
      */
@@ -77,7 +79,7 @@ class Bookings extends ResourceHelper
     /**
      * Retrieves a list of instance IDs associated with the booking.
      *
-     * @param   int  $bookingID  the id of the booking entry
+     * @param int $bookingID the id of the booking entry
      *
      * @return int[]
      */
@@ -97,7 +99,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets instance options for the booking entry.
      *
-     * @param   int  $bookingID  the id of the booking to get instance options for
+     * @param int $bookingID the id of the booking to get instance options for
      *
      * @return stdClass[]
      */
@@ -119,7 +121,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets the localized name of the events associated with the booking and the name of the booking's method.
      *
-     * @param   int  $resourceID  the id of the booking entry
+     * @param int $resourceID the id of the booking entry
      *
      * @return string
      */
@@ -151,7 +153,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets the localized name of the events associated with the booking and the name of the booking's method.
      *
-     * @param   int  $bookingID  the id of the booking entry
+     * @param int $bookingID the id of the booking entry
      *
      * @return string[]
      */
@@ -174,8 +176,8 @@ class Bookings extends ResourceHelper
     /**
      * Gets the count of participants who attended the booking.
      *
-     * @param   int  $bookingID  the id of the booking entry
-     * @param   int  $roomID     the optional id of the room
+     * @param int $bookingID the id of the booking entry
+     * @param int $roomID    the optional id of the room
      *
      * @return int
      */
@@ -200,7 +202,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets the count of registrations for the booking.
      *
-     * @param   int  $bookingID
+     * @param int $bookingID
      *
      * @return int
      */
@@ -216,7 +218,7 @@ class Bookings extends ResourceHelper
     /**
      * Builds list of room ids => room name pairs, sorted by their names.
      *
-     * @param   int  $bookingID  the id of the booking to get instance options for
+     * @param int $bookingID the id of the booking to get instance options for
      *
      * @return string[]
      */
@@ -245,7 +247,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets instance options for the booking entry.
      *
-     * @param   int  $bookingID  the id of the booking to get instance options for
+     * @param int $bookingID the id of the booking to get instance options for
      *
      * @return stdClass[]
      */

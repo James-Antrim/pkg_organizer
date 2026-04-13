@@ -20,6 +20,7 @@ use Joomla\Database\ParameterType;
 class Categories extends Scheduled implements Filterable, Selectable
 {
     use Active;
+    use Coded;
     use Numbered;
     use Suppressed;
 
@@ -47,8 +48,8 @@ class Categories extends Scheduled implements Filterable, Selectable
     /**
      * Retrieves the groups associated with a category.
      *
-     * @param   int   $categoryID  the category id
-     * @param   bool  $active      whether to retrieve only active categories
+     * @param int  $categoryID the category id
+     * @param bool $active     whether to retrieve only active categories
      *
      * @return array[]
      */
@@ -73,7 +74,7 @@ class Categories extends Scheduled implements Filterable, Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function options(string $access = ''): array
     {
@@ -96,7 +97,7 @@ class Categories extends Scheduled implements Filterable, Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function resources(string $access = ''): array
     {

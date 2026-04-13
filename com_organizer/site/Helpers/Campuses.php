@@ -21,6 +21,7 @@ use THM\Organizer\Tables;
 class Campuses extends ResourceHelper implements Filterable, Selectable
 {
     use Active;
+    use Coded;
     use Pinned;
 
     /**

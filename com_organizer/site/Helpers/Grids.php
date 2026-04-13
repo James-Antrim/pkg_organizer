@@ -18,6 +18,8 @@ use THM\Organizer\Tables\Grids as Table;
  */
 class Grids extends ResourceHelper implements Selectable
 {
+    use Coded;
+
     public const DEFAULT = 1, STANDARD = 0;
 
     public const PUBLISHED_STATES = [
@@ -49,7 +51,7 @@ class Grids extends ResourceHelper implements Selectable
     /**
      * Retrieves the default grid.
      *
-     * @param   bool  $onlyID  whether only the id will be returned, defaults to true
+     * @param bool $onlyID whether only the id will be returned, defaults to true
      *
      * @return int|Table int the id, otherwise the grid table entry
      */
@@ -76,7 +78,7 @@ class Grids extends ResourceHelper implements Selectable
     /**
      * Retrieves the grid property for the given grid.
      *
-     * @param   int  $gridID  the grid id
+     * @param int $gridID the grid id
      *
      * @return string string the grid json string on success, otherwise null
      */

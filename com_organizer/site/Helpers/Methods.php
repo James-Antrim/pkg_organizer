@@ -17,6 +17,8 @@ use THM\Organizer\Adapters\{Application, Database as DB, HTML};
  */
 class Methods extends ResourceHelper implements Selectable
 {
+    use Coded;
+
     /**
      * Code constants
      */
@@ -36,7 +38,7 @@ class Methods extends ResourceHelper implements Selectable
     /**
      * Returns a list of workload relevant methods
      *
-     * @param   bool  $ids  whether only the relevant ids should be returned
+     * @param bool $ids whether only the relevant ids should be returned
      *
      * @return array
      */

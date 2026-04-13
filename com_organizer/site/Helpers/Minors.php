@@ -17,6 +17,8 @@ use THM\Organizer\Adapters\Database as DB;
  */
 class Minors implements Documentable
 {
+    use Coded;
+
     /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {

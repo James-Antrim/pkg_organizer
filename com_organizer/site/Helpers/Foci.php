@@ -17,6 +17,8 @@ use THM\Organizer\Adapters\Database as DB;
  */
 class Foci implements Documentable
 {
+    use Coded;
+
     /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {
