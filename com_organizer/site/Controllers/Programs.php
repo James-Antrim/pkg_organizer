@@ -19,6 +19,15 @@ class Programs extends CurriculumResources
     use Activated;
 
     /**
+     * Redirects to the form view for the import of new resources.
+     * @return void
+     */
+    public function import(): void
+    {
+        $this->setRedirect("$this->baseURL&view=importprograms");
+    }
+
+    /**
      * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
      *
      * @param int $programID the id of the program

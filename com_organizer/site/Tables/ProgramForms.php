@@ -38,6 +38,6 @@ class ProgramForms extends Table
         $dbo = $dbo ?? Application::database();
 
         /** @var DatabaseDriver $dbo */
-        parent::__construct('#__organizer_program_types', 'id', $dbo);
+        parent::__construct('#__organizer_program_forms', 'id', $dbo);
     }
 }

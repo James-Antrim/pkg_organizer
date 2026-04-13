@@ -34,6 +34,7 @@ class Programs extends ListView
                 ->listCheck(true)->icon('fa fa-sync');
 
             if (Can::administrate()) {
+                $toolbar->addNew('programs.import', Text::_('IMPORT'))->icon('fa fa-upload');
                 $this->addDelete();
             }
 
