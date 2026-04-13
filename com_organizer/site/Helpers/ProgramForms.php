@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Database as DB;
 /**
  * Provides general functions for program form access checks, data retrieval and display.
  */
-class ProgramForms implements Documentable
+class ProgramForms extends ResourceHelper implements Documentable
 {
     use Coded;
 

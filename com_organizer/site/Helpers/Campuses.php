@@ -33,7 +33,7 @@ class Campuses extends ResourceHelper implements Filterable, Selectable
      */
     public static function buildings(int $campusID): array
     {
-        $campus = self::getTable();
+        $campus = self::table();
 
         if (!$campus->load($campusID)) {
             return [];

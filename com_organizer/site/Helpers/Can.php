@@ -201,7 +201,7 @@ class Can
         return match ($view) {
             // Administrative / developmental views and admin access was already checked
             'AttendanceTypes', 'Color', 'Colors', 'Degree', 'Degrees', 'Equipment', 'EquipmentItem', 'Field', 'Fields',
-            'Foci', 'Grid', 'Grids', 'Holiday', 'Holidays', 'ImportRooms', 'MergeCategories', 'MergeEvents',
+            'Foci', 'Grid', 'Grids', 'Holiday', 'Holidays', 'ImportPrograms', 'ImportRooms', 'MergeCategories', 'MergeEvents',
             'MergeGroups', 'MergePersons', 'MergeRooms', 'Method', 'Methods', 'Minors', 'Nomina', 'Organization',
             'Organizations', 'Participant', 'Participants', 'ProgramForms', 'ProgramTypes', 'Run', 'Runs', 'Term', 'Terms'
             => false,

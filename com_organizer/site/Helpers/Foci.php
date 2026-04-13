@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Database as DB;
 /**
  * Provides general functions for focus access checks, data retrieval and display.
  */
-class Foci implements Documentable
+class Foci extends ResourceHelper implements Documentable
 {
     use Coded;
 

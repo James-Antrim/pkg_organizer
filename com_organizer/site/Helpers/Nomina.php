@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Database as DB;
 /**
  * Provides general functions for nomen access checks, data retrieval and display.
  */
-class Nomina implements Documentable
+class Nomina extends ResourceHelper implements Documentable
 {
     use Coded;
 

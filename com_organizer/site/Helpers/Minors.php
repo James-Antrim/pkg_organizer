@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Database as DB;
 /**
  * Provides general functions for minor access checks, data retrieval and display.
  */
-class Minors implements Documentable
+class Minors extends ResourceHelper implements Documentable
 {
     use Coded;
 

@@ -18,6 +18,7 @@ class Campuses extends Table
 {
     use Activated;
     use Aliased;
+    use Coded;
     use Localized;
 
     /**

@@ -18,8 +18,8 @@ trait Coded
     /**
      * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
      * software except units which are also supplemented locally.
-     * VARCHAR(60) NOT NULL
-     * @var string
+     * VARCHAR(60)
+     * @var string|null
      */
-    public string $code;
+    public string|null $code;
 }

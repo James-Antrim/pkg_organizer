@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Database as DB;
 /**
  * Provides general functions for attendance type access checks, data retrieval and display.
  */
-class AttendanceTypes implements Documentable
+class AttendanceTypes extends ResourceHelper implements Documentable
 {
     use Coded;
 
