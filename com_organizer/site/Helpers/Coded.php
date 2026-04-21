@@ -26,13 +26,13 @@ trait Coded
         $table = self::table();
 
         if (is_int($identifier) and $table->load($identifier)) {
-            return $table->id;
+            /** @var Table $table */
+            return $table->code;
         }
 
 
         if (is_string($identifier) and $table->load(['code' => $identifier])) {
-            /** @var Table $table */
-            return $table->code;
+            return $table->id;
         }
 
         return null;

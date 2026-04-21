@@ -41,13 +41,12 @@ class Program extends CurriculumResource
     /**
      * Creates a program stub from imported category data
      *
-     * @param array  $data
-     * @param string $name
-     * @param int    $categoryID
+     * @param array $data       key value pairs for old format entries nomen code, degree code, year of accreditation
+     * @param int   $categoryID the id of the calling category to associate the program with
      *
      * @return void
      */
-    public function fromSchedule(array $data, string $name, int $categoryID): void
+    public function fromSchedule(array $data, int $categoryID): void
     {
         if (!Categories::schedulable($categoryID)) {
             Application::error(403);
@@ -60,8 +59,6 @@ class Program extends CurriculumResource
         }
 
         $data['categoryID']      = $categoryID;
-        $data['name_de']         = $name;
-        $data['name_en']         = $name;
         $data['organizationIDs'] = [Input::integer('organizationID')];
         $data['subordinates']    = [];
         $this->data              = $data;

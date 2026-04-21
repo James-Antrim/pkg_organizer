@@ -86,7 +86,7 @@ class Curricula extends Table
     {
         // Although typing allows it these columns should never be null
         foreach (['level', 'lft', 'ordering', 'rgt'] as $column) {
-            if (!$this->$column) {
+            if (!is_int($this->$column) or $this->$column < 0) {
                 return $this->fail();
             }
         }

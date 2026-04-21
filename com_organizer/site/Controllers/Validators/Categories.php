@@ -24,7 +24,7 @@ class Categories implements UntisXMLValidator
     /**
      * Determines whether the data conveyed in the untisID is plausible for finding a real program.
      *
-     * @param   string  $untisID  the id used in untis for this program
+     * @param string $untisID the id used in untis for this program
      *
      * @return string[] empty if the id is implausible
      */
@@ -108,9 +108,9 @@ class Categories implements UntisXMLValidator
         $controller->categories->$code = $category;
         self::setID($controller, $code);
 
-        if ($keys = self::parseProgramData($code) and $name = trim(substr($name, 0, strpos($name, '(')))) {
+        if ($keys = self::parseProgramData($code)) {
             $program = new Program();
-            $program->fromSchedule($keys, $name, $category->id);
+            $program->fromSchedule($keys, $category->id);
         }
     }
 }

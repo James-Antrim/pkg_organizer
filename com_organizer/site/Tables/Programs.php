@@ -51,15 +51,15 @@ class Programs extends Table
 
     /**
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_de = '';
+    public string|null $description_de = '';
 
     /**
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_en = '';
+    public string|null $description_en = '';
 
     /**
      * A flag which displays whether the program has a fee, not the actual fee.
@@ -74,6 +74,12 @@ class Programs extends Table
      * @var int|null
      */
     public int|null $focusID = null;
+
+    /**
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int|null
+     */
+    public int|null $formID = null;
 
     /**
      * INT(1) UNSIGNED DEFAULT NULL
