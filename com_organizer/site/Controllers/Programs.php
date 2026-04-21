@@ -22,7 +22,7 @@ class Programs extends CurriculumResources
      * Redirects to the form view for the import of new resources.
      * @return void
      */
-    public function import(): void
+    public function importCSV(): void
     {
         $this->setRedirect("$this->baseURL&view=importprograms");
     }
