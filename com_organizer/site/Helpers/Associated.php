@@ -35,8 +35,7 @@ abstract class Associated extends ResourceHelper
         $query = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_associations'))
-            ->where("$rColumn = :resourceID")
-            ->bind(':resourceID', $resourceID, ParameterType::INTEGER)
+            ->where(DB::qc($rColumn, $resourceID))
             ->whereIn(DB::qn($oColumn), $organizationIDs);
 
         DB::set($query);
