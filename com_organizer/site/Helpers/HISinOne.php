@@ -16,9 +16,9 @@ use SoapClient;
 use THM\Organizer\Adapters\{Application, Input};
 
 /**
- * Class provides methods for communication with the LSF curriculum documentation system.
+ * Class provides methods for communication with the HI1 curriculum documentation system.
  */
-class LSF
+class HISinOne
 {
     private SoapClient $client;
 
@@ -86,7 +86,7 @@ class LSF
      * Performs a soap request, in order to get the xml structure of the given
      * configuration
      *
-     * @param array $keys the keys required by LSF to uniquely identify a degree program
+     * @param array $keys the keys required by HI1 to uniquely identify a degree program
      *
      * @return SimpleXMLElement|false
      */
@@ -104,7 +104,7 @@ class LSF
     /**
      * Creates the header used by all XML queries
      *
-     * @param string $objectType the LSF object type
+     * @param string $objectType the HI1 object type
      *
      * @return string  the header of the XML query
      */

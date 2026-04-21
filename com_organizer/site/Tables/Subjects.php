@@ -1,5 +1,4 @@
-<?php /** @noinspection PhpUnused */
-
+<?php
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -18,7 +17,7 @@ use THM\Organizer\Adapters\Application;
 class Subjects extends Table
 {
     use Aliased;
-    use LSFImported;
+    use HI1Imported;
 
     /**
      * The resource's German abbreviation.

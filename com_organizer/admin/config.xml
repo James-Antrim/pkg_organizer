@@ -15,9 +15,9 @@
         <field name="darkTextColor" type="color" label="ORGANIZER_TEXT_DARK_COLOR" description="ORGANIZER_TEXT_DARK_COLOR_DESC"
                default="#4a5c66" required="true"/>
     </fieldset>
-    <fieldset name="LSF-Service" label="ORGANIZER_LSF" description="ORGANIZER_LSF_DESC">
-        <field name="wsURI" type="text" label="ORGANIZER_LSF_URI"/>
-        <field name="wsUsername" type="text" label="ORGANIZER_LSF_USERNAME"/>
+    <fieldset name="HI1-Service" label="ORGANIZER_HI1" description="ORGANIZER_HI1_DESC">
+        <field name="wsURI" type="text" label="ORGANIZER_HI1_URI"/>
+        <field name="wsUsername" type="text" label="ORGANIZER_HI1_USERNAME"/>
         <field name="wsPassword" type="text" label="ORGANIZER_PASSWORD"/>
     </fieldset>
     <fieldset name="monitors" label="ORGANIZER_MONITORS" description="ORGANIZER_MONITORS_DESC">

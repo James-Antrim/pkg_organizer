@@ -29,7 +29,7 @@ class Programs extends ListView
             $this->addAdd();
 
             $toolbar = Toolbar::instance();
-            $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Programs.import')->listCheck(true)->icon('fa fa-upload');
+            $toolbar->standardButton('upload', Text::_('IMPORT_HI1'), 'Programs.import')->listCheck(true)->icon('fa fa-upload');
             $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'), 'Programs.update')
                 ->listCheck(true)->icon('fa fa-sync');
 

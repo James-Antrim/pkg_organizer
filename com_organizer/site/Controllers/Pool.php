@@ -73,7 +73,7 @@ class Pool extends CurriculumResource implements Stubby
                 return true;
             }
 
-            $pool->lsfID = $lsfID;
+            $pool->hi1ID = $lsfID;
             $this->setNames($pool, $XMLObject);
 
             if (!$pool->store()) {

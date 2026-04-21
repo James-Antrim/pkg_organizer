@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Helpers\{Can, Categories, Documentable, LSF, Organizations, Programs as Helper};
+use THM\Organizer\Helpers\{Can, Categories, Documentable, HISinOne, Organizations, Programs as Helper};
 use THM\Organizer\Tables\Programs as Table;
 
 /** @inheritDoc */
@@ -83,27 +83,27 @@ class Program extends CurriculumResource
         }
 
         if (!$keys = $this->keys($resourceID)) {
-            Application::message('LSF_DATA_MISSING', Application::WARNING);
+            Application::message('HI1_DATA_MISSING', Application::WARNING);
 
             return false;
         }
 
         try {
-            $client = new LSF();
+            $client = new HISinOne();
         } catch (Exception) {
-            Application::message('LSF_CLIENT_FAILED', Application::WARNING);
+            Application::message('HI1_CLIENT_FAILED', Application::WARNING);
 
             return false;
         }
 
-        // Messaging handled by the LSF helper.
+        // Messaging handled by the HI1 helper.
         if (!$program = $client->getModules($keys)) {
             return false;
         }
 
         // Invalid structure
         if (empty($program->gruppe)) {
-            Application::message('LSF_STRUCTURE_INVALID', Application::WARNING);
+            Application::message('HI1_STRUCTURE_INVALID', Application::WARNING);
             return false;
         }
 
@@ -125,7 +125,7 @@ class Program extends CurriculumResource
     }
 
     /**
-     * Retrieves program information relevant for soap queries to the LSF system.
+     * Retrieves program information relevant for soap queries to the HI1 system.
      *
      * @param int $programID the id of the degree program
      *

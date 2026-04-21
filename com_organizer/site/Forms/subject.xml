@@ -8,7 +8,7 @@
                textcolumn="name" valuecolumn="id">
             <option value="">ORGANIZER_NO_FIELD</option>
         </field>
-        <field name="lsfID" type="text" label="ORGANIZER_LSF_ID" maxlength="11"/>
+        <field name="lsfID" type="text" label="ORGANIZER_HI1_ID" maxlength="11"/>
         <field name="code" type="text" label="ORGANIZER_MODULE_ID" maxlength="60"/>
         <field name="spacer1" type="spacer" hr="true"/>
         <field name="coordinators" type="SubjectPersons" label="ORGANIZER_SUBJECT_COORDINATORS" default="-1" multiple="multiple"

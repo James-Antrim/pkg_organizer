@@ -14,7 +14,7 @@ use Exception;
 use Joomla\Database\ParameterType;
 use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
-use THM\Organizer\Helpers\{LSF, Persons, Programs, Subjects as Helper};
+use THM\Organizer\Helpers\{HISinOne, Persons, Programs, Subjects as Helper};
 use THM\Organizer\{Tables, Tables\Subjects as Table};
 
 /** @inheritDoc */
@@ -236,7 +236,7 @@ class Subject extends CurriculumResource implements Stubby
      * Parses the object and sets table properties.
      *
      * @param Table            $table   the subjects table object
-     * @param SimpleXMLElement $subject an object representing the data from the LSF response
+     * @param SimpleXMLElement $subject an object representing the data from the HI1 response
      *
      * @return void
      */
@@ -530,23 +530,23 @@ class Subject extends CurriculumResource implements Stubby
             return false;
         }
 
-        if (empty($table->lsfID)) {
-            Application::message('LSF_ID_MISSING', Application::WARNING);
+        if (empty($table->hi1ID)) {
+            Application::message('HI1_ID_MISSING', Application::WARNING);
             return false;
         }
 
         try {
-            $client = new LSF();
+            $client = new HISinOne();
         } catch (Exception) {
-            Application::message('LSF_CLIENT_FAILED', Application::ERROR);
+            Application::message('HI1_CLIENT_FAILED', Application::ERROR);
 
             return false;
         }
 
-        $response = $client->getModule($table->lsfID);
+        $response = $client->getModule($table->hi1ID);
 
         if (empty($response->modul)) {
-            $message = Text::sprintf('LSF_RESPONSE_EMPTY', $table->lsfID);
+            $message = Text::sprintf('HI1_RESPONSE_EMPTY', $table->hi1ID);
             Application::message($message, Application::NOTICE);
 
             return $this->delete($table->id);
@@ -555,7 +555,7 @@ class Subject extends CurriculumResource implements Stubby
         $subject = $response->modul;
 
         if (!$this->validTitle($subject)) {
-            $message = Text::sprintf('IMPORT_TITLE_INVALID', $table->lsfID);
+            $message = Text::sprintf('IMPORT_TITLE_INVALID', $table->hi1ID);
             Application::message($message, Application::ERROR);
 
             return $this->delete($table->id);
@@ -567,7 +567,7 @@ class Subject extends CurriculumResource implements Stubby
 
         // Suppressed after title validation for use in message.
         if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x') {
-            $message = Text::sprintf('SUBJECT_SUPPRESSED', $title, $table->lsfID);
+            $message = Text::sprintf('SUBJECT_SUPPRESSED', $title, $table->hi1ID);
             Application::message($message, Application::NOTICE);
 
             return $this->delete($table->id);
@@ -877,7 +877,7 @@ class Subject extends CurriculumResource implements Stubby
                 return true;
             }
 
-            $subject->lsfID = $lsfID;
+            $subject->hi1ID = $lsfID;
 
             if (!$subject->store()) {
                 return false;

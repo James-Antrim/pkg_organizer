@@ -17,7 +17,7 @@ use THM\Organizer\Adapters\Application;
 class Pools extends Table
 {
     use Aliased;
-    use LSFImported;
+    use HI1Imported;
 
     /**
      * The resource's German abbreviation.
