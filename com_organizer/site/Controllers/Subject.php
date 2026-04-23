@@ -543,9 +543,13 @@ class Subject extends CurriculumResource implements Stubby
             return false;
         }
 
-        $response = $client->subject($table->hi1ID);
+        if (!$response = $client->subject($table->hi1ID)) {
+            return false;
+        }
 
-        if (empty($response->modul)) {
+        echo "<pre>" . print_r($response, true) . "</pre>";
+        die;
+        /*if (empty($response->modul)) {
             $message = Text::sprintf('HIO_RESPONSE_EMPTY', $table->hi1ID);
             Application::message($message, Application::NOTICE);
 
@@ -587,7 +591,7 @@ class Subject extends CurriculumResource implements Stubby
             return false;
         }
 
-        return $this->resolve($table);
+        return $this->resolve($table);*/
     }
 
     /**
