@@ -382,7 +382,7 @@ INSERT IGNORE INTO `v7ocf_organizer_program_types`
 VALUES (1, 'erststudium', 'first-degree', '1', 'Erststudium', 'First Degree', '1'),
        (2, 'weiterbildungsstudium', 'continuing-education-degree', '6', 'Weiterbildungsstudium', 'Continuing Education Degree', '6'),
        (3, 'konsekutiver-master', 'consecutive-degree', '7', 'konsekutiver Master', 'Consecutive Degree', '7'),
-       (4, 'kein-abschluss''', 'no-degree', '9', 'kein Abschluss', 'No Degree', '9');
+       (4, 'kein-abschluss', 'no-degree', '9', 'kein Abschluss', 'No Degree', '9');
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD COLUMN `typeID` INT(11) UNSIGNED DEFAULT NULL AFTER `nomenID`,
