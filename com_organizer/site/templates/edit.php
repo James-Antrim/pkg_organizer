@@ -30,6 +30,8 @@ $return         = $input->getBase64('return');
 $tabs   = $this->form->getFieldsets();
 $tabbed = count($this->form->getFieldsets()) > 1;
 
+require_once 'header.php';
+
 $this->renderTasks();
 ?>
 <form action="<?php echo Route::_('index.php?option=com_organizer'); ?>"
