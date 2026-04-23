@@ -29,20 +29,21 @@ class Programs extends ListView
             $this->addAdd();
 
             $toolbar = Toolbar::instance();
-            $toolbar->standardButton('upload', Text::_('IMPORT_HIO'), 'Programs.import')->listCheck(true)->icon('fa fa-upload');
+            $import  = $toolbar->standardButton('upload', Text::_('IMPORT_HIO'), 'Programs.import')->icon('fa fa-upload');
             $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'), 'Programs.update')
                 ->listCheck(true)->icon('fa fa-sync');
 
             if (Can::administrate()) {
-                $toolbar->addNew('Programs.importCSV', Text::_('IMPORT'))->icon('fa fa-upload');
+                $toolbar->addNew('Programs.importCSV', Text::_('IMPORT_CSV'))->icon('fa fa-upload');
                 $this->addDelete();
+            }
+            else {
+                $import->listCheck(true);
             }
 
             // No implicit basis in scheduling to deactivate programs.
             $this->addActa();
         }
-
-        parent::addToolBar();
     }
 
     /** @inheritDoc */
