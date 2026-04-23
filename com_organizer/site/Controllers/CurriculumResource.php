@@ -58,10 +58,10 @@ abstract class CurriculumResource extends FormController
     /**
      * Ensures that the imported resource is mapped in the curricula table.
      *
-     * @param   Curricula  $curriculum  the curricula table object
-     * @param   int        $parentID    the id of the curriculum entry for the resource superordinate to this one
-     * @param   string     $column      the resource reference column name
-     * @param   int        $resourceID  the resource id
+     * @param Curricula $curriculum the curricula table object
+     * @param int       $parentID   the id of the curriculum entry for the resource superordinate to this one
+     * @param string    $column     the resource reference column name
+     * @param int       $resourceID the resource id
      *
      * @return void
      */
@@ -83,9 +83,9 @@ abstract class CurriculumResource extends FormController
     /**
      * Ensures that the imported resource is associated with the selected organization.
      *
-     * @param   int     $organizationID  the id of the organization
-     * @param   string  $column          the resource reference column name
-     * @param   int     $resourceID      the resource id
+     * @param int    $organizationID the id of the organization
+     * @param string $column         the resource reference column name
+     * @param int    $resourceID     the resource id
      *
      * @return void
      */
@@ -100,9 +100,9 @@ abstract class CurriculumResource extends FormController
 
     /**
      * Method to delete data associated with an individual curriculum resource. Authorized in the list view delete, import and
-     * update functions. Authorized in the form views in the apply- & saveImport functions.
+     * update functions. Authorized in the form views in apply- & saveImport functions.
      *
-     * @param   int  $resourceID  the resource id
+     * @param int $resourceID the resource id
      *
      * @return bool
      */
@@ -120,17 +120,17 @@ abstract class CurriculumResource extends FormController
     /**
      * Method to import data associated with an individual curriculum resource. Authorization performed by calling function.
      *
-     * @param   int  $resourceID  the id of the program to be imported
+     * @param int $resourceID the id of the program to be imported
      *
      * @return bool
      */
-    abstract public function import(int $resourceID): bool;
+    abstract public function import(int $resourceID = 0): bool;
 
     /**
      * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
      *
-     * @param   int  $parentID    the id of the parent range
-     * @param   int  $resourceID  the id of the resource
+     * @param int $parentID   the id of the parent range
+     * @param int $resourceID the id of the resource
      *
      * @return int  the value of the highest existing ordering or 1 if none exist
      */
@@ -198,9 +198,9 @@ abstract class CurriculumResource extends FormController
      * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
      * needed.
      *
-     * @param   SimpleXMLElement  $collection      the SimpleXML node containing the collection of subordinate elements
-     * @param   int               $organizationID  the id of the organization with which the resources are associated
-     * @param   int               $parentID        the id of the curriculum entry for the parent element.
+     * @param SimpleXMLElement $collection     the SimpleXML node containing the collection of subordinate elements
+     * @param int              $organizationID the id of the organization with which the resources are associated
+     * @param int              $parentID       the id of the curriculum entry for the parent element.
      *
      * @return bool
      */
@@ -250,8 +250,8 @@ abstract class CurriculumResource extends FormController
     /**
      * Set name attributes common to pools and subjects.
      *
-     * @param   PoolsTable|Subjects  $table      the table to modify
-     * @param   SimpleXMLElement     $XMLObject  the data source
+     * @param PoolsTable|Subjects $table     the table to modify
+     * @param SimpleXMLElement    $XMLObject the data source
      *
      * @return void
      */
@@ -305,7 +305,7 @@ abstract class CurriculumResource extends FormController
     /**
      * Ensures that a title is set and does not contain 'dummy'. This function favors the German title.
      *
-     * @param   SimpleXMLElement  $resource  the resource being checked
+     * @param SimpleXMLElement $resource the resource being checked
      *
      * @return bool
      */

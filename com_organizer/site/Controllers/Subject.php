@@ -521,8 +521,13 @@ class Subject extends CurriculumResource implements Stubby
     }
 
     /** @inheritDoc */
-    public function import(int $resourceID): bool
+    public function import(int $resourceID = 0): bool
     {
+        if (!$resourceID) {
+            Application::message('404', Application::ERROR);
+            return false;
+        }
+
         $table = new Table();
 
         if (!$table->load($resourceID)) {
@@ -543,7 +548,7 @@ class Subject extends CurriculumResource implements Stubby
             return false;
         }
 
-        $response = $client->getModule($table->hi1ID);
+        $response = $client->subject($table->hi1ID);
 
         if (empty($response->modul)) {
             $message = Text::sprintf('HIO_RESPONSE_EMPTY', $table->hi1ID);
