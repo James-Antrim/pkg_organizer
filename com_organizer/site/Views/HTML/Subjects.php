@@ -57,7 +57,7 @@ class Subjects extends ListView
         if ($this->access) {
             $this->addAdd();
             $toolbar = Toolbar::instance();
-            $toolbar->standardButton('upload', Text::_('IMPORT_HI1'), 'Subjects.import')->icon('fa fa-upload')->listCheck(true);
+            $toolbar->standardButton('upload', Text::_('IMPORT_HIO'), 'Subjects.import')->icon('fa fa-upload')->listCheck(true);
             $this->addDelete();
 
             if (Application::backend() and Can::administrate()) {

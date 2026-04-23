@@ -4,7 +4,7 @@
         <field name="id" type="hidden"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
                required="true"/>
-        <field name="lsfID" type="text" label="ORGANIZER_HI1_ID"/>
+        <field name="lsfID" type="text" label="ORGANIZER_HIO_ID"/>
         <field name="fieldID" type="GenericOptions" label="ORGANIZER_FIELD" valuecolumn="id" textcolumn="name" localized="true"
                table="organizer_fields">
             <option value="">ORGANIZER_NO_FIELD</option>

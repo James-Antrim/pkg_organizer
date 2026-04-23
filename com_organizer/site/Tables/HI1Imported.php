@@ -5,10 +5,10 @@ namespace THM\Organizer\Tables;
 /**
  * Adds items for resources imported from HISin1
  */
-trait HI1Imported
+trait HIOImported
 {
     /**
-     * The id of the entry in the HI1? software module.
+     * The id of the entry in the HIO? software module.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */

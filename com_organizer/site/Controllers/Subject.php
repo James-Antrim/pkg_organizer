@@ -236,7 +236,7 @@ class Subject extends CurriculumResource implements Stubby
      * Parses the object and sets table properties.
      *
      * @param Table            $table   the subjects table object
-     * @param SimpleXMLElement $subject an object representing the data from the HI1 response
+     * @param SimpleXMLElement $subject an object representing the data from the HIO response
      *
      * @return void
      */
@@ -531,14 +531,14 @@ class Subject extends CurriculumResource implements Stubby
         }
 
         if (empty($table->hi1ID)) {
-            Application::message('HI1_ID_MISSING', Application::WARNING);
+            Application::message('HIO_ID_MISSING', Application::WARNING);
             return false;
         }
 
         try {
             $client = new HISinOne();
         } catch (Exception) {
-            Application::message('HI1_CLIENT_FAILED', Application::ERROR);
+            Application::message('HIO_CLIENT_FAILED', Application::ERROR);
 
             return false;
         }
@@ -546,7 +546,7 @@ class Subject extends CurriculumResource implements Stubby
         $response = $client->getModule($table->hi1ID);
 
         if (empty($response->modul)) {
-            $message = Text::sprintf('HI1_RESPONSE_EMPTY', $table->hi1ID);
+            $message = Text::sprintf('HIO_RESPONSE_EMPTY', $table->hi1ID);
             Application::message($message, Application::NOTICE);
 
             return $this->delete($table->id);

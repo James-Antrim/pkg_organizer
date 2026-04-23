@@ -16,7 +16,7 @@ use SoapClient;
 use THM\Organizer\Adapters\{Application, Input};
 
 /**
- * Class provides methods for communication with the HI1 curriculum documentation system.
+ * Class provides methods for communication with the HIO curriculum documentation system.
  */
 class HISinOne
 {
@@ -95,7 +95,7 @@ class HISinOne
     /**
      * Requests program information. If called without identifiers, the catalogue of programs is requested.
      *
-     * @param array $identifiers the keys required by HI1 to uniquely identify a degree program, optional
+     * @param array $identifiers the keys required by HIO to uniquely identify a degree program, optional
      *
      * @return SimpleXMLElement|false
      */
