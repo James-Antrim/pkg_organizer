@@ -30,11 +30,11 @@ class Subject extends FormView
             $toolbar   = Toolbar::instance();
             $saveGroup = $toolbar->dropdownButton('save-group');
             $saveBar   = $saveGroup->getChildToolbar();
-            $saveBar->apply('subject.apply');
+            $saveBar->apply('subject.apply', Text::_('APPLY'));
             $saveBar->apply('subject.applyImport', Text::_('APPLY_AND_IMPORT'))->icon('fa fa-file-import');
-            $saveBar->save('subject.save');
+            $saveBar->save('subject.save', Text::_('SAVE'));
             $saveBar->save('subject.saveImport', Text::_('SAVE_AND_IMPORT'))->icon('fa fa-file-import');
-            $toolbar->cancel("subject.cancel");
+            $toolbar->cancel("subject.cancel", Text::_('CANCEL'));
         }
         elseif ($this->item->id and $subject = Helper::name($subjectID, true)) {
             $this->addDisclaimer();

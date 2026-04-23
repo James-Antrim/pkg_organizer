@@ -39,7 +39,7 @@ class Rooms extends ListView
         if (Can::fm()) {
             $admin   = Can::administrate();
             $toolbar = Toolbar::instance();
-            $toolbar->addNew('Rooms.add');
+            $toolbar->addNew('Rooms.add', Text::_('ADD'));
 
             if ($admin) {
                 $toolbar->addNew('rooms.import', Text::_('IMPORT'))->icon('fa fa-upload');

@@ -36,16 +36,16 @@ class Course extends FormView
             $this->title(empty($courseID) ? Text::_('ADD_COURSE') : Text::_('EDIT_COURSE'));
             $saveGroup = $toolbar->dropdownButton('save-group');
             $saveBar   = $saveGroup->getChildToolbar();
-            $saveBar->apply('course.apply');
-            $saveBar->save('course.save');
-            $toolbar->cancel("course.cancel");
+            $saveBar->apply('course.apply', Text::_('APPLY'));
+            $saveBar->save('course.save', Text::_('SAVE'));
+            $toolbar->cancel("course.cancel", Text::_('CANCEL'));
             return;
         }
 
         $this->title(Helper::name($courseID));
 
         if ($this->coordinates) {
-            $toolbar->edit('course.edit');
+            $toolbar->edit('course.edit', Text::_('EDIT'));
             return;
         }
 

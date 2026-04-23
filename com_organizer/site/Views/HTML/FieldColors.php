@@ -27,7 +27,7 @@ class FieldColors extends ListView
         $this->title('FIELD_COLORS');
 
         $toolbar = Toolbar::instance();
-        $toolbar->addNew('FieldColors.add')->icon('fa fa-link');
+        $toolbar->addNew('FieldColors.add', Text::_('ADD'))->icon('fa fa-link');
         $this->addDelete();
 
         $toolbar->standardButton('newField', Text::_('ADD_FIELD'), 'Fields.add')->icon('fa fa-lightbulb');

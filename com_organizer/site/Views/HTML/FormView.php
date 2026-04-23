@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\MVC\View\FormView as Core;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Input};
+use THM\Organizer\Adapters\{Document, Input, Text};
 use THM\Organizer\Views\Named;
 
 /** @inheritDoc */
@@ -99,27 +99,27 @@ abstract class FormView extends Core
             foreach ($buttons as $button) {
                 switch ($button) {
                     case 'apply':
-                        $saveBar->apply("$controller.apply");
+                        $saveBar->apply("$controller.apply", Text::_('APPLY'));
                         break;
                     case 'save':
-                        $saveBar->save("$controller.save");
+                        $saveBar->save("$controller.save", Text::_('SAVE'));
                         break;
                     case 'save2copy':
                         if (!$new) {
-                            $saveBar->save2copy("$controller.save2copy");
+                            $saveBar->save2copy("$controller.save2copy", Text::_('SAVE_AS_COPY'));
                         }
                         break;
                     case 'save2new':
-                        $saveBar->save2new("$controller.save2new");
+                        $saveBar->save2new("$controller.save2new", Text::_('SAVE_AND_NEW'));
                         break;
                 }
             }
         }
         else {
-            $toolbar->save("$controller.save");
+            $toolbar->save("$controller.save", Text::_('SAVE'));
         }
 
-        $toolbar->cancel("$controller.cancel");
+        $toolbar->cancel("$controller.cancel", Text::_('CANCEL'));
 
         //TODO help!
     }

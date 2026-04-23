@@ -21,6 +21,6 @@ class Profile extends OldFormView
         $this->title('MY_PROFILE');
 
         $toolbar = Toolbar::instance();
-        $toolbar->save('profile.save');
+        $toolbar->save('profile.save', Text::_('SAVE'));
     }
 }

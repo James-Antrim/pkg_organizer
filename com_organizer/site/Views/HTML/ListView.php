@@ -72,7 +72,7 @@ abstract class ListView extends Core
     {
         $controller = $this->getName();
         $toolbar    = Toolbar::instance();
-        $toolbar->addNew("$controller.add");
+        $toolbar->addNew("$controller.add", Text::_('ADD'));
     }
 
     /**
@@ -82,7 +82,7 @@ abstract class ListView extends Core
     {
         $controller = $this->getName();
         $toolbar    = Toolbar::instance();
-        $toolbar->delete("$controller.delete")->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
+        $toolbar->delete("$controller.delete", Text::_('DELETE'))->message(Text::_('DELETE_CONFIRM'))->listCheck(true);
     }
 
     /** @inheritDoc */
