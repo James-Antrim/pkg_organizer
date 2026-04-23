@@ -78,33 +78,36 @@ abstract class CurriculumResources extends ListController
         $this->checkToken();
         $this->authorize();
 
-        if (!$selectedIDs = Input::selectedIDs()) {
-            Application::message('NO_SELECTION', Application::WARNING);
-
-            $this->farewell();
-        }
-
         $controller = "THM\\Organizer\\Controllers\\" . $this->item;
-        $imported   = 0;
-        $selected   = count($selectedIDs);
-
         /** @var CurriculumResource $controller */
         $controller = new $controller();
-
         /** @var Documentable $helper */
         $helper = "THM\\Organizer\\Helpers\\$resources";
 
-        foreach ($selectedIDs as $selectedID) {
-            if (!$helper::documentable($selectedID)) {
-                Application::message('403', Application::ERROR);
-                break;
+        if ($selectedIDs = Input::selectedIDs()) {
+            $imported = 0;
+            $selected = count($selectedIDs);
+
+            foreach ($selectedIDs as $selectedID) {
+                if (!$helper::documentable($selectedID)) {
+                    Application::message('403', Application::ERROR);
+                    break;
+                }
+
+                if ($controller->import($selectedID)) {
+                    $imported++;
+                }
             }
 
-            if ($controller->import($selectedID)) {
-                $imported++;
-            }
+            $this->farewell($selected, $imported);
         }
 
-        $this->farewell($selected, $imported);
+        if ($resources === 'Subjects' or !$helper::documentable(0)) {
+            Application::message('NO_SELECTION', Application::WARNING);
+            $this->farewell();
+        }
+
+        $controller->import();
+        $this->farewell();
     }
 }

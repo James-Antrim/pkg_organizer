@@ -523,11 +523,6 @@ class Subject extends CurriculumResource implements Stubby
     /** @inheritDoc */
     public function import(int $resourceID = 0): bool
     {
-        if (!$resourceID) {
-            Application::message('404', Application::ERROR);
-            return false;
-        }
-
         $table = new Table();
 
         if (!$table->load($resourceID)) {
