@@ -18,7 +18,7 @@ use THM\Organizer\{Adapters\Input, Tables, Tables\Pools as Table};
 class Pool extends CurriculumResource implements Stubby
 {
     /** @inheritDoc */
-    public function import(int $resourceID): bool
+    public function import(int $resourceID = 0): bool
     {
         /**
          * This resource is completely inadequately maintained for actual documentation purposes, and is instead used for internal

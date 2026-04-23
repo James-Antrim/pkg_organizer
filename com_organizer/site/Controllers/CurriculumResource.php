@@ -122,9 +122,9 @@ abstract class CurriculumResource extends FormController
      *
      * @param int $resourceID the id of the program to be imported
      *
-     * @return bool
+     * @return bool|int
      */
-    abstract public function import(int $resourceID = 0): bool;
+    abstract public function import(int $resourceID = 0): bool|int;
 
     /**
      * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
