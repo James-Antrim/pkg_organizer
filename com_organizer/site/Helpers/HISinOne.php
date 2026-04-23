@@ -28,8 +28,16 @@ class HISinOne
      */
     public function __construct()
     {
-        $uri          = Input::parameters()->get('wsURI');
-        $this->client = new SoapClient(null, ['uri' => $uri, 'location' => $uri]);
+        $parameters = Input::parameters();
+        $options    = [
+            //'location' => $parameters->get('wsURI'),
+            'login'    => $parameters->get('wsUsername'),
+            'password' => $parameters->get('wsPassword'),
+            //'uri' => $parameters->get('wsURI'),
+        ];
+
+        //$this->client = new SoapClient(null, $options);
+        $this->client = new SoapClient($parameters->get('wsURI'), $options);
     }
 
     /**
@@ -39,10 +47,14 @@ class HISinOne
      *
      * @return SimpleXMLElement|false  SimpleXMLElement if the query was successful, otherwise false
      */
-    private function getDataXML(string $query): SimpleXMLElement|false
+    private function request(string $function, string $query): SimpleXMLElement|false
     {
+        $finish = '</soapenv:Body></soapenv:Envelope>';
+        $start  = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:org="http://www.his.de/ws/OrganizerService">';
+        $start  .= '<soapenv:Header/><soapenv:Body>';
+
         try {
-            $result = $this->client->__soapCall('getDataXML', ['xmlParams' => $query]);
+            $result = $this->client->__soapCall($function, ['xmlParams' => $start . $query . $finish]);
         } catch (Exception $exception) {
             Application::handleException($exception);
         }
@@ -73,51 +85,32 @@ class HISinOne
      *
      * @return SimpleXMLElement|false
      */
-    public function getModule(int $moduleID): SimpleXMLElement|false
+    public function subject(int $moduleID): SimpleXMLElement|false
     {
-        $XML = $this->header('ModuleAll');
-        $XML .= "<modulid>$moduleID</modulid>";
-        $XML .= '</condition></SOAPDataService>';
+        $XML = "<org:getModule><org:moduleId>$moduleID</org:moduleId></org:getModule>";
 
-        return self::getDataXML($XML);
+        return self::request('getModule', $XML);
     }
 
     /**
-     * Performs a soap request, in order to get the xml structure of the given
-     * configuration
+     * Requests program information. If called without identifiers, the catalogue of programs is requested.
      *
-     * @param array $keys the keys required by HI1 to uniquely identify a degree program
+     * @param array $identifiers the keys required by HI1 to uniquely identify a degree program, optional
      *
      * @return SimpleXMLElement|false
      */
-    public function getModules(array $keys): SimpleXMLElement|false
+    public function program(array $identifiers = []): SimpleXMLElement|false
     {
-        $XML = $this->header('studiengang');
-        $XML .= "<stg>{$keys['program']}</stg>";
-        $XML .= "<abschl>{$keys['degree']}</abschl>";
-        $XML .= "<pversion>{$keys['accredited']}</pversion>";
-        $XML .= '</condition></SOAPDataService>';
+        $XML = '<org:getCourseOfStudyWithStructure>';
 
-        return self::getDataXML($XML);
-    }
+        // If a specific program is requested, then get its structure.
+        if ($identifiers) {
+            $XML .= str_replace('KEYS', implode('|', $identifiers), '<org:courseOfStudyId>KEYS|</org:courseOfStudyId>');
+            $XML .= '<org:withStructure>true</org:withStructure>';
+        }
 
-    /**
-     * Creates the header used by all XML queries
-     *
-     * @param string $objectType the HI1 object type
-     *
-     * @return string  the header of the XML query
-     */
-    private function header(string $objectType): string
-    {
-        $params = Input::parameters();
+        $XML .= '</org:getCourseOfStudyWithStructure>';
 
-        $header = '<?xml version="1.0" encoding="UTF-8"?><SOAPDataService>';
-        $header .= "<general><object>$objectType</object></general><user-auth>";
-        $header .= '<password>' . $params->get('wsPassword') . '</password>';
-        $header .= '<username>' . $params->get('wsUsername') . '</username>';
-        $header .= '</user-auth><condition>';
-
-        return $header;
+        return self::request('getCourseOfStudyWithStructure', $XML);
     }
 }
