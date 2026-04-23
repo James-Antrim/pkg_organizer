@@ -23,7 +23,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Gets all curriculum rows for resources mapped to a program, unfiltered by type, including the program itself.
      *
-     * @param   array  $rows  the rows of superordinate programs
+     * @param array $rows the rows of superordinate programs
      *
      * @return array[]
      */
@@ -56,7 +56,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Recursively builds the curriculum hierarchy inclusive data for resources subordinate to a given rowe.
      *
-     * @param   array  $curriculum  the row used as the start point
+     * @param array $curriculum the row used as the start point
      *
      * @return void
      */
@@ -111,7 +111,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      * Extracts the curriculum ids from an array of arrays. Divergent handling comes from use by various subject controller
      * functions using the key curriculumID instead of id.
      *
-     * @param   array  $arrays  the arrays to filter
+     * @param array $arrays the arrays to filter
      *
      * @return int[]
      * @see Subject
@@ -129,6 +129,10 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /** @inheritDoc */
     public static function documentable(int $resourceID): bool
     {
+        if (Can::administrate()) {
+            return true;
+        }
+
         if (!$organizationIDs = Organizations::documentableIDs()) {
             return false;
         }
@@ -153,10 +157,10 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Adds pool filter clauses to the given query.
      *
-     * @param   DatabaseQuery  $query      the query to modify
-     * @param   int            $poolID     the id of the pool to filter for
-     * @param   string         $alias      the alias of the table referenced in the join
-     * @param   int            $programID  the optional programID
+     * @param DatabaseQuery $query     the query to modify
+     * @param int           $poolID    the id of the pool to filter for
+     * @param string        $alias     the alias of the table referenced in the join
+     * @param int           $programID the optional programID
      *
      * @return void
      */
@@ -192,10 +196,10 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Adds program filter clauses to the given query.
      *
-     * @param   DatabaseQuery  $query      the query to modify
-     * @param   int            $programID  the id of the program to filter for
-     * @param   string         $column     the name of the column referencing the specific resource
-     * @param   string         $alias      the alias of the table referenced in the join
+     * @param DatabaseQuery $query     the query to modify
+     * @param int           $programID the id of the program to filter for
+     * @param string        $column    the name of the column referencing the specific resource
+     * @param string        $alias     the alias of the table referenced in the join
      *
      * @return void
      */
@@ -228,8 +232,8 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Adds subject filter clauses to the given query.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   array          $rows   the rows of subordinate resources
+     * @param DatabaseQuery $query the query to modify
+     * @param array         $rows  the rows of subordinate resources
      *
      * @return void
      */
@@ -259,8 +263,8 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Adds superordinate resource restriction clauses to the given query.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   array          $rows   the rows of subordinate resources
+     * @param DatabaseQuery $query the query to modify
+     * @param array         $rows  the rows of subordinate resources
      *
      * @return void
      */
@@ -286,7 +290,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Extracts the parent ids from an array of rows.
      *
-     * @param   array  $rows  the rows to filter
+     * @param array $rows the rows to filter
      *
      * @return int[]
      */
@@ -303,7 +307,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Retrieves a string value representing the degree programs to which the resource is associated.
      *
-     * @param   int  $resourceID  the id of the resource
+     * @param int $resourceID the id of the resource
      *
      * @return string  string representing the associated program(s)
      */
@@ -325,7 +329,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      * Looks up the names of the programs associated with the resource. Overwritten by the programs helper to prevent endless
      * regression.
      *
-     * @param   array|int  $identifiers  rows of subordinate resources | resource id
+     * @param array|int $identifiers rows of subordinate resources | resource id
      *
      * @return array[] the associated programs
      */
@@ -340,7 +344,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Gets the curricula row mapped to associative array for a given id.
      *
-     * @param   int  $rowID  the id of the row requested
+     * @param int $rowID the id of the row requested
      *
      * @return array
      */
@@ -359,7 +363,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Gets the curricula row ids specific to the resource of the calling class.
      *
-     * @param   int  $resourceID  the resource ID
+     * @param int $resourceID the resource ID
      *
      * @return int[]
      */
@@ -374,7 +378,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Gets the curricula rows mapped to associative arrays specific to the resource of the calling class.
      *
-     * @param   array|int  $identifiers  rows of subordinate resources | resource id
+     * @param array|int $identifiers rows of subordinate resources | resource id
      *
      * @return array[]
      */
@@ -389,7 +393,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Finds the subject mappings subordinate to a particular resource in the curricula table.
      *
-     * @param   int  $resourceID  the id of the resource
+     * @param int $resourceID the id of the resource
      *
      * @return array[] the associated programs
      */
@@ -412,9 +416,9 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
      *
-     * @param   int     $resourceID  the id of the resource for which the form is being displayed
-     * @param   string  $type        the type of the resource
-     * @param   array   $ranges      the rows for programs selected in the form, or already mapped
+     * @param int    $resourceID the id of the resource for which the form is being displayed
+     * @param string $type       the type of the resource
+     * @param array  $ranges     the rows for programs selected in the form, or already mapped
      *
      * @return stdClass[] the superordinate resource options
      */
@@ -471,8 +475,8 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Gets the current superordinate ids for the given resource id and type.
      *
-     * @param   int     $id    the id of the resource in its respective table
-     * @param   string  $type  the type of subordinate resource (pool|subject)
+     * @param int    $id   the id of the resource in its respective table
+     * @param string $type the type of subordinate resource (pool|subject)
      *
      * @return int[]
      */
