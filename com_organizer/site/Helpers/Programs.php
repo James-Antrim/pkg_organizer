@@ -25,6 +25,8 @@ class Programs extends Curricula implements Selectable
     // Default values that should not appear in names.
     public const FULLTIME = 1, ON_CAMPUS = 1;
 
+    public const DEFAULT_ATTENDANCE = 'P', DEFAULT_FOCUS = '-', DEFAULT_FORM = 'V', DEFAULT_MINOR = '-';
+
     protected static string $resource = 'program';
 
     public const UNVERSIONED = 1996;

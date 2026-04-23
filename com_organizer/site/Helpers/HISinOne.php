@@ -95,18 +95,17 @@ class HISinOne
     /**
      * Requests program information. If called without identifiers, the catalogue of programs is requested.
      *
-     * @param array $identifiers the keys required by HIO to uniquely identify a degree program, optional
+     * @param string $key the aggregated identifiers used as a key by HISinOne, optional
      *
      * @return SimpleXMLElement|false
      */
-    public function program(array $identifiers = []): SimpleXMLElement|false
+    public function program(string $key = ''): SimpleXMLElement|false
     {
         $XML = '<org:getCourseOfStudyWithStructure>';
 
         // If a specific program is requested, then get its structure.
-        if ($identifiers) {
-            $XML .= str_replace('KEYS', implode('|', $identifiers), '<org:courseOfStudyId>KEYS|</org:courseOfStudyId>');
-            $XML .= '<org:withStructure>true</org:withStructure>';
+        if ($key) {
+            $XML .= "<org:courseOfStudyId>$key</org:courseOfStudyId><org:withStructure>true</org:withStructure>";
         }
 
         $XML .= '</org:getCourseOfStudyWithStructure>';

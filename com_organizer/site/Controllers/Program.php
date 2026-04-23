@@ -11,7 +11,6 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use THM\Organizer\Helpers\{Can, Categories, Documentable, HISinOne, Organizations, Programs as Helper};
 use THM\Organizer\Tables\Programs as Table;
@@ -75,75 +74,116 @@ class Program extends CurriculumResource
     }
 
     /** @inheritDoc */
-    public function import(int $resourceID): bool
+    public function import(int $resourceID = 0): int
     {
         if (!Helper::documentable($resourceID)) {
             Application::message('403', Application::WARNING);
             return false;
         }
 
-        if (!$keys = $this->keys($resourceID)) {
-            Application::message('HI1_DATA_MISSING', Application::WARNING);
-
-            return false;
-        }
-
         try {
             $client = new HISinOne();
-        } catch (Exception) {
-            Application::message('HI1_CLIENT_FAILED', Application::WARNING);
+        } catch (Exception $exception) {
+            Application::message($exception->getMessage());
+            Application::message('HIO_CLIENT_FAILED', Application::WARNING);
 
             return false;
         }
 
-        // Messaging handled by the HI1 helper.
-        if (!$program = $client->getModules($keys)) {
+        if ($resourceID) {
+            if (!$key = $this->key($resourceID)) {
+                Application::message('HIO_DATA_MISSING', Application::WARNING);
+                return false;
+            }
+
+            // Messaging handled by the HIO helper.
+            if (!$program = $client->program($key)) {
+                return false;
+            }
+
+            echo "<pre>" . print_r($program, true) . "</pre>";
+            die;
+
+            // Invalid structure
+            /*if (empty($program->gruppe)) {
+                Application::message('HIO_STRUCTURE_INVALID', Application::WARNING);
+                return false;
+            }
+
+            if (!$ranges = $this->ranges($resourceID) or empty($ranges[0])) {
+                $range = ['parentID' => null, 'programID' => $resourceID, 'ordering' => 0];
+
+                return $this->addRange($range);
+            }
+            else {
+                $curriculumID = $ranges[0]['id'];
+            }
+
+            // Curriculum entry doesn't exist and could not be created.
+            if (empty($curriculumID)) {
+                return false;
+            }
+
+            return $this->processCollection($program->gruppe, $keys['organizationID'], $curriculumID);*/
+        }
+
+        if (!$programs = $client->program()) {
             return false;
         }
 
-        // Invalid structure
-        if (empty($program->gruppe)) {
-            Application::message('HI1_STRUCTURE_INVALID', Application::WARNING);
-            return false;
-        }
-
-        if (!$ranges = $this->ranges($resourceID) or empty($ranges[0])) {
-            $range = ['parentID' => null, 'programID' => $resourceID, 'ordering' => 0];
-
-            return $this->addRange($range);
-        }
-        else {
-            $curriculumID = $ranges[0]['id'];
-        }
-
-        // Curriculum entry doesn't exist and could not be created.
-        if (empty($curriculumID)) {
-            return false;
-        }
-
-        return $this->processCollection($program->gruppe, $keys['organizationID'], $curriculumID);
+        echo "<pre>" . print_r($programs, true) . "</pre>";
+        die;
     }
 
     /**
-     * Retrieves program information relevant for soap queries to the HI1 system.
+     * Retrieves program information relevant for soap queries to the HIO system.
      *
      * @param int $programID the id of the degree program
      *
-     * @return array  empty if the program could not be found
+     * @return string
      */
-    private function keys(int $programID): array
+    private function key(int $programID): string
     {
-        $aliased  = DB::qn(['p.code', 'd.code'], ['program', 'degree']);
-        $selected = DB::qn(['p.accredited', 'a.organizationID']);
-        $query    = DB::query();
-        $query->select(array_merge($aliased, $selected))
+        $h     = ["'H' as `h`"];
+        $part1 = DB::qn(['d.code', 'n.code', 'm.code', 'f.code'], ['degree', 'program', 'minor', 'focus']);
+        $part2 = DB::qn(
+            ['p.accredited', 'c.code', 'at.code', 'pf.code', 'pt.code'],
+            ['year', 'campus', 'attendance', 'form', 'type']);
+        $query = DB::query();
+        $query->select(array_merge($part1, $h, $part2))
             ->from(DB::qn('#__organizer_programs', 'p'))
-            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
-            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qc('a.programID', 'p.id'))
-            ->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $programID, ParameterType::INTEGER);
+            ->innerJoin(DB::qn('#__organizer_attendance_types', 'at'), DB::qc('at.id', 'p.aTypeID'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->innerJoin(DB::qn('#__organizer_nomina', 'n'), DB::qc('n.id', 'p.nomenID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'p.campusID'))
+            ->leftJoin(DB::qn('#__organizer_foci', 'f'), DB::qc('f.id', 'p.focusID'))
+            ->leftJoin(DB::qn('#__organizer_minors', 'm'), DB::qc('m.id', 'p.minorID'))
+            ->leftJoin(DB::qn('#__organizer_program_forms', 'pf'), DB::qc('pf.id', 'p.formID'))
+            ->leftJoin(DB::qn('#__organizer_program_types', 'pt'), DB::qc('pt.id', 'p.typeID'))
+            ->where(DB::qc('p.id', $programID));
         DB::set($query);
 
-        return DB::array();
+        if (!$identifiers = DB::array()) {
+            return '';
+        }
+
+        if (empty($identifiers['attendance'])) {
+            $identifiers['attendance'] = Helper::DEFAULT_ATTENDANCE;
+        }
+
+        if (empty($identifiers['focus'])) {
+            $identifiers['focus'] = Helper::DEFAULT_FOCUS;
+        }
+
+        if (empty($identifiers['form'])) {
+            $identifiers['form'] = Helper::DEFAULT_FORM;
+        }
+
+        if (empty($identifiers['minor'])) {
+            $identifiers['minor'] = Helper::DEFAULT_MINOR;
+        }
+
+        return implode('|', $identifiers) . '|';
     }
 
     /** @inheritDoc */
