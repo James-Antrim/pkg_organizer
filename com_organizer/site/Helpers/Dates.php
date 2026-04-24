@@ -132,12 +132,12 @@ class Dates
     /**
      * Calculates the start and end dates of a month.
      *
-     * @param int $dateTime the datetime reference to calculate the dates with
-     *
+     * @param string $date
      * @return array
      */
-    public static function month(int $dateTime): array
+    public static function month(string $date): array
     {
+        $dateTime = strtotime($date);
         return [
             date('Y-m-d', strtotime('first day of this month', $dateTime)),
             date('Y-m-d', strtotime('last day of this month', $dateTime))
@@ -252,12 +252,12 @@ class Dates
     /**
      * Calculates the start and end dates of week.
      *
-     * @param int $dateTime the datetime reference to calculate the dates with
-     *
+     * @param string $date
      * @return array
      */
-    public static function week(int $dateTime): array
+    public static function week(string $date): array
     {
+        $dateTime = strtotime($date);
         return [
             date('Y-m-d', strtotime("Monday this week", $dateTime)),
             date('Y-m-d', strtotime("Saturday this week", $dateTime))

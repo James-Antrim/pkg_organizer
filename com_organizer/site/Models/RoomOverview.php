@@ -24,14 +24,13 @@ class RoomOverview extends ListModel
 
     public array $dates = [];
 
-    protected int $defaultLimit = 25;
-
     /** @var array Stores the instances for single search */
     public array $instances = [];
 
     /** @inheritDoc */
     public function __construct($config = [])
     {
+        $this->defaultLimit = 25;
         $this->defaultOrdering = 'r.name';
         $this->filter_fields   = ['campusID', 'buildingID', 'effCapacity', 'roomtypeID'];
         parent::__construct($config);
@@ -196,7 +195,7 @@ class RoomOverview extends ListModel
 
         // Preformatting for later use in queries here and display in the view.
         if ($template === self::WEEK) {
-            [$currentDate, $endDate] = Dates::week(strtotime($date));
+            [$currentDate, $endDate] = Dates::week($date);
             while ($currentDate <= $endDate) {
                 $this->dates[$currentDate] = Dates::formatDate($currentDate);
                 $currentDate               = date('Y-m-d', strtotime("$currentDate + 1 days"));

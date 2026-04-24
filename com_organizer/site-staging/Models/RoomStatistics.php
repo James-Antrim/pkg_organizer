@@ -19,40 +19,40 @@ use THM\Organizer\Tables\Terms;
  */
 class RoomStatistics extends BaseModel
 {
-    public $calendarData;
+    public array $calendarData;
 
-    public $endDate;
+    public string $endDate;
 
-    public $endDoW;
+    public int $endDoW;
 
     /**
      * Subject dependant data which would otherwise redundantly be in the calendar data
      * @var array
      */
-    public $lsData;
+    public array $lsData;
 
-    private $grid;
+    private array $grid;
 
-    public $metaData;
+    public array $metaData;
 
-    public $rooms;
+    public array $rooms;
 
-    public $roomtypes;
+    public array $roomtypes;
 
-    public $roomtypeMap;
+    public array $roomtypeMap;
 
-    public $roomData;
+    public array $roomData;
 
-    public $startDate;
+    public string $startDate;
 
-    public $startDoW;
+    public int $startDoW;
 
     private float $threshold = .2;
 
     /**
      * Room_Statistics constructor.
      *
-     * @param   array  $config
+     * @param array $config
      */
     public function __construct(array $config)
     {
@@ -95,7 +95,7 @@ class RoomStatistics extends BaseModel
     /**
      * Aggregates the raw instance data into calendar entries
      *
-     * @param   array  $ringData  the raw lesson instances for a specific room
+     * @param array $ringData the raw lesson instances for a specific room
      *
      * @return void
      */
@@ -150,19 +150,16 @@ class RoomStatistics extends BaseModel
      */
     public function getOrganizationOptions(): array
     {
-        $options = [];
-        foreach (Organizations::options(false) as $id => $name) {
-            $options[$id] = $name;
-        }
-
-        return $options;
+        return array_map(function ($name) {
+            return $name;
+        }, Organizations::options(false));
     }
 
     /**
      * Determines the relevant grid blocks based upon the instance start and end times
      *
-     * @param   string  $startTime  the time the instance starts
-     * @param   string  $endTime    the time the instance ends
+     * @param string $startTime the time the instance starts
+     * @param string $endTime   the time the instance ends
      *
      * @return int[] the relevant block numbers
      */
@@ -205,12 +202,9 @@ class RoomStatistics extends BaseModel
      */
     public function getRoomtypeOptions(): array
     {
-        $options = [];
-        foreach ($this->roomtypes as $roomtypeID => $roomTypeData) {
-            $options[$roomtypeID] = $roomTypeData['name'];
-        }
-
-        return $options;
+        return array_map(function ($roomTypeData) {
+            return $roomTypeData['name'];
+        }, $this->roomtypes);
     }
 
     /**
@@ -243,7 +237,7 @@ class RoomStatistics extends BaseModel
     /**
      * Retrieves raw lesson instance information from the database
      *
-     * @param   int  $roomID  the id of the room being iterated
+     * @param int $roomID the id of the room being iterated
      *
      * @return bool true if room information was found, otherwise false
      */
@@ -253,7 +247,7 @@ class RoomStatistics extends BaseModel
         $ringQuery = DB::query();
         $ringQuery->select('DISTINCT ccm.id AS ccmID')
             ->from('#__organizer_calendar_configuration_map AS ccm')
-            ->select('c.schedule_date AS date, c.startTime, c.endTime')
+            ->select('c.schedule_date AS DATE, C.startTime, C.endTime')
             ->innerJoin('#__organizer_calendar AS c ON c.id = ccm.calendarID')
             ->select('conf.configuration')
             ->innerJoin('#__organizer_lesson_configurations AS conf ON conf.id = ccm.configurationID')
@@ -266,7 +260,7 @@ class RoomStatistics extends BaseModel
 
         $ringQuery->where("lcrs.delta != 'removed'");
         $ringQuery->where("l.delta != 'removed'");
-        $ringQuery->where("c.delta != 'removed'");
+        $ringQuery->where("C.delta != 'removed'");
         Dates::betweenValues($ringQuery, 'schedule_date', $this->startDate, $this->endDate);
 
         $regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
@@ -307,10 +301,9 @@ class RoomStatistics extends BaseModel
         $dateFormat = Input::parameters()->get('dateFormat');
         $date       = Input::cmd('date', date($dateFormat));
         $interval   = Input::cmd('interval', 'week');
-        $dateTime   = strtotime($date);
         [$this->startDate, $this->endDate] = match ($interval) {
-            'month' => Dates::month($dateTime),
-            default => Dates::week($dateTime),
+            'month' => Dates::month($date),
+            default => Dates::week($date),
         };
     }
 
@@ -354,7 +347,7 @@ class RoomStatistics extends BaseModel
     /**
      * Sets mostly textual data which is dependent on the lesson subject ids
      *
-     * @param   array  $lcrsIDs  the lesson subject database ids
+     * @param array $lcrsIDs the lesson subject database ids
      *
      * @return void sets object variable indexes
      */

@@ -12,7 +12,7 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
-use THM\Organizer\Helpers\{Can, Categories, Dates, Groups, Organizations};
+use THM\Organizer\Helpers\Dates;
 
 /**
  * Class codifies the conditions for instance selection.
@@ -23,16 +23,16 @@ class Conditions
     public const DAY = 'day', HALF = 'half', MONTH = 'month', QUARTER = 'quarter', TERM = 'term', WEEK = 'week';
 
     // Layouts
-    public const GRID = 'grid', LIST = 'list';
+    public const GRID    = 'grid', LIST = 'list';
     public const LAYOUTS = [self::GRID, 'default' => self::LIST];
 
     // Instances display pattern for exported appointments
-    public const ORGANIZATION = 'organization', PERSON = 'person';
-    public const INSTANCES = ['default' => self::ORGANIZATION, self::PERSON];
+    public const ORGANIZATION = 'organization', PERSON    = 'person';
+    public const                                INSTANCES = ['default' => self::ORGANIZATION, self::PERSON];
 
     // Statuses
-    public const NORMAL = 0, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
-    public const STATUSES = [self::CHANGED, 'export' => self::CURRENT, self::NEW, 'default' => self::NORMAL, self::REMOVED];
+    public const NORMAL = 0, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED  = 4;
+    public const                                                STATUSES = [self::CHANGED, 'export' => self::CURRENT, self::NEW, 'default' => self::NORMAL, self::REMOVED];
 
     public const INTERVALS = [
         Input::HTML => [
@@ -186,10 +186,10 @@ class Conditions
         [$this->startDate, $this->endDate] = match ($parameters['interval']) {
             'day' => [$date, $date],
             'half' => [date('Y-m-d', $dateTime), date('Y-m-d', strtotime('+6 month', $dateTime))],
-            'month' => Dates::month($dateTime),
+            'month' => Dates::month($date),
             'quarter' => Dates::ninetyDays($dateTime),
             'term' => self::term($date),
-            default => Dates::week($dateTime),
+            default => Dates::week($date),
         };
 
         if (!empty($bEndDate)) {
@@ -205,8 +205,8 @@ class Conditions
         if ($personal) {
             $this->showUnpublished = true;
         }
-        else {
-            /*$byPerson = false;
+        /*else {
+            $byPerson = false;
 
             $campusIDs      = Application::userRequestState("$context.filter.campusIDs", "filter_campusIDs", [], 'array');
             $campusIDs      = Input::getIntArray('campusIDs', $campusIDs);
@@ -281,8 +281,8 @@ class Conditions
 
             if (!$byPerson) {
 
-            }*/
-        }
+            }
+        }*/
 
         #endregion
     }
@@ -290,7 +290,7 @@ class Conditions
     /**
      * Returns the end and start dates of a three-month period beginning with the date given.
      *
-     * @param   int  $dateTime
+     * @param int $dateTime
      *
      * @return string[]
      */
@@ -306,7 +306,7 @@ class Conditions
     /**
      * Returns the end date and start date of the term for the given date
      *
-     * @param   string  $date  the date in format Y-m-d
+     * @param string $date the date in format Y-m-d
      *
      * @return string[]
      */
