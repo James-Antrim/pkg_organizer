@@ -85,8 +85,8 @@ class Persons extends Scheduled implements Selectable, Viewable
     /**
      * Generates a default person text based upon organizer's internal data
      *
-     * @param   int   $personID      the person's id
-     * @param   bool  $excludeTitle  whether the title should be excluded from the return value
+     * @param int  $personID     the person's id
+     * @param bool $excludeTitle whether the title should be excluded from the return value
      *
      * @return string  the default name of the person
      */
@@ -109,7 +109,7 @@ class Persons extends Scheduled implements Selectable, Viewable
     /**
      * Retrieves the person's forenames.
      *
-     * @param   int  $personID  the person's id
+     * @param int $personID the person's id
      *
      * @return string  the default name of the person
      */
@@ -124,7 +124,7 @@ class Persons extends Scheduled implements Selectable, Viewable
     /**
      * Gets the organizations with which the person is associated
      *
-     * @param   int  $personID  the person's id
+     * @param int $personID the person's id
      *
      * @return string[] the organizations with which the person is associated id => name
      */
@@ -143,23 +143,30 @@ class Persons extends Scheduled implements Selectable, Viewable
     }
 
     /**
-     * Checks whether the user has an associated person resource by their username, returning the id of the person
-     * entry if existent.
+     * Generates a preformatted person text based upon organizer's internal data
      *
-     * @param   int  $userID  the user id if empty the current user is used
+     * @param int  $personID the person's id
+     * @param bool $short    whether the person's forename should be abbreviated
      *
-     * @return int the id of the person entry if existent, otherwise 0
+     * @return string  the default name of the person
      */
-    public static function getIDByUserID(int $userID = 0): int
+    public static function lastNameFirst(int $personID, bool $short = false): string
     {
-        if (!$user = User::instance($userID)) {
-            return 0;
+        $person = new Table();
+        $person->load($personID);
+        $return = '';
+
+        if ($person->id) {
+            $return = $person->surname;
+
+            if ($person->forename) {
+                // Getting the first letter by other means can cause encoding problems with 'interesting' first names.
+                $forename = $short ? mb_substr($person->forename, 0, 1) . '.' : $person->forename;
+                $return   .= empty($forename) ? '' : ", $forename";
+            }
         }
 
-        $person = new Table();
-        $person->load(['username' => $user->username]);
-
-        return $person->id ?: 0;
+        return $return;
     }
 
     /** @inheritDoc */
@@ -177,6 +184,40 @@ class Persons extends Scheduled implements Selectable, Viewable
         }
 
         return $options;
+    }
+
+    /**
+     * Retrieves the person's public release status.
+     *
+     * @param int $personID the person's id
+     *
+     * @return bool  the person's public release status
+     */
+    public static function public(int $personID): bool
+    {
+        $person = new Table();
+        $person->load($personID);
+
+        return $person->public;
+    }
+
+    /**
+     * Attempts to resolve a userID to a personID.
+     *
+     * @param int $userID the user id if empty the current user is used
+     *
+     * @return int
+     */
+    public static function resolveUser(int $userID = 0): int
+    {
+        if (!$user = User::instance($userID)) {
+            return 0;
+        }
+
+        $person = new Table();
+        $person->load(['username' => $user->username]);
+
+        return $person->id ?: 0;
     }
 
     /** @inheritDoc */
@@ -199,7 +240,7 @@ class Persons extends Scheduled implements Selectable, Viewable
 
         $wherray = [];
 
-        if (self::getIDByUserID() and $userName = User::userName()) {
+        if (self::resolveUser() and $userName = User::userName()) {
             $wherray[] = DB::qc('p.username', $userName, '=', true);
         }
 
@@ -236,51 +277,9 @@ class Persons extends Scheduled implements Selectable, Viewable
     }
 
     /**
-     * Generates a preformatted person text based upon organizer's internal data
-     *
-     * @param   int   $personID  the person's id
-     * @param   bool  $short     whether the person's forename should be abbreviated
-     *
-     * @return string  the default name of the person
-     */
-    public static function lastNameFirst(int $personID, bool $short = false): string
-    {
-        $person = new Table();
-        $person->load($personID);
-        $return = '';
-
-        if ($person->id) {
-            $return = $person->surname;
-
-            if ($person->forename) {
-                // Getting the first letter by other means can cause encoding problems with 'interesting' first names.
-                $forename = $short ? mb_substr($person->forename, 0, 1) . '.' : $person->forename;
-                $return   .= empty($forename) ? '' : ", $forename";
-            }
-        }
-
-        return $return;
-    }
-
-    /**
-     * Retrieves the person's public release status.
-     *
-     * @param   int  $personID  the person's id
-     *
-     * @return bool  the person's public release status
-     */
-    public static function public(int $personID): bool
-    {
-        $person = new Table();
-        $person->load($personID);
-
-        return $person->public;
-    }
-
-    /**
      * Function to sort persons by their surnames and forenames.
      *
-     * @param   array &$persons  the persons array to sort.
+     * @param array &$persons the persons array to sort.
      *
      * @return void
      */
@@ -301,7 +300,7 @@ class Persons extends Scheduled implements Selectable, Viewable
     /**
      * Function to sort persons by their roles.
      *
-     * @param   array &$persons  the persons array to sort.
+     * @param array &$persons the persons array to sort.
      */
     public static function sortByRole(array &$persons): void
     {
@@ -319,7 +318,7 @@ class Persons extends Scheduled implements Selectable, Viewable
     /**
      * Retrieves the person's surnames.
      *
-     * @param   int  $personID  the person's id
+     * @param int $personID the person's id
      *
      * @return string  the default name of the person
      */
@@ -337,7 +336,7 @@ class Persons extends Scheduled implements Selectable, Viewable
      */
     public static function taughtOrganizations(): array
     {
-        if (!$personID = self::getIDByUserID()) {
+        if (!$personID = self::resolveUser()) {
             return [];
         }
 
@@ -366,7 +365,7 @@ class Persons extends Scheduled implements Selectable, Viewable
         $query           = DB::query();
 
         $associated = DB::qn('a.personID') . ' IS NOT NULL';
-        $identity   = DB::qc('p.id', self::getIDByUserID());
+        $identity   = DB::qc('p.id', self::resolveUser());
         $public     = DB::qc('p.public', self::PUBLIC);
 
         $query->select('DISTINCT ' . DB::qn('p.id'))

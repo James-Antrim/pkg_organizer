@@ -22,24 +22,21 @@ class Instance extends BaseModel
 {
     private const LEADER = 5;
 
-    private $personID;
+    private int $personID;
 
-    /**
-     * @var string
-     */
-    private $modified;
+    private string $modified;
 
     /**
      * Checks access to edit the resource.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!User::id()) {
             Application::error(401);
         }
 
-        if (!$this->personID = Helpers\Persons::getIDByUserID()) {
+        if (!$this->personID = Helpers\Persons::resolveUser()) {
             Application::error(403);
         }
 
@@ -49,13 +46,13 @@ class Instance extends BaseModel
     }
 
     /** @inheritDoc */
-    public function getTable($name = '', $prefix = '', $options = [])
+    public function getTable($name = '', $prefix = '', $options = []): Tables\Table
     {
         return new Tables\Instances();
     }
 
     /** @inheritDoc */
-    public function save(array $data = [])
+    public function save(array $data = []): int
     {
         Application::error(503);
 
@@ -70,17 +67,17 @@ class Instance extends BaseModel
         // Not implemented, yet
         Application::error(503);
 
-        return false;
+        return 0;
     }
 
     /**
      * Creates/updates an appointment.
      *
-     * @param   array  $data  the data from the form
+     * @param array $data the data from the form
      *
      * @return false|int
      */
-    private function saveAppointment(array $data = [])
+    private function saveAppointment(array $data = []): false|int
     {
         foreach (['date', 'endTime', 'roomIDs', 'startTime', 'title'] as $required) {
             if (empty($data[$required])) {
@@ -185,8 +182,8 @@ class Instance extends BaseModel
     /**
      * Validates a time attribute syntactically.
      *
-     * @param   string  $date  the date of the instance
-     * @param   string  $time  the time being standardized
+     * @param string $date the date of the instance
+     * @param string $time the time being standardized
      *
      * @return null|string the H:i standardized value, or false if the value syntax was incorrect.
      * @noinspection GrazieInspection

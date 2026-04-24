@@ -299,7 +299,7 @@ class ContactTracking extends ListModel
         $tooMany       = Text::sprintf('ORGANIZER_TOO_MANY_RESULTS', $search);
 
         // User and person resource usernames don't resolve to the same physical person.
-        if ($participantID and $personID and (int) $personID !== Helpers\Persons::getIDByUserID($participantID)) {
+        if ($participantID and $personID and (int) $personID !== Helpers\Persons::resolveUser($participantID)) {
             $this->forceEmpty();
             Application::message($tooMany, Application::NOTICE);
 

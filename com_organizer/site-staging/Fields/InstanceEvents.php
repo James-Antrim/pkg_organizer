@@ -22,7 +22,7 @@ class InstanceEvents extends ListField
     {
         $options = parent::getOptions();
 
-        $personID   = Helpers\Persons::getIDByUserID();
+        $personID   = Helpers\Persons::resolveUser();
         $plannedIDs = Helpers\Organizations::schedulableIDs();
 
         if (empty($personID) and empty($plannedIDs)) {

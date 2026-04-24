@@ -851,7 +851,7 @@ class Search extends ListModel
             $links = [];
 
             $coordinates     = Subjects::coordinates(0, $personID);
-            $identity        = ($userID and Persons::getIDByUserID($userID) === $personID);
+            $identity        = ($userID and Persons::resolveUser($userID) === $personID);
             $organizationIDs = Persons::organizationIDs($personID);
             $names           = Persons::getOrganizationNames($personID);
             $released        = Persons::public($personID);

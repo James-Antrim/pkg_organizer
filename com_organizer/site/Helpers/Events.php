@@ -26,7 +26,7 @@ class Events extends Coordinatable implements Schedulable
     /**
      * Looks up the names of categories (or programs) associated with an event.
      *
-     * @param   int  $eventID  the id of the event
+     * @param int $eventID the id of the event
      *
      * @return string[]
      */
@@ -104,7 +104,7 @@ class Events extends Coordinatable implements Schedulable
         }
 
         $organizationIDs = Organizations::schedulableIDs();
-        $personID        = Persons::getIDByUserID();
+        $personID        = Persons::resolveUser();
 
         // Not a scheduler or assigned by one
         if (!$organizationIDs and !$personID) {
@@ -125,7 +125,7 @@ class Events extends Coordinatable implements Schedulable
     /**
      * Gets the ids of the persons explicitly assigned as coordinators for an event.
      *
-     * @param   int  $eventID
+     * @param int $eventID
      *
      * @return int[]
      */
@@ -178,14 +178,14 @@ class Events extends Coordinatable implements Schedulable
     /**
      * Check if user is a subject teacher.
      *
-     * @param   int  $eventID   the optional id of the subject
-     * @param   int  $personID  the optional id of the person entry
+     * @param int $eventID  the optional id of the subject
+     * @param int $personID the optional id of the person entry
      *
      * @return bool
      */
     public static function teaches(int $eventID = 0, int $personID = 0): bool
     {
-        $personID = $personID ?: Persons::getIDByUserID(User::id());
+        $personID = $personID ?: Persons::resolveUser(User::id());
         $query    = DB::query();
         $query->select('COUNT(*)')
             ->from(DB::qn('#__organizer_instances', 'i'))
@@ -205,9 +205,9 @@ class Events extends Coordinatable implements Schedulable
     /**
      * Retrieves the units associated with an event.
      *
-     * @param   int     $eventID   the id of the referenced event
-     * @param   string  $date      the date context for the unit search
-     * @param   string  $interval  the interval to use as context for units
+     * @param int    $eventID  the id of the referenced event
+     * @param string $date     the date context for the unit search
+     * @param string $interval the interval to use as context for units
      *
      * @return array[]
      */

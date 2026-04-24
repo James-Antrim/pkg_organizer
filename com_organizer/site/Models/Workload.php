@@ -42,7 +42,7 @@ class Workload extends FormModel
             Application::error(401);
         }
 
-        $myPersonID     = Persons::getIDByUserID();
+        $myPersonID     = Persons::resolveUser();
         $organizationID = Input::integer('organizationID');
         $personID       = Input::integer('personID');
 
@@ -94,7 +94,7 @@ class Workload extends FormModel
     /**
      * Aggregates by concurrent blocks.
      *
-     * @param   array  $units
+     * @param array $units
      *
      * @return array[]
      */
@@ -139,7 +139,7 @@ class Workload extends FormModel
     /**
      * Aggregates planned blocks by date.
      *
-     * @param   array  &$items
+     * @param array  &$items
      *
      * @return void
      */
@@ -171,7 +171,7 @@ class Workload extends FormModel
     /**
      * Aggregates by event and method identity.
      *
-     * @param   array  $items
+     * @param array $items
      *
      * @return void
      */
@@ -213,7 +213,7 @@ class Workload extends FormModel
     /**
      * Aggregates instances by their unitID
      *
-     * @param   array  $instances  the instances to be aggregated
+     * @param array $instances the instances to be aggregated
      *
      * @return array[]
      */
@@ -390,7 +390,7 @@ class Workload extends FormModel
     /**
      * Turns aggregates into itemized events.
      *
-     * @param   array  $aggregates
+     * @param array $aggregates
      *
      * @return array[]
      */
@@ -531,7 +531,7 @@ class Workload extends FormModel
     /**
      * Turns outlying event items into block event items.
      *
-     * @param   array  $items
+     * @param array $items
      *
      * @return void
      */
@@ -590,8 +590,8 @@ class Workload extends FormModel
     /**
      * Adds associated structure items to the instances results.
      *
-     * @param   array  $instances  the instances
-     * @param   array  $structure  the structure items associated with the instance results
+     * @param array $instances the instances
+     * @param array $structure the structure items associated with the instance results
      *
      * @return void
      */
@@ -635,7 +635,7 @@ class Workload extends FormModel
     /**
      * Turns outlying event items into block event items.
      *
-     * @param   array  $items
+     * @param array $items
      *
      * @return void
      */

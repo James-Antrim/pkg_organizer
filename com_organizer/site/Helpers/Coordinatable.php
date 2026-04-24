@@ -22,8 +22,8 @@ abstract class Coordinatable extends ResourceHelper
     /**
      * Builds a query for coordinator access checks. At least one parameter has a real value in the calling function.
      *
-     * @param   array  $organizationIDs  the organization IDs for which the user has scheduler access
-     * @param   int    $personID         the user's id as a  person resource
+     * @param array $organizationIDs the organization IDs for which the user has scheduler access
+     * @param int   $personID        the user's id as a  person resource
      *
      * @return DatabaseQuery
      */
@@ -32,7 +32,7 @@ abstract class Coordinatable extends ResourceHelper
     /**
      * Checks whether the user is authorized to coordinate the given resource.
      *
-     * @param   int  $resourceID  the id of the resource to check documentation access for.
+     * @param int $resourceID the id of the resource to check documentation access for.
      *
      * @return bool
      */
@@ -46,7 +46,7 @@ abstract class Coordinatable extends ResourceHelper
     public static function coordinatableIDs(): array
     {
         $organizationIDs = Organizations::schedulableIDs();
-        $personID        = Persons::getIDByUserID();
+        $personID        = Persons::resolveUser();
 
         // Not a scheduler or assigned by one
         if (!$organizationIDs and !$personID) {

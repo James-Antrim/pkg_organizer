@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
@@ -25,19 +25,19 @@ class InstanceEdit extends EditModel
     // Default role
     private const NONE = -1;
 
-    private $personID;
+    private int $personID;
 
     /**
      * Checks access to edit the resource.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!User::id()) {
             Application::error(401);
         }
 
-        if (!$this->personID = Helpers\Persons::getIDByUserID()) {
+        if (!$this->personID = Helpers\Persons::resolveUser()) {
             Application::error(403);
         }
 
@@ -49,8 +49,8 @@ class InstanceEdit extends EditModel
     /**
      * Checks whether the contents of a request field item with a string value are permissible.
      *
-     * @param   string  $field    the name of the field
-     * @param   string  $pattern  the pattern to match
+     * @param string $field   the name of the field
+     * @param string $pattern the pattern to match
      *
      * @return string
      */
@@ -64,7 +64,7 @@ class InstanceEdit extends EditModel
     /**
      * Gets the selection for a given field with a
      *
-     * @param   string  $field
+     * @param string $field
      *
      * @return array|int[]
      */
@@ -86,13 +86,13 @@ class InstanceEdit extends EditModel
     }
 
     /** @inheritDoc */
-    public function getForm($data = [], $loadData = true)
+    public function getForm($data = [], $loadData = true): Form
     {
         $form = parent::getForm($data, $loadData);
 
         $item     = $this->item;
         $request  = Input::post();
-        $session  = Factory::getSession();
+        $session  = Application::session();
         $instance = $session->get('organizer.instance', []);
 
         // The user did not cancel out and has chosen to edit a different instance => hard reset session instance.
@@ -128,15 +128,15 @@ class InstanceEdit extends EditModel
         /* Interpret nested structures from the advanced form. */
 
         // Set new values from selection > defaults
-        $instance['blockID']   = empty($request->get('blockID')) ? $dBlockID : (int) $request->get('blockID');
+        $instance['blockID']   = empty($request['blockID']) ? $dBlockID : (int) $request['blockID'];
         $instance['date']      = $rDate ?: $dDate;
         $instance['endTime']   = $rEndTime ?: $dEndTime;
         $instance['eventIDs']  = $rEventIDs ?: $dEventIDs;
-        $instance['gridID']    = empty($request->get('gridID')) ? $dGridID : (int) $request->get('gridID');
+        $instance['gridID']    = empty($request['gridID']) ? $dGridID : (int) $request['gridID'];
         $instance['groupIDs']  = $rGroupIDs ?: $dGroupIDs;
         $instance['layout']    = Input::cmd('layout', 'appointment');
         $instance['personID']  = $this->personID;
-        $instance['roleID']    = empty($request->get('roleID')) ? $dRoleID : (int) $request->get('roleID');
+        $instance['roleID']    = empty($request['roleID']) ? $dRoleID : (int) $request['roleID'];
         $instance['roomIDs']   = $rRoomIDs ?: $dRoomIDs;
         $instance['startTime'] = $rStartTime ?: $dStartTime;
 

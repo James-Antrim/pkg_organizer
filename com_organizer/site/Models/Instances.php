@@ -355,7 +355,7 @@ class Instances extends ListModel
                         $this->state->set('filter.personID', $personID);
 
                         if (empty($conditions['showUnpublished'])) {
-                            $conditions['showUnpublished'] = Helpers\Persons::getIDByUserID($userID) === $personID;
+                            $conditions['showUnpublished'] = Helpers\Persons::resolveUser($userID) === $personID;
                         }
                     }
                     else {

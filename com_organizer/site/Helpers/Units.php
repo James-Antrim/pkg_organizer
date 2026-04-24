@@ -245,7 +245,7 @@ class Units extends ResourceHelper
      */
     public static function teaches(int $unitID = 0, int $personID = 0): bool
     {
-        $personID = $personID ?: Persons::getIDByUserID(User::id());
+        $personID = $personID ?: Persons::resolveUser(User::id());
 
         $query = DB::query();
         $query->select('COUNT(*)')

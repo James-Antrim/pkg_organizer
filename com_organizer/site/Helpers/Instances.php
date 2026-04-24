@@ -860,7 +860,7 @@ class Instances extends ResourceHelper
                 $conditions['unitIDs'] = $unitIDs;
             }
         }
-        elseif ($personID = Persons::getIDByUserID($conditions['userID'])) {
+        elseif ($personID = Persons::resolveUser($conditions['userID'])) {
             // Schedule items which have been planned for the person should appear in their schedule
             $conditions['personIDs']       = [$personID];
             $conditions['showUnpublished'] = true;
@@ -998,7 +998,7 @@ class Instances extends ResourceHelper
                         ->where("ipa.registered = 1");
                 }
                 else {
-                    if ($personID = Persons::getIDByUserID($userID)) {
+                    if ($personID = Persons::resolveUser($userID)) {
                         $filterOrganization = false;
                         $wherray[]          = "ipe.personID = $personID";
                     }
@@ -1235,7 +1235,7 @@ class Instances extends ResourceHelper
             return;
         }
 
-        $thisPersonID = Persons::getIDByUserID($userID);
+        $thisPersonID = Persons::resolveUser($userID);
         $authorized   = Organizations::viewableIDs();
 
         foreach ($personIDs as $key => $personID) {
@@ -1303,7 +1303,7 @@ class Instances extends ResourceHelper
      */
     public static function hasResponsibility(int $instanceID = 0, int $personID = 0, int $roleID = 0): bool
     {
-        if (!$personID and !$personID = Persons::getIDByUserID(User::id())) {
+        if (!$personID and !$personID = Persons::resolveUser(User::id())) {
             return false;
         }
 

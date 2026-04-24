@@ -24,7 +24,7 @@ class Courses extends Coordinatable
     /**
      * Retrieves the campus id associated with the course.
      *
-     * @param   int  $courseID  the id of the course
+     * @param int $courseID the id of the course
      *
      * @return int  the id of the associated campus
      */
@@ -84,7 +84,7 @@ class Courses extends Coordinatable
         }
 
         $organizationIDs = Organizations::schedulableIDs();
-        $personID        = Persons::getIDByUserID();
+        $personID        = Persons::resolveUser();
 
         // Not a scheduler or assigned by one
         if (!$organizationIDs and !$personID) {
@@ -105,7 +105,7 @@ class Courses extends Coordinatable
     /**
      * Gets the course start and end dates.
      *
-     * @param   int  $courseID  id of course to be loaded
+     * @param int $courseID id of course to be loaded
      *
      * @return string[]  the start and end date for the given course
      */
@@ -133,7 +133,7 @@ class Courses extends Coordinatable
     /**
      * Creates a display of formatted dates for a course
      *
-     * @param   int  $courseID  the id of the course to be loaded
+     * @param int $courseID the id of the course to be loaded
      *
      * @return string the dates to display
      */
@@ -149,7 +149,7 @@ class Courses extends Coordinatable
     /**
      * Checks if the course is expired
      *
-     * @param   int  $courseID  the id of the course
+     * @param int $courseID the id of the course
      *
      * @return bool true if the course is expired, otherwise false
      */
@@ -165,10 +165,10 @@ class Courses extends Coordinatable
     /**
      * Creates a new course automatically from unit data according to the requesting view.
      *
-     * @param   Table  $course   the course being created
-     * @param   array  $unitIDs  the ids of the units which will serve as a basis for the course
-     * @param   int    $termID   the term context of the course
-     * @param   bool   $import   the requesting view is the import courses view
+     * @param Table $course  the course being created
+     * @param array $unitIDs the ids of the units which will serve as a basis for the course
+     * @param int   $termID  the term context of the course
+     * @param bool  $import  the requesting view is the import courses view
      *
      * @return void
      */
@@ -229,7 +229,7 @@ class Courses extends Coordinatable
     /**
      * Checks if the number of active participants is less than the number of max participants
      *
-     * @param   int  $courseID  the id of the course
+     * @param int $courseID the id of the course
      *
      * @return bool true if the course is full, otherwise false
      */
@@ -254,7 +254,7 @@ class Courses extends Coordinatable
     /**
      * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
      *
-     * @param   int  $courseID  the course id
+     * @param int $courseID the course id
      *
      * @return array[] list of participants in course
      */
@@ -313,9 +313,9 @@ class Courses extends Coordinatable
     /**
      * Check if user has a course responsibility.
      *
-     * @param   int  $courseID  the optional id of the course
-     * @param   int  $personID  the optional id of the person
-     * @param   int  $roleID    the optional if of the person's role
+     * @param int $courseID the optional id of the course
+     * @param int $personID the optional id of the person
+     * @param int $roleID   the optional if of the person's role
      *
      * @return bool true if the user has a course responsibility, otherwise false
      */
@@ -325,7 +325,7 @@ class Courses extends Coordinatable
             return true;
         }
 
-        if (!$personID = $personID ?: Persons::getIDByUserID(User::id())) {
+        if (!$personID = $personID ?: Persons::resolveUser(User::id())) {
             return false;
         }
 
@@ -352,7 +352,7 @@ class Courses extends Coordinatable
     /**
      * Gets instances associated with the given course.
      *
-     * @param   int  $courseID  the id of the course
+     * @param int $courseID the id of the course
      *
      * @return int[] the instances which are a part of the course
      */
@@ -360,8 +360,8 @@ class Courses extends Coordinatable
     /**
      * Gets instances associated with the given course optionally filtered by future or past.
      *
-     * @param   int        $courseID  the id of the course
-     * @param   bool|null  $future    whether to filter for future instances (null => no filter, 0 => past, 1 => future)
+     * @param int       $courseID the id of the course
+     * @param bool|null $future   whether to filter for future instances (null => no filter, 0 => past, 1 => future)
      *
      * @return array
      */
@@ -400,7 +400,7 @@ class Courses extends Coordinatable
     /**
      * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
      *
-     * @param   int  $courseID  the course id
+     * @param int $courseID the course id
      *
      * @return int [] the participant IDs
      */
@@ -427,7 +427,7 @@ class Courses extends Coordinatable
     /**
      * Checks if the course is a preparatory course.
      *
-     * @param   int  $courseID  the id of the course
+     * @param int $courseID the id of the course
      *
      * @return bool true if the course is expired, otherwise false
      */
@@ -449,8 +449,8 @@ class Courses extends Coordinatable
     /**
      * Check if user is a speaker.
      *
-     * @param   int  $courseID  the optional id of the course
-     * @param   int  $personID  the optional id of the person
+     * @param int $courseID the optional id of the course
+     * @param int $personID the optional id of the person
      *
      * @return bool true if the user is a speaker, otherwise false
      */
@@ -462,8 +462,8 @@ class Courses extends Coordinatable
     /**
      * Check if user a course supervisor.
      *
-     * @param   int  $courseID  the optional id of the course
-     * @param   int  $personID  the optional id of the person
+     * @param int $courseID the optional id of the course
+     * @param int $personID the optional id of the person
      *
      * @return bool true if the user is a supervisor, otherwise false
      */
@@ -475,8 +475,8 @@ class Courses extends Coordinatable
     /**
      * Check if user is a course teacher.
      *
-     * @param   int  $courseID  the optional id of the course
-     * @param   int  $personID  the optional id of the person
+     * @param int $courseID the optional id of the course
+     * @param int $personID the optional id of the person
      *
      * @return bool true if the user is a course teacher, otherwise false
      */
@@ -488,8 +488,8 @@ class Courses extends Coordinatable
     /**
      * Check if user is a course tutor.
      *
-     * @param   int  $courseID  the optional id of the course
-     * @param   int  $personID  the optional id of the person
+     * @param int $courseID the optional id of the course
+     * @param int $personID the optional id of the person
      *
      * @return bool true if the user is a tutor, otherwise false
      */
