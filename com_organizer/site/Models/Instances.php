@@ -13,8 +13,8 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\{Instances as Helper, Organizations};
+use THM\Organizer\Helpers\{Campuses, Can, Categories, Dates, Events, Grids, Groups, Holidays};
+use THM\Organizer\Helpers\{Instances as Helper, Methods, Organizations, Persons, Roles};
 use THM\Organizer\Tables;
 
 /** @inheritDoc */
@@ -51,7 +51,7 @@ class Instances extends ListModel
         $date = Input::string('date', $date);
 
         // Defaults to today
-        return Helpers\Dates::standardize($date);
+        return Dates::standardize($date);
     }
 
     /** @inheritDoc */
@@ -192,7 +192,7 @@ class Instances extends ListModel
                     $gridID = array_search(max($usedGrids), $usedGrids);
                 }
                 else {
-                    $gridID = Helpers\Grids::getDefault();
+                    $gridID = Grids::getDefault();
                 }
             }
 
@@ -201,7 +201,7 @@ class Instances extends ListModel
             $this->grid   = json_decode($grid->grid, true);
             $this->gridID = $gridID;
 
-            $this->holidays = Helpers\Holidays::getRelevant($this->conditions['startDate'], $this->conditions['endDate']);
+            $this->holidays = Holidays::getRelevant($this->conditions['startDate'], $this->conditions['endDate']);
         }
 
         return $items;
@@ -307,23 +307,23 @@ class Instances extends ListModel
                 Helper::setPublishingAccess($conditions);
 
                 $instances = Input::cmd('instances');
-                if (Helpers\Can::view('organization', $organizationID) and $instances === 'person') {
+                if (Can::view('organization', $organizationID) and $instances === 'person') {
                     $conditions['personIDs'] = Organizations::personIDs($organizationID);
                     $byPerson                = true;
                 }
             }
             else {
                 if ($categoryID) {
-                    $organizationID                = Helpers\Categories::organizationIDs($categoryID)[0];
+                    $organizationID                = Categories::organizationIDs($categoryID)[0];
                     $conditions['organizationIDs'] = [$organizationID];
                 }
                 elseif ($groupID) {
-                    $categoryID                    = Helpers\Groups::categoryID($groupID);
-                    $organizationID                = Helpers\Categories::organizationIDs($categoryID)[0];
+                    $categoryID                    = Groups::categoryID($groupID);
+                    $organizationID                = Categories::organizationIDs($categoryID)[0];
                     $conditions['organizationIDs'] = [$organizationID];
                 }
 
-                $conditions['showUnpublished'] = Helpers\Can::administrate();
+                $conditions['showUnpublished'] = Can::administrate();
             }
 
             if (!$byPerson) {
@@ -355,7 +355,7 @@ class Instances extends ListModel
                         $this->state->set('filter.personID', $personID);
 
                         if (empty($conditions['showUnpublished'])) {
-                            $conditions['showUnpublished'] = Helpers\Persons::resolveUser($userID) === $personID;
+                            $conditions['showUnpublished'] = Persons::resolveUser($userID) === $personID;
                         }
                     }
                     else {
@@ -539,13 +539,13 @@ class Instances extends ListModel
 
         if ($methodIDs and $methodIDs = array_filter($methodIDs)) {
             if (count($methodIDs) === 1) {
-                $methods = Helpers\Methods::getPlural($methodIDs[0]);
+                $methods = Methods::getPlural($methodIDs[0]);
             }
             else {
                 $methods = [];
 
                 foreach ($methodIDs as $methodID) {
-                    $methods[] = Helpers\Methods::getPlural($methodID);
+                    $methods[] = Methods::getPlural($methodID);
                 }
 
                 $lastName = array_pop($methods);
@@ -598,16 +598,16 @@ class Instances extends ListModel
 
             // Which resource
             if ($eventID = $this->state->get('filter.eventID')) {
-                $suffix .= ': ' . Helpers\Events::name($eventID);
+                $suffix .= ': ' . Events::name($eventID);
             }
             elseif ($personID = $this->state->get('filter.personID')) {
-                $suffix .= ': ' . Helpers\Persons::defaultName($personID);
+                $suffix .= ': ' . Persons::defaultName($personID);
             }
             elseif ($groupID = $this->state->get('filter.groupID')) {
-                $suffix .= ': ' . Helpers\Groups::getFullName($groupID);
+                $suffix .= ': ' . Groups::getFullName($groupID);
             }
             elseif ($categoryID = $this->state->get('filter.categoryID')) {
-                $suffix .= ': ' . Helpers\Categories::name($categoryID);
+                $suffix .= ': ' . Categories::name($categoryID);
             }
             elseif ($organizationID = $params->get('organizationID', Input::integer('organizationID'))) {
                 $fullName  = Organizations::getFullName($organizationID);
@@ -616,11 +616,11 @@ class Instances extends ListModel
                 $suffix    .= ': ' . $name;
             }
             elseif ($campusID = $params->get('campusID')) {
-                $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::name($campusID);
+                $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Campuses::name($campusID);
             }
 
             if ($roleID = Input::integer('roleID')) {
-                $plural = Helpers\Roles::getPlural($roleID);
+                $plural = Roles::getPlural($roleID);
                 $suffix .= $suffix ? " - $plural" : ": $plural";
             }
             elseif ($instances = Input::cmd('instances') and $instances === 'person') {
