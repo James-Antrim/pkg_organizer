@@ -37,7 +37,7 @@ class Event extends FormController
     }
 
     /** @inheritDoc */
-    protected function process(): int
+    public function process(): int
     {
         if ($id = parent::process() and $coordinatorIDs = $this->data['coordinatorIDs']) {
             $existing = Helper::coordinatorIDs($id);

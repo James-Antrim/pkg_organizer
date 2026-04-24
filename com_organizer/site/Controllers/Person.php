@@ -31,7 +31,7 @@ class Person extends FormController
     }
 
     /** @inheritDoc */
-    protected function process(): int
+    public function process(): int
     {
         $id = parent::process();
 

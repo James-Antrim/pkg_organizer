@@ -17,7 +17,7 @@ use THM\Organizer\Tables\FieldColors as Table;
 class FieldColor extends FormController
 {
     /** @inheritDoc */
-    protected function process(): int
+    public function process(): int
     {
         $this->checkToken();
         $this->authorize();

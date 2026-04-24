@@ -20,7 +20,7 @@ class RoomKey extends FormController
     use FacilityManageable;
 
     /** @inheritDoc */
-    protected function process(): int
+    public function process(): int
     {
         $this->checkToken();
         $this->authorize();

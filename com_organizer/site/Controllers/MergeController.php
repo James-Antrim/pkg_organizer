@@ -116,7 +116,7 @@ abstract class MergeController extends FormController
     }
 
     /** @inheritDoc */
-    protected function process(): int
+    public function process(): int
     {
         $this->checkToken();
         $this->authorize();
