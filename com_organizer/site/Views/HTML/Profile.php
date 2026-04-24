@@ -10,17 +10,26 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Text, Toolbar, User};
 
 /** @inheritDoc */
-class Profile extends OldFormView
+class Profile extends FormView
 {
+    use Abstracted;
+
     /** @inheritDoc */
-    protected function addToolBar(): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         $this->title('MY_PROFILE');
-
         $toolbar = Toolbar::instance();
-        $toolbar->save('profile.save', Text::_('SAVE'));
+        $toolbar->save('profile.save', Text::_('APPLY'));
+    }
+
+    /** @inheritDoc */
+    protected function authorize(): void
+    {
+        if (!User::id()) {
+            Application::error(401);
+        }
     }
 }

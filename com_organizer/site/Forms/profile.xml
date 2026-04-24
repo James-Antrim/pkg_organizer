@@ -4,14 +4,14 @@
         <field name="forename" type="text" label="ORGANIZER_FORENAME" class="required validate-name" required="true"/>
         <field name="surname" type="text" label="ORGANIZER_SURNAME" class="required validate-name" required="true"/>
         <field name="title" type="text" label="ORGANIZER_TITLE" maxlength="45"/>
-        <field name="telephone" type="text" label="ORGANIZER_TELEPHONE" class="required validate-telephone" required="true"/>
-        <field name="address" type="text" label="ORGANIZER_STREET" class="required validate-address" required="true"/>
-        <field name="city" type="text" label="ORGANIZER_RESIDENCE" class="required validate-name" required="true"/>
-        <field name="zipCode" type="text" label="ORGANIZER_ZIP_CODE" class="required validate-alphanumeric" required="true"/>
+        <field name="telephone" type="text" label="ORGANIZER_TELEPHONE" class="validate-telephone"/>
+        <field name="address" type="text" label="ORGANIZER_STREET" class="validate-address"/>
+        <field name="city" type="text" label="ORGANIZER_RESIDENCE" class="validate-name"/>
+        <field name="zipCode" type="text" label="ORGANIZER_ZIP_CODE" class="validate-alphanumeric"/>
         <field name="programID" type="Programs" label="ORGANIZER_PROGRAM" class="input-15">
             <option value="">ORGANIZER_SELECT_PROGRAM</option>
         </field>
-        <field name="public" type="list" label="ORGANIZER_PUBLIC_RELEASE" class="input-15" default="0">
+        <field name="public" type="list" label="ORGANIZER_PUBLIC_RELEASE" class="input-15" description="ORGANIZER_PUBLIC_RELEASE_DESC" default="0">
             <option value="0">ORGANIZER_NOT_RELEASED</option>
             <option value="1">ORGANIZER_RELEASED</option>
         </field>

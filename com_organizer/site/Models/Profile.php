@@ -10,41 +10,34 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Form, Input, User};
-use THM\Organizer\Controllers\Participant;
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use THM\Organizer\Adapters\{Form, User};
+use THM\Organizer\Controllers\Participant as Controller;
+use THM\Organizer\Helpers\{Participants as PaHelper, Persons as PeHelper};
+use THM\Organizer\Tables\{Participants as PaTable, Persons as PeTable};
 
 /**
  * Class loads a form for editing building data.
  */
-class Profile extends OldFormModel
+class Profile extends FormModel
 {
-    /** @inheritDoc */
-    protected function authorize(): void
-    {
-        if (!User::id()) {
-            Application::error(401);
-        }
-    }
-
     /** @inheritDoc */
     public function getForm($data = [], $loadData = false): Form
     {
+        /** @var Form $form */
         $form = parent::getForm($data, $loadData);
         $user = User::instance();
 
-        if (!Helpers\Participants::exists($user->id)) {
-            Participant::supplement($user->id);
+        if (!PaHelper::exists($user->id)) {
+            Controller::supplement($user->id);
         }
 
-        $participant = new Tables\Participants();
+        $participant = new PaTable();
         $participant->load($user->id);
         $form->bind($participant);
         $form->setValue('participantID', null, $participant->id);
-        $person = new Tables\Persons();
+        $person = new PeTable();
 
-        if ($personID = Helpers\Persons::getIDByUserID($user->id) and $person->load($personID)) {
+        if ($personID = PeHelper::resolveUser($user->id) and $person->load($personID)) {
             $form->removeField('programID');
             $form->setValue('public', null, $person->public);
             $form->setValue('title', null, $person->title);
@@ -55,48 +48,5 @@ class Profile extends OldFormModel
         }
 
         return $form;
-    }
-
-    /**
-     * Saves personal information to the participants and persons tables.
-     * @return void
-     */
-    public function save()
-    {
-        $this->authorize();
-        $userID      = User::id();
-        $participant = new Tables\Participants();
-
-        if (!$participant->load($userID)) {
-            Application::message('ORGANIZER_412', Application::NOTICE);
-
-            return;
-        }
-
-        $data = Input::post();
-
-        if (!$participant->save($data)) {
-            Application::message('NOT_SAVED', Application::ERROR);
-
-            return;
-        }
-
-        $person = new Tables\Persons();
-
-        if ($personID = Helpers\Persons::getIDByUserID($userID)) {
-            if (!$person->load($personID)) {
-                Application::message('412', Application::NOTICE);
-
-                return;
-            }
-
-            if (!$person->save($data)) {
-                Application::message('NOT_SAVED', Application::ERROR);
-
-                return;
-            }
-        }
-
-        Application::message('SAVED');
     }
 }
