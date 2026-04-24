@@ -436,7 +436,6 @@ class Instances extends ListModel
                 $status    = Application::userRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
                 break;
 
-            case 'html':
             default:
                 $date     = $this->date();
                 $status   = Application::userRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');

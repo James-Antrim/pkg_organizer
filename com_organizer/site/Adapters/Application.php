@@ -167,7 +167,7 @@ class Application
     {
         $menuItem = self::menuItem();
 
-        if (!empty($menuItem) and $menuItem->type === 'component' and $menuItem->component === 'organizer') {
+        if (!empty($menuItem) and $menuItem->type === 'component' and $menuItem->component === 'com_organizer') {
             return false;
         }
 
