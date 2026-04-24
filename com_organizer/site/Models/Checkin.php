@@ -11,48 +11,36 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Database, Input, User};
+use Joomla\CMS\{Application\CMSApplication, Uri\Uri};
+use THM\Organizer\Adapters\{Application, Database, FormFactory, Input, MVCFactory, User};
 use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\Participants as Table;
 
-class Checkin extends OldFormModel
+class Checkin extends FormModel
 {
-    /**
-     * @var array
-     */
-    private $instances;
+    private array $instances;
 
-    /**
-     * @var Tables\Participants
-     */
-    private $participant;
+    private Table $participant;
 
-    /**
-     * @var int|null
-     */
-    private $roomID = null;
+    private int|null $roomID = null;
 
-    /**
-     * The seat entered by the participant
-     * @var null|string
-     */
-    private $seat = null;
+    private string|null $seat = null;
 
     /** @inheritDoc */
-    public function __construct($config = [])
+    public function __construct($config, MVCFactory $factory, FormFactory $formFactory)
     {
-        parent::__construct($config);
+        parent::__construct($config, $factory, $formFactory);
 
         // Force component template
         if (Input::cmd('tmpl') !== 'component') {
+            /** @var CMSApplication $app */
+            $app   = Application::instance();
             $query = Input::instance()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
-            Application::instance()->redirect(Uri::current() . "?$query");
+            $app->redirect(Uri::current() . "?$query");
         }
 
         $form    = $this->getForm();
-        $session = Factory::getSession();
+        $session = Application::session();
 
         if ($username = $session->get('organizer.checkin.username')) {
             $form->setValue('username', null, $username);
@@ -62,7 +50,7 @@ class Checkin extends OldFormModel
             $form->setValue('code', null, $code);
         }
 
-        $participant = new Tables\Participants();
+        $participant = new Table();
 
         if ($participantID = User::id() and $participant->load($participantID)) {
             $form->bind($participant);
@@ -73,19 +61,11 @@ class Checkin extends OldFormModel
         $this->setInstances();
     }
 
-    /** @inheritDoc */
-    protected function authorize()
-    {
-        if (Input::cmd('layout') === 'profile' and !User::id()) {
-            Application::error(401);
-        }
-    }
-
     /**
      * Loads participant data for the current user. Used implicitly in view: $this->get('Participant').
-     * @return Tables\Participants
+     * @return Table
      */
-    public function getParticipant(): Tables\Participants
+    public function getParticipant(): Table
     {
         return $this->participant;
     }
@@ -102,7 +82,7 @@ class Checkin extends OldFormModel
     /**
      * Gets a query where common statements are already included.
      *
-     * @param   int  $participantID  the id of the participant for which to find checkins
+     * @param int $participantID the id of the participant for which to find checkins
      *
      * @return JDatabaseQuery
      */
@@ -143,7 +123,7 @@ class Checkin extends OldFormModel
      * Gets the instance related information.
      * @return void
      */
-    public function setInstances()
+    public function setInstances(): void
     {
         $instances = [];
         $roomID    = null;

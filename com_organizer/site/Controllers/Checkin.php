@@ -12,7 +12,6 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Factory;
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
@@ -28,7 +27,7 @@ class Checkin extends Controller
     public function checkin(): void
     {
         $data    = Input::post();
-        $session = Factory::getSession();
+        $session = Application::session();
 
         if (!User::id()) {
             /** @var CMSApplication $app */
@@ -85,16 +84,13 @@ class Checkin extends Controller
     /**
      * Saves the participants contact data.
      * @return void
-     * @see Participant::save(), Participant::prepareData()
+     * @see Participant::process(), Participant::prepareData()
      */
     public function contact(): void
     {
-        //$numeric  = ['id', 'programID'];
-        //$nullable = ['programID'];
-        //$required = ['address', 'city', 'forename', 'id', 'surname', 'telephone', 'zipCode'];
         if (User::id()) {
-            $model = new Models\Participant();
-            $model->save();
+            $controller = new Participant();
+            $controller->process();
         }
 
         $url = Helpers\Routing::getRedirectBase() . "&view=checkin";

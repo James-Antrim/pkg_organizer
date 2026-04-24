@@ -10,14 +10,13 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\{Document, Input};
+use THM\Organizer\Adapters\{Application, Document, Input, User};
 use THM\Organizer\Tables\Participants as Table;
 
 /**
  * Generates the checkin form.
  */
-class Checkin extends OldFormView
+class Checkin extends FormView
 {
     public bool $complete = true;
 
@@ -34,7 +33,7 @@ class Checkin extends OldFormView
     public string|null $seat;
 
     /** @inheritDoc */
-    protected function addToolBar(): void
+    protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
         if ($this->privacy) {
             $title = "Besondere Datenschutzhinweis zum THM Checkin-Verfahren im Zusammenhang mit der Coronapandemie";
@@ -61,9 +60,17 @@ class Checkin extends OldFormView
     }
 
     /** @inheritDoc */
+    protected function authorize(): void
+    {
+        if (Input::cmd('layout') === 'profile' and !User::id()) {
+            Application::error(401);
+        }
+    }
+
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
-        $session = Factory::getSession();
+        $session = Application::session();
 
         if ($layout = Input::cmd('layout')) {
             if ($this->privacy = $layout === 'privacy') {
