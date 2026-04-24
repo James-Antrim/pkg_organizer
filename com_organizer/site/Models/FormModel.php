@@ -28,7 +28,14 @@ abstract class FormModel extends Core
         $this->setContext();
     }
 
-    /** @inheritDoc */
+    /**
+     * Method for getting a form.
+     *
+     * @param array   $data     Data for the form.
+     * @param boolean $loadData True if the form is to load its own data (default case), false if not.
+     *
+     * @return FormAlias|null
+     */
     public function getForm($data = [], $loadData = true): ?FormAlias
     {
         $options = ['control' => '', 'load_data' => $loadData];
