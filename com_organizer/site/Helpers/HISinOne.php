@@ -50,7 +50,7 @@ class HISinOne
     private function request(string $function, string $query): SimpleXMLElement|false
     {
         $finish = '</soapenv:Body></soapenv:Envelope>';
-        $start  = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:org="http://www.his.de/ws/OrganizerService">';
+        $start  = '<soapenv:Envelope xmlns:soapenv="https://schemas.xmlsoap.org/soap/envelope/" xmlns:org="https://www.his.de/ws/OrganizerService">';
         $start  .= '<soapenv:Header/><soapenv:Body>';
 
         try {
