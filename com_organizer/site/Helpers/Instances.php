@@ -1410,7 +1410,7 @@ class Instances extends ResourceHelper
             default => Dates::week($date),
         };
 
-        $parameters = array_merge($parameters, $dates);
+        [$parameters['startDate'], $parameters['endDate']] = $dates;
     }
 
     /**

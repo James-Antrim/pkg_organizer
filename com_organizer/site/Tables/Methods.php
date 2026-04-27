@@ -51,16 +51,16 @@ class Methods extends Table
     /**
      * The resource's German plural.
      * VARCHAR(150) DEFAULT ''
-     * @var string
+     * @var string|null
      */
-    public string $plural_de = '';
+    public string|null $plural_de = '';
 
     /**
      * The resource's English plural.
      * VARCHAR(150) DEFAULT ''
-     * @var string
+     * @var string|null
      */
-    public string $plural_en = '';
+    public string|null $plural_en = '';
 
     /** @inheritDoc */
     public function __construct(DatabaseInterface $dbo = null)
