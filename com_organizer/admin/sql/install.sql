@@ -842,8 +842,8 @@ CREATE TABLE IF NOT EXISTS `#__organizer_persons`
 CREATE TABLE IF NOT EXISTS `#__organizer_pools`
 (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `HISinOneID`      INT(11) UNSIGNED DEFAULT NULL,
     `alias`           VARCHAR(255)     DEFAULT NULL,
-    `lsfID`           INT(11) UNSIGNED DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)      DEFAULT '',
     `abbreviation_en` VARCHAR(25)      DEFAULT '',
     `description_de`  TEXT,
@@ -927,6 +927,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     `degreeID`       INT(11) UNSIGNED    NOT NULL,
     `focusID`        INT(11) UNSIGNED             DEFAULT NULL,
     `formID`         INT(11) UNSIGNED             DEFAULT NULL,
+    `HISinOneID`     INT(11) UNSIGNED             DEFAULT NULL,
     `minorID`        INT(11) UNSIGNED             DEFAULT NULL,
     `nomenID`        INT(11) UNSIGNED    NOT NULL,
     `typeID`         INT(11) UNSIGNED              DEFAULT NULL,
@@ -1504,11 +1505,11 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons`
 CREATE TABLE IF NOT EXISTS `#__organizer_subjects`
 (
     `id`                          INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `HISinOneID`                  INT(11) UNSIGNED          DEFAULT NULL,
     `alias`                       VARCHAR(255)              DEFAULT NULL,
     `code`                        VARCHAR(60)               DEFAULT NULL,
     `fullName_de`                 VARCHAR(200)     NOT NULL,
     `fullName_en`                 VARCHAR(200)     NOT NULL,
-    `lsfID`                       INT(11) UNSIGNED          DEFAULT NULL,
     `abbreviation_de`             VARCHAR(25)      NOT NULL DEFAULT '',
     `abbreviation_en`             VARCHAR(25)      NOT NULL DEFAULT '',
     `bonusPoints`                 TINYINT(1) UNSIGNED       DEFAULT 0,
