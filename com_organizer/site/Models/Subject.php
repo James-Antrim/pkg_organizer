@@ -269,20 +269,7 @@ class Subject extends EditModel
                     $model[Text::_('AVAILABILITY')] = Frequencies::name($item->frequencyID);
                 }
 
-                $model[Text::_('INSTRUCTION_LANGUAGE')] = match ($item->language) {
-                    'A' => Text::_('ARABIAN'),
-                    'C' => Text::_('CHINESE'),
-                    'E' => Text::_('ENGLISH'),
-                    'F' => Text::_('FRENCH'),
-                    'G' => Text::_('GREEK'),
-                    'I' => Text::_('ITALIAN'),
-                    'J' => Text::_('JAPANESE'),
-                    'K' => Text::_('KOREAN'),
-                    'P' => Text::_('POLISH'),
-                    'S' => Text::_('SPANISH'),
-                    'T' => Text::_('TURKISH'),
-                    default => Text::_('GERMAN')
-                };
+                $model[Text::_('INSTRUCTION_LANGUAGE')] = empty(Application::LANGUAGES[$item->language]) ? Text::_('GERMAN') : Text::_(Application::LANGUAGES[$item->language]);
 
                 if ($item->{"preliminaryWork_$tag"}) {
                     $model[Text::_('PRELIMINARY_WORK')] = $item->{"preliminaryWork_$tag"};
