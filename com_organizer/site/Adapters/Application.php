@@ -41,6 +41,59 @@ class Application
      * public const ALERT = 'alert', CRITICAL = 'critical', DEBUG = 'debug', EMERGENCY = 'emergency';
      */
 
+    public const AFRIKAANS = 'af', ARABIAN = 'ar', BASQUE = 'eu', BELARUSIAN = 'be', BULGARIAN = 'bg', CATALONIAN = 'ca', CHINESE = 'zh',
+        CROATIAN = 'hr', CZECH = 'cs', DANISH = 'da', DUTCH = 'nl', ENGLISH = 'en', ESTONIAN = 'et', FARSI = 'fa', FINNISH = 'fi', FRENCH = 'fr',
+        GEORGIAN = 'ka', GERMAN = 'de', GREEK = 'el', HEBREW = 'he', HUNGARIAN = 'hu', ITALIAN = 'it', JAPANESE = 'ja', KAZAKH = 'kk', KOREAN = 'ko',
+        LATVIAN = 'lv', LITHUANIAN = 'lt', MACEDONIAN = 'mk', POLISH = 'pl', PORTUGUESE = 'pt', ROMANIAN = 'ro', RUSSIAN = 'ru', SERBIAN = 'sr',
+        SLOVAK = 'sk', SLOVENIAN = 'sl', SPANISH = 'es', SWEDISH = 'sv', TAMIL = 'ta', THAI = 'th', TURKISH = 'tr', UKRAINIAN = 'uk', URDU = 'ur',
+        VIETNAMESE = 'vi';
+
+    public const LANGUAGES = [
+        self::AFRIKAANS  => 'AFRIKAANS',
+        self::ARABIAN    => 'ARABIAN',
+        self::BASQUE     => 'BASQUE',
+        self::BELARUSIAN => 'BELARUSIAN',
+        self::BULGARIAN  => 'BULGARIAN',
+        self::CATALONIAN => 'CATALONIAN',
+        self::CHINESE    => 'CHINESE',
+        self::CROATIAN   => 'CROATIAN',
+        self::CZECH      => 'CZECH',
+        self::DANISH     => 'DANISH',
+        self::DUTCH      => 'DUTCH',
+        self::ENGLISH    => 'ENGLISH',
+        self::ESTONIAN   => 'ESTONIAN',
+        self::FARSI      => 'FARSI',
+        self::FINNISH    => 'FINNISH',
+        self::FRENCH     => 'FRENCH',
+        self::GEORGIAN   => 'GEORGIAN',
+        self::GERMAN     => 'GERMAN',
+        self::GREEK      => 'GREEK',
+        self::HEBREW     => 'HEBREW',
+        self::HUNGARIAN  => 'HUNGARIAN',
+        self::ITALIAN    => 'ITALIAN',
+        self::JAPANESE   => 'JAPANESE',
+        self::KAZAKH     => 'KAZAKH',
+        self::KOREAN     => 'KOREAN',
+        self::LATVIAN    => 'LATVIAN',
+        self::LITHUANIAN => 'LITHUANIAN',
+        self::MACEDONIAN => 'MACEDONIAN',
+        self::POLISH     => 'POLISH',
+        self::PORTUGUESE => 'PORTUGUESE',
+        self::ROMANIAN   => 'ROMANIAN',
+        self::RUSSIAN    => 'RUSSIAN',
+        self::SERBIAN    => 'SERBIAN',
+        self::SLOVAK     => 'SLOVAK',
+        self::SLOVENIAN  => 'SLOVENIAN',
+        self::SPANISH    => 'SPANISH',
+        self::SWEDISH    => 'SWEDISH',
+        self::TAMIL      => 'TAMIL',
+        self::THAI       => 'THAI',
+        self::TURKISH    => 'TURKISH',
+        self::UKRAINIAN  => 'UKRAINIAN',
+        self::URDU       => 'URDU',
+        self::VIETNAMESE => 'VIETNAMESE'
+    ];
+
     /**
      * Returns whether the platform was opened in an api context.
      * @return bool

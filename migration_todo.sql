@@ -1,0 +1,1 @@
+#rename pools and subjects tables fullName_x columns to name_x
