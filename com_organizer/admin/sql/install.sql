@@ -1527,7 +1527,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects`
     `fieldID`                     INT(11) UNSIGNED          DEFAULT NULL,
     `frequencyID`                 INT(1) UNSIGNED           DEFAULT NULL,
     `independent`                 INT(4) UNSIGNED  NOT NULL DEFAULT 0,
-    `language`                    VARCHAR(2)       NOT NULL DEFAULT 'D',
+    `language`                    VARCHAR(2)       NOT NULL DEFAULT 'de',
     `literature`                  TEXT,
     `method_de`                   TEXT,
     `method_en`                   TEXT,

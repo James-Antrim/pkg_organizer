@@ -463,6 +463,7 @@ ALTER TABLE `v7ocf_organizer_pools`
 
 ALTER TABLE `v7ocf_organizer_subjects`
     ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
+    MODIFY COLUMN `language` VARCHAR(2)       NOT NULL DEFAULT 'de',
 DROP COLUMN `lsfID`;
 
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'de' WHERE `language` = 'D';

@@ -168,11 +168,11 @@ class Subjects extends Table
 
     /**
      * The code for the language of instruction for this course.
-     * VARCHAR(2) NOT NULL DEFAULT 'D'
+     * VARCHAR(2) NOT NULL DEFAULT 'de'
      * Status: Unknown, are these still sent as codes? are there codes for any other potential languages?
      * @var string
      */
-    public string $language = 'D';
+    public string $language = 'de';
 
     /**
      * The recommended literature to accompany this subject.
