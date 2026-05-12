@@ -18,6 +18,7 @@ use THM\Organizer\Adapters\Application;
 class Programs extends Table
 {
     use Activated;
+    use HIOImported;
 
     /**
      * YEAR(4) NOT NULL
