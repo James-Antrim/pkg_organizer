@@ -12,7 +12,7 @@ trait HIOImported
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null
      */
-    public int|null $hi1ID = null;
+    public int|null $HISinOneID = null;
 
     /**
      * Sets a table column value.

@@ -45,20 +45,7 @@
             <option value="4">ORGANIZER_AVAILABILITY_AS_NEEDED</option>
             <option value="0">ORGANIZER_AVAILABILITY_APPT</option>
         </field>
-        <field name="language" type="list" label="ORGANIZER_INSTRUCTION_LANGUAGE" default="D">
-            <option value="A">ORGANIZER_ARABIAN</option>
-            <option value="C">ORGANIZER_CHINESE</option>
-            <option value="D">ORGANIZER_GERMAN</option>
-            <option value="E">ORGANIZER_ENGLISH</option>
-            <option value="F">ORGANIZER_FRENCH</option>
-            <option value="G">ORGANIZER_GREEK</option>
-            <option value="I">ORGANIZER_ITALIAN</option>
-            <option value="J">ORGANIZER_JAPANESE</option>
-            <option value="K">ORGANIZER_KOREAN</option>
-            <option value="P">ORGANIZER_POLISH</option>
-            <option value="S">ORGANIZER_SPANISH</option>
-            <option value="T">ORGANIZER_TURKISH</option>
-        </field>
+        <field name="language" type="Languages" label="ORGANIZER_INSTRUCTION_LANGUAGE" default="de"/>
         <field name="bonusPoints" type="list" label="ORGANIZER_BONUS_POINTS">
             <option value='0'>ORGANIZER_NO</option>
             <option value='1'>ORGANIZER_YES</option>

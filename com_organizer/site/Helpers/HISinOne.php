@@ -11,8 +11,11 @@
 namespace THM\Organizer\Helpers;
 
 use Exception;
-use SimpleXMLElement;
 use SoapClient;
+use SoapFault;
+use SoapHeader;
+use SoapVar;
+use stdClass;
 use THM\Organizer\Adapters\{Application, Input};
 
 /**
@@ -28,88 +31,75 @@ class HISinOne
      */
     public function __construct()
     {
-        $parameters = Input::parameters();
-        $options    = [
-            //'location' => $parameters->get('wsURI'),
-            'login'    => $parameters->get('wsUsername'),
-            'password' => $parameters->get('wsPassword'),
-            //'uri' => $parameters->get('wsURI'),
-        ];
+        $parameters   = Input::parameters();
+        $this->client = new SoapClient($parameters->get('wsURI'), ['cache_wsdl' => WSDL_CACHE_NONE, 'trace' => true]);
 
-        //$this->client = new SoapClient(null, $options);
-        $this->client = new SoapClient($parameters->get('wsURI'), $options);
+        /** @noinspection HttpUrlsUsage */
+        $bsNS1 = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
+        $auth  = "<wsse:Security SOAP-ENV:mustUnderstand=\"1\" xmlns:wsse=\"$bsNS1\">";
+        $auth  .= "<wsse:UsernameToken><wsse:Username>{$parameters->get('wsUsername')}</wsse:Username>";
+        $auth  .= "<wsse:Password>{$parameters->get('wsPassword')}</wsse:Password></wsse:UsernameToken>";
+        $auth  .= '</wsse:Security>';
+
+        $header = new SoapHeader($bsNS1, 'Security', new SoapVar($auth, XSD_ANYXML), true);
+        $this->client->__setSoapHeaders($header);
     }
 
     /**
-     * Method to perform a soap request based on a certain lsf query
-     *
-     * @param string $query Query structure
-     *
-     * @return SimpleXMLElement|false  SimpleXMLElement if the query was successful, otherwise false
+     * Creates a standardized soap fault error output.
+     * @param SoapFault $fault the soap fault (exception)
+     * @return void
      */
-    private function request(string $function, string $query): SimpleXMLElement|false
+    private function soapFault(SoapFault $fault): void
     {
-        $finish = '</soapenv:Body></soapenv:Envelope>';
-        $start  = '<soapenv:Envelope xmlns:soapenv="https://schemas.xmlsoap.org/soap/envelope/" xmlns:org="https://www.his.de/ws/OrganizerService">';
-        $start  .= '<soapenv:Header/><soapenv:Body>';
-
-        try {
-            $result = $this->client->__soapCall($function, ['xmlParams' => $start . $query . $finish]);
-        } catch (Exception $exception) {
-            Application::handleException($exception);
-        }
-
-        if (!$result) {
-            Application::message('ORGANIZER_SOAP_FAIL', Application::ERROR);
-
-            return false;
-        }
-
-        if ($result === 'error in soap-request') {
-            Application::message('ORGANIZER_SOAP_INVALID', Application::ERROR);
-
-            return false;
-        }
-
-        // Since I have to debug ITS responses every time just leave this here.
-        /*if (Can::administrate()) {
-            echo "<pre>" . print_r("<?xml version='1.0' encoding='utf-8'?>" . $result, true) . "</pre>";die;
-        }*/
-        return simplexml_load_string("<?xml version='1.0' encoding='utf-8'?>" . $result);
+        // Trailing whitespace to avoid automatic prefixing.
+        Application::message('REQUEST HEADERS', Application::ERROR);
+        Application::message('<pre>' . print_r($this->client->__getLastRequestHeaders(), true) . '</pre>', Application::ERROR);
+        Application::message('REQUEST ', Application::ERROR);
+        Application::message('<pre>' . print_r($this->client->__getLastRequest(), true) . '</pre>', Application::ERROR);
+        Application::message('RESPONSE HEADERS', Application::ERROR);
+        Application::message('<pre>' . print_r($this->client->__getLastResponseHeaders(), true) . '</pre>', Application::ERROR);
+        Application::message('RESPONSE ', Application::ERROR);
+        Application::message('<pre>' . print_r($this->client->__getLastResponse(), true) . '</pre>', Application::ERROR);
+        Application::message('FAULT STRING', Application::ERROR);
+        Application::message('<pre>' . $fault->faultstring . '</pre>', Application::ERROR);
     }
 
     /**
      * Method to get the module by mni number
      *
-     * @param int $moduleID The module mni number
+     * @param int $HISinOneID The module mni number
      *
-     * @return SimpleXMLElement|false
+     * @return stdClass|false
      */
-    public function subject(int $moduleID): SimpleXMLElement|false
+    public function subject(int $HISinOneID): stdClass|false
     {
-        $XML = "<org:getModule><org:moduleId>$moduleID</org:moduleId></org:getModule>";
+        try {
+            return $this->client->__soapCall('getModule', ['moduleId' => $HISinOneID]);
+        } catch (SoapFault $fault) {
+            $this->soapFault($fault);
+        }
 
-        return self::request('getModule', $XML);
+        return false;
     }
 
     /**
      * Requests program information. If called without identifiers, the catalogue of programs is requested.
      *
-     * @param string $key the aggregated identifiers used as a key by HISinOne, optional
+     * @param int $HISinOneID the id of the course of study entry in HISinOne
      *
-     * @return SimpleXMLElement|false
+     * @return stdClass|false
      */
-    public function program(string $key = ''): SimpleXMLElement|false
+    public function program(int $HISinOneID = 0): stdClass|false
     {
-        $XML = '<org:getCourseOfStudyWithStructure>';
-
-        // If a specific program is requested, then get its structure.
-        if ($key) {
-            $XML .= "<org:courseOfStudyId>$key</org:courseOfStudyId><org:withStructure>true</org:withStructure>";
+        try {
+            // Falls Parameter als optional markiert, kann Parameter auch leer gelassen werden
+            $params = $HISinOneID ? ['withStructure' => true, 'courseOfStudyId' => $HISinOneID] : ['withStructure' => false];
+            return $this->client->__soapCall('getCourseOfStudyWithStructure', $params);
+        } catch (SoapFault $fault) {
+            $this->soapFault($fault);
         }
 
-        $XML .= '</org:getCourseOfStudyWithStructure>';
-
-        return self::request('getCourseOfStudyWithStructure', $XML);
+        return false;
     }
 }

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Tables\Coded as Table;
 
 trait Coded
@@ -17,22 +18,29 @@ trait Coded
     /**
      * Attempts to resolve a given code to an id or id to code.
      *
-     * @param int|string $identifier the id of the resource
+     * @param int|string $value the id of the resource
      *
      * @return int|string|null
      */
-    public static function code(int|string $identifier): int|null|string
+    public static function code(int|string $value): int|null|string
     {
         $table = self::table();
 
-        if (is_int($identifier) and $table->load($identifier)) {
+        if (is_int($value) and $table->load($value)) {
             /** @var Table $table */
             return $table->code;
         }
 
 
-        if (is_string($identifier) and $table->load(['code' => $identifier])) {
-            return $table->id;
+        if (is_string($value)) {
+            if ($table->load(['code' => $value])) {
+                return $table->id;
+            }
+            else {
+                $identifier = Application::uqClass(self::class);
+                echo "<pre>Type $identifier Value $value does not exist.</pre>";
+                Application::message(Text::sprintf('IDENTIFIER_UNKNOWN', $identifier, $value));
+            }
         }
 
         return null;
