@@ -11,21 +11,21 @@
 
 namespace THM\Organizer\Controllers;
 
+use stdClass;
 
-use SimpleXMLElement;
-
-interface Stubby
+interface Subordinate
 {
     /**
      * Processes a resource stub from a program manifest, creating resource  and curricula table entries as necessary.
      * Creates an entry if none exists and calls
      *
-     * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary subject data
-     * @param   int               $organizationID  the id of the organization to which this data belongs
-     * @param   int               $parentID        the id of the parent entry
+     * @param stdClass $XMLObject      a SimpleXML object containing rudimentary subject data
+     * @param int      $organizationID the id of the organization to which this data belongs
+     * @param int      $parentID       the id of the parent entry
+     * @param int      $programCID     the id of the program entry
      *
      * @return bool  true on success, otherwise false
      */
-    public function processStub(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool;
+    public function subordinate(stdClass $XMLObject, int $organizationID, int $parentID, int $programCID): bool;
 
 }

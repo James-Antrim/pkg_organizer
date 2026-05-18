@@ -15,7 +15,7 @@ use THM\Organizer\Adapters\Application;
 use THM\Organizer\{Adapters\Input, Tables, Tables\Pools as Table};
 
 /** @inheritDoc */
-class Pool extends CurriculumResource implements Stubby
+class Pool extends CurriculumResource implements Subordinate
 {
     /** @inheritDoc */
     public function import(int $resourceID = 0): bool
@@ -55,7 +55,7 @@ class Pool extends CurriculumResource implements Stubby
     }
 
     /** @inheritDoc */
-    public function processStub(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
+    public function subordinate(stdClass $XMLObject, int $organizationID, int $parentID, int $programCID): bool
     {
         if (!$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid) {
             return false;

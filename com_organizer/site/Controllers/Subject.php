@@ -18,7 +18,7 @@ use THM\Organizer\Helpers\{HISinOne, Persons, Programs, Subjects as Helper};
 use THM\Organizer\{Tables, Tables\Subjects as Table};
 
 /** @inheritDoc */
-class Subject extends CurriculumResource implements Stubby
+class Subject extends CurriculumResource implements Subordinate
 {
     private const POST = 0, PRE = 1;
 
@@ -864,7 +864,7 @@ class Subject extends CurriculumResource implements Stubby
     }
 
     /** @inheritDoc */
-    public function processStub(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
+    public function subordinate(stdClass $XMLObject, int $organizationID, int $parentID, int $programCID): bool
     {
         if (!$lsfID = (string) (empty($XMLObject->modulid) ? $XMLObject->pordid : $XMLObject->modulid)) {
             return false;

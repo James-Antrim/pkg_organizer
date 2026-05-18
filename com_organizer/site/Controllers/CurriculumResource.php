@@ -213,7 +213,7 @@ abstract class CurriculumResource extends FormController
             $type = (string) $subOrdinate->pordtyp;
 
             if ($type === self::POOL) {
-                if ($pool->processStub($subOrdinate, $organizationID, $parentID)) {
+                if ($pool->subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
                     continue;
                 }
 
@@ -221,7 +221,7 @@ abstract class CurriculumResource extends FormController
             }
 
             if ($type === self::SUBJECT) {
-                if ($subject->processStub($subOrdinate, $organizationID, $parentID)) {
+                if ($subject->subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
                     continue;
                 }
 
