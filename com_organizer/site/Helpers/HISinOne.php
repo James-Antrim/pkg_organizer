@@ -53,14 +53,18 @@ class HISinOne
     private function soapFault(SoapFault $fault): void
     {
         // Trailing whitespace to avoid automatic prefixing.
-        Application::message('REQUEST HEADERS', Application::ERROR);
-        Application::message('<pre>' . print_r($this->client->__getLastRequestHeaders(), true) . '</pre>', Application::ERROR);
-        Application::message('REQUEST ', Application::ERROR);
-        Application::message('<pre>' . print_r($this->client->__getLastRequest(), true) . '</pre>', Application::ERROR);
-        Application::message('RESPONSE HEADERS', Application::ERROR);
-        Application::message('<pre>' . print_r($this->client->__getLastResponseHeaders(), true) . '</pre>', Application::ERROR);
-        Application::message('RESPONSE ', Application::ERROR);
-        Application::message('<pre>' . print_r($this->client->__getLastResponse(), true) . '</pre>', Application::ERROR);
+        if ($request = $this->client->__getLastRequest()) {
+            Application::message('REQUEST HEADERS', Application::ERROR);
+            Application::message('<pre>' . print_r($this->client->__getLastRequestHeaders(), true) . '</pre>', Application::ERROR);
+            Application::message('REQUEST ', Application::ERROR);
+            Application::message('<pre>' . print_r($request, true) . '</pre>', Application::ERROR);
+        }
+        if ($response = $this->client->__getLastResponseHeaders()) {
+            Application::message('RESPONSE HEADERS', Application::ERROR);
+            Application::message('<pre>' . print_r($this->client->__getLastResponseHeaders(), true) . '</pre>', Application::ERROR);
+            Application::message('RESPONSE ', Application::ERROR);
+            Application::message('<pre>' . print_r($response, true) . '</pre>', Application::ERROR);
+        }
         Application::message('FAULT STRING', Application::ERROR);
         Application::message('<pre>' . $fault->faultstring . '</pre>', Application::ERROR);
     }
