@@ -595,7 +595,6 @@ class Application
             'fieldcolor' => 'FieldColor',
             'fieldcolors' => 'FieldColors',
             'importcourses' => 'ImportCourses',
-            'importprograms' => 'ImportPrograms',
             'importrooms' => 'ImportRooms',
             'importschedule' => 'ImportSchedule',
             'instanceparticipants' => 'InstanceParticipants',

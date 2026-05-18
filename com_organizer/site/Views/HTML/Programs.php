@@ -27,12 +27,11 @@ class Programs extends ListView
             $this->addAdd();
 
             $toolbar = Toolbar::instance();
-            $import  = $toolbar->standardButton('upload', Text::_('IMPORT_HIO'), 'Programs.import')->icon('fa fa-upload');
-            $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'), 'Programs.update')
+            $import  = $toolbar->standardButton('upload', Text::_('IMPORT'), 'programs.import')->icon('fa fa-upload');
+            $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'), 'programs.update')
                 ->listCheck(true)->icon('fa fa-sync');
 
             if (Can::administrate()) {
-                $toolbar->addNew('Programs.importCSV', Text::_('IMPORT_CSV'))->icon('fa fa-upload');
                 $this->addDelete();
             }
             else {
