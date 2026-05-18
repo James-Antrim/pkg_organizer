@@ -21,6 +21,8 @@ defined('_JEXEC') or die;
  */
 class PlgSystemOrganizer extends CMSPlugin
 {
+    // todo remove the language toggle from dynamic content
+
     private static bool $called = false;
 
     /**
@@ -98,8 +100,8 @@ class PlgSystemOrganizer extends CMSPlugin
     /**
      * Loads the form path for organizer menu items.
      *
-     * @param   Form   $form  The form to be altered.
-     * @param   mixed  $data  The associated data for the form.
+     * @param Form  $form The form to be altered.
+     * @param mixed $data The associated data for the form.
      *
      * @return  void
      */
@@ -145,9 +147,9 @@ class PlgSystemOrganizer extends CMSPlugin
     /**
      * Ensures that users with existing credentials use those during the account creation process.
      *
-     * @param   array  $existing  the exising user entry
-     * @param   bool   $newFlag   a redundant flag
-     * @param   array  $user      the data entered by the user in the form
+     * @param array $existing the exising user entry
+     * @param bool  $newFlag  a redundant flag
+     * @param array $user     the data entered by the user in the form
      *
      * @return bool
      * @noinspection PhpUnusedParameterInspection
