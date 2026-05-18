@@ -23,8 +23,6 @@ class Programs extends ListView
     /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->toDo[] = 'Add a no category option.';
-
         if (Organizations::documentableIDs()) {
             $this->addAdd();
 

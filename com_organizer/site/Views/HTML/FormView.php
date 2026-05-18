@@ -82,7 +82,7 @@ abstract class FormView extends Core
     {
         Input::set('hidemainmenu', true);
         $buttons    = $buttons ?: ['apply', 'save'];
-        $controller = $this->getName();
+        $controller = strtolower($this->getName());
         $constant   = $constant ?: strtoupper($controller);
 
         $new = empty($this->item->id);
@@ -98,6 +98,10 @@ abstract class FormView extends Core
 
             foreach ($buttons as $button) {
                 switch ($button) {
+                    case is_array($button):
+                        [$name, $text, $task, $icon] = $button;
+                        $saveBar->standardButton($name, TEXT::_($text), "$controller.$task")->icon($icon);
+                        break;
                     case 'apply':
                         $saveBar->apply("$controller.apply", Text::_('APPLY'));
                         break;
