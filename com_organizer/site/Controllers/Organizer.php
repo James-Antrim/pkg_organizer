@@ -11,10 +11,9 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\User\User;
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database as DB, Text};
-use THM\Organizer\Helpers\Terms;
+use THM\Organizer\Adapters\{Application, Database as DB, Text, User};
+use THM\Organizer\Helpers\{Groups, Terms, Instances};
 
 /** @inheritDoc */
 class Organizer extends Controller
@@ -38,6 +37,9 @@ class Organizer extends Controller
         $this->duplicateAssociations();
         $this->deprecatedPlanning();
         $this->inactivePeople();
+
+        Groups::publishPast();
+        Instances::updatePublishing();
 
         $this->setRedirect("$this->baseURL&view=organizer");
     }
@@ -184,9 +186,9 @@ class Organizer extends Controller
     /**
      * Executes a delete statement on a prepared query statement and creates a feedback message as applicable.
      *
-     * @param   DatabaseQuery|string  $query      the query to be executed
-     * @param   string                $adjective  the reason for resource deletion
-     * @param   string                $resource   the resource being deleted
+     * @param DatabaseQuery|string $query     the query to be executed
+     * @param string               $adjective the reason for resource deletion
+     * @param string               $resource  the resource being deleted
      *
      * @return void
      */
@@ -239,15 +241,15 @@ class Organizer extends Controller
     /**
      * Creates a joined deletion query string based on a select query object.
      *
-     * @param   DatabaseQuery  $query  the source query
-     * @param   string         $table  the table to delete from
-     * @param   string         $alias  the table alias
+     * @param DatabaseQuery $query the source query
+     * @param string        $table the table to delete from
+     * @param string        $alias the table alias
      *
      * @return string
      */
     private function prepareStatement(DatabaseQuery $query, string $table, string $alias): string
     {
-        $query->clear('select')->clear('from')->delete($table);
+        $query->clear('SELECT')->clear('from')->delete($table);
         $query = (string) $query;
         return str_replace('DELETE ', 'DELETE ' . DB::qn($alias), $query);
     }
@@ -255,8 +257,8 @@ class Organizer extends Controller
     /**
      * Deletes a user contingent. Will not delete if the user is assigned to groups other than registered.
      *
-     * @param   int[]   $userIDs        the ids of the users to delete
-     * @param   string  $qualifiedNoun  the adjective/noun combination describing the users being purged
+     * @param int[]  $userIDs       the ids of the users to delete
+     * @param string $qualifiedNoun the adjective/noun combination describing the users being purged
      *
      * @return void
      */
@@ -268,7 +270,7 @@ class Organizer extends Controller
         $registered = 2;
 
         foreach ($userIDs as $userID) {
-            $user = User::getInstance($userID);
+            $user = User::instance($userID);
 
             // $user->groups set with ArrayHelper::toInteger on line 285 2024-07-10
             if (count($user->groups) === 1 and reset($user->groups) === $registered) {
@@ -367,8 +369,7 @@ class Organizer extends Controller
                 DB::set("ALTER TABLE #__organizer_$table AUTO_INCREMENT = 1");
                 DB::execute();
             }
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
         }
 

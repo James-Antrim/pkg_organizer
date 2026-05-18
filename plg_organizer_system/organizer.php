@@ -11,8 +11,7 @@
 require_once JPATH_ADMINISTRATOR . '/components/com_organizer/services/autoloader.php';
 
 use Joomla\CMS\{Application\CMSApplication, Component\ComponentHelper, Form\Form, Plugin\CMSPlugin, Uri\Uri};
-use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
-use THM\Organizer\Helpers\{Groups, Instances};
+use THM\Organizer\Adapters\{Application, Input, Text};
 
 defined('_JEXEC') or die;
 
@@ -49,52 +48,6 @@ class PlgSystemOrganizer extends CMSPlugin
         $form = Input::post();
 
         return ['username' => $form['username'], 'password' => $form['password1']];
-    }
-
-    /**
-     * Initiates database table migration as necessary.
-     *
-     * @return  void
-     */
-    public function onAfterInitialise(): void
-    {
-        $query = DB::query();
-        $query->select('*')->from(DB::qn('#__organizer_instances'))->setLimit(1);
-        DB::set($query);
-
-        if (!array_key_exists('published', DB::array())) {
-            Groups::publishPast();
-
-            $query = "ALTER TABLE `#__organizer_instances`
-                  ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`";
-            DB::set($query);
-            DB::execute();
-
-            Instances::updatePublishing();
-
-            // Updated naming standards
-            $query = DB::query();
-            $query->update(DB::qn('#__menu'))
-                ->set(DB::qc('link', 'index.php?option=com_organizer&view=roomoverview', '=', true))
-                ->where(DB::qc('link', 'index.php?option=com_organizer&view=room_overview', '=', true));
-            DB::set($query);
-            DB::execute();
-
-            // Updated menu parameters
-            $query = DB::query();
-            $query->update(DB::qn('#__menu'))
-                ->set(DB::qn('params') . ' = REPLACE(' . DB::qn('params') . ', \'"layout":"0"\', \'"layout":"list"\')')
-                ->where(DB::qc('link', 'index.php?option=com_organizer&view=instances', '=', true));
-            DB::set($query);
-            DB::execute();
-
-            $query = DB::query();
-            $query->update(DB::qn('#__menu'))
-                ->set(DB::qn('params') . ' = REPLACE(' . DB::qn('params') . ', \'"layout":"1"\', \'"layout":"grid"\')')
-                ->where(DB::qc('link', 'index.php?option=com_organizer&view=instances', '=', true));
-            DB::set($query);
-            DB::execute();
-        }
     }
 
     /**

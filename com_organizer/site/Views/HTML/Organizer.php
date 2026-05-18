@@ -36,6 +36,7 @@ class Organizer extends HtmlView
         $this->toDo[] = 'Dynamically add flooring types during room import process';
         $this->toDo[] = 'Check for key resource names during menu aliasing and cause a validation error.';
         $this->toDo[] = 'Rename instance persons to assignments.';
+        $this->toDo[] = 'Set as published those instances only associated with published groups.';
 
         $this->option     = 'com_organizer';
         $config['layout'] = $this->layout;

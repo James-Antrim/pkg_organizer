@@ -1,3 +1,18 @@
+UPDATE `v7ocf_menu`
+    SET `link` = 'index.php?option=com_organizer&view=roomoverview'
+    WHERE `link` = 'index.php?option=com_organizer&view=room_overview';
+
+UPDATE `v7ocf_menu`
+    SET `params` = REPLACE(`params`, '"layout":"0"', '"layout":"list"')
+    WHERE `link` = 'index.php?option=com_organizer&view=instances';
+
+UPDATE `v7ocf_menu`
+    SET `params` = REPLACE(`params`, '"layout":"1"', '"layout":"grid"')
+    WHERE `link` = 'index.php?option=com_organizer&view=instances';
+
+ALTER TABLE `v7ocf_organizer_instances`
+    ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`;
+
 ALTER TABLE `v7ocf_organizer_degrees`
     MODIFY COLUMN `abbreviation` VARCHAR(50) NOT NULL,
     ADD COLUMN `statisticCode`   VARCHAR(10);
