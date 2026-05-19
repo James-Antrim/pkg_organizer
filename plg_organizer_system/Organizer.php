@@ -8,21 +8,29 @@
  * @link        www.thm.de
  */
 
-require_once JPATH_ADMINISTRATOR . '/components/com_organizer/services/autoloader.php';
+namespace THM\Organizer\Plugin\System;
 
+use Joomla\CMS\Event\{Model\AfterSaveEvent as modelASE, User\AfterSaveEvent as userASE};
 use Joomla\CMS\{Application\CMSApplication, Component\ComponentHelper, Form\Form, Plugin\CMSPlugin, Uri\Uri};
+use Joomla\Event\{Event, SubscriberInterface};
 use THM\Organizer\Adapters\{Application, Input, Text};
-
-defined('_JEXEC') or die;
 
 /**
  * Organizer system plugin
  */
-class PlgSystemOrganizer extends CMSPlugin
+final class Organizer extends CMSPlugin implements SubscriberInterface
 {
     // todo remove the language toggle from dynamic content
 
     private static bool $called = false;
+
+    /** @inheritDoc */
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            '<EventName>' => '<FunctionName>',
+        ];
+    }
 
     /**
      * Resolves the url query into an associative array.

@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="plugin" group="system" method="upgrade">
-    <name>plg_system_organizer</name>
-    <description>PLG_SYSTEM_ORGANIZER_XML_DESCRIPTION</description>
+<extension group="system" method="upgrade" type="plugin">
     <author>James Antrim</author>
-    <authorUrl>www.thm.de</authorUrl>
     <authorEmail>james.antrim@nm.thm.de</authorEmail>
-    <creationDate>June 2020</creationDate>
+    <authorUrl>www.thm.de</authorUrl>
     <copyright>TH Mittelhessen 2020</copyright>
-    <license>GNU GPL v.2</license>
-    <version>5.0.0</version>
+    <creationDate>June 2020</creationDate>
+    <dependencies>
+        <dependency before="true" type="component" minversion="5.*">com_organizer</dependency>
+    </dependencies>
+    <description>PLG_SYSTEM_ORGANIZER_DESC</description>
     <files>
-        <filename plugin="organizer">organizer.php</filename>
-        <filename>LICENSE.txt</filename>
+        <file>LICENSE.txt</file>
         <folder>language</folder>
+        <file>Organizer.php</file>
+        <folder plugin="organizer">services</folder>
     </files>
     <languages folder="language">
-        <language tag="en-GB">en-GB/en-GB.plg_system_organizer.sys.ini</language>
-        <language tag="de-DE">de-DE/de-DE.plg_system_organizer.sys.ini</language>
+        <language tag="de-DE">de-DE/plg_system_organizer.sys.ini</language>
+        <language tag="en-GB">en-GB/plg_system_organizer.sys.ini</language>
     </languages>
-    <dependencies>
-        <dependency before="true" type="component" minversion="3.*">com_organizer</dependency>
-    </dependencies>
+    <license>GNU GPL v.3</license>
+    <name>plg_system_organizer</name>
+    <updateservers>
+        <server type="extension" name="Organizer System Plugin Update Site" priority="1">
+            https://github.com/James-Antrim/pkg_organizer/raw/main/update.xml
+        </server>
+    </updateservers>
+    <version>5.0.0</version>
 </extension>
