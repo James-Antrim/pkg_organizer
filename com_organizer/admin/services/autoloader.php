@@ -27,7 +27,7 @@ spl_autoload_register(function ($originalClassName) {
         return;
     }
 
-    //THM\Groups\Plugin\<Type>\Groups
+    //THM\Organizer\Plugin\<Type>\Organizer
     if (reset($classNameParts) === 'Plugin') {
         Application::error(503);
         /* No Organizer plugins migrated. */
@@ -35,7 +35,7 @@ spl_autoload_register(function ($originalClassName) {
         $type     = strtolower(array_shift($classNameParts));
         $filepath = JPATH_ROOT . "/plugins/$type/organizer/Organizer.php";
     }
-    //THM\Groups\Module\<Name>\Path..
+    //THM\Organizer\Module\<Name>\Path..
     elseif (reset($classNameParts) === 'Module') {
         Application::error(503);
         array_shift($classNameParts);
