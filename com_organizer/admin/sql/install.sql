@@ -921,13 +921,13 @@ CREATE TABLE IF NOT EXISTS `#__organizer_program_types`
 CREATE TABLE IF NOT EXISTS `#__organizer_programs`
 (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `HISinOneID`     INT(11) UNSIGNED             DEFAULT NULL,
     `accredited`     YEAR(4)             NOT NULL,
     `aTypeID`        INT(11) UNSIGNED    NOT NULL,
     `campusID`       INT(11) UNSIGNED             DEFAULT NULL,
     `degreeID`       INT(11) UNSIGNED    NOT NULL,
     `focusID`        INT(11) UNSIGNED             DEFAULT NULL,
     `formID`         INT(11) UNSIGNED             DEFAULT NULL,
-    `HISinOneID`     INT(11) UNSIGNED             DEFAULT NULL,
     `minorID`        INT(11) UNSIGNED             DEFAULT NULL,
     `nomenID`        INT(11) UNSIGNED    NOT NULL,
     `typeID`         INT(11) UNSIGNED              DEFAULT NULL,

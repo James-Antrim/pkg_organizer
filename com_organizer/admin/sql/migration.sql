@@ -494,6 +494,8 @@ ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `degreeID` INT(11) UNSIGNED
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `v7ocf_organizer_degrees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE `v7ocf_organizer_programs` ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`;
+
 ALTER TABLE `v7ocf_organizer_pools`
     ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
     DROP COLUMN `lsfID`;
