@@ -29,8 +29,6 @@ spl_autoload_register(function ($originalClassName) {
 
     //THM\Organizer\Plugin\<Type>\Organizer
     if (reset($classNameParts) === 'Plugin') {
-        Application::error(503);
-        /* No Organizer plugins migrated. */
         array_shift($classNameParts);
         $type     = strtolower(array_shift($classNameParts));
         $filepath = JPATH_ROOT . "/plugins/$type/organizer/Organizer.php";

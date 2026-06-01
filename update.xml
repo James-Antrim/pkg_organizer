@@ -1,0 +1,45 @@
+<updates>
+    <update>
+        <name>Organizer Component</name>
+        <description>Organizer is responsible for the presentation and management of various scholastic resources for the University of Applied
+            Sciences Central Hesse (THM).
+        </description>
+        <maintainer>James Antrim</maintainer>
+        <maintainerurl>https://www.thm.de</maintainerurl>
+        <version>5.0.0</version>
+        <infourl title="THM Homepage">https://www.thm.de/site</infourl>
+        <tags>
+            <tag>stable</tag>
+        </tags>
+        <targetplatform name="joomla" version="5.[0123456789]"/>
+        <php_minimum>8.2</php_minimum>
+        <element>com_groups</element>
+        <type>component</type>
+        <downloads>
+            <downloadurl type="full" format="zip">
+                https://github.com/James-Antrim/pkg_groups/raw/main/updates/com_organizer.zip
+            </downloadurl>
+        </downloads>
+    </update>
+    <update>
+        <name>Organizer Component - System Plugin</name>
+        <description>Integrates the Organizer component through system events.</description>
+        <maintainer>James Antrim</maintainer>
+        <maintainerurl>https://www.thm.de</maintainerurl>
+        <version>5.0.0</version>
+        <infourl title="THM Homepage">https://www.thm.de/site</infourl>
+        <tags>
+            <tag>stable</tag>
+        </tags>
+        <targetplatform name="joomla" version="5.[0123456789]"/>
+        <php_minimum>8.2</php_minimum>
+        <element>plg_system_organizer</element>
+        <type>plugin</type>
+        <folder>user</folder>
+        <downloads>
+            <downloadurl type="full" format="zip">
+                https://github.com/James-Antrim/pkg_groups/raw/main/updates/plg_system_organizer.zip
+            </downloadurl>
+        </downloads>
+    </update>
+</updates>
