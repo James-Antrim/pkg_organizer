@@ -17,8 +17,6 @@ use THM\Organizer\Helpers\{Can, Documentable, Organizations};
 /** @inheritDoc */
 abstract class CurriculumResources extends ListController
 {
-    use Ranges;
-
     /** @inheritDoc */
     protected function authorize(): void
     {

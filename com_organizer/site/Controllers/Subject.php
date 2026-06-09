@@ -775,7 +775,7 @@ class Subject extends CurriculumResource implements Subordinate
             Application::message('UPDATE_ASSIGNMENT_FAILED', Application::WARNING);
         }
 
-        $this->updateSuperOrdinates();
+        Helper::updateSuperOrdinates($this->data);
 
         // Dependant on curricula entries.
         if (!$this->processPrerequisites()) {
@@ -798,7 +798,7 @@ class Subject extends CurriculumResource implements Subordinate
         $subjectID = $this->data['id'];
 
         // Unmapped => impossible to create a dependency hierarchy
-        if (!$subjectRanges = $this->ranges($subjectID)) {
+        if (!$subjectRanges = Helper::rows($subjectID)) {
             return true;
         }
 
@@ -807,7 +807,7 @@ class Subject extends CurriculumResource implements Subordinate
         if ($prerequisites = array_filter($this->data['prerequisites']) and !in_array(self::NONE, $prerequisites)) {
             $prerequisiteRanges = [];
             foreach ($prerequisites as $prerequisiteID) {
-                $prerequisiteRanges = array_merge($prerequisiteRanges, $this->ranges($prerequisiteID));
+                $prerequisiteRanges = array_merge($prerequisiteRanges, Helper::rows($prerequisiteID));
             }
 
             foreach ($programRanges as $programRange) {
@@ -904,7 +904,7 @@ class Subject extends CurriculumResource implements Subordinate
      */
     private function removeDependency(int $subjectID, int $direction): bool
     {
-        if ($rangeIDs = Helper::curriculumIDs($this->ranges($subjectID))) {
+        if ($rangeIDs = Helper::curriculumIDs(Helper::rows($subjectID))) {
 
             $query = DB::query();
             $query->delete(DB::qn('#__organizer_prerequisites'));
@@ -1063,7 +1063,7 @@ class Subject extends CurriculumResource implements Subordinate
      */
     private function saveDependencies(array $programs, int $subjectID, array $dependencies): bool
     {
-        $subjectRanges = $this->ranges($subjectID);
+        $subjectRanges = Helper::rows($subjectID);
 
         foreach ($programs as $program) {
             // Program context filtered subject ranges

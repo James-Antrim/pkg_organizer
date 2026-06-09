@@ -36,12 +36,12 @@ class Pool extends CurriculumResource implements Subordinate
         /**
          * External references are not in the table and as such won't be automatically prepared. Subordinates are picked up
          * individually during further processing.
-         * @see Ranges::addSubordinate(), Ranges::subordinates()
+         * @see Helper::addSubordinate(), Helper::subordinates()
          */
         $data['programIDs']      = Input::resourceIDs('programIDs');
         $data['organizationIDs'] = Input::resourceIDs('organizationIDs');
         $data['superordinates']  = Input::resourceIDs('superordinates');
-        $data['subordinates']    = $this->subordinates();
+        $data['subordinates']    = Helper::subordinates();
 
         $this->validate($data, ['abbreviation_de', 'abbreviation_en', 'fullName_de', 'fullName_en', 'organizationIDs']);
 
@@ -51,7 +51,7 @@ class Pool extends CurriculumResource implements Subordinate
     /** @inheritDoc */
     public function postProcess(): void
     {
-        $this->updateSuperOrdinates();
+        Helper::updateSuperOrdinates($this->data);
     }
 
     /** @inheritDoc */

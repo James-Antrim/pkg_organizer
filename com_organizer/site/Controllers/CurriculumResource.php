@@ -70,9 +70,9 @@ abstract class CurriculumResource extends FormController
         $keys = ['parentID' => $parentID, $column => $resourceID];
         if (!$curriculum->load($keys)) {
             $range             = $keys;
-            $range['ordering'] = $this->ordering($parentID, $resourceID);
+            $range['ordering'] = Helper::ordering($parentID, $resourceID);
 
-            if (!$this->shiftUp($parentID, $range['ordering']) or !$this->addRange($range)) {
+            if (!Helper::shiftUp($parentID, $range['ordering']) or !Helper::addRange($range)) {
                 return;
             }
 
@@ -108,7 +108,7 @@ abstract class CurriculumResource extends FormController
      */
     public function delete(int $resourceID): bool
     {
-        if (!$this->deleteRanges($resourceID)) {
+        if (!Helper::deleteRanges($resourceID)) {
             return false;
         }
 
@@ -125,37 +125,6 @@ abstract class CurriculumResource extends FormController
      * @return bool|int
      */
     abstract public function import(int $resourceID = 0): bool|int;
-
-    /**
-     * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
-     *
-     * @param int $parentID   the id of the parent range
-     * @param int $resourceID the id of the resource
-     *
-     * @return int  the value of the highest existing ordering or 1 if none exist
-     */
-    protected function ordering(int $parentID, int $resourceID): int
-    {
-        $column = strtolower(Application::uqClass($this)) . 'ID';
-        $query  = DB::query();
-        $query->select(DB::qn('ordering'))
-            ->from(DB::qn('#__organizer_curricula'))
-            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER)
-            ->where(DB::qn($column) . ' = :resourceID')->bind(':resourceID', $resourceID, ParameterType::INTEGER);
-        DB::set($query);
-
-        if ($existingOrdering = DB::integer()) {
-            return $existingOrdering;
-        }
-
-        $query = DB::query();
-        $query->select('MAX(' . DB::qn('ordering') . ')')
-            ->from(DB::qn('#__organizer_curricula'))
-            ->where(DB::qn('parentID') . ' = :parentID')->bind(':parentID', $parentID, ParameterType::INTEGER);
-        DB::set($query);
-
-        return DB::integer() + 1;
-    }
 
     /** @inheritDoc */
     public function process(): int

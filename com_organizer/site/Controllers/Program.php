@@ -187,10 +187,10 @@ class Program extends CurriculumResource
         /**
          * External references are not in the table and as such won't be automatically prepared. Subordinates are picked up
          * individually during further processing.
-         * @see Ranges::addSubordinate(), Ranges::subordinates()
+         * @see Curricula::addSubordinate(), Curricula::subordinates()
          */
         $data['organizationIDs'] = Input::resourceIDs('organizationIDs');
-        $data['subordinates']    = $this->subordinates();
+        $data['subordinates']    = Helper::subordinates();
 
         $this->validate($data, ['accredited', 'aTypeID', 'campusID', 'degreeID', 'formID', 'nomenID', 'organizationIDs', 'typeID']);
 
@@ -207,7 +207,7 @@ class Program extends CurriculumResource
             'ordering'   => 0
         ];
 
-        if (!$this->addRange($range)) {
+        if (!Helper::addRange($range)) {
             Application::message('UPDATE_CURRICULUM_FAILED', Application::WARNING);
         }
     }
