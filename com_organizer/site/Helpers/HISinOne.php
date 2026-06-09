@@ -104,7 +104,8 @@ class HISinOne
         try {
             // Falls Parameter als optional markiert, kann Parameter auch leer gelassen werden
             $params = $HISinOneID ? ['withStructure' => true, 'courseOfStudyId' => $HISinOneID] : ['withStructure' => false];
-            return $this->client->__soapCall('getCourseOfStudyWithStructure', $params);
+            /** @noinspection PhpUndefinedMethodInspection */
+            return $this->client->getCourseOfStudyWithStructure($params);
         } catch (SoapFault $fault) {
             $this->soapFault($fault);
         }
