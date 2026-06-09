@@ -81,14 +81,7 @@ class Program extends CurriculumResource
             return false;
         }
 
-        try {
-            $client = new HISinOne();
-        } catch (Exception $exception) {
-            Application::message($exception->getMessage());
-            Application::message('HIO_CLIENT_FAILED', Application::WARNING);
-
-            return false;
-        }
+        $client = new HISinOne();
 
         if ($resourceID) {
             if (!$key = $this->key($resourceID)) {

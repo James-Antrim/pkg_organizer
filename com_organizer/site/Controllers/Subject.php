@@ -535,13 +535,7 @@ class Subject extends CurriculumResource implements Subordinate
             return false;
         }
 
-        try {
-            $client = new HISinOne();
-        } catch (Exception) {
-            Application::message('HIO_CLIENT_FAILED', Application::ERROR);
-
-            return false;
-        }
+        $client = new HISinOne();
 
         if (!$response = $client->subject($table->hi1ID)) {
             return false;

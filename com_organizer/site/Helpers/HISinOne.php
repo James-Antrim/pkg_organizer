@@ -23,16 +23,21 @@ use THM\Organizer\Adapters\{Application, Input};
  */
 class HISinOne
 {
-    private SoapClient $client;
+    private ?SoapClient $client = null;
 
     /**
      * Creates the SOAP Client.
-     * @throws Exception
      */
     public function __construct()
     {
-        $parameters   = Input::parameters();
-        $this->client = new SoapClient($parameters->get('wsURI'), ['cache_wsdl' => WSDL_CACHE_NONE, 'trace' => true]);
+        $parameters = Input::parameters();
+
+        try {
+            $this->client = new SoapClient($parameters->get('wsURI'), ['cache_wsdl' => WSDL_CACHE_NONE, 'trace' => true]);
+        } catch (Exception $exception) {
+            Application::message('HIO_CLIENT_FAILED', Application::ERROR);
+            Application::error($exception->getCode(), $exception->getMessage());
+        }
 
         /** @noinspection HttpUrlsUsage */
         $bsNS1 = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
