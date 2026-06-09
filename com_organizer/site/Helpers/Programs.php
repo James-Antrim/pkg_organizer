@@ -13,7 +13,8 @@ namespace THM\Organizer\Helpers;
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text, User};
-use THM\Organizer\Tables\{Curricula as CTable, Participants, Programs as Table};
+use THM\Organizer\Tables\{Associations, Curricula as CTable, Organizations as OTable, Participants, Programs as Table};
+use THM\Organizer\Helpers\Programs as Helper;
 
 /**
  * Provides general functions for program access checks, data retrieval and display.
@@ -40,14 +41,38 @@ class Programs extends Curricula implements Selectable
      */
     public static function degreeID(int $programID): int
     {
-        $degreeID = 0;
-        $program  = new Table();
+        $program = new Table();
 
         if ($program->load($programID)) {
-            $degreeID = $program->degreeID;
+            return $program->degreeID ?: 0;
         }
 
-        return $degreeID;
+        return 0;
+    }
+
+    /**
+     * Filters overhead out of the response.
+     *
+     * @param stdClass $response the response object
+     * @param bool     $multiple whether multiple programs are being concurrently queried
+     * @return array|false|stdClass
+     */
+    public static function filterResponse(stdClass $response, bool $multiple = false): array|false|stdClass
+    {
+        if (empty($response->courseOfStudiesWithStructure_out)) {
+            return false;
+        }
+
+        if (empty($response->courseOfStudiesWithStructure_out->courseOfStudies)) {
+            return false;
+        }
+
+        if (empty($response->courseOfStudiesWithStructure_out->courseOfStudies->courseOfStudy)) {
+            return false;
+        }
+
+        $programs = $response->courseOfStudiesWithStructure_out->courseOfStudies->courseOfStudy;
+        return $multiple ? $programs : $programs[0];
     }
 
     public static function fullName(stdClass $program): string
@@ -121,6 +146,139 @@ class Programs extends Curricula implements Selectable
         }
 
         return $curriculum->rgt - $curriculum->lft > 1;
+    }
+
+    /**
+     * Retrieves the HISinOne system id of the program.
+     *
+     * @param int $programID
+     *
+     * @return int
+     */
+    public static function HISinOneID(int $programID): int
+    {
+        $program = new Table();
+        if ($program->load($programID)) {
+            return $program->HISinOneID ?: 0;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Resolves the program 'UniqueName' to its constituent identifiers.
+     * @param string $identifiers
+     * @return array
+     */
+    private static function identifiers(string $identifiers): array
+    {
+        $identifiers = explode('|', $identifiers);
+        // Index 4 is always 'H'; Index 10 is always empty
+        unset($identifiers[4], $identifiers[10]);
+        // Directly assigning to variables requires sequential keys.
+        $identifiers = array_values($identifiers);
+        [$degree, $nomen, $minor, $focus, $accredited, $campus, $attendance, $form, $type] = $identifiers;
+        $identifiers = [
+            'accredited' => preg_match('/\d{4}/', $accredited) ? $accredited : Helper::UNVERSIONED,
+            'aTypeID'    => AttendanceTypes::code($attendance),
+            'campusID'   => Campuses::code($campus),
+            'degreeID'   => Degrees::code($degree),
+            'formID'     => ProgramForms::code($form),
+            'nomenID'    => Nomina::code($nomen),
+            'typeID'     => ProgramTypes::code($type),
+        ];
+
+        if ($focus !== Helper::DEFAULT_FOCUS) {
+            $identifiers['focusID'] = Foci::code($focus);
+        }
+
+        if ($minor !== Helper::DEFAULT_MINOR) {
+            $identifiers['minorID'] = Minors::code($minor);
+        }
+
+        foreach ($identifiers as $identifier) {
+            if (empty($identifier)) {
+                return [];
+            }
+        }
+
+        return $identifiers;
+    }
+
+    public static function importSingle(stdClass $program): bool
+    {
+        $HISinOneID  = $program->CoSId ?? null;
+        $identifiers = $program->Uniquename ?? null;
+        $oCode       = $program->OrgUnit->Uniquename ?? null;
+
+        if (!$HISinOneID or !$identifiers or !$oCode) {
+            Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
+            return false;
+        }
+
+        $HISUpdate = ['HISinOneID' => $HISinOneID];
+        if (!$identifiers = self::identifiers($identifiers)) {
+            Application::message('HIO_RESOURCE_MISSING', Application::ERROR);
+            return false;
+        }
+
+        $table = new Table();
+
+        // Existent migrated/HIS entry overwrite identifiers to save time against individual checks
+        if ($table->load($HISUpdate)) {
+            $table->save($identifiers);
+        }
+        // Existent non-migrated entry add HISinOneID
+        elseif ($table->load($identifiers)) {
+            $table->save($HISUpdate);
+        }
+        // Fresh "program"
+        else {
+            $identifiers['HISinOneID'] = $HISinOneID;
+            if (!$table->save($identifiers)) {
+                Application::message('ORGANIZER_NOT_SAVED', Application::ERROR);
+                return false;
+            }
+        }
+
+        $programID = $table->id;
+
+        // IT-Services decided to use inofficial abbreviations, so several need resolution.
+        if (!empty(Organizations::HISinOneResolution[$oCode])) {
+            $oCode = Organizations::HISinOneResolution[$oCode];
+        }
+
+        $organization = new OTable();
+        if ($organization->load(['abbreviation_de' => $oCode])) {
+            $association    = new Associations();
+            $organizationID = $organization->id;
+            $references     = ['organizationID' => $organizationID, 'programID' => $programID];
+
+            if (!$association->load($references)) {
+                $association->save($references);
+            }
+        }
+        else {
+            echo "<pre>" . print_r($program, true) . "</pre>";
+            die;
+            Application::message(Text::sprintf('PROGRAM_ORGANIZATION_UNKNOWN', $programID, $oCode), Application::WARNING);
+        }
+
+        if (!$ranges = self::rows($programID) or empty($ranges[0])) {
+            $range        = ['parentID' => null, 'programID' => $programID, 'ordering' => 0];
+            $curriculumID = self::addRange($range);
+        }
+        else {
+            $curriculumID = $ranges[0]['id'];
+        }
+
+        if ($subordinates = $program->PO) {
+            echo "<pre>structure!!!!!</pre>";
+            die;
+            //return $this->processCollection($subordinates, $organizationID, $curriculumID, $curriculumID);
+        }
+
+        return true;
     }
 
     /** @inheritDoc */

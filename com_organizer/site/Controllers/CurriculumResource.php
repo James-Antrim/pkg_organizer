@@ -10,19 +10,17 @@
 
 namespace THM\Organizer\Controllers;
 
-use Joomla\Database\ParameterType;
-use SimpleXMLElement;
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Tables\{Associations, Curricula, Pools as PoolsTable, Subjects, Table};
-use THM\Organizer\Helpers\{Can, Documentable, Pools as PoolsHelper, Programs};
+use stdClass;
+use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Tables\{Associations, Curricula, Pools as PTable, Subjects, Table};
+use THM\Organizer\Helpers\{Can, Curricula as Helper, Documentable, Pools as PHelper, Programs};
 
 /** @inheritDoc */
 abstract class CurriculumResource extends FormController
 {
     use Associated;
-    use Ranges;
 
-    protected const NONE = -1, POOL = 'K', SUBJECT = 'M';
+    protected const DRAFT = 'In Bearbeitung', NONE = -1, POOL = 'K', SUBJECT = 'M';
 
     /**
      * Creates a new resource, imports external data, and redirects to the same view of the same resource.
@@ -58,16 +56,17 @@ abstract class CurriculumResource extends FormController
     /**
      * Ensures that the imported resource is mapped in the curricula table.
      *
-     * @param Curricula $curriculum the curricula table object
-     * @param int       $parentID   the id of the curriculum entry for the resource superordinate to this one
-     * @param string    $column     the resource reference column name
-     * @param int       $resourceID the resource id
+     * @param int            $parentID   the id of the curriculum entry for the resource superordinate to this one
+     * @param string         $column     the resource reference column name
+     * @param int            $resourceID the resource id
+     * @param Curricula|null $curriculum the curricula table object
      *
      * @return void
      */
-    protected function checkCurriculum(Curricula $curriculum, int $parentID, string $column, int $resourceID): void
+    protected function checkCurriculum(int $parentID, string $column, int $resourceID, Curricula $curriculum = null): void
     {
-        $keys = ['parentID' => $parentID, $column => $resourceID];
+        $curriculum = $curriculum ?: new Curricula();
+        $keys       = ['parentID' => $parentID, $column => $resourceID];
         if (!$curriculum->load($keys)) {
             $range             = $keys;
             $range['ordering'] = Helper::ordering($parentID, $resourceID);
@@ -167,19 +166,26 @@ abstract class CurriculumResource extends FormController
      * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
      * needed.
      *
-     * @param SimpleXMLElement $collection     the SimpleXML node containing the collection of subordinate elements
-     * @param int              $organizationID the id of the organization with which the resources are associated
-     * @param int              $parentID       the id of the curriculum entry for the parent element.
-     *
+     * @param array $collection     an array of SimpleXML objects node containing the collection of subordinate elements
+     * @param int   $organizationID the id of the organization with which the resources are associated
+     * @param int   $parentID       the id of the curriculum entry for the parent element.
+     * @param int   $programCID     the id of the program context in the curricula table
      * @return bool
      */
-    protected function processCollection(SimpleXMLElement $collection, int $organizationID, int $parentID): bool
+    protected function processCollection(array $collection, int $organizationID, int $parentID, int $programCID): bool
     {
         $pool    = new Pool();
         $subject = new Subject();
 
         foreach ($collection as $subOrdinate) {
-            $type = (string) $subOrdinate->pordtyp;
+            $status = (string) $subOrdinate->Bearbeitungsstatus->Name;
+
+            if ($status and $status === self::DRAFT) {
+                // todo activate in production
+                //continue;
+            }
+
+            $type = (string) $subOrdinate->Elementtyp->Uniquename;
 
             if ($type === self::POOL) {
                 if ($pool->subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
@@ -219,18 +225,18 @@ abstract class CurriculumResource extends FormController
     /**
      * Set name attributes common to pools and subjects.
      *
-     * @param PoolsTable|Subjects $table     the table to modify
-     * @param SimpleXMLElement    $XMLObject the data source
+     * @param PTable|Subjects $table  the table to modify
+     * @param stdClass        $object the data source
      *
      * @return void
      */
-    protected function setNames(PoolsTable|Subjects $table, SimpleXMLElement $XMLObject): void
+    protected function setNames(PTable|Subjects $table, stdClass $object): void
     {
-        $table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
-        $table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
+        $table->setColumn('abbreviation_de', (string) $object->kuerzel, '');
+        $table->setColumn('abbreviation_en', (string) $object->kuerzelen, $table->abbreviation_de);
 
-        $table->fullName_de = (string) $XMLObject->titelde;
-        $table->fullName_en = (string) $XMLObject->titelen ?: $table->fullName_de;
+        $table->fullName_de = (string) $object->titelde;
+        $table->fullName_en = (string) $object->titelen ?: $table->fullName_de;
     }
 
     /**
@@ -262,34 +268,12 @@ abstract class CurriculumResource extends FormController
         $options = '';
         $ranges  = Programs::programs(Input::resourceIDs('programIDs'));
 
-        foreach (PoolsHelper::superOptions($id, $type, $ranges) as $option) {
+        foreach (PHelper::superOptions($id, $type, $ranges) as $option) {
             $options .= "<option value='$option->value' $option->selected $option->disable>$option->text</option>";
         }
 
         echo $options;
 
         $this->app->close();
-    }
-
-    /**
-     * Ensures that a title is set and does not contain 'dummy'. This function favors the German title.
-     *
-     * @param SimpleXMLElement $resource the resource being checked
-     *
-     * @return bool
-     */
-    protected function validTitle(SimpleXMLElement $resource): bool
-    {
-        $titleDE = trim((string) $resource->titelde);
-        $titleEN = trim((string) $resource->titelen);
-        $title   = $titleDE ?: $titleEN;
-
-        if (empty($title)) {
-            return false;
-        }
-
-        $dummyPos = stripos($title, 'dummy');
-
-        return $dummyPos === false;
     }
 }

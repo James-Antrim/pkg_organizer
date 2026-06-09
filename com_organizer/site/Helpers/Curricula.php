@@ -21,6 +21,8 @@ use THM\Organizer\Tables\Curricula as Table;
  */
 abstract class Curricula extends Associated implements Documentable, Selectable
 {
+    private static string $resource = '';
+
     /**
      * Adds a curriculum range to a parent curriculum range
      *
@@ -493,29 +495,6 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     }
 
     /**
-     * Generates the name of the foreign key column referencing this resource.
-     * @return string
-     */
-    private static function foreignKey(): string
-    {
-        $self = Application::uqClass(get_called_class());
-
-        if ($self === 'Subjects') {
-            return 'subjectID';
-        }
-
-        if ($self === 'Programs') {
-            return 'programID';
-        }
-
-        if ($self === 'Pools') {
-            return 'poolID';
-        }
-
-        return '';
-    }
-
-    /**
      * Attempt to determine the left value for the range to be created
      *
      * @param null|int $parentID the parent of the item to be inserted
@@ -566,7 +545,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      */
     public static function ordering(int $parentID, int $resourceID): int
     {
-        $column = self::foreignKey();
+        $column = self::$resource . 'ID';
         $query  = DB::query();
         $query->select(DB::qn('ordering'))
             ->from(DB::qn('#__organizer_curricula'))

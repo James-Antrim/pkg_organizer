@@ -22,10 +22,21 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     use Active;
     use Numbered;
 
+    // IT-Services decided to use inofficial abbreviations in the HISinOne system, so several need resolution during import.
+    public const JLU = 'JLU', MUK = 'MUK', STK = 'STK', WIRTSCHAFT = 'WIRTSCHAFT';
+
+    public const HISinOneResolution = [
+        'IOS'    => self::STK,
+        'KO'     => self::JLU,
+        'MuK_GI' => self::MUK,
+        'ST'     => self::STK,
+        'W'      => self::WIRTSCHAFT,
+    ];
+
     /**
      * Checks whether direct scheduling has been allowed for the given organization id.
      *
-     * @param   int  $organizationID  the id of the organization
+     * @param int $organizationID the id of the organization
      *
      * @return bool true if direct scheduling is allowed otherwise false
      */
@@ -43,8 +54,8 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /**
      * Gets the categories associated with a given organization.
      *
-     * @param   int   $organizationID  the organization to filter categories against
-     * @param   bool  $active          whether to filter out inactive categories
+     * @param int  $organizationID the organization to filter categories against
+     * @param bool $active         whether to filter out inactive categories
      *
      * @return array[]
      */
@@ -70,7 +81,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /**
      * The default grid for an organization defined by current organization grid usage. 0 if no usage is available.
      *
-     * @param   int  $organizationID
+     * @param int $organizationID
      *
      * @return int
      */
@@ -131,7 +142,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /**
      * Checks whether the user is authorized to view schedule information for the given organization.
      *
-     * @param   int  $organizationID  the id of the resource to check documentation access for.
+     * @param int $organizationID the id of the resource to check documentation access for.
      *
      * @return bool
      */
@@ -193,7 +204,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /**
      * Retrieves a set of personIDs associated with the given organization.
      *
-     * @param   int  $organizationID
+     * @param int $organizationID
      *
      * @return int[]
      */
@@ -211,7 +222,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function resources(string $access = ''): array
     {
@@ -329,7 +340,7 @@ class Organizations extends ResourceHelper implements Documentable, Schedulable,
     /**
      * Checks whether the user is authorized to view schedule information for the given organization.
      *
-     * @param   int  $resourceID  the id of the resource to check documentation access for.
+     * @param int $resourceID the id of the resource to check documentation access for.
      *
      * @return bool
      */

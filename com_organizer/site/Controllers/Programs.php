@@ -10,13 +10,81 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\Programs as Helper;
+use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Helpers\{Can, HISinOne, Programs as Helper};
 
 /** @inheritDoc */
 class Programs extends CurriculumResources
 {
     use Activated;
+
+    /** @inheritDoc */
+    public function import(): void
+    {
+        $this->checkToken();
+
+        $authorized  = false;
+        $selectedIDs = Input::selectedIDs();
+        if (Can::administrate()) {
+            $authorized = true;
+        }
+        elseif ($selectedIDs) {
+            $authorizedIDs = Helper::documentableIDs();
+            if (!array_diff($selectedIDs, $authorizedIDs)) {
+                $authorized = true;
+            }
+        }
+
+        if (!$authorized) {
+            Application::message('403', Application::ERROR);
+        }
+
+        $client   = new HISinOne();
+        $imported = 0;
+
+        if ($selected = count($selectedIDs)) {
+            if ($selected > 4) {
+                Application::message('PROGRAMS_TOO_MANY_TO_IMPORT', Application::WARNING);
+                $this->farewell($selected);
+            }
+
+            foreach ($selectedIDs as $programID) {
+                if (!$HISinOneID = Helper::HISinOneID($programID)) {
+                    Application::message('HIO_DATA_MISSING', Application::WARNING);
+                    continue;
+                }
+
+                if (!$program = $client->program($HISinOneID)) {
+                    Application::message(Text::sprintf('HIO_DATA_INCONSISTENT', $HISinOneID, $programID), Application::WARNING);
+                    continue;
+                }
+
+                if (!$program = Helper::filterResponse($program)) {
+                    Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
+                    continue;
+                }
+
+                if (Helper::importSingle($program)) {
+                    $imported++;
+                }
+            }
+
+            $this->farewell($selected, $imported);
+        }
+        elseif ($programs = $client->program() and $programs = Helper::filterResponse($programs, true)) {
+            $selected = count($programs);
+            foreach ($programs as $program) {
+                if (Helper::importSingle($program)) {
+                    $imported++;
+                }
+            }
+        }
+        else {
+            Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
+        }
+
+        $this->farewell($selected, $imported);
+    }
 
     /**
      * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
