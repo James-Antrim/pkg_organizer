@@ -27,14 +27,14 @@ abstract class ListsReferred extends FormController
     /** @inheritDoc */
     public function cancel(): void
     {
-        $this->setRedirect("$this->baseURL&view=" . $this->unsetReferrer());
+        $this->setRedirect($this->unsetReferrer());
     }
 
     /** @inheritDoc */
     public function save(): void
     {
         $this->process();
-        $this->setRedirect("$this->baseURL&view=" . $this->unsetReferrer());
+        $this->setRedirect($this->unsetReferrer());
     }
 
     /** @inheritDoc */
@@ -43,7 +43,7 @@ abstract class ListsReferred extends FormController
         // Force new attribute creation
         Input::set('id', 0);
         $this->process();
-        $this->setRedirect("$this->baseURL&view=" . $this->unsetReferrer());
+        $this->setRedirect($this->unsetReferrer());
     }
 
     /**
@@ -53,12 +53,14 @@ abstract class ListsReferred extends FormController
      */
     private function setReferrer(): void
     {
-        $class   = strtolower(Application::uqClass($this));
-        $session = Application::session();
-        if (!$session->get("organizer.$class.referrer")) {
-            $query = explode('?', Input::referrer())[1];
-            parse_str($query, $pairs);
-            $referrer = $pairs['view'] ?? $this->list;
+        $class    = strtolower(Application::uqClass($this));
+        $session  = Application::session();
+        $referrer = Input::referrer();
+        if (!$session->get("organizer.$class.referrer") and $referrer) {
+            if (strpos($referrer, '?') and $query = explode('?', Input::referrer())[1]) {
+                parse_str($query, $pairs);
+                $referrer = $pairs['view'] ?? $this->list;
+            }
             $session->set("organizer.$class.referrer", $referrer);
         }
     }
@@ -74,10 +76,15 @@ abstract class ListsReferred extends FormController
         $key     = "organizer.$class.referrer";
         $session = Application::session();
 
-        $referrer = $session->get($key, $this->list);
-        $session->set($key, null);
+        if ($referrer = $session->get($key)) {
+            $session->set($key, null);
+            if (!str_starts_with($referrer, 'http')) {
+                return $this->baseURL . "&view=" . $referrer;
+            }
+            return $referrer;
+        }
 
-        return $referrer;
+        return $this->baseURL . "&view=" . $this->list;
     }
 
 }
