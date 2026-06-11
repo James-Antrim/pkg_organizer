@@ -171,7 +171,7 @@ class Dates
     {
         $dateTime = strtotime($date);
 
-        return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+6 month', $dateTime))];
+        return [date('Y-m-d', $dateTime), date('Y-m-d', strtotime('+6 month', $dateTime))];
     }
 
     /**
@@ -226,7 +226,7 @@ class Dates
         DB::between($query, $date, 'startDate', 'endDate');
         DB::set($query);
 
-        return DB::array();
+        return array_values(DB::array());
     }
 
     /**

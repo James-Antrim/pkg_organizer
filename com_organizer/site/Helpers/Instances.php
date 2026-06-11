@@ -1402,7 +1402,7 @@ class Instances extends ResourceHelper
         $parameters['date'] = $date;
 
         $dates = match ($parameters['interval']) {
-            'day' => ['startDate' => $date, 'endDate' => $date],
+            'day' => [$date, $date],
             'half' => Dates::sixMonths($date),
             'month' => Dates::month($date),
             'quarter' => Dates::ninetyDays($date),
