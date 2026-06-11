@@ -57,6 +57,8 @@
     </files>
     <scriptfile>script.php</scriptfile>
     <updateservers>
-        <server type="extension" priority="1" name="Organizer Component Update Site"></server>
+        <server type="extension" priority="1" name="Organizer Component Update Site">
+            https://raw.githubusercontent.com/James-Antrim/pkg_organizer/refs/heads/master/update.xml
+        </server>
     </updateservers>
 </extension>

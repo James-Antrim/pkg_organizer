@@ -13,11 +13,11 @@
         </tags>
         <targetplatform name="joomla" version="5.[0123456789]"/>
         <php_minimum>8.2</php_minimum>
-        <element>com_groups</element>
+        <element>com_organizer</element>
         <type>component</type>
         <downloads>
             <downloadurl type="full" format="zip">
-                https://github.com/James-Antrim/pkg_groups/raw/main/updates/com_organizer.zip
+                https://raw.githubusercontent.com/James-Antrim/pkg_organizer/refs/heads/master/updates/com_organizer.zip
             </downloadurl>
         </downloads>
     </update>
@@ -38,7 +38,7 @@
         <folder>user</folder>
         <downloads>
             <downloadurl type="full" format="zip">
-                https://github.com/James-Antrim/pkg_groups/raw/main/updates/plg_system_organizer.zip
+                https://raw.githubusercontent.com/James-Antrim/pkg_organizer/refs/heads/master/updates/plg_system_organizer.zip
             </downloadurl>
         </downloads>
     </update>

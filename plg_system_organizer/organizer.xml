@@ -23,7 +23,7 @@
     <name>plg_system_organizer</name>
     <updateservers>
         <server type="extension" name="Organizer System Plugin Update Site" priority="1">
-            https://github.com/James-Antrim/pkg_organizer/raw/main/update.xml
+            https://raw.githubusercontent.com/James-Antrim/pkg_organizer/refs/heads/master/update.xml
         </server>
     </updateservers>
     <version>5.0.0</version>
