@@ -11,13 +11,11 @@
 namespace THM\Organizer\Providers;
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\MVC\Factory\ApiMVCFactory;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\CMS\MVC\Factory\{ApiMVCFactory, MVCFactoryInterface};
 use Joomla\Database\DatabaseInterface;
 use Joomla\DI\{Container, ServiceProviderInterface};
 use Joomla\Event\DispatcherInterface;
-use THM\Organizer\Adapters\FormFactory;
-use THM\Organizer\Adapters\MVCFactory;
+use THM\Organizer\Adapters\{FormFactory, MVCFactory};
 
 /**
  * Service provider for the service MVC factory.
