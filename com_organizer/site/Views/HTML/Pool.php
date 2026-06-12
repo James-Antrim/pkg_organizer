@@ -13,6 +13,8 @@ namespace THM\Organizer\Views\HTML;
 /** @inheritDoc */
 class Pool extends FormView
 {
+    use Subordinate;
+
     /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {

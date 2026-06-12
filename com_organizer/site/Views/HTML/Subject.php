@@ -17,6 +17,7 @@ use THM\Organizer\Helpers\Subjects as Helper;
 class Subject extends FormView
 {
     use Documented;
+    use Subordinate;
 
     /** @inheritDoc */
     protected string $layout = 'subject';

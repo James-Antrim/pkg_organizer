@@ -4,7 +4,7 @@
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2023 TH Mittelhessen
- * @license     GNU GPL v.2
+ * @license     GNU GPL v.3
  * @link        www.thm.de
  */
 
@@ -94,7 +94,7 @@ class Users extends User
 
     /**
      * MEDIUMTEXT NOT NULL
-     * JSON String. Typing would propably cause problems here because it is both NOT NULL and implicitly DEFAULT NULL
+     * JSON String. Typing would probably cause problems here because it is both NOT NULL and implicitly DEFAULT NULL
      * @var string|null
      */
     public string|null $params;
@@ -107,7 +107,7 @@ class Users extends User
 
     /**
      * DATETIME NOT NULL
-     * Magic property in parent. Typing would propably cause problems here because it is both NOT NULL and DEFAULT NULL.
+     * Magic property in parent. Typing would probably cause problems here because it is both NOT NULL and DEFAULT NULL.
      * @var string
      */
     public $registerDate;

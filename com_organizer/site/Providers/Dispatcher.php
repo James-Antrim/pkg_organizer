@@ -4,7 +4,7 @@
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
- * @license     GNU GPL v.2
+ * @license     GNU GPL v.3
  * @link        www.thm.de
  */
 
@@ -12,10 +12,8 @@ namespace THM\Organizer\Providers;
 
 use Joomla\CMS\Dispatcher\ComponentDispatcherFactoryInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\DI\Container;
-use Joomla\DI\ServiceProviderInterface;
+use Joomla\DI\{Container, ServiceProviderInterface};
 use THM\Organizer\Adapters\DispatcherFactory;
-
 
 /**
  * Service provider for the service dispatcher factory.
