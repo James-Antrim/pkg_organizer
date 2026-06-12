@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Adapters;
 
-use Joomla\CMS\Application\{CMSApplicationInterface, SiteApplication};
+use Joomla\CMS\Application\{CMSApplication, CMSApplicationInterface};
 use Joomla\CMS\Component\Router\{RouterFactoryInterface, RouterInterface};
 use Joomla\CMS\Menu\AbstractMenu;
 use Joomla\Database\DatabaseInterface;
@@ -43,7 +43,7 @@ class RouterFactory implements RouterFactoryInterface
      */
     public function createRouter(CMSApplicationInterface $application, AbstractMenu $menu): RouterInterface
     {
-        /** @var SiteApplication $application */
+        /** @var CMSApplication $application */
         return new Router($application, $menu, $this->database);
     }
 }
