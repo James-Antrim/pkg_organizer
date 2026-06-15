@@ -3,11 +3,11 @@ UPDATE `v7ocf_menu`
     WHERE `link` = 'index.php?option=com_organizer&view=room_overview';
 
 UPDATE `v7ocf_menu`
-    SET `params` = REPLACE(`params`, '"layout":"0"', '"layout":"list"')
+    SET `params` = REPLACE(`params`, '"layout":"list"', '"layout":"0"')
     WHERE `link` = 'index.php?option=com_organizer&view=instances';
 
 UPDATE `v7ocf_menu`
-    SET `params` = REPLACE(`params`, '"layout":"1"', '"layout":"grid"')
+    SET `params` = REPLACE(`params`, '"layout":"grid"', '"layout":"1"')
     WHERE `link` = 'index.php?option=com_organizer&view=instances';
 
 ALTER TABLE `v7ocf_organizer_instances`
