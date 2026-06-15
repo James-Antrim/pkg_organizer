@@ -9,13 +9,13 @@
  */
 
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Application, HTML};
+use THM\Organizer\Adapters\{Application, HTML, Input};
 use THM\Organizer\Layouts\HTML\{Batch, EmptySet, Headers, HiddenInputs, Row, Tools};
 use THM\Organizer\Views\HTML\ListView;
 
 /** @var ListView $this */
 
-$action = Route::_('index.php?option=com_organizer&view=' . strtolower($this->_name));
+$action = Application::dynamic() ? Route::_('index.php?option=com_organizer&view=' . strtolower($this->_name)) : Application::menuItem()->link;
 
 if (count($this->headers) > 4) {
     $wa = Application::document()->getWebAssetManager();
@@ -53,11 +53,12 @@ require_once 'header.php';
                             <template id="organizer-batch"><?php Batch::render($this); ?></template>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <?php HiddenInputs::render($this); ?>
-                    <input type="hidden" name="task" value="<?php echo strtolower($this->_name); ?>.display">
-                    <input type="hidden" name="boxchecked" value="0">
-                    <?php echo HTML::token(); ?>
                 </div>
             </div>
         </div>
+        <?php HiddenInputs::render($this); ?>
+        <input type="hidden" name="boxchecked" value="0">
+        <field name="Itemid" type="hidden" value="<?php echo Input::integer('Itemid'); ?>">
+            <input type="hidden" name="task" value="<?php echo strtolower($this->_name); ?>.display">
+            <?php echo HTML::token(); ?>
 </form>
