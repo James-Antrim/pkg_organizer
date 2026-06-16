@@ -23,6 +23,11 @@ use THM\Organizer\Tables\{InstanceParticipants as PTable, InstancePersons as Res
 class Instances extends ResourceHelper
 {
     /**
+     * Layout constants
+     */
+    public const LIST = 'list', GRID = 'grid';
+
+    /**
      * Delta constants
      */
     public const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
@@ -33,11 +38,6 @@ class Instances extends ResourceHelper
      * Jump constants
      */
     private const NONE = 0, FUTURE = 1, PAST = 2;
-
-    /**
-     * Layout constants
-     */
-    public const LIST                        = 0, GRID = 1;
 
     /**
      * Participation constants

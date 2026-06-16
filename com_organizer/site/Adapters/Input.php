@@ -263,7 +263,7 @@ class Input
      */
     public static function layout(): string
     {
-        return (string) self::instance()->get('layout');
+        return self::string('layout');
     }
 
     /**

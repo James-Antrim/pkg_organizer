@@ -1,29 +1,22 @@
 UPDATE `v7ocf_menu`
-    SET `link` = 'index.php?option=com_organizer&view=roomoverview'
-    WHERE `link` = 'index.php?option=com_organizer&view=room_overview';
-
-UPDATE `v7ocf_menu`
-    SET `params` = REPLACE(`params`, '"layout":"list"', '"layout":"0"')
-    WHERE `link` = 'index.php?option=com_organizer&view=instances';
-
-UPDATE `v7ocf_menu`
-    SET `params` = REPLACE(`params`, '"layout":"grid"', '"layout":"1"')
-    WHERE `link` = 'index.php?option=com_organizer&view=instances';
+SET `link` = 'index.php?option=com_organizer&view=roomoverview'
+WHERE `link` = 'index.php?option=com_organizer&view=room_overview';
 
 ALTER TABLE `v7ocf_organizer_instances`
     ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`;
 
 ALTER TABLE `v7ocf_organizer_degrees`
-    MODIFY COLUMN `abbreviation` VARCHAR(50) NOT NULL,
-    ADD COLUMN `statisticCode`   VARCHAR(10);
+    MODIFY COLUMN `abbreviation` VARCHAR (50) NOT NULL,
+    ADD COLUMN `statisticCode` VARCHAR (10);
 
-UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 84 WHERE `id` IN (1,2,3);
-UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 90 WHERE `id` IN (4,5,6,7);
+UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 84 WHERE `id` IN (1, 2, 3);
+UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 90 WHERE `id` IN (4, 5, 6, 7);
 UPDATE `v7ocf_organizer_degrees` SET `name` = 'Master of Business Administration' WHERE `id` = 7;
 UPDATE `v7ocf_organizer_programs` SET `degreeID` = 6 WHERE `degreeID` = 8;
 DELETE FROM `v7ocf_organizer_degrees` WHERE `id` = 8;
 
-INSERT IGNORE INTO `v7ocf_organizer_degrees`
+INSERT
+IGNORE INTO `v7ocf_organizer_degrees`
 VALUES (9, 'zertifikat', 'Zertifikat', '00', 'Zertifikat', 94),
        (10, 'ohne-abschluss', 'ohne Abschluss', '01', 'ohne Abschluss', 97),
        (11, 'bed', 'B.Ed.', 'BU', 'Bachelor of Education', 84),
@@ -33,29 +26,70 @@ VALUES (9, 'zertifikat', 'Zertifikat', '00', 'Zertifikat', 94),
        (15, 'doctorate', 'Dr..', 'PR', 'Doctorate', 06),
        (16, 'doctorate-tu', 'Dr.Eng.', 'PH', 'Doctorate (TU)', 92);
 
-ALTER TABLE `v7ocf_organizer_degrees` MODIFY COLUMN `statisticCode`  VARCHAR(10) NOT NULL;
+ALTER TABLE `v7ocf_organizer_degrees` MODIFY COLUMN `statisticCode` VARCHAR (10) NOT NULL;
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_nomina`
 (
-    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de`        VARCHAR(255)     NOT NULL,
-    `alias_en`        VARCHAR(255)     NOT NULL,
-    `code`            VARCHAR(60)      NOT NULL,
-    `name_de`         VARCHAR(255)     NOT NULL,
-    `name_en`         VARCHAR(255)     NOT NULL,
-    `statisticCode`   VARCHAR(10)      NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `alias_de` (`alias_de`),
-    UNIQUE KEY `alias_en` (`alias_en`),
-    UNIQUE KEY `code` (`code`),
-    UNIQUE KEY `name_de` (`name_de`),
-    UNIQUE KEY `name_en` (`name_en`)
+    `id`
+    INT
+(
+    11
+) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `alias_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `code` VARCHAR
+(
+    60
+) NOT NULL,
+    `name_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `name_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `statisticCode` VARCHAR
+(
+    10
+) NOT NULL,
+    PRIMARY KEY
+(
+    `id`
+),
+    UNIQUE KEY `alias_de`
+(
+    `alias_de`
+),
+    UNIQUE KEY `alias_en`
+(
+    `alias_en`
+),
+    UNIQUE KEY `code`
+(
+    `code`
+),
+    UNIQUE KEY `name_de`
+(
+    `name_de`
+),
+    UNIQUE KEY `name_en`
+(
+    `name_en`
 )
+    )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_nomina`
+INSERT
+IGNORE INTO `v7ocf_organizer_nomina`
 VALUES (1, 'architektur', 'architecture', 'A', 'Architektur', 'Architecture', '0013'),
        (2, 'angewandte-physik', 'applied-physics', 'APH', 'Angewandte Physik', 'Applied Physics', '0224'),
        (3, 'angewandte-vakuumtechnik', 'applied-vacuum-technology', 'AV', 'Angewandte Vakuumtechnik', 'Applied Vacuum Technology', '0c69'),
@@ -200,28 +234,66 @@ ALTER TABLE `v7ocf_organizer_programs`
 
 ALTER TABLE `v7ocf_organizer_programs` DROP COLUMN `code`;
 
-ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `nomenID` INT(11) UNSIGNED NOT NULL;
+ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `nomenID` INT (11) UNSIGNED NOT NULL;
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_minors`
 (
-    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de`        VARCHAR(255)     NOT NULL,
-    `alias_en`        VARCHAR(255)     NOT NULL,
-    `code`            VARCHAR(60)      NOT NULL,
-    `name_de`         VARCHAR(255)     NOT NULL,
-    `name_en`         VARCHAR(255)     NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `alias_de` (`alias_de`),
-    UNIQUE KEY `alias_en` (`alias_en`),
-    UNIQUE KEY `code` (`code`),
-    UNIQUE KEY `name_de` (`name_de`),
-    UNIQUE KEY `name_en` (`name_en`)
+    `id`
+    INT
+(
+    11
+) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `alias_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `code` VARCHAR
+(
+    60
+) NOT NULL,
+    `name_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `name_en` VARCHAR
+(
+    255
+) NOT NULL,
+    PRIMARY KEY
+(
+    `id`
+),
+    UNIQUE KEY `alias_de`
+(
+    `alias_de`
+),
+    UNIQUE KEY `alias_en`
+(
+    `alias_en`
+),
+    UNIQUE KEY `code`
+(
+    `code`
+),
+    UNIQUE KEY `name_de`
+(
+    `name_de`
+),
+    UNIQUE KEY `name_en`
+(
+    `name_en`
 )
+    )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_minors`
+INSERT
+IGNORE INTO `v7ocf_organizer_minors`
 VALUES (1, 'allgemeine-elektrotechnik', 'general-electrical-engineering', 'AET', 'Allgemeine Elektrotechnik', 'General Electrical Engineering'),
        (2, 'allgemeiner-maschinenbau', 'general-mechanical-engineering', 'AMB', 'Allgemeiner Maschinenbau', 'General Mechanical Engineering'),
        (3, 'allgemeine-mechatronik', 'general-mechatronics', 'AME', 'Allgemeine Mechatronik', 'General Mechatronics'),
@@ -276,24 +348,62 @@ ALTER TABLE `v7ocf_organizer_programs`
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_foci`
 (
-    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de`        VARCHAR(255)     NOT NULL,
-    `alias_en`        VARCHAR(255)     NOT NULL,
-    `code`            VARCHAR(60)      NOT NULL,
-    `name_de`         VARCHAR(255)     NOT NULL,
-    `name_en`         VARCHAR(255)     NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `alias_de` (`alias_de`),
-    UNIQUE KEY `alias_en` (`alias_en`),
-    UNIQUE KEY `code` (`code`),
-    UNIQUE KEY `name_de` (`name_de`),
-    UNIQUE KEY `name_en` (`name_en`)
+    `id`
+    INT
+(
+    11
+) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `alias_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `code` VARCHAR
+(
+    60
+) NOT NULL,
+    `name_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `name_en` VARCHAR
+(
+    255
+) NOT NULL,
+    PRIMARY KEY
+(
+    `id`
+),
+    UNIQUE KEY `alias_de`
+(
+    `alias_de`
+),
+    UNIQUE KEY `alias_en`
+(
+    `alias_en`
+),
+    UNIQUE KEY `code`
+(
+    `code`
+),
+    UNIQUE KEY `name_de`
+(
+    `name_de`
+),
+    UNIQUE KEY `name_en`
+(
+    `name_en`
 )
+    )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_foci`
+INSERT
+IGNORE INTO `v7ocf_organizer_foci`
 VALUES (1, 'getting-started', 'getting-started', 'GS', 'GettING Started', 'GettING Started');
 
 ALTER TABLE `v7ocf_organizer_programs`
@@ -307,25 +417,66 @@ ALTER TABLE `v7ocf_organizer_programs`
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_attendance_types`
 (
-    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de`        VARCHAR(255)     NOT NULL,
-    `alias_en`        VARCHAR(255)     NOT NULL,
-    `code`            VARCHAR(60)      NOT NULL,
-    `name_de`         VARCHAR(255)     NOT NULL,
-    `name_en`         VARCHAR(255)     NOT NULL,
-    `statisticCode`   VARCHAR(10)      NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `alias_de` (`alias_de`),
-    UNIQUE KEY `alias_en` (`alias_en`),
-    UNIQUE KEY `code` (`code`),
-    UNIQUE KEY `name_de` (`name_de`),
-    UNIQUE KEY `name_en` (`name_en`)
+    `id`
+    INT
+(
+    11
+) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `alias_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `code` VARCHAR
+(
+    60
+) NOT NULL,
+    `name_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `name_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `statisticCode` VARCHAR
+(
+    10
+) NOT NULL,
+    PRIMARY KEY
+(
+    `id`
+),
+    UNIQUE KEY `alias_de`
+(
+    `alias_de`
+),
+    UNIQUE KEY `alias_en`
+(
+    `alias_en`
+),
+    UNIQUE KEY `code`
+(
+    `code`
+),
+    UNIQUE KEY `name_de`
+(
+    `name_de`
+),
+    UNIQUE KEY `name_en`
+(
+    `name_en`
 )
+    )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_attendance_types`
+INSERT
+IGNORE INTO `v7ocf_organizer_attendance_types`
 VALUES (1, 'praesenzstudium', 'on-campus-study', 'P', 'Präsenzstudium', 'On-Campus Study', '1'),
        (2, 'fernstudium', 'remote-study', 'F', 'Fernstudium', 'Remote Study', '2');
 
@@ -337,13 +488,13 @@ UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 2 WHERE `name_de` LIKE '%Ferns
 UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 1 WHERE `name_de` NOT LIKE '%Fernstudium%';
 
 ALTER TABLE `v7ocf_organizer_programs`
-    MODIFY COLUMN `aTypeID` INT(11) UNSIGNED NOT NULL;
+    MODIFY COLUMN `aTypeID` INT (11) UNSIGNED NOT NULL;
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_aTypeID_fk` FOREIGN KEY (`aTypeID`) REFERENCES `v7ocf_organizer_attendance_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_campuses`
-    ADD COLUMN `code`          VARCHAR(10) DEFAULT NULL AFTER `name_en`,
+    ADD COLUMN `code` VARCHAR(10) DEFAULT NULL AFTER `name_en`,
     ADD COLUMN `statisticCode` VARCHAR(10) DEFAULT NULL,
     ADD UNIQUE KEY `code` (`code`);
 
@@ -354,67 +505,118 @@ UPDATE `v7ocf_organizer_campuses` SET `code` = 'W', `statisticCode` = '6233' WHE
 ALTER TABLE `v7ocf_organizer_programs`
     ADD COLUMN `campusID` INT(11) UNSIGNED DEFAULT NULL AFTER `aTypeID`,
     ADD KEY `campusID` (`campusID`),
-    ADD CONSTRAINT `program_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `v7ocf_organizer_campuses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+    ADD CONSTRAINT `program_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `v7ocf_organizer_campuses` (`id`) ON
+DELETE
+SET NULL ON
+UPDATE CASCADE;
 
 -- Friedberg programs identifiable by FB association
 UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id`
+    INNER JOIN `v7ocf_organizer_associations` AS `a`
+ON `a`.`programID` = `p`.`id`
     SET `p`.`campusID` = 9
 WHERE `a`.`organizationID` IN (15, 16, 17, 18, 23) AND `p`.`campusID` IS NULL;
 
 -- Gießen programs identifiable by FB association
 UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id`
+    INNER JOIN `v7ocf_organizer_associations` AS `a`
+ON `a`.`programID` = `p`.`id`
     SET `p`.`campusID` = 1
 WHERE `a`.`organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14) AND `p`.`campusID` IS NULL;
 
 -- Wetzlar programs identifiable by FB association
 UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id`
+    INNER JOIN `v7ocf_organizer_associations` AS `a`
+ON `a`.`programID` = `p`.`id`
     SET `p`.`campusID` = 14
 WHERE `a`.`organizationID` IN (13) AND `p`.`campusID` IS NULL;
 
 -- Friedberg programs identifiable by organizationID column
 UPDATE `v7ocf_organizer_programs`
 SET `campusID` = 9
-WHERE `organizationID` IN (15, 16, 17, 18, 19, 23) AND `campusID` IS NULL;
+WHERE `organizationID` IN (15, 16, 17, 18, 19, 23)
+  AND `campusID` IS NULL;
 
 -- Gießen programs identifiable by organizationID column
 UPDATE `v7ocf_organizer_programs`
 SET `campusID` = 1
-WHERE `organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14) AND `campusID` IS NULL;
+WHERE `organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14)
+  AND `campusID` IS NULL;
 
 -- Friedberg MuK programs
 UPDATE `v7ocf_organizer_programs`
 SET `campusID` = 9
-WHERE (`name_de` LIKE ('Logistik%') OR `name_de` LIKE ('Supply%') OR`name_de` LIKE ('Methoden%')) AND `campusID` IS NULL;
+WHERE (`name_de` LIKE ('Logistik%') OR `name_de` LIKE ('Supply%') OR `name_de` LIKE ('Methoden%'))
+  AND `campusID` IS NULL;
 
 -- Friedberg MuK programs
 UPDATE `v7ocf_organizer_programs`
 SET `campusID` = 1
-WHERE (`name_de` LIKE ('Event%') OR `name_de` LIKE ('Strat%')) AND `campusID` IS NULL;
+WHERE (`name_de` LIKE ('Event%') OR `name_de` LIKE ('Strat%'))
+  AND `campusID` IS NULL;
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_types`
 (
-    `id`            INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de`      VARCHAR(255)     NOT NULL,
-    `alias_en`      VARCHAR(255)     NOT NULL,
-    `code`          VARCHAR(60)      NOT NULL,
-    `name_de`       VARCHAR(255)     NOT NULL,
-    `name_en`       VARCHAR(255)     NOT NULL,
-    `statisticCode` VARCHAR(10)      NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `alias_de` (`alias_de`),
-    UNIQUE KEY `alias_en` (`alias_en`),
-    UNIQUE KEY `code` (`code`),
-    UNIQUE KEY `name_de` (`name_de`),
-    UNIQUE KEY `name_en` (`name_en`)
+    `id`
+    INT
+(
+    11
+) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `alias_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `code` VARCHAR
+(
+    60
+) NOT NULL,
+    `name_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `name_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `statisticCode` VARCHAR
+(
+    10
+) NOT NULL,
+    PRIMARY KEY
+(
+    `id`
+),
+    UNIQUE KEY `alias_de`
+(
+    `alias_de`
+),
+    UNIQUE KEY `alias_en`
+(
+    `alias_en`
+),
+    UNIQUE KEY `code`
+(
+    `code`
+),
+    UNIQUE KEY `name_de`
+(
+    `name_de`
+),
+    UNIQUE KEY `name_en`
+(
+    `name_en`
+)
     )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_program_types`
+INSERT
+IGNORE INTO `v7ocf_organizer_program_types`
 VALUES (1, 'erststudium', 'first-degree', '1', 'Erststudium', 'First Degree', '1'),
        (2, 'weiterbildungsstudium', 'continuing-education-degree', '6', 'Weiterbildungsstudium', 'Continuing Education Degree', '6'),
        (3, 'konsekutiver-master', 'consecutive-degree', '7', 'konsekutiver Master', 'Consecutive Degree', '7'),
@@ -424,39 +626,85 @@ VALUES (1, 'erststudium', 'first-degree', '1', 'Erststudium', 'First Degree', '1
 ALTER TABLE `v7ocf_organizer_programs`
     ADD COLUMN `typeID` INT(11) UNSIGNED DEFAULT NULL AFTER `nomenID`,
     ADD KEY `typeID` (`typeID`),
-    ADD CONSTRAINT `program_typeID_fk` FOREIGN KEY (`typeID`) REFERENCES `v7ocf_organizer_program_types` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+    ADD CONSTRAINT `program_typeID_fk` FOREIGN KEY (`typeID`) REFERENCES `v7ocf_organizer_program_types` (`id`) ON
+DELETE
+SET NULL ON
+UPDATE CASCADE;
 
 UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d`
+ON `d`.`id` = `p`.`degreeID`
     SET `p`.`typeID` = 1
 WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`typeID` IS NULL;
 
 UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d`
+ON `d`.`id` = `p`.`degreeID`
     SET `p`.`typeID` = 3
 WHERE `d`.`name` LIKE 'Master%' AND `p`.`typeID` IS NULL;
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_forms`
 (
-    `id`            INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de`      VARCHAR(255)     NOT NULL,
-    `alias_en`      VARCHAR(255)     NOT NULL,
-    `code`          VARCHAR(60)      NOT NULL,
-    `name_de`       VARCHAR(255)     NOT NULL,
-    `name_en`       VARCHAR(255)     NOT NULL,
-    `statisticCode` VARCHAR(10)      NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `alias_de` (`alias_de`),
-    UNIQUE KEY `alias_en` (`alias_en`),
-    UNIQUE KEY `code` (`code`),
-    UNIQUE KEY `name_de` (`name_de`),
-    UNIQUE KEY `name_en` (`name_en`)
+    `id`
+    INT
+(
+    11
+) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `alias_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `code` VARCHAR
+(
+    60
+) NOT NULL,
+    `name_de` VARCHAR
+(
+    255
+) NOT NULL,
+    `name_en` VARCHAR
+(
+    255
+) NOT NULL,
+    `statisticCode` VARCHAR
+(
+    10
+) NOT NULL,
+    PRIMARY KEY
+(
+    `id`
+),
+    UNIQUE KEY `alias_de`
+(
+    `alias_de`
+),
+    UNIQUE KEY `alias_en`
+(
+    `alias_en`
+),
+    UNIQUE KEY `code`
+(
+    `code`
+),
+    UNIQUE KEY `name_de`
+(
+    `name_de`
+),
+    UNIQUE KEY `name_en`
+(
+    `name_en`
+)
     )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_program_forms`
+INSERT
+IGNORE INTO `v7ocf_organizer_program_forms`
 VALUES (1, 'vollzeit', 'full-time', 'V', 'Vollzeit', 'Full-Time', '1'),
        (2, 'teilzeit', 'part-time', 'S', 'Teilzeit', 'Part-Time', '2'),
        (3, 'duales-studium-erstausbildung', 'dual-study-initial', '5', 'Duales Studium (Erstausbildung)', 'Dual Study (Initial)', '5'),
@@ -465,45 +713,57 @@ VALUES (1, 'vollzeit', 'full-time', 'V', 'Vollzeit', 'Full-Time', '1'),
 ALTER TABLE `v7ocf_organizer_programs`
     ADD COLUMN `formID` INT(11) UNSIGNED DEFAULT NULL AFTER `focusID`,
     ADD KEY `formID` (`formID`),
-    ADD CONSTRAINT `program_formID_fk` FOREIGN KEY (`formID`) REFERENCES `v7ocf_organizer_program_forms` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+    ADD CONSTRAINT `program_formID_fk` FOREIGN KEY (`formID`) REFERENCES `v7ocf_organizer_program_forms` (`id`) ON
+DELETE
+SET NULL ON
+UPDATE CASCADE;
 
 UPDATE `v7ocf_organizer_programs` SET `formID` = 1;
 
 UPDATE `v7ocf_organizer_programs` SET `formID` = 2 WHERE `id` = 28;
 
 UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d`
+ON `d`.`id` = `p`.`degreeID`
     SET `p`.`formID` = 3
 WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`name_de` LIKE '%dual%';
 
 UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID`
+    INNER JOIN `v7ocf_organizer_degrees` AS `d`
+ON `d`.`id` = `p`.`degreeID`
     SET `p`.`formID` = 4
 WHERE `d`.`name` LIKE 'Master%' AND `p`.`name_de` LIKE '%dual%';
 
 ALTER TABLE `v7ocf_organizer_programs`
-    DROP COLUMN `alias`,
-    DROP COLUMN `name_de`,
-    DROP COLUMN `name_en`,
-    DROP COLUMN `organizationID`;
+DROP
+COLUMN `alias`,
+    DROP
+COLUMN `name_de`,
+    DROP
+COLUMN `name_en`,
+    DROP
+COLUMN `organizationID`;
 
 ALTER TABLE `v7ocf_organizer_programs` DROP CONSTRAINT `program_degreeID_fk`;
 
-ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `degreeID` INT(11) UNSIGNED NOT NULL;
+ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `degreeID` INT (11) UNSIGNED NOT NULL;
 
 ALTER TABLE `v7ocf_organizer_programs`
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `v7ocf_organizer_degrees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `v7ocf_organizer_programs` ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`;
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`;
 
 ALTER TABLE `v7ocf_organizer_pools`
     ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
-    DROP COLUMN `lsfID`;
+DROP
+COLUMN `lsfID`;
 
 ALTER TABLE `v7ocf_organizer_subjects`
     ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
     MODIFY COLUMN `language` VARCHAR(2)       NOT NULL DEFAULT 'de',
-DROP COLUMN `lsfID`;
+DROP
+COLUMN `lsfID`;
 
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'de' WHERE `language` = 'D';
 
