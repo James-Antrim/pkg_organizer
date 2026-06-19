@@ -12,12 +12,28 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Database\{DatabaseQuery, ParameterType};
 use THM\Organizer\Adapters\{Database as DB, Input};
+use THM\Organizer\Tables\Associations;
 
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.
  */
 abstract class Associated extends ResourceHelper
 {
+    /**
+     * Associates the given organization id with the given resourceID.
+     * @param int $organizationID the id of the organization to associate
+     * @param int $resourceID     the id of the resource to associate
+     * @return void
+     */
+    public static function associate(int $organizationID, int $resourceID): void
+    {
+        $keys        = [static::$resource . 'ID' => $resourceID, 'organizationID' => $organizationID];
+        $association = new Associations();
+        if (!$association->load($keys)) {
+            $association->save($keys);
+        }
+    }
+
     /**
      * Checks whether a given resource is associated with a given organization.
      *
