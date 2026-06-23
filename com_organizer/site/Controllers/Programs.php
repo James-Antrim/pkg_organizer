@@ -59,7 +59,7 @@ class Programs extends CurriculumResources
                     continue;
                 }
 
-                if (!$program = Helper::filterResponse($program)) {
+                if (!$program = Helper::filterPrograms($program)) {
                     Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
                     continue;
                 }
@@ -71,7 +71,7 @@ class Programs extends CurriculumResources
 
             $this->farewell($selected, $imported);
         }
-        elseif ($programs = $client->program() and $programs = Helper::filterResponse($programs, true)) {
+        elseif ($programs = $client->program() and $programs = Helper::filterPrograms($programs)) {
             $selected = count($programs);
             foreach ($programs as $program) {
                 if (Helper::importSingle($program)) {

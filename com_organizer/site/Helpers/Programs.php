@@ -54,10 +54,9 @@ class Programs extends Curricula implements Selectable
      * Filters overhead out of the response.
      *
      * @param stdClass $response the response object
-     * @param bool     $multiple whether multiple programs are being concurrently queried
      * @return array|false|stdClass
      */
-    public static function filterResponse(stdClass $response, bool $multiple = false): array|false|stdClass
+    public static function filterPrograms(stdClass $response): array|false|stdClass
     {
         if (empty($response->courseOfStudiesWithStructure_out)) {
             return false;
@@ -71,8 +70,7 @@ class Programs extends Curricula implements Selectable
             return false;
         }
 
-        $programs = $response->courseOfStudiesWithStructure_out->courseOfStudies->courseOfStudy;
-        return $multiple ? $programs : $programs[0];
+        return $response->courseOfStudiesWithStructure_out->courseOfStudies->courseOfStudy;
     }
 
     public static function fullName(stdClass $program): string
@@ -205,6 +203,11 @@ class Programs extends Curricula implements Selectable
         return $identifiers;
     }
 
+    /**
+     * Imports a single program resource response from HISinOne.
+     * @param stdClass $program
+     * @return bool
+     */
     public static function importSingle(stdClass $program): bool
     {
         $HISinOneID  = $program->CoSId ?? null;
