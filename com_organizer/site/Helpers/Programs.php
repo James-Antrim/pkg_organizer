@@ -77,28 +77,27 @@ class Programs extends Curricula implements Selectable
     {
         $fullName = $program->name;
 
-        $attRelevant  = ($program->aTypeID and $program->aTypeID != self::ON_CAMPUS);
+        $attRelevant = ($program->aTypeID and $program->aTypeID != self::ON_CAMPUS);
         $formRelevant = ($program->formID and $program->formID != self::FULLTIME);
         if ($attRelevant or $formRelevant or $program->degree or $program->year) {
-            $parantheticals   = [$program->degree, $program->year];
+            $parantheticals = [$program->degree, $program->year];
             $parantheticals[] = $attRelevant ? $program->attendanceType : null;
             if ($formRelevant) {
                 // Configured values are redundantly differentiated by the type attribute
                 if (str_contains(strtolower($program->form), 'dual')) {
                     $parantheticals[] = preg_replace('/ \([^)]+\)/', '', $program->form);
-                }
-                else {
+                } else {
                     $parantheticals[] = $program->form;
                 }
             }
             $parantheticals = array_filter($parantheticals);
-            $fullName       .= ' (' . implode(', ', $parantheticals) . ')';
+            $fullName .= ' (' . implode(', ', $parantheticals) . ')';
         }
 
         if ($program->minor or $program->focus) {
             $specifics = [$program->minor, $program->focus];
             $specifics = array_filter($specifics);
-            $fullName  .= ', ' . implode(', ', $specifics);
+            $fullName .= ', ' . implode(', ', $specifics);
         }
 
         return $fullName;
@@ -119,7 +118,7 @@ class Programs extends Curricula implements Selectable
 
         $ids = [];
         foreach ($ranges as $range) {
-            $ids[] = (int) $range['programID'];
+            $ids[] = (int)$range['programID'];
         }
 
         $ids = array_unique($ids);
@@ -164,11 +163,63 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
+     * Retrieves program information relevant for soap queries to the HIO system.
+     *
+     * @param int $programID the id of the degree program
+     *
+     * @return string
+     */
+    public static function HISinOneKey(int $programID): string
+    {
+        $h = ["'H' as `h`"];
+        $part1 = DB::qn(['d.code', 'n.code', 'm.code', 'f.code'], ['degree', 'program', 'minor', 'focus']);
+        $part2 = DB::qn(
+            ['p.accredited', 'c.code', 'at.code', 'pf.code', 'pt.code'],
+            ['year', 'campus', 'attendance', 'form', 'type']);
+        $query = DB::query();
+        $query->select(array_merge($part1, $h, $part2))
+            ->from(DB::qn('#__organizer_programs', 'p'))
+            ->innerJoin(DB::qn('#__organizer_attendance_types', 'at'), DB::qc('at.id', 'p.aTypeID'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->innerJoin(DB::qn('#__organizer_nomina', 'n'), DB::qc('n.id', 'p.nomenID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c'), DB::qc('c.id', 'p.campusID'))
+            ->leftJoin(DB::qn('#__organizer_foci', 'f'), DB::qc('f.id', 'p.focusID'))
+            ->leftJoin(DB::qn('#__organizer_minors', 'm'), DB::qc('m.id', 'p.minorID'))
+            ->leftJoin(DB::qn('#__organizer_program_forms', 'pf'), DB::qc('pf.id', 'p.formID'))
+            ->leftJoin(DB::qn('#__organizer_program_types', 'pt'), DB::qc('pt.id', 'p.typeID'))
+            ->where(DB::qc('p.id', $programID));
+        DB::set($query);
+
+        if (!$identifiers = DB::array()) {
+            return '';
+        }
+
+        if (empty($identifiers['attendance'])) {
+            $identifiers['attendance'] = Helper::DEFAULT_ATTENDANCE;
+        }
+
+        if (empty($identifiers['focus'])) {
+            $identifiers['focus'] = Helper::DEFAULT_FOCUS;
+        }
+
+        if (empty($identifiers['form'])) {
+            $identifiers['form'] = Helper::DEFAULT_FORM;
+        }
+
+        if (empty($identifiers['minor'])) {
+            $identifiers['minor'] = Helper::DEFAULT_MINOR;
+        }
+
+        return implode('|', $identifiers) . '|';
+    }
+
+    /**
      * Resolves the program 'UniqueName' to its constituent identifiers.
-     * @param string $identifiers
+     * @param string $identifiers the abbreviated collection of attribute values used to uniquely identify the program
+     * @param object $program     the program data to be imported
      * @return array
      */
-    private static function identifiers(string $identifiers): array
+    private static function identifiers(string $identifiers, object $program): array
     {
         $identifiers = explode('|', $identifiers);
         // Index 4 is always 'H'; Index 10 is always empty
@@ -178,20 +229,20 @@ class Programs extends Curricula implements Selectable
         [$degree, $nomen, $minor, $focus, $accredited, $campus, $attendance, $form, $type] = $identifiers;
         $identifiers = [
             'accredited' => preg_match('/\d{4}/', $accredited) ? $accredited : Helper::UNVERSIONED,
-            'aTypeID'    => AttendanceTypes::code($attendance),
-            'campusID'   => Campuses::code($campus),
-            'degreeID'   => Degrees::code($degree),
-            'formID'     => ProgramForms::code($form),
-            'nomenID'    => Nomina::code($nomen),
-            'typeID'     => ProgramTypes::code($type),
+            'aTypeID' => AttendanceTypes::code($attendance, $program->Studienart->Name),
+            'campusID' => Campuses::code($campus, $program->Studienort->Name),
+            'degreeID' => Degrees::code($degree, $program->Abschluss->Name),
+            'formID' => ProgramForms::code($form, $program->Studientyp->Name),
+            'nomenID' => Nomina::code($nomen, $program->Fach->Name),
+            'typeID' => ProgramTypes::code($type, $program->Studienform->Name),
         ];
 
         if ($focus !== Helper::DEFAULT_FOCUS) {
-            $identifiers['focusID'] = Foci::code($focus);
+            $identifiers['focusID'] = Foci::code($focus, $program->Zusatz->Name);
         }
 
         if ($minor !== Helper::DEFAULT_MINOR) {
-            $identifiers['minorID'] = Minors::code($minor);
+            $identifiers['minorID'] = Minors::code($minor, $program->Vertiefung->Name);
         }
 
         foreach ($identifiers as $identifier) {
@@ -210,9 +261,9 @@ class Programs extends Curricula implements Selectable
      */
     public static function importSingle(stdClass $program): bool
     {
-        $HISinOneID  = $program->CoSId ?? null;
+        $HISinOneID = $program->CoSId ?? null;
         $identifiers = $program->Uniquename ?? null;
-        $oCode       = $program->OrgUnit->Uniquename ?? null;
+        $oCode = $program->OrgUnit->Uniquename ?? null;
 
         if (!$HISinOneID or !$identifiers or !$oCode) {
             Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
@@ -230,12 +281,10 @@ class Programs extends Curricula implements Selectable
         // Existent migrated/HIS entry overwrite identifiers to save time against individual checks
         if ($table->load($HISUpdate)) {
             $table->save($identifiers);
-        }
-        // Existent non-migrated entry add HISinOneID
+        } // Existent non-migrated entry add HISinOneID
         elseif ($table->load($identifiers)) {
             $table->save($HISUpdate);
-        }
-        // Fresh "program"
+        } // Fresh "program"
         else {
             $identifiers['HISinOneID'] = $HISinOneID;
             if (!$table->save($identifiers)) {
@@ -253,9 +302,9 @@ class Programs extends Curricula implements Selectable
 
         $organization = new OTable();
         if ($organization->load(['abbreviation_de' => $oCode])) {
-            $association    = new Associations();
+            $association = new Associations();
             $organizationID = $organization->id;
-            $references     = ['organizationID' => $organizationID, 'programID' => $programID];
+            $references = ['organizationID' => $organizationID, 'programID' => $programID];
 
             if (!$association->load($references)) {
                 $association->save($references);
@@ -268,10 +317,9 @@ class Programs extends Curricula implements Selectable
         }
 
         if (!$ranges = self::rows($programID) or empty($ranges[0])) {
-            $range        = ['parentID' => null, 'programID' => $programID, 'ordering' => 0];
+            $range = ['parentID' => null, 'programID' => $programID, 'ordering' => 0];
             $curriculumID = self::addRange($range);
-        }
-        else {
+        } else {
             $curriculumID = $ranges[0]['id'];
         }
 
@@ -350,7 +398,7 @@ class Programs extends Curricula implements Selectable
                 ['grouped.accredited', 'p.accredited'],
             ]);
 
-            $p2id   = DB::qn('p2.degreeID');
+            $p2id = DB::qn('p2.degreeID');
             $p2Name = DB::qn("p2.name_$tag");
             $select = [$p2Name, $p2id, 'MAX(' . DB::qn('p2.accredited') . ') AS ' . DB::qn('accredited')];
 
@@ -371,11 +419,11 @@ class Programs extends Curricula implements Selectable
     public static function query(): DatabaseQuery
     {
         $query = DB::query();
-        $tag   = Application::tag();
-        $url   = 'index.php?option=com_organizer&view=program&id=';
+        $tag = Application::tag();
+        $url = 'index.php?option=com_organizer&view=program&id=';
 
         $distinct = ['DISTINCT' . DB::qn('p.id')];
-        $aliased  = DB::qn(
+        $aliased = DB::qn(
             ["at.name_$tag", "c.name_$tag", 'd.abbreviation', "fc.name_$tag", "fq.name_$tag", "m.name_$tag", "n.name_$tag", 'p.accredited', "pf.name_$tag", "pt.name_$tag"],
             ['attendanceType', 'campus', 'degree', 'focus', 'frequency', 'minor', 'name', 'year', 'form', 'type']
         );
@@ -411,7 +459,7 @@ class Programs extends Curricula implements Selectable
         }
 
         $programID = DB::qn('programID');
-        $query     = DB::query();
+        $query = DB::query();
         $query->select('DISTINCT *')
             ->from(DB::qn('#__organizer_curricula'))
             ->where("$programID IS NOT NULL")
@@ -419,8 +467,7 @@ class Programs extends Curricula implements Selectable
 
         if (is_array($identifiers)) {
             self::filterSuperOrdinate($query, $identifiers);
-        }
-        else {
+        } else {
             $query->where("$programID = :programID")->bind(':programID', $identifiers, ParameterType::INTEGER);
         }
 
@@ -432,9 +479,9 @@ class Programs extends Curricula implements Selectable
     /**
      * Gets an option based upon a program curriculum association
      *
-     * @param array  $range     the program curriculum range
-     * @param array  $parentIDs the selected parents
-     * @param string $type      the resource type of the form
+     * @param array $range the program curriculum range
+     * @param array $parentIDs the selected parents
+     * @param string $type the resource type of the form
      *
      * @return null|stdClass
      */
@@ -445,8 +492,8 @@ class Programs extends Curricula implements Selectable
         DB::set($query);
 
         if ($program = DB::array()) {
-            $option           = HTML::option($range['id'], $program['fullName']);
-            $option->disable  = $type !== 'pool' ? 'disabled' : '';
+            $option = HTML::option($range['id'], $program['fullName']);
+            $option->disable = $type !== 'pool' ? 'disabled' : '';
             $option->selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
             return $option;
         }
@@ -457,8 +504,8 @@ class Programs extends Curricula implements Selectable
     /**
      * Retrieves the organizationIDs associated with the program
      *
-     * @param int  $programID the table id for the program
-     * @param bool $short     whether to display an abbreviated version of fhe organization name
+     * @param int $programID the table id for the program
+     * @param bool $short whether to display an abbreviated version of fhe organization name
      *
      * @return string the organization associated with the program's documentation
      */
@@ -493,11 +540,11 @@ class Programs extends Curricula implements Selectable
     private static function useCurrent(): bool
     {
         $selectedIDs = Input::selectedIDs();
-        $useCurrent  = false;
+        $useCurrent = false;
 
         if (Input::view() === 'participant_edit') {
             $participantID = empty($selectedIDs) ? User::id() : $selectedIDs[0];
-            $table         = new Participants();
+            $table = new Participants();
 
             if (!$table->load($participantID)) {
                 $useCurrent = true;
