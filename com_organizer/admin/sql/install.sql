@@ -931,6 +931,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
     `minorID`        INT(11) UNSIGNED             DEFAULT NULL,
     `nomenID`        INT(11) UNSIGNED    NOT NULL,
     `typeID`         INT(11) UNSIGNED              DEFAULT NULL,
+    `expiration`     DATE                NOT NULL,
     `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `categoryID`     INT(11) UNSIGNED             DEFAULT NULL,
     `description_de` TEXT,

@@ -1,95 +1,135 @@
-UPDATE `v7ocf_menu`
-SET `link` = 'index.php?option=com_organizer&view=roomoverview'
-WHERE `link` = 'index.php?option=com_organizer&view=room_overview';
+/*#region New Tables */
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_attendance_types`
+(
+    `id`            INT     (11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`      VARCHAR (255)         NOT NULL,
+    `alias_en`      VARCHAR (255)         NOT NULL,
+    `code`          VARCHAR (60)          NOT NULL,
+    `name_de`       VARCHAR (255)         NOT NULL,
+    `name_en`       VARCHAR (255)         NOT NULL,
+    `statisticCode` VARCHAR (10)          NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de`(`alias_de`),
+    UNIQUE KEY `alias_en`(`alias_en`),
+    UNIQUE KEY `code`(`code`),
+    UNIQUE KEY `name_de`(`name_de`),
+    UNIQUE KEY `name_en`(`name_en`)
+)
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
 
-ALTER TABLE `v7ocf_organizer_instances`
-    ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`;
+INSERT IGNORE INTO `v7ocf_organizer_attendance_types`
+VALUES (1, 'praesenzstudium', 'on-campus-study', 'P', 'Präsenzstudium', 'On-Campus Study', '1'),
+       (2, 'fernstudium', 'remote-study', 'F', 'Fernstudium', 'Remote Study', '2');
 
-ALTER TABLE `v7ocf_organizer_degrees`
-    MODIFY COLUMN `abbreviation` VARCHAR (50) NOT NULL,
-    ADD COLUMN `statisticCode` VARCHAR (10);
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_foci`
+(
+    `id`       INT     (11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR (255)         NOT NULL,
+    `alias_en` VARCHAR (255)         NOT NULL,
+    `code`     VARCHAR (60)          NOT NULL,
+    `name_de`  VARCHAR (255)         NOT NULL,
+    `name_en`  VARCHAR (255)         NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code`     (`code`),
+    UNIQUE KEY `name_de`  (`name_de`),
+    UNIQUE KEY `name_en`  (`name_en`)
+)
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
 
-UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 84 WHERE `id` IN (1, 2, 3);
-UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 90 WHERE `id` IN (4, 5, 6, 7);
-UPDATE `v7ocf_organizer_degrees` SET `name` = 'Master of Business Administration' WHERE `id` = 7;
-UPDATE `v7ocf_organizer_programs` SET `degreeID` = 6 WHERE `degreeID` = 8;
-DELETE FROM `v7ocf_organizer_degrees` WHERE `id` = 8;
+INSERT IGNORE INTO `v7ocf_organizer_foci` VALUES (1, 'getting-started', 'getting-started', 'GS', 'GettING Started', 'GettING Started');
 
-INSERT
-IGNORE INTO `v7ocf_organizer_degrees`
-VALUES (9, 'zertifikat', 'Zertifikat', '00', 'Zertifikat', 94),
-       (10, 'ohne-abschluss', 'ohne Abschluss', '01', 'ohne Abschluss', 97),
-       (11, 'bed', 'B.Ed.', 'BU', 'Bachelor of Education', 84),
-       (12, 'feststellungspruefung', 'FSP', 'FP', 'Feststellungsprüfung', 17),
-       (13, 'hochschulzugangspruefung', 'HZP', 'HZ', 'Hochschulzugangsprüfung', 17),
-       (14, 'mbae', 'M.B.A.E.', 'MD', 'Master of Business Administration and Engineering', 90),
-       (15, 'doctorate', 'Dr..', 'PR', 'Doctorate', 06),
-       (16, 'doctorate-tu', 'Dr.Eng.', 'PH', 'Doctorate (TU)', 92);
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_minors`
+(
+    `id`       INT     (11)  UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR (255)          NOT NULL,
+    `alias_en` VARCHAR (255)          NOT NULL,
+    `code`     VARCHAR (60)           NOT NULL,
+    `name_de`  VARCHAR (255)          NOT NULL,
+    `name_en`  VARCHAR (255)          NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code`     (`code`),
+    UNIQUE KEY `name_de`  (`name_de`),
+    UNIQUE KEY `name_en`  (`name_en`)
+)
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
 
-ALTER TABLE `v7ocf_organizer_degrees` MODIFY COLUMN `statisticCode` VARCHAR (10) NOT NULL;
+INSERT IGNORE INTO `v7ocf_organizer_minors`
+VALUES (1, 'allgemeine-elektrotechnik', 'general-electrical-engineering', 'AET', 'Allgemeine Elektrotechnik', 'General Electrical Engineering'),
+       (2, 'allgemeiner-maschinenbau', 'general-mechanical-engineering', 'AMB', 'Allgemeiner Maschinenbau', 'General Mechanical Engineering'),
+       (3, 'allgemeine-mechatronik', 'general-mechatronics', 'AME', 'Allgemeine Mechatronik', 'General Mechatronics'),
+       (4, 'angewandte-medizinische-wissenschaften', 'applied-medical-science', 'AMW', 'Angewandte Medizinische Wissenschaften', 'Applied Medical Science'),
+       (5, 'baumanagement-konstruktion-infrastruktur', 'construction-management-infrastructure', 'BKI', 'Baumanagement, Konstruktion und Infrastruktur', 'Construction Management and Infrastructure'),
+       (6, 'controlling', 'controlling', 'CTR', 'Controlling', 'Controlling'),
+       (7, 'data-science', 'data-science', 'DS', 'Data Science', 'Data Science'),
+       (8, 'elektrotechnik', 'electrical-engineering', 'ELT', 'Elektrotechnik', 'Electrical Engineering'),
+       (9, 'energie-antriebstechnik', 'energy-drive-technology', 'EUA', 'Energie- und Antriebstechnik', 'Energy and Drive Technology'),
+       (10, 'facility-management', 'facility-management', 'FM', 'Facility Management', 'Facility Management'),
+       (11, 'finanzdienstleistungen', 'financial-services', 'FDL', 'Finanzdienstleistungen', 'Financial Services'),
+       (12, 'formgebung', 'design', 'FG', 'Formgebung', 'Design'),
+       (13, 'hygiene-design', 'hygiene-design', 'HD', 'Hygiene Design', 'Hygiene Design'),
+       (14, 'immobilien', 'real-estate', 'IMM', 'Immobilien', 'Real Estate'),
+       (15, 'it-security', 'it-security', 'ITS', 'IT-Security', 'IT-Security'),
+       (16, 'ingenieurwissenschaft', 'engineering', 'IWI', 'Ingenieurwissenschaft', 'Engineering'),
+       (17, 'kaelte-klimatechnik', 'cold-climate-technology', 'KK', 'Kälte- und Klimatechnik', 'Cold and Climate Technology'),
+       (18, 'konstruktion-leichtbau', 'construction-lightweight-construction', 'KL', 'Konstruktion und Leichtbau', 'Construction and Lightweight Construction'),
+       (19, 'krankenversicherungsmanagement', 'health-insurance-management', 'KM', 'Krankenversicherungsmanagement', 'Health Insurance Management'),
+       (20, 'leistungsmechatronik', 'performance-mechatronics', 'LME', 'Leistungsmechatronik', 'Performance Mechatronics'),
+       (21, 'logistikmanagement', 'logistics-management', 'LM', 'Logistikmanagement', 'Logistics Management'),
+       (22, 'medical-data-science', 'medical-data-science', 'MDS', 'Medical Data Science', 'Medical Data Science'),
+       (23, 'mittelstandsmanagement', 'sme-management', 'MM', 'Mittelstandsmanagement', 'SME Management'),
+       (24, 'management-marketing', 'management-marketing', 'MMA', 'Management und Marketing', 'Management and Marketing'),
+       (25, 'marketing', 'marketing', 'MKT', 'Marketing', 'Marketing'),
+       (26, 'maschinenbau', 'mechanical-engineering', 'MSB', 'Maschinenbau', 'Mechanical Engineering'),
+       (27, 'metalltechnik', 'metal-technology', 'MT', 'Metalltechnik', 'Metal Technology'),
+       (28, 'material-fertigungstechnik', 'materials-manufacturing-technology', 'MFT', 'Material- und Fertigungstechnik', 'Materials and Manufacturing Technology'),
+       (29, 'produkt-prozessmanagement', 'product-process-management', 'PPM', 'Produkt- und Prozessmanagement', 'Product- and Process Management'),
+       (30, 'regulatory-affairs-management', 'regulatory-affairs-management', 'RAM', 'Regulatory Affairs Management', 'Regulatory Affairs Management'),
+       (31, 'softwareentwicklung', 'software-development', 'SE', 'Softwareentwicklung', 'Software Development'),
+       (32, 'steuerung-geschaeftsprozessen', 'controlling-business-processes', 'SG', 'Steuerung von Geschäftsprozessen', 'Controlling Business Processes'),
+       (33, 'supply-chain-management', 'supply-chain-management', 'SCM', 'Supply Chain Management', 'Supply Chain Management'),
+       (34, 'technikmanagement', 'technology-management', 'TM', 'Technikmanagement', 'Technology Management'),
+       (35, 'technische-gebaeudeausruestung', 'building-services-engineering', 'TGA', 'Technische Gebäudeausrüstung', 'Building Services Engineering'),
+       (36, 'technische-informatik', 'technical-informatics', 'TI', 'Technische Informatik', 'Technical Informatics'),
+       (37, 'technische-prozesse', 'technical-processes', 'TP', 'Technische Prozesse', 'Technical Processes'),
+       (38, 'technische-systeme', 'technical-systems', 'TS', 'Technische Systeme', 'Technical Systems'),
+       (39, 'unternehmensexterne-logistik', 'external-logistics', 'UEL', 'Unternehmensexterne Logistik', 'External Logistics'),
+       (40, 'unternehmensinterne-logistik', 'internal-logistics', 'UIL', 'Unternehmensinterne Logistik', 'Internal Logistics'),
+       (41, 'vertrieb', 'sales', 'V', 'Vertrieb', 'Sales'),
+       (42, 'veranstaltungstechnik', 'event-technology', 'VTK', 'Veranstaltungstechnik', 'Event Technology'),
+       (43, 'verkehr-wasser-umwelt', 'traffic-water-environment', 'VWU', 'Verkehr - Wasser - Umwelt', 'Traffic - Water - Environment'),
+       (44, 'wirtschaftsinformatik', 'business-informatics', 'WIN', 'Wirtschaftsinformatik', 'Business Informatics');
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_nomina`
 (
-    `id`
-    INT
-(
-    11
-) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `alias_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `code` VARCHAR
-(
-    60
-) NOT NULL,
-    `name_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `name_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `statisticCode` VARCHAR
-(
-    10
-) NOT NULL,
-    PRIMARY KEY
-(
-    `id`
-),
-    UNIQUE KEY `alias_de`
-(
-    `alias_de`
-),
-    UNIQUE KEY `alias_en`
-(
-    `alias_en`
-),
-    UNIQUE KEY `code`
-(
-    `code`
-),
-    UNIQUE KEY `name_de`
-(
-    `name_de`
-),
-    UNIQUE KEY `name_en`
-(
-    `name_en`
+    `id` INT (11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`      VARCHAR (255) NOT NULL,
+    `alias_en`      VARCHAR (255) NOT NULL,
+    `code`          VARCHAR (60)  NOT NULL,
+    `name_de`       VARCHAR (255) NOT NULL,
+    `name_en`       VARCHAR (255) NOT NULL,
+    `statisticCode` VARCHAR (10)  NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code`     (`code`),
+    UNIQUE KEY `name_de`  (`name_de`),
+    UNIQUE KEY `name_en`  (`name_en`)
 )
-    )
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
 
-INSERT
-IGNORE INTO `v7ocf_organizer_nomina`
+INSERT IGNORE INTO `v7ocf_organizer_nomina`
 VALUES (1, 'architektur', 'architecture', 'A', 'Architektur', 'Architecture', '0013'),
        (2, 'angewandte-physik', 'applied-physics', 'APH', 'Angewandte Physik', 'Applied Physics', '0224'),
        (3, 'angewandte-vakuumtechnik', 'applied-vacuum-technology', 'AV', 'Angewandte Vakuumtechnik', 'Applied Vacuum Technology', '0c69'),
@@ -197,18 +237,147 @@ VALUES (1, 'architektur', 'architecture', 'A', 'Architektur', 'Architecture', '0
        (105, 'wirtschaftsinformatik', 'business-informatics', 'WIN', 'Wirtschaftsinformatik', 'Business Informatics', '0277'),
        (106, 'wirtschaftsmathematik', 'business-mathematics', 'WMK', 'Wirtschaftsmathematik', 'Business Mathematics', '0276'),
        (107, 'applied-data-science', 'applied-data-science', 'ADS', 'Applied Data Science', 'Applied Data Science', 'x'),
-       (108, 'architektur-losverfahren', 'architecture-lottery', 'AL', 'Architektur Losverfahren', 'Architecture Lottery', 'x');
+       (108, 'architektur-losverfahren', 'architecture-lottery', 'AL', 'Architektur Losverfahren', 'Architecture Lottery', 'x'),
+       (109, 'steuern-rechnungswesen', 'tax-accounting', 'STR', 'Steuern und Rechnungswesen', 'Tax and Accounting', 'x');
 
-DELETE FROM `v7ocf_organizer_programs` WHERE `code` = 'BBB';
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_forms`
+(
+    `id`    INT (11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de` VARCHAR (255) NOT NULL,
+    `alias_en` VARCHAR (255) NOT NULL,
+    `code` VARCHAR (60) NOT NULL,
+    `name_de` VARCHAR (255) NOT NULL,
+    `name_en` VARCHAR (255) NOT NULL,
+    `statisticCode` VARCHAR (10) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code`     (`code`),
+    UNIQUE KEY `name_de`  (`name_de`),
+    UNIQUE KEY `name_en`  (`name_en`)
+)
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
 
+INSERT IGNORE INTO `v7ocf_organizer_program_forms`
+VALUES (1, 'vollzeit', 'full-time', 'V', 'Vollzeit', 'Full-Time', '1'),
+       (2, 'teilzeit', 'part-time', 'S', 'Teilzeit', 'Part-Time', '2'),
+       (3, 'duales-studium-erstausbildung', 'dual-study-initial', '5', 'Duales Studium (Erstausbildung)', 'Dual Study (Initial)', '5'),
+       (4, 'duales-studium-weiterbildung', 'dual-study-consecutive', '7', 'Duales Studium (Weiterbildung)', 'Dual Study (Consecutive)', '7');
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_types`
+(
+    `id`            INT     (11)  UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias_de`      VARCHAR (255)          NOT NULL,
+    `alias_en`      VARCHAR (255)          NOT NULL,
+    `code`          VARCHAR (60)           NOT NULL,
+    `name_de`       VARCHAR (255)          NOT NULL,
+    `name_en`       VARCHAR (255)          NOT NULL,
+    `statisticCode` VARCHAR (10)           NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `alias_de` (`alias_de`),
+    UNIQUE KEY `alias_en` (`alias_en`),
+    UNIQUE KEY `code`     (`code`),
+    UNIQUE KEY `name_de`  (`name_de`),
+    UNIQUE KEY `name_en`  (`name_en`)
+)
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `v7ocf_organizer_program_types`
+VALUES (1, 'erststudium', 'first-degree', '1', 'Erststudium', 'First Degree', '1'),
+       (2, 'weiterbildungsstudium', 'continuing-education-degree', '6', 'Weiterbildungsstudium', 'Continuing Education Degree', '6'),
+       (3, 'konsekutiver-master', 'consecutive-degree', '7', 'konsekutiver Master', 'Consecutive Degree', '7'),
+       (4, 'promotionsstudium', 'doctorate-program', '5', 'Promotionsstudium', 'Doctorate Program', '5'),
+       (5, 'kein-abschluss', 'no-degree', '9', 'kein Abschluss', 'No Degree', '9');
+/*#endregion*/
+
+/*#region Update Campuses */
+ALTER TABLE `v7ocf_organizer_campuses`
+    ADD COLUMN `code`          VARCHAR(10) DEFAULT NULL AFTER `name_en`,
+    ADD COLUMN `statisticCode` VARCHAR(10) DEFAULT NULL,
+    ADD UNIQUE KEY `code` (`code`);
+
+UPDATE `v7ocf_organizer_campuses` SET `code` = 'F', `statisticCode` = '6232' WHERE `id` = 9;
+UPDATE `v7ocf_organizer_campuses` SET `code` = 'G', `statisticCode` = '6231' WHERE `id` = 1;
+UPDATE `v7ocf_organizer_campuses` SET `code` = 'W', `statisticCode` = '6233' WHERE `id` = 14;
+/*#endregion*/
+
+/*#region Update Degrees */
+ALTER TABLE `v7ocf_organizer_degrees`
+    MODIFY COLUMN `abbreviation`  VARCHAR (50) NOT NULL,
+    ADD    COLUMN `statisticCode` VARCHAR (10);
+
+UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 84 WHERE `id` IN (1, 2, 3);
+UPDATE `v7ocf_organizer_degrees` SET `statisticCode` = 90 WHERE `id` IN (4, 5, 6, 7);
+UPDATE `v7ocf_organizer_degrees` SET `name` = 'Master of Business Administration' WHERE `id` = 7;
+/*Incorrect value*/
+UPDATE `v7ocf_organizer_programs` SET `degreeID` = 6 WHERE `degreeID` = 8;
+/*Deprecated*/
+DELETE FROM `v7ocf_organizer_degrees` WHERE `id` IN (8, 9);
+
+INSERT IGNORE INTO `v7ocf_organizer_degrees`
+VALUES (8, 'zertifikat', 'Zertifikat', '00', 'Zertifikat', 94),
+       (9, 'ohne-abschluss', 'ohne Abschluss', '01', 'ohne Abschluss', 97),
+       (10, 'bed', 'B.Ed.', 'BU', 'Bachelor of Education', 84),
+       (11, 'feststellungspruefung', 'FSP', 'FP', 'Feststellungsprüfung', 17),
+       (12, 'hochschulzugangspruefung', 'HZP', 'HZ', 'Hochschulzugangsprüfung', 17),
+       (13, 'mbae', 'M.B.A.E.', 'MD', 'Master of Business Administration and Engineering', 90),
+       (14, 'doctorate', 'Dr..', 'PR', 'Doctorate', 06),
+       (15, 'doctorate-tu', 'Dr.Eng.', 'PH', 'Doctorate (TU)', 92);
+/*#endregion*/
+
+/*#region Add Reference Columns and Values*/
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
+    ADD COLUMN `aTypeID`    INT (11) UNSIGNED DEFAULT NULL AFTER `accredited`,
+    ADD COLUMN `campusID`   INT (11) UNSIGNED DEFAULT NULL AFTER `aTypeID`,
+    ADD COLUMN `focusID`    INT (11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
+    ADD COLUMN `formID`     INT (11) UNSIGNED DEFAULT NULL AFTER `focusID`,
+    ADD COLUMN `minorID`    INT (11) UNSIGNED DEFAULT NULL AFTER `formID`,
+    ADD COLUMN `nomenID`    INT (11) UNSIGNED DEFAULT NULL AFTER `minorID`,
+    ADD COLUMN `typeID`     INT (11) UNSIGNED DEFAULT NULL AFTER `nomenID`,
+    ADD COLUMN `expiration` DATE NOT NULL                  AFTER `typeID`,
+    ADD KEY `aTypeID`  (`aTypeID`),
+    ADD KEY `campusID` (`campusID`),
+    ADD KEY `focusID`  (`focusID`),
+    ADD KEY `formID` (`formID`),
+    ADD KEY `minorID`  (`minorID`),
+    ADD KEY `nomenID`  (`nomenID`),
+    ADD KEY `typeID`   (`typeID`);
+
+--Attendance Type
+UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 2 WHERE `name_de` LIKE '%Fernstudium%';
+UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 1 WHERE `name_de` NOT LIKE '%Fernstudium%';
+
+--Campus
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id` SET `p`.`campusID` = 9  WHERE `a`.`organizationID` IN (15, 16, 17, 18, 23) AND `p`.`campusID` IS NULL;
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id` SET `p`.`campusID` = 1  WHERE `a`.`organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14) AND `p`.`campusID` IS NULL;
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_associations` AS `a` ON `a`.`programID` = `p`.`id` SET `p`.`campusID` = 14 WHERE `a`.`organizationID` IN (13) AND `p`.`campusID` IS NULL;
+UPDATE `v7ocf_organizer_programs` SET `campusID` = 9 WHERE `organizationID` IN (15, 16, 17, 18, 19, 23) AND `campusID` IS NULL;
+UPDATE `v7ocf_organizer_programs` SET `campusID` = 1 WHERE `organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14) AND `campusID` IS NULL;
+UPDATE `v7ocf_organizer_programs` SET `campusID` = 9 WHERE (`name_de` LIKE ('Logistik%') OR `name_de` LIKE ('Supply%') OR `name_de` LIKE ('Methoden%')) AND `campusID` IS NULL;
+UPDATE `v7ocf_organizer_programs` SET `campusID` = 1 WHERE (`name_de` LIKE ('Event%') OR `name_de` LIKE ('Strat%')) AND `campusID` IS NULL;
+
+--Focus
+UPDATE `v7ocf_organizer_programs` SET `focusID` = 1 WHERE `name_de` LIKE '%getting%';
+
+--Form
+UPDATE `v7ocf_organizer_programs` SET `formID` = 1;
+UPDATE `v7ocf_organizer_programs` SET `formID` = 2 WHERE `id` = 28;
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_degrees` AS `d`ON `d`.`id` = `p`.`degreeID` SET `p`.`formID` = 3 WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`name_de` LIKE '%dual%';
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_degrees` AS `d`ON `d`.`id` = `p`.`degreeID` SET `p`.`formID` = 4 WHERE `d`.`name` LIKE 'Master%' AND `p`.`name_de` LIKE '%dual%';
+
+--Nomina
 UPDATE `v7ocf_organizer_programs` SET `code` = 'BAU' WHERE `code` = 'B';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'BAU' WHERE `code` = 'BAD';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'BAU' WHERE `code` = 'BG';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'ELI' WHERE `code` = 'EIT';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'EG' WHERE `code` = 'ENT';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'EG' WHERE `code` = 'ES';
-UPDATE `v7ocf_organizer_programs` SET `code` = 'ELI' WHERE `code` = 'ETI';
-UPDATE `v7ocf_organizer_programs` SET `code` = 'ELI' WHERE `code` = 'ETT';
+UPDATE `v7ocf_organizer_programs` SET `code` = 'ELI' WHERE `code` IN ('EI', 'EIG', 'ETI', 'ETT');
 UPDATE `v7ocf_organizer_programs` SET `code` = 'FM' WHERE `code` = 'FMF';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'KUS' WHERE `code` = 'KUSI';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'LO' WHERE `code` = 'LOG';
@@ -216,555 +385,64 @@ UPDATE `v7ocf_organizer_programs` SET `code` = 'M' WHERE `code` = 'M1';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'M' WHERE `code` = 'M2';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'MDH' WHERE `code` = 'MD';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'MDH' WHERE `code` = 'MDA';
-UPDATE `v7ocf_organizer_programs` SET `code` = 'MET' WHERE `code` = 'MEG';
+UPDATE `v7ocf_organizer_programs` SET `code` = 'MET' WHERE `code` IN ('MEB', 'MEG');
+UPDATE `v7ocf_organizer_programs` SET `code` = 'NAC' WHERE `code` = 'NAG';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'OBV' WHERE `code` = 'OTBV';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'PTR' WHERE `code` = 'RFA';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'WI' WHERE `code` = 'WID';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'WI' WHERE `code` = 'WIF';
 UPDATE `v7ocf_organizer_programs` SET `code` = 'W' WHERE `code` = 'WWD';
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `nomenID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
-    ADD KEY `nomenID` (`nomenID`);
-
 UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_nomina` AS `n` ON `n`.`code` = `p`.`code` SET `p`.`nomenID` = `n`.`id`;
 
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_nomenID_fk` FOREIGN KEY (`nomenID`) REFERENCES `v7ocf_organizer_nomina` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+--Type
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_degrees` AS `d`ON `d`.`id` = `p`.`degreeID` SET `p`.`typeID` = 1 WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`typeID` IS NULL;
+UPDATE `v7ocf_organizer_programs` AS `p` INNER JOIN `v7ocf_organizer_degrees` AS `d` ON `d`.`id` = `p`.`degreeID` SET `p`.`typeID` = 3 WHERE `d`.`name` LIKE 'Master%' AND `p`.`typeID` IS NULL;
+/*#endregion*/
 
-ALTER TABLE `v7ocf_organizer_programs` DROP COLUMN `code`;
+/*#region Clean Up*/
+DELETE FROM `v7ocf_organizer_programs` WHERE `code` = 'BBB';
+/*#endregion*/
 
-ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `nomenID` INT (11) UNSIGNED NOT NULL;
+/*#region Complete References*/
+ALTER TABLE `v7ocf_organizer_degrees` MODIFY COLUMN `statisticCode` VARCHAR (10) NOT NULL;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_minors`
-(
-    `id`
-    INT
-(
-    11
-) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `alias_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `code` VARCHAR
-(
-    60
-) NOT NULL,
-    `name_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `name_en` VARCHAR
-(
-    255
-) NOT NULL,
-    PRIMARY KEY
-(
-    `id`
-),
-    UNIQUE KEY `alias_de`
-(
-    `alias_de`
-),
-    UNIQUE KEY `alias_en`
-(
-    `alias_en`
-),
-    UNIQUE KEY `code`
-(
-    `code`
-),
-    UNIQUE KEY `name_de`
-(
-    `name_de`
-),
-    UNIQUE KEY `name_en`
-(
-    `name_en`
-)
-    )
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT
-IGNORE INTO `v7ocf_organizer_minors`
-VALUES (1, 'allgemeine-elektrotechnik', 'general-electrical-engineering', 'AET', 'Allgemeine Elektrotechnik', 'General Electrical Engineering'),
-       (2, 'allgemeiner-maschinenbau', 'general-mechanical-engineering', 'AMB', 'Allgemeiner Maschinenbau', 'General Mechanical Engineering'),
-       (3, 'allgemeine-mechatronik', 'general-mechatronics', 'AME', 'Allgemeine Mechatronik', 'General Mechatronics'),
-       (4, 'angewandte-medizinische-wissenschaften', 'applied-medical-science', 'AMW', 'Angewandte Medizinische Wissenschaften', 'Applied Medical Science'),
-       (5, 'baumanagement-konstruktion-infrastruktur', 'construction-management-infrastructure', 'BKI', 'Baumanagement, Konstruktion und Infrastruktur', 'Construction Management and Infrastructure'),
-       (6, 'controlling', 'controlling', 'CTR', 'Controlling', 'Controlling'),
-       (7, 'data-science', 'data-science', 'DS', 'Data Science', 'Data Science'),
-       (8, 'elektrotechnik', 'electrical-engineering', 'ELT', 'Elektrotechnik', 'Electrical Engineering'),
-       (9, 'energie-antriebstechnik', 'energy-drive-technology', 'EUA', 'Energie- und Antriebstechnik', 'Energy and Drive Technology'),
-       (10, 'facility-management', 'facility-management', 'FM', 'Facility Management', 'Facility Management'),
-       (11, 'finanzdienstleistungen', 'financial-services', 'FDL', 'Finanzdienstleistungen', 'Financial Services'),
-       (12, 'formgebung', 'design', 'FG', 'Formgebung', 'Design'),
-       (13, 'hygiene-design', 'hygiene-design', 'HD', 'Hygiene Design', 'Hygiene Design'),
-       (14, 'immobilien', 'real-estate', 'IMM', 'Immobilien', 'Real Estate'),
-       (15, 'it-security', 'it-security', 'ITS', 'IT-Security', 'IT-Security'),
-       (16, 'ingenieurwissenschaft', 'engineering', 'IWI', 'Ingenieurwissenschaft', 'Engineering'),
-       (17, 'kaelte-klimatechnik', 'cold-climate-technology', 'KK', 'Kälte- und Klimatechnik', 'Cold and Climate Technology'),
-       (18, 'konstruktion-leichtbau', 'construction-lightweight-construction', 'KL', 'Konstruktion und Leichtbau', 'Construction and Lightweight Construction'),
-       (19, 'krankenversicherungsmanagement', 'health-insurance-management', 'KM', 'Krankenversicherungsmanagement', 'Health Insurance Management'),
-       (20, 'leistungsmechatronik', 'performance-mechatronics', 'LME', 'Leistungsmechatronik', 'Performance Mechatronics'),
-       (21, 'logistikmanagement', 'logistics-management', 'LM', 'Logistikmanagement', 'Logistics Management'),
-       (22, 'medical-data-science', 'medical-data-science', 'MDS', 'Medical Data Science', 'Medical Data Science'),
-       (23, 'mittelstandsmanagement', 'sme-management', 'MM', 'Mittelstandsmanagement', 'SME Management'),
-       (24, 'management-marketing', 'management-marketing', 'MMA', 'Management und Marketing', 'Management and Marketing'),
-       (25, 'marketing', 'marketing', 'MKT', 'Marketing', 'Marketing'),
-       (26, 'maschinenbau', 'mechanical-engineering', 'MSB', 'Maschinenbau', 'Mechanical Engineering'),
-       (27, 'metalltechnik', 'metal-technology', 'MT', 'Metalltechnik', 'Metal Technology'),
-       (28, 'material-fertigungstechnik', 'materials-manufacturing-technology', 'MFT', 'Material- und Fertigungstechnik', 'Materials and Manufacturing Technology'),
-       (29, 'produkt-prozessmanagement', 'product-process-management', 'PPM', 'Produkt- und Prozessmanagement', 'Product- and Process Management'),
-       (30, 'regulatory-affairs-management', 'regulatory-affairs-management', 'RAM', 'Regulatory Affairs Management', 'Regulatory Affairs Management'),
-       (31, 'softwareentwicklung', 'software-development', 'SE', 'Softwareentwicklung', 'Software Development'),
-       (32, 'steuerung-geschaeftsprozessen', 'controlling-business-processes', 'SG', 'Steuerung von Geschäftsprozessen', 'Controlling Business Processes'),
-       (33, 'supply-chain-management', 'supply-chain-management', 'SCM', 'Supply Chain Management', 'Supply Chain Management'),
-       (34, 'technikmanagement', 'technology-management', 'TM', 'Technikmanagement', 'Technology Management'),
-       (35, 'technische-gebaeudeausruestung', 'building-services-engineering', 'TGA', 'Technische Gebäudeausrüstung', 'Building Services Engineering'),
-       (36, 'technische-informatik', 'technical-informatics', 'TI', 'Technische Informatik', 'Technical Informatics'),
-       (37, 'technische-prozesse', 'technical-processes', 'TP', 'Technische Prozesse', 'Technical Processes'),
-       (38, 'technische-systeme', 'technical-systems', 'TS', 'Technische Systeme', 'Technical Systems'),
-       (39, 'unternehmensexterne-logistik', 'external-logistics', 'UEL', 'Unternehmensexterne Logistik', 'External Logistics'),
-       (40, 'unternehmensinterne-logistik', 'internal-logistics', 'UIL', 'Unternehmensinterne Logistik', 'Internal Logistics'),
-       (41, 'vertrieb', 'sales', 'V', 'Vertrieb', 'Sales'),
-       (42, 'veranstaltungstechnik', 'event-technology', 'VTK', 'Veranstaltungstechnik', 'Event Technology'),
-       (43, 'verkehr-wasser-umwelt', 'traffic-water-environment', 'VWU', 'Verkehr - Wasser - Umwelt', 'Traffic - Water - Environment'),
-       (44, 'wirtschaftsinformatik', 'business-informatics', 'WIN', 'Wirtschaftsinformatik', 'Business Informatics');
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `minorID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
-    ADD KEY `minorID` (`minorID`);
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_minorID_fk` FOREIGN KEY (`minorID`) REFERENCES `v7ocf_organizer_minors` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_foci`
-(
-    `id`
-    INT
-(
-    11
-) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `alias_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `code` VARCHAR
-(
-    60
-) NOT NULL,
-    `name_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `name_en` VARCHAR
-(
-    255
-) NOT NULL,
-    PRIMARY KEY
-(
-    `id`
-),
-    UNIQUE KEY `alias_de`
-(
-    `alias_de`
-),
-    UNIQUE KEY `alias_en`
-(
-    `alias_en`
-),
-    UNIQUE KEY `code`
-(
-    `code`
-),
-    UNIQUE KEY `name_de`
-(
-    `name_de`
-),
-    UNIQUE KEY `name_en`
-(
-    `name_en`
-)
-    )
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT
-IGNORE INTO `v7ocf_organizer_foci`
-VALUES (1, 'getting-started', 'getting-started', 'GS', 'GettING Started', 'GettING Started');
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `focusID` INT(11) UNSIGNED DEFAULT NULL AFTER `degreeID`,
-    ADD KEY `focusID` (`focusID`);
-
-UPDATE `v7ocf_organizer_programs` SET `focusID` = 1 WHERE `name_de` LIKE '%getting%';
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_focusID_fk` FOREIGN KEY (`focusID`) REFERENCES `v7ocf_organizer_foci` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_attendance_types`
-(
-    `id`
-    INT
-(
-    11
-) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `alias_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `code` VARCHAR
-(
-    60
-) NOT NULL,
-    `name_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `name_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `statisticCode` VARCHAR
-(
-    10
-) NOT NULL,
-    PRIMARY KEY
-(
-    `id`
-),
-    UNIQUE KEY `alias_de`
-(
-    `alias_de`
-),
-    UNIQUE KEY `alias_en`
-(
-    `alias_en`
-),
-    UNIQUE KEY `code`
-(
-    `code`
-),
-    UNIQUE KEY `name_de`
-(
-    `name_de`
-),
-    UNIQUE KEY `name_en`
-(
-    `name_en`
-)
-    )
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT
-IGNORE INTO `v7ocf_organizer_attendance_types`
-VALUES (1, 'praesenzstudium', 'on-campus-study', 'P', 'Präsenzstudium', 'On-Campus Study', '1'),
-       (2, 'fernstudium', 'remote-study', 'F', 'Fernstudium', 'Remote Study', '2');
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `aTypeID` INT(11) UNSIGNED DEFAULT NULL AFTER `accredited`,
-    ADD KEY `aTypeID` (`aTypeID`);
-
-UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 2 WHERE `name_de` LIKE '%Fernstudium%';
-UPDATE `v7ocf_organizer_programs` SET `aTypeID` = 1 WHERE `name_de` NOT LIKE '%Fernstudium%';
-
-ALTER TABLE `v7ocf_organizer_programs`
-    MODIFY COLUMN `aTypeID` INT (11) UNSIGNED NOT NULL;
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_aTypeID_fk` FOREIGN KEY (`aTypeID`) REFERENCES `v7ocf_organizer_attendance_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `v7ocf_organizer_campuses`
-    ADD COLUMN `code` VARCHAR(10) DEFAULT NULL AFTER `name_en`,
-    ADD COLUMN `statisticCode` VARCHAR(10) DEFAULT NULL,
-    ADD UNIQUE KEY `code` (`code`);
-
-UPDATE `v7ocf_organizer_campuses` SET `code` = 'F', `statisticCode` = '6232' WHERE `id` = 9;
-UPDATE `v7ocf_organizer_campuses` SET `code` = 'G', `statisticCode` = '6231' WHERE `id` = 1;
-UPDATE `v7ocf_organizer_campuses` SET `code` = 'W', `statisticCode` = '6233' WHERE `id` = 14;
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `campusID` INT(11) UNSIGNED DEFAULT NULL AFTER `aTypeID`,
-    ADD KEY `campusID` (`campusID`),
-    ADD CONSTRAINT `program_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `v7ocf_organizer_campuses` (`id`) ON
-DELETE
-SET NULL ON
-UPDATE CASCADE;
-
--- Friedberg programs identifiable by FB association
-UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_associations` AS `a`
-ON `a`.`programID` = `p`.`id`
-    SET `p`.`campusID` = 9
-WHERE `a`.`organizationID` IN (15, 16, 17, 18, 23) AND `p`.`campusID` IS NULL;
-
--- Gießen programs identifiable by FB association
-UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_associations` AS `a`
-ON `a`.`programID` = `p`.`id`
-    SET `p`.`campusID` = 1
-WHERE `a`.`organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14) AND `p`.`campusID` IS NULL;
-
--- Wetzlar programs identifiable by FB association
-UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_associations` AS `a`
-ON `a`.`programID` = `p`.`id`
-    SET `p`.`campusID` = 14
-WHERE `a`.`organizationID` IN (13) AND `p`.`campusID` IS NULL;
-
--- Friedberg programs identifiable by organizationID column
-UPDATE `v7ocf_organizer_programs`
-SET `campusID` = 9
-WHERE `organizationID` IN (15, 16, 17, 18, 19, 23)
-  AND `campusID` IS NULL;
-
--- Gießen programs identifiable by organizationID column
-UPDATE `v7ocf_organizer_programs`
-SET `campusID` = 1
-WHERE `organizationID` IN (1, 2, 3, 4, 6, 7, 11, 14)
-  AND `campusID` IS NULL;
-
--- Friedberg MuK programs
-UPDATE `v7ocf_organizer_programs`
-SET `campusID` = 9
-WHERE (`name_de` LIKE ('Logistik%') OR `name_de` LIKE ('Supply%') OR `name_de` LIKE ('Methoden%'))
-  AND `campusID` IS NULL;
-
--- Friedberg MuK programs
-UPDATE `v7ocf_organizer_programs`
-SET `campusID` = 1
-WHERE (`name_de` LIKE ('Event%') OR `name_de` LIKE ('Strat%'))
-  AND `campusID` IS NULL;
-
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_types`
-(
-    `id`
-    INT
-(
-    11
-) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `alias_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `code` VARCHAR
-(
-    60
-) NOT NULL,
-    `name_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `name_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `statisticCode` VARCHAR
-(
-    10
-) NOT NULL,
-    PRIMARY KEY
-(
-    `id`
-),
-    UNIQUE KEY `alias_de`
-(
-    `alias_de`
-),
-    UNIQUE KEY `alias_en`
-(
-    `alias_en`
-),
-    UNIQUE KEY `code`
-(
-    `code`
-),
-    UNIQUE KEY `name_de`
-(
-    `name_de`
-),
-    UNIQUE KEY `name_en`
-(
-    `name_en`
-)
-    )
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT
-IGNORE INTO `v7ocf_organizer_program_types`
-VALUES (1, 'erststudium', 'first-degree', '1', 'Erststudium', 'First Degree', '1'),
-       (2, 'weiterbildungsstudium', 'continuing-education-degree', '6', 'Weiterbildungsstudium', 'Continuing Education Degree', '6'),
-       (3, 'konsekutiver-master', 'consecutive-degree', '7', 'konsekutiver Master', 'Consecutive Degree', '7'),
-       (4, 'promotionsstudium', 'doctorate-program', '5', 'Promotionsstudium', 'Doctorate Program', '5'),
-       (5, 'kein-abschluss', 'no-degree', '9', 'kein Abschluss', 'No Degree', '9');
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `typeID` INT(11) UNSIGNED DEFAULT NULL AFTER `nomenID`,
-    ADD KEY `typeID` (`typeID`),
-    ADD CONSTRAINT `program_typeID_fk` FOREIGN KEY (`typeID`) REFERENCES `v7ocf_organizer_program_types` (`id`) ON
-DELETE
-SET NULL ON
-UPDATE CASCADE;
-
-UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d`
-ON `d`.`id` = `p`.`degreeID`
-    SET `p`.`typeID` = 1
-WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`typeID` IS NULL;
-
-UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d`
-ON `d`.`id` = `p`.`degreeID`
-    SET `p`.`typeID` = 3
-WHERE `d`.`name` LIKE 'Master%' AND `p`.`typeID` IS NULL;
-
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_program_forms`
-(
-    `id`
-    INT
-(
-    11
-) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `alias_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `code` VARCHAR
-(
-    60
-) NOT NULL,
-    `name_de` VARCHAR
-(
-    255
-) NOT NULL,
-    `name_en` VARCHAR
-(
-    255
-) NOT NULL,
-    `statisticCode` VARCHAR
-(
-    10
-) NOT NULL,
-    PRIMARY KEY
-(
-    `id`
-),
-    UNIQUE KEY `alias_de`
-(
-    `alias_de`
-),
-    UNIQUE KEY `alias_en`
-(
-    `alias_en`
-),
-    UNIQUE KEY `code`
-(
-    `code`
-),
-    UNIQUE KEY `name_de`
-(
-    `name_de`
-),
-    UNIQUE KEY `name_en`
-(
-    `name_en`
-)
-    )
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT
-IGNORE INTO `v7ocf_organizer_program_forms`
-VALUES (1, 'vollzeit', 'full-time', 'V', 'Vollzeit', 'Full-Time', '1'),
-       (2, 'teilzeit', 'part-time', 'S', 'Teilzeit', 'Part-Time', '2'),
-       (3, 'duales-studium-erstausbildung', 'dual-study-initial', '5', 'Duales Studium (Erstausbildung)', 'Dual Study (Initial)', '5'),
-       (4, 'duales-studium-weiterbildung', 'dual-study-consecutive', '7', 'Duales Studium (Weiterbildung)', 'Dual Study (Consecutive)', '7');
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `formID` INT(11) UNSIGNED DEFAULT NULL AFTER `focusID`,
-    ADD KEY `formID` (`formID`),
-    ADD CONSTRAINT `program_formID_fk` FOREIGN KEY (`formID`) REFERENCES `v7ocf_organizer_program_forms` (`id`) ON
-DELETE
-SET NULL ON
-UPDATE CASCADE;
-
-UPDATE `v7ocf_organizer_programs` SET `formID` = 1;
-
-UPDATE `v7ocf_organizer_programs` SET `formID` = 2 WHERE `id` = 28;
-
-UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d`
-ON `d`.`id` = `p`.`degreeID`
-    SET `p`.`formID` = 3
-WHERE `d`.`name` LIKE 'Bachelor%' AND `p`.`name_de` LIKE '%dual%';
-
-UPDATE `v7ocf_organizer_programs` AS `p`
-    INNER JOIN `v7ocf_organizer_degrees` AS `d`
-ON `d`.`id` = `p`.`degreeID`
-    SET `p`.`formID` = 4
-WHERE `d`.`name` LIKE 'Master%' AND `p`.`name_de` LIKE '%dual%';
-
-ALTER TABLE `v7ocf_organizer_programs`
-DROP
-COLUMN `alias`,
-    DROP
-COLUMN `name_de`,
-    DROP
-COLUMN `name_en`,
-    DROP
-COLUMN `organizationID`;
-
+--Drop before modification
 ALTER TABLE `v7ocf_organizer_programs` DROP CONSTRAINT `program_degreeID_fk`;
 
-ALTER TABLE `v7ocf_organizer_programs` MODIFY COLUMN `degreeID` INT (11) UNSIGNED NOT NULL;
+ALTER TABLE `v7ocf_organizer_programs`
+    DROP COLUMN `alias`,
+    MODIFY COLUMN `aTypeID` INT (11) UNSIGNED NOT NULL,
+    DROP   COLUMN `code`,
+    MODIFY COLUMN `degreeID` INT (11) UNSIGNED NOT NULL,
+    DROP COLUMN `name_de`,
+    DROP COLUMN `name_en`,
+    MODIFY COLUMN `nomenID` INT (11) UNSIGNED NOT NULL,
+    DROP COLUMN `organizationID`;
 
 ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `v7ocf_organizer_degrees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`;
+    ADD CONSTRAINT `program_aTypeID_fk`  FOREIGN KEY (`aTypeID`)  REFERENCES `v7ocf_organizer_attendance_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `v7ocf_organizer_degrees`          (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `v7ocf_organizer_campuses`         (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_focusID_fk`  FOREIGN KEY (`focusID`)  REFERENCES `v7ocf_organizer_foci`             (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_formID_fk`   FOREIGN KEY (`formID`)   REFERENCES `v7ocf_organizer_program_forms`    (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_minorID_fk`  FOREIGN KEY (`minorID`)  REFERENCES `v7ocf_organizer_minors`           (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_nomenID_fk`  FOREIGN KEY (`nomenID`)  REFERENCES `v7ocf_organizer_nomina`           (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `program_typeID_fk`   FOREIGN KEY (`typeID`)   REFERENCES `v7ocf_organizer_program_types`    (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+/*#endregion*/
 
 ALTER TABLE `v7ocf_organizer_pools`
-    ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
-DROP
-COLUMN `lsfID`;
+ADD  COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
+DROP COLUMN `lsfID`;
 
 ALTER TABLE `v7ocf_organizer_subjects`
-    ADD COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
-    MODIFY COLUMN `language` VARCHAR(2)       NOT NULL DEFAULT 'de',
-DROP
-COLUMN `lsfID`;
+ADD    COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
+MODIFY COLUMN `language` VARCHAR(2)       NOT NULL DEFAULT 'de',
+DROP   COLUMN `lsfID`;
 
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'de' WHERE `language` = 'D';
-
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'en' WHERE `language` = 'E';
+
+/*#region Miscellaneous*/
+UPDATE `v7ocf_menu` SET `link` = 'index.php?option=com_organizer&view=roomoverview' WHERE `link` = 'index.php?option=com_organizer&view=room_overview';
+
+ALTER TABLE `v7ocf_organizer_instances` ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`;
