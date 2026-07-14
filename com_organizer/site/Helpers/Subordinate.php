@@ -9,7 +9,7 @@
  */
 
 
-namespace THM\Organizer\Controllers;
+namespace THM\Organizer\Helpers;
 
 use stdClass;
 
@@ -19,13 +19,13 @@ interface Subordinate
      * Processes a resource stub from a program manifest, creating resource  and curricula table entries as necessary.
      * Creates an entry if none exists and calls
      *
-     * @param stdClass $XMLObject      a SimpleXML object containing rudimentary subject data
-     * @param int      $organizationID the id of the organization to which this data belongs
-     * @param int      $parentID       the id of the parent entry
-     * @param int      $programCID     the id of the program entry
+     * @param stdClass $resource an object containing resource data
+     * @param int $organizationID the id of the organization to which this data belongs
+     * @param int $parentID the id of the parent curriculum table entry
+     * @param int $programCID the id of the program curriculum table entry
      *
      * @return bool  true on success, otherwise false
      */
-    public function subordinate(stdClass $XMLObject, int $organizationID, int $parentID, int $programCID): bool;
+    public static function subordinate(stdClass $resource, int $organizationID, int $parentID, int $programCID): bool;
 
 }
