@@ -19,16 +19,17 @@ use THM\Organizer\Adapters\{Database as DB, Input, Text};
  */
 class Dates
 {
+    public const NULL = '0000-00-00';
     public const SUNDAY = 0;
 
     /**
      * Modifies a query with a restriction for a value (not) between two column values.
      *
-     * @param DatabaseQuery $query  the query to modify
-     * @param string        $column the column for the restriction
-     * @param string        $low    the low date value
-     * @param string        $high   the high date value
-     * @param bool          $not    whether the restriction should be negated
+     * @param DatabaseQuery $query the query to modify
+     * @param string $column the column for the restriction
+     * @param string $low the low date value
+     * @param string $high the high date value
+     * @param bool $not whether the restriction should be negated
      *
      * @return void
      */
@@ -43,21 +44,21 @@ class Dates
     /**
      * Formats the date stored in the database according to the format in the component parameters
      *
-     * @param string $date     the date to be formatted
-     * @param bool   $withText if the day name should be part of the output
-     * @param bool   $short    if the day name output should be abbreviated
+     * @param string $date the date to be formatted
+     * @param bool $withText if the day name should be part of the output
+     * @param bool $short if the day name output should be abbreviated
      *
      * @return string
      */
     public static function formatDate(string $date = '', bool $withText = false, bool $short = false): string
     {
-        $date          = empty($date) ? date('Y-m-d') : $date;
+        $date = empty($date) ? date('Y-m-d') : $date;
         $formattedDate = date(self::formatParameter(), strtotime($date));
 
         if ($withText) {
-            $textFormat    = $short ? 'D' : 'l';
-            $shortDOW      = date($textFormat, strtotime($date));
-            $text          = Text::_(strtoupper($shortDOW));
+            $textFormat = $short ? 'D' : 'l';
+            $shortDOW = date($textFormat, strtotime($date));
+            $text = Text::_(strtoupper($shortDOW));
             $formattedDate = "$text $formattedDate";
         }
 
@@ -73,7 +74,7 @@ class Dates
      */
     public static function formatDateTime(int|string $dateTime): string
     {
-        $format   = self::formatParameter() . ' H:i';
+        $format = self::formatParameter() . ' H:i';
         $dateTime = is_string($dateTime) ? strtotime($dateTime) : $dateTime;
 
         return date($format, $dateTime);
@@ -117,14 +118,14 @@ class Dates
      * Formats the date stored in the database according to the format in the component parameters
      *
      * @param string $startDate the start date of the resource
-     * @param string $endDate   the end date of the resource
+     * @param string $endDate the end date of the resource
      *
      * @return string
      */
     public static function intervalText(string $startDate, string $endDate): string
     {
         $startDate = self::formatDate($startDate);
-        $endDate   = self::formatDate($endDate);
+        $endDate = self::formatDate($endDate);
 
         return $startDate === $endDate ? $startDate : "$startDate - $endDate";
     }

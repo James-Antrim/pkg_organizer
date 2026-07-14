@@ -63,6 +63,13 @@ class Programs extends Table
     public string|null $description_en = '';
 
     /**
+     * The expiration date of the program.
+     * DATE NOT NULL
+     * @var string
+     */
+    public string $expiration = '';
+
+    /**
      * A flag which displays whether the program has a fee, not the actual fee.
      * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
      * @var int

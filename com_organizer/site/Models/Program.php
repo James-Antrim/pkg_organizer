@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Helpers\Programs as Helper;
+use THM\Organizer\Helpers\{Dates, Programs as Helper};
 
 /**
  * Class which manages stored (degree) program data.
@@ -37,6 +37,10 @@ class Program extends EditModel
 
         if (empty($item->id)) {
             $item->accredited = date('Y');
+        }
+
+        if ($item->expiration === Dates::NULL) {
+            $item->expiration = date('Y-m-d', strtotime('+50 years'));
         }
 
         return $item;

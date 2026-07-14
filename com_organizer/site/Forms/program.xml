@@ -14,14 +14,16 @@
         </field>
         <field name="accredited" type="integer" label="ORGANIZER_ACCREDITED" class="required" first="1996" last="2096"
                required="true" step="1"/>
-        <field name="aTypeID" type="GenericOptions" label="ORGANIZER_ATTENDANCE_TYPE" class="required" default="1" required="true"
+        <field name="aTypeID" type="GenericOptions" label="ORGANIZER_ATTENDANCE_TYPE" class="required" default="1"
+               required="true"
                table="organizer_attendance_types" localized="true" textcolumn="name" valuecolumn="id">
             <option value="">ORGANIZER_SELECT_ATTENDANCE_TYPE</option>
         </field>
         <field name="campusID" type="Campuses" label="ORGANIZER_CAMPUS" class="required" required="true" city="true">
             <option value="">ORGANIZER_SELECT_CAMPUS</option>
         </field>
-        <field name="formID" type="GenericOptions" label="ORGANIZER_PROGRAM_FORM" class="required" default="1" required="true"
+        <field name="formID" type="GenericOptions" label="ORGANIZER_PROGRAM_FORM" class="required" default="1"
+               required="true"
                table="organizer_program_forms" localized="true" textcolumn="name" valuecolumn="id">
             <option value="">ORGANIZER_SELECT_PROGRAM_FORM</option>
         </field>
@@ -37,6 +39,7 @@
                table="organizer_minors" localized="true" textcolumn="name" valuecolumn="id">
             <option value="">ORGANIZER_SELECT_MINOR</option>
         </field>
+        <field name="expiration" type="Date" label="ORGANIZER_EXPIRATION"/>
     </fieldset>
     <fieldset name="de" label="ORGANIZER_SUPPLEMENTAL_PROPERTIES">
         <field name="active" type="list" label="ORGANIZER_ACTIVE" default="1">
