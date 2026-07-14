@@ -2,6 +2,7 @@
 <form>
     <fieldset name="details" label="ORGANIZER_BASIC_PROPERTIES">
         <field name="id" type="hidden"/>
+        <field name="HISinOneID" type="hidden"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZER_ORGANIZATION" class="required"
                required="true"/>
         <field name="nomenID" type="GenericOptions" label="ORGANIZER_NOMEN" class="required" required="true"

@@ -20,8 +20,6 @@ abstract class CurriculumResource extends FormController
 {
     use Associated;
 
-    protected const NONE = -1;
-
     /**
      * Creates a new resource, imports external data, and redirects to the same view of the same resource.
      * @return void
@@ -79,7 +77,7 @@ abstract class CurriculumResource extends FormController
      *
      * @return bool|int
      */
-    abstract public function import(int $resourceID = 0): bool|int;
+    abstract protected function import(int $resourceID = 0): bool|int;
 
     /** @inheritDoc */
     public function process(): int
