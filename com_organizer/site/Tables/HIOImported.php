@@ -8,6 +8,13 @@ namespace THM\Organizer\Tables;
 trait HIOImported
 {
     /**
+     * The expiration date of the program.
+     * DATE NOT NULL
+     * @var string
+     */
+    public string $expiration = '';
+
+    /**
      * The id of the entry in the HIO? software module.
      * INT(11) UNSIGNED DEFAULT NULL
      * @var int|null

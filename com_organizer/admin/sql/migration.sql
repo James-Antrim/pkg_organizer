@@ -431,13 +431,15 @@ ALTER TABLE `v7ocf_organizer_programs`
 /*#endregion*/
 
 ALTER TABLE `v7ocf_organizer_pools`
-ADD  COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
-DROP COLUMN `lsfID`;
+    ADD  COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
+    ADD COLUMN `expiration` DATE NOT NULL,
+    DROP COLUMN `lsfID`;
 
 ALTER TABLE `v7ocf_organizer_subjects`
-ADD    COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
-MODIFY COLUMN `language` VARCHAR(2)       NOT NULL DEFAULT 'de',
-DROP   COLUMN `lsfID`;
+    ADD    COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
+    MODIFY COLUMN `language` VARCHAR(2)       NOT NULL DEFAULT 'de',
+    DROP   COLUMN `lsfID`,
+    ADD COLUMN `expiration` DATE NOT NULL;
 
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'de' WHERE `language` = 'D';
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'en' WHERE `language` = 'E';
