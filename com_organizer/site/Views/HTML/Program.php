@@ -16,8 +16,13 @@ class Program extends FormView
     /** @inheritDoc */
     protected function addToolBar(array $buttons = [], string $constant = ''): void
     {
-        $applyImport = ['apply-import', 'APPLY_AND_IMPORT', 'applyImport', 'fa fa-file-download'];
-        $saveImport  = ['save-import', 'SAVE_AND_IMPORT', 'saveImport', 'fa fa-file-download'];
-        parent::addToolbar(['apply', 'save', 'save2copy', $applyImport, $saveImport]);
+        if (!empty($this->item->HISinOneID)) {
+            $applyImport = ['apply-import', 'APPLY_AND_IMPORT', 'applyImport', 'fa fa-file-download'];
+            $saveImport = ['save-import', 'SAVE_AND_IMPORT', 'saveImport', 'fa fa-file-download'];
+            parent::addToolbar(['apply', 'save', 'save2copy', $applyImport, $saveImport]);
+            return;
+        }
+
+        parent::addToolbar(['apply', 'save', 'save2copy',]);
     }
 }
