@@ -20,9 +20,9 @@ class Curriculum extends ItemModel
 {
     /**
      * Method to get an array of data items.
-     * @return mixed  An array of data items on success, false on failure.
+     * @return array  An array of data items on success, false on failure.
      */
-    public function getItem()
+    public function getItem(): array
     {
         $curriculum = [];
         if ($poolID = Input::integer('poolID')) {
@@ -30,14 +30,14 @@ class Curriculum extends ItemModel
             $curriculum['name'] = Helpers\Pools::name($poolID);
             $curriculum['type'] = 'pool';
             $curriculum         += array_pop($ranges);
-            Helpers\Pools::curriculum($curriculum);
+            Helpers\Pools::buildCurriculum($curriculum);
         }
         elseif ($programID = Input::integer('programID')) {
             $ranges             = Helpers\Programs::rows($programID);
             $curriculum['name'] = Helpers\Programs::name($programID);
             $curriculum['type'] = 'program';
             $curriculum         += array_pop($ranges);
-            Helpers\Programs::curriculum($curriculum);
+            Helpers\Programs::buildCurriculum($curriculum);
         }
 
         return $curriculum;

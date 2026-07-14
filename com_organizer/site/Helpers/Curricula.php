@@ -21,6 +21,8 @@ use THM\Organizer\Tables\Curricula as Table;
  */
 abstract class Curricula extends Associated implements Documentable, Selectable
 {
+    private const DRAFT = 'In Bearbeitung', POOL = 'K', SUBJECT = 'M';
+
     private static string $resource = '';
 
     /**
@@ -130,13 +132,13 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         switch (Application::uqClass(get_called_class())) {
             case 'Pools':
                 $range = [
-                    'poolID'     => $data['id'],
+                    'poolID' => $data['id'],
                     'curriculum' => Input::task() !== 'Pool.save2copy' ? self::subordinates() : []
                 ];
                 break;
             case 'Subjects':
                 $range = [
-                    'subjectID'  => $data['id'],
+                    'subjectID' => $data['id'],
                     'curriculum' => []
                 ];
                 break;
@@ -216,7 +218,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
      *
      * @return void
      */
-    public static function curriculum(array &$curriculum): void
+    public static function buildCurriculum(array &$curriculum): void
     {
         if (empty($curriculum['lft']) or empty($curriculum['rgt']) or $curriculum['subjectID']) {
             $curriculum['curriculum'] = [];
@@ -256,11 +258,37 @@ abstract class Curricula extends Associated implements Documentable, Selectable
 
             $subOrdinate = array_merge($subOrdinate, $resourceData);
             if ($subOrdinate['poolID']) {
-                self::curriculum($subOrdinate);
+                self::buildCurriculum($subOrdinate);
             }
         }
 
         $curriculum['curriculum'] = $subOrdinates;
+    }
+
+    /**
+     * Ensures that the imported resource is mapped in the curricula table.
+     *
+     * @param int        $parentID   the id of the curriculum entry for the resource superordinate to this one
+     * @param string     $column     the resource reference column name
+     * @param int        $resourceID the resource id
+     * @param Table|null $curriculum the curricula table object
+     *
+     * @return void
+     */
+    protected static function checkCurriculum(int $parentID, string $column, int $resourceID, Table $curriculum = null): void
+    {
+        $curriculum = $curriculum ?: new Table();
+        $keys       = ['parentID' => $parentID, $column => $resourceID];
+        if (!$curriculum->load($keys)) {
+            $range             = $keys;
+            $range['ordering'] = self::ordering($parentID, $resourceID);
+
+            if (!self::shiftUp($parentID, $range['ordering']) or !self::addRange($range)) {
+                return;
+            }
+
+            $curriculum->load($keys);
+        }
     }
 
     /**
@@ -342,8 +370,7 @@ abstract class Curricula extends Associated implements Documentable, Selectable
 
         if (!$organizationIDs = Organizations::documentableIDs()) {
             return false;
-        }
-        // Document authorization has already been established, allow new
+        } // Document authorization has already been established, allow new
         elseif (!$resourceID) {
             return true;
         }
@@ -494,6 +521,32 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         $query->where('(' . implode(' OR ', $wherray) . ')');
     }
 
+
+    /**
+     * Inserts the resource.
+     *
+     * @param int            $parentID   the id of the curriculum entry for the resource superordinate to this one
+     * @param int            $resourceID the resource id
+     * @param Curricula|null $curriculum the curricula table object
+     *
+     * @return void
+     */
+    protected static function insert(int $parentID, int $resourceID, Curricula $curriculum = null): void
+    {
+        $curriculum = $curriculum ?: new Table();
+        $keys       = ['parentID' => $parentID, static::$resource . 'ID' => $resourceID];
+        if (!$curriculum->load($keys)) {
+            $range             = $keys;
+            $range['ordering'] = self::ordering($parentID, $resourceID);
+
+            if (!self::shiftUp($parentID, $range['ordering']) or !self::addRange($range)) {
+                return;
+            }
+
+            $curriculum->load($keys);
+        }
+    }
+
     /**
      * Attempt to determine the left value for the range to be created
      *
@@ -580,6 +633,47 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         }
 
         return $ids;
+    }
+
+    /**
+     * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
+     * needed.
+     *
+     * @param array $collection     an array of SimpleXML objects node containing the collection of subordinate elements
+     * @param int   $organizationID the id of the organization with which the resources are associated
+     * @param int   $parentID       the id of the curriculum entry for the parent element.
+     * @param int   $programCID     the id of the program context in the curricula table
+     * @return bool
+     */
+    protected static function processCollection(array $collection, int $organizationID, int $parentID, int $programCID): bool
+    {
+        foreach ($collection as $subOrdinate) {
+            $status = (string) $subOrdinate->Bearbeitungsstatus->Name ?? '';
+
+            if ($status === self::DRAFT) {
+                continue;
+            }
+
+            $type = (string) $subOrdinate->Elementtyp->Uniquename;
+
+            if ($type === self::POOL) {
+                if (Pools::subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
+                    continue;
+                }
+
+                return false;
+            }
+
+            /*if ($type === self::SUBJECT) {
+                if ($subject->subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
+                    continue;
+                }
+
+                return false;
+            }*/
+        }
+
+        return true;
     }
 
     /**

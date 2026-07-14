@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use stdClass;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Tables\{Associations, Curricula, Pools as PTable, Subjects, Table};
+use THM\Organizer\Tables\{Pools as PTable, Subjects, Table};
 use THM\Organizer\Helpers\{Can, Curricula as Helper, Documentable, Pools as PHelper, Programs};
 
 /** @inheritDoc */
@@ -20,7 +20,7 @@ abstract class CurriculumResource extends FormController
 {
     use Associated;
 
-    protected const DRAFT = 'In Bearbeitung', NONE = -1, POOL = 'K', SUBJECT = 'M';
+    protected const NONE = -1;
 
     /**
      * Creates a new resource, imports external data, and redirects to the same view of the same resource.
@@ -50,50 +50,6 @@ abstract class CurriculumResource extends FormController
 
         if ($id ? !$helper::documentable($id) : !$helper::documentableIDs()) {
             Application::error(403);
-        }
-    }
-
-    /**
-     * Ensures that the imported resource is mapped in the curricula table.
-     *
-     * @param int            $parentID   the id of the curriculum entry for the resource superordinate to this one
-     * @param string         $column     the resource reference column name
-     * @param int            $resourceID the resource id
-     * @param Curricula|null $curriculum the curricula table object
-     *
-     * @return void
-     */
-    protected function checkCurriculum(int $parentID, string $column, int $resourceID, Curricula $curriculum = null): void
-    {
-        $curriculum = $curriculum ?: new Curricula();
-        $keys       = ['parentID' => $parentID, $column => $resourceID];
-        if (!$curriculum->load($keys)) {
-            $range             = $keys;
-            $range['ordering'] = Helper::ordering($parentID, $resourceID);
-
-            if (!Helper::shiftUp($parentID, $range['ordering']) or !Helper::addRange($range)) {
-                return;
-            }
-
-            $curriculum->load($keys);
-        }
-    }
-
-    /**
-     * Ensures that the imported resource is associated with the selected organization.
-     *
-     * @param int    $organizationID the id of the organization
-     * @param string $column         the resource reference column name
-     * @param int    $resourceID     the resource id
-     *
-     * @return void
-     */
-    protected function checkAssociation(int $organizationID, string $column, int $resourceID): void
-    {
-        $association = new Associations();
-        $keys        = ['organizationID' => $organizationID, $column => $resourceID];
-        if (!$association->load($keys)) {
-            $association->save($keys);
         }
     }
 
@@ -161,51 +117,6 @@ abstract class CurriculumResource extends FormController
      * @return void
      */
     abstract protected function postProcess(): void;
-
-    /**
-     * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
-     * needed.
-     *
-     * @param array $collection     an array of SimpleXML objects node containing the collection of subordinate elements
-     * @param int   $organizationID the id of the organization with which the resources are associated
-     * @param int   $parentID       the id of the curriculum entry for the parent element.
-     * @param int   $programCID     the id of the program context in the curricula table
-     * @return bool
-     */
-    protected function processCollection(array $collection, int $organizationID, int $parentID, int $programCID): bool
-    {
-        $pool    = new Pool();
-        $subject = new Subject();
-
-        foreach ($collection as $subOrdinate) {
-            $status = (string) $subOrdinate->Bearbeitungsstatus->Name;
-
-            if ($status and $status === self::DRAFT) {
-                // todo activate in production
-                //continue;
-            }
-
-            $type = (string) $subOrdinate->Elementtyp->Uniquename;
-
-            if ($type === self::POOL) {
-                if ($pool->subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
-                    continue;
-                }
-
-                return false;
-            }
-
-            if ($type === self::SUBJECT) {
-                if ($subject->subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
-                    continue;
-                }
-
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     /**
      * Saves the resource, imports external data and redirects to the list view.
