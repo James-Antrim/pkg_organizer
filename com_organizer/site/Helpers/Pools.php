@@ -11,21 +11,21 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use stdClass;
-use THM\Organizer\Tables\Pools as Table;
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use THM\Organizer\Tables\{Curricula as CTable, Pools as Table};
 
 /**
  * Provides general functions for (subject) pool access checks, data retrieval and display.
  */
-class Pools extends Curricula implements Selectable
+class Pools extends Curricula implements Selectable, Subordinate
 {
     protected static string $resource = 'pool';
 
     /**
      * Creates a text for the required pool credit points
      *
-     * @param   array  $pool  the pool
+     * @param array $pool the pool
      *
      * @return string  the required amount of credit points
      */
@@ -50,7 +50,7 @@ class Pools extends Curricula implements Selectable
     /**
      * Retrieves the range of the selected resource exclusive subordinate pools.
      *
-     * @param   array  $range  the original range of a pool
+     * @param array $range the original range of a pool
      *
      * @return array[]  boundary values
      */
@@ -109,7 +109,7 @@ class Pools extends Curricula implements Selectable
     /**
      * Gets the mapped curricula ranges for the given pool
      *
-     * @param   array|int  $identifiers  int poolID | array ranges of subordinate resources
+     * @param array|int $identifiers int poolID | array ranges of subordinate resources
      *
      * @return array[] the pool ranges
      */
@@ -130,8 +130,8 @@ class Pools extends Curricula implements Selectable
     /**
      * Creates a name for use in a list of options implicitly displaying the pool hierarchy.
      *
-     * @param   string  $name   the name of the pool
-     * @param   int     $level  the structural depth
+     * @param string $name  the name of the pool
+     * @param int    $level the structural depth
      *
      * @return string the pool name indented according to the curricular hierarchy
      */
@@ -150,7 +150,7 @@ class Pools extends Curricula implements Selectable
     /**
      * Loads an array modeling the attributes of the resource.
      *
-     * @param   int  $poolID
+     * @param int $poolID
      *
      * @return array
      */
@@ -169,21 +169,21 @@ class Pools extends Curricula implements Selectable
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
-            'bgColor'      => Fields::color($fieldID, $organizationID),
-            'description'  => $table->{"description_$tag"},
-            'field'        => $fieldID ? Fields::name($fieldID) : '',
-            'fieldID'      => $table->fieldID,
-            'id'           => $table->id,
-            'maxCrP'       => $table->maxCrP,
-            'minCrP'       => $table->minCrP,
-            'name'         => $table->{"fullName_$tag"}
+            'bgColor' => Fields::color($fieldID, $organizationID),
+            'description' => $table->{"description_$tag"},
+            'field' => $fieldID ? Fields::name($fieldID) : '',
+            'fieldID' => $table->fieldID,
+            'id' => $table->id,
+            'maxCrP' => $table->maxCrP,
+            'minCrP' => $table->minCrP,
+            'name' => $table->{"fullName_$tag"}
         ];
     }
 
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function options(string $access = ''): array
     {
@@ -198,8 +198,8 @@ class Pools extends Curricula implements Selectable
     /**
      * Gets an option based upon a pool curriculum association.
      *
-     * @param   array  $range      the curriculum range entry
-     * @param   array  $parentIDs  the currently assigned superordinate elements
+     * @param array $range     the curriculum range entry
+     * @param array $parentIDs the currently assigned superordinate elements
      *
      * @return null|stdClass
      */
@@ -249,7 +249,7 @@ class Pools extends Curricula implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function resources(string $access = ''): array
     {
@@ -300,5 +300,67 @@ class Pools extends Curricula implements Selectable
         }
 
         return [];
+    }
+
+    /** @inheritDoc */
+    public static function subordinate(stdClass $resource, int $organizationID, int $parentID, int $programCID): bool
+    {
+        $HISinOneID = (int) $resource->ElementId ?? 0;
+        $nameDE     = $resource->Titel->de ?? '';
+        if (!$HISinOneID or !$nameDE) {
+            Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
+            return false;
+        }
+
+        $pool         = self::resolve($HISinOneID, $nameDE, $programCID);
+        $subordinates = $resource->children->child ?? [];
+
+        $pool->HISinOneID  = $HISinOneID;
+        $pool->fullName_de = $nameDE;
+        $pool->fullName_en = $resource->Titel->en ?? $nameDE;
+        $pool->expiration  = $resource->Gueltig_bis ?? date('Y-m-d', strtotime('+50 years'));
+        $pool->maxCrP      = (int) $resource->CreditPoints ?? 0;
+
+        if (!$pool->store()) {
+            return false;
+        }
+
+        self::associate($organizationID, $pool->id);
+
+        $curriculum = new CTable();
+        self::checkCurriculum($parentID, 'poolID', $pool->id, $curriculum);
+
+        return self::processCollection($subordinates, $organizationID, $curriculum->id, $programCID);
+    }
+
+    /**
+     * Resolves identifiers to a table entry if possible.
+     *
+     * @param int    $HISinOneID the HISinOne 'ElementId' allows for targeted identification directly
+     * @param string $name       the pool may allow for identification in the context of the parent's curriculum table ID
+     * @param int    $programID  the relevant program's id in the curricula table
+     * @return Table
+     */
+    private static function resolve(int $HISinOneID, string $name, int $programID): Table
+    {
+        $table = new Table();
+        if ($table->load(['HISinOneID' => $HISinOneID])) {
+            return $table;
+        }
+
+        $parent = Curricula::row($programID);
+
+        $query = DB::query();
+        $query->select(DB::qn('p.id'))
+            ->from(DB::qn('#__organizer_pools', 'p'))
+            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.poolID', 'p.id'))
+            ->where(DB::qcs([['p.fullName_de', $name, '=', true], ['c.lft', $parent['lft'], '>'], ['c.rgt', $parent['rgt'], '<']]));
+        DB::set($query);
+
+        if ($poolID = DB::integer()) {
+            $table->load($poolID);
+        }
+
+        return $table;
     }
 }

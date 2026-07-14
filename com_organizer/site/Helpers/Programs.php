@@ -75,17 +75,44 @@ class Programs extends Curricula implements Selectable
 
         $innerWrapper = $program->children->child;
 
+        if (is_array($innerWrapper)) {
+            Application::message('Non-standard standard structure at level PO + 1', Application::NOTICE);
+            $innerWrapper = array_filter($innerWrapper);
+            $innerWrapper = array_pop($innerWrapper);
+            if (!is_object($innerWrapper)) {
+                Application::message('Deviant value at level PO + 1', Application::ERROR);
+                return false;
+            }
+        }
+
         if (empty($innerWrapper->children) or empty($innerWrapper->children->child)) {
             return false;
         }
 
         $curriculum = $innerWrapper->children->child;
 
-        if (empty($curriculum->children) or empty($curriculum->children->child) or !is_array($curriculum->children->child)) {
+        if (is_array($curriculum)) {
+            Application::message('Non-standard standard structure at level PO + 2', Application::NOTICE);
+            $curriculum = array_filter($curriculum);
+            $curriculum = array_pop($curriculum);
+            if (!is_object($curriculum)) {
+                Application::message('Deviant value at level PO + 2', Application::ERROR);
+                return false;
+            }
+        }
+
+        if (empty($curriculum->children) or empty($curriculum->children->child)) {
             return false;
         }
 
-        return $curriculum->children->child;
+        $subordinates = $curriculum->children->child;
+
+        if (!is_array($subordinates)) {
+            Application::message('Deviant value at level PO + 3', Application::ERROR);
+            return false;
+        }
+
+        return $subordinates;
     }
 
     /**
