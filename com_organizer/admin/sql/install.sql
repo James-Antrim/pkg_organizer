@@ -1489,6 +1489,21 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_events`
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_subject_methods`
+(
+    `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `methodID`  INT(11) UNSIGNED NOT NULL,
+    `subjectID` INT(11) UNSIGNED NOT NULL,
+    `sws`       INT(2)  UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `entry` (`methodID`, `subjectID`),
+    KEY `methodID` (`methodID`),
+    KEY `subjectID` (`subjectID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons`
 (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -2368,6 +2383,10 @@ ALTER TABLE `#__organizer_schedules`
 ALTER TABLE `#__organizer_subject_events`
     ADD CONSTRAINT `subject_event_eventID_fk` FOREIGN KEY (`eventID`) REFERENCES `#__organizer_events` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `subject_event_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `#__organizer_subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `#__organizer_subject_methods`
+    ADD CONSTRAINT `subject_method_methodID_fk` FOREIGN KEY (`methodID`) REFERENCES `#__organizer_methods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `subject_method_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `#__organizer_subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_subject_persons`
     ADD CONSTRAINT `subject_person_personID_fk` FOREIGN KEY (`personID`) REFERENCES `#__organizer_persons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

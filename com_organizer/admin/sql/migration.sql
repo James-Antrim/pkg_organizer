@@ -292,6 +292,25 @@ VALUES (1, 'erststudium', 'first-degree', '1', 'Erststudium', 'First Degree', '1
        (3, 'konsekutiver-master', 'consecutive-degree', '7', 'konsekutiver Master', 'Consecutive Degree', '7'),
        (4, 'promotionsstudium', 'doctorate-program', '5', 'Promotionsstudium', 'Doctorate Program', '5'),
        (5, 'kein-abschluss', 'no-degree', '9', 'kein Abschluss', 'No Degree', '9');
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subject_methods`
+(
+    `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `methodID`  INT(11) UNSIGNED NOT NULL,
+    `subjectID` INT(11) UNSIGNED NOT NULL,
+    `sws`       INT(2)  UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `entry` (`methodID`, `subjectID`),
+    KEY `methodID` (`methodID`),
+    KEY `subjectID` (`subjectID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+ALTER TABLE `v7ocf_organizer_subject_methods`
+    ADD CONSTRAINT `subject_method_methodID_fk` FOREIGN KEY (`methodID`) REFERENCES `v7ocf_organizer_methods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `subject_method_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `v7ocf_organizer_subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 /*#endregion*/
 
 /*#region Update Campuses */
