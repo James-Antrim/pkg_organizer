@@ -458,7 +458,11 @@ ALTER TABLE `v7ocf_organizer_subjects`
     ADD    COLUMN `HISinOneID` INT (11) UNSIGNED DEFAULT NULL AFTER `id`,
     MODIFY COLUMN `language` VARCHAR(2)       NOT NULL DEFAULT 'de',
     DROP   COLUMN `lsfID`,
-    ADD COLUMN `expiration` DATE NOT NULL;
+    ADD COLUMN `expiration` DATE NOT NULL,
+    DROP   COLUMN `expertise`,
+    DROP   COLUMN `methodCompetence`,
+    DROP   COLUMN `selfCompetence`,
+    DROP   COLUMN `socialCompetence`;
 
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'de' WHERE `language` = 'D';
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'en' WHERE `language` = 'E';

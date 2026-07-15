@@ -109,14 +109,6 @@ class Subjects extends Table
     public int $expenditure = 0;
 
     /**
-     * The quantifier for the level of expertise of this subject. Values: NULL - unset, 0 - none ... 3 - much.
-     * TINYINT(1) UNSIGNED DEFAULT NULL
-     * @deprecated   replaced by localized full text fields
-     * @var int|null
-     */
-    public int|null $expertise = 0;
-
-    /**
      * The description for expertise learning objectives in German.
      * TEXT
      * @var string
@@ -196,14 +188,6 @@ class Subjects extends Table
      * @var string
      */
     public string $method_en = '';
-
-    /**
-     * The quantifier for the level of method competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
-     * TINYINT(1) UNSIGNED DEFAULT NULL
-     * @deprecated replaced by localized full text fields
-     * @var int|null
-     */
-    public int|null $methodCompetence = null;
 
     /**
      * The description for procedural learning objectives in German.
@@ -309,14 +293,6 @@ class Subjects extends Table
     public string $recommendedPrerequisites_en = '';
 
     /**
-     * The quantifier for the level of self competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
-     * TINYINT(1) UNSIGNED DEFAULT NULL
-     * @deprecated replaced by localized full text fields
-     * @var int|null
-     */
-    public int|null $selfCompetence = null;
-
-    /**
      * The description for personal learning objectives in German.
      * TEXT
      * @var string
@@ -329,14 +305,6 @@ class Subjects extends Table
      * @var string
      */
     public string $selfCompetence_en = '';
-
-    /**
-     * The quantifier for the level of social competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
-     * TINYINT(1) UNSIGNED DEFAULT NULL
-     * @deprecated replaced by localized full text fields
-     * @var int|null
-     */
-    public int|null $socialCompetence = null;
 
     /**
      * The description for social learning objectives in German.
