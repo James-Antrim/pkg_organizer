@@ -266,32 +266,6 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     }
 
     /**
-     * Ensures that the imported resource is mapped in the curricula table.
-     *
-     * @param int        $parentID   the id of the curriculum entry for the resource superordinate to this one
-     * @param string     $column     the resource reference column name
-     * @param int        $resourceID the resource id
-     * @param Table|null $curriculum the curricula table object
-     *
-     * @return void
-     */
-    protected static function checkCurriculum(int $parentID, string $column, int $resourceID, Table $curriculum = null): void
-    {
-        $curriculum = $curriculum ?: new Table();
-        $keys       = ['parentID' => $parentID, $column => $resourceID];
-        if (!$curriculum->load($keys)) {
-            $range             = $keys;
-            $range['ordering'] = self::ordering($parentID, $resourceID);
-
-            if (!self::shiftUp($parentID, $range['ordering']) or !self::addRange($range)) {
-                return;
-            }
-
-            $curriculum->load($keys);
-        }
-    }
-
-    /**
      * Extracts the curriculum ids from an array of arrays. Divergent handling comes from use by various subject controller
      * functions using the key curriculumID instead of id.
      *
@@ -525,26 +499,27 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     /**
      * Inserts the resource.
      *
-     * @param int            $parentID   the id of the curriculum entry for the resource superordinate to this one
-     * @param int            $resourceID the resource id
-     * @param Curricula|null $curriculum the curricula table object
+     * @param int $parentID   the id of the curriculum entry for the resource superordinate to this one
+     * @param int $resourceID the resource id
      *
-     * @return void
+     * @return int
      */
-    protected static function insert(int $parentID, int $resourceID, Curricula $curriculum = null): void
+    protected static function insert(int $parentID, int $resourceID): int
     {
-        $curriculum = $curriculum ?: new Table();
+        $curriculum = new Table();
         $keys       = ['parentID' => $parentID, static::$resource . 'ID' => $resourceID];
         if (!$curriculum->load($keys)) {
             $range             = $keys;
             $range['ordering'] = self::ordering($parentID, $resourceID);
 
             if (!self::shiftUp($parentID, $range['ordering']) or !self::addRange($range)) {
-                return;
+                return 0;
             }
 
             $curriculum->load($keys);
         }
+
+        return $curriculum->id;
     }
 
     /**

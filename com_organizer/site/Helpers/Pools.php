@@ -13,7 +13,7 @@ namespace THM\Organizer\Helpers;
 use Joomla\Database\ParameterType;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
-use THM\Organizer\Tables\{Curricula as CTable, Pools as Table};
+use THM\Organizer\Tables\Pools as Table;
 
 /**
  * Provides general functions for (subject) pool access checks, data retrieval and display.
@@ -326,11 +326,9 @@ class Pools extends Curricula implements Selectable, Subordinate
         }
 
         self::associate($organizationID, $pool->id);
+        $curriculumID = self::insert($parentID, $pool->id);
 
-        $curriculum = new CTable();
-        self::checkCurriculum($parentID, 'poolID', $pool->id, $curriculum);
-
-        return self::processCollection($subordinates, $organizationID, $curriculum->id, $programCID);
+        return self::processCollection($subordinates, $organizationID, $curriculumID, $programCID);
     }
 
     /**
