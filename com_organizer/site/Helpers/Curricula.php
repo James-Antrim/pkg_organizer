@@ -639,13 +639,13 @@ abstract class Curricula extends Associated implements Documentable, Selectable
                 return false;
             }
 
-            /*if ($type === self::SUBJECT) {
-                if ($subject->subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
+            if ($type === self::SUBJECT) {
+                if (Subjects::subordinate($subOrdinate, $organizationID, $parentID, $programCID)) {
                     continue;
                 }
 
                 return false;
-            }*/
+            }
         }
 
         return true;
