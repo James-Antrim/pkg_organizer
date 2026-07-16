@@ -15,5 +15,5 @@ namespace THM\Organizer\Helpers;
  */
 class Frequencies extends ResourceHelper
 {
-    // Everything taken care of in inheritance hierarchy.
+    public const SEMESTERLY = 3, DEFAULT = self::SEMESTERLY;
 }
