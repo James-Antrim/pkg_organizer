@@ -143,6 +143,28 @@ class Persons extends Scheduled implements Selectable, Viewable
     }
 
     /**
+     * Adds a person entry as necessary based on data from a subject import. Returns the id of the person entry.
+     * @param string $userName
+     * @param string $surnames
+     * @param string $forenames
+     * @param string $titles
+     * @return int
+     */
+    public static function insert(string $userName, string $surnames = '', string $forenames = '', string $titles = ''): int
+    {
+        $person = new Table();
+        if (!$person->load(['username' => $userName])) {
+            $person->forename = $forenames;
+            $person->surname  = $surnames;
+            $person->title    = $titles;
+            $person->username = $userName;
+            $person->store();
+        }
+
+        return $person->id;
+    }
+
+    /**
      * Generates a preformatted person text based upon organizer's internal data
      *
      * @param int  $personID the person's id
