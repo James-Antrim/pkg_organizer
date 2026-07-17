@@ -52,6 +52,18 @@ class Subjects extends Table
     public string|null $code = '';
 
     /**
+     * TEXT
+     * @var string
+     */
+    public string $competences_de = '';
+
+    /**
+     * TEXT
+     * @var string
+     */
+    public string $competences_en = '';
+
+    /**
      * The subject's contents in German.
      * TEXT
      * @var string
@@ -107,20 +119,6 @@ class Subjects extends Table
      * @var int
      */
     public int $expenditure = 0;
-
-    /**
-     * The description for expertise learning objectives in German.
-     * TEXT
-     * @var string
-     */
-    public string $expertise_de = '';
-
-    /**
-     * The description for expertise learning objectives in English.
-     * TEXT
-     * @var string
-     */
-    public string $expertise_en = '';
 
     /**
      * The id of the field entry referenced. Independent of FK cascading, this can legitimately not reference a field.
@@ -191,35 +189,8 @@ class Subjects extends Table
 
     /**
      * The description for procedural learning objectives in German.
-     * TEXT
-     * @var string
-     */
-    public string $methodCompetence_de = '';
-
-    /**
-     * The description for procedural learning objectives in English.
-     * TEXT
-     * @var string
-     */
-    public string $methodCompetence_en = '';
-
-    /**
-     * The subject's objectives in German.
-     * TEXT
-     * @deprecated   replaced by competences
-     * @var string
-     */
-    public string $objective_de = '';
-
-    /**
-     * The subject's objectives in English.
-     * TEXT
-     * @deprecated   replaced by competences
-     * @var string
-     */
-    public string $objective_en = '';
-
-    /**
+     *
+     * /**
      * The subject's required preliminary work in German.
      * TEXT
      * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
@@ -291,34 +262,6 @@ class Subjects extends Table
      * @noinspection PhpPropertyNamingConventionInspection
      */
     public string $recommendedPrerequisites_en = '';
-
-    /**
-     * The description for personal learning objectives in German.
-     * TEXT
-     * @var string
-     */
-    public string $selfCompetence_de = '';
-
-    /**
-     * The description for personal learning objectives in English.
-     * TEXT
-     * @var string
-     */
-    public string $selfCompetence_en = '';
-
-    /**
-     * The description for social learning objectives in German.
-     * TEXT
-     * @var string
-     */
-    public string $socialCompetence_de = '';
-
-    /**
-     * The description for social learning objectives in English.
-     * TEXT
-     * @var string
-     */
-    public string $socialCompetence_en = '';
 
     /**
      * The number of scholastic hours (45 minutes) of this course held per week.
