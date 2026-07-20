@@ -22,16 +22,16 @@ class RoomTypes extends Table
     /**
      * The resource's German description.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_de = '';
+    public string|null $description_de = '';
 
     /**
      * The resource's English description.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_en = '';
+    public string|null $description_en = '';
 
     /**
      * The maximum occupancy for rooms of this type.

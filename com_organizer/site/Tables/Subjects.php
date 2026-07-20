@@ -22,7 +22,6 @@ class Subjects extends Table
     /**
      * The resource's German abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
-     * Status: Unknown
      * @var string
      */
     public string $abbreviation_de = '';
@@ -30,7 +29,6 @@ class Subjects extends Table
     /**
      * The resource's English abbreviation.
      * VARCHAR(25) NOT NULL DEFAULT ''
-     * Status: Unknown
      * @var string
      */
     public string $abbreviation_en = '';
@@ -53,29 +51,29 @@ class Subjects extends Table
 
     /**
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $competences_de = '';
+    public string|null $competences_de = '';
 
     /**
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $competences_en = '';
+    public string|null $competences_en = '';
 
     /**
      * The subject's contents in German.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $content_de = '';
+    public string|null $content_de = '';
 
     /**
      * The subject's contents in English.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $content_en = '';
+    public string|null $content_en = '';
 
     /**
      * The number of credit points (ECTS) rewarded for successful completion of this subject.
@@ -87,17 +85,16 @@ class Subjects extends Table
     /**
      * The resource's German description.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $description_de = '';
+    public string|null $description_de = '';
 
     /**
      * The resource's English description.
      * TEXT
-     * Status: Changed -> maximum length of displayed characters is now 300?
-     * @var string
+     * @var string|null
      */
-    public string $description_en = '';
+    public string|null $description_en = '';
 
     /**
      * The number of terms over which the subject is taught.
@@ -130,7 +127,6 @@ class Subjects extends Table
     /**
      * The id of the frequency entry referenced. Independent of FK cascading, this can legitimately not reference a frequency.
      * INT(1) UNSIGNED DEFAULT NULL
-     * Status: Changed -> tinyint(1) (keep semesterly, yearly and on demand)
      * @var int|null
      */
     public int|null $frequencyID = null;
@@ -159,7 +155,6 @@ class Subjects extends Table
     /**
      * The code for the language of instruction for this course.
      * VARCHAR(2) NOT NULL DEFAULT 'de'
-     * Status: Unknown, are these still sent as codes? are there codes for any other potential languages?
      * @var string
      */
     public string $language = 'de';
@@ -167,25 +162,23 @@ class Subjects extends Table
     /**
      * The recommended literature to accompany this subject.
      * TEXT
-     * @var string
+     * @var string|null
      */
-    public string $literature = '';
+    public string|null $literature = '';
 
     /**
      * The German description for the way in which this subject is taught.
      * TEXT
-     * Status: A whole box of things...
-     * @var string
+     * @var string|null
      */
-    public string $method_de = '';
+    public string|null $method_de = '';
 
     /**
      * The English description for the way in which this subject is taught.
      * TEXT
-     * Status: A whole box of things...
-     * @var string
+     * @var string|null
      */
-    public string $method_en = '';
+    public string|null $method_en = '';
 
     /**
      * The description for procedural learning objectives in German.
@@ -193,34 +186,30 @@ class Subjects extends Table
      * /**
      * The subject's required preliminary work in German.
      * TEXT
-     * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
-     * @var string
+     * @var string|null
      */
-    public string $preliminaryWork_de = '';
+    public string|null $preliminaryWork_de = '';
 
     /**
      * The subject's required preliminary work in English.
      * TEXT
-     * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
-     * @var string
+     * @var string|null
      */
-    public string $preliminaryWork_en = '';
+    public string|null $preliminaryWork_en = '';
 
     /**
      * The textual description of the subject's prerequisites in German.
      * TEXT NOT NULL
-     * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
-     * @var string
+     * @var string|null
      */
-    public string $prerequisites_de = '';
+    public string|null $prerequisites_de = '';
 
     /**
      * The textual description of the subject's prerequisites in English.
      * TEXT
-     * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
-     * @var string
+     * @var string|null
      */
-    public string $prerequisites_en = '';
+    public string|null $prerequisites_en = '';
 
     /**
      * The total number of scholastic hours (45 minutes) present estimated to be necessary for this subject.
@@ -232,41 +221,34 @@ class Subjects extends Table
     /**
      * The description of how credit points are awarded for this subject in German.
      * TEXT
-     * Status: Prüfungsleistung?
-     * @var string
+     * @var string|null
      */
-    public string $proof_de = '';
+    public string|null $proof_de = '';
 
     /**
      * The description of how credit points are awarded for this subject in English.
      * TEXT
-     * Status: Prüfungsleistung?
-     * @var string
+     * @var string|null
      */
-    public string $proof_en = '';
+    public string|null $proof_en = '';
 
     /**
      * The textual description of the subject's recommended prerequisites in German.
      * TEXT
-     * Status: Unknown. Empfohlene Voraussetzungen
-     * @var string
-     * @noinspection PhpPropertyNamingConventionInspection
+     * @var string|null
      */
-    public string $recommendedPrerequisites_de = '';
+    public string|null $recommendedPrerequisites_de = '';
 
     /**
      * The textual description of the subject's recommended prerequisites in English.
      * TEXT
-     * Status: Unknown. Empfohlene Voraussetzungen
-     * @var string
-     * @noinspection PhpPropertyNamingConventionInspection
+     * @var string|null
      */
-    public string $recommendedPrerequisites_en = '';
+    public string|null $recommendedPrerequisites_en = '';
 
     /**
      * The number of scholastic hours (45 minutes) of this course held per week.
      * INT(2) UNSIGNED NOT NULL DEFAULT 0
-     * Status: A whole box of things...
      * @var int
      */
     public int $sws = 0;
