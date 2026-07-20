@@ -328,6 +328,8 @@ class Pools extends Curricula implements Selectable, Subordinate
         self::associate($organizationID, $pool->id);
         $curriculumID = self::insert($parentID, $pool->id);
 
+        $subordinates = is_array($subordinates) ? $subordinates : [$subordinates];
+
         return self::processCollection($subordinates, $organizationID, $curriculumID, $programCID);
     }
 
