@@ -473,8 +473,8 @@ ALTER TABLE `v7ocf_organizer_subjects`
     DROP   COLUMN `socialCompetence`,
     DROP   COLUMN `socialCompetence_de`,
     DROP   COLUMN `socialCompetence_en`,
-    ADD COLUMN `competences_de` TEXT,
-    ADD COLUMN `competences_en` TEXT;
+    ADD COLUMN `competences_de` TEXT AFTER `bonusPoints`,
+    ADD COLUMN `competences_en` TEXT AFTER `competences_de`;
 
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'de' WHERE `language` = 'D';
 UPDATE `v7ocf_organizer_subjects` SET `language` = 'en' WHERE `language` = 'E';
