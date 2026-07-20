@@ -34,9 +34,9 @@ abstract class Table extends Core
     /**
      * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
      *
-     * @param   mixed  $keys     An optional primary key value to load the row by, or an array of fields to match.
+     * @param mixed $keys        An optional primary key value to load the row by, or an array of fields to match.
      *                           If not set the instance property value is used.
-     * @param   bool   $reset    True to reset the default values before loading the new row.
+     * @param bool  $reset       True to reset the default values before loading the new row.
      *
      * @return  bool
      */
@@ -44,8 +44,7 @@ abstract class Table extends Core
     {
         try {
             return parent::load($keys, $reset);
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
@@ -65,7 +64,7 @@ abstract class Table extends Core
     /**
      * Returns an associative array of object properties.
      *
-     * @param   bool  $public
+     * @param bool $public
      *
      * @return  array
      */
@@ -135,8 +134,7 @@ abstract class Table extends Core
                             }
                         }
                     }
-                }
-                catch (Exception $exception) {
+                } catch (Exception $exception) {
                     Application::handleException($exception);
                 }
 
