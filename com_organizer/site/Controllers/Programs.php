@@ -70,8 +70,10 @@ class Programs extends CurriculumResources
             }
 
             $this->farewell($selected, $imported);
+            return;
         }
-        elseif ($programs = $client->program() and $programs = Helper::filterPrograms($programs)) {
+
+        if ($programs = $client->program() and $programs = Helper::filterPrograms($programs)) {
             $selected = count($programs);
             foreach ($programs as $program) {
                 if (Helper::importSingle($program)) {
