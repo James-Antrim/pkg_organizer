@@ -278,6 +278,23 @@ class Subjects extends Curricula implements Subordinate
     }
 
     /**
+     * Retrieves the HISinOne system id of the subject.
+     *
+     * @param int $subjectID
+     *
+     * @return int
+     */
+    public static function HISinOneID(int $subjectID): int
+    {
+        $subject = new Table();
+        if ($subject->load($subjectID)) {
+            return $subject->HISinOneID ?: 0;
+        }
+
+        return 0;
+    }
+
+    /**
      * Resolves the textual representation of the distribution of sws to methods into a normalized database entry based version.
      * @param int    $subjectID
      * @param string $text the text containing method descriptions
