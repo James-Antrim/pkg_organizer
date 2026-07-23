@@ -12,7 +12,7 @@ namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\{Session\Session, Uri\Uri};
-use THM\Organizer\Adapters\{Application, Database as DB, Document, Form, HTML, Input, Text};
+use THM\Organizer\Adapters\{Database as DB, Document, Form, HTML, Input, Text};
 use THM\Organizer\Helpers\Programs;
 
 /** @inheritDoc */
@@ -32,12 +32,12 @@ class Curricula extends ListField
         $resource = $form->view();
 
         $curriculumParameters = [
-            'id'    => $subjectID,
+            'id' => $subjectID,
             'token' => Session::getFormToken(),
-            'type'  => $resource,
+            'type' => $resource,
 
             // Root causes problems with the session in the administrator context.
-            'url'   => Uri::base(),
+            'url' => Uri::base(),
         ];
 
         Document::scriptLocalizations('curriculumParameters', $curriculumParameters);
@@ -45,24 +45,19 @@ class Curricula extends ListField
         Document::script('multiple');
 
         $query = DB::query();
-        $tag   = Application::tag();
-
-        $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "', '", DB::qn('p.accredited'), "')'"];
-
-        $select = ['DISTINCT ' . DB::qn('p.id'), $query->concatenate($parts, '') . ' AS ' . DB::qn('name')];
-        $query->select($select)
+        $query->select(DB::qn(['c.id', 'p.id'], ['curriculumID', 'programID']))
             ->from(DB::qn('#__organizer_programs', 'p'))
-            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
-            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
-            ->order('name ASC');
+            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'));
         DB::set($query);
 
-
-        foreach (DB::arrays() as $program) {
-            if (Programs::documentable($program['id'])) {
-                $options[] = HTML::option($program['id'], $program['name']);
+        foreach (DB::arrays() as $entry) {
+            if (Programs::documentable($entry['programID'])) {
+                $unique           = Programs::name($entry['programID']) . ' (ID: ' . $entry['programID'] . ')';
+                $options[$unique] = HTML::option($entry['programID'], $unique);
             }
         }
+
+        ksort($options);
 
         return $options;
     }

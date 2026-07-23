@@ -141,12 +141,18 @@ class Programs extends Curricula implements Selectable
     public static function fullName(stdClass $program): string
     {
         $fullName = $program->name;
+        $fullName .= " ($program->degree, $program->year)";
+
+        if ($program->minor or $program->focus) {
+            $specifics = [$program->minor, $program->focus];
+            $specifics = array_filter($specifics);
+            $fullName  .= ', ' . implode(', ', $specifics);
+        }
 
         $attRelevant  = ($program->aTypeID and $program->aTypeID != self::ON_CAMPUS);
         $formRelevant = ($program->formID and $program->formID != self::FULLTIME);
-        if ($attRelevant or $formRelevant or $program->degree or $program->year) {
-            $parantheticals   = [$program->degree, $program->year];
-            $parantheticals[] = $attRelevant ? $program->attendanceType : null;
+        if ($attRelevant or $formRelevant) {
+            $parantheticals = $attRelevant ? [$program->attendanceType] : [];
             if ($formRelevant) {
                 // Configured values are redundantly differentiated by the type attribute
                 if (str_contains(strtolower($program->form), 'dual')) {
@@ -158,12 +164,6 @@ class Programs extends Curricula implements Selectable
             }
             $parantheticals = array_filter($parantheticals);
             $fullName       .= ' (' . implode(', ', $parantheticals) . ')';
-        }
-
-        if ($program->minor or $program->focus) {
-            $specifics = [$program->minor, $program->focus];
-            $specifics = array_filter($specifics);
-            $fullName  .= ', ' . implode(', ', $specifics);
         }
 
         return $fullName;
@@ -558,11 +558,11 @@ class Programs extends Curricula implements Selectable
     public static function option(array $range, array $parentIDs, string $type): null|stdClass
     {
         $query = self::query();
-        $query->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $range['programID'], ParameterType::INTEGER);
+        $query->where(DB::qc('p.id', $range['programID']));
         DB::set($query);
 
-        if ($program = DB::array()) {
-            $option           = HTML::option($range['id'], $program['fullName']);
+        if ($program = DB::object()) {
+            $option           = HTML::option($range['id'], self::fullName($program) . ' (ID: ' . $range['programID'] . ')');
             $option->disable  = $type !== 'pool' ? 'disabled' : '';
             $option->selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
             return $option;

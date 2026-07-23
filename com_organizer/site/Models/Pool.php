@@ -25,6 +25,7 @@ class Pool extends EditModel
             $item->superordinates = Helper::superValues($item->id, 'pool');
             $this->item           = $item;
         }
+
         return $item;
     }
 }
