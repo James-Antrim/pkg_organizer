@@ -55,7 +55,7 @@ class Programs extends CurriculumResources
                 }
 
                 if (!$program = $client->program($HISinOneID)) {
-                    Application::message(Text::sprintf('HIO_DATA_INCONSISTENT', $HISinOneID, $programID), Application::WARNING);
+                    Application::message(Text::sprintf('HIO_PROGRAM_DATA_INCONSISTENT', $HISinOneID, $programID), Application::WARNING);
                     continue;
                 }
 

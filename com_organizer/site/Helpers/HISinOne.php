@@ -84,7 +84,8 @@ class HISinOne
     public function subject(int $HISinOneID): stdClass|false
     {
         try {
-            return $this->client->__soapCall('getModule', ['moduleId' => $HISinOneID]);
+            /** @noinspection PhpUndefinedMethodInspection */
+            return $this->client->getModule(['moduleId' => $HISinOneID]);
         } catch (SoapFault $fault) {
             $this->soapFault($fault);
         }
