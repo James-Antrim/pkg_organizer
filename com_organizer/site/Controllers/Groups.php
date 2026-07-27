@@ -31,7 +31,7 @@ class Groups extends ListController
         $this->authorize();
 
         if (!$groupIDs = Input::selectedIDs()) {
-            Application::message('NO_SELECTION', Application::WARNING);
+            Application::message('LIST_SELECTION_WARNING', Application::WARNING);
 
             return;
         }
@@ -95,7 +95,7 @@ class Groups extends ListController
         $this->authorize();
 
         if (!$groupIDs = Input::selectedIDs()) {
-            Application::message('NO_SELECTION', Application::WARNING);
+            Application::message('LIST_SELECTION_WARNING', Application::WARNING);
 
             return;
         }

@@ -64,7 +64,7 @@ abstract class CurriculumResources extends ListController
         $this->authorize();
 
         if (!$selectedIDs = Input::selectedIDs()) {
-            Application::message('NO_SELECTION', Application::WARNING);
+            Application::message('LIST_SELECTION_WARNING', Application::WARNING);
 
             return;
         }
