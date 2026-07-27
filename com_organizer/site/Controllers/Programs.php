@@ -11,36 +11,24 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input, Text};
-use THM\Organizer\Helpers\{Can, HISinOne, Programs as Helper};
+use THM\Organizer\Helpers\{HISinOne, Programs as Helper};
 
 /** @inheritDoc */
 class Programs extends CurriculumResources
 {
     use Activated;
 
-    /** @inheritDoc */
+    /**
+     * Imports programs from HISinOne.
+     * @return void
+     */
     public function import(): void
     {
-        $this->checkToken();
+        $this->authorizeImport();
 
-        $authorized  = false;
+        $client      = new HISinOne();
+        $imported    = 0;
         $selectedIDs = Input::selectedIDs();
-        if (Can::administrate()) {
-            $authorized = true;
-        }
-        elseif ($selectedIDs) {
-            $authorizedIDs = Helper::documentableIDs();
-            if (!array_diff($selectedIDs, $authorizedIDs)) {
-                $authorized = true;
-            }
-        }
-
-        if (!$authorized) {
-            Application::message('403', Application::ERROR);
-        }
-
-        $client   = new HISinOne();
-        $imported = 0;
 
         if ($selected = count($selectedIDs)) {
             if ($selected > 4) {

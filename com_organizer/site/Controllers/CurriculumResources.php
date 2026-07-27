@@ -29,6 +29,33 @@ abstract class CurriculumResources extends ListController
         }
     }
 
+    /**
+     * Authorizes the import of specific curriculum resources.
+     * @return void
+     */
+    protected function authorizeImport(): void
+    {
+        $this->checkToken();
+
+        $authorized  = false;
+        $selectedIDs = Input::selectedIDs();
+        if (Can::administrate()) {
+            $authorized = true;
+        }
+        elseif ($selectedIDs) {
+            /** @var Documentable $helper */
+            $helper        = "THM\\Organizer\\Helpers\\" . Application::uqClass($this);
+            $authorizedIDs = $helper::documentableIDs();
+            if (!array_diff($selectedIDs, $authorizedIDs)) {
+                $authorized = true;
+            }
+        }
+
+        if (!$authorized) {
+            Application::error('403', Application::ERROR);
+        }
+    }
+
     /** @inheritDoc */
     public function delete(): void
     {
@@ -42,7 +69,7 @@ abstract class CurriculumResources extends ListController
         }
 
         /** @var Documentable $helper */
-        $helper     = "THM\\Organizer\\Helpers\\" . Application::uqClass(get_called_class());
+        $helper     = "THM\\Organizer\\Helpers\\" . Application::uqClass($this);
         $controller = "THM\\Organizer\\Controllers\\" . $this->item;
         $deleted    = 0;
         $selected   = count($selectedIDs);
@@ -60,52 +87,5 @@ abstract class CurriculumResources extends ListController
         }
 
         $this->farewell($selected, $deleted, true);
-    }
-
-    /**
-     * Method to import data associated with selected curriculum resources.
-     * @return void
-     */
-    public function import(): void
-    {
-        $resources = Application::uqClass($this);
-        if ($resources === 'Pools') {
-            Application::error(501);
-        }
-
-        $this->checkToken();
-        $this->authorize();
-
-        $controller = "THM\\Organizer\\Controllers\\" . $this->item;
-        /** @var CurriculumResource $controller */
-        $controller = new $controller();
-        /** @var Documentable $helper */
-        $helper = "THM\\Organizer\\Helpers\\$resources";
-
-        if ($selectedIDs = Input::selectedIDs()) {
-            $imported = 0;
-            $selected = count($selectedIDs);
-
-            foreach ($selectedIDs as $selectedID) {
-                if (!$helper::documentable($selectedID)) {
-                    Application::message('403', Application::ERROR);
-                    break;
-                }
-
-                if ($controller->import($selectedID)) {
-                    $imported++;
-                }
-            }
-
-            $this->farewell($selected, $imported);
-        }
-
-        if ($resources === 'Subjects' or !$helper::documentable(0)) {
-            Application::message('NO_SELECTION', Application::WARNING);
-            $this->farewell();
-        }
-
-        $controller->import();
-        $this->farewell();
     }
 }
