@@ -30,7 +30,7 @@ class Subjects extends CurriculumResources
         $selectedIDs = Input::selectedIDs();
 
         if ($selected = count($selectedIDs)) {
-            if ($selected > 300) {
+            if ($selected > 1000) {
                 Application::message('SUBJECTS_TOO_MANY_TO_IMPORT', Application::WARNING);
                 $this->farewell($selected);
             }

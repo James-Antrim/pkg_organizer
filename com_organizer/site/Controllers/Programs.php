@@ -11,7 +11,8 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Input, Text};
-use THM\Organizer\Helpers\{HISinOne, Programs as Helper};
+use THM\Organizer\Helpers\{HISinOne, Programs as Helper, Subjects as SHelper};
+use THM\Organizer\Tables\Subjects as STable;
 
 /** @inheritDoc */
 class Programs extends CurriculumResources
@@ -103,31 +104,52 @@ class Programs extends CurriculumResources
      */
     public function update(): void
     {
-        $this->checkToken();
-        $this->authorize();
+        $this->authorizeImport();
 
-        if (!$selectedIDs = Input::selectedIDs()) {
-            Application::message('NO_SELECTION', Application::WARNING);
+        $client   = new HISinOne();
+        $imported = 0;
 
-            $this->farewell();
-        }
-
-        $subject = new Subject();
-        $updated = 0;
-
-        foreach ($selectedIDs as $programID) {
-            if (!Helper::documentable($programID)) {
-                Application::message('403', Application::ERROR);
-                break;
+        $selectedIDs = Input::selectedIDs();
+        if ($selected = count($selectedIDs)) {
+            if ($selected > 4) {
+                Application::message('PROGRAMS_TOO_MANY_TO_IMPORT', Application::WARNING);
+                $this->farewell($selected);
             }
 
-            foreach ($this->subjectIDs($programID) as $subjectID) {
-                if ($subject->import($subjectID)) {
-                    $updated++;
+            $selected = 0;
+            foreach ($selectedIDs as $programID) {
+                foreach ($this->subjectIDs($programID) as $subjectID) {
+                    $selected++;
+                    if (!$HISinOneID = SHelper::HISinOneID($subjectID)) {
+                        Application::message('HIO_DATA_MISSING', Application::WARNING);
+                        continue;
+                    }
+
+                    if (!$response = $client->subject($HISinOneID)) {
+                        Application::message(Text::sprintf('HIO_SUBJECT_DATA_INCONSISTENT', $HISinOneID, $subjectID), Application::WARNING);
+                        continue;
+                    }
+
+                    if (!$response = $response->module_out ?? false or !SHelper::validateResponse($response)) {
+                        Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
+                        continue;
+                    }
+
+                    $subject = new STable();
+                    $subject->load($subjectID);
+
+                    if (SHelper::importSingle($subject, $response)) {
+                        $imported++;
+                    }
                 }
             }
+
+            $this->farewell($selected, $imported);
+            return;
         }
 
-        $this->farewell(0, $updated);
+        Application::message('LIST_SELECTION_WARNING', Application::NOTICE);
+        $this->farewell();
+
     }
 }
