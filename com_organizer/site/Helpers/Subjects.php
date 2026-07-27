@@ -294,6 +294,67 @@ class Subjects extends Curricula implements Subordinate
         return 0;
     }
 
+    public static function importSingle(Table $subject, stdClass $response): bool
+    {
+        $duration = (string) $response->modulDetails->Moduldauer->de ?? '';
+
+        $subject->code        = $response->Modulcode;
+        $subject->duration    = (int) preg_match('/\d+/', $duration, $matches) ? $matches[0] : 1;
+        $subject->expiration  = $response->Gueltig_bis ?? date('Y-m-d', strtotime('+50 years'));
+        $subject->fullName_de = $response->Titel->de ?? '';
+        $subject->fullName_en = $response->Titel->en ?? $subject->fullName_de;
+        $subject->HISinOneID  = (int) $response->ElementId;
+        $subject->language    = $response->Sprache ?? 'de';
+
+        foreach ($response->modulDetails as $attribute => $localizations) {
+            if (empty($localizations) or $attribute === 'Lehrende') {
+                continue;
+            }
+            foreach ($localizations as $key => $localization) {
+                $response->modulDetails->$attribute->$key = self::sanitizeText((string) $localization);
+            }
+        }
+
+        // todo aliases
+        $subject->bonusPoints                 = self::bonusPoints($response->modulDetails->Bonuspunkte->de ?? '');
+        $subject->competences_de              = (string) $response->modulDetails->Kompetenzen->de ?? '';
+        $subject->competences_en              = (string) $response->modulDetails->Kompetenzen->en ?? '';
+        $subject->content_de                  = (string) $response->modulDetails->Inhalte->de ?? '';
+        $subject->content_en                  = (string) $response->modulDetails->Inhalte->en ?? '';
+        $subject->description_de              = (string) $response->modulDetails->Kurzbescheibung->de ?? '';
+        $subject->description_en              = (string) $response->modulDetails->Kurzbescheibung->en ?? '';
+        $subject->evaluated                   = ($value = (string) $response->modulDetails->Benotung->de ?? '' and str_contains(strtolower($value), 'unbenotet')) ? 0 : 1;
+        $subject->frequencyID                 = self::resolveFrequency($response->modulDetails->Häufigkeit_des_Modulangebots->de);
+        $subject->literature                  = (string) $response->modulDetails->Literatur->de ?? '';
+        $subject->method_de                   = (string) $response->modulDetails->Lehrformen->de ?? '';
+        $subject->method_en                   = (string) $response->modulDetails->Lehrformen->en ?? '';
+        $subject->preliminaryWork_de          = (string) $response->modulDetails->Prüfungsvorleistungen->de ?? '';
+        $subject->preliminaryWork_en          = (string) $response->modulDetails->Prüfungsvorleistungen->en ?? '';
+        $subject->proof_de                    = (string) $response->modulDetails->Prüfungsleistungen->de ?? '';
+        $subject->proof_en                    = (string) $response->modulDetails->Prüfungsleistungen->en ?? '';
+        $subject->recommendedPrerequisites_de = (string) $response->modulDetails->Empfohlene_Voraussetzungen->de ?? '';
+        $subject->recommendedPrerequisites_en = (string) $response->modulDetails->Empfohlene_Voraussetzungen->en ?? '';
+        self::calculated($response, $subject);
+
+        $coordinators = []; //$resource->modulDetails-><Something>->de => <Comma-Separated List of Teachers (Full Name with preceding Title)
+        $teachers     = []; //$resource->modulDetails->Lehrende->de => <Comma-Separated List of Teachers (Full Name with preceding Title)
+        //$subject->prerequisites_de = $resource->modulDetails-><Something>->de ?? '';
+        //$subject->prerequisites_en = $resource->modulDetails-><Something>->en ?? '';
+
+        if (!$subject->store()) {
+            /** @noinspection PhpDeprecationInspection Error reporting is wildly inconsistent. This allows picking up Windows encoding errors until J6. */
+            Application::message($subject->getError(), Application::ERROR);
+
+            return false;
+        }
+
+        self::assignments($subject->id, $coordinators, $teachers);
+        self::dependencies($subject);
+        self::methods($subject->id, $subject->method_de, $subject->sws);
+
+        return true;
+    }
+
     /**
      * Resolves the textual representation of the distribution of sws to methods into a normalized database entry based version.
      * @param int    $subjectID
@@ -968,72 +1029,19 @@ class Subjects extends Curricula implements Subordinate
     /** @inheritDoc */
     public static function subordinate(stdClass $resource, int $organizationID, int $parentID, int $programCID): bool
     {
-        $code       = $resource->Modulcode;
-        $HISinOneID = (int) $resource->ElementId ?? 0;
-        $nameDE     = $resource->Titel->de ?? '';
-        if (!$code or !$HISinOneID or !$nameDE) {
+        if (!self::validateResponse($resource)) {
             Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
             return false;
         }
 
-        $subject  = self::resolve($HISinOneID, $code, $programCID);
-        $duration = (string) $resource->modulDetails->Moduldauer->de ?? '';
+        $subject = self::resolve((int) $resource->ElementId, $resource->Modulcode, $programCID);
 
-        // todo aliases
-        $subject->duration    = (int) preg_match('/\d+/', $duration, $matches) ? $matches[0] : 1;
-        $subject->code        = $code;
-        $subject->fullName_de = $nameDE;
-        $subject->fullName_en = $resource->Titel->en ?? $nameDE;
-        $subject->expiration  = $resource->Gueltig_bis ?? date('Y-m-d', strtotime('+50 years'));
-        $subject->HISinOneID  = $HISinOneID;
-        $subject->language    = $resource->Sprache ?? 'de';
-
-        foreach ($resource->modulDetails as $attribute => $localizations) {
-            if (empty($localizations) or $attribute === 'Lehrende') {
-                continue;
-            }
-            foreach ($localizations as $key => $localization) {
-                $resource->modulDetails->$attribute->$key = self::sanitizeText((string) $localization);
-            }
-        }
-
-        $subject->bonusPoints                 = self::bonusPoints($resource->modulDetails->Bonuspunkte->de ?? '');
-        $subject->competences_de              = (string) $resource->modulDetails->Kompetenzen->de ?? '';
-        $subject->competences_en              = (string) $resource->modulDetails->Kompetenzen->en ?? '';
-        $subject->content_de                  = (string) $resource->modulDetails->Inhalte->de ?? '';
-        $subject->content_en                  = (string) $resource->modulDetails->Inhalte->en ?? '';
-        $subject->description_de              = (string) $resource->modulDetails->Kurzbescheibung->de ?? '';
-        $subject->description_en              = (string) $resource->modulDetails->Kurzbescheibung->en ?? '';
-        $subject->evaluated                   = ($value = (string) $resource->modulDetails->Benotung->de ?? '' and str_contains(strtolower($value), 'unbenotet')) ? 0 : 1;
-        $subject->frequencyID                 = self::resolveFrequency($resource->modulDetails->Häufigkeit_des_Modulangebots->de);
-        $subject->literature                  = (string) $resource->modulDetails->Literatur->de ?? '';
-        $subject->method_de                   = (string) $resource->modulDetails->Lehrformen->de ?? '';
-        $subject->method_en                   = (string) $resource->modulDetails->Lehrformen->en ?? '';
-        $subject->preliminaryWork_de          = (string) $resource->modulDetails->Prüfungsvorleistungen->de ?? '';
-        $subject->preliminaryWork_en          = (string) $resource->modulDetails->Prüfungsvorleistungen->en ?? '';
-        $subject->proof_de                    = (string) $resource->modulDetails->Prüfungsleistungen->de ?? '';
-        $subject->proof_en                    = (string) $resource->modulDetails->Prüfungsleistungen->en ?? '';
-        $subject->recommendedPrerequisites_de = (string) $resource->modulDetails->Empfohlene_Voraussetzungen->de ?? '';
-        $subject->recommendedPrerequisites_en = (string) $resource->modulDetails->Empfohlene_Voraussetzungen->en ?? '';
-        self::calculated($resource, $subject);
-
-        $coordinators = []; //$resource->modulDetails-><Something>->de => <Comma-Separated List of Teachers (Full Name with preceding Title)
-        $teachers     = []; //$resource->modulDetails->Lehrende->de => <Comma-Separated List of Teachers (Full Name with preceding Title)
-        //$subject->prerequisites_de = $resource->modulDetails-><Something>->de ?? '';
-        //$subject->prerequisites_en = $resource->modulDetails-><Something>->en ?? '';
-
-        if (!$subject->store()) {
-            /** @noinspection PhpDeprecationInspection Error reporting is wildly inconsistent. This allows picking up Windows encoding errors until J6. */
-            Application::message($subject->getError(), Application::ERROR);
-
+        if (!self::importSingle($subject, $resource)) {
             return false;
         }
 
-        self::assignments($subject->id, $coordinators, $teachers);
         self::associate($organizationID, $subject->id);
-        self::dependencies($subject);
         self::insert($parentID, $subject->id);
-        self::methods($subject->id, $subject->method_de, $subject->sws);
 
         return true;
     }
@@ -1080,6 +1088,19 @@ class Subjects extends Curricula implements Subordinate
         $query = DB::query()->delete(DB::qn('#__organizer_subject_persons'))->where(DB::qc('subjectID', $subjectID));
         DB::set($query);
         return DB::execute();
+    }
+
+    /**
+     * Validates the HISinOne response for critical information.
+     * @param stdClass $response
+     * @return bool
+     */
+    public static function validateResponse(stdClass $response): bool
+    {
+        if (empty($response->Modulcode) or empty($response->ElementId) or empty($response->Titel->de)) {
+            return false;
+        }
+        return true;
     }
 
     /**
