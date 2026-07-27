@@ -35,14 +35,15 @@ abstract class CurriculumResources extends ListController
      */
     protected function authorizeImport(): void
     {
+        if (Can::administrate()) {
+            return;
+        }
+
         $this->checkToken();
 
         $authorized  = false;
         $selectedIDs = Input::selectedIDs();
-        if (Can::administrate()) {
-            $authorized = true;
-        }
-        elseif ($selectedIDs) {
+        if ($selectedIDs) {
             /** @var Documentable $helper */
             $helper        = "THM\\Organizer\\Helpers\\" . Application::uqClass($this);
             $authorizedIDs = $helper::documentableIDs();
