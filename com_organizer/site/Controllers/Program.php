@@ -73,30 +73,30 @@ class Program extends CurriculumResource
     }
 
     /** @inheritDoc */
-    protected function import(int $resourceID = 0): bool
+    protected function import(int $resourceID = 0): void
     {
         if (!$resourceID) {
-            return false;
+            return;
         }
 
         $client = new HISinOne();
 
         if (!$HISinOneID = Helper::HISinOneID($resourceID)) {
             Application::message('HIO_DATA_MISSING', Application::WARNING);
-            return false;
+            return;
         }
 
         if (!$program = $client->program($HISinOneID)) {
             Application::message(Text::sprintf('HIO_PROGRAM_DATA_INCONSISTENT', $HISinOneID, $resourceID), Application::WARNING);
-            return false;
+            return;
         }
 
         if (!$program = Helper::filterPrograms($program)) {
             Application::message('HIO_STRUCTURE_INVALID', Application::ERROR);
-            return false;
+            return;
         }
 
-        return Helper::importSingle($program);
+        Helper::importSingle($program);
     }
 
     /** @inheritDoc */
@@ -121,10 +121,10 @@ class Program extends CurriculumResource
     public function postProcess(): void
     {
         $range = [
-            'parentID' => null,
-            'programID' => $this->data['id'],
+            'parentID'   => null,
+            'programID'  => $this->data['id'],
             'curriculum' => $this->data['subordinates'],
-            'ordering' => 0
+            'ordering'   => 0
         ];
 
         if (!Helper::addRange($range)) {

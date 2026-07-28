@@ -75,9 +75,9 @@ abstract class CurriculumResource extends FormController
      *
      * @param int $resourceID the id of the program to be imported
      *
-     * @return bool|int
+     * @return void
      */
-    abstract protected function import(int $resourceID = 0): bool|int;
+    abstract protected function import(int $resourceID = 0): void;
 
     /** @inheritDoc */
     public function process(): int
