@@ -170,7 +170,7 @@ class Course extends EditModel
             ->from(DB::qn('#__organizer_events', 'e'))
             ->innerJoin(DB::qn('#__organizer_instances', 'i'), DB::qc('i.eventID', 'e.id'))
             ->innerJoin(DB::qn('#__organizer_units', 'u'), DB::qc('u.id', 'i.unitID'))
-            ->where(DB::qn('u.courseID') . ' = :courseID')->bind(':courseID', $courseID, ParameterType::INTEGER)
+            ->where(DB::qcs([['u.courseID', $courseID], ['i.delta', 'removed', '!=', true]]))
             ->order(DB::qn('name'));
         DB::set($query);
 
