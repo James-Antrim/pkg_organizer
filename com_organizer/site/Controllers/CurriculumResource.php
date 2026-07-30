@@ -32,7 +32,7 @@ abstract class CurriculumResource extends FormController
 
         $id = $this->process();
         $this->import($id);
-        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id");
+        $this->setRedirect("$this->baseURL&view=" . strtolower($this->name) . "&id=$id&layout=edit");
     }
 
     /** @inheritDoc */
