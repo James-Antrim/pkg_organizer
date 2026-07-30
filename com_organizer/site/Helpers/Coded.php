@@ -22,7 +22,7 @@ trait Coded
      * @param string     $name  the name corresponding to the value in the program mapping
      * @return int|string|null
      */
-    public static function code(int|string $value, string $name): int|null|string
+    public static function code(int|string $value, string $name = ''): int|null|string
     {
         $table = self::table();
 
