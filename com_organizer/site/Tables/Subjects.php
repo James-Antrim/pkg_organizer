@@ -181,9 +181,6 @@ class Subjects extends Table
     public string|null $method_en = '';
 
     /**
-     * The description for procedural learning objectives in German.
-     *
-     * /**
      * The subject's required preliminary work in German.
      * TEXT
      * @var string|null
@@ -265,18 +262,12 @@ class Subjects extends Table
     /** @inheritDoc */
     public function check(): bool
     {
-        $nullColumns = ['alias', 'fieldID', 'frequencyID', 'lsfID'];
+        $nullColumns = ['alias', 'fieldID', 'frequencyID', 'HISinOneID'];
 
         foreach ($nullColumns as $nullColumn) {
             if (!$this->$nullColumn) {
                 $this->$nullColumn = null;
             }
-        }
-
-        $replacedFields = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
-
-        foreach ($replacedFields as $replacedField) {
-            $this->$replacedField = null;
         }
 
         return true;

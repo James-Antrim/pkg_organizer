@@ -207,24 +207,8 @@ class Subject extends EditModel
                     $model[Text::_('CONTENT')] = $item->{"content_$tag"};
                 }
 
-                if ($item->{"objective_$tag"}) {
-                    $model[Text::_('OBJECTIVES')] = $item->{"objective_$tag"};
-                }
-
-                if ($item->{"expertise_$tag"}) {
-                    $model[Text::_('EXPERTISE')] = $item->{"expertise_$tag"};
-                }
-
-                if ($item->{"methodCompetence_$tag"}) {
-                    $model[Text::_('METHOD_COMPETENCE')] = $item->{"methodCompetence_$tag"};
-                }
-
-                if ($item->{"socialCompetence_$tag"}) {
-                    $model[Text::_('SOCIAL_COMPETENCE')] = $item->{"socialCompetence_$tag"};
-                }
-
-                if ($item->{"selfCompetence_$tag"}) {
-                    $model[Text::_('SELF_COMPETENCE')] = $item->{"selfCompetence_$tag"};
+                if ($item->{"competences_$tag"}) {
+                    $model[Text::_('COMPETENCES')] = $item->{"competences_$tag"};
                 }
 
                 if ($item->creditPoints) {

@@ -1833,12 +1833,12 @@ class Search extends ListModel
         }
 
         $textColumns = [
+            's.competences_de',
+            's.competences_en',
             's.content_de',
             's.content_en',
             's.description_de',
-            's.description_en',
-            's.objective_de',
-            's.objective_en'
+            's.description_en'
         ];
 
         $wherray = [];
