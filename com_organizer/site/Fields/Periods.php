@@ -14,7 +14,7 @@ namespace THM\Organizer\Fields;
  * Class loads multiple/repeatable grid blocks from database and make it possible to advance them.
  * This needs an own form field to load the values, maybe because the periods are saved as json string.
  */
-class Periods extends SubFormField
+class Periods extends SubForm
 {
     /**
      * Method to get the multiple field input of the loaded grids periods
