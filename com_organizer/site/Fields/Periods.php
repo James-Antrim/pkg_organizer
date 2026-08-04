@@ -10,15 +10,11 @@
 
 namespace THM\Organizer\Fields;
 
-use Joomla\CMS\Form\{Field\SubformField, FormHelper};
-
-FormHelper::loadFieldClass('subform');
-
 /**
  * Class loads multiple/repeatable grid blocks from database and make it possible to advance them.
  * This needs an own form field to load the values, maybe because the periods are saved as json string.
  */
-class Periods extends SubformField
+class Periods extends SubFormField
 {
     /**
      * Method to get the multiple field input of the loaded grids periods
