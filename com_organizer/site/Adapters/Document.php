@@ -37,6 +37,18 @@ class Document
     }
 
     /**
+     * Wrapper for document addStyleDeclaration using the function name from the WAM permanently replacing it in 7.0.
+     *
+     * @param string $style the style declaration
+     *
+     * @return void
+     */
+    public static function inlineStyle(string $style = ''): void
+    {
+        self::webAssetManager()->addInlineStyle($style);
+    }
+
+    /**
      * Sets the document MIME encoding that is sent to the browser.
      *
      * @param string  $type The document type to be sent
