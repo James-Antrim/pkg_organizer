@@ -108,7 +108,7 @@ class Subjects extends ListModel
             's.fullName_en',
             's.abbreviation_en',
             's.code',
-            's.lsfID'
+            's.HISinOneID'
         ];
 
         if (Application::backend()) {

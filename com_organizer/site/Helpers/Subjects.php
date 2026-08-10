@@ -350,50 +350,17 @@ class Subjects extends Curricula implements Subordinate
 
         self::assignments($subject->id, $coordinators, $teachers);
         self::dependencies($subject);
-        self::methods($subject->id, $subject->method_de, $subject->sws);
+        self::resolveMethods($subject->id, $subject->method_de, $subject->sws);
 
         return true;
     }
 
-    /**
-     * Resolves the textual representation of the distribution of sws to methods into a normalized database entry based version.
-     * @param int    $subjectID
-     * @param string $text the text containing method descriptions
-     * @param int    $sws  the summary sws for the subject
-     * @return void
-     */
-    private static function methods(int $subjectID, string $text, int $sws): void
+    public static function methods(int $subjectID): array
     {
-        if (preg_match_all('/(\d+) sws ([\p{L}\/ ]+)/iu', $text, $matches)) {
-            self::removeMethods($subjectID);
-            foreach (self::resolveMethods($matches[2]) as $index => $methodID) {
-                $subjectMethod            = new SubjectMethods();
-                $subjectMethod->methodID  = $methodID;
-                $subjectMethod->subjectID = $subjectID;
-                $subjectMethod->sws       = $matches[1][$index];
-                $subjectMethod->store();
-            }
-        }
-        if (preg_match_all('/([\p{L}\/ ]+) (\d+) sws/iu', $text, $matches)) {
-            self::removeMethods($subjectID);
-            foreach (self::resolveMethods($matches[1]) as $index => $methodID) {
-                $subjectMethod            = new SubjectMethods();
-                $subjectMethod->methodID  = $methodID;
-                $subjectMethod->subjectID = $subjectID;
-                $subjectMethod->sws       = $matches[2][$index];
-                $subjectMethod->store();
-            }
-        }
-        if (preg_match_all('/([\p{L}\/ ]+)/iu', $text, $matches)) {
-            self::removeMethods($subjectID);
-            foreach (self::resolveMethods([$text]) as $methodID) {
-                $subjectMethod            = new SubjectMethods();
-                $subjectMethod->methodID  = $methodID;
-                $subjectMethod->subjectID = $subjectID;
-                $subjectMethod->sws       = $sws;
-                $subjectMethod->store();
-            }
-        }
+        $query = DB::query();
+        $query->select('*')->from(DB::qn('#__organizer_subject_methods'))->where(DB::qc('subjectID', $subjectID));
+        DB::set($query);
+        return DB::arrays();
     }
 
     /**
@@ -522,14 +489,14 @@ class Subjects extends Curricula implements Subordinate
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
-            'bgColor' => Fields::color($fieldID, $organizationID),
+            'bgColor'      => Fields::color($fieldID, $organizationID),
             'creditPoints' => $table->creditPoints,
-            'eventID' => $eventID,
-            'field' => $fieldID ? Fields::name($fieldID) : '',
-            'fieldID' => $table->fieldID,
-            'id' => $table->id,
-            'moduleNo' => $table->code,
-            'name' => $table->{"fullName_$tag"}
+            'eventID'      => $eventID,
+            'field'        => $fieldID ? Fields::name($fieldID) : '',
+            'fieldID'      => $table->fieldID,
+            'id'           => $table->id,
+            'moduleNo'     => $table->code,
+            'name'         => $table->{"fullName_$tag"}
         ];
     }
 
@@ -649,7 +616,7 @@ class Subjects extends Curricula implements Subordinate
 
                 if (empty($values[$value])) {
                     $values[$value] = [
-                        'text' => $text,
+                        'text'     => $text,
                         'programs' => [$pRange['programID'] => $pName]
                     ];
                 }
@@ -819,23 +786,68 @@ class Subjects extends Curricula implements Subordinate
     }
 
     /**
-     * Resolves the parsed methods to their ids in the database.
-     * @param $methods
-     * @return array
+     * Resolves the textual representation of the distribution of sws to methods into a normalized database entry based version.
+     * @param int    $subjectID
+     * @param string $text the text containing method descriptions
+     * @param int    $sws  the summary sws for the subject
+     * @return void
      */
-    private static function resolveMethods($methods): array
+    private static function resolveMethods(int $subjectID, string $text, int $sws): void
     {
-        $query = DB::query();
+        $methods = [];
+        $query   = DB::query();
         $query->select(DB::qn('id'))
             ->from(DB::qn('#__organizer_methods'))
             ->where(DB::qc('name_de', ':method', 'LIKE'))
             ->bind(':method', $method);
-        foreach ($methods as $index => $method) {
-            DB::set($query);
-            $methods[$index] = DB::integer();
+
+        if (preg_match_all('/(\d+) sws ([\p{L}\/ ]+)/iu', $text, $matches)) {
+            self::removeMethods($subjectID);
+            foreach ($matches[2] as $index => $method) {
+                DB::set($query);
+                $methods[$index] = DB::integer();
+            }
+            array_filter($methods);
+            foreach ($methods as $index => $methodID) {
+                $subjectMethod            = new SubjectMethods();
+                $subjectMethod->methodID  = $methodID;
+                $subjectMethod->subjectID = $subjectID;
+                $subjectMethod->sws       = $matches[1][$index];
+                $subjectMethod->store();
+            }
+            return;
         }
 
-        return array_filter($methods);
+        if (preg_match_all('/([\p{L}\/ ]+) (\d+) sws/iu', $text, $matches)) {
+            self::removeMethods($subjectID);
+            foreach ($matches[1] as $index => $method) {
+                DB::set($query);
+                $methods[$index] = DB::integer();
+            }
+            array_filter($methods);
+            foreach ($methods as $index => $methodID) {
+                $subjectMethod            = new SubjectMethods();
+                $subjectMethod->methodID  = $methodID;
+                $subjectMethod->subjectID = $subjectID;
+                $subjectMethod->sws       = $matches[2][$index];
+                $subjectMethod->store();
+            }
+        }
+
+        if (preg_match_all('/([\p{L}\/ ]+)/iu', $text, $matches)) {
+            self::removeMethods($subjectID);
+            $method = $text;
+            DB::set($query);
+            $methods[] = DB::integer();
+            array_filter($methods);
+            foreach ($methods as $methodID) {
+                $subjectMethod            = new SubjectMethods();
+                $subjectMethod->methodID  = $methodID;
+                $subjectMethod->subjectID = $subjectID;
+                $subjectMethod->sws       = $sws;
+                $subjectMethod->store();
+            }
+        }
     }
 
     /** @inheritDoc */
