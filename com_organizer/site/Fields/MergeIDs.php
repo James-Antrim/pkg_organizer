@@ -21,10 +21,7 @@ class MergeIDs extends FormField
 {
     use Translated;
 
-    /**
-     * Method to get the field input markup for a generic list.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $selectedIDs = Input::selectedIDs();

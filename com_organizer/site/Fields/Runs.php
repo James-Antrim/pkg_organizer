@@ -16,10 +16,7 @@ namespace THM\Organizer\Fields;
  */
 class Runs extends SubForm
 {
-    /**
-     * Method to get the multiple field input of the loaded Runs Section
-     * @return string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $this->value = $this->value['runs'] ?? [];

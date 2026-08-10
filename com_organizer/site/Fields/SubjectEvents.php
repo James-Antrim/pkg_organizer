@@ -21,10 +21,7 @@ class SubjectEvents extends FormField
 {
     use Translated;
 
-    /**
-     * Returns a select box where stored pool can be chosen as a parent node
-     * @return string  the HTML output
-     */
+    /** @inheritDoc */
     public function getInput(): string
     {
         $query     = Database::query();

@@ -22,10 +22,7 @@ class TermPublishing extends FormField
 {
     use Translated;
 
-    /**
-     * Returns a select box where resource attributes can be selected
-     * @return string  the HTML select box
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $input      = '';

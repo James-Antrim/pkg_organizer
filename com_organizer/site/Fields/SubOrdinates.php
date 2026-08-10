@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Fields;
 
-use Exception;
 use Joomla\CMS\Form\FormField;
 use Joomla\Database\ParameterType;
 use THM\Organizer\Adapters\{Database as DB, Document, Input, Text};
@@ -24,9 +23,9 @@ class SubOrdinates extends FormField
     /**
      * Creates a button template for a given function.
      *
-     * @param   string  $function  the name of the javascript function to call on click
-     * @param   string  $icon      the class name of the icon to be displayed in the button
-     * @param   string  $toolTip   the tooltip for the button
+     * @param string $function the name of the javascript function to call on click
+     * @param string $icon     the class name of the icon to be displayed in the button
+     * @param string $toolTip  the tooltip for the button
      *
      * @return string the HTML of the button to be displayed
      */
@@ -40,11 +39,7 @@ class SubOrdinates extends FormField
         return "<button $class $onClick $tip $type>$icon</button>";
     }
 
-    /**
-     * Generates a text for the management of subordinate elements
-     * @return string  the HTML for the input
-     * @throws Exception
-     */
+    /** @inheritDoc */
     public function getInput(): string
     {
         Document::script('subordinates');

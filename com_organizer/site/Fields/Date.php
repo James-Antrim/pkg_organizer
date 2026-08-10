@@ -18,10 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Date extends FormField
 {
-    /**
-     * Method to get the field input markup.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $empty    = $this->getAttribute('empty', 'true');

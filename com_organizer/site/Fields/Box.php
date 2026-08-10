@@ -22,10 +22,7 @@ class Box extends FormField
 
     protected int $maxLength;
 
-    /**
-     * Method to get the field input markup.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         if ($this->hint and $hint = trim($this->hint)) {

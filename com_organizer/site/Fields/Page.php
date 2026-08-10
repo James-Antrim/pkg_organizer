@@ -20,10 +20,7 @@ class Page extends FormField
 {
     use Translated;
 
-    /**
-     * Method to get the field input markup for a generic list.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $context   = 'com_organizer.instances';

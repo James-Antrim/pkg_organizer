@@ -20,10 +20,7 @@ class Time extends FormField
 {
     use Translated;
 
-    /**
-     * Method to get the field input markup.
-     * @return  string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $onchange = $this->getAttribute('onchange', '');

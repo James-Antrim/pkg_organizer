@@ -16,10 +16,7 @@ namespace THM\Organizer\Fields;
  */
 class Periods extends SubForm
 {
-    /**
-     * Method to get the multiple field input of the loaded grids periods
-     * @return string  The field input markup.
-     */
+    /** @inheritDoc */
     protected function getInput(): string
     {
         $this->value = $this->value['periods'] ?? [];
