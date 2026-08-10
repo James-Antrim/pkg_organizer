@@ -10,32 +10,26 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\FileLayout;
 use Joomla\CMS\Form\Field\SubformField as Core;
+use THM\Organizer\Adapters\Form;
 
 class SubForm extends Core
 {
-    /** @inheritDoc */
-    protected function getLayoutPaths(): array
+    /**
+     * Loads the form instance for the subform.
+     *
+     * @return  Form
+     */
+    public function loadSubForm(): Form
     {
-        $paths   = parent::getLayoutPaths();
-        $paths[] = JPATH_ROOT . '/com_organizer/Layouts/HTML';
-        return $paths;
-    }
+        $control = $this->name;
 
-    /** @inheritDoc */
-    protected function getRenderer($layoutId = 'default'): FileLayout
-    {
-        $renderer = new FileLayout($layoutId);
-
-        $renderer->setDebug($this->isDebugEnabled());
-
-        $layoutPaths = $this->getLayoutPaths();
-
-        if ($layoutPaths) {
-            $renderer->setIncludePaths($layoutPaths);
+        if ($this->multiple) {
+            $control .= '[' . $this->fieldname . 'X]';
         }
 
-        return $renderer;
+        $formname = 'subform.' . str_replace(['jform[', '[', ']'], ['', '.', ''], $this->name);
+
+        return Form::getInstance($formname, $this->formsource, ['control' => $control]);
     }
 }

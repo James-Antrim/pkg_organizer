@@ -65,7 +65,44 @@ class Form extends Core
     }
 
     /** @inheritDoc */
-    public static function getInstance($name, $data = null, $options = [], $replace = true, $xpath = false): Core|Form
+    public function getGroup($group, $nested = false): array
+    {
+        $fields   = [];
+        $elements = $this->findFieldsByGroup($group, $nested);
+
+        // If no field elements were found return empty.
+        if (empty($elements)) {
+            return $fields;
+        }
+
+        // Build the result array from the found field elements.
+        foreach ($elements as $element) {
+            $groups = array_map('strval', $element->xpath('ancestor::fields[@name]/@name') ?: []);
+            $group  = implode('.', $groups);
+
+            // If the field is successfully loaded add it to the result array.
+            if ($field = $this->loadField($element, $group)) {
+                $fields[$field->__get('id')] = $field;
+            }
+        }
+
+        return $fields;
+    }
+
+
+    /**
+     * Method to get an instance of a form.
+     *
+     * @param string         $name        The name of the form.
+     * @param string         $data        The name of an XML file or string to load as the form definition.
+     * @param array          $options     An array of form options.
+     * @param boolean        $replace     Flag to toggle whether form fields should be replaced if a field
+     *                                    already exists with the same group/name.
+     * @param string|boolean $xpath       An optional xpath to search for the fields.
+     *
+     * @return  Form
+     */
+    public static function getInstance($name, $data = null, $options = [], $replace = true, $xpath = false): Form
     {
         // Reference to array with form instances
         $forms = &self::$forms;

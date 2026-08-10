@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\Field\ListField;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Methods as Helper;
 
 /** @inheritDoc */
 class Methods extends ListField
@@ -20,7 +20,7 @@ class Methods extends ListField
     protected function getOptions(): array
     {
         $defaultOptions = parent::getOptions();
-        $options        = Helpers\Methods::options();
+        $options        = Helper::options();
 
         return array_merge($defaultOptions, $options);
     }
