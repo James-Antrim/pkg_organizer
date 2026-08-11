@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text};
 use THM\Organizer\Helpers\{HISinOne, Persons as PHelper, Programs, Subjects as Helper};
-use THM\Organizer\Tables\{Prerequisites, SubjectPersons, Subjects as Table};
+use THM\Organizer\Tables\{Prerequisites, SubjectMethods, SubjectPersons, Subjects as Table};
 
 /** @inheritDoc */
 class Subject extends CurriculumResource
@@ -230,15 +230,40 @@ class Subject extends CurriculumResource
 
         Helper::updateSuperOrdinates($this->data);
 
+        /*if (!$this->processEvents())
+        {
+            Application::message('TBD', Application::WARNING);
+        }*/
+
+        $this->processMethods();
+
         // Dependant on curricula entries.
         if (!$this->processPrerequisites()) {
             Application::message('UPDATE_DEPENDENCY_FAILED', Application::WARNING);
         }
+    }
 
-        /*if (!$this->processEvents($data))
-        {
-            Application::message('TBD', Application::WARNING);
-        }*/
+    /**
+     * Processes the subject's method distribution by weekly school hours.
+     * @return void
+     */
+    private function processMethods(): void
+    {
+        $subjectID = $this->data['id'];
+        $sum       = 0;
+        $sws       = $this->data['sws'];
+
+        Helper::removeMethods($subjectID);
+        foreach (Input::array('methods') as $method) {
+            $method['subjectID'] = $subjectID;
+            $subjectMethod       = new SubjectMethods();
+            $subjectMethod->save($method);
+            $sum += $method['sws'];
+        }
+
+        if ($sum !== $sws) {
+            Application::message(Text::sprintf('SUBJECT_METHODS_INCONSISTENT', $sum, $sws), Application::WARNING);
+        }
     }
 
     /**

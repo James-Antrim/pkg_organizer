@@ -702,7 +702,7 @@ class Subjects extends Curricula implements Subordinate
      * @param int $subjectID
      * @return void
      */
-    private static function removeMethods(int $subjectID): void
+    public static function removeMethods(int $subjectID): void
     {
         $query = DB::query()->delete(DB::qn('#__organizer_subject_methods'))->where(DB::qc('subjectID', $subjectID));
         DB::set($query);
