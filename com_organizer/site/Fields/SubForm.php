@@ -10,26 +10,39 @@
 
 namespace THM\Organizer\Fields;
 
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\Form\Field\SubformField as Core;
-use THM\Organizer\Adapters\Form;
+use THM\Organizer\Adapters\Form as Adapter;
 
 class SubForm extends Core
 {
-    /**
-     * Loads the form instance for the subform.
-     *
-     * @return  Form
-     */
-    public function loadSubForm(): Form
+    /** @inheritDoc */
+    public function loadSubForm(): Adapter
     {
-        $control = $this->name;
-
-        if ($this->multiple) {
-            $control .= '[' . $this->fieldname . 'X]';
-        }
-
+        $control  = $this->name . '[' . $this->fieldname . 'X]';
         $formname = 'subform.' . str_replace(['jform[', '[', ']'], ['', '.', ''], $this->name);
 
-        return Form::getInstance($formname, $this->formsource, ['control' => $control]);
+        return Adapter::getInstance($formname, $this->formsource, ['control' => $control]);
+    }
+
+    /** @inheritDoc */
+    protected function loadSubFormData(Form $subForm): array
+    {
+        $forms = [];
+        $value = $this->value ? (array) $this->value : [];
+        $value = array_values($value);
+
+        for ($i = 0; $i < count($value); $i++) {
+            $control  = $this->name . '[' . $this->fieldname . $i . ']';
+            $itemForm = Adapter::getInstance($subForm->getName() . $i, $this->formsource, ['control' => $control]);
+
+            if (!empty($value[$i])) {
+                $itemForm->bind($value[$i]);
+            }
+
+            $forms[] = $itemForm;
+        }
+
+        return $forms;
     }
 }

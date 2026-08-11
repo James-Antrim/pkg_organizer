@@ -132,6 +132,7 @@ class Subject extends EditModel
                 $item->coordinators[$coordinator['id']] = $coordinator['id'];
             }
 
+            $item->methods          = Helper::methods($item->id);
             $item->organizationsIDs = Helper::organizationIDs($item->id);
             $item->persons          = [];
             foreach (Helper::persons($item->id, Persons::TEACHES) as $teacher) {
