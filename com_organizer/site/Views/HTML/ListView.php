@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\MVC\View\ListView as Core;
 use Joomla\CMS\Uri\Uri;
 use stdClass;
-use THM\Organizer\Adapters\{Application, Document, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Layouts\HTML\Row;
@@ -47,6 +47,7 @@ abstract class ListView extends Core
         $this->option = 'com_organizer';
 
         // If this is not explicitly set going in Joomla will default to default without looking at the object property value.
+        $this->layout     = Input::parameters()->get('layout') ?: $this->layout;
         $config['layout'] = $this->layout;
 
         parent::__construct($config);
