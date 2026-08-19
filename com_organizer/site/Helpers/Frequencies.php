@@ -15,5 +15,5 @@ namespace THM\Organizer\Helpers;
  */
 class Frequencies extends ResourceHelper
 {
-    public const SEMESTERLY = 3, DEFAULT = self::SEMESTERLY;
+    public const APPOINTMENT = 0, AS_NEEDED = 4, SEMESTERLY = 3, DEFAULT = self::SEMESTERLY, SPRING_TERM = 1, FALL_TERM = 2, YEARLY = 5;
 }

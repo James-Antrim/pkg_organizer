@@ -777,12 +777,23 @@ class Subjects extends Curricula implements Subordinate
      */
     private static function resolveFrequency(string $frequency): int
     {
-        $query = DB::query();
-        $query->select(DB::qn('id'))
-            ->from(DB::qn('#__organizer_frequencies'))
-            ->where(DB::qc('name_de', "%$frequency%", 'LIKE', true));
-        DB::set($query);
-        return DB::integer(Frequencies::DEFAULT);
+        switch ($frequency) {
+            case 'jährlich':
+                return Frequencies::YEARLY;
+            case 'nachBedarf':
+                return Frequencies::AS_NEEDED;
+            case 'SoSem':
+                return Frequencies::SPRING_TERM;
+            case 'WiSem':
+                return Frequencies::FALL_TERM;
+            case 'jedes Sem':
+            case 'jedesSem':
+            case '':
+                return Frequencies::SEMESTERLY;
+            default:
+                Application::message('Häufigkeit des Modulangebots: ' . $frequency);
+                return Frequencies::DEFAULT;
+        }
     }
 
     /**
@@ -936,15 +947,28 @@ class Subjects extends Curricula implements Subordinate
      */
     private static function sanitizeText(string $text): string
     {
-        // Gets rid of bullshit encoding from copy and paste from word
+        /*if ($debug) {
+            echo "<pre>" . print_r($text, true) . "</pre>";
+            $bytes = str_split($text);
+            foreach ($bytes as $byte) {
+                echo "<pre>$byte => " . ord($byte) . "</pre>";
+            }
+        }*/
+
+        // à has to be replaced before the alternate space character so the alternate space doesn't destroy it
+        $text = str_replace(chr(195) . chr(160), '&agrave;', $text);
+        // bullshit alternate space character wtf
         $text = str_replace(chr(160), ' ', $text);
         $text = str_replace(chr(173), '&shy', $text);
         $text = str_replace(chr(178), '&sup2', $text);
+        // §
         $text = str_replace(chr(194) . chr(167), '&sect;', $text);
+        // angled quotation marks have to
         $text = str_replace(chr(194) . chr(171), '&laquo;', $text);
         $text = str_replace(chr(194) . chr(187), '&raquo;', $text);
         $text = str_replace(chr(194), ' ', $text);
         $text = str_replace(chr(195) . chr(159), '&szlig;', $text);
+        // windows bullet point
         $text = str_replace(chr(226) . chr(128) . chr(162), '&bull;', $text);
 
         // Remove the formatted text tag
