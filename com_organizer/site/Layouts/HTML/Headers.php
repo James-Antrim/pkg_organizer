@@ -45,7 +45,7 @@ class Headers
     /**
      * Renders list headers.
      *
-     * @param   ListView  $view  the view being displayed
+     * @param ListView $view the view being displayed
      */
     public static function render(ListView $view): void
     {
@@ -68,10 +68,10 @@ class Headers
     /**
      * Renders an individual list header row.
      *
-     * @param   array       $row        the row headers
-     * @param   string      $column     the column that the results are being sorted by
-     * @param   string      $direction  the current
-     * @param   int|string  $rIndex     the index of the header row among header rows
+     * @param array      $row       the row headers
+     * @param string     $column    the column that the results are being sorted by
+     * @param string     $direction the current
+     * @param int|string $rIndex    the index of the header row among header rows
      *
      * @return void
      */
@@ -108,9 +108,9 @@ class Headers
     /**
      * Renders a check all box style list header.
      *
-     * @param   array   $header     the header to be rendered
-     * @param   string  $orderBy    the column the results are currently ordered by
-     * @param   string  $direction  the current sort direction
+     * @param array  $header    the header to be rendered
+     * @param string $orderBy   the column the results are currently ordered by
+     * @param string $direction the current sort direction
      */
     private static function sort(array $header, string $orderBy, string $direction): void
     {
@@ -124,7 +124,7 @@ class Headers
     /**
      * Renders a check all box style list header.
      *
-     * @param   array  $header  the header to be rendered
+     * @param array $header the header to be rendered
      */
     private static function text(array $header): void
     {
@@ -138,8 +138,8 @@ class Headers
     /**
      * Renders the cell information with a tooltip.
      *
-     * @param   array   $header   the header to be rendered
-     * @param   string  $context  the unique context used for the tip to reference the information
+     * @param array  $header  the header to be rendered
+     * @param string $context the unique context used for the tip to reference the information
      *
      * @return void
      */
