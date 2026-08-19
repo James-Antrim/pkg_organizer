@@ -1,0 +1,131 @@
+.instances-grid {
+  display: grid;
+  grid-template-rows: 3rem repeat(auto-fill, auto);
+  padding-bottom: 1rem;
+  text-align: center;
+
+  &.columns-1 {
+    grid-template-columns: 1fr;
+  }
+
+  &.columns-2 {
+    grid-template-columns: 3.5rem repeat(1, 1fr);
+  }
+
+  &.columns-6 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  &.instances-grid.columns-7 {
+    grid-template-columns: 4rem repeat(6, 1fr);
+  }
+
+  & > div {
+    background-color: white;
+    border-bottom: 5px solid #dfeec8;
+    color: #394a59;
+    padding: .1rem .2rem;
+
+    &.block-busy {
+      background-color: #7f93bb;
+    }
+
+    &.break {
+      background-color: #dfeec8;
+      color: #394a59;
+    }
+
+    &.closed {
+      background-color: #e6c4cb;
+      color: #394a59;
+      font-weight: bold;
+
+      &.empty {
+        padding-top: 1rem;
+      }
+    }
+
+    &.gap {
+      background-color: #fceabf;
+      color: #394a59;
+      font-weight: bold;
+
+      &.empty {
+        padding-top: 1rem;
+      }
+    }
+
+    &.grid-header {
+      align-items: center;
+      background-color: #4a5c66;
+      color: white;
+      display: grid;
+      justify-items: center;
+
+      &.times {
+        display: block;
+        padding: .5rem 0;
+      }
+    }
+
+    &.holiday {
+      background-color: #f7bf40;
+      color: #394a59;
+      font-weight: bold;
+
+      &.empty {
+        padding-top: 1rem;
+      }
+    }
+
+    &.row-end {
+      border-right: none;
+    }
+
+    & > div {
+      background-color: white;
+    }
+
+    .grid-item {
+      background-color: #f2f5f6;
+      margin: .2rem 0 .4rem 0;
+      padding: .4rem .1rem;
+
+      &.new {
+        .icon-warning-2::before {
+          color: #80ba24;
+        }
+      }
+
+      &.removed {
+        color: #77858c;
+        text-decoration: line-through;
+
+        .icon-warning-2::before {
+          color: #9c132e;
+        }
+
+        a {
+          color: #77858c;
+        }
+      }
+
+      &:last-child {
+        margin-bottom: .2rem;
+      }
+
+      .grid-tools {
+        margin-top: .4rem;
+
+        [class^="icon-"] {
+          font-size: 1.1rem;
+          margin-right: .4rem;
+        }
+      }
+    }
+
+    .notice {
+      text-align: right;
+    }
+  }
+}
