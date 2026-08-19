@@ -296,12 +296,22 @@ class Subjects extends Curricula implements Subordinate
 
     public static function importSingle(Table $subject, stdClass $response): bool
     {
+        $subject->fullName_de = $response->Titel->de ?? '';
+
+        if (str_contains($subject->fullName_de, 'Dummy')) {
+            if ($subject->id) {
+                self::deleteRanges($subject->id);
+                $subject->delete();
+            }
+
+            return true;
+        }
+
         $duration = (string) $response->modulDetails->Moduldauer->de ?? '';
 
         $subject->code        = $response->Modulcode;
         $subject->duration    = (int) preg_match('/\d+/', $duration, $matches) ? $matches[0] : 1;
         $subject->expiration  = $response->Gueltig_bis ?? date('Y-m-d', strtotime('+50 years'));
-        $subject->fullName_de = $response->Titel->de ?? '';
         $subject->fullName_en = $response->Titel->en ?? $subject->fullName_de;
         $subject->HISinOneID  = (int) $response->ElementId;
         $subject->language    = $response->Sprache ?? 'de';

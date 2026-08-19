@@ -132,13 +132,13 @@ abstract class Curricula extends Associated implements Documentable, Selectable
         switch (Application::uqClass(get_called_class())) {
             case 'Pools':
                 $range = [
-                    'poolID' => $data['id'],
+                    'poolID'     => $data['id'],
                     'curriculum' => Input::task() !== 'Pool.save2copy' ? self::subordinates() : []
                 ];
                 break;
             case 'Subjects':
                 $range = [
-                    'subjectID' => $data['id'],
+                    'subjectID'  => $data['id'],
                     'curriculum' => []
                 ];
                 break;
@@ -623,11 +623,12 @@ abstract class Curricula extends Associated implements Documentable, Selectable
     protected static function processCollection(array $collection, int $organizationID, int $parentID, int $programCID): bool
     {
         foreach ($collection as $subOrdinate) {
-            $status = (string) $subOrdinate->Bearbeitungsstatus->Name ?? '';
+            //$status = (string) $subOrdinate->Bearbeitungsstatus->Name ?? '';
 
-            if ($status === self::DRAFT) {
+            // Draft status is not yet reliable.
+            /*if ($status === self::DRAFT) {
                 continue;
-            }
+            }*/
 
             $type = (string) $subOrdinate->Elementtyp->Uniquename;
 
