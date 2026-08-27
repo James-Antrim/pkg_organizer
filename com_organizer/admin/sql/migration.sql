@@ -481,5 +481,7 @@ UPDATE `v7ocf_organizer_subjects` SET `language` = 'en' WHERE `language` = 'E';
 
 /*#region Miscellaneous*/
 UPDATE `v7ocf_menu` SET `link` = 'index.php?option=com_organizer&view=roomoverview' WHERE `link` = 'index.php?option=com_organizer&view=room_overview';
+UPDATE `v7ocf_menu` SET `params` = REPLACE(params, '"layout":"0"', '"layout":"list"') WHERE `link` LIKE '%instances%';
+UPDATE `v7ocf_menu` SET `params` = REPLACE(params, '"layout":"1"', '"layout":"grid"') WHERE `link` LIKE '%instances%';
 
 ALTER TABLE `v7ocf_organizer_instances` ADD COLUMN `published` TINYINT(1) UNSIGNED  NOT NULL DEFAULT 1 AFTER `modified`;
