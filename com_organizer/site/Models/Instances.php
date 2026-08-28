@@ -26,7 +26,7 @@ class Instances extends ListModel
     public array $grid;
     public int $gridID;
     public array $holidays;
-    public int $layout = Helper::LIST;
+    public string $layout = Helper::LIST;
     public bool $noDate = false;
 
     /** @inheritDoc */
@@ -458,7 +458,7 @@ class Instances extends ListModel
                     }
                 }
                 else {
-                    $layout = (int) $params->get('layout');
+                    $layout = $params->get('layout');
                     $layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
 
                     if ($layout === Helper::GRID) {

@@ -1,3 +1,11 @@
+@import "variables";
+
+@media only screen and (min-width: 600px) {
+  .site-grid {
+    grid-template-columns: [full-start] minmax(0, 14rem) [main-start] repeat(6, minmax(0, 1fr)) [main-end] minmax(0, 12rem) [full-end] !important;
+  }
+}
+
 .instances-grid {
   display: grid;
   grid-template-rows: 3rem repeat(auto-fill, auto);
@@ -22,22 +30,22 @@
 
   & > div {
     background-color: white;
-    border-bottom: 5px solid #dfeec8;
-    color: #394a59;
+    border-bottom: 5px solid $green-25;
+    color: $font-color;
     padding: .1rem .2rem;
 
     &.block-busy {
-      background-color: #7f93bb;
+      background-color: $blue-50;
     }
 
     &.break {
-      background-color: #dfeec8;
-      color: #394a59;
+      background-color: $green-25;
+      color: $font-color;
     }
 
     &.closed {
-      background-color: #e6c4cb;
-      color: #394a59;
+      background-color: $red-25;
+      color: $font-color;
       font-weight: bold;
 
       &.empty {
@@ -46,8 +54,8 @@
     }
 
     &.gap {
-      background-color: #fceabf;
-      color: #394a59;
+      background-color: $yellow-25;
+      color: $font-color;
       font-weight: bold;
 
       &.empty {
@@ -70,7 +78,7 @@
 
     &.holiday {
       background-color: #f7bf40;
-      color: #394a59;
+      color: $font-color;
       font-weight: bold;
 
       &.empty {
@@ -87,7 +95,7 @@
     }
 
     .grid-item {
-      background-color: #f2f5f6;
+      background-color: $grey-25;
       margin: .2rem 0 .4rem 0;
       padding: .4rem .1rem;
 

@@ -638,6 +638,83 @@ class Instances extends ListView
         }
     }
 
+    /**
+     * Renders the contents of a cell in the grid layout.
+     *
+     * @param array  $row        the instances grouped by day
+     * @param string $column     the day/index
+     * @param bool   $lastRow    whether the row is the final one to be rendered
+     * @param bool   $lastColumn whether the index is the key of the last column to be rendered
+     * @return string
+     */
+    public function renderCell(array $row, string $column, bool $lastRow, bool $lastColumn): string
+    {
+        $empty = false;
+        if (is_array($row[$column])) {
+            $busy  = $row[$column]['busy'];
+            $value = $row[$column]['instances'];
+
+            if (!$value and !empty($row[$column]['label'])) {
+                $empty = true;
+                $value = $row[$column]['label'];
+            }
+        }
+        else {
+            $busy  = false;
+            $value = $row[$column];
+        }
+
+        $class = '';
+
+        if ($column === 'times') {
+            $class .= 'grid-header times';
+        }
+        elseif ($lastColumn) {
+            $class .= 'row-end';
+        }
+
+        if ($lastRow) {
+            $class .= ' column-end';
+        }
+
+        if ($busy) {
+            $class .= ' block-busy';
+        }
+
+        if (!empty($row[$column]['type'])) {
+            $class .= " {$row[$column]['type']}";
+
+            if ($empty) {
+                $class .= " empty";
+            }
+        }
+        elseif (!empty($row['type']) and $row['type'] === 'break') {
+            $class .= ' break';
+        }
+
+        $class = trim($class);
+
+        if ($class) {
+            $class = "class=\"$class\"";
+        }
+
+        return "<div $class>$value</div>";
+    }
+
+    /**
+     * Renders the grid headers.
+     * @return void
+     */
+    public function renderGridHeaders(): void
+    {
+        $lastColumn = end($this->headers);
+        foreach ($this->headers as $key => $header) {
+            $class = 'grid-header';
+            $class .= $key === $lastColumn ? ' row-end' : '';
+            echo "<div class=\"$class\">$header</div>";
+        }
+    }
+
     /** @inheritDoc */
     protected function subTitle(): void
     {

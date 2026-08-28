@@ -10,7 +10,7 @@
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, HTML};
-use THM\Organizer\Layouts\HTML\{EmptySet, Headers, HiddenInputs, Row, Tools};
+use THM\Organizer\Layouts\HTML\{EmptySet, HiddenInputs, Tools};
 use THM\Organizer\Views\HTML\Instances;
 
 /** @var Instances $this */
@@ -37,7 +37,7 @@ require_once 'header.php';
                         <?php $this->renderGridHeaders(); ?>
                         <?php foreach ($this->items as $key => $row) : ?>
                             <?php foreach ($columns as $column) : ?>
-                                <?php echo $this->renderGridCell($row, $column, $key === $lastRow, $column === $lastColumn); ?>
+                                <?php echo $this->renderCell($row, $column, $key === $lastRow, $column === $lastColumn); ?>
                             <?php endforeach; ?>
                         <?php endforeach; ?>
                     </div>
@@ -49,5 +49,4 @@ require_once 'header.php';
             </div>
         </div>
     </div>
-    <?php echo $this->disclaimer; ?>
 </form>
