@@ -14,7 +14,7 @@ use stdClass;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar, User};
 use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Routing};
 use THM\Organizer\Buttons\{FormTarget, Highlander};
-use THM\Organizer\Models\InstanceItem as Model;
+use THM\Organizer\Models\Instance as Model;
 
 /** @inheritDoc */
 class Instance extends ListView

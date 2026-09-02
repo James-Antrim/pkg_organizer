@@ -17,16 +17,17 @@ use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\{Can, Instances, Terms};
 
 /** @inheritDoc */
-class InstanceItem extends ListModel
+class Instance extends ListModel
 {
     public array $conditions = [];
-    protected int $defaultLimit = 0;
     public stdClass $instance;
     public string $referrer;
 
     /** @inheritDoc */
     public function __construct($config = [])
     {
+        $this->defaultLimit = 0;
+
         parent::__construct($config);
 
         $instanceID = Input::id();
