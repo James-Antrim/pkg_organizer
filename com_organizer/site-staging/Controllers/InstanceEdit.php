@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Models;
+namespace THM\Organizer\Controllers;
 
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Input, User};
@@ -18,7 +18,7 @@ use THM\Organizer\Tables;
 /**
  * Class which manages stored instance data.
  */
-class Instance extends BaseModel
+class InstanceEdit extends Controller
 {
     private const LEADER = 5;
 
