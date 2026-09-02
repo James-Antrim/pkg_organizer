@@ -23,16 +23,71 @@ trait ListsInstances
 
     private bool $teachesALL = true;
 
+    /** @inheritDoc */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $this->completeInstance($item);
+    }
+
+    /**
+     * Sets derived attributes for a single instance.
+     *
+     * @param stdClass $instance
+     *
+     * @return void
+     */
+    private function completeInstance(stdClass $instance): void
+    {
+        $now    = date('H:i');
+        $today  = date('Y-m-d');
+        $userID = User::id();
+
+        $this->setResources($instance);
+
+        $instanceID = $instance->instanceID;
+        $isToday    = $instance->date === $today;
+        $then       = date('Y-m-d', strtotime('-2 days', strtotime($instance->date)));
+
+        $instance->expired = ($instance->date < $today or ($isToday and $instance->endTime < $now));
+        $instance->full    = (!empty($item->capacity) and $item->current >= $item->capacity);
+        $instance->link    = Routing::getViewURL('Instance', $instanceID);
+
+        // Administrator, planer, or person of responsibility
+        if ($userID and Can::manage('instance', $instanceID)) {
+            $instance->manageable = true;
+
+            $teaches          = Helper::hasResponsibility($instanceID);
+            $instance->taught = $teaches;
+            $this->teachesOne = $teaches;
+        }
+        else {
+            $instance->manageable = false;
+            $instance->taught     = false;
+            $instance->teachesALL = false;
+        }
+
+        $instance->premature         = $today < $then;
+        $instance->registration      = false;
+        $instance->registrationStart = Dates::formatDate($then);
+        $instance->running           = (!$instance->expired and $instance->date === $today and $instance->startTime < $now);
+
+        $validTiming = (!$instance->expired and !$instance->running);
+
+        if ($validTiming and $instance->presence !== Helper::ONLINE and !$instance->full) {
+            $instance->registration = true;
+        }
+    }
+
     /**
      * Searches for a pattern specified link in commentary text. If found it is added to the tools and removed from the
      * text.
      *
-     * @param   string   $pattern  the pattern to search for
-     * @param   int      $key      the matches index number for the discovered id
-     * @param   string  &$text     the text to search in
-     * @param   array   &$tools    the container to add discovered tools to
-     * @param   string   $URL      the static portion of the dynamic link
-     * @param   string   $link     the HTML a-Tag which will be added to the tools
+     * @param string   $pattern the pattern to search for
+     * @param int      $key     the matches index number for the discovered id
+     * @param string  &$text    the text to search in
+     * @param array   &$tools   the container to add discovered tools to
+     * @param string   $URL     the static portion of the dynamic link
+     * @param string   $link    the HTML a-Tag which will be added to the tools
      *
      * @return void
      */
@@ -47,7 +102,7 @@ trait ListsInstances
     /**
      * Created a structure for displaying status information as necessary.
      *
-     * @param   stdClass  $instance  the instance item being iterated
+     * @param stdClass $instance the instance item being iterated
      *
      * @return string
      */
@@ -157,7 +212,7 @@ trait ListsInstances
     /**
      * Gets an icon displaying the instance's (unit's) status as relevant.
      *
-     * @param   stdClass  $instance  the object modeling the instance
+     * @param stdClass $instance the object modeling the instance
      *
      * @return array|string an icon representing the status of the instance, empty if the status is irrelevant
      */
@@ -293,8 +348,8 @@ trait ListsInstances
     /**
      * Generates the common portion of the instance title for listed instances.
      *
-     * @param   stdClass  $instance  the object containing instance information
-     * @param   string    $title     the already processed portion of the title
+     * @param stdClass $instance the object containing instance information
+     * @param string   $title    the already processed portion of the title
      *
      * @return array
      */
@@ -315,8 +370,8 @@ trait ListsInstances
     /**
      * Resolves any links/link parameters to links with icons.
      *
-     * @param   string      $text  the text to search
-     * @param   array|null  $tools
+     * @param string     $text the text to search
+     * @param array|null $tools
      *
      * @return string
      */
@@ -401,7 +456,7 @@ trait ListsInstances
      * Determines whether the item is conducted virtually: every person is assigned rooms, all assigned rooms are
      * virtual.
      *
-     * @param   stdClass  $instance  the item being iterated
+     * @param stdClass $instance the item being iterated
      *
      * @return void
      */
@@ -529,48 +584,5 @@ trait ListsInstances
         }
 
         $instance->rooms = implode($glue, $rooms);
-    }
-
-    /** @inheritDoc */
-    protected function completeItem(int $index, stdClass $item, array $options = []): void
-    {
-        $now    = date('H:i');
-        $today  = date('Y-m-d');
-        $userID = User::id();
-
-        $this->setResources($item);
-
-        $instanceID = $item->instanceID;
-        $isToday    = $item->date === $today;
-        $then       = date('Y-m-d', strtotime('-2 days', strtotime($item->date)));
-
-        $item->expired = ($item->date < $today or ($isToday and $item->endTime < $now));
-        $item->full    = (!empty($item->capacity) and $item->current >= $item->capacity);
-        $item->link    = Routing::getViewURL('InstanceItem', $instanceID);
-
-        // Administrator, planer, or person of responsibility
-        if ($userID and Can::manage('instance', $instanceID)) {
-            $item->manageable = true;
-
-            $teaches          = Helper::hasResponsibility($instanceID);
-            $item->taught     = $teaches;
-            $this->teachesOne = $teaches;
-        }
-        else {
-            $item->manageable = false;
-            $item->taught     = false;
-            $this->teachesALL = false;
-        }
-
-        $item->premature         = $today < $then;
-        $item->registration      = false;
-        $item->registrationStart = Dates::formatDate($then);
-        $item->running           = (!$item->expired and $item->date === $today and $item->startTime < $now);
-
-        $validTiming = (!$item->expired and !$item->running);
-
-        if ($validTiming and $item->presence !== Helper::ONLINE and !$item->full) {
-            $item->registration = true;
-        }
     }
 }

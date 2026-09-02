@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 
 /** @inheritDoc */
-class Instance extends FormView
+class InstanceEdit extends FormView
 {
     protected string $layout = 'instance-wrapper';
 

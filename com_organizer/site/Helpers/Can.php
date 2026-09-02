@@ -249,7 +249,7 @@ class Can
              * Statistics, Workload
              *
              * Viewing is generally allowed, however functions, layouts and levels may still be restricted elsewhere.
-             * Course, Courses, InstanceItem, Instances
+             * Course, Courses, Instance, Instances
              *
              * Unrestricted
              * Curriculum, Help, Screen

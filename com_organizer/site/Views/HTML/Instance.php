@@ -17,7 +17,7 @@ use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Models\InstanceItem as Model;
 
 /** @inheritDoc */
-class InstanceItem extends ListView
+class Instance extends ListView
 {
     use ListsInstances;
 
@@ -25,7 +25,6 @@ class InstanceItem extends ListView
     private array $buttons = [];
     private string $dateTime;
     public stdClass $instance;
-    protected string $layout = 'instance-item';
 
     private array $messages = [];
     public string $minibar = '';
@@ -35,6 +34,13 @@ class InstanceItem extends ListView
     private string $referrer = '';
 
     /** @inheritDoc */
+    public function __construct(array $config)
+    {
+        $this->layout = 'instance';
+        parent::__construct($config);
+    }
+
+    /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
         $instance = $this->instance;
@@ -42,7 +48,7 @@ class InstanceItem extends ListView
         $this->title($instance->name . $method);
         $this->addSubtitle();
 
-        $itemBar = Toolbar::instance('itembar');
+        $itemBar = Toolbar::instance('minibar');
         $listBar = Toolbar::instance();
 
         if ($this->referrer) {
@@ -129,7 +135,7 @@ class InstanceItem extends ListView
         }
 
         $this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
-        $this->minibar .= Toolbar::render('itembar') . '</div>';
+        $this->minibar .= Toolbar::render('minibar') . '</div>';
     }
 
     /** @inheritDoc */
@@ -392,7 +398,7 @@ class InstanceItem extends ListView
      */
     private function setInstance(stdClass $instance): void
     {
-        $this->setSingle($instance);
+        $this->completeInstance($instance);
 
         $this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
         $cutOff           = $this->statusDate;
