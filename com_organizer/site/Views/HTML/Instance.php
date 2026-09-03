@@ -139,7 +139,7 @@ class Instance extends ListView
         }
 
         if ($instance->subjectID) {
-            $url = Routing::getViewURL('SubjectItem', $instance->subjectID);
+            $url = Routing::getViewURL('subject', $instance->subjectID);
             $itemBar->linkButton('subject', Text::_('SUBJECT_ITEM'))->target('_blank')->url($url)->icon('fa fa-book');
         }
 

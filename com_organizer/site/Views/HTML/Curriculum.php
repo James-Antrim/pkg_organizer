@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{HTML, Text};
+use THM\Organizer\Adapters\{Document, HTML, Text};
 use THM\Organizer\Helpers\Pools;
 
 /**
@@ -21,9 +21,14 @@ class Curriculum extends ItemView
 {
     use Documented;
 
-    protected string $layout = 'curriculum';
-
     public array $fields = [];
+
+    /** @inheritDoc */
+    public function __construct($config = [])
+    {
+        $this->layout = 'curriculum';
+        parent::__construct($config);
+    }
 
     /** @inheritDoc */
     public function display($tpl = null): void
@@ -46,13 +51,13 @@ class Curriculum extends ItemView
     {
         parent::modifyDocument();
 
-        //Document::style('curriculum');
+        Document::style('curriculum');
     }
 
     /**
      * Creates the HTML for a panel item.
      *
-     * @param   array  $item  the date for the panel item to create
+     * @param array $item the date for the panel item to create
      *
      * @return string the HTML for the panel item
      */
@@ -79,7 +84,7 @@ class Curriculum extends ItemView
             if ($item['subjectID']) {
                 $contextID = $item['id'] . '-' . $item['subjectID'];
                 $crp       = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
-                $url       = $base . "SubjectItem&id={$item['subjectID']}";
+                $url       = $base . "subject&id={$item['subjectID']}";
 
                 $links .= HTML::tip(HTML::icon('fa fa-book'), "subject-link-$contextID", 'SUBJECT_ITEM', [], $url, true);
 
@@ -143,7 +148,7 @@ class Curriculum extends ItemView
     /**
      * Outputs the pool information in the form of a panel
      *
-     * @param   array  $pool  the pool to be displayed
+     * @param array $pool the pool to be displayed
      *
      * @return void displays HTML
      */
@@ -166,7 +171,7 @@ class Curriculum extends ItemView
     /**
      * Displays the body of the panel while iterating through child items
      *
-     * @param   array  $curriculum  the subordinate elements to the pool modeled by the panel
+     * @param array $curriculum the subordinate elements to the pool modeled by the panel
      *
      * @return  void displays the panel body
      */

@@ -491,7 +491,7 @@ class Instances extends ListView
             if ($item->subjectID) {
                 $icon    = HTML::icon('fa fa-book');
                 $tip     = 'READ_SUBJECT_DOCUMENTATION';
-                $url     = Routing::getViewURL('SubjectItem', $item->subjectID);
+                $url     = Routing::getViewURL('subject', $item->subjectID);
                 $tools[] = HTML::tip($icon, "$context-instance-documentation", $tip, [], $url);
             }
 
