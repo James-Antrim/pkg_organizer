@@ -380,12 +380,32 @@ class Instance extends ListView
     public function initializeColumns(): void
     {
         $this->headers = [
-            'tools'    => ($this->userID and !Application::mobile()) ? HTML::checkAll() : '',
-            'instance' => Text::_('INSTANCE'),
-            'status'   => Text::_('STATUS'),
-            'persons'  => Text::_('PERSONS'),
-            'groups'   => Text::_('GROUPS'),
-            'rooms'    => Text::_('ROOMS')
+            'tools'    => ($this->userID and !Application::mobile()) ? ['type' => 'check'] : [],
+            'instance' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('INSTANCE'),
+                'type'       => 'text'
+            ],
+            'status'   => [
+                'properties' => ['class' => 'w-7 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STATUS'),
+                'type'       => 'text'
+            ],
+            'persons'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('PERSONS'),
+                'type'       => 'text'
+            ],
+            'groups'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('GROUPS'),
+                'type'       => 'text'
+            ],
+            'rooms'    => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ROOMS'),
+                'type'       => 'text'
+            ],
         ];
     }
 
