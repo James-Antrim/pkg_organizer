@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * Class which manages stored group data.
- */
+/** @inheritDoc */
 class Group extends Associated
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    use Administrated;
 }

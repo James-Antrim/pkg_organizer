@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-/**
- * Class which manages event categories.
- */
+/** @inheritDoc */
 class Category extends Associated
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    use Administrated;
 }

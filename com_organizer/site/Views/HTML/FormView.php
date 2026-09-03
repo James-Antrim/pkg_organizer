@@ -49,8 +49,6 @@ abstract class FormView extends Core
     /** @inheritDoc */
     public function __construct(array $config)
     {
-        $this->toDo[] = 'Allow admin editing of Untis IDs.';
-
         // Joomla ignores the property value and overwrites it.
         if ($config['layout'] === 'default') {
             $config['layout'] = $this->layout;
