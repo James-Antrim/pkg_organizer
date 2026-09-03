@@ -121,8 +121,8 @@ class Instances extends ListView
 
         asort($keyMap);
 
-        $exportDD = $toolbar->dropdownButton('export', Text::_('INSTANCES'));
-        $exportDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-download')->listCheck(true);
+        $exportDD = $toolbar->dropdownButton('export', Text::_('EXPORT'));
+        $exportDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-download');
         $exportCB = $exportDD->getChildToolbar();
 
         foreach ($keyMap as $key => $text) {
