@@ -25,7 +25,6 @@ class Instance extends ListView
     private array $buttons = [];
     private string $dateTime;
     public stdClass $instance;
-
     private array $messages = [];
     public string $minibar = '';
     private string $status = '';
@@ -38,6 +37,16 @@ class Instance extends ListView
     {
         $this->layout = 'instance';
         parent::__construct($config);
+    }
+
+    /**
+     * Adds a subtitle with supplemental information.
+     */
+    private function addSubtitle(): void
+    {
+        $instance       = $this->instance;
+        $date           = Dates::formatDate($instance->date);
+        $this->subtitle = "<h4>$date $instance->startTime - $instance->endTime</h4>";
     }
 
     /** @inheritDoc */
@@ -151,6 +160,117 @@ class Instance extends ListView
     }
 
     /** @inheritDoc */
+    protected function completeItems(array $options = []): void
+    {
+        parent::completeItems();
+
+        $buttons = [
+            //'deregister'      => false,
+            //'deregisterList'  => false,
+            'deschedule'      => false,
+            'descheduleBlock' => false,
+            'descheduleList'  => false,
+            'manage'          => false,
+            'manageList'      => false,
+            //'register'        => false,
+            //'registerList'    => false,
+            'schedule'        => false,
+            'scheduleBlock'   => false,
+            'scheduleList'    => false
+        ];
+
+        $instance = $this->instance;
+
+        if (!$instance->expired and !$instance->running and !$instance->taught) {
+            if ($instance->bookmarked) {
+                $buttons['deschedule'] = true;
+
+            }
+            else {
+                $buttons['schedule'] = true;
+
+            }
+
+            /*$notFinal     = Helper::getMethodCode($instance->instanceID) !== Methods::FINALCODE;
+            $notFull      = !$instance->full;
+            $notOnline    = $instance->presence !== Helper::ONLINE;
+            $notPremature = !$instance->premature;
+
+            if ($instance->registered)
+            {
+                $buttons['deregister'] = true;
+            }
+            elseif ($notFinal and $notFull and $notOnline and $notPremature)
+            {
+                $buttons['register'] = true;
+            }*/
+        }
+        elseif ($instance->manageable and !$instance->premature) {
+            $buttons['manage'] = true;
+        }
+
+        $thisDOW = strtoupper(date('l', strtotime($instance->date)));
+
+        foreach ($this->items as $key => $item) {
+            if (!$item->expired and !$item->running and !$item->taught) {
+                $sameDOW      = (strtoupper(date('l', strtotime($item->date))) === $thisDOW);
+                $sameET       = $item->startTime === $instance->startTime;
+                $sameST       = $item->startTime === $instance->startTime;
+                $sameBlock    = ($sameDOW and $sameET and $sameST);
+                $sameInstance = $item->instanceID === $instance->instanceID;
+
+                if ($item->bookmarked) {
+                    $buttons['descheduleList'] = true;
+
+                    /*if ($item->registered)
+                    {
+                        $buttons['deregisterList'] = true;
+                    }
+
+                    if ($sameBlock and !$sameInstance)
+                    {
+                        $buttons['descheduleBlock'] = true;
+                    }*/
+                }
+                else {
+                    $buttons['scheduleList'] = true;
+
+                    /*$notFinal     = Helper::getMethodCode($item->instanceID) !== Methods::FINALCODE;
+                    $notFull      = !$item->full;
+                    $notOnline    = $item->presence !== Helper::ONLINE;
+                    $notPremature = !$item->premature;
+
+                    if ($notFinal and $notFull and $notOnline and $notPremature)
+                    {
+                        $buttons['registerList'] = true;
+                    }*/
+
+                    if ($sameBlock and !$sameInstance) {
+                        $buttons['scheduleBlock'] = true;
+                    }
+                }
+            }
+            elseif ($item->manageable and !$item->premature) {
+                $buttons['manageList'] = true;
+            }
+
+            $item->tools    = $this->getToolsColumn($item, $key);
+            $item->instance = $this->getTitle($item);
+            $item->status   = $this->getStatus($item);
+        }
+
+        if (Application::mobile()) {
+            $buttons['deregisterList'] = false;
+            $buttons['descheduleList'] = false;
+            $buttons['manageList']     = false;
+            $buttons['registerList']   = false;
+            $buttons['scheduleList']   = false;
+        }
+
+        $this->buttons = $buttons;
+    }
+
+    /** @inheritDoc */
     public function display($tpl = null): void
     {
         /** @var Model $model */
@@ -179,74 +299,40 @@ class Instance extends ListView
         return $this->liGetTitle($item, $title);
     }
 
-    /**
-     * Renders the persons section of the item.
-     * @return void
-     */
-    public function renderPersons(): void
+    /** @inheritDoc */
+    public function initializeColumns(): void
     {
-        $instance = $this->instance;
+        $this->headers = [
+            'instance' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('INSTANCE'),
+                'type'       => 'text'
+            ],
+            'status'   => [
+                'properties' => ['class' => 'w-7 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STATUS'),
+                'type'       => 'text'
+            ],
+            'persons'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('PERSONS'),
+                'type'       => 'text'
+            ],
+            'groups'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('GROUPS'),
+                'type'       => 'text'
+            ],
+            'rooms'    => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ROOMS'),
+                'type'       => 'text'
+            ],
+        ];
 
-        echo '<div class="attribute-item">';
-        echo '<div class="attribute-label">' . Text::_('PERSONS') . '</div>';
-        echo '<div class="attribute-content"><ul>';
-
-        foreach ($instance->persons as $persons) {
-            if ($instance->showRoles) {
-                $personIDs = array_keys($persons);
-                $firstID   = reset($personIDs);
-                echo '<u>' . $instance->resources[$firstID]['role'] . '</u><ul>';
-            }
-
-            foreach (array_keys($persons) as $personID) {
-                $list   = ($instance->showRoles or count($persons) > 1);
-                $person = $instance->resources[$personID];
-
-                echo $list ? '<li>' : '';
-
-                $this->renderResource($person['person'], $person['status'], $person['statusDate']);
-
-                if ($instance->hideGroups or $instance->hideRooms) {
-                    echo '<ul>';
-                }
-
-                if ($instance->hideGroups and !empty($person['groups'])) {
-                    echo '<li>' . Text::_('GROUPS') . '<ul>';
-                    foreach ($person['groups'] as $group) {
-                        $list = count($person['groups']) > 1;
-                        echo $list ? '<li>' : '';
-                        $name = (strlen($group['fullName']) > 80 and $group['status']) ?
-                            $group['group'] : $group['fullName'];
-                        $this->renderResource($name, $group['status'], $group['statusDate']);
-                        echo $list ? '</li>' : '';
-                    }
-                    echo '</ul></li>';
-                }
-
-                if ($instance->hideRooms and !empty($person['rooms'])) {
-                    echo '<li>' . Text::_('ROOMS') . '<ul>';
-                    foreach ($person['rooms'] as $room) {
-                        $list = count($person['rooms']) > 1;
-                        echo $list ? '<li>' : '';
-                        $this->renderResource($room['room'], $room['status'], $room['statusDate']);
-                        echo $list ? '</li>' : '';
-                    }
-                    echo '</ul></li>';
-                }
-
-                if ($instance->hideGroups or $instance->hideRooms) {
-                    echo '</ul>';
-                }
-
-                echo $list ? '</li>' : '';
-            }
-
-            if ($instance->showRoles) {
-                echo '</ul>';
-            }
+        if ($this->userID and !Application::mobile()) {
+            $this->headers = ['tools' => ['type' => 'check']] + $this->headers;
         }
-
-        echo '</ul></div></div>';
     }
 
     /**
@@ -326,6 +412,76 @@ class Instance extends ListView
     }
 
     /**
+     * Renders the persons section of the item.
+     * @return void
+     */
+    public function renderPersons(): void
+    {
+        $instance = $this->instance;
+
+        echo '<div class="attribute-item">';
+        echo '<div class="attribute-label">' . Text::_('PERSONS') . '</div>';
+        echo '<div class="attribute-content"><ul>';
+
+        foreach ($instance->persons as $persons) {
+            if ($instance->showRoles) {
+                $personIDs = array_keys($persons);
+                $firstID   = reset($personIDs);
+                echo '<u>' . $instance->resources[$firstID]['role'] . '</u><ul>';
+            }
+
+            foreach (array_keys($persons) as $personID) {
+                $list   = ($instance->showRoles or count($persons) > 1);
+                $person = $instance->resources[$personID];
+
+                echo $list ? '<li>' : '';
+
+                $this->renderResource($person['person'], $person['status'], $person['statusDate']);
+
+                if ($instance->hideGroups or $instance->hideRooms) {
+                    echo '<ul>';
+                }
+
+                if ($instance->hideGroups and !empty($person['groups'])) {
+                    echo '<li>' . Text::_('GROUPS') . '<ul>';
+                    foreach ($person['groups'] as $group) {
+                        $list = count($person['groups']) > 1;
+                        echo $list ? '<li>' : '';
+                        $name = (strlen($group['fullName']) > 80 and $group['status']) ?
+                            $group['group'] : $group['fullName'];
+                        $this->renderResource($name, $group['status'], $group['statusDate']);
+                        echo $list ? '</li>' : '';
+                    }
+                    echo '</ul></li>';
+                }
+
+                if ($instance->hideRooms and !empty($person['rooms'])) {
+                    echo '<li>' . Text::_('ROOMS') . '<ul>';
+                    foreach ($person['rooms'] as $room) {
+                        $list = count($person['rooms']) > 1;
+                        echo $list ? '<li>' : '';
+                        $this->renderResource($room['room'], $room['status'], $room['statusDate']);
+                        echo $list ? '</li>' : '';
+                    }
+                    echo '</ul></li>';
+                }
+
+                if ($instance->hideGroups or $instance->hideRooms) {
+                    echo '</ul>';
+                }
+
+                echo $list ? '</li>' : '';
+            }
+
+            if ($instance->showRoles) {
+                echo '</ul>';
+            }
+        }
+
+        echo '</ul></div></div>';
+    }
+
+    /**
      * Renders the individual resource output.
      *
      * @param string $name     the resource name
@@ -374,39 +530,6 @@ class Instance extends ListView
             echo $list ? '</li>' : '';
         }
         echo '</ul></div></div>';
-    }
-
-    /** @inheritDoc */
-    public function initializeColumns(): void
-    {
-        $this->headers = [
-            'tools'    => ($this->userID and !Application::mobile()) ? ['type' => 'check'] : [],
-            'instance' => [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('INSTANCE'),
-                'type'       => 'text'
-            ],
-            'status'   => [
-                'properties' => ['class' => 'w-7 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('STATUS'),
-                'type'       => 'text'
-            ],
-            'persons'  => [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('PERSONS'),
-                'type'       => 'text'
-            ],
-            'groups'   => [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('GROUPS'),
-                'type'       => 'text'
-            ],
-            'rooms'    => [
-                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
-                'title'      => Text::_('ROOMS'),
-                'type'       => 'text'
-            ],
-        ];
     }
 
     /**
@@ -607,133 +730,6 @@ class Instance extends ListView
         $copy = $resource;
         unset($copy['status'], $copy['statusDate']);
         $filtered[$key] = $copy;
-    }
-
-    /**
-     * Adds a subtitle with supplemental information.
-     */
-    private function addSubtitle(): void
-    {
-        $instance       = $this->instance;
-        $date           = Dates::formatDate($instance->date);
-        $this->subtitle = "<h4>$date $instance->startTime - $instance->endTime</h4>";
-    }
-
-    /** @inheritDoc */
-    protected function completeItems(array $options = []): void
-    {
-        parent::completeItems();
-
-        $buttons = [
-            //'deregister'      => false,
-            //'deregisterList'  => false,
-            'deschedule'      => false,
-            'descheduleBlock' => false,
-            'descheduleList'  => false,
-            'manage'          => false,
-            'manageList'      => false,
-            //'register'        => false,
-            //'registerList'    => false,
-            'schedule'        => false,
-            'scheduleBlock'   => false,
-            'scheduleList'    => false
-        ];
-
-        $instance = $this->instance;
-
-        if (!$instance->expired and !$instance->running and !$instance->taught) {
-            if ($instance->bookmarked) {
-                $buttons['deschedule'] = true;
-
-            }
-            else {
-                $buttons['schedule'] = true;
-
-            }
-
-            /*$notFinal     = Helper::getMethodCode($instance->instanceID) !== Methods::FINALCODE;
-            $notFull      = !$instance->full;
-            $notOnline    = $instance->presence !== Helper::ONLINE;
-            $notPremature = !$instance->premature;
-
-            if ($instance->registered)
-            {
-                $buttons['deregister'] = true;
-            }
-            elseif ($notFinal and $notFull and $notOnline and $notPremature)
-            {
-                $buttons['register'] = true;
-            }*/
-        }
-        elseif ($instance->manageable and !$instance->premature) {
-            $buttons['manage'] = true;
-        }
-
-        $index           = 0;
-        $structuredItems = [];
-        $thisDOW         = strtoupper(date('l', strtotime($instance->date)));
-
-        foreach ($this->items as $item) {
-            if (!$item->expired and !$item->running and !$item->taught) {
-                $sameDOW      = (strtoupper(date('l', strtotime($item->date))) === $thisDOW);
-                $sameET       = $item->startTime === $instance->startTime;
-                $sameST       = $item->startTime === $instance->startTime;
-                $sameBlock    = ($sameDOW and $sameET and $sameST);
-                $sameInstance = $item->instanceID === $instance->instanceID;
-
-                if ($item->bookmarked) {
-                    $buttons['descheduleList'] = true;
-
-                    /*if ($item->registered)
-                    {
-                        $buttons['deregisterList'] = true;
-                    }
-
-                    if ($sameBlock and !$sameInstance)
-                    {
-                        $buttons['descheduleBlock'] = true;
-                    }*/
-                }
-                else {
-                    $buttons['scheduleList'] = true;
-
-                    /*$notFinal     = Helper::getMethodCode($item->instanceID) !== Methods::FINALCODE;
-                    $notFull      = !$item->full;
-                    $notOnline    = $item->presence !== Helper::ONLINE;
-                    $notPremature = !$item->premature;
-
-                    if ($notFinal and $notFull and $notOnline and $notPremature)
-                    {
-                        $buttons['registerList'] = true;
-                    }*/
-
-                    if ($sameBlock and !$sameInstance) {
-                        $buttons['scheduleBlock'] = true;
-                    }
-                }
-            }
-            elseif ($item->manageable and !$item->premature) {
-                $buttons['manageList'] = true;
-            }
-
-            $structuredItems[$index]             = [];
-            $structuredItems[$index]['tools']    = $this->getToolsColumn($item, $index);
-            $structuredItems[$index]['instance'] = $this->getTitle($item);
-            $structuredItems[$index]['status']   = $this->getStatus($item);
-
-            $index++;
-        }
-
-        if (Application::mobile()) {
-            $buttons['deregisterList'] = false;
-            $buttons['descheduleList'] = false;
-            $buttons['manageList']     = false;
-            $buttons['registerList']   = false;
-            $buttons['scheduleList']   = false;
-        }
-
-        $this->buttons = $buttons;
-        $this->items   = $structuredItems;
     }
 
     /** @inheritDoc */
