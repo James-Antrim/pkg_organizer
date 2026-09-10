@@ -225,16 +225,6 @@ class HTML extends HTMLHelper
     }
 
     /**
-     * Displays a hidden token field to reduce the risk of CSRF exploits.
-     * @return  string  A hidden input field with a token
-     * @see     FH::token(), Session::checkToken()
-     */
-    public static function token(): string
-    {
-        return FH::token();
-    }
-
-    /**
      * Returns an action on a grid. Deviates from groups, because of groups offering a disabled toggle as a third option.
      *
      * @param int    $index      the row index
@@ -269,6 +259,16 @@ class HTML extends HTMLHelper
         $return .= "<div role=\"tooltip\" id=\"$ariaID\">$tip</div>";
 
         return $return;
+    }
+
+    /**
+     * Displays a hidden token field to reduce the risk of CSRF exploits.
+     * @return  string  A hidden input field with a token
+     * @see     FH::token(), Session::checkToken()
+     */
+    public static function token(): string
+    {
+        return FH::token();
     }
 
     /**

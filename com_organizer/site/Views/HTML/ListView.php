@@ -44,6 +44,7 @@ abstract class ListView extends Core
      */
     public function __construct(array $config)
     {
+        $this->toDo[] = 'Language toggle from dynamic content.';
         $this->option = 'com_organizer';
 
         // If this is not explicitly set going in Joomla will default to default without looking at the object property value.
