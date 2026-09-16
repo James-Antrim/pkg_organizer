@@ -11,42 +11,12 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\Input;
 
 /** @inheritDoc */
-class Instances extends ListsReferred implements Books
+class Instances extends ListController
 {
     use Booked;
-
-    /** @inheritDoc */
-    public function bookmarkBlock(): void
-    {
-        $this->bookmark(self::BLOCK);
-    }
-
-    /** @inheritDoc */
-    public function bookmarkSelected(): void
-    {
-        $this->bookmark(self::SELECTED);
-    }
-
-    /** @inheritDoc */
-    public function bookmarkThis(): void
-    {
-        $this->bookmark(self::THIS);
-    }
-
-    /** @inheritDoc */
-    public function deregisterSelected(): void
-    {
-        $this->deregister(self::SELECTED);
-    }
-
-    /** @inheritDoc */
-    public function deregisterThis(): void
-    {
-        $this->deregister(self::THIS);
-    }
 
     /**
      * Prints badges for the selected participants.
@@ -70,55 +40,6 @@ class Instances extends ListsReferred implements Books
         Input::format('pdf');
         Input::set('layout', 'GridA4');
         parent::display();
-    }
-
-    /** @inheritDoc */
-    public function registerSelected(): void
-    {
-        $this->register(self::SELECTED);
-    }
-
-    /** @inheritDoc */
-    public function registerThis(): void
-    {
-        $this->register(self::THIS);
-    }
-
-    /** @inheritDoc */
-    public function removeBookmarkBlock(): void
-    {
-        $this->removeBookmark(self::BLOCK);
-    }
-
-    /** @inheritDoc */
-    public function removeBookmarkSelected(): void
-    {
-        $this->removeBookmark(self::SELECTED);
-    }
-
-    /** @inheritDoc */
-    public function removeBookmarkThis(): void
-    {
-        $this->removeBookmark(self::THIS);
-    }
-
-
-    /**
-     * Removed all properties stored in the session
-     * @return void
-     */
-    public function reset(): void
-    {
-        $session  = Application::session();
-        $instance = $session->get('organizer.instance', []);
-
-        if (!empty($instance['referrer'])) {
-            $instance = ['referrer' => $instance['referrer']];
-        }
-
-        $session->set('organizer.instance', $instance);
-
-        parent::cancel();
     }
 
     /**

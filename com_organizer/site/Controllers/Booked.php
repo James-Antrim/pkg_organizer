@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
 use THM\Organizer\Helpers\{Dates, Instances as iHelper, Methods};
 use THM\Organizer\Tables\{Blocks, InstanceParticipants as Table, Instances as iTable};
@@ -85,6 +86,9 @@ trait Booked
      */
     public function bookmark(int $method): void
     {
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
+        $this->setRedirect(Route::_($referrer, false));
+
         if (!$participantID = User::id()) {
             Application::message(Text::_('401'), Application::ERROR);
             return;
@@ -128,12 +132,42 @@ trait Booked
     }
 
     /**
+     * Adds an instance to the participant's personal schedule.
+     * @return void
+     */
+    public function bookmarkBlock(): void
+    {
+        $this->bookmark(self::BLOCK);
+    }
+
+    /**
+     * Adds the selected instances to the participant's personal schedule.
+     * @return void
+     */
+    public function bookmarkSelected(): void
+    {
+        $this->bookmark(self::SELECTED);
+    }
+
+    /**
+     * Adds the current instance to the participant's personal schedule.
+     * @return void
+     */
+    public function bookmarkThis(): void
+    {
+        $this->bookmark(self::THIS);
+    }
+
+    /**
      * Removes the participant's registrations.
      * @param int $method
      * @return void
      */
-    public function deregister(int $method = self::SELECTED): void
+    public function deregister(int $method): void
     {
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
+        $this->setRedirect(Route::_($referrer, false));
+
         if (!$participantID = User::id()) {
             Application::message(Text::_('401'), Application::ERROR);
 
@@ -169,6 +203,24 @@ trait Booked
         if ($deregistered) {
             Application::message(Text::_('DEREGISTRATION_SUCCESS'));
         }
+    }
+
+    /**
+     * Removes the participant's registration for the selected instances.
+     * @return void
+     */
+    public function deregisterSelected(): void
+    {
+        $this->deregister(self::SELECTED);
+    }
+
+    /**
+     * Removes the participant's registration for the current instance.
+     * @return void
+     */
+    public function deregisterThis(): void
+    {
+        $this->deregister(self::THIS);
     }
 
     /**
@@ -292,8 +344,11 @@ trait Booked
      * @param int $method
      * @return void
      */
-    public function register(int $method = self::SELECTED): void
+    public function register(int $method): void
     {
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
+        $this->setRedirect(Route::_($referrer, false));
+
         if (!$participantID = User::id()) {
             Application::message(Text::_('401'), Application::ERROR);
             return;
@@ -403,6 +458,24 @@ trait Booked
     }
 
     /**
+     * Registers the participant for the selected instances.
+     * @return void
+     */
+    public function registerSelected(): void
+    {
+        $this->register(self::SELECTED);
+    }
+
+    /**
+     * Registers the participant for the current instance.
+     * @return void
+     */
+    public function registerThis(): void
+    {
+        $this->register(self::THIS);
+    }
+
+    /**
      * Removes instances from the participant's personal schedule.
      *
      * @param int $method
@@ -411,6 +484,9 @@ trait Booked
      */
     private function removeBookmark(int $method): void
     {
+        $referrer = Input::instance()->server->getString('HTTP_REFERER');
+        $this->setRedirect(Route::_($referrer, false));
+
         if (!$participantID = User::id()) {
             Application::message(Text::_('401'), Application::ERROR);
             return;
@@ -440,6 +516,34 @@ trait Booked
         if ($removed) {
             Application::message(Text::_('DESCHEDULE_SUCCESS'));
         }
+    }
+
+    /**
+     * Removes an instance from the participant's personal schedule.
+     * personal schedule.
+     * @return void
+     */
+    public function removeBookmarkBlock(): void
+    {
+        $this->removeBookmark(self::BLOCK);
+    }
+
+    /**
+     * Removes the selected instances from the participant's personal schedule.
+     * @return void
+     */
+    public function removeBookmarkSelected(): void
+    {
+        $this->removeBookmark(self::SELECTED);
+    }
+
+    /**
+     * Removes the current instance from the participant's personal schedule.
+     * @return void
+     */
+    public function removeBookmarkThis(): void
+    {
+        $this->removeBookmark(self::THIS);
     }
 
     /**

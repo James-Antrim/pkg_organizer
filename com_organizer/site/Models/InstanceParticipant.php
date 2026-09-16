@@ -11,68 +11,17 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
-use THM\Organizer\Controllers\{Participant, Participated};
-use THM\Organizer\Helpers\{Can, Dates, Participation as Helper, Instances as iHelper, Methods};
-use THM\Organizer\Tables\{Blocks, Instances as iTable, InstanceParticipants as Table};
+use THM\Organizer\Controllers\{Booked, Participant, Participated};
+use THM\Organizer\Helpers\{Can, Participation as Helper};
+use THM\Organizer\Tables\{Instances as iTable, InstanceParticipants as Table};
 
 /**
  * Class which manages stored course data.
  */
 class InstanceParticipant extends BaseModel
 {
+    use Booked;
     use Participated;
-
-    // Constants providing context for adding/removing instances to/from personal schedules though the interface.
-    private const BLOCK = 2, SELECTED = 0, THIS = 1;
-
-    /**
-     * Finds instances matching the given instance by course and date.
-     *
-     * @param   int[] &$instanceIDs  the instance ids
-     *
-     * @return void
-     */
-    private function addCourseInstances(array &$instanceIDs): void
-    {
-        $now             = date('H:i:s');
-        $supplementalIDs = [];
-        $today           = date('Y-m-d');
-        $then            = date('Y-m-d', strtotime('+2 days'));
-
-        foreach ($instanceIDs as $instanceID) {
-            $instance = new iTable();
-            $instance->load($instanceID);
-
-            $query = Database::query();
-            $query->select('i1.id')
-                ->from('#__organizer_instances AS i1')
-                ->innerJoin('#__organizer_blocks AS b1 ON b1.id = i1.blockID')
-                ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i1.id')
-                ->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ip.id')
-                ->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
-                ->innerJoin('#__organizer_units AS u1 ON u1.id = i1.unitID')
-                ->innerJoin('#__organizer_units AS u2 ON u2.courseID = u1.courseID')
-                ->innerJoin('#__organizer_instances AS i2 on i2.unitID = u2.id')
-                ->innerJoin('#__organizer_blocks AS b2 ON b2.id = i2.blockID')
-                ->where("i1.id != $instanceID")
-                ->where("r.virtual = 0")
-                ->where('u1.courseID IS NOT NULL')
-                ->where("i2.id = $instanceID")
-                ->where("(b1.startTime > b2.endTime or b1.endTime < b2.startTime)")
-                ->where("b1.date = b2.date")
-                ->where("(b1.date > '$today' OR (b1.date = '$today' and b1.startTime > '$now'))")
-                ->where("b1.date <= '$then'");
-
-            Database::set($query);
-            $results = Database::integers();
-
-            $supplementalIDs = array_merge($supplementalIDs, $results);
-        }
-
-        $instanceIDs = array_merge($instanceIDs, $supplementalIDs);
-        $instanceIDs = array_unique($instanceIDs);
-        $instanceIDs = array_filter($instanceIDs);
-    }
 
     /**
      * Authorizes users responsible for bookings to edit individual participation.
@@ -89,60 +38,6 @@ class InstanceParticipant extends BaseModel
         if (!Can::manage('booking', $bookingID)) {
             Application::error(403);
         }
-    }
-
-    /**
-     * Adds instances to the user's personal schedule.
-     *
-     * @param   int  $method  the manner in which instances are selected.
-     *
-     * @return void
-     */
-    public function bookmark(int $method): void
-    {
-        if (!$participantID = User::id()) {
-            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
-
-            return;
-        }
-
-        Participant::supplement($participantID);
-
-        if (!$instanceIDs = $this->getInstanceIDs($method, true)) {
-            return;
-        }
-
-        $bookmarked  = false;
-        $responsible = false;
-
-        foreach ($instanceIDs as $instanceID) {
-            if (iHelper::hasResponsibility($instanceID)) {
-                $responsible = true;
-                continue;
-            }
-
-            $participation = new Table();
-            $keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-            // Participant already has the appointment bookmarked.
-            if ($participation->load($keys)) {
-                continue;
-            }
-
-            if ($participation->save($keys)) {
-                $bookmarked = true;
-                $this->updateIPNumbers($instanceID);
-            }
-        }
-
-        if ($bookmarked) {
-            Application::message('ORGANIZER_SCHEDULE_SUCCESS');
-        }
-        elseif ($responsible) {
-            Application::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', Application::NOTICE);
-        }
-
-        // The other option is that all matching instances were already in the participant's personal schedule => no message.
     }
 
     /**
@@ -211,7 +106,7 @@ class InstanceParticipant extends BaseModel
                 return false;
             }
 
-            $this->updateIPNumbers($instanceID);
+            $this->updateNumbers($instanceID);
         }
 
         Application::message(Text::_('ORGANIZER_CHECKIN_SUCCEEDED'));
@@ -259,7 +154,7 @@ class InstanceParticipant extends BaseModel
             if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
                 $participation->delete();
                 Application::message('ORGANIZER_EVENT_CONFIRMED');
-                $this->updateIPNumbers($instanceID);
+                $this->updateNumbers($instanceID);
             }
             else {
                 Application::message('ORGANIZER_412', Application::ERROR);
@@ -299,142 +194,19 @@ class InstanceParticipant extends BaseModel
         $table->store();
     }
 
-    /**
-     * De-registers participants from instances.
-     *
-     * @param   int  $method  the method to be used for resolving the instances to be registered
-     *
-     * @return void
-     */
-    public function deregister(int $method): void
-    {
-        if (!$participantID = User::id()) {
-            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
-
-            return;
-        }
-
-        // This filters out past instances.
-        if (!$instanceIDs = $this->getInstanceIDs($method)) {
-            return;
-        }
-
-        $this->addCourseInstances($instanceIDs);
-
-        $deregistered = false;
-
-        foreach ($instanceIDs as $instanceID) {
-            $participation = new Table();
-            $keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-            // Participant was not registered to this instance.
-            if (!$participation->load($keys) or !$participation->registered) {
-                continue;
-            }
-
-            $keys['registered'] = false;
-
-            if ($participation->save($keys)) {
-                $deregistered = true;
-                $this->updateIPNumbers($instanceID);
-            }
-        }
-
-        if ($deregistered) {
-            Application::message(Text::_('ORGANIZER_DEREGISTRATION_SUCCESS'));
-        }
-
-        // The other option is that the participant wasn't registered to any of the matching instances => no message.
-    }
 
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
      *
      * @return  Table  An instance participants table object
      */
     public function getTable($name = '', $prefix = '', $options = []): Table
     {
         return new Table();
-    }
-
-    /**
-     * Finds instances matching the given instance by matching method, inclusive the reference instance. Adds system
-     * message if no results were found.
-     *
-     * @param   int   $method   the method for determining relevant instances
-     * @param   bool  $virtual  whether virtual instances are permissible in the result set
-     *
-     * @return int[]
-     */
-    private function getInstanceIDs(int $method, bool $virtual = false): array
-    {
-        $now   = date('H:i:s');
-        $query = Database::query();
-        $today = date('Y-m-d');
-
-        $query->select('i.id')
-            ->from('#__organizer_instances AS i')
-            ->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-            ->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
-            ->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ip.id')
-            ->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
-            ->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
-            ->order('i.id');
-
-        if (!$virtual) {
-            $query->where("r.virtual = 0");
-        }
-
-        switch ($method) {
-            // Called from instance item context, selected ids are not relevant
-            case self::BLOCK:
-                $block      = new Blocks();
-                $instance   = new iTable();
-                $instanceID = Input::id();
-                if (!$instanceID or !$instance->load($instanceID) or !$block->load($instance->blockID)) {
-                    return [];
-                }
-
-                $query->where("i.eventID = $instance->eventID")
-                    ->where("i.unitID = $instance->unitID")->where("b.dow = $block->dow")
-                    ->where("b.endTime = '$block->endTime'")
-                    ->where("b.startTime = '$block->startTime'");
-                Database::set($query);
-                $instanceIDs = Database::integers();
-                break;
-
-            // Called from instance item context, selected ids are not relevant
-            case self::THIS:
-                $instance   = new iTable();
-                $instanceID = Input::id();
-
-                $instanceIDs = (!$instanceID or !$instance->load($instanceID)) ? [] : [$instanceID];
-                break;
-
-            // Called from instance_item or instances contexts
-            case self::SELECTED:
-            default:
-
-                if (!$instanceIDs = Input::selectedIDs()) {
-                    return [];
-                }
-
-                $selected = implode(',', $instanceIDs);
-                $query->where("i.id IN ($selected)");
-                Database::set($query);
-                $instanceIDs = Database::integers();
-                break;
-        }
-
-        if (!$instanceIDs = array_values($instanceIDs)) {
-            Application::message(Text::_('ORGANIZER_NO_VALID_INSTANCES'), Application::NOTICE);
-        }
-
-        return $instanceIDs;
     }
 
     /**
@@ -479,176 +251,13 @@ class InstanceParticipant extends BaseModel
     }
 
     /**
-     * Registers participants to instances.
-     *
-     * @param   int  $method  the method to be used for resolving the instances to be registered
-     *
-     * @return void
-     */
-    public function register(int $method): void
-    {
-        if (!$participantID = User::id()) {
-            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
-
-            return;
-        }
-
-        Participant::supplement($participantID);
-
-        // This filters out past instances.
-        if (!$instanceIDs = $this->getInstanceIDs($method)) {
-            return;
-        }
-
-        $this->addCourseInstances($instanceIDs);
-
-        $registered  = false;
-        $responsible = false;
-
-        foreach ($instanceIDs as $instanceID) {
-            if (iHelper::hasResponsibility($instanceID)) {
-                $responsible = true;
-                continue;
-            }
-
-            $participation = new Table();
-            $keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-            // Participant is already registered.
-            if ($participation->load($keys) and $participation->registered) {
-                continue;
-            }
-
-            $name  = iHelper::name($instanceID);
-            $block = iHelper::block($instanceID);
-            $date  = Dates::formatDate($block->date);
-            //$earliest  = Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
-            $endTime   = Dates::formatEndTime($block->endTime);
-            $startTime = Dates::formatTime($block->startTime);
-            //$then      = date('Y-m-d', strtotime('+2 days'));
-
-            if (iHelper::methodCode($instanceID) === Methods::FINALCODE) {
-                Application::message(
-                    Text::sprintf('ORGANIZER_INSTANCE_EXTERNAL_REGISTRATION', $name, $date, $startTime, $endTime),
-                    Application::NOTICE
-                );
-                continue;
-            }
-
-            if (iHelper::getPresence($instanceID) === iHelper::ONLINE) {
-                Application::message(
-                    Text::sprintf('ORGANIZER_INSTANCE_ONLINE', $name, $date, $startTime, $endTime),
-                    Application::NOTICE
-                );
-                continue;
-            }
-
-            /*if ($block->date > $then)
-            {
-                Application::message(
-                    Text::sprintf('ORGANIZER_PREMATURE_REGISTRATION', $name, $date, $startTime, $endTime, $earliest),
-                    Application::NOTICE
-                );
-                continue;
-            }*/
-
-            $query = Database::query();
-            $query->select('i.id')
-                ->from('#__organizer_instance_participants AS ip')
-                ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-                ->where("i.id != $instanceID")
-                ->where("i.blockID = $block->id")
-                ->where('ip.registered = 1')
-                ->where("ip.participantID = $participantID");
-            Database::set($query);
-
-            if ($otherInstanceID = Database::integer()) {
-                $otherName = iHelper::name($otherInstanceID);
-                Application::message(
-                    Text::sprintf('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT', $date, $startTime, $endTime,
-                        $otherName),
-                    Application::NOTICE
-                );
-                continue;
-            }
-
-            if (iHelper::isFull($instanceID)) {
-                Application::message(
-                    Text::sprintf('ORGANIZER_INSTANCE_FULL_MESSAGE', $name, $date, $startTime, $endTime),
-                    Application::NOTICE
-                );
-                continue;
-            }
-
-            $keys['registered'] = true;
-
-            if ($participation->save($keys)) {
-                $registered = true;
-                $this->updateIPNumbers($instanceID);
-            }
-        }
-
-        if ($registered) {
-            Application::message(Text::_('ORGANIZER_REGISTRATION_SUCCESS'));
-        }
-        elseif ($responsible) {
-            Application::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', Application::NOTICE);
-        }
-
-        // The other option is that the participant is already registered to all matching instances => no message.
-    }
-
-    /**
-     * Removes instances from a participant's personal schedule.
-     *
-     * @param   int  $method  the manner in which instances are filtered for removal.
-     *
-     * @return void
-     */
-    public function removeBookmark(int $method): void
-    {
-        if (!$participantID = User::id()) {
-            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
-
-            return;
-        }
-
-        if (!$instanceIDs = $this->getInstanceIDs($method, true)) {
-            return;
-        }
-
-        $removed = false;
-
-        foreach ($instanceIDs as $instanceID) {
-            $participation = new Table();
-            $keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-            // The instance was not in the participant's personal schedule.
-            if (!$participation->load($keys)) {
-                continue;
-            }
-
-            if ($participation->delete()) {
-                $removed = true;
-                $this->updateIPNumbers($instanceID);
-            }
-        }
-
-        if ($removed) {
-            Application::message(Text::_('ORGANIZER_DESCHEDULE_SUCCESS'));
-        }
-
-        // The other option is that the participant didn't have matching instances in their personal schedule regardless => no message.
-    }
-
-    /**
      * Attempts to save the resource.
      *
-     * @param   array  $data  the data from the form
+     * @param array $data the data from the form
      *
-     * @return bool int id of the resource on success, otherwise bool false
+     * @return int
      */
-    public function save(array $data = []): bool
+    public function save(array $data = []): int
     {
         $this->authorize();
 
@@ -689,12 +298,12 @@ class InstanceParticipant extends BaseModel
             }
         }
 
-        $success = $table->store();
+        $table->store();
 
         foreach ($instanceIDs as $instanceID) {
-            $this->updateIPNumbers($instanceID);
+            $this->updateNumbers($instanceID);
         }
 
-        return $success;
+        return $table->id;
     }
 }
