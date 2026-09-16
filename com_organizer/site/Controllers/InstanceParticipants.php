@@ -17,7 +17,7 @@ use THM\Organizer\Models\InstanceParticipant;
 /**
  * Class provides methods for participant interaction with instances.
  */
-class InstanceParticipants extends Controller
+class InstanceParticipants extends ListController
 {
     use Booked;
     use Participated;

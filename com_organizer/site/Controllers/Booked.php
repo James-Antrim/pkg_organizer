@@ -119,7 +119,7 @@ trait Booked
 
             if ($participation->save($keys)) {
                 $bookmarked = true;
-                $this->updateNumbers($instanceID);
+                iHelper::updateNumbers($instanceID);
             }
         }
 
@@ -196,7 +196,7 @@ trait Booked
 
             if ($participation->save($keys)) {
                 $deregistered = true;
-                $this->updateNumbers($instanceID);
+                iHelper::updateNumbers($instanceID);
             }
         }
 
@@ -445,7 +445,7 @@ trait Booked
 
             if ($participation->save($keys)) {
                 $registered = true;
-                $this->updateNumbers($instanceID);
+                iHelper::updateNumbers($instanceID);
             }
         }
 
@@ -509,7 +509,7 @@ trait Booked
 
             if ($participation->delete()) {
                 $removed = true;
-                $this->updateNumbers($instanceID);
+                iHelper::updateNumbers($instanceID);
             }
         }
 
@@ -544,57 +544,5 @@ trait Booked
     public function removeBookmarkThis(): void
     {
         $this->removeBookmark(self::THIS);
-    }
-
-    /**
-     * Updates participation numbers for a single instance.
-     *
-     * @param int $instanceID
-     *
-     * @return bool
-     */
-    public function updateNumbers(int $instanceID): bool
-    {
-        $query = DB::query();
-        $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");
-        DB::set($query);
-
-        if (!$results = DB::arrays()) {
-            return false;
-        }
-
-        $attended   = 0;
-        $bookmarked = 0;
-        $registered = 0;
-
-        foreach ($results as $result) {
-            $bookmarked++;
-            $attended   = $attended + $result['attended'];
-            $registered = $registered + $result['registered'];
-        }
-
-        $table = new iTable();
-        $table->load($instanceID);
-
-        $updated = false;
-
-        if ($attended and $attended !== $table->attended) {
-            $table->attended = $attended;
-            $updated         = true;
-        }
-
-        if ($bookmarked and $bookmarked !== $table->bookmarked) {
-            $table->bookmarked = $bookmarked;
-            $updated           = true;
-        }
-
-        if ($registered and $registered !== $table->registered) {
-            $table->registered = $registered;
-            $updated           = true;
-        }
-
-        $table->store();
-
-        return $updated;
     }
 }

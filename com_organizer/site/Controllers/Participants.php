@@ -11,40 +11,11 @@
 namespace THM\Organizer\Controllers;
 
 use THM\Organizer\Adapters\Database as DB;
+use THM\Organizer\Helpers\Instances;
 
 /** @inheritDoc */
 class Participants extends ListController
 {
-    use Participated;
-
-//	private function anonymize()
-//	{
-//		/**
-//		 * Anonymize user:
-//		 * name: 'Anonymous User'
-//		 * username: 'x-<id>'
-//		 * password: ''
-//		 * email: x.<id>@xx.xx
-//		 * block: 1
-//		 * sendEmail: 0
-//		 * registerDate: '0000-00-00 00:00:00'
-//		 * lastvisitDate: '0000-00-00 00:00:00'
-//		 * activation: ''
-//		 * params: '{}'
-//		 * lastResetTime: '0000-00-00 00:00:00'
-//		 * resetCount: 0
-//		 * otpKey: ''
-//		 * otep: ''
-//		 * requireReset: 0
-//		 * authProvider: ''
-//		 */
-//
-//		/**
-//		 * Anonymize participant:
-//		 *
-//		 */
-//	}
-
     /**
      * Updates all instance participation numbers.
      * @return void
@@ -63,7 +34,7 @@ class Participants extends ListController
         $updated     = 0;
 
         foreach ($instanceIDs as $instanceID) {
-            if ($this->updateIPNumbers($instanceID)) {
+            if (Instances::updateNumbers($instanceID)) {
                 $updated++;
             }
         }

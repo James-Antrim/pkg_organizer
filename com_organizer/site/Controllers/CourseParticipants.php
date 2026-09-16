@@ -17,6 +17,8 @@ use THM\Organizer\Helpers\{Can, Courses as cHelper, CourseParticipants as Helper
 
 class CourseParticipants extends Participants
 {
+    use Participated;
+
     protected string $context = 'courseID';
 
     /**
@@ -136,7 +138,7 @@ class CourseParticipants extends Participants
     }
 
     /**
-     * Sets the participant's payment status to paid.
+     * Sets the participant's payment status to unpaid.
      * @return void
      */
     public function denyPayment(): void
@@ -145,7 +147,7 @@ class CourseParticipants extends Participants
     }
 
     /**
-     * Sends an circular email to all course participants
+     * Sends a circular email to all course participants
      * @return void
      */
     public function notify(): void
@@ -201,8 +203,7 @@ class CourseParticipants extends Participants
 
         try {
             $this->display();
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             Application::handleException($exception);
         }
     }

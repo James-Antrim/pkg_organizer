@@ -1547,6 +1547,58 @@ class Instances extends ResourceHelper
     }
 
     /**
+     * Updates participation numbers for a single instance.
+     *
+     * @param int $instanceID
+     *
+     * @return bool
+     */
+    public static function updateNumbers(int $instanceID): bool
+    {
+        $query = DB::query();
+        $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");
+        DB::set($query);
+
+        if (!$results = DB::arrays()) {
+            return false;
+        }
+
+        $attended   = 0;
+        $bookmarked = 0;
+        $registered = 0;
+
+        foreach ($results as $result) {
+            $bookmarked++;
+            $attended   = $attended + $result['attended'];
+            $registered = $registered + $result['registered'];
+        }
+
+        $table = new Instance();
+        $table->load($instanceID);
+
+        $updated = false;
+
+        if ($attended and $attended !== $table->attended) {
+            $table->attended = $attended;
+            $updated         = true;
+        }
+
+        if ($bookmarked and $bookmarked !== $table->bookmarked) {
+            $table->bookmarked = $bookmarked;
+            $updated           = true;
+        }
+
+        if ($registered and $registered !== $table->registered) {
+            $table->registered = $registered;
+            $updated           = true;
+        }
+
+        $table->store();
+
+        return $updated;
+    }
+
+    /**
      * Sets the publishing value for individual instances.
      * @return void
      */

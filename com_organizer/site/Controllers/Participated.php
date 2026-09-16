@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\{Application, Database as DB, Input};
-use THM\Organizer\Tables\Instances as iTable;
+use THM\Organizer\Adapters\{Application, Input};
 
 /**
  * Standard implementation for updating participation numbers.
@@ -21,8 +20,8 @@ trait Participated
     /**
      * Initiates toggling of boolean values in a column.
      *
-     * @param   string  $column  the column in which the values are stored
-     * @param   bool    $value   the target value
+     * @param string $column the column in which the values are stored
+     * @param bool   $value  the target value
      *
      * @return void
      */
@@ -42,10 +41,10 @@ trait Participated
     /**
      * Updates a boolean column for multiple entries in a
      *
-     * @param   string  $column       the table column / object property
-     * @param   int     $contextID
-     * @param   array   $selectedIDs  the ids of the resources whose properties will be updated
-     * @param   bool    $value        the value to update to
+     * @param string $column      the table column / object property
+     * @param int    $contextID
+     * @param array  $selectedIDs the ids of the resources whose properties will be updated
+     * @param bool   $value       the value to update to
      *
      * @return int
      */
@@ -78,57 +77,5 @@ trait Participated
         }
 
         return $total;
-    }
-
-    /**
-     * Updates participation numbers for a single instance.
-     *
-     * @param   int  $instanceID
-     *
-     * @return bool
-     */
-    private function updateIPNumbers(int $instanceID): bool
-    {
-        $query = DB::query();
-        $query->select('*')->from(DB::qn('#__organizer_instance_participants'))->where("instanceID = $instanceID");
-        DB::set($query);
-
-        if (!$results = DB::arrays()) {
-            return false;
-        }
-
-        $attended   = 0;
-        $bookmarked = 0;
-        $registered = 0;
-
-        foreach ($results as $result) {
-            $bookmarked++;
-            $attended   = $attended + $result['attended'];
-            $registered = $registered + $result['registered'];
-        }
-
-        $table = new iTable();
-        $table->load($instanceID);
-
-        $updated = false;
-
-        if ($attended and $attended !== $table->attended) {
-            $table->attended = $attended;
-            $updated         = true;
-        }
-
-        if ($bookmarked and $bookmarked !== $table->bookmarked) {
-            $table->bookmarked = $bookmarked;
-            $updated           = true;
-        }
-
-        if ($registered and $registered !== $table->registered) {
-            $table->registered = $registered;
-            $updated           = true;
-        }
-
-        $table->store();
-
-        return $updated;
     }
 }

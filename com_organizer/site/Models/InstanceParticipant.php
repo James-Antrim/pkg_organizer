@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Input, Text, User};
-use THM\Organizer\Controllers\{Booked, Participant, Participated};
-use THM\Organizer\Helpers\{Can, Participation as Helper};
+use THM\Organizer\Controllers\{Booked, Participant};
+use THM\Organizer\Helpers\{Can, Instances as iHelper, Participation as Helper};
 use THM\Organizer\Tables\{Instances as iTable, InstanceParticipants as Table};
 
 /**
@@ -21,7 +21,6 @@ use THM\Organizer\Tables\{Instances as iTable, InstanceParticipants as Table};
 class InstanceParticipant extends BaseModel
 {
     use Booked;
-    use Participated;
 
     /**
      * Authorizes users responsible for bookings to edit individual participation.
@@ -106,7 +105,7 @@ class InstanceParticipant extends BaseModel
                 return false;
             }
 
-            $this->updateNumbers($instanceID);
+            iHelper::updateNumbers($instanceID);
         }
 
         Application::message(Text::_('ORGANIZER_CHECKIN_SUCCEEDED'));
@@ -154,7 +153,7 @@ class InstanceParticipant extends BaseModel
             if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
                 $participation->delete();
                 Application::message('ORGANIZER_EVENT_CONFIRMED');
-                $this->updateNumbers($instanceID);
+                iHelper::updateNumbers($instanceID);
             }
             else {
                 Application::message('ORGANIZER_412', Application::ERROR);
@@ -301,7 +300,7 @@ class InstanceParticipant extends BaseModel
         $table->store();
 
         foreach ($instanceIDs as $instanceID) {
-            $this->updateNumbers($instanceID);
+            iHelper::updateNumbers($instanceID);
         }
 
         return $table->id;
