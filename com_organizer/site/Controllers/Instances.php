@@ -11,14 +11,43 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
-use THM\Organizer\Models\Instance;
 
 /** @inheritDoc */
-class Instances extends ListsReferred
+class Instances extends ListsReferred implements Books
 {
+    use Booked;
+
+    /** @inheritDoc */
+    public function bookmarkBlock(): void
+    {
+        $this->bookmark(self::BLOCK);
+    }
+
+    /** @inheritDoc */
+    public function bookmarkSelected(): void
+    {
+        $this->bookmark(self::SELECTED);
+    }
+
+    /** @inheritDoc */
+    public function bookmarkThis(): void
+    {
+        $this->bookmark(self::THIS);
+    }
+
+    /** @inheritDoc */
+    public function deregisterSelected(): void
+    {
+        $this->deregister(self::SELECTED);
+    }
+
+    /** @inheritDoc */
+    public function deregisterThis(): void
+    {
+        $this->deregister(self::THIS);
+    }
+
     /**
      * Prints badges for the selected participants.
      * @return void
@@ -43,6 +72,37 @@ class Instances extends ListsReferred
         parent::display();
     }
 
+    /** @inheritDoc */
+    public function registerSelected(): void
+    {
+        $this->register(self::SELECTED);
+    }
+
+    /** @inheritDoc */
+    public function registerThis(): void
+    {
+        $this->register(self::THIS);
+    }
+
+    /** @inheritDoc */
+    public function removeBookmarkBlock(): void
+    {
+        $this->register(self::BLOCK);
+    }
+
+    /** @inheritDoc */
+    public function removeBookmarkSelected(): void
+    {
+        $this->removeBookmark(self::SELECTED);
+    }
+
+    /** @inheritDoc */
+    public function removeBookmarkThis(): void
+    {
+        $this->removeBookmark(self::THIS);
+    }
+
+
     /**
      * Removed all properties stored in the session
      * @return void
@@ -59,40 +119,6 @@ class Instances extends ListsReferred
         $session->set('organizer.instance', $instance);
 
         parent::cancel();
-    }
-
-    /**
-     * Save form data to the database.
-     * @return void
-     */
-    public function save(): void
-    {
-        $model    = new Instance();
-        $session  = Application::session();
-        $instance = $session->get('organizer.instance', []);
-        $referrer = empty($instance['referrer']) ? '' : $instance['referrer'];
-
-        if ($model->save()) {
-            Application::message('ORGANIZER_SAVE_SUCCESS');
-            $session->set('organizer.instance', '');
-            $this->setRedirect(Route::_($referrer, false));
-
-            return;
-        }
-
-        Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
-
-        $url = Helpers\Routing::getRedirectBase() . "&view=instance_edit";
-
-        if ($id = Input::id()) {
-            $url .= "&id=$id";
-        }
-
-        if (Input::cmd('layout', 'appointment') === 'appointment') {
-            $url .= '&appointment=1';
-        }
-
-        $this->setRedirect(Route::_($url, false));
     }
 
     /**

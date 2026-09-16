@@ -80,9 +80,9 @@ class Instances extends ListView
                 $bookmarkDD = $toolbar->dropdownButton('bookmark-dd', Text::_('INSTANCES'));
                 $bookmarkDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-ellipsis-h')->listCheck(true);
                 $bookmarkCB = $bookmarkDD->getChildToolbar();
-                $bookmarkCB->standardButton('bookmark', Text::_('BOOKMARK'), 'InstanceParticipants.bookmark')
+                $bookmarkCB->standardButton('bookmark', Text::_('BOOKMARK'), 'instances.bookmarkSelected')
                     ->icon('fas fa-bookmark')->listCheck(true);
-                $bookmarkCB->standardButton('unbookmark', Text::_('REMOVE_BOOKMARK'), 'InstanceParticipants.removeBookmark')
+                $bookmarkCB->standardButton('unbookmark', Text::_('REMOVE_BOOKMARK'), 'instances.removeBookmarkSelected')
                     ->icon('far fa-bookmark')->listCheck(true);
             }
 
@@ -90,9 +90,9 @@ class Instances extends ListView
                 $registrationDD = $toolbar->dropdownButton('registration', Text::_('PRESENCE_PARTICIPATION'));
                 $registrationDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-ellipsis-h')->listCheck(true);
                 $registrationCB = $registrationDD->getChildToolbar();
-                $registrationCB->standardButton('register', Text::_('REGISTER'), 'InstanceParticipants.register')
+                $registrationCB->standardButton('register', Text::_('REGISTER'), 'instances.register')
                     ->icon('fa fa-sign-in-alt')->listCheck(true);
-                $registrationCB->standardButton('deregister', Text::_('DEREGISTER'), 'InstanceParticipants.deregister')
+                $registrationCB->standardButton('deregister', Text::_('DEREGISTER'), 'instances.deregister')
                     ->icon('fa fa-sign-out-alt')->listCheck(true);
             }*/
 
@@ -132,17 +132,17 @@ class Instances extends ListView
                     break;
                 case 'PDF_A3':
                     $button = new FormTarget('pdfGridA3', $text);
-                    $button->icon('fa fa-file-pdf')->task('Instances.gridA3');
+                    $button->icon('fa fa-file-pdf')->task('instances.gridA3');
                     $exportCB->appendButton($button);
                     break;
                 case 'PDF_A4':
                     $button = new FormTarget('pdfGridA4', $text);
-                    $button->icon('fa fa-file-pdf')->task('Instances.gridA4');
+                    $button->icon('fa fa-file-pdf')->task('instances.gridA4');
                     $exportCB->appendButton($button);
                     break;
                 case 'XLS_LIST':
                     $button = new FormTarget('xls', $text);
-                    $button->icon('fa fa-file-excel')->task('Instances.xls');
+                    $button->icon('fa fa-file-excel')->task('instances.xls');
                     $exportCB->appendButton($button);
                     break;
             }
@@ -439,12 +439,12 @@ class Instances extends ListView
                         if ($item->bookmarked) {
                             $label = 'REMOVE_BOOKMARK';
                             $icon  = HTML::icon('fa fa-bookmark');
-                            $url   = Routing::getTaskURL('InstanceParticipants.removeBookmarkBlock', $instanceID);
+                            $url   = Routing::getTaskURL('instances.removeBookmarkBlock', $instanceID);
                         }
                         else {
                             $label = 'BOOKMARK';
                             $icon  = HTML::icon('far fa-bookmark');
-                            $url   = Routing::getTaskURL('InstanceParticipants.bookmarkBlock', $instanceID);
+                            $url   = Routing::getTaskURL('instances.bookmarkBlock', $instanceID);
                         }
 
                         $tools[] = HTML::tip($icon, "$context-bookmark", $label, [], $url);
@@ -475,13 +475,13 @@ class Instances extends ListView
                         elseif ($item->registered)
                         {
                             $icon    = HTML::icon('fa fa-sign-in-alt');
-                            $url     = Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
+                            $url     = Routing::getTaskURL('instances.deregister', $instanceID);
                             $tools[] = HTML::tip($icon, "$context-instance-status", 'REGISTERED_DEREGISTER', [], $url);
                         }
                         else
                         {
                             $icon    = HTML::icon('fa fa-play');
-                            $url     = Routing::getTaskURL('InstanceParticipants.register', $instanceID);
+                            $url     = Routing::getTaskURL('instances.register', $instanceID);
                             $tools[] = HTML::tip($icon, "$context-instance-status", 'REGISTER', [], $url);
                         }
                     }*/

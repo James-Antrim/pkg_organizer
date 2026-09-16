@@ -1255,7 +1255,6 @@ class Instances extends ResourceHelper
         }
     }
 
-
     /**
      * Checks whether the instance takes place exclusively online.
      *
