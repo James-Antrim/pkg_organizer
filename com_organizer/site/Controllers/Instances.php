@@ -87,7 +87,7 @@ class Instances extends ListsReferred implements Books
     /** @inheritDoc */
     public function removeBookmarkBlock(): void
     {
-        $this->register(self::BLOCK);
+        $this->removeBookmark(self::BLOCK);
     }
 
     /** @inheritDoc */
