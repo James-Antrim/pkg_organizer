@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, Database as DB, Input, Text, User};
-use THM\Organizer\Helpers\{Dates, Instances as iHelper, Methods};
+use THM\Organizer\Helpers\{Dates, Instances as iHelper, Methods, Participants};
 use THM\Organizer\Tables\{Blocks, InstanceParticipants as Table, Instances as iTable};
 
 /**
@@ -94,7 +94,7 @@ trait Booked
             return;
         }
 
-        Participant::supplement($participantID);
+        Participants::supplement($participantID);
 
         if (!$instanceIDs = $this->instanceIDs($method, true)) {
             return;
@@ -354,7 +354,7 @@ trait Booked
             return;
         }
 
-        Participant::supplement($participantID);
+        Participants::supplement($participantID);
 
         // This filters out past instances.
         if (!$instanceIDs = $this->instanceIDs($method)) {

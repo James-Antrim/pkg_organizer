@@ -12,9 +12,9 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Application\CMSApplication;
-use THM\Organizer\Adapters\{Application, Input, User};
-use THM\Organizer\Helpers;
-use THM\Organizer\Models;
+use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
+use THM\Organizer\Helpers\{Instances, Participants, Routing};
+use THM\Organizer\Tables\{Instances as iTable, InstanceParticipants as Table};
 
 /** @inheritDoc */
 class Checkin extends Controller
@@ -28,6 +28,8 @@ class Checkin extends Controller
     {
         $data    = Input::post();
         $session = Application::session();
+        $url     = Routing::getRedirectBase() . "&view=checkin";
+        $this->setRedirect($url);
 
         if (!User::id()) {
             /** @var CMSApplication $app */
@@ -36,19 +38,78 @@ class Checkin extends Controller
             $session->set('organizer.checkin.username', $data['username']);
         }
 
-        if (User::id()) {
-            $model = new Models\InstanceParticipant();
-
-            // Code was invalid, no reason to keep it.
-            $code = $model->checkin() ? $data['code'] : '';
-            $session->set('organizer.checkin.code', $code);
-        }
-        else {
+        if (!$participantID = User::id()) {
+            Application::message('ORGANIZER_401', Application::ERROR);
             $session->set('organizer.checkin.code', $data['code']);
+
+            return;
         }
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
-        $this->setRedirect($url);
+        Participants::supplement($participantID);
+
+        $data = Input::post();
+        if (!$code = $data['code'] or !preg_match('/^[a-f0-9]{4}-[a-f0-9]{4}$/', $code)) {
+            Application::message('UNIT_CODE_INVALID', Application::ERROR);
+            $session->set('organizer.checkin.code', '');
+
+            return;
+        }
+
+        $then            = date('H:i:s', strtotime('+60 minutes'));
+        $bookingOpen     = DB::qn('bk.startTime') . ' IS NOT NULL';
+        $bookingStarting = DB::qc('bk.startTime', $then, '<', true);
+        $blockStarting   = DB::qc('bl.startTime', $then, '<', true);
+
+        $query = DB::query();
+        $query->select(DB::qn('i.id'))
+            ->from(DB::qn('#__organizer_instances', 'i'))
+            ->innerJoin(DB::qn('#__organizer_bookings', 'bk'), DB::qcs([['bk.blockID', 'i.blockID'], ['bk.unitID', 'i.unitID']]))
+            ->innerJoin(DB::qn('#__organizer_blocks', 'bl'), DB::qc('bl.id', 'i.blockID'))
+            ->where(DB::qcs([
+                ['bk.code', $code, '=', true],
+                ['bl.date', date('Y-m-d'), '=', true],
+                ['bl.endTime', date('H:i:s'), '>', true]
+            ]))
+            ->where("(($bookingOpen and $bookingStarting) or $blockStarting)");
+        DB::set($query);
+
+        if (!$instanceIDs = DB::integers()) {
+            Application::message('UNIT_CODE_INVALID', Application::ERROR);
+            $session->set('organizer.checkin.code', '');
+
+            return;
+        }
+
+        // Filter for bookmarked/registered
+        $query = DB::query();
+        $query->select(DB::qn('instanceID'))
+            ->from(DB::qn('#__organizer_instance_participants'))
+            ->where(DB::qc('participantID', $participantID))
+            ->whereIn(DB::qn('instanceID'), $instanceIDs);
+        DB::set($query);
+
+        if ($plannedIDs = DB::integers()) {
+            $instanceIDs = array_intersect($plannedIDs, $instanceIDs);
+        }
+
+        foreach ($instanceIDs as $instanceID) {
+            $data = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
+            $participation = new Table();
+            $participation->load($data);
+            $data['attended'] = 1;
+
+            if (!$participation->save($data)) {
+                Application::message('CHECKIN_FAILED');
+
+                return;
+            }
+
+            Instances::updateNumbers($instanceID);
+        }
+
+        Application::message('CHECKIN_SUCCEEDED');
+        $session->set('organizer.checkin.code', $data['code']);
     }
 
     /**
@@ -57,13 +118,47 @@ class Checkin extends Controller
      */
     public function confirmInstance(): void
     {
-        if (User::id()) {
-            $model = new Models\InstanceParticipant();
-            $model->confirmInstance();
+        $url = Routing::getRedirectBase() . "&view=checkin";
+        $this->setRedirect($url);
+
+        if (!$participantID = User::id()) {
+            Application::message('401', Application::ERROR);
+
+            return;
         }
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
-        $this->setRedirect($url);
+        if (!$instanceID = Input::id()) {
+            Application::message('400', Application::ERROR);
+
+            return;
+        }
+
+        $instance = new iTable();
+        if (!$instance->load($instanceID)) {
+            Application::message('412', Application::ERROR);
+
+            return;
+        }
+
+        // Get all other instances relevant to the booking
+        $query = DB::query();
+        $query->select(DB::qn('id'))
+            ->from(DB::qn('#__organizer_instances'))
+            ->where(DB::qcs([['unitID', $instance->unitID], ['blockID', $instance->blockID], ['id', $instanceID, '!=']]));
+        DB::set($query);
+
+        foreach (DB::integers() as $instanceID) {
+            $participation = new Table();
+
+            if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
+                $participation->delete();
+                Application::message('EVENT_CONFIRMED');
+                Instances::updateNumbers($instanceID);
+            }
+            else {
+                Application::message('412', Application::ERROR);
+            }
+        }
     }
 
     /**
@@ -72,13 +167,35 @@ class Checkin extends Controller
      */
     public function confirmSeating(): void
     {
-        if (User::id()) {
-            $model = new Models\InstanceParticipant();
-            $model->confirmSeating();
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+        $url = Routing::getRedirectBase() . "&view=checkin";
         $this->setRedirect($url);
+
+        if (User::id()) {
+            if (!$participantID = User::id()) {
+                Application::message('401', Application::ERROR);
+
+                return;
+            }
+
+            if (!$instanceID = Input::integer('instanceID') or !$roomID = Input::integer('roomID')) {
+                Application::message('400', Application::ERROR);
+
+                return;
+            }
+
+            $table = new Table();
+
+            if (!$table->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
+                Application::message('412', Application::ERROR);
+
+                return;
+            }
+
+            $table->roomID = $roomID;
+            $table->seat   = Input::string('seat');
+
+            $table->store();
+        }
     }
 
     /**
@@ -93,7 +210,7 @@ class Checkin extends Controller
             $controller->process();
         }
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+        $url = Routing::getRedirectBase() . "&view=checkin";
         $this->setRedirect($url);
     }
 }

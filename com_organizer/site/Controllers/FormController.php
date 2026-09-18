@@ -68,30 +68,6 @@ abstract class FormController extends Controller
     }
 
     /**
-     * Filters field data for actual letters and accepted special characters.
-     *
-     * @param string $value the raw value
-     *
-     * @return string
-     */
-    protected static function cleanAlpha(string $value): string
-    {
-        return preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}_.\-\']/', ' ', $value);
-    }
-
-    /**
-     * Filters field data for actual letters, accepted special characters and numbers.
-     *
-     * @param string $value the raw value
-     *
-     * @return string
-     */
-    protected static function cleanAlphaNum(string $value): string
-    {
-        return preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\d\p{N}_.\-\']/', ' ', $value);
-    }
-
-    /**
      * Redirects to the edit layout of the same view for the editing of an existing resource.
      * @return void
      */
@@ -259,25 +235,6 @@ abstract class FormController extends Controller
 
         Application::message('NOT_SAVED');
         return $id;
-    }
-
-    /**
-     * Removes excess spaces from a form value.
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    protected static function trim(string $value): string
-    {
-        // Replace ideographic space
-        $value = str_replace(chr(0xE3) . chr(0x80) . chr(0x80), ' ', $value);
-        // Replace no-break space
-        $value = str_replace(chr(0xC2) . chr(0xA0), ' ', $value);
-        // Remove leading & trailing spaces
-        $value = trim($value);
-        // Remove surfeit spaces
-        return preg_replace('/ +/', ' ', $value);
     }
 
     /**

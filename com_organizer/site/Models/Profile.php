@@ -11,7 +11,6 @@
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Form, User};
-use THM\Organizer\Controllers\Participant as Controller;
 use THM\Organizer\Helpers\{Participants as PaHelper, Persons as PeHelper};
 use THM\Organizer\Tables\{Participants as PaTable, Persons as PeTable};
 
@@ -28,7 +27,7 @@ class Profile extends FormModel
         $user = User::instance();
 
         if (!PaHelper::exists($user->id)) {
-            Controller::supplement($user->id);
+            PaHelper::supplement($user->id);
         }
 
         $participant = new PaTable();

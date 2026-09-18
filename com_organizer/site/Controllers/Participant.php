@@ -11,8 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Table\Table as CoreTable;
-use Joomla\Database\ParameterType;
-use THM\Organizer\Adapters\{Application, Database as DB, Input, User};
+use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers\{Can, Participants};
 use THM\Organizer\Tables\Table;
 
@@ -40,12 +39,12 @@ class Participant extends FormController
             ['address', 'city', 'forename', 'id', 'programID', 'surname', 'zipCode'] : [];
         $this->validate($data, $required);
 
-        $data['address']   = self::cleanAlphaNum($data['address']);
-        $data['city']      = self::cleanAlpha($data['city']);
-        $data['forename']  = self::cleanAlpha($data['forename']);
-        $data['surname']   = self::cleanAlpha($data['surname']);
-        $data['telephone'] = empty($data['telephone']) ? '' : self::cleanAlphaNum($data['telephone']);
-        $data['zipCode']   = self::cleanAlphaNum($data['zipCode']);
+        $data['address']   = Participants::cleanAlphaNum($data['address']);
+        $data['city']      = Participants::cleanAlpha($data['city']);
+        $data['forename']  = Participants::cleanAlpha($data['forename']);
+        $data['surname']   = Participants::cleanAlpha($data['surname']);
+        $data['telephone'] = empty($data['telephone']) ? '' : Participants::cleanAlphaNum($data['telephone']);
+        $data['zipCode']   = Participants::cleanAlphaNum($data['zipCode']);
 
         return $data;
     }
@@ -62,78 +61,5 @@ class Participant extends FormController
         }
 
         return $id;
-    }
-
-    /**
-     * Adds an organizer participant based on the information in the users table.
-     *
-     * @param int  $participantID the id of the participant/user entries
-     * @param bool $force         forces update of the columns derived from information in the user table
-     *
-     * @return void
-     */
-    public static function supplement(int $participantID, bool $force = false): void
-    {
-        if ($exists = Participants::exists($participantID) and !$force) {
-            return;
-        }
-
-        $forename = DB::qn('forename');
-        $id       = DB::qn('id');
-        $names    = self::parseNames($participantID);
-        $query    = DB::query();
-        $surname  = DB::qn('surname');
-        $table    = DB::qn('#__organizer_participants');
-
-        if (!$exists) {
-            $query->insert($table)->columns([$id, $forename, $surname])->values(':id, :forename, :surname');
-        }
-        else {
-            $query->update($table)->set("$forename = :forename")->set("$surname = :surname")->where("$id = :id");
-        }
-
-        $query->bind(':forename', $names['forename'])
-            ->bind(':id', $participantID, ParameterType::INTEGER)
-            ->bind(':surname', $names['surname']);
-
-        DB::set($query);
-        DB::execute();
-    }
-
-    /**
-     * Resolves a username attribute into forename and surname attributes.
-     *
-     * @param int $userID the id of the user whose full name should be resolved
-     *
-     * @return string[] the first and last names of the user
-     */
-    private static function parseNames(int $userID = 0): array
-    {
-        $user = User::instance($userID);
-
-        $sanitized  = self::trim(self::cleanAlpha($user->name));
-        $fragments  = array_filter(explode(' ', $sanitized));
-        $surname    = array_pop($fragments);
-        $supplement = '';
-
-        // The next element is a supplementary preposition.
-        while (preg_match('/^[a-zß-ÿ]+$/', end($fragments))) {
-            $supplement = array_pop($fragments);
-            $surname    = "$supplement $surname";
-        }
-
-        // These supplements indicate the existence of a further surname fragment.
-        if (in_array($supplement, ['zu', 'zum'])) {
-            $add     = array_pop($fragments);
-            $surname = "$add $surname";
-
-            while (preg_match('/^[a-zß-ÿ]+$/', end($fragments))) {
-                $supplement = array_pop($fragments);
-                $surname    = "$supplement $surname";
-            }
-        }
-
-        // Everything left is likely a forename
-        return ['forename' => implode(" ", $fragments), 'surname' => $surname];
     }
 }

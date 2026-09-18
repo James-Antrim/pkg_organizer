@@ -13,8 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\{Form\Form, User\User};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text, User as UAdapter};
-use THM\Organizer\Controllers\{Participant, Participated};
-use THM\Organizer\Helpers\{Can, Bookings as Helper, Participants as PHelper};
+use THM\Organizer\Helpers\{Can, Bookings as Helper, Instances, Participants as PHelper};
 use THM\Organizer\Tables;
 
 /**
@@ -22,8 +21,6 @@ use THM\Organizer\Tables;
  */
 class Booking extends Participants
 {
-    use Participated;
-
     public Tables\Bookings $booking;
 
     /** @inheritDoc */
@@ -113,7 +110,7 @@ class Booking extends Participants
 
         if ($participantID = DB::integer()) {
             if (!PHelper::exists($participantID)) {
-                Participant::supplement($participantID);
+                PHelper::supplement($participantID);
                 $existing = false;
             }
         }
@@ -261,7 +258,7 @@ class Booking extends Participants
                 }
             }
 
-            Participant::supplement($participantID, true);
+            PHelper::supplement($participantID, true);
         }
 
         $instanceIDs = Helper::instanceIDs($bookingID);
@@ -287,7 +284,7 @@ class Booking extends Participants
                         return;
                     }
 
-                    $this->updateIPNumbers($participation->instanceID);
+                    Instances::updateNumbers($participation->instanceID);
                 }
 
                 Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -306,7 +303,7 @@ class Booking extends Participants
                 return;
             }
 
-            $this->updateIPNumbers($instanceID);
+            Instances::updateNumbers($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANT_ADDED');
@@ -440,7 +437,7 @@ class Booking extends Participants
                 $participation->attended = true;
 
                 if ($participation->store()) {
-                    $this->updateIPNumbers($participation->instanceID);
+                    Instances::updateNumbers($participation->instanceID);
                     $count++;
                 }
             }
@@ -724,7 +721,7 @@ class Booking extends Participants
                 return;
             }
 
-            $this->updateIPNumbers($instanceID);
+            Instances::updateNumbers($instanceID);
         }
 
         Application::message('ORGANIZER_PARTICIPANTS_REMOVED');
