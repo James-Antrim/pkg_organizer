@@ -32,7 +32,6 @@ trait Named
             // Calling this first ensures the option has been set correctly.
             $name          = $this->getName();
             $this->context = strtolower("$this->option.$name");
-            echo "<pre>" . print_r($this->context, true) . "</pre>";
 
             // Make sure the filters from different instances of the same model don't bleed
             if ($menuItem = Application::menuItem() and $menuID = $menuItem->id) {
