@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\XLS;
 use THM\Organizer\Adapters\{Application, Input, Text, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\Exported;
-use THM\Organizer\Models\BaseModel;
+use THM\Organizer\Models\Instance as Model;
 
 /**
  * Class creates a XLS file for the display of the filtered schedule information.
@@ -28,8 +28,6 @@ class Instances extends ListView
     public array $groups = [];
 
     public array $rooms = [];
-
-    public BaseModel $model;
 
     /** @inheritDoc */
     protected function authorize(): void
@@ -46,10 +44,10 @@ class Instances extends ListView
     /**
      * Filters out deprecated items and distracting property values.
      *
-     * @param   string  $key       the resource array key name
-     * @param   array   $persons   the person resource structures
-     * @param   int     $personID  the id of the person being currently iterated
-     * @param   array   $container
+     * @param string $key      the resource array key name
+     * @param array  $persons  the person resource structures
+     * @param int    $personID the id of the person being currently iterated
+     * @param array  $container
      *
      * @return void
      */
@@ -78,11 +76,11 @@ class Instances extends ListView
     /**
      * Gets the person resource text for a resource type $key
      *
-     * @param   array   $persons   the data for all persons
-     * @param   int     $personID  the id of the person being currently iterated
-     * @param   string  $key       the resource key
-     * @param   string  $oKey      the key of the array index with the display value
-     * @param   string  $rKey      $rKey the key against which the displayed key is resolved
+     * @param array  $persons  the data for all persons
+     * @param int    $personID the id of the person being currently iterated
+     * @param string $key      the resource key
+     * @param string $oKey     the key of the array index with the display value
+     * @param string $rKey     $rKey the key against which the displayed key is resolved
      *
      * @return string
      */
@@ -106,10 +104,10 @@ class Instances extends ListView
     /**
      * Supplements the person names in a role as necessary.
      *
-     * @param   array  $container   the container with role persons
-     * @param   array  $persons     the array with data on all persons
-     * @param   bool   $showGroups  whether groups should be shown for individuals
-     * @param   bool   $showRooms   whether rooms should be shown for individuals
+     * @param array $container  the container with role persons
+     * @param array $persons    the array with data on all persons
+     * @param bool  $showGroups whether groups should be shown for individuals
+     * @param bool  $showRooms  whether rooms should be shown for individuals
      *
      * @return string[]
      */
@@ -139,35 +137,35 @@ class Instances extends ListView
     {
         $this->headers = [
             'date'         => [
-                'text'  => Text::_('ORGANIZER_DATE'),
+                'text'  => Text::_('DATE'),
                 'width' => 12.5
             ],
             'times'        => [
-                'text'  => Text::_('ORGANIZER_TIME'),
+                'text'  => Text::_('TIME'),
                 'width' => 15
             ],
             'organization' => [
-                'text'  => Text::_('ORGANIZER_ORGANIZATION'),
+                'text'  => Text::_('ORGANIZATION'),
                 'width' => 15
             ],
             'title'        => [
-                'text'  => Text::_('ORGANIZER_NAME'),
+                'text'  => Text::_('NAME'),
                 'width' => 30
             ],
             'subjectNo'    => [
-                'text'  => Text::_('ORGANIZER_MODULE_CODE'),
+                'text'  => Text::_('MODULE_CODE'),
                 'width' => 30
             ],
             'method'       => [
-                'text'  => Text::_('ORGANIZER_METHOD'),
+                'text'  => Text::_('METHOD'),
                 'width' => 15
             ],
             'groups'       => [
-                'text'  => Text::_('ORGANIZER_GROUPS'),
+                'text'  => Text::_('GROUPS'),
                 'width' => 70
             ],
             'rooms'        => [
-                'text'  => Text::_('ORGANIZER_ROOMS'),
+                'text'  => Text::_('ROOMS'),
                 'width' => 12.5
             ],
             'teachers'     => [
@@ -192,7 +190,9 @@ class Instances extends ListView
     /** @inheritDoc */
     protected function structureItems(): void
     {
-        $conditions = $this->model->conditions;
+        /** @var Model $model */
+        $model      = $this->model;
+        $conditions = $model->conditions;
 
         $this->setFlags($conditions);
 

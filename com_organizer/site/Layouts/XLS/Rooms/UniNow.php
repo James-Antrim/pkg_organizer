@@ -11,8 +11,9 @@
 namespace THM\Organizer\Layouts\XLS\Rooms;
 
 use Exception;
-use THM\Organizer\Layouts\XLS\BaseLayout;
 use PHPExcel_Style_Border as BorderStyle;
+use THM\Organizer\Layouts\XLS\BaseLayout;
+use THM\Organizer\Models\ListModel;
 
 class UniNow extends BaseLayout
 {
@@ -21,16 +22,15 @@ class UniNow extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addColumnHeaders()
+    private function addColumnHeaders(): void
     {
         $sheet = $this->view->getActiveSheet();
 
         $sheet->getColumnDimension()->setWidth(35.43);
 
         $sheet->setCellValue('A1', 'Building ID');
+
         /**
-         * ======
-         * ID#AAAAKmhoypk
          * Importierter Autor    (2020-10-30 12:54:24)
          * Building ID
          * Leave blank for new building creation The ID of a building. If not specified, we will try and match the building ID by the building external id or building name, and if we cannot find the building, we will create a new building with the specified name and external id.
@@ -43,9 +43,8 @@ class UniNow extends BaseLayout
          * -Stefan Wegener
          */
         $sheet->setCellValue('B1', 'Building External ID');
+
         /**
-         * ======
-         * ID#AAAAKmhoyqQ
          * Importierter Autor    (2020-10-30 12:54:24)
          * External ID to identify the building in other services. If specified, we will try to find the building id using this, and if we cannot find an existing building with the external id specified, we will create a new building.
          * format: text
@@ -53,9 +52,8 @@ class UniNow extends BaseLayout
          * example: B1234
          */
         $sheet->setCellValue('C1', 'Building Name');
+
         /**
-         * ======
-         * ID#AAAAKmhoypo
          * Importierter Autor    (2020-10-30 12:54:24)
          * Building Name
          * The name of the building. If specified, we will try to find the building id using this, and if we cannot find an existing building with the name specified, we will create a new building.
@@ -64,9 +62,8 @@ class UniNow extends BaseLayout
          * example: Hauptsitz
          */
         $sheet->setCellValue('D1', 'Building Status');
+
         /**
-         * ======
-         * ID#AAAAKmhoyp8
          * Importierter Autor    (2020-10-30 12:54:24)
          * Building Status
          * The current status of a building. If the status is DRAFT, the building is not yet visible.
@@ -75,9 +72,8 @@ class UniNow extends BaseLayout
          * example: ACTIVE
          */
         $sheet->setCellValue('E1', 'Building Description');
+
         /**
-         * ======
-         * ID#AAAAKmhoyp0
          * Importierter Autor    (2020-10-30 12:54:24)
          * Building Description
          * The description is additional text used to describe the building.
@@ -86,9 +82,8 @@ class UniNow extends BaseLayout
          * example: Hauptsitz der UniNow GmbH in Magdeburg
          */
         $sheet->setCellValue('F1', 'Building Geo Coordinates');
+
         /**
-         * ======
-         * ID#AAAAKmhoypg
          * Importierter Autor    (2020-10-30 12:54:24)
          * Building Geo Coordinates
          * The geo coordinates describe the location of a building.
@@ -97,20 +92,18 @@ class UniNow extends BaseLayout
          * example: 52.1079129,11.6349061
          */
         $sheet->setCellValue('G1', 'Building Address');
+
         /**
-         * ======
-         * ID#AAAAKmhoyqA
          * Importierter Autor    (2020-10-30 12:54:24)
          * Building Address
          * The address describe the location of a building.
-         * format: street number, postalcode, city, country
+         * format: street number, postal code, city, country
          * required: optional
          * example: Dorotheenstraße 10, 39104 Magdeburg, Deutschland
          */
         $sheet->setCellValue('H1', 'Tracking Code');
+
         /**
-         * ======
-         * ID#AAAAKmhoypI
          * Importierter Autor    (2020-10-30 12:54:24)
          * Tracking Code
          * This is the public identifier to check in or check out from the room.
@@ -118,9 +111,8 @@ class UniNow extends BaseLayout
          * read only
          */
         $sheet->setCellValue('I1', 'Room ID');
+
         /**
-         * ======
-         * ID#AAAAKmhoypw
          * Importierter Autor    (2020-10-30 12:54:24)
          * Room ID
          * Leave blank for new room creation The ID of a room. If not specified, we will try and match the room ID by the room external id or the room external name, and if we cannot find the room, we will create a new room with the specified name and external id.
@@ -128,9 +120,8 @@ class UniNow extends BaseLayout
          * required: required for edits
          */
         $sheet->setCellValue('J1', 'Room External ID');
+
         /**
-         * ======
-         * ID#AAAAKmhoyqI
          * Importierter Autor    (2020-10-30 12:54:24)
          * External ID to identify the room in other services. If specified, we will try to find the room id using this, and if we cannot find an existing room with the external id specified, we will create a new room.
          * format: text
@@ -138,9 +129,8 @@ class UniNow extends BaseLayout
          * example: R1234
          */
         $sheet->setCellValue('K1', 'Room Name');
+
         /**
-         * ======
-         * ID#AAAAKmhoyqU
          * Importierter Autor    (2020-10-30 12:54:24)
          * Room Name
          * The name of the room. If specified, we will try to find the room id using this, and if we cannot find an existing room with the name specified, we will create a new room.
@@ -149,9 +139,8 @@ class UniNow extends BaseLayout
          * example: Besprechungsraum
          */
         $sheet->setCellValue('L1', 'Room Status');
+
         /**
-         * ======
-         * ID#AAAAKmhoypY
          * Importierter Autor    (2020-10-30 12:54:24)
          * Room Status
          * The current status of a room. If you are editing the status of your room, make sure your building status correlates with your room status. For example, if a building status is set to "DELETED" but the room status is set to "ACTIVE" this can cause errors. Make sure both statuses correspond. If the status is DRAFT, the room is not yet visible.
@@ -160,9 +149,8 @@ class UniNow extends BaseLayout
          * example: ACTIVE
          */
         $sheet->setCellValue('M1', 'Room Description');
+
         /**
-         * ======
-         * ID#AAAAKmhoypA
          * Importierter Autor    (2020-10-30 12:54:24)
          * Room Description
          * The description is additional text used to describe the room.
@@ -171,9 +159,8 @@ class UniNow extends BaseLayout
          * example: Großer Besprechungsraum mit Tisch und Bestuhlung
          */
         $sheet->setCellValue('N1', 'Room Floor');
+
         /**
-         * ======
-         * ID#AAAAKmhoyp4
          * Importierter Autor    (2020-10-30 12:54:24)
          * Room Floor
          * The floor is additional text used to describe the location of room in the building.
@@ -182,9 +169,8 @@ class UniNow extends BaseLayout
          * example: Erdgeschoss
          */
         $sheet->setCellValue('O1', 'Room Capacity');
+
         /**
-         * ======
-         * ID#AAAAKmhoypc
          * Importierter Autor    (2020-10-30 12:54:24)
          * Room Capacity
          * The capacity is additional number used to limit the number of people who are allowed to enter the room.
@@ -193,9 +179,8 @@ class UniNow extends BaseLayout
          * example: 10
          */
         $sheet->setCellValue('P1', 'Seats');
+
         /**
-         * ======
-         * ID#AAAAKmhoyqM
          * Importierter Autor    (2020-10-30 12:54:24)
          * Seats
          * The number of seats in a room.
@@ -204,9 +189,8 @@ class UniNow extends BaseLayout
          * example: 10
          */
         $sheet->setCellValue('Q1', 'Tracking Code');
+
         /**
-         * ======
-         * ID#AAAAKmhoypU
          * Importierter Autor    (2020-10-30 12:54:24)
          * Tracking Code
          * This is the public identifier to check in or check out from the room.
@@ -214,9 +198,8 @@ class UniNow extends BaseLayout
          * read only
          */
         $sheet->setCellValue('R1', 'Capacity is Limit');
+
         /**
-         * ======
-         * ID#AAAAKmhoyqE
          * Importierter Autor    (2020-10-30 12:54:24)
          * Capacity is Limit
          * If this value is true, the capacity is the upper limit for active check ins and overbooking is not possible.
@@ -226,9 +209,8 @@ class UniNow extends BaseLayout
          * example: TRUE
          */
         $sheet->setCellValue('S1', 'Checkout Reminder');
+
         /**
-         * ======
-         * ID#AAAAKmhoyps
          * Importierter Autor    (2020-10-30 12:54:24)
          * Checkout Reminder
          * If set to TRUE, we send a push notification to all users with an open check in after a configurable time
@@ -238,9 +220,8 @@ class UniNow extends BaseLayout
          * example: TRUE
          */
         $sheet->setCellValue('T1', 'Auto Checkout');
+
         /**
-         * ======
-         * ID#AAAAKmhoypE
          * Importierter Autor    (2020-10-30 12:54:24)
          * Auto Checkout
          * If set to TRUE, we perform a check-out on each active check in after a configurable time
@@ -250,9 +231,8 @@ class UniNow extends BaseLayout
          * example: TRUE
          */
         $sheet->setCellValue('U1', 'Threshold Checkout Reminder');
+
         /**
-         * ======
-         * ID#AAAAKmhoypM
          * Importierter Autor    (2020-10-30 12:54:24)
          * Threshold Checkout Reminder
          * If the field "Checkout Reminder" is set to TRUE, we send a push notification to all active check ins after this value in minutes.
@@ -261,9 +241,8 @@ class UniNow extends BaseLayout
          * example: 120
          */
         $sheet->setCellValue('V1', 'Threshold Auto Checkout');
+
         /**
-         * ======
-         * ID#AAAAKmhoypQ
          * Importierter Autor    (2020-10-30 12:54:24)
          * Threshold Auto Checkout
          * If the field "Auto Checkout" is set to TRUE, we perform a check-out on all active check ins after this value in minutes.
@@ -278,13 +257,15 @@ class UniNow extends BaseLayout
      * @return void
      * @throws Exception
      */
-    private function addRows()
+    private function addRows(): void
     {
         // The first row is used by the header
         $index = 2;
         $sheet = $this->view->getActiveSheet();
 
-        foreach ($this->view->model->getItems() as $room) {
+        /** @var ListModel $model */
+        $model = $this->view->model;
+        foreach ($model->getItems() as $room) {
             for ($column = 'A'; $column < 'W'; $column++) {
                 $coordinates = "$column$index";
                 $value       = '';
@@ -311,9 +292,6 @@ class UniNow extends BaseLayout
                     case 'E':
                         if ($room->campus) {
                             $value = $room->parent ? "$room->parent / $room->campus" : $room->campus;
-                        }
-                        else {
-                            $value = '';
                         }
                         break;
                     case 'F':
@@ -346,9 +324,6 @@ class UniNow extends BaseLayout
                                 $value = "$level. Etage";
                             }
                         }
-                        else {
-                            $value = '';
-                        }
 
                         break;
                     case 'O':
@@ -380,7 +355,7 @@ class UniNow extends BaseLayout
     }
 
     /** @inheritDoc */
-    public function fill()
+    public function fill(): void
     {
         $this->setPageFormatting();
         $this->addColumnHeaders();
@@ -404,7 +379,7 @@ class UniNow extends BaseLayout
      * @return void modifies the page formatting
      * @throws Exception
      */
-    private function setPageFormatting()
+    private function setPageFormatting(): void
     {
         $sheet = $this->view->getActiveSheet();
 

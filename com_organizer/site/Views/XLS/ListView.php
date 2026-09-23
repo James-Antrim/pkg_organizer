@@ -14,12 +14,12 @@ use JetBrains\PhpStorm\NoReturn;
 use Joomla\Registry\Registry;
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
+use THM\Organizer\Models\ListModel;
 
 abstract class ListView extends BaseView
 {
     public array $headers = [];
     public array $items = [];
-    protected array $rowStructure = [];
     public Registry $state;
 
     /**
@@ -33,13 +33,19 @@ abstract class ListView extends BaseView
         }
     }
 
-    /** @inheritDoc */
-    #[NoReturn] public function display(): void
+    /** @inheritDoc
+     * @param null $tpl
+     */
+    #[NoReturn]
+    public function display($tpl = null): void
     {
         $this->authorize();
-        $this->state = $this->model->getState();
+
+        /** @var ListModel $model */
+        $model       = $this->model;
+        $this->state = $model->getState();
         $this->setHeaders();
-        $this->items = $this->model->getItems();
+        $this->items = $model->getItems();
 
         if ($this->items) {
             $this->structureItems();
@@ -57,7 +63,7 @@ abstract class ListView extends BaseView
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param   object  $item  the item to be displayed in a table row
+     * @param object $item the item to be displayed in a table row
      *
      * @return array an array of property columns with their values
      */

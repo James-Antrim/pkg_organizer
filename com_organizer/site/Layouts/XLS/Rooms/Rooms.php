@@ -15,7 +15,7 @@ use THM\Organizer\Layouts\XLS\BaseLayout;
 class Rooms extends BaseLayout
 {
     /** @inheritDoc */
-    public function fill()
+    public function fill(): void
     {
         // TODO: Implement fill() method.
     }

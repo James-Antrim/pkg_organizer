@@ -10,12 +10,12 @@
 
 namespace THM\Organizer\Views\XLS;
 
-require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
+require_once JPATH_LIBRARIES . '/phpexcel/library/PHPExcel.php';
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Joomla\CMS\Application\ApplicationHelper;
-use Joomla\CMS\MVC\Model\{BaseDatabaseModel, ModelInterface};
-use Joomla\CMS\MVC\View\ViewInterface;
+use Joomla\CMS\MVC\{Model\BaseDatabaseModel, View\ViewInterface};
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Worksheet;
@@ -32,36 +32,28 @@ abstract class BaseView extends PHPExcel implements ViewInterface
     use Named;
 
     protected BaseLayout $layout;
-    public ModelInterface $model;
+    public BaseDatabaseModel $model;
 
     /** @inheritDoc */
     public function __construct()
     {
         parent::__construct();
 
-        $name = $this->getName();
-
+        $name   = $this->getName();
         $layout = Input::cmd('layout', $name);
         $layout = Application::ucClass($layout);
         $layout = "THM\\Organizer\\Layouts\\XLS\\$name\\$layout";
 
         $this->layout = new $layout($this);
-        $this->model  = Application::factory()->createModel(Application::uqClass($this));
-
-        $properties = $this->getProperties();
-        $properties->setCreator('Organizer');
-        $properties->setLastModifiedBy(User::name());
-        $properties->setDescription($this->layout->getDescription());
-        $properties->setTitle($this->layout->getTitle());
     }
 
     /**
      * Adds a range to the active sheet.
      *
-     * @param   string      $start  the start cell coordinates
-     * @param   string      $end    the end cell coordinates
-     * @param   array       $style  the style to apply to the range
-     * @param   int|string  $value  the value to add to the cell range
+     * @param string     $start the start cell coordinates
+     * @param string     $end   the end cell coordinates
+     * @param array      $style the style to apply to the range
+     * @param int|string $value the value to add to the cell range
      *
      * @return void
      * @throws Exception
@@ -84,13 +76,20 @@ abstract class BaseView extends PHPExcel implements ViewInterface
     /**
      * Sets context variables and renders the view.
      *
-     * @param   string|null  $tpl
+     * @param string|null $tpl
      *
      * @return void
      * @throws Exception
      */
+    #[NoReturn]
     public function display($tpl = null): void
     {
+        $properties = $this->getProperties();
+        $properties->setCreator('Organizer');
+        $properties->setLastModifiedBy(User::name());
+        $properties->setDescription($this->layout->getDescription());
+        $properties->setTitle($this->layout->getTitle());
+
         $this->layout->fill();
         $this->render();
     }
@@ -98,9 +97,7 @@ abstract class BaseView extends PHPExcel implements ViewInterface
     /** @inheritDoc */
     public function getModel($name = null): BaseDatabaseModel
     {
-        /** @var BaseDatabaseModel $model */
-        $model = $this->model;
-        return $model;
+        return $this->model;
     }
 
     /**
@@ -108,6 +105,7 @@ abstract class BaseView extends PHPExcel implements ViewInterface
      * @return void
      * @throws Exception
      */
+    #[NoReturn]
     protected function render(): void
     {
         $documentTitle = ApplicationHelper::stringURLSafe($this->getProperties()->getTitle());
@@ -122,7 +120,7 @@ abstract class BaseView extends PHPExcel implements ViewInterface
     /**
      * Set active sheet index
      *
-     * @param   int  $pIndex  Active sheet index
+     * @param int $pIndex Active sheet index
      *
      * @return PHPExcel_Worksheet
      */
@@ -130,9 +128,22 @@ abstract class BaseView extends PHPExcel implements ViewInterface
     {
         try {
             return parent::setActiveSheetIndex($pIndex);
-        }
-        catch (Exception) {
+        } catch (Exception) {
             return $this->setActiveSheetIndex($pIndex - 1);
         }
+    }
+
+    /**
+     * Sets the model.
+     *
+     * @param BaseDatabaseModel $model The model to add to the view.
+     *
+     * @return  BaseDatabaseModel  The added model.
+     */
+    public function setModel(BaseDatabaseModel $model): BaseDatabaseModel
+    {
+        $this->model = $model;
+
+        return $model;
     }
 }

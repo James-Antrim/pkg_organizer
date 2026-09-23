@@ -19,7 +19,7 @@ abstract class BaseLayout
     /**
      * @var BaseView
      */
-    protected $view;
+    protected BaseView $view;
 
     public function __construct(BaseView $view)
     {
@@ -31,7 +31,7 @@ abstract class BaseLayout
      * @return void
      * @throws Exception
      */
-    abstract public function fill();
+    abstract public function fill(): void;
 
     /**
      * Gets the description for the layout.

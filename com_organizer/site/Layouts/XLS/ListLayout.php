@@ -12,6 +12,7 @@ namespace THM\Organizer\Layouts\XLS;
 
 
 use Exception;
+use THM\Organizer\Views\XLS\BaseView;
 use THM\Organizer\Views\XLS\ListView;
 use THM\Organizer\Views\XLS\XLConstants;
 
@@ -70,14 +71,14 @@ abstract class ListLayout extends BaseLayout
     /**
      * @var ListView
      */
-    protected $view;
+    protected BaseView $view;
 
     /**
      * Adds the main list sheet
      *
-     * @param   string      $name
-     * @param   string      $orientation
-     * @param   string|int  $paper
+     * @param string $name
+     * @param string $orientation
+     * @param string $paper
      *
      * @return void
      * @throws Exception
@@ -86,7 +87,7 @@ abstract class ListLayout extends BaseLayout
         string $name,
         string $orientation = XLConstants::LANDSCAPE,
         string $paper = XLConstants::A4
-    )
+    ): void
     {
         $view = $this->view;
         $view->createSheet();
@@ -108,7 +109,7 @@ abstract class ListLayout extends BaseLayout
      * @return void
      * @throws Exception
      */
-    protected function fillHeaders()
+    protected function fillHeaders(): void
     {
         $view  = $this->view;
         $sheet = $view->getActiveSheet();
@@ -138,7 +139,7 @@ abstract class ListLayout extends BaseLayout
      * @return void
      * @throws Exception
      */
-    protected function fillItems()
+    protected function fillItems(): void
     {
         $lastColumn = 'A';
         $lastRow    = 1;

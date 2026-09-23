@@ -19,6 +19,8 @@ class ContactTracking extends ListView
 {
     private const BY_DAY = 1, BY_EVENT = 2;
 
+    protected array $rowStructure = [];
+
     /** @inheritDoc */
     public function __construct($config = [])
     {

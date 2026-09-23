@@ -13,15 +13,15 @@ namespace THM\Organizer\Layouts\XLS\Instances;
 use Exception;
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Layouts\XLS\ListLayout;
-use THM\Organizer\Views\XLS\Instances as View;
-use THM\Organizer\Views\XLS\XLConstants;
+use THM\Organizer\Models\Instances as Model;
+use THM\Organizer\Views\XLS\{BaseView, Instances as View, XLConstants};
 
 class Instances extends ListLayout
 {
     /**
      * @var View
      */
-    protected $view;
+    protected BaseView $view;
 
     /**
      * Adds a pa
@@ -31,13 +31,13 @@ class Instances extends ListLayout
      * @return void
      * @throws Exception
      */
-    private function addGroupsSheet($pageNo)
+    private function addGroupsSheet($pageNo): void
     {
         $view = $this->view;
         $view->createSheet();
         $view->setActiveSheetIndex($pageNo);
         $sheet = $view->getActiveSheet();
-        $title = Text::_('ORGANIZER_GLOSSARY') . ' - ' . Text::_('ORGANIZER_GROUPS');
+        $title = Text::_('GLOSSARY') . ' - ' . Text::_('GROUPS');
         $sheet->setTitle($title);
 
         $sheet->getColumnDimension()->setWidth(20);
@@ -50,8 +50,8 @@ class Instances extends ListLayout
             'font'      => ['size' => 12]
         ];
         $sheet->getStyle('A1:B1')->applyFromArray($style);
-        $sheet->setCellValue("A1", Text::_('ORGANIZER_ABBREVIATION'));
-        $sheet->setCellValue("B1", Text::_('ORGANIZER_GROUP'));
+        $sheet->setCellValue("A1", Text::_('ABBREVIATION'));
+        $sheet->setCellValue("B1", Text::_('GROUP'));
         $sheet->getRowDimension()->setRowHeight(22.5);
 
         ksort($view->groups);
@@ -72,11 +72,11 @@ class Instances extends ListLayout
     }
 
     /** @inheritDoc */
-    public function fill()
+    public function fill(): void
     {
         $view = $this->view;
         $view->getDefaultStyle()->getFont()->setName('Arial')->setSize();
-        $this->addListSheet(Text::_('ORGANIZER_INSTANCES'));
+        $this->addListSheet(Text::_('INSTANCES'));
 
         // So that the pages are later extensible
         $page = 1;
@@ -91,12 +91,16 @@ class Instances extends ListLayout
     /** @inheritDoc */
     public function getDescription(): string
     {
-        return $this->view->model->getTitle();
+        /** @var Model $model */
+        $model = $this->view->model;
+        return $model->title();
     }
 
     /** @inheritDoc */
     public function getTitle(): string
     {
-        return $this->view->model->getTitle();
+        /** @var Model $model */
+        $model = $this->view->model;
+        return $model->title();
     }
 }
