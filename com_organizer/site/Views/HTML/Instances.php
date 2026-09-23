@@ -26,25 +26,6 @@ class Instances extends ListView
 
     protected Model $model;
 
-    /** @inheritDoc */
-    protected function initializeView(): void
-    {
-        Core::initializeView();
-
-        /** @var Model $model */
-        $model = $this->getModel();
-
-        $this->empty      = '';
-        $this->model      = $model;
-        $this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
-
-        $this->subTitle();
-        $this->initializeColumns();
-        $this->completeItems();
-        $this->modifyDocument();
-    }
-
-
     private bool $expired = true;
 
     public bool $noInstances = true;
@@ -563,6 +544,24 @@ class Instances extends ListView
     }
 
     /** @inheritDoc */
+    protected function initializeView(): void
+    {
+        Core::initializeView();
+
+        /** @var Model $model */
+        $model = $this->getModel();
+
+        $this->empty      = '';
+        $this->model      = $model;
+        $this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
+
+        $this->subTitle();
+        $this->initializeColumns();
+        $this->completeItems();
+        $this->modifyDocument();
+    }
+
+    /** @inheritDoc */
     protected function modifyDocument(): void
     {
         parent::modifyDocument();
@@ -592,10 +591,13 @@ class Instances extends ListView
             }
         }
 
-        foreach (['my' => 'my', 'methodIDs' => 'methodID'] as $param => $field) {
-            if ($value = $params->get($param)) {
-                $fields[$field] = $value;
-            }
+        if ($my = $params->get('my')) {
+            $fields['my'] = $my;
+        }
+
+        if ($methodIDs = $params->get('methodIDs') and $methodIDs = array_filter($methodIDs)) {
+            $methodIDs          = implode(',', $methodIDs);
+            $fields['methodID'] = $methodIDs;
         }
 
         if ($fields) {
