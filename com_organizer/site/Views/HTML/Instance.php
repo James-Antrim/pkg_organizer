@@ -52,6 +52,9 @@ class Instance extends ListView
     /** @inheritDoc */
     protected function addToolBar(bool $delete = true): void
     {
+        $this->toDo[] = 'The checkboxes are missing logged in as the administrator.';
+        $this->toDo[] = 'Toolbar styling.';
+
         $instance = $this->instance;
         $method   = $instance->method ? " - $instance->method" : '';
         $this->title($instance->name . $method);
@@ -68,16 +71,16 @@ class Instance extends ListView
             $buttons = $this->buttons;
 
             if ($buttons['schedule']) {
-                $itemBar->standardButton('bookmark', Text::_('ADD_INSTANCE'), 'InstanceParticipants.bookmarkThis')
+                $itemBar->standardButton('bookmark', Text::_('ADD_INSTANCE'), 'instance.bookmarkThis')
                     ->icon('fas fa-bookmark');
             }
             elseif ($buttons['deschedule']) {
-                $itemBar->standardButton('unbookmark', Text::_('DELETE_INSTANCE'), 'InstanceParticipants.removeBookmarkThis')
+                $itemBar->standardButton('unbookmark', Text::_('DELETE_INSTANCE'), 'instance.removeBookmarkThis')
                     ->icon('far fa-bookmark');
             }
 
             if ($buttons['scheduleBlock']) {
-                $itemBar->standardButton('bookmark-block', Text::_('ADD_BLOCK_INSTANCES'), 'InstanceParticipants.bookmarkBlock')
+                $itemBar->standardButton('bookmark-block', Text::_('ADD_BLOCK_INSTANCES'), 'instance.bookmarkBlock')
                     ->icon('fas fa-bookmark');
             }
 
@@ -85,7 +88,7 @@ class Instance extends ListView
                 $itemBar->standardButton(
                     'unbookmark-block',
                     Text::_('DELETE_BLOCK_INSTANCES'),
-                    'InstanceParticipants.removeBookmarkBlock'
+                    'instance.removeBookmarkBlock'
                 )->icon('far fa-bookmark');
             }
 
@@ -101,13 +104,13 @@ class Instance extends ListView
             }*/
 
             if ($buttons['scheduleList']) {
-                $listBar->standardButton('bookmark-list', Text::_('ADD_INSTANCES'), 'InstanceParticipants.bookmark')
+                $listBar->standardButton('bookmark-list', Text::_('ADD_INSTANCES'), 'instance.bookmarkSelected')
                     ->icon('fas fa-bookmark')
                     ->listCheck(true);
             }
 
             if ($buttons['descheduleList']) {
-                $listBar->standardButton('unbookmark-list', Text::_('DELETE_INSTANCES'), 'InstanceParticipants.removeBookmark')
+                $listBar->standardButton('unbookmark-list', Text::_('DELETE_INSTANCES'), 'instance.removeBookmarkSelected')
                     ->icon('far fa-bookmark')
                     ->listCheck(true);
             }
