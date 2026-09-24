@@ -3,7 +3,7 @@
  * @package     Organizer
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
- * @copyright   2020 TH Mittelhessen
+ * @copyright   2026 TH Mittelhessen
  * @license     GNU GPL v.3
  * @link        www.thm.de
  * @see         TCPDF (http://www.tcpdf.org) => Nicola Asuni
@@ -16,8 +16,6 @@ use Exception;
 
 // TCPDF configuration
 require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
-// TCPDF static font methods and data
-require_once(dirname(__FILE__) . '/include/tcpdf_font_data.php');
 // TCPDF static color methods and data
 require_once(dirname(__FILE__) . '/include/tcpdf_colors.php');
 
@@ -5947,14 +5945,14 @@ class PDF
         // remove carriage returns
         $s = str_replace("\r", '', $txt);
         // check if string contains arabic text
-        if (preg_match(TCPDF_FONT_DATA::$uni_RE_PATTERN_ARABIC, $s)) {
+        if (preg_match(FontData::$uni_RE_PATTERN_ARABIC, $s)) {
             $arabic = true;
         }
         else {
             $arabic = false;
         }
         // check if string contains RTL text
-        if ($arabic or ($this->tmprtl == 'R') or preg_match(TCPDF_FONT_DATA::$uni_RE_PATTERN_RTL, $s)) {
+        if ($arabic or ($this->tmprtl == 'R') or preg_match(FontData::$uni_RE_PATTERN_RTL, $s)) {
             $rtlmode = true;
         }
         else {
@@ -8731,7 +8729,7 @@ class PDF
         $out .= "\n" . 'endobj';
         $this->_out($out);
         // ToUnicode map for Identity-H
-        $stream = TCPDF_FONT_DATA::$uni_identity_h;
+        $stream = FontData::$uni_identity_h;
         // ToUnicode Object
         $this->_newobj();
         $stream = ($this->compress) ? gzcompress($stream) : $stream;
@@ -18371,7 +18369,7 @@ class PDF
                 }
                 // text
                 $this->htmlvspace = 0;
-                $isRTLString      = preg_match(TCPDF_FONT_DATA::$uni_RE_PATTERN_RTL, $dom[$key]['value']) || preg_match(TCPDF_FONT_DATA::$uni_RE_PATTERN_ARABIC, $dom[$key]['value']);
+                $isRTLString      = preg_match(FontData::$uni_RE_PATTERN_RTL, $dom[$key]['value']) || preg_match(FontData::$uni_RE_PATTERN_ARABIC, $dom[$key]['value']);
                 if ((!$this->premode) and $this->isRTLTextDir() and !$isRTLString) {
                     // reverse spaces order
                     $lsp = ''; // left spaces
@@ -22417,7 +22415,7 @@ class PDF
         $unichars = Fonts::UTF8StringToArray($text, $this->isunicode, $this->CurrentFont);
         // for each char
         foreach ($unichars as $char) {
-            if ((!$intag) and (!$skip) and TCPDF_FONT_DATA::$uni_type[$char] == 'L') {
+            if ((!$intag) and (!$skip) and FontData::$uni_type[$char] == 'L') {
                 // letter character
                 $word[] = $char;
             }
