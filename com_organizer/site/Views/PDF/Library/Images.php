@@ -121,7 +121,7 @@ class Images
     public static function _parsejpeg($file)
     {
         // check if is a local file
-        if (!StaticMethods::file_exists($file)) {
+        if (!StaticMethods::fileExists($file)) {
             return false;
         }
         $a = getimagesize($file);
@@ -221,8 +221,8 @@ class Images
             //Incorrect PNG file
             return false;
         }
-        $w   = StaticMethods::_freadint($f);
-        $h   = StaticMethods::_freadint($f);
+        $w   = StaticMethods::readInteger($f);
+        $h   = StaticMethods::readInteger($f);
         $bpc = ord(fread($f, 1));
         $ct  = ord(fread($f, 1));
         if ($ct == 0) {
@@ -262,7 +262,7 @@ class Images
         $trns = '';
         $data = '';
         $icc  = false;
-        $n    = StaticMethods::_freadint($f);
+        $n    = StaticMethods::readInteger($f);
         do {
             $type = fread($f, 4);
             if ($type == 'PLTE') {
@@ -318,7 +318,7 @@ class Images
             else {
                 StaticMethods::rfread($f, $n + 4);
             }
-            $n = StaticMethods::_freadint($f);
+            $n = StaticMethods::readInteger($f);
         } while ($n);
         if (($colspace == 'Indexed') and (empty($pal))) {
             // Missing palette

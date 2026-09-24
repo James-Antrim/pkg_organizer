@@ -36,7 +36,7 @@ class Fonts
      */
     public static function addTTFfont($fontfile, $fonttype = '', $enc = '', $flags = 32, $outpath = '', $platid = 3, $encid = 1, $addcbbox = false, $link = false)
     {
-        if (!StaticMethods::file_exists($fontfile)) {
+        if (!StaticMethods::fileExists($fontfile)) {
             // Could not find file
             return false;
         }
@@ -61,7 +61,7 @@ class Fonts
             $outpath = self::_getfontpath();
         }
         // check if this font already exist
-        if (StaticMethods::file_exists($outpath . $font_name . '.php')) {
+        if (StaticMethods::fileExists($outpath . $font_name . '.php')) {
             // this font already exist (delete it from fonts folder to rebuild it)
             return $font_name;
         }
@@ -1568,13 +1568,13 @@ class Fonts
     {
         $fontfile = '';
         // search files on various directories
-        if (($fontdir !== false) and StaticMethods::file_exists($fontdir . $file)) {
+        if (($fontdir !== false) and StaticMethods::fileExists($fontdir . $file)) {
             $fontfile = $fontdir . $file;
         }
-        elseif (StaticMethods::file_exists(self::_getfontpath() . $file)) {
+        elseif (StaticMethods::fileExists(self::_getfontpath() . $file)) {
             $fontfile = self::_getfontpath() . $file;
         }
-        elseif (StaticMethods::file_exists($file)) {
+        elseif (StaticMethods::fileExists($file)) {
             $fontfile = $file;
         }
         return $fontfile;

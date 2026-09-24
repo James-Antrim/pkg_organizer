@@ -3786,7 +3786,7 @@ class PDF
         // true when the font style variation is missing
         $missing_style = false;
         // search and include font file
-        if (StaticMethods::empty_string($fontfile) or (!@StaticMethods::file_exists($fontfile))) {
+        if (StaticMethods::empty_string($fontfile) or (!@StaticMethods::fileExists($fontfile))) {
             // build a standard filenames for specified font
             $tmp_fontfile = str_replace(' ', '', $family) . strtolower($style) . '.php';
             $fontfile     = Fonts::getFontFullPath($tmp_fontfile, $fontdir);
@@ -3798,7 +3798,7 @@ class PDF
             }
         }
         // include font file
-        if (!StaticMethods::empty_string($fontfile) and (@StaticMethods::file_exists($fontfile))) {
+        if (!StaticMethods::empty_string($fontfile) and (@StaticMethods::fileExists($fontfile))) {
             $type         = null;
             $name         = null;
             $desc         = null;
@@ -4361,19 +4361,19 @@ class PDF
         $this->PageAnnots[$page][] = array('n' => ++$this->n, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces);
         if (!$this->pdfa_mode || ($this->pdfa_mode && $this->pdfa_version == 3)) {
             if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!StaticMethods::empty_string($opt['FS']))
-                and (@StaticMethods::file_exists($opt['FS']) or StaticMethods::isValidURL($opt['FS']))
+                and (@StaticMethods::fileExists($opt['FS']) or StaticMethods::isValidURL($opt['FS']))
                 and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
                 $this->embeddedfiles[basename($opt['FS'])] = array('f' => ++$this->n, 'n' => ++$this->n, 'file' => $opt['FS']);
             }
         }
         // Add widgets annotation's icons
-        if (isset($opt['mk']['i']) and @StaticMethods::file_exists($opt['mk']['i'])) {
+        if (isset($opt['mk']['i']) and @StaticMethods::fileExists($opt['mk']['i'])) {
             $this->Image($opt['mk']['i'], '', '', 10, 10, '', '', '', false, 300, '', false, false, 0, false, true);
         }
-        if (isset($opt['mk']['ri']) and @StaticMethods::file_exists($opt['mk']['ri'])) {
+        if (isset($opt['mk']['ri']) and @StaticMethods::fileExists($opt['mk']['ri'])) {
             $this->Image($opt['mk']['ri'], '', '', 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
-        if (isset($opt['mk']['ix']) and @StaticMethods::file_exists($opt['mk']['ix'])) {
+        if (isset($opt['mk']['ix']) and @StaticMethods::fileExists($opt['mk']['ix'])) {
             $this->Image($opt['mk']['ix'], '', '', 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
     }
@@ -7473,7 +7473,7 @@ class PDF
             }
             if (isset($this->imagekeys)) {
                 foreach ($this->imagekeys as $file) {
-                    if (strpos($file, K_PATH_CACHE) === 0 && StaticMethods::file_exists($file)) {
+                    if (strpos($file, K_PATH_CACHE) === 0 && StaticMethods::fileExists($file)) {
                         @unlink($file);
                     }
                 }
@@ -24978,7 +24978,7 @@ class PDF
     protected function getCachedFileContents($file)
     {
         if (!isset($this->fileContentCache[$file])) {
-            $this->fileContentCache[$file] = StaticMethods::fileGetContents($file);
+            $this->fileContentCache[$file] = StaticMethods::fileContents($file);
         }
         return $this->fileContentCache[$file];
     }
@@ -24994,7 +24994,7 @@ class PDF
             return true;
         }
 
-        return StaticMethods::file_exists($file);
+        return StaticMethods::fileExists($file);
     }
 
 } // END OF TCPDF CLASS
