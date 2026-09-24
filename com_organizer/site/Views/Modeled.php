@@ -10,10 +10,18 @@
 
 namespace THM\Organizer\Views;
 
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\Document\Document;
+use Joomla\CMS\MVC\{Controller\BaseController, Model\BaseDatabaseModel, View\ViewInterface};
 
+/**
+ * Adds modelling as explicitly required by the ViewInterface and the document property as implicitly required by BaseController
+ * @see BaseController::display(), BaseController::prepareViewModel(), ViewInterface
+ */
 trait Modeled
 {
+    /** @see BaseController::display() */
+    public Document $document;
+
     public BaseDatabaseModel $model;
 
     /** @inheritDoc */
