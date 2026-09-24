@@ -19,7 +19,7 @@ use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\BaseLayout;
 use THM\Organizer\Views\{Modeled, Named};
-use THM\Organizer\Views\PDF\Library\PDF;
+use THM\Organizer\Views\PDF\Library\{PDF, StaticMethods};
 
 /**
  * Base class for a Joomla View
@@ -88,7 +88,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param string $unit        unit of measure
      * @param mixed  $format      page format; possible values: string - common format name, array - parameters
      *
-     * @see \TCPDF_STATIC::getPageSizeFromFormat(), setPageFormat()
+     * @see StaticMethods::getPageSizeFromFormat(), setPageFormat()
      */
     public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
     {

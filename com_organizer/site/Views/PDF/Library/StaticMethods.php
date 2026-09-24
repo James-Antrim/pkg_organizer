@@ -1,49 +1,19 @@
 <?php
-//============================================================+
-// File name   : tcpdf_static.php
-// Version     : 1.1.4
-// Begin       : 2002-08-03
-// Last Update : 2023-09-06
-// Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
-// License     : GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
-// -------------------------------------------------------------------
-// Copyright (C) 2002-2023 Nicola Asuni - Tecnick.com LTD
-//
-// This file is part of TCPDF software library.
-//
-// TCPDF is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Lesser General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-//
-// TCPDF is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the License
-// along with TCPDF. If not, see
-// <http://www.tecnick.com/pagefiles/tcpdf/LICENSE.TXT>.
-//
-// See LICENSE.TXT file for more information.
-// -------------------------------------------------------------------
-//
-// Description :
-//   Static methods used by the TCPDF class.
-//
-//============================================================+
-
 /**
- * @file
- * This is a PHP class that contains static methods for the TCPDF class.<br>
+ * @package     Organizer
+ * @extension   com_organizer
+ * @author      James Antrim, <james.antrim@nm.thm.de>
+ * @copyright   2020 TH Mittelhessen
+ * @license     GNU GPL v.3
+ * @link        www.thm.de
+ * @see         TCPDF (http://www.tcpdf.org) => Nicola Asuni
+ * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-/**
- * @class   TCPDF_STATIC
- * Static methods used by the TCPDF class.
- * @brief   PHP class for generating PDF documents without requiring external extensions.
- */
-class TCPDF_STATIC
+namespace THM\Organizer\Views\PDF\Library;
+
+/** Static methods used by the PDF class. */
+class StaticMethods
 {
 
     /**
@@ -244,7 +214,7 @@ class TCPDF_STATIC
      */
     public static function getObjFilename($type = 'tmp', $file_id = '')
     {
-        return tempnam(K_PATH_CACHE, '__tcpdf_' . $file_id . '_' . $type . '_' . md5(TCPDF_STATIC::getRandomSeed()) . '_');
+        return tempnam(K_PATH_CACHE, '__tcpdf_' . $file_id . '_' . $type . '_' . md5(StaticMethods::getRandomSeed()) . '_');
     }
 
     /**
@@ -1104,7 +1074,7 @@ class TCPDF_STATIC
     public static function fixHTMLCode($html, $default_css, $tagvs, $tidy_options, &$tagvspaces)
     {
         // configure parameters for HTML Tidy
-        if (TCPDF_STATIC::empty_string($tidy_options)) {
+        if (StaticMethods::empty_string($tidy_options)) {
             $tidy_options = array(
                 'clean'                       => 1,
                 'drop-empty-paras'            => 0,
@@ -1152,7 +1122,7 @@ class TCPDF_STATIC
         // remove some empty tag blocks
         $html = preg_replace('/<div([^\>]*)><\/div>/', '', $html);
         $html = preg_replace('/<p([^\>]*)><\/p>/', '', $html);
-        if (!TCPDF_STATIC::empty_string($tagvs)) {
+        if (!StaticMethods::empty_string($tagvs)) {
             // set vertical space for some XHTML tags
             $tagvspaces = $tagvs;
         }
@@ -1517,7 +1487,7 @@ class TCPDF_STATIC
         // create new language array of patterns
         $patterns = [];
         foreach ($patterns_array as $val) {
-            if (!TCPDF_STATIC::empty_string($val)) {
+            if (!StaticMethods::empty_string($val)) {
                 $val            = trim($val);
                 $val            = str_replace('\'', '\\\'', $val);
                 $key            = preg_replace('/[0-9]+/', '', $val);
@@ -2636,10 +2606,4 @@ class TCPDF_STATIC
         }
         return $page_mode;
     }
-
-
-} // END OF TCPDF_STATIC CLASS
-
-//============================================================+
-// END OF FILE
-//============================================================+
+}

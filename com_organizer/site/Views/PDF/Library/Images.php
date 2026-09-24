@@ -1,49 +1,20 @@
 <?php
-//============================================================+
-// File name   : tcpdf_images.php
-// Version     : 1.0.005
-// Begin       : 2002-08-03
-// Last Update : 2014-11-15
-// Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
-// License     : GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
-// -------------------------------------------------------------------
-// Copyright (C) 2002-2014 Nicola Asuni - Tecnick.com LTD
-//
-// This file is part of TCPDF software library.
-//
-// TCPDF is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Lesser General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-//
-// TCPDF is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the License
-// along with TCPDF. If not, see
-// <http://www.tecnick.com/pagefiles/tcpdf/LICENSE.TXT>.
-//
-// See LICENSE.TXT file for more information.
-// -------------------------------------------------------------------
-//
-// Description :
-//   Static image methods used by the TCPDF class.
-//
-//============================================================+
-
 /**
- * @file
- * This is a PHP class that contains static image methods for the TCPDF class.<br>
+ * @package     Organizer
+ * @extension   com_organizer
+ * @author      James Antrim, <james.antrim@nm.thm.de>
+ * @copyright   2020 TH Mittelhessen
+ * @license     GNU GPL v.3
+ * @link        www.thm.de
+ * @see         TCPDF (http://www.tcpdf.org) => Nicola Asuni
+ * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-/**
- * @class   TCPDF_IMAGES
- * Static image methods used by the TCPDF class.
- * @brief   PHP class for generating PDF documents without requiring external extensions.
- */
-class TCPDF_IMAGES
+namespace THM\Organizer\Views\PDF\Library;
+
+/** Static image methods used by the TCPDF class. */
+class Images
+
 {
 
     /**
@@ -150,7 +121,7 @@ class TCPDF_IMAGES
     public static function _parsejpeg($file)
     {
         // check if is a local file
-        if (!@TCPDF_STATIC::file_exists($file)) {
+        if (!StaticMethods::file_exists($file)) {
             return false;
         }
         $a = getimagesize($file);
@@ -202,7 +173,7 @@ class TCPDF_IMAGES
         $offset = 0;
         while (($pos = strpos($data, "ICC_PROFILE\0", $offset)) !== false) {
             // get ICC sequence length
-            $length = (TCPDF_STATIC::_getUSHORT($data, ($pos - 2)) - 16);
+            $length = (StaticMethods::_getUSHORT($data, ($pos - 2)) - 16);
             // marker sequence number
             $msn = max(1, ord($data[($pos + 12)]));
             // number of markers (total of APP2 used)
@@ -250,8 +221,8 @@ class TCPDF_IMAGES
             //Incorrect PNG file
             return false;
         }
-        $w   = TCPDF_STATIC::_freadint($f);
-        $h   = TCPDF_STATIC::_freadint($f);
+        $w   = StaticMethods::_freadint($f);
+        $h   = StaticMethods::_freadint($f);
         $bpc = ord(fread($f, 1));
         $ct  = ord(fread($f, 1));
         if ($ct == 0) {
@@ -291,17 +262,17 @@ class TCPDF_IMAGES
         $trns = '';
         $data = '';
         $icc  = false;
-        $n    = TCPDF_STATIC::_freadint($f);
+        $n    = StaticMethods::_freadint($f);
         do {
             $type = fread($f, 4);
             if ($type == 'PLTE') {
                 // read palette
-                $pal = TCPDF_STATIC::rfread($f, $n);
+                $pal = StaticMethods::rfread($f, $n);
                 fread($f, 4);
             }
             elseif ($type == 'tRNS') {
                 // read transparency info
-                $t = TCPDF_STATIC::rfread($f, $n);
+                $t = StaticMethods::rfread($f, $n);
                 if ($ct == 0) { // DeviceGray
                     $trns = array(ord($t[1]));
                 }
@@ -320,7 +291,7 @@ class TCPDF_IMAGES
             }
             elseif ($type == 'IDAT') {
                 // read image data block
-                $data .= TCPDF_STATIC::rfread($f, $n);
+                $data .= StaticMethods::rfread($f, $n);
                 fread($f, 4);
             }
             elseif ($type == 'iCCP') {
@@ -336,7 +307,7 @@ class TCPDF_IMAGES
                     return false;
                 }
                 // read ICC Color Profile
-                $icc = TCPDF_STATIC::rfread($f, ($n - $len - 2));
+                $icc = StaticMethods::rfread($f, ($n - $len - 2));
                 // decompress profile
                 $icc = gzuncompress($icc);
                 fread($f, 4);
@@ -345,9 +316,9 @@ class TCPDF_IMAGES
                 break;
             }
             else {
-                TCPDF_STATIC::rfread($f, $n + 4);
+                StaticMethods::rfread($f, $n + 4);
             }
-            $n = TCPDF_STATIC::_freadint($f);
+            $n = StaticMethods::_freadint($f);
         } while ($n);
         if (($colspace == 'Indexed') and (empty($pal))) {
             // Missing palette
@@ -357,9 +328,4 @@ class TCPDF_IMAGES
         fclose($f);
         return array('w' => $w, 'h' => $h, 'ch' => $channels, 'icc' => $icc, 'cs' => $colspace, 'bpc' => $bpc, 'f' => 'FlateDecode', 'parms' => $parms, 'pal' => $pal, 'trns' => $trns, 'data' => $data);
     }
-
-} // END OF TCPDF_IMAGES CLASS
-
-//============================================================+
-// END OF FILE
-//============================================================+
+}
