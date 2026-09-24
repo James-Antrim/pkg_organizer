@@ -8,28 +8,24 @@
  * @link        www.thm.de
  */
 
-/** @noinspection PhpUnused TCPDF Constants spread across multiple files are aggregated here for potential use. */
-/** @noinspection PhpTooManyParametersInspection TCPDF function calls have an obscene number of parameters. */
-
 namespace THM\Organizer\Views\PDF;
 
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
+use JetBrains\PhpStorm\NoReturn;
 use Joomla\CMS\Application\ApplicationHelper;
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\MVC\View\ViewInterface;
-use TCPDF;
+use Joomla\CMS\MVC\{Model\BaseDatabaseModel, View\ViewInterface};
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\BaseLayout;
-use THM\Organizer\Views\Modeled;
-use THM\Organizer\Views\Named;
+use THM\Organizer\Views\{Modeled, Named};
+use THM\Organizer\Views\PDF\Library\PDF;
 
 /**
  * Base class for a Joomla View
  * Class holding methods for displaying presentation data.
  */
-abstract class BaseView extends TCPDF implements ViewInterface
+abstract class BaseView extends PDF implements ViewInterface
 {
     use Modeled;
     use Named;
@@ -143,6 +139,7 @@ abstract class BaseView extends TCPDF implements ViewInterface
     }
 
     /** @inheritDoc */
+    #[NoReturn]
     public function display($tpl = null): void
     {
         $this->Output($this->filename, $this->destination);

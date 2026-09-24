@@ -15,7 +15,7 @@ use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Models\Booking as Model;
 use THM\Organizer\Tables\Bookings as Table;
-use TCPDF_FONTS;
+use THM\Organizer\Views\PDF\Library\Fonts;
 
 /**
  * Class loads persistent information about a course into the display context.
@@ -69,11 +69,11 @@ class Booking extends ListView
 
             $pageFont = $this->getFontFamily();
             $this->SetFont('zapfdingbats');
-            $this->renderCell(3, 0, TCPDF_FONTS::unichr(51), self::LEFT, self::TOP);
+            $this->renderCell(3, 0, Fonts::unichr(51), self::LEFT, self::TOP);
             $this->SetFont($pageFont);
             $this->renderCell(25, 0, Text::_('ORGANIZER_CHECKED_IN'), self::LEFT, self::TOP);
             $this->SetFont('zapfdingbats');
-            $this->renderCell(3, 0, TCPDF_FONTS::unichr(46), self::LEFT, self::TOP);
+            $this->renderCell(3, 0, Fonts::unichr(46), self::LEFT, self::TOP);
             $this->SetFont($pageFont);
             $this->renderCell(25, 0, Text::_('ORGANIZER_REGISTERED'), self::LEFT, self::TOP);
 

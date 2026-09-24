@@ -12,7 +12,7 @@
 namespace THM\Organizer\Layouts\PDF;
 
 use THM\Organizer\Views\PDF\ListView;
-use TCPDF_FONTS;
+use THM\Organizer\Views\PDF\Library\Fonts;
 
 abstract class ListLayout extends BaseLayout
 {
@@ -30,9 +30,9 @@ abstract class ListLayout extends BaseLayout
     /**
      * Formats the list item borders.
      *
-     * @param   int  $startX     the horizontal start of the line
-     * @param   int  $startY     the vertical start of the line
-     * @param   int  $maxLength  the maximum number of rows of information to be presented on the iterated line
+     * @param int $startX    the horizontal start of the line
+     * @param int $startY    the vertical start of the line
+     * @param int $maxLength the maximum number of rows of information to be presented on the iterated line
      *
      * @return void
      */
@@ -88,7 +88,7 @@ abstract class ListLayout extends BaseLayout
                 $font   = $view->getFontFamily();
                 $header = (int) $header;
                 $view->SetFont('zapfdingbats');
-                $view->renderCell($this->widths[$column], 7, TCPDF_FONTS::unichr($header), $view::CENTER, $border, 1);
+                $view->renderCell($this->widths[$column], 7, Fonts::unichr($header), $view::CENTER, $border, 1);
                 $view->SetFont($font);
             }
             else {
