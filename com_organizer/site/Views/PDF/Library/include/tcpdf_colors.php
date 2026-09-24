@@ -34,23 +34,17 @@
 /**
  * @file
  * PHP color class for TCPDF
- * @author  Nicola Asuni
- * @package com.tecnick.tcpdf
  */
 
 /**
  * @class   TCPDF_COLORS
  * PHP color class for TCPDF
- * @package com.tecnick.tcpdf
- * @version 1.0.004
- * @author  Nicola Asuni - info@tecnick.com
  */
 class TCPDF_COLORS
 {
 
     /**
      * Array of WEB safe colors
-     * @public static
      */
     public static $webcolor = array(
         'aliceblue'            => 'f0f8ff',
@@ -206,7 +200,6 @@ class TCPDF_COLORS
 
     /**
      * Array of valid JavaScript color names
-     * @public static
      */
     public static $jscolor = array('transparent', 'black', 'white', 'red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'dkGray', 'gray', 'ltGray');
 
@@ -215,7 +208,6 @@ class TCPDF_COLORS
      * Color keys must be in lowercase and without spaces.
      * As long as no open standard for spot colours exists, you have to buy a colour book by one of the colour manufacturers and insert the values and names of spot colours directly.
      * Common industry standard spot colors are: ANPA-COLOR, DIC, FOCOLTONE, GCMI, HKS, PANTONE, TOYO, TRUMATCH.
-     * @public static
      */
     public static $spotcolor = array(
         // special registration colors
@@ -244,8 +236,6 @@ class TCPDF_COLORS
      * @param string $name  Name of the spot color.
      * @param array  $spotc Reference to an array of spot colors.
      * @return array|false Spot color array or false if not defined.
-     * @since  5.9.125 (2011-10-03)
-     * @public static
      */
     public static function getSpotColor($name, &$spotc)
     {
@@ -270,7 +260,6 @@ class TCPDF_COLORS
      * @param array  $spotc  Reference to an array of spot colors.
      * @param array  $defcol Color to return in case of error.
      * @return array|false RGB or CMYK color, or false in case of error.
-     * @public static
      */
     public static function convertHTMLColorToDec($hcolor, &$spotc, $defcol = array('R' => 128, 'G' => 128, 'B' => 128))
     {
@@ -425,8 +414,6 @@ class TCPDF_COLORS
      * Convert a color array into a string representation.
      * @param array $c Array of colors.
      * @return string The color array representation.
-     * @since  5.9.137 (2011-12-01)
-     * @public static
      */
     public static function getColorStringFromArray($c)
     {
@@ -459,9 +446,6 @@ class TCPDF_COLORS
     /**
      * Convert color to javascript color.
      * @param string $color color name or "#RRGGBB"
-     * @protected
-     * @since  2.1.002 (2008-02-12)
-     * @public static
      */
     public static function _JScolor($color)
     {

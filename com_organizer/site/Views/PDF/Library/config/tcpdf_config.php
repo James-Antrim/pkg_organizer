@@ -30,10 +30,6 @@
 
 /**
  * Configuration file for TCPDF.
- * @author Nicola Asuni
- * @package com.tecnick.tcpdf
- * @version 4.9.005
- * @since 2004-10-27
  */
 
 // IMPORTANT:

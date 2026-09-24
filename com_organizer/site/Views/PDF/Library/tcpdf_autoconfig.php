@@ -36,8 +36,6 @@
 /**
  * @file
  * Try to automatically configure some TCPDF constants if not defined.
- * @package com.tecnick.tcpdf
- * @version 1.1.1
  */
 
 // DOCUMENT_ROOT fix for IIS Webserver

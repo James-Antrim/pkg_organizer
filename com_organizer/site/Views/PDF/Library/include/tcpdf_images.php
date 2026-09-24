@@ -36,26 +36,18 @@
 /**
  * @file
  * This is a PHP class that contains static image methods for the TCPDF class.<br>
- * @package com.tecnick.tcpdf
- * @author  Nicola Asuni
- * @version 1.0.005
  */
 
 /**
  * @class   TCPDF_IMAGES
  * Static image methods used by the TCPDF class.
- * @package com.tecnick.tcpdf
  * @brief   PHP class for generating PDF documents without requiring external extensions.
- * @version 1.0.005
- * @author  Nicola Asuni - info@tecnick.com
  */
 class TCPDF_IMAGES
 {
 
     /**
      * Array of hinheritable SVG properties.
-     * @since  5.0.000 (2010-05-02)
-     * @public static
      *
      * @var string[]
      */
@@ -68,8 +60,6 @@ class TCPDF_IMAGES
      * @param string $imgfile image file name
      * @param array  $iminfo  array of image information returned by getimagesize() function.
      * @return string image type
-     * @since  4.8.017 (2009-11-27)
-     * @public static
      */
     public static function getImageFileType($imgfile, $iminfo = [])
     {
@@ -94,8 +84,6 @@ class TCPDF_IMAGES
      * @param resource $new_image GD image object
      * @param resource $image     GD image object.
      * @return resource GD image object $new_image
-     * @since  4.9.016 (2010-04-20)
-     * @public static
      */
     public static function setGDImageTransparency($new_image, $image)
     {
@@ -120,8 +108,6 @@ class TCPDF_IMAGES
      * @param resource $image    Image object.
      * @param string   $tempfile Temporary file name.
      *                           return image PNG image object.
-     * @since  4.9.016 (2010-04-20)
-     * @public static
      */
     public static function _toPNG($image, $tempfile)
     {
@@ -145,7 +131,6 @@ class TCPDF_IMAGES
      * @param int      $quality  JPEG quality.
      * @param string   $tempfile Temporary file name.
      *                           return array|false image JPEG image object.
-     * @public static
      */
     public static function _toJPEG($image, $quality, $tempfile)
     {
@@ -161,7 +146,6 @@ class TCPDF_IMAGES
      * Extract info from a JPEG file without using the GD library.
      * @param string $file image file to parse
      * @return array|false structure containing the image data
-     * @public static
      */
     public static function _parsejpeg($file)
     {
@@ -247,7 +231,6 @@ class TCPDF_IMAGES
      * Extract info from a PNG file without using the GD library.
      * @param string $file image file to parse
      * @return array|false structure containing the image data
-     * @public static
      */
     public static function _parsepng($file)
     {

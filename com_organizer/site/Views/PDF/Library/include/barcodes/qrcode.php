@@ -74,9 +74,6 @@
  * This class is derived from "PHP QR Code encoder" by Dominik Dzienia (http://phpqrcode.sourceforge.net/) based on "libqrencode C library 3.1.1." by Kentaro Fukuchi (http://megaui.net/fukuchi/works/qrencode/index.en.html), contains Reed-Solomon code written by Phil Karn, KA9Q. QR Code is registered trademark of DENSO WAVE INCORPORATED (http://www.denso-wave.com/qrcode/index-e.html).
  * Please read comments on this class source file for full copyright and license information.
  *
- * @package com.tecnick.tcpdf
- * @author  Nicola Asuni
- * @version 1.0.010
  */
 
 // definitions
@@ -258,52 +255,42 @@ if (!defined('QRCODEDEFS')) {
  * This class is derived from "PHP QR Code encoder" by Dominik Dzienia (http://phpqrcode.sourceforge.net/) based on "libqrencode C library 3.1.1." by Kentaro Fukuchi (http://megaui.net/fukuchi/works/qrencode/index.en.html), contains Reed-Solomon code written by Phil Karn, KA9Q. QR Code is registered trademark of DENSO WAVE INCORPORATED (http://www.denso-wave.com/qrcode/index-e.html).
  * Please read comments on this class source file for full copyright and license information.
  *
- * @package com.tecnick.tcpdf
- * @author  Nicola Asuni
- * @version 1.0.010
  */
 class QRcode
 {
 
     /**
      * Barcode array to be returned which is readable by TCPDF.
-     * @protected
      */
     protected $barcode_array = [];
 
     /**
      * QR code version. Size of QRcode is defined as version. Version is from 1 to 40. Version 1 is 21*21 matrix. And 4 modules increases whenever 1 version increases. So version 40 is 177*177 matrix.
-     * @protected
      */
     protected $version = 0;
 
     /**
      * Levels of error correction. See definitions for possible values.
-     * @protected
      */
     protected $level = QR_ECLEVEL_L;
 
     /**
      * Encoding mode.
-     * @protected
      */
     protected $hint = QR_MODE_8B;
 
     /**
      * Boolean flag, if true the input string will be converted to uppercase.
-     * @protected
      */
     protected $casesensitive = true;
 
     /**
      * Structured QR code (not supported yet).
-     * @protected
      */
     protected $structured = 0;
 
     /**
      * Mask data.
-     * @protected
      */
     protected $data;
 
@@ -311,37 +298,31 @@ class QRcode
 
     /**
      * Width.
-     * @protected
      */
     protected $width;
 
     /**
      * Frame.
-     * @protected
      */
     protected $frame;
 
     /**
      * X position of bit.
-     * @protected
      */
     protected $x;
 
     /**
      * Y position of bit.
-     * @protected
      */
     protected $y;
 
     /**
      * Direction.
-     * @protected
      */
     protected $dir;
 
     /**
      * Single bit value.
-     * @protected
      */
     protected $bit;
 
@@ -349,49 +330,41 @@ class QRcode
 
     /**
      * Data code.
-     * @protected
      */
     protected $datacode = [];
 
     /**
      * Error correction code.
-     * @protected
      */
     protected $ecccode = [];
 
     /**
      * Blocks.
-     * @protected
      */
     protected $blocks;
 
     /**
      * Reed-Solomon blocks.
-     * @protected
      */
     protected $rsblocks = []; //of RSblock
 
     /**
      * Counter.
-     * @protected
      */
     protected $count;
 
     /**
      * Data length.
-     * @protected
      */
     protected $dataLength;
 
     /**
      * Error correction length.
-     * @protected
      */
     protected $eccLength;
 
     /**
      * Value b1.
-     * @protected
      */
     protected $b1;
 
@@ -399,7 +372,6 @@ class QRcode
 
     /**
      * Run length.
-     * @protected
      */
     protected $runLength = [];
 
@@ -407,13 +379,11 @@ class QRcode
 
     /**
      * Input data string.
-     * @protected
      */
     protected $dataStr = '';
 
     /**
      * Input items.
-     * @protected
      */
     protected $items;
 
@@ -421,19 +391,16 @@ class QRcode
 
     /**
      * Reed-Solomon items.
-     * @protected
      */
     protected $rsitems = [];
 
     /**
      * Array of frames.
-     * @protected
      */
     protected $frames = [];
 
     /**
      * Alphabet-numeric convesion table.
-     * @protected
      */
     protected $anTable = array(
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, //
@@ -449,7 +416,6 @@ class QRcode
     /**
      * Array Table of the capacity of symbols.
      * See Table 1 (pp.13) and Table 12-16 (pp.30-36), JIS X0510:2004.
-     * @protected
      */
     protected $capacity = array(
         array(0, 0, 0, array(0, 0, 0, 0)), //
@@ -497,7 +463,6 @@ class QRcode
 
     /**
      * Array Length indicator.
-     * @protected
      */
     protected $lengthTableBits = array(
         array(10, 12, 14),
@@ -509,7 +474,6 @@ class QRcode
     /**
      * Array Table of the error correction code (Reed-Solomon block).
      * See Table 12-16 (pp.30-36), JIS X0510:2004.
-     * @protected
      */
     protected $eccTable = array(
         array(array(0, 0), array(0, 0), array(0, 0), array(0, 0)), //
@@ -559,7 +523,6 @@ class QRcode
      * Array Positions of alignment patterns.
      * This array includes only the second and the third position of the alignment patterns. Rest of them can be calculated from the distance between them.
      * See Table 1 in Appendix E (pp.71) of JIS X0510:2004.
-     * @protected
      */
     protected $alignmentPattern = array(
         array(0, 0),
@@ -577,7 +540,6 @@ class QRcode
      * Array Version information pattern (BCH coded).
      * See Table 1 in Appendix D (pp.68) of JIS X0510:2004.
      * size: [QRSPEC_VERSION_MAX - 6]
-     * @protected
      */
     protected $versionPattern = array(
         0x07c94, 0x085bc, 0x09a99, 0x0a4d3, 0x0bbf6, 0x0c762, 0x0d847, 0x0e60d, //
@@ -589,7 +551,6 @@ class QRcode
 
     /**
      * Array Format information
-     * @protected
      */
     protected $formatInfo = array(
         array(0x77c4, 0x72f3, 0x7daa, 0x789d, 0x662f, 0x6318, 0x6c41, 0x6976), //
@@ -608,8 +569,6 @@ class QRcode
      * Creates a QRcode object
      * @param string $code    code to represent using QRcode
      * @param string $eclevel error level: <ul><li>L : About 7% or less errors can be corrected.</li><li>M : About 15% or less errors can be corrected.</li><li>Q : About 25% or less errors can be corrected.</li><li>H : About 30% or less errors can be corrected.</li></ul>
-     * @public
-     * @since 1.0.000
      */
     public function __construct($code, $eclevel = 'L')
     {
@@ -651,7 +610,6 @@ class QRcode
     /**
      * Returns a barcode array which is readable by TCPDF
      * @return array barcode array readable by TCPDF;
-     * @public
      */
     public function getBarcodeArray()
     {

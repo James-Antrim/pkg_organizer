@@ -40,8 +40,6 @@ use THM\Organizer\Views\PDF\Library\Fonts;
 /**
  * @file
  * This is a command line script to generate TCPDF fonts.<br>
- * @package com.tecnick.tcpdf
- * @version 1.0.000
  */
 
 if (php_sapi_name() != 'cli') {

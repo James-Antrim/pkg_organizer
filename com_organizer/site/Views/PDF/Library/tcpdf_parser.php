@@ -35,9 +35,6 @@
 /**
  * @file
  * This is a PHP class for parsing PDF documents.<br>
- * @package com.tecnick.tcpdf
- * @author  Nicola Asuni
- * @version 1.0.15
  */
 
 // include class for decoding filters
@@ -46,41 +43,33 @@ require_once(dirname(__FILE__) . '/include/tcpdf_filters.php');
 /**
  * @class   TCPDF_PARSER
  * This is a PHP class for parsing PDF documents.<br>
- * @package com.tecnick.tcpdf
  * @brief   This is a PHP class for parsing PDF documents..
- * @version 1.0.15
- * @author  Nicola Asuni - info@tecnick.com
  */
 class TCPDF_PARSER
 {
 
     /**
      * Raw content of the PDF document.
-     * @private
      */
     private $pdfdata = '';
 
     /**
      * XREF data.
-     * @protected
      */
     protected $xref = [];
 
     /**
      * Array of PDF objects.
-     * @protected
      */
     protected $objects = [];
 
     /**
      * Class object for decoding filters.
-     * @private
      */
     private $FilterDecoders;
 
     /**
      * Array of configuration parameters.
-     * @private
      */
     private $cfg = array(
         'die_for_errors'                 => false,
@@ -97,8 +86,6 @@ class TCPDF_PARSER
      *                     'die_for_errors' : if true termitate the program execution in case of error, otherwise thows an exception;
      *                     'ignore_filter_decoding_errors' : if true ignore filter decoding errors;
      *                     'ignore_missing_filter_decoders' : if true ignore missing filter decoding errors.
-     * @public
-     * @since 1.0.000 (2011-05-24)
      */
     public function __construct($data, $cfg = [])
     {
@@ -136,7 +123,6 @@ class TCPDF_PARSER
      *                   'die_for_errors' : if true termitate the program execution in case of error, otherwise thows an exception;
      *                   'ignore_filter_decoding_errors' : if true ignore filter decoding errors;
      *                   'ignore_missing_filter_decoders' : if true ignore missing filter decoding errors.
-     * @public
      */
     protected function setConfig($cfg)
     {
@@ -154,8 +140,6 @@ class TCPDF_PARSER
     /**
      * Return an array of parsed PDF document objects.
      * @return array Array of parsed PDF document objects.
-     * @public
-     * @since 1.0.000 (2011-06-26)
      */
     public function getParsedData()
     {
@@ -167,8 +151,6 @@ class TCPDF_PARSER
      * @param int   $offset xref offset (if know).
      * @param array $xref   previous xref array (if any).
      * @return array containing xref and trailer data.
-     * @protected
-     * @since 1.0.000 (2011-05-24)
      */
     protected function getXrefData($offset = 0, $xref = [])
     {
@@ -215,8 +197,6 @@ class TCPDF_PARSER
      * @param int   $startxref Offset at which the xref section starts (position of the 'xref' keyword).
      * @param array $xref      Previous xref array (if any).
      * @return array containing xref and trailer data.
-     * @protected
-     * @since 1.0.000 (2011-06-20)
      */
     protected function decodeXref($startxref, $xref = [])
     {
@@ -291,8 +271,6 @@ class TCPDF_PARSER
      * @param int   $startxref Offset at which the xref section starts.
      * @param array $xref      Previous xref array (if any).
      * @return array containing xref and trailer data.
-     * @protected
-     * @since 1.0.003 (2013-03-16)
      */
     protected function decodeXrefStream($startxref, $xref = [])
     {
@@ -532,8 +510,6 @@ class TCPDF_PARSER
      * Get object type, raw value and offset to next object
      * @param int $offset Object offset.
      * @return array containing object type, raw value and offset to next object
-     * @protected
-     * @since 1.0.000 (2011-06-20)
      */
     protected function getRawObject($offset = 0)
     {
@@ -732,8 +708,6 @@ class TCPDF_PARSER
      * @param int     $offset   Object offset.
      * @param boolean $decoding If true decode streams.
      * @return array containing object data.
-     * @protected
-     * @since 1.0.000 (2011-05-24)
      */
     protected function getIndirectObject($obj_ref, $offset = 0, $decoding = true)
     {
@@ -776,8 +750,6 @@ class TCPDF_PARSER
      * Get the content of object, resolving indect object reference if necessary.
      * @param string $obj Object value.
      * @return array containing object data.
-     * @protected
-     * @since 1.0.000 (2011-06-26)
      */
     protected function getObjectVal($obj)
     {
@@ -801,8 +773,6 @@ class TCPDF_PARSER
      * @param array  $sdic   Stream's dictionary array.
      * @param string $stream Stream to decode.
      * @return array containing decoded stream data and remaining filters.
-     * @protected
-     * @since 1.0.000 (2011-06-22)
      */
     protected function decodeStream($sdic, $stream)
     {
@@ -865,8 +835,6 @@ class TCPDF_PARSER
     /**
      * Throw an exception or print an error message and die if the K_TCPDF_PARSER_THROW_EXCEPTION_ERROR constant is set to true.
      * @param string $msg The error message
-     * @public
-     * @since 1.0.000 (2011-05-23)
      */
     public function Error($msg)
     {
