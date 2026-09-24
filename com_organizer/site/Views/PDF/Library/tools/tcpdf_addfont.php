@@ -154,7 +154,7 @@ $sopt .= 'i:';
 $sopt .= 'h';
 
 // long input options
-$lopt   = array();
+$lopt   = [];
 $lopt[] = 'type:';
 $lopt[] = 'enc:';
 $lopt[] = 'flags:';
