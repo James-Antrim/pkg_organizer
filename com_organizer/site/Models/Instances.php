@@ -553,6 +553,9 @@ class Instances extends ListModel
             }
         }
 
+        // Instantiates the state as necessary for non-HTML views.
+        $this->getState();
+
         if ($my = (int) $this->state->get('list.my')) {
             $username = ($username = User::userName()) ? " ($username)" : '';
 

@@ -22,6 +22,7 @@ use TCPDF;
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\BaseLayout;
+use THM\Organizer\Views\Modeled;
 use THM\Organizer\Views\Named;
 
 /**
@@ -30,6 +31,7 @@ use THM\Organizer\Views\Named;
  */
 abstract class BaseView extends TCPDF implements ViewInterface
 {
+    use Modeled;
     use Named;
 
     // Alignment & Borders
@@ -82,14 +84,13 @@ abstract class BaseView extends TCPDF implements ViewInterface
     protected string $filename;
     protected array $headerFont = ['helvetica', '', 10];
     protected BaseLayout $layout;
-    protected BaseDatabaseModel $model;
 
     /**
      * Performs initial construction of the TCPDF Object.
      *
-     * @param   string  $orientation  page orientation
-     * @param   string  $unit         unit of measure
-     * @param   mixed   $format       page format; possible values: string - common format name, array - parameters
+     * @param string $orientation page orientation
+     * @param string $unit        unit of measure
+     * @param mixed  $format      page format; possible values: string - common format name, array - parameters
      *
      * @see \TCPDF_STATIC::getPageSizeFromFormat(), setPageFormat()
      */
@@ -128,15 +129,15 @@ abstract class BaseView extends TCPDF implements ViewInterface
     /**
      * Changes the current font settings used for rendering.
      *
-     * @param   string  $style   the font style abbreviation
-     * @param   int     $size    the font size, document default is 12
-     * @param   string  $family  the font family name
+     * @param string $style  the font style abbreviation
+     * @param int    $size   the font size, document default is 12
+     * @param string $family the font family name
      *
      * @return void sets the font attribute values for use in rendering until set otherwise
      */
     public function changeFont(string $style = self::REGULAR,
-        int $size = self::CURRENT_SIZE,
-        string $family = self::CURRENT_FAMILY): void
+                               int    $size = self::CURRENT_SIZE,
+                               string $family = self::CURRENT_FAMILY): void
     {
         $this->SetFont($family, $style, $size);
     }
@@ -153,7 +154,7 @@ abstract class BaseView extends TCPDF implements ViewInterface
      * Wraps the protected function setPageFormat to make it publicly accessible. Array and string values defined in the
      * referenced functions.
      *
-     * @param   array|string  $format  the format to set the page to string format constant, [width, height], [options]
+     * @param array|string $format the format to set the page to string format constant, [width, height], [options]
      *
      * @return void
      * @see TCPDF::setPageFormat(), TCPDF::setPageOrientation(), TCPDF::getPageSizeFromFormat()
@@ -173,21 +174,21 @@ abstract class BaseView extends TCPDF implements ViewInterface
     /**
      * Defines the document margins.
      *
-     * @param   int  $left    the left margin
-     * @param   int  $top     the top margin
-     * @param   int  $right   the right margin (defaults to left value)
-     * @param   int  $bottom  the bottom margin
-     * @param   int  $header  the header margin
-     * @param   int  $footer  the footer margin
+     * @param int $left   the left margin
+     * @param int $top    the top margin
+     * @param int $right  the right margin (defaults to left value)
+     * @param int $bottom the bottom margin
+     * @param int $header the header margin
+     * @param int $footer the footer margin
      *
      * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
      */
     public function margins(int $left = 15,
-        int $top = 27,
-        int $right = -1,
-        int $bottom = 25,
-        int $header = 5,
-        int $footer = 10): void
+                            int $top = 27,
+                            int $right = -1,
+                            int $bottom = 25,
+                            int $header = 5,
+                            int $footer = 10): void
     {
         $this->SetAutoPageBreak(true, $bottom);
         $this->setFooterMargin($footer);
@@ -199,29 +200,29 @@ abstract class BaseView extends TCPDF implements ViewInterface
      * Wraps the TCPDF::Cell() function to arrange the parameters for brevity, with more infrequently used parameters moved
      * further back.
      *
-     * @param   int     $width   the cell width
-     * @param   int     $height  the cell height
-     * @param   string  $text    the cell text
-     * @param   string  $hAlign  the cell's horizontal alignment
-     * @param   mixed   $border  number 0/1: none/all,
+     * @param int    $width      the cell width
+     * @param int    $height     the cell height
+     * @param string $text       the cell text
+     * @param string $hAlign     the cell's horizontal alignment
+     * @param mixed  $border     number 0/1: none/all,
      *                           string B/L/R/T: corresponding side
      *                           array border settings coded by side
-     * @param   bool    $fill    true if the cell should render a background color, otherwise false
-     * @param   string  $vAlign  the cell's vertical alignment
-     * @param   mixed   $link    URL or identifier returned by AddLink().
+     * @param bool   $fill       true if the cell should render a background color, otherwise false
+     * @param string $vAlign     the cell's vertical alignment
+     * @param mixed  $link       URL or identifier returned by AddLink().
      *
      * @return void renders the cell
      * @see   TCPDF::AddLink(), TCPDF::Cell()
      */
     public function renderCell(
-        int $width,
-        int $height,
+        int    $width,
+        int    $height,
         string $text,
         string $hAlign = self::LEFT,
-        mixed $border = self::NONE,
-        bool $fill = false,
+        mixed  $border = self::NONE,
+        bool   $fill = false,
         string $vAlign = self::CENTER,
-        mixed $link = ''
+        mixed  $link = ''
     ): void
     {
         $this->Cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
@@ -232,30 +233,30 @@ abstract class BaseView extends TCPDF implements ViewInterface
      * further back. MultiCell prints multiple cells with line breaks being either automatic (width exhausted) or explicit (\n).
      * Alignment is applied to all cells in the block. Border and fill are applied to the block of cells.
      *
-     * @param   int     $width      the cell width
-     * @param   int     $height     the cell height
-     * @param   string  $text       the cell text
-     * @param   string  $hAlign     the cell's horizontal alignment
-     * @param   mixed   $border     number 0/1: none/all,
+     * @param int    $width         the cell width
+     * @param int    $height        the cell height
+     * @param string $text          the cell text
+     * @param string $hAlign        the cell's horizontal alignment
+     * @param mixed  $border        number 0/1: none/all,
      *                              string B/L/R/T: corresponding side
      *                              array border settings coded by side
-     * @param   bool    $fill       true if the cell should render a background color, otherwise false
-     * @param   string  $vAlign     the cell's vertical alignment
-     * @param   int     $maxHeight  the maximum height, explicitly set to ensure correct line height in a multi-cell
+     * @param bool   $fill          true if the cell should render a background color, otherwise false
+     * @param string $vAlign        the cell's vertical alignment
+     * @param int    $maxHeight     the maximum height, explicitly set to ensure correct line height in a multi-cell
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
      * @see   Cell(), SetDrawColor(),SetFillColor(), SetFont(), SetTextColor(), SetLineWidth(), SetAutoPageBreak(), Write()
      */
     public function renderMultiCell(
-        int $width,
-        int $height,
+        int    $width,
+        int    $height,
         string $text,
         string $hAlign = self::LEFT,
-        mixed $border = self::NONE,
-        bool $fill = false,
+        mixed  $border = self::NONE,
+        bool   $fill = false,
         string $vAlign = self::MIDDLE,
-        int $maxHeight = 0
+        int    $maxHeight = 0
     ): int
     {
         return $this->MultiCell(
@@ -281,8 +282,8 @@ abstract class BaseView extends TCPDF implements ViewInterface
      * Redefines the abscissa and ordinate of the current position. If the passed values are negative, they are relative
      * respectively to the right and bottom of the page.
      *
-     * @param   int  $horizontal  the horizontal coordinate
-     * @param   int  $vertical    the vertical coordinate
+     * @param int $horizontal the horizontal coordinate
+     * @param int $vertical   the vertical coordinate
      *
      * @return void
      * @see TCPDF::SetXY()
@@ -295,7 +296,7 @@ abstract class BaseView extends TCPDF implements ViewInterface
     /**
      * Changes the current font size used for rendering.
      *
-     * @param   int  $size  the font size
+     * @param int $size the font size
      *
      * @return void
      * @see TCPDF::SetFontSize()
@@ -308,7 +309,7 @@ abstract class BaseView extends TCPDF implements ViewInterface
     /**
      * Toggles display of the document's header and footer.
      *
-     * @param   bool  $display  whether to display the header and footer
+     * @param bool $display whether to display the header and footer
      *
      * @return void
      * @see SetPrintFooter(), SetPrintHeader()
@@ -332,8 +333,8 @@ abstract class BaseView extends TCPDF implements ViewInterface
     /**
      * Sets the document and file titles. File title defaults to a safe revision of the document title.
      *
-     * @param   string  $documentTitle  the document title
-     * @param   string  $fileName       the file name
+     * @param string $documentTitle the document title
+     * @param string $fileName      the file name
      *
      * @return void
      */
