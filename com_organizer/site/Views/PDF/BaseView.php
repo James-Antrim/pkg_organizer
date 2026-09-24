@@ -154,7 +154,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param array|string $format the format to set the page to string format constant, [width, height], [options]
      *
      * @return void
-     * @see TCPDF::setPageFormat(), TCPDF::setPageOrientation(), TCPDF::getPageSizeFromFormat()
+     * @see setPageFormat(), setPageOrientation(), getPageSizeFromFormat()
      */
     public function format(array|string $format): void
     {
@@ -194,7 +194,7 @@ abstract class BaseView extends PDF implements ViewInterface
     }
 
     /**
-     * Wraps the TCPDF::Cell() function to arrange the parameters for brevity, with more infrequently used parameters moved
+     * Wraps the Cell() function to arrange the parameters for brevity, with more infrequently used parameters moved
      * further back.
      *
      * @param int    $width      the cell width
@@ -209,7 +209,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param mixed  $link       URL or identifier returned by AddLink().
      *
      * @return void renders the cell
-     * @see   TCPDF::AddLink(), TCPDF::Cell()
+     * @see   AddLink(), Cell()
      */
     public function renderCell(
         int    $width,
@@ -226,7 +226,7 @@ abstract class BaseView extends PDF implements ViewInterface
     }
 
     /**
-     * Wraps the TCPDF::MultiCell() function to arrange the parameters for brevity, with more infrequently used parameters moved
+     * Wraps the MultiCell() function to arrange the parameters for brevity, with more infrequently used parameters moved
      * further back. MultiCell prints multiple cells with line breaks being either automatic (width exhausted) or explicit (\n).
      * Alignment is applied to all cells in the block. Border and fill are applied to the block of cells.
      *
@@ -283,7 +283,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param int $vertical   the vertical coordinate
      *
      * @return void
-     * @see TCPDF::SetXY()
+     * @see SetXY()
      */
     public function reposition(int $horizontal, int $vertical): void
     {
@@ -296,7 +296,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param int $size the font size
      *
      * @return void
-     * @see TCPDF::SetFontSize()
+     * @see SetFontSize()
      */
     public function resize(int $size): void
     {
