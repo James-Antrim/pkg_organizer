@@ -15,13 +15,13 @@ require_once JPATH_LIBRARIES . '/phpexcel/library/PHPExcel.php';
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Joomla\CMS\Application\ApplicationHelper;
-use Joomla\CMS\MVC\{Model\BaseDatabaseModel, View\ViewInterface};
+use Joomla\CMS\MVC\View\ViewInterface;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Worksheet;
 use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Layouts\XLS\BaseLayout;
-use THM\Organizer\Views\Named;
+use THM\Organizer\Views\{Modeled, Named};
 
 /**
  * Base class for a Joomla View
@@ -29,10 +29,10 @@ use THM\Organizer\Views\Named;
  */
 abstract class BaseView extends PHPExcel implements ViewInterface
 {
+    use Modeled;
     use Named;
 
     protected BaseLayout $layout;
-    public BaseDatabaseModel $model;
 
     /** @inheritDoc */
     public function __construct()
@@ -94,12 +94,6 @@ abstract class BaseView extends PHPExcel implements ViewInterface
         $this->render();
     }
 
-    /** @inheritDoc */
-    public function getModel($name = null): BaseDatabaseModel
-    {
-        return $this->model;
-    }
-
     /**
      * Renders the document.
      * @return void
@@ -131,19 +125,5 @@ abstract class BaseView extends PHPExcel implements ViewInterface
         } catch (Exception) {
             return $this->setActiveSheetIndex($pIndex - 1);
         }
-    }
-
-    /**
-     * Sets the model.
-     *
-     * @param BaseDatabaseModel $model The model to add to the view.
-     *
-     * @return  BaseDatabaseModel  The added model.
-     */
-    public function setModel(BaseDatabaseModel $model): BaseDatabaseModel
-    {
-        $this->model = $model;
-
-        return $model;
     }
 }

@@ -13,19 +13,22 @@ namespace THM\Organizer\Views\ICS;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Joomla\CMS\{Filter\OutputFilter, Uri\Uri, User\User};
-use Joomla\Registry\Registry;
+use Joomla\CMS\{Filter\OutputFilter, MVC\View\ViewInterface, Uri\Uri, User\User};
+use SimpleXMLElement;
 use THM\Organizer\Adapters\{Application, Text, User as UAdapter};
 use THM\Organizer\Helpers;
-use THM\Organizer\Models;
-use SimpleXMLElement;
+use THM\Organizer\Views\{Modeled, Named};
+use THM\Organizer\Models\ListModel;
 
 /**
  * Base class for a Joomla View
  * Class holding methods for displaying presentation data.
  */
-class Instances
+class Instances implements ViewInterface
 {
+    use Modeled;
+    use Named;
+
     /**
      * Component internal fixed roles.
      */
@@ -51,37 +54,26 @@ class Instances
      * The name of the generated file.
      * @var string
      */
-    private $fileName;
-
-    /**
-     * The instances data.
-     * @var array
-     */
-    private $instances;
+    private string $fileName;
 
     /**
      * The two character language code.
      * @var string
      */
-    private $language;
+    private string $language;
 
     /**
      * This property specifies the date and time (UTC) that the instance of the iCalendar object was created.
      * @var string
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.7.2
      */
-    private $stamp;
-
-    /**
-     * @var Registry
-     */
-    private $state;
+    private string $stamp;
 
     /**
      * The full name of the calendar.
      * @var string
      */
-    private $title;
+    private string $title;
 
     /**
      * This property specifies the text value that uniquely identifies the "VTIMEZONE" calendar component in the scope
@@ -89,59 +81,52 @@ class Instances
      * @var string
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.3.1
      */
-    private $tzID;
+    private string $tzID;
 
     /**
      * The component version.
      * @var string
      */
-    private $version;
+    private string $version = 'X.X.X';
 
     /**
      * The template for uIDs used in individual components.
      * @var string
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.4.7
      */
-    private $uIDTemplate;
+    private string $uIDTemplate;
 
     /**
      * @var User
      */
-    private $user;
+    private User $user;
 
     /**
      * Performs initial construction of the TCPDF Object.
      */
     public function __construct()
     {
-        $model = new Models\Instances();
-        $uri   = Uri::getInstance();
+        $uri = Uri::getInstance();
 
         $left  = date('Ymd') . 'T' . date('His') . date('T');
         $right = $uri->getHost() . $uri->getPath();
 
         $this->language    = strtoupper(Application::tag());
-        $this->instances   = $model->getItems();
-        $this->state       = $model->getState();
         $this->tzID        = date_default_timezone_get();
         $this->user        = UAdapter::instance();
         $this->uIDTemplate = "UID:$left-%s@$right";
-
-        $this->setStamp();
-        $this->setTitles();
-        $this->setVersion();
     }
 
     /**
      * Provide a grouping of component properties that describe an event.
      *
-     * @param   array   &$ics       the output container
-     * @param   object   $instance  the instance being iterated
+     * @param array   &$ics      the output container
+     * @param object   $instance the instance being iterated
      *
      * @return void modifies $ics
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.1
      */
-    private function addEvent(array &$ics, object $instance)
+    private function addEvent(array &$ics, object $instance): void
     {
         $date      = $instance->date;
         $endTime   = $instance->endTime;
@@ -151,14 +136,14 @@ class Instances
         $campuses     = [];
         $coordinates  = [];
         $lastModified = $instance->instanceStatusDate;
-        $lastModified = $lastModified > $instance->unitStatusDate ? $lastModified : $instance->unitStatusDate;
+        $lastModified = max($lastModified, $instance->unitStatusDate);
         $locations    = [];
         $pattern      = '/^-?[\d]?[\d].[\d]{6}, ?-?[01]?[\d]{1,2}.[\d]{6}$/';
         $persons      = [];
 
         if (!empty($instance->resources)) {
             foreach ($instance->resources as $person) {
-                $lastModified = $lastModified > $person['statusDate'] ? $lastModified : $person['statusDate'];
+                $lastModified = max($lastModified, $person['statusDate']);
 
                 if (in_array($person['roleID'], [self::SPEAKER, self::TEACHER])
                     or ($method === 'Tutorium' and $person['roleID'] === self::TUTOR)) {
@@ -167,13 +152,13 @@ class Instances
 
                 if (!empty($person['groups'])) {
                     foreach ($person['groups'] as $group) {
-                        $lastModified = $lastModified > $group['statusDate'] ? $lastModified : $group['statusDate'];
+                        $lastModified = max($lastModified, $group['statusDate']);
                     }
                 }
 
                 if (!empty($person['rooms'])) {
                     foreach ($person['rooms'] as $room) {
-                        $lastModified             = $lastModified > $room['statusDate'] ? $lastModified : $room['statusDate'];
+                        $lastModified             = max($lastModified, $room['statusDate']);
                         $locations[$room['room']] = $room['room'];
 
                         if (!empty($room['location'])) {
@@ -294,7 +279,7 @@ class Instances
          * comment*
          * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.4
          */
-        $this->setCommentnURL($ics, $instance->comment);
+        $this->setCommentAndURL($ics, $instance->comment);
 
         /**
          * TODO: Add contact information for the site administration?
@@ -310,7 +295,7 @@ class Instances
     /**
      * Enforces the 75 byte line limitation by 'folding'.
      *
-     * @param   string  $buffer  the input string used as a byte buffer during processing
+     * @param string $buffer the input string used as a byte buffer during processing
      *
      * @return string
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.1
@@ -429,12 +414,17 @@ class Instances
     /**
      * Method to generate output/vcalendar. Overwriting functions should place class specific code before the parent
      * call.
+     * @param null $tpl
      * @return void
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.4
      * @throws Exception
      */
-    public function display()
+    public function display($tpl = null): void
     {
+        $this->setStamp();
+        $this->setTitles();
+        $this->setVersion();
+
         $ics   = [];
         $ics[] = 'BEGIN:VCALENDAR';
         $ics[] = "VERSION:2.0";
@@ -472,8 +462,10 @@ class Instances
         $ics[] = "END:DAYLIGHT";
         $ics[] = "END:VTIMEZONE";
 
+        /** @var ListModel $model */
+        $model = $this->model;
 
-        foreach ($this->instances as $instance) {
+        foreach ($model->getItems() as $instance) {
             $this->addEvent($ics, $instance);
         }
 
@@ -483,19 +475,19 @@ class Instances
             $ics[$index] = $this->chunk($line);
         }
 
-        $fsize  = 0;
-        $output = implode("\r\n", $ics) . "\r\n";
+        $fileSize = 0;
+        $output   = implode("\r\n", $ics) . "\r\n";
 
         if ($temp = tempnam(sys_get_temp_dir(), 'ics')) {
             if (file_put_contents($temp, $output)) {
-                $fsize = filesize($temp);
+                $fileSize = filesize($temp);
             }
 
             unlink($temp);
         }
 
-        if ($fsize) {
-            header("Content-Length: $fsize");
+        if ($fileSize) {
+            header("Content-Length: $fileSize");
         }
 
         header('Content-Type: text/calendar; charset=utf-8');
@@ -508,7 +500,7 @@ class Instances
     /**
      * Escape special character use in text values.
      *
-     * @param   string  $text
+     * @param string $text
      *
      * @return string
      */
@@ -528,7 +520,7 @@ class Instances
     /**
      * Formats a given date time string (Y-m-d H:i) to a timezone qualified DATE-TIME.
      *
-     * @param   string  $dateTime
+     * @param string $dateTime
      *
      * @return string
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.5
@@ -543,9 +535,9 @@ class Instances
     }
 
     /**
-     * @param   string  $dateTime
+     * @param string $dateTime
      *
-     * @return DateTime|null
+     * @return DateTime
      * @throws Exception
      */
     private function getDTObject(string $dateTime): DateTime
@@ -556,7 +548,7 @@ class Instances
     /**
      * Gets the offset to UTC as a string.
      *
-     * @param   DateTime  $dateTime  the date at which the UTC offset is to be measured.
+     * @param DateTime $dateTime the date at which the UTC offset is to be measured.
      *
      * @return string the formatted offset
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.3.3
@@ -589,14 +581,14 @@ class Instances
      * Sets the vevent comment and url, which would otherwise be in the comment. Removes all regexed URLs from the
      * comment. As per RFC only one URL is added, even if multiple were present.
      *
-     * @param   array   &$ics      the output container
-     * @param   string   $comment  the commentary for the vevent
+     * @param array   &$ics     the output container
+     * @param string   $comment the commentary for the vevent
      *
      * @return void
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.4
      * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.4.6
      */
-    private function setCommentnURL(array &$ics, string $comment = '')
+    private function setCommentAndURL(array &$ics, string $comment = ''): void
     {
         if (!$comment) {
             return;
@@ -689,7 +681,7 @@ class Instances
      * Sets the stamp (UTC generation time) to be used for all components.
      * @return void
      */
-    private function setStamp()
+    private function setStamp(): void
     {
         $date = gmdate('Ymd');
         $time = gmdate('His');
@@ -701,9 +693,11 @@ class Instances
      * Sets the globally unique id used as a property in every vcomponent as well as the
      * @return void
      */
-    private function setTitles()
+    private function setTitles(): void
     {
-        $state = $this->state;
+        /** @var ListModel $model */
+        $model = $this->getModel();
+        $state = $model->getState();
         $user  = $this->user;
         $title = Text::_('ORGANIZER_INSTANCES');
 
@@ -777,16 +771,17 @@ class Instances
      * Sets the class $version property from the component manifest.
      * @return void
      */
-    private function setVersion()
+    private function setVersion(): void
     {
         $manifest = JPATH_ADMINISTRATOR . '/components/com_organizer/com_organizer.xml';
 
-        try {
-            $manifest      = new SimpleXMLElement(file_get_contents($manifest));
-            $this->version = (string) $manifest->version;
-        }
-        catch (Exception $exception) {
-            $this->version = "X.X.X";
+        if (file_exists($manifest)) {
+            try {
+                $manifest      = new SimpleXMLElement(file_get_contents($manifest));
+                $this->version = (string) $manifest->version;
+            } catch (Exception $exception) {
+                Application::message($exception->getMessage(), Application::ERROR);
+            }
         }
     }
 }
