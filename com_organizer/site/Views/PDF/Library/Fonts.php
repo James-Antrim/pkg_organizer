@@ -88,14 +88,6 @@ class Fonts
         }
         // set font type
         switch ($fonttype) {
-            case 'CID0CT':
-            case 'CID0CS':
-            case 'CID0KR':
-            case 'CID0JP':
-            {
-                $fmetric['type'] = 'cidfont0';
-                break;
-            }
             case 'Type1':
             {
                 $fmetric['type'] = 'Type1';
@@ -346,18 +338,16 @@ class Fonts
                 // sfnt version must be 0x00010000 for TrueType version 1.0.
                 return false;
             }
-            if ($fmetric['type'] != 'cidfont0') {
-                if ($link) {
-                    // creates a symbolic link to the existing font
-                    symlink($fontfile, $outpath . $fmetric['file']);
-                }
-                else {
-                    // store compressed font
-                    $fmetric['file'] .= '.z';
-                    $fp              = StaticMethods::fopenLocal($outpath . $fmetric['file'], 'wb');
-                    fwrite($fp, gzcompress($font));
-                    fclose($fp);
-                }
+            if ($link) {
+                // creates a symbolic link to the existing font
+                symlink($fontfile, $outpath . $fmetric['file']);
+            }
+            else {
+                // store compressed font
+                $fmetric['file'] .= '.z';
+                $fp              = StaticMethods::fopenLocal($outpath . $fmetric['file'], 'wb');
+                fwrite($fp, gzcompress($font));
+                fclose($fp);
             }
             $offset += 4;
             // get number of tables
@@ -846,59 +836,19 @@ class Fonts
         }
         else {
             $pfile .= '$originalsize=' . $fmetric['originalsize'] . ';' . "\n";
-            if ($fmetric['type'] == 'cidfont0') {
-                // CID-0
-                switch ($fonttype) {
-                    case 'CID0JP':
-                    {
-                        $pfile .= '// Japanese' . "\n";
-                        $pfile .= '$enc=\'UniJIS-UTF16-H\';' . "\n";
-                        $pfile .= '$cidinfo=array(\'Registry\'=>\'Adobe\', \'Ordering\'=>\'Japan1\',\'Supplement\'=>5);' . "\n";
-                        $pfile .= 'include(dirname(__FILE__).\'/uni2cid_aj16.php\');' . "\n";
-                        break;
-                    }
-                    case 'CID0KR':
-                    {
-                        $pfile .= '// Korean' . "\n";
-                        $pfile .= '$enc=\'UniKS-UTF16-H\';' . "\n";
-                        $pfile .= '$cidinfo=array(\'Registry\'=>\'Adobe\', \'Ordering\'=>\'Korea1\',\'Supplement\'=>0);' . "\n";
-                        $pfile .= 'include(dirname(__FILE__).\'/uni2cid_ak12.php\');' . "\n";
-                        break;
-                    }
-                    case 'CID0CS':
-                    {
-                        $pfile .= '// Chinese Simplified' . "\n";
-                        $pfile .= '$enc=\'UniGB-UTF16-H\';' . "\n";
-                        $pfile .= '$cidinfo=array(\'Registry\'=>\'Adobe\', \'Ordering\'=>\'GB1\',\'Supplement\'=>2);' . "\n";
-                        $pfile .= 'include(dirname(__FILE__).\'/uni2cid_ag15.php\');' . "\n";
-                        break;
-                    }
-                    case 'CID0CT':
-                    default:
-                    {
-                        $pfile .= '// Chinese Traditional' . "\n";
-                        $pfile .= '$enc=\'UniCNS-UTF16-H\';' . "\n";
-                        $pfile .= '$cidinfo=array(\'Registry\'=>\'Adobe\', \'Ordering\'=>\'CNS1\',\'Supplement\'=>0);' . "\n";
-                        $pfile .= 'include(dirname(__FILE__).\'/uni2cid_aj16.php\');' . "\n";
-                        break;
-                    }
-                }
+            // TrueType
+            $pfile .= '$enc=\'' . $fmetric['enc'] . '\';' . "\n";
+            $pfile .= '$file=\'' . $fmetric['file'] . '\';' . "\n";
+            $pfile .= '$ctg=\'' . $fmetric['ctg'] . '\';' . "\n";
+            // create CIDToGIDMap
+            $cidtogidmap = str_pad('', 131072, "\x00"); // (256 * 256 * 2) = 131072
+            foreach ($ctg as $cid => $gid) {
+                $cidtogidmap = self::updateCIDtoGIDmap($cidtogidmap, $cid, $ctg[$cid]);
             }
-            else {
-                // TrueType
-                $pfile .= '$enc=\'' . $fmetric['enc'] . '\';' . "\n";
-                $pfile .= '$file=\'' . $fmetric['file'] . '\';' . "\n";
-                $pfile .= '$ctg=\'' . $fmetric['ctg'] . '\';' . "\n";
-                // create CIDToGIDMap
-                $cidtogidmap = str_pad('', 131072, "\x00"); // (256 * 256 * 2) = 131072
-                foreach ($ctg as $cid => $gid) {
-                    $cidtogidmap = self::updateCIDtoGIDmap($cidtogidmap, $cid, $ctg[$cid]);
-                }
-                // store compressed CIDToGIDMap
-                $fp = StaticMethods::fopenLocal($outpath . $fmetric['ctg'], 'wb');
-                fwrite($fp, gzcompress($cidtogidmap));
-                fclose($fp);
-            }
+            // store compressed CIDToGIDMap
+            $fp = StaticMethods::fopenLocal($outpath . $fmetric['ctg'], 'wb');
+            fwrite($fp, gzcompress($cidtogidmap));
+            fclose($fp);
         }
         $pfile .= '$desc=array(';
         $pfile .= '\'Flags\'=>' . $fmetric['Flags'] . ',';

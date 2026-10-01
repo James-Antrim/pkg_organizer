@@ -3873,11 +3873,6 @@ class PDF
         elseif ($type == 'TrueTypeUnicode') {
             $enc = 'Identity-H';
         }
-        elseif ($type == 'cidfont0') {
-            if ($this->pdfa_mode) {
-                $this->Error('All fonts must be embedded in PDF/A mode!');
-            }
-        }
         else {
             $this->Error('Unknow font type: ' . $type . '');
         }
@@ -22536,7 +22531,7 @@ class PDF
      */
     public function isUnicodeFont()
     {
-        return (($this->CurrentFont['type'] == 'TrueTypeUnicode') or ($this->CurrentFont['type'] == 'cidfont0'));
+        return ($this->CurrentFont['type'] == 'TrueTypeUnicode');
     }
 
     /**
