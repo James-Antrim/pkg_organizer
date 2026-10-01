@@ -35,12 +35,12 @@ class PDF
     /**
      * Array of object offsets.
      */
-    protected $offsets = array();
+    protected $offsets = [];
 
     /**
      * Array of object IDs for each page.
      */
-    protected $pageobjects = array();
+    protected $pageobjects = [];
 
     /**
      * Buffer holding in-memory PDF.
@@ -50,7 +50,7 @@ class PDF
     /**
      * Array containing pages.
      */
-    protected $pages = array();
+    protected $pages = [];
 
     /**
      * Current document state.
@@ -70,7 +70,7 @@ class PDF
     /**
      * Page dimensions.
      */
-    protected $pagedim = array();
+    protected $pagedim = [];
 
     /**
      * Scale factor (number of points in user unit).
@@ -175,22 +175,22 @@ class PDF
     /**
      * Array of used fonts.
      */
-    protected $fonts = array();
+    protected $fonts = [];
 
     /**
      * Array of font files.
      */
-    protected $FontFiles = array();
+    protected $FontFiles = [];
 
     /**
      * Array of encoding differences.
      */
-    protected $diffs = array();
+    protected $diffs = [];
 
     /**
      * Array of used images.
      */
-    protected $images = array();
+    protected $images = [];
 
     /**
      * Depth of the svg tag, to keep track if the svg tag is a subtag or the root tag.
@@ -200,12 +200,12 @@ class PDF
     /**
      * Array of Annotations in pages.
      */
-    protected $PageAnnots = array();
+    protected $PageAnnots = [];
 
     /**
      * Array of internal links.
      */
-    protected $links = array();
+    protected $links = [];
 
     /**
      * Current font family.
@@ -491,12 +491,12 @@ class PDF
     /**
      * HTML PARSER: array to store current link and rendering styles.
      */
-    protected $HREF = array();
+    protected $HREF = [];
 
     /**
      * List of available fonts on filesystem.
      */
-    protected $fontlist = array();
+    protected $fontlist = [];
 
     /**
      * Current foreground color.
@@ -506,12 +506,12 @@ class PDF
     /**
      * HTML PARSER: array of boolean values, true in case of ordered list (OL), false otherwise.
      */
-    protected $listordered = array();
+    protected $listordered = [];
 
     /**
      * HTML PARSER: array count list items on nested lists.
      */
-    protected $listcount = array();
+    protected $listcount = [];
 
     /**
      * HTML PARSER: current list nesting level.
@@ -568,7 +568,7 @@ class PDF
     /**
      * Array containing encryption settings.
      */
-    protected $encryptdata = array();
+    protected $encryptdata = [];
 
     /**
      * Last RC4 key encrypted (cached for optimisation).
@@ -590,7 +590,7 @@ class PDF
     /**
      * Outlines for bookmark.
      */
-    protected $outlines = array();
+    protected $outlines = [];
 
     /**
      * Outline root for bookmark.
@@ -617,7 +617,7 @@ class PDF
     /**
      * Array with additional document-wide usage rights for the document.
      */
-    protected $ur = array();
+    protected $ur = [];
 
     /**
      * DPI (Dot Per Inch) Document Resolution (do not change).
@@ -627,12 +627,12 @@ class PDF
     /**
      * Array of page numbers were a new page group was started (the page numbers are the keys of the array).
      */
-    protected $newpagegroup = array();
+    protected $newpagegroup = [];
 
     /**
      * Array that contains the number of pages in each page group.
      */
-    protected $pagegroups = array();
+    protected $pagegroups = [];
 
     /**
      * Current page group number.
@@ -668,37 +668,37 @@ class PDF
     /**
      * Array for storing gradient information.
      */
-    protected $gradients = array();
+    protected $gradients = [];
 
     /**
      * Array used to store positions inside the pages buffer (keys are the page numbers).
      */
-    protected $intmrk = array();
+    protected $intmrk = [];
 
     /**
      * Array used to store positions inside the pages buffer (keys are the page numbers).
      */
-    protected $bordermrk = array();
+    protected $bordermrk = [];
 
     /**
      * Array used to store page positions to track empty pages (keys are the page numbers).
      */
-    protected $emptypagemrk = array();
+    protected $emptypagemrk = [];
 
     /**
      * Array used to store content positions inside the pages buffer (keys are the page numbers).
      */
-    protected $cntmrk = array();
+    protected $cntmrk = [];
 
     /**
      * Array used to store footer positions of each page.
      */
-    protected $footerpos = array();
+    protected $footerpos = [];
 
     /**
      * Array used to store footer length of each page.
      */
-    protected $footerlen = array();
+    protected $footerlen = [];
 
     /**
      * Boolean flag to indicate if a new line is created.
@@ -743,7 +743,7 @@ class PDF
     /**
      * Array of Spot colors.
      */
-    protected $spot_colors = array();
+    protected $spot_colors = [];
 
     /**
      * Symbol used for HTML unordered list items.
@@ -758,7 +758,7 @@ class PDF
     /**
      * Array of transformation matrix.
      */
-    protected $transfmatrix = array();
+    protected $transfmatrix = [];
 
     /**
      * Current key for transformation matrix.
@@ -778,7 +778,7 @@ class PDF
     /**
      * Array used for custom vertical spaces for HTML tags.
      */
-    protected $tagvspaces = array();
+    protected $tagvspaces = [];
 
     /**
      * HTML PARSER: custom indent amount for lists. Negative value means disabled.
@@ -793,7 +793,7 @@ class PDF
     /**
      * Array of files to embedd.
      */
-    protected $embeddedfiles = array();
+    protected $embeddedfiles = [];
 
     /**
      * Boolean flag to indicate if we are inside a PRE tag.
@@ -804,7 +804,7 @@ class PDF
      * Array used to store positions of graphics transformation blocks inside the page buffer.
      * keys are the page numbers
      */
-    protected $transfmrk = array();
+    protected $transfmrk = [];
 
     /**
      * Default color for html links.
@@ -824,7 +824,7 @@ class PDF
     /**
      * Array containing page lengths in bytes.
      */
-    protected $pagelen = array();
+    protected $pagelen = [];
 
     /**
      * Counts the number of pages.
@@ -834,7 +834,7 @@ class PDF
     /**
      * Store the image keys.
      */
-    protected $imagekeys = array();
+    protected $imagekeys = [];
 
     /**
      * Length of the buffer in bytes.
@@ -849,17 +849,17 @@ class PDF
     /**
      * Store the font keys.
      */
-    protected $fontkeys = array();
+    protected $fontkeys = [];
 
     /**
      * Store the font object IDs.
      */
-    protected $font_obj_ids = array();
+    protected $font_obj_ids = [];
 
     /**
      * Store the fage status (true when opened, false when closed).
      */
-    protected $pageopen = array();
+    protected $pageopen = [];
 
     /**
      * Default monospace font.
@@ -874,7 +874,7 @@ class PDF
     /**
      * Array used to store the lengths of cache files.
      */
-    protected $cache_file_length = array();
+    protected $cache_file_length = [];
 
     /**
      * Table header content to be repeated on each new page.
@@ -884,7 +884,7 @@ class PDF
     /**
      * Margins used for table header.
      */
-    protected $theadMargins = array();
+    protected $theadMargins = [];
 
     /**
      * Boolean flag to enable document digital signature.
@@ -894,7 +894,7 @@ class PDF
     /**
      * Digital signature data.
      */
-    protected $signature_data = array();
+    protected $signature_data = [];
 
     /**
      * Digital signature max length.
@@ -909,7 +909,7 @@ class PDF
     /**
      * Array of empty digital signature appearances.
      */
-    protected $empty_signature_appearance = array();
+    protected $empty_signature_appearance = [];
 
     /**
      * Boolean flag to enable document timestamping with TSA.
@@ -919,7 +919,7 @@ class PDF
     /**
      * Timestamping data.
      */
-    protected $tsa_data = array();
+    protected $tsa_data = [];
 
     /**
      * Regular expression used to find blank characters (required for word-wrapping).
@@ -939,12 +939,12 @@ class PDF
     /**
      * ID of page objects.
      */
-    protected $page_obj_id = array();
+    protected $page_obj_id = [];
 
     /**
      * List of form annotations IDs.
      */
-    protected $form_obj_id = array();
+    protected $form_obj_id = [];
 
     /**
      * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
@@ -954,7 +954,7 @@ class PDF
     /**
      * Javascript objects array.
      */
-    protected $js_objects = array();
+    protected $js_objects = [];
 
     /**
      * Current form action (used during XHTML rendering).
@@ -974,17 +974,17 @@ class PDF
     /**
      * List of fonts used on form fields (fontname => fontkey).
      */
-    protected $annotation_fonts = array();
+    protected $annotation_fonts = [];
 
     /**
      * List of radio buttons parent objects.
      */
-    protected $radiobutton_groups = array();
+    protected $radiobutton_groups = [];
 
     /**
      * List of radio group objects IDs.
      */
-    protected $radio_groups = array();
+    protected $radio_groups = [];
 
     /**
      * Text indentation value (used for text-indent CSS attribute).
@@ -1009,7 +1009,7 @@ class PDF
     /**
      * Array of column measures (width, space, starting Y position).
      */
-    protected $columns = array();
+    protected $columns = [];
 
     /**
      * Number of colums.
@@ -1074,12 +1074,12 @@ class PDF
     /**
      * Array of default graphic settings.
      */
-    protected $default_graphic_vars = array();
+    protected $default_graphic_vars = [];
 
     /**
      * Array of XObjects.
      */
-    protected $xobjects = array();
+    protected $xobjects = [];
 
     /**
      * Boolean value true when we are inside an XObject.
@@ -1105,7 +1105,7 @@ class PDF
      * Array of no-write regions.
      * ('page' => page number or empy for current page, 'xt' => X top, 'yt' => Y top, 'xb' => X bottom, 'yb' => Y bottom, 'side' => page side 'L' = left or 'R' = right)
      */
-    protected $page_regions = array();
+    protected $page_regions = [];
 
     /**
      * Boolean value true when page region check is active.
@@ -1115,12 +1115,12 @@ class PDF
     /**
      * Array of PDF layers data.
      */
-    protected $pdflayers = array();
+    protected $pdflayers = [];
 
     /**
      * A dictionary of names and corresponding destinations (Dests key on document Catalog).
      */
-    protected $dests = array();
+    protected $dests = [];
 
     /**
      * Object ID for Named Destinations
@@ -1130,7 +1130,7 @@ class PDF
     /**
      * Embedded Files Names
      */
-    protected $efnames = array();
+    protected $efnames = [];
 
     /**
      * Directory used for the last SVG image.
@@ -1145,7 +1145,7 @@ class PDF
     /**
      * Array of SVG gradients.
      */
-    protected $svggradients = array();
+    protected $svggradients = [];
 
     /**
      * ID of last SVG gradient.
@@ -1160,7 +1160,7 @@ class PDF
     /**
      * Array of SVG defs.
      */
-    protected $svgdefs = array();
+    protected $svgdefs = [];
 
     /**
      * Boolean value true when in SVG clipPath tag.
@@ -1170,12 +1170,12 @@ class PDF
     /**
      * Array of SVG clipPath commands.
      */
-    protected $svgclippaths = array();
+    protected $svgclippaths = [];
 
     /**
      * Array of SVG clipPath tranformation matrix.
      */
-    protected $svgcliptm = array();
+    protected $svgcliptm = [];
 
     /**
      * ID of last SVG clipPath.
@@ -1190,7 +1190,7 @@ class PDF
     /**
      * SVG text properties.
      */
-    protected $svgtextmode = array();
+    protected $svgtextmode = [];
 
     /**
      * Array of SVG properties.
@@ -1322,13 +1322,13 @@ class PDF
     /**
      * Cache array for computed GD gamma values.
      */
-    protected $gdgammacache = array();
+    protected $gdgammacache = [];
 
     /**
      * Cache array for file content
      * @var array
      */
-    protected $fileContentCache = array();
+    protected $fileContentCache = [];
 
     /**
      * Whether to allow local file path in image html tags, when prefixed with file://
@@ -1359,9 +1359,9 @@ class PDF
         // set file ID for trailer
         $serformat          = (is_array($format) ? json_encode($format) : $format);
         $this->file_id      = md5(StaticMethods::getRandomSeed('TCPDF' . $orientation . $unit . $serformat . $encoding));
-        $this->font_obj_ids = array();
-        $this->page_obj_id  = array();
-        $this->form_obj_id  = array();
+        $this->font_obj_ids = [];
+        $this->page_obj_id  = [];
+        $this->form_obj_id  = [];
 
         // set pdf/a mode
         if ($pdfa != false) {
@@ -1380,18 +1380,18 @@ class PDF
         // initialization of properties
         $this->isunicode    = $unicode;
         $this->page         = 0;
-        $this->transfmrk[0] = array();
-        $this->pagedim      = array();
+        $this->transfmrk[0] = [];
+        $this->pagedim      = [];
         $this->n            = 2;
         $this->buffer       = '';
-        $this->pages        = array();
+        $this->pages        = [];
         $this->state        = 0;
-        $this->fonts        = array();
-        $this->FontFiles    = array();
-        $this->diffs        = array();
-        $this->images       = array();
-        $this->links        = array();
-        $this->gradients    = array();
+        $this->fonts        = [];
+        $this->FontFiles    = [];
+        $this->diffs        = [];
+        $this->images       = [];
+        $this->links        = [];
+        $this->gradients    = [];
         $this->InFooter     = false;
         $this->lasth        = 0;
         $this->FontFamily   = defined('PDF_FONT_NAME_MAIN') ? PDF_FONT_NAME_MAIN : 'helvetica';
@@ -1404,7 +1404,7 @@ class PDF
         $this->FillColor    = '0 g';
         $this->TextColor    = '0 g';
         $this->ColorFlag    = false;
-        $this->pdflayers    = array();
+        $this->pdflayers    = [];
         // encryption values
         $this->encrypted    = false;
         $this->last_enc_key = '';
@@ -1455,19 +1455,19 @@ class PDF
         $this->setPDFVersion();
         $this->tcpdflink = true;
         $this->encoding  = $encoding;
-        $this->HREF      = array();
+        $this->HREF      = [];
         $this->getFontsList();
         $this->fgcolor     = array('R' => 0, 'G' => 0, 'B' => 0);
         $this->strokecolor = array('R' => 0, 'G' => 0, 'B' => 0);
         $this->bgcolor     = array('R' => 255, 'G' => 255, 'B' => 255);
-        $this->extgstates  = array();
+        $this->extgstates  = [];
         $this->setTextShadow();
         // signature
         $this->sign                       = false;
         $this->tsa_timestamp              = false;
-        $this->tsa_data                   = array();
+        $this->tsa_data                   = [];
         $this->signature_appearance       = array('page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature');
-        $this->empty_signature_appearance = array();
+        $this->empty_signature_appearance = [];
         // user's rights
         $this->ur['enabled']   = false;
         $this->ur['document']  = '/FullSave';
@@ -1851,7 +1851,7 @@ class PDF
         $this->re_spaces = $re;
         $re_parts        = explode('/', $re);
         // get pattern parts
-        $this->re_space = array();
+        $this->re_space = [];
         if (isset($re_parts[1]) and !empty($re_parts[1])) {
             $this->re_space['p'] = $re_parts[1];
         }
@@ -2220,7 +2220,7 @@ class PDF
         if (is_string($brd)) {
             // convert string to array
             $slen   = strlen($brd);
-            $newbrd = array();
+            $newbrd = [];
             for ($i = 0; $i < $slen; ++$i) {
                 $newbrd[$brd[$i]] = true;
             }
@@ -2808,7 +2808,7 @@ class PDF
      */
     public function getHeaderData()
     {
-        $ret               = array();
+        $ret               = [];
         $ret['logo']       = $this->header_logo;
         $ret['logo_width'] = $this->header_logo_width;
         $ret['title']      = $this->header_title;
@@ -3203,7 +3203,7 @@ class PDF
             }
             // store end of header position
             if (!isset($this->columns[0]['th'])) {
-                $this->columns[0]['th'] = array();
+                $this->columns[0]['th'] = [];
             }
             $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
             $this->tMargin                                     = $this->y;
@@ -3586,7 +3586,7 @@ class PDF
             $sa = Fonts::UTF8ArrToLatin1Arr($sa);
         }
         $w  = 0; // total width
-        $wa = array(); // array of characters widths
+        $wa = []; // array of characters widths
         foreach ($sa as $ck => $char) {
             // character width
             $cw   = $this->GetCharWidth($char, isset($sa[($ck + 1)]));
@@ -3833,13 +3833,13 @@ class PDF
         }
         if (!isset($cidinfo) or StaticMethods::empty_string($cidinfo)) {
             $cidinfo            = array('Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0);
-            $cidinfo['uni2cid'] = array();
+            $cidinfo['uni2cid'] = [];
         }
         if (!isset($ctg) or StaticMethods::empty_string($ctg)) {
             $ctg = '';
         }
         if (!isset($desc) or StaticMethods::empty_string($desc)) {
-            $desc = array();
+            $desc = [];
         }
         if (!isset($up) or StaticMethods::empty_string($up)) {
             $up = -100;
@@ -3848,7 +3848,7 @@ class PDF
             $ut = 50;
         }
         if (!isset($cw) or StaticMethods::empty_string($cw)) {
-            $cw = array();
+            $cw = [];
         }
         if (!isset($dw) or StaticMethods::empty_string($dw)) {
             // set default width
@@ -3919,7 +3919,7 @@ class PDF
         }
         // check if the array of characters bounding boxes is defined
         if (!isset($cbbox)) {
-            $cbbox = array();
+            $cbbox = [];
         }
         // initialize subsetchars
         $subsetchars = array_fill(0, 255, true);
@@ -4050,7 +4050,7 @@ class PDF
      */
     public function getFontBBox()
     {
-        $fbbox = array();
+        $fbbox = [];
         if (isset($this->CurrentFont['desc']['FontBBox'])) {
             $tmpbbox = explode(' ', substr($this->CurrentFont['desc']['FontBBox'], 1, -1));
             $fbbox   = array_map(array($this, 'getAbsFontMeasure'), $tmpbbox);
@@ -4356,7 +4356,7 @@ class PDF
             $page = $this->page;
         }
         if (!isset($this->PageAnnots[$page])) {
-            $this->PageAnnots[$page] = array();
+            $this->PageAnnots[$page] = [];
         }
         $this->PageAnnots[$page][] = array('n' => ++$this->n, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces);
         if (!$this->pdfa_mode || ($this->pdfa_mode && $this->pdfa_version == 3)) {
@@ -4826,7 +4826,7 @@ class PDF
                         $tonemark = array(0x0e48, 0x0e49, 0x0e4a, 0x0e4b, 0x0e4c);
                         // sara u, sara uu, pinthu
                         $lowvowel = array(0x0e38, 0x0e39, 0x0e3a);
-                        $output   = array();
+                        $output   = [];
                         for ($i = 0; $i < $numchars; $i++) {
                             if (($unicode[$i] >= 0x0e00) && ($unicode[$i] <= 0x0e5b)) {
                                 $ch0 = $unicode[$i];
@@ -5189,7 +5189,7 @@ class PDF
         if (is_string($brd)) {
             // convert string to array
             $slen   = strlen($brd);
-            $newbrd = array();
+            $newbrd = [];
             for ($i = 0; $i < $slen; ++$i) {
                 $newbrd[$brd[$i]] = array('cap' => 'square', 'join' => 'miter');
             }
@@ -6769,10 +6769,10 @@ class PDF
                         }
                         if ($svgimg !== FALSE) {
                             // get width and height
-                            $regs = array();
+                            $regs = [];
                             if (preg_match('/<svg([^\>]*)>/si', $svgimg, $regs)) {
                                 $svgtag = $regs[1];
-                                $tmp    = array();
+                                $tmp    = [];
                                 if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
                                     $ow     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
                                     $owu    = sprintf('%F', ($ow * $dpi / 72)) . $this->pdfunit;
@@ -6781,7 +6781,7 @@ class PDF
                                 else {
                                     $ow = $w;
                                 }
-                                $tmp = array();
+                                $tmp = [];
                                 if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
                                     $oh     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
                                     $ohu    = sprintf('%F', ($oh * $dpi / 72)) . $this->pdfunit;
@@ -6790,7 +6790,7 @@ class PDF
                                 else {
                                     $oh = $h;
                                 }
-                                $tmp = array();
+                                $tmp = [];
                                 if (!preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $svgtag, $tmp)) {
                                     $vbw    = ($ow * $this->imgscale * $this->k);
                                     $vbh    = ($oh * $this->imgscale * $this->k);
@@ -7268,7 +7268,7 @@ class PDF
             // remove filler space
             $byterange_string_len = strlen(StaticMethods::$byterange_string);
             // define the ByteRange
-            $byte_range    = array();
+            $byte_range    = [];
             $byte_range[0] = 0;
             $byte_range[1] = strpos($pdfdoc, StaticMethods::$byterange_string) + $byterange_string_len + 10;
             $byte_range[2] = $byte_range[1] + $this->signature_max_length + 2;
@@ -7448,7 +7448,7 @@ class PDF
         return '';
     }
 
-    protected static $cleaned_ids = array();
+    protected static $cleaned_ids = [];
 
     /**
      * Unset all class variables except the following critical variables.
@@ -7524,7 +7524,7 @@ class PDF
      */
     protected function getInternalPageNumberAliases($a = '')
     {
-        $alias = array();
+        $alias = [];
         // build array of Unicode + ASCII variants (the order is important)
         $alias        = array('u' => array(), 'a' => array());
         $u            = '{' . $a . '}';
@@ -7546,7 +7546,7 @@ class PDF
     protected function getAllInternalPageNumberAliases()
     {
         $basic_alias = array(StaticMethods::$alias_tot_pages, StaticMethods::$alias_num_page, StaticMethods::$alias_group_tot_pages, StaticMethods::$alias_group_num_page, StaticMethods::$alias_right_shift);
-        $pnalias     = array();
+        $pnalias     = [];
         foreach ($basic_alias as $k => $a) {
             $pnalias[$k] = $this->getInternalPageNumberAliases($a);
         }
@@ -7599,7 +7599,7 @@ class PDF
      */
     protected function setPageBoxTypes($boxes)
     {
-        $this->page_boxes = array();
+        $this->page_boxes = [];
         foreach ($boxes as $box) {
             if (in_array($box, StaticMethods::$pageboxes)) {
                 $this->page_boxes[] = $box;
@@ -7647,7 +7647,7 @@ class PDF
                 $pngu          = Fonts::UTF8ToUTF16BE($pnga, false, $this->isunicode, $this->CurrentFont);
                 $png_num_chars = $this->GetNumChars($pnga);
                 // replace page numbers
-                $replace   = array();
+                $replace   = [];
                 $replace[] = array($ptgu, $ptg_num_chars, 9, $pnalias[2]['u']);
                 $replace[] = array($ptga, $ptg_num_chars, 7, $pnalias[2]['a']);
                 $replace[] = array($pngu, $png_num_chars, 9, $pnalias[3]['u']);
@@ -7655,7 +7655,7 @@ class PDF
                 list($temppage, $gdiff) = StaticMethods::replacePageNumAliases($temppage, $replace, $gdiff);
             }
             // replace page numbers
-            $replace   = array();
+            $replace   = [];
             $replace[] = array($ptpu, $ptp_num_chars, 9, $pnalias[0]['u']);
             $replace[] = array($ptpa, $ptp_num_chars, 7, $pnalias[0]['a']);
             $replace[] = array($pnpu, $pnp_num_chars, 9, $pnalias[1]['u']);
@@ -8584,7 +8584,7 @@ class PDF
                         $font = gzuncompress($font);
                     }
                     // merge subset characters
-                    $subsetchars = array(); // used chars
+                    $subsetchars = []; // used chars
                     foreach ($info['fontkeys'] as $fontkey) {
                         $fontinfo    = $this->getFontBuffer($fontkey);
                         $subsetchars += $fontinfo['subsetchars'];
@@ -8816,7 +8816,7 @@ class PDF
         if (isset($font['cidinfo']['uni2cid'])) {
             // convert unicode to cid.
             $uni2cid = $font['cidinfo']['uni2cid'];
-            $cw      = array();
+            $cw      = [];
             foreach ($font['cw'] as $uni => $width) {
                 if (isset($uni2cid[$uni])) {
                     $cw[($uni2cid[$uni] + $cidoffset)] = $width;
@@ -9822,10 +9822,10 @@ class PDF
     protected function _beginpage($orientation = '', $format = '')
     {
         ++$this->page;
-        $this->pageobjects[$this->page] = array();
+        $this->pageobjects[$this->page] = [];
         $this->setPageBuffer($this->page, '');
         // initialize array for graphics tranformation positions inside a page buffer
-        $this->transfmrk[$this->page] = array();
+        $this->transfmrk[$this->page] = [];
         $this->state                  = 2;
         if (StaticMethods::empty_string($orientation)) {
             if (isset($this->CurOrientation)) {
@@ -10714,7 +10714,7 @@ class PDF
                 $this->encryptdata['CF']['CFM'] = 'V2';
                 if ($this->encryptdata['pubkey']) {
                     $this->encryptdata['SubFilter']  = 'adbe.pkcs7.s4';
-                    $this->encryptdata['Recipients'] = array();
+                    $this->encryptdata['Recipients'] = [];
                 }
                 break;
             }
@@ -10726,7 +10726,7 @@ class PDF
                 $this->encryptdata['CF']['Length'] = 128;
                 if ($this->encryptdata['pubkey']) {
                     $this->encryptdata['SubFilter']  = 'adbe.pkcs7.s5';
-                    $this->encryptdata['Recipients'] = array();
+                    $this->encryptdata['Recipients'] = [];
                 }
                 break;
             }
@@ -10738,7 +10738,7 @@ class PDF
                 $this->encryptdata['CF']['Length'] = 256;
                 if ($this->encryptdata['pubkey']) {
                     $this->encryptdata['SubFilter']  = 'adbe.pkcs7.s5';
-                    $this->encryptdata['Recipients'] = array();
+                    $this->encryptdata['Recipients'] = [];
                 }
                 break;
             }
@@ -10772,7 +10772,7 @@ class PDF
             $this->transfmrk[$this->page][] = $this->pagelen[$this->page];
         }
         ++$this->transfmatrix_key;
-        $this->transfmatrix[$this->transfmatrix_key] = array();
+        $this->transfmatrix[$this->transfmatrix_key] = [];
     }
 
     /**
@@ -10860,7 +10860,7 @@ class PDF
         //calculate elements of transformation matrix
         $s_x   /= 100;
         $s_y   /= 100;
-        $tm    = array();
+        $tm    = [];
         $tm[0] = $s_x;
         $tm[1] = 0;
         $tm[2] = 0;
@@ -10944,7 +10944,7 @@ class PDF
     public function Translate($t_x, $t_y)
     {
         //calculate elements of transformation matrix
-        $tm    = array();
+        $tm    = [];
         $tm[0] = 1;
         $tm[1] = 0;
         $tm[2] = 0;
@@ -10973,7 +10973,7 @@ class PDF
         $y = ($this->h - $y) * $this->k;
         $x *= $this->k;
         //calculate elements of transformation matrix
-        $tm    = array();
+        $tm    = [];
         $tm[0] = cos(deg2rad($angle));
         $tm[1] = sin(deg2rad($angle));
         $tm[2] = -$tm[1];
@@ -11030,7 +11030,7 @@ class PDF
         $x *= $this->k;
         $y = ($this->h - $y) * $this->k;
         //calculate elements of transformation matrix
-        $tm    = array();
+        $tm    = [];
         $tm[0] = 1;
         $tm[1] = tan(deg2rad($angle_y));
         $tm[2] = tan(deg2rad($angle_x));
@@ -11317,7 +11317,7 @@ class PDF
             if (isset($border_style['all']) and !empty($border_style['all'])) {
                 //set global style for border
                 $this->setLineStyle($border_style['all']);
-                $border_style = array();
+                $border_style = [];
             }
             else {
                 // remove stroke operator from style
@@ -11332,7 +11332,7 @@ class PDF
             $this->_outRect($x, $y, $w, $h, $op);
         }
         if (!empty($border_style)) {
-            $border_style2 = array();
+            $border_style2 = [];
             foreach ($border_style as $line => $value) {
                 $length = strlen($line);
                 for ($i = 0; $i < $length; ++$i) {
@@ -11411,7 +11411,7 @@ class PDF
         }
         $op = StaticMethods::getPathPaintOperator($style);
         if ($op == 'f') {
-            $line_style = array();
+            $line_style = [];
         }
         if ($line_style) {
             $this->setLineStyle($line_style);
@@ -11452,7 +11452,7 @@ class PDF
         }
         $op = StaticMethods::getPathPaintOperator($style);
         if ($op == 'f') {
-            $line_style = array();
+            $line_style = [];
         }
         if ($line_style) {
             $this->setLineStyle($line_style);
@@ -11669,7 +11669,7 @@ class PDF
         }
         $op = StaticMethods::getPathPaintOperator($style);
         if ($op == 'f') {
-            $line_style = array();
+            $line_style = [];
         }
         $draw = true;
         if ($line_style) {
@@ -11757,7 +11757,7 @@ class PDF
         if ($draw_circle) {
             $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
         }
-        $p = array();
+        $p = [];
         for ($i = 0; $i < $ns; ++$i) {
             $a     = $angle + ($i * 360 / $ns);
             $a_rad = deg2rad((float) $a);
@@ -11804,8 +11804,8 @@ class PDF
         if ($draw_circle) {
             $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
         }
-        $p2      = array();
-        $visited = array();
+        $p2      = [];
+        $visited = [];
         for ($i = 0; $i < $nv; ++$i) {
             $a         = $angle + ($i * 360 / $nv);
             $a_rad     = deg2rad((float) $a);
@@ -11813,7 +11813,7 @@ class PDF
             $p2[]      = $y0 + ($r * cos($a_rad));
             $visited[] = false;
         }
-        $p = array();
+        $p = [];
         $i = 0;
         do {
             $p[]         = $p2[$i * 2];
@@ -11871,7 +11871,7 @@ class PDF
         }
         $op = StaticMethods::getPathPaintOperator($style);
         if ($op == 'f') {
-            $border_style = array();
+            $border_style = [];
         }
         if ($border_style) {
             $this->setLineStyle($border_style);
@@ -11953,7 +11953,7 @@ class PDF
         $x2R   = $x1 + ($arm_size * cos($dir_angle - $arm_angle));
         $y2R   = $y1 + ($arm_size * sin($dir_angle - $arm_angle));
         $mode  = 'D';
-        $style = array();
+        $style = [];
         switch ($head_style) {
             case 0:
             {
@@ -12145,8 +12145,8 @@ class PDF
     protected function sortBookmarks()
     {
         // get sorting columns
-        $outline_p = array();
-        $outline_y = array();
+        $outline_p = [];
+        $outline_y = [];
         foreach ($this->outlines as $key => $row) {
             $outline_p[$key] = $row['p'];
             $outline_k[$key] = $key;
@@ -12166,7 +12166,7 @@ class PDF
         }
         // sort bookmarks
         $this->sortBookmarks();
-        $lru   = array();
+        $lru   = [];
         $level = 0;
         foreach ($this->outlines as $i => $o) {
             if ($o['l'] > 0) {
@@ -12453,7 +12453,7 @@ class PDF
         $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
-        $popt['ap']      = array();
+        $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
         $text            = '';
         if (isset($prop['value']) and !empty($prop['value'])) {
@@ -12588,10 +12588,10 @@ class PDF
         $tmpfont = $this->getFontBuffer($font);
         // set data for parent group
         if (!isset($this->radiobutton_groups[$this->page])) {
-            $this->radiobutton_groups[$this->page] = array();
+            $this->radiobutton_groups[$this->page] = [];
         }
         if (!isset($this->radiobutton_groups[$this->page][$name])) {
-            $this->radiobutton_groups[$this->page][$name] = array();
+            $this->radiobutton_groups[$this->page][$name] = [];
             ++$this->n;
             $this->radiobutton_groups[$this->page][$name]['n'] = $this->n;
             $this->radio_groups[]                              = $this->n;
@@ -12611,14 +12611,14 @@ class PDF
         $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->TextColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
-        $popt['ap']                = array();
-        $popt['ap']['n']           = array();
+        $popt['ap']                = [];
+        $popt['ap']['n']           = [];
         $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->k);
         $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
         $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         if (!isset($popt['mk'])) {
-            $popt['mk'] = array();
+            $popt['mk'] = [];
         }
         $popt['mk']['ca'] = '(l)';
         // merge options
@@ -12692,7 +12692,7 @@ class PDF
         $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
-        $popt['ap']      = array();
+        $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
         $text            = '';
         foreach ($values as $item) {
@@ -12780,7 +12780,7 @@ class PDF
         $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
-        $popt['ap']      = array();
+        $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
         $text            = '';
         foreach ($values as $item) {
@@ -12868,8 +12868,8 @@ class PDF
         $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->TextColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
-        $popt['ap']             = array();
-        $popt['ap']['n']        = array();
+        $popt['ap']             = [];
+        $popt['ap']['n']        = [];
         $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->k);
         $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
         $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
@@ -12943,7 +12943,7 @@ class PDF
         $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
-        $popt['ap']      = array();
+        $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
         $tmpid           = $this->startTemplate($w, $h, false);
         $bw              = (2 / $this->k); // border width
@@ -12961,7 +12961,7 @@ class PDF
         $popt['ap']['n'] .= 'Q EMC';
         // set additional default options
         if (!isset($popt['mk'])) {
-            $popt['mk'] = array();
+            $popt['mk'] = [];
         }
         $ann_obj_id = ($this->n + 1);
         if (!empty($action) and !is_array($action)) {
@@ -13230,7 +13230,7 @@ class PDF
         ++$this->n;
         $this->sig_obj_id = $this->n; // signature widget
         ++$this->n; // signature object ($this->sig_obj_id + 1)
-        $this->signature_data = array();
+        $this->signature_data = [];
         if (strlen($signing_cert) == 0) {
             $this->Error('Please provide a certificate file and password!');
         }
@@ -13287,7 +13287,7 @@ class PDF
      */
     protected function getSignatureAppearanceArray($x = 0, $y = 0, $w = 0, $h = 0, $page = -1, $name = '')
     {
-        $sigapp = array();
+        $sigapp = [];
         if (($page < 1) or ($page > $this->numpages)) {
             $sigapp['page'] = $this->page;
         }
@@ -13319,7 +13319,7 @@ class PDF
      */
     public function setTimeStamp($tsa_host = '', $tsa_username = '', $tsa_password = '', $tsa_cert = '')
     {
-        $this->tsa_data = array();
+        $this->tsa_data = [];
         if (!function_exists('curl_init')) {
             $this->Error('Please enable cURL PHP extension!');
         }
@@ -14152,11 +14152,11 @@ class PDF
         }
         $this->Clip($x, $y, $w, $h);
         $n                                   = count($this->gradients) + 1;
-        $this->gradients[$n]                 = array();
+        $this->gradients[$n]                 = [];
         $this->gradients[$n]['type']         = 6; //coons patch mesh
-        $this->gradients[$n]['coords']       = array();
+        $this->gradients[$n]['coords']       = [];
         $this->gradients[$n]['antialias']    = $antialias;
-        $this->gradients[$n]['colors']       = array();
+        $this->gradients[$n]['colors']       = [];
         $this->gradients[$n]['transparency'] = false;
         //check the coords array if it is the simple array or the multi patch array
         if (!isset($coords[0]['f'])) {
@@ -14267,11 +14267,11 @@ class PDF
             return;
         }
         $n                                   = count($this->gradients) + 1;
-        $this->gradients[$n]                 = array();
+        $this->gradients[$n]                 = [];
         $this->gradients[$n]['type']         = $type;
         $this->gradients[$n]['coords']       = $coords;
         $this->gradients[$n]['antialias']    = $antialias;
-        $this->gradients[$n]['colors']       = array();
+        $this->gradients[$n]['colors']       = [];
         $this->gradients[$n]['transparency'] = false;
         // color space
         $numcolspace = count($stops[0]['color']);
@@ -14306,7 +14306,7 @@ class PDF
         $num_stops    = count($stops);
         $last_stop_id = $num_stops - 1;
         foreach ($stops as $key => $stop) {
-            $this->gradients[$n]['colors'][$key] = array();
+            $this->gradients[$n]['colors'][$key] = [];
             // offset represents a location along the gradient vector
             if (isset($stop['offset'])) {
                 $this->gradients[$n]['colors'][$key]['offset'] = $stop['offset'];
@@ -14599,7 +14599,7 @@ class PDF
         }
         $op = StaticMethods::getPathPaintOperator($style);
         if ($op == 'f') {
-            $line_style = array();
+            $line_style = [];
         }
         if ($cw) {
             $d = $b;
@@ -14659,7 +14659,7 @@ class PDF
         if ($data === FALSE) {
             $this->Error('EPS file not found: ' . $file);
         }
-        $regs = array();
+        $regs = [];
         // EPS/AI compatibility check (only checks files created by Adobe Illustrator!)
         preg_match("/%%Creator:([^\r\n]+)/", $data, $regs); # find Creator
         if (count($regs) > 1) {
@@ -15777,7 +15777,7 @@ class PDF
             --$count;
         }
 
-        $border = array(); // value to be returned
+        $border = []; // value to be returned
         switch ($count) {
             case 2:
             {
@@ -15809,13 +15809,13 @@ class PDF
             }
         }
         if ($style == 'none') {
-            return array();
+            return [];
         }
         $border['cap']  = 'square';
         $border['join'] = 'miter';
         $border['dash'] = $this->getCSSBorderDashStyle($style);
         if ($border['dash'] < 0) {
-            return array();
+            return [];
         }
         $border['width'] = $this->getCSSBorderWidth($width);
         $border['color'] = TCPDF_COLORS::convertHTMLColorToDec($color, $this->spot_colors);
@@ -15831,7 +15831,7 @@ class PDF
     public function getCSSPadding($csspadding, $width = 0)
     {
         $padding      = preg_split('/[\s]+/', trim($csspadding));
-        $cell_padding = array(); // value to be returned
+        $cell_padding = []; // value to be returned
         switch (count($padding)) {
             case 4:
             {
@@ -15889,7 +15889,7 @@ class PDF
     public function getCSSMargin($cssmargin, $width = 0)
     {
         $margin      = preg_split('/[\s]+/', trim($cssmargin));
-        $cell_margin = array(); // value to be returned
+        $cell_margin = []; // value to be returned
         switch (count($margin)) {
             case 4:
             {
@@ -15947,7 +15947,7 @@ class PDF
     public function getCSSBorderMargin($cssbspace, $width = 0)
     {
         $space          = preg_split('/[\s]+/', trim($cssbspace));
-        $border_spacing = array(); // value to be returned
+        $border_spacing = []; // value to be returned
         switch (count($space)) {
             case 2:
             {
@@ -16167,9 +16167,9 @@ class PDF
     protected function getHtmlDomArray($html)
     {
         // array of CSS styles ( selector => properties).
-        $css = array();
+        $css = [];
         // get CSS array defined at previous call
-        $matches = array();
+        $matches = [];
         if (preg_match_all('/<cssarray>([^\<]*?)<\/cssarray>/is', $html, $matches) > 0) {
             if (isset($matches[1][0])) {
                 $css = array_merge($css, json_decode($this->unhtmlentities($matches[1][0]), true));
@@ -16177,17 +16177,17 @@ class PDF
             $html = preg_replace('/<cssarray>(.*?)<\/cssarray>/is', '', $html);
         }
         // extract external CSS files
-        $matches = array();
+        $matches = [];
         if (preg_match_all('/<link([^\>]*?)>/is', $html, $matches) > 0) {
             foreach ($matches[1] as $key => $link) {
-                $type = array();
+                $type = [];
                 if (preg_match('/type[\s]*=[\s]*"text\/css"/', $link, $type)) {
-                    $type = array();
+                    $type = [];
                     preg_match('/media[\s]*=[\s]*"([^"]*)"/', $link, $type);
                     // get 'all' and 'print' media, other media types are discarded
                     // (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
                     if (empty($type) or (isset($type[1]) and (($type[1] == 'all') or ($type[1] == 'print')))) {
-                        $type = array();
+                        $type = [];
                         if (preg_match('/href[\s]*=[\s]*"([^"]*)"/', $link, $type) > 0) {
                             // read CSS data file
                             $cssdata = $this->getCachedFileContents(trim($type[1]));
@@ -16200,10 +16200,10 @@ class PDF
             }
         }
         // extract style tags
-        $matches = array();
+        $matches = [];
         if (preg_match_all('/<style([^\>]*?)>([^\<]*?)<\/style>/is', $html, $matches) > 0) {
             foreach ($matches[1] as $key => $media) {
-                $type = array();
+                $type = [];
                 preg_match('/media[\s]*=[\s]*"([^"]*)"/', $media, $type);
                 // get 'all' and 'print' media, other media types are discarded
                 // (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
@@ -16312,8 +16312,8 @@ class PDF
         $elkey = 0;
         $key   = 0;
         // create an array of elements
-        $dom       = array();
-        $dom[$key] = array();
+        $dom       = [];
+        $dom[$key] = [];
         // set inheritable properties fot the first void element
         // possible inheritable properties are: azimuth, border-collapse, border-spacing, caption-side, color, cursor, direction, empty-cells, font, font-family, font-stretch, font-size, font-size-adjust, font-style, font-variant, font-weight, letter-spacing, line-height, list-style, list-style-image, list-style-position, list-style-type, orphans, page, page-break-inside, quotes, speak, speak-header, text-align, text-indent, text-transform, volume, white-space, widows, word-spacing
         $dom[$key]['tag']            = false;
@@ -16337,14 +16337,14 @@ class PDF
         $dom[$key]['listtype']       = '';
         $dom[$key]['text-indent']    = 0;
         $dom[$key]['text-transform'] = '';
-        $dom[$key]['border']         = array();
+        $dom[$key]['border']         = [];
         $dom[$key]['dir']            = $this->rtl ? 'rtl' : 'ltr';
         $thead                       = false; // true when we are inside the THEAD tag
         ++$key;
-        $level = array();
+        $level = [];
         array_push($level, 0); // root
         while ($elkey < $maxel) {
-            $dom[$key]          = array();
+            $dom[$key]          = [];
             $element            = $a[$elkey];
             $dom[$key]['elkey'] = $elkey;
             if (preg_match($tagpattern, $element)) {
@@ -16425,7 +16425,7 @@ class PDF
                             $dom[($dom[($dom[$key]['parent'])]['parent'])]['thead'] .= $a[$dom[$i]['elkey']];
                         }
                         if (!isset($dom[($dom[$key]['parent'])]['attribute'])) {
-                            $dom[($dom[$key]['parent'])]['attribute'] = array();
+                            $dom[($dom[$key]['parent'])]['attribute'] = [];
                         }
                         // header elements must be always contained in a single page
                         $dom[($dom[$key]['parent'])]['attribute']['nobr'] = 'true';
@@ -16470,12 +16470,12 @@ class PDF
                         $dom[$key]['listtype']       = $dom[$parentkey]['listtype'];
                         $dom[$key]['text-indent']    = $dom[$parentkey]['text-indent'];
                         $dom[$key]['text-transform'] = $dom[$parentkey]['text-transform'];
-                        $dom[$key]['border']         = array();
+                        $dom[$key]['border']         = [];
                         $dom[$key]['dir']            = $dom[$parentkey]['dir'];
                     }
                     // get attributes
                     preg_match_all('/([^=\s]*)[\s]*=[\s]*"([^"]*)"/', $element, $attr_array, PREG_PATTERN_ORDER);
-                    $dom[$key]['attribute'] = array(); // reset attribute array
+                    $dom[$key]['attribute'] = []; // reset attribute array
                     foreach ($attr_array[1] as $id => $name) {
                         $dom[$key]['attribute'][strtolower($name)] = $attr_array[2][$id];
                     }
@@ -16488,7 +16488,7 @@ class PDF
                     if (isset($dom[$key]['attribute']['style']) and !empty($dom[$key]['attribute']['style'])) {
                         // get style attributes
                         preg_match_all('/([^;:\s]*):([^;]*)/', $dom[$key]['attribute']['style'], $style_array, PREG_PATTERN_ORDER);
-                        $dom[$key]['style'] = array(); // reset style attribute array
+                        $dom[$key]['style'] = []; // reset style attribute array
                         foreach ($style_array[1] as $id => $name) {
                             // in case of duplicate attribute the last replace the previous
                             $dom[$key]['style'][strtolower($name)] = trim($style_array[2][$id]);
@@ -16674,7 +16674,7 @@ class PDF
                                 $dom[$key]['border']['L']['join'] = 'miter';
                                 $dom[$key]['border']['L']['dash'] = $this->getCSSBorderDashStyle($brd_styles[3]);
                                 if ($dom[$key]['border']['L']['dash'] < 0) {
-                                    $dom[$key]['border']['L'] = array();
+                                    $dom[$key]['border']['L'] = [];
                                 }
                             }
                             if (isset($brd_styles[1])) {
@@ -16682,7 +16682,7 @@ class PDF
                                 $dom[$key]['border']['R']['join'] = 'miter';
                                 $dom[$key]['border']['R']['dash'] = $this->getCSSBorderDashStyle($brd_styles[1]);
                                 if ($dom[$key]['border']['R']['dash'] < 0) {
-                                    $dom[$key]['border']['R'] = array();
+                                    $dom[$key]['border']['R'] = [];
                                 }
                             }
                             if (isset($brd_styles[0])) {
@@ -16690,7 +16690,7 @@ class PDF
                                 $dom[$key]['border']['T']['join'] = 'miter';
                                 $dom[$key]['border']['T']['dash'] = $this->getCSSBorderDashStyle($brd_styles[0]);
                                 if ($dom[$key]['border']['T']['dash'] < 0) {
-                                    $dom[$key]['border']['T'] = array();
+                                    $dom[$key]['border']['T'] = [];
                                 }
                             }
                             if (isset($brd_styles[2])) {
@@ -16698,7 +16698,7 @@ class PDF
                                 $dom[$key]['border']['B']['join'] = 'miter';
                                 $dom[$key]['border']['B']['dash'] = $this->getCSSBorderDashStyle($brd_styles[2]);
                                 if ($dom[$key]['border']['B']['dash'] < 0) {
-                                    $dom[$key]['border']['B'] = array();
+                                    $dom[$key]['border']['B'] = [];
                                 }
                             }
                         }
@@ -16719,7 +16719,7 @@ class PDF
                             if (isset($dom[$key]['style']['border-' . $bsv . '-style'])) {
                                 $dom[$key]['border'][$bsk]['dash'] = $this->getCSSBorderDashStyle($dom[$key]['style']['border-' . $bsv . '-style']);
                                 if ($dom[$key]['border'][$bsk]['dash'] < 0) {
-                                    $dom[$key]['border'][$bsk] = array();
+                                    $dom[$key]['border'][$bsk] = [];
                                 }
                             }
                         }
@@ -16858,7 +16858,7 @@ class PDF
                     }
                     if (($dom[$key]['value'] == 'table')) {
                         $dom[$key]['rows']  = 0; // number of rows
-                        $dom[$key]['trids'] = array(); // IDs of TR elements
+                        $dom[$key]['trids'] = []; // IDs of TR elements
                         $dom[$key]['thead'] = ''; // table header rows
                     }
                     if (($dom[$key]['value'] == 'tr')) {
@@ -16878,7 +16878,7 @@ class PDF
                             ++$dom[$parent]['rows'];
 
                             if (!isset($dom[$parent]['trids'])) {
-                                $dom[$parent]['trids'] = array();
+                                $dom[$parent]['trids'] = [];
                             }
 
                             // store the TR elements IDs on table element
@@ -17107,7 +17107,7 @@ class PDF
         $yshift            = 0;
         $loop              = 0;
         $curpos            = 0;
-        $this_method_vars  = array();
+        $this_method_vars  = [];
         $undo              = false;
         $fontaligned       = false;
         $reverse_dir       = false; // true when the text direction is reversed
@@ -17172,8 +17172,8 @@ class PDF
         $prev_listcount         = $this->listcount;
         $prev_lispacer          = $this->lispacer;
         $this->listnum          = 0;
-        $this->listordered      = array();
-        $this->listcount        = array();
+        $this->listordered      = [];
+        $this->listcount        = [];
         $this->lispacer         = '';
         if ((StaticMethods::empty_string($this->lasth)) or ($reseth)) {
             // reset row height
@@ -18834,7 +18834,7 @@ class PDF
             {
                 $cp                    = 0;
                 $cs                    = 0;
-                $dom[$key]['rowspans'] = array();
+                $dom[$key]['rowspans'] = [];
                 if (!isset($dom[$key]['attribute']['nested']) or ($dom[$key]['attribute']['nested'] != 'true')) {
                     $this->htmlvspace = 0;
                     // set table header
@@ -18842,7 +18842,7 @@ class PDF
                         // set table header
                         $this->thead = $dom[$key]['thead'];
                         if (!isset($this->theadMargins) or (empty($this->theadMargins))) {
-                            $this->theadMargins                 = array();
+                            $this->theadMargins                 = [];
                             $this->theadMargins['cell_padding'] = $this->cell_padding;
                             $this->theadMargins['lmargin']      = $this->lMargin;
                             $this->theadMargins['rmargin']      = $this->rMargin;
@@ -18878,7 +18878,7 @@ class PDF
             case 'tr':
             {
                 // array of columns positions
-                $dom[$key]['cellpos'] = array();
+                $dom[$key]['cellpos'] = [];
                 break;
             }
             case 'hr':
@@ -18905,7 +18905,7 @@ class PDF
                 $prevlinewidth = $this->GetLineWidth();
                 $this->setLineWidth($hrHeight);
 
-                $lineStyle = array();
+                $lineStyle = [];
                 if (isset($tag['fgcolor'])) {
                     $lineStyle['color'] = $tag['fgcolor'];
                 }
@@ -19276,8 +19276,8 @@ class PDF
                 else {
                     break;
                 }
-                $prop = array();
-                $opt  = array();
+                $prop = [];
+                $opt  = [];
                 if (isset($tag['attribute']['readonly']) and !StaticMethods::empty_string($tag['attribute']['readonly'])) {
                     $prop['readonly'] = true;
                 }
@@ -19361,7 +19361,7 @@ class PDF
                         $w           = $this->GetStringWidth($value) * 1.5;
                         $h           *= 1.6;
                         $prop        = array('lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => array(196, 196, 196), 'strokeColor' => array(255, 255, 255));
-                        $action      = array();
+                        $action      = [];
                         $action['S'] = 'SubmitForm';
                         $action['F'] = $this->form_action;
                         if ($this->form_enctype != 'FDF') {
@@ -19449,8 +19449,8 @@ class PDF
             }
             case 'textarea':
             {
-                $prop = array();
-                $opt  = array();
+                $prop = [];
+                $opt  = [];
                 if (isset($tag['attribute']['readonly']) and !StaticMethods::empty_string($tag['attribute']['readonly'])) {
                     $prop['readonly'] = true;
                 }
@@ -19485,8 +19485,8 @@ class PDF
                 if (isset($tag['attribute']['size']) and !StaticMethods::empty_string($tag['attribute']['size'])) {
                     $h *= ($tag['attribute']['size'] + 1);
                 }
-                $prop = array();
-                $opt  = array();
+                $prop = [];
+                $opt  = [];
                 if (isset($tag['attribute']['name']) and !StaticMethods::empty_string($tag['attribute']['name'])) {
                     $name = $tag['attribute']['name'];
                 }
@@ -19496,7 +19496,7 @@ class PDF
                 $w = 0;
                 if (isset($tag['attribute']['opt']) and !StaticMethods::empty_string($tag['attribute']['opt'])) {
                     $options = explode('#!NwL!#', $tag['attribute']['opt']);
-                    $values  = array();
+                    $values  = [];
                     foreach ($options as $val) {
                         if (strpos($val, '#!TaB!#') !== false) {
                             $opts     = explode('#!TaB!#', $val);
@@ -20019,7 +20019,7 @@ class PDF
                     if (!isset($table_el['attribute']['nested']) or ($table_el['attribute']['nested'] != 'true')) {
                         // reset main table header
                         $this->thead                      = '';
-                        $this->theadMargins               = array();
+                        $this->theadMargins               = [];
                         $this->pagedim[$this->page]['tm'] = $this->tMargin;
                     }
                 }
@@ -20028,7 +20028,7 @@ class PDF
             }
             case 'a':
             {
-                $this->HREF = array();
+                $this->HREF = [];
                 break;
             }
             case 'sup':
@@ -20299,7 +20299,7 @@ class PDF
         $border_middle = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
         // temporary disable page regions
         $temp_page_regions  = $this->page_regions;
-        $this->page_regions = array();
+        $this->page_regions = [];
         // design borders around HTML cells.
         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
             $ccode = '';
@@ -21844,7 +21844,7 @@ class PDF
         $prev_htmlLinkColorArray = $this->htmlLinkColorArray;
         $prev_htmlLinkFontStyle  = $this->htmlLinkFontStyle;
         // set new style for link
-        $this->htmlLinkColorArray = array();
+        $this->htmlLinkColorArray = [];
         $this->htmlLinkFontStyle  = '';
         $page_first               = $this->getPage();
         $page_fill_start          = false;
@@ -22040,10 +22040,10 @@ class PDF
      */
     public function setEqualColumns($numcols = 0, $width = 0, $y = null)
     {
-        $this->columns = array();
+        $this->columns = [];
         if ($numcols < 2) {
             $numcols       = 0;
-            $this->columns = array();
+            $this->columns = [];
         }
         else {
             // maximum column width
@@ -22154,7 +22154,7 @@ class PDF
                 $this->y += $xshift['s']['V'];
                 // store end of header position
                 if (!isset($this->columns[$col]['th'])) {
-                    $this->columns[$col]['th'] = array();
+                    $this->columns[$col]['th'] = [];
                 }
                 $this->columns[$col]['th']['\'' . $this->page . '\''] = $this->y;
                 $this->lasth                                          = 0;
@@ -22324,7 +22324,7 @@ class PDF
      */
     protected function hyphenateWord($word, $patterns, $dictionary = array(), $leftmin = 1, $rightmin = 2, $charmin = 1, $charmax = 8)
     {
-        $hyphenword = array(); // hyphens positions
+        $hyphenword = []; // hyphens positions
         $numchars   = count($word);
         if ($numchars <= $charmin) {
             return $word;
@@ -22404,8 +22404,8 @@ class PDF
     public function hyphenateText($text, $patterns, $dictionary = array(), $leftmin = 1, $rightmin = 2, $charmin = 1, $charmax = 8)
     {
         $text   = $this->unhtmlentities($text);
-        $word   = array(); // last word
-        $txtarr = array(); // text to be returned
+        $word   = []; // last word
+        $txtarr = []; // text to be returned
         $intag  = false; // true if we are inside an HTML tag
         $skip   = false; // true to skip hyphenation
         if (!is_array($patterns)) {
@@ -22424,7 +22424,7 @@ class PDF
                 if (!StaticMethods::empty_string($word)) {
                     // hypenate the word
                     $txtarr = array_merge($txtarr, $this->hyphenateWord($word, $patterns, $dictionary, $leftmin, $rightmin, $charmin, $charmax));
-                    $word   = array();
+                    $word   = [];
                 }
                 $txtarr[] = $char;
                 if (chr($char) == '<') {
@@ -22558,8 +22558,8 @@ class PDF
             $font = preg_replace('/oblique$/', 'I', $font);
             $font = preg_replace('/bold([I]?)$/', 'B\\1', $font);
             // replace common family names and core fonts
-            $pattern       = array();
-            $replacement   = array();
+            $pattern       = [];
+            $replacement   = [];
             $pattern[]     = '/^serif|^cursive|^fantasy|^timesnewroman/';
             $replacement[] = 'times';
             $pattern[]     = '/^sansserif/';
@@ -22602,15 +22602,15 @@ class PDF
         $this->xobjects[$this->xobjid]['gvars'] = $this->getGraphicVars();
         // initialize data
         $this->xobjects[$this->xobjid]['intmrk']      = 0;
-        $this->xobjects[$this->xobjid]['transfmrk']   = array();
+        $this->xobjects[$this->xobjid]['transfmrk']   = [];
         $this->xobjects[$this->xobjid]['outdata']     = '';
-        $this->xobjects[$this->xobjid]['xobjects']    = array();
-        $this->xobjects[$this->xobjid]['images']      = array();
-        $this->xobjects[$this->xobjid]['fonts']       = array();
-        $this->xobjects[$this->xobjid]['annotations'] = array();
-        $this->xobjects[$this->xobjid]['extgstates']  = array();
-        $this->xobjects[$this->xobjid]['gradients']   = array();
-        $this->xobjects[$this->xobjid]['spot_colors'] = array();
+        $this->xobjects[$this->xobjid]['xobjects']    = [];
+        $this->xobjects[$this->xobjid]['images']      = [];
+        $this->xobjects[$this->xobjid]['fonts']       = [];
+        $this->xobjects[$this->xobjid]['annotations'] = [];
+        $this->xobjects[$this->xobjid]['extgstates']  = [];
+        $this->xobjects[$this->xobjid]['gradients']   = [];
+        $this->xobjects[$this->xobjid]['spot_colors'] = [];
         // set new environment
         $this->num_columns    = 1;
         $this->current_column = 0;
@@ -22762,7 +22762,7 @@ class PDF
         // translate and scale
         $sx    = ($w / $ow);
         $sy    = ($h / $oh);
-        $tm    = array();
+        $tm    = [];
         $tm[0] = $sx;
         $tm[1] = 0;
         $tm[2] = 0;
@@ -22875,7 +22875,7 @@ class PDF
     public function setPageRegions($regions = array())
     {
         // empty current regions array
-        $this->page_regions = array();
+        $this->page_regions = [];
         // add regions
         foreach ($regions as $data) {
             $this->addPageRegion($data);
@@ -23034,16 +23034,16 @@ class PDF
             return;
         }
         // reset SVG vars
-        $this->svggradients  = array();
+        $this->svggradients  = [];
         $this->svggradientid = 0;
         $this->svgdefsmode   = false;
-        $this->svgdefs       = array();
+        $this->svgdefs       = [];
         $this->svgclipmode   = false;
-        $this->svgclippaths  = array();
-        $this->svgcliptm     = array();
+        $this->svgclippaths  = [];
+        $this->svgcliptm     = [];
         $this->svgclipid     = 0;
         $this->svgtext       = '';
-        $this->svgtextmode   = array();
+        $this->svgtextmode   = [];
         if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
             // convert SVG to raster image using GD or ImageMagick libraries
             return $this->Image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
@@ -23074,28 +23074,28 @@ class PDF
         $oh                 = $h;
         $aspect_ratio_align = 'xMidYMid';
         $aspect_ratio_ms    = 'meet';
-        $regs               = array();
+        $regs               = [];
         // get original image width and height
         preg_match('/<svg([^\>]*)>/si', $svgdata, $regs);
         if (isset($regs[1]) and !empty($regs[1])) {
-            $tmp = array();
+            $tmp = [];
             if (preg_match('/[\s]+x[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
                 $ox = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgunit, false);
             }
-            $tmp = array();
+            $tmp = [];
             if (preg_match('/[\s]+y[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
                 $oy = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgunit, false);
             }
-            $tmp = array();
+            $tmp = [];
             if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
                 $ow = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
             }
-            $tmp = array();
+            $tmp = [];
             if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
                 $oh = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
             }
-            $tmp      = array();
-            $view_box = array();
+            $tmp      = [];
+            $view_box = [];
             if (preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.\-]+)[\s]+([0-9\.\-]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $regs[1], $tmp)) {
                 if (count($tmp) == 5) {
                     array_shift($tmp);
@@ -23106,7 +23106,7 @@ class PDF
                     $oy = $view_box[1];
                 }
                 // get aspect ratio
-                $tmp = array();
+                $tmp = [];
                 if (preg_match('/[\s]+preserveAspectRatio[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
                     $aspect_ratio = preg_split('/[\s]+/si', $tmp[1]);
                     switch (count($aspect_ratio)) {
@@ -23427,7 +23427,7 @@ class PDF
             return $objstyle;
         }
         // clip-path
-        $regs = array();
+        $regs = [];
         if (preg_match('/url\([\s]*\#([^\)]*)\)/si', $svgstyle['clip-path'], $regs)) {
             $clip_path = $this->svgclippaths[$regs[1]];
             foreach ($clip_path as $cp) {
@@ -23463,7 +23463,7 @@ class PDF
             $this->Rect($cx, $cy, $cw, $ch, $clip_rule, array(), array());
         }
         // fill
-        $regs = array();
+        $regs = [];
         if (preg_match('/url\([\s]*\#([^\)]*)\)/si', $svgstyle['fill'], $regs)) {
             // gradient
             $gradient = $this->svggradients[$regs[1]];
@@ -23604,7 +23604,7 @@ class PDF
             $objstyle .= 'D';
         }
         // font
-        $regs = array();
+        $regs = [];
         if (!empty($svgstyle['font'])) {
             if (preg_match('/font-family[\s]*:[\s]*([^\;\"]*)/si', $svgstyle['font'], $regs)) {
                 $font_family = $this->getFontFamilyName($regs[1]);
@@ -23743,7 +23743,7 @@ class PDF
         if (empty($op)) {
             return;
         }
-        $paths = array();
+        $paths = [];
         $d     = preg_replace('/([0-9ACHLMQSTVZ])([\-\+])/si', '\\1 \\2', $d);
         $d     = preg_replace('/(\.[0-9]+)(\.)/s', '\\1 \\2', $d);
         preg_match_all('/([ACHLMQSTVZ])[\s]*([^ACHLMQSTVZ\"]*)/si', $d, $paths, PREG_SET_ORDER);
@@ -23777,11 +23777,11 @@ class PDF
                 $xoffset  = 0;
                 $yoffset  = 0;
             }
-            $params = array();
+            $params = [];
             if (isset($val[2])) {
                 // get curve parameters
                 $rawparams = preg_split('/([\,\s]+)/si', trim($val[2]));
-                $params    = array();
+                $params    = [];
                 foreach ($rawparams as $ck => $cp) {
                     $params[$ck] = $this->getHTMLUnitToUnits($cp, 0, $this->svgunit, false);
                     if (abs($params[$ck]) < $minlen) {
@@ -24140,7 +24140,7 @@ class PDF
         }
         if ($this->svgdefsmode and !in_array($name, array('clipPath', 'linearGradient', 'radialGradient', 'stop'))) {
             if (isset($attribs['id'])) {
-                $attribs['child_elements']     = array();
+                $attribs['child_elements']     = [];
                 $this->svgdefs[$attribs['id']] = array('name' => $name, 'attribs' => $attribs);
                 return;
             }
@@ -24186,7 +24186,7 @@ class PDF
             }
             elseif (isset($attribs['style']) and !StaticMethods::empty_string($attribs['style'])) {
                 // CSS style syntax
-                $attrval = array();
+                $attrval = [];
                 if (preg_match('/[;\"\s]{1}' . $key . '[\s]*:[\s]*([^;\"]*)/si', $attribs['style'], $attrval) and isset($attrval[1])) {
                     if ($attrval[1] == 'inherit') {
                         $svgstyle[$key] = $val;
@@ -24231,7 +24231,7 @@ class PDF
                     $attribs['id'] = 'CP_' . (count($this->svgcliptm) + 1);
                 }
                 $this->svgclipid                      = $attribs['id'];
-                $this->svgclippaths[$this->svgclipid] = array();
+                $this->svgclippaths[$this->svgclipid] = [];
                 $this->svgcliptm[$this->svgclipid]    = $tm;
                 break;
             }
@@ -24260,7 +24260,7 @@ class PDF
                 $this->Rect($x, $y, $w, $h, 'CNZ', array(), array());
                 // parse viewbox, calculate extra transformation matrix
                 if (isset($attribs['viewBox'])) {
-                    $tmp = array();
+                    $tmp = [];
                     preg_match_all("/[0-9]+/", $attribs['viewBox'], $tmp);
                     $tmp = $tmp[0];
                     if (sizeof($tmp) == 4) {
@@ -24269,7 +24269,7 @@ class PDF
                         $vw = $tmp[2];
                         $vh = $tmp[3];
                         // get aspect ratio
-                        $tmp     = array();
+                        $tmp     = [];
                         $aspectX = 'xMid';
                         $aspectY = 'YMid';
                         $fit     = 'meet';
@@ -24339,9 +24339,9 @@ class PDF
                     $attribs['id'] = 'GR_' . (count($this->svggradients) + 1);
                 }
                 $this->svggradientid                               = $attribs['id'];
-                $this->svggradients[$this->svggradientid]          = array();
+                $this->svggradients[$this->svggradientid]          = [];
                 $this->svggradients[$this->svggradientid]['type']  = 2;
-                $this->svggradients[$this->svggradientid]['stops'] = array();
+                $this->svggradients[$this->svggradientid]['stops'] = [];
                 if (isset($attribs['gradientUnits'])) {
                     $this->svggradients[$this->svggradientid]['gradientUnits'] = $attribs['gradientUnits'];
                 }
@@ -24382,9 +24382,9 @@ class PDF
                     $attribs['id'] = 'GR_' . (count($this->svggradients) + 1);
                 }
                 $this->svggradientid                               = $attribs['id'];
-                $this->svggradients[$this->svggradientid]          = array();
+                $this->svggradients[$this->svggradientid]          = [];
                 $this->svggradients[$this->svggradientid]['type']  = 3;
-                $this->svggradients[$this->svggradientid]['stops'] = array();
+                $this->svggradients[$this->svggradientid]['stops'] = [];
                 if (isset($attribs['gradientUnits'])) {
                     $this->svggradients[$this->svggradientid]['gradientUnits'] = $attribs['gradientUnits'];
                 }
@@ -24583,7 +24583,7 @@ class PDF
                 if (count($points) < 4) {
                     break;
                 }
-                $p    = array();
+                $p    = [];
                 $xmin = 2147483647;
                 $xmax = 0;
                 $ymin = 2147483647;
