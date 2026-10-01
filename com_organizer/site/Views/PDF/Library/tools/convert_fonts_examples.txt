@@ -20,9 +20,3 @@
 
 
 ./tcpdf_addfont.php -b -t TrueTypeUnicode -i aeAlArabiya.ttf,aeFurat.ttf
-
-
-./tcpdf_addfont.php -b -t CID0JP -f 32 -i cid0jp.ttf
-./tcpdf_addfont.php -b -t CID0KR -f 32 -i cid0kr.ttf
-./tcpdf_addfont.php -b -t CID0CS -f 32 -i cid0cs.ttf
-./tcpdf_addfont.php -b -t CID0CT -f 32 -i cid0ct.ttf
