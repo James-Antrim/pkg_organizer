@@ -68,7 +68,7 @@ class TCPDF2DBarcode
      * Return an array representations of barcode.
      * @return array
      */
-    public function getBarcode()
+    public function barcode()
     {
         return $this->barcode;
     }
@@ -258,7 +258,7 @@ class TCPDF2DBarcode
             { // DATAMATRIX (ISO/IEC 16022)
                 require_once(dirname(__FILE__) . '/include/barcodes/datamatrix.php');
                 $qrcode                = new Datamatrix($code);
-                $this->barcode         = $qrcode->getBarcode();
+                $this->barcode         = $qrcode->barcode();
                 $this->barcode['code'] = $code;
                 break;
             }
@@ -292,7 +292,7 @@ class TCPDF2DBarcode
                     }
                 }
                 $qrcode                = new PDF417($code, $ecl, $aspectratio, $macro);
-                $this->barcode         = $qrcode->getBarcode();
+                $this->barcode         = $qrcode->barcode();
                 $this->barcode['code'] = $code;
                 break;
             }
@@ -303,7 +303,7 @@ class TCPDF2DBarcode
                     $mode[1] = 'L'; // Ddefault: Low error correction
                 }
                 $qrcode                = new QRcode($code, strtoupper($mode[1]));
-                $this->barcode         = $qrcode->getBarcode();
+                $this->barcode         = $qrcode->barcode();
                 $this->barcode['code'] = $code;
                 break;
             }

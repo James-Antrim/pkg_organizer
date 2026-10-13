@@ -72,7 +72,7 @@ class TCPDFBarcode
      * Return an array representations of barcode.
      * @return array
      */
-    public function getBarcode()
+    public function barcode()
     {
         return $this->barcode;
     }

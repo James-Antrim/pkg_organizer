@@ -3003,7 +3003,7 @@ class PDF
         $line_width = (0.85 / $this->k);
         $this->setLineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footer_line_color));
         //print document barcode
-        $barcode = $this->getBarcode();
+        $barcode = $this->barcode();
         if (!empty($barcode)) {
             $this->Ln($line_width);
             $barcode_width = round(($this->w - $this->original_lMargin - $this->original_rMargin) / 3);
@@ -14981,7 +14981,7 @@ class PDF
      * Get current barcode.
      * @return string
      */
-    public function getBarcode()
+    public function barcode()
     {
         return $this->barcode;
     }

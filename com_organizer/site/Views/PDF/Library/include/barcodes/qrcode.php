@@ -609,9 +609,9 @@ class QRcode
 
     /**
      * Returns a barcode array which is readable by TCPDF
-     * @return array barcode array readable by TCPDF;
+     * @return array
      */
-    public function getBarcode()
+    public function barcode()
     {
         return $this->barcode;
     }
