@@ -110,7 +110,7 @@ Options:
 	            7=Reserved, 8=Reserved, 9=Reserved, 10=UCS-4.
 
 	-b
-	--addcbbox  Includes the character bounding box information on the
+	--addCBBox  Includes the character bounding box information on the
 	            php font file.
 
 	-l
@@ -136,7 +136,7 @@ if (!is_array($argv)) {
 }
 
 // initialize the array of options
-$options = array('type' => '', 'enc' => '', 'flags' => 32, 'outpath' => K_PATH_FONTS, 'platid' => 3, 'encid' => 1, 'addcbbox' => false, 'link' => false);
+$options = array('type' => '', 'enc' => '', 'flags' => 32, 'outpath' => K_PATH_FONTS, 'platid' => 3, 'encid' => 1, 'addCBBox' => false, 'link' => false);
 
 // short input options
 $sopt = '';
@@ -159,7 +159,7 @@ $lopt[] = 'flags:';
 $lopt[] = 'outpath:';
 $lopt[] = 'platid:';
 $lopt[] = 'encid:';
-$lopt[] = 'addcbbox';
+$lopt[] = 'addCBBox';
 $lopt[] = 'link';
 $lopt[] = 'fonts:';
 $lopt[] = 'help';
@@ -212,9 +212,9 @@ foreach ($inopt as $opt => $val) {
             break;
         }
         case 'b':
-        case 'addcbbox':
+        case 'addCBBox':
         {
-            $options['addcbbox'] = true;
+            $options['addCBBox'] = true;
             break;
         }
         case 'l':
@@ -259,7 +259,7 @@ $errors = false;
 
 foreach ($options['fonts'] as $font) {
     $fontfile = realpath($font);
-    $fontname = Fonts::addTTFfont($fontfile, $options['type'], $options['enc'], $options['flags'], $options['outpath'], $options['platid'], $options['encid'], $options['addcbbox'], $options['link']);
+    $fontname = Fonts::addTTFfont($fontfile, $options['type'], $options['enc'], $options['flags'], $options['outpath'], $options['platid'], $options['encid'], $options['addCBBox'], $options['link']);
     if ($fontname === false) {
         $errors = true;
         echo "--- ERROR: can't add " . $font . "\n";

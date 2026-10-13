@@ -3805,10 +3805,10 @@ class PDF
             $up           = -null;
             $ut           = null;
             $cw           = null;
-            $cbbox        = null;
+            $CBBox        = null;
             $dw           = null;
             $enc          = null;
-            $cidinfo      = null;
+            $CIDInfo      = null;
             $file         = null;
             $ctg          = null;
             $diff         = null;
@@ -3831,9 +3831,9 @@ class PDF
         if (!isset($enc) or StaticMethods::empty_string($enc)) {
             $enc = '';
         }
-        if (!isset($cidinfo) or StaticMethods::empty_string($cidinfo)) {
-            $cidinfo            = array('Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0);
-            $cidinfo['uni2cid'] = [];
+        if (!isset($CIDInfo) or StaticMethods::empty_string($CIDInfo)) {
+            $CIDInfo            = array('Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0);
+            $CIDInfo['uni2cid'] = [];
         }
         if (!isset($ctg) or StaticMethods::empty_string($ctg)) {
             $ctg = '';
@@ -3913,12 +3913,12 @@ class PDF
             }
         }
         // check if the array of characters bounding boxes is defined
-        if (!isset($cbbox)) {
-            $cbbox = [];
+        if (!isset($CBBox)) {
+            $CBBox = [];
         }
         // initialize subsetchars
         $subsetchars = array_fill(0, 255, true);
-        $this->setFontBuffer($fontkey, array('fontkey' => $fontkey, 'i' => $this->numfonts, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetchars' => $subsetchars));
+        $this->setFontBuffer($fontkey, array('fontkey' => $fontkey, 'i' => $this->numfonts, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'CBBox' => $CBBox, 'dw' => $dw, 'enc' => $enc, 'CIDInfo' => $CIDInfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetchars' => $subsetchars));
         if ($this->inxobj) {
             // we are inside an XObject template
             $this->xobjects[$this->xobjid]['fonts'][$fontkey] = $this->numfonts;
@@ -4100,8 +4100,8 @@ class PDF
         if (isset($this->CurrentFont['cw'][$c])) {
             // glyph is defined ... use zero width & height for glyphs without outlines
             $result = [0, 0, 0, 0];
-            if (isset($this->CurrentFont['cbbox'][$c])) {
-                $result = $this->CurrentFont['cbbox'][$c];
+            if (isset($this->CurrentFont['CBBox'][$c])) {
+                $result = $this->CurrentFont['CBBox'][$c];
             }
             return array_map(array($this, 'getAbsFontMeasure'), $result);
         }
@@ -8738,10 +8738,10 @@ class PDF
         $out .= ' /Subtype /CIDFontType2';
         $out .= ' /BaseFont /' . $fontname;
         // A dictionary containing entries that define the character collection of the CIDFont.
-        $cidinfo = '/Registry ' . $this->_datastring($font['cidinfo']['Registry'], $oid);
-        $cidinfo .= ' /Ordering ' . $this->_datastring($font['cidinfo']['Ordering'], $oid);
-        $cidinfo .= ' /Supplement ' . $font['cidinfo']['Supplement'];
-        $out     .= ' /CIDSystemInfo << ' . $cidinfo . ' >>';
+        $CIDInfo = '/Registry ' . $this->_datastring($font['CIDInfo']['Registry'], $oid);
+        $CIDInfo .= ' /Ordering ' . $this->_datastring($font['CIDInfo']['Ordering'], $oid);
+        $CIDInfo .= ' /Supplement ' . $font['CIDInfo']['Supplement'];
+        $out     .= ' /CIDSystemInfo << ' . $CIDInfo . ' >>';
         $out     .= ' /FontDescriptor ' . ($this->n + 1) . ' 0 R';
         $out     .= ' /DW ' . $font['dw']; // default width
         $out     .= "\n" . Fonts::_putfontwidths($font, 0);
@@ -8808,9 +8808,9 @@ class PDF
         if (!isset($font['cw'][1])) {
             $cidoffset = 31;
         }
-        if (isset($font['cidinfo']['uni2cid'])) {
+        if (isset($font['CIDInfo']['uni2cid'])) {
             // convert unicode to cid.
-            $uni2cid = $font['cidinfo']['uni2cid'];
+            $uni2cid = $font['CIDInfo']['uni2cid'];
             $cw      = [];
             foreach ($font['cw'] as $uni => $width) {
                 if (isset($uni2cid[$uni])) {
@@ -8846,10 +8846,10 @@ class PDF
         $out     = '<</Type /Font';
         $out     .= ' /Subtype /CIDFontType0';
         $out     .= ' /BaseFont /' . $name;
-        $cidinfo = '/Registry ' . $this->_datastring($font['cidinfo']['Registry'], $oid);
-        $cidinfo .= ' /Ordering ' . $this->_datastring($font['cidinfo']['Ordering'], $oid);
-        $cidinfo .= ' /Supplement ' . $font['cidinfo']['Supplement'];
-        $out     .= ' /CIDSystemInfo <<' . $cidinfo . '>>';
+        $CIDInfo = '/Registry ' . $this->_datastring($font['CIDInfo']['Registry'], $oid);
+        $CIDInfo .= ' /Ordering ' . $this->_datastring($font['CIDInfo']['Ordering'], $oid);
+        $CIDInfo .= ' /Supplement ' . $font['CIDInfo']['Supplement'];
+        $out     .= ' /CIDSystemInfo <<' . $CIDInfo . '>>';
         $out     .= ' /FontDescriptor ' . ($this->n + 1) . ' 0 R';
         $out     .= ' /DW ' . $font['dw'];
         $out     .= "\n" . Fonts::_putfontwidths($font, $cidoffset);

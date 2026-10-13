@@ -30,11 +30,11 @@ class Fonts
      * @param string  $outpath  Output path for generated font files (must be writeable by the web server). Leave empty for default font folder.
      * @param int     $platid   Platform ID for CMAP table to extract (when building a Unicode font for Windows this value should be 3, for Macintosh should be 1).
      * @param int     $encid    Encoding ID for CMAP table to extract (when building a Unicode font for Windows this value should be 1, for Macintosh should be 0). When Platform ID is 3, legal values for Encoding ID are: 0=Symbol, 1=Unicode, 2=ShiftJIS, 3=PRC, 4=Big5, 5=Wansung, 6=Johab, 7=Reserved, 8=Reserved, 9=Reserved, 10=UCS-4.
-     * @param boolean $addcbbox If true includes the character bounding box information on the php font file.
+     * @param boolean $addCBBox If true includes the character bounding box information on the php font file.
      * @param boolean $link     If true link to system font instead of copying the font data (not transportable) - Note: do not work with Type1 fonts.
      * @return string|false TCPDF font name or boolean false in case of error.
      */
-    public static function addTTFfont($fontfile, $fonttype = '', $enc = '', $flags = 32, $outpath = '', $platid = 3, $encid = 1, $addcbbox = false, $link = false)
+    public static function addTTFfont($fontfile, $fonttype = '', $enc = '', $flags = 32, $outpath = '', $platid = 3, $encid = 1, $addCBBox = false, $link = false)
     {
         if (!StaticMethods::fileExists($fontfile)) {
             // Could not find file
@@ -793,19 +793,19 @@ class Fonts
             }
             $fmetric['MissingWidth'] = $cw[0];
             $fmetric['cw']           = '';
-            $fmetric['cbbox']        = '';
+            $fmetric['CBBox']        = '';
             for ($cid = 0; $cid <= 65535; ++$cid) {
                 if (isset($ctg[$cid])) {
                     if (isset($cw[$ctg[$cid]])) {
                         $fmetric['cw'] .= ',' . $cid . '=>' . $cw[$ctg[$cid]];
                     }
-                    if ($addcbbox and isset($indexToLoc[$ctg[$cid]])) {
+                    if ($addCBBox and isset($indexToLoc[$ctg[$cid]])) {
                         $offset           = ($table['glyf']['offset'] + $indexToLoc[$ctg[$cid]]);
                         $xMin             = round(StaticMethods::_getFWORD($font, $offset + 2) * $urk);
                         $yMin             = round(StaticMethods::_getFWORD($font, $offset + 4) * $urk);
                         $xMax             = round(StaticMethods::_getFWORD($font, $offset + 6) * $urk);
                         $yMax             = round(StaticMethods::_getFWORD($font, $offset + 8) * $urk);
-                        $fmetric['cbbox'] .= ',' . $cid . '=>array(' . $xMin . ',' . $yMin . ',' . $xMax . ',' . $yMax . ')';
+                        $fmetric['CBBox'] .= ',' . $cid . '=>array(' . $xMin . ',' . $yMin . ',' . $xMax . ',' . $yMax . ')';
                     }
                 }
             }
@@ -865,8 +865,8 @@ class Fonts
         $pfile .= '\'MaxWidth\'=>' . $fmetric['MaxWidth'] . ',';
         $pfile .= '\'MissingWidth\'=>' . $fmetric['MissingWidth'] . '';
         $pfile .= ');' . "\n";
-        if (!empty($fmetric['cbbox'])) {
-            $pfile .= '$cbbox=array(' . substr($fmetric['cbbox'], 1) . ');' . "\n";
+        if (!empty($fmetric['CBBox'])) {
+            $pfile .= '$CBBox=array(' . substr($fmetric['CBBox'], 1) . ');' . "\n";
         }
         $pfile .= '$cw=array(' . substr($fmetric['cw'], 1) . ');' . "\n";
         $pfile .= '// --- EOF ---' . "\n";
