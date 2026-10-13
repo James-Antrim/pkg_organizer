@@ -12,7 +12,7 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-/** Unicode data and font methods for TCPDF library. */
+/** Unicode data and font methods. */
 class Fonts
 {
 
