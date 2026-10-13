@@ -47,7 +47,7 @@ class TCPDFBarcode
     /**
      * Array representation of barcode.
      */
-    protected $barcode_array = [];
+    protected $barcode = [];
 
     /**
      * This is the class constructor.
@@ -72,9 +72,9 @@ class TCPDFBarcode
      * Return an array representations of barcode.
      * @return array
      */
-    public function getBarcodeArray()
+    public function getBarcode()
     {
-        return $this->barcode_array;
+        return $this->barcode;
     }
 
     /**
@@ -110,16 +110,16 @@ class TCPDFBarcode
         $repstr = array("\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;');
         $svg    = '<' . '?' . 'xml version="1.0" standalone="no"' . '?' . '>' . "\n";
         $svg    .= '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' . "\n";
-        $svg    .= '<svg width="' . round(($this->barcode_array['maxw'] * $w), 3) . '" height="' . $h . '" version="1.1" xmlns="http://www.w3.org/2000/svg">' . "\n";
-        $svg    .= "\t" . '<desc>' . strtr($this->barcode_array['code'], $repstr) . '</desc>' . "\n";
+        $svg    .= '<svg width="' . round(($this->barcode['maxw'] * $w), 3) . '" height="' . $h . '" version="1.1" xmlns="http://www.w3.org/2000/svg">' . "\n";
+        $svg    .= "\t" . '<desc>' . strtr($this->barcode['code'], $repstr) . '</desc>' . "\n";
         $svg    .= "\t" . '<g id="bars" fill="' . $color . '" stroke="none">' . "\n";
         // print bars
         $x = 0;
-        foreach ($this->barcode_array['bcode'] as $k => $v) {
+        foreach ($this->barcode['bcode'] as $k => $v) {
             $bw = round(($v['w'] * $w), 3);
-            $bh = round(($v['h'] * $h / $this->barcode_array['maxh']), 3);
+            $bh = round(($v['h'] * $h / $this->barcode['maxh']), 3);
             if ($v['t']) {
-                $y = round(($v['p'] * $h / $this->barcode_array['maxh']), 3);
+                $y = round(($v['p'] * $h / $this->barcode['maxh']), 3);
                 // draw a vertical bar
                 $svg .= "\t\t" . '<rect x="' . $x . '" y="' . $y . '" width="' . $bw . '" height="' . $bh . '" />' . "\n";
             }
@@ -139,14 +139,14 @@ class TCPDFBarcode
      */
     public function getBarcodeHTML($w = 2, $h = 30, $color = 'black')
     {
-        $html = '<div style="font-size:0;position:relative;width:' . ($this->barcode_array['maxw'] * $w) . 'px;height:' . ($h) . 'px;">' . "\n";
+        $html = '<div style="font-size:0;position:relative;width:' . ($this->barcode['maxw'] * $w) . 'px;height:' . ($h) . 'px;">' . "\n";
         // print bars
         $x = 0;
-        foreach ($this->barcode_array['bcode'] as $k => $v) {
+        foreach ($this->barcode['bcode'] as $k => $v) {
             $bw = round(($v['w'] * $w), 3);
-            $bh = round(($v['h'] * $h / $this->barcode_array['maxh']), 3);
+            $bh = round(($v['h'] * $h / $this->barcode['maxh']), 3);
             if ($v['t']) {
-                $y = round(($v['p'] * $h / $this->barcode_array['maxh']), 3);
+                $y = round(($v['p'] * $h / $this->barcode['maxh']), 3);
                 // draw a vertical bar
                 $html .= '<div style="background-color:' . $color . ';width:' . $bw . 'px;height:' . $bh . 'px;position:absolute;left:' . $x . 'px;top:' . $y . 'px;">&nbsp;</div>' . "\n";
             }
@@ -185,7 +185,7 @@ class TCPDFBarcode
     public function getBarcodePngData($w = 2, $h = 30, $color = array(0, 0, 0))
     {
         // calculate image size
-        $width  = ($this->barcode_array['maxw'] * $w);
+        $width  = ($this->barcode['maxw'] * $w);
         $height = $h;
         if (function_exists('imagecreate')) {
             // GD library
@@ -209,11 +209,11 @@ class TCPDFBarcode
         }
         // print bars
         $x = 0;
-        foreach ($this->barcode_array['bcode'] as $k => $v) {
+        foreach ($this->barcode['bcode'] as $k => $v) {
             $bw = round(($v['w'] * $w), 3);
-            $bh = round(($v['h'] * $h / $this->barcode_array['maxh']), 3);
+            $bh = round(($v['h'] * $h / $this->barcode['maxh']), 3);
             if ($v['t']) {
-                $y = round(($v['p'] * $h / $this->barcode_array['maxh']), 3);
+                $y = round(($v['p'] * $h / $this->barcode['maxh']), 3);
                 // draw a vertical bar
                 if ($imagick) {
                     $bar->rectangle($x, $y, ($x + $bw - 1), ($y + $bh - 1));
@@ -403,12 +403,12 @@ class TCPDFBarcode
             }
             default:
             {
-                $this->barcode_array = [];
-                $arrcode             = false;
+                $this->barcode = [];
+                $arrcode       = false;
                 break;
             }
         }
-        $this->barcode_array = $arrcode;
+        $this->barcode = $arrcode;
     }
 
     /**

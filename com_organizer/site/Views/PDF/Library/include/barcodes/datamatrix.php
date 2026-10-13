@@ -107,7 +107,7 @@ class Datamatrix
     /**
      * Barcode array to be returned which is readable by TCPDF.
      */
-    protected $barcode_array = [];
+    protected $barcode = [];
 
     /**
      * Store last used encoding for data codewords.
@@ -223,7 +223,6 @@ class Datamatrix
      */
     public function __construct($code)
     {
-        $barcode_array = [];
         if ((is_null($code)) or ($code == '\0') or ($code == '')) {
             return false;
         }
@@ -338,18 +337,18 @@ class Datamatrix
                 }
             }
         }
-        $this->barcode_array['num_rows'] = $params[0];
-        $this->barcode_array['num_cols'] = $params[1];
-        $this->barcode_array['bcode']    = $grid;
+        $this->barcode['num_rows'] = $params[0];
+        $this->barcode['num_cols'] = $params[1];
+        $this->barcode['bcode']    = $grid;
     }
 
     /**
      * Returns a barcode array which is readable by TCPDF
      * @return array barcode array readable by TCPDF;
      */
-    public function getBarcodeArray()
+    public function getBarcode()
     {
-        return $this->barcode_array;
+        return $this->barcode;
     }
 
     /**

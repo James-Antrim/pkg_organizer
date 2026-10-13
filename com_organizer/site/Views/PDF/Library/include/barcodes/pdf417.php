@@ -90,7 +90,7 @@ class PDF417
     /**
      * Barcode array to be returned which is readable by TCPDF.
      */
-    protected $barcode_array = [];
+    protected $barcode = [];
 
     /**
      * Start pattern.
@@ -518,7 +518,7 @@ class PDF417
      */
     public function __construct($code, $ecl = -1, $aspectratio = 2, $macro = [])
     {
-        $barcode_array = [];
+        $barcode = [];
         if ((is_null($code)) or ($code == '\0') or ($code == '')) {
             return false;
         }
@@ -638,17 +638,17 @@ class PDF417
         // add error correction codewords
         $codewords = array_merge($codewords, $ecw);
         // add horizontal quiet zones to start and stop patterns
-        $pstart                    = str_repeat('0', QUIETH) . $this->start_pattern;
-        $pstop                     = $this->stop_pattern . str_repeat('0', QUIETH);
-        $barcode_array['num_rows'] = ($rows * ROWHEIGHT) + (2 * QUIETV);
-        $barcode_array['num_cols'] = (($cols + 2) * 17) + 35 + (2 * QUIETH);
-        $barcode_array['bcode']    = [];
+        $pstart              = str_repeat('0', QUIETH) . $this->start_pattern;
+        $pstop               = $this->stop_pattern . str_repeat('0', QUIETH);
+        $barcode['num_rows'] = ($rows * ROWHEIGHT) + (2 * QUIETV);
+        $barcode['num_cols'] = (($cols + 2) * 17) + 35 + (2 * QUIETH);
+        $barcode['bcode']    = [];
         // build rows for vertical quiet zone
         if (QUIETV > 0) {
-            $empty_row = array_fill(0, $barcode_array['num_cols'], 0);
+            $empty_row = array_fill(0, $barcode['num_cols'], 0);
             for ($i = 0; $i < QUIETV; ++$i) {
                 // add vertical quiet rows
-                $barcode_array['bcode'][] = $empty_row;
+                $barcode['bcode'][] = $empty_row;
             }
         }
         $k   = 0; // codeword index
@@ -706,7 +706,7 @@ class PDF417
             $arow = preg_split('//', $row, -1, PREG_SPLIT_NO_EMPTY);
             // duplicate row to get the desired height
             for ($h = 0; $h < ROWHEIGHT; ++$h) {
-                $barcode_array['bcode'][] = $arow;
+                $barcode['bcode'][] = $arow;
             }
             ++$cid;
             if ($cid > 2) {
@@ -716,19 +716,19 @@ class PDF417
         if (QUIETV > 0) {
             for ($i = 0; $i < QUIETV; ++$i) {
                 // add vertical quiet rows
-                $barcode_array['bcode'][] = $empty_row;
+                $barcode['bcode'][] = $empty_row;
             }
         }
-        $this->barcode_array = $barcode_array;
+        $this->barcode = $barcode;
     }
 
     /**
      * Returns a barcode array which is readable by TCPDF
      * @return array barcode array readable by TCPDF;
      */
-    public function getBarcodeArray()
+    public function getBarcode()
     {
-        return $this->barcode_array;
+        return $this->barcode;
     }
 
     /**

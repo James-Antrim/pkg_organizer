@@ -262,7 +262,7 @@ class QRcode
     /**
      * Barcode array to be returned which is readable by TCPDF.
      */
-    protected $barcode_array = [];
+    protected $barcode = [];
 
     /**
      * QR code version. Size of QRcode is defined as version. Version is from 1 to 40. Version 1 is 21*21 matrix. And 4 modules increases whenever 1 version increases. So version 40 is 177*177 matrix.
@@ -572,7 +572,7 @@ class QRcode
      */
     public function __construct($code, $eclevel = 'L')
     {
-        $barcode_array = [];
+        $barcode = [];
         if ((is_null($code)) or ($code == '\0') or ($code == '')) {
             return false;
         }
@@ -592,28 +592,28 @@ class QRcode
         if (is_null($this->data)) {
             return false;
         }
-        $qrTab                     = $this->binarize($this->data);
-        $size                      = count($qrTab);
-        $barcode_array['num_rows'] = $size;
-        $barcode_array['num_cols'] = $size;
-        $barcode_array['bcode']    = [];
+        $qrTab               = $this->binarize($this->data);
+        $size                = count($qrTab);
+        $barcode['num_rows'] = $size;
+        $barcode['num_cols'] = $size;
+        $barcode['bcode']    = [];
         foreach ($qrTab as $line) {
             $arrAdd = [];
             foreach (str_split($line) as $char) {
                 $arrAdd[] = ($char == '1') ? 1 : 0;
             }
-            $barcode_array['bcode'][] = $arrAdd;
+            $barcode['bcode'][] = $arrAdd;
         }
-        $this->barcode_array = $barcode_array;
+        $this->barcode = $barcode;
     }
 
     /**
      * Returns a barcode array which is readable by TCPDF
      * @return array barcode array readable by TCPDF;
      */
-    public function getBarcodeArray()
+    public function getBarcode()
     {
-        return $this->barcode_array;
+        return $this->barcode;
     }
 
     /**
