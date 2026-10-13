@@ -69,7 +69,7 @@ class Fonts
         $fmetric['ctg']  = $font_name . '.ctg.z';
         // get font data
         $font                    = file_get_contents($fontfile);
-        $fmetric['originalsize'] = strlen($font);
+        $fmetric['originalSize'] = strlen($font);
         // autodetect font type
         if (empty($fonttype)) {
             if (StaticMethods::_getULONG($font, 0) == 0x10000) {
@@ -835,7 +835,7 @@ class Fonts
             $pfile .= '$size2=' . $fmetric['size2'] . ';' . "\n";
         }
         else {
-            $pfile .= '$originalsize=' . $fmetric['originalsize'] . ';' . "\n";
+            $pfile .= '$originalSize=' . $fmetric['originalSize'] . ';' . "\n";
             // TrueType
             $pfile .= '$enc=\'' . $fmetric['enc'] . '\';' . "\n";
             $pfile .= '$file=\'' . $fmetric['file'] . '\';' . "\n";

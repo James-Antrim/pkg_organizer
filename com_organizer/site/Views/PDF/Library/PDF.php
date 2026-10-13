@@ -3812,7 +3812,7 @@ class PDF
             $file         = null;
             $ctg          = null;
             $diff         = null;
-            $originalsize = null;
+            $originalSize = null;
             $size1        = null;
             $size2        = null;
             include($fontfile);
@@ -3942,7 +3942,7 @@ class PDF
         if (!StaticMethods::empty_string($file)) {
             if (!isset($this->FontFiles[$file])) {
                 if ((strcasecmp($type, 'TrueType') == 0) or (strcasecmp($type, 'TrueTypeUnicode') == 0)) {
-                    $this->FontFiles[$file] = array('length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
+                    $this->FontFiles[$file] = array('length1' => $originalSize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
                 }
                 elseif ($type != 'core') {
                     $this->FontFiles[$file] = array('length1' => $size1, 'length2' => $size2, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
