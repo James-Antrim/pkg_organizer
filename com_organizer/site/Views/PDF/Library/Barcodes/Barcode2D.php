@@ -58,31 +58,6 @@ class Barcode2D
         $type = strtoupper($mode[0]);
 
         switch ($type) {
-            case 'DATAMATRIX':
-                $qrcode                = new DataMatrix($code);
-                $this->barcode         = $qrcode->barcode();
-                $this->barcode['code'] = $code;
-                break;
-            case 'PDF417':
-                $aspectRatio = empty($mode[1]) ? 2 : floatval($mode[1]);
-                $ecl         = empty($mode[2]) ? -1 : intval($mode[2]);
-
-                $macro = [];
-                if (!empty($mode[3]) and !empty($mode[4]) and !empty($mode[5])) {
-                    $macro['segment_total'] = intval($mode[3]);
-                    $macro['segment_index'] = intval($mode[4]);
-                    $macro['file_id']       = strtr($mode[5], "\xff", ',');
-                    for ($index = 0; $index < 7; ++$index) {
-                        $option = $index + 6;
-                        if (isset($mode[$option]) and ($mode[$option] !== '')) {
-                            $macro['option_' . $index] = strtr($mode[$option], "\xff", ',');
-                        }
-                    }
-                }
-                $qrcode                = new PDF417($code, $ecl, $aspectRatio, $macro);
-                $this->barcode         = $qrcode->barcode();
-                $this->barcode['code'] = $code;
-                break;
             case 'QRCODE':
                 if (!isset($mode[1]) or (!in_array($mode[1], ['L', 'M', 'Q', 'H']))) {
                     $mode[1] = 'L'; // default: Low error correction
