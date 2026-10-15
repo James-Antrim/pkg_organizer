@@ -8,12 +8,10 @@
  * @link        www.thm.de
  */
 
-require_once JPATH_ROOT . '/libraries/tcpdf/tcpdf_barcodes_2d.php';
-
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\Bookings as Helper;
-use TCPDF2DBarcode as QRCode;
+use THM\Organizer\Views\PDF\Library\Barcodes\Barcode2D as QRCode;
 
 $bookingID  = $this->booking->id;
 $logoURL    = 'components/com_organizer/images/organizer.png';
@@ -24,7 +22,7 @@ $qrCode     = new QRCode($checkinURL, 'QRCODE,L');
 ?>
 <div id="j-main-container" class="span10 qr-code">
     <h1><?php echo $this->booking->code; ?></h1>
-    <?php echo $qrCode->getBarcodeHTML(6, 6); ?>
+    <?php echo $qrCode->HTML(6, 6); ?>
     <?php foreach (Helper::names($bookingID) as $name): ?>
         <?php echo "<p>$name</p>"; ?>
     <?php endforeach; ?>
