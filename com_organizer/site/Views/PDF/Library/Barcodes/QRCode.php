@@ -43,6 +43,16 @@ class QRCode
 
     private const BEST_MASK = true, DEFAULT_MASK = 2, HEADER_BITS = 20, RANDOM_MASK = 2;
 
+    /**
+     * Array positions of alignment patterns. This array includes only the second and the third position of the alignment patterns. Rest of them can
+     * be calculated from the distance between them. See Table 1 in Appendix E (pp.71) of JIS X0510:2004.
+     */
+    protected array $alignmentPattern = [
+        [0, 0], [0, 0], [18, 0], [22, 0], [26, 0], [30, 0], [34, 0], [22, 38], [24, 42], [26, 46], [28, 50], [30, 54], [32, 58], [34, 62], [26, 46],
+        [26, 48], [26, 50], [30, 54], [30, 56], [30, 58], [34, 62], [28, 50], [26, 50], [30, 54], [28, 54], [32, 58], [30, 58], [34, 62], [26, 50],
+        [30, 54], [26, 52], [30, 56], [34, 60], [30, 58], [34, 62], [30, 54], [24, 50], [28, 54], [32, 58], [26, 54], [30, 58]
+    ];
+
     private array $anTable = [
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 36, -1, -1,
         -1, 37, 38, -1, -1, -1, -1, 39, 40, -1, 41, 42, 43, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 44, -1, -1, -1, -1, -1, -1, 10, 11, 12, 13, 14, 15, 16, 17,
@@ -89,6 +99,23 @@ class QRCode
 
     private array $ecCode = [];
 
+    /** Table of error correction code (Reed-Solomon block).See Table 12-16 (pp.30-36), JIS X0510:2004. */
+    private array $ecCodes = [
+        [[0, 0], [0, 0], [0, 0], [0, 0]], [[1, 0], [1, 0], [1, 0], [1, 0]], [[1, 0], [1, 0], [1, 0], [1, 0]], [[1, 0], [1, 0], [2, 0], [2, 0]],
+        [[1, 0], [2, 0], [2, 0], [4, 0]], [[1, 0], [2, 0], [2, 2], [2, 2]], [[2, 0], [4, 0], [4, 0], [4, 0]], [[2, 0], [4, 0], [2, 4], [4, 1]],
+        [[2, 0], [2, 2], [4, 2], [4, 2]], [[2, 0], [3, 2], [4, 4], [4, 4]], [[2, 2], [4, 1], [6, 2], [6, 2]], [[4, 0], [1, 4], [4, 4], [3, 8]],
+        [[2, 2], [6, 2], [4, 6], [7, 4]], [[4, 0], [8, 1], [8, 4], [12, 4]], [[3, 1], [4, 5], [11, 5], [11, 5]], [[5, 1], [5, 5], [5, 7], [11, 7]],
+        [[5, 1], [7, 3], [15, 2], [3, 13]], [[1, 5], [10, 1], [1, 15], [2, 17]], [[5, 1], [9, 4], [17, 1], [2, 19]],
+        [[3, 4], [3, 11], [17, 4], [9, 16]], [[3, 5], [3, 13], [15, 5], [15, 10]], [[4, 4], [17, 0], [17, 6], [19, 6]],
+        [[2, 7], [17, 0], [7, 16], [34, 0]], [[4, 5], [4, 14], [11, 14], [16, 14]], [[6, 4], [6, 14], [11, 16], [30, 2]],
+        [[8, 4], [8, 13], [7, 22], [22, 13]], [[10, 2], [19, 4], [28, 6], [33, 4]], [[8, 4], [22, 3], [8, 26], [12, 28]],
+        [[3, 10], [3, 23], [4, 31], [11, 31]], [[7, 7], [21, 7], [1, 37], [19, 26]], [[5, 10], [19, 10], [15, 25], [23, 25]],
+        [[13, 3], [2, 29], [42, 1], [23, 28]], [[17, 0], [10, 23], [10, 35], [19, 35]], [[17, 1], [14, 21], [29, 19], [11, 46]],
+        [[13, 6], [14, 23], [44, 7], [59, 1]], [[12, 7], [12, 26], [39, 14], [22, 41]], [[6, 14], [6, 34], [46, 10], [2, 64]],
+        [[17, 4], [29, 14], [49, 10], [24, 46]], [[4, 18], [13, 32], [48, 14], [42, 32]], [[20, 4], [40, 7], [43, 22], [10, 67]],
+        [[19, 6], [18, 31], [34, 34], [20, 61]]
+    ];
+
     protected float|int $ecLength;
 
     private int $ecLevel = self::LOW;
@@ -115,6 +142,9 @@ class QRCode
 
     protected array $items = [];
 
+    /** Array Length indicator. */
+    protected array $lengthTableBits = [[10, 12, 14], [9, 11, 13], [8, 16, 16], [8, 10, 12]];
+
     private int $mode = self::EIGHT_BIT;
 
     /**
@@ -135,42 +165,6 @@ class QRCode
 
     private int $version = 0;
 
-    private int $width;
-
-    private int $x;
-
-    private int $y;
-
-    /** Array Length indicator. */
-    protected array $lengthTableBits = [[10, 12, 14], [9, 11, 13], [8, 16, 16], [8, 10, 12]];
-
-    /** Table of error correction code (Reed-Solomon block).See Table 12-16 (pp.30-36), JIS X0510:2004. */
-    private array $eccCodes = [
-        [[0, 0], [0, 0], [0, 0], [0, 0]], [[1, 0], [1, 0], [1, 0], [1, 0]], [[1, 0], [1, 0], [1, 0], [1, 0]], [[1, 0], [1, 0], [2, 0], [2, 0]],
-        [[1, 0], [2, 0], [2, 0], [4, 0]], [[1, 0], [2, 0], [2, 2], [2, 2]], [[2, 0], [4, 0], [4, 0], [4, 0]], [[2, 0], [4, 0], [2, 4], [4, 1]],
-        [[2, 0], [2, 2], [4, 2], [4, 2]], [[2, 0], [3, 2], [4, 4], [4, 4]], [[2, 2], [4, 1], [6, 2], [6, 2]], [[4, 0], [1, 4], [4, 4], [3, 8]],
-        [[2, 2], [6, 2], [4, 6], [7, 4]], [[4, 0], [8, 1], [8, 4], [12, 4]], [[3, 1], [4, 5], [11, 5], [11, 5]], [[5, 1], [5, 5], [5, 7], [11, 7]],
-        [[5, 1], [7, 3], [15, 2], [3, 13]], [[1, 5], [10, 1], [1, 15], [2, 17]], [[5, 1], [9, 4], [17, 1], [2, 19]],
-        [[3, 4], [3, 11], [17, 4], [9, 16]], [[3, 5], [3, 13], [15, 5], [15, 10]], [[4, 4], [17, 0], [17, 6], [19, 6]],
-        [[2, 7], [17, 0], [7, 16], [34, 0]], [[4, 5], [4, 14], [11, 14], [16, 14]], [[6, 4], [6, 14], [11, 16], [30, 2]],
-        [[8, 4], [8, 13], [7, 22], [22, 13]], [[10, 2], [19, 4], [28, 6], [33, 4]], [[8, 4], [22, 3], [8, 26], [12, 28]],
-        [[3, 10], [3, 23], [4, 31], [11, 31]], [[7, 7], [21, 7], [1, 37], [19, 26]], [[5, 10], [19, 10], [15, 25], [23, 25]],
-        [[13, 3], [2, 29], [42, 1], [23, 28]], [[17, 0], [10, 23], [10, 35], [19, 35]], [[17, 1], [14, 21], [29, 19], [11, 46]],
-        [[13, 6], [14, 23], [44, 7], [59, 1]], [[12, 7], [12, 26], [39, 14], [22, 41]], [[6, 14], [6, 34], [46, 10], [2, 64]],
-        [[17, 4], [29, 14], [49, 10], [24, 46]], [[4, 18], [13, 32], [48, 14], [42, 32]], [[20, 4], [40, 7], [43, 22], [10, 67]],
-        [[19, 6], [18, 31], [34, 34], [20, 61]]
-    ];
-
-    /**
-     * Array positions of alignment patterns. This array includes only the second and the third position of the alignment patterns. Rest of them can
-     * be calculated from the distance between them. See Table 1 in Appendix E (pp.71) of JIS X0510:2004.
-     */
-    protected array $alignmentPattern = [
-        [0, 0], [0, 0], [18, 0], [22, 0], [26, 0], [30, 0], [34, 0], [22, 38], [24, 42], [26, 46], [28, 50], [30, 54], [32, 58], [34, 62], [26, 46],
-        [26, 48], [26, 50], [30, 54], [30, 56], [30, 58], [34, 62], [28, 50], [26, 50], [30, 54], [28, 54], [32, 58], [30, 58], [34, 62], [26, 50],
-        [30, 54], [26, 52], [30, 56], [34, 60], [30, 58], [34, 62], [30, 54], [24, 50], [28, 54], [32, 58], [26, 54], [30, 58]
-    ];
-
     /** Array Version information pattern (BCH coded). See Table 1 in Appendix D (pp.68) of JIS X0510:2004. size: [self::MAX_VERSION - 6] */
     private array $versionPattern = [
         0x07c94, 0x085bc, 0x09a99, 0x0a4d3, 0x0bbf6, 0x0c762, 0x0d847, 0x0e60d, //
@@ -180,11 +174,16 @@ class QRCode
         0x27541, 0x28c69
     ];
 
+    private int $width;
+
+    private int $x;
+
+    private int $y;
+
 
     /**
-     * This is the class constructor.
-     * Creates a QRcode object
-     * @param string $code    code to represent using QRcode
+     * Creates a QRCode object.
+     * @param string $code    code to represent using QR code
      * @param string $ecLevel error correction level
      */
     public function __construct(string $code, string $ecLevel = 'L')
@@ -225,16 +224,16 @@ class QRCode
     }
 
     /**
-     * Convert the frame in binary form
+     * Convert the frame into binary form.
      * @param array $frame array to binarize
-     * @return array frame in binary form
+     * @return array
      */
-    protected function binarize($frame)
+    protected function binarize(array $frame): array
     {
-        $len = count($frame);
+        $length = count($frame);
         // the frame is square (width = height)
         foreach ($frame as &$frameLine) {
-            for ($i = 0; $i < $len; $i++) {
+            for ($i = 0; $i < $length; $i++) {
                 $frameLine[$i] = (ord($frameLine[$i]) & 1) ? '1' : '0';
             }
         }
@@ -273,20 +272,20 @@ class QRCode
         $spec             = $this->getEccSpec($this->version, $this->ecLevel, $spec);
         $this->block1     = $this->rsBlockNum1($spec);
         $this->dataLength = $this->rsDataLength($spec);
-        $this->ecLength  = $this->rsEccLength($spec);
-        $this->ecCode    = array_fill(0, $this->ecLength, 0);
+        $this->ecLength   = $this->rsEccLength($spec);
+        $this->ecCode     = array_fill(0, $this->ecLength, 0);
         $this->blocks     = $this->rsBlockNum($spec);
         $ret              = $this->init($spec);
         if ($ret < 0) {
             return null;
         }
-        $this->counter = 0;
-        $this->width   = $this->getWidth($this->version);
-        $this->frame   = $this->newFrame($this->version);
-        $this->x       = $this->width - 1;
-        $this->y       = $this->width - 1;
-        $this->direction     = -1;
-        $this->bit     = -1;
+        $this->counter   = 0;
+        $this->width     = $this->getWidth($this->version);
+        $this->frame     = $this->newFrame($this->version);
+        $this->x         = $this->width - 1;
+        $this->y         = $this->width - 1;
+        $this->direction = -1;
+        $this->bit       = -1;
         // inteleaved data and ecc codes
         for ($i = 0; $i < ($this->dataLength + $this->ecLength); $i++) {
             $code = $this->getCode();
@@ -382,8 +381,8 @@ class QRCode
             }
             else {
                 if ($y == $w) {
-                    $y         = $w - 1;
-                    $x         -= 2;
+                    $y               = $w - 1;
+                    $x               -= 2;
                     $this->direction = -1;
                     if ($x == 6) {
                         $x--;
@@ -419,15 +418,15 @@ class QRCode
         $eccPos  = 0;
         $endfor  = $this->rsBlockNum1($spec);
         for ($i = 0; $i < $endfor; ++$i) {
-            $ecc                             = array_slice($this->ecCode, $eccPos);
-            $this->rsBlocks[$blockNo]        = [];
+            $ecc                                    = array_slice($this->ecCode, $eccPos);
+            $this->rsBlocks[$blockNo]               = [];
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
             $this->rsBlocks[$blockNo]['eccLength']  = $el;
             $ecc                                    = $this->encode_rs_char($rs, $this->rsBlocks[$blockNo]['data'], $ecc);
-            $this->rsBlocks[$blockNo]['ecc'] = $ecc;
-            $this->ecCode                    = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
-            $dataPos                         += $dl;
+            $this->rsBlocks[$blockNo]['ecc']        = $ecc;
+            $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
+            $dataPos                                += $dl;
             $eccPos                                 += $el;
             $blockNo++;
         }
@@ -442,15 +441,15 @@ class QRCode
         }
         $endfor = $this->rsBlockNum2($spec);
         for ($i = 0; $i < $endfor; ++$i) {
-            $ecc                             = array_slice($this->ecCode, $eccPos);
-            $this->rsBlocks[$blockNo]        = [];
+            $ecc                                    = array_slice($this->ecCode, $eccPos);
+            $this->rsBlocks[$blockNo]               = [];
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
             $this->rsBlocks[$blockNo]['eccLength']  = $el;
             $ecc                                    = $this->encode_rs_char($rs, $this->rsBlocks[$blockNo]['data'], $ecc);
-            $this->rsBlocks[$blockNo]['ecc'] = $ecc;
-            $this->ecCode                    = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
-            $dataPos                         += $dl;
+            $this->rsBlocks[$blockNo]['ecc']        = $ecc;
+            $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
+            $dataPos                                += $dl;
             $eccPos                                 += $el;
             $blockNo++;
         }
@@ -499,7 +498,7 @@ class QRCode
     protected function writeFormatInformation($width, &$frame, $mask, $level)
     {
         $blacks = 0;
-        $format = $this->formatInfo($level, $mask) ;
+        $format = $this->formatInfo($level, $mask);
         for ($i = 0; $i < 8; ++$i) {
             if ($format & 1) {
                 $blacks += 2;
