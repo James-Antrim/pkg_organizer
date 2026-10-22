@@ -41,7 +41,7 @@ class QRCode
     /** Matrix indexes */
     private const COUNT = 1, LEVEL = 3, REMAINDER = 2, WIDTH = 0;
 
-    private const BEST_MASK = true, DEFAULT_MASK = 2, HEADER_BITS = 20, RANDOM_MASK = 2;
+    private const DEFAULT_MASK = 2, HEADER_BITS = 20, RANDOM_MASK = 2;
 
     /**
      * Array positions of alignment patterns. This array includes only the second and the third position of the alignment patterns. Rest of them can
@@ -249,14 +249,13 @@ class QRCode
         if ($ret < 0) {
             return null;
         }
-        $this->encodeMask(-1);
+        $this->encodeMask();
     }
 
     /**
      * Encode mask
-     * @param int $mask masking mode
      */
-    protected function encodeMask($mask)
+    protected function encodeMask()
     {
         $bitStream      = $this->mergeBitStream($this->items);
         $bitStream      = $this->appendPaddingBit($bitStream);
@@ -301,17 +300,7 @@ class QRCode
         }
         // masking
         $this->runLength = array_fill(0, self::MAX_WIDTH + 1, 0);
-        if ($mask < 0) {
-            if (self::BEST_MASK) {
-                $masked = $this->mask($this->width, $this->frame, $this->ecLevel);
-            }
-            else {
-                $masked = $this->makeMask($this->width, $this->frame, (intval(self::DEFAULT_MASK) % 8), $this->ecLevel);
-            }
-        }
-        else {
-            $masked = $this->makeMask($this->width, $this->frame, $mask, $this->ecLevel);
-        }
+        $masked          = $this->mask($this->width, $this->frame, $this->ecLevel);
         if ($masked == null) {
             return null;
         }
@@ -802,13 +791,11 @@ class QRCode
         $bestMaskNum   = 0;
         $bestMask      = [];
         $checked_masks = [0, 1, 2, 3, 4, 5, 6, 7];
-        if (self::RANDOM_MASK !== false) {
-            $howManuOut = 8 - (self::RANDOM_MASK % 9);
-            for ($i = 0; $i < $howManuOut; ++$i) {
-                $remPos = rand(0, count($checked_masks) - 1);
-                unset($checked_masks[$remPos]);
-                $checked_masks = array_values($checked_masks);
-            }
+        $howManuOut    = 8 - (self::RANDOM_MASK % 9);
+        for ($i = 0; $i < $howManuOut; ++$i) {
+            $remPos = rand(0, count($checked_masks) - 1);
+            unset($checked_masks[$remPos]);
+            $checked_masks = array_values($checked_masks);
         }
         $bestMask = $frame;
         foreach ($checked_masks as $i) {
