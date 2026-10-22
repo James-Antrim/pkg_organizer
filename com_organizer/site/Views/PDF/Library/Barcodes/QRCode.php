@@ -858,10 +858,6 @@ class QRCode
         $this->data = $masked;
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // FrameFiller
-
     /**
      * Set frame value at specified position
      * @param array $at  x,y position
@@ -935,10 +931,6 @@ class QRCode
         } while (ord($this->frame[$y][$x]) & 0x80);
         return ['x' => $x, 'y' => $y];
     }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRrawcode
 
     /**
      * Initialize code.
@@ -1019,10 +1011,6 @@ class QRCode
         $this->counter++;
         return $ret;
     }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRmask
 
     /**
      * Return bitmask
