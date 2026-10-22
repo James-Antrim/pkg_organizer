@@ -279,8 +279,8 @@ class QRCode
         if ($ret < 0) {
             return null;
         }
-        $this->counter   = 0;
-        $this->width     = $this->getWidth($this->version);
+        $this->counter = 0;
+        $this->width   = $this->capacity[$this->version][self::WIDTH];;
         $this->frame     = $this->newFrame($this->version);
         $this->x         = $this->width - 1;
         $this->y         = $this->width - 1;
@@ -297,7 +297,7 @@ class QRCode
             }
         }
         // remainder bits
-        $j = $this->getRemainder($this->version);
+        $j = $this->capacity[$this->version][self::REMAINDER];
         for ($i = 0; $i < $j; $i++) {
             $addr = $this->getNextPosition();
             $this->setFrameAt($addr, 0x02);
@@ -1964,37 +1964,6 @@ class QRCode
     }
 
     /**
-     * Return maximum error correction code length (bytes) for the version.
-     * @param int $version version
-     * @param int $level   error correction level
-     * @return int ECC size (bytes)
-     */
-    protected function getECCLength($version, $level)
-    {
-        return $this->capacity[$version][self::LEVEL][$level];
-    }
-
-    /**
-     * Return the width of the symbol for the version.
-     * @param int $version version
-     * @return int width
-     */
-    protected function getWidth($version)
-    {
-        return $this->capacity[$version][self::WIDTH];
-    }
-
-    /**
-     * Return the numer of remainder bits.
-     * @param int $version version
-     * @return int number of remainder bits
-     */
-    protected function getRemainder($version)
-    {
-        return $this->capacity[$version][self::REMAINDER];
-    }
-
-    /**
      * Return a version number that satisfies the input code length.
      * @param int $size  input code length (bytes)
      * @param int $level error correction level
@@ -2078,7 +2047,7 @@ class QRCode
         $b1   = $this->eccCodes[$version][$level][0];
         $b2   = $this->eccCodes[$version][$level][1];
         $data = $this->getDataLength($version, $level);
-        $ecc  = $this->getECCLength($version, $level);
+        $ecc  = $this->capacity[$version][self::LEVEL][$level];
         if ($b2 == 0) {
             $spec[0] = $b1;
             $spec[1] = (int) ($data / $b1);
@@ -2574,9 +2543,4 @@ class QRCode
         }
         return $parity;
     }
-
-} // end QRcode class
-
-//============================================================+
-// END OF FILE
-//============================================================+
+}
