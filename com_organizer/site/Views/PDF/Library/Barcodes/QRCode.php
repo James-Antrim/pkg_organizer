@@ -199,8 +199,7 @@ class QRCode
 
         $this->encodeMask();
 
-        $this->encodeString($content);
-        if (is_null($this->data)) {
+        if (empty($this->data)) {
             return;
         }
 
@@ -803,19 +802,6 @@ class QRCode
             }
         }
         return $frame;
-    }
-
-    /**
-     * Encode the input string to QR code
-     * @param string $string input string to encode
-     */
-    protected function encodeString($string)
-    {
-        $this->dataString = $string;
-        if (!$this->chunk()) {
-            return null;
-        }
-        $this->encodeMask();
     }
 
     /**
