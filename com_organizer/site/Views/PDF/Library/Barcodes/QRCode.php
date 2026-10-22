@@ -214,6 +214,46 @@ class QRCode
     }
 
     /**
+     * Estimates the number of bits for an alphanumeric segment of a given character count.
+     * @param int $count
+     * @return int
+     */
+    protected function estimateAlphaNumeric(int $count): int
+    {
+        $bits = (int) ($count * 5.5);
+        if ($count & 1) {
+            $bits += 6;
+        }
+        return $bits;
+    }
+
+    /**
+     * estimateBitsModeMultiByte
+     * @param int $count
+     * @return int number of bits
+     */
+    protected function estimateMultiByte(int $count): int
+    {
+        return (int) ($count * 6.5);
+    }
+
+    /**
+     * estimateBitsModeNum
+     * @param int $count
+     * @return int number of bits
+     */
+    protected function estimateNumeric(int $count): int
+    {
+        $w    = (int) ($count / 3);
+        $bits = ($w * 10);
+        return match ($count - ($w * 3)) {
+            1 => $bits + 4,
+            2 => $bits + 7,
+            default => $bits,
+        };
+    }
+
+    /**
      * Creates a binary mask for the given x & y positions. Variant 0.
      * @param int $x X position
      * @param int $y Y position
@@ -885,17 +925,15 @@ class QRCode
         $run  = $p;
         $mode = $this->identifyMode($p);
         if ($mode == self::EIGHT_BIT) {
-            $dif = $this->estimateBitsModeNum($run) + 4 + $ln
-                + $this->estimateBitsMode8(1)         // + 4 + l8
-                - $this->estimateBitsMode8($run + 1); // - 4 - l8
+            $dif = $this->estimateNumeric($run) + 4 + $ln + 8 - (($run + 1) * 8);
             if ($dif > 0) {
                 return $this->eat8();
             }
         }
         if ($mode == self::ALPHANUMERIC) {
-            $dif = $this->estimateBitsModeNum($run) + 4 + $ln
-                + $this->estimateBitsModeAn(1)        // + 4 + la
-                - $this->estimateBitsModeAn($run + 1);// - 4 - la
+            $dif = $this->estimateNumeric($run) + 4 + $ln
+                + $this->estimateAlphaNumeric(1)        // + 4 + la
+                - $this->estimateAlphaNumeric($run + 1);// - 4 - la
             if ($dif > 0) {
                 return $this->eatAn();
             }
@@ -919,9 +957,9 @@ class QRCode
                 while ($this->isdigitat($this->dataString, $q)) {
                     $q++;
                 }
-                $dif = $this->estimateBitsModeAn($p) // + 4 + la
-                    + $this->estimateBitsModeNum($q - $p) + 4 + $ln
-                    - $this->estimateBitsModeAn($q); // - 4 - la
+                $dif = $this->estimateAlphaNumeric($p) // + 4 + la
+                    + $this->estimateNumeric($q - $p) + 4 + $ln
+                    - $this->estimateAlphaNumeric($q); // - 4 - la
                 if ($dif < 0) {
                     break;
                 }
@@ -935,9 +973,7 @@ class QRCode
         }
         $run = $p;
         if (!$this->isalnumat($this->dataString, $p)) {
-            $dif = $this->estimateBitsModeAn($run) + 4 + $la
-                + $this->estimateBitsMode8(1) // + 4 + l8
-                - $this->estimateBitsMode8($run + 1); // - 4 - l8
+            $dif = $this->estimateAlphaNumeric($run) + 4 + $la + 8 - (($run + 1) * 8);
             if ($dif > 0) {
                 return $this->eat8();
             }
@@ -981,9 +1017,7 @@ class QRCode
                 while ($this->isdigitat($this->dataString, $q)) {
                     $q++;
                 }
-                $dif = $this->estimateBitsMode8($p) // + 4 + l8
-                    + $this->estimateBitsModeNum($q - $p) + 4 + $ln
-                    - $this->estimateBitsMode8($q); // - 4 - l8
+                $dif = ($p * 8) + $this->estimateNumeric($q - $p) + 4 + $ln - ($q * 8);
                 if ($dif < 0) {
                     break;
                 }
@@ -996,9 +1030,7 @@ class QRCode
                 while ($this->isalnumat($this->dataString, $q)) {
                     $q++;
                 }
-                $dif = $this->estimateBitsMode8($p)  // + 4 + l8
-                    + $this->estimateBitsModeAn($q - $p) + 4 + $la
-                    - $this->estimateBitsMode8($q); // - 4 - l8
+                $dif = ($p * 8) + $this->estimateAlphaNumeric($q - $p) + 4 + $la - ($q * 8);
                 if ($dif < 0) {
                     break;
                 }
@@ -1346,64 +1378,6 @@ class QRCode
     }
 
     /**
-     * estimateBitsModeNum
-     * @param int $size
-     * @return int number of bits
-     */
-    protected function estimateBitsModeNum($size)
-    {
-        $w    = (int) ($size / 3);
-        $bits = ($w * 10);
-        switch ($size - ($w * 3)) {
-            case 1:
-            {
-                $bits += 4;
-                break;
-            }
-            case 2:
-            {
-                $bits += 7;
-                break;
-            }
-        }
-        return $bits;
-    }
-
-    /**
-     * estimateBitsModeAn
-     * @param int $size
-     * @return int number of bits
-     */
-    protected function estimateBitsModeAn($size)
-    {
-        $bits = (int) ($size * 5.5); // (size / 2 ) * 11
-        if ($size & 1) {
-            $bits += 6;
-        }
-        return $bits;
-    }
-
-    /**
-     * estimateBitsMode8
-     * @param int $size
-     * @return int number of bits
-     */
-    protected function estimateBitsMode8($size)
-    {
-        return (int) ($size * 8);
-    }
-
-    /**
-     * estimateBitsModeMultiByte
-     * @param int $size
-     * @return int number of bits
-     */
-    protected function estimateBitsModeMultiByte($size)
-    {
-        return (int) ($size * 6.5); // (size / 2 ) * 13
-    }
-
-    /**
      * checkModeMultiByte
      * @param int   $size
      * @param array $data
@@ -1480,22 +1454,22 @@ class QRCode
             switch ($item['mode']) {
                 case self::NUMERIC:
                 {
-                    $bits = $this->estimateBitsModeNum($item['size']);
+                    $bits = $this->estimateNumeric($item['size']);
                     break;
                 }
                 case self::ALPHANUMERIC:
                 {
-                    $bits = $this->estimateBitsModeAn($item['size']);
+                    $bits = $this->estimateAlphaNumeric($item['size']);
                     break;
                 }
                 case self::EIGHT_BIT:
                 {
-                    $bits = $this->estimateBitsMode8($item['size']);
+                    $bits = $item['size'] * 8;
                     break;
                 }
                 case self::MULTIBYTE:
                 {
-                    $bits = $this->estimateBitsModeMultiByte($item['size']);
+                    $bits = $this->estimateMultiByte($item['size']);
                     break;
                 }
                 case self::STRUCTURED:
