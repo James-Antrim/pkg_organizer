@@ -214,6 +214,96 @@ class QRCode
     }
 
     /**
+     * Creates a binary mask for the given x & y positions. Variant 0.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask0(int $x, int $y): int
+    {
+        return ($x + $y) & 1;
+    }
+
+    /**
+     * Creates a binary mask for the given x & y positions. Variant 1.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask1(int $x, int $y): int
+    {
+        return ($y & 1);
+    }
+
+    /**
+     * Creates a binary mask for the given x & y positions. Variant 2.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask2(int $x, int $y): int
+    {
+        return ($x % 3);
+    }
+
+    /**
+     * Creates a binary mask for the given x & y positions. Variant 3.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask3(int $x, int $y): int
+    {
+        return ($x + $y) % 3;
+    }
+
+    /**
+     * Creates a binary mask for the given x & y positions. Variant 4.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask4(int $x, int $y): int
+    {
+        return (((int) ($y / 2)) + ((int) ($x / 3))) & 1;
+    }
+
+    /**
+     * Creates a binary mask for the given x & y positions. Variant 5.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask5(int $x, int $y): int
+    {
+        return (($x * $y) & 1) + ($x * $y) % 3;
+    }
+
+    /**
+     * Creates a binary mask for the given x & y positions. Variant 6.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask6(int $x, int $y): int
+    {
+        return ((($x * $y) & 1) + ($x * $y) % 3) & 1;
+    }
+
+    /**
+     * Creates a binary mask for the given x & y positions. Variant 7.
+     * @param int $x X position
+     * @param int $y Y position
+     * @return int
+     */
+    protected function mask7(int $x, int $y): int
+    {
+        return ((($x * $y) % 3) + (($x + $y) & 1)) & 1;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
+
+    /**
      * Convert the frame into binary form.
      * @param array $frame array to binarize
      * @return array
@@ -512,94 +602,6 @@ class QRCode
             $format = $format >> 1;
         }
         return $blacks;
-    }
-
-    /**
-     * mask0
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask0($x, $y)
-    {
-        return ($x + $y) & 1;
-    }
-
-    /**
-     * mask1
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask1($x, $y)
-    {
-        return ($y & 1);
-    }
-
-    /**
-     * mask2
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask2($x, $y)
-    {
-        return ($x % 3);
-    }
-
-    /**
-     * mask3
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask3($x, $y)
-    {
-        return ($x + $y) % 3;
-    }
-
-    /**
-     * mask4
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask4($x, $y)
-    {
-        return (((int) ($y / 2)) + ((int) ($x / 3))) & 1;
-    }
-
-    /**
-     * mask5
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask5($x, $y)
-    {
-        return (($x * $y) & 1) + ($x * $y) % 3;
-    }
-
-    /**
-     * mask6
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask6($x, $y)
-    {
-        return ((($x * $y) & 1) + ($x * $y) % 3) & 1;
-    }
-
-    /**
-     * mask7
-     * @param int $x X position
-     * @param int $y Y position
-     * @return int mask
-     */
-    protected function mask7($x, $y)
-    {
-        return ((($x * $y) % 3) + (($x + $y) & 1)) & 1;
     }
 
     /**
