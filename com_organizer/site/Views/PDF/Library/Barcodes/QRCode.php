@@ -263,12 +263,14 @@ class QRCode
      */
     protected function encodeMask($mask)
     {
-        $spec           = [0, 0, 0, 0, 0];
-        $this->dataCode = $this->getByteStream($this->items);
+        $bitStream      = $this->mergeBitStream($this->items);
+        $bitStream      = $this->appendPaddingBit($bitStream);
+        $this->dataCode = $this->bitstreamToByte($bitStream);
 
         if (is_null($this->dataCode)) {
             return null;
         }
+        $spec             = [0, 0, 0, 0, 0];
         $spec             = $this->getEccSpec($this->version, $this->ecLevel, $spec);
         $this->block1     = $this->rsBlockNum1($spec);
         $this->dataLength = $this->rsDataLength($spec);
@@ -1760,28 +1762,6 @@ class QRCode
             $bitStream = $this->appendBitstream($bitStream, $item['bitStream']);
         }
         return $bitStream;
-    }
-
-    /**
-     * Returns a stream of bits.
-     * @param int $items
-     * @return array padded merged byte stream
-     */
-    protected function getBitStream($items)
-    {
-        $bitStream = $this->mergeBitStream($items);
-        return $this->appendPaddingBit($bitStream);
-    }
-
-    /**
-     * Pack all bit streams padding bits into a byte array.
-     * @param int $items
-     * @return array padded merged byte stream
-     */
-    protected function getByteStream($items)
-    {
-        $bitStream = $this->getBitStream($items);
-        return $this->bitstreamToByte($bitStream);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
