@@ -83,8 +83,6 @@ class QRCode
         [177, 3706, 0, [750, 1372, 2040, 2430]]
     ];
 
-    private bool $caseSensitive = true;
-
     private int $counter;
 
     private array|null $data;
@@ -247,10 +245,7 @@ class QRCode
     protected function encodeString($string)
     {
         $this->dataString = $string;
-        if (!$this->caseSensitive) {
-            $this->toUpper();
-        }
-        $ret = $this->splitString();
+        $ret              = $this->splitString();
         if ($ret < 0) {
             return null;
         }
@@ -1083,28 +1078,6 @@ class QRCode
             $this->dataString = substr($this->dataString, $length);
         }
         return 0;
-    }
-
-    /**
-     * toUpper
-     */
-    protected function toUpper()
-    {
-        $stringLen = strlen($this->dataString);
-        $p         = 0;
-        while ($p < $stringLen) {
-            $mode = $this->identifyMode(substr($this->dataString, $p));
-            if ($mode == self::KANJI) {
-                $p += 2;
-            }
-            else {
-                if ((ord($this->dataString[$p]) >= ord('a')) and (ord($this->dataString[$p]) <= ord('z'))) {
-                    $this->dataString[$p] = chr(ord($this->dataString[$p]) - 32);
-                }
-                $p++;
-            }
-        }
-        return $this->dataString;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
