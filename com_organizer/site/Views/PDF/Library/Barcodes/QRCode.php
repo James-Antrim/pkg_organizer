@@ -1350,24 +1350,6 @@ class QRCode
     }
 
     /**
-     * calcParity
-     * @param array $items
-     * @return int parity
-     */
-    protected function calcParity($items)
-    {
-        $parity = 0;
-        foreach ($items as $item) {
-            if ($item['mode'] != self::STRUCTURED) {
-                for ($i = $item['size'] - 1; $i >= 0; --$i) {
-                    $parity ^= $item['data'][$i];
-                }
-            }
-        }
-        return $parity;
-    }
-
-    /**
      * checkModeNum
      * @param int   $size
      * @param array $data
