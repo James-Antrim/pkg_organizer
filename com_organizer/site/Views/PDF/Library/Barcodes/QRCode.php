@@ -609,7 +609,7 @@ class QRCode
         }
         $spec             = [0, 0, 0, 0, 0];
         $spec             = $this->getEccSpec($this->version, $this->ecLevel, $spec);
-        $this->block1     = $this->rsBlockNum1($spec);
+        $this->block1     = $spec[0];
         $this->dataLength = $this->rsDataLength($spec);
         $this->ecLength   = $this->rsEccLength($spec);
         $this->ecCode     = array_fill(0, $this->ecLength, 0);
@@ -745,7 +745,7 @@ class QRCode
         $blockNo = 0;
         $dataPos = 0;
         $eccPos  = 0;
-        $endfor  = $this->rsBlockNum1($spec);
+        $endfor  = $spec[0];
         for ($i = 0; $i < $endfor; ++$i) {
             $ecc                                    = array_slice($this->ecCode, $eccPos);
             $this->rsBlocks[$blockNo]               = [];
@@ -759,7 +759,7 @@ class QRCode
             $eccPos                                 += $el;
             $blockNo++;
         }
-        if ($this->rsBlockNum2($spec) == 0) {
+        if ($spec[3] === 0) {
             return 0;
         }
         $dl = $this->rsDataCodes2($spec);
@@ -768,7 +768,7 @@ class QRCode
         if ($rs == null) {
             return -1;
         }
-        $endfor = $this->rsBlockNum2($spec);
+        $endfor = $spec[3];
         for ($i = 0; $i < $endfor; ++$i) {
             $ecc                                    = array_slice($this->ecCode, $eccPos);
             $this->rsBlocks[$blockNo]               = [];
@@ -2140,16 +2140,6 @@ class QRCode
     }
 
     /**
-     * Return block number 1
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsBlockNum1($spec)
-    {
-        return $spec[0];
-    }
-
-    /**
      * Return data codes 1
      * @param array $spec
      * @return int value
@@ -2167,16 +2157,6 @@ class QRCode
     protected function rsEccCodes1($spec)
     {
         return $spec[2];
-    }
-
-    /**
-     * Return block number 2
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsBlockNum2($spec)
-    {
-        return $spec[3];
     }
 
     /**
