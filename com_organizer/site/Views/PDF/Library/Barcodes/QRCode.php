@@ -919,22 +919,6 @@ class QRCode
     }
 
     /**
-     * makeMask
-     * @param int   $width
-     * @param array $frame
-     * @param int   $maskNo
-     * @param int   $level
-     * @return array mask
-     */
-    private function makeMask($width, $frame, $maskNo, $level)
-    {
-        $masked = array_fill(0, $width, str_repeat("\0", $width));
-        $this->makeMaskNo($maskNo, $width, $frame, $masked);
-        $this->writeFormatInformation($width, $masked, $maskNo, $level);
-        return $masked;
-    }
-
-    /**
      * calcN1N3
      * @param int $length
      * @return int demerit
@@ -1071,10 +1055,6 @@ class QRCode
         return $bestMask;
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRsplit
-
     /**
      * identifyMode
      * @param int $pos
@@ -1103,10 +1083,6 @@ class QRCode
         }
         return self::EIGHT_BIT;
     }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRinputItem
 
     /**
      * newInputItem
@@ -1300,10 +1276,6 @@ class QRCode
         }
         return $inputItem;
     }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRinput
 
     /**
      * Append data to an input object.
@@ -1685,10 +1657,6 @@ class QRCode
         return $bitStream;
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRbitstream
-
     /**
      * Return an array with zeros
      * @param int $setLength array size
@@ -1833,10 +1801,6 @@ class QRCode
         }
         return $data;
     }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRspec
 
     /**
      * Replace a value on the array at the specified position
@@ -2265,10 +2229,6 @@ class QRCode
         return ($spec[0] + $spec[3]) * $spec[2];
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRrs
-
     /**
      * Initialize a Reed-Solomon codec and add it to existing rsitems
      * @param int $symsize symbol size, bits
@@ -2292,10 +2252,6 @@ class QRCode
         array_unshift($this->rsItems, $rs);
         return $rs;
     }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // QRrsItem
 
     /**
      * modnn
