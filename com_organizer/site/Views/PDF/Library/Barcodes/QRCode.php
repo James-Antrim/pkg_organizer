@@ -190,7 +190,14 @@ class QRCode
             return;
         }
 
-        $this->ecLevel = self::LEVELS[$ecLevel] ?: self::LOW;
+        $this->dataString = $content;
+        $this->ecLevel    = self::LEVELS[$ecLevel] ?: self::LOW;
+
+        if (!$this->chunk()) {
+            return;
+        }
+
+        $this->encodeMask();
 
         $this->encodeString($content);
         if (is_null($this->data)) {
