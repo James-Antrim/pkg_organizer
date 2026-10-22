@@ -269,10 +269,10 @@ class QRCode
         $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
         $position      = 1;
 
-        while ($this->isalnumat($this->dataString, $position)) {
-            if ($this->isdigitat($this->dataString, $position)) {
+        while ($this->isAlphaNumeric($this->dataString, $position)) {
+            if ($this->isNumeric($this->dataString, $position)) {
                 $current = $position;
-                while ($this->isdigitat($this->dataString, $current)) {
+                while ($this->isNumeric($this->dataString, $current)) {
                     $current++;
                 }
                 $dif = $this->estimateAlphaNumeric($position) // + 4 + la
@@ -291,7 +291,7 @@ class QRCode
         }
 
         $length = $position;
-        if (!$this->isalnumat($this->dataString, $position)) {
+        if (!$this->isAlphaNumeric($this->dataString, $position)) {
             $dif = $this->estimateAlphaNumeric($length) + 4 + $alphaLength + 8 - (($length + 1) * 8);
             if ($dif > 0) {
                 return $this->chunkEightBit();
@@ -321,7 +321,7 @@ class QRCode
             }
             if ($mode == self::NUMERIC) {
                 $current = $position;
-                while ($this->isdigitat($this->dataString, $current)) {
+                while ($this->isNumeric($this->dataString, $current)) {
                     $current++;
                 }
                 $difference = ($position * 8) + $this->estimateNumeric($current - $position) + 4 + $numericLength - ($current * 8);
@@ -334,7 +334,7 @@ class QRCode
             }
             elseif ($mode == self::ALPHANUMERIC) {
                 $current = $position;
-                while ($this->isalnumat($this->dataString, $current)) {
+                while ($this->isAlphaNumeric($this->dataString, $current)) {
                     $current++;
                 }
                 $difference = ($position * 8) + $this->estimateAlphaNumeric($current - $position) + 4 + $alphaLength - ($current * 8);
@@ -378,7 +378,7 @@ class QRCode
         $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
         $position      = 0;
 
-        while ($this->isdigitat($this->dataString, $position)) {
+        while ($this->isNumeric($this->dataString, $position)) {
             $position++;
         }
 
@@ -427,6 +427,36 @@ class QRCode
     protected function estimateMultiByte(int $count): int
     {
         return (int) ($count * 6.5);
+    }
+
+    /**
+     * If the character at specified position is alphanumeric.
+     * @param string $string
+     * @param int    $position character position
+     * @return bool
+     */
+    protected function isAlphaNumeric(string $string, int $position): bool
+    {
+        if ($position >= strlen($string)) {
+            return false;
+        }
+
+        return $this->lookAnTable(ord($string[$position])) >= 0;
+    }
+
+    /**
+     * If the character at specified position is numeric.
+     * @param string $string
+     * @param int    $position character position
+     * @return bool
+     */
+    protected function isNumeric(string $string, int $position): bool
+    {
+        if ($position >= strlen($string)) {
+            return false;
+        }
+
+        return (ord($string[$position]) >= ord('0') and ord($string[$position]) <= ord('9'));
     }
 
     /**
@@ -1046,34 +1076,6 @@ class QRCode
     // QRsplit
 
     /**
-     * Return true if the character at specified position is a number
-     * @param string $str string
-     * @param int    $pos characted position
-     * @return boolean true of false
-     */
-    protected function isdigitat($str, $pos)
-    {
-        if ($pos >= strlen($str)) {
-            return false;
-        }
-        return ((ord($str[$pos]) >= ord('0')) && (ord($str[$pos]) <= ord('9')));
-    }
-
-    /**
-     * Return true if the character at specified position is an alphanumeric character
-     * @param string $str string
-     * @param int    $pos characted position
-     * @return boolean true of false
-     */
-    protected function isalnumat($str, $pos)
-    {
-        if ($pos >= strlen($str)) {
-            return false;
-        }
-        return ($this->lookAnTable(ord($str[$pos])) >= 0);
-    }
-
-    /**
      * identifyMode
      * @param int $pos
      * @return int mode
@@ -1084,10 +1086,10 @@ class QRCode
             return self::NORMAL;
         }
         $c = $this->dataString[$pos];
-        if ($this->isdigitat($this->dataString, $pos)) {
+        if ($this->isNumeric($this->dataString, $pos)) {
             return self::NUMERIC;
         }
-        elseif ($this->isalnumat($this->dataString, $pos)) {
+        elseif ($this->isAlphaNumeric($this->dataString, $pos)) {
             return self::ALPHANUMERIC;
         }
         elseif ($this->mode == self::MULTIBYTE) {
