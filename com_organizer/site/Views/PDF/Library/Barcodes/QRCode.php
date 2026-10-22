@@ -24,6 +24,16 @@ class QRCode
 
     private const ALPHANUMERIC = 1, EIGHT_BIT = 2, MULTIBYTE = 3, NORMAL = -1, NUMERIC = 0, STRUCTURED = 4;
 
+    /**
+     * Encoding modes:
+     *     ALPHANUMERIC => 1  : (0-9A-Z $%*+-./:) 45characters. 2 characters / 11 bits ~4296 characters.
+     *     EIGHT_BIT    => 2  : 8 bits. ~2953 characters.
+     *     MULTIBYTE    => 3  : 13 bits ~1817 characters.
+     *     NORMAL       => -1 : It's a mystery!
+     *     NUMERIC      => 0  : (0-9) 3 characters / 10 bits ~7089 characters.
+     */
+    private const MODES = [self::ALPHANUMERIC, self::EIGHT_BIT, self::MULTIBYTE, self::NORMAL, self::NUMERIC, self::STRUCTURED];
+
     private const HIGH = 3, LOW = 0, MEDIUM = 1, QUARTER = 2;
 
     /**
@@ -145,16 +155,6 @@ class QRCode
 
     private int $mode = self::EIGHT_BIT;
 
-    /**
-     * Encoding modes:
-     *     ALPHANUMERIC => 1  : (0-9A-Z $%*+-./:) 45characters. 2 characters / 11 bits ~4296 characters.
-     *     EIGHT_BIT    => 2  : 8 bits. ~2953 characters.
-     *     MULTIBYTE    => 3  : 13 bits ~1817 characters.
-     *     NORMAL       => -1 : It's a mystery!
-     *     NUMERIC      => 0  : (0-9) 3 characters / 10 bits ~7089 characters.
-     */
-    private array $modes = [self::ALPHANUMERIC, self::EIGHT_BIT, self::MULTIBYTE, self::NORMAL, self::NUMERIC, self::STRUCTURED];
-
     /** Reed-Solomon */
     private array $rsBlocks = [];
     protected array $rsItems = [];
@@ -236,16 +236,6 @@ class QRCode
                 case self::ALPHANUMERIC:
                 {
                     $length = $this->chunkAlphaNumeric();
-                    break;
-                }
-                case self::MULTIBYTE:
-                {
-                    if ($this->mode === self::MULTIBYTE) {
-                        $length = $this->chunkMultiByte();
-                    }
-                    else {
-                        $length = $this->chunkEightBit();
-                    }
                     break;
                 }
                 default:
@@ -358,20 +348,6 @@ class QRCode
 
         $length      = $position;
         $this->items = $this->appendNewInputItem($this->items, self::EIGHT_BIT, $length, str_split($this->dataString));
-        return $length;
-    }
-
-    /**
-     * Chunks multibyte segments of the content. Returns the total length of the segments chunked.
-     * @return int
-     */
-    private function chunkMultiByte(): int
-    {
-        $length = 0;
-        while ($this->identifyMode($length) == self::MULTIBYTE) {
-            $length += 2;
-        }
-        $this->items = $this->appendNewInputItem($this->items, self::MULTIBYTE, $length, str_split($this->dataString));
         return $length;
     }
 
@@ -605,6 +581,29 @@ class QRCode
             2 => $bits + 7,
             default => $bits,
         };
+    }
+
+    /**
+     * identifyMode
+     * @param int $position
+     * @return int mode
+     * @see self::MODES
+     */
+    protected function identifyMode(int $position): int
+    {
+        if ($position >= strlen($this->dataString)) {
+            return self::NORMAL;
+        }
+
+        if ($this->isNumeric($this->dataString, $position)) {
+            return self::NUMERIC;
+        }
+
+        if ($this->isAlphaNumeric($this->dataString, $position)) {
+            return self::ALPHANUMERIC;
+        }
+
+        return self::EIGHT_BIT;
     }
 
     /**
@@ -1213,35 +1212,6 @@ class QRCode
             }
         }
         return $bestMask;
-    }
-
-    /**
-     * identifyMode
-     * @param int $pos
-     * @return int mode
-     */
-    protected function identifyMode($pos)
-    {
-        if ($pos >= strlen($this->dataString)) {
-            return self::NORMAL;
-        }
-        $c = $this->dataString[$pos];
-        if ($this->isNumeric($this->dataString, $pos)) {
-            return self::NUMERIC;
-        }
-        elseif ($this->isAlphaNumeric($this->dataString, $pos)) {
-            return self::ALPHANUMERIC;
-        }
-        elseif ($this->mode == self::MULTIBYTE) {
-            if ($pos + 1 < strlen($this->dataString)) {
-                $d    = $this->dataString[$pos + 1];
-                $word = (ord($c) << 8) | ord($d);
-                if (($word >= 0x8140 && $word <= 0x9ffc) or ($word >= 0xe040 && $word <= 0xebbf)) {
-                    return self::MULTIBYTE;
-                }
-            }
-        }
-        return self::EIGHT_BIT;
     }
 
     /**
