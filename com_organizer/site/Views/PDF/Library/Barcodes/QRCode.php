@@ -22,7 +22,7 @@ class QRCode
 {
     use Barcoded;
 
-    private const ALPHANUMERIC = 1, EIGHT_BIT = 2, KANJI = 3, NORMAL = -1, NUMERIC = 0, STRUCTURED = 4;
+    private const ALPHANUMERIC = 1, EIGHT_BIT = 2, MULTIBYTE = 3, NORMAL = -1, NUMERIC = 0, STRUCTURED = 4;
 
     private const HIGH = 3, LOW = 0, MEDIUM = 1, QUARTER = 2;
 
@@ -147,13 +147,13 @@ class QRCode
 
     /**
      * Encoding modes:
+     *     ALPHANUMERIC => 1  : (0-9A-Z $%*+-./:) 45characters. 2 characters / 11 bits ~4296 characters.
+     *     EIGHT_BIT    => 2  : 8 bits. ~2953 characters.
+     *     MULTIBYTE    => 3  : 13 bits ~1817 characters.
      *     NORMAL       => -1 : It's a mystery!
-     *     NUMERIC      => 0 : (0-9). 3 characters are encoded to 10bit length. ~7089 characters.
-     *     ALPHANUMERIC => 1 : (0-9A-Z $%*+-./:) 45characters. 2 characters are encoded to 11bit length. ~4296 characters.
-     *     EIGHT_BIT    => 2 : 8bit byte data. ~2953 characters.
-     *     KANJI        => 3 : (multibyte character) is encoded to 13bit length. ~1817 characters.
+     *     NUMERIC      => 0  : (0-9) 3 characters / 10 bits ~7089 characters.
      */
-    private array $modes = [self::ALPHANUMERIC, self::EIGHT_BIT, self::KANJI, self::NORMAL, self::NUMERIC, self::STRUCTURED];
+    private array $modes = [self::ALPHANUMERIC, self::EIGHT_BIT, self::MULTIBYTE, self::NORMAL, self::NUMERIC, self::STRUCTURED];
 
     /** Reed-Solomon */
     private array $rsBlocks = [];
@@ -859,12 +859,12 @@ class QRCode
         elseif ($this->isalnumat($this->dataString, $pos)) {
             return self::ALPHANUMERIC;
         }
-        elseif ($this->mode == self::KANJI) {
+        elseif ($this->mode == self::MULTIBYTE) {
             if ($pos + 1 < strlen($this->dataString)) {
                 $d    = $this->dataString[$pos + 1];
                 $word = (ord($c) << 8) | ord($d);
                 if (($word >= 0x8140 && $word <= 0x9ffc) or ($word >= 0xe040 && $word <= 0xebbf)) {
-                    return self::KANJI;
+                    return self::MULTIBYTE;
                 }
             }
         }
@@ -947,16 +947,16 @@ class QRCode
     }
 
     /**
-     * eatKanji
+     * eatMultiByte
      * @return int run
      */
-    protected function eatKanji()
+    protected function eatMultiByte()
     {
         $p = 0;
-        while ($this->identifyMode($p) == self::KANJI) {
+        while ($this->identifyMode($p) == self::MULTIBYTE) {
             $p += 2;
         }
-        $this->items = $this->appendNewInputItem($this->items, self::KANJI, $p, str_split($this->dataString));
+        $this->items = $this->appendNewInputItem($this->items, self::MULTIBYTE, $p, str_split($this->dataString));
         $run         = $p;
         return $run;
     }
@@ -973,7 +973,7 @@ class QRCode
         $dataStrLen = strlen($this->dataString);
         while ($p < $dataStrLen) {
             $mode = $this->identifyMode($p);
-            if ($mode == self::KANJI) {
+            if ($mode == self::MULTIBYTE) {
                 break;
             }
             if ($mode == self::NUMERIC) {
@@ -1034,10 +1034,10 @@ class QRCode
                     $length = $this->eatAn();
                     break;
                 }
-                case self::KANJI:
+                case self::MULTIBYTE:
                 {
-                    if ($this->mode == self::KANJI) {
-                        $length = $this->eatKanji();
+                    if ($this->mode == self::MULTIBYTE) {
+                        $length = $this->eatMultiByte();
                     }
                     else {
                         $length = $this->eat8();
@@ -1163,16 +1163,16 @@ class QRCode
     }
 
     /**
-     * encodeModeKanji
+     * encodeModeMultiByte
      * @param array $inputItem
      * @param int   $version
      * @return array input item
      */
-    protected function encodeModeKanji($inputItem, $version)
+    protected function encodeModeMultiByte($inputItem, $version)
     {
         $inputItem['bitStream'] = [];
         $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x8);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::KANJI, $version), (int) ($inputItem['size'] / 2));
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::MULTIBYTE, $version), (int) ($inputItem['size'] / 2));
         for ($i = 0; $i < $inputItem['size']; $i += 2) {
             $val = (ord($inputItem['data'][$i]) << 8) | ord($inputItem['data'][$i + 1]);
             if ($val <= 0x9ffc) {
@@ -1239,9 +1239,9 @@ class QRCode
                     $inputItem = $this->encodeMode8($inputItem, $version);
                     break;
                 }
-                case self::KANJI:
+                case self::MULTIBYTE:
                 {
-                    $inputItem = $this->encodeModeKanji($inputItem, $version);
+                    $inputItem = $this->encodeModeMultiByte($inputItem, $version);
                     break;
                 }
                 case self::STRUCTURED:
@@ -1394,22 +1394,22 @@ class QRCode
     }
 
     /**
-     * estimateBitsModeKanji
+     * estimateBitsModeMultiByte
      * @param int $size
      * @return int number of bits
      */
-    protected function estimateBitsModeKanji($size)
+    protected function estimateBitsModeMultiByte($size)
     {
         return (int) ($size * 6.5); // (size / 2 ) * 13
     }
 
     /**
-     * checkModeKanji
+     * checkModeMultiByte
      * @param int   $size
      * @param array $data
      * @return boolean true or false
      */
-    protected function checkModeKanji($size, $data)
+    protected function checkModeMultiByte($size, $data)
     {
         if ($size & 1) {
             return false;
@@ -1444,9 +1444,9 @@ class QRCode
             {
                 return $this->checkModeAn($size, $data);
             }
-            case self::KANJI:
+            case self::MULTIBYTE:
             {
-                return $this->checkModeKanji($size, $data);
+                return $this->checkModeMultiByte($size, $data);
             }
             case self::EIGHT_BIT:
             {
@@ -1493,9 +1493,9 @@ class QRCode
                     $bits = $this->estimateBitsMode8($item['size']);
                     break;
                 }
-                case self::KANJI:
+                case self::MULTIBYTE:
                 {
-                    $bits = $this->estimateBitsModeKanji($item['size']);
+                    $bits = $this->estimateBitsModeMultiByte($item['size']);
                     break;
                 }
                 case self::STRUCTURED:
@@ -1574,7 +1574,7 @@ class QRCode
                 $size = (int) ($payload / 8);
                 break;
             }
-            case self::KANJI:
+            case self::MULTIBYTE:
             {
                 $size = (int) (($payload / 13) * 2);
                 break;
@@ -1942,7 +1942,7 @@ class QRCode
         }
         $bits  = $this->lengthTableBits[$mode][$l];
         $words = (1 << $bits) - 1;
-        if ($mode == self::KANJI) {
+        if ($mode == self::MULTIBYTE) {
             $words *= 2; // the number of bytes is required
         }
         return $words;
