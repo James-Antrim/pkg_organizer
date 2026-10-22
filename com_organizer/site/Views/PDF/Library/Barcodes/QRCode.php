@@ -1999,19 +1999,6 @@ class QRCode
     }
 
     /**
-     * Return BCH encoded version information pattern that is used for the symbol of version 7 or greater. Use lower 18 bits.
-     * @param int $version version
-     * @return string BCH encoded version information pattern
-     */
-    protected function getVersionPattern($version)
-    {
-        if (($version < 7) or ($version > self::MAX_VERSION)) {
-            return 0;
-        }
-        return $this->versionPattern[($version - 7)];
-    }
-
-    /**
      * Return BCH encoded format information pattern.
      * @param int $level error correction level
      * @param int $mask
@@ -2098,7 +2085,7 @@ class QRCode
         $frame = $this->putAlignmentPattern($version, $frame, $width);
         // Version information
         if ($version >= 7) {
-            $vinf = $this->getVersionPattern($version);
+            $vinf = $version > self::MAX_VERSION ? 0 : $this->versionPattern[($version - 7)];
             $v    = $vinf;
             for ($x = 0; $x < 6; ++$x) {
                 for ($y = 0; $y < 3; ++$y) {
