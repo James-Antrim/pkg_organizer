@@ -217,7 +217,7 @@ class QRCode
      * Chunks segments of the content. Returns true if the length of the chunks equals the length of the data string. Inferred valid resolution.
      * @return bool
      */
-    protected function chunk(): bool
+    private function chunk(): bool
     {
         while (strlen($this->dataString) > 0) {
             $mode = $this->identifyMode(0);
@@ -263,7 +263,7 @@ class QRCode
      * Chunks alphanumeric segments of the content. Returns the total length of the segments chunked.
      * @return int
      */
-    protected function chunkAlphaNumeric(): int
+    private function chunkAlphaNumeric(): int
     {
         $alphaLength   = $this->lengthIndicator(self::ALPHANUMERIC, $this->version);
         $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
@@ -307,7 +307,7 @@ class QRCode
      * Chunks eight-bit segments of the content. Returns the total length of the segments chunked.
      * @return int
      */
-    protected function chunkEightBit(): int
+    private function chunkEightBit(): int
     {
         $alphaLength   = $this->lengthIndicator(self::ALPHANUMERIC, $this->version);
         $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
@@ -359,7 +359,7 @@ class QRCode
      * Chunks multibyte segments of the content. Returns the total length of the segments chunked.
      * @return int
      */
-    protected function chunkMultiByte(): int
+    private function chunkMultiByte(): int
     {
         $length = 0;
         while ($this->identifyMode($length) == self::MULTIBYTE) {
@@ -373,7 +373,7 @@ class QRCode
      * Chunks numeric segments of the content. Returns the total length of the segments chunked.
      * @return int
      */
-    protected function chunkNumeric(): int
+    private function chunkNumeric(): int
     {
         $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
         $position      = 0;
@@ -410,7 +410,7 @@ class QRCode
      * @param int $count
      * @return int
      */
-    protected function estimateAlphaNumeric(int $count): int
+    private function estimateAlphaNumeric(int $count): int
     {
         $bits = (int) ($count * 5.5);
         if ($count & 1) {
@@ -424,7 +424,7 @@ class QRCode
      * @param int $count
      * @return int number of bits
      */
-    protected function estimateMultiByte(int $count): int
+    private function estimateMultiByte(int $count): int
     {
         return (int) ($count * 6.5);
     }
@@ -435,7 +435,7 @@ class QRCode
      * @param int    $position character position
      * @return bool
      */
-    protected function isAlphaNumeric(string $string, int $position): bool
+    private function isAlphaNumeric(string $string, int $position): bool
     {
         if ($position >= strlen($string)) {
             return false;
@@ -450,7 +450,7 @@ class QRCode
      * @param int    $position character position
      * @return bool
      */
-    protected function isNumeric(string $string, int $position): bool
+    private function isNumeric(string $string, int $position): bool
     {
         if ($position >= strlen($string)) {
             return false;
@@ -464,7 +464,7 @@ class QRCode
      * @param int $count
      * @return int number of bits
      */
-    protected function estimateNumeric(int $count): int
+    private function estimateNumeric(int $count): int
     {
         $w    = (int) ($count / 3);
         $bits = ($w * 10);
@@ -481,7 +481,7 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask0(int $x, int $y): int
+    private function mask0(int $x, int $y): int
     {
         return ($x + $y) & 1;
     }
@@ -492,7 +492,7 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask1(int $x, int $y): int
+    private function mask1(int $x, int $y): int
     {
         return ($y & 1);
     }
@@ -503,7 +503,7 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask2(int $x, int $y): int
+    private function mask2(int $x, int $y): int
     {
         return ($x % 3);
     }
@@ -514,7 +514,7 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask3(int $x, int $y): int
+    private function mask3(int $x, int $y): int
     {
         return ($x + $y) % 3;
     }
@@ -525,7 +525,7 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask4(int $x, int $y): int
+    private function mask4(int $x, int $y): int
     {
         return (((int) ($y / 2)) + ((int) ($x / 3))) & 1;
     }
@@ -536,7 +536,7 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask5(int $x, int $y): int
+    private function mask5(int $x, int $y): int
     {
         return (($x * $y) & 1) + ($x * $y) % 3;
     }
@@ -547,7 +547,7 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask6(int $x, int $y): int
+    private function mask6(int $x, int $y): int
     {
         return ((($x * $y) & 1) + ($x * $y) % 3) & 1;
     }
@@ -558,9 +558,69 @@ class QRCode
      * @param int $y Y position
      * @return int
      */
-    protected function mask7(int $x, int $y): int
+    private function mask7(int $x, int $y): int
     {
         return ((($x * $y) % 3) + (($x + $y) & 1)) & 1;
+    }
+
+    /**
+     * Write format information on frame and returns the number of black bits.
+     * @param array &$frame
+     * @param int    $width
+     * @param int    $maskNumber masking mode number
+     * @param int    $level      error correction level
+     * @return int
+     */
+    private function writeFormatInformation(array &$frame, int $width, int $maskNumber, int $level): int
+    {
+        $blacks   = 0;
+        $oobIndex = ($maskNumber < 0 or $maskNumber > 7);
+        $oobLevel = ($level < 0 or $level > 3);
+        $format   = ($oobIndex or $oobLevel) ? 0 : $this->formatInfo[$level][$maskNumber];
+
+        for ($index = 0; $index < 8; ++$index) {
+            if ($format & 1) {
+                $blacks += 2;
+                $value  = 0x85;
+            }
+            else {
+                $value = 0x84;
+            }
+
+            $frame[8][$width - 1 - $index] = chr($value);
+
+            if ($index < 6) {
+                $frame[$index][8] = chr($value);
+            }
+            else {
+                $frame[$index + 1][8] = chr($value);
+            }
+
+            $format = $format >> 1;
+        }
+
+        for ($index = 0; $index < 7; ++$index) {
+            if ($format & 1) {
+                $blacks += 2;
+                $value  = 0x85;
+            }
+            else {
+                $value = 0x84;
+            }
+
+            $frame[$width - 7 + $index][8] = chr($value);
+
+            if ($index == 0) {
+                $frame[8][7] = chr($value);
+            }
+            else {
+                $frame[8][6 - $index] = chr($value);
+            }
+
+            $format = $format >> 1;
+        }
+
+        return $blacks;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
@@ -817,55 +877,6 @@ class QRCode
     // QRmask
 
     /**
-     * Write Format Information on frame and returns the number of black bits
-     * @param int   $width frame width
-     * @param array $frame frame
-     * @param array $mask  masking mode
-     * @param int   $level error correction level
-     * @return int blacks
-     */
-    protected function writeFormatInformation($width, &$frame, $mask, $level)
-    {
-        $blacks = 0;
-        $format = $this->formatInfo($level, $mask);
-        for ($i = 0; $i < 8; ++$i) {
-            if ($format & 1) {
-                $blacks += 2;
-                $v      = 0x85;
-            }
-            else {
-                $v = 0x84;
-            }
-            $frame[8][$width - 1 - $i] = chr($v);
-            if ($i < 6) {
-                $frame[$i][8] = chr($v);
-            }
-            else {
-                $frame[$i + 1][8] = chr($v);
-            }
-            $format = $format >> 1;
-        }
-        for ($i = 0; $i < 7; ++$i) {
-            if ($format & 1) {
-                $blacks += 2;
-                $v      = 0x85;
-            }
-            else {
-                $v = 0x84;
-            }
-            $frame[$width - 7 + $i][8] = chr($v);
-            if ($i == 0) {
-                $frame[8][7] = chr($v);
-            }
-            else {
-                $frame[8][6 - $i] = chr($v);
-            }
-            $format = $format >> 1;
-        }
-        return $blacks;
-    }
-
-    /**
      * Return bitmask
      * @param int   $maskNo mask number
      * @param int   $width  width
@@ -1037,19 +1048,19 @@ class QRCode
             $checked_masks = array_values($checked_masks);
         }
         $bestMask = $frame;
-        foreach ($checked_masks as $i) {
+        foreach ($checked_masks as $maskNumber) {
             $mask    = array_fill(0, $width, str_repeat("\0", $width));
             $demerit = 0;
             $blacks  = 0;
-            $blacks  = $this->makeMaskNo($i, $width, $frame, $mask);
-            $blacks  += $this->writeFormatInformation($width, $mask, $i, $level);
+            $blacks  = $this->makeMaskNo($maskNumber, $width, $frame, $mask);
+            $blacks  += $this->writeFormatInformation($mask, $width, $maskNumber, $level);
             $blacks  = (int) (100 * $blacks / ($width * $width));
             $demerit = (int) ((int) (abs($blacks - 50) / 5) * self::MP4);
             $demerit += $this->evaluateSymbol($width, $mask);
             if ($demerit < $minDemerit) {
                 $minDemerit  = $demerit;
                 $bestMask    = $mask;
-                $bestMaskNum = $i;
+                $bestMaskNum = $maskNumber;
             }
         }
         return $bestMask;
@@ -1996,24 +2007,6 @@ class QRCode
             $cy += $d;
         }
         return $frame;
-    }
-
-    /**
-     * Return BCH encoded format information pattern.
-     * @param int $level error correction level
-     * @param int $mask
-     * @return string BCH encoded format information pattern
-     */
-    protected function formatInfo(int $level, int $mask)
-    {
-        $oobIndex = ($mask < 0 or $mask > 7);
-        $oobLevel = ($level < 0 or $level > 3);
-
-        if ($oobIndex or $oobLevel) {
-            return 0;
-        }
-
-        return $this->formatInfo[$level][$mask];
     }
 
     /**
