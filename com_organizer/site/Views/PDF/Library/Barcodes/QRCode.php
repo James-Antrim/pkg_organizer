@@ -613,7 +613,7 @@ class QRCode
         $this->dataLength = $this->rsDataLength($spec);
         $this->ecLength   = $this->rsEccLength($spec);
         $this->ecCode     = array_fill(0, $this->ecLength, 0);
-        $this->blocks     = $this->rsBlockNum($spec);
+        $this->blocks     = $spec[0] + $spec[3];
         $ret              = $this->init($spec);
         if ($ret < 0) {
             return null;
@@ -2137,16 +2137,6 @@ class QRCode
             return null;
         }
         return $this->frames[$version];
-    }
-
-    /**
-     * Return block number 0
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsBlockNum($spec)
-    {
-        return ($spec[0] + $spec[3]);
     }
 
     /**
