@@ -406,6 +406,162 @@ class QRCode
     }
 
     /**
+     * Encode item data as an alphanumeric value in the item's and return modified item.
+     * @param array $item
+     * @param int   $version
+     * @return array
+     */
+    protected function encodeAlphaNumeric(array $item, int $version): array
+    {
+        $words = (int) ($item['size'] / 2);
+
+        $item['bitStream'] = [];
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 4, 0x02);
+        $item['bitStream'] = $this->appendNum($item['bitStream'], $this->lengthIndicator(self::ALPHANUMERIC, $version), $item['size']);
+
+        for ($index = 0; $index < $words; ++$index) {
+            $value = $this->lookAnTable(ord($item['data'][$index * 2])) * 45;
+            $value += $this->lookAnTable(ord($item['data'][($index * 2) + 1]));
+
+            $item['bitStream'] = $this->appendNum($item['bitStream'], 11, $value);
+        }
+
+        if ($item['size'] & 1) {
+            $value = $this->lookAnTable(ord($item['data'][($words * 2)]));
+
+            $item['bitStream'] = $this->appendNum($item['bitStream'], 6, $value);
+        }
+        return $item;
+    }
+
+    /**
+     * Encode item data to its bitStream property and return the item.
+     * @param array $item
+     * @param int   $version
+     * @return array input item
+     */
+    protected function encodeBitStream(array $item, int $version): array
+    {
+        $words = $this->maximumWords($item['mode'], $version);
+
+        if ($item['size'] > $words) {
+            $st1 = $this->newInputItem($item['mode'], $words, $item['data']);
+            $st2 = $this->newInputItem($item['mode'], $item['size'] - $words, array_slice($item['data'], $words));
+            $st1 = $this->encodeBitStream($st1, $version);
+            $st2 = $this->encodeBitStream($st2, $version);
+
+            $item['bitStream'] = [];
+            $item['bitStream'] = $this->appendBitstream($item['bitStream'], $st1['bitStream']);
+            $item['bitStream'] = $this->appendBitstream($item['bitStream'], $st2['bitStream']);
+            return $item;
+        }
+
+        // Re-initialized directly here for default case.
+        $item['bitStream'] = [];
+        return match ($item['mode']) {
+            self::ALPHANUMERIC => $this->encodeAlphaNumeric($item, $version),
+            self::EIGHT_BIT => $this->encodeEightBit($item, $version),
+            self::MULTIBYTE => $this->encodeModeMultiByte($item, $version),
+            self::NUMERIC => $this->encodeNumeric($item, $version),
+            self::STRUCTURED => $this->encodeStructure($item),
+            default => $item,
+        };
+    }
+
+    /**
+     * Encode item data as an eight-bit value and return modified item.
+     * @param array $item
+     * @param int   $version
+     * @return array
+     */
+    protected function encodeEightBit(array $item, int $version): array
+    {
+        $item['bitStream'] = [];
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 4, 0x4);
+        $item['bitStream'] = $this->appendNum($item['bitStream'], $this->lengthIndicator(self::EIGHT_BIT, $version), $item['size']);
+
+        for ($index = 0; $index < $item['size']; ++$index) {
+            $item['bitStream'] = $this->appendNum($item['bitStream'], 8, ord($item['data'][$index]));
+        }
+
+        return $item;
+    }
+
+    /**
+     * Encode item data as a multibyte value and return modified item.
+     * @param array $item
+     * @param int   $version
+     * @return array
+     */
+    protected function encodeModeMultiByte(array $item, int $version): array
+    {
+        $item['bitStream'] = [];
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 4, 0x8);
+        $item['bitStream'] = $this->appendNum($item['bitStream'], $this->lengthIndicator(self::MULTIBYTE, $version), (int) ($item['size'] / 2));
+
+        for ($i = 0; $i < $item['size']; $i += 2) {
+            $value   = (ord($item['data'][$i]) << 8) | ord($item['data'][$i + 1]);
+            $value   -= $value <= 0x9ffc ? 0x8140 : 0xc140;
+            $unknown = ($value >> 8) * 0xc0;
+            $value   = ($value & 0xff) + $unknown;
+
+            $item['bitStream'] = $this->appendNum($item['bitStream'], 13, $value);
+        }
+
+        return $item;
+    }
+
+    /**
+     * Encode item data as a numeric value and return modified item.
+     * @param array $item
+     * @param int   $version
+     * @return array
+     */
+    protected function encodeNumeric(array $item, int $version): array
+    {
+        $value = 0x1;
+        $words = (int) ($item['size'] / 3);
+
+        $item['bitStream'] = [];
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 4, $value);
+        $item['bitStream'] = $this->appendNum($item['bitStream'], $this->lengthIndicator(self::NUMERIC, $version), $item['size']);
+
+        for ($i = 0; $i < $words; ++$i) {
+            $value             = (ord($item['data'][$i * 3]) - ord('0')) * 100;
+            $value             += (ord($item['data'][$i * 3 + 1]) - ord('0')) * 10;
+            $value             += (ord($item['data'][$i * 3 + 2]) - ord('0'));
+            $item['bitStream'] = $this->appendNum($item['bitStream'], 10, $value);
+        }
+
+        if ($item['size'] - $words * 3 == 1) {
+            $value             = ord($item['data'][$words * 3]) - ord('0');
+            $item['bitStream'] = $this->appendNum($item['bitStream'], 4, $value);
+        }
+        elseif (($item['size'] - ($words * 3)) == 2) {
+            $value             = (ord($item['data'][$words * 3]) - ord('0')) * 10;
+            $value             += (ord($item['data'][$words * 3 + 1]) - ord('0'));
+            $item['bitStream'] = $this->appendNum($item['bitStream'], 7, $value);
+        }
+
+        return $item;
+    }
+
+    /**
+     * Encode item data as a structure and return modified item.
+     * @param array $item
+     * @return array
+     */
+    protected function encodeStructure(array $item): array
+    {
+        $item['bitStream'] = [];
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 4, 0x03);
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 4, ord($item['data'][1]) - 1);
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 4, ord($item['data'][0]) - 1);
+        $item['bitStream'] = $this->appendNum($item['bitStream'], 8, ord($item['data'][2]));
+        return $item;
+    }
+
+    /**
      * Estimates the number of bits for an alphanumeric segment of a given character count.
      * @param int $count
      * @return int
@@ -427,6 +583,22 @@ class QRCode
     private function estimateMultiByte(int $count): int
     {
         return (int) ($count * 6.5);
+    }
+
+    /**
+     * estimateBitsModeNum
+     * @param int $count
+     * @return int number of bits
+     */
+    private function estimateNumeric(int $count): int
+    {
+        $w    = (int) ($count / 3);
+        $bits = ($w * 10);
+        return match ($count - ($w * 3)) {
+            1 => $bits + 4,
+            2 => $bits + 7,
+            default => $bits,
+        };
     }
 
     /**
@@ -457,22 +629,6 @@ class QRCode
         }
 
         return (ord($string[$position]) >= ord('0') and ord($string[$position]) <= ord('9'));
-    }
-
-    /**
-     * estimateBitsModeNum
-     * @param int $count
-     * @return int number of bits
-     */
-    private function estimateNumeric(int $count): int
-    {
-        $w    = (int) ($count / 3);
-        $bits = ($w * 10);
-        return match ($count - ($w * 3)) {
-            1 => $bits + 4,
-            2 => $bits + 7,
-            default => $bits,
-        };
     }
 
     /**
@@ -1117,174 +1273,6 @@ class QRCode
         $inputItem['size']      = $size;
         $inputItem['data']      = $setData;
         $inputItem['bitStream'] = $bitStream;
-        return $inputItem;
-    }
-
-    /**
-     * encodeModeNum
-     * @param array $inputItem
-     * @param int   $version
-     * @return array input item
-     */
-    protected function encodeModeNum($inputItem, $version)
-    {
-        $words                  = (int) ($inputItem['size'] / 3);
-        $inputItem['bitStream'] = [];
-        $val                    = 0x1;
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, $val);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::NUMERIC, $version), $inputItem['size']);
-        for ($i = 0; $i < $words; ++$i) {
-            $val                    = (ord($inputItem['data'][$i * 3]) - ord('0')) * 100;
-            $val                    += (ord($inputItem['data'][$i * 3 + 1]) - ord('0')) * 10;
-            $val                    += (ord($inputItem['data'][$i * 3 + 2]) - ord('0'));
-            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 10, $val);
-        }
-        if ($inputItem['size'] - $words * 3 == 1) {
-            $val                    = ord($inputItem['data'][$words * 3]) - ord('0');
-            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, $val);
-        }
-        elseif (($inputItem['size'] - ($words * 3)) == 2) {
-            $val                    = (ord($inputItem['data'][$words * 3]) - ord('0')) * 10;
-            $val                    += (ord($inputItem['data'][$words * 3 + 1]) - ord('0'));
-            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 7, $val);
-        }
-        return $inputItem;
-    }
-
-    /**
-     * encodeModeAn
-     * @param array $inputItem
-     * @param int   $version
-     * @return array input item
-     */
-    protected function encodeModeAn($inputItem, $version)
-    {
-        $words                  = (int) ($inputItem['size'] / 2);
-        $inputItem['bitStream'] = [];
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x02);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::ALPHANUMERIC, $version), $inputItem['size']);
-        for ($i = 0; $i < $words; ++$i) {
-            $val                    = (int) ($this->lookAnTable(ord($inputItem['data'][$i * 2])) * 45);
-            $val                    += (int) ($this->lookAnTable(ord($inputItem['data'][($i * 2) + 1])));
-            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 11, $val);
-        }
-        if ($inputItem['size'] & 1) {
-            $val                    = $this->lookAnTable(ord($inputItem['data'][($words * 2)]));
-            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 6, $val);
-        }
-        return $inputItem;
-    }
-
-    /**
-     * encodeMode8
-     * @param array $inputItem
-     * @param int   $version
-     * @return array input item
-     */
-    protected function encodeMode8($inputItem, $version)
-    {
-        $inputItem['bitStream'] = [];
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x4);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::EIGHT_BIT, $version), $inputItem['size']);
-        for ($i = 0; $i < $inputItem['size']; ++$i) {
-            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 8, ord($inputItem['data'][$i]));
-        }
-        return $inputItem;
-    }
-
-    /**
-     * encodeModeMultiByte
-     * @param array $inputItem
-     * @param int   $version
-     * @return array input item
-     */
-    protected function encodeModeMultiByte($inputItem, $version)
-    {
-        $inputItem['bitStream'] = [];
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x8);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::MULTIBYTE, $version), (int) ($inputItem['size'] / 2));
-        for ($i = 0; $i < $inputItem['size']; $i += 2) {
-            $val = (ord($inputItem['data'][$i]) << 8) | ord($inputItem['data'][$i + 1]);
-            if ($val <= 0x9ffc) {
-                $val -= 0x8140;
-            }
-            else {
-                $val -= 0xc140;
-            }
-            $h                      = ($val >> 8) * 0xc0;
-            $val                    = ($val & 0xff) + $h;
-            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 13, $val);
-        }
-        return $inputItem;
-    }
-
-    /**
-     * encodeModeStructure
-     * @param array $inputItem
-     * @return array input item
-     */
-    protected function encodeModeStructure($inputItem)
-    {
-        $inputItem['bitStream'] = [];
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x03);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, ord($inputItem['data'][1]) - 1);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, ord($inputItem['data'][0]) - 1);
-        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 8, ord($inputItem['data'][2]));
-        return $inputItem;
-    }
-
-    /**
-     * encodeBitStream
-     * @param array $inputItem
-     * @param int   $version
-     * @return array input item
-     */
-    protected function encodeBitStream($inputItem, $version)
-    {
-        $inputItem['bitStream'] = [];
-        $words                  = $this->maximumWords($inputItem['mode'], $version);
-        if ($inputItem['size'] > $words) {
-            $st1                    = $this->newInputItem($inputItem['mode'], $words, $inputItem['data']);
-            $st2                    = $this->newInputItem($inputItem['mode'], $inputItem['size'] - $words, array_slice($inputItem['data'], $words));
-            $st1                    = $this->encodeBitStream($st1, $version);
-            $st2                    = $this->encodeBitStream($st2, $version);
-            $inputItem['bitStream'] = [];
-            $inputItem['bitStream'] = $this->appendBitstream($inputItem['bitStream'], $st1['bitStream']);
-            $inputItem['bitStream'] = $this->appendBitstream($inputItem['bitStream'], $st2['bitStream']);
-        }
-        else {
-            switch ($inputItem['mode']) {
-                case self::NUMERIC:
-                {
-                    $inputItem = $this->encodeModeNum($inputItem, $version);
-                    break;
-                }
-                case self::ALPHANUMERIC:
-                {
-                    $inputItem = $this->encodeModeAn($inputItem, $version);
-                    break;
-                }
-                case self::EIGHT_BIT:
-                {
-                    $inputItem = $this->encodeMode8($inputItem, $version);
-                    break;
-                }
-                case self::MULTIBYTE:
-                {
-                    $inputItem = $this->encodeModeMultiByte($inputItem, $version);
-                    break;
-                }
-                case self::STRUCTURED:
-                {
-                    $inputItem = $this->encodeModeStructure($inputItem);
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
-        }
         return $inputItem;
     }
 
