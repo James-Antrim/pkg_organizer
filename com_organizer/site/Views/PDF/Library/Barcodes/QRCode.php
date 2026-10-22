@@ -214,6 +214,198 @@ class QRCode
     }
 
     /**
+     * Chunks segments of the content. Returns true if the length of the chunks equals the length of the data string. Inferred valid resolution.
+     * @return bool
+     */
+    protected function chunk(): bool
+    {
+        while (strlen($this->dataString) > 0) {
+            $mode = $this->identifyMode(0);
+            switch ($mode) {
+                case self::NUMERIC:
+                {
+                    $length = $this->chunkNumeric();
+                    break;
+                }
+                case self::ALPHANUMERIC:
+                {
+                    $length = $this->chunkAlphaNumeric();
+                    break;
+                }
+                case self::MULTIBYTE:
+                {
+                    if ($this->mode === self::MULTIBYTE) {
+                        $length = $this->chunkMultiByte();
+                    }
+                    else {
+                        $length = $this->chunkEightBit();
+                    }
+                    break;
+                }
+                default:
+                {
+                    $length = $this->chunkEightBit();
+                    break;
+                }
+            }
+
+            if ($length <= 0) {
+                return $length === 0;
+            }
+
+            $this->dataString = substr($this->dataString, $length);
+        }
+
+        return true;
+    }
+
+    /**
+     * Chunks alphanumeric segments of the content. Returns the total length of the segments chunked.
+     * @return int
+     */
+    protected function chunkAlphaNumeric(): int
+    {
+        $alphaLength   = $this->lengthIndicator(self::ALPHANUMERIC, $this->version);
+        $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
+        $position      = 1;
+
+        while ($this->isalnumat($this->dataString, $position)) {
+            if ($this->isdigitat($this->dataString, $position)) {
+                $current = $position;
+                while ($this->isdigitat($this->dataString, $current)) {
+                    $current++;
+                }
+                $dif = $this->estimateAlphaNumeric($position) // + 4 + la
+                    + $this->estimateNumeric($current - $position) + 4 + $numericLength
+                    - $this->estimateAlphaNumeric($current); // - 4 - la
+                if ($dif < 0) {
+                    break;
+                }
+                else {
+                    $position = $current;
+                }
+            }
+            else {
+                $position++;
+            }
+        }
+
+        $length = $position;
+        if (!$this->isalnumat($this->dataString, $position)) {
+            $dif = $this->estimateAlphaNumeric($length) + 4 + $alphaLength + 8 - (($length + 1) * 8);
+            if ($dif > 0) {
+                return $this->chunkEightBit();
+            }
+        }
+
+        $this->items = $this->appendNewInputItem($this->items, self::ALPHANUMERIC, $length, str_split($this->dataString));
+
+        return $length;
+    }
+
+    /**
+     * Chunks eight-bit segments of the content. Returns the total length of the segments chunked.
+     * @return int
+     */
+    protected function chunkEightBit(): int
+    {
+        $alphaLength   = $this->lengthIndicator(self::ALPHANUMERIC, $this->version);
+        $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
+        $position      = 1;
+        $dataStrLen    = strlen($this->dataString);
+
+        while ($position < $dataStrLen) {
+            $mode = $this->identifyMode($position);
+            if ($mode == self::MULTIBYTE) {
+                break;
+            }
+            if ($mode == self::NUMERIC) {
+                $current = $position;
+                while ($this->isdigitat($this->dataString, $current)) {
+                    $current++;
+                }
+                $difference = ($position * 8) + $this->estimateNumeric($current - $position) + 4 + $numericLength - ($current * 8);
+                if ($difference < 0) {
+                    break;
+                }
+                else {
+                    $position = $current;
+                }
+            }
+            elseif ($mode == self::ALPHANUMERIC) {
+                $current = $position;
+                while ($this->isalnumat($this->dataString, $current)) {
+                    $current++;
+                }
+                $difference = ($position * 8) + $this->estimateAlphaNumeric($current - $position) + 4 + $alphaLength - ($current * 8);
+                if ($difference < 0) {
+                    break;
+                }
+                else {
+                    $position = $current;
+                }
+            }
+            else {
+                $position++;
+            }
+        }
+
+        $length      = $position;
+        $this->items = $this->appendNewInputItem($this->items, self::EIGHT_BIT, $length, str_split($this->dataString));
+        return $length;
+    }
+
+    /**
+     * Chunks multibyte segments of the content. Returns the total length of the segments chunked.
+     * @return int
+     */
+    protected function chunkMultiByte(): int
+    {
+        $length = 0;
+        while ($this->identifyMode($length) == self::MULTIBYTE) {
+            $length += 2;
+        }
+        $this->items = $this->appendNewInputItem($this->items, self::MULTIBYTE, $length, str_split($this->dataString));
+        return $length;
+    }
+
+    /**
+     * Chunks numeric segments of the content. Returns the total length of the segments chunked.
+     * @return int
+     */
+    protected function chunkNumeric(): int
+    {
+        $numericLength = $this->lengthIndicator(self::NUMERIC, $this->version);
+        $position      = 0;
+
+        while ($this->isdigitat($this->dataString, $position)) {
+            $position++;
+        }
+
+        $length = $position;
+        $mode   = $this->identifyMode($position);
+
+        if ($mode === self::EIGHT_BIT) {
+            $difference = $this->estimateNumeric($length) + 4 + $numericLength + 8 - (($length + 1) * 8);
+            if ($difference > 0) {
+                return $this->chunkEightBit();
+            }
+        }
+
+        if ($mode === self::ALPHANUMERIC) {
+            $difference = $this->estimateNumeric($length) + 4 + $numericLength
+                + $this->estimateAlphaNumeric(1)
+                - $this->estimateAlphaNumeric($length + 1);
+            if ($difference > 0) {
+                return $this->chunkAlphaNumeric();
+            }
+        }
+
+        $this->items = $this->appendNewInputItem($this->items, self::NUMERIC, $length, str_split($this->dataString));
+        return $length;
+    }
+
+    /**
      * Estimates the number of bits for an alphanumeric segment of a given character count.
      * @param int $count
      * @return int
@@ -367,8 +559,7 @@ class QRCode
     protected function encodeString($string)
     {
         $this->dataString = $string;
-        $ret              = $this->splitString();
-        if ($ret < 0) {
+        if (!$this->chunk()) {
             return null;
         }
         $this->encodeMask();
@@ -909,188 +1100,6 @@ class QRCode
             }
         }
         return self::EIGHT_BIT;
-    }
-
-    /**
-     * eatNum
-     * @return int run
-     */
-    protected function eatNum()
-    {
-        $ln = $this->lengthIndicator(self::NUMERIC, $this->version);
-        $p  = 0;
-        while ($this->isdigitat($this->dataString, $p)) {
-            $p++;
-        }
-        $run  = $p;
-        $mode = $this->identifyMode($p);
-        if ($mode == self::EIGHT_BIT) {
-            $dif = $this->estimateNumeric($run) + 4 + $ln + 8 - (($run + 1) * 8);
-            if ($dif > 0) {
-                return $this->eat8();
-            }
-        }
-        if ($mode == self::ALPHANUMERIC) {
-            $dif = $this->estimateNumeric($run) + 4 + $ln
-                + $this->estimateAlphaNumeric(1)        // + 4 + la
-                - $this->estimateAlphaNumeric($run + 1);// - 4 - la
-            if ($dif > 0) {
-                return $this->eatAn();
-            }
-        }
-        $this->items = $this->appendNewInputItem($this->items, self::NUMERIC, $run, str_split($this->dataString));
-        return $run;
-    }
-
-    /**
-     * eatAn
-     * @return int run
-     */
-    protected function eatAn()
-    {
-        $la = $this->lengthIndicator(self::ALPHANUMERIC, $this->version);
-        $ln = $this->lengthIndicator(self::NUMERIC, $this->version);
-        $p  = 1;
-        while ($this->isalnumat($this->dataString, $p)) {
-            if ($this->isdigitat($this->dataString, $p)) {
-                $q = $p;
-                while ($this->isdigitat($this->dataString, $q)) {
-                    $q++;
-                }
-                $dif = $this->estimateAlphaNumeric($p) // + 4 + la
-                    + $this->estimateNumeric($q - $p) + 4 + $ln
-                    - $this->estimateAlphaNumeric($q); // - 4 - la
-                if ($dif < 0) {
-                    break;
-                }
-                else {
-                    $p = $q;
-                }
-            }
-            else {
-                $p++;
-            }
-        }
-        $run = $p;
-        if (!$this->isalnumat($this->dataString, $p)) {
-            $dif = $this->estimateAlphaNumeric($run) + 4 + $la + 8 - (($run + 1) * 8);
-            if ($dif > 0) {
-                return $this->eat8();
-            }
-        }
-        $this->items = $this->appendNewInputItem($this->items, self::ALPHANUMERIC, $run, str_split($this->dataString));
-        return $run;
-    }
-
-    /**
-     * eatMultiByte
-     * @return int run
-     */
-    protected function eatMultiByte()
-    {
-        $p = 0;
-        while ($this->identifyMode($p) == self::MULTIBYTE) {
-            $p += 2;
-        }
-        $this->items = $this->appendNewInputItem($this->items, self::MULTIBYTE, $p, str_split($this->dataString));
-        $run         = $p;
-        return $run;
-    }
-
-    /**
-     * eat8
-     * @return int run
-     */
-    protected function eat8()
-    {
-        $la         = $this->lengthIndicator(self::ALPHANUMERIC, $this->version);
-        $ln         = $this->lengthIndicator(self::NUMERIC, $this->version);
-        $p          = 1;
-        $dataStrLen = strlen($this->dataString);
-        while ($p < $dataStrLen) {
-            $mode = $this->identifyMode($p);
-            if ($mode == self::MULTIBYTE) {
-                break;
-            }
-            if ($mode == self::NUMERIC) {
-                $q = $p;
-                while ($this->isdigitat($this->dataString, $q)) {
-                    $q++;
-                }
-                $dif = ($p * 8) + $this->estimateNumeric($q - $p) + 4 + $ln - ($q * 8);
-                if ($dif < 0) {
-                    break;
-                }
-                else {
-                    $p = $q;
-                }
-            }
-            elseif ($mode == self::ALPHANUMERIC) {
-                $q = $p;
-                while ($this->isalnumat($this->dataString, $q)) {
-                    $q++;
-                }
-                $dif = ($p * 8) + $this->estimateAlphaNumeric($q - $p) + 4 + $la - ($q * 8);
-                if ($dif < 0) {
-                    break;
-                }
-                else {
-                    $p = $q;
-                }
-            }
-            else {
-                $p++;
-            }
-        }
-        $run         = $p;
-        $this->items = $this->appendNewInputItem($this->items, self::EIGHT_BIT, $run, str_split($this->dataString));
-        return $run;
-    }
-
-    /**
-     * splitString
-     * @return int
-     */
-    protected function splitString()
-    {
-        while (strlen($this->dataString) > 0) {
-            $mode = $this->identifyMode(0);
-            switch ($mode) {
-                case self::NUMERIC:
-                {
-                    $length = $this->eatNum();
-                    break;
-                }
-                case self::ALPHANUMERIC:
-                {
-                    $length = $this->eatAn();
-                    break;
-                }
-                case self::MULTIBYTE:
-                {
-                    if ($this->mode == self::MULTIBYTE) {
-                        $length = $this->eatMultiByte();
-                    }
-                    else {
-                        $length = $this->eat8();
-                    }
-                    break;
-                }
-                default:
-                {
-                    $length = $this->eat8();
-                    break;
-                }
-            }
-            if ($length == 0) {
-                return 0;
-            }
-            if ($length < 0) {
-                return -1;
-            }
-            $this->dataString = substr($this->dataString, $length);
-        }
-        return 0;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
