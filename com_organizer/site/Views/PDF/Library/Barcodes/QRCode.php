@@ -27,6 +27,15 @@ class QRCode
     private const HIGH = 3, LOW = 0, MEDIUM = 1, QUARTER = 2;
 
     /**
+     * Error correction levels:
+     *     LOW     => 0 : < 7%
+     *     MEDIUM  => 1 : < 15%
+     *     QUARTER => 2 : < 25%
+     *     HIGH    => 3 : < 30%
+     */
+    private const LEVELS = ['H' => self::HIGH, 'L' => self::LOW, 'M' => self::MEDIUM, 'Q' => self::QUARTER];
+
+    /**
      *  Mask patterns:
      *      MP1 => 1 : concatenation of same color in a line or a column
      *      MP2 => 2 : module block of same color
@@ -118,15 +127,6 @@ class QRCode
 
     private int $ecLevel = self::LOW;
 
-    /**
-     * Error correction levels:
-     *     LOW     => 0 : < 7%
-     *     MEDIUM  => 1 : < 15%
-     *     QUARTER => 2 : < 25%
-     *     HIGH    => 3 : < 30%
-     */
-    private array $ecLevels = [self::LOW, self::MEDIUM, self::HIGH];
-
     private array $formatInfo = [
         [0x77c4, 0x72f3, 0x7daa, 0x789d, 0x662f, 0x6318, 0x6c41, 0x6976],
         [0x5412, 0x5125, 0x5e7c, 0x5b4b, 0x45f9, 0x40ce, 0x4f97, 0x4aa0],
@@ -181,36 +181,27 @@ class QRCode
 
     /**
      * Creates a QRCode object.
-     * @param string $code    code to represent using QR code
+     * @param string $content the content to represent using QR code
      * @param string $ecLevel error correction level
      */
-    public function __construct(string $code, string $ecLevel = 'L')
+    public function __construct(string $content, string $ecLevel = 'L')
     {
-        $barcode = [];
-        if ((is_null($code)) or ($code == '\0') or ($code == '')) {
-            return false;
+        if (empty($content)) {
+            return;
         }
-        // set error correction level
-        $this->ecLevel = array_search($ecLevel, ['L', 'M', 'Q', 'H']);
-        if ($this->ecLevel === false) {
-            $this->ecLevel = self::LOW;
-        }
-        if (($this->mode != self::EIGHT_BIT) and ($this->mode != self::KANJI)) {
-            return false;
-        }
-        if (($this->version < 0) or ($this->version > self::MAX_VERSION)) {
-            return false;
-        }
-        $this->items = [];
-        $this->encodeString($code);
+
+        $this->ecLevel = self::LEVELS[$ecLevel] ?: self::LOW;
+
+        $this->encodeString($content);
         if (is_null($this->data)) {
-            return false;
+            return;
         }
-        $qrTab                  = $this->binarize($this->data);
-        $size                   = count($qrTab);
-        $barcode['rowCount']    = $size;
-        $barcode['columnCount'] = $size;
-        $barcode['barcode']     = [];
+
+        $qrTab = $this->binarize($this->data);
+        $size  = count($qrTab);
+
+        $barcode = ['barcode' => [], 'columnCount' => $size, 'rowCount' => $size];
+
         foreach ($qrTab as $line) {
             $arrAdd = [];
             foreach (str_split($line) as $char) {
@@ -218,6 +209,7 @@ class QRCode
             }
             $barcode['barcode'][] = $arrAdd;
         }
+
         $this->barcode = $barcode;
     }
 
@@ -282,7 +274,7 @@ class QRCode
         $this->y         = $this->width - 1;
         $this->direction = -1;
         $this->bit       = -1;
-        // inteleaved data and ecc codes
+        // interleaved data and ecc codes
         for ($i = 0; $i < ($this->dataLength + $this->ecLength); $i++) {
             $code = $this->getCode();
             $bit  = 0x80;
