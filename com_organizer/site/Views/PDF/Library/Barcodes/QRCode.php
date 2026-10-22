@@ -1114,10 +1114,10 @@ class QRCode
      * @param int   $mode
      * @param int   $size
      * @param array $data
-     * @param array $bstream
+     * @param array $bitStream
      * @return array input item
      */
-    protected function newInputItem($mode, $size, $data, $bstream = null)
+    protected function newInputItem($mode, $size, $data, $bitStream = null)
     {
         $setData = array_slice($data, 0, $size);
         if (count($setData) < $size) {
@@ -1126,171 +1126,171 @@ class QRCode
         if (!$this->check($mode, $size, $setData)) {
             return null;
         }
-        $inputitem            = [];
-        $inputitem['mode']    = $mode;
-        $inputitem['size']    = $size;
-        $inputitem['data']    = $setData;
-        $inputitem['bstream'] = $bstream;
-        return $inputitem;
+        $inputItem              = [];
+        $inputItem['mode']      = $mode;
+        $inputItem['size']      = $size;
+        $inputItem['data']      = $setData;
+        $inputItem['bitStream'] = $bitStream;
+        return $inputItem;
     }
 
     /**
      * encodeModeNum
-     * @param array $inputitem
+     * @param array $inputItem
      * @param int   $version
      * @return array input item
      */
-    protected function encodeModeNum($inputitem, $version)
+    protected function encodeModeNum($inputItem, $version)
     {
-        $words                = (int) ($inputitem['size'] / 3);
-        $inputitem['bstream'] = [];
-        $val                  = 0x1;
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, $val);
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], $this->lengthIndicator(self::NUMERIC, $version), $inputitem['size']);
+        $words                  = (int) ($inputItem['size'] / 3);
+        $inputItem['bitStream'] = [];
+        $val                    = 0x1;
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, $val);
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::NUMERIC, $version), $inputItem['size']);
         for ($i = 0; $i < $words; ++$i) {
-            $val                  = (ord($inputitem['data'][$i * 3]) - ord('0')) * 100;
-            $val                  += (ord($inputitem['data'][$i * 3 + 1]) - ord('0')) * 10;
-            $val                  += (ord($inputitem['data'][$i * 3 + 2]) - ord('0'));
-            $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 10, $val);
+            $val                    = (ord($inputItem['data'][$i * 3]) - ord('0')) * 100;
+            $val                    += (ord($inputItem['data'][$i * 3 + 1]) - ord('0')) * 10;
+            $val                    += (ord($inputItem['data'][$i * 3 + 2]) - ord('0'));
+            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 10, $val);
         }
-        if ($inputitem['size'] - $words * 3 == 1) {
-            $val                  = ord($inputitem['data'][$words * 3]) - ord('0');
-            $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, $val);
+        if ($inputItem['size'] - $words * 3 == 1) {
+            $val                    = ord($inputItem['data'][$words * 3]) - ord('0');
+            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, $val);
         }
-        elseif (($inputitem['size'] - ($words * 3)) == 2) {
-            $val                  = (ord($inputitem['data'][$words * 3]) - ord('0')) * 10;
-            $val                  += (ord($inputitem['data'][$words * 3 + 1]) - ord('0'));
-            $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 7, $val);
+        elseif (($inputItem['size'] - ($words * 3)) == 2) {
+            $val                    = (ord($inputItem['data'][$words * 3]) - ord('0')) * 10;
+            $val                    += (ord($inputItem['data'][$words * 3 + 1]) - ord('0'));
+            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 7, $val);
         }
-        return $inputitem;
+        return $inputItem;
     }
 
     /**
      * encodeModeAn
-     * @param array $inputitem
+     * @param array $inputItem
      * @param int   $version
      * @return array input item
      */
-    protected function encodeModeAn($inputitem, $version)
+    protected function encodeModeAn($inputItem, $version)
     {
-        $words                = (int) ($inputitem['size'] / 2);
-        $inputitem['bstream'] = [];
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, 0x02);
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], $this->lengthIndicator(self::ALPHANUMERIC, $version), $inputitem['size']);
+        $words                  = (int) ($inputItem['size'] / 2);
+        $inputItem['bitStream'] = [];
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x02);
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::ALPHANUMERIC, $version), $inputItem['size']);
         for ($i = 0; $i < $words; ++$i) {
-            $val                  = (int) ($this->lookAnTable(ord($inputitem['data'][$i * 2])) * 45);
-            $val                  += (int) ($this->lookAnTable(ord($inputitem['data'][($i * 2) + 1])));
-            $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 11, $val);
+            $val                    = (int) ($this->lookAnTable(ord($inputItem['data'][$i * 2])) * 45);
+            $val                    += (int) ($this->lookAnTable(ord($inputItem['data'][($i * 2) + 1])));
+            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 11, $val);
         }
-        if ($inputitem['size'] & 1) {
-            $val                  = $this->lookAnTable(ord($inputitem['data'][($words * 2)]));
-            $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 6, $val);
+        if ($inputItem['size'] & 1) {
+            $val                    = $this->lookAnTable(ord($inputItem['data'][($words * 2)]));
+            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 6, $val);
         }
-        return $inputitem;
+        return $inputItem;
     }
 
     /**
      * encodeMode8
-     * @param array $inputitem
+     * @param array $inputItem
      * @param int   $version
      * @return array input item
      */
-    protected function encodeMode8($inputitem, $version)
+    protected function encodeMode8($inputItem, $version)
     {
-        $inputitem['bstream'] = [];
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, 0x4);
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], $this->lengthIndicator(self::EIGHT_BIT, $version), $inputitem['size']);
-        for ($i = 0; $i < $inputitem['size']; ++$i) {
-            $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 8, ord($inputitem['data'][$i]));
+        $inputItem['bitStream'] = [];
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x4);
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::EIGHT_BIT, $version), $inputItem['size']);
+        for ($i = 0; $i < $inputItem['size']; ++$i) {
+            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 8, ord($inputItem['data'][$i]));
         }
-        return $inputitem;
+        return $inputItem;
     }
 
     /**
      * encodeModeKanji
-     * @param array $inputitem
+     * @param array $inputItem
      * @param int   $version
      * @return array input item
      */
-    protected function encodeModeKanji($inputitem, $version)
+    protected function encodeModeKanji($inputItem, $version)
     {
-        $inputitem['bstream'] = [];
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, 0x8);
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], $this->lengthIndicator(self::KANJI, $version), (int) ($inputitem['size'] / 2));
-        for ($i = 0; $i < $inputitem['size']; $i += 2) {
-            $val = (ord($inputitem['data'][$i]) << 8) | ord($inputitem['data'][$i + 1]);
+        $inputItem['bitStream'] = [];
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x8);
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], $this->lengthIndicator(self::KANJI, $version), (int) ($inputItem['size'] / 2));
+        for ($i = 0; $i < $inputItem['size']; $i += 2) {
+            $val = (ord($inputItem['data'][$i]) << 8) | ord($inputItem['data'][$i + 1]);
             if ($val <= 0x9ffc) {
                 $val -= 0x8140;
             }
             else {
                 $val -= 0xc140;
             }
-            $h                    = ($val >> 8) * 0xc0;
-            $val                  = ($val & 0xff) + $h;
-            $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 13, $val);
+            $h                      = ($val >> 8) * 0xc0;
+            $val                    = ($val & 0xff) + $h;
+            $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 13, $val);
         }
-        return $inputitem;
+        return $inputItem;
     }
 
     /**
      * encodeModeStructure
-     * @param array $inputitem
+     * @param array $inputItem
      * @return array input item
      */
-    protected function encodeModeStructure($inputitem)
+    protected function encodeModeStructure($inputItem)
     {
-        $inputitem['bstream'] = [];
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, 0x03);
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, ord($inputitem['data'][1]) - 1);
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 4, ord($inputitem['data'][0]) - 1);
-        $inputitem['bstream'] = $this->appendNum($inputitem['bstream'], 8, ord($inputitem['data'][2]));
-        return $inputitem;
+        $inputItem['bitStream'] = [];
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, 0x03);
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, ord($inputItem['data'][1]) - 1);
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 4, ord($inputItem['data'][0]) - 1);
+        $inputItem['bitStream'] = $this->appendNum($inputItem['bitStream'], 8, ord($inputItem['data'][2]));
+        return $inputItem;
     }
 
     /**
      * encodeBitStream
-     * @param array $inputitem
+     * @param array $inputItem
      * @param int   $version
      * @return array input item
      */
-    protected function encodeBitStream($inputitem, $version)
+    protected function encodeBitStream($inputItem, $version)
     {
-        $inputitem['bstream'] = [];
-        $words                = $this->maximumWords($inputitem['mode'], $version);
-        if ($inputitem['size'] > $words) {
-            $st1                  = $this->newInputItem($inputitem['mode'], $words, $inputitem['data']);
-            $st2                  = $this->newInputItem($inputitem['mode'], $inputitem['size'] - $words, array_slice($inputitem['data'], $words));
-            $st1                  = $this->encodeBitStream($st1, $version);
-            $st2                  = $this->encodeBitStream($st2, $version);
-            $inputitem['bstream'] = [];
-            $inputitem['bstream'] = $this->appendBitstream($inputitem['bstream'], $st1['bstream']);
-            $inputitem['bstream'] = $this->appendBitstream($inputitem['bstream'], $st2['bstream']);
+        $inputItem['bitStream'] = [];
+        $words                  = $this->maximumWords($inputItem['mode'], $version);
+        if ($inputItem['size'] > $words) {
+            $st1                    = $this->newInputItem($inputItem['mode'], $words, $inputItem['data']);
+            $st2                    = $this->newInputItem($inputItem['mode'], $inputItem['size'] - $words, array_slice($inputItem['data'], $words));
+            $st1                    = $this->encodeBitStream($st1, $version);
+            $st2                    = $this->encodeBitStream($st2, $version);
+            $inputItem['bitStream'] = [];
+            $inputItem['bitStream'] = $this->appendBitstream($inputItem['bitStream'], $st1['bitStream']);
+            $inputItem['bitStream'] = $this->appendBitstream($inputItem['bitStream'], $st2['bitStream']);
         }
         else {
-            switch ($inputitem['mode']) {
+            switch ($inputItem['mode']) {
                 case self::NUMERIC:
                 {
-                    $inputitem = $this->encodeModeNum($inputitem, $version);
+                    $inputItem = $this->encodeModeNum($inputItem, $version);
                     break;
                 }
                 case self::ALPHANUMERIC:
                 {
-                    $inputitem = $this->encodeModeAn($inputitem, $version);
+                    $inputItem = $this->encodeModeAn($inputItem, $version);
                     break;
                 }
                 case self::EIGHT_BIT:
                 {
-                    $inputitem = $this->encodeMode8($inputitem, $version);
+                    $inputItem = $this->encodeMode8($inputItem, $version);
                     break;
                 }
                 case self::KANJI:
                 {
-                    $inputitem = $this->encodeModeKanji($inputitem, $version);
+                    $inputItem = $this->encodeModeKanji($inputItem, $version);
                     break;
                 }
                 case self::STRUCTURED:
                 {
-                    $inputitem = $this->encodeModeStructure($inputitem);
+                    $inputItem = $this->encodeModeStructure($inputItem);
                     break;
                 }
                 default:
@@ -1299,7 +1299,7 @@ class QRCode
                 }
             }
         }
-        return $inputitem;
+        return $inputItem;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1672,7 +1672,7 @@ class QRCode
         $total = 0;
         foreach ($items as $key => $item) {
             $items[$key] = $this->encodeBitStream($item, $this->version);
-            $bits        = count($items[$key]['bstream']);
+            $bits        = count($items[$key]['bitStream']);
             $total       += $bits;
         }
         return [$items, $total];
@@ -1712,22 +1712,22 @@ class QRCode
 
     /**
      * Append Padding Bit to bitstream
-     * @param array $bstream
+     * @param array $bitStream
      * @return array bitstream
      */
-    protected function appendPaddingBit($bstream)
+    protected function appendPaddingBit($bitStream)
     {
-        if (is_null($bstream)) {
+        if (is_null($bitStream)) {
             return null;
         }
-        $bits     = count($bstream);
+        $bits     = count($bitStream);
         $maxWords = $this->getDataLength($this->version, $this->ecLevel);
         $maxBits  = $maxWords * 8;
         if ($maxBits == $bits) {
-            return $bstream;
+            return $bitStream;
         }
         if ($maxBits - $bits < 5) {
-            return $this->appendNum($bstream, $maxBits - $bits, 0);
+            return $this->appendNum($bitStream, $maxBits - $bits, 0);
         }
         $bits    += 4;
         $words   = (int) (($bits + 7) / 8);
@@ -1741,7 +1741,7 @@ class QRCode
             }
             $padding = $this->appendBytes($padding, $padlen, $padbuf);
         }
-        return $this->appendBitstream($bstream, $padding);
+        return $this->appendBitstream($bitStream, $padding);
     }
 
     /**
@@ -1755,11 +1755,11 @@ class QRCode
         if (!is_array($items)) {
             return null;
         }
-        $bstream = [];
+        $bitStream = [];
         foreach ($items as $item) {
-            $bstream = $this->appendBitstream($bstream, $item['bstream']);
+            $bitStream = $this->appendBitstream($bitStream, $item['bitStream']);
         }
-        return $bstream;
+        return $bitStream;
     }
 
     /**
@@ -1769,8 +1769,8 @@ class QRCode
      */
     protected function getBitStream($items)
     {
-        $bstream = $this->mergeBitStream($items);
-        return $this->appendPaddingBit($bstream);
+        $bitStream = $this->mergeBitStream($items);
+        return $this->appendPaddingBit($bitStream);
     }
 
     /**
@@ -1780,8 +1780,8 @@ class QRCode
      */
     protected function getByteStream($items)
     {
-        $bstream = $this->getBitStream($items);
-        return $this->bitstreamToByte($bstream);
+        $bitStream = $this->getBitStream($items);
+        return $this->bitstreamToByte($bitStream);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1806,18 +1806,18 @@ class QRCode
      */
     protected function newFromNum($bits, $num)
     {
-        $bstream = $this->allocate($bits);
-        $mask    = 1 << ($bits - 1);
+        $bitStream = $this->allocate($bits);
+        $mask      = 1 << ($bits - 1);
         for ($i = 0; $i < $bits; ++$i) {
             if ($num & $mask) {
-                $bstream[$i] = 1;
+                $bitStream[$i] = 1;
             }
             else {
-                $bstream[$i] = 0;
+                $bitStream[$i] = 0;
             }
             $mask = $mask >> 1;
         }
-        return $bstream;
+        return $bitStream;
     }
 
     /**
@@ -1828,22 +1828,22 @@ class QRCode
      */
     protected function newFromBytes($size, $data)
     {
-        $bstream = $this->allocate($size * 8);
-        $p       = 0;
+        $bitStream = $this->allocate($size * 8);
+        $p         = 0;
         for ($i = 0; $i < $size; ++$i) {
             $mask = 0x80;
             for ($j = 0; $j < 8; ++$j) {
                 if ($data[$i] & $mask) {
-                    $bstream[$p] = 1;
+                    $bitStream[$p] = 1;
                 }
                 else {
-                    $bstream[$p] = 0;
+                    $bitStream[$p] = 0;
                 }
                 $p++;
                 $mask = $mask >> 1;
             }
         }
-        return $bstream;
+        return $bitStream;
     }
 
     /**
@@ -1897,15 +1897,15 @@ class QRCode
 
     /**
      * Convert bitstream to bytes
-     * @param array $bstream original bitstream
+     * @param array $bitStream original bitstream
      * @return array of bytes
      */
-    protected function bitstreamToByte($bstream)
+    protected function bitstreamToByte($bitStream)
     {
-        if (is_null($bstream)) {
+        if (is_null($bitStream)) {
             return null;
         }
-        $size = count($bstream);
+        $size = count($bitStream);
         if ($size == 0) {
             return [];
         }
@@ -1916,7 +1916,7 @@ class QRCode
             $v = 0;
             for ($j = 0; $j < 8; $j++) {
                 $v = $v << 1;
-                $v |= $bstream[$p];
+                $v |= $bitStream[$p];
                 $p++;
             }
             $data[$i] = $v;
@@ -1925,7 +1925,7 @@ class QRCode
             $v = 0;
             for ($j = 0; $j < ($size & 7); $j++) {
                 $v = $v << 1;
-                $v |= $bstream[$p];
+                $v |= $bitStream[$p];
                 $p++;
             }
             $data[$bytes] = $v;
