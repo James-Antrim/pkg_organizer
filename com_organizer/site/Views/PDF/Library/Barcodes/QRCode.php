@@ -62,6 +62,15 @@ class QRCode
 
     private const DEFAULT_MASK = 2, HEADER_BITS = 20, RANDOM_MASK = 2;
 
+    /** Descriptions for the indexes of error correction code specifications. */
+    private const ECC_DESCRIPTIONS = [
+        0 => '# of type1 blocks',
+        1 => '# of data code',
+        2 => '# of ecc code',
+        3 => '# of type2 blocks',
+        4 => '# of data code',
+    ];
+
     /**
      * Descriptions for the properties of a Reed-Solomon Block. Allows descriptions to be referenced and not put directly into every RS docblock.
      * Based on Reed solomon encoder by Phil Karn, KA9Q (GNU-LGPLv2)
@@ -404,6 +413,41 @@ class QRCode
 
         $this->items = $this->appendNewInputItem($this->items, self::NUMERIC, $length, str_split($this->dataString));
         return $length;
+    }
+
+    /**
+     * Return an array of ECC specification.
+     * @param int   $version       version
+     * @param int   $level         error correction level
+     * @param array $specification ECC specification
+     * @return array
+     * @see self::ECC_DESCRIPTIONS
+     */
+    protected function eccSpecification(int $version, int $level, array $specification): array
+    {
+        if (count($specification) < 5) {
+            $specification = [0, 0, 0, 0, 0];
+        }
+
+        [$valueOne, $valueTwo] = $this->ecCodes[$version][$level];
+        $data = $this->getDataLength($version, $level);
+        $ecc  = $this->capacity[$version][self::LEVEL][$level];
+
+        $specification[0] = $valueOne;
+        if ($valueTwo === 0) {
+            $specification[1] = (int) ($data / $valueOne);
+            $specification[2] = (int) ($ecc / $valueOne);
+            $specification[3] = 0;
+            $specification[4] = 0;
+        }
+        else {
+            $specification[1] = (int) ($data / ($valueOne + $valueTwo));
+            $specification[2] = (int) ($ecc / ($valueOne + $valueTwo));
+            $specification[3] = $valueTwo;
+            $specification[4] = $specification[1] + 1;
+        }
+
+        return $specification;
     }
 
     /**
@@ -1385,7 +1429,7 @@ class QRCode
             return null;
         }
         $spec             = [0, 0, 0, 0, 0];
-        $spec             = $this->getEccSpec($this->version, $this->ecLevel, $spec);
+        $spec             = $this->eccSpecification($this->version, $this->ecLevel, $spec);
         $this->block1     = $spec[0];
         $this->dataLength = ($spec[0] * $spec[1]) + ($spec[3] * $spec[4]);
         $this->ecLength   = ($spec[0] + $spec[3]) * $spec[2];
@@ -2155,38 +2199,5 @@ class QRCode
     protected function getDataLength($version, $level)
     {
         return $this->capacity[$version][self::COUNT] - $this->capacity[$version][self::LEVEL][$level];
-    }
-
-    /**
-     * Return an array of ECC specification.
-     * @param int   $version version
-     * @param int   $level   error correction level
-     * @param array $spec    an array of ECC specification contains as following: {# of type1 blocks, # of data code, # of ecc code, # of type2 blocks, # of data code}
-     * @return array spec
-     */
-    protected function getEccSpec($version, $level, $spec)
-    {
-        if (count($spec) < 5) {
-            $spec = [0, 0, 0, 0, 0];
-        }
-        $b1   = $this->eccCodes[$version][$level][0];
-        $b2   = $this->eccCodes[$version][$level][1];
-        $data = $this->getDataLength($version, $level);
-        $ecc  = $this->capacity[$version][self::LEVEL][$level];
-        if ($b2 == 0) {
-            $spec[0] = $b1;
-            $spec[1] = (int) ($data / $b1);
-            $spec[2] = (int) ($ecc / $b1);
-            $spec[3] = 0;
-            $spec[4] = 0;
-        }
-        else {
-            $spec[0] = $b1;
-            $spec[1] = (int) ($data / ($b1 + $b2));
-            $spec[2] = (int) ($ecc / ($b1 + $b2));
-            $spec[3] = $b2;
-            $spec[4] = $spec[1] + 1;
-        }
-        return $spec;
     }
 }
