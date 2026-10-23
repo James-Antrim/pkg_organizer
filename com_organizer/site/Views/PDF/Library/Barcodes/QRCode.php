@@ -274,7 +274,7 @@ class QRCode
         }
 
         while (true) {
-            [$items, $bits] = $this->createBitstream($items);
+            [$items, $bits] = $this->encodeBitstreams($items);
             if ($bits < 0) {
                 return [];
             }
@@ -671,6 +671,24 @@ class QRCode
             self::STRUCTURED => $this->encodeStructure($item),
             default => $item,
         };
+    }
+
+    /**
+     * Iterates the given items encoding their data into bitstreams. Returns the supplemented items and the aggregated length of the bitstream for
+     * all items.
+     * @param array $items
+     * @return array
+     */
+    private function encodeBitstreams(array $items): array
+    {
+        $total = 0;
+        foreach ($items as $key => $item) {
+            $items[$key] = $this->encodeBitstream($item, $this->version);
+            $bits        = count($items[$key]['bitstream']);
+            $total       += $bits;
+        }
+
+        return [$items, $total];
     }
 
     /**
@@ -2046,86 +2064,5 @@ class QRCode
         $entry = $this->newInputItem(self::STRUCTURED, 3, $buf);
         array_unshift($items, $entry);
         return $items;
-    }
-
-    /**
-     * lengthOfCode
-     * @param int $mode
-     * @param int $version
-     * @param int $bits
-     * @return int size
-     */
-    protected function lengthOfCode($mode, $version, $bits)
-    {
-        $payload = $bits - 4 - $this->lengthIndicator($mode, $version);
-        switch ($mode) {
-            case self::NUMERIC:
-            {
-                $chunks = (int) ($payload / 10);
-                $remain = $payload - $chunks * 10;
-                $size   = $chunks * 3;
-                if ($remain >= 7) {
-                    $size += 2;
-                }
-                elseif ($remain >= 4) {
-                    $size += 1;
-                }
-                break;
-            }
-            case self::ALPHANUMERIC:
-            {
-                $chunks = (int) ($payload / 11);
-                $remain = $payload - $chunks * 11;
-                $size   = $chunks * 2;
-                if ($remain >= 6) {
-                    ++$size;
-                }
-                break;
-            }
-            case self::EIGHT_BIT:
-            {
-                $size = (int) ($payload / 8);
-                break;
-            }
-            case self::MULTIBYTE:
-            {
-                $size = (int) (($payload / 13) * 2);
-                break;
-            }
-            case self::STRUCTURED:
-            {
-                $size = (int) ($payload / 8);
-                break;
-            }
-            default:
-            {
-                $size = 0;
-                break;
-            }
-        }
-        $maxsize = $this->maximumWords($mode, $version);
-        if ($size < 0) {
-            $size = 0;
-        }
-        if ($size > $maxsize) {
-            $size = $maxsize;
-        }
-        return $size;
-    }
-
-    /**
-     * createBitstream
-     * @param array $items
-     * @return array of items and total bits
-     */
-    protected function createBitstream($items)
-    {
-        $total = 0;
-        foreach ($items as $key => $item) {
-            $items[$key] = $this->encodeBitstream($item, $this->version);
-            $bits        = count($items[$key]['bitstream']);
-            $total       += $bits;
-        }
-        return [$items, $total];
     }
 }
