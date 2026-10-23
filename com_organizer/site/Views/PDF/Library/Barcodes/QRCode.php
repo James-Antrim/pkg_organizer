@@ -162,7 +162,7 @@ class QRCode
         [0x1689, 0x13be, 0x1ce7, 0x19d0, 0x0762, 0x0255, 0x0d0c, 0x083b],
     ];
 
-    private array|null $frame;
+    private array $frame = [];
 
     private array $frames = [];
 
@@ -603,12 +603,109 @@ class QRCode
     }
 
     /**
+     * Searches for a frame at the given version index, initializing and appending it if non-existent.
+     * @param int $version
+     * @return array
+     */
+    private function frame(int $version): array
+    {
+        if ($version < 1 or $version > self::MAX_VERSION) {
+            return [];
+        }
+
+        if ($frame = $this->frames[$version] ?? $this->frameInitialize($version)) {
+            $this->frames[$version] = $frame;
+            return $frame;
+        }
+
+        return [];
+    }
+
+    /**
+     * Initializes a frame of unsigned character values and returns it.
+     * @param int $version
+     * @return array
+     */
+    private function frameInitialize(int $version): array
+    {
+        $width     = $this->capacity[$version][self::WIDTH];
+        $frameLine = str_repeat("\0", $width);
+        $frame     = array_fill(0, $width, $frameLine);
+
+        // Finder pattern
+        $frame = $this->putFinderPattern($frame, 0, 0);
+        $frame = $this->putFinderPattern($frame, $width - 7, 0);
+        $frame = $this->putFinderPattern($frame, 0, $width - 7);
+
+        // Separator
+        $yOffset = $width - 7;
+        for ($y = 0; $y < 7; ++$y) {
+            $frame[$y][7]          = "\xc0";
+            $frame[$y][$width - 8] = "\xc0";
+            $frame[$yOffset][7]    = "\xc0";
+            ++$yOffset;
+        }
+
+        $setPattern = str_repeat("\xc0", 8);
+        $frame      = $this->qrstrset($frame, 0, 7, $setPattern);
+        $frame      = $this->qrstrset($frame, $width - 8, 7, $setPattern);
+        $frame      = $this->qrstrset($frame, 0, $width - 8, $setPattern);
+
+        // Format info
+        $setPattern = str_repeat("\x84", 9);
+        $frame      = $this->qrstrset($frame, 0, 8, $setPattern);
+        $frame      = $this->qrstrset($frame, $width - 8, 8, $setPattern, 8);
+
+        $yOffset = $width - 8;
+        for ($y = 0; $y < 8; ++$y, ++$yOffset) {
+            $frame[$y][8]       = "\x84";
+            $frame[$yOffset][8] = "\x84";
+        }
+
+        // Timing pattern
+        $wo = $width - 15;
+        for ($index = 1; $index < $wo; ++$index) {
+            $frame[6][7 + $index] = chr(0x90 | ($index & 1));
+            $frame[7 + $index][6] = chr(0x90 | ($index & 1));
+        }
+
+        // Alignment pattern
+        $frame = $this->putAlignmentPattern($version, $frame, $width);
+
+        // Version information
+        if ($version >= 7) {
+            $vInf = $version > self::MAX_VERSION ? 0 : $this->versionPattern[($version - 7)];
+
+            $v = $vInf;
+            for ($x = 0; $x < 6; ++$x) {
+                for ($y = 0; $y < 3; ++$y) {
+                    $frame[($width - 11) + $y][$x] = chr(0x88 | ($v & 1));
+                    $v                             = $v >> 1;
+                }
+            }
+
+            $v = $vInf;
+            for ($y = 0; $y < 6; ++$y) {
+                for ($x = 0; $x < 3; ++$x) {
+                    $frame[$y][$x + ($width - 11)] = chr(0x88 | ($v & 1));
+                    $v                             = $v >> 1;
+                }
+            }
+        }
+
+        // and a little bit...
+        $frame[$width - 8][8] = "\x81";
+
+        return $frame;
+    }
+
+    /**
      * identifyMode
      * @param int $position
      * @return int mode
      * @see self::MODES
      */
-    protected function identifyMode(int $position): int
+    private function identifyMode(int $position): int
     {
         if ($position >= strlen($this->dataString)) {
             return self::NORMAL;
@@ -744,7 +841,7 @@ class QRCode
     }
 
     /**
-     * Searches for an rs codec with the given properties, initializing and appending it if non-existent.
+     * Searches for a rs codec with the given properties, initializing and appending it if non-existent.
      * @param int $symbolSize
      * @param int $fgPolynomial
      * @param int $fcRoot
@@ -815,23 +912,6 @@ class QRCode
         }
 
         return $parity;
-    }
-
-    /**
-     * Calculates a new x positon based on the number of bits per symbol and number of symbols in block.
-     * @param array $rs RS values
-     * @param int   $x  X position
-     * @return int
-     * @see self::RS_DESCRIPTIONS
-     */
-    protected function rsRepositionX(array $rs, int $x): int
-    {
-        while ($x >= $rs['symbolsInBlock']) {
-            $x -= $rs['symbolsInBlock'];
-            $x = ($x >> $rs['symbolSize']) + ($x & $rs['symbolsInBlock']);
-        }
-
-        return $x;
     }
 
     /**
@@ -928,6 +1008,23 @@ class QRCode
         }
 
         return $rs;
+    }
+
+    /**
+     * Calculates a new x positon based on the number of bits per symbol and number of symbols in block.
+     * @param array $rs RS values
+     * @param int   $x  X position
+     * @return int
+     * @see self::RS_DESCRIPTIONS
+     */
+    protected function rsRepositionX(array $rs, int $x): int
+    {
+        while ($x >= $rs['symbolsInBlock']) {
+            $x -= $rs['symbolsInBlock'];
+            $x = ($x >> $rs['symbolSize']) + ($x & $rs['symbolsInBlock']);
+        }
+
+        return $x;
     }
 
     /**
@@ -1034,7 +1131,7 @@ class QRCode
         }
         $this->counter = 0;
         $this->width   = $this->capacity[$this->version][self::WIDTH];;
-        $this->frame     = $this->newFrame($this->version);
+        $this->frame     = $this->frame($this->version);
         $this->x         = $this->width - 1;
         $this->y         = $this->width - 1;
         $this->direction = -1;
@@ -2177,91 +2274,5 @@ class QRCode
             $frame = $this->qrstrset($frame, $ox, ($oy + $y), $finder[$y]);
         }
         return $frame;
-    }
-
-    /**
-     * Return a copy of initialized frame.
-     * @param int $version version
-     * @return array array of unsigned char.
-     */
-    protected function createFrame($version)
-    {
-        $width     = $this->capacity[$version][self::WIDTH];
-        $frameLine = str_repeat("\0", $width);
-        $frame     = array_fill(0, $width, $frameLine);
-        // Finder pattern
-        $frame = $this->putFinderPattern($frame, 0, 0);
-        $frame = $this->putFinderPattern($frame, $width - 7, 0);
-        $frame = $this->putFinderPattern($frame, 0, $width - 7);
-        // Separator
-        $yOffset = $width - 7;
-        for ($y = 0; $y < 7; ++$y) {
-            $frame[$y][7]          = "\xc0";
-            $frame[$y][$width - 8] = "\xc0";
-            $frame[$yOffset][7]    = "\xc0";
-            ++$yOffset;
-        }
-        $setPattern = str_repeat("\xc0", 8);
-        $frame      = $this->qrstrset($frame, 0, 7, $setPattern);
-        $frame      = $this->qrstrset($frame, $width - 8, 7, $setPattern);
-        $frame      = $this->qrstrset($frame, 0, $width - 8, $setPattern);
-        // Format info
-        $setPattern = str_repeat("\x84", 9);
-        $frame      = $this->qrstrset($frame, 0, 8, $setPattern);
-        $frame      = $this->qrstrset($frame, $width - 8, 8, $setPattern, 8);
-        $yOffset    = $width - 8;
-        for ($y = 0; $y < 8; ++$y, ++$yOffset) {
-            $frame[$y][8]       = "\x84";
-            $frame[$yOffset][8] = "\x84";
-        }
-        // Timing pattern
-        $wo = $width - 15;
-        for ($i = 1; $i < $wo; ++$i) {
-            $frame[6][7 + $i] = chr(0x90 | ($i & 1));
-            $frame[7 + $i][6] = chr(0x90 | ($i & 1));
-        }
-        // Alignment pattern
-        $frame = $this->putAlignmentPattern($version, $frame, $width);
-        // Version information
-        if ($version >= 7) {
-            $vinf = $version > self::MAX_VERSION ? 0 : $this->versionPattern[($version - 7)];
-            $v    = $vinf;
-            for ($x = 0; $x < 6; ++$x) {
-                for ($y = 0; $y < 3; ++$y) {
-                    $frame[($width - 11) + $y][$x] = chr(0x88 | ($v & 1));
-                    $v                             = $v >> 1;
-                }
-            }
-            $v = $vinf;
-            for ($y = 0; $y < 6; ++$y) {
-                for ($x = 0; $x < 3; ++$x) {
-                    $frame[$y][$x + ($width - 11)] = chr(0x88 | ($v & 1));
-                    $v                             = $v >> 1;
-                }
-            }
-        }
-        // and a little bit...
-        $frame[$width - 8][8] = "\x81";
-        return $frame;
-    }
-
-    /**
-     * Set new frame for the specified version.
-     * @param int $version version
-     * @return array|null array of unsigned char.
-     */
-    protected function newFrame(int $version): array|null
-    {
-        if ($version < 1 or $version > self::MAX_VERSION) {
-            return null;
-        }
-
-        if (!isset($this->frames[$version])) {
-            $this->frames[$version] = $this->createFrame($version);
-        }
-        if (is_null($this->frames[$version])) {
-            return null;
-        }
-        return $this->frames[$version];
     }
 }
