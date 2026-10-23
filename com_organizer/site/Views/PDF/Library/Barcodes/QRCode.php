@@ -333,6 +333,21 @@ class QRCode
     }
 
     /**
+     * Create a new item from the given parameters and append it to the items.
+     * @param array $data array of input data.
+     * @param int   $mode encoding mode.
+     * @param int   $size size of data (byte).
+     * @return void
+     *
+     */
+    private function appendItem(array $data, int $mode, int $size): void
+    {
+        if ($item = $this->newInputItem($mode, $size, $data)) {
+            $this->items[] = $item;
+        }
+    }
+
+    /**
      * Add a number to an existing bitstream.
      * @param array $bitstream
      * @param int   $bits
@@ -489,7 +504,7 @@ class QRCode
             }
         }
 
-        $this->items = $this->appendNewInputItem($this->items, self::ALPHANUMERIC, $length, str_split($this->dataString));
+        $this->appendItem(str_split($this->dataString), self::ALPHANUMERIC, $length);
 
         return $length;
     }
@@ -541,8 +556,8 @@ class QRCode
             }
         }
 
-        $length      = $position;
-        $this->items = $this->appendNewInputItem($this->items, self::EIGHT_BIT, $length, str_split($this->dataString));
+        $length = $position;
+        $this->appendItem(str_split($this->dataString), self::EIGHT_BIT, $length);
         return $length;
     }
 
@@ -578,7 +593,7 @@ class QRCode
             }
         }
 
-        $this->items = $this->appendNewInputItem($this->items, self::NUMERIC, $length, str_split($this->dataString));
+        $this->appendItem(str_split($this->dataString), self::NUMERIC, $length);
         return $length;
     }
 
@@ -2023,46 +2038,5 @@ class QRCode
         $inputItem['data']      = $setData;
         $inputItem['bitstream'] = $bitstream;
         return $inputItem;
-    }
-
-    /**
-     * Append data to an input object.
-     * The data is copied and appended to the input object.
-     * @param array $items input items
-     * @param int   $mode  encoding mode.
-     * @param int   $size  size of data (byte).
-     * @param array $data  array of input data.
-     * @return array items
-     *
-     */
-    protected function appendNewInputItem($items, $mode, $size, $data)
-    {
-        $newitem = $this->newInputItem($mode, $size, $data);
-        if (!empty($newitem)) {
-            $items[] = $newitem;
-        }
-        return $items;
-    }
-
-    /**
-     * insertStructuredAppendHeader
-     * @param array $items
-     * @param int   $size
-     * @param int   $index
-     * @param int   $parity
-     * @return array items
-     */
-    protected function insertStructuredAppendHeader($items, $size, $index, $parity)
-    {
-        if ($size > self::MAX_SYMBOLS) {
-            return -1;
-        }
-        if (($index <= 0) or ($index > self::MAX_SYMBOLS)) {
-            return -1;
-        }
-        $buf   = [$size, $index, $parity];
-        $entry = $this->newInputItem(self::STRUCTURED, 3, $buf);
-        array_unshift($items, $entry);
-        return $items;
     }
 }
