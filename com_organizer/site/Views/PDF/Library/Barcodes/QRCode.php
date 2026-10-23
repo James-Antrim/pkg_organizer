@@ -342,7 +342,7 @@ class QRCode
      */
     private function appendItem(array $data, int $mode, int $size): void
     {
-        if ($item = $this->newInputItem($mode, $size, $data)) {
+        if ($item = $this->itemInitialize($data, $mode, $size)) {
             $this->items[] = $item;
         }
     }
@@ -665,8 +665,9 @@ class QRCode
         $words = $this->maximumWords($item['mode'], $version);
 
         if ($item['size'] > $words) {
-            $st1 = $this->newInputItem($item['mode'], $words, $item['data']);
-            $st2 = $this->newInputItem($item['mode'], $item['size'] - $words, array_slice($item['data'], $words));
+            // Originally these could be null on failure, now they are empty arrays. Potential problem that the original author didn't handle.
+            $st1 = $this->itemInitialize($item['data'], $item['mode'], $words);
+            $st2 = $this->itemInitialize(array_slice($item['data'], $words), $item['mode'], $item['size'] - $words);
             $st1 = $this->encodeBitstream($st1, $version);
             $st2 = $this->encodeBitstream($st2, $version);
 
@@ -1119,6 +1120,26 @@ class QRCode
     }
 
     /**
+     * Initializes a new input item.
+     * @param array $data
+     * @param int   $mode
+     * @param int   $size
+     * @return array
+     */
+    private function itemInitialize(array $data, int $mode, int $size): array
+    {
+        $setData = array_slice($data, 0, $size);
+        if (count($setData) < $size) {
+            $setData = array_merge($setData, array_fill(0, ($size - count($setData)), 0));
+        }
+        if (!$this->validate($mode, $size, $setData)) {
+            return [];
+        }
+
+        return ['bitstream' => [], 'data' => $setData, 'mode' => $mode, 'size' => $size];
+    }
+
+    /**
      * Return the size of length indicator (bits) for the mode and version.
      * @param int $mode    encoding mode
      * @param int $version version
@@ -1453,7 +1474,7 @@ class QRCode
             return $rs;
         }
 
-        if ($rs = $this->rsInitializeCodec($symbolSize, $fgPolynomial, $fcRoot, $pElement, $numberRoots, $paddingSize)) {
+        if ($rs = $this->rsInitialize($symbolSize, $fgPolynomial, $fcRoot, $pElement, $numberRoots, $paddingSize)) {
             array_unshift($this->rsItems, $rs);
         }
 
@@ -1467,7 +1488,7 @@ class QRCode
      * @return array
      * @see self::RS_DESCRIPTIONS
      */
-    private function rsEncodeCodec(array $rsValues, array $data): array
+    private function rsEncode(array $rsValues, array $data): array
     {
         $symbolsInBlock =& $rsValues['symbolsInBlock'];
         $alphaTo        =& $rsValues['alphaTo'];
@@ -1510,7 +1531,7 @@ class QRCode
      * @return array
      * @see self::RS_DESCRIPTIONS
      */
-    private function rsInitializeCodec(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
+    private function rsInitialize(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
     {
 
         $invalidElement = ($pElement <= 0 or $pElement >= (1 << $symbolSize));
@@ -1850,7 +1871,7 @@ class QRCode
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
             $this->rsBlocks[$blockNo]['eccLength']  = $el;
-            $ecc                                    = $this->rsEncodeCodec($rs, $this->rsBlocks[$blockNo]['data']);
+            $ecc                                    = $this->rsEncode($rs, $this->rsBlocks[$blockNo]['data']);
             $this->rsBlocks[$blockNo]['ecc']        = $ecc;
             $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
             $dataPos                                += $dl;
@@ -1875,7 +1896,7 @@ class QRCode
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
             $this->rsBlocks[$blockNo]['eccLength']  = $el;
-            $ecc                                    = $this->rsEncodeCodec($rs, $this->rsBlocks[$blockNo]['data']);
+            $ecc                                    = $this->rsEncode($rs, $this->rsBlocks[$blockNo]['data']);
             $this->rsBlocks[$blockNo]['ecc']        = $ecc;
             $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
             $dataPos                                += $dl;
@@ -2020,30 +2041,5 @@ class QRCode
             }
         }
         return $bestMask;
-    }
-
-    /**
-     * newInputItem
-     * @param int   $mode
-     * @param int   $size
-     * @param array $data
-     * @param array $bitstream
-     * @return array input item
-     */
-    protected function newInputItem($mode, $size, $data, $bitstream = null)
-    {
-        $setData = array_slice($data, 0, $size);
-        if (count($setData) < $size) {
-            $setData = array_merge($setData, array_fill(0, ($size - count($setData)), 0));
-        }
-        if (!$this->validate($mode, $size, $setData)) {
-            return null;
-        }
-        $inputItem              = [];
-        $inputItem['mode']      = $mode;
-        $inputItem['size']      = $size;
-        $inputItem['data']      = $setData;
-        $inputItem['bitstream'] = $bitstream;
-        return $inputItem;
     }
 }
