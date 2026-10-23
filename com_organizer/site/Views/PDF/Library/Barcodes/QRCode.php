@@ -253,6 +253,49 @@ class QRCode
     }
 
     /**
+     * Converts item data into bitstreams and aggregates those streams.
+     * @param array $items
+     * @return array
+     */
+    private function aggregateBitstream(array $items): array
+    {
+        $version = $this->estimateVersion($items);
+        if ($version > $this->version) {
+            $this->version = $version;
+        }
+
+        while (true) {
+            [$items, $bits] = $this->createBitstream($items);
+            if ($bits < 0) {
+                return [];
+            }
+
+            $version = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
+
+            if ($version < 0) {
+                return [];
+            }
+            elseif ($version > $this->version) {
+                $this->version = $version;
+            }
+            else {
+                break;
+            }
+        }
+
+        if (!$items) {
+            return [];
+        }
+
+        $bitstream = [];
+        foreach ($items as $item) {
+            $this->appendStream($bitstream, $item['bitstream']);
+        }
+
+        return $bitstream;
+    }
+
+    /**
      * Add bytes to an existing bitstream.
      * @param array &$bitstream
      * @param int    $size
@@ -593,15 +636,15 @@ class QRCode
      * @param int   $version
      * @return array input item
      */
-    private function encodeBitStream(array $item, int $version): array
+    private function encodeBitstream(array $item, int $version): array
     {
         $words = $this->maximumWords($item['mode'], $version);
 
         if ($item['size'] > $words) {
             $st1 = $this->newInputItem($item['mode'], $words, $item['data']);
             $st2 = $this->newInputItem($item['mode'], $item['size'] - $words, array_slice($item['data'], $words));
-            $st1 = $this->encodeBitStream($st1, $version);
-            $st2 = $this->encodeBitStream($st2, $version);
+            $st1 = $this->encodeBitstream($st1, $version);
+            $st2 = $this->encodeBitstream($st2, $version);
 
             $item['bitstream'] = [];
             $this->appendStream($item['bitstream'], $st1['bitstream']);
@@ -1607,7 +1650,7 @@ class QRCode
      */
     protected function encodeMask()
     {
-        $bitstream = $this->mergeBitStream($this->items);
+        $bitstream = $this->aggregateBitstream($this->items);
         $this->appendPaddingBit($bitstream);
         $this->dataCode = $this->streamToBytes($bitstream);
 
@@ -1967,12 +2010,12 @@ class QRCode
     }
 
     /**
-     * estimateBitStreamSize
+     * estimateBitstreamSize
      * @param array $items
      * @param int   $version
      * @return int bits
      */
-    protected function estimateBitStreamSize($items, $version)
+    protected function estimateBitstreamSize($items, $version)
     {
         $bits = 0;
         if ($version == 0) {
@@ -2028,7 +2071,7 @@ class QRCode
         $prev    = 0;
         do {
             $prev    = $version;
-            $bits    = $this->estimateBitStreamSize($items, $prev);
+            $bits    = $this->estimateBitstreamSize($items, $prev);
             $version = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
             if ($version < 0) {
                 return -1;
@@ -2103,68 +2146,18 @@ class QRCode
     }
 
     /**
-     * createBitStream
+     * createBitstream
      * @param array $items
      * @return array of items and total bits
      */
-    protected function createBitStream($items)
+    protected function createBitstream($items)
     {
         $total = 0;
         foreach ($items as $key => $item) {
-            $items[$key] = $this->encodeBitStream($item, $this->version);
+            $items[$key] = $this->encodeBitstream($item, $this->version);
             $bits        = count($items[$key]['bitstream']);
             $total       += $bits;
         }
         return [$items, $total];
-    }
-
-    /**
-     * convertData
-     * @param array $items
-     * @return array items
-     */
-    protected function convertData($items)
-    {
-        $ver = $this->estimateVersion($items);
-        if ($ver > $this->version) {
-            $this->version = $ver;
-        }
-        while (true) {
-            $cbs   = $this->createBitStream($items);
-            $items = $cbs[0];
-            $bits  = $cbs[1];
-            if ($bits < 0) {
-                return -1;
-            }
-            $ver = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
-            if ($ver < 0) {
-                return -1;
-            }
-            elseif ($ver > $this->version) {
-                $this->version = $ver;
-            }
-            else {
-                break;
-            }
-        }
-        return $items;
-    }
-
-    /**
-     * mergeBitStream
-     * @param array $items items
-     * @return array bitstream
-     */
-    protected function mergeBitStream($items)
-    {
-        $items = $this->convertData($items);
-        if (!is_array($items)) {
-            return null;
-        }
-        $bitstream = [];
-        foreach ($items as $item) {
-            $this->appendStream($bitstream, $item['bitstream']);
-        }
-        return $bitstream;
     }
 }
