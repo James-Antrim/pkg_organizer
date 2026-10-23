@@ -129,8 +129,6 @@ class QRCode
         [177, 3706, 0, [750, 1372, 2040, 2430]]
     ];
 
-    private int $counter;
-
     private array|null $data;
 
     private array $dataCode = [];
@@ -189,6 +187,8 @@ class QRCode
 
     /** Reed-Solomon */
     private array $rsBlocks = [];
+
+    private int $rsCounter = 0;
 
     protected array $rsItems = [];
 
@@ -1220,6 +1220,36 @@ class QRCode
     }
 
     /**
+     * Return Reed-Solomon block code.
+     * @return int
+     */
+    private function rsBlockCode(): int
+    {
+        $return = 0;
+        if ($this->rsCounter < $this->dataLength) {
+            $column = (int) ($this->rsCounter / $this->blocks);
+            $row    = $this->rsCounter % $this->blocks;
+
+            if ($column >= $this->rsBlocks[0]['dataLength']) {
+                $row += $this->block1;
+            }
+
+            $return = $this->rsBlocks[$row]['data'][$column];
+        }
+        elseif ($this->rsCounter < $this->dataLength + $this->ecLength) {
+            $column = (int) (($this->rsCounter - $this->dataLength) / $this->blocks);
+            $row    = ($this->rsCounter - $this->dataLength) % $this->blocks;
+            $return = $this->rsBlocks[$row]['ecc'][$column];
+        }
+        else {
+            return $return;
+        }
+
+        $this->rsCounter++;
+        return $return;
+    }
+
+    /**
      * Searches for a rs codec with the given properties, initializing and appending it if non-existent.
      * @param int $symbolSize
      * @param int $fgPolynomial
@@ -1556,8 +1586,7 @@ class QRCode
         if ($ret < 0) {
             return null;
         }
-        $this->counter = 0;
-        $this->width   = $this->capacity[$this->version][self::WIDTH];;
+        $this->width = $this->capacity[$this->version][self::WIDTH];;
         $this->frame     = $this->frame($this->version);
         $this->x         = $this->width - 1;
         $this->y         = $this->width - 1;
@@ -1565,7 +1594,7 @@ class QRCode
         $this->bit       = -1;
         // interleaved data and ecc codes
         for ($i = 0; $i < ($this->dataLength + $this->ecLength); $i++) {
-            $code = $this->getCode();
+            $code = $this->rsBlockCode();
             $bit  = 0x80;
             for ($j = 0; $j < 8; $j++) {
                 $addr = $this->getNextPosition();
@@ -1694,33 +1723,6 @@ class QRCode
             $blockNo++;
         }
         return 0;
-    }
-
-    /**
-     * Return Reed-Solomon block code.
-     * @return array rsblocks
-     */
-    protected function getCode()
-    {
-        if ($this->counter < $this->dataLength) {
-            $row = $this->counter % $this->blocks;
-            $col = (int) ($this->counter / $this->blocks);
-            if ($col >= $this->rsBlocks[0]['dataLength']) {
-                $row += $this->block1;
-            }
-            $row = (int) $row;
-            $ret = $this->rsBlocks[$row]['data'][$col];
-        }
-        elseif ($this->counter < $this->dataLength + $this->ecLength) {
-            $row = ($this->counter - $this->dataLength) % $this->blocks;
-            $col = (int) (($this->counter - $this->dataLength) / $this->blocks);
-            $ret = $this->rsBlocks[$row]['ecc'][$col];
-        }
-        else {
-            return 0;
-        }
-        $this->counter++;
-        return $ret;
     }
 
     /**
