@@ -1335,6 +1335,67 @@ class QRCode
     }
 
     /**
+     * The next frame position [x, y]
+     * @return array
+     */
+    private function nextFramePosition(): array
+    {
+        $default = ['x' => $this->x, 'y' => $this->y];
+        do {
+            if ($this->bit == -1) {
+                $this->bit = 0;
+                return $default;
+            }
+
+            $x     = $this->x;
+            $y     = $this->y;
+            $width = $this->width;
+
+            if ($this->bit == 0) {
+                $x--;
+                $this->bit++;
+            }
+            else {
+                $x++;
+                $y += $this->direction;
+                $this->bit--;
+            }
+
+            if ($this->direction < 0) {
+                if ($y < 0) {
+                    $y               = 0;
+                    $x               -= 2;
+                    $this->direction = 1;
+                    if ($x == 6) {
+                        $x--;
+                        $y = 9;
+                    }
+                }
+            }
+            else {
+                if ($y == $width) {
+                    $y               = $width - 1;
+                    $x               -= 2;
+                    $this->direction = -1;
+                    if ($x == 6) {
+                        $x--;
+                        $y -= 8;
+                    }
+                }
+            }
+
+            if (($x < 0) or ($y < 0)) {
+                return $default;
+            }
+
+            $this->x = $x;
+            $this->y = $y;
+        } while (ord($this->frame[$y][$x]) & 0x80);
+
+        return ['x' => $x, 'y' => $y];
+    }
+
+    /**
      * Return Reed-Solomon block code.
      * @return int
      */
@@ -1750,7 +1811,7 @@ class QRCode
             $code = $this->rsBlockCode();
             $bit  = 0x80;
             for ($j = 0; $j < 8; $j++) {
-                $addr = $this->getNextPosition();
+                $addr = $this->nextFramePosition();
                 $this->frameAt($addr, 0x02 | (($bit & $code) != 0));
                 $bit = $bit >> 1;
             }
@@ -1758,7 +1819,7 @@ class QRCode
         // remainder bits
         $j = $this->capacity[$this->version][self::REMAINDER];
         for ($i = 0; $i < $j; $i++) {
-            $addr = $this->getNextPosition();
+            $addr = $this->nextFramePosition();
             $this->frameAt($addr, 0x02);
         }
         // masking
@@ -1768,60 +1829,6 @@ class QRCode
             return null;
         }
         $this->data = $masked;
-    }
-
-    /**
-     * Return the next frame position
-     * @return array of x,y coordinates
-     */
-    protected function getNextPosition()
-    {
-        do {
-            if ($this->bit == -1) {
-                $this->bit = 0;
-                return ['x' => $this->x, 'y' => $this->y];
-            }
-            $x = $this->x;
-            $y = $this->y;
-            $w = $this->width;
-            if ($this->bit == 0) {
-                $x--;
-                $this->bit++;
-            }
-            else {
-                $x++;
-                $y += $this->direction;
-                $this->bit--;
-            }
-            if ($this->direction < 0) {
-                if ($y < 0) {
-                    $y               = 0;
-                    $x               -= 2;
-                    $this->direction = 1;
-                    if ($x == 6) {
-                        $x--;
-                        $y = 9;
-                    }
-                }
-            }
-            else {
-                if ($y == $w) {
-                    $y               = $w - 1;
-                    $x               -= 2;
-                    $this->direction = -1;
-                    if ($x == 6) {
-                        $x--;
-                        $y -= 8;
-                    }
-                }
-            }
-            if (($x < 0) or ($y < 0)) {
-                return null;
-            }
-            $this->x = $x;
-            $this->y = $y;
-        } while (ord($this->frame[$y][$x]) & 0x80);
-        return ['x' => $x, 'y' => $y];
     }
 
     /**
