@@ -30,7 +30,7 @@ class QRCode
      *     EIGHT_BIT    => 2  : 8 bits. ~2953 characters.
      *     MULTIBYTE    => 3  : 13 bits ~1817 characters.
      *     NORMAL       => -1 : It's a mystery!
-     *     NUMERIC      => 0  : (0-9) 3 characters / 10 bits ~7089 characters.
+     *     NUMERIC      => 0  : 3 characters / 10 bits ~7089 characters.
      */
     private const MODES = [self::ALPHANUMERIC, self::EIGHT_BIT, self::MULTIBYTE, self::NORMAL, self::NUMERIC, self::STRUCTURED];
 
@@ -61,6 +61,20 @@ class QRCode
     private const COUNT = 1, LEVEL = 3, REMAINDER = 2, WIDTH = 0;
 
     private const DEFAULT_MASK = 2, HEADER_BITS = 20, RANDOM_MASK = 2;
+
+    /** Descriptions for the properties of a Reed-Solomon Block. Allows descriptions to be referenced and not put directly into every RS docblock. */
+    private const RS_DESCRIPTIONS = [
+        'alphaTo'        => 'the address of an array of NN elements to convert Galois field elements in index (log) form to polynomial form',
+        'bitsPerSymbol'  => 'bits per symbol',
+        'fcRoot'         => 'first consecutive root, index form',
+        'genPolynomial'  => 'an array of numberRoots + 1 elements containing the generator polynomial in index form',
+        'indexOf'        => 'the address of an array of NN elements to convert Galois field elements in polynomial form to index (log) form',
+        'numberRoots'    => 'the number of roots in the RS code generator polynomial, which is the same as the number of parity symbols in a block',
+        'symbolsInBlock' => 'the total number of symbols in a RS block',
+        'padSymbolCount' => 'the number of pad symbols in a block',
+        'pElement'       => 'primitive element, index form',
+        'pRoot'          => 'prim-th root of 1, index form',
+    ];
 
     /**
      * Array positions of alignment patterns. This array includes only the second and the third position of the alignment patterns. Rest of them can
@@ -157,6 +171,7 @@ class QRCode
 
     /** Reed-Solomon */
     private array $rsBlocks = [];
+
     protected array $rsItems = [];
 
     private array $runLength = [];
@@ -393,7 +408,7 @@ class QRCode
      * @param int   $version
      * @return array
      */
-    protected function encodeAlphaNumeric(array $item, int $version): array
+    private function encodeAlphaNumeric(array $item, int $version): array
     {
         $words = (int) ($item['size'] / 2);
 
@@ -422,7 +437,7 @@ class QRCode
      * @param int   $version
      * @return array input item
      */
-    protected function encodeBitStream(array $item, int $version): array
+    private function encodeBitStream(array $item, int $version): array
     {
         $words = $this->maximumWords($item['mode'], $version);
 
@@ -456,7 +471,7 @@ class QRCode
      * @param int   $version
      * @return array
      */
-    protected function encodeEightBit(array $item, int $version): array
+    private function encodeEightBit(array $item, int $version): array
     {
         $item['bitStream'] = [];
         $item['bitStream'] = $this->appendNum($item['bitStream'], 4, 0x4);
@@ -475,7 +490,7 @@ class QRCode
      * @param int   $version
      * @return array
      */
-    protected function encodeModeMultiByte(array $item, int $version): array
+    private function encodeModeMultiByte(array $item, int $version): array
     {
         $item['bitStream'] = [];
         $item['bitStream'] = $this->appendNum($item['bitStream'], 4, 0x8);
@@ -499,7 +514,7 @@ class QRCode
      * @param int   $version
      * @return array
      */
-    protected function encodeNumeric(array $item, int $version): array
+    private function encodeNumeric(array $item, int $version): array
     {
         $value = 0x1;
         $words = (int) ($item['size'] / 3);
@@ -529,11 +544,50 @@ class QRCode
     }
 
     /**
+     * Encode a Reed-Solomon codec. Returns the parity array.
+     * @param array $rsValues
+     * @param array $data
+     * @return array
+     * @see self::RS_DESCRIPTIONS
+     */
+    private function encodeRSCodec(array $rsValues, array $data): array
+    {
+        $symbolsInBlock =& $rsValues['symbolsInBlock'];
+        $alphaTo        =& $rsValues['alphaTo'];
+        $indexOf        =& $rsValues['indexOf'];
+        $genPolynomial  =& $rsValues['genPolynomial'];
+        $numberRoots    =& $rsValues['numberRoots'];
+        $padSymbolCount =& $rsValues['padSymbolCount'];
+        $A0             =& $symbolsInBlock;
+
+        $parity = array_fill(0, $numberRoots, 0);
+
+        for ($i = 0; $i < ($symbolsInBlock - $numberRoots - $padSymbolCount); $i++) {
+            $feedback = $indexOf[$data[$i] ^ $parity[0]];
+            if ($feedback != $A0) {
+                // feedback term is non-zero
+                // This line is unnecessary when genPolynomial[numberRoots] is unity, as it must
+                // always be for the polynomials constructed by init_rs()
+                $feedback = $this->modnn($rsValues, $symbolsInBlock - $genPolynomial[$numberRoots] + $feedback);
+                for ($j = 1; $j < $numberRoots; ++$j) {
+                    $parity[$j] ^= $alphaTo[$this->modnn($rsValues, $feedback + $genPolynomial[($numberRoots - $j)])];
+                }
+            }
+
+            // Shift
+            array_shift($parity);
+            $parity[] = $feedback === $A0 ? 0 : $alphaTo[$this->modnn($rsValues, $feedback + $genPolynomial[0])];
+        }
+
+        return $parity;
+    }
+
+    /**
      * Encode item data as a structure and return modified item.
      * @param array $item
      * @return array
      */
-    protected function encodeStructure(array $item): array
+    private function encodeStructure(array $item): array
     {
         $item['bitStream'] = [];
         $item['bitStream'] = $this->appendNum($item['bitStream'], 4, 0x03);
@@ -952,7 +1006,7 @@ class QRCode
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
             $this->rsBlocks[$blockNo]['eccLength']  = $el;
-            $ecc                                    = $this->encode_rs_char($rs, $this->rsBlocks[$blockNo]['data'], $ecc);
+            $ecc                                    = $this->encodeRSCodec($rs, $this->rsBlocks[$blockNo]['data']);
             $this->rsBlocks[$blockNo]['ecc']        = $ecc;
             $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
             $dataPos                                += $dl;
@@ -975,7 +1029,7 @@ class QRCode
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
             $this->rsBlocks[$blockNo]['eccLength']  = $el;
-            $ecc                                    = $this->encode_rs_char($rs, $this->rsBlocks[$blockNo]['data'], $ecc);
+            $ecc                                    = $this->encodeRSCodec($rs, $this->rsBlocks[$blockNo]['data']);
             $this->rsBlocks[$blockNo]['ecc']        = $ecc;
             $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
             $dataPos                                += $dl;
@@ -2120,24 +2174,24 @@ class QRCode
 
     /**
      * Initialize a Reed-Solomon codec and add it to existing rsitems
-     * @param int $symsize symbol size, bits
-     * @param int $gfpoly  Field generator polynomial coefficients
-     * @param int $fcr     first root of RS code generator polynomial, index form
-     * @param int $prim    primitive element to generate polynomial roots
-     * @param int $nroots  RS code generator polynomial degree (number of roots)
-     * @param int $pad     padding bytes at front of shortened block
-     * @return array Array of RS values:<ul><li>mm = Bits per symbol;</li><li>nn = Symbols per block;</li><li>alpha_to = log lookup table array;</li><li>index_of = Antilog lookup table array;</li><li>genpoly = Generator polynomial array;</li><li>nroots = Number of generator;</li><li>roots = number of parity symbols;</li><li>fcr = First consecutive root, index form;</li><li>prim = Primitive element, index form;</li><li>iprim = prim-th root of 1, index form;</li><li>pad = Padding bytes in shortened block;</li><li>gfpoly</ul>.
+     * @param int $symsize        symbol size, bits
+     * @param int $gfpoly         Field generator polynomial coefficients
+     * @param int $fcRoot         first root of RS code generator polynomial, index form
+     * @param int $pElement       primitive element to generate polynomial roots
+     * @param int $numberRoots    RS code generator polynomial degree (number of roots)
+     * @param int $padSymbolCount padding bytes at front of shortened block
+     * @return array Array of RS values:<ul><li>bitsPerSymbol = Bits per symbol;</li><li>symbolsInBlock = Symbols per block;</li><li>alphaTo = log lookup table array;</li><li>indexOf = Antilog lookup table array;</li><li>genPolynomial = Generator polynomial array;</li><li>numberRoots = Number of generator;</li><li>roots = number of parity symbols;</li><li>fcRoot = First consecutive root, index form;</li><li>pElement = Primitive element, index form;</li><li>pRoot = prim-th root of 1, index form;</li><li>padSymbolCount = Padding bytes in shortened block;</li><li>gfpoly</ul>.
      */
-    protected function init_rs($symsize, $gfpoly, $fcr, $prim, $nroots, $pad)
+    protected function init_rs($symsize, $gfpoly, $fcRoot, $pElement, $numberRoots, $padSymbolCount)
     {
         foreach ($this->rsItems as $rs) {
-            if (($rs['pad'] != $pad) or ($rs['nroots'] != $nroots) or ($rs['mm'] != $symsize)
-                or ($rs['gfpoly'] != $gfpoly) or ($rs['fcr'] != $fcr) or ($rs['prim'] != $prim)) {
+            if (($rs['padSymbolCount'] != $padSymbolCount) or ($rs['numberRoots'] != $numberRoots) or ($rs['bitsPerSymbol'] != $symsize)
+                or ($rs['gfpoly'] != $gfpoly) or ($rs['fcRoot'] != $fcRoot) or ($rs['pElement'] != $pElement)) {
                 continue;
             }
             return $rs;
         }
-        $rs = $this->init_rs_char($symsize, $gfpoly, $fcr, $prim, $nroots, $pad);
+        $rs = $this->init_rs_char($symsize, $gfpoly, $fcRoot, $pElement, $numberRoots, $padSymbolCount);
         array_unshift($this->rsItems, $rs);
         return $rs;
     }
@@ -2150,24 +2204,24 @@ class QRCode
      */
     protected function modnn($rs, $x)
     {
-        while ($x >= $rs['nn']) {
-            $x -= $rs['nn'];
-            $x = ($x >> $rs['mm']) + ($x & $rs['nn']);
+        while ($x >= $rs['symbolsInBlock']) {
+            $x -= $rs['symbolsInBlock'];
+            $x = ($x >> $rs['bitsPerSymbol']) + ($x & $rs['symbolsInBlock']);
         }
         return $x;
     }
 
     /**
      * Initialize a Reed-Solomon codec and returns an array of values.
-     * @param int $symsize symbol size, bits
-     * @param int $gfpoly  Field generator polynomial coefficients
-     * @param int $fcr     first root of RS code generator polynomial, index form
-     * @param int $prim    primitive element to generate polynomial roots
-     * @param int $nroots  RS code generator polynomial degree (number of roots)
-     * @param int $pad     padding bytes at front of shortened block
-     * @return array Array of RS values:<ul><li>mm = Bits per symbol;</li><li>nn = Symbols per block;</li><li>alpha_to = log lookup table array;</li><li>index_of = Antilog lookup table array;</li><li>genpoly = Generator polynomial array;</li><li>nroots = Number of generator;</li><li>roots = number of parity symbols;</li><li>fcr = First consecutive root, index form;</li><li>prim = Primitive element, index form;</li><li>iprim = prim-th root of 1, index form;</li><li>pad = Padding bytes in shortened block;</li><li>gfpoly</ul>.
+     * @param int $symsize        symbol size, bits
+     * @param int $gfpoly         Field generator polynomial coefficients
+     * @param int $fcRoot         first root of RS code generator polynomial, index form
+     * @param int $pElement       primitive element to generate polynomial roots
+     * @param int $numberRoots    RS code generator polynomial degree (number of roots)
+     * @param int $padSymbolCount padding bytes at front of shortened block
+     * @return array Array of RS values:<ul><li>bitsPerSymbol = Bits per symbol;</li><li>symbolsInBlock = Symbols per block;</li><li>alphaTo = log lookup table array;</li><li>indexOf = Antilog lookup table array;</li><li>genPolynomial = Generator polynomial array;</li><li>numberRoots = Number of generator;</li><li>roots = number of parity symbols;</li><li>fcRoot = First consecutive root, index form;</li><li>pElement = Primitive element, index form;</li><li>pRoot = prim-th root of 1, index form;</li><li>padSymbolCount = Padding bytes in shortened block;</li><li>gfpoly</ul>.
      */
-    protected function init_rs_char($symsize, $gfpoly, $fcr, $prim, $nroots, $pad)
+    protected function init_rs_char($symsize, $gfpoly, $fcRoot, $pElement, $numberRoots, $padSymbolCount)
     {
         // Based on Reed solomon encoder by Phil Karn, KA9Q (GNU-LGPLv2)
         $rs = null;
@@ -2175,118 +2229,74 @@ class QRCode
         if (($symsize < 0) or ($symsize > 8)) {
             return $rs;
         }
-        if (($fcr < 0) or ($fcr >= (1 << $symsize))) {
+        if (($fcRoot < 0) or ($fcRoot >= (1 << $symsize))) {
             return $rs;
         }
-        if (($prim <= 0) or ($prim >= (1 << $symsize))) {
+        if (($pElement <= 0) or ($pElement >= (1 << $symsize))) {
             return $rs;
         }
-        if (($nroots < 0) or ($nroots >= (1 << $symsize))) {
+        if (($numberRoots < 0) or ($numberRoots >= (1 << $symsize))) {
             return $rs;
         }
-        if (($pad < 0) or ($pad >= ((1 << $symsize) - 1 - $nroots))) {
+        if (($padSymbolCount < 0) or ($padSymbolCount >= ((1 << $symsize) - 1 - $numberRoots))) {
             return $rs;
         }
-        $rs             = [];
-        $rs['mm']       = $symsize;
-        $rs['nn']       = (1 << $symsize) - 1;
-        $rs['pad']      = $pad;
-        $rs['alpha_to'] = array_fill(0, ($rs['nn'] + 1), 0);
-        $rs['index_of'] = array_fill(0, ($rs['nn'] + 1), 0);
+        $rs                   = [];
+        $rs['bitsPerSymbol']  = $symsize;
+        $rs['symbolsInBlock'] = (1 << $symsize) - 1;
+        $rs['padSymbolCount'] = $padSymbolCount;
+        $rs['alphaTo']        = array_fill(0, ($rs['symbolsInBlock'] + 1), 0);
+        $rs['indexOf']        = array_fill(0, ($rs['symbolsInBlock'] + 1), 0);
         // PHP style macro replacement ;)
-        $NN =& $rs['nn'];
-        $A0 =& $NN;
+        $symbolsInBlock =& $rs['symbolsInBlock'];
+        $A0             =& $symbolsInBlock;
         // Generate Galois field lookup tables
-        $rs['index_of'][0]   = $A0; // log(zero) = -inf
-        $rs['alpha_to'][$A0] = 0; // alpha**-inf = 0
-        $sr                  = 1;
-        for ($i = 0; $i < $rs['nn']; ++$i) {
-            $rs['index_of'][$sr] = $i;
-            $rs['alpha_to'][$i]  = $sr;
-            $sr                  <<= 1;
+        $rs['indexOf'][0]   = $A0; // log(zero) = -inf
+        $rs['alphaTo'][$A0] = 0; // alpha**-inf = 0
+        $sr                 = 1;
+        for ($i = 0; $i < $rs['symbolsInBlock']; ++$i) {
+            $rs['indexOf'][$sr] = $i;
+            $rs['alphaTo'][$i]  = $sr;
+            $sr                 <<= 1;
             if ($sr & (1 << $symsize)) {
                 $sr ^= $gfpoly;
             }
-            $sr &= $rs['nn'];
+            $sr &= $rs['symbolsInBlock'];
         }
         if ($sr != 1) {
             // field generator polynomial is not primitive!
             return null;
         }
         // Form RS code generator polynomial from its roots
-        $rs['genpoly'] = array_fill(0, ($nroots + 1), 0);
-        $rs['fcr']     = $fcr;
-        $rs['prim']    = $prim;
-        $rs['nroots']  = $nroots;
-        $rs['gfpoly']  = $gfpoly;
+        $rs['genPolynomial'] = array_fill(0, ($numberRoots + 1), 0);
+        $rs['fcRoot']        = $fcRoot;
+        $rs['pElement']      = $pElement;
+        $rs['numberRoots']   = $numberRoots;
+        $rs['gfpoly']        = $gfpoly;
         // Find prim-th root of 1, used in decoding
-        for ($iprim = 1; ($iprim % $prim) != 0; $iprim += $rs['nn']) {
+        for ($pRoot = 1; ($pRoot % $pElement) != 0; $pRoot += $rs['symbolsInBlock']) {
             ; // intentional empty-body loop!
         }
-        $rs['iprim']      = (int) ($iprim / $prim);
-        $rs['genpoly'][0] = 1;
-        for ($i = 0, $root = $fcr * $prim; $i < $nroots; $i++, $root += $prim) {
-            $rs['genpoly'][$i + 1] = 1;
-            // Multiply rs->genpoly[] by  @**(root + x)
+        $rs['pRoot']            = (int) ($pRoot / $pElement);
+        $rs['genPolynomial'][0] = 1;
+        for ($i = 0, $root = $fcRoot * $pElement; $i < $numberRoots; $i++, $root += $pElement) {
+            $rs['genPolynomial'][$i + 1] = 1;
+            // Multiply rs->genPolynomial[] by  @**(root + x)
             for ($j = $i; $j > 0; --$j) {
-                if ($rs['genpoly'][$j] != 0) {
-                    $rs['genpoly'][$j] = $rs['genpoly'][$j - 1] ^ $rs['alpha_to'][$this->modnn($rs, $rs['index_of'][$rs['genpoly'][$j]] + $root)];
+                if ($rs['genPolynomial'][$j] != 0) {
+                    $rs['genPolynomial'][$j] = $rs['genPolynomial'][$j - 1] ^ $rs['alphaTo'][$this->modnn($rs, $rs['indexOf'][$rs['genPolynomial'][$j]] + $root)];
                 }
                 else {
-                    $rs['genpoly'][$j] = $rs['genpoly'][$j - 1];
+                    $rs['genPolynomial'][$j] = $rs['genPolynomial'][$j - 1];
                 }
             }
-            // rs->genpoly[0] can never be zero
-            $rs['genpoly'][0] = $rs['alpha_to'][$this->modnn($rs, $rs['index_of'][$rs['genpoly'][0]] + $root)];
+            // rs->genPolynomial[0] can never be zero
+            $rs['genPolynomial'][0] = $rs['alphaTo'][$this->modnn($rs, $rs['indexOf'][$rs['genPolynomial'][0]] + $root)];
         }
-        // convert rs->genpoly[] to index form for quicker encoding
-        for ($i = 0; $i <= $nroots; ++$i) {
-            $rs['genpoly'][$i] = $rs['index_of'][$rs['genpoly'][$i]];
+        // convert rs->genPolynomial[] to index form for quicker encoding
+        for ($i = 0; $i <= $numberRoots; ++$i) {
+            $rs['genPolynomial'][$i] = $rs['indexOf'][$rs['genPolynomial'][$i]];
         }
         return $rs;
-    }
-
-    /**
-     * Encode a Reed-Solomon codec and returns the parity array
-     * @param array $rs     RS values
-     * @param array $data   data
-     * @param array $parity parity
-     * @return array
-     */
-    protected function encode_rs_char($rs, $data, $parity)
-    {
-        $MM       =& $rs['mm']; // bits per symbol
-        $NN       =& $rs['nn']; // the total number of symbols in a RS block
-        $ALPHA_TO =& $rs['alpha_to']; // the address of an array of NN elements to convert Galois field elements in index (log) form to polynomial form
-        $INDEX_OF =& $rs['index_of']; // the address of an array of NN elements to convert Galois field elements in polynomial form to index (log) form
-        $GENPOLY  =& $rs['genpoly']; // an array of NROOTS+1 elements containing the generator polynomial in index form
-        $NROOTS   =& $rs['nroots']; // the number of roots in the RS code generator polynomial, which is the same as the number of parity symbols in a block
-        $FCR      =& $rs['fcr']; // first consecutive root, index form
-        $PRIM     =& $rs['prim']; // primitive element, index form
-        $IPRIM    =& $rs['iprim']; // prim-th root of 1, index form
-        $PAD      =& $rs['pad']; // the number of pad symbols in a block
-        $A0       =& $NN;
-        $parity   = array_fill(0, $NROOTS, 0);
-        for ($i = 0; $i < ($NN - $NROOTS - $PAD); $i++) {
-            $feedback = $INDEX_OF[$data[$i] ^ $parity[0]];
-            if ($feedback != $A0) {
-                // feedback term is non-zero
-                // This line is unnecessary when GENPOLY[NROOTS] is unity, as it must
-                // always be for the polynomials constructed by init_rs()
-                $feedback = $this->modnn($rs, $NN - $GENPOLY[$NROOTS] + $feedback);
-                for ($j = 1; $j < $NROOTS; ++$j) {
-                    $parity[$j] ^= $ALPHA_TO[$this->modnn($rs, $feedback + $GENPOLY[($NROOTS - $j)])];
-                }
-            }
-            // Shift
-            array_shift($parity);
-            if ($feedback != $A0) {
-                array_push($parity, $ALPHA_TO[$this->modnn($rs, $feedback + $GENPOLY[0])]);
-            }
-            else {
-                array_push($parity, 0);
-            }
-        }
-        return $parity;
     }
 }
