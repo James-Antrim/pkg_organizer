@@ -1024,8 +1024,8 @@ class QRCode
         $spec             = [0, 0, 0, 0, 0];
         $spec             = $this->getEccSpec($this->version, $this->ecLevel, $spec);
         $this->block1     = $spec[0];
-        $this->dataLength = $this->rsDataLength($spec);
-        $this->ecLength   = $this->rsEccLength($spec);
+        $this->dataLength = ($spec[0] * $spec[1]) + ($spec[3] * $spec[4]);
+        $this->ecLength   = ($spec[0] + $spec[3]) * $spec[2];
         $this->ecCode     = array_fill(0, $this->ecLength, 0);
         $this->blocks     = $spec[0] + $spec[3];
         $ret              = $this->init($spec);
@@ -1145,8 +1145,8 @@ class QRCode
      */
     protected function init($spec)
     {
-        $dl      = $this->rsDataCodes1($spec);
-        $el      = $this->rsEccCodes1($spec);
+        $dl      = $spec[1];
+        $el      = $spec[2];
         $rs      = $this->rsCodec(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
         $blockNo = 0;
         $dataPos = 0;
@@ -1169,8 +1169,8 @@ class QRCode
             return 0;
         }
 
-        $dl = $this->rsDataCodes2($spec);
-        $el = $this->rsEccCodes2($spec);
+        $dl = $spec[4];
+        $el = $spec[2];
         $rs = $this->rsCodec(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
         if ($rs == null) {
             return -1;
@@ -2263,65 +2263,5 @@ class QRCode
             return null;
         }
         return $this->frames[$version];
-    }
-
-    /**
-     * Return data codes 1
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsDataCodes1($spec)
-    {
-        return $spec[1];
-    }
-
-    /**
-     * Return ecc codes 1
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsEccCodes1($spec)
-    {
-        return $spec[2];
-    }
-
-    /**
-     * Return data codes 2
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsDataCodes2($spec)
-    {
-        return $spec[4];
-    }
-
-    /**
-     * Return ecc codes 2
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsEccCodes2($spec)
-    {
-        return $spec[2];
-    }
-
-    /**
-     * Return data length
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsDataLength($spec)
-    {
-        return ($spec[0] * $spec[1]) + ($spec[3] * $spec[4]);
-    }
-
-    /**
-     * Return ecc length
-     * @param array $spec
-     * @return int value
-     */
-    protected function rsEccLength($spec)
-    {
-        return ($spec[0] + $spec[3]) * $spec[2];
     }
 }
