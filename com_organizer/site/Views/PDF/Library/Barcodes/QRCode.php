@@ -773,16 +773,6 @@ class QRCode
     }
 
     /**
-     * estimateBitsModeMultiByte
-     * @param int $count
-     * @return int number of bits
-     */
-    private function estimateMultiByte(int $count): int
-    {
-        return (int) ($count * 6.5);
-    }
-
-    /**
      * estimateBitsModeNum
      * @param int $count
      * @return int number of bits
@@ -2040,7 +2030,7 @@ class QRCode
                 }
                 case self::MULTIBYTE:
                 {
-                    $bits = $this->estimateMultiByte($item['size']);
+                    $bits = (int) ($item['size'] * 6.5);
                     break;
                 }
                 case self::STRUCTURED:
