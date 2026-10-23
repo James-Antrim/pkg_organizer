@@ -68,7 +68,7 @@ class QRCode
      */
     private const RS_DESCRIPTIONS = [
         'alphaTo'        => 'the address of an array of NN elements to convert Galois field elements in index (log) form to polynomial form',
-        'bitsPerSymbol'  => 'bits per symbol',
+        'symbolSize'     => 'bits per symbol',
         'fcRoot'         => 'first consecutive root, index form',
         'fgPolynomial'   => 'field generator polynomial coefficient',
         'genPolynomial'  => 'an array of numberRoots + 1 elements containing the generator polynomial in index form',
@@ -744,6 +744,41 @@ class QRCode
     }
 
     /**
+     * Searches for an rs codec with the given properties, initializing and appending it if non-existent.
+     * @param int $symbolSize
+     * @param int $fgPolynomial
+     * @param int $fcRoot
+     * @param int $pElement
+     * @param int $numberRoots
+     * @param int $paddingSize
+     * @return array
+     * @see self::RS_DESCRIPTIONS
+     */
+    protected function rsCodec(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
+    {
+        // Search for an existing codec matching the given criteria
+        foreach ($this->rsItems as $rs) {
+            $wrongElement    = $rs['pElement'] !== $pElement;
+            $wrongNumber     = $rs['numberRoots'] !== $numberRoots;
+            $wrongPadding    = $rs['paddingSize'] !== $paddingSize;
+            $wrongPolynomial = $rs['fgPolynomial'] !== $fgPolynomial;
+            $wrongRoot       = $rs['fcRoot'] !== $fcRoot;
+            $wrongSize       = $rs['symbolSize'] !== $symbolSize;
+            if ($wrongElement or $wrongNumber or $wrongPadding or $wrongPolynomial or $wrongSize or $wrongRoot) {
+                continue;
+            }
+
+            return $rs;
+        }
+
+        if ($rs = $this->rsInitializeCodec($symbolSize, $fgPolynomial, $fcRoot, $pElement, $numberRoots, $paddingSize)) {
+            array_unshift($this->rsItems, $rs);
+        }
+
+        return $rs;
+    }
+
+    /**
      * Encode a Reed-Solomon codec. Returns the parity array.
      * @param array $rsValues
      * @param array $data
@@ -793,7 +828,7 @@ class QRCode
     {
         while ($x >= $rs['symbolsInBlock']) {
             $x -= $rs['symbolsInBlock'];
-            $x = ($x >> $rs['bitsPerSymbol']) + ($x & $rs['symbolsInBlock']);
+            $x = ($x >> $rs['symbolSize']) + ($x & $rs['symbolsInBlock']);
         }
 
         return $x;
@@ -801,7 +836,7 @@ class QRCode
 
     /**
      * Initialize a Reed-Solomon codec and returns an array of values.
-     * @param int $bitsPerSymbol
+     * @param int $symbolSize
      * @param int $fgPolynomial
      * @param int $fcRoot
      * @param int $pElement
@@ -810,23 +845,23 @@ class QRCode
      * @return array
      * @see self::RS_DESCRIPTIONS
      */
-    protected function rsInitializeCodec(int $bitsPerSymbol, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
+    protected function rsInitializeCodec(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
     {
 
-        $invalidElement = ($pElement <= 0 or $pElement >= (1 << $bitsPerSymbol));
-        $invalidNumber  = ($numberRoots < 0 or $numberRoots >= (1 << $bitsPerSymbol));
-        $invalidPadding = ($paddingSize < 0 or $paddingSize >= (1 << $bitsPerSymbol) - 1 - $numberRoots);
-        $invalidRoot    = ($fcRoot < 0 or $fcRoot >= (1 << $bitsPerSymbol));
-        $invalidSize    = ($bitsPerSymbol < 0 or $bitsPerSymbol > 8);
+        $invalidElement = ($pElement <= 0 or $pElement >= (1 << $symbolSize));
+        $invalidNumber  = ($numberRoots < 0 or $numberRoots >= (1 << $symbolSize));
+        $invalidPadding = ($paddingSize < 0 or $paddingSize >= (1 << $symbolSize) - 1 - $numberRoots);
+        $invalidRoot    = ($fcRoot < 0 or $fcRoot >= (1 << $symbolSize));
+        $invalidSize    = ($symbolSize < 0 or $symbolSize > 8);
 
-        if ($invalidSize or $invalidRoot or $invalidElement or $invalidNumber or $invalidPadding) {
+        if ($invalidElement or $invalidNumber or $invalidPadding or $invalidRoot or $invalidSize) {
             return [];
         }
 
         $rs                   = [];
-        $rs['bitsPerSymbol']  = $bitsPerSymbol;
+        $rs['symbolSize']     = $symbolSize;
         $rs['paddingSize']    = $paddingSize;
-        $rs['symbolsInBlock'] = (1 << $bitsPerSymbol) - 1;
+        $rs['symbolsInBlock'] = (1 << $symbolSize) - 1;
 
         $rs['alphaTo'] = array_fill(0, ($rs['symbolsInBlock'] + 1), 0);
         $rs['indexOf'] = array_fill(0, ($rs['symbolsInBlock'] + 1), 0);
@@ -845,7 +880,7 @@ class QRCode
             $rs['alphaTo'][$i]  = $sr;
 
             $sr <<= 1;
-            if ($sr & (1 << $bitsPerSymbol)) {
+            if ($sr & (1 << $symbolSize)) {
                 $sr ^= $fgPolynomial;
             }
 
@@ -1112,13 +1147,12 @@ class QRCode
     {
         $dl      = $this->rsDataCodes1($spec);
         $el      = $this->rsEccCodes1($spec);
-        $rs      = $this->init_rs(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
+        $rs      = $this->rsCodec(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
         $blockNo = 0;
         $dataPos = 0;
         $eccPos  = 0;
         $endfor  = $spec[0];
         for ($i = 0; $i < $endfor; ++$i) {
-            $ecc                                    = array_slice($this->ecCode, $eccPos);
             $this->rsBlocks[$blockNo]               = [];
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
@@ -1130,18 +1164,20 @@ class QRCode
             $eccPos                                 += $el;
             $blockNo++;
         }
+
         if ($spec[3] === 0) {
             return 0;
         }
+
         $dl = $this->rsDataCodes2($spec);
         $el = $this->rsEccCodes2($spec);
-        $rs = $this->init_rs(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
+        $rs = $this->rsCodec(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
         if ($rs == null) {
             return -1;
         }
         $endfor = $spec[3];
+
         for ($i = 0; $i < $endfor; ++$i) {
-            $ecc                                    = array_slice($this->ecCode, $eccPos);
             $this->rsBlocks[$blockNo]               = [];
             $this->rsBlocks[$blockNo]['dataLength'] = $dl;
             $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
@@ -2287,30 +2323,5 @@ class QRCode
     protected function rsEccLength($spec)
     {
         return ($spec[0] + $spec[3]) * $spec[2];
-    }
-
-    /**
-     * Initialize a Reed-Solomon codec and add it to existing rsitems
-     * @param int $symsize      symbol size, bits
-     * @param int $fgPolynomial Field generator polynomial coefficients
-     * @param int $fcRoot       first root of RS code generator polynomial, index form
-     * @param int $pElement     primitive element to generate polynomial roots
-     * @param int $numberRoots  RS code generator polynomial degree (number of roots)
-     * @param int $paddingSize  padding bytes at front of shortened block
-     * @return array
-     * @see self::RS_DESCRIPTIONS
-     */
-    protected function init_rs($symsize, $fgPolynomial, $fcRoot, $pElement, $numberRoots, $paddingSize)
-    {
-        foreach ($this->rsItems as $rs) {
-            if (($rs['paddingSize'] != $paddingSize) or ($rs['numberRoots'] != $numberRoots) or ($rs['bitsPerSymbol'] != $symsize)
-                or ($rs['fgPolynomial'] != $fgPolynomial) or ($rs['fcRoot'] != $fcRoot) or ($rs['pElement'] != $pElement)) {
-                continue;
-            }
-            return $rs;
-        }
-        $rs = $this->rsInitializeCodec($symsize, $fgPolynomial, $fcRoot, $pElement, $numberRoots, $paddingSize);
-        array_unshift($this->rsItems, $rs);
-        return $rs;
     }
 }
