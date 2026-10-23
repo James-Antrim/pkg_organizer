@@ -851,11 +851,33 @@ class QRCode
     }
 
     /**
+     * Return the size of length indicator (bits) for the mode and version.
+     * @param int $mode    encoding mode
+     * @param int $version version
+     * @return int
+     * @see self::MODES
+     */
+    private function lengthIndicator(int $mode, int $version): int
+    {
+        if ($mode === self::STRUCTURED) {
+            return 0;
+        }
+
+        $level = match (true) {
+            $version <= 9 => 0,
+            $version <= 26 => 1,
+            default => 2
+        };
+
+        return $this->lengthTableBits[$mode][$level];
+    }
+
+    /**
      * Look up the alphabet-numeric conversion table (see JIS X0510:2004, pp.19).
      * @param int $character character value
      * @return int
      */
-    protected function lookup(int $character): int
+    private function lookup(int $character): int
     {
         return (($character > 127) ? -1 : $this->anTable[$character]);
     }
@@ -985,6 +1007,54 @@ class QRCode
         }
 
         return $blacks;
+    }
+
+    /**
+     * Return the maximum length (bytes) for the mode and version.
+     * @param int $mode    encoding mode
+     * @param int $version version
+     * @return int
+     * @see self::MODES
+     */
+    protected function maximumWords(int $mode, int $version): int
+    {
+        if ($mode == self::STRUCTURED) {
+            return 3;
+        }
+
+        $level = match (true) {
+            $version <= 9 => 0,
+            $version <= 26 => 1,
+            default => 2
+        };
+
+        $bits  = $this->lengthTableBits[$mode][$level];
+        $words = (1 << $bits) - 1;
+
+        if ($mode == self::MULTIBYTE) {
+            $words *= 2; // the number of bytes is required
+        }
+
+        return $words;
+    }
+
+    /**
+     * Return a version number that satisfies the input code length.
+     * @param int $length input code length (bytes)
+     * @param int $level  error correction level
+     * @return int
+     */
+    protected function minimumVersion(int $length, int $level): int
+    {
+        for ($i = 1; $i <= self::MAX_VERSION; ++$i) {
+            $words = ($this->capacity[$i][self::COUNT] - $this->capacity[$i][self::LEVEL][$level]);
+            if ($words >= $length) {
+                return $i;
+            }
+        }
+
+        // the size of input data is greater than QR capacity, try to lover the error correction mode
+        return -1;
     }
 
     /**
@@ -1758,7 +1828,7 @@ class QRCode
         do {
             $prev    = $version;
             $bits    = $this->estimateBitStreamSize($items, $prev);
-            $version = $this->getMinimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
+            $version = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
             if ($version < 0) {
                 return -1;
             }
@@ -1865,7 +1935,7 @@ class QRCode
             if ($bits < 0) {
                 return -1;
             }
-            $ver = $this->getMinimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
+            $ver = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
             if ($ver < 0) {
                 return -1;
             }
@@ -2085,75 +2155,6 @@ class QRCode
     protected function getDataLength($version, $level)
     {
         return $this->capacity[$version][self::COUNT] - $this->capacity[$version][self::LEVEL][$level];
-    }
-
-    /**
-     * Return a version number that satisfies the input code length.
-     * @param int $size  input code length (bytes)
-     * @param int $level error correction level
-     * @return int version number
-     */
-    protected function getMinimumVersion($size, $level)
-    {
-        for ($i = 1; $i <= self::MAX_VERSION; ++$i) {
-            $words = ($this->capacity[$i][self::COUNT] - $this->capacity[$i][self::LEVEL][$level]);
-            if ($words >= $size) {
-                return $i;
-            }
-        }
-        // the size of input data is greater than QR capacity, try to lover the error correction mode
-        return -1;
-    }
-
-    /**
-     * Return the size of length indicator for the mode and version.
-     * @param int $mode    encoding mode
-     * @param int $version version
-     * @return int the size of the appropriate length indicator (bits).
-     */
-    protected function lengthIndicator($mode, $version)
-    {
-        if ($mode == self::STRUCTURED) {
-            return 0;
-        }
-        if ($version <= 9) {
-            $l = 0;
-        }
-        elseif ($version <= 26) {
-            $l = 1;
-        }
-        else {
-            $l = 2;
-        }
-        return $this->lengthTableBits[$mode][$l];
-    }
-
-    /**
-     * Return the maximum length for the mode and version.
-     * @param int $mode    encoding mode
-     * @param int $version version
-     * @return int the maximum length (bytes)
-     */
-    protected function maximumWords($mode, $version)
-    {
-        if ($mode == self::STRUCTURED) {
-            return 3;
-        }
-        if ($version <= 9) {
-            $l = 0;
-        }
-        else if ($version <= 26) {
-            $l = 1;
-        }
-        else {
-            $l = 2;
-        }
-        $bits  = $this->lengthTableBits[$mode][$l];
-        $words = (1 << $bits) - 1;
-        if ($mode == self::MULTIBYTE) {
-            $words *= 2; // the number of bytes is required
-        }
-        return $words;
     }
 
     /**
