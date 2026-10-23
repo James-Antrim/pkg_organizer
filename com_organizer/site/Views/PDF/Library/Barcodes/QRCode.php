@@ -421,14 +421,14 @@ class QRCode
         $item['bitStream'] = $this->appendNum($item['bitStream'], $this->lengthIndicator(self::ALPHANUMERIC, $version), $item['size']);
 
         for ($index = 0; $index < $words; ++$index) {
-            $value = $this->lookAnTable(ord($item['data'][$index * 2])) * 45;
-            $value += $this->lookAnTable(ord($item['data'][($index * 2) + 1]));
+            $value = $this->lookup(ord($item['data'][$index * 2])) * 45;
+            $value += $this->lookup(ord($item['data'][($index * 2) + 1]));
 
             $item['bitStream'] = $this->appendNum($item['bitStream'], 11, $value);
         }
 
         if ($item['size'] & 1) {
-            $value = $this->lookAnTable(ord($item['data'][($words * 2)]));
+            $value = $this->lookup(ord($item['data'][($words * 2)]));
 
             $item['bitStream'] = $this->appendNum($item['bitStream'], 6, $value);
         }
@@ -832,7 +832,7 @@ class QRCode
             return false;
         }
 
-        return $this->lookAnTable(ord($string[$position])) >= 0;
+        return $this->lookup(ord($string[$position])) >= 0;
     }
 
     /**
@@ -848,6 +848,16 @@ class QRCode
         }
 
         return (ord($string[$position]) >= ord('0') and ord($string[$position]) <= ord('9'));
+    }
+
+    /**
+     * Look up the alphabet-numeric conversion table (see JIS X0510:2004, pp.19).
+     * @param int $character character value
+     * @return int
+     */
+    protected function lookup(int $character): int
+    {
+        return (($character > 127) ? -1 : $this->anTable[$character]);
     }
 
     /**
@@ -1162,6 +1172,55 @@ class QRCode
         }
 
         return $x;
+    }
+
+    /**
+     * Validates the input data.
+     * @param int   $mode encoding mode.
+     * @param int   $size size of data (byte).
+     * @param array $data data to validate
+     * @return bool
+     */
+    protected function validate(int $mode, int $size, array $data): bool
+    {
+        if ($size <= 0) {
+            return false;
+        }
+
+        switch ($mode) {
+            case self::ALPHANUMERIC:
+                for ($i = 0; $i < $size; ++$i) {
+                    if ($this->lookup(ord($data[$i])) == -1) {
+                        return false;
+                    }
+                }
+                return true;
+            case self::EIGHT_BIT:
+            case self::STRUCTURED:
+                return true;
+            case self::MULTIBYTE:
+                if ($size & 1) {
+                    return false;
+                }
+
+                for ($i = 0; $i < $size; $i += 2) {
+                    $val = (ord($data[$i]) << 8) | ord($data[$i + 1]);
+                    if (($val < 0x8140) or (($val > 0x9ffc) and ($val < 0xe040)) or ($val > 0xebbf)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            case self::NUMERIC:
+                for ($i = 0; $i < $size; ++$i) {
+                    if ((ord($data[$i]) < ord('0')) or (ord($data[$i]) > ord('9'))) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
@@ -1584,7 +1643,7 @@ class QRCode
         if (count($setData) < $size) {
             $setData = array_merge($setData, array_fill(0, ($size - count($setData)), 0));
         }
-        if (!$this->check($mode, $size, $setData)) {
+        if (!$this->validate($mode, $size, $setData)) {
             return null;
         }
         $inputItem              = [];
@@ -1634,109 +1693,6 @@ class QRCode
         $entry = $this->newInputItem(self::STRUCTURED, 3, $buf);
         array_unshift($items, $entry);
         return $items;
-    }
-
-    /**
-     * checkModeNum
-     * @param int   $size
-     * @param array $data
-     * @return boolean true or false
-     */
-    protected function checkModeNum($size, $data)
-    {
-        for ($i = 0; $i < $size; ++$i) {
-            if ((ord($data[$i]) < ord('0')) or (ord($data[$i]) > ord('9'))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Look up the alphabet-numeric conversion table (see JIS X0510:2004, pp.19).
-     * @param int $c character value
-     * @return int value
-     */
-    protected function lookAnTable($c)
-    {
-        return (($c > 127) ? -1 : $this->anTable[$c]);
-    }
-
-    /**
-     * checkModeAn
-     * @param int   $size
-     * @param array $data
-     * @return boolean true or false
-     */
-    protected function checkModeAn($size, $data)
-    {
-        for ($i = 0; $i < $size; ++$i) {
-            if ($this->lookAnTable(ord($data[$i])) == -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * checkModeMultiByte
-     * @param int   $size
-     * @param array $data
-     * @return boolean true or false
-     */
-    protected function checkModeMultiByte($size, $data)
-    {
-        if ($size & 1) {
-            return false;
-        }
-        for ($i = 0; $i < $size; $i += 2) {
-            $val = (ord($data[$i]) << 8) | ord($data[$i + 1]);
-            if (($val < 0x8140) or (($val > 0x9ffc) and ($val < 0xe040)) or ($val > 0xebbf)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Validate the input data.
-     * @param int   $mode encoding mode.
-     * @param int   $size size of data (byte).
-     * @param array $data data to validate
-     * @return boolean true in case of valid data, false otherwise
-     */
-    protected function check($mode, $size, $data)
-    {
-        if ($size <= 0) {
-            return false;
-        }
-        switch ($mode) {
-            case self::NUMERIC:
-            {
-                return $this->checkModeNum($size, $data);
-            }
-            case self::ALPHANUMERIC:
-            {
-                return $this->checkModeAn($size, $data);
-            }
-            case self::MULTIBYTE:
-            {
-                return $this->checkModeMultiByte($size, $data);
-            }
-            case self::EIGHT_BIT:
-            {
-                return true;
-            }
-            case self::STRUCTURED:
-            {
-                return true;
-            }
-            default:
-            {
-                break;
-            }
-        }
-        return false;
     }
 
     /**
