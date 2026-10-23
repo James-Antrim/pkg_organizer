@@ -768,18 +768,35 @@ class QRCode
                 // feedback term is non-zero
                 // This line is unnecessary when genPolynomial[numberRoots] is unity, as it must
                 // always be for the polynomials constructed by init_rs()
-                $feedback = $this->modnn($rsValues, $symbolsInBlock - $genPolynomial[$numberRoots] + $feedback);
+                $feedback = $this->rsRepositionX($rsValues, $symbolsInBlock - $genPolynomial[$numberRoots] + $feedback);
                 for ($j = 1; $j < $numberRoots; ++$j) {
-                    $parity[$j] ^= $alphaTo[$this->modnn($rsValues, $feedback + $genPolynomial[($numberRoots - $j)])];
+                    $parity[$j] ^= $alphaTo[$this->rsRepositionX($rsValues, $feedback + $genPolynomial[($numberRoots - $j)])];
                 }
             }
 
             // Shift
             array_shift($parity);
-            $parity[] = $feedback === $A0 ? 0 : $alphaTo[$this->modnn($rsValues, $feedback + $genPolynomial[0])];
+            $parity[] = $feedback === $A0 ? 0 : $alphaTo[$this->rsRepositionX($rsValues, $feedback + $genPolynomial[0])];
         }
 
         return $parity;
+    }
+
+    /**
+     * Calculates a new x positon based on the number of bits per symbol and number of symbols in block.
+     * @param array $rs RS values
+     * @param int   $x  X position
+     * @return int
+     * @see self::RS_DESCRIPTIONS
+     */
+    protected function rsRepositionX(array $rs, int $x): int
+    {
+        while ($x >= $rs['symbolsInBlock']) {
+            $x -= $rs['symbolsInBlock'];
+            $x = ($x >> $rs['bitsPerSymbol']) + ($x & $rs['symbolsInBlock']);
+        }
+
+        return $x;
     }
 
     /**
@@ -860,14 +877,14 @@ class QRCode
             for ($inner = $outer; $inner > 0; --$inner) {
                 if ($rs['genPolynomial'][$inner] != 0) {
                     $rs['genPolynomial'][$inner] = $rs['genPolynomial'][$inner - 1] ^
-                        $rs['alphaTo'][$this->modnn($rs, $rs['indexOf'][$rs['genPolynomial'][$inner]] + $root)];
+                        $rs['alphaTo'][$this->rsRepositionX($rs, $rs['indexOf'][$rs['genPolynomial'][$inner]] + $root)];
                 }
                 else {
                     $rs['genPolynomial'][$inner] = $rs['genPolynomial'][$inner - 1];
                 }
             }
             // rs->genPolynomial[0] can never be zero
-            $rs['genPolynomial'][0] = $rs['alphaTo'][$this->modnn($rs, $rs['indexOf'][$rs['genPolynomial'][0]] + $root)];
+            $rs['genPolynomial'][0] = $rs['alphaTo'][$this->rsRepositionX($rs, $rs['indexOf'][$rs['genPolynomial'][0]] + $root)];
         }
 
         // convert rs->genPolynomial[] to index form for quicker encoding
@@ -2295,20 +2312,5 @@ class QRCode
         $rs = $this->rsInitializeCodec($symsize, $fgPolynomial, $fcRoot, $pElement, $numberRoots, $paddingSize);
         array_unshift($this->rsItems, $rs);
         return $rs;
-    }
-
-    /**
-     * modnn
-     * @param array $rs RS values
-     * @param int   $x  X position
-     * @return int X osition
-     */
-    protected function modnn($rs, $x)
-    {
-        while ($x >= $rs['symbolsInBlock']) {
-            $x -= $rs['symbolsInBlock'];
-            $x = ($x >> $rs['bitsPerSymbol']) + ($x & $rs['symbolsInBlock']);
-        }
-        return $x;
     }
 }
