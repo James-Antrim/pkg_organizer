@@ -646,15 +646,15 @@ class QRCode
             ++$yOffset;
         }
 
-        $setPattern = str_repeat("\xc0", 8);
-        $frame      = $this->qrstrset($frame, 0, 7, $setPattern);
-        $frame      = $this->qrstrset($frame, $width - 8, 7, $setPattern);
-        $frame      = $this->qrstrset($frame, 0, $width - 8, $setPattern);
+        $setPattern        = str_repeat("\xc0", 8);
+        $frame[7]          = substr_replace($frame[7], $setPattern, 0, strlen($setPattern));
+        $frame[7]          = substr_replace($frame[7], $setPattern, $width - 8, strlen($setPattern));
+        $frame[$width - 8] = substr_replace($frame[$width - 8], $setPattern, 0, strlen($setPattern));
 
         // Format info
         $setPattern = str_repeat("\x84", 9);
-        $frame      = $this->qrstrset($frame, 0, 8, $setPattern);
-        $frame      = $this->qrstrset($frame, $width - 8, 8, $setPattern, 8);
+        $frame[8]   = substr_replace($frame[8], $setPattern, 0, strlen($setPattern));
+        $frame[8]   = substr_replace($frame[8], substr($setPattern, 0, 8), $width - 8, 8);
 
         $yOffset = $width - 8;
         for ($y = 0; $y < 8; ++$y, ++$yOffset) {
@@ -2057,21 +2057,6 @@ class QRCode
     }
 
     /**
-     * Replace a value on the array at the specified position
-     * @param array  $srctab
-     * @param int    $x       X position
-     * @param int    $y       Y position
-     * @param string $repl    value to replace
-     * @param int    $replLen length of the repl string
-     * @return array srctab
-     */
-    protected function qrstrset($srctab, $x, $y, $repl, $replLen = false)
-    {
-        $srctab[$y] = substr_replace($srctab[$y], ($replLen !== false) ? substr($repl, 0, $replLen) : $repl, $x, ($replLen !== false) ? $replLen : strlen($repl));
-        return $srctab;
-    }
-
-    /**
      * Return maximum data code length (bytes) for the version.
      * @param int $version version
      * @param int $level   error correction level
@@ -2187,24 +2172,21 @@ class QRCode
     /**
      * Put an alignment marker.
      * @param array $frame frame
-     * @param int   $ox    X center coordinate of the pattern
-     * @param int   $oy    Y center coordinate of the pattern
+     * @param int   $x     X center coordinate of the pattern
+     * @param int   $y     Y center coordinate of the pattern
      * @return array frame
      */
-    protected function putAlignmentMarker($frame, $ox, $oy)
+    protected function putAlignmentMarker($frame, $x, $y)
     {
-        $finder = [
-            "\xa1\xa1\xa1\xa1\xa1",
-            "\xa1\xa0\xa0\xa0\xa1",
-            "\xa1\xa0\xa1\xa0\xa1",
-            "\xa1\xa0\xa0\xa0\xa1",
-            "\xa1\xa1\xa1\xa1\xa1"
-        ];
-        $yStart = $oy - 2;
-        $xStart = $ox - 2;
-        for ($y = 0; $y < 5; $y++) {
-            $frame = $this->qrstrset($frame, $xStart, $yStart + $y, $finder[$y]);
+        $finder = ["\xa1\xa1\xa1\xa1\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa0\xa1\xa0\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa1\xa1\xa1\xa1"];
+
+        $x -= 2;
+        $y -= 2;
+
+        for ($offset = 0; $offset < 5; $offset++) {
+            $frame[$y + $offset] = substr_replace($frame[$y + $offset], $finder[$offset], $x, strlen($finder[$offset]));
         }
+
         return $frame;
     }
 
@@ -2255,11 +2237,11 @@ class QRCode
     /**
      * Put a finder pattern.
      * @param array $frame frame
-     * @param int   $ox    X center coordinate of the pattern
-     * @param int   $oy    Y center coordinate of the pattern
+     * @param int   $x     X center coordinate of the pattern
+     * @param int   $y     Y center coordinate of the pattern
      * @return array frame
      */
-    protected function putFinderPattern($frame, $ox, $oy)
+    protected function putFinderPattern($frame, $x, $y)
     {
         $finder = [
             "\xc1\xc1\xc1\xc1\xc1\xc1\xc1",
@@ -2270,8 +2252,8 @@ class QRCode
             "\xc1\xc0\xc0\xc0\xc0\xc0\xc1",
             "\xc1\xc1\xc1\xc1\xc1\xc1\xc1"
         ];
-        for ($y = 0; $y < 7; $y++) {
-            $frame = $this->qrstrset($frame, $ox, ($oy + $y), $finder[$y]);
+        for ($offset = 0; $offset < 7; $offset++) {
+            $frame[$y + $offset] = substr_replace($frame[$y + $offset], $finder[$offset], $x, strlen($finder[$offset]));
         }
         return $frame;
     }
