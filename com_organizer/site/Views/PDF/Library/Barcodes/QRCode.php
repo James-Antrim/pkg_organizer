@@ -1422,24 +1422,24 @@ class QRCode
      * makeMaskNo
      * @param int     $maskNo
      * @param int     $width
-     * @param int     $s
+     * @param array   $frame
      * @param int     $d
      * @param boolean $maskGenOnly
-     * @return int b
+     * @return int
      */
-    protected function makeMaskNo($maskNo, $width, $s, &$d, $maskGenOnly = false)
+    protected function makeMaskNo($maskNo, $width, $frame, &$d, $maskGenOnly = false)
     {
         $b       = 0;
         $bitMask = [];
-        $bitMask = $this->generateMaskNo($maskNo, $width, $s);
+        $bitMask = $this->generateMaskNo($maskNo, $width, $frame);
         if ($maskGenOnly) {
             return;
         }
-        $d = $s;
+        $d = $frame;
         for ($y = 0; $y < $width; ++$y) {
             for ($x = 0; $x < $width; ++$x) {
                 if ($bitMask[$y][$x] == 1) {
-                    $d[$y][$x] = chr(ord($s[$y][$x]) ^ ((int) ($bitMask[$y][$x])));
+                    $d[$y][$x] = chr(ord($frame[$y][$x]) ^ ((int) ($bitMask[$y][$x])));
                 }
                 $b += ord($d[$y][$x]) & 1;
             }
