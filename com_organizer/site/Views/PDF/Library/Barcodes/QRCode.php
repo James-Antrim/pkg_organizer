@@ -259,7 +259,16 @@ class QRCode
      */
     private function aggregateBitstream(array $items): array
     {
-        $version = $this->estimateVersion($items);
+        $version = 0;
+        do {
+            $prev    = $version;
+            $bits    = $this->estimateStreamSize($items, $prev);
+            $version = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
+            if ($version < 0) {
+                $version = -1;
+                break;
+            }
+        } while ($version > $prev);;
         if ($version > $this->version) {
             $this->version = $version;
         }
@@ -2037,26 +2046,6 @@ class QRCode
         $entry = $this->newInputItem(self::STRUCTURED, 3, $buf);
         array_unshift($items, $entry);
         return $items;
-    }
-
-    /**
-     * estimateVersion
-     * @param array $items
-     * @return int version
-     */
-    protected function estimateVersion($items)
-    {
-        $version = 0;
-        $prev    = 0;
-        do {
-            $prev    = $version;
-            $bits    = $this->estimateStreamSize($items, $prev);
-            $version = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
-            if ($version < 0) {
-                return -1;
-            }
-        } while ($version > $prev);
-        return $version;
     }
 
     /**
