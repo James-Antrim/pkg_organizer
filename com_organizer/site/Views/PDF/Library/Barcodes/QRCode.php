@@ -622,6 +622,21 @@ class QRCode
     }
 
     /**
+     * Getter / setter for a frame value at a specified position
+     * @param array    $coordinates x,y position
+     * @param int|null $value       value of the character to set
+     * @return int
+     */
+    private function frameAt(array $coordinates, int|null $value = null): int
+    {
+        if (is_int($value)) {
+            $this->frame[$coordinates['y']][$coordinates['x']] = chr($value);
+        }
+
+        return ord($this->frame[$coordinates['y']][$coordinates['x']]);
+    }
+
+    /**
      * Adds an alignment marker to the frame.
      * @param array $frame frame
      * @param int   $x     X center coordinate of the pattern
@@ -1225,7 +1240,7 @@ class QRCode
             $bit  = 0x80;
             for ($j = 0; $j < 8; $j++) {
                 $addr = $this->getNextPosition();
-                $this->setFrameAt($addr, 0x02 | (($bit & $code) != 0));
+                $this->frameAt($addr, 0x02 | (($bit & $code) != 0));
                 $bit = $bit >> 1;
             }
         }
@@ -1233,7 +1248,7 @@ class QRCode
         $j = $this->capacity[$this->version][self::REMAINDER];
         for ($i = 0; $i < $j; $i++) {
             $addr = $this->getNextPosition();
-            $this->setFrameAt($addr, 0x02);
+            $this->frameAt($addr, 0x02);
         }
         // masking
         $this->runLength = array_fill(0, self::MAX_WIDTH + 1, 0);
@@ -1242,26 +1257,6 @@ class QRCode
             return null;
         }
         $this->data = $masked;
-    }
-
-    /**
-     * Set frame value at specified position
-     * @param array $at  x,y position
-     * @param int   $val value of the character to set
-     */
-    protected function setFrameAt($at, $val)
-    {
-        $this->frame[$at['y']][$at['x']] = chr($val);
-    }
-
-    /**
-     * Get frame value (byte/int) at specified position
-     * @param array $at x,y position
-     * @return int
-     */
-    protected function getFrameAt($at)
-    {
-        return ord($this->frame[$at['y']][$at['x']]);
     }
 
     /**
