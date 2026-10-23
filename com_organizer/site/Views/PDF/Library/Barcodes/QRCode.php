@@ -622,6 +622,25 @@ class QRCode
     }
 
     /**
+     * Put an alignment marker.
+     * @param array $frame frame
+     * @param int   $x     X center coordinate of the pattern
+     * @param int   $y     Y center coordinate of the pattern
+     * @return void
+     */
+    protected function frameAlignmentMarker(array &$frame, int $x, int $y): void
+    {
+        $finder = ["\xa1\xa1\xa1\xa1\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa0\xa1\xa0\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa1\xa1\xa1\xa1"];
+
+        $x -= 2;
+        $y -= 2;
+
+        for ($offset = 0; $offset < 5; $offset++) {
+            $frame[$y + $offset] = substr_replace($frame[$y + $offset], $finder[$offset], $x, strlen($finder[$offset]));
+        }
+    }
+
+    /**
      * Initializes a frame of unsigned character values and returns it.
      * @param int $version
      * @return array
@@ -2170,27 +2189,6 @@ class QRCode
     }
 
     /**
-     * Put an alignment marker.
-     * @param array $frame frame
-     * @param int   $x     X center coordinate of the pattern
-     * @param int   $y     Y center coordinate of the pattern
-     * @return array frame
-     */
-    protected function putAlignmentMarker($frame, $x, $y)
-    {
-        $finder = ["\xa1\xa1\xa1\xa1\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa0\xa1\xa0\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa1\xa1\xa1\xa1"];
-
-        $x -= 2;
-        $y -= 2;
-
-        for ($offset = 0; $offset < 5; $offset++) {
-            $frame[$y + $offset] = substr_replace($frame[$y + $offset], $finder[$offset], $x, strlen($finder[$offset]));
-        }
-
-        return $frame;
-    }
-
-    /**
      * Put an alignment pattern.
      * @param int   $version version
      * @param array $frame   frame
@@ -2210,24 +2208,24 @@ class QRCode
             $w = (int) (($width - $this->alignmentPattern[$version][0]) / $d + 2);
         }
         if ($w * $w - 3 == 1) {
-            $x     = $this->alignmentPattern[$version][0];
-            $y     = $this->alignmentPattern[$version][0];
-            $frame = $this->putAlignmentMarker($frame, $x, $y);
+            $x = $this->alignmentPattern[$version][0];
+            $y = $this->alignmentPattern[$version][0];
+            $this->frameAlignmentMarker($frame, $x, $y);
             return $frame;
         }
         $cx = $this->alignmentPattern[$version][0];
         $wo = $w - 1;
         for ($x = 1; $x < $wo; ++$x) {
-            $frame = $this->putAlignmentMarker($frame, 6, $cx);
-            $frame = $this->putAlignmentMarker($frame, $cx, 6);
-            $cx    += $d;
+            $this->frameAlignmentMarker($frame, 6, $cx);
+            $this->frameAlignmentMarker($frame, $cx, 6);
+            $cx += $d;
         }
         $cy = $this->alignmentPattern[$version][0];
         for ($y = 0; $y < $wo; ++$y) {
             $cx = $this->alignmentPattern[$version][0];
             for ($x = 0; $x < $wo; ++$x) {
-                $frame = $this->putAlignmentMarker($frame, $cx, $cy);
-                $cx    += $d;
+                $this->frameAlignmentMarker($frame, $cx, $cy);
+                $cx += $d;
             }
             $cy += $d;
         }
