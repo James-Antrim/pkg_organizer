@@ -939,6 +939,45 @@ class QRCode
     }
 
     /**
+     * Initializes a given mask using the given frame. Returns the number of black stripes.
+     * @param int   $maskNumber
+     * @param array $mask
+     * @param array $frame
+     * @param int   $width
+     * @return int
+     */
+    private function maskInitialize(int $maskNumber, array &$mask, array $frame, int $width): int
+    {
+        $bitMask = array_fill(0, $width, array_fill(0, $width, 0));
+
+        for ($y = 0; $y < $width; ++$y) {
+            for ($x = 0; $x < $width; ++$x) {
+                if (ord($frame[$y][$x]) & 0x80) {
+                    $bitMask[$y][$x] = 0;
+                }
+                else {
+                    $maskFunc = call_user_func([$this, 'mask' . $maskNumber], $x, $y);
+
+                    $bitMask[$y][$x] = ($maskFunc == 0) ? 1 : 0;
+                }
+            }
+        }
+
+        $blacks = 0;
+        $mask   = $frame;
+        for ($y = 0; $y < $width; ++$y) {
+            for ($x = 0; $x < $width; ++$x) {
+                if ($bitMask[$y][$x] == 1) {
+                    $mask[$y][$x] = chr(ord($frame[$y][$x]) ^ ((int) ($bitMask[$y][$x])));
+                }
+                $blacks += ord($mask[$y][$x]) & 1;
+            }
+        }
+
+        return $blacks;
+    }
+
+    /**
      * Searches for a rs codec with the given properties, initializing and appending it if non-existent.
      * @param int $symbolSize
      * @param int $fgPolynomial
@@ -949,7 +988,7 @@ class QRCode
      * @return array
      * @see self::RS_DESCRIPTIONS
      */
-    protected function rsCodec(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
+    private function rsCodec(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
     {
         // Search for an existing codec matching the given criteria
         foreach ($this->rsItems as $rs) {
@@ -1023,7 +1062,7 @@ class QRCode
      * @return array
      * @see self::RS_DESCRIPTIONS
      */
-    protected function rsInitializeCodec(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
+    private function rsInitializeCodec(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
     {
 
         $invalidElement = ($pElement <= 0 or $pElement >= (1 << $symbolSize));
@@ -1115,7 +1154,7 @@ class QRCode
      * @return int
      * @see self::RS_DESCRIPTIONS
      */
-    protected function rsRepositionX(array $rs, int $x): int
+    private function rsRepositionX(array $rs, int $x): int
     {
         while ($x >= $rs['symbolsInBlock']) {
             $x -= $rs['symbolsInBlock'];
@@ -1395,59 +1434,6 @@ class QRCode
     }
 
     /**
-     * Return bitmask
-     * @param int   $maskNo mask number
-     * @param int   $width  width
-     * @param array $frame  frame
-     * @return array bitmask
-     */
-    protected function generateMaskNo($maskNo, $width, $frame)
-    {
-        $bitMask = array_fill(0, $width, array_fill(0, $width, 0));
-        for ($y = 0; $y < $width; ++$y) {
-            for ($x = 0; $x < $width; ++$x) {
-                if (ord($frame[$y][$x]) & 0x80) {
-                    $bitMask[$y][$x] = 0;
-                }
-                else {
-                    $maskFunc        = call_user_func([$this, 'mask' . $maskNo], $x, $y);
-                    $bitMask[$y][$x] = ($maskFunc == 0) ? 1 : 0;
-                }
-            }
-        }
-        return $bitMask;
-    }
-
-    /**
-     * makeMaskNo
-     * @param int     $maskNo
-     * @param int     $width
-     * @param array   $frame
-     * @param int     $d
-     * @param boolean $maskGenOnly
-     * @return int
-     */
-    protected function makeMaskNo($maskNo, $width, $frame, &$d, $maskGenOnly = false)
-    {
-        $b       = 0;
-        $bitMask = [];
-        $bitMask = $this->generateMaskNo($maskNo, $width, $frame);
-        if ($maskGenOnly) {
-            return;
-        }
-        $d = $frame;
-        for ($y = 0; $y < $width; ++$y) {
-            for ($x = 0; $x < $width; ++$x) {
-                if ($bitMask[$y][$x] == 1) {
-                    $d[$y][$x] = chr(ord($frame[$y][$x]) ^ ((int) ($bitMask[$y][$x])));
-                }
-                $b += ord($d[$y][$x]) & 1;
-            }
-        }
-        return $b;
-    }
-
-    /**
      * calcN1N3
      * @param int $length
      * @return int demerit
@@ -1570,7 +1556,7 @@ class QRCode
             $mask    = array_fill(0, $width, str_repeat("\0", $width));
             $demerit = 0;
             $blacks  = 0;
-            $blacks  = $this->makeMaskNo($maskNumber, $width, $frame, $mask);
+            $blacks  = $this->maskInitialize($maskNumber, $mask, $frame, $width);
             $blacks  += $this->writeFormatInformation($mask, $width, $maskNumber, $level);
             $blacks  = (int) (100 * $blacks / ($width * $width));
             $demerit = (int) ((int) (abs($blacks - 50) / 5) * self::MP4);
