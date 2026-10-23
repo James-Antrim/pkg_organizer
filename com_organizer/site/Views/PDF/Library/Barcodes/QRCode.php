@@ -622,13 +622,13 @@ class QRCode
     }
 
     /**
-     * Put an alignment marker.
+     * Adds an alignment marker to the frame.
      * @param array $frame frame
      * @param int   $x     X center coordinate of the pattern
      * @param int   $y     Y center coordinate of the pattern
      * @return void
      */
-    protected function frameAlignmentMarker(array &$frame, int $x, int $y): void
+    private function frameAlignmentMarker(array &$frame, int $x, int $y): void
     {
         $finder = ["\xa1\xa1\xa1\xa1\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa0\xa1\xa0\xa1", "\xa1\xa0\xa0\xa0\xa1", "\xa1\xa1\xa1\xa1\xa1"];
 
@@ -636,6 +636,71 @@ class QRCode
         $y -= 2;
 
         for ($offset = 0; $offset < 5; $offset++) {
+            $frame[$y + $offset] = substr_replace($frame[$y + $offset], $finder[$offset], $x, strlen($finder[$offset]));
+        }
+    }
+
+    /**
+     * Adds an alignment pattern to the frame.
+     * @param array &$frame
+     * @param int    $version
+     * @param int    $width
+     * @return void
+     */
+    private function frameAlignmentPattern(array &$frame, int $version, int $width): void
+    {
+        if ($version < 2) {
+            return;
+        }
+
+        $delta = $this->alignmentPattern[$version][1] - $this->alignmentPattern[$version][0];
+        $width = $delta < 0 ? 2 : (int) (($width - $this->alignmentPattern[$version][0]) / $delta + 2);
+
+        if ($width * $width - 3 === 1) {
+            $x = $this->alignmentPattern[$version][0];
+            $y = $this->alignmentPattern[$version][0];
+            $this->frameAlignmentMarker($frame, $x, $y);
+            return;
+        }
+
+        $cx = $this->alignmentPattern[$version][0];
+        $wo = $width - 1;
+        for ($x = 1; $x < $wo; ++$x) {
+            $this->frameAlignmentMarker($frame, 6, $cx);
+            $this->frameAlignmentMarker($frame, $cx, 6);
+            $cx += $delta;
+        }
+
+        $cy = $this->alignmentPattern[$version][0];
+        for ($y = 0; $y < $wo; ++$y) {
+            $cx = $this->alignmentPattern[$version][0];
+            for ($x = 0; $x < $wo; ++$x) {
+                $this->frameAlignmentMarker($frame, $cx, $cy);
+                $cx += $delta;
+            }
+            $cy += $delta;
+        }
+    }
+
+    /**
+     * Adds a finder pattern to the frame.
+     * @param array $frame frame
+     * @param int   $x     X center coordinate of the pattern
+     * @param int   $y     Y center coordinate of the pattern
+     * @return void
+     */
+    private function frameFinderPattern(array &$frame, int $x, int $y): void
+    {
+        $finder = [
+            "\xc1\xc1\xc1\xc1\xc1\xc1\xc1",
+            "\xc1\xc0\xc0\xc0\xc0\xc0\xc1",
+            "\xc1\xc0\xc1\xc1\xc1\xc0\xc1",
+            "\xc1\xc0\xc1\xc1\xc1\xc0\xc1",
+            "\xc1\xc0\xc1\xc1\xc1\xc0\xc1",
+            "\xc1\xc0\xc0\xc0\xc0\xc0\xc1",
+            "\xc1\xc1\xc1\xc1\xc1\xc1\xc1"
+        ];
+        for ($offset = 0; $offset < 7; $offset++) {
             $frame[$y + $offset] = substr_replace($frame[$y + $offset], $finder[$offset], $x, strlen($finder[$offset]));
         }
     }
@@ -652,9 +717,9 @@ class QRCode
         $frame     = array_fill(0, $width, $frameLine);
 
         // Finder pattern
-        $frame = $this->putFinderPattern($frame, 0, 0);
-        $frame = $this->putFinderPattern($frame, $width - 7, 0);
-        $frame = $this->putFinderPattern($frame, 0, $width - 7);
+        $this->frameFinderPattern($frame, 0, 0);
+        $this->frameFinderPattern($frame, $width - 7, 0);
+        $this->frameFinderPattern($frame, 0, $width - 7);
 
         // Separator
         $yOffset = $width - 7;
@@ -688,8 +753,7 @@ class QRCode
             $frame[7 + $index][6] = chr(0x90 | ($index & 1));
         }
 
-        // Alignment pattern
-        $frame = $this->putAlignmentPattern($version, $frame, $width);
+        $this->frameAlignmentPattern($frame, $version, $width);
 
         // Version information
         if ($version >= 7) {
@@ -2186,73 +2250,5 @@ class QRCode
             $spec[4] = $spec[1] + 1;
         }
         return $spec;
-    }
-
-    /**
-     * Put an alignment pattern.
-     * @param int   $version version
-     * @param array $frame   frame
-     * @param int   $width   width
-     * @return array frame
-     */
-    protected function putAlignmentPattern($version, $frame, $width)
-    {
-        if ($version < 2) {
-            return $frame;
-        }
-        $d = $this->alignmentPattern[$version][1] - $this->alignmentPattern[$version][0];
-        if ($d < 0) {
-            $w = 2;
-        }
-        else {
-            $w = (int) (($width - $this->alignmentPattern[$version][0]) / $d + 2);
-        }
-        if ($w * $w - 3 == 1) {
-            $x = $this->alignmentPattern[$version][0];
-            $y = $this->alignmentPattern[$version][0];
-            $this->frameAlignmentMarker($frame, $x, $y);
-            return $frame;
-        }
-        $cx = $this->alignmentPattern[$version][0];
-        $wo = $w - 1;
-        for ($x = 1; $x < $wo; ++$x) {
-            $this->frameAlignmentMarker($frame, 6, $cx);
-            $this->frameAlignmentMarker($frame, $cx, 6);
-            $cx += $d;
-        }
-        $cy = $this->alignmentPattern[$version][0];
-        for ($y = 0; $y < $wo; ++$y) {
-            $cx = $this->alignmentPattern[$version][0];
-            for ($x = 0; $x < $wo; ++$x) {
-                $this->frameAlignmentMarker($frame, $cx, $cy);
-                $cx += $d;
-            }
-            $cy += $d;
-        }
-        return $frame;
-    }
-
-    /**
-     * Put a finder pattern.
-     * @param array $frame frame
-     * @param int   $x     X center coordinate of the pattern
-     * @param int   $y     Y center coordinate of the pattern
-     * @return array frame
-     */
-    protected function putFinderPattern($frame, $x, $y)
-    {
-        $finder = [
-            "\xc1\xc1\xc1\xc1\xc1\xc1\xc1",
-            "\xc1\xc0\xc0\xc0\xc0\xc0\xc1",
-            "\xc1\xc0\xc1\xc1\xc1\xc0\xc1",
-            "\xc1\xc0\xc1\xc1\xc1\xc0\xc1",
-            "\xc1\xc0\xc1\xc1\xc1\xc0\xc1",
-            "\xc1\xc0\xc0\xc0\xc0\xc0\xc1",
-            "\xc1\xc1\xc1\xc1\xc1\xc1\xc1"
-        ];
-        for ($offset = 0; $offset < 7; $offset++) {
-            $frame[$y + $offset] = substr_replace($frame[$y + $offset], $finder[$offset], $x, strlen($finder[$offset]));
-        }
-        return $frame;
     }
 }
