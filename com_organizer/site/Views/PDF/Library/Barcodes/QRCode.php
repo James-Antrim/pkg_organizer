@@ -789,6 +789,46 @@ class QRCode
     }
 
     /**
+     * Estimates the stream size of the given items in bits.
+     * @param array $items
+     * @param int   $version
+     * @return int
+     */
+    protected function estimateStreamSize(array $items, int $version): int
+    {
+        $bits    = 0;
+        $version = $version === 0 ? 1 : $version;
+
+        foreach ($items as $item) {
+            switch ($item['mode']) {
+                case self::ALPHANUMERIC:
+                    $bits = $this->estimateAlphaNumeric($item['size']);
+                    break;
+                case self::EIGHT_BIT:
+                    $bits = $item['size'] * 8;
+                    break;
+                case self::MULTIBYTE:
+                    $bits = (int) ($item['size'] * 6.5);
+                    break;
+                case self::NUMERIC:
+                    $bits = $this->estimateNumeric($item['size']);
+                    break;
+                case self::STRUCTURED:
+                    return self::HEADER_BITS;
+                default:
+                    return 0;
+            }
+
+            $length       = $this->lengthIndicator($item['mode'], $version);
+            $derivedThing = 1 << $length;
+            $number       = (int) (($item['size'] + $derivedThing - 1) / $derivedThing);
+            $bits         += $number * (4 + $length);
+        }
+
+        return $bits;
+    }
+
+    /**
      * Searches for a frame at the given version index, initializing and appending it if non-existent.
      * @param int $version
      * @return array
@@ -2000,57 +2040,6 @@ class QRCode
     }
 
     /**
-     * estimateBitstreamSize
-     * @param array $items
-     * @param int   $version
-     * @return int bits
-     */
-    protected function estimateBitstreamSize($items, $version)
-    {
-        $bits = 0;
-        if ($version == 0) {
-            $version = 1;
-        }
-        foreach ($items as $item) {
-            switch ($item['mode']) {
-                case self::NUMERIC:
-                {
-                    $bits = $this->estimateNumeric($item['size']);
-                    break;
-                }
-                case self::ALPHANUMERIC:
-                {
-                    $bits = $this->estimateAlphaNumeric($item['size']);
-                    break;
-                }
-                case self::EIGHT_BIT:
-                {
-                    $bits = $item['size'] * 8;
-                    break;
-                }
-                case self::MULTIBYTE:
-                {
-                    $bits = (int) ($item['size'] * 6.5);
-                    break;
-                }
-                case self::STRUCTURED:
-                {
-                    return self::HEADER_BITS;
-                }
-                default:
-                {
-                    return 0;
-                }
-            }
-            $l    = $this->lengthIndicator($item['mode'], $version);
-            $m    = 1 << $l;
-            $num  = (int) (($item['size'] + $m - 1) / $m);
-            $bits += $num * (4 + $l);
-        }
-        return $bits;
-    }
-
-    /**
      * estimateVersion
      * @param array $items
      * @return int version
@@ -2061,7 +2050,7 @@ class QRCode
         $prev    = 0;
         do {
             $prev    = $version;
-            $bits    = $this->estimateBitstreamSize($items, $prev);
+            $bits    = $this->estimateStreamSize($items, $prev);
             $version = $this->minimumVersion((int) (($bits + 7) / 8), $this->ecLevel);
             if ($version < 0) {
                 return -1;
