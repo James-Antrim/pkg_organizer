@@ -63,7 +63,7 @@ class QRCode
     private const DEFAULT_MASK = 2, HEADER_BITS = 20, RANDOM_MASK = 2;
 
     /** Descriptions for the indexes of error correction code specifications. */
-    private const ECC_DESCRIPTIONS = [
+    private const ECC_SPECIFICATION_DESCRIPTIONS = [
         0 => '# of type1 blocks',
         1 => '# of data code',
         2 => '# of ecc code',
@@ -162,6 +162,11 @@ class QRCode
 
     protected float|int $ecLength;
 
+    /**
+     * Error correction level
+     * @var int
+     * @see self::LEVELS
+     */
     private int $ecLevel = self::LOW;
 
     private array $formatInfo = [
@@ -417,23 +422,16 @@ class QRCode
 
     /**
      * Return an array of ECC specification.
-     * @param int   $version       version
-     * @param int   $level         error correction level
-     * @param array $specification ECC specification
      * @return array
-     * @see self::ECC_DESCRIPTIONS
+     * @see self::ECC_SPECIFICATION_DESCRIPTIONS
      */
-    protected function eccSpecification(int $version, int $level, array $specification): array
+    private function eccSpecification(): array
     {
-        if (count($specification) < 5) {
-            $specification = [0, 0, 0, 0, 0];
-        }
+        [$valueOne, $valueTwo] = $this->ecCodes[$this->version][$this->ecLevel];
+        $data = $this->maximumDataLength();
+        $ecc  = $this->capacity[$this->version][self::LEVEL][$this->ecLevel];
 
-        [$valueOne, $valueTwo] = $this->ecCodes[$version][$level];
-        $data = $this->getDataLength($version, $level);
-        $ecc  = $this->capacity[$version][self::LEVEL][$level];
-
-        $specification[0] = $valueOne;
+        $specification = [0 => $valueOne];
         if ($valueTwo === 0) {
             $specification[1] = (int) ($data / $valueOne);
             $specification[2] = (int) ($ecc / $valueOne);
@@ -1054,13 +1052,22 @@ class QRCode
     }
 
     /**
+     * Return maximum data code length (bytes) for the version.
+     * @return int
+     */
+    private function maximumDataLength(): int
+    {
+        return $this->capacity[$this->version][self::COUNT] - $this->capacity[$this->version][self::LEVEL][$this->ecLevel];
+    }
+
+    /**
      * Return the maximum length (bytes) for the mode and version.
      * @param int $mode    encoding mode
      * @param int $version version
      * @return int
      * @see self::MODES
      */
-    protected function maximumWords(int $mode, int $version): int
+    private function maximumWords(int $mode, int $version): int
     {
         if ($mode == self::STRUCTURED) {
             return 3;
@@ -1088,7 +1095,7 @@ class QRCode
      * @param int $level  error correction level
      * @return int
      */
-    protected function minimumVersion(int $length, int $level): int
+    private function minimumVersion(int $length, int $level): int
     {
         for ($i = 1; $i <= self::MAX_VERSION; ++$i) {
             $words = ($this->capacity[$i][self::COUNT] - $this->capacity[$i][self::LEVEL][$level]);
@@ -1295,7 +1302,7 @@ class QRCode
      * @param array $data data to validate
      * @return bool
      */
-    protected function validate(int $mode, int $size, array $data): bool
+    private function validate(int $mode, int $size, array $data): bool
     {
         if ($size <= 0) {
             return false;
@@ -1428,8 +1435,7 @@ class QRCode
         if (is_null($this->dataCode)) {
             return null;
         }
-        $spec             = [0, 0, 0, 0, 0];
-        $spec             = $this->eccSpecification($this->version, $this->ecLevel, $spec);
+        $spec             = $this->eccSpecification();
         $this->block1     = $spec[0];
         $this->dataLength = ($spec[0] * $spec[1]) + ($spec[3] * $spec[4]);
         $this->ecLength   = ($spec[0] + $spec[3]) * $spec[2];
@@ -2004,7 +2010,7 @@ class QRCode
             return null;
         }
         $bits     = count($bitStream);
-        $maxWords = $this->getDataLength($this->version, $this->ecLevel);
+        $maxWords = $this->maximumDataLength($this->version, $this->ecLevel);
         $maxBits  = $maxWords * 8;
         if ($maxBits == $bits) {
             return $bitStream;
@@ -2188,16 +2194,5 @@ class QRCode
             $data[$bytes] = $v;
         }
         return $data;
-    }
-
-    /**
-     * Return maximum data code length (bytes) for the version.
-     * @param int $version version
-     * @param int $level   error correction level
-     * @return int maximum size (bytes)
-     */
-    protected function getDataLength($version, $level)
-    {
-        return $this->capacity[$version][self::COUNT] - $this->capacity[$version][self::LEVEL][$level];
     }
 }
