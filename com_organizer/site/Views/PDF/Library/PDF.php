@@ -27,10 +27,23 @@ class PDF
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
+    /** Buffer holding in-memory PDF. */
+    private string $buffer = '';
+
     /** Length of the buffer in bytes. */
     private int $bufferLength = 0;
 
     private int $state = self::INITIAL;
+
+    /**
+     * Buffer content (always append data).
+     * @param string $data data
+     */
+    private function buffer(string $data): void
+    {
+        $this->bufferLength += strlen($data);
+        $this->buffer       .= $data;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
@@ -53,11 +66,6 @@ class PDF
      * Array of object IDs for each page.
      */
     protected $pageobjects = [];
-
-    /**
-     * Buffer holding in-memory PDF.
-     */
-    protected $buffer;
 
     /**
      * Array containing pages.
@@ -7253,7 +7261,7 @@ class PDF
         if ($this->sign) {
             // *** apply digital signature to the document ***
             // get the document content
-            $pdfdoc = $this->getBuffer();
+            $pdfdoc = $this->buffer;
             // remove last newline
             $pdfdoc = substr($pdfdoc, 0, -1);
             // remove filler space
@@ -7324,10 +7332,10 @@ class PDF
                     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
                     header('Content-Disposition: inline; filename="' . rawurlencode(basename($name)) . '"; ' .
                         'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
-                    StaticMethods::sendOutputData($this->getBuffer(), $this->bufferLength);
+                    StaticMethods::sendOutputData($this->buffer, $this->bufferLength);
                 }
                 else {
-                    echo $this->getBuffer();
+                    echo $this->buffer;
                 }
                 break;
             }
@@ -7360,7 +7368,7 @@ class PDF
                 header('Content-Disposition: attachment; filename="' . rawurlencode(basename($name)) . '"; ' .
                     'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
                 header('Content-Transfer-Encoding: binary');
-                StaticMethods::sendOutputData($this->getBuffer(), $this->bufferLength);
+                StaticMethods::sendOutputData($this->buffer, $this->bufferLength);
                 break;
             }
             case 'F':
@@ -7372,7 +7380,7 @@ class PDF
                 if (!$f) {
                     $this->Error('Unable to create output file: ' . $name);
                 }
-                fwrite($f, $this->getBuffer(), $this->bufferLength);
+                fwrite($f, $this->buffer, $this->bufferLength);
                 fclose($f);
                 if ($dest == 'FI') {
                     // send headers to browser
@@ -7423,13 +7431,13 @@ class PDF
                 $retval .= 'Content-Transfer-Encoding: base64' . "\r\n";
                 $retval .= 'Content-Disposition: attachment;' . "\r\n";
                 $retval .= ' filename="' . $name . '"' . "\r\n\r\n";
-                $retval .= chunk_split(base64_encode($this->getBuffer()), 76, "\r\n");
+                $retval .= chunk_split(base64_encode($this->buffer), 76, "\r\n");
                 return $retval;
             }
             case 'S':
             {
                 // returns PDF as a string
-                return $this->getBuffer();
+                return $this->buffer;
             }
             default:
             {
@@ -10090,7 +10098,7 @@ class PDF
         }
         elseif ($this->state > self::INITIAL) {
             // set general data
-            $this->setBuffer($s . "\n");
+            $this->buffer($s . "\n");
         }
     }
 
@@ -20054,16 +20062,6 @@ class PDF
     protected function _outRestoreGraphicsState()
     {
         $this->_out('Q');
-    }
-
-    /**
-     * Set buffer content (always append data).
-     * @param string $data data
-     */
-    protected function setBuffer($data)
-    {
-        $this->bufferLength += strlen($data);
-        $this->buffer       .= $data;
     }
 
     /**
