@@ -93,7 +93,7 @@ class QRCode
      * Array positions of alignment patterns. This array includes only the second and the third position of the alignment patterns. Rest of them can
      * be calculated from the distance between them. See Table 1 in Appendix E (pp.71) of JIS X0510:2004.
      */
-    protected array $alignmentPattern = [
+    private array $alignmentPattern = [
         [0, 0], [0, 0], [18, 0], [22, 0], [26, 0], [30, 0], [34, 0], [22, 38], [24, 42], [26, 46], [28, 50], [30, 54], [32, 58], [34, 62], [26, 46],
         [26, 48], [26, 50], [30, 54], [30, 56], [30, 58], [34, 62], [28, 50], [26, 50], [30, 54], [28, 54], [32, 58], [30, 58], [34, 62], [26, 50],
         [30, 54], [26, 52], [30, 56], [34, 60], [30, 58], [34, 62], [30, 54], [24, 50], [28, 54], [32, 58], [26, 54], [30, 58]
@@ -113,7 +113,7 @@ class QRCode
     private int $blocks;
 
     /** Array Table of the capacity of symbols. See Table 1 (pp.13) and Table 12-16 (pp.30-36), JIS X0510:2004. */
-    protected array $capacity = [
+    private array $capacity = [
         [0, 0, 0, [0, 0, 0, 0]], [21, 26, 0, [7, 10, 13, 17]], [25, 44, 7, [10, 16, 22, 28]], [29, 70, 7, [15, 26, 36, 44]],
         [33, 100, 7, [20, 36, 52, 64]], [37, 134, 7, [26, 48, 72, 88]], [41, 172, 7, [36, 64, 96, 112]], [45, 196, 0, [40, 72, 108, 130]],
         [49, 242, 0, [48, 88, 132, 156]], [53, 292, 0, [60, 110, 160, 192]], [57, 346, 0, [72, 130, 192, 224]], [61, 404, 0, [80, 150, 224, 264]],
@@ -133,9 +133,9 @@ class QRCode
 
     private array $dataCode = [];
 
-    protected int $dataLength;
+    private int $dataLength;
 
-    protected string $dataString = '';
+    private string $dataString = '';
 
     private int $direction;
 
@@ -158,7 +158,7 @@ class QRCode
         [[19, 6], [18, 31], [34, 34], [20, 61]]
     ];
 
-    protected float|int $ecLength;
+    private float|int $ecLength;
 
     /**
      * Error correction level
@@ -178,10 +178,10 @@ class QRCode
 
     private array $frames = [];
 
-    protected array $items = [];
+    private array $items = [];
 
     /** Array Length indicator. */
-    protected array $lengthTableBits = [[10, 12, 14], [9, 11, 13], [8, 16, 16], [8, 10, 12]];
+    private array $lengthTableBits = [[10, 12, 14], [9, 11, 13], [8, 16, 16], [8, 10, 12]];
 
     private int $mode = self::EIGHT_BIT;
 
@@ -190,7 +190,7 @@ class QRCode
 
     private int $rsCounter = 0;
 
-    protected array $rsItems = [];
+    private array $rsItems = [];
 
     private array $runLength = [];
 
@@ -457,40 +457,6 @@ class QRCode
     }
 
     /**
-     * Calculates N1N3, whatever that may mean.
-     * @param int $length
-     * @return int demerit
-     */
-    private function calculateN1N3(int $length): int
-    {
-        $demerit = 0;
-        for ($index = 0; $index < $length; ++$index) {
-            if ($this->runLength[$index] >= 5) {
-                $demerit += (self::MP1 + ($this->runLength[$index] - 5));
-            }
-
-            if ($index & 1) {
-                if (($index >= 3) and ($index < ($length - 2)) and ($this->runLength[$index] % 3 == 0)) {
-                    $factor = (int) ($this->runLength[$index] / 3);
-                    if (($this->runLength[$index - 2] === $factor)
-                        and ($this->runLength[$index - 1] === $factor)
-                        and ($this->runLength[$index + 1] === $factor)
-                        and ($this->runLength[$index + 2] === $factor)) {
-                        if (($this->runLength[$index - 3] < 0) or ($this->runLength[$index - 3] >= (4 * $factor))) {
-                            $demerit += self::MP3;
-                        }
-                        elseif ((($index + 3) >= $length) or ($this->runLength[$index + 3] >= (4 * $factor))) {
-                            $demerit += self::MP3;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $demerit;
-    }
-
-    /**
      * Chunks segments of the content. Returns true if the length of the chunks equals the length of the data string. Inferred valid resolution.
      * @return bool
      */
@@ -656,6 +622,114 @@ class QRCode
 
         $this->appendItem(str_split($this->dataString), self::NUMERIC, $length);
         return $length;
+    }
+
+    /**
+     * Calculate the number of "demerits" for the given frame, whatever that means.
+     * @param array $frame
+     * @param int   $width
+     * @return int
+     */
+    private function demeritsByFrame(array $frame, int $width): int
+    {
+        $demerit = 0;
+        for ($y = 0; $y < $width; ++$y) {
+            $head   = 0;
+            $frameY = $frame[$y];
+
+            $this->runLength[0] = 1;
+            if ($y > 0) {
+                $frameYM = $frame[$y - 1];
+            }
+
+            for ($x = 0; $x < $width; ++$x) {
+                if (($x > 0) and ($y > 0)) {
+                    // Probably undefined here is BS because of the $y > 0 condition here and above where $frameYM were set.
+                    $b22 = ord($frameY[$x]) & ord($frameY[$x - 1]) & ord($frameYM[$x]) & ord($frameYM[$x - 1]);
+                    $w22 = ord($frameY[$x]) | ord($frameY[$x - 1]) | ord($frameYM[$x]) | ord($frameYM[$x - 1]);
+                    if (($b22 | ($w22 ^ 1)) & 1) {
+                        $demerit += self::MP2;
+                    }
+                }
+
+                if ($x === 0 and ord($frameY[$x]) & 1) {
+                    $this->runLength[0]     = -1;
+                    $head                   = 1;
+                    $this->runLength[$head] = 1;
+                }
+                elseif ($x > 0) {
+                    if ((ord($frameY[$x]) ^ ord($frameY[$x - 1])) & 1) {
+                        $head++;
+                        $this->runLength[$head] = 1;
+                    }
+                    else {
+                        $this->runLength[$head]++;
+                    }
+                }
+            }
+
+            $demerit += $this->demeritsByLength($head + 1);
+        }
+
+        for ($x = 0; $x < $width; ++$x) {
+            $head = 0;
+
+            $this->runLength[0] = 1;
+            for ($y = 0; $y < $width; ++$y) {
+                if (($y == 0) and (ord($frame[$y][$x]) & 1)) {
+                    $this->runLength[0]     = -1;
+                    $head                   = 1;
+                    $this->runLength[$head] = 1;
+                }
+                elseif ($y > 0) {
+                    if ((ord($frame[$y][$x]) ^ ord($frame[$y - 1][$x])) & 1) {
+                        $head++;
+                        $this->runLength[$head] = 1;
+                    }
+                    else {
+                        $this->runLength[$head]++;
+                    }
+                }
+            }
+
+            $demerit += $this->demeritsByLength($head + 1);
+        }
+
+        return $demerit;
+    }
+
+    /**
+     * Calculates N1N3 "demerits" for a given length, whatever that may mean.
+     * @param int $length
+     * @return int demerit
+     */
+    private function demeritsByLength(int $length): int
+    {
+        $demerit = 0;
+        for ($index = 0; $index < $length; ++$index) {
+            if ($this->runLength[$index] >= 5) {
+                $demerit += (self::MP1 + ($this->runLength[$index] - 5));
+            }
+
+            if ($index & 1) {
+                if (($index >= 3) and ($index < ($length - 2)) and ($this->runLength[$index] % 3 == 0)) {
+                    $factor = (int) ($this->runLength[$index] / 3);
+                    if (($this->runLength[$index - 2] === $factor)
+                        and ($this->runLength[$index - 1] === $factor)
+                        and ($this->runLength[$index + 1] === $factor)
+                        and ($this->runLength[$index + 2] === $factor)) {
+                        if (($this->runLength[$index - 3] < 0) or ($this->runLength[$index - 3] >= (4 * $factor))) {
+                            $demerit += self::MP3;
+                        }
+                        elseif ((($index + 3) >= $length) or ($this->runLength[$index + 3] >= (4 * $factor))) {
+                            $demerit += self::MP3;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $demerit;
     }
 
     /**
@@ -898,7 +972,7 @@ class QRCode
      * @param int   $version
      * @return int
      */
-    protected function estimateStreamSize(array $items, int $version): int
+    private function estimateStreamSize(array $items, int $version): int
     {
         $bits    = 0;
         $version = $version === 0 ? 1 : $version;
@@ -1663,7 +1737,7 @@ class QRCode
      * @param array $specification
      * @return bool
      */
-    protected function rsInitialize(array $specification): bool
+    private function rsInitialize(array $specification): bool
     {
         $dataLength = $specification[1];
         $eccLength  = $specification[2];
@@ -1745,7 +1819,7 @@ class QRCode
      * @param array $bitstream
      * @return array
      */
-    protected function streamToBytes(array $bitstream): array
+    private function streamToBytes(array $bitstream): array
     {
         if (!$bitstream) {
             return [];
@@ -1893,7 +1967,7 @@ class QRCode
     /**
      * Encode mask
      */
-    protected function encodeMask()
+    private function encodeMask()
     {
 
         $this->width = $this->capacity[$this->version][self::WIDTH];;
@@ -1928,79 +2002,13 @@ class QRCode
     }
 
     /**
-     * evaluateSymbol
-     * @param int   $width
-     * @param array $frame
-     * @return int demerit
-     */
-    protected function evaluateSymbol($width, $frame)
-    {
-        $head    = 0;
-        $demerit = 0;
-        for ($y = 0; $y < $width; ++$y) {
-            $head               = 0;
-            $this->runLength[0] = 1;
-            $frameY             = $frame[$y];
-            if ($y > 0) {
-                $frameYM = $frame[$y - 1];
-            }
-            for ($x = 0; $x < $width; ++$x) {
-                if (($x > 0) and ($y > 0)) {
-                    $b22 = ord($frameY[$x]) & ord($frameY[$x - 1]) & ord($frameYM[$x]) & ord($frameYM[$x - 1]);
-                    $w22 = ord($frameY[$x]) | ord($frameY[$x - 1]) | ord($frameYM[$x]) | ord($frameYM[$x - 1]);
-                    if (($b22 | ($w22 ^ 1)) & 1) {
-                        $demerit += self::MP2;
-                    }
-                }
-                if (($x == 0) and (ord($frameY[$x]) & 1)) {
-                    $this->runLength[0]     = -1;
-                    $head                   = 1;
-                    $this->runLength[$head] = 1;
-                }
-                elseif ($x > 0) {
-                    if ((ord($frameY[$x]) ^ ord($frameY[$x - 1])) & 1) {
-                        $head++;
-                        $this->runLength[$head] = 1;
-                    }
-                    else {
-                        $this->runLength[$head]++;
-                    }
-                }
-            }
-            $demerit += $this->calculateN1N3($head + 1);
-        }
-        for ($x = 0; $x < $width; ++$x) {
-            $head               = 0;
-            $this->runLength[0] = 1;
-            for ($y = 0; $y < $width; ++$y) {
-                if (($y == 0) and (ord($frame[$y][$x]) & 1)) {
-                    $this->runLength[0]     = -1;
-                    $head                   = 1;
-                    $this->runLength[$head] = 1;
-                }
-                elseif ($y > 0) {
-                    if ((ord($frame[$y][$x]) ^ ord($frame[$y - 1][$x])) & 1) {
-                        $head++;
-                        $this->runLength[$head] = 1;
-                    }
-                    else {
-                        $this->runLength[$head]++;
-                    }
-                }
-            }
-            $demerit += $this->calculateN1N3($head + 1);
-        }
-        return $demerit;
-    }
-
-    /**
      * mask
      * @param int   $width
      * @param array $frame
      * @param int   $level
      * @return array best mask
      */
-    protected function mask($width, $frame, $level)
+    private function mask($width, $frame, $level)
     {
         $minDemerit    = PHP_INT_MAX;
         $bestMaskNum   = 0;
@@ -2021,7 +2029,7 @@ class QRCode
             $blacks  += $this->writeFormatInformation($mask, $width, $maskNumber, $level);
             $blacks  = (int) (100 * $blacks / ($width * $width));
             $demerit = (int) ((int) (abs($blacks - 50) / 5) * self::MP4);
-            $demerit += $this->evaluateSymbol($width, $mask);
+            $demerit += $this->demeritsByFrame($mask, $width);
             if ($demerit < $minDemerit) {
                 $minDemerit  = $demerit;
                 $bestMask    = $mask;
