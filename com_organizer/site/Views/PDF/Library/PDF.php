@@ -8749,7 +8749,7 @@ class PDF
         $out .= "\n" . 'endobj';
         $this->append($out);
         // ToUnicode map for Identity-H
-        $stream = FontData::$uni_identity_h;
+        $stream = FontData::$ihToUnicode;
         // ToUnicode Object
         $this->_newobj();
         $stream = ($this->compress) ? gzcompress($stream) : $stream;

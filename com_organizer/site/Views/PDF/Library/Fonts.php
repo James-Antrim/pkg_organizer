@@ -112,10 +112,10 @@ class Fonts
         $fmetric['enc']  = preg_replace('/[^A-Za-z0-9_\-]/', '', $enc);
         $fmetric['diff'] = '';
         if (($fmetric['type'] == 'TrueType') or ($fmetric['type'] == 'Type1')) {
-            if (!empty($enc) and ($enc != 'cp1252') and isset(FontData::$encmap[$enc])) {
+            if (!empty($enc) and ($enc != 'cp1252') and isset(FontData::$encodingMaps[$enc])) {
                 // build differences from reference encoding
-                $enc_ref    = FontData::$encmap['cp1252'];
-                $enc_target = FontData::$encmap[$enc];
+                $enc_ref    = FontData::$encodingMaps['cp1252'];
+                $enc_target = FontData::$encodingMaps[$enc];
                 $last       = 0;
                 for ($i = 32; $i <= 255; ++$i) {
                     if ($enc_target[$i] != $enc_ref[$i]) {
@@ -244,8 +244,8 @@ class Fonts
             // get charstring data
             $eplain = substr($eplain, (strpos($eplain, '/CharStrings') + 1));
             preg_match_all('#/([A-Za-z0-9\.]*)[\s][0-9]+[\s]RD[\s](.*)[\s]ND#sU', $eplain, $matches, PREG_SET_ORDER);
-            if (!empty($enc) and isset(FontData::$encmap[$enc])) {
-                $enc_map = FontData::$encmap[$enc];
+            if (!empty($enc) and isset(FontData::$encodingMaps[$enc])) {
+                $enc_map = FontData::$encodingMaps[$enc];
             }
             else {
                 $enc_map = false;
@@ -1821,9 +1821,9 @@ class Fonts
             if ($char < 256) {
                 $outarr[] = $char;
             }
-            elseif (array_key_exists($char, FontData::$uni_utf8tolatin)) {
+            elseif (array_key_exists($char, FontData::$utf8ToLatin1)) {
                 // map from UTF-8
-                $outarr[] = FontData::$uni_utf8tolatin[$char];
+                $outarr[] = FontData::$utf8ToLatin1[$char];
             }
             elseif ($char == 0xFFFD) {
                 // skip
@@ -1847,9 +1847,9 @@ class Fonts
             if ($char < 256) {
                 $outstr .= chr($char);
             }
-            elseif (array_key_exists($char, FontData::$uni_utf8tolatin)) {
+            elseif (array_key_exists($char, FontData::$utf8ToLatin1)) {
                 // map from UTF-8
-                $outstr .= chr(FontData::$uni_utf8tolatin[$char]);
+                $outstr .= chr(FontData::$utf8ToLatin1[$char]);
             }
             elseif ($char == 0xFFFD) {
                 // skip
@@ -2532,7 +2532,7 @@ class Fonts
                     }
                     // if laa letter
                     if (($prevchar !== false) and ($prevchar['char'] == 1604) and (in_array($thischar['char'], $alfletter))) {
-                        $arabicarr = FontData::$uni_laa_array;
+                        $arabicarr = FontData::$arabicLaCharacter;
                         $laaletter = true;
                         if ($x > 1) {
                             $prevchar = $charAL[($x - 2)];
@@ -2542,7 +2542,7 @@ class Fonts
                         }
                     }
                     else {
-                        $arabicarr = FontData::$uni_arabicsubst;
+                        $arabicarr = FontData::$arabicShapeSubstitutions;
                         $laaletter = false;
                     }
                     if (($prevchar !== false) and ($nextchar !== false) and
@@ -2618,11 +2618,11 @@ class Fonts
 			 * Putting the combining mark and shadda in the same glyph allows us to avoid the two marks overlapping each other in an illegible manner.
 			 */
             for ($i = 0; $i < ($numchars - 1); ++$i) {
-                if (($chardata2[$i]['char'] == 1617) and (isset(FontData::$uni_diacritics[($chardata2[$i + 1]['char'])]))) {
+                if (($chardata2[$i]['char'] == 1617) and (isset(FontData::$diacriticSubstitutions[($chardata2[$i + 1]['char'])]))) {
                     // check if the subtitution font is defined on current font
-                    if (isset($currentfont['cw'][(FontData::$uni_diacritics[($chardata2[$i + 1]['char'])])])) {
+                    if (isset($currentfont['cw'][(FontData::$diacriticSubstitutions[($chardata2[$i + 1]['char'])])])) {
                         $chardata2[$i]['char']     = false;
-                        $chardata2[$i + 1]['char'] = FontData::$uni_diacritics[($chardata2[$i + 1]['char'])];
+                        $chardata2[$i + 1]['char'] = FontData::$diacriticSubstitutions[($chardata2[$i + 1]['char'])];
                     }
                 }
             }
