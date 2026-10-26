@@ -2648,9 +2648,9 @@ class Fonts
             for ($i = 0; $i < $numchars; ++$i) {
                 if ($chardata[$i]['level'] >= $j) {
                     $onlevel = true;
-                    if (isset(FontData::$uni_mirror[$chardata[$i]['char']])) {
+                    if (isset(FontData::$mirrorCharacters[$chardata[$i]['char']])) {
                         // L4. A character is depicted by a mirrored glyph if and only if (a) the resolved directionality of that character is R, and (b) the Bidi_Mirrored property value of that character is true.
-                        $chardata[$i]['char'] = FontData::$uni_mirror[$chardata[$i]['char']];
+                        $chardata[$i]['char'] = FontData::$mirrorCharacters[$chardata[$i]['char']];
                     }
                     $revarr[] = $chardata[$i];
                 }
