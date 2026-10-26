@@ -38,6 +38,9 @@ class PDF
     private array $pageObjectIDs = [];
     private array $pages = [];
 
+    /** Number of points in user unit */
+    private float $scaleFactor;
+
     private int $state = self::INITIAL;
 
     private bool $xObject = false;
@@ -134,11 +137,6 @@ class PDF
      * Page dimensions.
      */
     protected $pagedim = [];
-
-    /**
-     * Scale factor (number of points in user unit).
-     */
-    protected $k;
 
     /**
      * Width of page format in points.
@@ -1462,7 +1460,7 @@ class PDF
         // set page format and orientation
         $this->setPageFormat($format, $orientation);
         // page margins (1 cm)
-        $margin = 28.35 / $this->k;
+        $margin = 28.35 / $this->scaleFactor;
         $this->setMargins($margin, $margin);
         $this->clMargin = $this->lMargin;
         $this->crMargin = $this->rMargin;
@@ -1472,8 +1470,8 @@ class PDF
         // cell margins
         $this->setCellMargins(0, 0, 0, 0);
         // line width (0.2 mm)
-        $this->LineWidth      = 0.57 / $this->k;
-        $this->linestyleWidth = sprintf('%F w', ($this->LineWidth * $this->k));
+        $this->LineWidth      = 0.57 / $this->scaleFactor;
+        $this->linestyleWidth = sprintf('%F w', ($this->LineWidth * $this->scaleFactor));
         $this->linestyleCap   = '0 J';
         $this->linestyleJoin  = '0 j';
         $this->linestyleDash  = '[] 0 d';
@@ -1563,25 +1561,25 @@ class PDF
             case 'px':
             case 'pt':
             {
-                $this->k = 1;
+                $this->scaleFactor = 1;
                 break;
             }
             // millimeters
             case 'mm':
             {
-                $this->k = $this->dpi / 25.4;
+                $this->scaleFactor = $this->dpi / 25.4;
                 break;
             }
             // centimeters
             case 'cm':
             {
-                $this->k = $this->dpi / 2.54;
+                $this->scaleFactor = $this->dpi / 2.54;
                 break;
             }
             // inches
             case 'in':
             {
-                $this->k = $this->dpi;
+                $this->scaleFactor = $this->dpi;
                 break;
             }
             // unsupported unit
@@ -1665,13 +1663,13 @@ class PDF
         else {
             // the boundaries of the physical medium on which the page shall be displayed or printed
             if (isset($format['MediaBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', $format['MediaBox']['llx'], $format['MediaBox']['lly'], $format['MediaBox']['urx'], $format['MediaBox']['ury'], false, $this->k, $this->pagedim);
-                $this->fwPt    = (($format['MediaBox']['urx'] - $format['MediaBox']['llx']) * $this->k);
-                $this->fhPt    = (($format['MediaBox']['ury'] - $format['MediaBox']['lly']) * $this->k);
+                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', $format['MediaBox']['llx'], $format['MediaBox']['lly'], $format['MediaBox']['urx'], $format['MediaBox']['ury'], false, $this->scaleFactor, $this->pagedim);
+                $this->fwPt    = (($format['MediaBox']['urx'] - $format['MediaBox']['llx']) * $this->scaleFactor);
+                $this->fhPt    = (($format['MediaBox']['ury'] - $format['MediaBox']['lly']) * $this->scaleFactor);
             }
             else {
                 if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
-                    $pf = array(($format[0] * $this->k), ($format[1] * $this->k));
+                    $pf = array(($format[0] * $this->scaleFactor), ($format[1] * $this->scaleFactor));
                 }
                 else {
                     if (!isset($format['format'])) {
@@ -1682,23 +1680,23 @@ class PDF
                 }
                 $this->fwPt    = $pf[0];
                 $this->fhPt    = $pf[1];
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pagedim);
+                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->scaleFactor, $this->pagedim);
             }
             // the visible region of default user space
             if (isset($format['CropBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'CropBox', $format['CropBox']['llx'], $format['CropBox']['lly'], $format['CropBox']['urx'], $format['CropBox']['ury'], false, $this->k, $this->pagedim);
+                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'CropBox', $format['CropBox']['llx'], $format['CropBox']['lly'], $format['CropBox']['urx'], $format['CropBox']['ury'], false, $this->scaleFactor, $this->pagedim);
             }
             // the region to which the contents of the page shall be clipped when output in a production environment
             if (isset($format['BleedBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'BleedBox', $format['BleedBox']['llx'], $format['BleedBox']['lly'], $format['BleedBox']['urx'], $format['BleedBox']['ury'], false, $this->k, $this->pagedim);
+                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'BleedBox', $format['BleedBox']['llx'], $format['BleedBox']['lly'], $format['BleedBox']['urx'], $format['BleedBox']['ury'], false, $this->scaleFactor, $this->pagedim);
             }
             // the intended dimensions of the finished page after trimming
             if (isset($format['TrimBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'TrimBox', $format['TrimBox']['llx'], $format['TrimBox']['lly'], $format['TrimBox']['urx'], $format['TrimBox']['ury'], false, $this->k, $this->pagedim);
+                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'TrimBox', $format['TrimBox']['llx'], $format['TrimBox']['lly'], $format['TrimBox']['urx'], $format['TrimBox']['ury'], false, $this->scaleFactor, $this->pagedim);
             }
             // the page's meaningful content (including potential white space)
             if (isset($format['ArtBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'ArtBox', $format['ArtBox']['llx'], $format['ArtBox']['lly'], $format['ArtBox']['urx'], $format['ArtBox']['ury'], false, $this->k, $this->pagedim);
+                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'ArtBox', $format['ArtBox']['llx'], $format['ArtBox']['lly'], $format['ArtBox']['urx'], $format['ArtBox']['ury'], false, $this->scaleFactor, $this->pagedim);
             }
             // specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for the various page boundaries
             if (isset($format['BoxColorInfo'])) {
@@ -1772,23 +1770,23 @@ class PDF
     {
         if (!isset($this->pagedim[$this->page]['MediaBox'])) {
             // the boundaries of the physical medium on which the page shall be displayed or printed
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pagedim);
+            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->scaleFactor, $this->pagedim);
         }
         if (!isset($this->pagedim[$this->page]['CropBox'])) {
             // the visible region of default user space
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'CropBox', $this->pagedim[$this->page]['MediaBox']['llx'], $this->pagedim[$this->page]['MediaBox']['lly'], $this->pagedim[$this->page]['MediaBox']['urx'], $this->pagedim[$this->page]['MediaBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'CropBox', $this->pagedim[$this->page]['MediaBox']['llx'], $this->pagedim[$this->page]['MediaBox']['lly'], $this->pagedim[$this->page]['MediaBox']['urx'], $this->pagedim[$this->page]['MediaBox']['ury'], true, $this->scaleFactor, $this->pagedim);
         }
         if (!isset($this->pagedim[$this->page]['BleedBox'])) {
             // the region to which the contents of the page shall be clipped when output in a production environment
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'BleedBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'BleedBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->scaleFactor, $this->pagedim);
         }
         if (!isset($this->pagedim[$this->page]['TrimBox'])) {
             // the intended dimensions of the finished page after trimming
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'TrimBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'TrimBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->scaleFactor, $this->pagedim);
         }
         if (!isset($this->pagedim[$this->page]['ArtBox'])) {
             // the page's meaningful content (including potential white space)
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'ArtBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'ArtBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->scaleFactor, $this->pagedim);
         }
         if (!isset($this->pagedim[$this->page]['Rotate'])) {
             // The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
@@ -1827,8 +1825,8 @@ class PDF
             // swap X and Y coordinates (change page orientation)
             $this->pagedim = StaticMethods::swapPageBoxCoordinates($this->page, $this->pagedim);
         }
-        $this->w = ($this->wPt / $this->k);
-        $this->h = ($this->hPt / $this->k);
+        $this->w = ($this->wPt / $this->scaleFactor);
+        $this->h = ($this->hPt / $this->scaleFactor);
         if (StaticMethods::empty_string($autopagebreak)) {
             if (isset($this->AutoPageBreak)) {
                 $autopagebreak = $this->AutoPageBreak;
@@ -1843,7 +1841,7 @@ class PDF
             }
             else {
                 // default value = 2 cm
-                $bottommargin = 2 * 28.35 / $this->k;
+                $bottommargin = 2 * 28.35 / $this->scaleFactor;
             }
         }
         $this->setAutoPageBreak($autopagebreak, $bottommargin);
@@ -2088,7 +2086,7 @@ class PDF
      */
     public function getScaleFactor()
     {
-        return $this->k;
+        return $this->scaleFactor;
     }
 
     /**
@@ -2530,7 +2528,7 @@ class PDF
             $this->lastpage(true);
             $this->setAutoPageBreak(false);
             $this->x       = 0;
-            $this->y       = $this->h - (1 / $this->k);
+            $this->y       = $this->h - (1 / $this->scaleFactor);
             $this->lMargin = 0;
             $this->_outSaveGraphicsState();
             $font = defined('PDF_FONT_NAME_MAIN') ? PDF_FONT_NAME_MAIN : 'helvetica';
@@ -2975,7 +2973,7 @@ class PDF
             else {
                 $imgy = $this->y;
             }
-            $cell_height = $this->getCellHeight($headerfont[2] / $this->k);
+            $cell_height = $this->getCellHeight($headerfont[2] / $this->scaleFactor);
             // set starting margin for text data cell
             if ($this->getRTL()) {
                 $header_x = $this->original_rMargin + ($headerdata['logo_width'] * 1.1);
@@ -2994,8 +2992,8 @@ class PDF
             $this->setX($header_x);
             $this->MultiCell($cw, $cell_height, $headerdata['string'], 0, '', 0, 1, '', '', true, 0, false, true, 0, 'T', false);
             // print an ending header line
-            $this->setLineStyle(array('width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
-            $this->setY((2.835 / $this->k) + max($imgy, $this->y));
+            $this->setLineStyle(array('width' => 0.85 / $this->scaleFactor, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
+            $this->setY((2.835 / $this->scaleFactor) + max($imgy, $this->y));
             if ($this->rtl) {
                 $this->setX($this->original_rMargin);
             }
@@ -3034,7 +3032,7 @@ class PDF
         $cur_y = $this->y;
         $this->setTextColorArray($this->footer_text_color);
         //set style for cell border
-        $line_width = (0.85 / $this->k);
+        $line_width = (0.85 / $this->scaleFactor);
         $this->setLineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footer_line_color));
         //print document barcode
         $barcode = $this->barcode();
@@ -4038,7 +4036,7 @@ class PDF
         // font size in points
         $this->FontSizePt = $size;
         // font size in user units
-        $this->FontSize = $size / $this->k;
+        $this->FontSize = $size / $this->scaleFactor;
         // calculate some font metrics
         if (isset($this->CurrentFont['desc']['FontBBox'])) {
             $bbox        = explode(' ', substr($this->CurrentFont['desc']['FontBBox'], 1, -1));
@@ -4064,8 +4062,8 @@ class PDF
         elseif (!isset($font_ascent)) {
             $font_ascent = $font_height - $font_descent;
         }
-        $this->FontAscent  = ($font_ascent / $this->k);
-        $this->FontDescent = ($font_descent / $this->k);
+        $this->FontAscent  = ($font_ascent / $this->scaleFactor);
+        $this->FontDescent = ($font_descent / $this->scaleFactor);
         if ($out and ($this->page > 0) and (isset($this->CurrentFont['i'])) and ($this->state === self::READY)) {
             $this->append(sprintf('BT /F%d %F Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
         }
@@ -4157,7 +4155,7 @@ class PDF
         else {
             $descent = (1.219 * 0.24 * $size);
         }
-        return ($descent / $this->k);
+        return ($descent / $this->scaleFactor);
     }
 
     /**
@@ -4177,7 +4175,7 @@ class PDF
         else {
             $ascent = 1.219 * 0.76 * $size;
         }
-        return ($ascent / $this->k);
+        return ($ascent / $this->scaleFactor);
     }
 
     /**
@@ -4341,10 +4339,10 @@ class PDF
                 for ($j = $maxid; $j >= 0; --$j) {
                     $ctm = $this->transfmatrix[$i][$j];
                     if (isset($ctm['a'])) {
-                        $x = $x * $this->k;
-                        $y = ($this->h - $y) * $this->k;
-                        $w = $w * $this->k;
-                        $h = $h * $this->k;
+                        $x = $x * $this->scaleFactor;
+                        $y = ($this->h - $y) * $this->scaleFactor;
+                        $w = $w * $this->scaleFactor;
+                        $h = $h * $this->scaleFactor;
                         // top left
                         $xt = $x;
                         $yt = $y;
@@ -4368,10 +4366,10 @@ class PDF
                         // new coordinates (rectangle area)
                         $x = min($x1, $x2, $x3, $x4);
                         $y = max($y1, $y2, $y3, $y4);
-                        $w = (max($x1, $x2, $x3, $x4) - $x) / $this->k;
-                        $h = ($y - min($y1, $y2, $y3, $y4)) / $this->k;
-                        $x = $x / $this->k;
-                        $y = $this->h - ($y / $this->k);
+                        $w = (max($x1, $x2, $x3, $x4) - $x) / $this->scaleFactor;
+                        $h = ($y - min($y1, $y2, $y3, $y4)) / $this->scaleFactor;
+                        $x = $x / $this->scaleFactor;
+                        $y = $this->h - ($y / $this->scaleFactor);
                     }
                 }
             }
@@ -4660,7 +4658,7 @@ class PDF
                 $h = $min_cell_height;
             }
         }
-        $k = $this->k;
+        $k = $this->scaleFactor;
         // check page for no-write regions and adapt page margins if necessary
         list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
         if ($this->rtl) {
@@ -4985,13 +4983,13 @@ class PDF
             }
             if ($this->font_spacing != 0) {
                 // increase/decrease font spacing
-                $rs .= sprintf('BT %F Tc ET ', ($this->font_spacing * $this->k));
+                $rs .= sprintf('BT %F Tc ET ', ($this->font_spacing * $this->scaleFactor));
             }
             if ($this->ColorFlag and ($this->textrendermode < 4)) {
                 $s .= 'q ' . $this->TextColor . ' ';
             }
             // rendering mode
-            $s .= sprintf('BT %d Tr %F w ET ', $this->textrendermode, ($this->textstrokewidth * $this->k));
+            $s .= sprintf('BT %d Tr %F w ET ', $this->textrendermode, ($this->textstrokewidth * $this->scaleFactor));
             // count number of spaces
             $ns = substr_count($txt, chr(32));
             // Justification
@@ -5014,7 +5012,7 @@ class PDF
                     // get string width
                     $width = $txwidth;
                     // new space width
-                    $spacewidth = (($w - $width - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1)) * $this->k;
+                    $spacewidth = (($w - $width - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1)) * $this->scaleFactor;
                     if ($this->font_stretching != 100) {
                         // word spacing (Tw) is affected by stretching
                         $spacewidth /= ($this->font_stretching / 100);
@@ -5198,7 +5196,7 @@ class PDF
             $brd = array('LRTB' => true);
         }
         // calculate coordinates for border
-        $k = $this->k;
+        $k = $this->scaleFactor;
         if ($this->rtl) {
             $xeL = ($x - $w) * $k;
             $xeR = $x * $k;
@@ -5502,7 +5500,7 @@ class PDF
                     // try to reduce font size to fit text on cell (use a quick search algorithm)
                     $fmin         = 1;
                     $fmax         = $this->FontSizePt;
-                    $diff_epsilon = (1 / $this->k); // one point (min resolution)
+                    $diff_epsilon = (1 / $this->scaleFactor); // one point (min resolution)
                     $maxit        = (2 * min(100, max(10, intval($fmax)))); // max number of iterations
                     while ($maxit >= 0) {
                         $fmid = (($fmax + $fmin) / 2);
@@ -6593,8 +6591,8 @@ class PDF
         if ($imsize === FALSE) {
             if (($w > 0) and ($h > 0)) {
                 // get measures from specified data
-                $pw     = $this->getHTMLUnitToUnits($w, 0, $this->pdfunit, true) * $this->imgscale * $this->k;
-                $ph     = $this->getHTMLUnitToUnits($h, 0, $this->pdfunit, true) * $this->imgscale * $this->k;
+                $pw     = $this->getHTMLUnitToUnits($w, 0, $this->pdfunit, true) * $this->imgscale * $this->scaleFactor;
+                $ph     = $this->getHTMLUnitToUnits($h, 0, $this->pdfunit, true) * $this->imgscale * $this->scaleFactor;
                 $imsize = array($pw, $ph);
             }
             else {
@@ -6687,8 +6685,8 @@ class PDF
         // fit the image on available space
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
         // calculate new minimum dimensions in pixels
-        $neww = round($w * $this->k * $dpi / $this->dpi);
-        $newh = round($h * $this->k * $dpi / $this->dpi);
+        $neww = round($w * $this->scaleFactor * $dpi / $this->dpi);
+        $newh = round($h * $this->scaleFactor * $dpi / $this->dpi);
         // check if resize is necessary (resize is used only to reduce the image)
         $newsize = ($neww * $newh);
         $pixsize = ($pixw * $pixh);
@@ -6819,8 +6817,8 @@ class PDF
                                 }
                                 $tmp = [];
                                 if (!preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $svgtag, $tmp)) {
-                                    $vbw    = ($ow * $this->imgscale * $this->k);
-                                    $vbh    = ($oh * $this->imgscale * $this->k);
+                                    $vbw    = ($ow * $this->imgscale * $this->scaleFactor);
+                                    $vbh    = ($oh * $this->imgscale * $this->scaleFactor);
                                     $vbox   = sprintf(' viewBox="0 0 %F %F" ', $vbw, $vbh);
                                     $svgtag = $vbox . $svgtag;
                                 }
@@ -6887,10 +6885,10 @@ class PDF
             // image is not displayed
             return $info['i'];
         }
-        $xkimg = $ximg * $this->k;
+        $xkimg = $ximg * $this->scaleFactor;
         if (!$alt) {
             // only non-alternative immages will be set
-            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->h - ($y + $h)) * $this->k), $info['i']));
+            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->scaleFactor), ($h * $this->scaleFactor), $xkimg, (($this->h - ($y + $h)) * $this->scaleFactor), $info['i']));
         }
         if (!empty($border)) {
             $bx      = $this->x;
@@ -7717,7 +7715,7 @@ class PDF
                             $out   .= ' ]';
                         }
                         if (isset($this->pagedim[$n]['BoxColorInfo'][$box]['W'])) {
-                            $out .= ' /W ' . ($this->pagedim[$n]['BoxColorInfo'][$box]['W'] * $this->k);
+                            $out .= ' /W ' . ($this->pagedim[$n]['BoxColorInfo'][$box]['W'] * $this->scaleFactor);
                         }
                         if (isset($this->pagedim[$n]['BoxColorInfo'][$box]['S'])) {
                             $out .= ' /S /' . $this->pagedim[$n]['BoxColorInfo'][$box]['S'];
@@ -7726,7 +7724,7 @@ class PDF
                             $dashes = $this->pagedim[$n]['BoxColorInfo'][$box]['D'];
                             $out    .= ' /D [';
                             foreach ($dashes as $dash) {
-                                $out .= sprintf(' %F', ($dash * $this->k));
+                                $out .= sprintf(' %F', ($dash * $this->scaleFactor));
                             }
                             $out .= ' ]';
                         }
@@ -7890,10 +7888,10 @@ class PDF
                     }
                     $formfield = false;
                     $pl['opt'] = array_change_key_case($pl['opt'], CASE_LOWER);
-                    $a         = $pl['x'] * $this->k;
-                    $b         = $this->pagedim[$n]['h'] - (($pl['y'] + $pl['h']) * $this->k);
-                    $c         = $pl['w'] * $this->k;
-                    $d         = $pl['h'] * $this->k;
+                    $a         = $pl['x'] * $this->scaleFactor;
+                    $b         = $this->pagedim[$n]['h'] - (($pl['y'] + $pl['h']) * $this->scaleFactor);
+                    $c         = $pl['w'] * $this->scaleFactor;
+                    $d         = $pl['h'] * $this->scaleFactor;
                     $rect      = sprintf('%F %F %F %F', $a, $b, $a + $c, $b + $d);
                     // create new annotation object
                     $annots = '<</Type /Annot';
@@ -8181,7 +8179,7 @@ class PDF
                                 // internal link ID
                                 $l = $this->links[$pl['txt']];
                                 if (isset($this->page_obj_id[($l['p'])])) {
-                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->k)));
+                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->scaleFactor)));
                                 }
                             }
                             $hmodes = array('N', 'I', 'O', 'P');
@@ -8212,7 +8210,7 @@ class PDF
                             if (isset($pl['opt']['cl']) and is_array($pl['opt']['cl'])) {
                                 $annots .= ' /CL [';
                                 foreach ($pl['opt']['cl'] as $cl) {
-                                    $annots .= sprintf('%F ', $cl * $this->k);
+                                    $annots .= sprintf('%F ', $cl * $this->scaleFactor);
                                 }
                                 $annots .= ']';
                             }
@@ -8221,10 +8219,10 @@ class PDF
                                 $annots .= ' /IT /' . $pl['opt']['it'];
                             }
                             if (isset($pl['opt']['rd']) and is_array($pl['opt']['rd'])) {
-                                $l      = $pl['opt']['rd'][0] * $this->k;
-                                $r      = $pl['opt']['rd'][1] * $this->k;
-                                $t      = $pl['opt']['rd'][2] * $this->k;
-                                $b      = $pl['opt']['rd'][3] * $this->k;
+                                $l      = $pl['opt']['rd'][0] * $this->scaleFactor;
+                                $r      = $pl['opt']['rd'][1] * $this->scaleFactor;
+                                $t      = $pl['opt']['rd'][2] * $this->scaleFactor;
+                                $b      = $pl['opt']['rd'][3] * $this->scaleFactor;
                                 $annots .= ' /RD [' . sprintf('%F %F %F %F', $l, $r, $t, $b) . ']';
                             }
                             if (isset($pl['opt']['le']) and in_array($pl['opt']['le'], $lineendings)) {
@@ -9055,7 +9053,7 @@ class PDF
                     $stream = gzcompress($stream);
                     $out    .= ' /Filter /FlateDecode';
                 }
-                $out .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * $this->k), (-$data['y'] * $this->k), (($data['w'] + $data['x']) * $this->k), (($data['h'] - $data['y']) * $this->k));
+                $out .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * $this->scaleFactor), (-$data['y'] * $this->scaleFactor), (($data['w'] + $data['x']) * $this->scaleFactor), (($data['h'] - $data['y']) * $this->scaleFactor));
                 $out .= ' /Matrix [1 0 0 1 0 0]';
                 $out .= ' /Resources <<';
                 $out .= ' /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
@@ -9947,7 +9945,7 @@ class PDF
     protected function _dounderlinew($x, $y, $w)
     {
         $linew = -$this->CurrentFont['ut'] / 1000 * $this->FontSizePt;
-        return sprintf('%F %F %F %F re f', $x * $this->k, ((($this->h - $y) * $this->k) + $linew), $w * $this->k, $linew);
+        return sprintf('%F %F %F %F re f', $x * $this->scaleFactor, ((($this->h - $y) * $this->scaleFactor) + $linew), $w * $this->scaleFactor, $linew);
     }
 
     /**
@@ -9971,7 +9969,7 @@ class PDF
     protected function _dolinethroughw($x, $y, $w)
     {
         $linew = -$this->CurrentFont['ut'] / 1000 * $this->FontSizePt;
-        return sprintf('%F %F %F %F re f', $x * $this->k, ((($this->h - $y) * $this->k) + $linew + ($this->FontSizePt / 3)), $w * $this->k, $linew);
+        return sprintf('%F %F %F %F re f', $x * $this->scaleFactor, ((($this->h - $y) * $this->scaleFactor) + $linew + ($this->FontSizePt / 3)), $w * $this->scaleFactor, $linew);
     }
 
     /**
@@ -9995,7 +9993,7 @@ class PDF
     protected function _dooverlinew($x, $y, $w)
     {
         $linew = -$this->CurrentFont['ut'] / 1000 * $this->FontSizePt;
-        return sprintf('%F %F %F %F re f', $x * $this->k, (($this->h - $y + $this->FontAscent) * $this->k) - $linew, $w * $this->k, $linew);
+        return sprintf('%F %F %F %F re f', $x * $this->scaleFactor, (($this->h - $y + $this->FontAscent) * $this->scaleFactor) - $linew, $w * $this->scaleFactor, $linew);
 
     }
 
@@ -10223,7 +10221,7 @@ class PDF
      */
     public function pixelsToUnits($px)
     {
-        return ($px / ($this->imgscale * $this->k));
+        return ($px / ($this->imgscale * $this->scaleFactor));
     }
 
     /**
@@ -10851,8 +10849,8 @@ class PDF
         if (($s_x == 0) or ($s_y == 0)) {
             $this->Error('Please do not use values equal to zero for scaling');
         }
-        $y = ($this->h - $y) * $this->k;
-        $x *= $this->k;
+        $y = ($this->h - $y) * $this->scaleFactor;
+        $x *= $this->scaleFactor;
         //calculate elements of transformation matrix
         $s_x   /= 100;
         $s_y   /= 100;
@@ -10945,8 +10943,8 @@ class PDF
         $tm[1] = 0;
         $tm[2] = 0;
         $tm[3] = 1;
-        $tm[4] = $t_x * $this->k;
-        $tm[5] = -$t_y * $this->k;
+        $tm[4] = $t_x * $this->scaleFactor;
+        $tm[5] = -$t_y * $this->scaleFactor;
         //translate the coordinate system
         $this->Transform($tm);
     }
@@ -10966,8 +10964,8 @@ class PDF
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        $y = ($this->h - $y) * $this->k;
-        $x *= $this->k;
+        $y = ($this->h - $y) * $this->scaleFactor;
+        $x *= $this->scaleFactor;
         //calculate elements of transformation matrix
         $tm    = [];
         $tm[0] = cos(deg2rad($angle));
@@ -11023,8 +11021,8 @@ class PDF
         if (($angle_x <= -90) or ($angle_x >= 90) or ($angle_y <= -90) or ($angle_y >= 90)) {
             $this->Error('Please use values between -90 and +90 degrees for Skewing.');
         }
-        $x *= $this->k;
-        $y = ($this->h - $y) * $this->k;
+        $x *= $this->scaleFactor;
+        $y = ($this->h - $y) * $this->scaleFactor;
         //calculate elements of transformation matrix
         $tm    = [];
         $tm[0] = 1;
@@ -11136,7 +11134,7 @@ class PDF
         $this->n_dests = $this->_newobj();
         $out           = ' <<';
         foreach ($this->dests as $name => $o) {
-            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->page_obj_id[($o['p'])], ($o['x'] * $this->k), ($this->pagedim[$o['p']]['h'] - ($o['y'] * $this->k)));
+            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->page_obj_id[($o['p'])], ($o['x'] * $this->scaleFactor), ($this->pagedim[$o['p']]['h'] - ($o['y'] * $this->scaleFactor)));
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
@@ -11323,13 +11321,13 @@ class PDF
                     // internal link ID
                     $l = $this->links[$o['u']];
                     if (isset($this->page_obj_id[($l['p'])])) {
-                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->k)));
+                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->scaleFactor)));
                     }
                 }
             }
             elseif (isset($this->page_obj_id[($o['p'])])) {
                 // link to a page
-                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->page_obj_id[($o['p'])], ($o['x'] * $this->k), ($this->pagedim[$o['p']]['h'] - ($o['y'] * $this->k)));
+                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->page_obj_id[($o['p'])], ($o['x'] * $this->scaleFactor), ($this->pagedim[$o['p']]['h'] - ($o['y'] * $this->scaleFactor)));
             }
             // set font style
             $style = 0;
@@ -11457,7 +11455,7 @@ class PDF
         }
         // the followind avoid fields duplication after saving the document
         $this->javascript .= "if (getField('tcpdfdocsaved').value != 'saved') {";
-        $k                = $this->k;
+        $k                = $this->scaleFactor;
         $this->javascript .= sprintf("f" . $name . "=this.addField('%s','%s',%u,[%F,%F,%F,%F]);", $name, $type, $this->PageNo() - 1, $x * $k, ($this->h - $y) * $k + 1, ($x + $w) * $k, ($this->h - $y - $h) * $k + 1) . "\n";
         $this->javascript .= 'f' . $name . '.textSize=' . $this->FontSizePt . ";\n";
         foreach ($prop as $key => $val) {
@@ -11693,8 +11691,8 @@ class PDF
         // build appearance stream
         $popt['ap']                = [];
         $popt['ap']['n']           = [];
-        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->k);
-        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
+        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->scaleFactor);
+        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->scaleFactor)) * $this->scaleFactor);
         $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         if (!isset($popt['mk'])) {
@@ -11950,8 +11948,8 @@ class PDF
         // build appearance stream
         $popt['ap']             = [];
         $popt['ap']['n']        = [];
-        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->k);
-        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
+        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->scaleFactor);
+        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->scaleFactor)) * $this->scaleFactor);
         $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         // merge options
@@ -12026,7 +12024,7 @@ class PDF
         $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
         $tmpid           = $this->startTemplate($w, $h, false);
-        $bw              = (2 / $this->k); // border width
+        $bw              = (2 / $this->scaleFactor); // border width
         $border          = array(
             'L' => array('width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]),
             'R' => array('width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]),
@@ -12380,10 +12378,10 @@ class PDF
         else {
             $sigapp['name'] = $name;
         }
-        $a              = $x * $this->k;
-        $b              = $this->pagedim[($sigapp['page'])]['h'] - (($y + $h) * $this->k);
-        $c              = $w * $this->k;
-        $d              = $h * $this->k;
+        $a              = $x * $this->scaleFactor;
+        $b              = $this->pagedim[($sigapp['page'])]['h'] - (($y + $h) * $this->scaleFactor);
+        $c              = $w * $this->scaleFactor;
+        $d              = $h * $this->scaleFactor;
         $sigapp['rect'] = sprintf('%F %F %F %F', $a, $b, ($a + $c), ($b + $d));
         return $sigapp;
     }
@@ -13050,7 +13048,7 @@ class PDF
      */
     public function cropMark($x, $y, $w, $h, $type = 'T,R,B,L', $color = array(100, 100, 100, 100, 'All'))
     {
-        $this->setLineStyle(array('width' => (0.5 / $this->k), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
+        $this->setLineStyle(array('width' => (0.5 / $this->scaleFactor), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
         $type = strtoupper($type);
         $type = preg_replace('/[^A-Z\-\,]*/', '', $type);
         // split type in single components
@@ -13123,7 +13121,7 @@ class PDF
      */
     public function registrationMark($x, $y, $r, $double = false, $cola = array(100, 100, 100, 100, 'All'), $colb = array(0, 0, 0, 0, 'None'))
     {
-        $line_style = array('width' => max((0.5 / $this->k), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
+        $line_style = array('width' => max((0.5 / $this->scaleFactor), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
         $this->setFillColorArray($cola);
         $this->PieSector($x, $y, $r, 90, 180, 'F');
         $this->PieSector($x, $y, $r, 270, 360, 'F');
@@ -13149,7 +13147,7 @@ class PDF
     public function registrationMarkCMYK($x, $y, $r)
     {
         // line width
-        $lw = max((0.5 / $this->k), ($r / 8));
+        $lw = max((0.5 / $this->scaleFactor), ($r / 8));
         // internal radius
         $ri = ($r * 0.6);
         // external radius
@@ -13327,9 +13325,9 @@ class PDF
         //save current Graphic State
         $s = 'q';
         //set clipping area
-        $s .= sprintf(' %F %F %F %F re W n', $x * $this->k, ($this->h - $y) * $this->k, $w * $this->k, -$h * $this->k);
+        $s .= sprintf(' %F %F %F %F re W n', $x * $this->scaleFactor, ($this->h - $y) * $this->scaleFactor, $w * $this->scaleFactor, -$h * $this->scaleFactor);
         //set up transformation matrix for gradient
-        $s .= sprintf(' %F 0 0 %F %F %F cm', $w * $this->k, $h * $this->k, $x * $this->k, ($this->h - ($y + $h)) * $this->k);
+        $s .= sprintf(' %F 0 0 %F %F %F cm', $w * $this->scaleFactor, $h * $this->scaleFactor, $x * $this->scaleFactor, ($this->h - ($y + $h)) * $this->scaleFactor);
         $this->append($s);
     }
 
@@ -13729,7 +13727,7 @@ class PDF
         }
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        $k = $this->k;
+        $k = $this->scaleFactor;
         if ($file[0] === '@') { // image from string
             $data = substr($file, 1);
         }
@@ -14203,7 +14201,7 @@ class PDF
         }
         else {
             if (StaticMethods::empty_string($xres)) {
-                $xres = (0.141 * $this->k); // default bar width = 0.4 mm
+                $xres = (0.141 * $this->scaleFactor); // default bar width = 0.4 mm
             }
             if ($xres > $max_xres) {
                 // correct xres to fit on $w
@@ -14253,7 +14251,7 @@ class PDF
                 }
             }
         }
-        $text_height = $this->getCellHeight($fontsize / $this->k);
+        $text_height = $this->getCellHeight($fontsize / $this->scaleFactor);
         // height
         if (StaticMethods::empty_string($h) or ($h <= 0)) {
             // set default height
@@ -14263,8 +14261,8 @@ class PDF
         if ($barh <= 0) {
             // try to reduce font or padding to fit barcode on available height
             if ($text_height > $h) {
-                $fontsize    = (($h * $this->k) / (4 * $this->cell_height_ratio));
-                $text_height = $this->getCellHeight($fontsize / $this->k);
+                $fontsize    = (($h * $this->scaleFactor) / (4 * $this->cell_height_ratio));
+                $text_height = $this->getCellHeight($fontsize / $this->scaleFactor);
                 $this->setFont($style['font'], '', $fontsize);
             }
             if ($vpadding > 0) {
@@ -14533,8 +14531,8 @@ class PDF
         }
         // set dimensions
         if ((StaticMethods::empty_string($w) or ($w <= 0)) and (StaticMethods::empty_string($h) or ($h <= 0))) {
-            $w = ($cols + $hpad) * ($mw / $this->k);
-            $h = ($rows + $vpad) * ($mh / $this->k);
+            $w = ($cols + $hpad) * ($mw / $this->scaleFactor);
+            $h = ($rows + $vpad) * ($mh / $this->scaleFactor);
         }
         elseif (($w === '') or ($w <= 0)) {
             $w = $h * $ratioWH;
@@ -14772,13 +14770,13 @@ class PDF
     protected function getCSSBorderWidth($width)
     {
         if ($width == 'thin') {
-            $width = (2 / $this->k);
+            $width = (2 / $this->scaleFactor);
         }
         elseif ($width == 'medium') {
-            $width = (4 / $this->k);
+            $width = (4 / $this->scaleFactor);
         }
         elseif ($width == 'thick') {
-            $width = (6 / $this->k);
+            $width = (6 / $this->scaleFactor);
         }
         else {
             $width = $this->getHTMLUnitToUnits($width, 1, 'px', false);
@@ -16389,10 +16387,10 @@ class PDF
                 // vertically align image in line
                 if ((!$this->newline) and ($dom[$key]['value'] == 'img') and (isset($dom[$key]['height'])) and ($dom[$key]['height'] > 0)) {
                     // get image height
-                    $imgh          = $this->getHTMLUnitToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->k), 'px');
+                    $imgh          = $this->getHTMLUnitToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->scaleFactor), 'px');
                     $autolinebreak = false;
                     if (!empty($dom[$key]['width'])) {
-                        $imgw = $this->getHTMLUnitToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->k), 'px', false);
+                        $imgw = $this->getHTMLUnitToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->scaleFactor), 'px', false);
                         if (($imgw <= ($this->w - $this->lMargin - $this->rMargin - $this->cell_padding['L'] - $this->cell_padding['R']))
                             and ((($this->rtl) and (($this->x - $imgw) < ($this->lMargin + $this->cell_padding['L'])))
                                 or ((!$this->rtl) and (($this->x + $imgw) > ($this->w - $this->rMargin - $this->cell_padding['R']))))) {
@@ -16432,9 +16430,9 @@ class PDF
                             // add line start to current page
                             $yshift = ($minstartliney - $this->y);
                             if ($fontaligned) {
-                                $yshift += ($curfontsize / $this->k);
+                                $yshift += ($curfontsize / $this->scaleFactor);
                             }
-                            $try = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->k));
+                            $try = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->scaleFactor));
                             $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                             // shift the annotations and links
                             if (isset($this->PageAnnots[$this->page])) {
@@ -16459,9 +16457,9 @@ class PDF
                             $startliney    = $this->y;
                             $this->newline = false;
                         }
-                        $this->y        += ($this->getCellHeight($curfontsize / $this->k) - ($curfontdescent * $this->cell_height_ratio) - $imgh);
+                        $this->y        += ($this->getCellHeight($curfontsize / $this->scaleFactor) - ($curfontdescent * $this->cell_height_ratio) - $imgh);
                         $minstartliney  = min($this->y, $minstartliney);
-                        $maxbottomliney = ($startliney + $this->getCellHeight($curfontsize / $this->k));
+                        $maxbottomliney = ($startliney + $this->getCellHeight($curfontsize / $this->scaleFactor));
                     }
                 }
                 elseif (isset($dom[$key]['fontname']) or isset($dom[$key]['fontstyle']) or isset($dom[$key]['fontsize']) or isset($dom[$key]['line-height'])) {
@@ -16501,7 +16499,7 @@ class PDF
                                 $tend       = substr($pageBuffer, $this->cntmrk[$this->page]);
                                 // add line start to current page
                                 $yshift = ($minstartliney - $this->y);
-                                $try    = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->k));
+                                $try    = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->scaleFactor));
                                 $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                                 // shift the annotations and links
                                 if (isset($this->PageAnnots[$this->page])) {
@@ -16530,17 +16528,17 @@ class PDF
                             }
                             if (!$dom[$key]['block']) {
                                 if (!(isset($dom[($key + 1)]) and $dom[($key + 1)]['tag'] and (!$dom[($key + 1)]['opening']) and ($dom[($key + 1)]['value'] != 'li') and $dom[$key]['tag'] and (!$dom[$key]['opening']))) {
-                                    $this->y += (((($curfontsize * $this->cell_height_ratio) - ($fontsize * $dom[$key]['line-height'])) / $this->k) + $curfontascent - $fontascent - $curfontdescent + $fontdescent) / 2;
+                                    $this->y += (((($curfontsize * $this->cell_height_ratio) - ($fontsize * $dom[$key]['line-height'])) / $this->scaleFactor) + $curfontascent - $fontascent - $curfontdescent + $fontdescent) / 2;
                                 }
                                 if (($dom[$key]['value'] != 'sup') and ($dom[$key]['value'] != 'sub')) {
                                     $current_line_align_data = array($key, $minstartliney, $maxbottomliney);
                                     if (isset($line_align_data) and (($line_align_data[0] == ($key - 1)) or (($line_align_data[0] == ($key - 2)) and (isset($dom[($key - 1)])) and (preg_match('/^([\s]+)$/', $dom[($key - 1)]['value']) > 0)))) {
                                         $minstartliney  = min($this->y, $line_align_data[1]);
-                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / $this->k)), $line_align_data[2]);
+                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / $this->scaleFactor)), $line_align_data[2]);
                                     }
                                     else {
                                         $minstartliney  = min($this->y, $minstartliney);
-                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / $this->k)), $maxbottomliney);
+                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / $this->scaleFactor)), $maxbottomliney);
                                     }
                                     $line_align_data = $current_line_align_data;
                                 }
@@ -16753,7 +16751,7 @@ class PDF
                                     $ns = 1;
                                 }
                                 // calculate additional space to add to each existing space
-                                $spacewidth = ($mdiff / ($ns - $no)) * $this->k;
+                                $spacewidth = ($mdiff / ($ns - $no)) * $this->scaleFactor;
                                 if ($this->FontSize <= 0) {
                                     $this->FontSize = 1;
                                 }
@@ -16915,18 +16913,18 @@ class PDF
                                         }
                                     }
                                     // shift the annotations and links
-                                    $cxpos = ($currentxpos / $this->k);
+                                    $cxpos = ($currentxpos / $this->scaleFactor);
                                     $lmpos = ($this->lMargin + $this->cell_padding['L'] + $this->feps);
                                     if ($this->xObject) {
                                         // we are inside an XObject template
                                         foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
-                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->k) >= ($currentxpos - $this->feps)) and (($pac['x'] * $this->k) <= ($currentxpos + $this->feps))) {
+                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->scaleFactor) >= ($currentxpos - $this->feps)) and (($pac['x'] * $this->scaleFactor) <= ($currentxpos + $this->feps))) {
                                                 if ($cxpos > $lmpos) {
-                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += ($spacew / $this->k);
-                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += ($spacew / $this->scaleFactor);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->scaleFactor);
                                                 }
                                                 else {
-                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->scaleFactor);
                                                 }
                                                 break;
                                             }
@@ -16934,13 +16932,13 @@ class PDF
                                     }
                                     elseif (isset($this->PageAnnots[$this->page])) {
                                         foreach ($this->PageAnnots[$this->page] as $pak => $pac) {
-                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->k) >= ($currentxpos - $this->feps)) and (($pac['x'] * $this->k) <= ($currentxpos + $this->feps))) {
+                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->scaleFactor) >= ($currentxpos - $this->feps)) and (($pac['x'] * $this->scaleFactor) <= ($currentxpos + $this->feps))) {
                                                 if ($cxpos > $lmpos) {
-                                                    $this->PageAnnots[$this->page][$pak]['x'] += ($spacew / $this->k);
-                                                    $this->PageAnnots[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->PageAnnots[$this->page][$pak]['x'] += ($spacew / $this->scaleFactor);
+                                                    $this->PageAnnots[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->scaleFactor);
                                                 }
                                                 else {
-                                                    $this->PageAnnots[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->PageAnnots[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->scaleFactor);
                                                 }
                                                 break;
                                             }
@@ -17005,7 +17003,7 @@ class PDF
                     } // end if $startlinex
                     if (($t_x != 0) or ($yshift < 0)) {
                         // shift the line
-                        $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->k), ($yshift * $this->k));
+                        $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->scaleFactor), ($yshift * $this->scaleFactor));
                         $pstart     .= "\nq\n" . $trx . "\n" . $pmid . "\nQ\n";
                         $endlinepos = strlen($pstart);
                         if ($this->xObject) {
@@ -17038,14 +17036,14 @@ class PDF
                 $startlinex    = $this->x;
                 $startliney    = $this->y;
                 if ($dom[$dom[$key]['parent']]['value'] == 'sup') {
-                    $startliney -= ((0.3 * $this->FontSizePt) / $this->k);
+                    $startliney -= ((0.3 * $this->FontSizePt) / $this->scaleFactor);
                 }
                 elseif ($dom[$dom[$key]['parent']]['value'] == 'sub') {
-                    $startliney -= (($this->FontSizePt / 0.7) / $this->k);
+                    $startliney -= (($this->FontSizePt / 0.7) / $this->scaleFactor);
                 }
                 else {
                     $minstartliney  = $startliney;
-                    $maxbottomliney = ($this->y + $this->getCellHeight($fontsize / $this->k));
+                    $maxbottomliney = ($this->y + $this->getCellHeight($fontsize / $this->scaleFactor));
                 }
                 $startlinepage = $this->page;
                 if (isset($endlinepos) and (!$pbrk)) {
@@ -17424,9 +17422,9 @@ class PDF
                     if (is_numeric($pfontsize) and ($pfontsize > 0) and is_numeric($curfontsize) and ($curfontsize > 0) and ($pfontsize != $curfontsize)) {
                         $pfontascent    = $this->getFontAscent($pfontname, $pfontstyle, $pfontsize);
                         $pfontdescent   = $this->getFontDescent($pfontname, $pfontstyle, $pfontsize);
-                        $this->y        += ($this->getCellHeight(($pfontsize - $curfontsize) / $this->k) + $pfontascent - $curfontascent - $pfontdescent + $curfontdescent) / 2;
+                        $this->y        += ($this->getCellHeight(($pfontsize - $curfontsize) / $this->scaleFactor) + $pfontascent - $curfontascent - $pfontdescent + $curfontdescent) / 2;
                         $minstartliney  = min($this->y, $minstartliney);
-                        $maxbottomliney = max(($this->y + $this->getCellHeight($pfontsize / $this->k)), $maxbottomliney);
+                        $maxbottomliney = max(($this->y + $this->getCellHeight($pfontsize / $this->scaleFactor)), $maxbottomliney);
                     }
                 }
                 // text
@@ -17754,7 +17752,7 @@ class PDF
             } // end if startlinex
             if (($t_x != 0) or ($yshift < 0)) {
                 // shift the line
-                $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->k), ($yshift * $this->k));
+                $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->scaleFactor), ($yshift * $this->scaleFactor));
                 $pstart     .= "\nq\n" . $trx . "\n" . $pmid . "\nQ\n";
                 $endlinepos = strlen($pstart);
                 if ($this->xObject) {
@@ -17834,7 +17832,7 @@ class PDF
                 $cur_h = $this->tagvspaces[$tag['value']][0]['h'];
             }
             elseif (isset($tag['fontsize'])) {
-                $cur_h = $this->getCellHeight($tag['fontsize'] / $this->k);
+                $cur_h = $this->getCellHeight($tag['fontsize'] / $this->scaleFactor);
             }
             else {
                 $cur_h = $this->getCellHeight($this->FontSize);
@@ -17856,7 +17854,7 @@ class PDF
             }
             if (($this->htmlvspace <= 0) and ($on > 0)) {
                 if (isset($parent['fontsize'])) {
-                    $hbz = (($parent['fontsize'] / $this->k) * $this->cell_height_ratio);
+                    $hbz = (($parent['fontsize'] / $this->scaleFactor) * $this->cell_height_ratio);
                 }
                 else {
                     $hbz = $this->getCellHeight($this->FontSize);
@@ -17872,7 +17870,7 @@ class PDF
                 $pre_h = $this->tagvspaces[$tag['value']][1]['h'];
             }
             elseif (isset($parent['fontsize'])) {
-                $pre_h = $this->getCellHeight($parent['fontsize'] / $this->k);
+                $pre_h = $this->getCellHeight($parent['fontsize'] / $this->scaleFactor);
             }
             else {
                 $pre_h = $this->getCellHeight($this->FontSize);
@@ -18116,11 +18114,11 @@ class PDF
                 }
                 $iw = '';
                 if (isset($tag['width'])) {
-                    $iw = $this->getHTMLUnitToUnits($tag['width'], ($tag['fontsize'] / $this->k), 'px', false);
+                    $iw = $this->getHTMLUnitToUnits($tag['width'], ($tag['fontsize'] / $this->scaleFactor), 'px', false);
                 }
                 $ih = '';
                 if (isset($tag['height'])) {
-                    $ih = $this->getHTMLUnitToUnits($tag['height'], ($tag['fontsize'] / $this->k), 'px', false);
+                    $ih = $this->getHTMLUnitToUnits($tag['height'], ($tag['fontsize'] / $this->scaleFactor), 'px', false);
                 }
                 if (($type == 'eps') or ($type == 'ai')) {
                     $this->ImageEps($imgsrc, $xpos, $this->y, $iw, $ih, $imglink, true, $align, '', $border, true);
@@ -18139,12 +18137,12 @@ class PDF
                     }
                     case 'M':
                     {
-                        $this->y = (($this->img_rb_y + $prevy - ($this->getCellHeight($tag['fontsize'] / $this->k))) / 2);
+                        $this->y = (($this->img_rb_y + $prevy - ($this->getCellHeight($tag['fontsize'] / $this->scaleFactor))) / 2);
                         break;
                     }
                     case 'B':
                     {
-                        $this->y = $this->img_rb_y - ($this->getCellHeight($tag['fontsize'] / $this->k) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cell_height_ratio));
+                        $this->y = $this->img_rb_y - ($this->getCellHeight($tag['fontsize'] / $this->scaleFactor) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cell_height_ratio));
                         break;
                     }
                 }
@@ -18289,12 +18287,12 @@ class PDF
             }
             case 'sup':
             {
-                $this->setXY($this->GetX(), $this->GetY() - ((0.7 * $this->FontSizePt) / $this->k));
+                $this->setXY($this->GetX(), $this->GetY() - ((0.7 * $this->FontSizePt) / $this->scaleFactor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->GetX(), $this->GetY() + ((0.3 * $this->FontSizePt) / $this->k));
+                $this->setXY($this->GetX(), $this->GetY() + ((0.3 * $this->FontSizePt) / $this->scaleFactor));
                 break;
             }
             case 'h1':
@@ -18660,7 +18658,7 @@ class PDF
                 $pre_h = $this->tagvspaces[$tag['value']][1]['h'];
             }
             elseif (isset($parent['fontsize'])) {
-                $pre_h = $this->getCellHeight($parent['fontsize'] / $this->k);
+                $pre_h = $this->getCellHeight($parent['fontsize'] / $this->scaleFactor);
             }
             else {
                 $pre_h = $this->getCellHeight($this->FontSize);
@@ -19095,12 +19093,12 @@ class PDF
             }
             case 'sup':
             {
-                $this->setXY($this->GetX(), $this->GetY() + ((0.7 * $parent['fontsize']) / $this->k));
+                $this->setXY($this->GetX(), $this->GetY() + ((0.7 * $parent['fontsize']) / $this->scaleFactor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->GetX(), $this->GetY() - ((0.3 * $parent['fontsize']) / $this->k));
+                $this->setXY($this->GetX(), $this->GetY() - ((0.3 * $parent['fontsize']) / $this->scaleFactor));
                 break;
             }
             case 'div':
@@ -19612,7 +19610,7 @@ class PDF
             $k = 1;
         }
         else {
-            $k = $this->k;
+            $k = $this->scaleFactor;
         }
         if (in_array($defaultunit, $supportedunits)) {
             $unit = $defaultunit;
@@ -19682,7 +19680,7 @@ class PDF
             {
                 $retval = $this->pixelsToUnits($value);
                 if ($points) {
-                    $retval *= $this->k;
+                    $retval *= $this->scaleFactor;
                 }
                 break;
             }
@@ -19701,7 +19699,7 @@ class PDF
         if ($this->state !== self::READY) {
             return;
         }
-        $size        /= $this->k;
+        $size        /= $this->scaleFactor;
         $fill        = '';
         $bgcolor     = $this->bgcolor;
         $color       = $this->fgcolor;
@@ -20202,11 +20200,11 @@ class PDF
             $j = $i - 1;
             // shift pages down
             $this->pageBuffer($i, $this->pageBuffer($j));
-            $this->pagedim[$i]     = $this->pagedim[$j];
-            $this->pageLengths[$i] = $this->pageLengths[$j];
-            $this->intmrk[$i]      = $this->intmrk[$j];
-            $this->bordermrk[$i]   = $this->bordermrk[$j];
-            $this->cntmrk[$i]      = $this->cntmrk[$j];
+            $this->pagedim[$i]       = $this->pagedim[$j];
+            $this->pageLengths[$i]   = $this->pageLengths[$j];
+            $this->intmrk[$i]        = $this->intmrk[$j];
+            $this->bordermrk[$i]     = $this->bordermrk[$j];
+            $this->cntmrk[$i]        = $this->cntmrk[$j];
             $this->pageObjectIDs[$i] = $this->pageObjectIDs[$j];
             if (isset($this->footerpos[$j])) {
                 $this->footerpos[$i] = $this->footerpos[$j];
@@ -20241,11 +20239,11 @@ class PDF
             }
         }
         $this->pageBuffer($topage, $tmpPage);
-        $this->pagedim[$topage]     = $tmppagedim;
-        $this->pageLengths[$topage] = $tmppagelen;
-        $this->intmrk[$topage]      = $tmpintmrk;
-        $this->bordermrk[$topage]   = $tmpbordermrk;
-        $this->cntmrk[$topage]      = $tmpcntmrk;
+        $this->pagedim[$topage]       = $tmppagedim;
+        $this->pageLengths[$topage]   = $tmppagelen;
+        $this->intmrk[$topage]        = $tmpintmrk;
+        $this->bordermrk[$topage]     = $tmpbordermrk;
+        $this->cntmrk[$topage]        = $tmpcntmrk;
         $this->pageObjectIDs[$topage] = $tmppageobjects;
         if (isset($tmpfooterpos)) {
             $this->footerpos[$topage] = $tmpfooterpos;
@@ -20385,11 +20383,11 @@ class PDF
                 $j = $i + 1;
                 // shift pages
                 $this->pageBuffer($i, $this->pageBuffer($j));
-                $this->pagedim[$i]     = $this->pagedim[$j];
-                $this->pageLengths[$i] = $this->pageLengths[$j];
-                $this->intmrk[$i]      = $this->intmrk[$j];
-                $this->bordermrk[$i]   = $this->bordermrk[$j];
-                $this->cntmrk[$i]      = $this->cntmrk[$j];
+                $this->pagedim[$i]       = $this->pagedim[$j];
+                $this->pageLengths[$i]   = $this->pageLengths[$j];
+                $this->intmrk[$i]        = $this->intmrk[$j];
+                $this->bordermrk[$i]     = $this->bordermrk[$j];
+                $this->cntmrk[$i]        = $this->cntmrk[$j];
                 $this->pageObjectIDs[$i] = $this->pageObjectIDs[$j];
                 if (isset($this->footerpos[$j])) {
                     $this->footerpos[$i] = $this->footerpos[$j];
@@ -20552,13 +20550,13 @@ class PDF
         ++$this->numpages;
         $this->page = $this->numpages;
         $this->pageBuffer($this->page, $this->pageBuffer($page));
-        $this->pagedim[$this->page]     = $this->pagedim[$page];
-        $this->pageLengths[$this->page] = $this->pageLengths[$page];
-        $this->intmrk[$this->page]      = $this->intmrk[$page];
-        $this->bordermrk[$this->page]   = $this->bordermrk[$page];
-        $this->cntmrk[$this->page]      = $this->cntmrk[$page];
+        $this->pagedim[$this->page]       = $this->pagedim[$page];
+        $this->pageLengths[$this->page]   = $this->pageLengths[$page];
+        $this->intmrk[$this->page]        = $this->intmrk[$page];
+        $this->bordermrk[$this->page]     = $this->bordermrk[$page];
+        $this->cntmrk[$this->page]        = $this->cntmrk[$page];
         $this->pageObjectIDs[$this->page] = $this->pageObjectIDs[$page];
-        $this->pageopen[$this->page]    = false;
+        $this->pageopen[$this->page]      = false;
         if (isset($this->footerpos[$page])) {
             $this->footerpos[$this->page] = $this->footerpos[$page];
         }
@@ -21625,8 +21623,8 @@ class PDF
         $this->xObjects[$this->xObjectID]['h'] = $h;
         $this->w                               = $w;
         $this->h                               = $h;
-        $this->wPt                             = $this->w * $this->k;
-        $this->hPt                             = $this->h * $this->k;
+        $this->wPt                             = $this->w * $this->scaleFactor;
+        $this->hPt                             = $this->h * $this->scaleFactor;
         $this->fwPt                            = $this->wPt;
         $this->fhPt                            = $this->hPt;
         $this->x                               = 0;
@@ -21765,8 +21763,8 @@ class PDF
         $tm[1] = 0;
         $tm[2] = 0;
         $tm[3] = $sy;
-        $tm[4] = $xt * $this->k;
-        $tm[5] = ($this->h - $h - $y) * $this->k;
+        $tm[4] = $xt * $this->scaleFactor;
+        $tm[5] = ($this->h - $h - $y) * $this->scaleFactor;
         $this->Transform($tm);
         // set object
         $this->append('/' . $id . ' Do');
@@ -21775,12 +21773,12 @@ class PDF
         if (!empty($this->xObjects[$id]['annotations'])) {
             foreach ($this->xObjects[$id]['annotations'] as $annot) {
                 // transform original coordinates
-                $coordlt = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * $this->k), (-$annot['y'] * $this->k)));
-                $ax      = ($coordlt[4] / $this->k);
-                $ay      = ($this->h - $h - ($coordlt[5] / $this->k));
-                $coordrb = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * $this->k), ((-$annot['y'] - $annot['h']) * $this->k)));
-                $aw      = ($coordrb[4] / $this->k) - $ax;
-                $ah      = ($this->h - $h - ($coordrb[5] / $this->k)) - $ay;
+                $coordlt = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * $this->scaleFactor), (-$annot['y'] * $this->scaleFactor)));
+                $ax      = ($coordlt[4] / $this->scaleFactor);
+                $ay      = ($this->h - $h - ($coordlt[5] / $this->scaleFactor));
+                $coordrb = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * $this->scaleFactor), ((-$annot['y'] - $annot['h']) * $this->scaleFactor)));
+                $aw      = ($coordrb[4] / $this->scaleFactor) - $ax;
+                $ah      = ($this->h - $h - ($coordrb[5] / $this->scaleFactor)) - $ay;
                 $this->Annotation($ax, $ay, $aw, $ah, $annot['text'], $annot['opt'], $annot['spaces']);
             }
         }
@@ -22065,7 +22063,7 @@ class PDF
         }
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        $k                  = $this->k;
+        $k                  = $this->scaleFactor;
         $ox                 = 0;
         $oy                 = 0;
         $ow                 = $w;
@@ -22190,8 +22188,8 @@ class PDF
         // store current graphic vars
         $gvars = $this->getGraphicVars();
         // store SVG position and scale factors
-        $svgoffset_x = ($ximg - $ox) * $this->k;
-        $svgoffset_y = -($y - $oy) * $this->k;
+        $svgoffset_x = ($ximg - $ox) * $this->scaleFactor;
+        $svgoffset_y = -($y - $oy) * $this->scaleFactor;
         if (isset($view_box[2]) and ($view_box[2] > 0) and ($view_box[3] > 0)) {
             $ow = $view_box[2];
             $oh = $view_box[3];
@@ -22239,13 +22237,13 @@ class PDF
                 }
                 case 'Max':
                 {
-                    $svgoffset_x += (($w * $this->k) - ($ow * $this->k * $svgscale_x));
+                    $svgoffset_x += (($w * $this->scaleFactor) - ($ow * $this->scaleFactor * $svgscale_x));
                     break;
                 }
                 default:
                 case 'Mid':
                 {
-                    $svgoffset_x += ((($w * $this->k) - ($ow * $this->k * $svgscale_x)) / 2);
+                    $svgoffset_x += ((($w * $this->scaleFactor) - ($ow * $this->scaleFactor * $svgscale_x)) / 2);
                     break;
                 }
             }
@@ -22258,13 +22256,13 @@ class PDF
                 }
                 case 'Max':
                 {
-                    $svgoffset_y -= (($h * $this->k) - ($oh * $this->k * $svgscale_y));
+                    $svgoffset_y -= (($h * $this->scaleFactor) - ($oh * $this->scaleFactor * $svgscale_y));
                     break;
                 }
                 default:
                 case 'Mid':
                 {
-                    $svgoffset_y -= ((($h * $this->k) - ($oh * $this->k * $svgscale_y)) / 2);
+                    $svgoffset_y -= ((($h * $this->scaleFactor) - ($oh * $this->scaleFactor * $svgscale_y)) / 2);
                     break;
                 }
             }
@@ -22280,8 +22278,8 @@ class PDF
         // set initial clipping mask
         $this->Rect($ximg, $y, $w, $h, 'CNZ', array(), array());
         // scale and translate
-        $e = $ox * $this->k * (1 - $svgscale_x);
-        $f = ($this->h - $oy) * $this->k * (1 - $svgscale_y);
+        $e = $ox * $this->scaleFactor * (1 - $svgscale_x);
+        $f = ($this->h - $oy) * $this->scaleFactor * (1 - $svgscale_y);
         $this->append(sprintf('%F %F %F %F %F %F cm', $svgscale_x, 0, 0, $svgscale_y, ($e + $svgoffset_x), ($f + $svgoffset_y)));
         // creates a new XML parser to be used by the other XML functions
         $parser = xml_parser_create('UTF-8');
@@ -22384,10 +22382,10 @@ class PDF
         $b = -$tm[1];
         $c = -$tm[2];
         $d = $tm[3];
-        $e = $this->getHTMLUnitToUnits($tm[4], 1, $this->svgunit, false) * $this->k;
-        $f = -$this->getHTMLUnitToUnits($tm[5], 1, $this->svgunit, false) * $this->k;
+        $e = $this->getHTMLUnitToUnits($tm[4], 1, $this->svgunit, false) * $this->scaleFactor;
+        $f = -$this->getHTMLUnitToUnits($tm[5], 1, $this->svgunit, false) * $this->scaleFactor;
         $x = 0;
-        $y = $this->h * $this->k;
+        $y = $this->h * $this->scaleFactor;
         $e = ($x * (1 - $a)) - ($y * $c) + $e;
         $f = ($y * (1 - $d)) - ($x * $b) + $f;
         return array($a, $b, $c, $d, $e, $f);
@@ -22420,7 +22418,7 @@ class PDF
             return;
         }
         $objstyle = '';
-        $minlen   = (0.01 / $this->k); // minimum acceptable length
+        $minlen   = (0.01 / $this->scaleFactor); // minimum acceptable length
         if (!isset($svgstyle['opacity'])) {
             return $objstyle;
         }
@@ -22563,7 +22561,7 @@ class PDF
             else {
                 $cy -= $h;
             }
-            $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * $this->k), ($h * $this->k), ($x * $this->k), ($cy * $this->k)));
+            $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * $this->scaleFactor), ($h * $this->scaleFactor), ($x * $this->scaleFactor), ($cy * $this->scaleFactor)));
             if (count($gradient['stops']) > 1) {
                 $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops'], array(), false);
             }
@@ -22758,7 +22756,7 @@ class PDF
         $xinitial = 0;
         $yinitial = 0;
         $relcoord = false;
-        $minlen   = (0.01 / $this->k); // minimum acceptable length (3 point)
+        $minlen   = (0.01 / $this->scaleFactor); // minimum acceptable length (3 point)
         $firstcmd = true; // used to print first point
         // draw curve pieces
         foreach ($paths as $key => $val) {

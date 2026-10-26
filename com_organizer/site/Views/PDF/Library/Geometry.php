@@ -15,9 +15,9 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Extracted geometric functions. Based on code provided to the TCPDF library by David Hernandez Sanz. */
 trait Geometry
 {
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
     /**
-     * Append a cubic Bézier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bézier control points.
+     * Append a cubic Bézier curve to the current path.
+     * The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bézier control points.
      * The new current point shall be (x3, y3).
      * @param float $x1 abscissa of control point 1.
      * @param float $y1 ordinate of control point 1.
@@ -26,12 +26,24 @@ trait Geometry
      * @param float $x3 abscissa of end point.
      * @param float $y3 ordinate of end point.
      */
-    private function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
+    private function appendCurve(float $x1, float $y1, float $x2, float $y2, float $x3, float $y3): void
     {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
+        if ($this->state !== self::READY) {
+            return;
         }
+
+        $x1Points = $x1 * $this->scaleFactor;
+        $x2Points = $x2 * $this->scaleFactor;
+        $x3Points = $x3 * $this->scaleFactor;
+        $y1Points = ($this->h - $y1) * $this->scaleFactor;
+        $y2Points = ($this->h - $y2) * $this->scaleFactor;
+        $y3Points = ($this->h - $y3) * $this->scaleFactor;
+
+        $this->append(sprintf('%F %F %F %F %F %F c', $x1Points, $y1Points, $x2Points, $y2Points, $x3Points, $y3Points));
+
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
      * Append an elliptical arc to the current path.
@@ -55,7 +67,7 @@ trait Geometry
         if (($rx <= 0) or ($ry < 0)) {
             return;
         }
-        $k = $this->k;
+        $k = $this->scaleFactor;
         if ($nc < 2) {
             $nc = 2;
         }
@@ -147,7 +159,7 @@ trait Geometry
             $cy2 = ($this->h - ($py2 - $qy2));
             $cx3 = $px2;
             $cy3 = ($this->h - $py2);
-            $this->_outCurve($cx1, $cy1, $cx2, $cy2, $cx3, $cy3);
+            $this->appendCurve($cx1, $cy1, $cx2, $cy2, $cx3, $cy3);
             // get bounding box coordinates
             $xmin = min($xmin, $cx1, $cx2, $cx3);
             $ymin = min($ymin, $cy1, $cy2, $cy3);
@@ -179,7 +191,7 @@ trait Geometry
     protected function _outLine($x, $y)
     {
         if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F l', ($x * $this->k), (($this->h - $y) * $this->k)));
+            $this->append(sprintf('%F %F l', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor)));
         }
     }
 
@@ -191,7 +203,7 @@ trait Geometry
     protected function _outPoint($x, $y)
     {
         if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F m', ($x * $this->k), (($this->h - $y) * $this->k)));
+            $this->append(sprintf('%F %F m', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor)));
         }
     }
 
@@ -206,7 +218,7 @@ trait Geometry
     protected function _outRect($x, $y, $w, $h, $op)
     {
         if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->h - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
+            $this->append(sprintf('%F %F %F %F re %s', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor), ($w * $this->scaleFactor), (-$h * $this->scaleFactor), $op));
         }
     }
 
@@ -324,7 +336,7 @@ trait Geometry
             $this->setLineStyle($line_style);
         }
         $this->_outPoint($x0, $y0);
-        $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
+        $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
         $this->append($op);
     }
 
@@ -428,7 +440,7 @@ trait Geometry
         $this->_outPoint($x0, $y0);
         foreach ($segments as $segment) {
             list($x1, $y1, $x2, $y2, $x3, $y3) = $segment;
-            $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
+            $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
         }
         $this->append($op);
     }
@@ -683,7 +695,7 @@ trait Geometry
         }
         if (isset($style['width'])) {
             $this->LineWidth      = $style['width'];
-            $this->linestyleWidth = sprintf('%F w', ($style['width'] * $this->k));
+            $this->linestyleWidth = sprintf('%F w', ($style['width'] * $this->scaleFactor));
             $s                    .= $this->linestyleWidth . ' ';
         }
         if (isset($style['cap'])) {
@@ -741,7 +753,7 @@ trait Geometry
     {
         //Set line width
         $this->LineWidth      = $width;
-        $this->linestyleWidth = sprintf('%F w', ($width * $this->k));
+        $this->linestyleWidth = sprintf('%F w', ($width * $this->scaleFactor));
         if ($this->state === self::READY) {
             $this->append($this->linestyleWidth);
         }
@@ -862,7 +874,7 @@ trait Geometry
         $yc = $y + $ry;
         $this->_outLine($xc, $y);
         if ($round_corner[0]) {
-            $this->_outCurve($xc + ($rx * $MyArc), $yc - $ry, $xc + $rx, $yc - ($ry * $MyArc), $xc + $rx, $yc);
+            $this->appendCurve($xc + ($rx * $MyArc), $yc - $ry, $xc + $rx, $yc - ($ry * $MyArc), $xc + $rx, $yc);
         }
         else {
             $this->_outLine($x + $w, $y);
@@ -871,7 +883,7 @@ trait Geometry
         $yc = $y + $h - $ry;
         $this->_outLine($x + $w, $yc);
         if ($round_corner[1]) {
-            $this->_outCurve($xc + $rx, $yc + ($ry * $MyArc), $xc + ($rx * $MyArc), $yc + $ry, $xc, $yc + $ry);
+            $this->appendCurve($xc + $rx, $yc + ($ry * $MyArc), $xc + ($rx * $MyArc), $yc + $ry, $xc, $yc + $ry);
         }
         else {
             $this->_outLine($x + $w, $y + $h);
@@ -880,7 +892,7 @@ trait Geometry
         $yc = $y + $h - $ry;
         $this->_outLine($xc, $y + $h);
         if ($round_corner[2]) {
-            $this->_outCurve($xc - ($rx * $MyArc), $yc + $ry, $xc - $rx, $yc + ($ry * $MyArc), $xc - $rx, $yc);
+            $this->appendCurve($xc - ($rx * $MyArc), $yc + $ry, $xc - $rx, $yc + ($ry * $MyArc), $xc - $rx, $yc);
         }
         else {
             $this->_outLine($x, $y + $h);
@@ -889,7 +901,7 @@ trait Geometry
         $yc = $y + $ry;
         $this->_outLine($x, $yc);
         if ($round_corner[3]) {
-            $this->_outCurve($xc - $rx, $yc - ($ry * $MyArc), $xc - ($rx * $MyArc), $yc - $ry, $xc, $yc - $ry);
+            $this->appendCurve($xc - $rx, $yc - ($ry * $MyArc), $xc - ($rx * $MyArc), $yc - $ry, $xc, $yc - $ry);
         }
         else {
             $this->_outLine($x, $y);
