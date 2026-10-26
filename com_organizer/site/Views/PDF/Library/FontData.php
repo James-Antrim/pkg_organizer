@@ -15,7 +15,6 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Unicode data and encoding maps for TCPDF. */
 class FontData
 {
-
     /** Arabic laa letter: (char code => isolated, final, initial, medial). */
     public static array $arabicLaCharacter = [
         1570 => [65269, 65270, 65269, 65270],
