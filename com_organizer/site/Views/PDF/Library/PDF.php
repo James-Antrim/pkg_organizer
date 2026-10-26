@@ -44,6 +44,37 @@ class PDF
     private array $xObjects = [];
 
     /**
+     * Append a string to the document.
+     * @param string $string string to output.
+     */
+    protected function append(string $string): void
+    {
+        if ($this->state === self::READY) {
+            if ($this->xObject) {
+                // we are inside an XObject template
+                $this->xObjects[$this->xObjectID]['output'] .= $string . "\n";
+            }
+            elseif ((!$this->InFooter) and isset($this->footerlen[$this->page]) and ($this->footerlen[$this->page] > 0)) {
+                // puts data before page footer
+                $pageBuffer = $this->pageBuffer($this->page);
+                $page       = substr($pageBuffer, 0, -$this->footerlen[$this->page]);
+                $footer     = substr($pageBuffer, -$this->footerlen[$this->page]);
+                $this->pageBuffer($this->page, $page . $string . "\n" . $footer);
+                // update footer position
+                $this->footerpos[$this->page] += strlen($string . "\n");
+            }
+            else {
+                // set page data
+                $this->pageBuffer($this->page, $string . "\n", true);
+            }
+        }
+        elseif ($this->state > self::INITIAL) {
+            // set general data
+            $this->buffer($string . "\n");
+        }
+    }
+
+    /**
      * Buffer content (always append data).
      * @param string $data data
      */
@@ -3102,7 +3133,7 @@ class PDF
         $gvars = $this->getGraphicVars();
         // mark this point
         $this->footerpos[$this->page] = $this->pageLengths[$this->page];
-        $this->_out("\n");
+        $this->append("\n");
         if ($this->print_footer) {
             $this->setGraphicVars($this->default_graphic_vars);
             $this->current_column = 0;
@@ -3298,7 +3329,7 @@ class PDF
         }
         $this->ColorFlag = ($this->FillColor != $this->TextColor);
         if ($this->state === self::READY) {
-            $this->_out($pdfcolor);
+            $this->append($pdfcolor);
         }
         if ($this->xObject) {
             // we are inside an XObject template
@@ -3497,7 +3528,7 @@ class PDF
         $this->ColorFlag = ($this->FillColor != $this->TextColor);
         if (($type != 'text') and ($this->state === self::READY) and $type !== 0) {
             if (!$ret) {
-                $this->_out($pdfcolor);
+                $this->append($pdfcolor);
             }
             return $pdfcolor;
         }
@@ -4040,7 +4071,7 @@ class PDF
         $this->FontAscent  = ($font_ascent / $this->k);
         $this->FontDescent = ($font_descent / $this->k);
         if ($out and ($this->page > 0) and (isset($this->CurrentFont['i'])) and ($this->state === self::READY)) {
-            $this->_out(sprintf('BT /F%d %F Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
+            $this->append(sprintf('BT /F%d %F Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
         }
     }
 
@@ -4403,7 +4434,7 @@ class PDF
                     $out .= ' /AFRelationship /Source';
                     $out .= ' /EF <</F ' . $filedata['n'] . ' 0 R>> >>';
                     $out .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                     // embedded file object
                     $filter = '';
                     if ($this->compress) {
@@ -4420,7 +4451,7 @@ class PDF
                     $out    .= '<< /Type /EmbeddedFile' . $filter . ' /Length ' . strlen($stream) . ' /Params <</Size ' . $rawsize . '>> >>';
                     $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                     $out    .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                 }
             }
         }
@@ -4580,7 +4611,7 @@ class PDF
                 $this->setAlpha($this->txtshadow['opacity'], $this->txtshadow['blend_mode']);
             }
             if ($this->state === self::READY) {
-                $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
+                $this->append($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
             }
             //restore data
             $this->x = $x;
@@ -4593,7 +4624,7 @@ class PDF
             }
         }
         if ($this->state === self::READY) {
-            $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
+            $this->append($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
         }
         $this->cell_padding = $prev_cell_padding;
         $this->cell_margin  = $prev_cell_margin;
@@ -6863,7 +6894,7 @@ class PDF
         $xkimg = $ximg * $this->k;
         if (!$alt) {
             // only non-alternative immages will be set
-            $this->_out(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->h - ($y + $h)) * $this->k), $info['i']));
+            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->h - ($y + $h)) * $this->k), $info['i']));
         }
         if (!empty($border)) {
             $bx      = $this->x;
@@ -7747,12 +7778,12 @@ class PDF
             $out .= ' /PZ ' . $this->pagedim[$n]['PZ'];
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             //Page content
             $p = ($this->compress) ? gzcompress($tempPage) : $tempPage;
             $this->_newobj();
             $p = $this->_getrawstream($p);
-            $this->_out('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
+            $this->append('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
         }
         //Pages root
         $out = $this->_getobj(1) . "\n";
@@ -7762,7 +7793,7 @@ class PDF
         }
         $out .= ' ] /Count ' . $num_pages . ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -7856,7 +7887,7 @@ class PDF
                             $annots .= ' /V /' . $defval;
                         }
                         $annots .= ' >>';
-                        $this->_out($this->_getobj($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
+                        $this->append($this->_getobj($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
                         $this->form_obj_id[] = $radio_button_obj_id;
                         // store object id to be used on Parent entry of Kids
                         $this->radiobutton_groups[$n][$pl['txt']] = $radio_button_obj_id;
@@ -8507,7 +8538,7 @@ class PDF
                     }
                     $annots .= '>>';
                     // create new annotation object
-                    $this->_out($this->_getobj($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
+                    $this->append($this->_getobj($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
                     if ($formfield and !isset($this->radiobutton_groups[$n][$pl['txt']])) {
                         // store reference of form object
                         $this->form_obj_id[] = $annot_obj_id;
@@ -8546,7 +8577,7 @@ class PDF
         $out    .= ' >>';
         $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
         $out    .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         return $this->n;
     }
 
@@ -8559,7 +8590,7 @@ class PDF
         foreach ($this->diffs as $diff) {
             //Encodings
             $this->_newobj();
-            $this->_out('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
+            $this->append('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
         }
         foreach ($this->FontFiles as $file => $info) {
             // search and get font file to embedd
@@ -8612,7 +8643,7 @@ class PDF
                 $out .= ' >>';
                 $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
         foreach ($this->fontkeys as $k) {
@@ -8636,7 +8667,7 @@ class PDF
                 }
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
             elseif (($type == 'Type1') or ($type == 'TrueType')) {
                 // additional Type1 or TrueType font
@@ -8658,7 +8689,7 @@ class PDF
                 }
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 // Widths
                 $this->_newobj();
                 $s = '[';
@@ -8672,7 +8703,7 @@ class PDF
                 }
                 $s .= ']';
                 $s .= "\n" . 'endobj';
-                $this->_out($s);
+                $this->append($s);
                 //Descriptor
                 $this->_newobj();
                 $s = '<</Type /FontDescriptor /FontName /' . $name;
@@ -8687,7 +8718,7 @@ class PDF
                 }
                 $s .= '>>';
                 $s .= "\n" . 'endobj';
-                $this->_out($s);
+                $this->append($s);
             }
             else {
                 // additional types
@@ -8727,7 +8758,7 @@ class PDF
         $out .= ' /DescendantFonts [' . ($this->n + 2) . ' 0 R]';
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         // ToUnicode map for Identity-H
         $stream = FontData::$uni_identity_h;
         // ToUnicode Object
@@ -8735,7 +8766,7 @@ class PDF
         $stream = ($this->compress) ? gzcompress($stream) : $stream;
         $filter = ($this->compress) ? '/Filter /FlateDecode ' : '';
         $stream = $this->_getrawstream($stream);
-        $this->_out('<<' . $filter . '/Length ' . strlen($stream) . '>> stream' . "\n" . $stream . "\n" . 'endstream' . "\n" . 'endobj');
+        $this->append('<<' . $filter . '/Length ' . strlen($stream) . '>> stream' . "\n" . $stream . "\n" . 'endstream' . "\n" . 'endobj');
         // CIDFontType2
         // A CIDFont whose glyph descriptions are based on TrueType font technology
         $oid = $this->_newobj();
@@ -8755,7 +8786,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         // Font descriptor
         // A font descriptor describing the CIDFont default metrics other than its glyph widths
         $this->_newobj();
@@ -8775,7 +8806,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         if (isset($font['ctg']) and (!StaticMethods::empty_string($font['ctg']))) {
             $this->_newobj();
             // Embed CIDToGIDMap
@@ -8798,7 +8829,7 @@ class PDF
             $out .= ' >>';
             $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -8846,7 +8877,7 @@ class PDF
         $out .= ' /DescendantFonts [' . ($this->n + 1) . ' 0 R]';
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         $oid     = $this->_newobj();
         $out     = '<</Type /Font';
         $out     .= ' /Subtype /CIDFontType0';
@@ -8860,7 +8891,7 @@ class PDF
         $out     .= "\n" . Fonts::_putfontwidths($font, $cidoffset);
         $out     .= ' >>';
         $out     .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         $this->_newobj();
         $s = '<</Type /FontDescriptor /FontName /' . $name;
         foreach ($font['desc'] as $k => $v) {
@@ -8873,7 +8904,7 @@ class PDF
         }
         $s .= '>>';
         $s .= "\n" . 'endobj';
-        $this->_out($s);
+        $this->append($s);
     }
 
     /**
@@ -8904,7 +8935,7 @@ class PDF
                 }
                 $out .= ' ]';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
             // set image object
             $oid                              = $this->_newobj();
@@ -8992,20 +9023,20 @@ class PDF
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             }
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             if ($icc) {
                 // ICC colour profile
                 $this->_newobj();
                 $icc = ($this->compress) ? gzcompress($info['icc']) : $info['icc'];
                 $icc = $this->_getrawstream($icc);
-                $this->_out('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
+                $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
             }
             elseif ($info['cs'] == 'Indexed') {
                 // colour palette
                 $this->_newobj();
                 $pal = ($this->compress) ? gzcompress($info['pal']) : $info['pal'];
                 $pal = $this->_getrawstream($pal);
-                $this->_out('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
+                $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
             }
         }
     }
@@ -9109,7 +9140,7 @@ class PDF
                 $out    .= ' >>';
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                 $out    .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
     }
@@ -9128,7 +9159,7 @@ class PDF
             $out                           .= ' ' . sprintf('/C1 [%F %F %F %F] ', ($color['C'] / 100), ($color['M'] / 100), ($color['Y'] / 100), ($color['K'] / 100));
             $out                           .= ' /FunctionType 2 /Domain [0 1] /N 1>>]';
             $out                           .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -9207,7 +9238,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -9277,7 +9308,7 @@ class PDF
         $out .= ' /Trapped /False';
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         return $oid;
     }
 
@@ -9446,7 +9477,7 @@ class PDF
         // restore previous isunicode value
         $this->isunicode = $prev_isunicode;
         $this->encrypted = $prev_encrypted;
-        $this->_out($out);
+        $this->append($out);
         return $oid;
     }
 
@@ -9468,7 +9499,7 @@ class PDF
                 $icc    = gzcompress($icc);
             }
             $icc = $this->_getrawstream($icc);
-            $this->_out('<</N 3 ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
+            $this->append('<</N 3 ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
         }
         // start catalog
         $oid = $this->_newobj();
@@ -9636,7 +9667,7 @@ class PDF
         //$out .= ' /NeedsRendering true';
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         return $oid;
     }
 
@@ -9720,8 +9751,8 @@ class PDF
      */
     protected function _putheader()
     {
-        $this->_out('%PDF-' . $this->PDFVersion);
-        $this->_out('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
+        $this->append('%PDF-' . $this->PDFVersion);
+        $this->append('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
     }
 
     /**
@@ -9753,7 +9784,7 @@ class PDF
                 $out     .= ' /Ff 0';
                 $out     .= ' >>';
                 $out     .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
         // Signature
@@ -9771,7 +9802,7 @@ class PDF
             $out .= ' /V ' . ($this->sig_obj_id + 1) . ' 0 R';
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             // signature
             $this->_putsignature();
         }
@@ -9782,17 +9813,17 @@ class PDF
         // Cross-ref
         $o = $this->bufferLength;
         // XREF section
-        $this->_out('xref');
-        $this->_out('0 ' . ($this->n + 1));
-        $this->_out('0000000000 65535 f ');
+        $this->append('xref');
+        $this->append('0 ' . ($this->n + 1));
+        $this->append('0000000000 65535 f ');
         $freegen = ($this->n + 2);
         for ($i = 1; $i <= $this->n; ++$i) {
             if (!isset($this->offsets[$i]) and ($i > 1)) {
-                $this->_out(sprintf('0000000000 %05d f ', $freegen));
+                $this->append(sprintf('0000000000 %05d f ', $freegen));
                 ++$freegen;
             }
             else {
-                $this->_out(sprintf('%010d 00000 n ', $this->offsets[$i]));
+                $this->append(sprintf('%010d 00000 n ', $this->offsets[$i]));
             }
         }
         // TRAILER
@@ -9806,10 +9837,10 @@ class PDF
         }
         $out .= ' /ID [ <' . $this->file_id . '> <' . $this->file_id . '> ]';
         $out .= ' >>';
-        $this->_out($out);
-        $this->_out('startxref');
-        $this->_out($o);
-        $this->_out('%%EOF');
+        $this->append($out);
+        $this->append('startxref');
+        $this->append($o);
+        $this->append('%%EOF');
         $this->state = self::FINAL; // end-of-doc
     }
 
@@ -9879,7 +9910,7 @@ class PDF
      */
     protected function _newobj()
     {
-        $this->_out($this->_getobj());
+        $this->append($this->_getobj());
         return $this->n;
     }
 
@@ -10070,37 +10101,6 @@ class PDF
             $n = $this->n;
         }
         return $this->_encrypt_data($n, $s);
-    }
-
-    /**
-     * Output a string to the document.
-     * @param string $s string to output.
-     */
-    protected function _out($s)
-    {
-        if ($this->state === self::READY) {
-            if ($this->xObject) {
-                // we are inside an XObject template
-                $this->xObjects[$this->xObjectID]['output'] .= $s . "\n";
-            }
-            elseif ((!$this->InFooter) and isset($this->footerlen[$this->page]) and ($this->footerlen[$this->page] > 0)) {
-                // puts data before page footer
-                $pageBuffer = $this->pageBuffer($this->page);
-                $page       = substr($pageBuffer, 0, -$this->footerlen[$this->page]);
-                $footer     = substr($pageBuffer, -$this->footerlen[$this->page]);
-                $this->pageBuffer($this->page, $page . $s . "\n" . $footer);
-                // update footer position
-                $this->footerpos[$this->page] += strlen($s . "\n");
-            }
-            else {
-                // set page data
-                $this->pageBuffer($this->page, $s . "\n", true);
-            }
-        }
-        elseif ($this->state > self::INITIAL) {
-            // set general data
-            $this->buffer($s . "\n");
-        }
     }
 
     /**
@@ -10416,7 +10416,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -11051,7 +11051,7 @@ class PDF
         if ($this->state !== self::READY) {
             return;
         }
-        $this->_out(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
+        $this->append(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
         // add tranformation matrix
         $this->transfmatrix[$this->transfmatrix_key][] = array('a' => $tm[0], 'b' => $tm[1], 'c' => $tm[2], 'd' => $tm[3], 'e' => $tm[4], 'f' => $tm[5]);
         // update transformation mark
@@ -11144,7 +11144,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -11360,11 +11360,11 @@ class PDF
             $out .= ' /Count 0'; // normally closed item
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
         //Outline root
         $this->OutlineRoot = $this->_newobj();
-        $this->_out('<< /Type /Outlines /First ' . $n . ' 0 R /Last ' . ($n + $lru[0]) . ' 0 R >>' . "\n" . 'endobj');
+        $this->append('<< /Type /Outlines /First ' . $n . ' 0 R /Last ' . ($n + $lru[0]) . ' 0 R >>' . "\n" . 'endobj');
     }
 
     // --- JAVASCRIPT ------------------------------------------------------
@@ -11433,13 +11433,13 @@ class PDF
             $out    .= ' /JS ' . $this->_textstring($this->javascript, $obj_id);
             $out    .= ' >>';
             $out    .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
         // additional Javascript objects
         if (!empty($this->js_objects)) {
             foreach ($this->js_objects as $key => $val) {
                 $out = $this->_getobj($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js'], $key) . ' >>' . "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
     }
@@ -12252,7 +12252,7 @@ class PDF
         $out .= ' /M ' . $this->_datestring($sigobjid, $this->doc_modification_timestamp);
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -12586,7 +12586,7 @@ class PDF
             $out .= ' /View <</ViewState /' . ($layer['view'] ? 'ON' : 'OFF') . '>>';
             $out .= ' >> >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -12611,7 +12611,7 @@ class PDF
         }
         $this->pdflayers[]       = array('layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock);
         $this->openMarkedContent = true;
-        $this->_out('/OC /' . $layer . ' BDC');
+        $this->append('/OC /' . $layer . ' BDC');
     }
 
     /**
@@ -12624,7 +12624,7 @@ class PDF
         }
         if ($this->openMarkedContent) {
             // close existing open marked-content layer
-            $this->_out('EMC');
+            $this->append('EMC');
             $this->openMarkedContent = false;
         }
     }
@@ -12655,7 +12655,7 @@ class PDF
             }
             case 'all':
             {
-                $this->_out('');
+                $this->append('');
                 break;
             }
             default:
@@ -12707,7 +12707,7 @@ class PDF
             // transparency is not allowed in PDF/A-1 mode
             return;
         }
-        $this->_out(sprintf('/GS%d gs', $gs));
+        $this->append(sprintf('/GS%d gs', $gs));
     }
 
     /**
@@ -12732,7 +12732,7 @@ class PDF
             }
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -13304,7 +13304,7 @@ class PDF
             }
         }
         //paint the gradient
-        $this->_out('/Sh' . $n . ' sh');
+        $this->append('/Sh' . $n . ' sh');
         //restore previous Graphic State
         $this->_outRestoreGraphicsState();
         if ($this->xObject) {
@@ -13334,7 +13334,7 @@ class PDF
         $s .= sprintf(' %F %F %F %F re W n', $x * $this->k, ($this->h - $y) * $this->k, $w * $this->k, -$h * $this->k);
         //set up transformation matrix for gradient
         $s .= sprintf(' %F 0 0 %F %F %F cm', $w * $this->k, $h * $this->k, $x * $this->k, ($this->h - ($y + $h)) * $this->k);
-        $this->_out($s);
+        $this->append($s);
     }
 
     /**
@@ -13446,10 +13446,10 @@ class PDF
         }
         if ($this->gradients[$n]['transparency']) {
             // paint luminosity gradient
-            $this->_out('/TGS' . $n . ' gs');
+            $this->append('/TGS' . $n . ' gs');
         }
         //paint the gradient
-        $this->_out('/Sh' . $n . ' sh');
+        $this->append('/Sh' . $n . ' sh');
         //restore previous Graphic State
         $this->_outRestoreGraphicsState();
         if ($this->xObject) {
@@ -13491,7 +13491,7 @@ class PDF
                 $out .= ' /Encode [' . trim($encode) . ']';
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 for ($i = 1; $i < $columnCount; ++$i) {
                     $this->_newobj();
                     $out = '<<';
@@ -13502,7 +13502,7 @@ class PDF
                     $out .= ' /N ' . $grad['colors'][$i]['exponent'];
                     $out .= ' >>';
                     $out .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                 }
                 // set transparency functions
                 if ($grad['transparency']) {
@@ -13521,7 +13521,7 @@ class PDF
                     $out .= ' /Encode [' . trim($encode) . ']';
                     $out .= ' >>';
                     $out .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                     for ($i = 1; $i < $columnCount; ++$i) {
                         $this->_newobj();
                         $out = '<<';
@@ -13532,7 +13532,7 @@ class PDF
                         $out .= ' /N ' . $grad['colors'][$i]['exponent'];
                         $out .= ' >>';
                         $out .= "\n" . 'endobj';
-                        $this->_out($out);
+                        $this->append($out);
                     }
                 }
             }
@@ -13578,7 +13578,7 @@ class PDF
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             }
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             if ($grad['transparency']) {
                 $shading_transparency = preg_replace('/\/ColorSpace \/[^\s]+/si', '/ColorSpace /DeviceGray', $out);
                 $shading_transparency = preg_replace('/\/Function [0-9]+ /si', '/Function ' . $ft . ' ', $shading_transparency);
@@ -13590,21 +13590,21 @@ class PDF
             $out .= ' /Shading ' . $this->gradients[$id]['id'] . ' 0 R';
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             $this->gradients[$id]['pattern'] = $this->n;
             // set shading and pattern for transparency mask
             if ($grad['transparency']) {
                 // luminosity pattern
                 $idgs = $id + $idt;
                 $this->_newobj();
-                $this->_out($shading_transparency);
+                $this->append($shading_transparency);
                 $this->gradients[$idgs]['id'] = $this->n;
                 $this->_newobj();
                 $out = '<< /Type /Pattern /PatternType 2';
                 $out .= ' /Shading ' . $this->gradients[$idgs]['id'] . ' 0 R';
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 $this->gradients[$idgs]['pattern'] = $this->n;
                 // luminosity XObject
                 $oid                         = $this->_newobj();
@@ -13628,15 +13628,15 @@ class PDF
                 $out    .= ' >> ';
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                 $out    .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 // SMask
                 $this->_newobj();
                 $out = '<< /Type /Mask /S /Luminosity /G ' . ($this->n - 1) . ' 0 R >>' . "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 // ExtGState
                 $this->_newobj();
                 $out = '<< /Type /ExtGState /SMask ' . ($this->n - 1) . ' 0 R /AIS false >>' . "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 $this->extgstates[] = array('n' => $this->n, 'name' => 'TGS' . $id);
             }
         }
@@ -13695,7 +13695,7 @@ class PDF
             $a += $o;
         }
         $this->_outellipticalarc($xc, $yc, $rx, $ry, 0, $a, $b, true, $nc);
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -13846,11 +13846,11 @@ class PDF
             $dy = $y * $k;
         }
         // save the current graphic state
-        $this->_out('q' . $this->epsmarker);
+        $this->append('q' . $this->epsmarker);
         // translate
-        $this->_out(sprintf('%F %F %F %F %F %F cm', 1, 0, 0, 1, $dx, $dy + ($this->hPt - (2 * $y * $k) - ($y2 - $y1))));
+        $this->append(sprintf('%F %F %F %F %F %F cm', 1, 0, 0, 1, $dx, $dy + ($this->hPt - (2 * $y * $k) - ($y2 - $y1))));
         // scale
-        $this->_out(sprintf('%F %F %F %F %F %F cm', $scale_x, 0, 0, $scale_y, $x1 * (1 - $scale_x), $y2 * (1 - $scale_y)));
+        $this->append(sprintf('%F %F %F %F %F %F cm', $scale_x, 0, 0, $scale_y, $x1 * (1 - $scale_x), $y2 * (1 - $scale_y)));
         // handle pc/unix/mac line endings
         $lines = preg_split('/[\r\n]+/si', $data, -1, PREG_SPLIT_NO_EMPTY);
         $u     = 0;
@@ -13880,7 +13880,7 @@ class PDF
                 $b = array_pop($chunks);
                 $g = array_pop($chunks);
                 $r = array_pop($chunks);
-                $this->_out('' . $r . ' ' . $g . ' ' . $b . ' ' . ($cmd == 'Xa' ? 'rg' : 'RG')); //substr($line, 0, -2).'rg' -> in EPS (AI8): c m y k r g b rg!
+                $this->append('' . $r . ' ' . $g . ' ' . $b . ' ' . ($cmd == 'Xa' ? 'rg' : 'RG')); //substr($line, 0, -2).'rg' -> in EPS (AI8): c m y k r g b rg!
                 continue;
             }
             $skip = false;
@@ -13925,7 +13925,7 @@ class PDF
                     if ($skip) {
                         break;
                     }
-                    $this->_out($line);
+                    $this->append($line);
                     break;
                 }
                 case 'x':
@@ -13933,14 +13933,14 @@ class PDF
                     if (empty($color_name)) {
                         // CMYK color
                         list($col_c, $col_m, $col_y, $col_k) = $chunks;
-                        $this->_out('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' k');
+                        $this->append('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' k');
                     }
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
                         $this->AddSpotColor($color_name, ($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100));
                         $color_cmd = sprintf('/CS%d cs %F scn', $this->spot_colors[$color_name]['i'], (1 - $col_t));
-                        $this->_out($color_cmd);
+                        $this->append($color_cmd);
                     }
                     break;
                 }
@@ -13949,14 +13949,14 @@ class PDF
                     if (empty($color_name)) {
                         // CMYK color
                         list($col_c, $col_m, $col_y, $col_k) = $chunks;
-                        $this->_out('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' K');
+                        $this->append('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' K');
                     }
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
                         $this->AddSpotColor($color_name, ($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100));
                         $color_cmd = sprintf('/CS%d CS %F SCN', $this->spot_colors[$color_name]['i'], (1 - $col_t));
-                        $this->_out($color_cmd);
+                        $this->append($color_cmd);
                     }
                     break;
                 }
@@ -13970,13 +13970,13 @@ class PDF
                         break;
                     }
                     $line[($len - 1)] = strtolower($cmd);
-                    $this->_out($line);
+                    $this->append($line);
                     break;
                 }
                 case 'b':
                 case 'B':
                 {
-                    $this->_out($cmd . '*');
+                    $this->append($cmd . '*');
                     break;
                 }
                 case 'f':
@@ -13989,11 +13989,11 @@ class PDF
                             $isU = ($isU or (($lines[$j] == 'U') or ($lines[$j] == '*U')));
                         }
                         if ($isU) {
-                            $this->_out('f*');
+                            $this->append('f*');
                         }
                     }
                     else {
-                        $this->_out('f*');
+                        $this->append('f*');
                     }
                     break;
                 }
@@ -14010,7 +14010,7 @@ class PDF
             }
         }
         // restore previous graphic state
-        $this->_out($this->epsmarker . 'Q');
+        $this->append($this->epsmarker . 'Q');
         if (!empty($border)) {
             $bx      = $this->x;
             $by      = $this->y;
@@ -19765,7 +19765,7 @@ class PDF
                 $prev_line_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
                 $this->Circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, array(), 8);
-                $this->_out($prev_line_style); // restore line settings
+                $this->append($prev_line_style); // restore line settings
                 break;
             }
             case 'square':
@@ -20043,7 +20043,7 @@ class PDF
             $this->current_column   = $gvars['current_column'];
             $this->num_columns      = $gvars['num_columns'];
         }
-        $this->_out('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ' . $this->FillColor . '');
+        $this->append('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ' . $this->FillColor . '');
         if (!StaticMethods::empty_string($this->FontFamily)) {
             $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
         }
@@ -20054,7 +20054,7 @@ class PDF
      */
     protected function _outSaveGraphicsState()
     {
-        $this->_out('q');
+        $this->append('q');
     }
 
     /**
@@ -20062,7 +20062,7 @@ class PDF
      */
     protected function _outRestoreGraphicsState()
     {
-        $this->_out('Q');
+        $this->append('Q');
     }
 
     /**
@@ -21773,7 +21773,7 @@ class PDF
         $tm[5] = ($this->h - $h - $y) * $this->k;
         $this->Transform($tm);
         // set object
-        $this->_out('/' . $id . ' Do');
+        $this->append('/' . $id . ' Do');
         $this->StopTransform();
         // add annotations
         if (!empty($this->xObjects[$id]['annotations'])) {
@@ -22280,13 +22280,13 @@ class PDF
         $this->setCellPadding(0);
         $this->setAutoPageBreak(false);
         // save the current graphic state
-        $this->_out('q' . $this->epsmarker);
+        $this->append('q' . $this->epsmarker);
         // set initial clipping mask
         $this->Rect($ximg, $y, $w, $h, 'CNZ', array(), array());
         // scale and translate
         $e = $ox * $this->k * (1 - $svgscale_x);
         $f = ($this->h - $oy) * $this->k * (1 - $svgscale_y);
-        $this->_out(sprintf('%F %F %F %F %F %F cm', $svgscale_x, 0, 0, $svgscale_y, ($e + $svgoffset_x), ($f + $svgoffset_y)));
+        $this->append(sprintf('%F %F %F %F %F %F cm', $svgscale_x, 0, 0, $svgscale_y, ($e + $svgoffset_x), ($f + $svgoffset_y)));
         // creates a new XML parser to be used by the other XML functions
         $parser = xml_parser_create('UTF-8');
         // the following function allows to use parser inside object
@@ -22309,7 +22309,7 @@ class PDF
         unset($parser);
 
         // restore previous graphic state
-        $this->_out($this->epsmarker . 'Q');
+        $this->append($this->epsmarker . 'Q');
         // restore graphic vars
         $this->setGraphicVars($gvars);
         $this->lasth = $gvars['lasth'];
@@ -22567,7 +22567,7 @@ class PDF
             else {
                 $cy -= $h;
             }
-            $this->_out(sprintf('%F 0 0 %F %F %F cm', ($w * $this->k), ($h * $this->k), ($x * $this->k), ($cy * $this->k)));
+            $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * $this->k), ($h * $this->k), ($x * $this->k), ($cy * $this->k)));
             if (count($gradient['stops']) > 1) {
                 $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops'], array(), false);
             }
@@ -23100,7 +23100,7 @@ class PDF
                 }
                 case 'Z':
                 {
-                    $this->_out('h');
+                    $this->append('h');
                     $x = $x0 = $xinitial;
                     $y = $y0 = $yinitial;
                     break;
@@ -23108,7 +23108,7 @@ class PDF
             }
             $firstcmd = false;
         } // end foreach
-        $this->_out($op);
+        $this->append($op);
         return array($xmin, $ymin, ($xmax - $xmin), ($ymax - $ymin));
     }
 

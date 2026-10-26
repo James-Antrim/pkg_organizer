@@ -29,7 +29,7 @@ trait Geometry
     private function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
+            $this->append(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
 
@@ -179,7 +179,7 @@ trait Geometry
     protected function _outLine($x, $y)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F l', ($x * $this->k), (($this->h - $y) * $this->k)));
+            $this->append(sprintf('%F %F l', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
 
@@ -191,7 +191,7 @@ trait Geometry
     protected function _outPoint($x, $y)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F m', ($x * $this->k), (($this->h - $y) * $this->k)));
+            $this->append(sprintf('%F %F m', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
 
@@ -206,7 +206,7 @@ trait Geometry
     protected function _outRect($x, $y, $w, $h, $op)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->h - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
+            $this->append(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->h - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
         }
     }
 
@@ -325,7 +325,7 @@ trait Geometry
         }
         $this->_outPoint($x0, $y0);
         $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -362,7 +362,7 @@ trait Geometry
             $this->setLineStyle($line_style);
         }
         $this->_outellipticalarc($x0, $y0, $rx, $ry, $angle, $astart, $afinish, false, $nc, true, true, false);
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -395,7 +395,7 @@ trait Geometry
         }
         $this->_outPoint($x1, $y1);
         $this->_outLine($x2, $y2);
-        $this->_out('S');
+        $this->append('S');
     }
 
     /**
@@ -430,7 +430,7 @@ trait Geometry
             list($x1, $y1, $x2, $y2, $x3, $y3) = $segment;
             $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
         }
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -485,7 +485,7 @@ trait Geometry
                     for ($i = 2; $i < $nc; $i = $i + 2) {
                         $this->_outLine($p[$i], $p[$i + 1]);
                     }
-                    $this->_out($op);
+                    $this->append($op);
                 }
                 // draw outline
                 $this->_outPoint($p[0], $p[1]);
@@ -494,11 +494,11 @@ trait Geometry
                     if (isset($line_style[$line_num])) {
                         if ($line_style[$line_num] != 0) {
                             if (is_array($line_style[$line_num])) {
-                                $this->_out('S');
+                                $this->append('S');
                                 $this->setLineStyle($line_style[$line_num]);
                                 $this->_outPoint($p[$i - 2], $p[$i - 1]);
                                 $this->_outLine($p[$i], $p[$i + 1]);
-                                $this->_out('S');
+                                $this->append('S');
                                 $this->_outPoint($p[$i], $p[$i + 1]);
                             }
                             else {
@@ -510,7 +510,7 @@ trait Geometry
                         $this->_outLine($p[$i], $p[$i + 1]);
                     }
                 }
-                $this->_out($op);
+                $this->append($op);
             }
         }
         if ($draw) {
@@ -518,7 +518,7 @@ trait Geometry
             for ($i = 2; $i < $nc; $i = $i + 2) {
                 $this->_outLine($p[$i], $p[$i + 1]);
             }
-            $this->_out($op);
+            $this->append($op);
         }
     }
 
@@ -727,7 +727,7 @@ trait Geometry
             $s .= $this->setDrawColorArray($style['color'], true) . ' ';
         }
         if (!$ret and ($this->state === self::READY)) {
-            $this->_out($s);
+            $this->append($s);
         }
         return $s;
     }
@@ -743,7 +743,7 @@ trait Geometry
         $this->LineWidth      = $width;
         $this->linestyleWidth = sprintf('%F w', ($width * $this->k));
         if ($this->state === self::READY) {
-            $this->_out($this->linestyleWidth);
+            $this->append($this->linestyleWidth);
         }
     }
 
@@ -895,6 +895,6 @@ trait Geometry
             $this->_outLine($x, $y);
             $this->_outLine($x + $rx, $y);
         }
-        $this->_out($op);
+        $this->append($op);
     }
 }
