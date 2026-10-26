@@ -43,6 +43,36 @@ trait Geometry
 
     }
 
+    /**
+     * Append a straight line segment from the current point to the point (x, y).
+     * The new current point shall be (x, y).
+     * @param float $x abscissa of end point.
+     * @param float $y ordinate of end point.
+     * @return void
+     */
+    private function appendLine(float $x, float $y): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->append(sprintf('%F %F l', $x * $this->scaleFactor, ($this->h - $y) * $this->scaleFactor));
+    }
+
+    /**
+     * Begin a new subpath by moving the current point to coordinates (x, y), omitting any connecting line segment.
+     * @param float $x abscissa of point.
+     * @param float $y ordinate of point.
+     */
+    private function point(float $x, float $y): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->append(sprintf('%F %F m', $x * $this->scaleFactor, ($this->h - $y) * $this->scaleFactor));
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
@@ -77,7 +107,7 @@ trait Geometry
         $ymax = 0;
         if ($pie) {
             // center of the arc
-            $this->_outPoint($xc, $yc);
+            $this->point($xc, $yc);
         }
         $xang = deg2rad((float) $xang);
         $angs = deg2rad((float) $angs);
@@ -131,11 +161,11 @@ trait Geometry
         $qy1 = ($alpha * ((-$rx * $sin_xang * $sin_ang) + ($ry * $cos_xang * $cos_ang)));
         if ($pie) {
             // line from center to arc starting point
-            $this->_outLine($px1, $this->h - $py1);
+            $this->appendLine($px1, $this->h - $py1);
         }
         elseif ($startpoint) {
             // arc starting point
-            $this->_outPoint($px1, $this->h - $py1);
+            $this->point($px1, $this->h - $py1);
         }
         // draw arcs
         for ($i = 1; $i <= $nc; ++$i) {
@@ -172,7 +202,7 @@ trait Geometry
             $qy1 = $qy2;
         }
         if ($pie) {
-            $this->_outLine($xc, $yc);
+            $this->appendLine($xc, $yc);
             // get bounding box coordinates
             $xmin = min($xmin, $xc);
             $ymin = min($ymin, $yc);
@@ -180,31 +210,6 @@ trait Geometry
             $ymax = max($ymax, $yc);
         }
         return array($xmin, $ymin, $xmax, $ymax);
-    }
-
-    /**
-     * Append a straight line segment from the current point to the point (x, y).
-     * The new current point shall be (x, y).
-     * @param float $x abscissa of end point.
-     * @param float $y ordinate of end point.
-     */
-    protected function _outLine($x, $y)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F l', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor)));
-        }
-    }
-
-    /**
-     * Begin a new subpath by moving the current point to coordinates (x, y), omitting any connecting line segment.
-     * @param float $x abscissa of point.
-     * @param float $y ordinate of point.
-     */
-    protected function _outPoint($x, $y)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F m', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor)));
-        }
     }
 
     /**
@@ -217,9 +222,11 @@ trait Geometry
      */
     protected function _outRect($x, $y, $w, $h, $op)
     {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F re %s', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor), ($w * $this->scaleFactor), (-$h * $this->scaleFactor), $op));
+        if ($this->state !== self::READY) {
+            return;
         }
+
+        $this->append(sprintf('%F %F %F %F re %s', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor), ($w * $this->scaleFactor), (-$h * $this->scaleFactor), $op));
     }
 
     /**
@@ -328,6 +335,7 @@ trait Geometry
         if ($this->state !== self::READY) {
             return;
         }
+
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->setFillColorArray($fill_color);
         }
@@ -335,7 +343,7 @@ trait Geometry
         if ($line_style) {
             $this->setLineStyle($line_style);
         }
-        $this->_outPoint($x0, $y0);
+        $this->point($x0, $y0);
         $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
         $this->append($op);
     }
@@ -360,6 +368,7 @@ trait Geometry
         if ($this->state !== self::READY) {
             return;
         }
+
         if (StaticMethods::empty_string($ry) or ($ry == 0)) {
             $ry = $rx;
         }
@@ -405,8 +414,8 @@ trait Geometry
         if (is_array($style)) {
             $this->setLineStyle($style);
         }
-        $this->_outPoint($x1, $y1);
-        $this->_outLine($x2, $y2);
+        $this->point($x1, $y1);
+        $this->appendLine($x2, $y2);
         $this->append('S');
     }
 
@@ -427,6 +436,7 @@ trait Geometry
         if ($this->state !== self::READY) {
             return;
         }
+
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->setFillColorArray($fill_color);
         }
@@ -437,7 +447,7 @@ trait Geometry
         if ($line_style) {
             $this->setLineStyle($line_style);
         }
-        $this->_outPoint($x0, $y0);
+        $this->point($x0, $y0);
         foreach ($segments as $segment) {
             list($x1, $y1, $x2, $y2, $x3, $y3) = $segment;
             $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
@@ -463,6 +473,7 @@ trait Geometry
         if ($this->state !== self::READY) {
             return;
         }
+
         $nc = count($p); // number of coordinates
         $np = $nc / 2; // number of points
         if ($closed) {
@@ -493,14 +504,14 @@ trait Geometry
                 if ($op == 'B') {
                     // draw fill
                     $op = 'f';
-                    $this->_outPoint($p[0], $p[1]);
+                    $this->point($p[0], $p[1]);
                     for ($i = 2; $i < $nc; $i = $i + 2) {
-                        $this->_outLine($p[$i], $p[$i + 1]);
+                        $this->appendLine($p[$i], $p[$i + 1]);
                     }
                     $this->append($op);
                 }
                 // draw outline
-                $this->_outPoint($p[0], $p[1]);
+                $this->point($p[0], $p[1]);
                 for ($i = 2; $i < $nc; $i = $i + 2) {
                     $line_num = ($i / 2) - 1;
                     if (isset($line_style[$line_num])) {
@@ -508,27 +519,27 @@ trait Geometry
                             if (is_array($line_style[$line_num])) {
                                 $this->append('S');
                                 $this->setLineStyle($line_style[$line_num]);
-                                $this->_outPoint($p[$i - 2], $p[$i - 1]);
-                                $this->_outLine($p[$i], $p[$i + 1]);
+                                $this->point($p[$i - 2], $p[$i - 1]);
+                                $this->appendLine($p[$i], $p[$i + 1]);
                                 $this->append('S');
-                                $this->_outPoint($p[$i], $p[$i + 1]);
+                                $this->point($p[$i], $p[$i + 1]);
                             }
                             else {
-                                $this->_outLine($p[$i], $p[$i + 1]);
+                                $this->appendLine($p[$i], $p[$i + 1]);
                             }
                         }
                     }
                     else {
-                        $this->_outLine($p[$i], $p[$i + 1]);
+                        $this->appendLine($p[$i], $p[$i + 1]);
                     }
                 }
                 $this->append($op);
             }
         }
         if ($draw) {
-            $this->_outPoint($p[0], $p[1]);
+            $this->point($p[0], $p[1]);
             for ($i = 2; $i < $nc; $i = $i + 2) {
-                $this->_outLine($p[$i], $p[$i + 1]);
+                $this->appendLine($p[$i], $p[$i + 1]);
             }
             $this->append($op);
         }
@@ -572,6 +583,7 @@ trait Geometry
         if ($this->state !== self::READY) {
             return;
         }
+
         if (empty($style)) {
             $style = 'S';
         }
@@ -869,43 +881,43 @@ trait Geometry
             $this->setLineStyle($border_style);
         }
         $MyArc = 4 / 3 * (sqrt(2) - 1);
-        $this->_outPoint($x + $rx, $y);
+        $this->point($x + $rx, $y);
         $xc = $x + $w - $rx;
         $yc = $y + $ry;
-        $this->_outLine($xc, $y);
+        $this->appendLine($xc, $y);
         if ($round_corner[0]) {
             $this->appendCurve($xc + ($rx * $MyArc), $yc - $ry, $xc + $rx, $yc - ($ry * $MyArc), $xc + $rx, $yc);
         }
         else {
-            $this->_outLine($x + $w, $y);
+            $this->appendLine($x + $w, $y);
         }
         $xc = $x + $w - $rx;
         $yc = $y + $h - $ry;
-        $this->_outLine($x + $w, $yc);
+        $this->appendLine($x + $w, $yc);
         if ($round_corner[1]) {
             $this->appendCurve($xc + $rx, $yc + ($ry * $MyArc), $xc + ($rx * $MyArc), $yc + $ry, $xc, $yc + $ry);
         }
         else {
-            $this->_outLine($x + $w, $y + $h);
+            $this->appendLine($x + $w, $y + $h);
         }
         $xc = $x + $rx;
         $yc = $y + $h - $ry;
-        $this->_outLine($xc, $y + $h);
+        $this->appendLine($xc, $y + $h);
         if ($round_corner[2]) {
             $this->appendCurve($xc - ($rx * $MyArc), $yc + $ry, $xc - $rx, $yc + ($ry * $MyArc), $xc - $rx, $yc);
         }
         else {
-            $this->_outLine($x, $y + $h);
+            $this->appendLine($x, $y + $h);
         }
         $xc = $x + $rx;
         $yc = $y + $ry;
-        $this->_outLine($x, $yc);
+        $this->appendLine($x, $yc);
         if ($round_corner[3]) {
             $this->appendCurve($xc - $rx, $yc - ($ry * $MyArc), $xc - ($rx * $MyArc), $yc - $ry, $xc, $yc - $ry);
         }
         else {
-            $this->_outLine($x, $y);
-            $this->_outLine($x + $rx, $y);
+            $this->appendLine($x, $y);
+            $this->appendLine($x + $rx, $y);
         }
         $this->append($op);
     }

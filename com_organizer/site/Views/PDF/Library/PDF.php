@@ -22800,13 +22800,13 @@ class PDF
                             $y = $cp + $yoffset;
                             if ($firstcmd or (abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
                                 if ($ck == 1) {
-                                    $this->_outPoint($x, $y);
+                                    $this->point($x, $y);
                                     $firstcmd = false;
                                     $xinitial = $x;
                                     $yinitial = $y;
                                 }
                                 else {
-                                    $this->_outLine($x, $y);
+                                    $this->appendLine($x, $y);
                                 }
                                 $x0 = $x;
                                 $y0 = $y;
@@ -22832,7 +22832,7 @@ class PDF
                         else {
                             $y = $cp + $yoffset;
                             if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                                $this->_outLine($x, $y);
+                                $this->appendLine($x, $y);
                                 $x0 = $x;
                                 $y0 = $y;
                             }
@@ -22853,7 +22853,7 @@ class PDF
                     foreach ($params as $ck => $cp) {
                         $x = $cp + $xoffset;
                         if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                            $this->_outLine($x, $y);
+                            $this->appendLine($x, $y);
                             $x0 = $x;
                             $y0 = $y;
                         }
@@ -22870,7 +22870,7 @@ class PDF
                     foreach ($params as $ck => $cp) {
                         $y = $cp + $yoffset;
                         if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                            $this->_outLine($x, $y);
+                            $this->appendLine($x, $y);
                             $x0 = $x;
                             $y0 = $y;
                         }
