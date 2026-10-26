@@ -16,16 +16,16 @@ namespace THM\Organizer\Views\PDF\Library;
 trait Geometry
 {
     /**
-     * Append a cubic Bezier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bezier control points.
+     * Append a cubic Bézier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bézier control points.
      * The new current point shall be (x3, y3).
-     * @param float $x1 Abscissa of control point 1.
-     * @param float $y1 Ordinate of control point 1.
-     * @param float $x2 Abscissa of control point 2.
-     * @param float $y2 Ordinate of control point 2.
-     * @param float $x3 Abscissa of end point.
-     * @param float $y3 Ordinate of end point.
+     * @param float $x1 abscissa of control point 1.
+     * @param float $y1 ordinate of control point 1.
+     * @param float $x2 abscissa of control point 2.
+     * @param float $y2 ordinate of control point 2.
+     * @param float $x3 abscissa of end point.
+     * @param float $y3 ordinate of end point.
      */
-    protected function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
+    private function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
     {
         if ($this->state == 2) {
             $this->_out(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
@@ -33,40 +33,10 @@ trait Geometry
     }
 
     /**
-     * Append a cubic Bezier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using the current point and (x2, y2) as the Bezier control points.
-     * The new current point shall be (x3, y3).
-     * @param float $x2 Abscissa of control point 2.
-     * @param float $y2 Ordinate of control point 2.
-     * @param float $x3 Abscissa of end point.
-     * @param float $y3 Ordinate of end point.
-     */
-    protected function _outCurveV($x2, $y2, $x3, $y3)
-    {
-        if ($this->state == 2) {
-            $this->_out(sprintf('%F %F %F %F v', ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
-        }
-    }
-
-    /**
-     * Append a cubic Bezier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x3, y3) as the Bezier control points.
-     * The new current point shall be (x3, y3).
-     * @param float $x1 Abscissa of control point 1.
-     * @param float $y1 Ordinate of control point 1.
-     * @param float $x3 Abscissa of end point.
-     * @param float $y3 Ordinate of end point.
-     */
-    protected function _outCurveY($x1, $y1, $x3, $y3)
-    {
-        if ($this->state == 2) {
-            $this->_out(sprintf('%F %F %F %F y', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
-        }
-    }
-
-    /**
      * Append an elliptical arc to the current path.
-     * An ellipse is formed from n Bezier curves.
-     * @param float   $xc         Abscissa of center point.
-     * @param float   $yc         Ordinate of center point.
+     * An ellipse is formed from n Bézier curves.
+     * @param float   $xc         abscissa of center point.
+     * @param float   $yc         ordinate of center point.
      * @param float   $rx         Horizontal radius.
      * @param float   $ry         Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
      * @param float   $xang       Angle between the X-axis and the major axis of the ellipse. Default value: 0.
@@ -143,7 +113,7 @@ trait Geometry
         // first arc point
         $px1 = $x0 + ($rx * $cos_xang * $cos_ang) - ($ry * $sin_xang * $sin_ang);
         $py1 = $y0 + ($rx * $sin_xang * $cos_ang) + ($ry * $cos_xang * $sin_ang);
-        // first Bezier control point
+        // first Bézier control point
         $qx1 = ($alpha * ((-$rx * $cos_xang * $sin_ang) - ($ry * $sin_xang * $cos_ang)));
         $qy1 = ($alpha * ((-$rx * $sin_xang * $sin_ang) + ($ry * $cos_xang * $cos_ang)));
         if ($pie) {
@@ -166,7 +136,7 @@ trait Geometry
             // second arc point
             $px2 = $x0 + ($rx * $cos_xang * $cos_ang) - ($ry * $sin_xang * $sin_ang);
             $py2 = $y0 + ($rx * $sin_xang * $cos_ang) + ($ry * $cos_xang * $sin_ang);
-            // second Bezier control point
+            // second Bézier control point
             $qx2 = ($alpha * ((-$rx * $cos_xang * $sin_ang) - ($ry * $sin_xang * $cos_ang)));
             $qy2 = ($alpha * ((-$rx * $sin_xang * $sin_ang) + ($ry * $cos_xang * $cos_ang)));
             // draw arc
@@ -202,8 +172,8 @@ trait Geometry
     /**
      * Append a straight line segment from the current point to the point (x, y).
      * The new current point shall be (x, y).
-     * @param float $x Abscissa of end point.
-     * @param float $y Ordinate of end point.
+     * @param float $x abscissa of end point.
+     * @param float $y ordinate of end point.
      */
     protected function _outLine($x, $y)
     {
@@ -214,8 +184,8 @@ trait Geometry
 
     /**
      * Begin a new subpath by moving the current point to coordinates (x, y), omitting any connecting line segment.
-     * @param float $x Abscissa of point.
-     * @param float $y Ordinate of point.
+     * @param float $x abscissa of point.
+     * @param float $y ordinate of point.
      */
     protected function _outPoint($x, $y)
     {
@@ -226,8 +196,8 @@ trait Geometry
 
     /**
      * Append a rectangle to the current path as a complete subpath, with lower-left corner (x, y) and dimensions widthand height in user space.
-     * @param float  $x  Abscissa of upper-left corner.
-     * @param float  $y  Ordinate of upper-left corner.
+     * @param float  $x  abscissa of upper-left corner.
+     * @param float  $y  ordinate of upper-left corner.
      * @param float  $w  Width.
      * @param float  $h  Height.
      * @param string $op options
@@ -241,10 +211,10 @@ trait Geometry
 
     /**
      * Draws a grahic arrow.
-     * @param float $x0         Abscissa of first point.
-     * @param float $y0         Ordinate of first point.
-     * @param float $x1         Abscissa of second point.
-     * @param float $y1         Ordinate of second point.
+     * @param float $x0         abscissa of first point.
+     * @param float $y0         ordinate of first point.
+     * @param float $x1         abscissa of second point.
+     * @param float $y1         ordinate of second point.
      * @param int   $head_style (0 = draw only arrowhead arms, 1 = draw closed arrowhead, but no fill, 2 = closed and filled arrowhead, 3 = filled arrowhead)
      * @param float $arm_size   length of arrowhead arms
      * @param int   $arm_angle  angle between an arm and the shaft
@@ -307,9 +277,9 @@ trait Geometry
 
     /**
      * Draws a circle.
-     * A circle is formed from n Bezier curves.
-     * @param float   $x0         Abscissa of center point.
-     * @param float   $y0         Ordinate of center point.
+     * A circle is formed from n Bézier curves.
+     * @param float   $x0         abscissa of center point.
+     * @param float   $y0         ordinate of center point.
      * @param float   $r          Radius.
      * @param float   $angstr     Angle start of draw line. Default value: 0.
      * @param float   $angend     Angle finish of draw line. Default value: 360.
@@ -324,17 +294,17 @@ trait Geometry
     }
 
     /**
-     * Draws a Bezier curve.
-     * The Bezier curve is a tangent to the line between the control points at
+     * Draws a Bézier curve.
+     * The Bézier curve is a tangent to the line between the control points at
      * either end of the curve.
-     * @param float  $x0         Abscissa of start point.
-     * @param float  $y0         Ordinate of start point.
-     * @param float  $x1         Abscissa of control point 1.
-     * @param float  $y1         Ordinate of control point 1.
-     * @param float  $x2         Abscissa of control point 2.
-     * @param float  $y2         Ordinate of control point 2.
-     * @param float  $x3         Abscissa of end point.
-     * @param float  $y3         Ordinate of end point.
+     * @param float  $x0         abscissa of start point.
+     * @param float  $y0         ordinate of start point.
+     * @param float  $x1         abscissa of control point 1.
+     * @param float  $y1         ordinate of control point 1.
+     * @param float  $x2         abscissa of control point 2.
+     * @param float  $y2         ordinate of control point 2.
+     * @param float  $x3         abscissa of end point.
+     * @param float  $y3         ordinate of end point.
      * @param string $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
      * @param array  $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
@@ -359,9 +329,9 @@ trait Geometry
 
     /**
      * Draws an ellipse.
-     * An ellipse is formed from n Bezier curves.
-     * @param float   $x0         Abscissa of center point.
-     * @param float   $y0         Ordinate of center point.
+     * An ellipse is formed from n Bézier curves.
+     * @param float   $x0         abscissa of center point.
+     * @param float   $y0         ordinate of center point.
      * @param float   $rx         Horizontal radius.
      * @param float   $ry         Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
      * @param float   $angle      Angle oriented (anti-clockwise). Default value: 0.
@@ -374,7 +344,6 @@ trait Geometry
      */
     public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = array(), $fill_color = array(), $nc = 2)
     {
-        /** @var PDF $this */
         if ($this->state != 2) {
             return;
         }
@@ -407,10 +376,10 @@ trait Geometry
 
     /**
      * Draws a line between two points.
-     * @param float $x1    Abscissa of first point.
-     * @param float $y1    Ordinate of first point.
-     * @param float $x2    Abscissa of second point.
-     * @param float $y2    Ordinate of second point.
+     * @param float $x1    abscissa of first point.
+     * @param float $y1    ordinate of first point.
+     * @param float $x2    abscissa of second point.
+     * @param float $y2    ordinate of second point.
      * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
      * @see   SetLineWidth(), SetDrawColor(), SetLineStyle()
      */
@@ -419,6 +388,7 @@ trait Geometry
         if ($this->state != 2) {
             return;
         }
+
         if (is_array($style)) {
             $this->setLineStyle($style);
         }
@@ -428,12 +398,12 @@ trait Geometry
     }
 
     /**
-     * Draws a poly-Bezier curve.
+     * Draws a poly-Bézier curve.
      * Each Bézier curve segment is a tangent to the line between the control points at
      * either end of the curve.
-     * @param float   $x0         Abscissa of start point.
-     * @param float   $y0         Ordinate of start point.
-     * @param float[] $segments   An array of bezier descriptions. Format: array(x1, y1, x2, y2, x3, y3).
+     * @param float   $x0         abscissa of start point.
+     * @param float   $y0         ordinate of start point.
+     * @param float[] $segments   An array of Bézier descriptions. Format: array(x1, y1, x2, y2, x3, y3).
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
      * @param array   $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
@@ -570,8 +540,8 @@ trait Geometry
 
     /**
      * Draws a rectangle.
-     * @param float  $x            Abscissa of upper-left corner.
-     * @param float  $y            Ordinate of upper-left corner.
+     * @param float  $x            abscissa of upper-left corner.
+     * @param float  $y            ordinate of upper-left corner.
      * @param float  $w            Width.
      * @param float  $h            Height.
      * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
@@ -640,8 +610,8 @@ trait Geometry
 
     /**
      * Draws a regular polygon.
-     * @param float   $x0                   Abscissa of center point.
-     * @param float   $y0                   Ordinate of center point.
+     * @param float   $x0                   abscissa of center point.
+     * @param float   $y0                   ordinate of center point.
      * @param float   $r                    Radius of inscribed circle.
      * @param integer $ns                   Number of sides.
      * @param float   $angle                Angle oriented (anti-clockwise). Default value: 0.
@@ -778,8 +748,8 @@ trait Geometry
 
     /**
      * Draws a star polygon
-     * @param float   $x0                   Abscissa of center point.
-     * @param float   $y0                   Ordinate of center point.
+     * @param float   $x0                   abscissa of center point.
+     * @param float   $y0                   ordinate of center point.
      * @param float   $r                    Radius of inscribed circle.
      * @param integer $nv                   Number of vertices.
      * @param integer $ng                   Number of gap (if ($ng % $nv = 1) then is a regular polygon).
@@ -836,8 +806,8 @@ trait Geometry
 
     /**
      * Draws a rounded rectangle.
-     * @param float  $x            Abscissa of upper-left corner.
-     * @param float  $y            Ordinate of upper-left corner.
+     * @param float  $x            abscissa of upper-left corner.
+     * @param float  $y            ordinate of upper-left corner.
      * @param float  $w            Width.
      * @param float  $h            Height.
      * @param float  $r            the radius of the circle used to round off the corners of the rectangle.
@@ -853,8 +823,8 @@ trait Geometry
 
     /**
      * Draws a rounded rectangle.
-     * @param float  $x            Abscissa of upper-left corner.
-     * @param float  $y            Ordinate of upper-left corner.
+     * @param float  $x            abscissa of upper-left corner.
+     * @param float  $y            ordinate of upper-left corner.
      * @param float  $w            Width.
      * @param float  $h            Height.
      * @param float  $rx           the x-axis radius of the ellipse used to round off the corners of the rectangle.

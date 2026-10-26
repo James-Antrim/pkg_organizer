@@ -22,6 +22,7 @@ require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
 class PDF
 {
     use Barcoded;
+    use Geometry;
 
     /**
      * Current page number.
