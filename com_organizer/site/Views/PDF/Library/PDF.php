@@ -35,6 +35,7 @@ class PDF
 
 
     private array $pageLengths = [];
+    private array $pageObjectIDs = [];
     private array $pages = [];
 
     private int $state = self::INITIAL;
@@ -118,11 +119,6 @@ class PDF
      * Array of object offsets.
      */
     protected $offsets = [];
-
-    /**
-     * Array of object IDs for each page.
-     */
-    protected $pageobjects = [];
 
     /**
      * Compression flag.
@@ -9853,7 +9849,7 @@ class PDF
     protected function _beginpage($orientation = '', $format = '')
     {
         ++$this->page;
-        $this->pageobjects[$this->page] = [];
+        $this->pageObjectIDs[$this->page] = [];
         $this->pageBuffer($this->page, '');
         // initialize array for graphics tranformation positions inside a page buffer
         $this->transfmrk[$this->page] = [];
@@ -9925,8 +9921,8 @@ class PDF
             ++$this->n;
             $objid = $this->n;
         }
-        $this->offsets[$objid]            = $this->bufferLength;
-        $this->pageobjects[$this->page][] = $objid;
+        $this->offsets[$objid]              = $this->bufferLength;
+        $this->pageObjectIDs[$this->page][] = $objid;
         return $objid . ' 0 obj';
     }
 
@@ -20175,7 +20171,7 @@ class PDF
         $tmpintmrk      = $this->intmrk[$frompage];
         $tmpbordermrk   = $this->bordermrk[$frompage];
         $tmpcntmrk      = $this->cntmrk[$frompage];
-        $tmppageobjects = $this->pageobjects[$frompage];
+        $tmppageobjects = $this->pageObjectIDs[$frompage];
         if (isset($this->footerpos[$frompage])) {
             $tmpfooterpos = $this->footerpos[$frompage];
         }
@@ -20211,7 +20207,7 @@ class PDF
             $this->intmrk[$i]      = $this->intmrk[$j];
             $this->bordermrk[$i]   = $this->bordermrk[$j];
             $this->cntmrk[$i]      = $this->cntmrk[$j];
-            $this->pageobjects[$i] = $this->pageobjects[$j];
+            $this->pageObjectIDs[$i] = $this->pageObjectIDs[$j];
             if (isset($this->footerpos[$j])) {
                 $this->footerpos[$i] = $this->footerpos[$j];
             }
@@ -20250,7 +20246,7 @@ class PDF
         $this->intmrk[$topage]      = $tmpintmrk;
         $this->bordermrk[$topage]   = $tmpbordermrk;
         $this->cntmrk[$topage]      = $tmpcntmrk;
-        $this->pageobjects[$topage] = $tmppageobjects;
+        $this->pageObjectIDs[$topage] = $tmppageobjects;
         if (isset($tmpfooterpos)) {
             $this->footerpos[$topage] = $tmpfooterpos;
         }
@@ -20354,12 +20350,12 @@ class PDF
         unset($this->intmrk[$page]);
         unset($this->bordermrk[$page]);
         unset($this->cntmrk[$page]);
-        foreach ($this->pageobjects[$page] as $oid) {
+        foreach ($this->pageObjectIDs[$page] as $oid) {
             if (isset($this->offsets[$oid])) {
                 unset($this->offsets[$oid]);
             }
         }
-        unset($this->pageobjects[$page]);
+        unset($this->pageObjectIDs[$page]);
         if (isset($this->footerpos[$page])) {
             unset($this->footerpos[$page]);
         }
@@ -20394,7 +20390,7 @@ class PDF
                 $this->intmrk[$i]      = $this->intmrk[$j];
                 $this->bordermrk[$i]   = $this->bordermrk[$j];
                 $this->cntmrk[$i]      = $this->cntmrk[$j];
-                $this->pageobjects[$i] = $this->pageobjects[$j];
+                $this->pageObjectIDs[$i] = $this->pageObjectIDs[$j];
                 if (isset($this->footerpos[$j])) {
                     $this->footerpos[$i] = $this->footerpos[$j];
                 }
@@ -20440,12 +20436,12 @@ class PDF
             unset($this->intmrk[$this->numpages]);
             unset($this->bordermrk[$this->numpages]);
             unset($this->cntmrk[$this->numpages]);
-            foreach ($this->pageobjects[$this->numpages] as $oid) {
+            foreach ($this->pageObjectIDs[$this->numpages] as $oid) {
                 if (isset($this->offsets[$oid])) {
                     unset($this->offsets[$oid]);
                 }
             }
-            unset($this->pageobjects[$this->numpages]);
+            unset($this->pageObjectIDs[$this->numpages]);
             if (isset($this->footerpos[$this->numpages])) {
                 unset($this->footerpos[$this->numpages]);
             }
@@ -20561,7 +20557,7 @@ class PDF
         $this->intmrk[$this->page]      = $this->intmrk[$page];
         $this->bordermrk[$this->page]   = $this->bordermrk[$page];
         $this->cntmrk[$this->page]      = $this->cntmrk[$page];
-        $this->pageobjects[$this->page] = $this->pageobjects[$page];
+        $this->pageObjectIDs[$this->page] = $this->pageObjectIDs[$page];
         $this->pageopen[$this->page]    = false;
         if (isset($this->footerpos[$page])) {
             $this->footerpos[$this->page] = $this->footerpos[$page];
