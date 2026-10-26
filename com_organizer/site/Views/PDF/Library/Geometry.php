@@ -15,6 +15,11 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Extracted geometric functions. Based on code provided to the TCPDF library by David Hernandez Sanz. */
 trait Geometry
 {
+    public const ARMS = 0, CLOSED = 1, CLOSED_FILLED = 2, FILLED = 3;
+    public const ARROW_HEAD_STYLES = [];
+
+    private float $lineWidth;
+
     /**
      * Append a cubic Bézier curve to the current path.
      * The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bézier control points.
@@ -57,6 +62,63 @@ trait Geometry
         }
 
         $this->append(sprintf('%F %F l', $x * $this->scaleFactor, ($this->h - $y) * $this->scaleFactor));
+    }
+
+    /**
+     * Draws a graphic arrow.
+     * @param float $x0            abscissa of first point.
+     * @param float $y0            ordinate of first point.
+     * @param float $x1            abscissa of second point.
+     * @param float $y1            ordinate of second point.
+     * @param int   $headStyle     (0 = draw only arrowhead arms, 1 = draw closed arrowhead, but no fill, 2 = closed and filled arrowhead, 3 = filled arrowhead)
+     * @param float $armSize       length of arrowhead arms
+     * @param int   $armShaftAngle angle between an arm and the shaft
+     */
+    public function arrow(float $x0, float $y0, float $x1, float $y1, int $headStyle = self::ARMS, float $armSize = 5, int $armShaftAngle = 15): void
+    {
+        $armShaftAngle  = deg2rad($armShaftAngle);
+        $directionAngle = atan2($y0 - $y1, $x0 - $x1);
+        if ($directionAngle < 0) {
+            $directionAngle += (2 * M_PI);
+        }
+
+        $sx1 = $x1;
+        $sy1 = $y1;
+
+        if ($headStyle > 0) {
+            // calculate the stopping point for the arrow shaft
+            $sx1 = $x1 + (($armSize - $this->lineWidth) * cos($directionAngle));
+            $sy1 = $y1 + (($armSize - $this->lineWidth) * sin($directionAngle));
+        }
+
+        // main arrow line / shaft
+        $this->Line($x0, $y0, $sx1, $sy1);
+
+        // left arrowhead arm tip
+        $x2L = $x1 + ($armSize * cos($directionAngle + $armShaftAngle));
+        $y2L = $y1 + ($armSize * sin($directionAngle + $armShaftAngle));
+
+        // right arrowhead arm tip
+        $x2R = $x1 + ($armSize * cos($directionAngle - $armShaftAngle));
+        $y2R = $y1 + ($armSize * sin($directionAngle - $armShaftAngle));
+
+        $headStyle = in_array($headStyle, self::ARROW_HEAD_STYLES) ?: self::ARMS;
+
+        $mode  = 'D';
+        $style = [];
+        switch ($headStyle) {
+            case self::ARMS:
+                $style = [1, 1, 0];
+                break;
+            case self::CLOSED_FILLED:
+                $mode = 'DF';
+                break;
+            case self::FILLED:
+                $mode = 'F';
+                break;
+        }
+
+        $this->Polygon([$x2L, $y2L, $x1, $y1, $x2R, $y2R], $mode, $style, []);
     }
 
     /**
@@ -209,7 +271,7 @@ trait Geometry
             $xmax = max($xmax, $xc);
             $ymax = max($ymax, $yc);
         }
-        return array($xmin, $ymin, $xmax, $ymax);
+        return [$xmin, $ymin, $xmax, $ymax];
     }
 
     /**
@@ -230,72 +292,6 @@ trait Geometry
     }
 
     /**
-     * Draws a grahic arrow.
-     * @param float $x0         abscissa of first point.
-     * @param float $y0         ordinate of first point.
-     * @param float $x1         abscissa of second point.
-     * @param float $y1         ordinate of second point.
-     * @param int   $head_style (0 = draw only arrowhead arms, 1 = draw closed arrowhead, but no fill, 2 = closed and filled arrowhead, 3 = filled arrowhead)
-     * @param float $arm_size   length of arrowhead arms
-     * @param int   $arm_angle  angle between an arm and the shaft
-     */
-    public function Arrow($x0, $y0, $x1, $y1, $head_style = 0, $arm_size = 5, $arm_angle = 15)
-    {
-        // getting arrow direction angle
-        // 0 deg angle is when both arms go along X axis. angle grows clockwise.
-        $dir_angle = atan2(($y0 - $y1), ($x0 - $x1));
-        if ($dir_angle < 0) {
-            $dir_angle += (2 * M_PI);
-        }
-        $arm_angle = deg2rad($arm_angle);
-        $sx1       = $x1;
-        $sy1       = $y1;
-        if ($head_style > 0) {
-            // calculate the stopping point for the arrow shaft
-            $sx1 = $x1 + (($arm_size - $this->LineWidth) * cos($dir_angle));
-            $sy1 = $y1 + (($arm_size - $this->LineWidth) * sin($dir_angle));
-        }
-        // main arrow line / shaft
-        $this->Line($x0, $y0, $sx1, $sy1);
-        // left arrowhead arm tip
-        $x2L = $x1 + ($arm_size * cos($dir_angle + $arm_angle));
-        $y2L = $y1 + ($arm_size * sin($dir_angle + $arm_angle));
-        // right arrowhead arm tip
-        $x2R   = $x1 + ($arm_size * cos($dir_angle - $arm_angle));
-        $y2R   = $y1 + ($arm_size * sin($dir_angle - $arm_angle));
-        $mode  = 'D';
-        $style = [];
-        switch ($head_style) {
-            case 0:
-            {
-                // draw only arrowhead arms
-                $mode  = 'D';
-                $style = [1, 1, 0];
-                break;
-            }
-            case 1:
-            {
-                // draw closed arrowhead, but no fill
-                $mode = 'D';
-                break;
-            }
-            case 2:
-            {
-                // closed and filled arrowhead
-                $mode = 'DF';
-                break;
-            }
-            case 3:
-            {
-                // filled arrowhead
-                $mode = 'F';
-                break;
-            }
-        }
-        $this->Polygon(array($x2L, $y2L, $x1, $y1, $x2R, $y2R), $mode, $style, array());
-    }
-
-    /**
      * Draws a circle.
      * A circle is formed from n Bézier curves.
      * @param float   $x0         abscissa of center point.
@@ -305,10 +301,10 @@ trait Geometry
      * @param float   $angend     Angle finish of draw line. Default value: 360.
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $fill_color Fill color. Format: [red, green, blue]. Default value: default color (empty array).
      * @param integer $nc         Number of curves used to draw a 90 degrees portion of circle.
      */
-    public function Circle($x0, $y0, $r, $angstr = 0, $angend = 360, $style = '', $line_style = array(), $fill_color = array(), $nc = 2)
+    public function Circle($x0, $y0, $r, $angstr = 0, $angend = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
     {
         $this->Ellipse($x0, $y0, $r, $r, 0, $angstr, $angend, $style, $line_style, $fill_color, $nc);
     }
@@ -327,10 +323,10 @@ trait Geometry
      * @param float  $y3         ordinate of end point.
      * @param string $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @see   SetLineStyle()
      */
-    public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = array(), $fill_color = array())
+    public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = [], $fill_color = [])
     {
         if ($this->state !== self::READY) {
             return;
@@ -360,10 +356,10 @@ trait Geometry
      * @param float   $afinish    Angle finish of draw line. Default value: 360.
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of ellipse. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @param integer $nc         Number of curves used to draw a 90 degrees portion of ellipse.
      */
-    public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = array(), $fill_color = array(), $nc = 2)
+    public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
     {
         if ($this->state !== self::READY) {
             return;
@@ -393,7 +389,7 @@ trait Geometry
      */
     public function GetLineWidth()
     {
-        return $this->LineWidth;
+        return $this->lineWidth;
     }
 
     /**
@@ -405,7 +401,7 @@ trait Geometry
      * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
      * @see   SetLineWidth(), SetDrawColor(), SetLineStyle()
      */
-    public function Line($x1, $y1, $x2, $y2, $style = array())
+    public function Line($x1, $y1, $x2, $y2, $style = [])
     {
         if ($this->state !== self::READY) {
             return;
@@ -425,13 +421,13 @@ trait Geometry
      * either end of the curve.
      * @param float   $x0         abscissa of start point.
      * @param float   $y0         ordinate of start point.
-     * @param float[] $segments   An array of Bézier descriptions. Format: array(x1, y1, x2, y2, x3, y3).
+     * @param float[] $segments   An array of Bézier descriptions. Format: [x1, y1, x2, y2, x3, y3].
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @see   SetLineStyle()
      */
-    public function Polycurve($x0, $y0, $segments, $style = '', $line_style = array(), $fill_color = array())
+    public function Polycurve($x0, $y0, $segments, $style = '', $line_style = [], $fill_color = [])
     {
         if ($this->state !== self::READY) {
             return;
@@ -465,10 +461,10 @@ trait Geometry
      *                            <li>0 to ($np - 1): Line style of each line. Array like for SetLineStyle().</li>
      *                            </ul>
      *                            If a key is not present or is null, not draws the line. Default value is default line style (empty array).
-     * @param array   $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @param boolean $closed     if true the polygon is closes, otherwise will remain open
      */
-    public function Polygon($p, $style = '', $line_style = array(), $fill_color = array(), $closed = true)
+    public function Polygon($p, $style = '', $line_style = [], $fill_color = [], $closed = true)
     {
         if ($this->state !== self::READY) {
             return;
@@ -555,9 +551,9 @@ trait Geometry
      *                           <li>0 to ($np - 1): Line style of each line. Array like for SetLineStyle().</li>
      *                           </ul>
      *                           If a key is not present or is null, not draws the line. Default value is default line style (empty array).
-     * @param array  $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      */
-    public function PolyLine($p, $style = '', $line_style = array(), $fill_color = array())
+    public function PolyLine($p, $style = '', $line_style = [], $fill_color = [])
     {
         $this->Polygon($p, $style, $line_style, $fill_color, false);
     }
@@ -575,10 +571,10 @@ trait Geometry
      *                             <li>L, T, R, B or combinations: Line style of left, top, right or bottom border. Array like for SetLineStyle().</li>
      *                             </ul>
      *                             If a key is not present or is null, the correspondent border is not drawn. Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @see   SetLineStyle()
      */
-    public function Rect($x, $y, $w, $h, $style = '', $border_style = array(), $fill_color = array())
+    public function Rect($x, $y, $w, $h, $style = '', $border_style = [], $fill_color = [])
     {
         if ($this->state !== self::READY) {
             return;
@@ -599,7 +595,7 @@ trait Geometry
             }
             else {
                 // remove stroke operator from style
-                $opnostroke = array('S' => '', 'D' => '', 's' => '', 'd' => '', 'B' => 'F', 'FD' => 'F', 'DF' => 'F', 'B*' => 'F*', 'F*D' => 'F*', 'DF*' => 'F*', 'b' => 'f', 'fd' => 'f', 'df' => 'f', 'b*' => 'f*', 'f*d' => 'f*', 'df*' => 'f*');
+                $opnostroke = ['S' => '', 'D' => '', 's' => '', 'd' => '', 'B' => 'F', 'FD' => 'F', 'DF' => 'F', 'B*' => 'F*', 'F*D' => 'F*', 'DF*' => 'F*', 'b' => 'f', 'fd' => 'f', 'df' => 'f', 'b*' => 'f*', 'f*d' => 'f*', 'df*' => 'f*'];
                 if (isset($opnostroke[$style])) {
                     $style = $opnostroke[$style];
                 }
@@ -648,7 +644,7 @@ trait Geometry
      *                                      <li>0 to ($ns - 1): Line style of each side. Array like for SetLineStyle().</li>
      *                                      </ul>
      *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
-     * @param array   $fill_color           Fill color. Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
      * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
      *                                      <ul>
      *                                      <li>D or empty string: Draw (default).</li>
@@ -658,9 +654,9 @@ trait Geometry
      *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
      *                                      </ul>
      * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
      */
-    public function RegularPolygon($x0, $y0, $r, $ns, $angle = 0, $draw_circle = false, $style = '', $line_style = array(), $fill_color = array(), $circle_style = '', $circle_outLine_style = array(), $circle_fill_color = array())
+    public function RegularPolygon($x0, $y0, $r, $ns, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
     {
         if (3 > $ns) {
             $ns = 3;
@@ -694,7 +690,7 @@ trait Geometry
      *                       1 off, 2 on, 1 off, ...</li>
      *                       <li>phase (integer): Modifier on the dash pattern which is used to shift
      *                       the point at which the pattern starts.</li>
-     *                       <li>color (array): Draw color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName).</li>
+     *                       <li>color (array): Draw color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName].</li>
      *                       </ul>
      * @param boolean $ret   if true do not send the command.
      * @return string the PDF command
@@ -706,19 +702,19 @@ trait Geometry
             return $s;
         }
         if (isset($style['width'])) {
-            $this->LineWidth      = $style['width'];
+            $this->lineWidth      = $style['width'];
             $this->linestyleWidth = sprintf('%F w', ($style['width'] * $this->scaleFactor));
             $s                    .= $this->linestyleWidth . ' ';
         }
         if (isset($style['cap'])) {
-            $ca = array('butt' => 0, 'round' => 1, 'square' => 2);
+            $ca = ['butt' => 0, 'round' => 1, 'square' => 2];
             if (isset($ca[$style['cap']])) {
                 $this->linestyleCap = $ca[$style['cap']] . ' J';
                 $s                  .= $this->linestyleCap . ' ';
             }
         }
         if (isset($style['join'])) {
-            $ja = array('miter' => 0, 'round' => 1, 'bevel' => 2);
+            $ja = ['miter' => 0, 'round' => 1, 'bevel' => 2];
             if (isset($ja[$style['join']])) {
                 $this->linestyleJoin = $ja[$style['join']] . ' j';
                 $s                   .= $this->linestyleJoin . ' ';
@@ -731,7 +727,7 @@ trait Geometry
                     $tab = explode(',', $style['dash']);
                 }
                 else {
-                    $tab = array($style['dash']);
+                    $tab = [$style['dash']];
                 }
                 $dash_string = '';
                 foreach ($tab as $i => $v) {
@@ -764,7 +760,7 @@ trait Geometry
     public function setLineWidth($width)
     {
         //Set line width
-        $this->LineWidth      = $width;
+        $this->lineWidth      = $width;
         $this->linestyleWidth = sprintf('%F w', ($width * $this->scaleFactor));
         if ($this->state === self::READY) {
             $this->append($this->linestyleWidth);
@@ -788,7 +784,7 @@ trait Geometry
      *                                      <li>0 to (n - 1): Line style of each side. Array like for SetLineStyle().</li>
      *                                      </ul>
      *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
-     * @param array   $fill_color           Fill color. Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
      * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
      *                                      <ul>
      *                                      <li>D or empty string: Draw (default).</li>
@@ -798,9 +794,9 @@ trait Geometry
      *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
      *                                      </ul>
      * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
      */
-    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = array(), $fill_color = array(), $circle_style = '', $circle_outLine_style = array(), $circle_fill_color = array())
+    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
     {
         if ($nv < 2) {
             $nv = 2;
@@ -839,9 +835,9 @@ trait Geometry
      * @param string $round_corner Draws rounded corner or not. String with a 0 (not rounded i-corner) or 1 (rounded i-corner) in i-position. Positions are, in order and begin to 0: top right, bottom right, bottom left and top left. Default value: all rounded corner ("1111").
      * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $border_style Border style of rectangle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      */
-    public function RoundedRect($x, $y, $w, $h, $r, $round_corner = '1111', $style = '', $border_style = array(), $fill_color = array())
+    public function RoundedRect($x, $y, $w, $h, $r, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
     {
         $this->RoundedRectXY($x, $y, $w, $h, $r, $r, $round_corner, $style, $border_style, $fill_color);
     }
@@ -857,9 +853,9 @@ trait Geometry
      * @param string $round_corner Draws rounded corner or not. String with a 0 (not rounded i-corner) or 1 (rounded i-corner) in i-position. Positions are, in order and begin to 0: top right, bottom right, bottom left and top left. Default value: all rounded corner ("1111").
      * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $border_style Border style of rectangle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      */
-    public function RoundedRectXY($x, $y, $w, $h, $rx, $ry, $round_corner = '1111', $style = '', $border_style = array(), $fill_color = array())
+    public function RoundedRectXY($x, $y, $w, $h, $rx, $ry, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
     {
         if ($this->state !== self::READY) {
             return;

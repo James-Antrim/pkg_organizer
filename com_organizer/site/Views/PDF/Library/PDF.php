@@ -224,11 +224,6 @@ class PDF
     protected $lasth;
 
     /**
-     * Line width in user unit.
-     */
-    protected $LineWidth;
-
-    /**
      * Array of standard font names.
      */
     protected $CoreFonts;
@@ -1470,8 +1465,8 @@ class PDF
         // cell margins
         $this->setCellMargins(0, 0, 0, 0);
         // line width (0.2 mm)
-        $this->LineWidth      = 0.57 / $this->scaleFactor;
-        $this->linestyleWidth = sprintf('%F w', ($this->LineWidth * $this->scaleFactor));
+        $this->lineWidth      = 0.57 / $this->scaleFactor;
+        $this->linestyleWidth = sprintf('%F w', ($this->lineWidth * $this->scaleFactor));
         $this->linestyleCap   = '0 J';
         $this->linestyleJoin  = '0 j';
         $this->linestyleDash  = '[] 0 d';
@@ -2278,7 +2273,7 @@ class PDF
         }
         // process borders
         foreach ($brd as $border => $style) {
-            $line_width = $this->LineWidth;
+            $line_width = $this->lineWidth;
             if (is_array($style) && isset($style['width'])) {
                 // get border width
                 $line_width = $style['width'];
@@ -5236,7 +5231,7 @@ class PDF
             switch ($mode) {
                 case 'ext':
                 {
-                    $off = (($this->LineWidth / 2) * $k);
+                    $off = (($this->lineWidth / 2) * $k);
                     $xL  = $xeL - $off;
                     $xR  = $xeR + $off;
                     $yT  = $yeT + $off;
@@ -5245,13 +5240,13 @@ class PDF
                     $xB  = $xR;
                     $yR  = $yT;
                     $yB  = $yL;
-                    $w   += $this->LineWidth;
-                    $h   += $this->LineWidth;
+                    $w   += $this->lineWidth;
+                    $h   += $this->lineWidth;
                     break;
                 }
                 case 'int':
                 {
-                    $off = ($this->LineWidth / 2) * $k;
+                    $off = ($this->lineWidth / 2) * $k;
                     $xL  = $xeL + $off;
                     $xR  = $xeR - $off;
                     $yT  = $yeT - $off;
@@ -5260,8 +5255,8 @@ class PDF
                     $xB  = $xR;
                     $yR  = $yT;
                     $yB  = $yL;
-                    $w   -= $this->LineWidth;
-                    $h   -= $this->LineWidth;
+                    $w   -= $this->lineWidth;
+                    $h   -= $this->lineWidth;
                     break;
                 }
                 case 'normal':
@@ -19932,7 +19927,7 @@ class PDF
             'lMargin'           => $this->lMargin,
             'cell_padding'      => $this->cell_padding,
             'cell_margin'       => $this->cell_margin,
-            'LineWidth'         => $this->LineWidth,
+            'LineWidth'         => $this->lineWidth,
             'linestyleWidth'    => $this->linestyleWidth,
             'linestyleCap'      => $this->linestyleCap,
             'linestyleJoin'     => $this->linestyleJoin,
@@ -19994,7 +19989,7 @@ class PDF
         $this->lMargin           = $gvars['lMargin'];
         $this->cell_padding      = $gvars['cell_padding'];
         $this->cell_margin       = $gvars['cell_margin'];
-        $this->LineWidth         = $gvars['LineWidth'];
+        $this->lineWidth         = $gvars['LineWidth'];
         $this->linestyleWidth    = $gvars['linestyleWidth'];
         $this->linestyleCap      = $gvars['linestyleCap'];
         $this->linestyleJoin     = $gvars['linestyleJoin'];
