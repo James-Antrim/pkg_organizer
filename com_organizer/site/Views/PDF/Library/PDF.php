@@ -27,6 +27,9 @@ class PDF
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
+    /** Length of the buffer in bytes. */
+    private int $bufferLength = 0;
+
     private int $state = self::INITIAL;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
@@ -834,11 +837,6 @@ class PDF
      * Store the image keys.
      */
     protected $imagekeys = [];
-
-    /**
-     * Length of the buffer in bytes.
-     */
-    protected $bufferlen = 0;
 
     /**
      * Counts the number of fonts.
@@ -7303,8 +7301,8 @@ class PDF
             $signature = current(unpack('H*', $signature));
             $signature = str_pad($signature, $this->signature_max_length, '0');
             // Add signature to the document
-            $this->buffer    = substr($pdfdoc, 0, $byte_range[1]) . '<' . $signature . '>' . substr($pdfdoc, $byte_range[1]);
-            $this->bufferlen = strlen($this->buffer);
+            $this->buffer       = substr($pdfdoc, 0, $byte_range[1]) . '<' . $signature . '>' . substr($pdfdoc, $byte_range[1]);
+            $this->bufferLength = strlen($this->buffer);
         }
         switch ($dest) {
             case 'I':
@@ -7326,7 +7324,7 @@ class PDF
                     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
                     header('Content-Disposition: inline; filename="' . rawurlencode(basename($name)) . '"; ' .
                         'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
-                    StaticMethods::sendOutputData($this->getBuffer(), $this->bufferlen);
+                    StaticMethods::sendOutputData($this->getBuffer(), $this->bufferLength);
                 }
                 else {
                     echo $this->getBuffer();
@@ -7362,7 +7360,7 @@ class PDF
                 header('Content-Disposition: attachment; filename="' . rawurlencode(basename($name)) . '"; ' .
                     'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
                 header('Content-Transfer-Encoding: binary');
-                StaticMethods::sendOutputData($this->getBuffer(), $this->bufferlen);
+                StaticMethods::sendOutputData($this->getBuffer(), $this->bufferLength);
                 break;
             }
             case 'F':
@@ -7374,7 +7372,7 @@ class PDF
                 if (!$f) {
                     $this->Error('Unable to create output file: ' . $name);
                 }
-                fwrite($f, $this->getBuffer(), $this->bufferlen);
+                fwrite($f, $this->getBuffer(), $this->bufferLength);
                 fclose($f);
                 if ($dest == 'FI') {
                     // send headers to browser
@@ -9773,7 +9771,7 @@ class PDF
         // Catalog
         $objid_catalog = $this->_putcatalog();
         // Cross-ref
-        $o = $this->bufferlen;
+        $o = $this->bufferLength;
         // XREF section
         $this->_out('xref');
         $this->_out('0 ' . ($this->n + 1));
@@ -9887,7 +9885,7 @@ class PDF
             ++$this->n;
             $objid = $this->n;
         }
-        $this->offsets[$objid]            = $this->bufferlen;
+        $this->offsets[$objid]            = $this->bufferLength;
         $this->pageobjects[$this->page][] = $objid;
         return $objid . ' 0 obj';
     }
@@ -20064,8 +20062,8 @@ class PDF
      */
     protected function setBuffer($data)
     {
-        $this->bufferlen += strlen($data);
-        $this->buffer    .= $data;
+        $this->bufferLength += strlen($data);
+        $this->buffer       .= $data;
     }
 
     /**
@@ -20074,8 +20072,8 @@ class PDF
      */
     protected function replaceBuffer($data)
     {
-        $this->bufferlen = strlen($data);
-        $this->buffer    = $data;
+        $this->bufferLength = strlen($data);
+        $this->buffer       = $data;
     }
 
     /**
