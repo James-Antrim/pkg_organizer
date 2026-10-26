@@ -24,6 +24,13 @@ class PDF
     use Barcoded;
     use Geometry;
 
+    private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
+    private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
+
+    private int $state = self::INITIAL;
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
+
     /**
      * Current page number.
      */
@@ -53,11 +60,6 @@ class PDF
      * Array containing pages.
      */
     protected $pages = [];
-
-    /**
-     * Current document state.
-     */
-    protected $state;
 
     /**
      * Compression flag.
@@ -1382,7 +1384,6 @@ class PDF
         $this->n            = 2;
         $this->buffer       = '';
         $this->pages        = [];
-        $this->state        = 0;
         $this->fonts        = [];
         $this->FontFiles    = [];
         $this->diffs        = [];
@@ -2470,7 +2471,7 @@ class PDF
      */
     public function Open()
     {
-        $this->state = 1;
+        $this->state = self::NEUTRAL;
     }
 
     /**
@@ -2481,7 +2482,7 @@ class PDF
      */
     public function Close()
     {
-        if ($this->state == 3) {
+        if ($this->state === self::FINAL) {
             return;
         }
         if ($this->page == 0) {
@@ -2524,11 +2525,11 @@ class PDF
      */
     public function setPage($pnum, $resetmargins = false)
     {
-        if (($pnum == $this->page) and ($this->state == 2)) {
+        if (($pnum == $this->page) and ($this->state === self::READY)) {
             return;
         }
         if (($pnum > 0) and ($pnum <= $this->numpages)) {
-            $this->state = 2;
+            $this->state = self::READY;
             // save current graphic settings
             //$gvars = $this->getGraphicVars();
             $oldpage                = $this->page;
@@ -2710,7 +2711,7 @@ class PDF
             return;
         }
         // start a new page
-        if ($this->state == 0) {
+        if ($this->state === self::INITIAL) {
             $this->Open();
         }
         ++$this->numpages;
@@ -3044,7 +3045,7 @@ class PDF
      */
     protected function setHeader()
     {
-        if (!$this->print_header or ($this->state != 2)) {
+        if (!$this->print_header or ($this->state !== self::READY)) {
             return;
         }
         $this->InHeader = true;
@@ -3086,7 +3087,7 @@ class PDF
      */
     protected function setFooter()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->InFooter = true;
@@ -3289,7 +3290,7 @@ class PDF
             }
         }
         $this->ColorFlag = ($this->FillColor != $this->TextColor);
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out($pdfcolor);
         }
         if ($this->inxobj) {
@@ -3487,7 +3488,7 @@ class PDF
             }
         }
         $this->ColorFlag = ($this->FillColor != $this->TextColor);
-        if (($type != 'text') and ($this->state == 2) and $type !== 0) {
+        if (($type != 'text') and ($this->state === self::READY) and $type !== 0) {
             if (!$ret) {
                 $this->_out($pdfcolor);
             }
@@ -4031,7 +4032,7 @@ class PDF
         }
         $this->FontAscent  = ($font_ascent / $this->k);
         $this->FontDescent = ($font_descent / $this->k);
-        if ($out and ($this->page > 0) and (isset($this->CurrentFont['i'])) and ($this->state == 2)) {
+        if ($out and ($this->page > 0) and (isset($this->CurrentFont['i'])) and ($this->state === self::READY)) {
             $this->_out(sprintf('BT /F%d %F Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
         }
     }
@@ -4571,7 +4572,7 @@ class PDF
             if ($this->txtshadow['opacity'] != $alpha['CA']) {
                 $this->setAlpha($this->txtshadow['opacity'], $this->txtshadow['blend_mode']);
             }
-            if ($this->state == 2) {
+            if ($this->state === self::READY) {
                 $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
             }
             //restore data
@@ -4584,7 +4585,7 @@ class PDF
                 $this->setAlpha($alpha['CA'], $alpha['BM'], $alpha['ca'], $alpha['AIS']);
             }
         }
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
         }
         $this->cell_padding = $prev_cell_padding;
@@ -6497,7 +6498,7 @@ class PDF
      */
     public function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = array())
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return false;
         }
         if (StaticMethods::empty_string($x)) {
@@ -7242,7 +7243,7 @@ class PDF
     {
         //Output PDF to some destination
         //Finish document if necessary
-        if ($this->state < 3) {
+        if ($this->state < self::FINAL) {
             $this->Close();
         }
         //Normalize parameters
@@ -9725,7 +9726,7 @@ class PDF
             // save subset chars of the previous font
             $this->setFontSubBuffer($this->CurrentFont['fontkey'], 'subsetchars', $this->CurrentFont['subsetchars']);
         }
-        $this->state = 1;
+        $this->state = self::NEUTRAL;
         $this->_putheader();
         $this->_putpages();
         $this->_putresources();
@@ -9802,7 +9803,7 @@ class PDF
         $this->_out('startxref');
         $this->_out($o);
         $this->_out('%%EOF');
-        $this->state = 3; // end-of-doc
+        $this->state = self::FINAL; // end-of-doc
     }
 
     /**
@@ -9818,7 +9819,7 @@ class PDF
         $this->setPageBuffer($this->page, '');
         // initialize array for graphics tranformation positions inside a page buffer
         $this->transfmrk[$this->page] = [];
-        $this->state                  = 2;
+        $this->state                  = self::READY;
         if (StaticMethods::empty_string($orientation)) {
             if (isset($this->CurOrientation)) {
                 $orientation = $this->CurOrientation;
@@ -9862,7 +9863,7 @@ class PDF
     protected function _endpage()
     {
         $this->setVisibility('all');
-        $this->state = 1;
+        $this->state = self::NEUTRAL;
     }
 
     /**
@@ -10070,7 +10071,7 @@ class PDF
      */
     protected function _out($s)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             if ($this->inxobj) {
                 // we are inside an XObject template
                 $this->xobjects[$this->xobjid]['outdata'] .= $s . "\n";
@@ -10089,7 +10090,7 @@ class PDF
                 $this->setPageBuffer($this->page, $s . "\n", true);
             }
         }
-        elseif ($this->state > 0) {
+        elseif ($this->state > self::INITIAL) {
             // set general data
             $this->setBuffer($s . "\n");
         }
@@ -10155,7 +10156,7 @@ class PDF
      */
     public function getPDFData()
     {
-        if ($this->state < 3) {
+        if ($this->state < self::FINAL) {
             $this->Close();
         }
         return $this->buffer;
@@ -10752,7 +10753,7 @@ class PDF
      */
     public function StartTransform()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->_outSaveGraphicsState();
@@ -10775,7 +10776,7 @@ class PDF
      */
     public function StopTransform()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->_outRestoreGraphicsState();
@@ -11040,7 +11041,7 @@ class PDF
      */
     protected function Transform($tm)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->_out(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
@@ -12591,7 +12592,7 @@ class PDF
      */
     public function startLayer($name = '', $print = true, $view = true, $lock = true)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $layer = sprintf('LYR%03d', (count($this->pdflayers) + 1));
@@ -12611,7 +12612,7 @@ class PDF
      */
     public function endLayer()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->openMarkedContent) {
@@ -12629,7 +12630,7 @@ class PDF
      */
     public function setVisibility($v)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->endLayer();
@@ -12695,7 +12696,7 @@ class PDF
      */
     protected function setExtGState($gs)
     {
-        if (($this->pdfa_mode && $this->pdfa_version < 2) or ($this->state != 2)) {
+        if (($this->pdfa_mode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
             // transparency is not allowed in PDF/A-1 mode
             return;
         }
@@ -12737,7 +12738,7 @@ class PDF
      */
     public function setOverprint($stroking = true, $nonstroking = null, $mode = 0)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $stroking = $stroking ? true : false;
@@ -13223,7 +13224,7 @@ class PDF
      */
     public function CoonsPatchMesh($x, $y, $w, $h, $col1 = array(), $col2 = array(), $col3 = array(), $col4 = array(), $coords = array(0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33), $coords_min = 0, $coords_max = 1, $antialias = false)
     {
-        if (($this->pdfa_mode && $this->pdfa_version < 2) or ($this->state != 2)) {
+        if (($this->pdfa_mode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
             return;
         }
         $this->Clip($x, $y, $w, $h);
@@ -13314,7 +13315,7 @@ class PDF
      */
     protected function Clip($x, $y, $w, $h)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->rtl) {
@@ -13339,7 +13340,7 @@ class PDF
      */
     public function Gradient($type, $coords, $stops, $background = array(), $antialias = false)
     {
-        if (($this->pdfa_mode && $this->pdfa_version < 2) or ($this->state != 2)) {
+        if (($this->pdfa_mode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
             return;
         }
         $n                                   = count($this->gradients) + 1;
@@ -13667,7 +13668,7 @@ class PDF
      */
     public function PieSectorXY($xc, $yc, $rx, $ry, $a, $b, $style = 'FD', $cw = false, $o = 0, $nc = 2)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->rtl) {
@@ -13710,7 +13711,7 @@ class PDF
      */
     public function ImageEps($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $useBoundingBox = true, $align = '', $palign = '', $border = 0, $fitonpage = false, $fixoutvals = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
@@ -19694,7 +19695,7 @@ class PDF
      */
     protected function putHtmlListBullet($listdepth, $listtype = '', $size = 10)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $size        /= $this->k;
@@ -19982,7 +19983,7 @@ class PDF
      */
     protected function setGraphicVars($gvars, $extended = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->FontFamily        = $gvars['FontFamily'];
@@ -21736,7 +21737,7 @@ class PDF
      */
     public function printTemplate($id, $x = null, $y = null, $w = 0, $h = 0, $align = '', $palign = '', $fitonpage = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (!isset($this->xobjects[$id])) {
@@ -22088,7 +22089,7 @@ class PDF
      */
     public function ImageSVG($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         // reset SVG vars
@@ -22476,7 +22477,7 @@ class PDF
      */
     protected function setSVGStyles($svgstyle, $prevsvgstyle, $x = 0, $y = 0, $w = 1, $h = 1, $clip_function = '', $clip_params = array())
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $objstyle = '';
@@ -22793,7 +22794,7 @@ class PDF
      */
     protected function SVGPath($d, $style = '')
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         // set fill/stroke style

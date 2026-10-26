@@ -15,6 +15,7 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Extracted geometric functions. Based on code provided to the TCPDF library by David Hernandez Sanz. */
 trait Geometry
 {
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
     /**
      * Append a cubic Bézier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bézier control points.
      * The new current point shall be (x3, y3).
@@ -27,7 +28,7 @@ trait Geometry
      */
     private function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
@@ -177,7 +178,7 @@ trait Geometry
      */
     protected function _outLine($x, $y)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F l', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
@@ -189,7 +190,7 @@ trait Geometry
      */
     protected function _outPoint($x, $y)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F m', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
@@ -204,7 +205,7 @@ trait Geometry
      */
     protected function _outRect($x, $y, $w, $h, $op)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->h - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
         }
     }
@@ -312,7 +313,7 @@ trait Geometry
      */
     public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = array(), $fill_color = array())
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
@@ -344,7 +345,7 @@ trait Geometry
      */
     public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = array(), $fill_color = array(), $nc = 2)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (StaticMethods::empty_string($ry) or ($ry == 0)) {
@@ -385,7 +386,7 @@ trait Geometry
      */
     public function Line($x1, $y1, $x2, $y2, $style = array())
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
 
@@ -411,7 +412,7 @@ trait Geometry
      */
     public function Polycurve($x0, $y0, $segments, $style = '', $line_style = array(), $fill_color = array())
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
@@ -447,7 +448,7 @@ trait Geometry
      */
     public function Polygon($p, $style = '', $line_style = array(), $fill_color = array(), $closed = true)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $nc = count($p); // number of coordinates
@@ -556,7 +557,7 @@ trait Geometry
      */
     public function Rect($x, $y, $w, $h, $style = '', $border_style = array(), $fill_color = array())
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (empty($style)) {
@@ -725,7 +726,7 @@ trait Geometry
         if (isset($style['color'])) {
             $s .= $this->setDrawColorArray($style['color'], true) . ' ';
         }
-        if (!$ret and ($this->state == 2)) {
+        if (!$ret and ($this->state === self::READY)) {
             $this->_out($s);
         }
         return $s;
@@ -741,7 +742,7 @@ trait Geometry
         //Set line width
         $this->LineWidth      = $width;
         $this->linestyleWidth = sprintf('%F w', ($width * $this->k));
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out($this->linestyleWidth);
         }
     }
@@ -836,7 +837,7 @@ trait Geometry
      */
     public function RoundedRectXY($x, $y, $w, $h, $rx, $ry, $round_corner = '1111', $style = '', $border_style = array(), $fill_color = array())
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (($round_corner == '0000') or (($rx == $ry) and ($rx == 0))) {
