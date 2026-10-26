@@ -5685,10 +5685,10 @@ class PDF
                         $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
                         $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                     }
-                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['output'];
                     $pstart                                      = substr($pagebuff, 0, $pagemark);
                     $pend                                        = substr($pagebuff, $pagemark);
-                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
+                    $this->xObjects[$this->xObjectID]['output'] = $pstart . $ccode . $pend;
                 }
                 else {
                     if (end($this->transfmrk[$this->page]) !== false) {
@@ -9005,8 +9005,8 @@ class PDF
     protected function _putxobjects()
     {
         foreach ($this->xObjects as $key => $data) {
-            if (isset($data['outdata'])) {
-                $stream = str_replace($this->epsmarker, '', trim($data['outdata']));
+            if (isset($data['output'])) {
+                $stream = str_replace($this->epsmarker, '', trim($data['output']));
                 $out    = $this->_getobj($data['n']) . "\n";
                 $out    .= '<<';
                 $out    .= ' /Type /XObject';
@@ -10069,13 +10069,13 @@ class PDF
         if ($this->state === self::READY) {
             if ($this->xObject) {
                 // we are inside an XObject template
-                $this->xObjects[$this->xObjectID]['outdata'] .= $s . "\n";
+                $this->xObjects[$this->xObjectID]['output'] .= $s . "\n";
             }
             elseif ((!$this->InFooter) and isset($this->footerlen[$this->page]) and ($this->footerlen[$this->page] > 0)) {
                 // puts data before page footer
-                $pagebuff = $this->getPageBuffer($this->page);
-                $page     = substr($pagebuff, 0, -$this->footerlen[$this->page]);
-                $footer   = substr($pagebuff, -$this->footerlen[$this->page]);
+                $pageBuffer = $this->getPageBuffer($this->page);
+                $page     = substr($pageBuffer, 0, -$this->footerlen[$this->page]);
+                $footer   = substr($pageBuffer, -$this->footerlen[$this->page]);
                 $this->setPageBuffer($this->page, $page . $s . "\n" . $footer);
                 // update footer position
                 $this->footerpos[$this->page] += strlen($s . "\n");
@@ -10754,7 +10754,7 @@ class PDF
         $this->_outSaveGraphicsState();
         if ($this->xObject) {
             // we are inside an XObject template
-            $this->xObjects[$this->xObjectID]['transfmrk'][] = strlen($this->xObjects[$this->xObjectID]['outdata']);
+            $this->xObjects[$this->xObjectID]['transfmrk'][] = strlen($this->xObjects[$this->xObjectID]['output']);
         }
         else {
             $this->transfmrk[$this->page][] = $this->pagelen[$this->page];
@@ -11047,7 +11047,7 @@ class PDF
             // we are inside an XObject template
             if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
                 $key                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
-                $this->xObjects[$this->xObjectID]['transfmrk'][$key] = strlen($this->xObjects[$this->xObjectID]['outdata']);
+                $this->xObjects[$this->xObjectID]['transfmrk'][$key] = strlen($this->xObjects[$this->xObjectID]['output']);
             }
         }
         elseif (end($this->transfmrk[$this->page]) !== false) {
@@ -11563,7 +11563,7 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, $align, false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['output'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
@@ -11779,7 +11779,7 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['output'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
@@ -11867,7 +11867,7 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['output'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
@@ -12028,7 +12028,7 @@ class PDF
         $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['output'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // set additional default options
@@ -16178,7 +16178,7 @@ class PDF
         }
         if ($this->xObject) {
             // we are inside an XObject template
-            $startlinepos = strlen($this->xObjects[$this->xObjectID]['outdata']);
+            $startlinepos = strlen($this->xObjects[$this->xObjectID]['output']);
         }
         elseif (!$this->InFooter) {
             if (isset($this->footerlen[$this->page])) {
@@ -16601,7 +16601,7 @@ class PDF
                     $linew = abs($this->endlinex - $startlinex);
                     if ($this->xObject) {
                         // we are inside an XObject template
-                        $pstart = substr($this->xObjects[$this->xObjectID]['outdata'], 0, $startlinepos);
+                        $pstart = substr($this->xObjects[$this->xObjectID]['output'], 0, $startlinepos);
                         if (isset($opentagpos)) {
                             $midpos = $opentagpos;
                         }
@@ -16609,11 +16609,11 @@ class PDF
                             $midpos = 0;
                         }
                         if ($midpos > 0) {
-                            $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos, ($midpos - $startlinepos));
-                            $pend = substr($this->xObjects[$this->xObjectID]['outdata'], $midpos);
+                            $pmid = substr($this->xObjects[$this->xObjectID]['output'], $startlinepos, ($midpos - $startlinepos));
+                            $pend = substr($this->xObjects[$this->xObjectID]['output'], $midpos);
                         }
                         else {
-                            $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos);
+                            $pmid = substr($this->xObjects[$this->xObjectID]['output'], $startlinepos);
                             $pend = '';
                         }
                     }
@@ -16968,7 +16968,7 @@ class PDF
                                     }
                                     if ($this->xObject) {
                                         // we are inside an XObject template
-                                        $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\n" . $pend;
+                                        $this->xObjects[$this->xObjectID]['output'] = $pstart . "\n" . $pmid . "\n" . $pend;
                                     }
                                     else {
                                         $this->setPageBuffer($startlinepage, $pstart . "\n" . $pmid . "\n" . $pend);
@@ -16985,7 +16985,7 @@ class PDF
                                     $pmid = preg_replace("/\[\(/x", $rs . ' [(', $pmid);
                                     if ($this->xObject) {
                                         // we are inside an XObject template
-                                        $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
+                                        $this->xObjects[$this->xObjectID]['output'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
                                     }
                                     else {
                                         $this->setPageBuffer($startlinepage, $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend);
@@ -17002,7 +17002,7 @@ class PDF
                         $endlinepos = strlen($pstart);
                         if ($this->xObject) {
                             // we are inside an XObject template
-                            $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $pend;
+                            $this->xObjects[$this->xObjectID]['output'] = $pstart . $pend;
                             foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
                                 if ($pak >= $pask) {
                                     $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += $t_x;
@@ -17046,7 +17046,7 @@ class PDF
                 else {
                     if ($this->xObject) {
                         // we are inside an XObject template
-                        $startlinepos = strlen($this->xObjects[$this->xObjectID]['outdata']);
+                        $startlinepos = strlen($this->xObjects[$this->xObjectID]['output']);
                     }
                     elseif (!$this->InFooter) {
                         if (isset($this->footerlen[$this->page])) {
@@ -17374,7 +17374,7 @@ class PDF
                         if (!isset($opentagpos)) {
                             if ($this->xObject) {
                                 // we are inside an XObject template
-                                $opentagpos = strlen($this->xObjects[$this->xObjectID]['outdata']);
+                                $opentagpos = strlen($this->xObjects[$this->xObjectID]['output']);
                             }
                             elseif (!$this->InFooter) {
                                 if (isset($this->footerlen[$this->page])) {
@@ -17631,7 +17631,7 @@ class PDF
             $linew = abs($this->endlinex - $startlinex);
             if ($this->xObject) {
                 // we are inside an XObject template
-                $pstart = substr($this->xObjects[$this->xObjectID]['outdata'], 0, $startlinepos);
+                $pstart = substr($this->xObjects[$this->xObjectID]['output'], 0, $startlinepos);
                 if (isset($opentagpos)) {
                     $midpos = $opentagpos;
                 }
@@ -17639,11 +17639,11 @@ class PDF
                     $midpos = 0;
                 }
                 if ($midpos > 0) {
-                    $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos, ($midpos - $startlinepos));
-                    $pend = substr($this->xObjects[$this->xObjectID]['outdata'], $midpos);
+                    $pmid = substr($this->xObjects[$this->xObjectID]['output'], $startlinepos, ($midpos - $startlinepos));
+                    $pend = substr($this->xObjects[$this->xObjectID]['output'], $midpos);
                 }
                 else {
-                    $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos);
+                    $pmid = substr($this->xObjects[$this->xObjectID]['output'], $startlinepos);
                     $pend = '';
                 }
             }
@@ -17751,7 +17751,7 @@ class PDF
                 $endlinepos = strlen($pstart);
                 if ($this->xObject) {
                     // we are inside an XObject template
-                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $pend;
+                    $this->xObjects[$this->xObjectID]['output'] = $pstart . $pend;
                     foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
                         if ($pak >= $pask) {
                             $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += $t_x;
@@ -19004,10 +19004,10 @@ class PDF
                                         $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
                                         $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                                     }
-                                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['output'];
                                     $pstart                                      = substr($pagebuff, 0, $pagemark);
                                     $pend                                        = substr($pagebuff, $pagemark);
-                                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
+                                    $this->xObjects[$this->xObjectID]['output'] = $pstart . $ccode . $pend;
                                 }
                                 else {
                                     // draw border and fill
@@ -19450,10 +19450,10 @@ class PDF
                         $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
                         $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                     }
-                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['output'];
                     $pstart                                      = substr($pagebuff, 0, $pagemark);
                     $pend                                        = substr($pagebuff, $pagemark);
-                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
+                    $this->xObjects[$this->xObjectID]['output'] = $pstart . $ccode . $pend;
                 }
                 else {
                     if (end($this->transfmrk[$this->page]) !== false) {
@@ -21647,7 +21647,7 @@ class PDF
         // initialize data
         $this->xObjects[$this->xObjectID]['intmrk']      = 0;
         $this->xObjects[$this->xObjectID]['transfmrk']   = [];
-        $this->xObjects[$this->xObjectID]['outdata']     = '';
+        $this->xObjects[$this->xObjectID]['output']     = '';
         $this->xObjects[$this->xObjectID]['xobjects']    = [];
         $this->xObjects[$this->xObjectID]['images']      = [];
         $this->xObjects[$this->xObjectID]['fonts']       = [];
