@@ -230,15 +230,42 @@ class QRCode
             return;
         }
 
+        $bitstream = $this->aggregateBitstream($this->items);
+        $this->appendPaddingBit($bitstream);
+
+        if (!$this->dataCode = $this->streamToBytes($bitstream)) {
+            return null;
+        }
+
+        $spec             = $this->eccSpecification();
+        $this->block1     = $spec[0];
+        $this->dataLength = ($spec[0] * $spec[1]) + ($spec[3] * $spec[4]);
+        $this->ecLength   = ($spec[0] + $spec[3]) * $spec[2];
+        $this->ecCode     = array_fill(0, $this->ecLength, 0);
+        $this->blocks     = $spec[0] + $spec[3];
+
+        if ($this->rsInitialize($spec) < 0) {
+            return;
+        }
+
         $this->encodeMask();
 
         if (empty($this->data)) {
             return;
         }
 
-        $qrTab = $this->binarize($this->data);
-        $size  = count($qrTab);
+        // Convert the frame into binary form.
+        $length = count($this->data);
+        $qrTab  = $this->data;
 
+        // the frame is square (width = height)
+        foreach ($qrTab as &$frameLine) {
+            for ($index = 0; $index < $length; $index++) {
+                $qrTab[$index] = (ord($frameLine[$index]) & 1) ? '1' : '0';
+            }
+        }
+
+        $size    = count($qrTab);
         $barcode = ['barcode' => [], 'columnCount' => $size, 'rowCount' => $size];
 
         foreach ($qrTab as $line) {
@@ -1474,66 +1501,6 @@ class QRCode
             return $rs;
         }
 
-        if ($rs = $this->rsInitialize($symbolSize, $fgPolynomial, $fcRoot, $pElement, $numberRoots, $paddingSize)) {
-            array_unshift($this->rsItems, $rs);
-        }
-
-        return $rs;
-    }
-
-    /**
-     * Encode a Reed-Solomon codec. Returns the parity array.
-     * @param array $rsValues
-     * @param array $data
-     * @return array
-     * @see self::RS_DESCRIPTIONS
-     */
-    private function rsEncode(array $rsValues, array $data): array
-    {
-        $symbolsInBlock =& $rsValues['symbolsInBlock'];
-        $alphaTo        =& $rsValues['alphaTo'];
-        $indexOf        =& $rsValues['indexOf'];
-        $genPolynomial  =& $rsValues['genPolynomial'];
-        $numberRoots    =& $rsValues['numberRoots'];
-        $paddingSize    =& $rsValues['paddingSize'];
-        $A0             =& $symbolsInBlock;
-
-        $parity = array_fill(0, $numberRoots, 0);
-
-        for ($i = 0; $i < ($symbolsInBlock - $numberRoots - $paddingSize); $i++) {
-            $feedback = $indexOf[$data[$i] ^ $parity[0]];
-            if ($feedback != $A0) {
-                // feedback term is non-zero
-                // This line is unnecessary when genPolynomial[numberRoots] is unity, as it must
-                // always be for the polynomials constructed by init_rs()
-                $feedback = $this->rsRepositionX($rsValues, $symbolsInBlock - $genPolynomial[$numberRoots] + $feedback);
-                for ($j = 1; $j < $numberRoots; ++$j) {
-                    $parity[$j] ^= $alphaTo[$this->rsRepositionX($rsValues, $feedback + $genPolynomial[($numberRoots - $j)])];
-                }
-            }
-
-            // Shift
-            array_shift($parity);
-            $parity[] = $feedback === $A0 ? 0 : $alphaTo[$this->rsRepositionX($rsValues, $feedback + $genPolynomial[0])];
-        }
-
-        return $parity;
-    }
-
-    /**
-     * Initialize a Reed-Solomon codec and returns an array of values.
-     * @param int $symbolSize
-     * @param int $fgPolynomial
-     * @param int $fcRoot
-     * @param int $pElement
-     * @param int $numberRoots
-     * @param int $paddingSize
-     * @return array
-     * @see self::RS_DESCRIPTIONS
-     */
-    private function rsInitialize(int $symbolSize, int $fgPolynomial, int $fcRoot, int $pElement, int $numberRoots, int $paddingSize): array
-    {
-
         $invalidElement = ($pElement <= 0 or $pElement >= (1 << $symbolSize));
         $invalidNumber  = ($numberRoots < 0 or $numberRoots >= (1 << $symbolSize));
         $invalidPadding = ($paddingSize < 0 or $paddingSize >= (1 << $symbolSize) - 1 - $numberRoots);
@@ -1613,7 +1580,113 @@ class QRCode
             $rs['genPolynomial'][$index] = $rs['indexOf'][$rs['genPolynomial'][$index]];
         }
 
+        array_unshift($this->rsItems, $rs);
+
         return $rs;
+    }
+
+    /**
+     * Encode a Reed-Solomon codec. Returns the parity array.
+     * @param array $rsValues
+     * @param array $data
+     * @return array
+     * @see self::RS_DESCRIPTIONS
+     */
+    private function rsEncode(array $rsValues, array $data): array
+    {
+        $symbolsInBlock =& $rsValues['symbolsInBlock'];
+        $alphaTo        =& $rsValues['alphaTo'];
+        $indexOf        =& $rsValues['indexOf'];
+        $genPolynomial  =& $rsValues['genPolynomial'];
+        $numberRoots    =& $rsValues['numberRoots'];
+        $paddingSize    =& $rsValues['paddingSize'];
+        $A0             =& $symbolsInBlock;
+
+        $parity = array_fill(0, $numberRoots, 0);
+
+        for ($i = 0; $i < ($symbolsInBlock - $numberRoots - $paddingSize); $i++) {
+            $feedback = $indexOf[$data[$i] ^ $parity[0]];
+            if ($feedback != $A0) {
+                // feedback term is non-zero
+                // This line is unnecessary when genPolynomial[numberRoots] is unity, as it must
+                // always be for the polynomials constructed by init_rs()
+                $feedback = $this->rsRepositionX($rsValues, $symbolsInBlock - $genPolynomial[$numberRoots] + $feedback);
+                for ($j = 1; $j < $numberRoots; ++$j) {
+                    $parity[$j] ^= $alphaTo[$this->rsRepositionX($rsValues, $feedback + $genPolynomial[($numberRoots - $j)])];
+                }
+            }
+
+            // Shift
+            array_shift($parity);
+            $parity[] = $feedback === $A0 ? 0 : $alphaTo[$this->rsRepositionX($rsValues, $feedback + $genPolynomial[0])];
+        }
+
+        return $parity;
+    }
+
+    /**
+     * Initialize according to the Reed-Solomon specification.
+     * @param array $specification
+     * @return bool
+     */
+    protected function rsInitialize(array $specification): bool
+    {
+        $dataLength = $specification[1];
+        $eccLength  = $specification[2];
+
+        if (!$rsCodec = $this->rsCodec(8, 0x11d, 0, 1, $eccLength, 255 - $dataLength - $eccLength)) {
+            return false;
+        }
+
+        $blockNo      = 0;
+        $dataPosition = 0;
+        $eccPosition  = 0;
+
+        $this->rsInitializeBlocks($blockNo, $dataLength, $dataPosition, $eccLength, $eccPosition, $specification[0], $rsCodec);
+
+        if ($specification[3] === 0) {
+            return true;
+        }
+
+        $dataLength = $specification[4];
+
+        if (!$rsCodec = $this->rsCodec(8, 0x11d, 0, 1, $eccLength, 255 - $dataLength - $eccLength)) {
+            return false;
+        }
+
+        $this->rsInitializeBlocks($blockNo, $dataLength, $dataPosition, $eccLength, $eccPosition, $specification[3], $rsCodec);
+
+        return true;
+    }
+
+    /**
+     * Initializes the Reed-Solomon blocks.
+     * @param int   $blockNo
+     * @param int   $dataLength
+     * @param int   $dataPosition
+     * @param int   $eccLength
+     * @param int   $eccPosition
+     * @param int   $limit
+     * @param array $rs
+     * @return void
+     */
+    private function rsInitializeBlocks(int $blockNo, int $dataLength, int &$dataPosition, int $eccLength, int &$eccPosition, int $limit, array $rs): void
+    {
+        for ($index = 0; $index < $limit; ++$index) {
+            $data = array_slice($this->dataCode, $dataPosition);
+            $ecc  = $this->rsEncode($rs, $data);
+
+            $this->rsBlocks[$blockNo]               = [];
+            $this->rsBlocks[$blockNo]['data']       = $data;
+            $this->rsBlocks[$blockNo]['dataLength'] = $dataLength;
+            $this->rsBlocks[$blockNo]['eccLength']  = $eccLength;
+            $this->rsBlocks[$blockNo]['ecc']        = $ecc;
+
+            $this->ecCode = array_merge(array_slice($this->ecCode, 0, $eccPosition), $ecc);
+            $dataPosition += $dataLength;
+            $eccPosition  += $eccLength;
+            $blockNo++;
+        }
     }
 
     /**
@@ -1668,6 +1741,7 @@ class QRCode
             }
             $data[$bytes] = $value;
         }
+
         return $data;
     }
 
@@ -1783,44 +1857,11 @@ class QRCode
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
-     * Convert the frame into binary form.
-     * @param array $frame array to binarize
-     * @return array
-     */
-    protected function binarize(array $frame): array
-    {
-        $length = count($frame);
-        // the frame is square (width = height)
-        foreach ($frame as &$frameLine) {
-            for ($i = 0; $i < $length; $i++) {
-                $frameLine[$i] = (ord($frameLine[$i]) & 1) ? '1' : '0';
-            }
-        }
-        return $frame;
-    }
-
-    /**
      * Encode mask
      */
     protected function encodeMask()
     {
-        $bitstream = $this->aggregateBitstream($this->items);
-        $this->appendPaddingBit($bitstream);
-        $this->dataCode = $this->streamToBytes($bitstream);
 
-        if (is_null($this->dataCode)) {
-            return null;
-        }
-        $spec             = $this->eccSpecification();
-        $this->block1     = $spec[0];
-        $this->dataLength = ($spec[0] * $spec[1]) + ($spec[3] * $spec[4]);
-        $this->ecLength   = ($spec[0] + $spec[3]) * $spec[2];
-        $this->ecCode     = array_fill(0, $this->ecLength, 0);
-        $this->blocks     = $spec[0] + $spec[3];
-        $ret              = $this->init($spec);
-        if ($ret < 0) {
-            return null;
-        }
         $this->width = $this->capacity[$this->version][self::WIDTH];;
         $this->frame     = $this->frame($this->version);
         $this->x         = $this->width - 1;
@@ -1850,60 +1891,6 @@ class QRCode
             return null;
         }
         $this->data = $masked;
-    }
-
-    /**
-     * Initialize code.
-     * @param array $spec array of ECC specification
-     * @return int 0 in case of success, -1 in case of error
-     */
-    protected function init($spec)
-    {
-        $dl      = $spec[1];
-        $el      = $spec[2];
-        $rs      = $this->rsCodec(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
-        $blockNo = 0;
-        $dataPos = 0;
-        $eccPos  = 0;
-        $endfor  = $spec[0];
-        for ($i = 0; $i < $endfor; ++$i) {
-            $this->rsBlocks[$blockNo]               = [];
-            $this->rsBlocks[$blockNo]['dataLength'] = $dl;
-            $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
-            $this->rsBlocks[$blockNo]['eccLength']  = $el;
-            $ecc                                    = $this->rsEncode($rs, $this->rsBlocks[$blockNo]['data']);
-            $this->rsBlocks[$blockNo]['ecc']        = $ecc;
-            $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
-            $dataPos                                += $dl;
-            $eccPos                                 += $el;
-            $blockNo++;
-        }
-
-        if ($spec[3] === 0) {
-            return 0;
-        }
-
-        $dl = $spec[4];
-        $el = $spec[2];
-        $rs = $this->rsCodec(8, 0x11d, 0, 1, $el, 255 - $dl - $el);
-        if ($rs == null) {
-            return -1;
-        }
-        $endfor = $spec[3];
-
-        for ($i = 0; $i < $endfor; ++$i) {
-            $this->rsBlocks[$blockNo]               = [];
-            $this->rsBlocks[$blockNo]['dataLength'] = $dl;
-            $this->rsBlocks[$blockNo]['data']       = array_slice($this->dataCode, $dataPos);
-            $this->rsBlocks[$blockNo]['eccLength']  = $el;
-            $ecc                                    = $this->rsEncode($rs, $this->rsBlocks[$blockNo]['data']);
-            $this->rsBlocks[$blockNo]['ecc']        = $ecc;
-            $this->ecCode                           = array_merge(array_slice($this->ecCode, 0, $eccPos), $ecc);
-            $dataPos                                += $dl;
-            $eccPos                                 += $el;
-            $blockNo++;
-        }
-        return 0;
     }
 
     /**
