@@ -457,6 +457,40 @@ class QRCode
     }
 
     /**
+     * Calculates N1N3, whatever that may mean.
+     * @param int $length
+     * @return int demerit
+     */
+    private function calculateN1N3(int $length): int
+    {
+        $demerit = 0;
+        for ($index = 0; $index < $length; ++$index) {
+            if ($this->runLength[$index] >= 5) {
+                $demerit += (self::MP1 + ($this->runLength[$index] - 5));
+            }
+
+            if ($index & 1) {
+                if (($index >= 3) and ($index < ($length - 2)) and ($this->runLength[$index] % 3 == 0)) {
+                    $factor = (int) ($this->runLength[$index] / 3);
+                    if (($this->runLength[$index - 2] === $factor)
+                        and ($this->runLength[$index - 1] === $factor)
+                        and ($this->runLength[$index + 1] === $factor)
+                        and ($this->runLength[$index + 2] === $factor)) {
+                        if (($this->runLength[$index - 3] < 0) or ($this->runLength[$index - 3] >= (4 * $factor))) {
+                            $demerit += self::MP3;
+                        }
+                        elseif ((($index + 3) >= $length) or ($this->runLength[$index + 3] >= (4 * $factor))) {
+                            $demerit += self::MP3;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $demerit;
+    }
+
+    /**
      * Chunks segments of the content. Returns true if the length of the chunks equals the length of the data string. Inferred valid resolution.
      * @return bool
      */
@@ -1894,39 +1928,6 @@ class QRCode
     }
 
     /**
-     * calcN1N3
-     * @param int $length
-     * @return int demerit
-     */
-    private function calcN1N3(int $length): int
-    {
-        $demerit = 0;
-        for ($i = 0; $i < $length; ++$i) {
-            if ($this->runLength[$i] >= 5) {
-                $demerit += (self::MP1 + ($this->runLength[$i] - 5));
-            }
-            if ($i & 1) {
-                if (($i >= 3) and ($i < ($length - 2)) and ($this->runLength[$i] % 3 == 0)) {
-                    $fact = (int) ($this->runLength[$i] / 3);
-                    if (($this->runLength[$i - 2] == $fact)
-                        and ($this->runLength[$i - 1] == $fact)
-                        and ($this->runLength[$i + 1] == $fact)
-                        and ($this->runLength[$i + 2] == $fact)) {
-                        if (($this->runLength[$i - 3] < 0) or ($this->runLength[$i - 3] >= (4 * $fact))) {
-                            $demerit += self::MP3;
-                        }
-                        elseif ((($i + 3) >= $length) or ($this->runLength[$i + 3] >= (4 * $fact))) {
-                            $demerit += self::MP3;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $demerit;
-    }
-
-    /**
      * evaluateSymbol
      * @param int   $width
      * @param array $frame
@@ -1966,7 +1967,7 @@ class QRCode
                     }
                 }
             }
-            $demerit += $this->calcN1N3($head + 1);
+            $demerit += $this->calculateN1N3($head + 1);
         }
         for ($x = 0; $x < $width; ++$x) {
             $head               = 0;
@@ -1987,7 +1988,7 @@ class QRCode
                     }
                 }
             }
-            $demerit += $this->calcN1N3($head + 1);
+            $demerit += $this->calculateN1N3($head + 1);
         }
         return $demerit;
     }
