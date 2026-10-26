@@ -21406,7 +21406,7 @@ class PDF
         $unichars = Fonts::UTF8StringToArray($text, $this->isunicode, $this->CurrentFont);
         // for each char
         foreach ($unichars as $char) {
-            if ((!$intag) and (!$skip) and FontData::$uni_type[$char] == 'L') {
+            if ((!$intag) and (!$skip) and FontData::$types[$char] == 'L') {
                 // letter character
                 $word[] = $char;
             }

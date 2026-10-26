@@ -2105,7 +2105,7 @@ class Fonts
             // P2. In each paragraph, find the first character of type L, AL, or R.
             // P3. If a character is found in P2 and it is of type AL or R, then set the paragraph embedding level to one; otherwise, set it to zero.
             for ($i = 0; $i < $numchars; ++$i) {
-                $type = FontData::$uni_type[$ta[$i]];
+                $type = FontData::$types[$ta[$i]];
                 if ($type == 'L') {
                     $pel = 0;
                     break;
@@ -2212,8 +2212,8 @@ class Fonts
                     $chardir = $dos;
                 }
                 else {
-                    if (isset(FontData::$uni_type[$ta[$i]])) {
-                        $chardir = FontData::$uni_type[$ta[$i]];
+                    if (isset(FontData::$types[$ta[$i]])) {
+                        $chardir = FontData::$types[$ta[$i]];
                     }
                     else {
                         $chardir = 'L';
@@ -2494,7 +2494,7 @@ class Fonts
             $charAL      = [];
             $x           = 0;
             for ($i = 0; $i < $numchars; ++$i) {
-                if ((FontData::$uni_type[$chardata[$i]['char']] == 'AL') or ($chardata[$i]['char'] == 32) or ($chardata[$i]['char'] == 8204)) {
+                if ((FontData::$types[$chardata[$i]['char']] == 'AL') or ($chardata[$i]['char'] == 32) or ($chardata[$i]['char'] == 8204)) {
                     $charAL[$x]        = $chardata[$i];
                     $charAL[$x]['i']   = $i;
                     $chardata[$i]['x'] = $x;
@@ -2516,7 +2516,7 @@ class Fonts
                 else {
                     $nextchar = false;
                 }
-                if (FontData::$uni_type[$thischar['char']] == 'AL') {
+                if (FontData::$types[$thischar['char']] == 'AL') {
                     $x = $thischar['x'];
                     if ($x > 0) {
                         $prevchar = $charAL[($x - 1)];
@@ -2546,8 +2546,8 @@ class Fonts
                         $laaletter = false;
                     }
                     if (($prevchar !== false) and ($nextchar !== false) and
-                        ((FontData::$uni_type[$prevchar['char']] == 'AL') or (FontData::$uni_type[$prevchar['char']] == 'NSM')) and
-                        ((FontData::$uni_type[$nextchar['char']] == 'AL') or (FontData::$uni_type[$nextchar['char']] == 'NSM')) and
+                        ((FontData::$types[$prevchar['char']] == 'AL') or (FontData::$types[$prevchar['char']] == 'NSM')) and
+                        ((FontData::$types[$nextchar['char']] == 'AL') or (FontData::$types[$nextchar['char']] == 'NSM')) and
                         ($prevchar['type'] == $thischar['type']) and
                         ($nextchar['type'] == $thischar['type']) and
                         ($nextchar['char'] != 1567)) {
@@ -2565,7 +2565,7 @@ class Fonts
                         }
                     }
                     elseif (($nextchar !== false) and
-                        ((FontData::$uni_type[$nextchar['char']] == 'AL') or (FontData::$uni_type[$nextchar['char']] == 'NSM')) and
+                        ((FontData::$types[$nextchar['char']] == 'AL') or (FontData::$types[$nextchar['char']] == 'NSM')) and
                         ($nextchar['type'] == $thischar['type']) and
                         ($nextchar['char'] != 1567)) {
                         if (isset($arabicarr[$chardata[$i]['char']][2])) {
@@ -2574,7 +2574,7 @@ class Fonts
                         }
                     }
                     elseif ((($prevchar !== false) and
-                            ((FontData::$uni_type[$prevchar['char']] == 'AL') or (FontData::$uni_type[$prevchar['char']] == 'NSM')) and
+                            ((FontData::$types[$prevchar['char']] == 'AL') or (FontData::$types[$prevchar['char']] == 'NSM')) and
                             ($prevchar['type'] == $thischar['type'])) or
                         (($nextchar !== false) and ($nextchar['char'] == 1567))) {
                         // final
