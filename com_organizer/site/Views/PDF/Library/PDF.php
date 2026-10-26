@@ -13,6 +13,7 @@
 namespace THM\Organizer\Views\PDF\Library;
 
 use Exception;
+use THM\Organizer\Views\PDF\Library\Barcodes\{Barcode1D, Barcode2D, Barcoded};
 
 // TCPDF configuration
 require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
@@ -20,10 +21,12 @@ require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
 /**  PHP class for generating PDF documents without requiring external extensions. */
 class PDF
 {
+    use Barcoded;
+
     /**
      * Current page number.
      */
-    protected $page;
+    protected int $page;
 
     /**
      * Current object number.
@@ -410,11 +413,6 @@ class PDF
      * Language templates.
      */
     protected $l;
-
-    /**
-     * Barcode to print on page footer (only if set).
-     */
-    protected $barcode = false;
 
     /**
      * Boolean flag to print/hide page header.
@@ -4051,28 +4049,28 @@ class PDF
         else {
             // Find max width
             if (isset($this->CurrentFont['desc']['MaxWidth'])) {
-                $maxw = $this->getAbsFontMeasure(intval($this->CurrentFont['desc']['MaxWidth']));
+                $maxWidth = $this->getAbsFontMeasure(intval($this->CurrentFont['desc']['MaxWidth']));
             }
             else {
-                $maxw = 0;
+                $maxWidth = 0;
                 if (isset($this->CurrentFont['desc']['MissingWidth'])) {
-                    $maxw = max($maxw, $this->CurrentFont['desc']['MissingWidth']);
+                    $maxWidth = max($maxWidth, $this->CurrentFont['desc']['MissingWidth']);
                 }
                 if (isset($this->CurrentFont['desc']['AvgWidth'])) {
-                    $maxw = max($maxw, $this->CurrentFont['desc']['AvgWidth']);
+                    $maxWidth = max($maxWidth, $this->CurrentFont['desc']['AvgWidth']);
                 }
                 if (isset($this->CurrentFont['dw'])) {
-                    $maxw = max($maxw, $this->CurrentFont['dw']);
+                    $maxWidth = max($maxWidth, $this->CurrentFont['dw']);
                 }
                 foreach ($this->CurrentFont['cw'] as $char => $w) {
-                    $maxw = max($maxw, $w);
+                    $maxWidth = max($maxWidth, $w);
                 }
-                if ($maxw == 0) {
-                    $maxw = 600;
+                if ($maxWidth == 0) {
+                    $maxWidth = 600;
                 }
-                $maxw = $this->getAbsFontMeasure($maxw);
+                $maxWidth = $this->getAbsFontMeasure($maxWidth);
             }
-            $fbbox = array(0, (0 - $this->FontDescent), $maxw, $this->FontAscent);
+            $fbbox = array(0, (0 - $this->FontDescent), $maxWidth, $this->FontAscent);
         }
         return $fbbox;
     }
@@ -5369,13 +5367,13 @@ class PDF
      * @param int        $stretch     font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
      * @param boolean    $ishtml      INTERNAL USE ONLY -- set to true if $txt is HTML content (default = false). Never set this parameter to true, use instead writeHTMLCell() or writeHTML() methods.
      * @param boolean    $autopadding if true, uses internal padding and automatically adjust it to account for line width.
-     * @param float      $maxh        maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature. This feature works only when $ishtml=false.
-     * @param string     $valign      Vertical alignment of text (requires $maxh = $h > 0). Possible values are:<ul><li>T: TOP</li><li>M: middle</li><li>B: bottom</li></ul>. This feature works only when $ishtml=false and the cell must fit in a single page.
-     * @param boolean    $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxh must be greater than 0 and equal to $h.
+     * @param float      $maxHeight   maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature. This feature works only when $ishtml=false.
+     * @param string     $valign      Vertical alignment of text (requires $maxHeight = $h > 0). Possible values are:<ul><li>T: TOP</li><li>M: middle</li><li>B: bottom</li></ul>. This feature works only when $ishtml=false and the cell must fit in a single page.
+     * @param boolean    $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxHeight must be greater than 0 and equal to $h.
      * @return int Return the number of cells or 1 for html mode.
      * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), Cell(), Write(), SetAutoPageBreak()
      */
-    public function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = 0, $valign = 'T', $fitcell = false)
+    public function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxHeight = 0, $valign = 'T', $fitcell = false)
     {
         $prev_cell_margin  = $this->cell_margin;
         $prev_cell_padding = $this->cell_padding;
@@ -5458,13 +5456,13 @@ class PDF
             if ($fitcell) {
                 // ajust height values
                 $tobottom = ($this->h - $this->y - $this->bMargin - $this->cell_padding['T'] - $this->cell_padding['B']);
-                $h        = $maxh = max(min($h, $tobottom), min($maxh, $tobottom));
+                $h        = $maxHeight = max(min($h, $tobottom), min($maxHeight, $tobottom));
             }
             // vertical alignment
-            if ($maxh > 0) {
+            if ($maxHeight > 0) {
                 // get text height
                 $text_height = $this->getStringHeight($w, $txt, $reseth, $autopadding, $mc_padding, $border);
-                if ($fitcell and ($text_height > $maxh) and ($this->FontSizePt > 1)) {
+                if ($fitcell and ($text_height > $maxHeight) and ($this->FontSizePt > 1)) {
                     // try to reduce font size to fit text on cell (use a quick search algorithm)
                     $fmin         = 1;
                     $fmax         = $this->FontSizePt;
@@ -5475,7 +5473,7 @@ class PDF
                         $this->setFontSize($fmid, false);
                         $this->resetLastH();
                         $text_height = $this->getStringHeight($w, $txt, $reseth, $autopadding, $mc_padding, $border);
-                        $diff        = ($maxh - $text_height);
+                        $diff        = ($maxHeight - $text_height);
                         if ($diff >= 0) {
                             if ($diff <= $diff_epsilon) {
                                 break;
@@ -5498,18 +5496,18 @@ class PDF
                         $this->resetLastH();
                     }
                 }
-                if ($text_height < $maxh) {
+                if ($text_height < $maxHeight) {
                     if ($valign == 'M') {
                         // text vertically centered
-                        $this->y += (($maxh - $text_height) / 2);
+                        $this->y += (($maxHeight - $text_height) / 2);
                     }
                     elseif ($valign == 'B') {
                         // text vertically aligned on bottom
-                        $this->y += ($maxh - $text_height);
+                        $this->y += ($maxHeight - $text_height);
                     }
                 }
             }
-            $nl = $this->Write($this->lasth, $txt, '', 0, $align, true, $stretch, false, true, $maxh, 0, $mc_margin);
+            $nl = $this->Write($this->lasth, $txt, '', 0, $align, true, $stretch, false, true, $maxHeight, 0, $mc_margin);
             if ($fitcell) {
                 // restore font size
                 $this->setFontSize($prev_FontSizePt);
@@ -5857,7 +5855,7 @@ class PDF
      *  $start_page = $pdf->getPage();
      *  // call your printing functions with your parameters
      *  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     *  $pdf->MultiCell($w=0, $h=0, $txt, $border=1, $align='L', $fill=false, $ln=1, $x=null, $y=null, $reseth=true, $stretch=0, $ishtml=false, $autopadding=true, $maxh=0);
+     *  $pdf->MultiCell($w=0, $h=0, $txt, $border=1, $align='L', $fill=false, $ln=1, $x=null, $y=null, $reseth=true, $stretch=0, $ishtml=false, $autopadding=true, $maxHeight=0);
      *  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      *  // get the new Y
      *  $end_y = $pdf->GetY();
@@ -5918,12 +5916,12 @@ class PDF
      * @param int        $stretch    font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
      * @param boolean    $firstline  if true prints only the first line and return the remaining string.
      * @param boolean    $firstblock if true the string is the starting of a line.
-     * @param float      $maxh       maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature.
+     * @param float      $maxHeight  maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature.
      * @param float      $wadj       first line width will be reduced by this amount (used in HTML mode).
      * @param array|null $margin     margin array of the parent container
      * @return mixed Return the number of cells or the remaining string if $firstline = true.
      */
-    public function Write($h, $txt, $link = '', $fill = false, $align = '', $ln = false, $stretch = 0, $firstline = false, $firstblock = false, $maxh = 0, $wadj = 0, $margin = null)
+    public function Write($h, $txt, $link = '', $fill = false, $align = '', $ln = false, $stretch = 0, $firstline = false, $firstblock = false, $maxHeight = 0, $wadj = 0, $margin = null)
     {
         // check page for no-write regions and adapt page margins if necessary
         list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
@@ -5989,7 +5987,7 @@ class PDF
         // minimum row height
         $row_height = max($h, $this->getCellHeight($this->FontSize));
         // max Y
-        $maxy       = $this->y + $maxh - max($row_height, $h);
+        $maxy       = $this->y + $maxHeight - max($row_height, $h);
         $start_page = $this->page;
         $i          = 0; // character position
         $j          = 0; // current starting position
@@ -6003,7 +6001,7 @@ class PDF
         $pc         = 0; // previous character
         // for each character
         while ($i < $nb) {
-            if (($maxh > 0) and ($this->y > $maxy)) {
+            if (($maxHeight > 0) and ($this->y > $maxy)) {
                 break;
             }
             //Get the current character
@@ -6038,7 +6036,7 @@ class PDF
                     }
                     $w              = $linew;
                     $tmpcellpadding = $this->cell_padding;
-                    if ($maxh == 0) {
+                    if ($maxHeight == 0) {
                         $this->setCellPadding(0);
                     }
                 }
@@ -6157,7 +6155,7 @@ class PDF
                                 }
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cell_padding;
-                                if ($maxh == 0) {
+                                if ($maxHeight == 0) {
                                     $this->setCellPadding(0);
                                 }
                             }
@@ -6204,7 +6202,7 @@ class PDF
                                 }
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cell_padding;
-                                if ($maxh == 0) {
+                                if ($maxHeight == 0) {
                                     $this->setCellPadding(0);
                                 }
                             }
@@ -6256,7 +6254,7 @@ class PDF
                                 }
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cell_padding;
-                                if ($maxh == 0) {
+                                if ($maxHeight == 0) {
                                     $this->setCellPadding(0);
                                 }
                             }
@@ -6353,7 +6351,7 @@ class PDF
                 }
                 $w              = $linew;
                 $tmpcellpadding = $this->cell_padding;
-                if ($maxh == 0) {
+                if ($maxHeight == 0) {
                     $this->setCellPadding(0);
                 }
             }
@@ -6423,9 +6421,9 @@ class PDF
             }
             // resize the block to be horizontally contained on a single page or single column
             if ($fitonpage) {
-                $maxw = ($this->w - $this->lMargin - $this->rMargin);
-                if ($w > $maxw) {
-                    $w = $maxw;
+                $maxWidth = ($this->w - $this->lMargin - $this->rMargin);
+                if ($w > $maxWidth) {
+                    $w = $maxWidth;
                     $h = ($w / $ratio_wh);
                 }
             }
@@ -14378,17 +14376,17 @@ class PDF
         $idt = count($this->gradients); //index for transparency gradients
         foreach ($this->gradients as $id => $grad) {
             if (($grad['type'] == 2) or ($grad['type'] == 3)) {
-                $fc        = $this->_newobj();
-                $out       = '<<';
-                $out       .= ' /FunctionType 3';
-                $out       .= ' /Domain [0 1]';
-                $functions = '';
-                $bounds    = '';
-                $encode    = '';
-                $i         = 1;
-                $num_cols  = count($grad['colors']);
-                $lastcols  = $num_cols - 1;
-                for ($i = 1; $i < $num_cols; ++$i) {
+                $fc          = $this->_newobj();
+                $out         = '<<';
+                $out         .= ' /FunctionType 3';
+                $out         .= ' /Domain [0 1]';
+                $functions   = '';
+                $bounds      = '';
+                $encode      = '';
+                $i           = 1;
+                $columnCount = count($grad['colors']);
+                $lastcols    = $columnCount - 1;
+                for ($i = 1; $i < $columnCount; ++$i) {
                     $functions .= ($fc + $i) . ' 0 R ';
                     if ($i < $lastcols) {
                         $bounds .= sprintf('%F ', $grad['colors'][$i]['offset']);
@@ -14401,7 +14399,7 @@ class PDF
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
                 $this->_out($out);
-                for ($i = 1; $i < $num_cols; ++$i) {
+                for ($i = 1; $i < $columnCount; ++$i) {
                     $this->_newobj();
                     $out = '<<';
                     $out .= ' /FunctionType 2';
@@ -14415,14 +14413,14 @@ class PDF
                 }
                 // set transparency functions
                 if ($grad['transparency']) {
-                    $ft        = $this->_newobj();
-                    $out       = '<<';
-                    $out       .= ' /FunctionType 3';
-                    $out       .= ' /Domain [0 1]';
-                    $functions = '';
-                    $i         = 1;
-                    $num_cols  = count($grad['colors']);
-                    for ($i = 1; $i < $num_cols; ++$i) {
+                    $ft          = $this->_newobj();
+                    $out         = '<<';
+                    $out         .= ' /FunctionType 3';
+                    $out         .= ' /Domain [0 1]';
+                    $functions   = '';
+                    $i           = 1;
+                    $columnCount = count($grad['colors']);
+                    for ($i = 1; $i < $columnCount; ++$i) {
                         $functions .= ($ft + $i) . ' 0 R ';
                     }
                     $out .= ' /Functions [' . trim($functions) . ']';
@@ -14431,7 +14429,7 @@ class PDF
                     $out .= ' >>';
                     $out .= "\n" . 'endobj';
                     $this->_out($out);
-                    for ($i = 1; $i < $num_cols; ++$i) {
+                    for ($i = 1; $i < $columnCount; ++$i) {
                         $this->_newobj();
                         $out = '<<';
                         $out .= ' /FunctionType 2';
@@ -14969,27 +14967,9 @@ class PDF
     }
 
     /**
-     * Set document barcode.
-     * @param string $bc barcode
-     */
-    public function setBarcode($bc = '')
-    {
-        $this->barcode = $bc;
-    }
-
-    /**
-     * Get current barcode.
-     * @return string
-     */
-    public function barcode()
-    {
-        return $this->barcode;
-    }
-
-    /**
      * Print a Linear Barcode.
      * @param string     $code  code to print
-     * @param string     $type  type of barcode (see tcpdf_barcodes_1d.php for supported formats).
+     * @param string     $type  type of barcode (see Barcode1D for supported formats).
      * @param float|null $x     x position in user units (null = current x position)
      * @param float|null $y     y position in user units (null = current y position)
      * @param float|null $w     width in user units (null = remaining page width)
@@ -15018,17 +14998,17 @@ class PDF
         if (StaticMethods::empty_string(trim($code))) {
             return;
         }
-        require_once(dirname(__FILE__) . '/tcpdf_barcodes_1d.php');
+
         // save current graphic settings
         $gvars = $this->getGraphicVars();
         // create new barcode object
-        $barcodeobj = new TCPDFBarcode($code, $type);
+        $barcodeobj = new Barcode1D($code, $type);
         $arrcode    = $barcodeobj->getBarcodeArray();
-        if (empty($arrcode) or ($arrcode['maxw'] <= 0)) {
+        if (empty($arrcode) or ($arrcode['maxWidth'] <= 0)) {
             $this->Error('Error in 1D barcode string');
         }
-        if ($arrcode['maxh'] <= 0) {
-            $arrcode['maxh'] = 1;
+        if ($arrcode['maxHeight'] <= 0) {
+            $arrcode['maxHeight'] = 1;
         }
         // set default values
         if (!isset($style['position'])) {
@@ -15102,7 +15082,7 @@ class PDF
             $padding = 0;
         }
         elseif ($style['padding'] === 'auto') {
-            $padding = 10 * ($w / ($arrcode['maxw'] + 20));
+            $padding = 10 * ($w / ($arrcode['maxWidth'] + 20));
         }
         else {
             $padding = floatval($style['padding']);
@@ -15112,7 +15092,7 @@ class PDF
             $hpadding = $padding;
         }
         elseif ($style['hpadding'] === 'auto') {
-            $hpadding = 10 * ($w / ($arrcode['maxw'] + 20));
+            $hpadding = 10 * ($w / ($arrcode['maxWidth'] + 20));
         }
         else {
             $hpadding = floatval($style['hpadding']);
@@ -15128,7 +15108,7 @@ class PDF
             $vpadding = floatval($style['vpadding']);
         }
         // calculate xres (single bar width)
-        $max_xres = ($w - (2 * $hpadding)) / $arrcode['maxw'];
+        $max_xres = ($w - (2 * $hpadding)) / $arrcode['maxWidth'];
         if ($style['stretch']) {
             $xres = $max_xres;
         }
@@ -15150,7 +15130,7 @@ class PDF
         }
         if ($style['fitwidth']) {
             $wold = $w;
-            $w    = (($arrcode['maxw'] * $xres) + (2 * $hpadding));
+            $w    = (($arrcode['maxWidth'] * $xres) + (2 * $hpadding));
             if (isset($style['cellfitalign'])) {
                 switch ($style['cellfitalign']) {
                     case 'L':
@@ -15188,7 +15168,7 @@ class PDF
         // height
         if (StaticMethods::empty_string($h) or ($h <= 0)) {
             // set default height
-            $h = (($arrcode['maxw'] * $xres) / 3) + (2 * $vpadding) + $text_height;
+            $h = (($arrcode['maxWidth'] * $xres) / 3) + (2 * $vpadding) + $text_height;
         }
         $barh = $h - $text_height - (2 * $vpadding);
         if ($barh <= 0) {
@@ -15250,13 +15230,13 @@ class PDF
             }
             case 'R':
             {
-                $xpos = $xpos_rect + ($w - ($arrcode['maxw'] * $xres)) - $hpadding;
+                $xpos = $xpos_rect + ($w - ($arrcode['maxWidth'] * $xres)) - $hpadding;
                 break;
             }
             case 'C':
             default :
             {
-                $xpos = $xpos_rect + (($w - ($arrcode['maxw'] * $xres)) / 2);
+                $xpos = $xpos_rect + (($w - ($arrcode['maxWidth'] * $xres)) / 2);
                 break;
             }
         }
@@ -15275,12 +15255,12 @@ class PDF
         $this->setDrawColorArray($style['fgcolor']);
         $this->setTextColorArray($style['fgcolor']);
         // print bars
-        foreach ($arrcode['bcode'] as $k => $v) {
+        foreach ($arrcode['barcode'] as $k => $v) {
             $bw = ($v['w'] * $xres);
             if ($v['t']) {
                 // draw a vertical bar
-                $ypos = $y + $vpadding + ($v['p'] * $barh / $arrcode['maxh']);
-                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', array(), $style['fgcolor']);
+                $ypos = $y + $vpadding + ($v['p'] * $barh / $arrcode['maxHeight']);
+                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxHeight']), 'F', array(), $style['fgcolor']);
             }
             $xpos += $bw;
         }
@@ -15292,7 +15272,7 @@ class PDF
             else {
                 $label = $code;
             }
-            $txtwidth = ($arrcode['maxw'] * $xres);
+            $txtwidth = ($arrcode['maxWidth'] * $xres);
             if ($this->GetStringWidth($label) > $txtwidth) {
                 $style['stretchtext'] = 2;
             }
@@ -15344,7 +15324,7 @@ class PDF
     /**
      * Print 2D Barcode.
      * @param string     $code    code to print
-     * @param string     $type    type of barcode (see tcpdf_barcodes_2d.php for supported formats).
+     * @param string     $type    type of barcode (see Barcode2D for supported formats).
      * @param float|null $x       x position in user units
      * @param float|null $y       y position in user units
      * @param float|null $w       width in user units
@@ -15367,13 +15347,13 @@ class PDF
         if (StaticMethods::empty_string(trim($code))) {
             return;
         }
-        require_once(dirname(__FILE__) . '/tcpdf_barcodes_2d.php');
+
         // save current graphic settings
         $gvars = $this->getGraphicVars();
         // create new barcode object
-        $barcodeobj = new TCPDF2DBarcode($code, $type);
+        $barcodeobj = new Barcode2D($code, $type);
         $arrcode    = $barcodeobj->getBarcodeArray();
-        if (empty($arrcode) or !isset($arrcode['num_rows']) or ($arrcode['num_rows'] == 0) or !isset($arrcode['num_cols']) or ($arrcode['num_cols'] == 0)) {
+        if (empty($arrcode) or !isset($arrcode['rowCount']) or ($arrcode['rowCount'] == 0) or !isset($arrcode['columnCount']) or ($arrcode['columnCount'] == 0)) {
             $this->Error('Error in 2D barcode string');
         }
         // set default values
@@ -15426,8 +15406,8 @@ class PDF
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
         // number of barcode columns and rows
-        $rows = $arrcode['num_rows'];
-        $cols = $arrcode['num_cols'];
+        $rows = $arrcode['rowCount'];
+        $cols = $arrcode['columnCount'];
         if (($rows <= 0) || ($cols <= 0)) {
             $this->Error('Error in 2D barcode string');
         }
@@ -15439,28 +15419,28 @@ class PDF
         }
         // get max dimensions
         if ($this->rtl) {
-            $maxw = $x - $this->lMargin;
+            $maxWidth = $x - $this->lMargin;
         }
         else {
-            $maxw = $this->w - $this->rMargin - $x;
+            $maxWidth = $this->w - $this->rMargin - $x;
         }
-        $maxh    = ($this->h - $this->tMargin - $this->bMargin);
-        $ratioHW = ((($rows * $mh) + $hpad) / (($cols * $mw) + $vpad));
-        $ratioWH = ((($cols * $mw) + $vpad) / (($rows * $mh) + $hpad));
+        $maxHeight = ($this->h - $this->tMargin - $this->bMargin);
+        $ratioHW   = ((($rows * $mh) + $hpad) / (($cols * $mw) + $vpad));
+        $ratioWH   = ((($cols * $mw) + $vpad) / (($rows * $mh) + $hpad));
         if (!$distort) {
-            if (($maxw * $ratioHW) > $maxh) {
-                $maxw = $maxh * $ratioWH;
+            if (($maxWidth * $ratioHW) > $maxHeight) {
+                $maxWidth = $maxHeight * $ratioWH;
             }
-            if (($maxh * $ratioWH) > $maxw) {
-                $maxh = $maxw * $ratioHW;
+            if (($maxHeight * $ratioWH) > $maxWidth) {
+                $maxHeight = $maxWidth * $ratioHW;
             }
         }
         // set maximum dimensions
-        if ($w > $maxw) {
-            $w = $maxw;
+        if ($w > $maxWidth) {
+            $w = $maxWidth;
         }
-        if ($h > $maxh) {
-            $h = $maxh;
+        if ($h > $maxHeight) {
+            $h = $maxHeight;
         }
         // set dimensions
         if ((StaticMethods::empty_string($w) or ($w <= 0)) and (StaticMethods::empty_string($h) or ($h <= 0))) {
@@ -15548,7 +15528,7 @@ class PDF
             $xr = $xstart;
             // for each column
             for ($c = 0; $c < $cols; ++$c) {
-                if ($arrcode['bcode'][$r][$c] == 1) {
+                if ($arrcode['barcode'][$r][$c] == 1) {
                     // draw a single barcode cell
                     $this->Rect($xr, $ystart, $cw, $ch, 'F', array(), $style['fgcolor']);
                 }
@@ -22040,9 +22020,9 @@ class PDF
         }
         else {
             // maximum column width
-            $maxwidth = ($this->w - $this->original_lMargin - $this->original_rMargin) / $numcols;
-            if (($width == 0) or ($width > $maxwidth)) {
-                $width = $maxwidth;
+            $maxWidth = ($this->w - $this->original_lMargin - $this->original_rMargin) / $numcols;
+            if (($width == 0) or ($width > $maxWidth)) {
+                $width = $maxWidth;
             }
             if (StaticMethods::empty_string($y)) {
                 $y = $this->y;
@@ -24990,9 +24970,4 @@ class PDF
 
         return StaticMethods::fileExists($file);
     }
-
-} // END OF TCPDF CLASS
-
-//============================================================+
-// END OF FILE
-//============================================================+
+}
