@@ -26,7 +26,7 @@ class QRCode
 
     /**
      * Encoding modes:
-     *     ALPHANUMERIC => 1  : (0-9A-Z $%*+-./:) 45characters. 2 characters / 11 bits ~4296 characters.
+     *     ALPHANUMERIC => 1  : 2 characters / 11 bits ~4296 characters.
      *     EIGHT_BIT    => 2  : 8 bits. ~2953 characters.
      *     MULTIBYTE    => 3  : 13 bits ~1817 characters.
      *     NORMAL       => -1 : It's a mystery!
@@ -55,12 +55,12 @@ class QRCode
     private const MP1 = 3, MP2 = 3, MP3 = 40, MP4 = 10;
 
     /** Version 1 is 21*21 matrix => Version 40 is 177*177 matrix. */
-    private const MAX_SYMBOLS = 16, MAX_VERSION = 40, MAX_WIDTH = 177;
+    private const MAX_VERSION = 40, MAX_WIDTH = 177;
 
     /** Matrix indexes */
     private const COUNT = 1, LEVEL = 3, REMAINDER = 2, WIDTH = 0;
 
-    private const DEFAULT_MASK = 2, HEADER_BITS = 20, RANDOM_MASK = 2;
+    private const HEADER_BITS = 20, RANDOM_MASK = 2;
 
     /** Descriptions for the indexes of error correction code specifications. */
     private const ECC_SPECIFICATION_DESCRIPTIONS = [
@@ -129,7 +129,7 @@ class QRCode
         [177, 3706, 0, [750, 1372, 2040, 2430]]
     ];
 
-    private array|null $data;
+    private array $data;
 
     private array $dataCode = [];
 
@@ -182,8 +182,6 @@ class QRCode
 
     /** Array Length indicator. */
     private array $lengthTableBits = [[10, 12, 14], [9, 11, 13], [8, 16, 16], [8, 10, 12]];
-
-    private int $mode = self::EIGHT_BIT;
 
     /** Reed-Solomon */
     private array $rsBlocks = [];
@@ -248,7 +246,16 @@ class QRCode
             return;
         }
 
-        $this->encodeMask();
+        $this->bit       = -1;
+        $this->direction = -1;
+        $this->frame     = $this->frame($this->version);
+        $this->runLength = array_fill(0, self::MAX_WIDTH + 1, 0);
+        $this->width     = $this->capacity[$this->version][self::WIDTH];
+        $this->x         = $this->width - 1;
+        $this->y         = $this->width - 1;
+
+        $this->fill();
+        $this->maskData();
 
         if (empty($this->data)) {
             return;
@@ -295,7 +302,7 @@ class QRCode
                 $version = -1;
                 break;
             }
-        } while ($version > $prev);;
+        } while ($version > $prev);
         if ($version > $this->version) {
             $this->version = $version;
         }
@@ -431,6 +438,7 @@ class QRCode
         if ($paddingLength > 0) {
             $paddingBuffer = [];
 
+            /** @noinspection PhpLoopCanBeConvertedToArrayFillInspection */
             for ($index = 0; $index < $paddingLength; ++$index) {
                 $paddingBuffer[$index] = ($index & 1) ? 0x11 : 0xec;
             }
@@ -645,6 +653,7 @@ class QRCode
             for ($x = 0; $x < $width; ++$x) {
                 if (($x > 0) and ($y > 0)) {
                     // Probably undefined here is BS because of the $y > 0 condition here and above where $frameYM were set.
+                    /** @noinspection PhpUndefinedVariableInspection */
                     $b22 = ord($frameY[$x]) & ord($frameY[$x - 1]) & ord($frameYM[$x]) & ord($frameYM[$x - 1]);
                     $w22 = ord($frameY[$x]) | ord($frameY[$x - 1]) | ord($frameYM[$x]) | ord($frameYM[$x - 1]);
                     if (($b22 | ($w22 ^ 1)) & 1) {
@@ -1007,6 +1016,29 @@ class QRCode
     }
 
     /**
+     * Fills the frame.
+     */
+    private function fill(): void
+    {
+        // interleaved data and ecc codes
+        for ($outer = 0; $outer < ($this->dataLength + $this->ecLength); $outer++) {
+            $code = $this->rsBlockCode();
+            $bit  = 0x80;
+            for ($inner = 0; $inner < 8; $inner++) {
+                $coordinates = $this->nextFramePosition();
+                $this->frameAt($coordinates, 0x02 | (($bit & $code) != 0));
+                $bit = $bit >> 1;
+            }
+        }
+
+        // remainder bits
+        for ($i = 0; $i < $this->capacity[$this->version][self::REMAINDER]; $i++) {
+            $coordinates = $this->nextFramePosition();
+            $this->frameAt($coordinates, 0x02);
+        }
+    }
+
+    /**
      * Searches for a frame at the given version index, initializing and appending it if non-existent.
      * @param int $version
      * @return array
@@ -1307,10 +1339,11 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 0.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 0.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private function mask0(int $x, int $y): int
     {
@@ -1318,10 +1351,12 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 1.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 1.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
+     * @noinspection PhpUnusedParameterInspection
      */
     private function mask1(int $x, int $y): int
     {
@@ -1329,10 +1364,12 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 2.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 2.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
+     * @noinspection PhpUnusedParameterInspection
      */
     private function mask2(int $x, int $y): int
     {
@@ -1340,10 +1377,11 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 3.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 3.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private function mask3(int $x, int $y): int
     {
@@ -1351,10 +1389,11 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 4.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 4.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private function mask4(int $x, int $y): int
     {
@@ -1362,10 +1401,11 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 5.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 5.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private function mask5(int $x, int $y): int
     {
@@ -1373,10 +1413,11 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 6.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 6.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private function mask6(int $x, int $y): int
     {
@@ -1384,14 +1425,48 @@ class QRCode
     }
 
     /**
-     * Creates a binary mask for the given x & y positions. Variant 7.
+     * Call back. Creates a binary mask for the given x & y positions. Variant 7.
      * @param int $x X position
      * @param int $y Y position
      * @return int
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private function mask7(int $x, int $y): int
     {
         return ((($x * $y) % 3) + (($x + $y) & 1)) & 1;
+    }
+
+    /**
+     * Translates the input data into a mask.
+     * @return void
+     */
+    private function maskData(): void
+    {
+        $minDemerit   = PHP_INT_MAX;
+        $checkedMasks = [0, 1, 2, 3, 4, 5, 6, 7];
+        $howManuOut   = 8 - (self::RANDOM_MASK % 9);
+        for ($index = 0; $index < $howManuOut; ++$index) {
+            $remPos = rand(0, count($checkedMasks) - 1);
+            unset($checkedMasks[$remPos]);
+            $checkedMasks = array_values($checkedMasks);
+        }
+
+        $bestMask = $this->frame;
+        $width    = $this->width;
+        foreach ($checkedMasks as $maskNumber) {
+            $mask    = array_fill(0, $width, str_repeat("\0", $width));
+            $blacks  = $this->maskInitialize($maskNumber, $mask, $this->frame, $width);
+            $blacks  += $this->writeFormatInformation($mask, $width, $maskNumber, $this->ecLevel);
+            $blacks  = (int) (100 * $blacks / ($width * $width));
+            $demerit = (int) ((int) (abs($blacks - 50) / 5) * self::MP4);
+            $demerit += $this->demeritsByFrame($mask, $width);
+            if ($demerit < $minDemerit) {
+                $minDemerit = $demerit;
+                $bestMask   = $mask;
+            }
+        }
+
+        $this->data = $bestMask;
     }
 
     /**
@@ -1661,6 +1736,7 @@ class QRCode
         $rs['fgPolynomial']  = $fgPolynomial;
 
         // Find prim-th root of 1, used in decoding
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
         for ($pRoot = 1; ($pRoot % $pElement) != 0; $pRoot += $rs['symbolsInBlock']) {
             // Intentional empty-body loop
         }
@@ -1960,82 +2036,5 @@ class QRCode
         }
 
         return $blacks;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
-
-    /**
-     * Encode mask
-     */
-    private function encodeMask()
-    {
-
-        $this->width = $this->capacity[$this->version][self::WIDTH];;
-        $this->frame     = $this->frame($this->version);
-        $this->x         = $this->width - 1;
-        $this->y         = $this->width - 1;
-        $this->direction = -1;
-        $this->bit       = -1;
-        // interleaved data and ecc codes
-        for ($i = 0; $i < ($this->dataLength + $this->ecLength); $i++) {
-            $code = $this->rsBlockCode();
-            $bit  = 0x80;
-            for ($j = 0; $j < 8; $j++) {
-                $addr = $this->nextFramePosition();
-                $this->frameAt($addr, 0x02 | (($bit & $code) != 0));
-                $bit = $bit >> 1;
-            }
-        }
-        // remainder bits
-        $j = $this->capacity[$this->version][self::REMAINDER];
-        for ($i = 0; $i < $j; $i++) {
-            $addr = $this->nextFramePosition();
-            $this->frameAt($addr, 0x02);
-        }
-        // masking
-        $this->runLength = array_fill(0, self::MAX_WIDTH + 1, 0);
-        $masked          = $this->mask($this->width, $this->frame, $this->ecLevel);
-        if ($masked == null) {
-            return null;
-        }
-        $this->data = $masked;
-    }
-
-    /**
-     * mask
-     * @param int   $width
-     * @param array $frame
-     * @param int   $level
-     * @return array best mask
-     */
-    private function mask($width, $frame, $level)
-    {
-        $minDemerit    = PHP_INT_MAX;
-        $bestMaskNum   = 0;
-        $bestMask      = [];
-        $checked_masks = [0, 1, 2, 3, 4, 5, 6, 7];
-        $howManuOut    = 8 - (self::RANDOM_MASK % 9);
-        for ($i = 0; $i < $howManuOut; ++$i) {
-            $remPos = rand(0, count($checked_masks) - 1);
-            unset($checked_masks[$remPos]);
-            $checked_masks = array_values($checked_masks);
-        }
-        $bestMask = $frame;
-        foreach ($checked_masks as $maskNumber) {
-            $mask    = array_fill(0, $width, str_repeat("\0", $width));
-            $demerit = 0;
-            $blacks  = 0;
-            $blacks  = $this->maskInitialize($maskNumber, $mask, $frame, $width);
-            $blacks  += $this->writeFormatInformation($mask, $width, $maskNumber, $level);
-            $blacks  = (int) (100 * $blacks / ($width * $width));
-            $demerit = (int) ((int) (abs($blacks - 50) / 5) * self::MP4);
-            $demerit += $this->demeritsByFrame($mask, $width);
-            if ($demerit < $minDemerit) {
-                $minDemerit  = $demerit;
-                $bestMask    = $mask;
-                $bestMaskNum = $maskNumber;
-            }
-        }
-        return $bestMask;
     }
 }
