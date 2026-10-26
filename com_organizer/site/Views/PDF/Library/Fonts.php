@@ -2081,14 +2081,14 @@ class Fonts
             $str = self::UTF8ArrSubString($ta, '', '', $isunicode);
         }
         // check if string contains arabic text
-        if (preg_match(FontData::$uni_RE_PATTERN_ARABIC, $str)) {
+        if (preg_match(FontData::$arabidTestPattern, $str)) {
             $arabic = true;
         }
         else {
             $arabic = false;
         }
         // check if string contains RTL text
-        if (!($forcertl or $arabic or preg_match(FontData::$uni_RE_PATTERN_RTL, $str))) {
+        if (!($forcertl or $arabic or preg_match(FontData::$rtlTestPattern, $str))) {
             return $ta;
         }
 
@@ -2132,66 +2132,66 @@ class Fonts
         // X1. Begin by setting the current embedding level to the paragraph embedding level. Set the directional override status to neutral. Process each character iteratively, applying rules X2 through X9. Only embedding levels from 0 to 61 are valid in this phase.
         // In the resolution of levels in rules I1 and I2, the maximum embedding level of 62 can be reached.
         for ($i = 0; $i < $numchars; ++$i) {
-            if ($ta[$i] == FontData::$uni_RLE) {
+            if ($ta[$i] == FontData::$rtlEmbedding) {
                 // X2. With each RLE, compute the least greater odd embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to neutral.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + ($cel % 2) + 1;
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_RLE, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => FontData::$rtlEmbedding, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'N';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($ta[$i] == FontData::$uni_LRE) {
+            elseif ($ta[$i] == FontData::$ltrEmbedding) {
                 // X3. With each LRE, compute the least greater even embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to neutral.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + 2 - ($cel % 2);
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_LRE, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => FontData::$ltrEmbedding, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'N';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($ta[$i] == FontData::$uni_RLO) {
+            elseif ($ta[$i] == FontData::$rtlOverride) {
                 // X4. With each RLO, compute the least greater odd embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to right-to-left.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + ($cel % 2) + 1;
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_RLO, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => FontData::$rtlOverride, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'R';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($ta[$i] == FontData::$uni_LRO) {
+            elseif ($ta[$i] == FontData::$ltrOverride) {
                 // X5. With each LRO, compute the least greater even embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to left-to-right.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + 2 - ($cel % 2);
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_LRO, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => FontData::$ltrOverride, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'L';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($ta[$i] == FontData::$uni_PDF) {
+            elseif ($ta[$i] == FontData::$pdf) {
                 // X7. With each PDF, determine the matching embedding or override code. If there was a valid matching code, restore (pop) the last remembered (pushed) embedding level and directional override.
                 if (count($remember)) {
                     $last = count($remember) - 1;
-                    if (($remember[$last]['num'] == FontData::$uni_RLE) or
-                        ($remember[$last]['num'] == FontData::$uni_LRE) or
-                        ($remember[$last]['num'] == FontData::$uni_RLO) or
-                        ($remember[$last]['num'] == FontData::$uni_LRO)) {
+                    if (($remember[$last]['num'] == FontData::$rtlEmbedding) or
+                        ($remember[$last]['num'] == FontData::$ltrEmbedding) or
+                        ($remember[$last]['num'] == FontData::$rtlOverride) or
+                        ($remember[$last]['num'] == FontData::$ltrOverride)) {
                         $match = array_pop($remember);
                         $cel   = $match['cel'];
                         $dos   = $match['dos'];
@@ -2200,11 +2200,11 @@ class Fonts
                     }
                 }
             }
-            elseif (($ta[$i] != FontData::$uni_RLE) and
-                ($ta[$i] != FontData::$uni_LRE) and
-                ($ta[$i] != FontData::$uni_RLO) and
-                ($ta[$i] != FontData::$uni_LRO) and
-                ($ta[$i] != FontData::$uni_PDF)) {
+            elseif (($ta[$i] != FontData::$rtlEmbedding) and
+                ($ta[$i] != FontData::$ltrEmbedding) and
+                ($ta[$i] != FontData::$rtlOverride) and
+                ($ta[$i] != FontData::$ltrOverride) and
+                ($ta[$i] != FontData::$pdf)) {
                 // X6. For all types besides RLE, LRE, RLO, LRO, and PDF:
                 //	a. Set the level of the current character to the current embedding level.
                 //	b. Whenever the directional override status is not neutral, reset the current character type to the directional override status.

@@ -5965,14 +5965,14 @@ class PDF
         // remove carriage returns
         $s = str_replace("\r", '', $txt);
         // check if string contains arabic text
-        if (preg_match(FontData::$uni_RE_PATTERN_ARABIC, $s)) {
+        if (preg_match(FontData::$arabidTestPattern, $s)) {
             $arabic = true;
         }
         else {
             $arabic = false;
         }
         // check if string contains RTL text
-        if ($arabic or ($this->tmprtl == 'R') or preg_match(FontData::$uni_RE_PATTERN_RTL, $s)) {
+        if ($arabic or ($this->tmprtl == 'R') or preg_match(FontData::$rtlTestPattern, $s)) {
             $rtlmode = true;
         }
         else {
@@ -17424,7 +17424,7 @@ class PDF
                 }
                 // text
                 $this->htmlvspace = 0;
-                $isRTLString      = preg_match(FontData::$uni_RE_PATTERN_RTL, $dom[$key]['value']) || preg_match(FontData::$uni_RE_PATTERN_ARABIC, $dom[$key]['value']);
+                $isRTLString      = preg_match(FontData::$rtlTestPattern, $dom[$key]['value']) || preg_match(FontData::$arabidTestPattern, $dom[$key]['value']);
                 if ((!$this->premode) and $this->isRTLTextDir() and !$isRTLString) {
                     // reverse spaces order
                     $lsp = ''; // left spaces
