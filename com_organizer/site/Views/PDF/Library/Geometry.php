@@ -795,7 +795,7 @@ trait Geometry
      * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
      * @see self::RENDERING_STYLES
      */
-    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = self::DRAW, $circle_outLine_style = [], $circle_fill_color = [])
+    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
     {
         if ($nv < 2) {
             $nv = 2;
