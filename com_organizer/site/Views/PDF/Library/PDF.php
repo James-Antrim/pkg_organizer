@@ -1399,7 +1399,7 @@ class PDF
     {
         // set file ID for trailer
         $serformat          = (is_array($format) ? json_encode($format) : $format);
-        $this->file_id      = md5(StaticMethods::getRandomSeed('TCPDF' . $orientation . $unit . $serformat . $encoding));
+        $this->file_id      = md5(StaticMethods::randomSeed('TCPDF' . $orientation . $unit . $serformat . $encoding));
         $this->font_obj_ids = [];
         $this->page_obj_id  = [];
         $this->form_obj_id  = [];
@@ -10277,17 +10277,17 @@ class PDF
             case 0:   // RC4-40
             case 1:
             { // RC4-128
-                $s = StaticMethods::_RC4($this->_objectkey($n), $s, $this->last_enc_key, $this->last_enc_key_c);
+                $s = StaticMethods::RC4($this->_objectkey($n), $s, $this->last_enc_key, $this->last_enc_key_c);
                 break;
             }
             case 2:
             { // AES-128
-                $s = StaticMethods::_AES($this->_objectkey($n), $s);
+                $s = StaticMethods::AES($this->_objectkey($n), $s, true);
                 break;
             }
             case 3:
             { // AES-256
-                $s = StaticMethods::_AES($this->encryptdata['key'], $s);
+                $s = StaticMethods::AES($this->encryptdata['key'], $s, true);
                 break;
             }
         }
@@ -10427,24 +10427,24 @@ class PDF
     protected function _Uvalue()
     {
         if ($this->encryptdata['mode'] == 0) { // RC4-40
-            return StaticMethods::_RC4($this->encryptdata['key'], StaticMethods::$enc_padding, $this->last_enc_key, $this->last_enc_key_c);
+            return StaticMethods::RC4($this->encryptdata['key'], StaticMethods::$enc_padding, $this->last_enc_key, $this->last_enc_key_c);
         }
         elseif ($this->encryptdata['mode'] < 3) { // RC4-128, AES-128
             $tmp = StaticMethods::_md5_16(StaticMethods::$enc_padding . $this->encryptdata['fileid']);
-            $enc = StaticMethods::_RC4($this->encryptdata['key'], $tmp, $this->last_enc_key, $this->last_enc_key_c);
+            $enc = StaticMethods::RC4($this->encryptdata['key'], $tmp, $this->last_enc_key, $this->last_enc_key_c);
             $len = strlen($tmp);
             for ($i = 1; $i <= 19; ++$i) {
                 $ek = '';
                 for ($j = 0; $j < $len; ++$j) {
                     $ek .= chr(ord($this->encryptdata['key'][$j]) ^ $i);
                 }
-                $enc = StaticMethods::_RC4($ek, $enc, $this->last_enc_key, $this->last_enc_key_c);
+                $enc = StaticMethods::RC4($ek, $enc, $this->last_enc_key, $this->last_enc_key_c);
             }
             $enc .= str_repeat("\x00", 16);
             return substr($enc, 0, 32);
         }
         elseif ($this->encryptdata['mode'] == 3) { // AES-256
-            $seed = StaticMethods::_md5_16(StaticMethods::getRandomSeed());
+            $seed = StaticMethods::_md5_16(StaticMethods::randomSeed());
             // User Validation Salt
             $this->encryptdata['UVS'] = substr($seed, 0, 8);
             // User Key Salt
@@ -10460,7 +10460,7 @@ class PDF
     protected function _UEvalue()
     {
         $hashkey = hash('sha256', $this->encryptdata['user_password'] . $this->encryptdata['UKS'], true);
-        return StaticMethods::_AESnopad($hashkey, $this->encryptdata['key']);
+        return StaticMethods::AES($hashkey, $this->encryptdata['key'], false);
     }
 
     /**
@@ -10477,7 +10477,7 @@ class PDF
                 }
             }
             $owner_key = substr($tmp, 0, ($this->encryptdata['Length'] / 8));
-            $enc       = StaticMethods::_RC4($owner_key, $this->encryptdata['user_password'], $this->last_enc_key, $this->last_enc_key_c);
+            $enc       = StaticMethods::RC4($owner_key, $this->encryptdata['user_password'], $this->last_enc_key, $this->last_enc_key_c);
             if ($this->encryptdata['mode'] > 0) {
                 $len = strlen($owner_key);
                 for ($i = 1; $i <= 19; ++$i) {
@@ -10485,13 +10485,13 @@ class PDF
                     for ($j = 0; $j < $len; ++$j) {
                         $ek .= chr(ord($owner_key[$j]) ^ $i);
                     }
-                    $enc = StaticMethods::_RC4($ek, $enc, $this->last_enc_key, $this->last_enc_key_c);
+                    $enc = StaticMethods::RC4($ek, $enc, $this->last_enc_key, $this->last_enc_key_c);
                 }
             }
             return $enc;
         }
         elseif ($this->encryptdata['mode'] == 3) { // AES-256
-            $seed = StaticMethods::_md5_16(StaticMethods::getRandomSeed());
+            $seed = StaticMethods::_md5_16(StaticMethods::randomSeed());
             // Owner Validation Salt
             $this->encryptdata['OVS'] = substr($seed, 0, 8);
             // Owner Key Salt
@@ -10507,7 +10507,7 @@ class PDF
     protected function _OEvalue()
     {
         $hashkey = hash('sha256', $this->encryptdata['owner_password'] . $this->encryptdata['OKS'] . $this->encryptdata['U'], true);
-        return StaticMethods::_AESnopad($hashkey, $this->encryptdata['key']);
+        return StaticMethods::AES($hashkey, $this->encryptdata['key'], false);
     }
 
     /**
@@ -10534,7 +10534,7 @@ class PDF
         if (!$this->encryptdata['pubkey']) { // standard mode
             if ($this->encryptdata['mode'] == 3) { // AES-256
                 // generate 256 bit random key
-                $this->encryptdata['key'] = substr(hash('sha256', StaticMethods::getRandomSeed(), true), 0, $keybytelen);
+                $this->encryptdata['key'] = substr(hash('sha256', StaticMethods::randomSeed(), true), 0, $keybytelen);
                 // truncate passwords
                 $this->encryptdata['user_password']  = $this->_fixAES256Password($this->encryptdata['user_password']);
                 $this->encryptdata['owner_password'] = $this->_fixAES256Password($this->encryptdata['owner_password']);
@@ -10559,7 +10559,7 @@ class PDF
                 }
                 $perms                      .= 'adb'; // bytes 9-11
                 $perms                      .= 'nick'; // bytes 12-15
-                $this->encryptdata['perms'] = StaticMethods::_AESnopad($this->encryptdata['key'], $perms);
+                $this->encryptdata['perms'] = StaticMethods::AES($this->encryptdata['key'], $perms, false);
             }
             else { // RC4-40, RC4-128, AES-128
                 // Pad passwords
@@ -10585,7 +10585,7 @@ class PDF
         }
         else { // Public-Key mode
             // random 20-byte seed
-            $seed            = sha1(StaticMethods::getRandomSeed(), true);
+            $seed            = sha1(StaticMethods::randomSeed(), true);
             $recipient_bytes = '';
             foreach ($this->encryptdata['pubkeys'] as $pubkey) {
                 // for each public certificate
@@ -10695,7 +10695,7 @@ class PDF
             }
         }
         if ($owner_pass === null) {
-            $owner_pass = md5(StaticMethods::getRandomSeed());
+            $owner_pass = md5(StaticMethods::randomSeed());
         }
         $this->encryptdata['user_password']  = $user_pass;
         $this->encryptdata['owner_password'] = $owner_pass;

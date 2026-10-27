@@ -16,6 +16,91 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Static methods used by the PDF class. */
 class StaticMethods
 {
+    /**
+     * Returns the input text encrypted using AES algorithm and the specified key. This method requires openssl. Text is padded to 16 byte blocks.
+     * Padding: RFC 2898, PKCS #5: Password-Based Cryptography Specification Version 2.0
+     * @param string $key     encryption key
+     * @param string $text    input text to be encrypted
+     * @param bool   $padding true if padding is required
+     * @return string
+     */
+    public static function AES(string $key, string $text, bool $padding): string
+    {
+        $algorithm = strlen($key) === 16 ? 'aes-128-cbc' : 'aes-256-cbc';
+
+        if ($padding) {
+            $padding = 16 - (strlen($text) % 16);
+            $text    .= str_repeat(chr($padding), $padding);
+            $iv      = openssl_random_pseudo_bytes(openssl_cipher_iv_length($algorithm));
+            $text    = openssl_encrypt($text, $algorithm, $key, OPENSSL_RAW_DATA, $iv);
+            return $iv . substr($text, 0, -16);
+        }
+
+        $iv   = str_repeat("\x00", openssl_cipher_iv_length($algorithm));
+        $text = openssl_encrypt($text, $algorithm, $key, OPENSSL_RAW_DATA, $iv);
+        return substr($text, 0, -16);
+    }
+
+    /**
+     * Creates a string containing random data to be used as a seed for encryption methods.
+     * @param string $seed starting seed value
+     * @return string
+     */
+    public static function randomSeed(string $seed = ''): string
+    {
+        $rnd = uniqid(rand() . microtime(true), true) . posix_getpid() . openssl_random_pseudo_bytes(512);
+        return $rnd . $seed . __FILE__ . serialize($_SERVER) . microtime(true);
+    }
+
+    /**
+     * Returns the input text encrypted using RC4 algorithm and the specified key. RC4 is the standard encryption algorithm used in PDF format.
+     * @param string $key              Encryption key.
+     * @param string $text             Input text to be encrypted.
+     * @param string $lastEncryptedKey Reference to last RC4 key encrypted.
+     * @param string $lastComputedKey  Reference to last RC4 computed key.
+     * @return string
+     */
+    public static function RC4(string $key, string $text, string &$lastEncryptedKey, string &$lastComputedKey): string
+    {
+        if ($lastEncryptedKey != $key) {
+            $k   = str_repeat($key, (int) ((256 / strlen($key)) + 1));
+            $rc4 = range(0, 255);
+            $j   = 0;
+
+            for ($index = 0; $index < 256; ++$index) {
+                $t           = $rc4[$index];
+                $j           = ($j + $t + ord($k[$index])) % 256;
+                $rc4[$index] = $rc4[$j];
+                $rc4[$j]     = $t;
+            }
+
+            $lastEncryptedKey = $key;
+            $lastComputedKey  = $rc4;
+        }
+        else {
+            $rc4 = $lastComputedKey;
+        }
+
+        $a   = 0;
+        $b   = 0;
+        $out = '';
+
+        for ($index = 0; $index < strlen($text); ++$index) {
+            $a = ($a + 1) % 256;
+            $t = $rc4[$a];
+            $b = ($b + $t) % 256;
+
+            $rc4[$a] = $rc4[$b];
+            $rc4[$b] = $t;
+
+            $k   = $rc4[($rc4[$a] + $rc4[$b]) % 256];
+            $out .= chr(ord($text[$index]) ^ $k);
+        }
+
+        return $out;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
      * Current TCPDF version.
@@ -215,7 +300,7 @@ class StaticMethods
      */
     public static function getObjFilename($type = 'tmp', $file_id = '')
     {
-        return tempnam(K_PATH_CACHE, '__tcpdf_' . $file_id . '_' . $type . '_' . md5(StaticMethods::getRandomSeed()) . '_');
+        return tempnam(K_PATH_CACHE, '__tcpdf_' . $file_id . '_' . $type . '_' . md5(StaticMethods::randomSeed()) . '_');
     }
 
     /**
@@ -314,29 +399,6 @@ class StaticMethods
     }
 
     /**
-     * Returns a string containing random data to be used as a seed for encryption methods.
-     * @param string $seed starting seed value
-     * @return string containing random data
-     */
-    public static function getRandomSeed($seed = '')
-    {
-        $rnd = uniqid(rand() . microtime(true), true);
-        if (function_exists('posix_getpid')) {
-            $rnd .= posix_getpid();
-        }
-        if (function_exists('openssl_random_pseudo_bytes') and (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')) {
-            // this is not used on windows systems because it is very slow for a know bug
-            $rnd .= openssl_random_pseudo_bytes(512);
-        }
-        else {
-            for ($i = 0; $i < 23; ++$i) {
-                $rnd .= uniqid('', true);
-            }
-        }
-        return $rnd . $seed . __FILE__ . serialize($_SERVER) . microtime(true);
-    }
-
-    /**
      * Encrypts a string using MD5 and returns it's value as a binary string.
      * @param string $str input string
      * @return string MD5 encrypted binary string
@@ -344,103 +406,6 @@ class StaticMethods
     public static function _md5_16($str)
     {
         return pack('H*', md5($str));
-    }
-
-    /**
-     * Returns the input text encrypted using AES algorithm and the specified key.
-     * This method requires openssl or mcrypt. Text is padded to 16bytes blocks
-     * @param string $key  encryption key
-     * @param string $text input text to be encrypted
-     * @return string encrypted text
-     */
-    public static function _AES($key, $text)
-    {
-        // padding (RFC 2898, PKCS #5: Password-Based Cryptography Specification Version 2.0)
-        $padding = 16 - (strlen($text) % 16);
-        $text    .= str_repeat(chr($padding), $padding);
-        if (extension_loaded('openssl')) {
-            $algo = 'aes-256-cbc';
-            if (strlen($key) == 16) {
-                $algo = 'aes-128-cbc';
-            }
-            $iv   = openssl_random_pseudo_bytes(openssl_cipher_iv_length($algo));
-            $text = openssl_encrypt($text, $algo, $key, OPENSSL_RAW_DATA, $iv);
-            return $iv . substr($text, 0, -16);
-        }
-        $iv   = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC), MCRYPT_RAND);
-        $text = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $text, MCRYPT_MODE_CBC, $iv);
-        $text = $iv . $text;
-        return $text;
-    }
-
-    /**
-     * Returns the input text encrypted using AES algorithm and the specified key.
-     * This method requires openssl or mcrypt. Text is not padded
-     * @param string $key  encryption key
-     * @param string $text input text to be encrypted
-     * @return string encrypted text
-     */
-    public static function _AESnopad($key, $text)
-    {
-        if (extension_loaded('openssl')) {
-            $algo = 'aes-256-cbc';
-            if (strlen($key) == 16) {
-                $algo = 'aes-128-cbc';
-            }
-            $iv   = str_repeat("\x00", openssl_cipher_iv_length($algo));
-            $text = openssl_encrypt($text, $algo, $key, OPENSSL_RAW_DATA, $iv);
-            return substr($text, 0, -16);
-        }
-        $iv   = str_repeat("\x00", mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC));
-        $text = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $text, MCRYPT_MODE_CBC, $iv);
-        return $text;
-    }
-
-    /**
-     * Returns the input text encrypted using RC4 algorithm and the specified key.
-     * RC4 is the standard encryption algorithm used in PDF format
-     * @param string $key            Encryption key.
-     * @param string $text           Input text to be encrypted.
-     * @param string $last_enc_key   Reference to last RC4 key encrypted.
-     * @param string $last_enc_key_c Reference to last RC4 computed key.
-     * @return string encrypted text
-     */
-    public static function _RC4($key, $text, &$last_enc_key, &$last_enc_key_c)
-    {
-        if (function_exists('mcrypt_encrypt') and ($out = @mcrypt_encrypt(MCRYPT_ARCFOUR, $key, $text, MCRYPT_MODE_STREAM, ''))) {
-            // try to use mcrypt function if exist
-            return $out;
-        }
-        if ($last_enc_key != $key) {
-            $k   = str_repeat($key, (int) ((256 / strlen($key)) + 1));
-            $rc4 = range(0, 255);
-            $j   = 0;
-            for ($i = 0; $i < 256; ++$i) {
-                $t       = $rc4[$i];
-                $j       = ($j + $t + ord($k[$i])) % 256;
-                $rc4[$i] = $rc4[$j];
-                $rc4[$j] = $t;
-            }
-            $last_enc_key   = $key;
-            $last_enc_key_c = $rc4;
-        }
-        else {
-            $rc4 = $last_enc_key_c;
-        }
-        $len = strlen($text);
-        $a   = 0;
-        $b   = 0;
-        $out = '';
-        for ($i = 0; $i < $len; ++$i) {
-            $a       = ($a + 1) % 256;
-            $t       = $rc4[$a];
-            $b       = ($b + $t) % 256;
-            $rc4[$a] = $rc4[$b];
-            $rc4[$b] = $t;
-            $k       = $rc4[($rc4[$a] + $rc4[$b]) % 256];
-            $out     .= chr(ord($text[$i]) ^ $k);
-        }
-        return $out;
     }
 
     /**
