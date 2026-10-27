@@ -27,6 +27,41 @@ class PDF
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
+    public const BOLD = 'B', BOLD_CLOSE = 'b', BOLD_CLOSE_EO = 'b*', BOLD_EO = 'B*'; // duplicates of draw & fill
+    public const CLIP_EO = 'CEO', CLIP_NZ = 'CNZ';
+    public const DRAW = 'D', DRAW_CLOSE = 'd';
+    public const DRAW_FILL = 'DF', DRAW_FILL_CLOSE = 'df', DRAW_FILL_CLOSE_EO = 'df*', DRAW_FILL_EO = 'DF*';
+    public const END_PATH = 'n';
+    public const FILL = 'F', FILL_EO = 'F*';
+    public const FILL2 = 'f', FILL2_EO = 'f*'; // duplicates of fill
+    public const FILL_DRAW = 'FD', FILL_DRAW_CLOSE = 'fd', FILL_DRAW_CLOSE_EO = 'f*d', FILL_DRAW_EO = 'F*D'; // duplicates of draw & fill
+    public const STROKE = 'S', STROKE_CLOSE = 's';
+
+    /**
+     * self::CLIP_EO => clipping mode using the even-odd rule to determine which regions lie inside the clipping path
+     * self::CLIP_NZ => clipping mode using the nonzero winding number rule to determine which regions lie inside the clipping path
+     * self::DRAW, self::STROKE => draw the path
+     * self::DRAW_CLOSE, self::STROKE_CLOSE => close and draw the path
+     * self::DRAW_FILL, self::BOLD, self::FILL_DRAW => fill and then draw the path using the nonzero winding number rule to determine the region to fill
+     * self::DRAW_FILL_CLOSE, self::BOLD_CLOSE, self::FILL_DRAW_CLOSE => close, fill, and then draw the path, using the nonzero winding number rule to determine the region to fill
+     * self::DRAW_FILL_CLOSE_EO, self::BOLD_CLOSE_EO, self::FILL_DRAW_CLOSE_EO => close, fill, and then stroke the path, using the even-odd rule to determine the region to fill
+     * self::DRAW_FILL_EO, self::BOLD_EO, self::FILL_DRAW_EO => fill and then stroke the path using the even-odd rule to determine the region to fill
+     * self::END_PATH => end the path object without filling or stroking it
+     * self::FILL, self::FILL2 => fill the path using the nonzero winding number rule to determine the region to fill
+     * self::FILL_EO, self::FILL2_EO => fill the path, using the even-odd rule to determine the region to fill
+     */
+    public const RENDERING_STYLES = [
+        self::BOLD, self::BOLD_CLOSE, self::BOLD_CLOSE_EO, self::BOLD_EO,
+        self::CLIP_EO, self::CLIP_NZ,
+        self::DRAW, self::DRAW_CLOSE,
+        self::DRAW_FILL, self::DRAW_FILL_CLOSE, self::DRAW_FILL_CLOSE_EO, self::DRAW_FILL_EO,
+        self::END_PATH,
+        self::FILL, self::FILL_EO,
+        self::FILL2, self::FILL2_EO,
+        self::FILL_DRAW, self::FILL_DRAW_CLOSE, self::FILL_DRAW_CLOSE_EO, self::FILL_DRAW_EO,
+        self::STROKE, self::STROKE_CLOSE,
+    ];
+
     /** Buffer holding in-memory PDF. */
     private string $buffer = '';
 
@@ -13024,7 +13059,7 @@ class PDF
                 else {
                     $this->setFillColorArray($col_b);
                     // colored rectangle
-                    $this->Rect($xb, $yb, $wb, $hb, 'F', array());
+                    $this->Rect($xb, $yb, $wb, $hb, self::FILL);
                 }
                 $xb += $xd;
                 $yb += $yd;
@@ -13978,11 +14013,11 @@ class PDF
                             $isU = ($isU or (($lines[$j] == 'U') or ($lines[$j] == '*U')));
                         }
                         if ($isU) {
-                            $this->append('f*');
+                            $this->append(self::FILL2_EO);
                         }
                     }
                     else {
-                        $this->append('f*');
+                        $this->append(self::FILL2_EO);
                     }
                     break;
                 }
@@ -14328,10 +14363,10 @@ class PDF
         $this->rtl = false;
         // print background color
         if ($style['bgcolor']) {
-            $this->Rect($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgcolor']);
+            $this->Rect($xpos_rect, $y, $w, $h, $style['border'] ? self::DRAW_FILL : self::FILL, '', $style['bgcolor']);
         }
         elseif ($style['border']) {
-            $this->Rect($xpos_rect, $y, $w, $h, 'D');
+            $this->Rect($xpos_rect, $y, $w, $h, self::DRAW);
         }
         // set foreground color
         $this->setDrawColorArray($style['fgcolor']);
@@ -14342,7 +14377,7 @@ class PDF
             if ($v['t']) {
                 // draw a vertical bar
                 $ypos = $y + $vpadding + ($v['p'] * $barh / $arrcode['maxHeight']);
-                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxHeight']), 'F', array(), $style['fgcolor']);
+                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxHeight']), self::FILL, array(), $style['fgcolor']);
             }
             $xpos += $bw;
         }
@@ -14597,10 +14632,10 @@ class PDF
         $this->rtl = false;
         // print background color
         if ($style['bgcolor']) {
-            $this->Rect($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgcolor']);
+            $this->Rect($xpos, $y, $w, $h, $style['border'] ? self::DRAW_FILL : self::FILL, '', $style['bgcolor']);
         }
         elseif ($style['border']) {
-            $this->Rect($xpos, $y, $w, $h, 'D');
+            $this->Rect($xpos, $y, $w, $h, self::DRAW);
         }
         // set foreground color
         $this->setDrawColorArray($style['fgcolor']);
@@ -14612,7 +14647,7 @@ class PDF
             for ($c = 0; $c < $cols; ++$c) {
                 if ($arrcode['barcode'][$r][$c] == 1) {
                     // draw a single barcode cell
-                    $this->Rect($xr, $ystart, $cw, $ch, 'F', array(), $style['fgcolor']);
+                    $this->Rect($xr, $ystart, $cw, $ch, self::FILL, array(), $style['fgcolor']);
                 }
                 $xr += $cw;
             }
@@ -19768,7 +19803,7 @@ class PDF
                 else {
                     $this->x -= $lspace;
                 }
-                $this->Rect($this->x, ($this->y + (($this->lasth - $l) / 2)), $l, $l, 'F', array(), $color);
+                $this->Rect($this->x, ($this->y + (($this->lasth - $l) / 2)), $l, $l, self::FILL, array(), $color);
                 break;
             }
             case 'img':
@@ -22271,7 +22306,7 @@ class PDF
         // save the current graphic state
         $this->append('q' . $this->epsmarker);
         // set initial clipping mask
-        $this->Rect($ximg, $y, $w, $h, 'CNZ', array(), array());
+        $this->Rect($ximg, $y, $w, $h, self::CLIP_NZ);
         // scale and translate
         $e = $ox * $this->scaleFactor * (1 - $svgscale_x);
         $f = ($this->h - $oy) * $this->scaleFactor * (1 - $svgscale_y);
@@ -22446,12 +22481,12 @@ class PDF
             $cw     = $w - $left - $right;
             $ch     = $h - $top - $bottom;
             if ($svgstyle['clip-rule'] == 'evenodd') {
-                $clip_rule = 'CNZ';
+                $clip_rule = self::CLIP_NZ;
             }
             else {
-                $clip_rule = 'CEO';
+                $clip_rule = self::CLIP_EO;
             }
-            $this->Rect($cx, $cy, $cw, $ch, $clip_rule, array(), array());
+            $this->Rect($cx, $cy, $cw, $ch, $clip_rule);
         }
         // fill
         $regs = [];
@@ -22568,10 +22603,10 @@ class PDF
             }
             $this->setFillColorArray($fill_color);
             if ($svgstyle['fill-rule'] == 'evenodd') {
-                $objstyle .= 'F*';
+                $objstyle .= self::FILL_EO;
             }
             else {
-                $objstyle .= 'F';
+                $objstyle .= self::FILL;
             }
         }
         // stroke
@@ -22711,18 +22746,10 @@ class PDF
 
     /**
      * Draws an SVG path
-     * @param string $d     attribute d of the path SVG element
-     * @param string $style Style of rendering. Possible values are:
-     *                      <ul>
-     *                      <li>D or empty string: Draw (default).</li>
-     *                      <li>F: Fill.</li>
-     *                      <li>F*: Fill using the even-odd rule to determine which regions lie inside the clipping path.</li>
-     *                      <li>DF or FD: Draw and fill.</li>
-     *                      <li>DF* or FD*: Draw and fill using the even-odd rule to determine which regions lie inside the clipping path.</li>
-     *                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
-     *                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
-     *                      </ul>
+     * @param string $d attribute d of the path SVG element
+     * @param string $style
      * @return array of container box measures (x, y, w, h)
+     * @see self::RENDERING_STYLES
      */
     protected function SVGPath($d, $style = '')
     {
@@ -23248,7 +23275,7 @@ class PDF
                 $w = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgunit, false) : $this->w);
                 $h = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgunit, false) : $this->h);
                 // draw clipping rect
-                $this->Rect($x, $y, $w, $h, 'CNZ', array(), array());
+                $this->Rect($x, $y, $w, $h, self::CLIP_NZ);
                 // parse viewbox, calculate extra transformation matrix
                 if (isset($attribs['viewBox'])) {
                     $tmp = [];
@@ -23443,12 +23470,12 @@ class PDF
                         $tm = StaticMethods::getTransformationMatrixProduct($tm, array($w, 0, 0, $h, $x, $y));
                         if ($clipping) {
                             $this->SVGTransform($tm);
-                            $this->SVGPath($d, 'CNZ');
+                            $this->SVGPath($d, self::CLIP_NZ);
                         }
                         else {
                             $this->StartTransform();
                             $this->SVGTransform($tm);
-                            $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'SVGPath', array($d, 'CNZ'));
+                            $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'SVGPath', array($d, self::CLIP_NZ));
                             if (!empty($obstyle)) {
                                 $this->SVGPath($d, $obstyle);
                             }
@@ -23472,14 +23499,14 @@ class PDF
                 $ry = (isset($attribs['ry']) ? $this->getHTMLUnitToUnits($attribs['ry'], 0, $this->svgunit, false) : $rx);
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', 'CNZ', array(), array());
+                    $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', self::CLIP_NZ);
                 }
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'RoundedRectXY', array($x, $y, $w, $h, $rx, $ry, '1111', 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'RoundedRectXY', array($x, $y, $w, $h, $rx, $ry, '1111', self::CLIP_NZ));
                     if (!empty($obstyle)) {
-                        $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', $obstyle, array(), array());
+                        $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', $obstyle);
                     }
                     $this->StopTransform();
                 }
@@ -23499,12 +23526,12 @@ class PDF
                 $h  = $w;
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->Circle($cx, $cy, $r, 0, 360, 'CNZ', array(), array(), 8);
+                    $this->Circle($cx, $cy, $r, 0, 360, self::CLIP_NZ, array(), array(), 8);
                 }
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', array($cx, $cy, $r, 0, 360, 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', array($cx, $cy, $r, 0, 360, self::CLIP_NZ));
                     if (!empty($obstyle)) {
                         $this->Circle($cx, $cy, $r, 0, 360, $obstyle, array(), array(), 8);
                     }
@@ -23527,12 +23554,12 @@ class PDF
                 $h  = (2 * $ry);
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ', array(), array(), 8);
+                    $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ, array(), array(), 8);
                 }
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', array($cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', array($cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ));
                     if (!empty($obstyle)) {
                         $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, array(), array(), 8);
                     }
@@ -23600,23 +23627,23 @@ class PDF
                 if ($name == 'polyline') {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'PolyLine', array($p, 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'PolyLine', array($p, self::CLIP_NZ));
                     if (!empty($obstyle)) {
-                        $this->PolyLine($p, $obstyle, array(), array());
+                        $this->PolyLine($p, $obstyle);
                     }
                     $this->StopTransform();
                 }
                 else { // polygon
                     if ($clipping) {
                         $this->SVGTransform($tm);
-                        $this->Polygon($p, 'CNZ', array(), array(), true);
+                        $this->Polygon($p, self::CLIP_NZ);
                     }
                     else {
                         $this->StartTransform();
                         $this->SVGTransform($tm);
-                        $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Polygon', array($p, 'CNZ'));
+                        $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Polygon', array($p, self::CLIP_NZ));
                         if (!empty($obstyle)) {
-                            $this->Polygon($p, $obstyle, array(), array(), true);
+                            $this->Polygon($p, $obstyle);
                         }
                         $this->StopTransform();
                     }

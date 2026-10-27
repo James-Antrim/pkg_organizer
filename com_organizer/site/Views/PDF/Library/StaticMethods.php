@@ -1500,111 +1500,70 @@ class StaticMethods
 
     /**
      * Get the Path-Painting Operators.
-     * @param string $style   Style of rendering. Possible values are:
-     *                        <ul>
-     *                        <li>S or D: Stroke the path.</li>
-     *                        <li>s or d: Close and stroke the path.</li>
-     *                        <li>f or F: Fill the path, using the nonzero winding number rule to determine the region to fill.</li>
-     *                        <li>f* or F*: Fill the path, using the even-odd rule to determine the region to fill.</li>
-     *                        <li>B or FD or DF: Fill and then stroke the path, using the nonzero winding number rule to determine the region to fill.</li>
-     *                        <li>B* or F*D or DF*: Fill and then stroke the path, using the even-odd rule to determine the region to fill.</li>
-     *                        <li>b or fd or df: Close, fill, and then stroke the path, using the nonzero winding number rule to determine the region to fill.</li>
-     *                        <li>b or f*d or df*: Close, fill, and then stroke the path, using the even-odd rule to determine the region to fill.</li>
-     *                        <li>CNZ: Clipping mode using the even-odd rule to determine which regions lie inside the clipping path.</li>
-     *                        <li>CEO: Clipping mode using the nonzero winding number rule to determine which regions lie inside the clipping path</li>
-     *                        <li>n: End the path object without filling or stroking it.</li>
-     *                        </ul>
+     * @param string $style
      * @param string $default default style
      * @return string
+     * @see PDF::RENDERING_STYLES
      */
-    public static function getPathPaintOperator($style, $default = 'S')
+    public static function getPathPaintOperator($style, $default = PDF::STROKE)
     {
-        $op = '';
         switch ($style) {
-            case 'S':
-            case 'D':
-            {
-                $op = 'S';
+            case PDF::STROKE:
+            case PDF::DRAW:
+                $op = PDF::STROKE;
                 break;
-            }
-            case 's':
-            case 'd':
-            {
-                $op = 's';
+            case PDF::STROKE_CLOSE:
+            case PDF::DRAW_CLOSE:
+                $op = PDF::STROKE_CLOSE;
                 break;
-            }
-            case 'f':
-            case 'F':
-            {
-                $op = 'f';
+            case PDF::FILL:
+            case PDF::FILL2:
+                $op = PDF::FILL2;
                 break;
-            }
-            case 'f*':
-            case 'F*':
-            {
-                $op = 'f*';
+            case PDF::FILL_EO:
+            case PDF::FILL2_EO:
+                $op = PDF::FILL2_EO;
                 break;
-            }
-            case 'B':
-            case 'FD':
-            case 'DF':
-            {
-                $op = 'B';
+            case PDF::BOLD:
+            case PDF::DRAW_FILL:
+            case PDF::FILL_DRAW:
+                $op = PDF::BOLD;
                 break;
-            }
-            case 'B*':
-            case 'F*D':
-            case 'DF*':
-            {
-                $op = 'B*';
+            case PDF::BOLD_EO:
+            case PDF::DRAW_FILL_EO:
+            case PDF::FILL_DRAW_EO:
+                $op = PDF::BOLD_EO;
                 break;
-            }
-            case 'b':
-            case 'fd':
-            case 'df':
-            {
-                $op = 'b';
+            case PDF::BOLD_CLOSE:
+            case PDF::DRAW_FILL_CLOSE:
+            case PDF::FILL_DRAW_CLOSE:
+                $op = PDF::BOLD_CLOSE;
                 break;
-            }
-            case 'b*':
-            case 'f*d':
-            case 'df*':
-            {
-                $op = 'b*';
+            case PDF::BOLD_CLOSE_EO:
+            case PDF::DRAW_FILL_CLOSE_EO:
+            case PDF::FILL_DRAW_CLOSE_EO:
+                $op = PDF::BOLD_CLOSE_EO;
                 break;
-            }
-            case 'CNZ':
-            {
+            case PDF::CLIP_NZ:
                 $op = 'W n';
                 break;
-            }
-            case 'CEO':
-            {
+            case PDF::CLIP_EO:
                 $op = 'W* n';
                 break;
-            }
-            case 'n':
-            {
-                $op = 'n';
+            case PDF::END_PATH:
+                $op = PDF::END_PATH;
                 break;
-            }
             default:
-            {
-                if (!empty($default)) {
-                    $op = self::getPathPaintOperator($default, '');
-                }
-                else {
-                    $op = '';
-                }
-            }
+                $op = $default ? self::getPathPaintOperator($default, '') : '';
         }
+
         return $op;
     }
 
     /**
-     * Get the product of two SVG tranformation matrices
-     * @param array $ta first SVG tranformation matrix
-     * @param array $tb second SVG tranformation matrix
+     * Get the product of two SVG transformation matrices
+     * @param array $ta first SVG transformation matrix
+     * @param array $tb second SVG transformation matrix
      * @return array transformation array
      */
     public static function getTransformationMatrixProduct($ta, $tb)

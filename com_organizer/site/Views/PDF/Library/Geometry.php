@@ -133,10 +133,10 @@ trait Geometry
                 $style = [1, 1, 0];
                 break;
             case self::CLOSED_FILLED:
-                $mode = 'DF';
+                $mode = self::DRAW_FILL;
                 break;
             case self::FILLED:
-                $mode = 'F';
+                $mode = self::FILL;
                 break;
         }
 
@@ -600,7 +600,13 @@ trait Geometry
             }
             else {
                 // remove stroke operator from style
-                $opnostroke = ['S' => '', 'D' => '', 's' => '', 'd' => '', 'B' => 'F', 'FD' => 'F', 'DF' => 'F', 'B*' => 'F*', 'F*D' => 'F*', 'DF*' => 'F*', 'b' => 'f', 'fd' => 'f', 'df' => 'f', 'b*' => 'f*', 'f*d' => 'f*', 'df*' => 'f*'];
+                $opnostroke = [
+                    self::DRAW          => '', self::DRAW_CLOSE => '', self::STROKE => '', self::STROKE_CLOSE => '',
+                    self::BOLD          => self::FILL, self::DRAW_FILL => self::FILL, self::FILL_DRAW => self::FILL,
+                    self::BOLD_CLOSE    => self::FILL2, self::DRAW_FILL_CLOSE => self::FILL2, self::FILL_DRAW_CLOSE => self::FILL2,
+                    self::BOLD_CLOSE_EO => self::FILL2_EO, self::DRAW_FILL_CLOSE_EO => self::FILL2_EO, self::FILL_DRAW_CLOSE_EO => self::FILL2_EO,
+                    self::BOLD_EO       => self::FILL_EO, self::DRAW_FILL_EO => self::FILL_EO, self::FILL_DRAW_EO => self::FILL_EO
+                ];
                 if (isset($opnostroke[$style])) {
                     $style = $opnostroke[$style];
                 }
@@ -650,18 +656,12 @@ trait Geometry
      *                                      </ul>
      *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
      * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
-     * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
-     *                                      <ul>
-     *                                      <li>D or empty string: Draw (default).</li>
-     *                                      <li>F: Fill.</li>
-     *                                      <li>DF or FD: Draw and fill.</li>
-     *                                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
-     *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
-     *                                      </ul>
+     * @param string  $circle_style
      * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
      * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
+     * @see self::RENDERING_STYLES
      */
-    public function RegularPolygon($x0, $y0, $r, $ns, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
+    public function RegularPolygon($x0, $y0, $r, $ns, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = self::DRAW, $circle_outLine_style = [], $circle_fill_color = [])
     {
         if (3 > $ns) {
             $ns = 3;
@@ -790,18 +790,12 @@ trait Geometry
      *                                      </ul>
      *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
      * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
-     * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
-     *                                      <ul>
-     *                                      <li>D or empty string: Draw (default).</li>
-     *                                      <li>F: Fill.</li>
-     *                                      <li>DF or FD: Draw and fill.</li>
-     *                                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
-     *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
-     *                                      </ul>
+     * @param string  $circle_style
      * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
      * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
+     * @see self::RENDERING_STYLES
      */
-    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
+    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = self::DRAW, $circle_outLine_style = [], $circle_fill_color = [])
     {
         if ($nv < 2) {
             $nv = 2;
@@ -871,11 +865,11 @@ trait Geometry
             return;
         }
         // Rounded
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
+        if (!(false === strpos($style, self::FILL)) and is_array($fill_color)) {
             $this->setFillColorArray($fill_color);
         }
         $op = StaticMethods::getPathPaintOperator($style);
-        if ($op == 'f') {
+        if ($op == self::FILL2) {
             $border_style = [];
         }
         if ($border_style) {
