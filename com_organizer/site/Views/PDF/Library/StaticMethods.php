@@ -50,6 +50,54 @@ class StaticMethods
     }
 
     /**
+     * Get BYTE from string (8-bit unsigned integer).
+     * @param string $str    String from where to extract value.
+     * @param int    $offset Point from where to read the data.
+     * @return int
+     */
+    public static function byte(string $str, int $offset): int
+    {
+        $v = unpack('Ci', substr($str, $offset, 1));
+        return $v['i'];
+    }
+
+    /**
+     * Encode a name.
+     * @param string $name Name object to encode.
+     * @return string
+     */
+    public static function encodeName(string $name): string
+    {
+        $return = '';
+
+        for ($index = 0; $index < strlen($name); ++$index) {
+            $character = $name[$index];
+            $return    .= preg_match('/[0-9a-zA-Z#_=-]/', $character) === 1 ? $character : sprintf('#%02X', ord($character));
+        }
+
+        return $return;
+    }
+
+    /**
+     * Encode URL query parameters.
+     * @param string $url
+     * @return string
+     */
+    public static function encodeUrlQuery(string $url): string
+    {
+        $urlData = parse_url($url);
+
+        if (empty($urlData['query'])) {
+            return $url;
+        }
+
+        $urlQueryData = [];
+        parse_str(urldecode($urlData['query']), $urlQueryData);
+        $port = empty($urlData['port']) ? '' : ':' . $urlData['port'];
+        return $urlData['scheme'] . '://' . $urlData['host'] . $port . $urlData['path'] . '?' . http_build_query($urlQueryData);
+    }
+
+    /**
      * Escapes a string by adding "\" before "\", "(" and ")"
      * @param string $string string to escape.
      * @return string
@@ -69,6 +117,127 @@ class StaticMethods
     {
         $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
         return empty($string) ? '' : strtr($string, $replaceTable);
+    }
+
+    /**
+     * Extracts the CSS properties from a CSS string.
+     * @param string $css string containing CSS definitions.
+     * @return array An array where the keys are the CSS selectors and the values are the CSS properties.
+     */
+    public static function extractCSSProperties(string $css): array
+    {
+        if (empty($css)) {
+            return [];
+        }
+
+        // remove comments
+        $css = preg_replace('/\/\*[^*]*\*\//', '', $css);
+        // remove newlines and multiple spaces
+        $css = preg_replace('/\s+/', ' ', $css);
+        // remove some spaces
+        $css = preg_replace('/\s*([;:{}])\s*/', '\\1', $css);
+        // remove empty blocks
+        $css = preg_replace('/([^}{]+)\{\}/', '', $css);
+        // replace media type parenthesis
+        $css = preg_replace('/@media\s+([^{]*)\{/i', '@media \\1§', $css);
+        $css = preg_replace('/\}\}/si', '}§', $css);
+        $css = trim($css);
+
+        // find media blocks (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
+        $blocks  = [];
+        $matches = [];
+        if (preg_match_all('/@media[\s]+([^§]*)§([^§]*)§/i', $css, $matches) > 0) {
+            foreach ($matches[1] as $key => $type) {
+                $blocks[$type] = $matches[2][$key];
+            }
+            // remove media blocks
+            $css = preg_replace('/@media\s+([^§]*)§([^§]*)§/i', '', $css);
+        }
+
+        // keep 'all' and 'print' media, other media types are discarded
+        if (!empty($blocks['all'])) {
+            $css .= $blocks['all'];
+        }
+        if (!empty($blocks['print'])) {
+            $css .= $blocks['print'];
+        }
+
+        // reset css blocks array
+        $blocks  = [];
+        $matches = [];
+
+        // remove last parenthesis
+        if (str_ends_with($css, '}')) {
+            $css = substr($css, 0, -1);
+        }
+
+        // explode css data string into array
+        $matches = explode('}', $css);
+        foreach ($matches as $key => $block) {
+            // index 0 contains the CSS selector, index 1 contains CSS properties
+            $blocks[$key] = explode('{', $block);
+
+            // remove empty definitions
+            if (empty($blocks[$key][1])) {
+                unset($blocks[$key]);
+            }
+        }
+
+        // split groups of selectors (comma-separated list of selectors)
+        foreach ($blocks as $key => $block) {
+            if (strpos($block[0], ',') > 0) {
+                $selectors = explode(',', $block[0]);
+                foreach ($selectors as $selector) {
+                    $blocks[] = array(0 => trim($selector), 1 => $block[1]);
+                }
+                unset($blocks[$key]);
+            }
+        }
+
+        // covert array to selector => properties
+        $css = [];
+        foreach ($blocks as $block) {
+            $selector = $block[0];
+
+            // calculate selector's specificity
+            $matches     = [];
+            $a           = 0; // the declaration is not from is a 'style' attribute
+            $ids         = intval(preg_match_all('/#/', $selector, $matches)); // number of ID attributes
+            $attributes  = intval(preg_match_all('/[\[.]/', $selector, $matches)); // number of other attributes
+            $attributes  += intval(preg_match_all('/[:]link|visited|hover|active|focus|target|lang|enabled|disabled|checked|indeterminate|root|nth|first|last|only|empty|contains|not/i', $selector, $matches)); // number of pseudo-classes
+            $elements    = intval(preg_match_all('/[>+~\s][a-zA-Z0-9]+/', ' ' . $selector, $matches)); // number of element names
+            $elements    += intval(preg_match_all('/::/', $selector, $matches)); // number of pseudo-elements
+            $specificity = $a . $ids . $attributes . $elements;
+
+            // add specificity to the beginning of the selector
+            $css[$specificity . ' ' . $selector] = $block[1];
+        }
+        // sort selectors alphabetically to account for specificity
+        ksort($css, SORT_STRING);
+
+        return $css;
+    }
+
+    /**
+     * Convert hexadecimal string to string
+     * @param string $string byte-string to convert
+     * @return string
+     */
+    public static function hexStringToString(string $string): string
+    {
+        $return = '';
+        $length = strlen($string);
+
+        if (($length % 2) != 0) {
+            // padding
+            $string .= '0';
+            ++$length;
+        }
+
+        for ($i = 0; $i < $length; $i += 2) {
+            $return .= chr(hexdec($string[$i] . $string[($i + 1)]));
+        }
+        return $return;
     }
 
     /**
@@ -175,6 +344,20 @@ class StaticMethods
             $text = preg_replace('/([\\xad]{1})/', '', $text);
         }
         return $text;
+    }
+
+    /**
+     * Convert string to hexadecimal string (byte string)
+     * @param string $string string to convert
+     * @return string
+     */
+    public static function stringToHexString(string $string): string
+    {
+        $return = '';
+        foreach (preg_split('//', $string, -1, PREG_SPLIT_NO_EMPTY) as $character) {
+            $return .= sprintf('%02s', dechex(ord($character)));
+        }
+        return $return;
     }
 
     /**
@@ -442,41 +625,6 @@ class StaticMethods
     }
 
     /**
-     * Convert hexadecimal string to string
-     * @param string $bs byte-string to convert
-     * @return string
-     */
-    public static function convertHexStringToString($bs)
-    {
-        $string   = ''; // string to be returned
-        $bslength = strlen($bs);
-        if (($bslength % 2) != 0) {
-            // padding
-            $bs .= '0';
-            ++$bslength;
-        }
-        for ($i = 0; $i < $bslength; $i += 2) {
-            $string .= chr(hexdec($bs[$i] . $bs[($i + 1)]));
-        }
-        return $string;
-    }
-
-    /**
-     * Convert string to hexadecimal string (byte string)
-     * @param string $s string to convert
-     * @return string byte string
-     */
-    public static function convertStringToHexString($s)
-    {
-        $bs    = '';
-        $chars = preg_split('//', $s, -1, PREG_SPLIT_NO_EMPTY);
-        foreach ($chars as $c) {
-            $bs .= sprintf('%02s', dechex(ord($c)));
-        }
-        return $bs;
-    }
-
-    /**
      * Convert encryption P value to a string of bytes, low-order byte first.
      * @param string $protection 32bit encryption permission value (P value)
      * @return string
@@ -489,27 +637,6 @@ class StaticMethods
         $str     .= chr(bindec(substr($binprot, 8, 8)));
         $str     .= chr(bindec(substr($binprot, 0, 8)));
         return $str;
-    }
-
-    /**
-     * Encode a name object.
-     * @param string $name Name object to encode.
-     * @return string Encoded name object.
-     */
-    public static function encodeNameObject($name)
-    {
-        $escname = '';
-        $length  = strlen($name);
-        for ($i = 0; $i < $length; ++$i) {
-            $chr = $name[$i];
-            if (preg_match('/[0-9a-zA-Z#_=-]/', $chr) == 1) {
-                $escname .= $chr;
-            }
-            else {
-                $escname .= sprintf('#%02X', ord($chr));
-            }
-        }
-        return $escname;
     }
 
     /**
@@ -933,95 +1060,6 @@ class StaticMethods
     public static function formatTOCPageNumber($num)
     {
         return number_format((float) $num, 0, '', '.');
-    }
-
-    /**
-     * Extracts the CSS properties from a CSS string.
-     * @param string $cssdata string containing CSS definitions.
-     * @return array An array where the keys are the CSS selectors and the values are the CSS properties.
-     */
-    public static function extractCSSproperties($cssdata)
-    {
-        if (empty($cssdata)) {
-            return [];
-        }
-        // remove comments
-        $cssdata = preg_replace('/\/\*[^\*]*\*\//', '', $cssdata);
-        // remove newlines and multiple spaces
-        $cssdata = preg_replace('/[\s]+/', ' ', $cssdata);
-        // remove some spaces
-        $cssdata = preg_replace('/[\s]*([;:\{\}]{1})[\s]*/', '\\1', $cssdata);
-        // remove empty blocks
-        $cssdata = preg_replace('/([^\}\{]+)\{\}/', '', $cssdata);
-        // replace media type parenthesis
-        $cssdata = preg_replace('/@media[\s]+([^\{]*)\{/i', '@media \\1§', $cssdata);
-        $cssdata = preg_replace('/\}\}/si', '}§', $cssdata);
-        // trim string
-        $cssdata = trim($cssdata);
-        // find media blocks (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
-        $cssblocks = [];
-        $matches   = [];
-        if (preg_match_all('/@media[\s]+([^\§]*)§([^§]*)§/i', $cssdata, $matches) > 0) {
-            foreach ($matches[1] as $key => $type) {
-                $cssblocks[$type] = $matches[2][$key];
-            }
-            // remove media blocks
-            $cssdata = preg_replace('/@media[\s]+([^\§]*)§([^§]*)§/i', '', $cssdata);
-        }
-        // keep 'all' and 'print' media, other media types are discarded
-        if (isset($cssblocks['all']) and !empty($cssblocks['all'])) {
-            $cssdata .= $cssblocks['all'];
-        }
-        if (isset($cssblocks['print']) and !empty($cssblocks['print'])) {
-            $cssdata .= $cssblocks['print'];
-        }
-        // reset css blocks array
-        $cssblocks = [];
-        $matches   = [];
-        // explode css data string into array
-        if (substr($cssdata, -1) == '}') {
-            // remove last parethesis
-            $cssdata = substr($cssdata, 0, -1);
-        }
-        $matches = explode('}', $cssdata);
-        foreach ($matches as $key => $block) {
-            // index 0 contains the CSS selector, index 1 contains CSS properties
-            $cssblocks[$key] = explode('{', $block);
-            if (!isset($cssblocks[$key][1])) {
-                // remove empty definitions
-                unset($cssblocks[$key]);
-            }
-        }
-        // split groups of selectors (comma-separated list of selectors)
-        foreach ($cssblocks as $key => $block) {
-            if (strpos($block[0], ',') > 0) {
-                $selectors = explode(',', $block[0]);
-                foreach ($selectors as $sel) {
-                    $cssblocks[] = array(0 => trim($sel), 1 => $block[1]);
-                }
-                unset($cssblocks[$key]);
-            }
-        }
-        // covert array to selector => properties
-        $cssdata = [];
-        foreach ($cssblocks as $block) {
-            $selector = $block[0];
-            // calculate selector's specificity
-            $matches     = [];
-            $a           = 0; // the declaration is not from is a 'style' attribute
-            $b           = intval(preg_match_all('/[\#]/', $selector, $matches)); // number of ID attributes
-            $c           = intval(preg_match_all('/[\[\.]/', $selector, $matches)); // number of other attributes
-            $c           += intval(preg_match_all('/[\:]link|visited|hover|active|focus|target|lang|enabled|disabled|checked|indeterminate|root|nth|first|last|only|empty|contains|not/i', $selector, $matches)); // number of pseudo-classes
-            $d           = intval(preg_match_all('/[\>\+\~\s]{1}[a-zA-Z0-9]+/', ' ' . $selector, $matches)); // number of element names
-            $d           += intval(preg_match_all('/[\:][\:]/', $selector, $matches)); // number of pseudo-elements
-            $specificity = $a . $b . $c . $d;
-            // add specificity to the beginning of the selector
-            $cssdata[$specificity . ' ' . $selector] = $block[1];
-        }
-        // sort selectors alphabetically to account for specificity
-        ksort($cssdata, SORT_STRING);
-        // return array
-        return $cssdata;
     }
 
     /**
@@ -1661,27 +1699,6 @@ class StaticMethods
     }
 
     /**
-     * Encode query params in URL
-     *
-     * @param string $url
-     * @return string
-     */
-    public static function encodeUrlQuery($url)
-    {
-        $urlData = parse_url($url);
-        if (isset($urlData['query']) && $urlData['query']) {
-            $urlQueryData = [];
-            parse_str(urldecode($urlData['query']), $urlQueryData);
-            $port       = isset($urlData['port']) ? ':' . $urlData['port'] : '';
-            $updatedUrl = $urlData['scheme'] . '://' . $urlData['host'] . $port . $urlData['path'] . '?' . http_build_query($urlQueryData);
-        }
-        else {
-            $updatedUrl = $url;
-        }
-        return $updatedUrl;
-    }
-
-    /**
      * Reads entire file into a string.
      * The file can be also a URL.
      * @param string $file Name of the file or URL to read.
@@ -1873,18 +1890,6 @@ class StaticMethods
         $f = self::_getUSHORT($str, ($offset + 2));
         $v = floatval('' . $m . '.' . $f . '');
         return $v;
-    }
-
-    /**
-     * Get BYTE from string (8-bit unsigned integer).
-     * @param string $str    String from where to extract value.
-     * @param int    $offset Point from where to read the data.
-     * @return int 8 bit value
-     */
-    public static function _getBYTE($str, $offset)
-    {
-        $v = unpack('Ci', substr($str, $offset, 1));
-        return $v['i'];
     }
 
     /**

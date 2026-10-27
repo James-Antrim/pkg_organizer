@@ -549,7 +549,7 @@ class Fonts
                         { // Format 0: Byte encoding table
                             $offset += 4; // skip length and version/language
                             for ($c = 0; $c < 256; ++$c) {
-                                $g       = StaticMethods::_getBYTE($font, $offset);
+                                $g       = StaticMethods::byte($font, $offset);
                                 $ctg[$c] = $g;
                                 ++$offset;
                             }
@@ -686,7 +686,7 @@ class Fonts
                         { // Format 8: Mixed 16-bit and 32-bit coverage
                             $offset += 10; // skip reserved, length and version/language
                             for ($k = 0; $k < 8192; ++$k) {
-                                $is32[$k] = StaticMethods::_getBYTE($font, $offset);
+                                $is32[$k] = StaticMethods::byte($font, $offset);
                                 ++$offset;
                             }
                             $nGroups = StaticMethods::_getULONG($font, $offset);
@@ -990,7 +990,7 @@ class Fonts
                     $offset += 4; // skip length and version/language
                     for ($c = 0; $c < 256; ++$c) {
                         if (isset($subsetchars[$c])) {
-                            $g                = StaticMethods::_getBYTE($font, $offset);
+                            $g                = StaticMethods::byte($font, $offset);
                             $subsetglyphs[$g] = true;
                         }
                         ++$offset;
@@ -1136,7 +1136,7 @@ class Fonts
                 { // Format 8: Mixed 16-bit and 32-bit coverage
                     $offset += 10; // skip reserved, length and version/language
                     for ($k = 0; $k < 8192; ++$k) {
-                        $is32[$k] = StaticMethods::_getBYTE($font, $offset);
+                        $is32[$k] = StaticMethods::byte($font, $offset);
                         ++$offset;
                     }
                     $nGroups = StaticMethods::_getULONG($font, $offset);

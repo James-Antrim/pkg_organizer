@@ -8197,7 +8197,7 @@ class PDF
                             if (is_string($pl['txt']) && !empty($pl['txt'])) {
                                 if ($pl['txt'][0] == '#') {
                                     // internal destination
-                                    $annots .= ' /A <</S /GoTo /D /' . StaticMethods::encodeNameObject(substr($pl['txt'], 1)) . '>>';
+                                    $annots .= ' /A <</S /GoTo /D /' . StaticMethods::encodeName(substr($pl['txt'], 1)) . '>>';
                                 }
                                 elseif ($pl['txt'][0] == '%') {
                                     // embedded PDF file
@@ -10788,7 +10788,7 @@ class PDF
             }
         }
         $this->encrypted             = true;
-        $this->encryptdata['fileid'] = StaticMethods::convertHexStringToString($this->file_id);
+        $this->encryptdata['fileid'] = StaticMethods::hexStringToString($this->file_id);
         $this->_generateencryptionkey();
     }
 
@@ -11126,7 +11126,7 @@ class PDF
     public function setDestination($name, $y = -1, $page = '', $x = -1)
     {
         // remove unsupported characters
-        $name = StaticMethods::encodeNameObject($name);
+        $name = StaticMethods::encodeName($name);
         if (empty($name)) {
             return false;
         }
@@ -11349,7 +11349,7 @@ class PDF
                 if (is_string($o['u'])) {
                     if ($o['u'][0] == '#') {
                         // internal destination
-                        $out .= ' /Dest /' . StaticMethods::encodeNameObject(substr($o['u'], 1));
+                        $out .= ' /Dest /' . StaticMethods::encodeName(substr($o['u'], 1));
                     }
                     elseif ($o['u'][0] == '%') {
                         // embedded PDF file
@@ -15246,7 +15246,7 @@ class PDF
                             // read CSS data file
                             $cssdata = $this->getCachedFileContents(trim($type[1]));
                             if (($cssdata !== FALSE) and (strlen($cssdata) > 0)) {
-                                $css = array_merge($css, StaticMethods::extractCSSproperties($cssdata));
+                                $css = array_merge($css, StaticMethods::extractCSSProperties($cssdata));
                             }
                         }
                     }
@@ -15263,7 +15263,7 @@ class PDF
                 // (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
                 if (empty($type) or (isset($type[1]) and (($type[1] == 'all') or ($type[1] == 'print')))) {
                     $cssdata = $matches[2][$key];
-                    $css     = array_merge($css, StaticMethods::extractCSSproperties($cssdata));
+                    $css     = array_merge($css, StaticMethods::extractCSSProperties($cssdata));
                 }
             }
         }
