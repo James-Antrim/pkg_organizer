@@ -1614,42 +1614,6 @@ class StaticMethods
     }
 
     /**
-     * Split string by a regular expression.
-     * This is a wrapper for the preg_split function to avoid the bug: https://bugs.php.net/bug.php?id=45850
-     * @param string $pattern   The regular expression pattern to search for without the modifiers, as a string.
-     * @param string $modifiers The modifiers part of the pattern,
-     * @param string $subject   The input string.
-     * @param int    $limit     If specified, then only substrings up to limit are returned with the rest of the string being placed in the last substring. A limit of -1, 0 or NULL means "no limit" and, as is standard across PHP, you can use NULL to skip to the flags parameter.
-     * @param int    $flags     The flags as specified on the preg_split PHP function.
-     * @return array Returns an array containing substrings of subject split along boundaries matched by pattern.modifier
-     */
-    public static function pregSplit($pattern, $modifiers, $subject, $limit = NULL, $flags = NULL)
-    {
-        // PHP 8.1 deprecates nulls for $limit and $flags
-        $limit = $limit === null ? -1 : $limit;
-        $flags = $flags === null ? 0 : $flags;
-        // the bug only happens on PHP 5.2 when using the u modifier
-        if ((strpos($modifiers, 'u') === FALSE) or (count(preg_split('//u', "\n\t", -1, PREG_SPLIT_NO_EMPTY)) == 2)) {
-            $ret = preg_split($pattern . $modifiers, $subject, $limit, $flags);
-            if ($ret === false) {
-                return [];
-            }
-            return is_array($ret) ? $ret : [];
-        }
-        // preg_split is bugged - try alternative solution
-        $ret = [];
-        while (($nl = strpos($subject, "\n")) !== FALSE) {
-            $ret     = array_merge($ret, preg_split($pattern . $modifiers, substr($subject, 0, $nl), $limit, $flags));
-            $ret[]   = "\n";
-            $subject = substr($subject, ($nl + 1));
-        }
-        if (strlen($subject) > 0) {
-            $ret = array_merge($ret, preg_split($pattern . $modifiers, $subject, $limit, $flags));
-        }
-        return $ret;
-    }
-
-    /**
      * Wrapper to use fopen only with local files
      * @param string $filename Name of the file to open
      * @param string $mode

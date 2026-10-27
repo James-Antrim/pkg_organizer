@@ -6263,7 +6263,7 @@ class PDF
                         }
                         // check the length of the next string
                         $strrest = Fonts::UniArrSubString($uchars, ($sep + $endspace));
-                        $nextstr = StaticMethods::pregSplit('/' . $this->re_space['p'] . '/', $this->re_space['m'], $this->stringTrim($strrest));
+                        $nextstr = preg_split('/' . $this->re_space['p'] . '/' . $this->re_space['m'], $this->stringTrim($strrest));
                         if (isset($nextstr[0]) and ($this->GetStringWidth($nextstr[0]) > $pw)) {
                             // truncate the word because do not fit on a full page width
                             $tmpstr = Fonts::UniArrSubString($uchars, $j, $i);
@@ -17509,7 +17509,7 @@ class PDF
                                     $same_textdir  = ($dom[$nkey]['dir'] == $dom[$key]['dir']);
                                 }
                                 else {
-                                    $nextstr = StaticMethods::pregSplit('/' . $this->re_space['p'] . '+/', $this->re_space['m'], $dom[$nkey]['value']);
+                                    $nextstr = preg_split('/' . $this->re_space['p'] . '+/' . $this->re_space['m'], $dom[$nkey]['value']);
                                     if (isset($nextstr[0]) and $same_textdir) {
                                         $wadj += $this->GetStringWidth($nextstr[0], $tmp_fontname, $tmp_fontstyle, $tmp_fontsize);
                                         if (isset($nextstr[1])) {
@@ -17522,7 +17522,7 @@ class PDF
                         }
                         if (($wadj > 0) and (($strlinelen + $wadj) >= $cwa)) {
                             $wadj    = 0;
-                            $nextstr = StaticMethods::pregSplit('/' . $this->re_space['p'] . '/', $this->re_space['m'], $dom[$key]['value']);
+                            $nextstr = preg_split('/' . $this->re_space['p'] . '/' . $this->re_space['m'], $dom[$key]['value']);
                             $numblks = count($nextstr);
                             if ($numblks > 1) {
                                 // try to split on blank spaces

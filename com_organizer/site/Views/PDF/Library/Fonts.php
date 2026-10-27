@@ -1986,7 +1986,7 @@ class Fonts
         $str = is_null($str) ? '' : $str;
         if ($isUnicode) {
             // requires PCRE Unicode support turned on
-            $chars = StaticMethods::pregSplit('//', 'u', $str, -1, PREG_SPLIT_NO_EMPTY);
+            $chars = preg_split('//u', $str);
             $carr  = array_map(get_called_class() . '::uniord', $chars);
         }
         else {
