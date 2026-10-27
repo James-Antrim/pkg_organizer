@@ -1634,9 +1634,9 @@ class Fonts
 
 
     /**
-     * Returns the unicode caracter specified by the value
+     * Returns the Unicode caracter specified by the value
      * @param int     $c       UTF-8 value
-     * @param boolean $unicode True if we are in unicode mode, false otherwise.
+     * @param boolean $unicode True if we are in Unicode mode, false otherwise.
      * @return string Returns the specified character.
      */
     public static function unichr($c, $unicode = true)
@@ -1667,7 +1667,7 @@ class Fonts
     }
 
     /**
-     * Returns the unicode caracter specified by UTF-8 value
+     * Returns the Unicode caracter specified by UTF-8 value
      * @param int $c UTF-8 value
      * @return string Returns the specified character.
      */
@@ -1677,7 +1677,7 @@ class Fonts
     }
 
     /**
-     * Returns the unicode caracter specified by ASCII value
+     * Returns the Unicode caracter specified by ASCII value
      * @param int $c UTF-8 value
      * @return string Returns the specified character.
      */
@@ -1716,7 +1716,7 @@ class Fonts
      *    W1 = 110110yyyyyyyyyy
      *    W2 = 110111xxxxxxxxxx
      * </pre>
-     * @param array   $unicode array containing UTF-8 unicode values
+     * @param array   $unicode array containing UTF-8 Unicode values
      * @param boolean $setbom  if true set the Byte Order Mark (BOM = 0xFEFF)
      * @return string
      */
@@ -1751,14 +1751,14 @@ class Fonts
     }
 
     /**
-     * Convert an array of UTF8 values to array of unicode characters
+     * Convert an array of UTF8 values to array of Unicode characters
      * @param array   $ta        The input array of UTF8 values.
-     * @param boolean $isunicode True for Unicode mode, false otherwise.
-     * @return array Return array of unicode characters
+     * @param boolean $isUnicode True for Unicode mode, false otherwise.
+     * @return array Return array of Unicode characters
      */
-    public static function UTF8ArrayToUniArray($ta, $isunicode = true)
+    public static function UTF8ArrayToUniArray($ta, $isUnicode = true)
     {
-        if ($isunicode) {
+        if ($isUnicode) {
             return array_map(get_called_class() . '::unichrUnicode', $ta);
         }
         return array_map(get_called_class() . '::unichrASCII', $ta);
@@ -1769,7 +1769,7 @@ class Fonts
      * @param string[] $strarr  The input array of characters.
      * @param int      $start   the starting element of $strarr.
      * @param int      $end     first element that will not be returned.
-     * @param boolean  $unicode True if we are in unicode mode, false otherwise.
+     * @param boolean  $unicode True if we are in Unicode mode, false otherwise.
      * @return string Return part of a string
      */
     public static function UTF8ArrSubString($strarr, $start = '', $end = '', $unicode = true)
@@ -1811,7 +1811,7 @@ class Fonts
 
     /**
      * Converts UTF-8 characters array to array of Latin1 characters array<br>
-     * @param array $unicode array containing UTF-8 unicode values
+     * @param array $unicode array containing UTF-8 Unicode values
      * @return array
      */
     public static function UTF8ArrToLatin1Arr($unicode)
@@ -1837,7 +1837,7 @@ class Fonts
 
     /**
      * Converts UTF-8 characters array to Latin1 string<br>
-     * @param array $unicode array containing UTF-8 unicode values
+     * @param array $unicode array containing UTF-8 Unicode values
      * @return string
      */
     public static function UTF8ArrToLatin1($unicode)
@@ -1948,7 +1948,7 @@ class Fonts
                 $bytes[] = $char - 0x80;
                 ++$countbytes;
                 if ($countbytes == $numbytes) {
-                    // compose UTF-8 bytes to a single unicode value
+                    // compose UTF-8 bytes to a single Unicode value
                     $char = $bytes[0];
                     for ($j = 1; $j < $numbytes; ++$j) {
                         $char += ($bytes[$j] << (($numbytes - $j - 1) * 0x06));
@@ -1977,15 +1977,15 @@ class Fonts
      * Converts UTF-8 strings to codepoints array.<br>
      * Invalid byte sequences will be replaced with 0xFFFD (replacement character)<br>
      * @param string  $str         string to process.
-     * @param boolean $isunicode   True when the documetn is in Unicode mode, false otherwise.
+     * @param boolean $isUnicode   True when the documetn is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
      * @return array containing codepoints (UTF-8 characters values)
      */
-    public static function UTF8StringToArray($str, $isunicode, &$currentfont)
+    public static function UTF8StringToArray($str, $isUnicode, &$currentfont)
     {
         $str = is_null($str) ? '' : $str;
-        if ($isunicode) {
-            // requires PCRE unicode support turned on
+        if ($isUnicode) {
+            // requires PCRE Unicode support turned on
             $chars = StaticMethods::pregSplit('//', 'u', $str, -1, PREG_SPLIT_NO_EMPTY);
             $carr  = array_map(get_called_class() . '::uniord', $chars);
         }
@@ -2005,13 +2005,13 @@ class Fonts
     /**
      * Converts UTF-8 strings to Latin1 when using the standard 14 core fonts.<br>
      * @param string  $str         string to process.
-     * @param boolean $isunicode   True when the documetn is in Unicode mode, false otherwise.
+     * @param boolean $isUnicode   True when the documetn is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
      * @return string
      */
-    public static function UTF8ToLatin1($str, $isunicode, &$currentfont)
+    public static function UTF8ToLatin1($str, $isUnicode, &$currentfont)
     {
-        $unicode = self::UTF8StringToArray($str, $isunicode, $currentfont); // array containing UTF-8 unicode values
+        $unicode = self::UTF8StringToArray($str, $isUnicode, $currentfont); // array containing UTF-8 Unicode values
         return self::UTF8ArrToLatin1($unicode);
     }
 
@@ -2019,16 +2019,16 @@ class Fonts
      * Converts UTF-8 strings to UTF16-BE.<br>
      * @param string  $str         string to process.
      * @param boolean $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param boolean $isunicode   True when the documetn is in Unicode mode, false otherwise.
+     * @param boolean $isUnicode   True when the documetn is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
      * @return string
      */
-    public static function UTF8ToUTF16BE($str, $setbom, $isunicode, &$currentfont)
+    public static function UTF8ToUTF16BE($str, $setbom, $isUnicode, &$currentfont)
     {
-        if (!$isunicode) {
-            return $str; // string is not in unicode
+        if (!$isUnicode) {
+            return $str; // string is not in Unicode
         }
-        $unicode = self::UTF8StringToArray($str, $isunicode, $currentfont); // array containing UTF-8 unicode values
+        $unicode = self::UTF8StringToArray($str, $isUnicode, $currentfont); // array containing UTF-8 Unicode values
         return self::arrUTF8ToUTF16BE($unicode, $setbom);
     }
 
@@ -2037,28 +2037,28 @@ class Fonts
      * @param string  $str         string to manipulate.
      * @param bool    $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
      * @param bool    $forcertl    if true forces RTL text direction
-     * @param boolean $isunicode   True if the document is in Unicode mode, false otherwise.
+     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
      * @return string
      */
-    public static function utf8StrRev($str, $setbom, $forcertl, $isunicode, &$currentfont)
+    public static function utf8StrRev($str, $setbom, $forcertl, $isUnicode, &$currentfont)
     {
-        return self::utf8StrArrRev(self::UTF8StringToArray($str, $isunicode, $currentfont), $str, $setbom, $forcertl, $isunicode, $currentfont);
+        return self::utf8StrArrRev(self::UTF8StringToArray($str, $isUnicode, $currentfont), $str, $setbom, $forcertl, $isUnicode, $currentfont);
     }
 
     /**
      * Reverse the RLT substrings array using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param array   $arr         array of unicode values.
+     * @param array   $arr         array of Unicode values.
      * @param string  $str         string to manipulate (or empty value).
      * @param bool    $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
      * @param bool    $forcertl    if true forces RTL text direction
-     * @param boolean $isunicode   True if the document is in Unicode mode, false otherwise.
+     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
      * @return string
      */
-    public static function utf8StrArrRev($arr, $str, $setbom, $forcertl, $isunicode, &$currentfont)
+    public static function utf8StrArrRev($arr, $str, $setbom, $forcertl, $isUnicode, &$currentfont)
     {
-        return self::arrUTF8ToUTF16BE(self::utf8Bidi($arr, $str, $forcertl, $isunicode, $currentfont), $setbom);
+        return self::arrUTF8ToUTF16BE(self::utf8Bidi($arr, $str, $forcertl, $isUnicode, $currentfont), $setbom);
     }
 
     /**
@@ -2066,11 +2066,11 @@ class Fonts
      * @param array   $ta          array of characters composing the string.
      * @param string  $str         string to process
      * @param bool    $forcertl    if 'R' forces RTL, if 'L' forces LTR
-     * @param boolean $isunicode   True if the document is in Unicode mode, false otherwise.
+     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
      * @return array of unicode chars
      */
-    public static function utf8Bidi($ta, $str, $forcertl, $isunicode, &$currentfont)
+    public static function utf8Bidi($ta, $str, $forcertl, $isUnicode, &$currentfont)
     {
         // paragraph embedding level
         $pel = 0;
@@ -2078,7 +2078,7 @@ class Fonts
         $maxlevel = 0;
         if (StaticMethods::empty_string($str)) {
             // create string from array
-            $str = self::UTF8ArrSubString($ta, '', '', $isunicode);
+            $str = self::UTF8ArrSubString($ta, '', '', $isUnicode);
         }
         // check if string contains arabic text
         if (preg_match(FontData::$arabidTestPattern, $str)) {

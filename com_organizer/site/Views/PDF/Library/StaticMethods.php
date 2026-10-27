@@ -17,6 +17,11 @@ namespace THM\Organizer\Views\PDF\Library;
 class StaticMethods
 {
     /**
+     * String alias for total number of pages.
+     */
+    public const TOTAL_PAGES_ALIAS = '{:ptp:}';
+
+    /**
      * Returns the input text encrypted using AES algorithm and the specified key. This method requires openssl. Text is padded to 16 byte blocks.
      * Padding: RFC 2898, PKCS #5: Password-Based Cryptography Specification Version 2.0
      * @param string $key     encryption key
@@ -39,6 +44,15 @@ class StaticMethods
         $iv   = str_repeat("\x00", openssl_cipher_iv_length($algorithm));
         $text = openssl_encrypt($text, $algorithm, $key, OPENSSL_RAW_DATA, $iv);
         return substr($text, 0, -16);
+    }
+
+    /**
+     * Returns "THM Organizer 5.0.0" in Unicode.
+     * @return string TCPDF producer string
+     */
+    public static function producer(): string
+    {
+        return "\x54\x48\x4D\x20\x4F\x72\x67\x61\x6E\x69\x7A\x65\x72\x20\x76\x35\x2E\x30\x2E\x30";
     }
 
     /**
@@ -100,12 +114,22 @@ class StaticMethods
         return $out;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
-
     /**
-     * Current TCPDF version.
+     * Removes SHY (SOFT HYPHEN) characters from text.
+     * @param string $text
+     * @param bool   $unicode true if Unicode
+     * @return string without SHY characters.
      */
-    private static $tcpdf_version = '6.6.5';
+    public static function removeSHY(string $text, bool $unicode = true): string
+    {
+        $text = preg_replace('/([\\xc2]{1}[\\xad]{1})/', '', $text);
+        if (!$unicode) {
+            $text = preg_replace('/([\\xad]{1})/', '', $text);
+        }
+        return $text;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
      * String alias for total number of pages.
@@ -147,25 +171,6 @@ class StaticMethods
      */
     public static $pageboxes = ['ArtBox', 'BleedBox', 'CropBox', 'MediaBox', 'TrimBox'];
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    /**
-     * Return the current TCPDF version.
-     * @return string TCPDF version string
-     */
-    public static function getTCPDFVersion()
-    {
-        return self::$tcpdf_version;
-    }
-
-    /**
-     * Return the current TCPDF producer.
-     * @return string TCPDF producer string
-     */
-    public static function getTCPDFProducer()
-    {
-        return "\x54\x43\x50\x44\x46\x20" . self::getTCPDFVersion() . "\x20\x28\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
-    }
 
     /**
      * Check if the URL exist.
@@ -179,30 +184,6 @@ class StaticMethods
             return false;
         }
         return (strpos($headers[0], '200') !== false);
-    }
-
-    /**
-     * Removes SHY characters from text.
-     * Unicode Data:<ul>
-     * <li>Name : SOFT HYPHEN, commonly abbreviated as SHY</li>
-     * <li>HTML Entity (decimal): "&amp;#173;"</li>
-     * <li>HTML Entity (hex): "&amp;#xad;"</li>
-     * <li>HTML Entity (named): "&amp;shy;"</li>
-     * <li>How to type in Microsoft Windows: [Alt +00AD] or [Alt 0173]</li>
-     * <li>UTF-8 (hex): 0xC2 0xAD (c2ad)</li>
-     * <li>UTF-8 character: chr(194).chr(173)</li>
-     * </ul>
-     * @param string  $txt     input string
-     * @param boolean $unicode True if we are in unicode mode, false otherwise.
-     * @return string without SHY characters.
-     */
-    public static function removeSHY($txt = '', $unicode = true)
-    {
-        $txt = preg_replace('/([\\xc2]{1}[\\xad]{1})/', '', $txt);
-        if (!$unicode) {
-            $txt = preg_replace('/([\\xad]{1})/', '', $txt);
-        }
-        return $txt;
     }
 
 
