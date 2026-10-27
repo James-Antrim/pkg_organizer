@@ -797,11 +797,6 @@ class PDF
     protected $endlinex = 0;
 
     /**
-     * PDF string for width value of the last line.
-     */
-    protected $linestyleWidth = '';
-
-    /**
      * PDF string for CAP value of the last line.
      */
     protected $linestyleCap = '0 J';
@@ -4602,7 +4597,7 @@ class PDF
      * @param boolean $ignore_min_height if true ignore automatic minimum height value.
      * @param string  $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
      * @param string  $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), AddLink(), Ln(), MultiCell(), Write(), SetAutoPageBreak()
+     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), AddLink(), Ln(), MultiCell(), Write(), SetAutoPageBreak()
      */
     public function Cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
@@ -5435,7 +5430,7 @@ class PDF
      * @param string     $valign      Vertical alignment of text (requires $maxHeight = $h > 0). Possible values are:<ul><li>T: TOP</li><li>M: middle</li><li>B: bottom</li></ul>. This feature works only when $ishtml=false and the cell must fit in a single page.
      * @param boolean    $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxHeight must be greater than 0 and equal to $h.
      * @return int Return the number of cells or 1 for html mode.
-     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), Cell(), Write(), SetAutoPageBreak()
+     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), Cell(), Write(), SetAutoPageBreak()
      */
     public function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxHeight = 0, $valign = 'T', $fitcell = false)
     {
@@ -17977,7 +17972,7 @@ class PDF
                     $hrHeight = $this->getHTMLUnitToUnits($tag['height'], 1, 'px');
                 }
                 else {
-                    $hrHeight = $this->GetLineWidth();
+                    $hrHeight = $this->lineWidth;
                 }
                 $this->addHTMLVertSpace($hbz, max($hb, ($hrHeight / 2)), $cell, $firsttag);
                 $x    = $this->GetX();
@@ -17992,8 +17987,9 @@ class PDF
                 else {
                     $hrWidth = $wtmp;
                 }
-                $prevlinewidth = $this->GetLineWidth();
-                $this->setLineWidth($hrHeight);
+
+                $prevlinewidth = $this->lineWidth;
+                $this->lineWidth($hrHeight);
 
                 $lineStyle = [];
                 if (isset($tag['fgcolor'])) {
@@ -18023,7 +18019,7 @@ class PDF
                 $lineStyle = array_filter($lineStyle);
 
                 $this->Line($x, $y, $x + $hrWidth, $y, $lineStyle);
-                $this->setLineWidth($prevlinewidth);
+                $this->lineWidth($prevlinewidth);
                 $this->addHTMLVertSpace(max($hbc, ($hrHeight / 2)), 0, $cell, !isset($dom[($key + 1)]));
                 break;
             }

@@ -18,7 +18,10 @@ trait Geometry
     public const ARMS = 0, CLOSED = 1, CLOSED_FILLED = 2, FILLED = 3;
     public const ARROW_HEAD_STYLES = [];
 
-    private float $lineWidth;
+    public float $lineWidth;
+
+    /** Width value of the last line. */
+    private string $lineWidthStyle = '';
 
     /**
      * Append a cubic Bézier curve to the current path.
@@ -201,6 +204,21 @@ trait Geometry
 
         $this->_outellipticalarc($x, $y, $xRadius, $yRadius, $angle, $startAngle, $endAngle, false, $curves);
         $this->append($operator);
+    }
+
+    /**
+     * Defines the line width. By default, the value equals 0.2 mm. The method can be called before the first page is created and the value is retained from page to page.
+     * @param float $width The width.
+     * @see   Line(), Rect(), Cell(), MultiCell()
+     */
+    public function lineWidth(float $width): void
+    {
+        $this->lineWidth      = $width;
+        $this->lineWidthStyle = sprintf('%F w', ($width * $this->scaleFactor));
+
+        if ($this->state === self::READY) {
+            $this->append($this->lineWidthStyle);
+        }
     }
 
     /**
@@ -394,7 +412,7 @@ trait Geometry
     /**
      * Returns the current the line width.
      * @return int Line width
-     * @see   Line(), SetLineWidth()
+     * @see   Line(), lineWidth()
      */
     public function GetLineWidth()
     {
@@ -408,7 +426,7 @@ trait Geometry
      * @param float $x2    abscissa of second point.
      * @param float $y2    ordinate of second point.
      * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @see   SetLineWidth(), SetDrawColor(), SetLineStyle()
+     * @see   lineWidth(), SetDrawColor(), SetLineStyle()
      */
     public function Line($x1, $y1, $x2, $y2, $style = [])
     {
@@ -712,8 +730,8 @@ trait Geometry
         }
         if (isset($style['width'])) {
             $this->lineWidth      = $style['width'];
-            $this->linestyleWidth = sprintf('%F w', ($style['width'] * $this->scaleFactor));
-            $s                    .= $this->linestyleWidth . ' ';
+            $this->lineWidthStyle = sprintf('%F w', ($style['width'] * $this->scaleFactor));
+            $s                    .= $this->lineWidthStyle . ' ';
         }
         if (isset($style['cap'])) {
             $ca = ['butt' => 0, 'round' => 1, 'square' => 2];
@@ -759,21 +777,6 @@ trait Geometry
             $this->append($s);
         }
         return $s;
-    }
-
-    /**
-     * Defines the line width. By default, the value equals 0.2 mm. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float $width The width.
-     * @see   Line(), Rect(), Cell(), MultiCell()
-     */
-    public function setLineWidth($width)
-    {
-        //Set line width
-        $this->lineWidth      = $width;
-        $this->linestyleWidth = sprintf('%F w', ($width * $this->scaleFactor));
-        if ($this->state === self::READY) {
-            $this->append($this->linestyleWidth);
-        }
     }
 
     /**

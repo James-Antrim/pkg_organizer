@@ -243,7 +243,7 @@ abstract class BaseView extends PDF implements ViewInterface
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
-     * @see   Cell(), SetDrawColor(),SetFillColor(), SetFont(), SetTextColor(), SetLineWidth(), SetAutoPageBreak(), Write()
+     * @see   Cell(), SetDrawColor(),SetFillColor(), SetFont(), SetTextColor(), lineWidth(), SetAutoPageBreak(), Write()
      */
     public function renderMultiCell(
         int    $width,
