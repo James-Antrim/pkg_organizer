@@ -49,8 +49,8 @@ class Fonts
         }
         $font_name = strtolower($font_path_parts['filename']);
         $font_name = preg_replace('/[^a-z0-9_]/', '', $font_name);
-        $search    = array('bold', 'oblique', 'italic', 'regular');
-        $replace   = array('b', 'i', 'i', '');
+        $search    = ['bold', 'oblique', 'italic', 'regular'];
+        $replace   = ['b', 'i', 'i', ''];
         $font_name = str_replace($search, $replace, $font_name);
         if (empty($font_name)) {
             // set generic name
@@ -805,7 +805,7 @@ class Fonts
                         $yMin             = round(StaticMethods::_getFWORD($font, $offset + 4) * $urk);
                         $xMax             = round(StaticMethods::_getFWORD($font, $offset + 6) * $urk);
                         $yMax             = round(StaticMethods::_getFWORD($font, $offset + 8) * $urk);
-                        $fmetric['CBBox'] .= ',' . $cid . '=>array(' . $xMin . ',' . $yMin . ',' . $xMax . ',' . $yMax . ')';
+                        $fmetric['CBBox'] .= ',' . $cid . '=>[' . $xMin . ',' . $yMin . ',' . $xMax . ',' . $yMax . ']';
                     }
                 }
             }
@@ -1286,7 +1286,7 @@ class Fonts
         }
         // array of table names to preserve (loca and glyf tables will be added later)
         // the cmap table is not needed and shall not be present, since the mapping from character codes to glyph descriptions is provided separately
-        $table_names = array('head', 'hhea', 'hmtx', 'maxp', 'cvt ', 'fpgm', 'prep'); // minimum required table names
+        $table_names = ['head', 'hhea', 'hmtx', 'maxp', 'cvt ', 'fpgm', 'prep']; // minimum required table names
         // get the tables to preserve
         $offset = 12;
         foreach ($table as $tag => $val) {
@@ -2138,7 +2138,7 @@ class Fonts
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + ($cel % 2) + 1;
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$rtlEmbedding, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = ['num' => FontData::$rtlEmbedding, 'cel' => $cel, 'dos' => $dos];
                     $cel        = $next_level;
                     $dos        = 'N';
                     $sor        = $eor;
@@ -2151,7 +2151,7 @@ class Fonts
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + 2 - ($cel % 2);
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$ltrEmbedding, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = ['num' => FontData::$ltrEmbedding, 'cel' => $cel, 'dos' => $dos];
                     $cel        = $next_level;
                     $dos        = 'N';
                     $sor        = $eor;
@@ -2164,7 +2164,7 @@ class Fonts
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + ($cel % 2) + 1;
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$rtlOverride, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = ['num' => FontData::$rtlOverride, 'cel' => $cel, 'dos' => $dos];
                     $cel        = $next_level;
                     $dos        = 'R';
                     $sor        = $eor;
@@ -2177,7 +2177,7 @@ class Fonts
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + 2 - ($cel % 2);
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$ltrOverride, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = ['num' => FontData::$ltrOverride, 'cel' => $cel, 'dos' => $dos];
                     $cel        = $next_level;
                     $dos        = 'L';
                     $sor        = $eor;
@@ -2220,7 +2220,7 @@ class Fonts
                     }
                 }
                 // stores string characters and other information
-                $chardata[] = array('char' => $ta[$i], 'level' => $cel, 'type' => $chardir, 'sor' => $sor, 'eor' => $eor);
+                $chardata[] = ['char' => $ta[$i], 'level' => $cel, 'type' => $chardir, 'sor' => $sor, 'eor' => $eor];
             }
         } // end for each char
 
@@ -2487,8 +2487,8 @@ class Fonts
         // Arabic Shaping
         // Cursively connected scripts, such as Arabic or Syriac, require the selection of positional character shapes that depend on adjacent characters. Shaping is logically applied after the Bidirectional Algorithm is used and is limited to characters within the same directional run.
         if ($arabic) {
-            $endedletter = array(1569, 1570, 1571, 1572, 1573, 1575, 1577, 1583, 1584, 1585, 1586, 1608, 1688);
-            $alfletter   = array(1570, 1571, 1573, 1575);
+            $endedletter = [1569, 1570, 1571, 1572, 1573, 1575, 1577, 1583, 1584, 1585, 1586, 1608, 1688];
+            $alfletter   = [1570, 1571, 1573, 1575];
             $chardata2   = $chardata;
             $laaletter   = false;
             $charAL      = [];

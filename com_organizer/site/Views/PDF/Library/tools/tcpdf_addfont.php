@@ -136,7 +136,7 @@ if (!is_array($argv)) {
 }
 
 // initialize the array of options
-$options = array('type' => '', 'enc' => '', 'flags' => 32, 'outpath' => K_PATH_FONTS, 'platid' => 3, 'encid' => 1, 'addCBBox' => false, 'link' => false);
+$options = ['type' => '', 'enc' => '', 'flags' => 32, 'outpath' => K_PATH_FONTS, 'platid' => 3, 'encid' => 1, 'addCBBox' => false, 'link' => false];
 
 // short input options
 $sopt = '';
@@ -173,7 +173,7 @@ foreach ($inopt as $opt => $val) {
         case 't':
         case 'type':
         {
-            if (in_array($val, array('TrueTypeUnicode', 'TrueType', 'Type1', 'CID0JP', 'CID0KR', 'CID0CS', 'CID0CT'))) {
+            if (in_array($val, ['TrueTypeUnicode', 'TrueType', 'Type1', 'CID0JP', 'CID0KR', 'CID0CS', 'CID0CT'])) {
                 $options['type'] = $val;
             }
             break;
