@@ -10732,9 +10732,6 @@ class PDF
             if (extension_loaded('openssl') && !in_array('aes-256-cbc', openssl_get_cipher_methods())) {
                 $this->Error('AES encryption requires openssl/aes-256-cbc cypher.');
             }
-            if (extension_loaded('mcrypt') && mcrypt_get_cipher_name(MCRYPT_RIJNDAEL_128) === false) {
-                $this->Error('AES encryption requires MCRYPT_RIJNDAEL_128 cypher.');
-            }
             if (($mode == 3) and !function_exists('hash')) {
                 // the Hash extension requires no external libraries and is enabled by default as of PHP 5.1.2.
                 $this->Error('AES 256 encryption requires HASH Message Digest Framework (http://www.php.net/manual/en/book.hash.php).');
@@ -23042,8 +23039,8 @@ class PDF
                                 $cx = ($cax * $cos_ang) - ($cay * $sin_ang) + (($x0 + $x) / 2);
                                 $cy = ($cax * $sin_ang) + ($cay * $cos_ang) + (($y0 + $y) / 2);
                                 // get angles
-                                $angs = StaticMethods::getVectorsAngle(1, 0, (($xa - $cax) / $rx), (($cay - $ya) / $ry));
-                                $dang = StaticMethods::getVectorsAngle((($xa - $cax) / $rx), (($ya - $cay) / $ry), ((-$xa - $cax) / $rx), ((-$ya - $cay) / $ry));
+                                $angs = $this->vectorAngle(1, 0, (($xa - $cax) / $rx), (($cay - $ya) / $ry));
+                                $dang = $this->vectorAngle((($xa - $cax) / $rx), (($ya - $cay) / $ry), ((-$xa - $cax) / $rx), ((-$ya - $cay) / $ry));
                                 if (($fs == 0) and ($dang > 0)) {
                                     $dang -= (2 * M_PI);
                                 }

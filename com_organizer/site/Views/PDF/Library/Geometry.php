@@ -351,6 +351,31 @@ trait Geometry
         $this->append(sprintf('%F %F m', $x * $this->scaleFactor, ($this->h - $y) * $this->scaleFactor));
     }
 
+    /**
+     * Returns the angle in radians between two vectors.
+     * @param int $x1 X coordinate of first vector point
+     * @param int $y1 Y coordinate of first vector point
+     * @param int $x2 X coordinate of second vector point
+     * @param int $y2 Y coordinate of second vector point
+     */
+    private function vectorAngle(int $x1, int $y1, int $x2, int $y2): float
+    {
+        $dprod = ($x1 * $x2) + ($y1 * $y2);
+        $dist1 = sqrt(($x1 * $x1) + ($y1 * $y1));
+        $dist2 = sqrt(($x2 * $x2) + ($y2 * $y2));
+        $angle = acos($dprod / ($dist1 * $dist2));
+
+        if (is_nan($angle)) {
+            $angle = M_PI;
+        }
+
+        if ((($x1 * $y2) - ($x2 * $y1)) < 0) {
+            $angle *= -1;
+        }
+
+        return $angle;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
