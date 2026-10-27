@@ -17,6 +17,7 @@ namespace THM\Organizer\Views\PDF\Library;
 class StaticMethods
 {
     public const GROUP_PAGE_NUMBER_ALIAS = '{:png:}';
+    public const PAGE_BOXES = ['ArtBox', 'BleedBox', 'CropBox', 'MediaBox', 'TrimBox'];
     public const PAGE_NUMBER_ALIAS = '{:pnp:}';
     public const PAGES_IN_GROUP_ALIAS = '{:ptg:}';
     /** Alias for right shift compensation used to correctly align page numbers on the right. */
@@ -46,6 +47,29 @@ class StaticMethods
         $iv   = str_repeat("\x00", openssl_cipher_iv_length($algorithm));
         $text = openssl_encrypt($text, $algorithm, $key, OPENSSL_RAW_DATA, $iv);
         return substr($text, 0, -16);
+    }
+
+    /**
+     * Get the canonical page layout mode.
+     * @param string $layout The page layout. Possible values are:
+     *                       - OneColumn Display the pages in one column
+     *                       - SinglePage: Display one page at a time
+     *                       - TwoColumnLeft Display the pages in two columns, with odd-numbered pages on the left
+     *                       - TwoColumnRight Display the pages in two columns, with odd-numbered pages on the right
+     *                       - TwoPageLeft (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the left
+     *                       - TwoPageRight (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the right</li></ul>
+     * @return string
+     */
+    public static function pageLayoutMode(string $layout = 'SinglePage'): string
+    {
+        return match ($layout) {
+            'continuous', 'OneColumn' => 'OneColumn',
+            'two', 'TwoColumnLeft' => 'TwoColumnLeft',
+            'TwoColumnRight' => 'TwoColumnRight',
+            'TwoPageLeft' => 'TwoPageLeft',
+            'TwoPageRight' => 'TwoPageRight',
+            default => 'SinglePage',
+        };
     }
 
     /**
@@ -131,6 +155,52 @@ class StaticMethods
         return $text;
     }
 
+    /**
+     * Compact CSS data array into single string.
+     * @param array $css array of CSS properties
+     * @return string
+     */
+    public static function tagStyleFromCSSArray(array $css): string
+    {
+        $return = '';
+        foreach ($css as $style) {
+            // split single css commands
+            $assignments = explode(';', $style['c']);
+            foreach ($assignments as $assignment) {
+                if ($assignment) {
+                    $position = strpos($assignment, ':');
+                    if ($position !== false) {
+                        $assignment = substr($assignment, 0, ($position + 1));
+                        if (str_contains($return, $assignment)) {
+                            // remove duplicate commands (last commands have high priority)
+                            $return = preg_replace('/' . $assignment . '[^;]+/i', '', $return);
+                        }
+                    }
+                }
+            }
+            $return .= ';' . $style['c'];
+        }
+
+        // remove multiple semicolons
+        return preg_replace('/[;]+/', ';', $return);
+    }
+
+    /**
+     * Check if the URL exist.
+     * @param string $url URL to check.
+     * @return boolean
+     */
+    public static function validURL(string $url): bool
+    {
+        $headers = @get_headers($url);
+
+        if ($headers === false) {
+            return false;
+        }
+
+        return str_contains($headers[0], '200');
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
@@ -142,26 +212,6 @@ class StaticMethods
      * ByteRange placemark used during digital signature process.
      */
     public static $byterange_string = '/ByteRange[0 ********** ********** **********]';
-
-    /**
-     * Array page boxes names
-     */
-    public static $pageboxes = ['ArtBox', 'BleedBox', 'CropBox', 'MediaBox', 'TrimBox'];
-
-
-    /**
-     * Check if the URL exist.
-     * @param string $url URL to check.
-     * @return boolean true if the URl exist, false otherwise.
-     */
-    public static function isValidURL($url)
-    {
-        $headers = @get_headers($url);
-        if ($headers === false) {
-            return false;
-        }
-        return (strpos($headers[0], '200') !== false);
-    }
 
 
     /**
@@ -238,16 +288,6 @@ class StaticMethods
             }
         }
         return $brd;
-    }
-
-    /**
-     * Determine whether a string is empty.
-     * @param string $str string to be checked
-     * @return bool true if string is empty
-     */
-    public static function empty_string($str)
-    {
-        return (is_null($str) or (is_string($str) and (strlen($str) == 0)));
     }
 
     /**
@@ -998,7 +1038,7 @@ class StaticMethods
     public static function fixHTMLCode($html, $default_css, $tagvs, $tidy_options, &$tagvspaces)
     {
         // configure parameters for HTML Tidy
-        if (StaticMethods::empty_string($tidy_options)) {
+        if (empty($tidy_options)) {
             $tidy_options = [
                 'clean'                       => 1,
                 'drop-empty-paras'            => 0,
@@ -1046,7 +1086,7 @@ class StaticMethods
         // remove some empty tag blocks
         $html = preg_replace('/<div([^\>]*)><\/div>/', '', $html);
         $html = preg_replace('/<p([^\>]*)><\/p>/', '', $html);
-        if (!StaticMethods::empty_string($tagvs)) {
+        if (!empty($tagvs)) {
             // set vertical space for some XHTML tags
             $tagvspaces = $tagvs;
         }
@@ -1279,36 +1319,6 @@ class StaticMethods
     }
 
     /**
-     * Compact CSS data array into single string.
-     * @param array $css array of CSS properties
-     * @return string containing merged CSS properties
-     */
-    public static function getTagStyleFromCSSarray($css)
-    {
-        $tagstyle = ''; // value to be returned
-        foreach ($css as $style) {
-            // split single css commands
-            $csscmds = explode(';', $style['c']);
-            foreach ($csscmds as $cmd) {
-                if (!empty($cmd)) {
-                    $pos = strpos($cmd, ':');
-                    if ($pos !== false) {
-                        $cmd = substr($cmd, 0, ($pos + 1));
-                        if (strpos($tagstyle, $cmd) !== false) {
-                            // remove duplicate commands (last commands have high priority)
-                            $tagstyle = preg_replace('/' . $cmd . '[^;]+/i', '', $tagstyle);
-                        }
-                    }
-                }
-            }
-            $tagstyle .= ';' . $style['c'];
-        }
-        // remove multiple semicolons
-        $tagstyle = preg_replace('/[;]+/', ';', $tagstyle);
-        return $tagstyle;
-    }
-
-    /**
      * Returns the Roman representation of an integer number
      * @param int $number number to convert
      * @return string roman representation of the specified number
@@ -1411,7 +1421,7 @@ class StaticMethods
         // create new language array of patterns
         $patterns = [];
         foreach ($patterns_array as $val) {
-            if (!StaticMethods::empty_string($val)) {
+            if (!empty($val)) {
                 $val            = trim($val);
                 $val            = str_replace('\'', '\\\'', $val);
                 $key            = preg_replace('/[0-9]+/', '', $val);
@@ -2357,7 +2367,7 @@ class StaticMethods
      */
     public static function setPageBoxes(int $page, string $type, float $llx, float $lly, float $urx, float $ury, bool $points, float $factor, array $pageDimensions = []): array
     {
-        if (!in_array($type, self::$pageboxes)) {
+        if (!in_array($type, self::PAGE_BOXES)) {
             return $pageDimensions;
         }
 
@@ -2385,7 +2395,7 @@ class StaticMethods
      */
     public static function swapPageBoxCoordinates(int $page, array $pageDimensions): array
     {
-        foreach (self::$pageboxes as $type) {
+        foreach (self::PAGE_BOXES as $type) {
             if (isset($pageDimensions[$page][$type])) {
                 $lly = $pageDimensions[$page][$type]['llx'];
                 $ury = $pageDimensions[$page][$type]['urx'];
@@ -2397,43 +2407,6 @@ class StaticMethods
             }
         }
         return $pageDimensions;
-    }
-
-    /**
-     * Get the canonical page layout mode.
-     * @param string $layout The page layout. Possible values are:<ul><li>SinglePage Display one page at a time</li><li>OneColumn Display the pages in one column</li><li>TwoColumnLeft Display the pages in two columns, with odd-numbered pages on the left</li><li>TwoColumnRight Display the pages in two columns, with odd-numbered pages on the right</li><li>TwoPageLeft (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the left</li><li>TwoPageRight (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the right</li></ul>
-     * @return string
-     */
-    public static function getPageLayoutMode(string $layout = 'SinglePage'): string
-    {
-        switch ($layout) {
-            case 'continuous':
-            case 'OneColumn':
-            {
-                return 'OneColumn';
-            }
-            case 'two':
-            case 'TwoColumnLeft':
-            {
-                return 'TwoColumnLeft';
-            }
-            case 'TwoColumnRight':
-            {
-                return 'TwoColumnRight';
-            }
-            case 'TwoPageLeft':
-            {
-                return 'TwoPageLeft';
-            }
-            case 'TwoPageRight':
-            {
-                return 'TwoPageRight';
-            }
-            default:
-            {
-                return 'SinglePage';
-            }
-        }
     }
 
     /**

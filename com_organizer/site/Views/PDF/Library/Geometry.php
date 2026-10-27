@@ -193,7 +193,7 @@ trait Geometry
             return;
         }
 
-        if (StaticMethods::empty_string($yRadius) or ($yRadius == 0)) {
+        if (empty($yRadius) or ($yRadius == 0)) {
             $yRadius = $xRadius;
         }
 

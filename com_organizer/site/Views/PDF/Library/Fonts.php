@@ -2076,7 +2076,7 @@ class Fonts
         $pel = 0;
         // max level
         $maxlevel = 0;
-        if (StaticMethods::empty_string($str)) {
+        if (empty($str)) {
             // create string from array
             $str = self::UTF8ArrSubString($ta, '', '', $isUnicode);
         }
