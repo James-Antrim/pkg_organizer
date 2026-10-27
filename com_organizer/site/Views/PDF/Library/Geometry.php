@@ -117,7 +117,7 @@ trait Geometry
         }
 
         // main arrow line / shaft
-        $this->Line($x0, $y0, $sx1, $sy1);
+        $this->line($x0, $y0, $sx1, $sy1);
 
         // left arrowhead arm tip
         $x2L = $x1 + ($armSize * cos($directionAngle + $armShaftAngle));
@@ -207,9 +207,33 @@ trait Geometry
     }
 
     /**
+     * Draws a line between two points.
+     * @param float $x1    abscissa of first point.
+     * @param float $y1    ordinate of first point.
+     * @param float $x2    abscissa of second point.
+     * @param float $y2    ordinate of second point.
+     * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @see   lineWidth(), SetDrawColor(), SetLineStyle()
+     */
+    public function line(float $x1, float $y1, float $x2, float $y2, array $style = []): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        if (is_array($style)) {
+            $this->setLineStyle($style);
+        }
+
+        $this->point($x1, $y1);
+        $this->appendLine($x2, $y2);
+        $this->append(self::STROKE);
+    }
+
+    /**
      * Defines the line width. By default, the value equals 0.2 mm. The method can be called before the first page is created and the value is retained from page to page.
      * @param float $width The width.
-     * @see   Line(), Rect(), Cell(), MultiCell()
+     * @see   line(), Rect(), Cell(), MultiCell()
      */
     public function lineWidth(float $width): void
     {
@@ -407,39 +431,6 @@ trait Geometry
         $this->point($x0, $y0);
         $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
         $this->append($op);
-    }
-
-    /**
-     * Returns the current the line width.
-     * @return int Line width
-     * @see   Line(), lineWidth()
-     */
-    public function GetLineWidth()
-    {
-        return $this->lineWidth;
-    }
-
-    /**
-     * Draws a line between two points.
-     * @param float $x1    abscissa of first point.
-     * @param float $y1    ordinate of first point.
-     * @param float $x2    abscissa of second point.
-     * @param float $y2    ordinate of second point.
-     * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @see   lineWidth(), SetDrawColor(), SetLineStyle()
-     */
-    public function Line($x1, $y1, $x2, $y2, $style = [])
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-
-        if (is_array($style)) {
-            $this->setLineStyle($style);
-        }
-        $this->point($x1, $y1);
-        $this->appendLine($x2, $y2);
-        $this->append('S');
     }
 
     /**
@@ -648,16 +639,16 @@ trait Geometry
             }
             $border_style = $border_style2;
             if (isset($border_style['L']) and $border_style['L']) {
-                $this->Line($x, $y, $x, $y + $h, $border_style['L']);
+                $this->line($x, $y, $x, $y + $h, $border_style['L']);
             }
             if (isset($border_style['T']) and $border_style['T']) {
-                $this->Line($x, $y, $x + $w, $y, $border_style['T']);
+                $this->line($x, $y, $x + $w, $y, $border_style['T']);
             }
             if (isset($border_style['R']) and $border_style['R']) {
-                $this->Line($x + $w, $y, $x + $w, $y + $h, $border_style['R']);
+                $this->line($x + $w, $y, $x + $w, $y + $h, $border_style['R']);
             }
             if (isset($border_style['B']) and $border_style['B']) {
-                $this->Line($x, $y + $h, $x + $w, $y + $h, $border_style['B']);
+                $this->line($x, $y + $h, $x + $w, $y + $h, $border_style['B']);
             }
         }
     }

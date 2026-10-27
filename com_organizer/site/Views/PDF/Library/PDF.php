@@ -3563,7 +3563,7 @@ class PDF
      * @param boolean $ret  If true do not send the command.
      * @param string  $name spot color name (if any)
      * @return string the PDF command
-     * @see   SetDrawColorArray(), SetFillColor(), SetTextColor(), Line(), Rect(), Cell(), MultiCell()
+     * @see   SetDrawColorArray(), SetFillColor(), SetTextColor(), line(), Rect(), Cell(), MultiCell()
      */
     public function setDrawColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
     {
@@ -13131,7 +13131,7 @@ class PDF
                     break;
                 }
             }
-            $this->Line($x1, $y1, $x2, $y2);
+            $this->line($x1, $y1, $x2, $y2);
         }
     }
 
@@ -13195,10 +13195,10 @@ class PDF
         // external circle
         $this->circle($x, $y, $r, 0, 360, 'C', $line_style, array(), 8);
         // cross lines
-        $this->Line($x, ($y - $re), $x, ($y - $ri));
-        $this->Line($x, ($y + $ri), $x, ($y + $re));
-        $this->Line(($x - $re), $y, ($x - $ri), $y);
-        $this->Line(($x + $ri), $y, ($x + $re), $y);
+        $this->line($x, ($y - $re), $x, ($y - $ri));
+        $this->line($x, ($y + $ri), $x, ($y + $re));
+        $this->line(($x - $re), $y, ($x - $ri), $y);
+        $this->line(($x + $ri), $y, ($x + $re), $y);
     }
 
     /**
@@ -18018,7 +18018,7 @@ class PDF
 
                 $lineStyle = array_filter($lineStyle);
 
-                $this->Line($x, $y, $x + $hrWidth, $y, $lineStyle);
+                $this->line($x, $y, $x + $hrWidth, $y, $lineStyle);
                 $this->lineWidth($prevlinewidth);
                 $this->addHTMLVertSpace(max($hbc, ($hrHeight / 2)), 0, $cell, !isset($dom[($key + 1)]));
                 break;
@@ -23580,7 +23580,7 @@ class PDF
                     $this->StartTransform();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Line', array($x1, $y1, $x2, $y2));
-                    $this->Line($x1, $y1, $x2, $y2);
+                    $this->line($x1, $y1, $x2, $y2);
                     $this->StopTransform();
                 }
                 break;
