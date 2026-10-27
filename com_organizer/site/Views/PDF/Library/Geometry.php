@@ -144,6 +144,24 @@ trait Geometry
     }
 
     /**
+     * Draws a circle formed from n Bézier curves.
+     * @param float   $x          abscissa of center point.
+     * @param float   $y          ordinate of center point.
+     * @param float   $radius     Radius.
+     * @param float   $angleStart Angle start of draw line. Default value: 0.
+     * @param float   $angleEnd   Angle finish of draw line. Default value: 360.
+     * @param string  $style      Style of rendering. @see self::RENDERING_STYLES
+     * @param array   $lineStyle  Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array   $fillColor  fill color. Format: [red, green, blue]. Default value: default color (empty array).
+     * @param integer $curves     number of curves used to draw a 90 degrees portion of circle.
+     * @see self::RENDERING_STYLES
+     */
+    public function circle(float $x, float $y, float $radius, float $angleStart = 0, float $angleEnd = 360, string $style = '', array $lineStyle = [], array $fillColor = [], int $curves = 2): void
+    {
+        $this->Ellipse($x, $y, $radius, $radius, 0, $angleStart, $angleEnd, $style, $lineStyle, $fillColor, $curves);
+    }
+
+    /**
      * Begin a new subpath by moving the current point to coordinates (x, y), omitting any connecting line segment.
      * @param float $x abscissa of point.
      * @param float $y ordinate of point.
@@ -294,24 +312,6 @@ trait Geometry
             $ymax = max($ymax, $yc);
         }
         return [$xmin, $ymin, $xmax, $ymax];
-    }
-
-    /**
-     * Draws a circle.
-     * A circle is formed from n Bézier curves.
-     * @param float   $x0         abscissa of center point.
-     * @param float   $y0         ordinate of center point.
-     * @param float   $r          Radius.
-     * @param float   $angstr     Angle start of draw line. Default value: 0.
-     * @param float   $angend     Angle finish of draw line. Default value: 360.
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [red, green, blue]. Default value: default color (empty array).
-     * @param integer $nc         Number of curves used to draw a 90 degrees portion of circle.
-     */
-    public function Circle($x0, $y0, $r, $angstr = 0, $angend = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
-    {
-        $this->Ellipse($x0, $y0, $r, $r, 0, $angstr, $angend, $style, $line_style, $fill_color, $nc);
     }
 
     /**
@@ -667,7 +667,7 @@ trait Geometry
             $ns = 3;
         }
         if ($draw_circle) {
-            $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
+            $this->circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
         }
         $p = [];
         for ($i = 0; $i < $ns; ++$i) {
@@ -801,7 +801,7 @@ trait Geometry
             $nv = 2;
         }
         if ($draw_circle) {
-            $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
+            $this->circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
         }
         $p2      = [];
         $visited = [];

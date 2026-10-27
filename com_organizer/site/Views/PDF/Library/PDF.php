@@ -13155,7 +13155,7 @@ class PDF
         $this->setFillColorArray($cola);
         $this->PieSector($x, $y, $r, 90, 180, 'F');
         $this->PieSector($x, $y, $r, 270, 360, 'F');
-        $this->Circle($x, $y, $r, 0, 360, 'C', $line_style, array(), 8);
+        $this->circle($x, $y, $r, 0, 360, 'C', $line_style, array(), 8);
         if ($double) {
             $ri = $r * 0.5;
             $this->setFillColorArray($colb);
@@ -13164,7 +13164,7 @@ class PDF
             $this->setFillColorArray($cola);
             $this->PieSector($x, $y, $ri, 0, 90, 'F');
             $this->PieSector($x, $y, $ri, 180, 270, 'F');
-            $this->Circle($x, $y, $ri, 0, 360, 'C', $line_style, array(), 8);
+            $this->circle($x, $y, $ri, 0, 360, 'C', $line_style, array(), 8);
         }
     }
 
@@ -13198,7 +13198,7 @@ class PDF
         $line_style = array('width' => $lw, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(100, 100, 100, 100, 'All'));
         $this->setFillColorArray(array(100, 100, 100, 100, 'All'));
         // external circle
-        $this->Circle($x, $y, $r, 0, 360, 'C', $line_style, array(), 8);
+        $this->circle($x, $y, $r, 0, 360, 'C', $line_style, array(), 8);
         // cross lines
         $this->Line($x, ($y - $re), $x, ($y - $ri));
         $this->Line($x, ($y + $ri), $x, ($y + $re));
@@ -19773,7 +19773,7 @@ class PDF
                 else {
                     $this->x -= $lspace;
                 }
-                $this->Circle(($this->x + $r), ($this->y + ($this->lasth / 2)), $r, 0, 360, 'F', array(), $color, 8);
+                $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), $r, 0, 360, 'F', array(), $color, 8);
                 break;
             }
             case 'circle':
@@ -19788,7 +19788,7 @@ class PDF
                 }
                 $prev_line_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
-                $this->Circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, array(), 8);
+                $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, array(), 8);
                 $this->append($prev_line_style); // restore line settings
                 break;
             }
@@ -23526,14 +23526,14 @@ class PDF
                 $h  = $w;
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->Circle($cx, $cy, $r, 0, 360, self::CLIP_NZ, array(), array(), 8);
+                    $this->circle($cx, $cy, $r, 0, 360, self::CLIP_NZ, array(), array(), 8);
                 }
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', array($cx, $cy, $r, 0, 360, self::CLIP_NZ));
                     if (!empty($obstyle)) {
-                        $this->Circle($cx, $cy, $r, 0, 360, $obstyle, array(), array(), 8);
+                        $this->circle($cx, $cy, $r, 0, 360, $obstyle, array(), array(), 8);
                     }
                     $this->StopTransform();
                 }
