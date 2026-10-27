@@ -148,17 +148,59 @@ trait Geometry
      * @param float   $x          abscissa of center point.
      * @param float   $y          ordinate of center point.
      * @param float   $radius     Radius.
-     * @param float   $angleStart Angle start of draw line. Default value: 0.
-     * @param float   $angleEnd   Angle finish of draw line. Default value: 360.
-     * @param string  $style      Style of rendering. @see self::RENDERING_STYLES
+     * @param float   $startAngle Angle start of draw line. Default value: 0.
+     * @param float   $endAngle   Angle finish of draw line. Default value: 360.
+     * @param string  $style      Style of rendering.
      * @param array   $lineStyle  Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
      * @param array   $fillColor  fill color. Format: [red, green, blue]. Default value: default color (empty array).
      * @param integer $curves     number of curves used to draw a 90 degrees portion of circle.
      * @see self::RENDERING_STYLES
      */
-    public function circle(float $x, float $y, float $radius, float $angleStart = 0, float $angleEnd = 360, string $style = '', array $lineStyle = [], array $fillColor = [], int $curves = 2): void
+    public function circle(float $x, float $y, float $radius, float $startAngle = 0, float $endAngle = 360, string $style = '', array $lineStyle = [], array $fillColor = [], int $curves = 2): void
     {
-        $this->Ellipse($x, $y, $radius, $radius, 0, $angleStart, $angleEnd, $style, $lineStyle, $fillColor, $curves);
+        $this->ellipse($x, $y, $radius, $radius, 0, $startAngle, $endAngle, $style, $lineStyle, $fillColor, $curves);
+    }
+
+    /**
+     * Draws an ellipse formed from n Bézier curves.
+     * @param float   $x          abscissa of center point.
+     * @param float   $y          ordinate of center point.
+     * @param float   $xRadius    Horizontal radius.
+     * @param float   $yRadius    Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
+     * @param float   $angle      Angle oriented (anti-clockwise). Default value: 0.
+     * @param float   $startAngle Angle start of draw line. Default value: 0.
+     * @param float   $endAngle   Angle finish of draw line. Default value: 360.
+     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
+     * @param array   $lineStyle  Line style of ellipse. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array   $fillColor  Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
+     * @param integer $curves     Number of curves used to draw a 90 degrees portion of ellipse.
+     */
+    public function ellipse(float $x, float $y, float $xRadius, float $yRadius = 0, float $angle = 0, float $startAngle = 0, float $endAngle = 360, string $style = '', array $lineStyle = [], array $fillColor = [], int $curves = 2): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        if (StaticMethods::empty_string($yRadius) or ($yRadius == 0)) {
+            $yRadius = $xRadius;
+        }
+
+        if (str_contains($style, self::FILL) and $fillColor) {
+            $this->setFillColorArray($fillColor);
+        }
+
+        $operator = StaticMethods::getPathPaintOperator($style);
+
+        if ($operator === self::FILL2) {
+            $lineStyle = [];
+        }
+
+        if ($lineStyle) {
+            $this->setLineStyle($lineStyle);
+        }
+
+        $this->_outellipticalarc($x, $y, $xRadius, $yRadius, $angle, $startAngle, $endAngle, false, $curves);
+        $this->append($operator);
     }
 
     /**
@@ -346,44 +388,6 @@ trait Geometry
         }
         $this->point($x0, $y0);
         $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
-        $this->append($op);
-    }
-
-    /**
-     * Draws an ellipse.
-     * An ellipse is formed from n Bézier curves.
-     * @param float   $x0         abscissa of center point.
-     * @param float   $y0         ordinate of center point.
-     * @param float   $rx         Horizontal radius.
-     * @param float   $ry         Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
-     * @param float   $angle      Angle oriented (anti-clockwise). Default value: 0.
-     * @param float   $astart     Angle start of draw line. Default value: 0.
-     * @param float   $afinish    Angle finish of draw line. Default value: 360.
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of ellipse. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @param integer $nc         Number of curves used to draw a 90 degrees portion of ellipse.
-     */
-    public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-
-        if (StaticMethods::empty_string($ry) or ($ry == 0)) {
-            $ry = $rx;
-        }
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->setFillColorArray($fill_color);
-        }
-        $op = StaticMethods::getPathPaintOperator($style);
-        if ($op == 'f') {
-            $line_style = [];
-        }
-        if ($line_style) {
-            $this->setLineStyle($line_style);
-        }
-        $this->_outellipticalarc($x0, $y0, $rx, $ry, $angle, $astart, $afinish, false, $nc, true, true, false);
         $this->append($op);
     }
 

@@ -23554,14 +23554,14 @@ class PDF
                 $h  = (2 * $ry);
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ, array(), array(), 8);
+                    $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ, array(), array(), 8);
                 }
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', array($cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ));
                     if (!empty($obstyle)) {
-                        $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, array(), array(), 8);
+                        $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, array(), array(), 8);
                     }
                     $this->StopTransform();
                 }
