@@ -166,7 +166,7 @@ class StaticMethods
 
     /**
      * Get the border mode accounting for multicell position (opens bottom side of multicell crossing pages)
-     * @param string|array|int $brd      Indicates if borders must be drawn around the cell block. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul>or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param string|array|int $brd      Indicates if borders must be drawn around the cell block. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul>or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @param string           $position multicell position: 'start', 'middle', 'end'
      * @param boolean          $opencell True when the cell is left open at the page bottom, false otherwise.
      * @return array border mode array
@@ -184,7 +184,7 @@ class StaticMethods
             $slen   = strlen($brd);
             $newbrd = [];
             for ($i = 0; $i < $slen; ++$i) {
-                $newbrd[$brd[$i]] = array('cap' => 'square', 'join' => 'miter');
+                $newbrd[$brd[$i]] = ['cap' => 'square', 'join' => 'miter'];
             }
             $brd = $newbrd;
         }
@@ -269,7 +269,7 @@ class StaticMethods
     public static function _escape($s)
     {
         // the chr(13) substitution fixes the Bugs item #1421290.
-        return strtr($s, array(')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r'));
+        return strtr($s, [')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r']);
     }
 
     /**
@@ -279,7 +279,7 @@ class StaticMethods
      */
     public static function _escapeXML($str)
     {
-        $replaceTable = array("\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;');
+        $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
         $str          = strtr($str === null ? '' : $str, $replaceTable);
         return $str;
     }
@@ -329,7 +329,7 @@ class StaticMethods
                 }
             }
         }
-        return array($page, $diff);
+        return [$page, $diff];
     }
 
     /**
@@ -373,7 +373,7 @@ class StaticMethods
      */
     public static function getUserPermissionCode($permissions, $mode = 0)
     {
-        $options    = array(
+        $options    = [
             'owner'       => 2, // bit 2 -- inverted logic: cleared by default
             'print'       => 4, // bit 3
             'modify'      => 8, // bit 4
@@ -383,7 +383,7 @@ class StaticMethods
             'extract'     => 512, // bit 10
             'assemble'    => 1024,// bit 11
             'print-high'  => 2048 // bit 12
-        );
+        ];
         $protection = 2147422012; // 32 bit: (01111111 11111111 00001111 00111100)
         foreach ($permissions as $permission) {
             if (isset($options[$permission])) {
@@ -525,36 +525,36 @@ class StaticMethods
                 case 'border.d':
                 case 'dashed':
                 {
-                    $opt['border'] = array(0, 0, $linewidth, array(3, 2));
-                    $opt['bs']     = array('w' => $linewidth, 's' => 'D', 'd' => array(3, 2));
+                    $opt['border'] = [0, 0, $linewidth, [3, 2]];
+                    $opt['bs']     = ['w' => $linewidth, 's' => 'D', 'd' => [3, 2]];
                     break;
                 }
                 case 'border.b':
                 case 'beveled':
                 {
-                    $opt['border'] = array(0, 0, $linewidth);
-                    $opt['bs']     = array('w' => $linewidth, 's' => 'B');
+                    $opt['border'] = [0, 0, $linewidth];
+                    $opt['bs']     = ['w' => $linewidth, 's' => 'B'];
                     break;
                 }
                 case 'border.i':
                 case 'inset':
                 {
-                    $opt['border'] = array(0, 0, $linewidth);
-                    $opt['bs']     = array('w' => $linewidth, 's' => 'I');
+                    $opt['border'] = [0, 0, $linewidth];
+                    $opt['bs']     = ['w' => $linewidth, 's' => 'I'];
                     break;
                 }
                 case 'border.u':
                 case 'underline':
                 {
-                    $opt['border'] = array(0, 0, $linewidth);
-                    $opt['bs']     = array('w' => $linewidth, 's' => 'U');
+                    $opt['border'] = [0, 0, $linewidth];
+                    $opt['bs']     = ['w' => $linewidth, 's' => 'U'];
                     break;
                 }
                 case 'border.s':
                 case 'solid':
                 {
-                    $opt['border'] = array(0, 0, $linewidth);
-                    $opt['bs']     = array('w' => $linewidth, 's' => 'S');
+                    $opt['border'] = [0, 0, $linewidth];
+                    $opt['bs']     = ['w' => $linewidth, 's' => 'S'];
                     break;
                 }
                 default:
@@ -572,7 +572,7 @@ class StaticMethods
         if (!isset($opt['mk']['if'])) {
             $opt['mk']['if'] = [];
         }
-        $opt['mk']['if']['a'] = array(0.5, 0.5);
+        $opt['mk']['if']['a'] = [0.5, 0.5];
         // buttonAlignX: Controls how space is distributed from the left of the button face with respect to the icon.
         if (isset($prop['buttonAlignX'])) {
             $opt['mk']['if']['a'][0] = $prop['buttonAlignX'];
@@ -808,7 +808,7 @@ class StaticMethods
                 foreach ($prop['value'] as $key => $optval) {
                     // exportValues: An array of strings representing the export values for the field.
                     if (isset($prop['exportValues'][$key])) {
-                        $opt['opt'][$key] = array($prop['exportValues'][$key], $prop['value'][$key]);
+                        $opt['opt'][$key] = [$prop['exportValues'][$key], $prop['value'][$key]];
                     }
                     else {
                         $opt['opt'][$key] = $prop['value'][$key];
@@ -999,7 +999,7 @@ class StaticMethods
     {
         // configure parameters for HTML Tidy
         if (StaticMethods::empty_string($tidy_options)) {
-            $tidy_options = array(
+            $tidy_options = [
                 'clean'                       => 1,
                 'drop-empty-paras'            => 0,
                 'drop-proprietary-attributes' => 1,
@@ -1016,7 +1016,7 @@ class StaticMethods
                 //'char-encoding' => 'utf8',
                 //'input-encoding' => 'utf8',
                 //'output-encoding' => 'utf8'
-            );
+            ];
         }
         // clean up the HTML code
         $tidy = tidy_parse_string($html, $tidy_options);
@@ -1258,14 +1258,14 @@ class StaticMethods
             if (self::isValidCSSSelectorForTag($dom, $key, $selector)) {
                 if (!in_array($selector, $selectors)) {
                     // add style if not already added on parent selector
-                    $cssarray[]  = array('k' => $selector, 's' => $specificity, 'c' => $style);
+                    $cssarray[]  = ['k' => $selector, 's' => $specificity, 'c' => $style];
                     $selectors[] = $selector;
                 }
             }
         }
         if (isset($dom[$key]['attribute']['style'])) {
             // attach inline style (latest properties have high priority)
-            $cssarray[] = array('k' => '', 's' => '1000', 'c' => $dom[$key]['attribute']['style']);
+            $cssarray[] = ['k' => '', 's' => '1000', 'c' => $dom[$key]['attribute']['style']];
         }
         // order the css array to account for specificity
         $cssordered = [];
@@ -1275,7 +1275,7 @@ class StaticMethods
         }
         // sort selectors alphabetically to account for specificity
         ksort($cssordered, SORT_STRING);
-        return array($selectors, $cssordered);
+        return [$selectors, $cssordered];
     }
 
     /**
@@ -1509,7 +1509,7 @@ class StaticMethods
     public static function getSVGTransformMatrix($attribute)
     {
         // identity matrix
-        $tm        = array(1, 0, 0, 1, 0, 0);
+        $tm        = [1, 0, 0, 1, 0, 0];
         $transform = [];
         if (preg_match_all('/(matrix|translate|scale|rotate|skewX|skewY)[\s]*\(([^\)]+)\)/si', $attribute, $transform, PREG_SET_ORDER) > 0) {
             foreach ($transform as $key => $data) {
@@ -1596,7 +1596,7 @@ class StaticMethods
                             break;
                         }
                     }
-                    $tm = self::getTransformationMatrixProduct($tm, array($a, $b, $c, $d, $e, $f));
+                    $tm = self::getTransformationMatrixProduct($tm, [$a, $b, $c, $d, $e, $f]);
                 }
             }
         }
@@ -1738,7 +1738,7 @@ class StaticMethods
      */
     public static function fileContents(string $file): string|false
     {
-        $alt = array($file);
+        $alt = [$file];
 
         if ((strlen($file) > 1)
             && ($file[0] === '/')
