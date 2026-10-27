@@ -50,6 +50,28 @@ class StaticMethods
     }
 
     /**
+     * Escapes a string by adding "\" before "\", "(" and ")"
+     * @param string $string string to escape.
+     * @return string
+     */
+    public static function escape(string $string): string
+    {
+        // the chr(13) substitution fixes the Bugs item #1421290.
+        return strtr($string, [')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r']);
+    }
+
+    /**
+     * Escapes some special characters (&lt; &gt; &amp;) for XML output.
+     * @param string $string Input string to convert.
+     * @return string converted string
+     */
+    public static function escapeXML(string $string): string
+    {
+        $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
+        return empty($string) ? '' : strtr($string, $replaceTable);
+    }
+
+    /**
      * Get the canonical page layout mode.
      * @param string $layout The page layout. Possible values are:
      *                       - OneColumn Display the pages in one column
@@ -299,29 +321,6 @@ class StaticMethods
     public static function getObjFilename($type = 'tmp', $file_id = '')
     {
         return tempnam(K_PATH_CACHE, '__tcpdf_' . $file_id . '_' . $type . '_' . md5(StaticMethods::randomSeed()) . '_');
-    }
-
-    /**
-     * Add "\" before "\", "(" and ")"
-     * @param string $s string to escape.
-     * @return string escaped string.
-     */
-    public static function _escape($s)
-    {
-        // the chr(13) substitution fixes the Bugs item #1421290.
-        return strtr($s, [')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r']);
-    }
-
-    /**
-     * Escape some special characters (&lt; &gt; &amp;) for XML output.
-     * @param string $str Input string to convert.
-     * @return string converted string
-     */
-    public static function _escapeXML($str)
-    {
-        $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
-        $str          = strtr($str === null ? '' : $str, $replaceTable);
-        return $str;
     }
 
     /**

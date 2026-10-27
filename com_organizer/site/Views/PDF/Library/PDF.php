@@ -4994,7 +4994,7 @@ class PDF
                     $txt2 = Fonts::arrUTF8ToUTF16BE($unicode, false);
                 }
             }
-            $txt2 = StaticMethods::_escape($txt2);
+            $txt2 = StaticMethods::escape($txt2);
             // get current text width (considering general font stretching and spacing)
             $txwidth = $this->GetStringWidth($txt);
             $width   = $txwidth;
@@ -5135,7 +5135,7 @@ class PDF
                     else {
                         // character to print
                         $topchr = Fonts::arrUTF8ToUTF16BE($uniarr, false);
-                        $topchr = StaticMethods::_escape($topchr);
+                        $topchr = StaticMethods::escape($topchr);
                         $s      .= sprintf(' BT %F %F Td [(%s)] TJ ET', ($xdk + ($xshift * $k)), $ty, $topchr);
                     }
                 }
@@ -7600,14 +7600,14 @@ class PDF
         // build array of Unicode + ASCII variants (the order is important)
         $alias        = array('u' => array(), 'a' => array());
         $u            = '{' . $a . '}';
-        $alias['u'][] = StaticMethods::_escape($u);
+        $alias['u'][] = StaticMethods::escape($u);
         if ($this->isUnicode) {
-            $alias['u'][] = StaticMethods::_escape(Fonts::UTF8ToLatin1($u, $this->isUnicode, $this->CurrentFont));
-            $alias['u'][] = StaticMethods::_escape(Fonts::utf8StrRev($u, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
-            $alias['a'][] = StaticMethods::_escape(Fonts::UTF8ToLatin1($a, $this->isUnicode, $this->CurrentFont));
-            $alias['a'][] = StaticMethods::_escape(Fonts::utf8StrRev($a, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['u'][] = StaticMethods::escape(Fonts::UTF8ToLatin1($u, $this->isUnicode, $this->CurrentFont));
+            $alias['u'][] = StaticMethods::escape(Fonts::utf8StrRev($u, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['a'][] = StaticMethods::escape(Fonts::UTF8ToLatin1($a, $this->isUnicode, $this->CurrentFont));
+            $alias['a'][] = StaticMethods::escape(Fonts::utf8StrRev($a, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
         }
-        $alias['a'][] = StaticMethods::_escape($a);
+        $alias['a'][] = StaticMethods::escape($a);
         return $alias;
     }
 
@@ -9399,22 +9399,22 @@ class PDF
         $xmp .= "\t\t\t" . '<dc:format>application/pdf</dc:format>' . "\n";
         $xmp .= "\t\t\t" . '<dc:title>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . StaticMethods::_escapeXML($this->title) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . StaticMethods::escapeXML($this->title) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
         $xmp .= "\t\t\t" . '</dc:title>' . "\n";
         $xmp .= "\t\t\t" . '<dc:creator>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Seq>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . StaticMethods::_escapeXML($this->author) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . StaticMethods::escapeXML($this->author) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Seq>' . "\n";
         $xmp .= "\t\t\t" . '</dc:creator>' . "\n";
         $xmp .= "\t\t\t" . '<dc:description>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . StaticMethods::_escapeXML($this->subject) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . StaticMethods::escapeXML($this->subject) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
         $xmp .= "\t\t\t" . '</dc:description>' . "\n";
         $xmp .= "\t\t\t" . '<dc:subject>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Bag>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . StaticMethods::_escapeXML($this->keywords) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . StaticMethods::escapeXML($this->keywords) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Bag>' . "\n";
         $xmp .= "\t\t\t" . '</dc:subject>' . "\n";
         $xmp .= "\t\t" . '</rdf:Description>' . "\n";
@@ -9423,13 +9423,13 @@ class PDF
         $doccreationdate = substr($dcdate, 0, 4) . '-' . substr($dcdate, 4, 2) . '-' . substr($dcdate, 6, 2);
         $doccreationdate .= 'T' . substr($dcdate, 8, 2) . ':' . substr($dcdate, 10, 2) . ':' . substr($dcdate, 12, 2);
         $doccreationdate .= substr($dcdate, 14, 3) . ':' . substr($dcdate, 18, 2);
-        $doccreationdate = StaticMethods::_escapeXML($doccreationdate);
+        $doccreationdate = StaticMethods::escapeXML($doccreationdate);
         // convert doc modification date format
         $dmdate     = StaticMethods::getFormattedDate($this->doc_modification_timestamp);
         $docmoddate = substr($dmdate, 0, 4) . '-' . substr($dmdate, 4, 2) . '-' . substr($dmdate, 6, 2);
         $docmoddate .= 'T' . substr($dmdate, 8, 2) . ':' . substr($dmdate, 10, 2) . ':' . substr($dmdate, 12, 2);
         $docmoddate .= substr($dmdate, 14, 3) . ':' . substr($dmdate, 18, 2);
-        $docmoddate = StaticMethods::_escapeXML($docmoddate);
+        $docmoddate = StaticMethods::escapeXML($docmoddate);
         $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">' . "\n";
         $xmp        .= "\t\t\t" . '<xmp:CreateDate>' . $doccreationdate . '</xmp:CreateDate>' . "\n";
         $xmp        .= "\t\t\t" . '<xmp:CreatorTool>' . $this->creator . '</xmp:CreatorTool>' . "\n";
@@ -9437,8 +9437,8 @@ class PDF
         $xmp        .= "\t\t\t" . '<xmp:MetadataDate>' . $doccreationdate . '</xmp:MetadataDate>' . "\n";
         $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
         $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">' . "\n";
-        $xmp        .= "\t\t\t" . '<pdf:Keywords>' . StaticMethods::_escapeXML($this->keywords) . '</pdf:Keywords>' . "\n";
-        $xmp        .= "\t\t\t" . '<pdf:Producer>' . StaticMethods::_escapeXML(StaticMethods::producer()) . '</pdf:Producer>' . "\n";
+        $xmp        .= "\t\t\t" . '<pdf:Keywords>' . StaticMethods::escapeXML($this->keywords) . '</pdf:Keywords>' . "\n";
+        $xmp        .= "\t\t\t" . '<pdf:Producer>' . StaticMethods::escapeXML(StaticMethods::producer()) . '</pdf:Producer>' . "\n";
         $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
         $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/">' . "\n";
         $uuid       = 'uuid:' . substr($this->file_id, 0, 8) . '-' . substr($this->file_id, 8, 4) . '-' . substr($this->file_id, 12, 4) . '-' . substr($this->file_id, 16, 4) . '-' . substr($this->file_id, 20, 12);
@@ -10062,7 +10062,7 @@ class PDF
             $n = $this->n;
         }
         $s = $this->_encrypt_data($n, $s);
-        return '(' . StaticMethods::_escape($s) . ')';
+        return '(' . StaticMethods::escape($s) . ')';
     }
 
     /**
@@ -10438,9 +10438,9 @@ class PDF
             $out .= ' /R';
             if ($this->encryptdata['V'] == 5) { // AES-256
                 $out .= ' 5';
-                $out .= ' /OE (' . StaticMethods::_escape($this->encryptdata['OE']) . ')';
-                $out .= ' /UE (' . StaticMethods::_escape($this->encryptdata['UE']) . ')';
-                $out .= ' /Perms (' . StaticMethods::_escape($this->encryptdata['perms']) . ')';
+                $out .= ' /OE (' . StaticMethods::escape($this->encryptdata['OE']) . ')';
+                $out .= ' /UE (' . StaticMethods::escape($this->encryptdata['UE']) . ')';
+                $out .= ' /Perms (' . StaticMethods::escape($this->encryptdata['perms']) . ')';
             }
             elseif ($this->encryptdata['V'] == 4) { // AES-128
                 $out .= ' 4';
@@ -10451,8 +10451,8 @@ class PDF
             else { // RC-128
                 $out .= ' 3';
             }
-            $out .= ' /O (' . StaticMethods::_escape($this->encryptdata['O']) . ')';
-            $out .= ' /U (' . StaticMethods::_escape($this->encryptdata['U']) . ')';
+            $out .= ' /O (' . StaticMethods::escape($this->encryptdata['O']) . ')';
+            $out .= ' /U (' . StaticMethods::escape($this->encryptdata['U']) . ')';
             $out .= ' /P ' . $this->encryptdata['P'];
             if (isset($this->encryptdata['EncryptMetadata']) and (!$this->encryptdata['EncryptMetadata'])) {
                 $out .= ' /EncryptMetadata false';
