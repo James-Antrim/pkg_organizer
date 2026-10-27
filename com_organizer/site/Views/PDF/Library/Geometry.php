@@ -65,6 +65,28 @@ trait Geometry
     }
 
     /**
+     * Append a rectangle to the current path as a complete subpath, with lower-left corner (x, y) and dimensions widthand height in user space.
+     * @param float  $x       abscissa of upper-left corner.
+     * @param float  $y       ordinate of upper-left corner.
+     * @param float  $w       Width.
+     * @param float  $h       Height.
+     * @param string $options options
+     * @return void
+     */
+    protected function appendRectangle(float $x, float $y, float $w, float $h, string $options): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $heightPoints = -$h * $this->scaleFactor;
+        $widthPoints  = $w * $this->scaleFactor;
+        $xPoints      = $x * $this->scaleFactor;
+        $yPoints      = ($this->h - $y) * $this->scaleFactor;
+        $this->append(sprintf('%F %F %F %F re %s', $xPoints, $yPoints, $widthPoints, $heightPoints, $options));
+    }
+
+    /**
      * Draws a graphic arrow.
      * @param float $x0            abscissa of first point.
      * @param float $y0            ordinate of first point.
@@ -272,23 +294,6 @@ trait Geometry
             $ymax = max($ymax, $yc);
         }
         return [$xmin, $ymin, $xmax, $ymax];
-    }
-
-    /**
-     * Append a rectangle to the current path as a complete subpath, with lower-left corner (x, y) and dimensions widthand height in user space.
-     * @param float  $x  abscissa of upper-left corner.
-     * @param float  $y  ordinate of upper-left corner.
-     * @param float  $w  Width.
-     * @param float  $h  Height.
-     * @param string $op options
-     */
-    protected function _outRect($x, $y, $w, $h, $op)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-
-        $this->append(sprintf('%F %F %F %F re %s', ($x * $this->scaleFactor), (($this->h - $y) * $this->scaleFactor), ($w * $this->scaleFactor), (-$h * $this->scaleFactor), $op));
     }
 
     /**
@@ -603,7 +608,7 @@ trait Geometry
         }
         if (!empty($style)) {
             $op = StaticMethods::getPathPaintOperator($style);
-            $this->_outRect($x, $y, $w, $h, $op);
+            $this->appendRectangle($x, $y, $w, $h, $op);
         }
         if (!empty($border_style)) {
             $border_style2 = [];
