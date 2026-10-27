@@ -39,8 +39,8 @@ abstract class BadgeLayout extends BaseLayout
     /**
      * Adds a badge back side to the sheet reverse.
      *
-     * @param   int  $xOffset  the reference x offset for the box
-     * @param   int  $yOffset  the reference y offset for the box
+     * @param int $xOffset the reference x offset for the box
+     * @param int $yOffset the reference y offset for the box
      *
      * @return void
      */
@@ -48,7 +48,7 @@ abstract class BadgeLayout extends BaseLayout
     {
         /* @var CourseParticipants $view */
         $view = $this->view;
-        $view->SetLineStyle($this->rectangleStyle);
+        $view->lineStyle($this->rectangleStyle);
         $view->Rect($xOffset, 10 + $yOffset, 90, 80);
 
         $badgeCenter = $xOffset + 5;
@@ -129,9 +129,9 @@ abstract class BadgeLayout extends BaseLayout
     /**
      * Adds a badge front side to the sheet.
      *
-     * @param   object  $participant  the participant being iterated
-     * @param   int     $xOffset      the reference value for x
-     * @param   int     $yOffset      the reference value for y
+     * @param object $participant the participant being iterated
+     * @param int    $xOffset     the reference value for x
+     * @param int    $yOffset     the reference value for y
      *
      * @return void
      */
@@ -139,7 +139,7 @@ abstract class BadgeLayout extends BaseLayout
     {
         /** @var CourseParticipants $view */
         $view = $this->view;
-        $view->SetLineStyle($this->rectangleStyle);
+        $view->lineStyle($this->rectangleStyle);
         $view->Rect($xOffset, $yOffset + 10, 90, 80);
 
         $left = $xOffset + 4;

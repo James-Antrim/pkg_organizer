@@ -82,9 +82,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Aggregates resource collections of the same type and creates an output text.
      *
-     * @param   array   $resources  the resources to be aggregated
-     * @param   string  $key        the name key for the resource type
-     * @param   bool    $showCode   whether the resource code should be displayed in lieu of the name
+     * @param array  $resources the resources to be aggregated
+     * @param string $key       the name key for the resource type
+     * @param bool   $showCode  whether the resource code should be displayed in lieu of the name
      *
      * @return string
      */
@@ -102,9 +102,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Filters the instances to those planned in the block being iterated.
      *
-     * @param   string  $date       the block date
-     * @param   string  $startTime  the block start time
-     * @param   string  $endTime    the block end time
+     * @param string $date      the block date
+     * @param string $startTime the block start time
+     * @param string $endTime   the block end time
      *
      * @return stdClass[] the relevant instances
      */
@@ -140,8 +140,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Generates the grid body.
      *
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return void
      */
@@ -171,9 +171,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets the text to be displayed in the row cells
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
-     * @param   array   $block      the block being iterated
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
+     * @param array  $block     the block being iterated
      *
      * @return array
      */
@@ -220,8 +220,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Measures a cell's rendered height.
      *
-     * @param   float   $width     the width of the column to be rendered
-     * @param   string  $contents  the contents to be rendered
+     * @param float  $width    the width of the column to be rendered
+     * @param string $contents the contents to be rendered
      *
      * @return float
      */
@@ -240,8 +240,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds an empty page to the document.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void
      */
@@ -256,8 +256,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page to the document.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $startDate the page start date
+     * @param string $saturDate the page end date
      *
      * @return void
      */
@@ -270,8 +270,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page to the document.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void
      */
@@ -343,9 +343,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders a row in which no instances are planned.
      *
-     * @param   string  $label      the label for the row
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $label     the label for the row
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return void
      */
@@ -373,8 +373,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders the grid headers.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void
      */
@@ -382,7 +382,7 @@ abstract class GridLayout extends BaseLayout
     {
         $view = $this->view;
         $view->SetFont('helvetica', '', 10);
-        $view->SetLineStyle(['width' => 0.5, 'dash' => 0, 'color' => [74, 92, 102]]);
+        $view->lineStyle(['width' => 0.5, 'dash' => 0, 'color' => [74, 92, 102]]);
         $view->renderMultiCell(
             self::TIME_WIDTH,
             0,
@@ -411,7 +411,7 @@ abstract class GridLayout extends BaseLayout
      * Implodes resource names to a comma and ampersand seperated string with a soft wrap at $this::BREAK characters
      * as necessary.
      *
-     * @param   array  $resources  the resources to be aggregated
+     * @param array $resources the resources to be aggregated
      *
      * @return string
      */
@@ -458,9 +458,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Generates the HTML to be output for the instance.
      *
-     * @param   stdClass  $instance   the instance information
-     * @param   string    $startTime  the block start time
-     * @param   string    $endTime    the block end time
+     * @param stdClass $instance  the instance information
+     * @param string   $startTime the block start time
+     * @param string   $endTime   the block end time
      *
      * @return string
      */
@@ -709,7 +709,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets the text to be displayed for the given block.
      *
-     * @param   array  $block  the block being iterated
+     * @param array $block the block being iterated
      *
      * @return string
      */
@@ -737,9 +737,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page break as necessary.
      *
-     * @param   float   $rowHeight  the height of the row to be rendered
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param float  $rowHeight the height of the row to be rendered
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return bool  true if a page was added
      */
@@ -765,8 +765,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds an iterated set of grid pages.
      *
-     * @param   string  $monDate  the start date of the week
-     * @param   string  $endDate  the end date of the week
+     * @param string $monDate the start date of the week
+     * @param string $endDate the end date of the week
      *
      * @return void
      */
@@ -788,10 +788,10 @@ abstract class GridLayout extends BaseLayout
     /**
      * Generates a text for an individual person, inclusive their group and room assignments as requested.
      *
-     * @param   array  $rolePersons  the persons of a single role in the form personID => name
-     * @param   array  $persons      the instance person resources hierarchy
-     * @param   bool   $showGroups   whether person specific groups should be displayed
-     * @param   bool   $showRooms    whether person specific rooms should be displayed
+     * @param array $rolePersons the persons of a single role in the form personID => name
+     * @param array $persons     the instance person resources hierarchy
+     * @param bool  $showGroups  whether person specific groups should be displayed
+     * @param bool  $showRooms   whether person specific rooms should be displayed
      *
      * @return string
      */
@@ -826,7 +826,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Resolves any links/link parameters to links with icons.
      *
-     * @param   string  $text  the text to search
+     * @param string $text the text to search
      *
      * @return string
      */
@@ -881,9 +881,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Generates the text for the given resources.
      *
-     * @param   array   $resources  the rooms associated with the person or persons
-     * @param   string  $name       the name and index of the resource within the respective array
-     * @param   bool    $code       whether the resource code should be used for the text
+     * @param array  $resources the rooms associated with the person or persons
+     * @param string $name      the name and index of the resource within the respective array
+     * @param bool   $code      whether the resource code should be used for the text
      *
      * @return string
      */
@@ -901,8 +901,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Generates the text labeling the role being currently iterated.
      *
-     * @param   int    $roleID       the id of the role being iterated
-     * @param   array  $rolePersons  the persons associated with the role being iterated
+     * @param int   $roleID      the id of the role being iterated
+     * @param array $rolePersons the persons associated with the role being iterated
      *
      * @return string
      */
@@ -917,10 +917,10 @@ abstract class GridLayout extends BaseLayout
     }
 
     /**
-     * @param   string  $label      the block label
-     * @param   array   $cells      the block instance data
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $label     the block label
+     * @param array  $cells     the block instance data
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return void
      */
@@ -973,8 +973,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Scrapes the gridIDs from the groups associated with the instances, and determines the one most relevant one.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void
      */
@@ -1096,7 +1096,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Sets the subtitle line dedicated to the selected resources.
      *
-     * @param   string  $resource
+     * @param string $resource
      *
      * @return void
      */

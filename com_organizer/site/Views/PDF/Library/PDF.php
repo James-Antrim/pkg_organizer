@@ -74,7 +74,7 @@ class PDF
     private array $pages = [];
 
     /** Number of points in user unit */
-    private float $scaleFactor;
+    protected float $scaleFactor;
 
     private int $state = self::INITIAL;
 
@@ -797,21 +797,6 @@ class PDF
     protected $endlinex = 0;
 
     /**
-     * PDF string for CAP value of the last line.
-     */
-    protected $linestyleCap = '0 J';
-
-    /**
-     * PDF string for join value of the last line.
-     */
-    protected $linestyleJoin = '0 j';
-
-    /**
-     * PDF string for dash value of the last line.
-     */
-    protected $linestyleDash = '[] 0 d';
-
-    /**
      * Boolean flag to indicate if marked-content sequence is open.
      */
     protected $openMarkedContent = false;
@@ -1496,10 +1481,7 @@ class PDF
         $this->setCellMargins(0, 0, 0, 0);
         // line width (0.2 mm)
         $this->lineWidth      = 0.57 / $this->scaleFactor;
-        $this->linestyleWidth = sprintf('%F w', ($this->lineWidth * $this->scaleFactor));
-        $this->linestyleCap   = '0 J';
-        $this->linestyleJoin  = '0 j';
-        $this->linestyleDash  = '[] 0 d';
+        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * $this->scaleFactor));
         // automatic page break
         $this->setAutoPageBreak(true, (2 * $margin));
         // full width display mode
@@ -3017,7 +2999,7 @@ class PDF
             $this->setX($header_x);
             $this->MultiCell($cw, $cell_height, $headerdata['string'], 0, '', 0, 1, '', '', true, 0, false, true, 0, 'T', false);
             // print an ending header line
-            $this->setLineStyle(array('width' => 0.85 / $this->scaleFactor, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
+            $this->lineStyle(array('width' => 0.85 / $this->scaleFactor, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
             $this->setY((2.835 / $this->scaleFactor) + max($imgy, $this->y));
             if ($this->rtl) {
                 $this->setX($this->original_rMargin);
@@ -3058,7 +3040,7 @@ class PDF
         $this->setTextColorArray($this->footer_text_color);
         //set style for cell border
         $line_width = (0.85 / $this->scaleFactor);
-        $this->setLineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footer_line_color));
+        $this->lineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footer_line_color));
         //print document barcode
         $barcode = $this->barcode();
         if (!empty($barcode)) {
@@ -5176,7 +5158,7 @@ class PDF
                 $this->x = $x + $w + $this->cell_margin['R'];
             }
         }
-        $gstyles            = '' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ' . $this->FillColor . "\n";
+        $gstyles            = '' . $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->DrawColor . ' ' . $this->FillColor . "\n";
         $rs                 = $gstyles . $rs;
         $this->cell_padding = $prev_cell_padding;
         $this->cell_margin  = $prev_cell_margin;
@@ -5209,7 +5191,7 @@ class PDF
      * @param float            $h   Cell height.
      * @param string|array|int $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]))
      * @return string containing cell border code
-     * @see   SetLineStyle()
+     * @see   lineStyle()
      */
     protected function getCellBorder($x, $y, $w, $h, $brd)
     {
@@ -5255,8 +5237,8 @@ class PDF
         foreach ($brd as $border => $style) {
             if (is_array($style) and !empty($style)) {
                 // apply border style
-                $prev_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ';
-                $s          .= $this->setLineStyle($style, true) . "\n";
+                $prev_style = $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->DrawColor . ' ';
+                $s          .= $this->lineStyle($style, false) . "\n";
             }
             switch ($mode) {
                 case 'ext':
@@ -5403,7 +5385,7 @@ class PDF
             }
             if (is_array($style) and !empty($style)) {
                 // reset border style to previous value
-                $s .= "\n" . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . "\n";
+                $s .= "\n" . $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->DrawColor . "\n";
             }
         }
         return $s;
@@ -13073,7 +13055,7 @@ class PDF
      */
     public function cropMark($x, $y, $w, $h, $type = 'T,R,B,L', $color = array(100, 100, 100, 100, 'All'))
     {
-        $this->setLineStyle(array('width' => (0.5 / $this->scaleFactor), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
+        $this->lineStyle(array('width' => (0.5 / $this->scaleFactor), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
         $type = strtoupper($type);
         $type = preg_replace('/[^A-Z\-\,]*/', '', $type);
         // split type in single components
@@ -19782,7 +19764,7 @@ class PDF
                 else {
                     $this->x -= $lspace;
                 }
-                $prev_line_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor;
+                $prev_line_style = $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->DrawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
                 $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, array(), 8);
                 $this->append($prev_line_style); // restore line settings
@@ -19960,9 +19942,9 @@ class PDF
             'cell_margin'       => $this->cell_margin,
             'LineWidth'         => $this->lineWidth,
             'linestyleWidth'    => $this->linestyleWidth,
-            'linestyleCap'      => $this->linestyleCap,
-            'linestyleJoin'     => $this->linestyleJoin,
-            'linestyleDash'     => $this->linestyleDash,
+            'linestyleCap'      => $this->lineCapStyle,
+            'linestyleJoin'     => $this->lineJoinStyle,
+            'linestyleDash'     => $this->lineDashStyle,
             'textrendermode'    => $this->textrendermode,
             'textstrokewidth'   => $this->textstrokewidth,
             'DrawColor'         => $this->DrawColor,
@@ -20022,9 +20004,9 @@ class PDF
         $this->cell_margin       = $gvars['cell_margin'];
         $this->lineWidth         = $gvars['LineWidth'];
         $this->linestyleWidth    = $gvars['linestyleWidth'];
-        $this->linestyleCap      = $gvars['linestyleCap'];
-        $this->linestyleJoin     = $gvars['linestyleJoin'];
-        $this->linestyleDash     = $gvars['linestyleDash'];
+        $this->lineCapStyle      = $gvars['linestyleCap'];
+        $this->lineJoinStyle     = $gvars['linestyleJoin'];
+        $this->lineDashStyle     = $gvars['linestyleDash'];
         $this->textrendermode    = $gvars['textrendermode'];
         $this->textstrokewidth   = $gvars['textstrokewidth'];
         $this->DrawColor         = $gvars['DrawColor'];
@@ -20063,7 +20045,7 @@ class PDF
             $this->current_column   = $gvars['current_column'];
             $this->num_columns      = $gvars['num_columns'];
         }
-        $this->append('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ' . $this->FillColor . '');
+        $this->append('' . $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->DrawColor . ' ' . $this->FillColor . '');
         if (!StaticMethods::empty_string($this->FontFamily)) {
             $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
         }
@@ -22622,7 +22604,7 @@ class PDF
             if (isset($svgstyle['stroke-dasharray']) and !empty($svgstyle['stroke-dasharray']) and ($svgstyle['stroke-dasharray'] != 'none')) {
                 $stroke_style['dash'] = $svgstyle['stroke-dasharray'];
             }
-            $this->setLineStyle($stroke_style);
+            $this->lineStyle($stroke_style);
             $objstyle .= 'D';
         }
         // font

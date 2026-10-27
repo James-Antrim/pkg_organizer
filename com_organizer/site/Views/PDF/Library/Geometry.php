@@ -20,6 +20,15 @@ trait Geometry
 
     public float $lineWidth;
 
+    /** Cap value of the last line. */
+    private string $lineCapStyle = '0 J';
+
+    /** Dash value of the last line. */
+    private string $lineDashStyle = '[] 0 d';
+
+    /** Join value of the last line. */
+    private string $lineJoinStyle = '0 j';
+
     /** Width value of the last line. */
     private string $lineWidthStyle = '';
 
@@ -199,7 +208,7 @@ trait Geometry
         }
 
         if ($lineStyle) {
-            $this->setLineStyle($lineStyle);
+            $this->lineStyle($lineStyle);
         }
 
         $this->_outellipticalarc($x, $y, $xRadius, $yRadius, $angle, $startAngle, $endAngle, false, $curves);
@@ -213,7 +222,7 @@ trait Geometry
      * @param float $x2    abscissa of second point.
      * @param float $y2    ordinate of second point.
      * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @see   lineWidth(), SetDrawColor(), SetLineStyle()
+     * @see   lineWidth(), SetDrawColor(), lineStyle()
      */
     public function line(float $x1, float $y1, float $x2, float $y2, array $style = []): void
     {
@@ -222,12 +231,95 @@ trait Geometry
         }
 
         if (is_array($style)) {
-            $this->setLineStyle($style);
+            $this->lineStyle($style);
         }
 
         $this->point($x1, $y1);
         $this->appendLine($x2, $y2);
         $this->append(self::STROKE);
+    }
+
+    /**
+     * Sets line style properties and generates a PDF style command, optionally appends the command to the document.
+     * @param array $configuration   Keys among the following:
+     *                               - cap (string): type of cap to put on the line, possible values are:
+     *                               => butt: normal rectangular end
+     *                               => round: rounded end
+     *                               => square: projects a flat end past the end of the line
+     *                               - color (array): draw color, format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]
+     *                               - dash (mixed): dash pattern, possible values are:
+     *                               => 0: no dash
+     *                               => series of length values of the on and off dashes
+     *                               ==> ex "2" 2 on, 2 off, 2 on, 2 off, ...
+     *                               ==> ex "2,1" is 2 on, 1 off, 2 on, 1 off, ...
+     *                               - join (string): Type of join. Possible values are: miter, round, bevel
+     *                               - phase (integer): dash pattern modifier, shifts the point at which the pattern starts
+     *                               - width (float): Width of the line in user units
+     * @param bool  $append          whether to append the style
+     * @return string
+     */
+    public function lineStyle(array $configuration, bool $append = true): string
+    {
+        $style = '';
+
+        if (isset($configuration['width'])) {
+            $this->lineWidth      = $configuration['width'];
+            $this->lineWidthStyle = sprintf('%F w', ($configuration['width'] * $this->scaleFactor));
+
+            $style .= $this->lineWidthStyle . ' ';
+        }
+
+        if (isset($configuration['cap'])) {
+            $ca = ['butt' => 0, 'round' => 1, 'square' => 2];
+
+            if (isset($ca[$configuration['cap']])) {
+                $this->lineCapStyle = $ca[$configuration['cap']] . ' J';
+
+                $style .= $this->lineCapStyle . ' ';
+            }
+        }
+
+        if (isset($configuration['join'])) {
+            $ja = ['miter' => 0, 'round' => 1, 'bevel' => 2];
+            if (isset($ja[$configuration['join']])) {
+                $this->lineJoinStyle = $ja[$configuration['join']] . ' j';
+
+                $style .= $this->lineJoinStyle . ' ';
+            }
+        }
+
+        if (isset($configuration['dash'])) {
+            $dashString = '';
+            if ($configuration['dash']) {
+                $tab = preg_match('/^.+,/', $configuration['dash']) > 0 ? explode(',', $configuration['dash']) : [$configuration['dash']];
+
+                foreach ($tab as $key => $value) {
+                    if ($key) {
+                        $dashString .= ' ';
+                    }
+
+                    $dashString .= sprintf('%F', $value);
+                }
+            }
+
+            if (!isset($configuration['phase']) or !$configuration['dash']) {
+                $configuration['phase'] = 0;
+            }
+
+            $this->lineDashStyle = sprintf('[%s] %F d', $dashString, $configuration['phase']);
+
+            $style .= $this->lineDashStyle . ' ';
+        }
+
+        if (isset($configuration['color'])) {
+            $style .= $this->setDrawColorArray($configuration['color'], true) . ' ';
+        }
+
+        if ($append and $this->state === self::READY) {
+            $this->append($style);
+        }
+
+        return $style;
     }
 
     /**
@@ -413,7 +505,7 @@ trait Geometry
      * @param string $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
      * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @see   SetLineStyle()
+     * @see   lineStyle()
      */
     public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = [], $fill_color = [])
     {
@@ -426,7 +518,7 @@ trait Geometry
         }
         $op = StaticMethods::getPathPaintOperator($style);
         if ($line_style) {
-            $this->setLineStyle($line_style);
+            $this->lineStyle($line_style);
         }
         $this->point($x0, $y0);
         $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
@@ -443,7 +535,7 @@ trait Geometry
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
      * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @see   SetLineStyle()
+     * @see   lineStyle()
      */
     public function Polycurve($x0, $y0, $segments, $style = '', $line_style = [], $fill_color = [])
     {
@@ -459,7 +551,7 @@ trait Geometry
             $line_style = [];
         }
         if ($line_style) {
-            $this->setLineStyle($line_style);
+            $this->lineStyle($line_style);
         }
         $this->point($x0, $y0);
         foreach ($segments as $segment) {
@@ -511,7 +603,7 @@ trait Geometry
         $draw = true;
         if ($line_style) {
             if (isset($line_style['all'])) {
-                $this->setLineStyle($line_style['all']);
+                $this->lineStyle($line_style['all']);
             }
             else {
                 $draw = false;
@@ -532,7 +624,7 @@ trait Geometry
                         if ($line_style[$line_num] != 0) {
                             if (is_array($line_style[$line_num])) {
                                 $this->append('S');
-                                $this->setLineStyle($line_style[$line_num]);
+                                $this->lineStyle($line_style[$line_num]);
                                 $this->point($p[$i - 2], $p[$i - 1]);
                                 $this->appendLine($p[$i], $p[$i + 1]);
                                 $this->append('S');
@@ -590,7 +682,7 @@ trait Geometry
      *                             </ul>
      *                             If a key is not present or is null, the correspondent border is not drawn. Default value: default line style (empty array).
      * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @see   SetLineStyle()
+     * @see   lineStyle()
      */
     public function Rect($x, $y, $w, $h, $style = '', $border_style = [], $fill_color = [])
     {
@@ -608,7 +700,7 @@ trait Geometry
         if (!empty($border_style)) {
             if (isset($border_style['all']) and !empty($border_style['all'])) {
                 //set global style for border
-                $this->setLineStyle($border_style['all']);
+                $this->lineStyle($border_style['all']);
                 $border_style = [];
             }
             else {
@@ -690,84 +782,6 @@ trait Geometry
             $p[]   = $y0 + ($r * cos($a_rad));
         }
         $this->Polygon($p, $style, $line_style, $fill_color);
-    }
-
-    /**
-     * Set line style.
-     * @param array   $style Line style. Array with keys among the following:
-     *                       <ul>
-     *                       <li>width (float): Width of the line in user units.</li>
-     *                       <li>cap (string): Type of cap to put on the line. Possible values are:
-     *                       butt, round, square. The difference between "square" and "butt" is that
-     *                       "square" projects a flat end past the end of the line.</li>
-     *                       <li>join (string): Type of join. Possible values are: miter, round,
-     *                       bevel.</li>
-     *                       <li>dash (mixed): Dash pattern. Is 0 (without dash) or string with
-     *                       series of length values, which are the lengths of the on and off dashes.
-     *                       For example: "2" represents 2 on, 2 off, 2 on, 2 off, ...; "2,1" is 2 on,
-     *                       1 off, 2 on, 1 off, ...</li>
-     *                       <li>phase (integer): Modifier on the dash pattern which is used to shift
-     *                       the point at which the pattern starts.</li>
-     *                       <li>color (array): Draw color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName].</li>
-     *                       </ul>
-     * @param boolean $ret   if true do not send the command.
-     * @return string the PDF command
-     */
-    public function setLineStyle($style, $ret = false)
-    {
-        $s = ''; // string to be returned
-        if (!is_array($style)) {
-            return $s;
-        }
-        if (isset($style['width'])) {
-            $this->lineWidth      = $style['width'];
-            $this->lineWidthStyle = sprintf('%F w', ($style['width'] * $this->scaleFactor));
-            $s                    .= $this->lineWidthStyle . ' ';
-        }
-        if (isset($style['cap'])) {
-            $ca = ['butt' => 0, 'round' => 1, 'square' => 2];
-            if (isset($ca[$style['cap']])) {
-                $this->linestyleCap = $ca[$style['cap']] . ' J';
-                $s                  .= $this->linestyleCap . ' ';
-            }
-        }
-        if (isset($style['join'])) {
-            $ja = ['miter' => 0, 'round' => 1, 'bevel' => 2];
-            if (isset($ja[$style['join']])) {
-                $this->linestyleJoin = $ja[$style['join']] . ' j';
-                $s                   .= $this->linestyleJoin . ' ';
-            }
-        }
-        if (isset($style['dash'])) {
-            $dash_string = '';
-            if ($style['dash']) {
-                if (preg_match('/^.+,/', $style['dash']) > 0) {
-                    $tab = explode(',', $style['dash']);
-                }
-                else {
-                    $tab = [$style['dash']];
-                }
-                $dash_string = '';
-                foreach ($tab as $i => $v) {
-                    if ($i) {
-                        $dash_string .= ' ';
-                    }
-                    $dash_string .= sprintf('%F', $v);
-                }
-            }
-            if (!isset($style['phase']) or !$style['dash']) {
-                $style['phase'] = 0;
-            }
-            $this->linestyleDash = sprintf('[%s] %F d', $dash_string, $style['phase']);
-            $s                   .= $this->linestyleDash . ' ';
-        }
-        if (isset($style['color'])) {
-            $s .= $this->setDrawColorArray($style['color'], true) . ' ';
-        }
-        if (!$ret and ($this->state === self::READY)) {
-            $this->append($s);
-        }
-        return $s;
     }
 
     /**
@@ -871,7 +885,7 @@ trait Geometry
             $border_style = [];
         }
         if ($border_style) {
-            $this->setLineStyle($border_style);
+            $this->lineStyle($border_style);
         }
         $MyArc = 4 / 3 * (sqrt(2) - 1);
         $this->point($x + $rx, $y);
