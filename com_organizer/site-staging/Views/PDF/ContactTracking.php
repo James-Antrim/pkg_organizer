@@ -70,7 +70,7 @@ class ContactTracking extends ListView
         $pageWidth = (0.85 / $this->scaleFactor);
         $this->lineStyle(['width' => $pageWidth, 'color' => $this->footer_line_color]);
 
-        $pnText = $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
+        $pnText = $this->pageNumberAlias() . ' / ' . $this->totalPagesAlias();
 
         $this->SetX($this->original_lMargin);
         $text = Text::_('ORGANIZER_COVID_CONTACT');

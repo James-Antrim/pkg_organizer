@@ -2068,7 +2068,7 @@ class Fonts
      * @param bool    $forcertl    if 'R' forces RTL, if 'L' forces LTR
      * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
-     * @return array of unicode chars
+     * @return array of Unicode chars
      */
     public static function utf8Bidi($ta, $str, $forcertl, $isUnicode, &$currentfont)
     {

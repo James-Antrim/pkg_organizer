@@ -16,9 +16,11 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Static methods used by the PDF class. */
 class StaticMethods
 {
-    /**
-     * String alias for total number of pages.
-     */
+    public const GROUP_PAGE_NUMBER_ALIAS = '{:png:}';
+    public const PAGE_NUMBER_ALIAS = '{:pnp:}';
+    public const PAGES_IN_GROUP_ALIAS = '{:ptg:}';
+    /** Alias for right shift compensation used to correctly align page numbers on the right. */
+    public const RIGHT_SHIFT_ALIAS = '{rsc:';
     public const TOTAL_PAGES_ALIAS = '{:ptp:}';
 
     /**
@@ -130,31 +132,6 @@ class StaticMethods
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
-
-    /**
-     * String alias for total number of pages.
-     */
-    public static $alias_tot_pages = '{:ptp:}';
-
-    /**
-     * String alias for page number.
-     */
-    public static $alias_num_page = '{:pnp:}';
-
-    /**
-     * String alias for total number of pages in a single group.
-     */
-    public static $alias_group_tot_pages = '{:ptg:}';
-
-    /**
-     * String alias for group page number.
-     */
-    public static $alias_group_num_page = '{:png:}';
-
-    /**
-     * String alias for right shift compensation used to correctly align page numbers on the right.
-     */
-    public static $alias_right_shift = '{rsc:';
 
     /**
      * Encryption padding string.

@@ -124,6 +124,16 @@ class PDF
     }
 
     /**
+     * Return the alias for the page number on the current page group. If the current font is Unicode type, the returned string is surrounded by
+     * additional curly braces. This alias will be replaced by the page number (relative to the belonging group).
+     * @return string
+     */
+    public function groupPageNumberAlias(): string
+    {
+        return $this->isUnicodeFont() ? '{' . StaticMethods::GROUP_PAGE_NUMBER_ALIAS . '}' : StaticMethods::GROUP_PAGE_NUMBER_ALIAS;
+    }
+
+    /**
      * Page buffer handling. Returns the current buffer.
      * @param int     $pageNumber
      * @param string  $content
@@ -139,6 +149,36 @@ class PDF
         }
 
         return $this->pages[$pageNumber] ?? '';
+    }
+
+    /**
+     * Returns the string alias used for the page number. If the current font is Unicode type, the returned string is surrounded by additional curly
+     * braces. This alias will be replaced by the page number.
+     * @return string
+     */
+    public function pageNumberAlias(): string
+    {
+        return $this->isUnicodeFont() ? '{' . StaticMethods::PAGE_NUMBER_ALIAS . '}' : StaticMethods::PAGE_NUMBER_ALIAS;
+    }
+
+    /**
+     * Return the alias for the total number of pages in the current page group. If the current font is Unicode type, the returned string is
+     * surrounded by additional curly braces. This alias will be replaced by the total number of pages in this group.
+     * @return string alias of the current page group
+     */
+    public function pagesInGroupAlias(): string
+    {
+        return $this->isUnicodeFont() ? '{' . StaticMethods::PAGES_IN_GROUP_ALIAS . '}' : StaticMethods::PAGES_IN_GROUP_ALIAS;
+    }
+
+    /**
+     * Returns the string alias used for the total number of pages. If the current font is Unicode type, the returned string is surrounded by
+     * additional curly braces. This alias will be replaced by the total number of pages in the document.
+     * @return string
+     */
+    public function totalPagesAlias(): string
+    {
+        return $this->isUnicodeFont() ? '{' . StaticMethods::TOTAL_PAGES_ALIAS . '}' : StaticMethods::TOTAL_PAGES_ALIAS;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
@@ -3062,10 +3102,10 @@ class PDF
         }
         $w_page = isset($this->l['w_page']) ? $this->l['w_page'] . ' ' : '';
         if (empty($this->pagegroups)) {
-            $pagenumtxt = $w_page . $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
+            $pagenumtxt = $w_page . $this->pageNumberAlias() . ' / ' . $this->totalPagesAlias();
         }
         else {
-            $pagenumtxt = $w_page . $this->getPageNumGroupAlias() . ' / ' . $this->getPageGroupAlias();
+            $pagenumtxt = $w_page . $this->groupPageNumberAlias() . ' / ' . $this->pagesInGroupAlias();
         }
         $this->setY($cur_y);
         //Print page number
@@ -3255,7 +3295,7 @@ class PDF
     /**
      * Returns the current page number.
      * @return int page number
-     * @see   getAliasNbPages()
+     * @see   totalPagesAlias()
      */
     public function PageNo()
     {
@@ -7577,7 +7617,13 @@ class PDF
      */
     protected function getAllInternalPageNumberAliases()
     {
-        $basic_alias = array(StaticMethods::$alias_tot_pages, StaticMethods::$alias_num_page, StaticMethods::$alias_group_tot_pages, StaticMethods::$alias_group_num_page, StaticMethods::$alias_right_shift);
+        $basic_alias = [
+            StaticMethods::TOTAL_PAGES_ALIAS,
+            StaticMethods::PAGE_NUMBER_ALIAS,
+            StaticMethods::PAGES_IN_GROUP_ALIAS,
+            StaticMethods::GROUP_PAGE_NUMBER_ALIAS,
+            StaticMethods::RIGHT_SHIFT_ALIAS
+        ];
         $pnalias     = [];
         foreach ($basic_alias as $k => $a) {
             $pnalias[$k] = $this->getInternalPageNumberAliases($a);
@@ -12468,7 +12514,7 @@ class PDF
     public function getAliasRightShift()
     {
         // calculate aproximatively the ratio between widths of aliases and replacements.
-        $ref  = '{' . StaticMethods::$alias_right_shift . '}{' . StaticMethods::$alias_tot_pages . '}{' . StaticMethods::$alias_num_page . '}';
+        $ref  = '{' . StaticMethods::RIGHT_SHIFT_ALIAS . '}{' . StaticMethods::TOTAL_PAGES_ALIAS . '}{' . StaticMethods::PAGE_NUMBER_ALIAS . '}';
         $rep  = str_repeat(' ', $this->GetNumChars($ref));
         $wrep = $this->GetStringWidth($rep);
         if ($wrep > 0) {
@@ -12478,64 +12524,11 @@ class PDF
             $wdiff = 1;
         }
         $sdiff = sprintf('%F', $wdiff);
-        $alias = StaticMethods::$alias_right_shift . $sdiff . '}';
+        $alias = StaticMethods::RIGHT_SHIFT_ALIAS . $sdiff . '}';
         if ($this->isUnicodeFont()) {
             $alias = '{' . $alias;
         }
         return $alias;
-    }
-
-    /**
-     * Returns the string alias used for the total number of pages.
-     * If the current font is Unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the total number of pages in the document.
-     * @return string
-     */
-    public function getAliasNbPages()
-    {
-        return $this->isUnicodeFont() ? '{' . StaticMethods::TOTAL_PAGES_ALIAS . '}' : StaticMethods::TOTAL_PAGES_ALIAS;
-    }
-
-    /**
-     * Returns the string alias used for the page number.
-     * If the current font is Unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the page number.
-     * @return string
-     */
-    public function getAliasNumPage()
-    {
-        if ($this->isUnicodeFont()) {
-            return '{' . StaticMethods::$alias_num_page . '}';
-        }
-        return StaticMethods::$alias_num_page;
-    }
-
-    /**
-     * Return the alias for the total number of pages in the current page group.
-     * If the current font is Unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the total number of pages in this group.
-     * @return string alias of the current page group
-     */
-    public function getPageGroupAlias()
-    {
-        if ($this->isUnicodeFont()) {
-            return '{' . StaticMethods::$alias_group_tot_pages . '}';
-        }
-        return StaticMethods::$alias_group_tot_pages;
-    }
-
-    /**
-     * Return the alias for the page number on the current page group.
-     * If the current font is Unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the page number (relative to the belonging group).
-     * @return string alias of the current page group
-     */
-    public function getPageNumGroupAlias()
-    {
-        if ($this->isUnicodeFont()) {
-            return '{' . StaticMethods::$alias_group_num_page . '}';
-        }
-        return StaticMethods::$alias_group_num_page;
     }
 
     /**

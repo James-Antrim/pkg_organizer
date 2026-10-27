@@ -77,7 +77,7 @@ class Booking extends ListView
             $this->SetFont($pageFont);
             $this->renderCell(25, 0, Text::_('ORGANIZER_REGISTERED'), self::LEFT, self::TOP);
 
-            $pnText = $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
+            $pnText = $this->pageNumberAlias() . ' / ' . $this->totalPagesAlias();
             $this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
 
             return;
