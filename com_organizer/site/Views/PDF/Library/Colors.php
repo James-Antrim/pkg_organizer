@@ -12,8 +12,8 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-/** PHP color class. */
-class Colors
+/** PHP color trait. */
+trait Colors
 {
     /**
      * Array of valid JavaScript color names
@@ -205,7 +205,7 @@ class Colors
      * @param array  $default    the default color array
      * @return array
      */
-    public static function fromHTML(string $htmlColor, array &$spotColors, array $default = ['R' => 128, 'G' => 128, 'B' => 128]): array
+    private function colorFromHTML(string $htmlColor, array &$spotColors, array $default = ['R' => 128, 'G' => 128, 'B' => 128]): array
     {
         $color = preg_replace('/\s*/', '', $htmlColor); // remove extra spaces
         $color = strtolower($color);
@@ -308,7 +308,7 @@ class Colors
         }
         else {
             if (!isset(self::$webColor[$color]) or !$colorCode = self::$webColor[$color]) {
-                return self::spotColor($htmlColor, $spotColors) ?: $default;
+                return $this->spotColor($htmlColor, $spotColors) ?: $default;
             }
         }
 
@@ -349,7 +349,7 @@ class Colors
      * Convert color to javascript color.
      * @param string $color color name or "#RRGGBB"
      */
-    public static function jsColor(string $color): string
+    private function colorToJavascript(string $color): string
     {
         if (str_starts_with($color, '#')) {
             $blue  = hexdec(substr($color, 5, 2)) / 255;
@@ -406,7 +406,7 @@ class Colors
      * @param array $color
      * @return string
      */
-    public static function stringFromArray(array $color): string
+    public static function colorStringFromArray(array $color): string
     {
         $color = array_values($color);
         switch (count($color)) {

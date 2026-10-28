@@ -48,7 +48,7 @@ trait WebTools
         $this->javascript .= 'f' . $name . '.textSize=' . $this->FontSizePt . ";\n";
 
         foreach ($properties as $key => $value) {
-            $value = strcmp(substr($key, -5), 'Color') == 0 ? Colors::jsColor($value) : "'" . $value . "'";
+            $value = strcmp(substr($key, -5), 'Color') == 0 ? $this->colorToJavascript($value) : "'" . $value . "'";
 
             $this->javascript .= 'f' . $name . '.' . $key . '=' . $value . ";\n";
         }
@@ -291,13 +291,13 @@ trait WebTools
         // fillColor: Specifies the background color for a field.
         if (isset($properties['fillColor'])) {
             $annotations['mk']['bg'] = is_array($properties['fillColor']) ?
-                $properties['fillColor'] : Colors::fromHTML($properties['fillColor'], $this->spot_colors);
+                $properties['fillColor'] : $this->colorFromHTML($properties['fillColor'], $this->spot_colors);
         }
 
         // strokeColor: Specifies the stroke color for a field that is used to stroke the rectangle of the field with a line as large as the line width.
         if (isset($properties['strokeColor'])) {
             $annotations['mk']['bc'] = is_array($properties['strokeColor']) ?
-                $properties['strokeColor'] : Colors::fromHTML($properties['strokeColor'], $this->spot_colors);
+                $properties['strokeColor'] : $this->colorFromHTML($properties['strokeColor'], $this->spot_colors);
         }
 
         // rotation: The rotation of a widget in counterclockwise increments.
