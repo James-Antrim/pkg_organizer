@@ -203,16 +203,16 @@ class Colors
      * @param string $htmlColor  HTML color
      * @param array  $spotColors the defined spot colors.
      * @param array  $default    the default color array
-     * @return array|false
+     * @return array
      */
-    public static function fromHTML(string $htmlColor, array &$spotColors, array $default = ['R' => 128, 'G' => 128, 'B' => 128]): array|false
+    public static function fromHTML(string $htmlColor, array &$spotColors, array $default = ['R' => 128, 'G' => 128, 'B' => 128]): array
     {
-        $color = preg_replace('/[\s]*/', '', $htmlColor); // remove extra spaces
+        $color = preg_replace('/\s*/', '', $htmlColor); // remove extra spaces
         $color = strtolower($color);
 
         // javascript color array syntax
         if (str_contains($color, '[')) {
-            $pattern = '/[\[][\"\'](t|g|rgb|cmyk)[\"\'][\,]?([0-9\.]*)[\,]?([0-9\.]*)[\,]?([0-9\.]*)[\,]?([0-9\.]*)[\]]/';
+            $pattern = '/\[[\"\'](t|g|rgb|cmyk)[\"\'],?([0-9.]*),?([0-9.]*),?([0-9.]*),?([0-9.]*)]/';
             if (preg_match($pattern, $color, $m) > 0) {
                 switch ($m[1]) {
                     case 'cmyk':
@@ -311,11 +311,11 @@ class Colors
                 return self::spotColor($htmlColor, $spotColors) ?: $default;
             }
         }
+
         // HEXADECIMAL REPRESENTATION
         switch (strlen($colorCode)) {
             // 3-digit RGB hexadecimal representation
             case 3:
-            {
                 $red   = substr($colorCode, 0, 1);
                 $green = substr($colorCode, 1, 1);
                 $blue  = substr($colorCode, 2, 1);
@@ -325,30 +325,23 @@ class Colors
                     'G' => max(0, min(255, hexdec($green . $green))),
                     'R' => max(0, min(255, hexdec($red . $red))),
                 ];
-            }
             // 6-digit RGB hexadecimal representation
             case 6:
-            {
                 return [
                     'B' => max(0, min(255, hexdec(substr($colorCode, 4, 2)))),
                     'G' => max(0, min(255, hexdec(substr($colorCode, 2, 2)))),
                     'R' => max(0, min(255, hexdec(substr($colorCode, 0, 2)))),
                 ];
-            }
             // 8-digit CMYK hexadecimal representation
             case 8:
-            {
                 return [
                     'C' => max(0, min(100, round(hexdec(substr($colorCode, 0, 2)) / 2.55))),
                     'K' => max(0, min(100, round(hexdec(substr($colorCode, 6, 2)) / 2.55))),
                     'M' => max(0, min(100, round(hexdec(substr($colorCode, 2, 2)) / 2.55))),
                     'Y' => max(0, min(100, round(hexdec(substr($colorCode, 4, 2)) / 2.55))),
                 ];
-            }
             default:
-            {
                 return $default;
-            }
         }
     }
 
