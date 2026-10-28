@@ -201,7 +201,7 @@ trait Geometry
             $this->setFillColorArray($fillColor);
         }
 
-        $operator = StaticMethods::getPathPaintOperator($style);
+        $operator = StaticMethods::pathPaintingOperators($style);
 
         if ($operator === self::FILL2) {
             $lineStyle = [];
@@ -541,7 +541,7 @@ trait Geometry
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->setFillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($line_style) {
             $this->lineStyle($line_style);
         }
@@ -571,7 +571,7 @@ trait Geometry
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->setFillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
             $line_style = [];
         }
@@ -621,7 +621,7 @@ trait Geometry
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->setFillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
             $line_style = [];
         }
@@ -743,7 +743,7 @@ trait Geometry
             }
         }
         if (!empty($style)) {
-            $op = StaticMethods::getPathPaintOperator($style);
+            $op = StaticMethods::pathPaintingOperators($style);
             $this->appendRectangle($x, $y, $w, $h, $op);
         }
         if (!empty($border_style)) {
@@ -905,7 +905,7 @@ trait Geometry
         if (!(false === strpos($style, self::FILL)) and is_array($fill_color)) {
             $this->setFillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($op == self::FILL2) {
             $border_style = [];
         }

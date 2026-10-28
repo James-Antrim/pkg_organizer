@@ -264,6 +264,31 @@ class StaticMethods
     }
 
     /**
+     * Gets the path painting operators.
+     * @param string $style
+     * @param string $default default style
+     * @return string
+     * @see PDF::RENDERING_STYLES
+     */
+    public static function pathPaintingOperators(string $style): string
+    {
+        $style = in_array($style, PDF::RENDERING_STYLES) ? $style : PDF::STROKE;
+        return match ($style) {
+            PDF::STROKE_CLOSE, PDF::DRAW_CLOSE => PDF::STROKE_CLOSE,
+            PDF::FILL, PDF::FILL2 => PDF::FILL2,
+            PDF::FILL_EO, PDF::FILL2_EO => PDF::FILL2_EO,
+            PDF::BOLD, PDF::DRAW_FILL, PDF::FILL_DRAW => PDF::BOLD,
+            PDF::BOLD_EO, PDF::DRAW_FILL_EO, PDF::FILL_DRAW_EO => PDF::BOLD_EO,
+            PDF::BOLD_CLOSE, PDF::DRAW_FILL_CLOSE, PDF::FILL_DRAW_CLOSE => PDF::BOLD_CLOSE,
+            PDF::BOLD_CLOSE_EO, PDF::DRAW_FILL_CLOSE_EO, PDF::FILL_DRAW_CLOSE_EO => PDF::BOLD_CLOSE_EO,
+            PDF::CLIP_NZ => 'W n',
+            PDF::CLIP_EO => 'W* n',
+            PDF::END_PATH => PDF::END_PATH,
+            default => PDF::STROKE,
+        };
+    }
+
+    /**
      * Returns "THM Organizer 5.0.0" in Unicode.
      * @return string TCPDF producer string
      */
@@ -1466,68 +1491,6 @@ class StaticMethods
             }
         }
         return $patterns;
-    }
-
-    /**
-     * Get the Path-Painting Operators.
-     * @param string $style
-     * @param string $default default style
-     * @return string
-     * @see PDF::RENDERING_STYLES
-     */
-    public static function getPathPaintOperator($style, $default = PDF::STROKE)
-    {
-        switch ($style) {
-            case PDF::STROKE:
-            case PDF::DRAW:
-                $op = PDF::STROKE;
-                break;
-            case PDF::STROKE_CLOSE:
-            case PDF::DRAW_CLOSE:
-                $op = PDF::STROKE_CLOSE;
-                break;
-            case PDF::FILL:
-            case PDF::FILL2:
-                $op = PDF::FILL2;
-                break;
-            case PDF::FILL_EO:
-            case PDF::FILL2_EO:
-                $op = PDF::FILL2_EO;
-                break;
-            case PDF::BOLD:
-            case PDF::DRAW_FILL:
-            case PDF::FILL_DRAW:
-                $op = PDF::BOLD;
-                break;
-            case PDF::BOLD_EO:
-            case PDF::DRAW_FILL_EO:
-            case PDF::FILL_DRAW_EO:
-                $op = PDF::BOLD_EO;
-                break;
-            case PDF::BOLD_CLOSE:
-            case PDF::DRAW_FILL_CLOSE:
-            case PDF::FILL_DRAW_CLOSE:
-                $op = PDF::BOLD_CLOSE;
-                break;
-            case PDF::BOLD_CLOSE_EO:
-            case PDF::DRAW_FILL_CLOSE_EO:
-            case PDF::FILL_DRAW_CLOSE_EO:
-                $op = PDF::BOLD_CLOSE_EO;
-                break;
-            case PDF::CLIP_NZ:
-                $op = 'W n';
-                break;
-            case PDF::CLIP_EO:
-                $op = 'W* n';
-                break;
-            case PDF::END_PATH:
-                $op = PDF::END_PATH;
-                break;
-            default:
-                $op = $default ? self::getPathPaintOperator($default, '') : '';
-        }
-
-        return $op;
     }
 
     /**

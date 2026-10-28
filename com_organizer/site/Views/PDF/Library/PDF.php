@@ -13669,7 +13669,7 @@ class PDF
         if ($this->rtl) {
             $xc = ($this->w - $xc);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
             $line_style = [];
         }
@@ -22722,7 +22722,7 @@ class PDF
             return;
         }
         // set fill/stroke style
-        $op = StaticMethods::getPathPaintOperator($style, '');
+        $op = StaticMethods::pathPaintingOperators($style);
         if (empty($op)) {
             return;
         }
