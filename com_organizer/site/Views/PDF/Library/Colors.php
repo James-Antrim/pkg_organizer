@@ -18,13 +18,13 @@ trait Colors
     /**
      * Array of valid JavaScript color names
      */
-    public static array $jsColor = ['transparent', 'black', 'white', 'red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'dkGray', 'gray', 'ltGray'];
+    private const JS_COLORS = ['transparent', 'black', 'white', 'red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'dkGray', 'gray', 'ltGray'];
 
     /**
      * Array of spot colors (C,M,Y,K,name). Color keys must be in lowercase and without spaces.
      * Common industry standard spot colors are: ANPA-COLOR, DIC, FOCOLTONE, GCMI, HKS, PANTONE, TOYO, TRUMATCH.
      */
-    public static array $spotColor = [
+    private const SPOT_COLORS = [
         // special registration colors
         'none'    => [0, 0, 0, 0, 'None'],
         'all'     => [100, 100, 100, 100, 'All'],
@@ -45,7 +45,7 @@ trait Colors
     /**
      * Array of WEB safe colors
      */
-    public static array $webColor = [
+    private const WEB_COLORS = [
         'aliceblue'            => 'f0f8ff',
         'antiquewhite'         => 'faebd7',
         'aqua'                 => '00ffff',
@@ -195,7 +195,7 @@ trait Colors
         'whitesmoke'           => 'f5f5f5',
         'yellow'               => 'ffff00',
         'yellowgreen'          => '9acd32'
-    ]; // end of web colors
+    ];
 
     /**
      * Returns an array (RGB or CMYK) from a html color name, or a six-digit (i.e. #3FE5AA), or three-digit (i.e. #7FF) hexadecimal color,
@@ -307,7 +307,7 @@ trait Colors
             $colorCode = substr($color, 1);
         }
         else {
-            if (!isset(self::$webColor[$color]) or !$colorCode = self::$webColor[$color]) {
+            if (!isset(self::WEB_COLORS[$color]) or !$colorCode = self::$webColor[$color]) {
                 return $this->spotColor($htmlColor, $spotColors) ?: $default;
             }
         }
@@ -358,9 +358,9 @@ trait Colors
             return sprintf("['RGB',%F,%F,%F]", $red, $green, $blue);
         }
 
-        if (!in_array($color, self::$jsColor)) {
+        if (!in_array($color, self::JS_COLORS)) {
             // default transparent color
-            $color = self::$jsColor[0];
+            $color = self::JS_COLORS[0];
         }
 
         return 'color.' . $color;
@@ -383,19 +383,19 @@ trait Colors
         $color = preg_replace('/\s*/', '', $name);
         $color = strtolower($color);
 
-        if (isset(self::$spotColor[$color])) {
+        if (isset(self::SPOT_COLORS[$color])) {
             $i = (1 + count($spotColors));
 
             $spotColors[$name] = [
-                'C'    => self::$spotColor[$color][0],
-                'M'    => self::$spotColor[$color][1],
-                'Y'    => self::$spotColor[$color][2],
-                'K'    => self::$spotColor[$color][3],
-                'name' => self::$spotColor[$color][4],
+                'C'    => self::SPOT_COLORS[$color][0],
+                'M'    => self::SPOT_COLORS[$color][1],
+                'Y'    => self::SPOT_COLORS[$color][2],
+                'K'    => self::SPOT_COLORS[$color][3],
+                'name' => self::SPOT_COLORS[$color][4],
                 'i'    => $i
             ];
 
-            return $spotColors[self::$spotColor[$color][4]];
+            return $spotColors[self::SPOT_COLORS[$color][4]];
         }
 
         return false;
