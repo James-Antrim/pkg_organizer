@@ -215,7 +215,7 @@ class PDF
     {
         $fixed = false;
         if ($pageNumber and is_string($pageNumber) and str_starts_with($pageNumber, '*')) {
-            $fixed = true;
+            $fixed      = true;
             $pageNumber = (int) substr($pageNumber, 1);
         }
 
@@ -11450,7 +11450,7 @@ class PDF
         // get default style
         $prop = array_merge($this->getFormDefaultProp(), $prop);
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = $this->jsPropertiesToAnnotations($prop);
         // set default appearance stream
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
         $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
@@ -11608,7 +11608,7 @@ class PDF
         $prop['Radio']         = 'true';
         $prop['borderStyle']   = 'inset';
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default options
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
         $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->TextColor);
@@ -11689,7 +11689,7 @@ class PDF
         // get default style
         $prop = array_merge($this->getFormDefaultProp(), $prop);
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default values
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
         $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
@@ -11777,7 +11777,7 @@ class PDF
         $prop          = array_merge($this->getFormDefaultProp(), $prop);
         $prop['Combo'] = true;
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default options
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
         $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
@@ -11858,7 +11858,7 @@ class PDF
         $prop                = array_merge($this->getFormDefaultProp(), $prop);
         $prop['borderStyle'] = 'inset';
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default options
         $font = 'zapfdingbats';
         if ($this->pdfaMode) {
@@ -11941,10 +11941,12 @@ class PDF
         $prop['highlight']  = 'push';
         $prop['display']    = 'display.noPrint';
         // get annotation data
-        $popt                                                  = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = $this->jsPropertiesToAnnotations($prop);
+
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
-        $popt['da']                                            = $fontstyle;
+
+        $fontstyle  = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
+        $popt['da'] = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
