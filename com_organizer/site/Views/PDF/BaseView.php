@@ -196,10 +196,10 @@ abstract class BaseView extends PDF implements ViewInterface
      *                           array border settings coded by side
      * @param bool   $fill       true if the cell should render a background color, otherwise false
      * @param string $vAlign     the cell's vertical alignment
-     * @param mixed  $link       URL or identifier returned by AddLink().
+     * @param mixed  $link       URL or identifier returned by addLink().
      *
      * @return void renders the cell
-     * @see   AddLink(), Cell()
+     * @see   addLink(), Cell()
      */
     public function renderCell(
         int    $width,

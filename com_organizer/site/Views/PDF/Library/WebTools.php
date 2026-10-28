@@ -16,10 +16,8 @@ namespace THM\Organizer\Views\PDF\Library;
 trait WebTools
 {
     private string $javascript = '';
-
     /** Javascript counter added to the document code. */
     private string $javascriptCounter = '';
-
     private array $javascriptObjects = [];
 
     /**

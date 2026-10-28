@@ -40,7 +40,8 @@ class PDF
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
-    public const BOLD = 'B', BOLD_CLOSE = 'b', BOLD_CLOSE_EO = 'b*', BOLD_EO = 'B*'; // duplicates of draw & fill
+    // BOLD is dual use with font styles.
+    public const BOLD_CLOSE = 'b', BOLD_CLOSE_EO = 'b*', BOLD_EO = 'B*'; // duplicates of draw & fill
     public const CLIP_EO = 'CEO', CLIP_NZ = 'CNZ';
     public const DRAW = 'D', DRAW_CLOSE = 'd';
     public const DRAW_FILL = 'DF', DRAW_FILL_CLOSE = 'df', DRAW_FILL_CLOSE_EO = 'df*', DRAW_FILL_EO = 'DF*';
@@ -80,6 +81,7 @@ class PDF
 
     /** Length of the buffer in bytes. */
     private int $bufferLength = 0;
+    private array $internalLinks = [];
 
     /** Current object number across all display contexts: javascript, xobjects, ... */
     private int $objectNumber = 2;
@@ -98,6 +100,19 @@ class PDF
     private bool $xObject = false;
     private string $xObjectID = '';
     private array $xObjects = [];
+
+    /**
+     * Creates a new internal link and returns its index.
+     * @return int
+     * @see Cell(), Write(), Image(), Link(), setLink()
+     */
+    public function addLink(): int
+    {
+        $index = count($this->internalLinks) + 1;
+
+        $this->internalLinks[$index] = ['p' => 0, 'y' => 0, 'f' => false];
+        return $index;
+    }
 
     /**
      * Append a string to the document.
@@ -186,6 +201,33 @@ class PDF
     public function pagesInGroupAlias(): string
     {
         return $this->isUnicodeFont() ? '{' . StaticMethods::PAGES_IN_GROUP_ALIAS . '}' : StaticMethods::PAGES_IN_GROUP_ALIAS;
+    }
+
+    /**
+     * Defines the page and position a link points to.
+     * @param int        $linkIndex  index returned by addLink()
+     * @param float      $y          ordinate of target position; -1 denotes the current position, 0 denotes the top of the page / default value
+     * @param int|string $pageNumber -1 denotes the current page / default value
+     *                               page numbers prefixed with the '*' character will not be changed when adding/deleting/moving pages.
+     * @see addLink()
+     */
+    public function setLink(int $linkIndex, float $y = 0, int|string $pageNumber = -1): void
+    {
+        $fixed = false;
+        if ($pageNumber and is_string($pageNumber) and str_starts_with($pageNumber, '*')) {
+            $fixed = true;
+            $pageNumber = (int) substr($pageNumber, 1);
+        }
+
+        if ($pageNumber < 0) {
+            $pageNumber = $this->page;
+        }
+
+        if ($y == -1) {
+            $y = $this->y;
+        }
+
+        $this->internalLinks[$linkIndex] = ['p' => $pageNumber, 'y' => $y, 'f' => $fixed];
     }
 
     /**
@@ -344,11 +386,6 @@ class PDF
      * Array of Annotations in pages.
      */
     protected $PageAnnots = [];
-
-    /**
-     * Array of internal links.
-     */
-    protected $links = [];
 
     /**
      * Current font family.
@@ -1461,7 +1498,6 @@ class PDF
         $this->FontFiles    = [];
         $this->diffs        = [];
         $this->images       = [];
-        $this->links        = [];
         $this->gradients    = [];
         $this->InFooter     = false;
         $this->lasth        = 0;
@@ -2767,10 +2803,10 @@ class PDF
                 }
             }
             // adjust links
-            $tmplinks = $this->links;
+            $tmplinks = $this->internalLinks;
             foreach ($tmplinks as $key => $link) {
                 if (!$link['f'] and ($link['p'] > $this->numpages)) {
-                    $this->links[$key]['p'] = ($link['p'] + 1);
+                    $this->internalLinks[$key]['p'] = ($link['p'] + 1);
                 }
             }
         }
@@ -4292,52 +4328,15 @@ class PDF
     }
 
     /**
-     * Creates a new internal link and returns its identifier. An internal link is a clickable area which directs to another place within the document.<br />
-     * The identifier can then be passed to Cell(), Write(), Image() or Link(). The destination is defined with SetLink().
-     * @see   Cell(), Write(), Image(), Link(), SetLink()
-     */
-    public function AddLink()
-    {
-        // create a new internal link
-        $n               = count($this->links) + 1;
-        $this->links[$n] = ['p' => 0, 'y' => 0, 'f' => false];
-        return $n;
-    }
-
-    /**
-     * Defines the page and position a link points to.
-     * @param int        $link The link identifier returned by AddLink()
-     * @param float      $y    Ordinate of target position; -1 indicates the current position. The default value is 0 (top of page)
-     * @param int|string $page Number of target page; -1 indicates the current page (default value). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
-     * @see   AddLink()
-     */
-    public function setLink($link, $y = 0, $page = -1)
-    {
-        $fixed = false;
-        if (!empty($page) and (substr($page, 0, 1) == '*')) {
-            $page = intval(substr($page, 1));
-            // this page number will not be changed when moving/add/deleting pages
-            $fixed = true;
-        }
-        if ($page < 0) {
-            $page = $this->page;
-        }
-        if ($y == -1) {
-            $y = $this->y;
-        }
-        $this->links[$link] = ['p' => $page, 'y' => $y, 'f' => $fixed];
-    }
-
-    /**
      * Puts a link on a rectangular area of the page.
      * Text or image links are generally put via Cell(), Write() or Image(), but this method can be useful for instance to define a clickable area inside an image.
      * @param float $x      Abscissa of the upper-left corner of the rectangle
      * @param float $y      Ordinate of the upper-left corner of the rectangle
      * @param float $w      Width of the rectangle
      * @param float $h      Height of the rectangle
-     * @param mixed $link   URL or identifier returned by AddLink()
+     * @param mixed $link   URL or identifier returned by addLink()
      * @param int   $spaces number of spaces on the text to link
-     * @see   AddLink(), Annotation(), Cell(), Write(), Image()
+     * @see   addLink(), Annotation(), Cell(), Write(), Image()
      */
     public function Link($x, $y, $w, $h, $link, $spaces = 0)
     {
@@ -4502,7 +4501,7 @@ class PDF
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
-     * @param mixed  $link              URL or identifier returned by AddLink().
+     * @param mixed  $link              URL or identifier returned by addLink().
      * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
@@ -4605,12 +4604,12 @@ class PDF
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
-     * @param mixed  $link              URL or identifier returned by AddLink().
+     * @param mixed  $link              URL or identifier returned by addLink().
      * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), AddLink(), Ln(), MultiCell(), Write(), SetAutoPageBreak()
+     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), addLink(), Ln(), MultiCell(), Write(), SetAutoPageBreak()
      */
     public function Cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
@@ -4672,7 +4671,7 @@ class PDF
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
-     * @param mixed  $link              URL or identifier returned by AddLink().
+     * @param mixed  $link              URL or identifier returned by addLink().
      * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
@@ -5981,7 +5980,7 @@ class PDF
      * This method prints text from the current position.<br />
      * @param float      $h          Line height
      * @param string     $txt        String to print
-     * @param mixed      $link       URL or identifier returned by AddLink()
+     * @param mixed      $link       URL or identifier returned by addLink()
      * @param bool       $fill       Indicates if the cell background must be painted (true) or transparent (false).
      * @param string     $align      Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool       $ln         if true set cursor at the bottom of the line, otherwise set cursor at the top of the line.
@@ -6551,7 +6550,7 @@ class PDF
      * @param float      $w         Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float      $h         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param string     $type      Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
-     * @param mixed      $link      URL or identifier returned by AddLink().
+     * @param mixed      $link      URL or identifier returned by addLink().
      * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param mixed      $resize    If true resize (reduce) the image to fit $w and $h (requires GD or ImageMagick library); if false do not resize; if 2 force resize in all cases (upscaling and downscaling).
      * @param int        $dpi       dot-per-inch resolution used on resize
@@ -6991,7 +6990,7 @@ class PDF
      * @param float  $w        Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float  $h        Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param string $type     Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
-     * @param mixed  $link     URL or identifier returned by AddLink().
+     * @param mixed  $link     URL or identifier returned by addLink().
      * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param bool   $resize   If true resize (reduce) the image to fit $w and $h (requires GD library).
      * @param int    $dpi      dot-per-inch resolution used on resize
@@ -8219,9 +8218,9 @@ class PDF
                                     }
                                 }
                             }
-                            elseif (isset($this->links[$pl['txt']])) {
+                            elseif (isset($this->internalLinks[$pl['txt']])) {
                                 // internal link ID
-                                $l = $this->links[$pl['txt']];
+                                $l = $this->internalLinks[$pl['txt']];
                                 if (isset($this->page_obj_id[($l['p'])])) {
                                     $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->scaleFactor)));
                                 }
@@ -10231,7 +10230,7 @@ class PDF
                 else {
                     $lnky = 0;
                 }
-                $url = $this->AddLink();
+                $url = $this->addLink();
                 $this->setLink($url, $lnky, $page);
             }
         }
@@ -11358,9 +11357,9 @@ class PDF
                         $out .= ' /A <</S /URI /URI ' . $this->_datastring($this->unhtmlentities($o['u']), $oid) . '>>';
                     }
                 }
-                elseif (isset($this->links[$o['u']])) {
+                elseif (isset($this->internalLinks[$o['u']])) {
                     // internal link ID
-                    $l = $this->links[$o['u']];
+                    $l = $this->internalLinks[$o['u']];
                     if (isset($this->page_obj_id[($l['p'])])) {
                         $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->scaleFactor)));
                     }
@@ -13572,7 +13571,7 @@ class PDF
      * @param float|null $y              Ordinate of the upper-left corner.
      * @param float      $w              Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float      $h              Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param mixed      $link           URL or identifier returned by AddLink().
+     * @param mixed      $link           URL or identifier returned by addLink().
      * @param bool       $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
      * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
@@ -17973,7 +17972,7 @@ class PDF
                             else {
                                 $lnky = 0;
                             }
-                            $imglink = $this->AddLink();
+                            $imglink = $this->addLink();
                             $this->setLink($imglink, $lnky, $page);
                         }
                     }
@@ -20165,14 +20164,14 @@ class PDF
             }
         }
         // adjust links
-        $tmplinks = $this->links;
+        $tmplinks = $this->internalLinks;
         foreach ($tmplinks as $key => $link) {
             if (!$link['f']) {
                 if (($link['p'] >= $topage) and ($link['p'] < $frompage)) {
-                    $this->links[$key]['p'] = ($link['p'] + 1);
+                    $this->internalLinks[$key]['p'] = ($link['p'] + 1);
                 }
                 elseif ($link['p'] == $frompage) {
-                    $this->links[$key]['p'] = $topage;
+                    $this->internalLinks[$key]['p'] = $topage;
                 }
             }
         }
@@ -20363,14 +20362,14 @@ class PDF
             }
         }
         // adjust links
-        $tmplinks = $this->links;
+        $tmplinks = $this->internalLinks;
         foreach ($tmplinks as $key => $link) {
             if (!$link['f']) {
                 if ($link['p'] > $page) {
-                    $this->links[$key]['p'] = $link['p'] - 1;
+                    $this->internalLinks[$key]['p'] = $link['p'] - 1;
                 }
                 elseif ($link['p'] == $page) {
-                    unset($this->links[$key]);
+                    unset($this->internalLinks[$key]);
                 }
             }
         }
@@ -20457,10 +20456,10 @@ class PDF
             }
         }
         // copy links
-        $tmplinks = $this->links;
+        $tmplinks = $this->internalLinks;
         foreach ($tmplinks as $key => $link) {
             if ($link['p'] == $page) {
-                $this->links[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
+                $this->internalLinks[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
             }
         }
         // return to last page
@@ -20566,7 +20565,7 @@ class PDF
                 $this->x       += $indent;
                 $this->lMargin = $this->x;
             }
-            $link = $this->AddLink();
+            $link = $this->addLink();
             $this->setLink($link, $outline['y'], $outline['p']);
             // write the text
             if ($this->rtl) {
