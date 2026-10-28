@@ -23,16 +23,16 @@ class Fonts
 
     /**
      * Convert and add the selected TrueType or Type1 font to the fonts folder (that must be writeable).
-     * @param string  $fontfile Font file (full path).
-     * @param string  $fonttype Font type. Leave empty for autodetect mode. Valid values are: TrueTypeUnicode, TrueType, Type1, CID0JP = CID-0 Japanese, CID0KR = CID-0 Korean, CID0CS = CID-0 Chinese Simplified, CID0CT = CID-0 Chinese Traditional.
-     * @param string  $enc      Name of the encoding table to use. Leave empty for default mode. Omit this parameter for TrueType Unicode and symbolic fonts like Symbol or ZapfDingBats.
-     * @param int     $flags    Unsigned 32-bit integer containing flags specifying various characteristics of the font (PDF32000:2008 - 9.8.2 Font Descriptor Flags): +1 for fixed font; +4 for symbol or +32 for non-symbol; +64 for italic. Fixed and Italic mode are generally autodetected so you have to set it to 32 = non-symbolic font (default) or 4 = symbolic font.
-     * @param string  $outpath  Output path for generated font files (must be writeable by the web server). Leave empty for default font folder.
-     * @param int     $platid   Platform ID for CMAP table to extract (when building a Unicode font for Windows this value should be 3, for Macintosh should be 1).
-     * @param int     $encid    Encoding ID for CMAP table to extract (when building a Unicode font for Windows this value should be 1, for Macintosh should be 0). When Platform ID is 3, legal values for Encoding ID are: 0=Symbol, 1=Unicode, 2=ShiftJIS, 3=PRC, 4=Big5, 5=Wansung, 6=Johab, 7=Reserved, 8=Reserved, 9=Reserved, 10=UCS-4.
-     * @param boolean $addCBBox If true includes the character bounding box information on the php font file.
-     * @param boolean $link     If true link to system font instead of copying the font data (not transportable) - Note: do not work with Type1 fonts.
-     * @return string|false TCPDF font name or boolean false in case of error.
+     * @param string $fontfile Font file (full path).
+     * @param string $fonttype Font type. Leave empty for autodetect mode. Valid values are: TrueTypeUnicode, TrueType, Type1, CID0JP = CID-0 Japanese, CID0KR = CID-0 Korean, CID0CS = CID-0 Chinese Simplified, CID0CT = CID-0 Chinese Traditional.
+     * @param string $enc      Name of the encoding table to use. Leave empty for default mode. Omit this parameter for TrueType Unicode and symbolic fonts like Symbol or ZapfDingBats.
+     * @param int    $flags    Unsigned 32-bit integer containing flags specifying various characteristics of the font (PDF32000:2008 - 9.8.2 Font Descriptor Flags): +1 for fixed font; +4 for symbol or +32 for non-symbol; +64 for italic. Fixed and Italic mode are generally autodetected so you have to set it to 32 = non-symbolic font (default) or 4 = symbolic font.
+     * @param string $outpath  Output path for generated font files (must be writeable by the web server). Leave empty for default font folder.
+     * @param int    $platid   Platform ID for CMAP table to extract (when building a Unicode font for Windows this value should be 3, for Macintosh should be 1).
+     * @param int    $encid    Encoding ID for CMAP table to extract (when building a Unicode font for Windows this value should be 1, for Macintosh should be 0). When Platform ID is 3, legal values for Encoding ID are: 0=Symbol, 1=Unicode, 2=ShiftJIS, 3=PRC, 4=Big5, 5=Wansung, 6=Johab, 7=Reserved, 8=Reserved, 9=Reserved, 10=UCS-4.
+     * @param bool   $addCBBox If true includes the character bounding box information on the php font file.
+     * @param bool   $link     If true link to system font instead of copying the font data (not transportable) - Note: do not work with Type1 fonts.
+     * @return string|false TCPDF font name or bool false in case of error.
      */
     public static function addTTFfont($fontfile, $fonttype = '', $enc = '', $flags = 32, $outpath = '', $platid = 3, $encid = 1, $addCBBox = false, $link = false)
     {
@@ -1635,8 +1635,8 @@ class Fonts
 
     /**
      * Returns the Unicode caracter specified by the value
-     * @param int     $c       UTF-8 value
-     * @param boolean $unicode True if we are in Unicode mode, false otherwise.
+     * @param int  $c       UTF-8 value
+     * @param bool $unicode True if we are in Unicode mode, false otherwise.
      * @return string Returns the specified character.
      */
     public static function unichr($c, $unicode = true)
@@ -1716,8 +1716,8 @@ class Fonts
      *    W1 = 110110yyyyyyyyyy
      *    W2 = 110111xxxxxxxxxx
      * </pre>
-     * @param array   $unicode array containing UTF-8 Unicode values
-     * @param boolean $setbom  if true set the Byte Order Mark (BOM = 0xFEFF)
+     * @param array $unicode array containing UTF-8 Unicode values
+     * @param bool  $setbom  if true set the Byte Order Mark (BOM = 0xFEFF)
      * @return string
      */
     public static function arrUTF8ToUTF16BE($unicode, $setbom = false)
@@ -1752,8 +1752,8 @@ class Fonts
 
     /**
      * Convert an array of UTF8 values to array of Unicode characters
-     * @param array   $ta        The input array of UTF8 values.
-     * @param boolean $isUnicode True for Unicode mode, false otherwise.
+     * @param array $ta        The input array of UTF8 values.
+     * @param bool  $isUnicode True for Unicode mode, false otherwise.
      * @return array Return array of Unicode characters
      */
     public static function UTF8ArrayToUniArray($ta, $isUnicode = true)
@@ -1769,7 +1769,7 @@ class Fonts
      * @param string[] $strarr  The input array of characters.
      * @param int      $start   the starting element of $strarr.
      * @param int      $end     first element that will not be returned.
-     * @param boolean  $unicode True if we are in Unicode mode, false otherwise.
+     * @param bool     $unicode True if we are in Unicode mode, false otherwise.
      * @return string Return part of a string
      */
     public static function UTF8ArrSubString($strarr, $start = '', $end = '', $unicode = true)
@@ -1976,9 +1976,9 @@ class Fonts
     /**
      * Converts UTF-8 strings to codepoints array.<br>
      * Invalid byte sequences will be replaced with 0xFFFD (replacement character)<br>
-     * @param string  $str         string to process.
-     * @param boolean $isUnicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * @param string $str         string to process.
+     * @param bool   $isUnicode   True when the documetn is in Unicode mode, false otherwise.
+     * @param array  $currentfont Reference to current font array.
      * @return array containing codepoints (UTF-8 characters values)
      */
     public static function UTF8StringToArray($str, $isUnicode, &$currentfont)
@@ -2004,9 +2004,9 @@ class Fonts
 
     /**
      * Converts UTF-8 strings to Latin1 when using the standard 14 core fonts.<br>
-     * @param string  $str         string to process.
-     * @param boolean $isUnicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * @param string $str         string to process.
+     * @param bool   $isUnicode   True when the documetn is in Unicode mode, false otherwise.
+     * @param array  $currentfont Reference to current font array.
      * @return string
      */
     public static function UTF8ToLatin1($str, $isUnicode, &$currentfont)
@@ -2017,10 +2017,10 @@ class Fonts
 
     /**
      * Converts UTF-8 strings to UTF16-BE.<br>
-     * @param string  $str         string to process.
-     * @param boolean $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param boolean $isUnicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * @param string $str         string to process.
+     * @param bool   $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
+     * @param bool   $isUnicode   True when the documetn is in Unicode mode, false otherwise.
+     * @param array  $currentfont Reference to current font array.
      * @return string
      */
     public static function UTF8ToUTF16BE($str, $setbom, $isUnicode, &$currentfont)
@@ -2034,11 +2034,11 @@ class Fonts
 
     /**
      * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param string  $str         string to manipulate.
-     * @param bool    $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool    $forcertl    if true forces RTL text direction
-     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * @param string $str         string to manipulate.
+     * @param bool   $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
+     * @param bool   $forcertl    if true forces RTL text direction
+     * @param bool   $isUnicode   True if the document is in Unicode mode, false otherwise.
+     * @param array  $currentfont Reference to current font array.
      * @return string
      */
     public static function utf8StrRev($str, $setbom, $forcertl, $isUnicode, &$currentfont)
@@ -2048,12 +2048,12 @@ class Fonts
 
     /**
      * Reverse the RLT substrings array using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param array   $arr         array of Unicode values.
-     * @param string  $str         string to manipulate (or empty value).
-     * @param bool    $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool    $forcertl    if true forces RTL text direction
-     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * @param array  $arr         array of Unicode values.
+     * @param string $str         string to manipulate (or empty value).
+     * @param bool   $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
+     * @param bool   $forcertl    if true forces RTL text direction
+     * @param bool   $isUnicode   True if the document is in Unicode mode, false otherwise.
+     * @param array  $currentfont Reference to current font array.
      * @return string
      */
     public static function utf8StrArrRev($arr, $str, $setbom, $forcertl, $isUnicode, &$currentfont)
@@ -2063,11 +2063,11 @@ class Fonts
 
     /**
      * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param array   $ta          array of characters composing the string.
-     * @param string  $str         string to process
-     * @param bool    $forcertl    if 'R' forces RTL, if 'L' forces LTR
-     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * @param array  $ta          array of characters composing the string.
+     * @param string $str         string to process
+     * @param bool   $forcertl    if 'R' forces RTL, if 'L' forces LTR
+     * @param bool   $isUnicode   True if the document is in Unicode mode, false otherwise.
+     * @param array  $currentfont Reference to current font array.
      * @return array of Unicode chars
      */
     public static function utf8Bidi($ta, $str, $forcertl, $isUnicode, &$currentfont)

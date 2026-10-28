@@ -58,16 +58,6 @@ abstract class BaseView extends PDF implements ViewInterface
      */
     public const CURRENT_SIZE = 12;
 
-    // Font Styles
-    public const BOLD = 'B',
-        BOLD_ITALIC = 'BI',
-        BOLD_UNDERLINE = 'BU',
-        ITALIC = 'I',
-        OVERLINE = 'O',
-        REGULAR = '',
-        STRIKE_THROUGH = 'D',
-        UNDERLINE = 'U';
-
     // Orientation
     public const LANDSCAPE = 'l', PORTRAIT = 'p';
 

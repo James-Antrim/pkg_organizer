@@ -418,7 +418,7 @@ class StaticMethods
     /**
      * Check if the URL exist.
      * @param string $url URL to check.
-     * @return boolean
+     * @return bool
      */
     public static function validURL(string $url): bool
     {
@@ -448,7 +448,7 @@ class StaticMethods
      * Get the border mode accounting for multicell position (opens bottom side of multicell crossing pages)
      * @param string|array|int $brd      Indicates if borders must be drawn around the cell block. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul>or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @param string           $position multicell position: 'start', 'middle', 'end'
-     * @param boolean          $opencell True when the cell is left open at the page bottom, false otherwise.
+     * @param bool             $opencell True when the cell is left open at the page bottom, false otherwise.
      * @return array border mode array
      */
     public static function getBorderMode($brd, $position = 'start', $opencell = true)
@@ -666,9 +666,9 @@ class StaticMethods
 
     /**
      * Convert JavaScript form fields properties array to Annotation Properties array.
-     * @param array   $prop        javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
-     * @param array   $spot_colors Reference to spot colors array.
-     * @param boolean $rtl         True if in Right-To-Left text direction mode, false otherwise.
+     * @param array $prop        javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array $spot_colors Reference to spot colors array.
+     * @param bool  $rtl         True if in Right-To-Left text direction mode, false otherwise.
      * @return array of annotation properties
      */
     public static function getAnnotOptFromJSProp($prop, &$spot_colors, $rtl = false)

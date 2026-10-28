@@ -671,9 +671,9 @@ class Barcode1D
     /**
      * CODE 39 - ANSI MH10.8M-1983 - USD-3 - 3 of 9.
      * General-purpose code in very wide use world-wide
-     * @param string  $code
-     * @param boolean $extended if true uses the extended mode.
-     * @param boolean $checksum if true add a checksum to the code.
+     * @param string $code
+     * @param bool   $extended if true uses the extended mode.
+     * @param bool   $checksum if true add a checksum to the code.
      * @return void
      */
     protected function Code39(string $code, bool $extended = false, bool $checksum = false): void
@@ -1347,8 +1347,8 @@ class Barcode1D
      * Interleaved 2 of 5 barcodes.
      * Compact numeric code, widely used in industry, air cargo
      * Contains digits (0 to 9) and encodes the data in the width of both bars and spaces.
-     * @param string  $code
-     * @param boolean $checksum if true add a checksum to the code
+     * @param string $code
+     * @param bool   $checksum if true add a checksum to the code
      * @return void
      */
     protected function I25(string $code, bool $checksum = false): void
@@ -1659,8 +1659,8 @@ class Barcode1D
      * MSI.
      * Variation of Plessey code, with similar applications
      * Contains digits (0 to 9) and encodes the data only in the width of bars.
-     * @param string  $code
-     * @param boolean $checksum if true add a checksum to the code (modulo 11)
+     * @param string $code
+     * @param bool   $checksum if true add a checksum to the code (modulo 11)
      * @return void
      */
     protected function MSI(string $code, bool $checksum = false): void
@@ -1803,8 +1803,8 @@ class Barcode1D
     /**
      * POSTNET and PLANET barcodes.
      * Used by U.S. Postal Service for automated mail sorting
-     * @param string  $code   zip Must be a string containing a zip code of the form DDDDD or DDDDD-DDDD.
-     * @param boolean $planet if true print the PLANET barcode, otherwise print POSTNET
+     * @param string $code   zip Must be a string containing a zip code of the form DDDDD or DDDDD-DDDD.
+     * @param bool   $planet if true print the PLANET barcode, otherwise print POSTNET
      * @return void
      */
     protected function Postal(string $code, bool $planet = false): void
@@ -1911,8 +1911,8 @@ class Barcode1D
      * RMS4CC - CBC - KIX
      * RMS4CC (Royal Mail 4-state Customer Code) - CBC (Customer Bar Code) - KIX (Klant index - Customer index)
      * RM4SCC is the name of the barcode symbology used by the Royal Mail for its Cleanmail service.
-     * @param string  $code code to print
-     * @param boolean $kix  if true prints the KIX variation (doesn't use the start and end symbols, and the checksum) - in this case the house number must be sufficed with an X and placed at the end of the code.
+     * @param string $code code to print
+     * @param bool   $kix  if true prints the KIX variation (doesn't use the start and end symbols, and the checksum) - in this case the house number must be sufficed with an X and placed at the end of the code.
      * @return void
      */
     protected function RMS4CC(string $code, bool $kix = false): void
@@ -1995,8 +1995,8 @@ class Barcode1D
      * Standard 2 of 5 barcodes.
      * Used in airline ticket marking, photofinishing
      * Contains digits (0 to 9) and encodes the data only in the width of bars.
-     * @param string  $code
-     * @param boolean $checksum if true add a checksum to the code
+     * @param string $code
+     * @param bool   $checksum if true add a checksum to the code
      * @return void
      */
     protected function S25(string $code, bool $checksum = false): void

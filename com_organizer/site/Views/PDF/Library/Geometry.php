@@ -388,11 +388,11 @@ trait Geometry
      * @param float   $xang       Angle between the X-axis and the major axis of the ellipse. Default value: 0.
      * @param float   $angs       Angle start of draw line. Default value: 0.
      * @param float   $angf       Angle finish of draw line. Default value: 360.
-     * @param boolean $pie        if true do not mark the border point (used to draw pie sectors).
+     * @param bool    $pie        if true do not mark the border point (used to draw pie sectors).
      * @param integer $nc         Number of curves used to draw a 90 degrees portion of ellipse.
-     * @param boolean $startpoint if true output a starting point.
-     * @param boolean $ccw        if true draws in counter-clockwise.
-     * @param boolean $svg        if true the angles are in svg mode (already calculated).
+     * @param bool    $startpoint if true output a starting point.
+     * @param bool    $ccw        if true draws in counter-clockwise.
+     * @param bool    $svg        if true the angles are in svg mode (already calculated).
      * @return array bounding box coordinates (x min, y min, x max, y max)
      */
     protected function _outellipticalarc($xc, $yc, $rx, $ry, $xang = 0, $angs = 0, $angf = 360, $pie = false, $nc = 2, $startpoint = true, $ccw = true, $svg = false)
@@ -588,16 +588,16 @@ trait Geometry
 
     /**
      * Draws a polygon.
-     * @param array   $p          Points 0 to ($np - 1). Array with values (x0, y0, x1, y1,..., x(np-1), y(np - 1))
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of polygon. Array with keys among the following:
+     * @param array  $p           Points 0 to ($np - 1). Array with values (x0, y0, x1, y1,..., x(np-1), y(np - 1))
+     * @param string $style       Style of rendering. See the getPathPaintOperator() function for more information.
+     * @param array  $line_style  Line style of polygon. Array with keys among the following:
      *                            <ul>
      *                            <li>all: Line style of all lines. Array like for SetLineStyle().</li>
      *                            <li>0 to ($np - 1): Line style of each line. Array like for SetLineStyle().</li>
      *                            </ul>
      *                            If a key is not present or is null, not draws the line. Default value is default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @param boolean $closed     if true the polygon is closes, otherwise will remain open
+     * @param array  $fill_color  Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
+     * @param bool   $closed      if true the polygon is closes, otherwise will remain open
      */
     public function Polygon($p, $style = '', $line_style = [], $fill_color = [], $closed = true)
     {
@@ -777,7 +777,7 @@ trait Geometry
      * @param float   $r                    Radius of inscribed circle.
      * @param integer $ns                   Number of sides.
      * @param float   $angle                Angle oriented (anti-clockwise). Default value: 0.
-     * @param boolean $draw_circle          Draw inscribed circle or not. Default value: false.
+     * @param bool    $draw_circle          Draw inscribed circle or not. Default value: false.
      * @param string  $style                Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style           Line style of polygon sides. Array with keys among the following:
      *                                      <ul>
@@ -817,7 +817,7 @@ trait Geometry
      * @param integer $nv                   Number of vertices.
      * @param integer $ng                   Number of gap (if ($ng % $nv = 1) then is a regular polygon).
      * @param float   $angle                Angle oriented (anti-clockwise). Default value: 0.
-     * @param boolean $draw_circle          Draw inscribed circle or not. Default value is false.
+     * @param bool    $draw_circle          Draw inscribed circle or not. Default value is false.
      * @param string  $style                Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style           Line style of polygon sides. Array with keys among the following:
      *                                      <ul>

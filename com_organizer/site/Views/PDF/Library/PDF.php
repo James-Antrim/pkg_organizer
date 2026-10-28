@@ -25,6 +25,18 @@ class PDF
     use Geometry;
     use WebTools;
 
+    // Font Styles
+    public const BOLD = 'B',
+        BOLD_ITALIC = 'BI',
+        BOLD_UNDERLINE = 'BU',
+        ITALIC = 'I',
+        OVERLINE = 'O',
+        REGULAR = '',
+        STRIKE_THROUGH = 'D',
+        UNDERLINE = 'U';
+
+    public const FONT_STYLES = [self::BOLD, self::BOLD_ITALIC, self::BOLD_UNDERLINE, self::ITALIC, self::OVERLINE, self::REGULAR, self::STRIKE_THROUGH, self::UNDERLINE];
+
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
@@ -140,9 +152,9 @@ class PDF
 
     /**
      * Page buffer handling. Returns the current buffer.
-     * @param int     $pageNumber
-     * @param string  $content
-     * @param boolean $append whether content should be appended or replaced
+     * @param int    $pageNumber
+     * @param string $content
+     * @param bool   $append whether content should be appended or replaced
      * @return string
      */
     protected function pageBuffer(int $pageNumber, string $content = '', bool $append = false): string
@@ -630,7 +642,7 @@ class PDF
     protected $fgcolor;
 
     /**
-     * HTML PARSER: array of boolean values, true in case of ordered list (OL), false otherwise.
+     * HTML PARSER: array of bool values, true in case of ordered list (OL), false otherwise.
      */
     protected $listordered = [];
 
@@ -1409,9 +1421,9 @@ class PDF
      * @param string        $orientation page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
      * @param string        $unit        User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
      * @param mixed         $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param boolean       $unicode     TRUE means that the input text is Unicode (default = true)
+     * @param bool          $unicode     TRUE means that the input text is Unicode (default = true)
      * @param string        $encoding    Charset encoding (used only when converting back html entities); default is UTF-8.
-     * @param boolean       $diskcache   DEPRECATED FEATURE
+     * @param bool          $diskcache   DEPRECATED FEATURE
      * @param false|integer $pdfa        If not false, set the document to PDF/A mode and the good version (1 or 3).
      * @see getPageSizeFromFormat(), setPageFormat()
      */
@@ -1788,9 +1800,9 @@ class PDF
 
     /**
      * Set page orientation.
-     * @param string       $orientation   page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
-     * @param boolean|null $autopagebreak Boolean indicating if auto-page-break mode should be on or off.
-     * @param float|null   $bottommargin  bottom margin of the page.
+     * @param string     $orientation   page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
+     * @param bool|null  $autopagebreak Boolean indicating if auto-page-break mode should be on or off.
+     * @param float|null $bottommargin  bottom margin of the page.
      */
     public function setPageOrientation($orientation, $autopagebreak = null, $bottommargin = null)
     {
@@ -1925,8 +1937,8 @@ class PDF
 
     /**
      * Enable or disable Right-To-Left language mode
-     * @param boolean $enable if true enable Right-To-Left language mode.
-     * @param boolean $resetx if true reset the X position on direction change.
+     * @param bool $enable if true enable Right-To-Left language mode.
+     * @param bool $resetx if true reset the X position on direction change.
      */
     public function setRTL($enable, $resetx = true)
     {
@@ -2002,8 +2014,8 @@ class PDF
 
     /**
      * Return the cell height
-     * @param int     $fontsize Font size in internal units
-     * @param boolean $padding  If true add cell padding
+     * @param int  $fontsize Font size in internal units
+     * @param bool $padding  If true add cell padding
      * @return float
      */
     public function getCellHeight($fontsize, $padding = TRUE)
@@ -2120,7 +2132,7 @@ class PDF
      * @param int|float      $left        Left margin.
      * @param int|float      $top         Top margin.
      * @param int|float|null $right       Right margin. Default value is the left one.
-     * @param boolean        $keepmargins if true overwrites the default page margins
+     * @param bool           $keepmargins if true overwrites the default page margins
      * @see   SetLeftMargin(), SetTopMargin(), SetRightMargin(), SetAutoPageBreak()
      */
     public function setMargins($left, $top, $right = null, $keepmargins = false)
@@ -2370,8 +2382,8 @@ class PDF
 
     /**
      * Enables or disables the automatic page breaking mode. When enabling, the second parameter is the distance from the bottom of the page that defines the triggering limit. By default, the mode is on and the margin is 2 cm.
-     * @param boolean $auto   Boolean indicating if mode should be on or off.
-     * @param float   $margin Distance from the bottom of the page.
+     * @param bool  $auto   Boolean indicating if mode should be on or off.
+     * @param float $margin Distance from the bottom of the page.
      * @see   Cell(), MultiCell(), AcceptPageBreak()
      */
     public function setAutoPageBreak($auto, $margin = 0)
@@ -2411,7 +2423,7 @@ class PDF
     /**
      * Activates or deactivates page compression. When activated, the internal representation of each page is compressed, which leads to a compression ratio of about 2 for the resulting document. Compression is on by default.
      * Note: the Zlib extension is required for this feature. If not present, compression will be turned off.
-     * @param boolean $compress Boolean indicating if compression must be enabled.
+     * @param bool $compress Boolean indicating if compression must be enabled.
      */
     public function setCompression($compress = true)
     {
@@ -2427,7 +2439,7 @@ class PDF
 
     /**
      * Set flag to force sRGB_IEC61966-2.1 black scaled ICC color profile for the whole document.
-     * @param boolean $mode If true force sRGB output intent.
+     * @param bool $mode If true force sRGB output intent.
      */
     public function setSRGBmode($mode = false)
     {
@@ -2437,7 +2449,7 @@ class PDF
     /**
      * Turn on/off Unicode mode for document information dictionary (meta tags).
      * This has effect only when Unicode mode is set to false.
-     * @param boolean $unicode if true set the meta information in Unicode
+     * @param bool $unicode if true set the meta information in Unicode
      */
     public function setDocInfoUnicode($unicode = true)
     {
@@ -2577,8 +2589,8 @@ class PDF
 
     /**
      * Move pointer at the specified document page and update page dimensions.
-     * @param int     $pnum         page number (1 ... numpages)
-     * @param boolean $resetmargins if true reset left, right, top margins and Y position.
+     * @param int  $pnum         page number (1 ... numpages)
+     * @param bool $resetmargins if true reset left, right, top margins and Y position.
      * @see   getPage(), lastpage(), getNumPages()
      */
     public function setPage($pnum, $resetmargins = false)
@@ -2626,7 +2638,7 @@ class PDF
 
     /**
      * Reset pointer to the last document page.
-     * @param boolean $resetmargins if true reset left, right, top margins and Y position.
+     * @param bool $resetmargins if true reset left, right, top margins and Y position.
      * @see   setPage(), getPage(), getNumPages()
      */
     public function lastPage($resetmargins = false)
@@ -2656,9 +2668,9 @@ class PDF
 
     /**
      * Adds a new TOC (Table Of Content) page to the document.
-     * @param string  $orientation page orientation.
-     * @param mixed   $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param boolean $keepmargins if true overwrites the default page margins with the current margins
+     * @param string $orientation page orientation.
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
      * @see   AddPage(), startPage(), endPage(), endTOCPage()
      */
     public function addTOCPage($orientation = '', $format = '', $keepmargins = false)
@@ -2678,10 +2690,10 @@ class PDF
     /**
      * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins (or top-right if in RTL mode), and Header() is called to display the header (if enabled).
      * The origin of the coordinate system is at the top-left corner (or top-right for RTL) and increasing ordinates go downwards.
-     * @param string  $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed   $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param boolean $keepmargins if true overwrites the default page margins with the current margins
-     * @param boolean $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
+     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
+     * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
      * @see   startPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), setPageFormat()
      */
     public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
@@ -2704,7 +2716,7 @@ class PDF
 
     /**
      * Terminate the current page
-     * @param boolean $tocpage if true set the tocpage state to false (end the page used to display Table Of Content).
+     * @param bool $tocpage if true set the tocpage state to false (end the page used to display Table Of Content).
      * @see   AddPage(), startPage(), addTOCPage(), endTOCPage()
      */
     public function endPage($tocpage = false)
@@ -2727,9 +2739,9 @@ class PDF
     /**
      * Starts a new page to the document. The page must be closed using the endPage() function.
      * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
-     * @param string  $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed   $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param boolean $tocpage     if true the page is designated to contain the Table-Of-Content.
+     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $tocpage     if true the page is designated to contain the Table-Of-Content.
      * @see   AddPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), setPageFormat()
      */
     public function startPage($orientation = '', $format = '', $tocpage = false)
@@ -2914,7 +2926,7 @@ class PDF
 
     /**
      * Set a flag to print page header.
-     * @param boolean $val set to true to print the page header (default), false otherwise.
+     * @param bool $val set to true to print the page header (default), false otherwise.
      */
     public function setPrintHeader($val = true)
     {
@@ -2923,7 +2935,7 @@ class PDF
 
     /**
      * Set a flag to print page footer.
-     * @param boolean $val set to true to print the page footer (default), false otherwise.
+     * @param bool $val set to true to print the page footer (default), false otherwise.
      */
     public function setPrintFooter($val = true)
     {
@@ -2958,7 +2970,7 @@ class PDF
 
     /**
      * Set a flag to automatically reset the xobject template used by Header() method at each page.
-     * @param boolean $val set to true to reset Header xobject template at each page, false otherwise.
+     * @param bool $val set to true to reset Header xobject template at each page, false otherwise.
      */
     public function setHeaderTemplateAutoreset($val = true)
     {
@@ -3395,9 +3407,9 @@ class PDF
      * Set the color array for the specified type ('draw', 'fill', 'text').
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param string  $type  Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param array   $color Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
-     * @param boolean $ret   If true do not send the PDF command.
+     * @param string $type  Type of object affected by this color: ('draw', 'fill', 'text').
+     * @param array  $color Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
+     * @param bool   $ret   If true do not send the PDF command.
      * @return string The PDF command or empty string.
      */
     public function setColorArray($type, $color, $ret = false)
@@ -3425,8 +3437,8 @@ class PDF
      * Defines the color used for all drawing operations (lines, rectangles and cell borders).
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array   $color Array of colors (1, 3 or 4 values).
-     * @param boolean $ret   If true do not send the PDF command.
+     * @param array $color Array of colors (1, 3 or 4 values).
+     * @param bool  $ret   If true do not send the PDF command.
      * @return string the PDF command
      * @see   SetDrawColor()
      */
@@ -3439,8 +3451,8 @@ class PDF
      * Defines the color used for all filling operations (filled rectangles and cell backgrounds).
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array   $color Array of colors (1, 3 or 4 values).
-     * @param boolean $ret   If true do not send the PDF command.
+     * @param array $color Array of colors (1, 3 or 4 values).
+     * @param bool  $ret   If true do not send the PDF command.
      * @see   SetFillColor()
      */
     public function setFillColorArray($color, $ret = false)
@@ -3451,8 +3463,8 @@ class PDF
     /**
      * Defines the color used for text. It can be expressed in RGB components or gray scale.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array   $color Array of colors (1, 3 or 4 values).
-     * @param boolean $ret   If true do not send the PDF command.
+     * @param array $color Array of colors (1, 3 or 4 values).
+     * @param bool  $ret   If true do not send the PDF command.
      * @see   SetFillColor()
      */
     public function setTextColorArray($color, $ret = false)
@@ -3462,13 +3474,13 @@ class PDF
 
     /**
      * Defines the color used by the specified type ('draw', 'fill', 'text').
-     * @param string  $type Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param float   $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float   $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float   $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float   $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param boolean $ret  If true do not send the command.
-     * @param string  $name spot color name (if any)
+     * @param string $type Type of object affected by this color: ('draw', 'fill', 'text').
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name spot color name (if any)
      * @return string The PDF command or empty string.
      */
     public function setColor($type, $col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
@@ -3557,12 +3569,12 @@ class PDF
 
     /**
      * Defines the color used for all drawing operations (lines, rectangles and cell borders). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float   $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float   $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float   $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float   $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param boolean $ret  If true do not send the command.
-     * @param string  $name spot color name (if any)
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name spot color name (if any)
      * @return string the PDF command
      * @see   SetDrawColorArray(), SetFillColor(), SetTextColor(), line(), Rect(), Cell(), MultiCell()
      */
@@ -3573,12 +3585,12 @@ class PDF
 
     /**
      * Defines the color used for all filling operations (filled rectangles and cell backgrounds). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float   $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float   $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float   $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float   $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param boolean $ret  If true do not send the command.
-     * @param string  $name Spot color name (if any).
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name Spot color name (if any).
      * @return string The PDF command.
      * @see   SetFillColorArray(), SetDrawColor(), SetTextColor(), Rect(), Cell(), MultiCell()
      */
@@ -3589,12 +3601,12 @@ class PDF
 
     /**
      * Defines the color used for text. It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float   $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float   $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float   $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float   $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param boolean $ret  If true do not send the command.
-     * @param string  $name Spot color name (if any).
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name Spot color name (if any).
      * @return string Empty string.
      * @see   SetTextColorArray(), SetDrawColor(), SetFillColor(), Text(), Cell(), MultiCell()
      */
@@ -3605,11 +3617,11 @@ class PDF
 
     /**
      * Returns the length of a string in user unit. A font must be selected.<br>
-     * @param string  $s         The string whose length is to be computed
-     * @param string  $fontname  Family font. It can be either a name defined by AddFont() or one of the standard families. It is also possible to pass an empty string, in that case, the current family is retained.
-     * @param string  $fontstyle Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line-through</li><li>O: overline</li></ul> or any combination. The default value is regular.
-     * @param float   $fontsize  Font size in points. The default value is the current size.
-     * @param boolean $getarray  if true returns an array of characters widths, if false returns the total length.
+     * @param string $s         The string whose length is to be computed
+     * @param string $fontname  Family font. It can be either a name defined by AddFont() or one of the standard families. It is also possible to pass an empty string, in that case, the current family is retained.
+     * @param string $fontstyle Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line-through</li><li>O: overline</li></ul> or any combination. The default value is regular.
+     * @param float  $fontsize  Font size in points. The default value is the current size.
+     * @param bool   $getarray  if true returns an array of characters widths, if false returns the total length.
      * @return float[]|float total string length or array of characted widths
      * @phpstan-return ($getarray is true ? float[] : float) total string length or array of characted widths
      */
@@ -3620,11 +3632,11 @@ class PDF
 
     /**
      * Returns the string length of an array of chars in user unit or an array of characters widths. A font must be selected.<br>
-     * @param array   $sa        The array of chars whose total length is to be computed
-     * @param string  $fontname  Family font. It can be either a name defined by AddFont() or one of the standard families. It is also possible to pass an empty string, in that case, the current family is retained.
-     * @param string  $fontstyle Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular.
-     * @param float   $fontsize  Font size in points. The default value is the current size.
-     * @param boolean $getarray  if true returns an array of characters widths, if false returns the total length.
+     * @param array  $sa        The array of chars whose total length is to be computed
+     * @param string $fontname  Family font. It can be either a name defined by AddFont() or one of the standard families. It is also possible to pass an empty string, in that case, the current family is retained.
+     * @param string $fontstyle Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular.
+     * @param float  $fontsize  Font size in points. The default value is the current size.
+     * @param bool   $getarray  if true returns an array of characters widths, if false returns the total length.
      * @return float[]|float total string length or array of characted widths
      * @phpstan-return ($getarray is true ? float[] : float) total string length or array of characted widths
      */
@@ -3661,8 +3673,8 @@ class PDF
 
     /**
      * Returns the length of the char in user unit for the current font considering current stretching and spacing (tracking).
-     * @param int     $char    The char code whose length is to be returned
-     * @param boolean $notlast If false ignore the font-spacing.
+     * @param int  $char    The char code whose length is to be returned
+     * @param bool $notlast If false ignore the font-spacing.
      * @return float char width
      */
     public function GetCharWidth($char, $notlast = true)
@@ -4026,7 +4038,7 @@ class PDF
      * @param float|null $size     Font size in points. The default value is the current size. If no size has been specified since the beginning of the document, the value taken is 12
      * @param string     $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
      * @param mixed      $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
-     * @param boolean    $out      if true output the font size command, otherwise only set the font properties.
+     * @param bool       $out      if true output the font size command, otherwise only set the font properties.
      * @see    AddFont(), SetFontSize()
      */
     public function setFont($family, $style = '', $size = null, $fontfile = '', $subset = 'default', $out = true)
@@ -4052,8 +4064,8 @@ class PDF
 
     /**
      * Defines the size of the current font.
-     * @param float   $size The font size in points.
-     * @param boolean $out  if true output the font size command, otherwise only set the font properties.
+     * @param float $size The font size in points.
+     * @param bool  $out  if true output the font size command, otherwise only set the font properties.
      * @see   SetFont()
      */
     public function setFontSize($size, $out = true)
@@ -4480,22 +4492,22 @@ class PDF
     /**
      * Prints a text cell at the specified position.
      * This method allows to place a string precisely on the page.
-     * @param float   $x                 Abscissa of the cell origin
-     * @param float   $y                 Ordinate of the cell origin
-     * @param string  $txt               String to print
-     * @param int     $fstroke           outline size in user units (0 = disable)
-     * @param boolean $fclip             if true activate clipping mode (you must call StartTransform() before this function and StopTransform() to stop the clipping tranformation).
-     * @param boolean $ffill             if true fills the text
-     * @param mixed   $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param int     $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
-     * @param string  $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
-     * @param boolean $fill              Indicates if the cell background must be painted (true) or transparent (false).
-     * @param mixed   $link              URL or identifier returned by AddLink().
-     * @param int     $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
-     * @param boolean $ignore_min_height if true ignore automatic minimum height value.
-     * @param string  $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
-     * @param string  $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @param boolean $rtloff            if true uses the page top-left corner as origin of axis for $x and $y initial position.
+     * @param float  $x                 Abscissa of the cell origin
+     * @param float  $y                 Ordinate of the cell origin
+     * @param string $txt               String to print
+     * @param int    $fstroke           outline size in user units (0 = disable)
+     * @param bool   $fclip             if true activate clipping mode (you must call StartTransform() before this function and StopTransform() to stop the clipping tranformation).
+     * @param bool   $ffill             if true fills the text
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
+     * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
+     * @param mixed  $link              URL or identifier returned by AddLink().
+     * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param bool   $ignore_min_height if true ignore automatic minimum height value.
+     * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
+     * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
+     * @param bool   $rtloff            if true uses the page top-left corner as origin of axis for $x and $y initial position.
      * @see   Cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
      */
     public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M', $rtloff = false)
@@ -4586,18 +4598,18 @@ class PDF
     /**
      * Prints a cell (rectangular area) with optional borders, background color and character string. The upper-left corner of the cell corresponds to the current position. The text can be aligned or centered. After the call, the current position moves to the right or to the next line. It is possible to put a link on the text.<br />
      * If automatic page breaking is enabled and the cell goes beyond the limit, a page break is done before outputting.
-     * @param float   $w                 Cell width. If 0, the cell extends up to the right margin.
-     * @param float   $h                 Cell height. Default value: 0.
-     * @param string  $txt               String to print. Default value: empty string.
-     * @param mixed   $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param int     $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
-     * @param string  $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
-     * @param boolean $fill              Indicates if the cell background must be painted (true) or transparent (false).
-     * @param mixed   $link              URL or identifier returned by AddLink().
-     * @param int     $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
-     * @param boolean $ignore_min_height if true ignore automatic minimum height value.
-     * @param string  $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
-     * @param string  $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
+     * @param float  $w                 Cell width. If 0, the cell extends up to the right margin.
+     * @param float  $h                 Cell height. Default value: 0.
+     * @param string $txt               String to print. Default value: empty string.
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
+     * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
+     * @param mixed  $link              URL or identifier returned by AddLink().
+     * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param bool   $ignore_min_height if true ignore automatic minimum height value.
+     * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
+     * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
      * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), AddLink(), Ln(), MultiCell(), Write(), SetAutoPageBreak()
      */
     public function Cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
@@ -4653,18 +4665,18 @@ class PDF
     /**
      * Returns the PDF string code to print a cell (rectangular area) with optional borders, background color and character string. The upper-left corner of the cell corresponds to the current position. The text can be aligned or centered. After the call, the current position moves to the right or to the next line. It is possible to put a link on the text.<br />
      * If automatic page breaking is enabled and the cell goes beyond the limit, a page break is done before outputting.
-     * @param float   $w                 Cell width. If 0, the cell extends up to the right margin.
-     * @param float   $h                 Cell height. Default value: 0.
-     * @param string  $txt               String to print. Default value: empty string.
-     * @param mixed   $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param int     $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
-     * @param string  $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
-     * @param boolean $fill              Indicates if the cell background must be painted (true) or transparent (false).
-     * @param mixed   $link              URL or identifier returned by AddLink().
-     * @param int     $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
-     * @param boolean $ignore_min_height if true ignore automatic minimum height value.
-     * @param string  $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
-     * @param string  $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>M : middle</li><li>B : bottom</li></ul>
+     * @param float  $w                 Cell width. If 0, the cell extends up to the right margin.
+     * @param float  $h                 Cell height. Default value: 0.
+     * @param string $txt               String to print. Default value: empty string.
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
+     * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
+     * @param mixed  $link              URL or identifier returned by AddLink().
+     * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param bool   $ignore_min_height if true ignore automatic minimum height value.
+     * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
+     * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>M : middle</li><li>B : bottom</li></ul>
      * @return string containing cell code
      * @see   Cell()
      */
@@ -5419,17 +5431,17 @@ class PDF
      * @param string     $txt         String to print
      * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align</li><li>C: center</li><li>R: right align</li><li>J: justification (default value when $ishtml=false)</li></ul>
-     * @param boolean    $fill        Indicates if the cell background must be painted (true) or transparent (false).
+     * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
      * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line [DEFAULT]</li><li>2: below</li></ul>
      * @param float|null $x           x position in user units
      * @param float|null $y           y position in user units
-     * @param boolean    $reseth      if true reset the last cell height (default true).
+     * @param bool       $reseth      if true reset the last cell height (default true).
      * @param int        $stretch     font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
-     * @param boolean    $ishtml      INTERNAL USE ONLY -- set to true if $txt is HTML content (default = false). Never set this parameter to true, use instead writeHTMLCell() or writeHTML() methods.
-     * @param boolean    $autopadding if true, uses internal padding and automatically adjust it to account for line width.
+     * @param bool       $ishtml      INTERNAL USE ONLY -- set to true if $txt is HTML content (default = false). Never set this parameter to true, use instead writeHTMLCell() or writeHTML() methods.
+     * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width.
      * @param float      $maxHeight   maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature. This feature works only when $ishtml=false.
      * @param string     $valign      Vertical alignment of text (requires $maxHeight = $h > 0). Possible values are:<ul><li>T: TOP</li><li>M: middle</li><li>B: bottom</li></ul>. This feature works only when $ishtml=false and the cell must fit in a single page.
-     * @param boolean    $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxHeight must be greater than 0 and equal to $h.
+     * @param bool       $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxHeight must be greater than 0 and equal to $h.
      * @return int Return the number of cells or 1 for html mode.
      * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), Cell(), Write(), SetAutoPageBreak()
      */
@@ -5821,8 +5833,8 @@ class PDF
      * This method return the estimated number of lines for print a simple text string using Multicell() method.
      * @param string     $txt         String for calculating his height
      * @param float      $w           Width of cells. If 0, they extend up to the right margin of the page.
-     * @param boolean    $reseth      if true reset the last cell height (default false).
-     * @param boolean    $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
+     * @param bool       $reseth      if true reset the last cell height (default false).
+     * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
      * @param array|null $cellpadding Internal cell padding, if empty uses default cell padding.
      * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @return float Return the minimal height needed for multicell method for printing the $txt param.
@@ -5943,8 +5955,8 @@ class PDF
      *
      * @param float      $w           Width of cells. If 0, they extend up to the right margin of the page.
      * @param string     $txt         String for calculating his height
-     * @param boolean    $reseth      if true reset the last cell height (default false).
-     * @param boolean    $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
+     * @param bool       $reseth      if true reset the last cell height (default false).
+     * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
      * @param array|null $cellpadding Internal cell padding, if empty uses default cell padding.
      * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @return float Return the minimal height needed for multicell method for printing the $txt param.
@@ -5970,12 +5982,12 @@ class PDF
      * @param float      $h          Line height
      * @param string     $txt        String to print
      * @param mixed      $link       URL or identifier returned by AddLink()
-     * @param boolean    $fill       Indicates if the cell background must be painted (true) or transparent (false).
+     * @param bool       $fill       Indicates if the cell background must be painted (true) or transparent (false).
      * @param string     $align      Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
-     * @param boolean    $ln         if true set cursor at the bottom of the line, otherwise set cursor at the top of the line.
+     * @param bool       $ln         if true set cursor at the bottom of the line, otherwise set cursor at the top of the line.
      * @param int        $stretch    font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
-     * @param boolean    $firstline  if true prints only the first line and return the remaining string.
-     * @param boolean    $firstblock if true the string is the starting of a line.
+     * @param bool       $firstline  if true prints only the first line and return the remaining string.
+     * @param bool       $firstblock if true the string is the starting of a line.
      * @param float      $maxHeight  maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature.
      * @param float      $wadj       first line width will be reduced by this amount (used in HTML mode).
      * @param array|null $margin     margin array of the parent container
@@ -6449,11 +6461,11 @@ class PDF
 
     /**
      * Set the block dimensions accounting for page breaks and page/column fitting
-     * @param float   $w         width
-     * @param float   $h         height
-     * @param float   $x         X coordinate
-     * @param float   $y         Y coodiante
-     * @param boolean $fitonpage if true the block is resized to not exceed page dimensions.
+     * @param float $w         width
+     * @param float $h         height
+     * @param float $x         X coordinate
+     * @param float $y         Y coodiante
+     * @param bool  $fitonpage if true the block is resized to not exceed page dimensions.
      * @return array [$w, $h, $x, $y]
      */
     protected function fitBlock($w, $h, $x, $y, $fitonpage = false)
@@ -6544,14 +6556,14 @@ class PDF
      * @param mixed      $resize    If true resize (reduce) the image to fit $w and $h (requires GD or ImageMagick library); if false do not resize; if 2 force resize in all cases (upscaling and downscaling).
      * @param int        $dpi       dot-per-inch resolution used on resize
      * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param boolean    $ismask    true if this image is a mask, false otherwise
+     * @param bool       $ismask    true if this image is a mask, false otherwise
      * @param mixed      $imgmask   image object returned by this function or false
      * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @param mixed      $fitbox    If not false scale image dimensions proportionally to fit within the ($w, $h) box. $fitbox can be true or a 2 characters string indicating the image alignment inside the box. The first character indicate the horizontal alignment (L = left, C = center, R = right) the second character indicate the vertical algnment (T = top, M = middle, B = bottom).
-     * @param boolean    $hidden    If true do not display the image.
-     * @param boolean    $fitonpage If true the image is resized to not exceed page dimensions.
-     * @param boolean    $alt       If true the image will be added as alternative and not directly printed (the ID of the image will be returned).
-     * @param array      $altimgs   Array of alternate images IDs. Each alternative image must be an array with two values: an integer representing the image ID (the value returned by the Image method) and a boolean value to indicate if the image is the default for printing.
+     * @param bool       $hidden    If true do not display the image.
+     * @param bool       $fitonpage If true the image is resized to not exceed page dimensions.
+     * @param bool       $alt       If true the image will be added as alternative and not directly printed (the ID of the image will be returned).
+     * @param array      $altimgs   Array of alternate images IDs. Each alternative image must be an array with two values: an integer representing the image ID (the value returned by the Image method) and a bool value to indicate if the image is the default for printing.
      * @return mixed|false image information
      */
     public function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = array())
@@ -6971,20 +6983,20 @@ class PDF
 
     /**
      * Extract info from a PNG image with alpha channel using the Imagick or GD library.
-     * @param string  $file     Name of the file containing the image.
-     * @param float   $x        Abscissa of the upper-left corner.
-     * @param float   $y        Ordinate of the upper-left corner.
-     * @param float   $wpx      Original width of the image in pixels.
-     * @param float   $hpx      original height of the image in pixels.
-     * @param float   $w        Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param float   $h        Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param string  $type     Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
-     * @param mixed   $link     URL or identifier returned by AddLink().
-     * @param string  $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
-     * @param boolean $resize   If true resize (reduce) the image to fit $w and $h (requires GD library).
-     * @param int     $dpi      dot-per-inch resolution used on resize
-     * @param string  $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param string  $filehash File hash used to build unique file names.
+     * @param string $file     Name of the file containing the image.
+     * @param float  $x        Abscissa of the upper-left corner.
+     * @param float  $y        Ordinate of the upper-left corner.
+     * @param float  $wpx      Original width of the image in pixels.
+     * @param float  $hpx      original height of the image in pixels.
+     * @param float  $w        Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param float  $h        Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param string $type     Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
+     * @param mixed  $link     URL or identifier returned by AddLink().
+     * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param bool   $resize   If true resize (reduce) the image to fit $w and $h (requires GD library).
+     * @param int    $dpi      dot-per-inch resolution used on resize
+     * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string $filehash File hash used to build unique file names.
      * @see    Image()
      */
     protected function ImagePngAlpha($file, $x, $y, $wpx, $hpx, $w, $h, $type, $link, $align, $resize, $dpi, $palign, $filehash = '')
@@ -7104,7 +7116,7 @@ class PDF
      * Performs a line break.
      * The current abscissa goes back to the left margin and the ordinate increases by the amount passed in parameter.
      * @param float|null $h    The height of the break. By default, the value equals the height of the last printed cell.
-     * @param boolean    $cell if true add the current left (or right o for RTL) padding to the X coordinate
+     * @param bool       $cell if true add the current left (or right o for RTL) padding to the X coordinate
      * @see   Cell()
      */
     public function Ln($h = null, $cell = false)
@@ -7177,8 +7189,8 @@ class PDF
     /**
      * Defines the abscissa of the current position.
      * If the passed value is negative, it is relative to the right of the page (or left if language is RTL).
-     * @param float   $x      The value of the abscissa in user units.
-     * @param boolean $rtloff if true always uses the page top-left corner as origin of axis.
+     * @param float $x      The value of the abscissa in user units.
+     * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
      * @see   GetX(), GetY(), SetY(), SetXY()
      */
     public function setX($x, $rtloff = false)
@@ -7211,9 +7223,9 @@ class PDF
     /**
      * Moves the current abscissa back to the left margin and sets the ordinate.
      * If the passed value is negative, it is relative to the bottom of the page.
-     * @param float   $y      The value of the ordinate in user units.
-     * @param bool    $resetx if true (default) reset the X position.
-     * @param boolean $rtloff if true always uses the page top-left corner as origin of axis.
+     * @param float $y      The value of the ordinate in user units.
+     * @param bool  $resetx if true (default) reset the X position.
+     * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
      * @see   GetX(), GetY(), SetY(), SetXY()
      */
     public function setY($y, $resetx = true, $rtloff = false)
@@ -7245,9 +7257,9 @@ class PDF
     /**
      * Defines the abscissa and ordinate of the current position.
      * If the passed values are negative, they are relative respectively to the right and bottom of the page.
-     * @param float   $x      The value of the abscissa.
-     * @param float   $y      The value of the ordinate.
-     * @param boolean $rtloff if true always uses the page top-left corner as origin of axis.
+     * @param float $x      The value of the abscissa.
+     * @param float $y      The value of the ordinate.
+     * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
      * @see   SetX(), SetY()
      */
     public function setXY($x, $y, $rtloff = false)
@@ -7503,8 +7515,8 @@ class PDF
 
     /**
      * Unset all class variables except the following critical variables.
-     * @param boolean $destroyall       if true destroys all class variables, otherwise preserves critical variables.
-     * @param boolean $preserve_objcopy if true preserves the objcopy variable
+     * @param bool $destroyall       if true destroys all class variables, otherwise preserves critical variables.
+     * @param bool $preserve_objcopy if true preserves the objcopy variable
      */
     public function _destroy($destroyall = false, $preserve_objcopy = false)
     {
@@ -10199,11 +10211,11 @@ class PDF
      * Output anchor link.
      * @param string     $url        link URL or internal link (i.e.: &lt;a href="#23,4.5"&gt;link to page 23 at 4.5 Y position&lt;/a&gt;)
      * @param string     $name       link name
-     * @param boolean    $fill       Indicates if the cell background must be painted (true) or transparent (false).
-     * @param boolean    $firstline  if true prints only the first line and return the remaining string.
+     * @param bool       $fill       Indicates if the cell background must be painted (true) or transparent (false).
+     * @param bool       $firstline  if true prints only the first line and return the remaining string.
      * @param array|null $color      array of RGB text color
      * @param string     $style      font style (U, D, B, I)
-     * @param boolean    $firstblock if true the string is the starting of a line.
+     * @param bool       $firstblock if true the string is the starting of a line.
      * @return int the number of cells used or the remaining text if $firstline = true;
      */
     public function addHtmlLink($url, $name, $fill = false, $firstline = false, $color = null, $style = -1, $firstblock = false)
@@ -11420,7 +11432,7 @@ class PDF
      * @param array      $opt  annotation parameters. Possible values are described on official PDF32000_2008 reference.
      * @param float|null $x    Abscissa of the upper-left corner of the rectangle
      * @param float|null $y    Ordinate of the upper-left corner of the rectangle
-     * @param boolean    $js   if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @param bool       $js   if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
     public function TextField($name, $w, $h, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
     {
@@ -11542,10 +11554,10 @@ class PDF
      * @param array      $prop    Javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @param array      $opt     Annotation parameters. Possible values are described on official PDF32000_2008 reference.
      * @param string     $onvalue Value to be returned if selected.
-     * @param boolean    $checked Define the initial state.
+     * @param bool       $checked Define the initial state.
      * @param float|null $x       Abscissa of the upper-left corner of the rectangle
      * @param float|null $y       Ordinate of the upper-left corner of the rectangle
-     * @param boolean    $js      If true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @param bool       $js      If true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
     public function RadioButton($name, $w, $prop = array(), $opt = array(), $onvalue = 'On', $checked = false, $x = null, $y = null, $js = false)
     {
@@ -11649,7 +11661,7 @@ class PDF
      * @param array      $opt    annotation parameters. Possible values are described on official PDF32000_2008 reference.
      * @param float|null $x      Abscissa of the upper-left corner of the rectangle
      * @param float|null $y      Ordinate of the upper-left corner of the rectangle
-     * @param boolean    $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
     public function ListBox($name, $w, $h, $values, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
     {
@@ -11736,7 +11748,7 @@ class PDF
      * @param array      $opt    annotation parameters. Possible values are described on official PDF32000_2008 reference.
      * @param float|null $x      Abscissa of the upper-left corner of the rectangle
      * @param float|null $y      Ordinate of the upper-left corner of the rectangle
-     * @param boolean    $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
     public function ComboBox($name, $w, $h, $values, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
     {
@@ -11818,13 +11830,13 @@ class PDF
      * Creates a CheckBox field
      * @param string     $name    field name
      * @param int        $w       width
-     * @param boolean    $checked define the initial state.
+     * @param bool       $checked define the initial state.
      * @param array      $prop    javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @param array      $opt     annotation parameters. Possible values are described on official PDF32000_2008 reference.
      * @param string     $onvalue value to be returned if selected.
      * @param float|null $x       Abscissa of the upper-left corner of the rectangle
      * @param float|null $y       Ordinate of the upper-left corner of the rectangle
-     * @param boolean    $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
     public function CheckBox($name, $w, $checked = false, $prop = array(), $opt = array(), $onvalue = 'Yes', $x = null, $y = null, $js = false)
     {
@@ -11904,7 +11916,7 @@ class PDF
      * @param array      $opt     annotation parameters. Possible values are described on official PDF32000_2008 reference.
      * @param float|null $x       Abscissa of the upper-left corner of the rectangle
      * @param float|null $y       Ordinate of the upper-left corner of the rectangle
-     * @param boolean    $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
     public function Button($name, $w, $h, $caption, $action, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
     {
@@ -12168,14 +12180,14 @@ class PDF
      * WARNING: This is experimental and currently do not work.
      * Check the PDF Reference 8.7.1 Transform Methods,
      * Table 8.105 Entries in the UR transform parameters dictionary
-     * @param boolean $enable    if true enable user's rights on PDF reader
-     * @param string  $document  Names specifying additional document-wide usage rights for the document. The only defined value is "/FullSave", which permits a user to save the document along with modified form and/or annotation data.
-     * @param string  $annots    Names specifying additional annotation-related usage rights for the document. Valid names in PDF 1.5 and later are /Create/Delete/Modify/Copy/Import/Export, which permit the user to perform the named operation on annotations.
-     * @param string  $form      Names specifying additional form-field-related usage rights for the document. Valid names are: /Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate
-     * @param string  $signature Names specifying additional signature-related usage rights for the document. The only defined value is /Modify, which permits a user to apply a digital signature to an existing signature form field or clear a signed signature form field.
-     * @param string  $ef        Names specifying additional usage rights for named embedded files in the document. Valid names are /Create/Delete/Modify/Import, which permit the user to perform the named operation on named embedded files
+     * @param bool   $enable     if true enable user's rights on PDF reader
+     * @param string $document   Names specifying additional document-wide usage rights for the document. The only defined value is "/FullSave", which permits a user to save the document along with modified form and/or annotation data.
+     * @param string $annots     Names specifying additional annotation-related usage rights for the document. Valid names in PDF 1.5 and later are /Create/Delete/Modify/Copy/Import/Export, which permit the user to perform the named operation on annotations.
+     * @param string $form       Names specifying additional form-field-related usage rights for the document. Valid names are: /Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate
+     * @param string $signature  Names specifying additional signature-related usage rights for the document. The only defined value is /Modify, which permits a user to apply a digital signature to an existing signature form field or clear a signed signature form field.
+     * @param string $ef         Names specifying additional usage rights for named embedded files in the document. Valid names are /Create/Delete/Modify/Import, which permit the user to perform the named operation on named embedded files
      *                           Names specifying additional embedded-files-related usage rights for the document.
-     * @param string  $formex    Names specifying additional form-field-related usage rights. The only valid name is BarcodePlaintext, which permits text form field data to be encoded as a plaintext two-dimensional barcode.
+     * @param string $formex     Names specifying additional form-field-related usage rights. The only valid name is BarcodePlaintext, which permits text form field data to be encoded as a plaintext two-dimensional barcode.
      */
     public function setUserRights(
         $enable = true,
@@ -12444,10 +12456,10 @@ class PDF
 
     /**
      * Start a new pdf layer.
-     * @param string       $name  Layer name (only a-z letters and numbers). Leave empty for automatic name.
-     * @param boolean|null $print Set to TRUE to print this layer, FALSE to not print and NULL to not set this option
-     * @param boolean      $view  Set to true to view this layer.
-     * @param boolean      $lock  If true lock the layer
+     * @param string    $name  Layer name (only a-z letters and numbers). Leave empty for automatic name.
+     * @param bool|null $print Set to TRUE to print this layer, FALSE to not print and NULL to not set this option
+     * @param bool      $view  Set to true to view this layer.
+     * @param bool      $lock  If true lock the layer
      */
     public function startLayer($name = '', $print = true, $view = true, $lock = true)
     {
@@ -12591,9 +12603,9 @@ class PDF
     /**
      * Set overprint mode for stroking (OP) and non-stroking (op) painting operations.
      * (Check the "Entries in a Graphics State Parameter Dictionary" on PDF 32000-1:2008).
-     * @param boolean      $stroking    If true apply overprint for stroking operations.
-     * @param boolean|null $nonstroking If true apply overprint for painting operations other than stroking.
-     * @param integer      $mode        Overprint mode: (0 = each source colour component value replaces the value previously painted for the corresponding device colorant; 1 = a tint value of 0.0 for a source colour component shall leave the corresponding component of the previously painted colour unchanged).
+     * @param bool      $stroking    If true apply overprint for stroking operations.
+     * @param bool|null $nonstroking If true apply overprint for painting operations other than stroking.
+     * @param integer   $mode        Overprint mode: (0 = each source colour component value replaces the value previously painted for the corresponding device colorant; 1 = a tint value of 0.0 for a source colour component shall leave the corresponding component of the previously painted colour unchanged).
      */
     public function setOverprint($stroking = true, $nonstroking = null, $mode = 0)
     {
@@ -12631,7 +12643,7 @@ class PDF
      * @param float      $stroking    Alpha value for stroking operations: real value from 0 (transparent) to 1 (opaque).
      * @param string     $bm          blend mode, one of the following: Normal, Multiply, Screen, Overlay, Darken, Lighten, ColorDodge, ColorBurn, HardLight, SoftLight, Difference, Exclusion, Hue, Saturation, Color, Luminosity
      * @param float|null $nonstroking Alpha value for non-stroking operations: real value from 0 (transparent) to 1 (opaque).
-     * @param boolean    $ais
+     * @param bool       $ais
      */
     public function setAlpha($stroking = 1, $bm = 'Normal', $nonstroking = null, $ais = false)
     {
@@ -12731,7 +12743,7 @@ class PDF
     /**
      * Set the viewer preferences dictionary controlling the way the document is to be presented on the screen or in print.
      * (see Section 8.1 of PDF reference, "Viewer Preferences").
-     * <ul><li>HideToolbar boolean (Optional) A flag specifying whether to hide the viewer application's tool bars when the document is active. Default value: false.</li><li>HideMenubar boolean (Optional) A flag specifying whether to hide the viewer application's menu bar when the document is active. Default value: false.</li><li>HideWindowUI boolean (Optional) A flag specifying whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed. Default value: false.</li><li>FitWindow boolean (Optional) A flag specifying whether to resize the document's window to fit the size of the first displayed page. Default value: false.</li><li>CenterWindow boolean (Optional) A flag specifying whether to position the document's window in the center of the screen. Default value: false.</li><li>DisplayDocTitle boolean (Optional; PDF 1.4) A flag specifying whether the window's title bar should display the document title taken from the Title entry of the document information dictionary (see Section 10.2.1, "Document Information Dictionary"). If false, the title bar should instead display the name of the PDF file containing the document. Default value: false.</li><li>NonFullScreenPageMode name (Optional) The document's page mode, specifying how to display the document on exiting full-screen mode:<ul><li>UseNone Neither document outline nor thumbnail images visible</li><li>UseOutlines Document outline visible</li><li>UseThumbs Thumbnail images visible</li><li>UseOC Optional content group panel visible</li></ul>This entry is meaningful only if the value of the PageMode entry in the catalog dictionary (see Section 3.6.1, "Document Catalog") is FullScreen; it is ignored otherwise. Default value: UseNone.</li><li>ViewArea name (Optional; PDF 1.4) The name of the page boundary representing the area of a page to be displayed when viewing the document on the screen. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>ViewClip name (Optional; PDF 1.4) The name of the page boundary to which the contents of a page are to be clipped when viewing the document on the screen. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>PrintArea name (Optional; PDF 1.4) The name of the page boundary representing the area of a page to be rendered when printing the document. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>PrintClip name (Optional; PDF 1.4) The name of the page boundary to which the contents of a page are to be clipped when printing the document. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>PrintScaling name (Optional; PDF 1.6) The page scaling option to be selected when a print dialog is displayed for this document. Valid values are: <ul><li>None, which indicates that the print dialog should reflect no page scaling</li><li>AppDefault (default), which indicates that applications should use the current print scaling</li></ul></li><li>Duplex name (Optional; PDF 1.7) The paper handling option to use when printing the file from the print dialog. The following values are valid:<ul><li>Simplex - Print single-sided</li><li>DuplexFlipShortEdge - Duplex and flip on the short edge of the sheet</li><li>DuplexFlipLongEdge - Duplex and flip on the long edge of the sheet</li></ul>Default value: none</li><li>PickTrayByPDFSize boolean (Optional; PDF 1.7) A flag specifying whether the PDF page size is used to select the input paper tray. This setting influences only the preset values used to populate the print dialog presented by a PDF viewer application. If PickTrayByPDFSize is true, the check box in the print dialog associated with input paper tray is checked. Note: This setting has no effect on Mac OS systems, which do not provide the ability to pick the input tray by size.</li><li>PrintPageRange array (Optional; PDF 1.7) The page numbers used to initialize the print dialog box when the file is printed. The first page of the PDF file is denoted by 1. Each pair consists of the first and last pages in the sub-range. An odd number of integers causes this entry to be ignored. Negative numbers cause the entire array to be ignored. Default value: as defined by PDF viewer application</li><li>NumCopies integer (Optional; PDF 1.7) The number of copies to be printed when the print dialog is opened for this file. Supported values are the integers 2 through 5. Values outside this range are ignored. Default value: as defined by PDF viewer application, but typically 1</li></ul>
+     * <ul><li>HideToolbar bool (Optional) A flag specifying whether to hide the viewer application's tool bars when the document is active. Default value: false.</li><li>HideMenubar bool (Optional) A flag specifying whether to hide the viewer application's menu bar when the document is active. Default value: false.</li><li>HideWindowUI bool (Optional) A flag specifying whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed. Default value: false.</li><li>FitWindow bool (Optional) A flag specifying whether to resize the document's window to fit the size of the first displayed page. Default value: false.</li><li>CenterWindow bool (Optional) A flag specifying whether to position the document's window in the center of the screen. Default value: false.</li><li>DisplayDocTitle bool (Optional; PDF 1.4) A flag specifying whether the window's title bar should display the document title taken from the Title entry of the document information dictionary (see Section 10.2.1, "Document Information Dictionary"). If false, the title bar should instead display the name of the PDF file containing the document. Default value: false.</li><li>NonFullScreenPageMode name (Optional) The document's page mode, specifying how to display the document on exiting full-screen mode:<ul><li>UseNone Neither document outline nor thumbnail images visible</li><li>UseOutlines Document outline visible</li><li>UseThumbs Thumbnail images visible</li><li>UseOC Optional content group panel visible</li></ul>This entry is meaningful only if the value of the PageMode entry in the catalog dictionary (see Section 3.6.1, "Document Catalog") is FullScreen; it is ignored otherwise. Default value: UseNone.</li><li>ViewArea name (Optional; PDF 1.4) The name of the page boundary representing the area of a page to be displayed when viewing the document on the screen. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>ViewClip name (Optional; PDF 1.4) The name of the page boundary to which the contents of a page are to be clipped when viewing the document on the screen. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>PrintArea name (Optional; PDF 1.4) The name of the page boundary representing the area of a page to be rendered when printing the document. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>PrintClip name (Optional; PDF 1.4) The name of the page boundary to which the contents of a page are to be clipped when printing the document. Valid values are (see Section 10.10.1, "Page Boundaries").:<ul><li>MediaBox</li><li>CropBox (default)</li><li>BleedBox</li><li>TrimBox</li><li>ArtBox</li></ul></li><li>PrintScaling name (Optional; PDF 1.6) The page scaling option to be selected when a print dialog is displayed for this document. Valid values are: <ul><li>None, which indicates that the print dialog should reflect no page scaling</li><li>AppDefault (default), which indicates that applications should use the current print scaling</li></ul></li><li>Duplex name (Optional; PDF 1.7) The paper handling option to use when printing the file from the print dialog. The following values are valid:<ul><li>Simplex - Print single-sided</li><li>DuplexFlipShortEdge - Duplex and flip on the short edge of the sheet</li><li>DuplexFlipLongEdge - Duplex and flip on the long edge of the sheet</li></ul>Default value: none</li><li>PickTrayByPDFSize bool (Optional; PDF 1.7) A flag specifying whether the PDF page size is used to select the input paper tray. This setting influences only the preset values used to populate the print dialog presented by a PDF viewer application. If PickTrayByPDFSize is true, the check box in the print dialog associated with input paper tray is checked. Note: This setting has no effect on Mac OS systems, which do not provide the ability to pick the input tray by size.</li><li>PrintPageRange array (Optional; PDF 1.7) The page numbers used to initialize the print dialog box when the file is printed. The first page of the PDF file is denoted by 1. Each pair consists of the first and last pages in the sub-range. An odd number of integers causes this entry to be ignored. Negative numbers cause the entire array to be ignored. Default value: as defined by PDF viewer application</li><li>NumCopies integer (Optional; PDF 1.7) The number of copies to be printed when the print dialog is opened for this file. Supported values are the integers 2 through 5. Values outside this range are ignored. Default value: as defined by PDF viewer application, but typically 1</li></ul>
      * @param array $preferences array of options.
      */
     public function setViewerPreferences($preferences)
@@ -12741,13 +12753,13 @@ class PDF
 
     /**
      * Paints color transition registration bars
-     * @param float   $x          abscissa of the top left corner of the rectangle.
-     * @param float   $y          ordinate of the top left corner of the rectangle.
-     * @param float   $w          width of the rectangle.
-     * @param float   $h          height of the rectangle.
-     * @param boolean $transition if true prints tcolor transitions to white.
-     * @param boolean $vertical   if true prints bar vertically.
-     * @param string  $colors     colors to print separated by comma. Valid values are: A,W,R,G,B,C,M,Y,K,RGB,CMYK,ALL,ALLSPOT,<SPOT_COLOR_NAME>. Where: A = grayscale black, W = grayscale white, R = RGB red, G RGB green, B RGB blue, C = CMYK cyan, M = CMYK magenta, Y = CMYK yellow, K = CMYK key/black, RGB = RGB registration color, CMYK = CMYK registration color, ALL = Spot registration color, ALLSPOT = print all defined spot colors, <SPOT_COLOR_NAME> = name of the spot color to print.
+     * @param float  $x          abscissa of the top left corner of the rectangle.
+     * @param float  $y          ordinate of the top left corner of the rectangle.
+     * @param float  $w          width of the rectangle.
+     * @param float  $h          height of the rectangle.
+     * @param bool   $transition if true prints tcolor transitions to white.
+     * @param bool   $vertical   if true prints bar vertically.
+     * @param string $colors     colors to print separated by comma. Valid values are: A,W,R,G,B,C,M,Y,K,RGB,CMYK,ALL,ALLSPOT,<SPOT_COLOR_NAME>. Where: A = grayscale black, W = grayscale white, R = RGB red, G RGB green, B RGB blue, C = CMYK cyan, M = CMYK magenta, Y = CMYK yellow, K = CMYK key/black, RGB = RGB registration color, CMYK = CMYK registration color, ALL = Spot registration color, ALLSPOT = print all defined spot colors, <SPOT_COLOR_NAME> = name of the spot color to print.
      */
     public function colorRegistrationBar($x, $y, $w, $h, $transition = true, $vertical = false, $colors = 'A,R,G,B,C,M,Y,K')
     {
@@ -12970,12 +12982,12 @@ class PDF
 
     /**
      * Paints a registration mark
-     * @param float   $x      abscissa of the registration mark center.
-     * @param float   $y      ordinate of the registration mark center.
-     * @param float   $r      radius of the crop mark.
-     * @param boolean $double if true print two concentric crop marks.
-     * @param array   $cola   crop mark color (default spot registration color 'All').
-     * @param array   $colb   second crop mark color (default spot registration color 'None').
+     * @param float $x      abscissa of the registration mark center.
+     * @param float $y      ordinate of the registration mark center.
+     * @param float $r      radius of the crop mark.
+     * @param bool  $double if true print two concentric crop marks.
+     * @param array $cola   crop mark color (default spot registration color 'All').
+     * @param array $colb   second crop mark color (default spot registration color 'None').
      */
     public function registrationMark($x, $y, $r, $double = false, $cola = [100, 100, 100, 100, 'All'], $colb = [0, 0, 0, 0, 'None'])
     {
@@ -13068,18 +13080,18 @@ class PDF
 
     /**
      * Paints a coons patch mesh.
-     * @param float   $x          abscissa of the top left corner of the rectangle.
-     * @param float   $y          ordinate of the top left corner of the rectangle.
-     * @param float   $w          width of the rectangle.
-     * @param float   $h          height of the rectangle.
-     * @param array   $col1       first color (lower left corner) (RGB components).
-     * @param array   $col2       second color (lower right corner) (RGB components).
-     * @param array   $col3       third color (upper right corner) (RGB components).
-     * @param array   $col4       fourth color (upper left corner) (RGB components).
-     * @param array   $coords     <ul><li>for one patch mesh: [float x1, float y1, .... float x12, float y12]: 12 pairs of coordinates (normally from 0 to 1) which specify the Bezier control points that define the patch. First pair is the lower left edge point, next is its right control point (control point 2). Then the other points are defined in the order: control point 1, edge point, control point 2 going counter-clockwise around the patch. Last (x12, y12) is the first edge point's left control point (control point 1).</li><li>for two or more patch meshes: array[number of patches]: arrays with the following keys for each patch: f: where to put that patch (0 = first patch, 1, 2, 3 = right, top and left of precedent patch - I didn't figure this out completely - just try and error ;-) points: 12 pairs of coordinates of the Bezier control points as above for the first patch, 8 pairs of coordinates for the following patches, ignoring the coordinates already defined by the precedent patch (I also didn't figure out the order of these - also: try and see what's happening) colors: must be 4 colors for the first patch, 2 colors for the following patches</li></ul>
-     * @param array   $coords_min minimum value used by the coordinates. If a coordinate's value is smaller than this it will be cut to coords_min. default: 0
-     * @param array   $coords_max maximum value used by the coordinates. If a coordinate's value is greater than this it will be cut to coords_max. default: 1
-     * @param boolean $antialias  A flag indicating whether to filter the shading function to prevent aliasing artifacts.
+     * @param float $x          abscissa of the top left corner of the rectangle.
+     * @param float $y          ordinate of the top left corner of the rectangle.
+     * @param float $w          width of the rectangle.
+     * @param float $h          height of the rectangle.
+     * @param array $col1       first color (lower left corner) (RGB components).
+     * @param array $col2       second color (lower right corner) (RGB components).
+     * @param array $col3       third color (upper right corner) (RGB components).
+     * @param array $col4       fourth color (upper left corner) (RGB components).
+     * @param array $coords     <ul><li>for one patch mesh: [float x1, float y1, .... float x12, float y12]: 12 pairs of coordinates (normally from 0 to 1) which specify the Bezier control points that define the patch. First pair is the lower left edge point, next is its right control point (control point 2). Then the other points are defined in the order: control point 1, edge point, control point 2 going counter-clockwise around the patch. Last (x12, y12) is the first edge point's left control point (control point 1).</li><li>for two or more patch meshes: array[number of patches]: arrays with the following keys for each patch: f: where to put that patch (0 = first patch, 1, 2, 3 = right, top and left of precedent patch - I didn't figure this out completely - just try and error ;-) points: 12 pairs of coordinates of the Bezier control points as above for the first patch, 8 pairs of coordinates for the following patches, ignoring the coordinates already defined by the precedent patch (I also didn't figure out the order of these - also: try and see what's happening) colors: must be 4 colors for the first patch, 2 colors for the following patches</li></ul>
+     * @param array $coords_min minimum value used by the coordinates. If a coordinate's value is smaller than this it will be cut to coords_min. default: 0
+     * @param array $coords_max maximum value used by the coordinates. If a coordinate's value is greater than this it will be cut to coords_max. default: 1
+     * @param bool  $antialias  A flag indicating whether to filter the shading function to prevent aliasing artifacts.
      */
     public function CoonsPatchMesh($x, $y, $w, $h, $col1 = array(), $col2 = array(), $col3 = array(), $col4 = array(), $coords = [0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33], $coords_min = 0, $coords_max = 1, $antialias = false)
     {
@@ -13191,11 +13203,11 @@ class PDF
 
     /**
      * Output gradient.
-     * @param int     $type       type of gradient (1 Function-based shading; 2 Axial shading; 3 Radial shading; 4 Free-form Gouraud-shaded triangle mesh; 5 Lattice-form Gouraud-shaded triangle mesh; 6 Coons patch mesh; 7 Tensor-product patch mesh). (Not all types are currently supported)
-     * @param array   $coords     array of coordinates.
-     * @param array   $stops      array gradient color components: color = array of GRAY, RGB or CMYK color components; offset = (0 to 1) represents a location along the gradient vector; exponent = exponent of the exponential interpolation function (default = 1).
-     * @param array   $background An array of colour components appropriate to the colour space, specifying a single background colour value.
-     * @param boolean $antialias  A flag indicating whether to filter the shading function to prevent aliasing artifacts.
+     * @param int   $type       type of gradient (1 Function-based shading; 2 Axial shading; 3 Radial shading; 4 Free-form Gouraud-shaded triangle mesh; 5 Lattice-form Gouraud-shaded triangle mesh; 6 Coons patch mesh; 7 Tensor-product patch mesh). (Not all types are currently supported)
+     * @param array $coords     array of coordinates.
+     * @param array $stops      array gradient color components: color = array of GRAY, RGB or CMYK color components; offset = (0 to 1) represents a location along the gradient vector; exponent = exponent of the exponential interpolation function (default = 1).
+     * @param array $background An array of colour components appropriate to the colour space, specifying a single background colour value.
+     * @param bool  $antialias  A flag indicating whether to filter the shading function to prevent aliasing artifacts.
      */
     public function Gradient($type, $coords, $stops, $background = array(), $antialias = false)
     {
@@ -13561,12 +13573,12 @@ class PDF
      * @param float      $w              Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float      $h              Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param mixed      $link           URL or identifier returned by AddLink().
-     * @param boolean    $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
+     * @param bool       $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
      * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
      * @param mixed      $border         Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param boolean    $fitonpage      if true the image is resized to not exceed page dimensions.
-     * @param boolean    $fixoutvals     if true remove values outside the bounding box.
+     * @param bool       $fitonpage      if true the image is resized to not exceed page dimensions.
+     * @param bool       $fixoutvals     if true remove values outside the bounding box.
      */
     public function ImageEps($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $useBoundingBox = true, $align = '', $palign = '', $border = 0, $fitonpage = false, $fixoutvals = false)
     {
@@ -13921,13 +13933,13 @@ class PDF
      * @param float|null $h     height in user units (null = remaining page height)
      * @param float|null $xres  width of the smallest bar in user units (null = default value = 0.4mm)
      * @param array      $style array of options:<ul>
-     *                          <li>boolean $style['border'] if true prints a border</li>
+     *                          <li>bool $style['border'] if true prints a border</li>
      *                          <li>int $style['padding'] padding to leave around the barcode in user units (set to 'auto' for automatic padding)</li>
      *                          <li>int $style['hpadding'] horizontal padding in user units (set to 'auto' for automatic padding)</li>
      *                          <li>int $style['vpadding'] vertical padding in user units (set to 'auto' for automatic padding)</li>
      *                          <li>array $style['fgcolor'] color array for bars and text</li>
      *                          <li>mixed $style['bgcolor'] color array for background (set to false for transparent)</li>
-     *                          <li>boolean $style['text'] if true prints text below the barcode</li>
+     *                          <li>bool $style['text'] if true prints text below the barcode</li>
      *                          <li>string $style['label'] override default label</li>
      *                          <li>string $style['font'] font name for text</li><li>int $style['fontsize'] font size for text</li>
      *                          <li>int $style['stretchtext']: 0 = disabled; 1 = horizontal scaling only if necessary; 2 = forced horizontal scaling; 3 = character spacing only if necessary; 4 = forced character spacing.</li>
@@ -14275,7 +14287,7 @@ class PDF
      * @param float|null $w       width in user units
      * @param float|null $h       height in user units
      * @param array      $style   array of options:<ul>
-     *                            <li>boolean $style['border'] if true prints a border around the barcode</li>
+     *                            <li>bool $style['border'] if true prints a border around the barcode</li>
      *                            <li>int $style['padding'] padding to leave around the barcode in barcode units (set to 'auto' for automatic padding)</li>
      *                            <li>int $style['hpadding'] horizontal padding in barcode units (set to 'auto' for automatic padding)</li>
      *                            <li>int $style['vpadding'] vertical padding in barcode units (set to 'auto' for automatic padding)</li>
@@ -14285,7 +14297,7 @@ class PDF
      *                            <li>mixed $style['bgcolor'] color array for background or false for transparent</li>
      *                            <li>string $style['position'] barcode position on the page: L = left margin; C = center; R = right margin; S = stretch</li>
      * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
-     * @param boolean    $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
+     * @param bool       $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
      */
     public function write2DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $style = array(), $align = '', $distort = false)
     {
@@ -15976,10 +15988,10 @@ class PDF
      * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL language)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>
      *                                Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
-     * @param boolean    $fill        Indicates if the cell background must be painted (true) or transparent (false).
-     * @param boolean    $reseth      if true reset the last cell height (default true).
+     * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
+     * @param bool       $reseth      if true reset the last cell height (default true).
      * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param boolean    $autopadding if true, uses internal padding and automatically adjust it to account for line width.
+     * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width.
      * @see Multicell(), writeHTML()
      */
     public function writeHTMLCell($w, $h, $x, $y, $html = '', $border = 0, $ln = 0, $fill = false, $reseth = true, $align = '', $autopadding = true)
@@ -15992,12 +16004,12 @@ class PDF
      * IMPORTANT: The HTML must be well formatted - try to clean-up it using an application like HTML-Tidy before submitting.
      * Supported tags are: a, b, blockquote, br, dd, del, div, dl, dt, em, font, h1, h2, h3, h4, h5, h6, hr, i, img, li, ol, p, pre, small, span, strong, sub, sup, table, tcpdf, td, th, thead, tr, tt, u, ul
      * NOTE: all the HTML attributes must be enclosed in double-quote.
-     * @param string  $html   text to display
-     * @param boolean $ln     if true add a new line after text (default = true)
-     * @param boolean $fill   Indicates if the background must be painted (true) or transparent (false).
-     * @param boolean $reseth if true reset the last cell height (default false).
-     * @param boolean $cell   if true add the current left (or right for RTL) padding to each Write (default false).
-     * @param string  $align  Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string $html   text to display
+     * @param bool   $ln     if true add a new line after text (default = true)
+     * @param bool   $fill   Indicates if the background must be painted (true) or transparent (false).
+     * @param bool   $reseth if true reset the last cell height (default false).
+     * @param bool   $cell   if true add the current left (or right for RTL) padding to each Write (default false).
+     * @param string $align  Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
      */
     public function writeHTML($html, $ln = true, $fill = false, $reseth = false, $cell = false, $align = '')
     {
@@ -17665,9 +17677,9 @@ class PDF
 
     /**
      * Process opening tags.
-     * @param array   $dom  html dom array
-     * @param int     $key  current element id
-     * @param boolean $cell if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param array $dom  html dom array
+     * @param int   $key  current element id
+     * @param bool  $cell if true add the default left (or right if RTL) padding to each new line (default false).
      * @return array $dom
      */
     protected function openHTMLTagHandler($dom, $key, $cell)
@@ -18490,10 +18502,10 @@ class PDF
 
     /**
      * Process closing tags.
-     * @param array   $dom            html dom array
-     * @param int     $key            current element id
-     * @param boolean $cell           if true add the default left (or right if RTL) padding to each new line (default false).
-     * @param int     $maxbottomliney maximum y value of current line
+     * @param array $dom            html dom array
+     * @param int   $key            current element id
+     * @param bool  $cell           if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param int   $maxbottomliney maximum y value of current line
      * @return array $dom
      */
     protected function closeHTMLTagHandler($dom, $key, $cell, $maxbottomliney = 0)
@@ -19091,11 +19103,11 @@ class PDF
 
     /**
      * Add vertical spaces if needed.
-     * @param string  $hbz      Distance between current y and line bottom.
-     * @param string  $hb       The height of the break.
-     * @param boolean $cell     if true add the default left (or right if RTL) padding to each new line (default false).
-     * @param boolean $firsttag set to true when the tag is the first.
-     * @param boolean $lasttag  set to true when the tag is the last.
+     * @param string $hbz      Distance between current y and line bottom.
+     * @param string $hb       The height of the break.
+     * @param bool   $cell     if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param bool   $firsttag set to true when the tag is the first.
+     * @param bool   $lasttag  set to true when the tag is the last.
      */
     protected function addHTMLVertSpace($hbz = 0, $hb = 0, $cell = false, $firsttag = false, $lasttag = false)
     {
@@ -19375,9 +19387,9 @@ class PDF
 
     /**
      * Set the booklet mode for double-sided pages.
-     * @param boolean $booklet true set the booklet mode on, false otherwise.
-     * @param float   $inner   Inner page margin.
-     * @param float   $outer   Outer page margin.
+     * @param bool  $booklet true set the booklet mode on, false otherwise.
+     * @param float $inner   Inner page margin.
+     * @param float $outer   Outer page margin.
      */
     public function setBooklet($booklet = true, $inner = -1, $outer = -1)
     {
@@ -19392,7 +19404,7 @@ class PDF
 
     /**
      * Swap the left and right margins.
-     * @param boolean $reverse if true swap left and right margins.
+     * @param bool $reverse if true swap left and right margins.
      */
     protected function swapMargins($reverse = true)
     {
@@ -19433,7 +19445,7 @@ class PDF
 
     /**
      * Set the top/bottom cell sides to be open or closed when the cell cross the page.
-     * @param boolean $isopen if true keeps the top/bottom border open for the cell sides that cross the page.
+     * @param bool $isopen if true keeps the top/bottom border open for the cell sides that cross the page.
      */
     public function setOpenCell($isopen)
     {
@@ -19453,10 +19465,10 @@ class PDF
 
     /**
      * Convert HTML string containing value and unit of measure to user's units or points.
-     * @param string  $htmlval     String containing values and unit.
-     * @param string  $refsize     Reference value in points.
-     * @param string  $defaultunit Default unit (can be one of the following: %, em, ex, px, in, mm, pc, pt).
-     * @param boolean $points      If true returns points, otherwise returns value in user's units.
+     * @param string $htmlval     String containing values and unit.
+     * @param string $refsize     Reference value in points.
+     * @param string $defaultunit Default unit (can be one of the following: %, em, ex, px, in, mm, pc, pt).
+     * @param bool   $points      If true returns points, otherwise returns value in user's units.
      * @return float value in user's unit or point if $points=true
      */
     public function getHTMLUnitToUnits($htmlval, $refsize = 1, $defaultunit = 'px', $points = false)
@@ -19838,8 +19850,8 @@ class PDF
 
     /**
      * Set graphic variables.
-     * @param array   $gvars    array of graphic variablesto restore
-     * @param boolean $extended if true restore extended graphic variables
+     * @param array $gvars    array of graphic variablesto restore
+     * @param bool  $extended if true restore extended graphic variables
      */
     protected function setGraphicVars($gvars, $extended = false)
     {
@@ -20688,7 +20700,7 @@ class PDF
      * @param int|null $page          page number where this TOC should be inserted (leave empty for current page).
      * @param string   $toc_name      name to use for TOC bookmark.
      * @param array    $templates     array of html templates. Use: "#TOC_DESCRIPTION#" for bookmark title, "#TOC_PAGE_NUMBER#" for page number.
-     * @param boolean  $correct_align if true correct the number alignment (numbers must be in monospaced font like courier and right aligned on LTR, or left aligned on RTL)
+     * @param bool     $correct_align if true correct the number alignment (numbers must be in monospaced font like courier and right aligned on LTR, or left aligned on RTL)
      * @param string   $style         Font style for title: B = Bold, I = Italic, BI = Bold + Italic.
      * @param array    $color         RGB color array for title (values from 0 to 255).
      * @see    addTOCPage(), endTOCPage(), addTOC()
@@ -20859,7 +20871,7 @@ class PDF
 
     /**
      * This method allows to undo the latest transaction by returning the latest saved TCPDF object with startTransaction().
-     * @param boolean $self if true restores current class object to previous state without the need of reassignment via the returned value.
+     * @param bool $self if true restores current class object to previous state without the need of reassignment via the returned value.
      * @return TCPDF object.
      */
     public function rollbackTransaction($self = false)
@@ -21049,9 +21061,9 @@ class PDF
 
     /**
      * Set Text rendering mode.
-     * @param int     $stroke outline size in user units (0 = disable).
-     * @param boolean $fill   if true fills the text (default).
-     * @param boolean $clip   if true activate clipping mode
+     * @param int  $stroke outline size in user units (0 = disable).
+     * @param bool $fill   if true fills the text (default).
+     * @param bool $clip   if true activate clipping mode
      */
     public function setTextRenderingMode($stroke = 0, $fill = true, $clip = false)
     {
@@ -21112,7 +21124,7 @@ class PDF
 
     /**
      * Set parameters for drop shadow effect for text.
-     * @param array $params Array of parameters: enabled (boolean) set to true to enable shadow; depth_w (float) shadow width in user units; depth_h (float) shadow height in user units; color (array) shadow color or false to use the stroke color; opacity (float) Alpha value: real value from 0 (transparent) to 1 (opaque); blend_mode (string) blend mode, one of the following: Normal, Multiply, Screen, Overlay, Darken, Lighten, ColorDodge, ColorBurn, HardLight, SoftLight, Difference, Exclusion, Hue, Saturation, Color, Luminosity.
+     * @param array $params Array of parameters: enabled (bool) set to true to enable shadow; depth_w (float) shadow width in user units; depth_h (float) shadow height in user units; color (array) shadow color or false to use the stroke color; opacity (float) Alpha value: real value from 0 (transparent) to 1 (opaque); blend_mode (string) blend mode, one of the following: Normal, Multiply, Screen, Overlay, Darken, Lighten, ColorDodge, ColorBurn, HardLight, SoftLight, Difference, Exclusion, Hue, Saturation, Color, Luminosity.
      */
     public function setTextShadow($params = ['enabled' => false, 'depth_w' => 0, 'depth_h' => 0, 'color' => false, 'opacity' => 1, 'blend_mode' => 'Normal'])
     {
@@ -21320,7 +21332,7 @@ class PDF
 
     /**
      * Enable/disable rasterization of vector images using ImageMagick library.
-     * @param boolean $mode if true enable rasterization, false otherwise.
+     * @param bool $mode if true enable rasterization, false otherwise.
      */
     public function setRasterizeVectorImages($mode)
     {
@@ -21329,7 +21341,7 @@ class PDF
 
     /**
      * Enable or disable default option for font subsetting.
-     * @param boolean $enable if true enable font subsetting by default.
+     * @param bool $enable if true enable font subsetting by default.
      */
     public function setFontSubsetting($enable = true)
     {
@@ -21437,7 +21449,7 @@ class PDF
      * Note: X,Y coordinates will be reset to 0,0.
      * @param int   $w     Template width in user units (empty string or zero = page width less margins).
      * @param int   $h     Template height in user units (empty string or zero = page height less margins).
-     * @param mixed $group Set transparency group. Can be a boolean value or an array specifying optional parameters: 'CS' (solour space name), 'I' (boolean flag to indicate isolated group) and 'K' (boolean flag to indicate knockout group).
+     * @param mixed $group Set transparency group. Can be a bool value or an array specifying optional parameters: 'CS' (solour space name), 'I' (bool flag to indicate isolated group) and 'K' (bool flag to indicate knockout group).
      * @return string|false the XObject Template ID in case of success or false in case of error.
      * @see    endTemplate(), printTemplate()
      */
@@ -21528,7 +21540,7 @@ class PDF
      * @param float      $h         Height in user units (zero = remaining page height)
      * @param string     $align     Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param string     $palign    Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param boolean    $fitonpage If true the template is resized to not exceed page dimensions.
+     * @param bool       $fitonpage If true the template is resized to not exceed page dimensions.
      * @see    startTemplate(), endTemplate()
      */
     public function printTemplate($id, $x = null, $y = null, $w = 0, $h = 0, $align = '', $palign = '', $fitonpage = false)
@@ -21881,7 +21893,7 @@ class PDF
      * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
      * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
      * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param boolean    $fitonpage if true the image is resized to not exceed page dimensions.
+     * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      */
     public function ImageSVG($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
     {
