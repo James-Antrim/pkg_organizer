@@ -1547,7 +1547,7 @@ class PDF
         // set default JPEG quality
         $this->jpeg_quality = 75;
         // initialize some settings
-        Fonts::utf8Bidi(array(), '', false, $this->isUnicode, $this->CurrentFont);
+        Fonts::utf8Bidi([], '', false, $this->isUnicode, $this->CurrentFont);
         // set default font
         $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
         $this->setHeaderFont([$this->FontFamily, $this->FontStyle, $this->FontSizePt]);
@@ -4249,7 +4249,7 @@ class PDF
      * @param array  $subs  Array of possible character substitutions. The key is the character to check (integer value) and the value is a single intege value or an array of possible substitutes.
      * @return string Processed text.
      */
-    public function replaceMissingChars($text, $font = '', $style = '', $subs = array())
+    public function replaceMissingChars($text, $font = '', $style = '', $subs = [])
     {
         if (empty($subs)) {
             return $text;
@@ -6566,7 +6566,7 @@ class PDF
      * @param array      $altimgs   Array of alternate images IDs. Each alternative image must be an array with two values: an integer representing the image ID (the value returned by the Image method) and a bool value to indicate if the image is the default for printing.
      * @return mixed|false image information
      */
-    public function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = array())
+    public function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = [])
     {
         if ($this->state !== self::READY) {
             return false;
@@ -7353,10 +7353,10 @@ class PDF
             // get digital signature via openssl library
             $tempsign = StaticMethods::getObjFilename('sig', $this->file_id);
             if (empty($this->signature_data['extracerts'])) {
-                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], array(), PKCS7_BINARY | PKCS7_DETACHED);
+                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED);
             }
             else {
-                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], array(), PKCS7_BINARY | PKCS7_DETACHED, $this->signature_data['extracerts']);
+                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED, $this->signature_data['extracerts']);
             }
             // read signature
             $signature = file_get_contents($tempsign);
@@ -7589,7 +7589,7 @@ class PDF
     {
         $alias = [];
         // build array of Unicode + ASCII variants (the order is important)
-        $alias        = array('u' => array(), 'a' => array());
+        $alias        = array('u' => [], 'a' => []);
         $u            = '{' . $a . '}';
         $alias['u'][] = StaticMethods::escape($u);
         if ($this->isUnicode) {
@@ -10646,7 +10646,7 @@ class PDF
                 fwrite($f, $envelope, $envelope_length);
                 fclose($f);
                 $tempencfile = StaticMethods::getObjFilename('enc', $this->file_id);
-                if (!openssl_pkcs7_encrypt($tempkeyfile, $tempencfile, $pubkey['c'], array(), PKCS7_BINARY | PKCS7_DETACHED)) {
+                if (!openssl_pkcs7_encrypt($tempkeyfile, $tempencfile, $pubkey['c'], [], PKCS7_BINARY | PKCS7_DETACHED)) {
                     $this->Error('Unable to encrypt the file: ' . $tempkeyfile);
                 }
                 // read encryption signature
@@ -11409,7 +11409,7 @@ class PDF
      * Set default properties for form fields.
      * @param array $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      */
-    public function setFormDefaultProp($prop = array())
+    public function setFormDefaultProp($prop = [])
     {
         $this->default_form_prop = $prop;
     }
@@ -11434,7 +11434,7 @@ class PDF
      * @param float|null $y    Ordinate of the upper-left corner of the rectangle
      * @param bool       $js   if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
-    public function TextField($name, $w, $h, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
+    public function TextField($name, $w, $h, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (empty($x)) {
             $x = $this->x;
@@ -11559,7 +11559,7 @@ class PDF
      * @param float|null $y       Ordinate of the upper-left corner of the rectangle
      * @param bool       $js      If true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
-    public function RadioButton($name, $w, $prop = array(), $opt = array(), $onvalue = 'On', $checked = false, $x = null, $y = null, $js = false)
+    public function RadioButton($name, $w, $prop = [], $opt = [], $onvalue = 'On', $checked = false, $x = null, $y = null, $js = false)
     {
         if (empty($x)) {
             $x = $this->x;
@@ -11663,7 +11663,7 @@ class PDF
      * @param float|null $y      Ordinate of the upper-left corner of the rectangle
      * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
-    public function ListBox($name, $w, $h, $values, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
+    public function ListBox($name, $w, $h, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (empty($x)) {
             $x = $this->x;
@@ -11750,7 +11750,7 @@ class PDF
      * @param float|null $y      Ordinate of the upper-left corner of the rectangle
      * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
-    public function ComboBox($name, $w, $h, $values, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
+    public function ComboBox($name, $w, $h, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (empty($x)) {
             $x = $this->x;
@@ -11838,7 +11838,7 @@ class PDF
      * @param float|null $y       Ordinate of the upper-left corner of the rectangle
      * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
-    public function CheckBox($name, $w, $checked = false, $prop = array(), $opt = array(), $onvalue = 'Yes', $x = null, $y = null, $js = false)
+    public function CheckBox($name, $w, $checked = false, $prop = [], $opt = [], $onvalue = 'Yes', $x = null, $y = null, $js = false)
     {
         if (empty($x)) {
             $x = $this->x;
@@ -11918,7 +11918,7 @@ class PDF
      * @param float|null $y       Ordinate of the upper-left corner of the rectangle
      * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      */
-    public function Button($name, $w, $h, $caption, $action, $prop = array(), $opt = array(), $x = null, $y = null, $js = false)
+    public function Button($name, $w, $h, $caption, $action, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (empty($x)) {
             $x = $this->x;
@@ -12206,7 +12206,7 @@ class PDF
         $this->ur['ef']        = $ef;
         $this->ur['formex']    = $formex;
         if (!$this->sign) {
-            $this->setSignature('', '', '', '', 0, array());
+            $this->setSignature('', '', '', '', 0, []);
         }
     }
 
@@ -12224,7 +12224,7 @@ class PDF
      * @param array  $info                 array of option information: Name, Location, Reason, ContactInfo.
      * @param string $approval             Enable approval signature eg. for PDF incremental update
      */
-    public function setSignature($signing_cert = '', $private_key = '', $private_key_password = '', $extracerts = '', $cert_type = 2, $info = array(), $approval = '')
+    public function setSignature($signing_cert = '', $private_key = '', $private_key_password = '', $extracerts = '', $cert_type = 2, $info = [], $approval = '')
     {
         // to create self-signed signature: openssl req -x509 -nodes -days 365000 -newkey rsa:1024 -keyout tcpdf.crt -out tcpdf.crt
         // to export crt to p12: openssl pkcs12 -export -in tcpdf.crt -out tcpdf.p12
@@ -12995,7 +12995,7 @@ class PDF
         $this->setFillColorArray($cola);
         $this->PieSector($x, $y, $r, 90, 180, 'F');
         $this->PieSector($x, $y, $r, 270, 360, 'F');
-        $this->circle($x, $y, $r, 0, 360, 'C', $line_style, array(), 8);
+        $this->circle($x, $y, $r, 0, 360, 'C', $line_style, [], 8);
         if ($double) {
             $ri = $r * 0.5;
             $this->setFillColorArray($colb);
@@ -13004,7 +13004,7 @@ class PDF
             $this->setFillColorArray($cola);
             $this->PieSector($x, $y, $ri, 0, 90, 'F');
             $this->PieSector($x, $y, $ri, 180, 270, 'F');
-            $this->circle($x, $y, $ri, 0, 360, 'C', $line_style, array(), 8);
+            $this->circle($x, $y, $ri, 0, 360, 'C', $line_style, [], 8);
         }
     }
 
@@ -13038,7 +13038,7 @@ class PDF
         $line_style = ['width' => $lw, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [100, 100, 100, 100, 'All']];
         $this->setFillColorArray([100, 100, 100, 100, 'All']);
         // external circle
-        $this->circle($x, $y, $r, 0, 360, 'C', $line_style, array(), 8);
+        $this->circle($x, $y, $r, 0, 360, 'C', $line_style, [], 8);
         // cross lines
         $this->line($x, ($y - $re), $x, ($y - $ri));
         $this->line($x, ($y + $ri), $x, ($y + $re));
@@ -13056,10 +13056,10 @@ class PDF
      * @param array $col2   second color (Grayscale, RGB or CMYK components).
      * @param array $coords array of the form (x1, y1, x2, y2) which defines the gradient vector (see linear_gradient_coords.jpg). The default value is from left to right (x1=0, y1=0, x2=1, y2=0).
      */
-    public function LinearGradient($x, $y, $w, $h, $col1 = array(), $col2 = array(), $coords = [0, 0, 1, 0])
+    public function LinearGradient($x, $y, $w, $h, $col1 = [], $col2 = [], $coords = [0, 0, 1, 0])
     {
         $this->Clip($x, $y, $w, $h);
-        $this->Gradient(2, $coords, [['color' => $col1, 'offset' => 0, 'exponent' => 1], ['color' => $col2, 'offset' => 1, 'exponent' => 1]], array(), false);
+        $this->Gradient(2, $coords, [['color' => $col1, 'offset' => 0, 'exponent' => 1], ['color' => $col2, 'offset' => 1, 'exponent' => 1]], [], false);
     }
 
     /**
@@ -13072,10 +13072,10 @@ class PDF
      * @param array $col2   second color (Grayscale, RGB or CMYK components).
      * @param array $coords array of the form (fx, fy, cx, cy, r) where (fx, fy) is the starting point of the gradient with color1, (cx, cy) is the center of the circle with color2, and r is the radius of the circle (see radial_gradient_coords.jpg). (fx, fy) should be inside the circle, otherwise some areas will not be defined.
      */
-    public function RadialGradient($x, $y, $w, $h, $col1 = array(), $col2 = array(), $coords = [0.5, 0.5, 0.5, 0.5, 1])
+    public function RadialGradient($x, $y, $w, $h, $col1 = [], $col2 = [], $coords = [0.5, 0.5, 0.5, 0.5, 1])
     {
         $this->Clip($x, $y, $w, $h);
-        $this->Gradient(3, $coords, [['color' => $col1, 'offset' => 0, 'exponent' => 1], ['color' => $col2, 'offset' => 1, 'exponent' => 1]], array(), false);
+        $this->Gradient(3, $coords, [['color' => $col1, 'offset' => 0, 'exponent' => 1], ['color' => $col2, 'offset' => 1, 'exponent' => 1]], [], false);
     }
 
     /**
@@ -13093,7 +13093,7 @@ class PDF
      * @param array $coords_max maximum value used by the coordinates. If a coordinate's value is greater than this it will be cut to coords_max. default: 1
      * @param bool  $antialias  A flag indicating whether to filter the shading function to prevent aliasing artifacts.
      */
-    public function CoonsPatchMesh($x, $y, $w, $h, $col1 = array(), $col2 = array(), $col3 = array(), $col4 = array(), $coords = [0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33], $coords_min = 0, $coords_max = 1, $antialias = false)
+    public function CoonsPatchMesh($x, $y, $w, $h, $col1 = [], $col2 = [], $col3 = [], $col4 = [], $coords = [0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33], $coords_min = 0, $coords_max = 1, $antialias = false)
     {
         if (($this->pdfaMode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
             return;
@@ -13209,7 +13209,7 @@ class PDF
      * @param array $background An array of colour components appropriate to the colour space, specifying a single background colour value.
      * @param bool  $antialias  A flag indicating whether to filter the shading function to prevent aliasing artifacts.
      */
-    public function Gradient($type, $coords, $stops, $background = array(), $antialias = false)
+    public function Gradient($type, $coords, $stops, $background = [], $antialias = false)
     {
         if (($this->pdfaMode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
             return;
@@ -13950,7 +13950,7 @@ class PDF
      *                          <li>string $style['cellfitalign'] this option works only when 'fitwidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
      * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      */
-    public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = array(), $align = '')
+    public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
     {
         if (empty(trim($code))) {
             return;
@@ -14217,7 +14217,7 @@ class PDF
             if ($v['t']) {
                 // draw a vertical bar
                 $ypos = $y + $vpadding + ($v['p'] * $barh / $arrcode['maxHeight']);
-                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxHeight']), self::FILL, array(), $style['fgcolor']);
+                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxHeight']), self::FILL, [], $style['fgcolor']);
             }
             $xpos += $bw;
         }
@@ -14299,7 +14299,7 @@ class PDF
      * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param bool       $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
      */
-    public function write2DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $style = array(), $align = '', $distort = false)
+    public function write2DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $style = [], $align = '', $distort = false)
     {
         if (empty(trim($code))) {
             return;
@@ -14487,7 +14487,7 @@ class PDF
             for ($c = 0; $c < $cols; ++$c) {
                 if ($arrcode['barcode'][$r][$c] == 1) {
                     // draw a single barcode cell
-                    $this->Rect($xr, $ystart, $cw, $ch, self::FILL, array(), $style['fgcolor']);
+                    $this->Rect($xr, $ystart, $cw, $ch, self::FILL, [], $style['fgcolor']);
                 }
                 $xr += $cw;
             }
@@ -19614,7 +19614,7 @@ class PDF
                 else {
                     $this->x -= $lspace;
                 }
-                $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), $r, 0, 360, 'F', array(), $color, 8);
+                $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), $r, 0, 360, 'F', [], $color, 8);
                 break;
             }
             case 'circle':
@@ -19629,7 +19629,7 @@ class PDF
                 }
                 $prev_line_style = $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->DrawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
-                $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, array(), 8);
+                $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
                 $this->append($prev_line_style); // restore line settings
                 break;
             }
@@ -19644,7 +19644,7 @@ class PDF
                 else {
                     $this->x -= $lspace;
                 }
-                $this->Rect($this->x, ($this->y + (($this->lasth - $l) / 2)), $l, $l, self::FILL, array(), $color);
+                $this->Rect($this->x, ($this->y + (($this->lasth - $l) / 2)), $l, $l, self::FILL, [], $color);
                 break;
             }
             case 'img':
@@ -19956,7 +19956,7 @@ class PDF
     protected function setImageSubBuffer($image, $key, $data)
     {
         if (!isset($this->images[$image])) {
-            $this->setImageBuffer($image, array());
+            $this->setImageBuffer($image, []);
         }
         $this->images[$image][$key] = $data;
     }
@@ -20000,7 +20000,7 @@ class PDF
     protected function setFontSubBuffer($font, $key, $data)
     {
         if (!isset($this->fonts[$font])) {
-            $this->setFontBuffer($font, array());
+            $this->setFontBuffer($font, []);
         }
         $this->fonts[$font][$key] = $data;
     }
@@ -20705,7 +20705,7 @@ class PDF
      * @param array    $color         RGB color array for title (values from 0 to 255).
      * @see    addTOCPage(), endTOCPage(), addTOC()
      */
-    public function addHTMLTOC($page = null, $toc_name = 'TOC', $templates = array(), $correct_align = true, $style = '', $color = [0, 0, 0])
+    public function addHTMLTOC($page = null, $toc_name = 'TOC', $templates = [], $correct_align = true, $style = '', $color = [0, 0, 0])
     {
         $filler                  = ' ';
         $prev_htmlLinkColorArray = $this->htmlLinkColorArray;
@@ -21189,7 +21189,7 @@ class PDF
      * @param int   $charmax    Maximum length of broken piece of word.
      * @return array text with soft hyphens
      */
-    protected function hyphenateWord($word, $patterns, $dictionary = array(), $leftmin = 1, $rightmin = 2, $charmin = 1, $charmax = 8)
+    protected function hyphenateWord($word, $patterns, $dictionary = [], $leftmin = 1, $rightmin = 2, $charmin = 1, $charmax = 8)
     {
         $hyphenword = []; // hyphens positions
         $numchars   = count($word);
@@ -21268,7 +21268,7 @@ class PDF
      * @param int    $charmax    Maximum length of broken piece of word.
      * @return string text with soft hyphens
      */
-    public function hyphenateText($text, $patterns, $dictionary = array(), $leftmin = 1, $rightmin = 2, $charmin = 1, $charmax = 8)
+    public function hyphenateText($text, $patterns, $dictionary = [], $leftmin = 1, $rightmin = 2, $charmin = 1, $charmax = 8)
     {
         $text   = $this->unhtmlentities($text);
         $word   = []; // last word
@@ -21739,7 +21739,7 @@ class PDF
      * @param array $regions array of no-write regions. For each region you can define an array as follow: ('page' => page number or empy for current page, 'xt' => X top, 'yt' => Y top, 'xb' => X bottom, 'yb' => Y bottom, 'side' => page side 'L' = left or 'R' = right). Omit this parameter to remove all regions.
      * @see    addPageRegion(), getPageRegions()
      */
-    public function setPageRegions($regions = array())
+    public function setPageRegions($regions = [])
     {
         // empty current regions array
         $this->page_regions = [];
@@ -22283,7 +22283,7 @@ class PDF
      * @param array  $clip_params   array of parameters for clipping function
      * @return string style
      */
-    protected function setSVGStyles($svgstyle, $prevsvgstyle, $x = 0, $y = 0, $w = 1, $h = 1, $clip_function = '', $clip_params = array())
+    protected function setSVGStyles($svgstyle, $prevsvgstyle, $x = 0, $y = 0, $w = 1, $h = 1, $clip_function = '', $clip_params = [])
     {
         if ($this->state !== self::READY) {
             return;
@@ -22434,7 +22434,7 @@ class PDF
             }
             $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * $this->scaleFactor), ($h * $this->scaleFactor), ($x * $this->scaleFactor), ($cy * $this->scaleFactor)));
             if (count($gradient['stops']) > 1) {
-                $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops'], array(), false);
+                $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops'], [], false);
             }
         }
         elseif ($svgstyle['fill'] != 'none') {
@@ -22989,7 +22989,7 @@ class PDF
      * @param array           $attribs The third parameter, attribs, contains an associative array with the element's attributes (if any). The keys of this array are the attribute names, the values are the attribute values. Attribute names are case-folded on the same criteria as element names. Attribute values are not case-folded. The original order of the attributes can be retrieved by walking through attribs the normal way, using each(). The first key in the array was the first attribute, and so on.
      * @param array           $ctm     tranformation matrix for clipping mode (starting transformation matrix).
      */
-    protected function startSVGElementHandler($parser, $name, $attribs, $ctm = array())
+    protected function startSVGElementHandler($parser, $name, $attribs, $ctm = [])
     {
         $name = $this->removeTagNamespace($name);
         // check if we are in clip mode
@@ -23367,14 +23367,14 @@ class PDF
                 $h  = $w;
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->circle($cx, $cy, $r, 0, 360, self::CLIP_NZ, array(), array(), 8);
+                    $this->circle($cx, $cy, $r, 0, 360, self::CLIP_NZ, [], [], 8);
                 }
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', [$cx, $cy, $r, 0, 360, self::CLIP_NZ]);
                     if (!empty($obstyle)) {
-                        $this->circle($cx, $cy, $r, 0, 360, $obstyle, array(), array(), 8);
+                        $this->circle($cx, $cy, $r, 0, 360, $obstyle, [], [], 8);
                     }
                     $this->StopTransform();
                 }
@@ -23395,14 +23395,14 @@ class PDF
                 $h  = (2 * $ry);
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ, array(), array(), 8);
+                    $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ, [], [], 8);
                 }
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', [$cx, $cy, $rx, $ry, 0, 0, 360, self::CLIP_NZ]);
                     if (!empty($obstyle)) {
-                        $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, array(), array(), 8);
+                        $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, [], [], 8);
                     }
                     $this->StopTransform();
                 }
