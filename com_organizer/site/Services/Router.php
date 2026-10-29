@@ -30,8 +30,39 @@ class Router extends RouterView
      */
     public function __construct(CMSApplication $app, AbstractMenu $menu, DatabaseInterface $database)
     {
+        $this->database = $database;
+        /**
+         * Instance
+         * -stand-alone only => new tab
+         */
+        /**
+         * Instances
+         * -stand-alone or under campus, department, category, group, person or room
+         * -layouts: list default
+         */
         parent::__construct($app, $menu);
 
         $this->attachRule(new MenuRules($this));
     }
 }
+/*
+contact_tracking:
+course: (own)/edit
+courses: (list)
+curriculum:
+export:
+lesson_statistics:
+organizer:
+instance:
+instances: grid, list
+profile: (edit)
+room_statistics:
+roomoverview:
+rooms:
+search:
+statistics:
+subject: (own)/edit
+subjects: (list)
+workload:
+https://www.thm.de/organizer/images/thm_organizer/hoersaal-kapazitaeten-friedberg.pdf, {"menu_show":1}
+*/
