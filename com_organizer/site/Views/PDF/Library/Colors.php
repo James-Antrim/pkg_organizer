@@ -12,9 +12,13 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
+use Exception;
+
 /** PHP color trait. */
 trait Colors
 {
+    private const COLOR_CONTEXTS = ['draw', 'fill', 'text'];
+
     /**
      * Array of valid JavaScript color names
      */
@@ -197,8 +201,20 @@ trait Colors
         'yellowgreen'          => '9acd32'
     ];
 
+    /** Whether fill and text colors are different. */
+    private bool $differentColors = false;
+
+    /** Commands for drawing color. */
+    private string $drawColor = '0 G';
+
+    /** Commands for filling color. */
+    private string $fillColor = '0 g';
+
     /** User-defined spot colors. */
     private array $spotColors = [];
+
+    /** Commands for text color. */
+    private string $textColor = '0 g';
 
     /**
      * Returns an array (RGB or CMYK) from a html color name, or a six-digit (i.e. #3FE5AA), or three-digit (i.e. #7FF) hexadecimal color,
@@ -349,6 +365,41 @@ trait Colors
     }
 
     /**
+     * Convert a color array into a string representation.
+     * @param array $color
+     * @return string
+     */
+    public static function colorStringFromArray(array $color): string
+    {
+        $color = array_values($color);
+        switch (count($color)) {
+            case 4:
+            {
+                $cyan    = max(0, min(100, floatval($color[0]))) / 100;
+                $magenta = max(0, min(100, floatval($color[1]))) / 100;
+                $yellow  = max(0, min(100, floatval($color[2]))) / 100;
+                $key     = max(0, min(100, floatval($color[3]))) / 100;
+                //  Cyan, Magenta, Yellow (Gelb) und Key
+                return '[' . sprintf('%F %F %F %F', $cyan, $magenta, $yellow, $key) . ']';
+            }
+            case 3:
+            {
+                $blue  = max(0, min(255, floatval($color[2]))) / 255;
+                $green = max(0, min(255, floatval($color[1]))) / 255;
+                $red   = max(0, min(255, floatval($color[0]))) / 255;
+                return '[' . sprintf('%F %F %F', $red, $green, $blue) . ']';
+            }
+            case 1:
+            {
+                // grayscale
+                return '[' . sprintf('%F', (max(0, min(255, floatval($color[0]))) / 255)) . ']';
+            }
+            default:
+                return '[]';
+        }
+    }
+
+    /**
      * Convert color to javascript color.
      * @param string $color color name or "#RRGGBB"
      */
@@ -367,6 +418,85 @@ trait Colors
         }
 
         return 'color.' . $color;
+    }
+
+    /**
+     * Sets the spot color for the specified context and generates a PDF command for the same.
+     * @param string $color
+     * @param string $context
+     * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
+     * @return string
+     * @throws Exception if the color or context are invalid
+     * @see self::COLOR_CONTEXTS
+     */
+    public function contextColor(string $color, string $context, float $tint = 100): string
+    {
+        if (!$spotColor = $this->spotColor($color)) {
+            $this->Error('Undefined spot color: ' . $color . ', you must add it using the spotColor() method.');
+        }
+        elseif (!in_array($context, self::COLOR_CONTEXTS)) {
+            $this->Error('Undefined color context: ' . $context . ', @see Colors::COLOR_CONTEXTS.');
+        }
+
+        $tint = max(0, min(100, $tint)) / 100;
+
+        $command = sprintf('/CS%d ', $this->spotColors[$color]['i']);
+
+        switch ($context) {
+            case 'draw':
+                $command           .= sprintf('CS %F SCN', $tint);
+                $this->drawColor   = $command;
+                $this->strokecolor = $spotColor;
+                break;
+            case 'fill':
+                $command         .= sprintf('cs %F scn', $tint);
+                $this->fillColor = $command;
+                $this->bgcolor   = $spotColor;
+                break;
+            case 'text':
+                $command         .= sprintf('cs %F scn', $tint);
+                $this->textColor = $command;
+                $this->fgcolor   = $spotColor;
+                break;
+        }
+
+        $this->differentColors = ($this->fillColor != $this->textColor);
+
+        if ($this->state === self::READY) {
+            $this->append($command);
+        }
+
+        if ($this->xObject) {
+            $this->xObjects[$this->xObjectID]['spotColors'][$color] = $this->spotColors[$color];
+        }
+
+        return $command;
+    }
+
+    /**
+     * Sets the spot color for drawing operations (lines, rectangles and cell borders) and generates a PDF command for the same.
+     * @param string $color
+     * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
+     * @return string
+     * @throws Exception if the color or context are invalid
+     * @see   spotColor(), fillColor(), textColor()
+     */
+    public function drawColor(string $color, float $tint = 100): string
+    {
+        return $this->contextColor($color, 'draw', $tint);
+    }
+
+    /**
+     * Sets the spot color for filling operations (filled rectangles and cell backgrounds) and generates a PDF command for the same.
+     * @param string $color
+     * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
+     * @return string
+     * @throws Exception if the color or context are invalid
+     * @see   spotColor(), drawColor(), textColor()
+     */
+    public function fillColor(string $color, float $tint = 100): string
+    {
+        return $this->contextColor($color, 'fill');
     }
 
     /**
@@ -430,37 +560,15 @@ trait Colors
     }
 
     /**
-     * Convert a color array into a string representation.
-     * @param array $color
+     * Sets the spot color for text and generates a PDF command for the same.
+     * @param string $color
+     * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
+     * @throws Exception if the color or context are invalid
+     * @see   spotColor(), drawColor(), fillColor()
      */
-    public static function colorStringFromArray(array $color): string
+    public function textColor(string $color, float $tint = 100): string
     {
-        $color = array_values($color);
-        switch (count($color)) {
-            case 4:
-            {
-                $cyan    = max(0, min(100, floatval($color[0]))) / 100;
-                $magenta = max(0, min(100, floatval($color[1]))) / 100;
-                $yellow  = max(0, min(100, floatval($color[2]))) / 100;
-                $key     = max(0, min(100, floatval($color[3]))) / 100;
-                //  Cyan, Magenta, Yellow (Gelb) und Key
-                return '[' . sprintf('%F %F %F %F', $cyan, $magenta, $yellow, $key) . ']';
-            }
-            case 3:
-            {
-                $blue  = max(0, min(255, floatval($color[2]))) / 255;
-                $green = max(0, min(255, floatval($color[1]))) / 255;
-                $red   = max(0, min(255, floatval($color[0]))) / 255;
-                return '[' . sprintf('%F %F %F', $red, $green, $blue) . ']';
-            }
-            case 1:
-            {
-                // grayscale
-                return '[' . sprintf('%F', (max(0, min(255, floatval($color[0]))) / 255)) . ']';
-            }
-            default:
-                return '[]';
-        }
+        return $this->contextColor('text', $color, $tint);
     }
 }
