@@ -12,8 +12,6 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-use Exception;
-
 /** PHP color trait. */
 trait Colors
 {
@@ -248,7 +246,7 @@ trait Colors
     }
 
     /**
-     * Defines the color used in the specified context.
+     * Applies the color to the context, returns the color command, empty if not appended.
      * @param string $context
      * @param float  $value1 gray level for single color, red color for RGB (0-255), or cyan color for CMYK (0-100)
      * @param float  $value2 green color for RGB (0-255) or magenta color for CMYK (0-100)
@@ -256,14 +254,13 @@ trait Colors
      * @param float  $value4 black (key) color for CMYK (0-100)
      * @param bool   $append appends the command to the document, defaults to true
      * @param string $name   spot color name (if any)
-     * @return string The PDF command or empty string.
-     * @throws Exception if context is invalid
+     * @return string
      * @see self::COLOR_CONTEXTS
      */
     public function color(string $context, float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
     {
         if (!in_array($context, self::COLOR_CONTEXTS)) {
-            $this->Error('Undefined color context: ' . $context . ', @see Colors::COLOR_CONTEXTS.');
+            return '';
         }
 
         // set color by case
@@ -333,7 +330,36 @@ trait Colors
         }
 
         return $command;
+    }
 
+    /**
+     * Applies the color array to the context, returns the color command, empty if not appended.
+     * @param string $context
+     * @param array  $color  color configuration array: 1 => grayscale, 3 => RGB, 4 => CMYK, 5 => spotColor (CMYK & name values)
+     * @param bool   $append appends the command to the document, defaults to true
+     * @return string
+     * @see self::COLOR_CONTEXTS
+     */
+    public function colorArray(string $context, array $color, bool $append = true): string
+    {
+        $color = array_values($color);
+
+        // component: grey, RGB red or CMYK cyan
+        $value1 = $color[0] ?? -1;
+        if (!in_array($context, self::COLOR_CONTEXTS) or $value1 < 0) {
+            return '';
+        }
+
+        // component: RGB green or CMYK magenta
+        $value2 = $color[1] ?? -1;
+        // component: RGB blue or CMYK yellow
+        $value3 = $color[2] ?? -1;
+        // component: CMYK black
+        $value4 = $color[3] ?? -1;
+        // color name
+        $name = $color[4] ?? '';
+
+        return $this->color($context, $value1, $value2, $value3, $value4, $append, $name);
     }
 
     /**
@@ -540,21 +566,17 @@ trait Colors
     }
 
     /**
-     * Sets the spot color for the specified context and generates a PDF command for the same.
+     * Applies the color to the specified context and generates a PDF command for the same.
      * @param string $color
      * @param string $context
      * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
-     * @throws Exception if the color or context are invalid
      * @see self::COLOR_CONTEXTS
      */
     public function contextColor(string $color, string $context, float $tint = 100): string
     {
-        if (!$spotColor = $this->spotColor($color)) {
-            $this->Error('Undefined spot color: ' . $color . ', you must add it using the spotColor() method.');
-        }
-        elseif (!in_array($context, self::COLOR_CONTEXTS)) {
-            $this->Error('Undefined color context: ' . $context . ', @see Colors::COLOR_CONTEXTS.');
+        if (!$spotColor = $this->spotColor($color) or !in_array($context, self::COLOR_CONTEXTS)) {
+            return '';
         }
 
         $tint = max(0, min(100, $tint)) / 100;
@@ -593,7 +615,7 @@ trait Colors
     }
 
     /**
-     * Defines the color used for all drawing operations (lines, rectangles and cell borders). It can be expressed in RGB components or gray scale.
+     * Applies the color to all drawing operations (lines, rectangles and cell borders), returns the color command, empty if not appended.
      * @param float  $value1 gray level for single color, red color for RGB (0-255), or cyan color for CMYK (0-100)
      * @param float  $value2 green color for RGB (0-255) or magenta color for CMYK (0-100)
      * @param float  $value3 blue color for RGB (0-255) or yellow color for CMYK (0-100)
@@ -601,8 +623,7 @@ trait Colors
      * @param bool   $append appends the command to the document, defaults to true
      * @param string $name   spot color name (if any)
      * @return string the PDF command
-     * @throws Exception if context is invalid
-     * @see   SetDrawColorArray(), fillColor(), textColor(), line(), Rect(), Cell(), MultiCell()
+     * @see   drawColorArray(), fillColor(), textColor(), line(), Rect(), Cell(), MultiCell()
      */
     public function drawColor(float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
     {
@@ -610,11 +631,22 @@ trait Colors
     }
 
     /**
+     * Applies the color array to all drawing operations (lines, rectangles and cell borders), returns the color command, empty if not appended.
+     * @param array $color  color configuration array: 1 => grayscale, 3 => RGB, 4 => CMYK, 5 => spotColor (CMYK & name values)
+     * @param bool  $append appends the command to the document, defaults to true
+     * @return string
+     * @see   drawColor()
+     */
+    public function drawColorArray(array $color, bool $append = true): string
+    {
+        return $this->colorArray('draw', $color, $append);
+    }
+
+    /**
      * Sets the spot color for drawing operations (lines, rectangles and cell borders) and generates a PDF command for the same.
      * @param string $color
      * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
-     * @throws Exception if the color or context are invalid
      * @see   spotColor(), fillSpotColor(), textSpotColor()
      */
     public function drawSpotColor(string $color, float $tint = 100): string
@@ -623,7 +655,7 @@ trait Colors
     }
 
     /**
-     * Defines the color used for all filling operations (filled rectangles and cell backgrounds). It can be expressed in RGB components or gray scale.
+     * Applies the color to all filling operations (filled rectangles and cell backgrounds), returns the color command, empty if not appended.
      * @param float  $value1 gray level for single color, red color for RGB (0-255), or cyan color for CMYK (0-100)
      * @param float  $value2 green color for RGB (0-255) or magenta color for CMYK (0-100)
      * @param float  $value3 blue color for RGB (0-255) or yellow color for CMYK (0-100)
@@ -631,8 +663,7 @@ trait Colors
      * @param bool   $append appends the command to the document, defaults to true
      * @param string $name   spot color name (if any)
      * @return string The PDF command.
-     * @throws Exception if context is invalid
-     * @see   SetFillColorArray(), drawColor(), textColor(), Rect(), Cell(), MultiCell()
+     * @see   fillColorArray(), drawColor(), textColor(), Rect(), Cell(), MultiCell()
      */
     public function fillColor(float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
     {
@@ -640,11 +671,22 @@ trait Colors
     }
 
     /**
+     * Applies the color array to all filling operations (filled rectangles and cell backgrounds), returns the color command, empty if not appended.
+     * @param array $color  color configuration array: 1 => grayscale, 3 => RGB, 4 => CMYK, 5 => spotColor (CMYK & name values)
+     * @param bool  $append appends the command to the document, defaults to true
+     * @return string
+     * @see   fillColor()
+     */
+    public function fillColorArray(array $color, bool $append = true): string
+    {
+        return $this->colorArray('fill', $color, $append);
+    }
+
+    /**
      * Sets the spot color for filling operations (filled rectangles and cell backgrounds) and generates a PDF command for the same.
      * @param string $color
      * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
-     * @throws Exception if the color or context are invalid
      * @see   spotColor(), drawSpotColor(), textSpotColor()
      */
     public function fillSpotColor(string $color, float $tint = 100): string
@@ -713,7 +755,7 @@ trait Colors
     }
 
     /**
-     * Defines the color used for text. It can be expressed in RGB components or gray scale
+     * Applies the color to text, returns the color command, empty if not appended.
      * @param float  $value1 gray level for single color, red color for RGB (0-255), or cyan color for CMYK (0-100)
      * @param float  $value2 green color for RGB (0-255) or magenta color for CMYK (0-100)
      * @param float  $value3 blue color for RGB (0-255) or yellow color for CMYK (0-100)
@@ -721,8 +763,7 @@ trait Colors
      * @param bool   $append appends the command to the document, defaults to true
      * @param string $name   spot color name (if any)
      * @return string Empty string.
-     * @throws Exception if context is invalid
-     * @see   SetTextColorArray(), drawColor(), fillColor(), Text(), Cell(), MultiCell()
+     * @see   textColorArray(), drawColor(), fillColor(), Text(), Cell(), MultiCell()
      */
     public function textColor(float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
     {
@@ -730,11 +771,22 @@ trait Colors
     }
 
     /**
+     * Applies the color array to text, returns the color command, empty if not appended.
+     * @param array $color  color configuration array: 1 => grayscale, 3 => RGB, 4 => CMYK, 5 => spotColor (CMYK & name values)
+     * @param bool  $append appends the command to the document, defaults to true
+     * @return string
+     * @see   fillColor()
+     */
+    public function textColorArray(array $color, bool $append = true): string
+    {
+        return $this->colorArray('text', $color, $append);
+    }
+
+    /**
      * Sets the spot color for text and generates a PDF command for the same.
      * @param string $color
      * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
-     * @throws Exception if the color or context are invalid
      * @see   spotColor(), drawSpotColor(), fillSpotColor()
      */
     public function textSpotColor(string $color, float $tint = 100): string

@@ -198,7 +198,7 @@ trait Geometry
         }
 
         if (str_contains($style, self::FILL) and $fillColor) {
-            $this->setFillColorArray($fillColor);
+            $this->fillColorArray($fillColor);
         }
 
         $operator = StaticMethods::pathPaintingOperators($style);
@@ -312,7 +312,7 @@ trait Geometry
         }
 
         if (isset($configuration['color'])) {
-            $style .= $this->setDrawColorArray($configuration['color'], true) . ' ';
+            $style .= $this->drawColorArray($configuration['color'], false) . ' ';
         }
 
         if ($append and $this->state === self::READY) {
@@ -539,7 +539,7 @@ trait Geometry
         }
 
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->setFillColorArray($fill_color);
+            $this->fillColorArray($fill_color);
         }
         $op = StaticMethods::pathPaintingOperators($style);
         if ($line_style) {
@@ -569,7 +569,7 @@ trait Geometry
         }
 
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->setFillColorArray($fill_color);
+            $this->fillColorArray($fill_color);
         }
         $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
@@ -619,7 +619,7 @@ trait Geometry
             $nc += 4;
         }
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->setFillColorArray($fill_color);
+            $this->fillColorArray($fill_color);
         }
         $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
@@ -720,7 +720,7 @@ trait Geometry
         }
         if (!(strpos($style, 'F') === false) and !empty($fill_color)) {
             // set background color
-            $this->setFillColorArray($fill_color);
+            $this->fillColorArray($fill_color);
         }
         if (!empty($border_style)) {
             if (isset($border_style['all']) and !empty($border_style['all'])) {
@@ -903,7 +903,7 @@ trait Geometry
         }
         // Rounded
         if (!(false === strpos($style, self::FILL)) and is_array($fill_color)) {
-            $this->setFillColorArray($fill_color);
+            $this->fillColorArray($fill_color);
         }
         $op = StaticMethods::pathPaintingOperators($style);
         if ($op == self::FILL2) {

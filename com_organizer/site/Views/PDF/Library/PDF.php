@@ -3010,7 +3010,7 @@ class PDF
                 $header_x = $this->original_lMargin + ($headerdata['logo_width'] * 1.1);
             }
             $cw = $this->w - $this->original_lMargin - $this->original_rMargin - ($headerdata['logo_width'] * 1.1);
-            $this->setTextColorArray($this->header_text_color);
+            $this->textColorArray($this->header_text_color);
             // header title
             $this->setFont($headerfont[0], 'B', $headerfont[2] + 1);
             $this->setX($header_x);
@@ -3058,7 +3058,7 @@ class PDF
     public function Footer()
     {
         $cur_y = $this->y;
-        $this->setTextColorArray($this->footer_text_color);
+        $this->textColorArray($this->footer_text_color);
         //set style for cell border
         $line_width = (0.85 / $this->scaleFactor);
         $this->lineStyle(['width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footer_line_color]);
@@ -3281,75 +3281,6 @@ class PDF
     public function PageNo()
     {
         return $this->page;
-    }
-
-    /**
-     * Set the color array for the specified type ('draw', 'fill', 'text').
-     * It can be expressed in RGB, CMYK or GRAY SCALE components.
-     * The method can be called before the first page is created and the value is retained from page to page.
-     * @param string $type   Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param array  $color  Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
-     * @param bool   $append If true do not send the PDF command.
-     * @return string The PDF command or empty string.
-     */
-    public function setColorArray($type, $color, $append = true)
-    {
-        if (is_array($color)) {
-            $color = array_values($color);
-            // component: grey, RGB red or CMYK cyan
-            $c = isset($color[0]) ? $color[0] : -1;
-            // component: RGB green or CMYK magenta
-            $m = isset($color[1]) ? $color[1] : -1;
-            // component: RGB blue or CMYK yellow
-            $y = isset($color[2]) ? $color[2] : -1;
-            // component: CMYK black
-            $k = isset($color[3]) ? $color[3] : -1;
-            // color name
-            $name = isset($color[4]) ? $color[4] : '';
-            if ($c >= 0) {
-                return $this->color($type, $c, $m, $y, $k, $append, $name);
-            }
-        }
-        return '';
-    }
-
-    /**
-     * Defines the color used for all drawing operations (lines, rectangles and cell borders).
-     * It can be expressed in RGB, CMYK or GRAY SCALE components.
-     * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array $color Array of colors (1, 3 or 4 values).
-     * @param bool  $ret   If true do not send the PDF command.
-     * @return string the PDF command
-     * @see   drawColor()
-     */
-    public function setDrawColorArray($color, $ret = false)
-    {
-        return $this->setColorArray('draw', $color, $ret);
-    }
-
-    /**
-     * Defines the color used for all filling operations (filled rectangles and cell backgrounds).
-     * It can be expressed in RGB, CMYK or GRAY SCALE components.
-     * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array $color Array of colors (1, 3 or 4 values).
-     * @param bool  $ret   If true do not send the PDF command.
-     * @see   fillColor()
-     */
-    public function setFillColorArray($color, $ret = false)
-    {
-        return $this->setColorArray('fill', $color, $ret);
-    }
-
-    /**
-     * Defines the color used for text. It can be expressed in RGB components or gray scale.
-     * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array $color Array of colors (1, 3 or 4 values).
-     * @param bool  $ret   If true do not send the PDF command.
-     * @see   fillColor()
-     */
-    public function setTextColorArray($color, $ret = false)
-    {
-        return $this->setColorArray('text', $color, $ret);
     }
 
     /**
@@ -4336,9 +4267,9 @@ class PDF
             // print shadow
             $this->x += $this->txtshadow['depth_w'];
             $this->y += $this->txtshadow['depth_h'];
-            $this->setFillColorArray($this->txtshadow['color']);
-            $this->setTextColorArray($this->txtshadow['color']);
-            $this->setDrawColorArray($this->txtshadow['color']);
+            $this->fillColorArray($this->txtshadow['color']);
+            $this->textColorArray($this->txtshadow['color']);
+            $this->drawColorArray($this->txtshadow['color']);
             if ($this->txtshadow['opacity'] != $alpha['CA']) {
                 $this->setAlpha($this->txtshadow['opacity'], $this->txtshadow['blend_mode']);
             }
@@ -4348,9 +4279,9 @@ class PDF
             //restore data
             $this->x = $x;
             $this->y = $y;
-            $this->setFillColorArray($bc);
-            $this->setTextColorArray($fc);
-            $this->setDrawColorArray($sc);
+            $this->fillColorArray($bc);
+            $this->textColorArray($fc);
+            $this->drawColorArray($sc);
             if ($this->txtshadow['opacity'] != $alpha['CA']) {
                 $this->setAlpha($alpha['CA'], $alpha['BM'], $alpha['ca'], $alpha['AIS']);
             }
@@ -9921,10 +9852,10 @@ class PDF
         $prevcolor = $this->fgColor;
         $prevstyle = $this->FontStyle;
         if (empty($color)) {
-            $this->setTextColorArray($this->htmlLinkColorArray);
+            $this->textColorArray($this->htmlLinkColorArray);
         }
         else {
-            $this->setTextColorArray($color);
+            $this->textColorArray($color);
         }
         if ($style == -1) {
             $this->setFont('', $this->FontStyle . $this->htmlLinkFontStyle);
@@ -9935,7 +9866,7 @@ class PDF
         $ret = $this->Write($this->lasth, $name, $url, $fill, '', false, 0, $firstline, $firstblock, 0);
         // restore settings
         $this->setFont('', $prevstyle);
-        $this->setTextColorArray($prevcolor);
+        $this->textColorArray($prevcolor);
         return $ret;
     }
 
@@ -12581,7 +12512,7 @@ class PDF
                     $this->LinearGradient($xb, $yb, $wb, $hb, $col_a, $col_b, $coords);
                 }
                 else {
-                    $this->setFillColorArray($col_b);
+                    $this->fillColorArray($col_b);
                     // colored rectangle
                     $this->Rect($xb, $yb, $wb, $hb, self::FILL);
                 }
@@ -12676,16 +12607,16 @@ class PDF
     public function registrationMark($x, $y, $r, $double = false, $cola = [100, 100, 100, 100, 'All'], $colb = [0, 0, 0, 0, 'None'])
     {
         $line_style = array('width' => max((0.5 / $this->scaleFactor), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
-        $this->setFillColorArray($cola);
+        $this->fillColorArray($cola);
         $this->PieSector($x, $y, $r, 90, 180, 'F');
         $this->PieSector($x, $y, $r, 270, 360, 'F');
         $this->circle($x, $y, $r, 0, 360, 'C', $line_style, [], 8);
         if ($double) {
             $ri = $r * 0.5;
-            $this->setFillColorArray($colb);
+            $this->fillColorArray($colb);
             $this->PieSector($x, $y, $ri, 90, 180, 'F');
             $this->PieSector($x, $y, $ri, 270, 360, 'F');
-            $this->setFillColorArray($cola);
+            $this->fillColorArray($cola);
             $this->PieSector($x, $y, $ri, 0, 90, 'F');
             $this->PieSector($x, $y, $ri, 180, 270, 'F');
             $this->circle($x, $y, $ri, 0, 360, 'C', $line_style, [], 8);
@@ -12707,20 +12638,20 @@ class PDF
         // external radius
         $re = ($r * 1.3);
         // Cyan
-        $this->setFillColorArray([100, 0, 0, 0]);
+        $this->fillColorArray([100, 0, 0, 0]);
         $this->PieSector($x, $y, $ri, 270, 360, 'F');
         // Magenta
-        $this->setFillColorArray([0, 100, 0, 0]);
+        $this->fillColorArray([0, 100, 0, 0]);
         $this->PieSector($x, $y, $ri, 0, 90, 'F');
         // Yellow
-        $this->setFillColorArray([0, 0, 100, 0]);
+        $this->fillColorArray([0, 0, 100, 0]);
         $this->PieSector($x, $y, $ri, 90, 180, 'F');
         // Key - black
-        $this->setFillColorArray([0, 0, 0, 100]);
+        $this->fillColorArray([0, 0, 0, 100]);
         $this->PieSector($x, $y, $ri, 180, 270, 'F');
         // registration color
         $line_style = ['width' => $lw, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [100, 100, 100, 100, 'All']];
-        $this->setFillColorArray([100, 100, 100, 100, 'All']);
+        $this->fillColorArray([100, 100, 100, 100, 'All']);
         // external circle
         $this->circle($x, $y, $r, 0, 360, 'C', $line_style, [], 8);
         // cross lines
@@ -13893,8 +13824,8 @@ class PDF
             $this->Rect($xpos_rect, $y, $w, $h, self::DRAW);
         }
         // set foreground color
-        $this->setDrawColorArray($style['fgcolor']);
-        $this->setTextColorArray($style['fgcolor']);
+        $this->drawColorArray($style['fgcolor']);
+        $this->textColorArray($style['fgcolor']);
         // print bars
         foreach ($arrcode['barcode'] as $k => $v) {
             $bw = ($v['w'] * $xres);
@@ -14162,7 +14093,7 @@ class PDF
             $this->Rect($xpos, $y, $w, $h, self::DRAW);
         }
         // set foreground color
-        $this->setDrawColorArray($style['fgcolor']);
+        $this->drawColorArray($style['fgcolor']);
         // print barcode cells
         // for each row
         for ($r = 0; $r < $rows; ++$r) {
@@ -16127,17 +16058,17 @@ class PDF
                 // get current position on page buffer
                 $curpos = $this->pageLengths[$startlinepage];
                 if (isset($dom[$key]['bgcolor']) and ($dom[$key]['bgcolor'] !== false)) {
-                    $this->setFillColorArray($dom[$key]['bgcolor']);
+                    $this->fillColorArray($dom[$key]['bgcolor']);
                     $wfill = true;
                 }
                 else {
                     $wfill = $fill | false;
                 }
                 if (isset($dom[$key]['fgcolor']) and ($dom[$key]['fgcolor'] !== false)) {
-                    $this->setTextColorArray($dom[$key]['fgcolor']);
+                    $this->textColorArray($dom[$key]['fgcolor']);
                 }
                 if (isset($dom[$key]['strokecolor']) and ($dom[$key]['strokecolor'] !== false)) {
-                    $this->setDrawColorArray($dom[$key]['strokecolor']);
+                    $this->drawColorArray($dom[$key]['strokecolor']);
                 }
                 if (isset($dom[$key]['align'])) {
                     $lalign = $dom[$key]['align'];
@@ -16634,7 +16565,7 @@ class PDF
                     and ($this->emptypagemrk[$this->page] == $this->pageLengths[$this->page]))) {
                     $this->setFont($fontname, $fontstyle, $fontsize);
                     if ($wfill) {
-                        $this->setFillColorArray($this->bgColor);
+                        $this->fillColorArray($this->bgColor);
                     }
                 }
             } // end newline
@@ -18411,7 +18342,7 @@ class PDF
                             $border = $cellpos['border'];
                         }
                         if (isset($cellpos['bgcolor']) and ($cellpos['bgcolor']) !== false) {
-                            $this->setFillColorArray($cellpos['bgcolor']);
+                            $this->fillColorArray($cellpos['bgcolor']);
                             $fill = true;
                         }
                         else {
@@ -18858,7 +18789,7 @@ class PDF
         if (isset($tag['bgcolor']) and ($tag['bgcolor'] !== false)) {
             // get background color
             $old_bgcolor = $this->bgColor;
-            $this->setFillColorArray($tag['bgcolor']);
+            $this->fillColorArray($tag['bgcolor']);
             $fill = true;
         }
         if (!$border and !$fill) {
@@ -19040,7 +18971,7 @@ class PDF
         $this->page_regions = $temp_page_regions;
         if (isset($old_bgcolor)) {
             // restore background color
-            $this->setFillColorArray($old_bgcolor);
+            $this->fillColorArray($old_bgcolor);
         }
         // restore pointer position
         $this->x     = $prev_x;
@@ -19468,9 +19399,9 @@ class PDF
         $this->x        = $tmpx;
         $this->lispacer = '^';
         // restore colors
-        $this->setFillColorArray($bgcolor);
-        $this->setDrawColorArray($strokecolor);
-        $this->settextColorArray($color);
+        $this->fillColorArray($bgcolor);
+        $this->drawColorArray($strokecolor);
+        $this->textColorArray($color);
     }
 
     /**
@@ -20218,7 +20149,7 @@ class PDF
             else {
                 $this->setFont($fontfamily, $outline['s'], $fontsize - $outline['l']);
             }
-            $this->setTextColorArray($outline['c']);
+            $this->textColorArray($outline['c']);
             // check for page break
             $this->checkPageBreak(2 * $this->getCellHeight($this->FontSize));
             // set margins and X position
@@ -21991,10 +21922,10 @@ class PDF
         }
         // color
         $fill_color = $this->colorFromHTML($svgstyle['color']);
-        $this->setFillColorArray($fill_color);
+        $this->fillColorArray($fill_color);
         // text color
         $text_color = $this->colorFromHTML($svgstyle['text-color']);
-        $this->setTextColorArray($text_color);
+        $this->textColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
             $top    = (isset($regs[1]) ? $this->getHTMLUnitToUnits($regs[1], 0, $this->svgunit, false) : 0);
@@ -22126,7 +22057,7 @@ class PDF
             if ($svgstyle['fill-opacity'] != 1) {
                 $this->setAlpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity'], false);
             }
-            $this->setFillColorArray($fill_color);
+            $this->fillColorArray($fill_color);
             if ($svgstyle['fill-rule'] == 'evenodd') {
                 $objstyle .= self::FILL_EO;
             }
