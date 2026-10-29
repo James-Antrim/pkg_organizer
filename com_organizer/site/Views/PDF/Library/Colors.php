@@ -21,6 +21,28 @@ trait Colors
     private const JS_COLORS = ['transparent', 'black', 'white', 'red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'dkGray', 'gray', 'ltGray'];
 
     /**
+     * Array of spot colors (C,M,Y,K,name). Color keys must be in lowercase and without spaces.
+     * Common industry standard spot colors are: ANPA-COLOR, DIC, FOCOLTONE, GCMI, HKS, PANTONE, TOYO, TRUMATCH.
+     */
+    private const SPOT_COLORS = [
+        // special registration colors
+        'none'    => [0, 0, 0, 0, 'None'],
+        'all'     => [100, 100, 100, 100, 'All'],
+        // standard CMYK colors
+        'cyan'    => [100, 0, 0, 0, 'Cyan'],
+        'magenta' => [0, 100, 0, 0, 'Magenta'],
+        'yellow'  => [0, 0, 100, 0, 'Yellow'],
+        'key'     => [0, 0, 0, 100, 'Key'],
+        // alias
+        'white'   => [0, 0, 0, 0, 'White'],
+        'black'   => [0, 0, 0, 100, 'Black'],
+        // standard RGB colors
+        'red'     => [0, 100, 100, 0, 'Red'],
+        'green'   => [100, 0, 100, 0, 'Green'],
+        'blue'    => [100, 100, 0, 0, 'Blue'],
+    ];
+
+    /**
      * Array of WEB safe colors
      */
     private const WEB_COLORS = [
@@ -173,28 +195,6 @@ trait Colors
         'whitesmoke'           => 'f5f5f5',
         'yellow'               => 'ffff00',
         'yellowgreen'          => '9acd32'
-    ];
-
-    /**
-     * Array of spot colors (C,M,Y,K,name). Color keys must be in lowercase and without spaces.
-     * Common industry standard spot colors are: ANPA-COLOR, DIC, FOCOLTONE, GCMI, HKS, PANTONE, TOYO, TRUMATCH.
-     */
-    protected array $spotColors = [
-        // special registration colors
-        'none'    => [0, 0, 0, 0, 'None', 'i' => 1],
-        'all'     => [100, 100, 100, 100, 'All', 'i' => 2],
-        // standard CMYK colors
-        'cyan'    => [100, 0, 0, 0, 'Cyan', 'i' => 3],
-        'magenta' => [0, 100, 0, 0, 'Magenta', 'i' => 4],
-        'yellow'  => [0, 0, 100, 0, 'Yellow', 'i' => 5],
-        'key'     => [0, 0, 0, 100, 'Key', 'i' => 6],
-        // alias
-        'white'   => [0, 0, 0, 0, 'White', 'i' => 7],
-        'black'   => [0, 0, 0, 100, 'Black', 'i' => 8],
-        // standard RGB colors
-        'red'     => [0, 100, 100, 0, 'Red', 'i' => 9],
-        'green'   => [100, 0, 100, 0, 'Green', 'i' => 10],
-        'blue'    => [100, 100, 0, 0, 'Blue', 'i' => 11],
     ];
 
     /**
@@ -372,19 +372,33 @@ trait Colors
      * @param array  $spotColors the previously defined spot colors
      * @return array|false Spot color array or false if not defined.
      */
-    public function spotColor(string $name, array $spotColor = []): array|false
+    public static function spotColor(string $name, array &$spotColors): array|false
     {
         // Predefined or explicitly set color values.
-        if (isset($this->spotColors[$name])) {
-            return $this->spotColors[$name];
+        if (isset($spotColors[$name])) {
+            return $spotColors[$name];
         }
 
+        // Colors defined by value.
         $color = preg_replace('/\s*/', '', $name);
         $color = strtolower($color);
 
-        $this->spotColors[$name] = [$spotColor[0], $spotColor[1], $spotColor[2], $spotColor[3], $color, count($this->spotColors) + 1];
+        if (isset(self::SPOT_COLORS[$color])) {
+            $i = (1 + count($spotColors));
 
-        return $this->spotColors[$name];
+            $spotColors[$name] = [
+                'C'    => self::SPOT_COLORS[$color][0],
+                'M'    => self::SPOT_COLORS[$color][1],
+                'Y'    => self::SPOT_COLORS[$color][2],
+                'K'    => self::SPOT_COLORS[$color][3],
+                'name' => self::SPOT_COLORS[$color][4],
+                'i'    => $i
+            ];
+
+            return $spotColors[self::SPOT_COLORS[$color][4]];
+        }
+
+        return false;
     }
 
     /**
