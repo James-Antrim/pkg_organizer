@@ -216,6 +216,28 @@ trait Colors
     /** Commands for text color. */
     private string $textColor = '0 g';
 
+    /** Append the spot colors to the document. */
+    protected function appendSpotColors(): void
+    {
+        foreach ($this->spotColors as $color => $configuration) {
+            $this->_newobj();
+            $this->spotColors[$color]['n'] = $this->objectNumber;
+
+            $black   = $configuration['K'] / 100;
+            $cyan    = $configuration['C'] / 100;
+            $color   = str_replace(' ', '#20', $color);
+            $magenta = $configuration['M'] / 100;
+            $yellow  = $configuration['Y'] / 100;
+
+            $out = '[/Separation /' . $color . ' /DeviceCMYK << /Range [0 1 0 1 0 1 0 1] /C0 [0 0 0 0]';
+            $out .= ' ' . sprintf('/C1 [%F %F %F %F] ', $cyan, $magenta, $yellow, $black);
+            $out .= ' /FunctionType 2 /Domain [0 1] /N 1>>]';
+            $out .= "\n" . 'endobj';
+
+            $this->append($out);
+        }
+    }
+
     /**
      * Returns an array (RGB or CMYK) from a html color name, or a six-digit (i.e. #3FE5AA), or three-digit (i.e. #7FF) hexadecimal color,
      * or a javascript color array, or javascript color name.

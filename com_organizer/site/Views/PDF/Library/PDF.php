@@ -9045,24 +9045,6 @@ class PDF
     }
 
     /**
-     * Output Spot Colors Resources.
-     */
-    protected function _putspotcolors()
-    {
-        foreach ($this->spotColors as $name => $color) {
-            $this->_newobj();
-            $this->spotColors[$name]['n'] = $this->objectNumber;
-            $out                          = '[/Separation /' . str_replace(' ', '#20', $name);
-            $out                          .= ' /DeviceCMYK <<';
-            $out                          .= ' /Range [0 1 0 1 0 1 0 1] /C0 [0 0 0 0]';
-            $out                          .= ' ' . sprintf('/C1 [%F %F %F %F] ', ($color['C'] / 100), ($color['M'] / 100), ($color['Y'] / 100), ($color['K'] / 100));
-            $out                          .= ' /FunctionType 2 /Domain [0 1] /N 1>>]';
-            $out                          .= "\n" . 'endobj';
-            $this->append($out);
-        }
-    }
-
-    /**
      * Return XObjects Dictionary.
      * @return string XObjects dictionary
      */
@@ -9149,7 +9131,7 @@ class PDF
         $this->_putocg();
         $this->_putfonts();
         $this->_putimages();
-        $this->_putspotcolors();
+        $this->appendSpotColors();
         $this->_putshaders();
         $this->_putxobjects();
         $this->_putresourcedict();

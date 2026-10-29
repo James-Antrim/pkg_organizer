@@ -30,7 +30,7 @@ trait WebTools
      * @param int    $height     height
      * @param array  $properties javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      */
-    protected function addJavascriptField(string $type, string $name, int $x, int $y, int $width, int $height, array $properties): void
+    private function addJavascriptField(string $type, string $name, int $x, int $y, int $width, int $height, array $properties): void
     {
         if ($this->rtl) {
             $x = $x - $width;
@@ -89,7 +89,7 @@ trait WebTools
     /**
      * Create a javascript PDF string.
      */
-    protected function appendJavascript(): void
+    private function appendJavascript(): void
     {
         if ($this->pdfaMode or (empty($this->javascript) and empty($this->javascriptObjects))) {
             return;
