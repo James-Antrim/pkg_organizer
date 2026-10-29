@@ -887,11 +887,6 @@ class PDF
     protected $htmlvspace = 0;
 
     /**
-     * Array of Spot colors.
-     */
-    protected $spot_colors = [];
-
-    /**
      * Symbol used for HTML unordered list items.
      */
     protected $lisymbol = '';
@@ -3331,34 +3326,6 @@ class PDF
     }
 
     /**
-     * Returns the array of spot colors.
-     * @return array Spot colors array.
-     */
-    public function getAllSpotColors()
-    {
-        return $this->spot_colors;
-    }
-
-    /**
-     * Defines a new spot color.
-     * It can be expressed in RGB components or gray scale.
-     * The method can be called before the first page is created and the value is retained from page to page.
-     * @param string $name Full name of the spot color.
-     * @param float  $c    Cyan color for CMYK. Value between 0 and 100.
-     * @param float  $m    Magenta color for CMYK. Value between 0 and 100.
-     * @param float  $y    Yellow color for CMYK. Value between 0 and 100.
-     * @param float  $k    Key (Black) color for CMYK. Value between 0 and 100.
-     * @see   SetDrawSpotColor(), SetFillSpotColor(), SetTextSpotColor()
-     */
-    public function AddSpotColor($name, $c, $m, $y, $k)
-    {
-        if (!isset($this->spot_colors[$name])) {
-            $i                        = (1 + count($this->spot_colors));
-            $this->spot_colors[$name] = ['C' => $c, 'M' => $m, 'Y' => $y, 'K' => $k, 'name' => $name, 'i' => $i];
-        }
-    }
-
-    /**
      * Set the spot color for the specified type ('draw', 'fill', 'text').
      * @param string $type Type of object affected by this color: ('draw', 'fill', 'text').
      * @param string $name Name of the spot color.
@@ -3367,12 +3334,12 @@ class PDF
      */
     public function setSpotColor($type, $name, $tint = 100)
     {
-        $spotcolor = $this->spotColor($name, $this->spot_colors);
+        $spotcolor = $this->spotColor($name);
         if ($spotcolor === false) {
-            $this->Error('Undefined spot color: ' . $name . ', you must add it using the AddSpotColor() method.');
+            $this->Error('Undefined spot color: ' . $name . ', you must add it using the spotColor() method.');
         }
         $tint     = (max(0, min(100, $tint)) / 100);
-        $pdfcolor = sprintf('/CS%d ', $this->spot_colors[$name]['i']);
+        $pdfcolor = sprintf('/CS%d ', $this->spotColors[$name]['i']);
         switch ($type) {
             case 'draw':
             {
@@ -3402,7 +3369,7 @@ class PDF
         }
         if ($this->xObject) {
             // we are inside an XObject template
-            $this->xObjects[$this->xObjectID]['spot_colors'][$name] = $this->spot_colors[$name];
+            $this->xObjects[$this->xObjectID]['spot_colors'][$name] = $this->spotColors[$name];
         }
         return $pdfcolor;
     }
@@ -3411,7 +3378,7 @@ class PDF
      * Defines the spot color used for all drawing operations (lines, rectangles and cell borders).
      * @param string $name Name of the spot color.
      * @param float  $tint Intensity of the color (from 0 to 100 ; 100 = full intensity by default).
-     * @see   AddSpotColor(), SetFillSpotColor(), SetTextSpotColor()
+     * @see   spotColor(), SetFillSpotColor(), SetTextSpotColor()
      */
     public function setDrawSpotColor($name, $tint = 100)
     {
@@ -3422,7 +3389,7 @@ class PDF
      * Defines the spot color used for all filling operations (filled rectangles and cell backgrounds).
      * @param string $name Name of the spot color.
      * @param float  $tint Intensity of the color (from 0 to 100 ; 100 = full intensity by default).
-     * @see   AddSpotColor(), SetDrawSpotColor(), SetTextSpotColor()
+     * @see   spotColor(), SetDrawSpotColor(), SetTextSpotColor()
      */
     public function setFillSpotColor($name, $tint = 100)
     {
@@ -3433,7 +3400,7 @@ class PDF
      * Defines the spot color used for text.
      * @param string $name Name of the spot color.
      * @param int    $tint Intensity of the color (from 0 to 100 ; 100 = full intensity by default).
-     * @see   AddSpotColor(), SetDrawSpotColor(), SetFillSpotColor()
+     * @see   spotColor(), SetDrawSpotColor(), SetFillSpotColor()
      */
     public function setTextSpotColor($name, $tint = 100)
     {
@@ -3567,7 +3534,7 @@ class PDF
             else {
                 // SPOT COLOR
                 $intcolor = ['C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4, 'name' => $name];
-                $this->AddSpotColor($name, $col1, $col2, $col3, $col4);
+                $this->spotColor($name, [$col1, $col2, $col3, $col4]);
                 $pdfcolor = $this->setSpotColor($type, $name, 100);
             }
         }
@@ -9133,7 +9100,7 @@ class PDF
                 if (isset($data['spot_colors']) and !empty($data['spot_colors'])) {
                     $out .= ' /ColorSpace <<';
                     foreach ($data['spot_colors'] as $name => $color) {
-                        $out .= ' /CS' . $color['i'] . ' ' . $this->spot_colors[$name]['n'] . ' 0 R';
+                        $out .= ' /CS' . $color['i'] . ' ' . $this->spotColors[$name]['n'] . ' 0 R';
                     }
                     $out .= ' >>';
                 }
@@ -9188,15 +9155,15 @@ class PDF
      */
     protected function _putspotcolors()
     {
-        foreach ($this->spot_colors as $name => $color) {
+        foreach ($this->spotColors as $name => $color) {
             $this->_newobj();
-            $this->spot_colors[$name]['n'] = $this->objectNumber;
-            $out                           = '[/Separation /' . str_replace(' ', '#20', $name);
-            $out                           .= ' /DeviceCMYK <<';
-            $out                           .= ' /Range [0 1 0 1 0 1 0 1] /C0 [0 0 0 0]';
-            $out                           .= ' ' . sprintf('/C1 [%F %F %F %F] ', ($color['C'] / 100), ($color['M'] / 100), ($color['Y'] / 100), ($color['K'] / 100));
-            $out                           .= ' /FunctionType 2 /Domain [0 1] /N 1>>]';
-            $out                           .= "\n" . 'endobj';
+            $this->spotColors[$name]['n'] = $this->objectNumber;
+            $out                          = '[/Separation /' . str_replace(' ', '#20', $name);
+            $out                          .= ' /DeviceCMYK <<';
+            $out                          .= ' /Range [0 1 0 1 0 1 0 1] /C0 [0 0 0 0]';
+            $out                          .= ' ' . sprintf('/C1 [%F %F %F %F] ', ($color['C'] / 100), ($color['M'] / 100), ($color['Y'] / 100), ($color['K'] / 100));
+            $out                          .= ' /FunctionType 2 /Domain [0 1] /N 1>>]';
+            $out                          .= "\n" . 'endobj';
             $this->append($out);
         }
     }
@@ -9267,9 +9234,9 @@ class PDF
             }
         }
         // spot colors
-        if (isset($this->spot_colors) and !empty($this->spot_colors)) {
+        if (isset($this->spotColors) and !empty($this->spotColors)) {
             $out .= ' /ColorSpace <<';
-            foreach ($this->spot_colors as $color) {
+            foreach ($this->spotColors as $color) {
                 $out .= ' /CS' . $color['i'] . ' ' . $color['n'] . ' 0 R';
             }
             $out .= ' >>';
@@ -12768,7 +12735,7 @@ class PDF
         if (strpos($colors, 'ALLSPOT') !== false) {
             // expand spot colors
             $spot_colors = '';
-            foreach ($this->spot_colors as $spot_color_name => $v) {
+            foreach ($this->spotColors as $spot_color_name => $v) {
                 $spot_colors .= ',' . $spot_color_name;
             }
             if (!empty($spot_colors)) {
@@ -12885,7 +12852,7 @@ class PDF
                 default:
                 { // SPECIFIC SPOT COLOR NAME
                     $col_a = [0, 0, 0, 0, 'None'];
-                    $col_b = $this->spotColor($col, $this->spot_colors);
+                    $col_b = $this->spotColor($col);
                     if ($col_b === false) {
                         // in case of error defaults to the registration color
                         $col_b = [100, 100, 100, 100, 'All'];
@@ -13804,8 +13771,8 @@ class PDF
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
-                        $this->AddSpotColor($color_name, ($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100));
-                        $color_cmd = sprintf('/CS%d cs %F scn', $this->spot_colors[$color_name]['i'], (1 - $col_t));
+                        $spotColor = $this->spotColor($color_name, [$col_c * 100, $col_m * 100, $col_y * 100, $col_k * 100]);
+                        $color_cmd = sprintf('/CS%d cs %F scn', $spotColor['i'], (1 - $col_t));
                         $this->append($color_cmd);
                     }
                     break;
@@ -13820,8 +13787,8 @@ class PDF
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
-                        $this->AddSpotColor($color_name, ($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100));
-                        $color_cmd = sprintf('/CS%d CS %F SCN', $this->spot_colors[$color_name]['i'], (1 - $col_t));
+                        $spotColor = $this->spotColor($color_name, [$col_c * 100, $col_m * 100, $col_y * 100, $col_k * 100]);
+                        $color_cmd = sprintf('/CS%d CS %F SCN', $spotColor['i'], (1 - $col_t));
                         $this->append($color_cmd);
                     }
                     break;
@@ -14750,7 +14717,7 @@ class PDF
             return [];
         }
         $border['width'] = $this->getCSSBorderWidth($width);
-        $border['color'] = $this->colorFromHTML($color, $this->spot_colors);
+        $border['color'] = $this->colorFromHTML($color, $this->spotColors);
         return $border;
     }
 
@@ -15517,14 +15484,14 @@ class PDF
                         }
                         // font color
                         if (isset($dom[$key]['style']['color']) and (!empty($dom[$key]['style']['color']))) {
-                            $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['style']['color'], $this->spot_colors);
+                            $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['style']['color'], $this->spotColors);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
                             $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                         }
                         // background color
                         if (isset($dom[$key]['style']['background-color']) and (!empty($dom[$key]['style']['background-color']))) {
-                            $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['style']['background-color'], $this->spot_colors);
+                            $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['style']['background-color'], $this->spotColors);
                         }
                         // text-decoration
                         if (isset($dom[$key]['style']['text-decoration'])) {
@@ -15572,16 +15539,16 @@ class PDF
                         if (isset($dom[$key]['style']['border-color'])) {
                             $brd_colors = preg_split('/[\s]+/', trim($dom[$key]['style']['border-color']));
                             if (isset($brd_colors[3])) {
-                                $dom[$key]['border']['L']['color'] = $this->colorFromHTML($brd_colors[3], $this->spot_colors);
+                                $dom[$key]['border']['L']['color'] = $this->colorFromHTML($brd_colors[3], $this->spotColors);
                             }
                             if (isset($brd_colors[1])) {
-                                $dom[$key]['border']['R']['color'] = $this->colorFromHTML($brd_colors[1], $this->spot_colors);
+                                $dom[$key]['border']['R']['color'] = $this->colorFromHTML($brd_colors[1], $this->spotColors);
                             }
                             if (isset($brd_colors[0])) {
-                                $dom[$key]['border']['T']['color'] = $this->colorFromHTML($brd_colors[0], $this->spot_colors);
+                                $dom[$key]['border']['T']['color'] = $this->colorFromHTML($brd_colors[0], $this->spotColors);
                             }
                             if (isset($brd_colors[2])) {
-                                $dom[$key]['border']['B']['color'] = $this->colorFromHTML($brd_colors[2], $this->spot_colors);
+                                $dom[$key]['border']['B']['color'] = $this->colorFromHTML($brd_colors[2], $this->spotColors);
                             }
                         }
                         if (isset($dom[$key]['style']['border-width'])) {
@@ -15643,7 +15610,7 @@ class PDF
                                 }
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-color'])) {
-                                $dom[$key]['border'][$bsk]['color'] = $this->colorFromHTML($dom[$key]['style']['border-' . $bsv . '-color'], $this->spot_colors);
+                                $dom[$key]['border'][$bsk]['color'] = $this->colorFromHTML($dom[$key]['style']['border-' . $bsv . '-color'], $this->spotColors);
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-width'])) {
                                 $dom[$key]['border'][$bsk]['width'] = $this->getCSSBorderWidth($dom[$key]['style']['border-' . $bsv . '-width']);
@@ -15833,18 +15800,18 @@ class PDF
                     }
                     // set foreground color attribute
                     if (isset($dom[$key]['attribute']['color']) and (!empty($dom[$key]['attribute']['color']))) {
-                        $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['color'], $this->spot_colors);
+                        $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['color'], $this->spotColors);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
                         $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                     }
                     // set background color attribute
                     if (isset($dom[$key]['attribute']['bgcolor']) and (!empty($dom[$key]['attribute']['bgcolor']))) {
-                        $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['bgcolor'], $this->spot_colors);
+                        $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['bgcolor'], $this->spotColors);
                     }
                     // set stroke color attribute
                     if (isset($dom[$key]['attribute']['strokecolor']) and (!empty($dom[$key]['attribute']['strokecolor']))) {
-                        $dom[$key]['strokecolor'] = $this->colorFromHTML($dom[$key]['attribute']['strokecolor'], $this->spot_colors);
+                        $dom[$key]['strokecolor'] = $this->colorFromHTML($dom[$key]['attribute']['strokecolor'], $this->spotColors);
                     }
                     // check for width attribute
                     if (isset($dom[$key]['attribute']['width'])) {
@@ -22308,10 +22275,10 @@ class PDF
             $this->setAlpha($svgstyle['opacity'], 'Normal', $svgstyle['opacity'], false);
         }
         // color
-        $fill_color = $this->colorFromHTML($svgstyle['color'], $this->spot_colors);
+        $fill_color = $this->colorFromHTML($svgstyle['color'], $this->spotColors);
         $this->setFillColorArray($fill_color);
         // text color
-        $text_color = $this->colorFromHTML($svgstyle['text-color'], $this->spot_colors);
+        $text_color = $this->colorFromHTML($svgstyle['text-color'], $this->spotColors);
         $this->setTextColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
@@ -22440,7 +22407,7 @@ class PDF
             }
         }
         elseif ($svgstyle['fill'] != 'none') {
-            $fill_color = $this->colorFromHTML($svgstyle['fill'], $this->spot_colors);
+            $fill_color = $this->colorFromHTML($svgstyle['fill'], $this->spotColors);
             if ($svgstyle['fill-opacity'] != 1) {
                 $this->setAlpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity'], false);
             }
@@ -22461,7 +22428,7 @@ class PDF
                 $this->setAlpha($rgba_matches[1], 'Normal', $this->alpha['ca'], false);
             }
             $stroke_style = array(
-                'color' => $this->colorFromHTML($svgstyle['stroke'], $this->spot_colors),
+                'color' => $this->colorFromHTML($svgstyle['stroke'], $this->spotColors),
                 'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
@@ -23291,7 +23258,7 @@ class PDF
                         $offset /= 100;
                     }
                 }
-                $stop_color = isset($svgstyle['stop-color']) ? $this->colorFromHTML($svgstyle['stop-color'], $this->spot_colors) : 'black';
+                $stop_color = isset($svgstyle['stop-color']) ? $this->colorFromHTML($svgstyle['stop-color'], $this->spotColors) : 'black';
                 $opacity    = isset($svgstyle['stop-opacity']) ? $svgstyle['stop-opacity'] : 1;
 
                 $this->svggradients[$this->svggradientid]['stops'][] = ['offset' => $offset, 'color' => $stop_color, 'opacity' => $opacity];

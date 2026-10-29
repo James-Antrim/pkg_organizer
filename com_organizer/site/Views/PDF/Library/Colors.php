@@ -197,6 +197,9 @@ trait Colors
         'yellowgreen'          => '9acd32'
     ];
 
+    /** User-defined spot colors. */
+    private array $spotColors = [];
+
     /**
      * Returns an array (RGB or CMYK) from a html color name, or a six-digit (i.e. #3FE5AA), or three-digit (i.e. #7FF) hexadecimal color,
      * or a javascript color array, or javascript color name.
@@ -307,8 +310,8 @@ trait Colors
             $colorCode = substr($color, 1);
         }
         else {
-            if (!isset(self::WEB_COLORS[$color]) or !$colorCode = self::$webColor[$color]) {
-                return $this->spotColor($htmlColor, $spotColors) ?: $default;
+            if (!isset(self::WEB_COLORS[$color]) or !$colorCode = self::WEB_COLORS[$color]) {
+                return $this->spotColor($htmlColor) ?: $default;
             }
         }
 
@@ -367,38 +370,63 @@ trait Colors
     }
 
     /**
-     * Getter / (implicit) setter for spot colors.
-     * @param string $name       name of the spot color for previously defined colors, otherwise a color configuration
-     * @param array  $spotColors the previously defined spot colors
-     * @return array|false Spot color array or false if not defined.
+     * Getter / setter for spot colors.
+     * @param string  $name          name of the spot color
+     * @param float[] $configuration the CMYK color definition to add
+     * @return array
      */
-    public static function spotColor(string $name, array &$spotColors): array|false
+    public function spotColor(string $name, array $configuration = []): array
     {
-        // Predefined or explicitly set color values.
-        if (isset($spotColors[$name])) {
-            return $spotColors[$name];
+        // Previously defined colors
+        if (isset($this->spotColors[$name])) {
+            return $this->spotColors[$name];
         }
 
-        // Colors defined by value.
+        // Turn the given name into a lc index for referencing pre-defined colors and storing new ones.
         $color = preg_replace('/\s*/', '', $name);
         $color = strtolower($color);
+        $new   = count($this->spotColors) + 1;
 
+        // Translates a pre-defined color => into a user-defined one
         if (isset(self::SPOT_COLORS[$color])) {
-            $i = (1 + count($spotColors));
-
-            $spotColors[$name] = [
+            $this->spotColors[$color] = [
                 'C'    => self::SPOT_COLORS[$color][0],
                 'M'    => self::SPOT_COLORS[$color][1],
                 'Y'    => self::SPOT_COLORS[$color][2],
                 'K'    => self::SPOT_COLORS[$color][3],
                 'name' => self::SPOT_COLORS[$color][4],
-                'i'    => $i
+                'i'    => $new
             ];
 
-            return $spotColors[self::SPOT_COLORS[$color][4]];
+            return $this->spotColors[$color];
         }
 
-        return false;
+        // CMYK values are the minimum
+        if (!$configuration or count($configuration) < 4) {
+            return $configuration;
+        }
+
+        $configuration = array_map('floatval', $configuration);
+
+        $this->spotColors[$color] = [
+            'C'    => $configuration[0],
+            'M'    => $configuration[1],
+            'Y'    => $configuration[2],
+            'K'    => $configuration[3],
+            'name' => $name,
+            'i'    => $new
+        ];
+
+        return $this->spotColors[$color];
+    }
+
+    /**
+     * Returns the array of user-defined spot colors.
+     * @return array
+     */
+    public function spotColors(): array
+    {
+        return $this->spotColors;
     }
 
     /**
