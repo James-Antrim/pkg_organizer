@@ -655,11 +655,6 @@ class PDF
     protected $fontlist = [];
 
     /**
-     * Current foreground color.
-     */
-    protected $fgcolor;
-
-    /**
      * HTML PARSER: array of bool values, true in case of ordered list (OL), false otherwise.
      */
     protected $listordered = [];
@@ -683,11 +678,6 @@ class PDF
      * HTML PARSER: current list indententation level.
      */
     protected $listindentlevel = 0;
-
-    /**
-     * Current background color.
-     */
-    protected $bgcolor;
 
     /**
      * Temporary font size in points.
@@ -1153,11 +1143,6 @@ class PDF
     protected $textstrokewidth = 0;
 
     /**
-     * Current stroke color.
-     */
-    protected $strokecolor;
-
-    /**
      * Default unit of measure for document.
      */
     protected $pdfunit = 'mm';
@@ -1533,10 +1518,7 @@ class PDF
         $this->encoding  = $encoding;
         $this->HREF      = [];
         $this->getFontsList();
-        $this->fgcolor     = ['R' => 0, 'G' => 0, 'B' => 0];
-        $this->strokecolor = ['R' => 0, 'G' => 0, 'B' => 0];
-        $this->bgcolor     = ['R' => 255, 'G' => 255, 'B' => 255];
-        $this->extgstates  = [];
+        $this->extgstates = [];
         $this->setTextShadow();
         // signature
         $this->sign                       = false;
@@ -3305,12 +3287,12 @@ class PDF
      * Set the color array for the specified type ('draw', 'fill', 'text').
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param string $type  Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param array  $color Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
-     * @param bool   $ret   If true do not send the PDF command.
+     * @param string $type   Type of object affected by this color: ('draw', 'fill', 'text').
+     * @param array  $color  Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
+     * @param bool   $append If true do not send the PDF command.
      * @return string The PDF command or empty string.
      */
-    public function setColorArray($type, $color, $ret = false)
+    public function setColorArray($type, $color, $append = true)
     {
         if (is_array($color)) {
             $color = array_values($color);
@@ -3325,7 +3307,7 @@ class PDF
             // color name
             $name = isset($color[4]) ? $color[4] : '';
             if ($c >= 0) {
-                return $this->setColor($type, $c, $m, $y, $k, $ret, $name);
+                return $this->color($type, $c, $m, $y, $k, $append, $name);
             }
         }
         return '';
@@ -3338,7 +3320,7 @@ class PDF
      * @param array $color Array of colors (1, 3 or 4 values).
      * @param bool  $ret   If true do not send the PDF command.
      * @return string the PDF command
-     * @see   SetDrawColor()
+     * @see   drawColor()
      */
     public function setDrawColorArray($color, $ret = false)
     {
@@ -3351,7 +3333,7 @@ class PDF
      * The method can be called before the first page is created and the value is retained from page to page.
      * @param array $color Array of colors (1, 3 or 4 values).
      * @param bool  $ret   If true do not send the PDF command.
-     * @see   SetFillColor()
+     * @see   fillColor()
      */
     public function setFillColorArray($color, $ret = false)
     {
@@ -3363,154 +3345,11 @@ class PDF
      * The method can be called before the first page is created and the value is retained from page to page.
      * @param array $color Array of colors (1, 3 or 4 values).
      * @param bool  $ret   If true do not send the PDF command.
-     * @see   SetFillColor()
+     * @see   fillColor()
      */
     public function setTextColorArray($color, $ret = false)
     {
         return $this->setColorArray('text', $color, $ret);
-    }
-
-    /**
-     * Defines the color used by the specified type ('draw', 'fill', 'text').
-     * @param string $type Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $ret  If true do not send the command.
-     * @param string $name spot color name (if any)
-     * @return string The PDF command or empty string.
-     */
-    public function setColor($type, $col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
-    {
-        // set default values
-        if (!is_numeric($col1)) {
-            $col1 = 0;
-        }
-        if (!is_numeric($col2)) {
-            $col2 = -1;
-        }
-        if (!is_numeric($col3)) {
-            $col3 = -1;
-        }
-        if (!is_numeric($col4)) {
-            $col4 = -1;
-        }
-        // set color by case
-        $suffix = '';
-        if (($col2 == -1) and ($col3 == -1) and ($col4 == -1)) {
-            // Grey scale
-            $col1     = max(0, min(255, $col1));
-            $intcolor = ['G' => $col1];
-            $pdfcolor = sprintf('%F ', ($col1 / 255));
-            $suffix   = 'g';
-        }
-        elseif ($col4 == -1) {
-            // RGB
-            $col1     = max(0, min(255, $col1));
-            $col2     = max(0, min(255, $col2));
-            $col3     = max(0, min(255, $col3));
-            $intcolor = ['R' => $col1, 'G' => $col2, 'B' => $col3];
-            $pdfcolor = sprintf('%F %F %F ', ($col1 / 255), ($col2 / 255), ($col3 / 255));
-            $suffix   = 'rg';
-        }
-        else {
-            $col1 = max(0, min(100, $col1));
-            $col2 = max(0, min(100, $col2));
-            $col3 = max(0, min(100, $col3));
-            $col4 = max(0, min(100, $col4));
-            if (empty($name)) {
-                // CMYK
-                $intcolor = ['C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4];
-                $pdfcolor = sprintf('%F %F %F %F ', ($col1 / 100), ($col2 / 100), ($col3 / 100), ($col4 / 100));
-                $suffix   = 'k';
-            }
-            else {
-                // SPOT COLOR
-                $intcolor = ['C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4, 'name' => $name];
-                $this->spotColor($name, [$col1, $col2, $col3, $col4]);
-                $pdfcolor = $this->contextColor($name, $type);
-            }
-        }
-        switch ($type) {
-            case 'draw':
-            {
-                $pdfcolor          .= strtoupper($suffix);
-                $this->drawColor   = $pdfcolor;
-                $this->strokecolor = $intcolor;
-                break;
-            }
-            case 'fill':
-            {
-                $pdfcolor        .= $suffix;
-                $this->fillColor = $pdfcolor;
-                $this->bgcolor   = $intcolor;
-                break;
-            }
-            case 'text':
-            {
-                $pdfcolor        .= $suffix;
-                $this->textColor = $pdfcolor;
-                $this->fgcolor   = $intcolor;
-                break;
-            }
-        }
-        $this->differentColors = ($this->fillColor != $this->textColor);
-        if (($type != 'text') and ($this->state === self::READY) and $type !== 0) {
-            if (!$ret) {
-                $this->append($pdfcolor);
-            }
-            return $pdfcolor;
-        }
-        return '';
-    }
-
-    /**
-     * Defines the color used for all drawing operations (lines, rectangles and cell borders). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $ret  If true do not send the command.
-     * @param string $name spot color name (if any)
-     * @return string the PDF command
-     * @see   SetDrawColorArray(), SetFillColor(), SetTextColor(), line(), Rect(), Cell(), MultiCell()
-     */
-    public function setDrawColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
-    {
-        return $this->setColor('draw', $col1, $col2, $col3, $col4, $ret, $name);
-    }
-
-    /**
-     * Defines the color used for all filling operations (filled rectangles and cell backgrounds). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $ret  If true do not send the command.
-     * @param string $name Spot color name (if any).
-     * @return string The PDF command.
-     * @see   SetFillColorArray(), SetDrawColor(), SetTextColor(), Rect(), Cell(), MultiCell()
-     */
-    public function setFillColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
-    {
-        return $this->setColor('fill', $col1, $col2, $col3, $col4, $ret, $name);
-    }
-
-    /**
-     * Defines the color used for text. It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $ret  If true do not send the command.
-     * @param string $name Spot color name (if any).
-     * @return string Empty string.
-     * @see   SetTextColorArray(), SetDrawColor(), SetFillColor(), Text(), Cell(), MultiCell()
-     */
-    public function setTextColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
-    {
-        return $this->setColor('text', $col1, $col2, $col3, $col4, $ret, $name);
     }
 
     /**
@@ -4471,7 +4310,7 @@ class PDF
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), addLink(), Ln(), MultiCell(), Write(), SetAutoPageBreak()
+     * @see   SetFont(), drawColor(), fillColor(), textColor(), lineWidth(), addLink(), Ln(), MultiCell(), Write(), SetAutoPageBreak()
      */
     public function Cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
@@ -4490,9 +4329,9 @@ class PDF
             // save data
             $x     = $this->x;
             $y     = $this->y;
-            $bc    = $this->bgcolor;
-            $fc    = $this->fgcolor;
-            $sc    = $this->strokecolor;
+            $bc    = $this->bgColor;
+            $fc    = $this->fgColor;
+            $sc    = $this->strokeColor;
             $alpha = $this->alpha;
             // print shadow
             $this->x += $this->txtshadow['depth_w'];
@@ -5304,7 +5143,7 @@ class PDF
      * @param string     $valign      Vertical alignment of text (requires $maxHeight = $h > 0). Possible values are:<ul><li>T: TOP</li><li>M: middle</li><li>B: bottom</li></ul>. This feature works only when $ishtml=false and the cell must fit in a single page.
      * @param bool       $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxHeight must be greater than 0 and equal to $h.
      * @return int Return the number of cells or 1 for html mode.
-     * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), lineWidth(), Cell(), Write(), SetAutoPageBreak()
+     * @see   SetFont(), drawColor(), fillColor(), textColor(), lineWidth(), Cell(), Write(), SetAutoPageBreak()
      */
     public function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxHeight = 0, $valign = 'T', $fitcell = false)
     {
@@ -10079,7 +9918,7 @@ class PDF
             }
         }
         // store current settings
-        $prevcolor = $this->fgcolor;
+        $prevcolor = $this->fgColor;
         $prevstyle = $this->FontStyle;
         if (empty($color)) {
             $this->setTextColorArray($this->htmlLinkColorArray);
@@ -11801,7 +11640,7 @@ class PDF
             'R' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]],
             'T' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
             'B' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]]];
-        $this->setFillColor(204);
+        $this->fillColor(204);
         $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
         --$this->objectNumber;
@@ -14593,7 +14432,7 @@ class PDF
             return [];
         }
         $border['width'] = $this->getCSSBorderWidth($width);
-        $border['color'] = $this->colorFromHTML($color, $this->spotColors);
+        $border['color'] = $this->colorFromHTML($color);
         return $border;
     }
 
@@ -15106,8 +14945,8 @@ class PDF
         $dom[$key]['clip']           = ($this->textrendermode > 3);
         $dom[$key]['line-height']    = $this->cell_height_ratio;
         $dom[$key]['bgcolor']        = false;
-        $dom[$key]['fgcolor']        = $this->fgcolor; // color
-        $dom[$key]['strokecolor']    = $this->strokecolor;
+        $dom[$key]['fgcolor']        = $this->fgColor; // color
+        $dom[$key]['strokecolor']    = $this->strokeColor;
         $dom[$key]['align']          = '';
         $dom[$key]['listtype']       = '';
         $dom[$key]['text-indent']    = 0;
@@ -15360,14 +15199,14 @@ class PDF
                         }
                         // font color
                         if (isset($dom[$key]['style']['color']) and (!empty($dom[$key]['style']['color']))) {
-                            $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['style']['color'], $this->spotColors);
+                            $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['style']['color']);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
                             $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                         }
                         // background color
                         if (isset($dom[$key]['style']['background-color']) and (!empty($dom[$key]['style']['background-color']))) {
-                            $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['style']['background-color'], $this->spotColors);
+                            $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['style']['background-color']);
                         }
                         // text-decoration
                         if (isset($dom[$key]['style']['text-decoration'])) {
@@ -15415,16 +15254,16 @@ class PDF
                         if (isset($dom[$key]['style']['border-color'])) {
                             $brd_colors = preg_split('/[\s]+/', trim($dom[$key]['style']['border-color']));
                             if (isset($brd_colors[3])) {
-                                $dom[$key]['border']['L']['color'] = $this->colorFromHTML($brd_colors[3], $this->spotColors);
+                                $dom[$key]['border']['L']['color'] = $this->colorFromHTML($brd_colors[3]);
                             }
                             if (isset($brd_colors[1])) {
-                                $dom[$key]['border']['R']['color'] = $this->colorFromHTML($brd_colors[1], $this->spotColors);
+                                $dom[$key]['border']['R']['color'] = $this->colorFromHTML($brd_colors[1]);
                             }
                             if (isset($brd_colors[0])) {
-                                $dom[$key]['border']['T']['color'] = $this->colorFromHTML($brd_colors[0], $this->spotColors);
+                                $dom[$key]['border']['T']['color'] = $this->colorFromHTML($brd_colors[0]);
                             }
                             if (isset($brd_colors[2])) {
-                                $dom[$key]['border']['B']['color'] = $this->colorFromHTML($brd_colors[2], $this->spotColors);
+                                $dom[$key]['border']['B']['color'] = $this->colorFromHTML($brd_colors[2]);
                             }
                         }
                         if (isset($dom[$key]['style']['border-width'])) {
@@ -15486,7 +15325,7 @@ class PDF
                                 }
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-color'])) {
-                                $dom[$key]['border'][$bsk]['color'] = $this->colorFromHTML($dom[$key]['style']['border-' . $bsv . '-color'], $this->spotColors);
+                                $dom[$key]['border'][$bsk]['color'] = $this->colorFromHTML($dom[$key]['style']['border-' . $bsv . '-color']);
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-width'])) {
                                 $dom[$key]['border'][$bsk]['width'] = $this->getCSSBorderWidth($dom[$key]['style']['border-' . $bsv . '-width']);
@@ -15676,18 +15515,18 @@ class PDF
                     }
                     // set foreground color attribute
                     if (isset($dom[$key]['attribute']['color']) and (!empty($dom[$key]['attribute']['color']))) {
-                        $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['color'], $this->spotColors);
+                        $dom[$key]['fgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['color']);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
                         $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                     }
                     // set background color attribute
                     if (isset($dom[$key]['attribute']['bgcolor']) and (!empty($dom[$key]['attribute']['bgcolor']))) {
-                        $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['bgcolor'], $this->spotColors);
+                        $dom[$key]['bgcolor'] = $this->colorFromHTML($dom[$key]['attribute']['bgcolor']);
                     }
                     // set stroke color attribute
                     if (isset($dom[$key]['attribute']['strokecolor']) and (!empty($dom[$key]['attribute']['strokecolor']))) {
-                        $dom[$key]['strokecolor'] = $this->colorFromHTML($dom[$key]['attribute']['strokecolor'], $this->spotColors);
+                        $dom[$key]['strokecolor'] = $this->colorFromHTML($dom[$key]['attribute']['strokecolor']);
                     }
                     // check for width attribute
                     if (isset($dom[$key]['attribute']['width'])) {
@@ -16795,7 +16634,7 @@ class PDF
                     and ($this->emptypagemrk[$this->page] == $this->pageLengths[$this->page]))) {
                     $this->setFont($fontname, $fontstyle, $fontsize);
                     if ($wfill) {
-                        $this->setFillColorArray($this->bgcolor);
+                        $this->setFillColorArray($this->bgColor);
                     }
                 }
             } // end newline
@@ -19018,7 +18857,7 @@ class PDF
         }
         if (isset($tag['bgcolor']) and ($tag['bgcolor'] !== false)) {
             // get background color
-            $old_bgcolor = $this->bgcolor;
+            $old_bgcolor = $this->bgColor;
             $this->setFillColorArray($tag['bgcolor']);
             $fill = true;
         }
@@ -19417,9 +19256,9 @@ class PDF
         }
         $size        /= $this->scaleFactor;
         $fill        = '';
-        $bgcolor     = $this->bgcolor;
-        $color       = $this->fgcolor;
-        $strokecolor = $this->strokecolor;
+        $bgcolor     = $this->bgColor;
+        $color       = $this->fgColor;
+        $strokecolor = $this->strokeColor;
         $width       = 0;
         $textitem    = '';
         $tmpx        = $this->x;
@@ -19659,8 +19498,8 @@ class PDF
             'FillColor'         => $this->fillColor,
             'TextColor'         => $this->textColor,
             'ColorFlag'         => $this->differentColors,
-            'bgcolor'           => $this->bgcolor,
-            'fgcolor'           => $this->fgcolor,
+            'bgcolor'           => $this->bgColor,
+            'fgcolor'           => $this->fgColor,
             'htmlvspace'        => $this->htmlvspace,
             'listindent'        => $this->listindent,
             'listindentlevel'   => $this->listindentlevel,
@@ -19721,8 +19560,8 @@ class PDF
         $this->fillColor         = $gvars['FillColor'];
         $this->textColor         = $gvars['TextColor'];
         $this->differentColors   = $gvars['ColorFlag'];
-        $this->bgcolor           = $gvars['bgcolor'];
-        $this->fgcolor           = $gvars['fgcolor'];
+        $this->bgColor           = $gvars['bgcolor'];
+        $this->fgColor           = $gvars['fgcolor'];
         $this->htmlvspace        = $gvars['htmlvspace'];
         $this->listindent        = $gvars['listindent'];
         $this->listindentlevel   = $gvars['listindentlevel'];
@@ -20995,7 +20834,7 @@ class PDF
             $this->txtshadow['color'] = $params['color'];
         }
         else {
-            $this->txtshadow['color'] = $this->strokecolor;
+            $this->txtshadow['color'] = $this->strokeColor;
         }
         if (isset($params['opacity'])) {
             $this->txtshadow['opacity'] = min(1, max(0, floatval($params['opacity'])));
@@ -22151,10 +21990,10 @@ class PDF
             $this->setAlpha($svgstyle['opacity'], 'Normal', $svgstyle['opacity'], false);
         }
         // color
-        $fill_color = $this->colorFromHTML($svgstyle['color'], $this->spotColors);
+        $fill_color = $this->colorFromHTML($svgstyle['color']);
         $this->setFillColorArray($fill_color);
         // text color
-        $text_color = $this->colorFromHTML($svgstyle['text-color'], $this->spotColors);
+        $text_color = $this->colorFromHTML($svgstyle['text-color']);
         $this->setTextColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
@@ -22283,7 +22122,7 @@ class PDF
             }
         }
         elseif ($svgstyle['fill'] != 'none') {
-            $fill_color = $this->colorFromHTML($svgstyle['fill'], $this->spotColors);
+            $fill_color = $this->colorFromHTML($svgstyle['fill']);
             if ($svgstyle['fill-opacity'] != 1) {
                 $this->setAlpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity'], false);
             }
@@ -22304,7 +22143,7 @@ class PDF
                 $this->setAlpha($rgba_matches[1], 'Normal', $this->alpha['ca'], false);
             }
             $stroke_style = array(
-                'color' => $this->colorFromHTML($svgstyle['stroke'], $this->spotColors),
+                'color' => $this->colorFromHTML($svgstyle['stroke']),
                 'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
@@ -23134,7 +22973,7 @@ class PDF
                         $offset /= 100;
                     }
                 }
-                $stop_color = isset($svgstyle['stop-color']) ? $this->colorFromHTML($svgstyle['stop-color'], $this->spotColors) : 'black';
+                $stop_color = isset($svgstyle['stop-color']) ? $this->colorFromHTML($svgstyle['stop-color']) : 'black';
                 $opacity    = isset($svgstyle['stop-opacity']) ? $svgstyle['stop-opacity'] : 1;
 
                 $this->svggradients[$this->svggradientid]['stops'][] = ['offset' => $offset, 'color' => $stop_color, 'opacity' => $opacity];

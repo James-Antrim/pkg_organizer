@@ -51,7 +51,7 @@ class Participation extends ListLayout
             $startX    = $view->GetX();
             $startY    = $view->GetY();
 
-            $view->SetFillColor(225);
+            $view->fillColor(225);
             foreach (array_keys($this->headers) as $columnName) {
                 $value  = $columnName === 'grouping' ? $organization : $programs['participants'];
                 $length = $view->renderMultiCell($this->widths[$columnName], 5, $value, $view::LEFT, $view::NONE, true);
@@ -60,7 +60,7 @@ class Participation extends ListLayout
                     $maxLength = $length;
                 }
             }
-            $view->SetFillColor(255);
+            $view->fillColor(255);
 
             $view->reposition($startX, $startY);
 

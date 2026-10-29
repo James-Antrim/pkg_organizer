@@ -291,13 +291,13 @@ trait WebTools
         // fillColor: Specifies the background color for a field.
         if (isset($properties['fillColor'])) {
             $annotations['mk']['bg'] = is_array($properties['fillColor']) ?
-                $properties['fillColor'] : $this->colorFromHTML($properties['fillColor'], $this->spotColors);
+                $properties['fillColor'] : $this->colorFromHTML($properties['fillColor']);
         }
 
         // strokeColor: Specifies the stroke color for a field that is used to stroke the rectangle of the field with a line as large as the line width.
         if (isset($properties['strokeColor'])) {
             $annotations['mk']['bc'] = is_array($properties['strokeColor']) ?
-                $properties['strokeColor'] : $this->colorFromHTML($properties['strokeColor'], $this->spotColors);
+                $properties['strokeColor'] : $this->colorFromHTML($properties['strokeColor']);
         }
 
         // rotation: The rotation of a widget in counterclockwise increments.

@@ -75,7 +75,7 @@ abstract class ListLayout extends BaseLayout
         $view->AddPage();
 
         // create the column headers for the page
-        $view->SetFillColor(210);
+        $view->fillColor(210);
         $view->resize(10);
         $columns = array_keys($this->headers);
         $initial = reset($columns);
@@ -99,7 +99,7 @@ abstract class ListLayout extends BaseLayout
         $view->Ln();
 
         // reset styles
-        $view->SetFillColor(255);
+        $view->fillColor(255);
         $view->resize(8);
     }
 }
