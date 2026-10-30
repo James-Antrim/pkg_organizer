@@ -17,7 +17,7 @@ trait WebTools
 {
     private string $javascript = '';
     /** Javascript counter added to the document code. */
-    private string $javascriptCounter = '';
+    protected string $javascriptCounter = '';
     private array $javascriptObjects = [];
 
     /**
