@@ -107,7 +107,7 @@ class MVCFactory extends Core
     {
         $format = strtoupper(Input::format());
         $view   = "THM\Organizer\Views\\$format\\" . Application::ucClass($name);
-        $view   = new $view($config);
+        $view   = $format === 'PDF' ? new $view() : new $view($config);
         $this->addDispatcher($view);
         $this->addFormFactory($view);
 

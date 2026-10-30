@@ -1422,11 +1422,10 @@ class PDF
      * @param mixed         $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool          $unicode     TRUE means that the input text is Unicode (default = true)
      * @param string        $encoding    Charset encoding (used only when converting back html entities); default is UTF-8.
-     * @param bool          $diskcache   DEPRECATED FEATURE
      * @param false|integer $pdfa        If not false, set the document to PDF/A mode and the good version (1 or 3).
      * @see getPageSizeFromFormat(), setPageFormat()
      */
-    public function __construct($orientation = 'P', $unit = 'mm', $format = 'A4', $unicode = true, $encoding = 'UTF-8', $diskcache = false, $pdfa = false)
+    public function __construct(string $orientation = 'P', string $unit = 'mm', array|string $format = 'A4', bool $unicode = true, string $encoding = 'UTF-8', bool|int $pdfa = false)
     {
         // set file ID for trailer
         $serformat          = (is_array($format) ? json_encode($format) : $format);
