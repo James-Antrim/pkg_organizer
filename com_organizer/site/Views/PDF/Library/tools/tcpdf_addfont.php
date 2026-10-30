@@ -1,8 +1,18 @@
-#!/usr/bin/env php
 <?php
+/**
+ * @package     Organizer
+ * @extension   com_organizer
+ * @author      James Antrim, <james.antrim@nm.thm.de>
+ * @copyright   2026 TH Mittelhessen
+ * @license     GNU GPL v.3
+ * @link        www.thm.de
+ * @see         TCPDF (http://www.tcpdf.org) => Nicola Asuni
+ * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
+ */
 
 use THM\Organizer\Views\PDF\Library\Fonts;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 //============================================================+
 // File name   : tcpdf_addfont.php
 // Version     : 1.0.002
