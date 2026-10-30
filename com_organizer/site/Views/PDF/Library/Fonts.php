@@ -17,6 +17,9 @@ trait Fonts
 {
     private string $fontPath = JPATH_SITE . '/components/com_organizer/Views/PDF/Library/Fonts/';
 
+    /** Cache used for speed up unicode ord performances. */
+    private array $utf8Map = [];
+
     /**
      * Return font full path
      * @param string $file    Font file name.
@@ -36,11 +39,6 @@ trait Fonts
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
-
-    /**
-     * Static cache used for speed up uniord performances
-     */
-    protected static $cache_uniord = [];
 
     /**
      * Returs the checksum of a TTF table.
@@ -995,10 +993,10 @@ trait Fonts
      */
     public static function uniord($uch)
     {
-        if (!isset(self::$cache_uniord[$uch])) {
-            self::$cache_uniord[$uch] = self::getUniord($uch);
+        if (!isset(self::$utf8Map[$uch])) {
+            self::$utf8Map[$uch] = self::getUniord($uch);
         }
-        return self::$cache_uniord[$uch];
+        return self::$utf8Map[$uch];
     }
 
     /**
