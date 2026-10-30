@@ -13,8 +13,28 @@
 namespace THM\Organizer\Views\PDF\Library;
 
 /** Unicode data and font methods. */
-class Fonts
+trait Fonts
 {
+    private string $fontPath = JPATH_SITE . '/components/com_organizer/Views/PDF/Library/Fonts/';
+
+    /**
+     * Return font full path
+     * @param string $file    Font file name.
+     * @return string Font full path or empty string
+     */
+    public function fontPath(string $file): string
+    {
+        $fontPath = '';
+        if (StaticMethods::fileExists($this->fontPath . $file)) {
+            $fontPath = $this->fontPath . $file;
+        }
+        elseif (StaticMethods::fileExists($file)) {
+            $fontPath = $file;
+        }
+
+        return $fontPath;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
 
     /**
@@ -634,44 +654,6 @@ class Fonts
             $map[(($cid * 2) + 1)] = chr($gid & 0xFF);
         }
         return $map;
-    }
-
-    /**
-     * Return fonts path
-     * @return string
-     */
-    public static function _getfontpath()
-    {
-        if (!defined('K_PATH_FONTS') and is_dir($fdir = realpath(dirname(__FILE__) . '/../fonts'))) {
-            if (substr($fdir, -1) != '/') {
-                $fdir .= '/';
-            }
-            define('K_PATH_FONTS', $fdir);
-        }
-        return defined('K_PATH_FONTS') ? K_PATH_FONTS : '';
-    }
-
-
-    /**
-     * Return font full path
-     * @param string $file    Font file name.
-     * @param string $fontdir Font directory (set to false fto search on default directories)
-     * @return string Font full path or empty string
-     */
-    public static function getFontFullPath($file, $fontdir = false)
-    {
-        $fontfile = '';
-        // search files on various directories
-        if (($fontdir !== false) and StaticMethods::fileExists($fontdir . $file)) {
-            $fontfile = $fontdir . $file;
-        }
-        elseif (StaticMethods::fileExists(self::_getfontpath() . $file)) {
-            $fontfile = self::_getfontpath() . $file;
-        }
-        elseif (StaticMethods::fileExists($file)) {
-            $fontfile = $file;
-        }
-        return $fontfile;
     }
 
 

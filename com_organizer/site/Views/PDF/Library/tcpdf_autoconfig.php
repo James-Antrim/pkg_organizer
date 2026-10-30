@@ -72,10 +72,6 @@ if (!defined('K_PATH_MAIN')) {
     define('K_PATH_MAIN', dirname(__FILE__) . '/');
 }
 
-if (!defined('K_PATH_FONTS')) {
-    define('K_PATH_FONTS', K_PATH_MAIN . 'fonts/');
-}
-
 if (!defined('K_PATH_URL')) {
     $k_path_url = K_PATH_MAIN; // default value for console mode
     if (isset($_SERVER['HTTP_HOST']) and (!empty($_SERVER['HTTP_HOST']))) {
