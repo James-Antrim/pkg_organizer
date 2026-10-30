@@ -548,7 +548,7 @@ trait Colors
      * Convert color to javascript color.
      * @param string $color color name or "#RRGGBB"
      */
-    private function colorToJavascript(string $color): string
+    public function colorToJavascript(string $color): string
     {
         if (str_starts_with($color, '#')) {
             $blue  = hexdec(substr($color, 5, 2)) / 255;
@@ -691,7 +691,7 @@ trait Colors
      */
     public function fillSpotColor(string $color, float $tint = 100): string
     {
-        return $this->contextColor($color, 'fill');
+        return $this->contextColor($color, 'fill',$tint);
     }
 
     /**
