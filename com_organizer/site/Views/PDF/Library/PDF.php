@@ -3109,7 +3109,7 @@ class PDF
      */
     public function GetStringWidth($s, $fontname = '', $fontstyle = '', $fontsize = 0, $getarray = false)
     {
-        return $this->GetArrStringWidth(Fonts::utf8Bidi(Fonts::UTF8StringToArray($s, $this->isUnicode, $this->CurrentFont), $s, $this->tmprtl, $this->isUnicode, $this->CurrentFont), $fontname, $fontstyle, $fontsize, $getarray);
+        return $this->GetArrStringWidth(Fonts::utf8Bidi($this->utf8StringToArray($s, $this->isUnicode, $this->CurrentFont), $s, $this->tmprtl, $this->isUnicode, $this->CurrentFont), $fontname, $fontstyle, $fontsize, $getarray);
     }
 
     /**
@@ -3210,7 +3210,7 @@ class PDF
     public function GetNumChars($s)
     {
         if ($this->isUnicodeFont()) {
-            return count(Fonts::UTF8StringToArray($s, $this->isUnicode, $this->CurrentFont));
+            return count($this->utf8StringToArray($s, $this->isUnicode, $this->CurrentFont));
         }
         return strlen($s);
     }
@@ -3688,7 +3688,7 @@ class PDF
     {
         if (is_string($char)) {
             // get character code
-            $char = Fonts::UTF8StringToArray($char, $this->isUnicode, $this->CurrentFont);
+            $char = $this->utf8StringToArray($char, $this->isUnicode, $this->CurrentFont);
             $char = $char[0];
         }
         if (empty($font)) {
@@ -3720,7 +3720,7 @@ class PDF
         }
         $fontdata = $this->AddFont($font, $style);
         $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
-        $uniarr   = Fonts::UTF8StringToArray($text, $this->isUnicode, $this->CurrentFont);
+        $uniarr   = $this->utf8StringToArray($text, $this->isUnicode, $this->CurrentFont);
         foreach ($uniarr as $k => $chr) {
             if (!isset($fontinfo['cw'][$chr])) {
                 // this character is missing on the selected font
@@ -4286,10 +4286,10 @@ class PDF
             $txt2 = $txt;
             if ($this->isUnicode) {
                 if (($this->CurrentFont['type'] == 'core') or ($this->CurrentFont['type'] == 'TrueType') or ($this->CurrentFont['type'] == 'Type1')) {
-                    $txt2 = Fonts::UTF8ToLatin1($txt2, $this->isUnicode, $this->CurrentFont);
+                    $txt2 = Fonts::utf8ToLatin1($txt2, $this->isUnicode, $this->CurrentFont);
                 }
                 else {
-                    $unicode = Fonts::UTF8StringToArray($txt, $this->isUnicode, $this->CurrentFont); // array of UTF-8 Unicode values
+                    $unicode = $this->utf8StringToArray($txt, $this->isUnicode, $this->CurrentFont); // array of UTF-8 Unicode values
                     $unicode = Fonts::utf8Bidi($unicode, '', $this->tmprtl, $this->isUnicode, $this->CurrentFont);
                     // replace thai chars (if any)
                     if (defined('K_THAI_TOPCHARS') and (K_THAI_TOPCHARS == true)) {
@@ -5286,7 +5286,7 @@ class PDF
         }
         $lines         = 1;
         $sum           = 0;
-        $chars         = Fonts::utf8Bidi(Fonts::UTF8StringToArray($txt, $this->isUnicode, $this->CurrentFont), $txt, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+        $chars         = Fonts::utf8Bidi($this->utf8StringToArray($txt, $this->isUnicode, $this->CurrentFont), $txt, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
         $charsWidth    = $this->GetArrStringWidth($chars, '', '', 0, true);
         $length        = count($chars);
         $lastSeparator = -1;
@@ -5440,7 +5440,7 @@ class PDF
         // get a char width
         $chrwidth = $this->GetCharWidth(46); // dot character
         // get array of Unicode values
-        $chars = Fonts::UTF8StringToArray($s, $this->isUnicode, $this->CurrentFont);
+        $chars = $this->utf8StringToArray($s, $this->isUnicode, $this->CurrentFont);
         // calculate maximum width for a single character on string
         $chrw = $this->GetArrStringWidth($chars, '', '', 0, true);
         array_walk($chrw, [$this, 'getRawCharWidth']);
@@ -6994,10 +6994,10 @@ class PDF
         $u            = '{' . $a . '}';
         $alias['u'][] = StaticMethods::escape($u);
         if ($this->isUnicode) {
-            $alias['u'][] = StaticMethods::escape(Fonts::UTF8ToLatin1($u, $this->isUnicode, $this->CurrentFont));
-            $alias['u'][] = StaticMethods::escape(Fonts::utf8StrRev($u, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
-            $alias['a'][] = StaticMethods::escape(Fonts::UTF8ToLatin1($a, $this->isUnicode, $this->CurrentFont));
-            $alias['a'][] = StaticMethods::escape(Fonts::utf8StrRev($a, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['u'][] = StaticMethods::escape(Fonts::utf8ToLatin1($u, $this->isUnicode, $this->CurrentFont));
+            $alias['u'][] = StaticMethods::escape(Fonts::utf8StringReverse($u, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['a'][] = StaticMethods::escape(Fonts::utf8ToLatin1($a, $this->isUnicode, $this->CurrentFont));
+            $alias['a'][] = StaticMethods::escape(Fonts::utf8StringReverse($a, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
         }
         $alias['a'][] = StaticMethods::escape($a);
         return $alias;
@@ -7050,7 +7050,7 @@ class PDF
                     if ($type == 'u') {
                         $chrdiff = floor(($diff + 12) * $ratio);
                         $shift   = str_repeat(' ', $chrdiff);
-                        $shift   = Fonts::UTF8ToUTF16BE($shift, false, $this->isUnicode, $this->CurrentFont);
+                        $shift   = Fonts::utf8ToUTF16BE($shift, false, $this->isUnicode, $this->CurrentFont);
                     }
                     else {
                         $chrdiff = floor(($diff + 11) * $ratio);
@@ -7087,7 +7087,7 @@ class PDF
         $pnalias       = $this->getAllInternalPageNumberAliases();
         $num_pages     = $this->numpages;
         $ptpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $num_pages - 1));
-        $ptpu          = Fonts::UTF8ToUTF16BE($ptpa, false, $this->isUnicode, $this->CurrentFont);
+        $ptpu          = Fonts::utf8ToUTF16BE($ptpa, false, $this->isUnicode, $this->CurrentFont);
         $ptp_num_chars = $this->GetNumChars($ptpa);
         $pagegroupnum  = 0;
         $groupnum      = 0;
@@ -7100,7 +7100,7 @@ class PDF
             $pagelen  = strlen($tempPage);
             // set replacements for total pages number
             $pnpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $n - 1));
-            $pnpu          = Fonts::UTF8ToUTF16BE($pnpa, false, $this->isUnicode, $this->CurrentFont);
+            $pnpu          = Fonts::utf8ToUTF16BE($pnpa, false, $this->isUnicode, $this->CurrentFont);
             $pnp_num_chars = $this->GetNumChars($pnpa);
             $pdiff         = 0; // difference used for right shift alignment of page numbers
             $gdiff         = 0; // difference used for right shift alignment of page group numbers
@@ -7109,12 +7109,12 @@ class PDF
                     $pagegroupnum = 0;
                     ++$groupnum;
                     $ptga          = StaticMethods::formatPageNumber($this->pagegroups[$groupnum]);
-                    $ptgu          = Fonts::UTF8ToUTF16BE($ptga, false, $this->isUnicode, $this->CurrentFont);
+                    $ptgu          = Fonts::utf8ToUTF16BE($ptga, false, $this->isUnicode, $this->CurrentFont);
                     $ptg_num_chars = $this->GetNumChars($ptga);
                 }
                 ++$pagegroupnum;
                 $pnga          = StaticMethods::formatPageNumber($pagegroupnum);
-                $pngu          = Fonts::UTF8ToUTF16BE($pnga, false, $this->isUnicode, $this->CurrentFont);
+                $pngu          = Fonts::utf8ToUTF16BE($pnga, false, $this->isUnicode, $this->CurrentFont);
                 $png_num_chars = $this->GetNumChars($pnga);
                 // replace page numbers
                 $replace   = [];
@@ -9453,7 +9453,7 @@ class PDF
     {
         if ($this->isUnicode) {
             //Convert string to UTF-16BE
-            $s = Fonts::UTF8ToUTF16BE($s, true, $this->isUnicode, $this->CurrentFont);
+            $s = Fonts::utf8ToUTF16BE($s, true, $this->isUnicode, $this->CurrentFont);
         }
         return $this->_datastring($s, $n);
     }
@@ -9886,7 +9886,7 @@ class PDF
     protected function _fixAES256Password($password)
     {
         $psw       = ''; // password to be returned
-        $psw_array = Fonts::utf8Bidi(Fonts::UTF8StringToArray($password, $this->isUnicode, $this->CurrentFont), $password, $this->rtl, $this->isUnicode, $this->CurrentFont);
+        $psw_array = Fonts::utf8Bidi($this->utf8StringToArray($password, $this->isUnicode, $this->CurrentFont), $password, $this->rtl, $this->isUnicode, $this->CurrentFont);
         foreach ($psw_array as $c) {
             $psw .= Fonts::unichr($c, $this->isUnicode);
         }
@@ -19942,15 +19942,15 @@ class PDF
                         $np = $n;
                     }
                     $na = StaticMethods::formatTOCPageNumber(($this->starting_page_number + $np - 1));
-                    $nu = Fonts::UTF8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
+                    $nu = Fonts::utf8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
                     // replace aliases with numbers
                     foreach ($pnalias['u'] as $u) {
                         $sfill = str_repeat($filler, max(0, (strlen($u) - strlen($nu . ' '))));
                         if ($this->rtl) {
-                            $nr = $nu . Fonts::UTF8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
+                            $nr = $nu . Fonts::utf8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
                         }
                         else {
-                            $nr = Fonts::UTF8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
+                            $nr = Fonts::utf8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
                         }
                         $tempPage = str_replace($u, $nr, $tempPage);
                     }
@@ -20080,16 +20080,16 @@ class PDF
                         $np = $n;
                     }
                     $na = StaticMethods::formatTOCPageNumber(($this->starting_page_number + $np - 1));
-                    $nu = Fonts::UTF8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
+                    $nu = Fonts::utf8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
                     // replace aliases with numbers
                     foreach ($pnalias['u'] as $u) {
                         if ($correct_align) {
                             $sfill = str_repeat($filler, (strlen($u) - strlen($nu . ' ')));
                             if ($this->rtl) {
-                                $nr = $nu . Fonts::UTF8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
+                                $nr = $nu . Fonts::utf8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
                             }
                             else {
-                                $nr = Fonts::UTF8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
+                                $nr = Fonts::utf8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
                             }
                         }
                         else {
@@ -20496,7 +20496,7 @@ class PDF
             return $word;
         }
         if (isset($dictionary[$word_string])) {
-            return Fonts::UTF8StringToArray($dictionary[$word_string], $this->isUnicode, $this->CurrentFont);
+            return $this->utf8StringToArray($dictionary[$word_string], $this->isUnicode, $this->CurrentFont);
         }
         // surround word with '_' characters
         $tmpword     = array_merge([46], $word, [46]);
@@ -20507,7 +20507,7 @@ class PDF
             for ($i = 1; $i <= $imax; ++$i) {
                 $subword = strtolower(Fonts::UTF8ArrSubString($tmpword, $pos, ($pos + $i), $this->isUnicode));
                 if (isset($patterns[$subword])) {
-                    $pattern        = Fonts::UTF8StringToArray($patterns[$subword], $this->isUnicode, $this->CurrentFont);
+                    $pattern        = $this->utf8StringToArray($patterns[$subword], $this->isUnicode, $this->CurrentFont);
                     $pattern_length = count($pattern);
                     $digits         = 1;
                     for ($j = 0; $j < $pattern_length; ++$j) {
@@ -20566,7 +20566,7 @@ class PDF
             $patterns = StaticMethods::getHyphenPatternsFromTEX($patterns);
         }
         // get array of characters
-        $unichars = Fonts::UTF8StringToArray($text, $this->isUnicode, $this->CurrentFont);
+        $unichars = $this->utf8StringToArray($text, $this->isUnicode, $this->CurrentFont);
         // for each char
         foreach ($unichars as $char) {
             if ((!$intag) and (!$skip) and FontData::$types[$char] == 'L') {

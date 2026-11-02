@@ -22,7 +22,7 @@ trait Fonts
 
     /**
      * Return font full path
-     * @param string $file    Font file name.
+     * @param string $file Font file name.
      * @return string Font full path or empty string
      */
     public function fontPath(string $file): string
@@ -36,6 +36,167 @@ trait Fonts
         }
 
         return $fontPath;
+    }
+
+    /**
+     * Converts UTF-8 character to integer value.
+     * @param string $character character string to process.
+     * @return int
+     */
+    private function unicodeOrd(string $character): int
+    {
+        if (isset($this->utf8Map[$character])) {
+            return $this->utf8Map[$character];
+        }
+
+        if (function_exists('mb_convert_encoding')) {
+            list(, $value) = @unpack('N', mb_convert_encoding($character, 'UCS-4BE', 'UTF-8'));
+            if ($value >= 0) {
+                $this->utf8Map[$character] = $value;
+                return $value;
+            }
+        }
+
+        // Replacement character
+        $byte   = 0xFFFD;
+        $bytes  = [];
+        $length = strlen($character);
+
+        $countedBytes = 0;
+        $neededBytes  = 1;
+
+        for ($outer = 0; $outer < $length; ++$outer) {
+
+            // get one character byte at time
+            $byte = ord($character[$outer]);
+
+            // first byte
+            if ($countedBytes === 0) {
+                // ASCII, only one byte
+                if ($byte <= 0x7F) {
+                    break;
+                }
+
+                // 2 bytes character (0x06 = 110 BIN)
+                if (($byte >> 0x05) === 0x06) {
+                    $bytes[] = ($byte - 0xC0) << 0x06;
+                    ++$countedBytes;
+                    $neededBytes = 2;
+                }
+                // 3 bytes character (0x0E = 1110 BIN)
+                elseif (($byte >> 0x04) == 0x0E) {
+                    $bytes[] = ($byte - 0xE0) << 0x0C;
+                    ++$countedBytes;
+                    $neededBytes = 3;
+                }
+                // 4 bytes character (0x1E = 11110 BIN)
+                elseif (($byte >> 0x03) == 0x1E) {
+                    $bytes[] = ($byte - 0xF0) << 0x12;
+                    ++$countedBytes;
+                    $neededBytes = 4;
+                }
+                // Invalid
+                else {
+                    $byte = 0xFFFD;
+                    break;
+                }
+            }
+            // bytes 2, 3 and 4 must start with 0x02 = 10 BIN
+            elseif (($byte >> 0x06) === 0x02) {
+
+                $bytes[] = $byte - 0x80;
+                ++$countedBytes;
+
+                if ($countedBytes === $neededBytes) {
+
+                    // compose UTF-8 bytes to a single Unicode value
+                    $byte = $bytes[0];
+                    for ($inner = 1; $inner < $neededBytes; ++$inner) {
+                        $byte += ($bytes[$inner] << (($neededBytes - $inner - 1) * 0x06));
+                    }
+
+                    // Invalid or done
+                    $byte = (($byte >= 0xD800 and $byte <= 0xDFFF) or $byte >= 0x10FFFF) ? 0xFFFD : $byte;
+                    break;
+                }
+            }
+            // Invalid
+            else {
+                $byte = 0xFFFD;
+                break;
+            }
+        }
+
+        $this->utf8Map[$character] = $byte;
+        return $byte;
+    }
+
+    /**
+     * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
+     * @param string  $string
+     * @param bool    $setBOM   if true set the Byte Order Mark (BOM = 0xFEFF)
+     * @param bool    $forceRTL if true forces RTL text direction
+     * @param bool    $isUnicode
+     * @param array  &$currentFont
+     * @return string
+     */
+    public function utf8StringReverse(string $string, bool $setBOM, bool $forceRTL, bool $isUnicode, array &$currentFont): string
+    {
+        return self::utf8StrArrRev($this->utf8StringToArray($string, $isUnicode, $currentFont), $string, $setBOM, $forceRTL, $isUnicode, $currentFont);
+    }
+
+    /**
+     * Converts UTF-8 strings to codepoints (character values) array. Invalid byte sequences will be replaced with 0xFFFD (replacement character).
+     * @param string  $string
+     * @param bool    $isUnicode
+     * @param array  &$currentFont Reference to current font array.
+     * @return array
+     */
+    public function utf8StringToArray(string $string, bool $isUnicode, array &$currentFont): array
+    {
+        if ($isUnicode) {
+            $chars = preg_split('//u', $string);
+            $carr  = array_map([$this, 'unicodeOrd'], $chars);
+        }
+        else {
+            $chars = str_split($string);
+            $carr  = array_map('ord', $chars);
+        }
+
+        $currentFont['subsetchars'] = is_array($currentFont['subsetchars']) ?
+            $currentFont['subsetchars'] + array_fill_keys($carr, true) : array_merge($currentFont['subsetchars'], $carr);
+        return $carr;
+    }
+
+    /**
+     * Converts UTF-8 strings to Latin1 strings when using the standard 14 core fonts.
+     * @param string  $string
+     * @param bool    $isUnicode
+     * @param array  &$currentFont
+     * @return string
+     */
+    public function utf8ToLatin1(string $string, bool $isUnicode, array &$currentFont): string
+    {
+        $unicode = $this->utf8StringToArray($string, $isUnicode, $currentFont); // array containing UTF-8 Unicode values
+        return self::UTF8ArrToLatin1($unicode);
+    }
+
+    /**
+     * Converts UTF-8 strings to UTF16-BE string.
+     * @param string  $string
+     * @param bool    $setBOM if true set the Byte Order Mark (BOM = 0xFEFF)
+     * @param bool    $isUnicode
+     * @param array  &$currentFont
+     * @return string
+     */
+    public function utf8ToUTF16BE(string $string, bool $setBOM, bool $isUnicode, array &$currentFont): string
+    {
+        if (!$isUnicode) {
+            return $string;
+        }
+
+        $unicode = $this->utf8StringToArray($string, true, $currentFont);
+        return self::arrUTF8ToUTF16BE($unicode, $setBOM);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
@@ -713,45 +874,6 @@ trait Fonts
         return $size;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ====================================================================================================================
 // REIMPLEMENTED
 // ====================================================================================================================
@@ -983,191 +1105,6 @@ trait Fonts
             }
         }
         return $outstr;
-    }
-
-    /**
-     * Converts UTF-8 character to integer value.<br>
-     * Uses the getUniord() method if the value is not cached.
-     * @param string $uch character string to process.
-     * @return int Unicode value
-     */
-    public static function uniord($uch)
-    {
-        if (!isset(self::$utf8Map[$uch])) {
-            self::$utf8Map[$uch] = self::getUniord($uch);
-        }
-        return self::$utf8Map[$uch];
-    }
-
-    /**
-     * Converts UTF-8 character to integer value.<br>
-     * Invalid byte sequences will be replaced with 0xFFFD (replacement character)<br>
-     * Based on: http://www.faqs.org/rfcs/rfc3629.html
-     * <pre>
-     *    Char. number range  |        UTF-8 octet sequence
-     *       (hexadecimal)    |              (binary)
-     *    --------------------+-----------------------------------------------
-     *    0000 0000-0000 007F | 0xxxxxxx
-     *    0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-     *    0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-     *    0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-     *    ---------------------------------------------------------------------
-     *
-     *   ABFN notation:
-     *   ---------------------------------------------------------------------
-     *   UTF8-octets = *( UTF8-char )
-     *   UTF8-char   = UTF8-1 / UTF8-2 / UTF8-3 / UTF8-4
-     *   UTF8-1      = %x00-7F
-     *   UTF8-2      = %xC2-DF UTF8-tail
-     *
-     *   UTF8-3      = %xE0 %xA0-BF UTF8-tail / %xE1-EC 2( UTF8-tail ) /
-     *                 %xED %x80-9F UTF8-tail / %xEE-EF 2( UTF8-tail )
-     *   UTF8-4      = %xF0 %x90-BF 2( UTF8-tail ) / %xF1-F3 3( UTF8-tail ) /
-     *                 %xF4 %x80-8F 2( UTF8-tail )
-     *   UTF8-tail   = %x80-BF
-     *   ---------------------------------------------------------------------
-     * </pre>
-     * @param string $uch character string to process.
-     * @return int Unicode value
-     */
-    public static function getUniord($uch)
-    {
-        if (function_exists('mb_convert_encoding')) {
-            list(, $char) = @unpack('N', mb_convert_encoding($uch, 'UCS-4BE', 'UTF-8'));
-            if ($char >= 0) {
-                return $char;
-            }
-        }
-        $bytes      = []; // array containing single character byte sequences
-        $countbytes = 0;
-        $numbytes   = 1; // number of octetc needed to represent the UTF-8 character
-        $length     = strlen($uch);
-        for ($i = 0; $i < $length; ++$i) {
-            $char = ord($uch[$i]); // get one string character at time
-            if ($countbytes == 0) { // get starting octect
-                if ($char <= 0x7F) {
-                    return $char; // use the character "as is" because is ASCII
-                }
-                elseif (($char >> 0x05) == 0x06) { // 2 bytes character (0x06 = 110 BIN)
-                    $bytes[] = ($char - 0xC0) << 0x06;
-                    ++$countbytes;
-                    $numbytes = 2;
-                }
-                elseif (($char >> 0x04) == 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
-                    $bytes[] = ($char - 0xE0) << 0x0C;
-                    ++$countbytes;
-                    $numbytes = 3;
-                }
-                elseif (($char >> 0x03) == 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
-                    $bytes[] = ($char - 0xF0) << 0x12;
-                    ++$countbytes;
-                    $numbytes = 4;
-                }
-                else {
-                    // use replacement character for other invalid sequences
-                    return 0xFFFD;
-                }
-            }
-            elseif (($char >> 0x06) == 0x02) { // bytes 2, 3 and 4 must start with 0x02 = 10 BIN
-                $bytes[] = $char - 0x80;
-                ++$countbytes;
-                if ($countbytes == $numbytes) {
-                    // compose UTF-8 bytes to a single Unicode value
-                    $char = $bytes[0];
-                    for ($j = 1; $j < $numbytes; ++$j) {
-                        $char += ($bytes[$j] << (($numbytes - $j - 1) * 0x06));
-                    }
-                    if ((($char >= 0xD800) and ($char <= 0xDFFF)) or ($char >= 0x10FFFF)) {
-                        // The definition of UTF-8 prohibits encoding character numbers between
-                        // U+D800 and U+DFFF, which are reserved for use with the UTF-16
-                        // encoding form (as surrogate pairs) and do not directly represent
-                        // characters.
-                        return 0xFFFD; // use replacement character
-                    }
-                    else {
-                        return $char;
-                    }
-                }
-            }
-            else {
-                // use replacement character for other invalid sequences
-                return 0xFFFD;
-            }
-        }
-        return 0xFFFD;
-    }
-
-    /**
-     * Converts UTF-8 strings to codepoints array.<br>
-     * Invalid byte sequences will be replaced with 0xFFFD (replacement character)<br>
-     * @param string $str         string to process.
-     * @param bool   $isUnicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array  $currentfont Reference to current font array.
-     * @return array containing codepoints (UTF-8 characters values)
-     */
-    public static function UTF8StringToArray($str, $isUnicode, &$currentfont)
-    {
-        $str = is_null($str) ? '' : $str;
-        if ($isUnicode) {
-            // requires PCRE Unicode support turned on
-            $chars = preg_split('//u', $str);
-            $carr  = array_map(get_called_class() . '::uniord', $chars);
-        }
-        else {
-            $chars = str_split($str);
-            $carr  = array_map('ord', $chars);
-        }
-        if (is_array($currentfont['subsetchars']) && is_array($carr)) {
-            $currentfont['subsetchars'] += array_fill_keys($carr, true);
-        }
-        else {
-            $currentfont['subsetchars'] = array_merge($currentfont['subsetchars'], $carr);
-        }
-        return $carr;
-    }
-
-    /**
-     * Converts UTF-8 strings to Latin1 when using the standard 14 core fonts.<br>
-     * @param string $str         string to process.
-     * @param bool   $isUnicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array  $currentfont Reference to current font array.
-     * @return string
-     */
-    public static function UTF8ToLatin1($str, $isUnicode, &$currentfont)
-    {
-        $unicode = self::UTF8StringToArray($str, $isUnicode, $currentfont); // array containing UTF-8 Unicode values
-        return self::UTF8ArrToLatin1($unicode);
-    }
-
-    /**
-     * Converts UTF-8 strings to UTF16-BE.<br>
-     * @param string $str         string to process.
-     * @param bool   $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool   $isUnicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array  $currentfont Reference to current font array.
-     * @return string
-     */
-    public static function UTF8ToUTF16BE($str, $setbom, $isUnicode, &$currentfont)
-    {
-        if (!$isUnicode) {
-            return $str; // string is not in Unicode
-        }
-        $unicode = self::UTF8StringToArray($str, $isUnicode, $currentfont); // array containing UTF-8 Unicode values
-        return self::arrUTF8ToUTF16BE($unicode, $setbom);
-    }
-
-    /**
-     * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param string $str         string to manipulate.
-     * @param bool   $setbom      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool   $forcertl    if true forces RTL text direction
-     * @param bool   $isUnicode   True if the document is in Unicode mode, false otherwise.
-     * @param array  $currentfont Reference to current font array.
-     * @return string
-     */
-    public static function utf8StrRev($str, $setbom, $forcertl, $isUnicode, &$currentfont)
-    {
-        return self::utf8StrArrRev(self::UTF8StringToArray($str, $isUnicode, $currentfont), $str, $setbom, $forcertl, $isUnicode, $currentfont);
     }
 
     /**
