@@ -88,7 +88,7 @@ abstract class ListLayout extends BaseLayout
                 $font   = $view->getFontFamily();
                 $header = (int) $header;
                 $view->SetFont('zapfdingbats');
-                $view->renderCell($this->widths[$column], 7, Fonts::unichr($header), $view::CENTER, $border, 1);
+                $view->renderCell($this->widths[$column], 7, $view->unicodeCharacter($header), $view::CENTER, $border, 1);
                 $view->SetFont($font);
             }
             else {

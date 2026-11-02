@@ -17,7 +17,7 @@ trait Fonts
 {
     private string $fontPath = JPATH_SITE . '/components/com_organizer/Views/PDF/Library/Fonts/';
 
-    /** Cache used for speed up unicode ord performances. */
+    /** Cache used for speed up Unicode ord performances. */
     private array $utf8Map = [];
 
     /**
@@ -36,6 +36,37 @@ trait Fonts
         }
 
         return $fontPath;
+    }
+
+    /**
+     * Returns the Unicode character specified by ASCII value
+     * @param int $value UTF-8 value
+     * @return string Returns the specified character.
+     */
+    public static function unicodeByASCII(int $value): string
+    {
+        return self::unicodeCharacter($value, false);
+    }
+
+    /**
+     * Returns the Unicode character specified by the value
+     * @param int  $value     UTF-8 value
+     * @param bool $isUnicode True if we are in Unicode mode, false otherwise.
+     * @return string Returns the specified character.
+     */
+    public static function unicodeCharacter(int $value, bool $isUnicode = true): string
+    {
+        if (!$isUnicode) {
+            return chr($value);
+        }
+
+        return match (true) {
+            ($value <= 0x7F) => chr($value),
+            ($value <= 0x7FF) => chr(0xC0 | $value >> 6) . chr(0x80 | $value & 0x3F),
+            ($value <= 0xFFFF) => chr(0xE0 | $value >> 12) . chr(0x80 | $value >> 6 & 0x3F) . chr(0x80 | $value & 0x3F),
+            ($value <= 0x10FFFF) => chr(0xF0 | $value >> 18) . chr(0x80 | $value >> 12 & 0x3F) . chr(0x80 | $value >> 6 & 0x3F) . chr(0x80 | $value & 0x3F),
+            default => '',
+        };
     }
 
     /**
@@ -197,6 +228,21 @@ trait Fonts
 
         $unicode = $this->utf8StringToArray($string, true, $currentFont);
         return self::arrUTF8ToUTF16BE($unicode, $setBOM);
+    }
+
+    /**
+     * Convert an array of UTF8 values to array of Unicode characters.
+     * @param array $utf8Values
+     * @param bool  $isUnicode
+     * @return array
+     */
+    public function utf8ArrayToUnicodeArray(array $utf8Values, bool $isUnicode = true): array
+    {
+        if ($isUnicode) {
+            return array_map([$this, 'unicodeCharacter'], $utf8Values);
+        }
+
+        return array_map([$this, 'unicodeByASCII'], $utf8Values);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
@@ -878,60 +924,6 @@ trait Fonts
 // REIMPLEMENTED
 // ====================================================================================================================
 
-
-    /**
-     * Returns the Unicode caracter specified by the value
-     * @param int  $c       UTF-8 value
-     * @param bool $unicode True if we are in Unicode mode, false otherwise.
-     * @return string Returns the specified character.
-     */
-    public static function unichr($c, $unicode = true)
-    {
-        $c = intval($c);
-        if (!$unicode) {
-            return chr($c);
-        }
-        elseif ($c <= 0x7F) {
-            // one byte
-            return chr($c);
-        }
-        elseif ($c <= 0x7FF) {
-            // two bytes
-            return chr(0xC0 | $c >> 6) . chr(0x80 | $c & 0x3F);
-        }
-        elseif ($c <= 0xFFFF) {
-            // three bytes
-            return chr(0xE0 | $c >> 12) . chr(0x80 | $c >> 6 & 0x3F) . chr(0x80 | $c & 0x3F);
-        }
-        elseif ($c <= 0x10FFFF) {
-            // four bytes
-            return chr(0xF0 | $c >> 18) . chr(0x80 | $c >> 12 & 0x3F) . chr(0x80 | $c >> 6 & 0x3F) . chr(0x80 | $c & 0x3F);
-        }
-        else {
-            return '';
-        }
-    }
-
-    /**
-     * Returns the Unicode caracter specified by UTF-8 value
-     * @param int $c UTF-8 value
-     * @return string Returns the specified character.
-     */
-    public static function unichrUnicode($c)
-    {
-        return self::unichr($c, true);
-    }
-
-    /**
-     * Returns the Unicode caracter specified by ASCII value
-     * @param int $c UTF-8 value
-     * @return string Returns the specified character.
-     */
-    public static function unichrASCII($c)
-    {
-        return self::unichr($c, false);
-    }
-
     /**
      * Converts array of UTF-8 characters to UTF16-BE string.<br>
      * Based on: http://www.faqs.org/rfcs/rfc2781.html
@@ -997,20 +989,6 @@ trait Fonts
     }
 
     /**
-     * Convert an array of UTF8 values to array of Unicode characters
-     * @param array $ta        The input array of UTF8 values.
-     * @param bool  $isUnicode True for Unicode mode, false otherwise.
-     * @return array Return array of Unicode characters
-     */
-    public static function UTF8ArrayToUniArray($ta, $isUnicode = true)
-    {
-        if ($isUnicode) {
-            return array_map(get_called_class() . '::unichrUnicode', $ta);
-        }
-        return array_map(get_called_class() . '::unichrASCII', $ta);
-    }
-
-    /**
      * Extract a slice of the $strarr array and return it as string.
      * @param string[] $strarr  The input array of characters.
      * @param int      $start   the starting element of $strarr.
@@ -1028,7 +1006,7 @@ trait Fonts
         }
         $string = '';
         for ($i = $start; $i < $end; ++$i) {
-            $string .= self::unichr($strarr[$i], $unicode);
+            $string .= self::unicodeCharacter($strarr[$i], $unicode);
         }
         return $string;
     }

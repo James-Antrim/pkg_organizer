@@ -69,11 +69,11 @@ class Booking extends ListView
 
             $pageFont = $this->getFontFamily();
             $this->SetFont('zapfdingbats');
-            $this->renderCell(3, 0, Fonts::unichr(51), self::LEFT, self::TOP);
+            $this->renderCell(3, 0, $this->unicodeCharacter(51), self::LEFT, self::TOP);
             $this->SetFont($pageFont);
             $this->renderCell(25, 0, Text::_('ORGANIZER_CHECKED_IN'), self::LEFT, self::TOP);
             $this->SetFont('zapfdingbats');
-            $this->renderCell(3, 0, Fonts::unichr(46), self::LEFT, self::TOP);
+            $this->renderCell(3, 0, Fonts::unicodeCharacter(46), self::LEFT, self::TOP);
             $this->SetFont($pageFont);
             $this->renderCell(25, 0, Text::_('ORGANIZER_REGISTERED'), self::LEFT, self::TOP);
 

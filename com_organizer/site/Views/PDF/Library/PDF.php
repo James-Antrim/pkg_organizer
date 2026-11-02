@@ -3740,7 +3740,7 @@ class PDF
                 }
             }
         }
-        return Fonts::UniArrSubString(Fonts::UTF8ArrayToUniArray($uniarr, $this->isUnicode));
+        return Fonts::UniArrSubString($this->utf8ArrayToUnicodeArray($uniarr, $this->isUnicode));
     }
 
     /**
@@ -4100,7 +4100,7 @@ class PDF
     {
         // replace 'NO-BREAK SPACE' (U+00A0) character with a simple space
         $txt               = is_null($txt) ? '' : $txt;
-        $txt               = str_replace(Fonts::unichr(160, $this->isUnicode), ' ', $txt);
+        $txt               = str_replace($this->unicodeCharacter(160, $this->isUnicode), ' ', $txt);
         $prev_cell_margin  = $this->cell_margin;
         $prev_cell_padding = $this->cell_padding;
         $txt               = StaticMethods::removeSHY($txt, $this->isUnicode);
@@ -4605,7 +4605,7 @@ class PDF
                 $this->x = $x + $w + $this->cell_margin['R'];
             }
         }
-        $gstyles            = '' . $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . "\n";
+        $gstyles            = '' . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . "\n";
         $rs                 = $gstyles . $rs;
         $this->cell_padding = $prev_cell_padding;
         $this->cell_margin  = $prev_cell_margin;
@@ -4684,7 +4684,7 @@ class PDF
         foreach ($brd as $border => $style) {
             if (is_array($style) and !empty($style)) {
                 // apply border style
-                $prev_style = $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ';
+                $prev_style = $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ';
                 $s          .= $this->lineStyle($style, false) . "\n";
             }
             switch ($mode) {
@@ -4832,7 +4832,7 @@ class PDF
             }
             if (is_array($style) and !empty($style)) {
                 // reset border style to previous value
-                $s .= "\n" . $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . "\n";
+                $s .= "\n" . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . "\n";
             }
         }
         return $s;
@@ -5295,11 +5295,11 @@ class PDF
             $charWidth = $charsWidth[$i];
             if (($c != 160)
                 and (($c == 173)
-                    or preg_match($this->re_spaces, Fonts::unichr($c, $this->isUnicode))
+                    or preg_match($this->re_spaces, $this->unicodeCharacter($c, $this->isUnicode))
                     or (($c == 45)
                         and ($i > 0) and ($i < ($length - 1))
-                        and @preg_match('/[\p{L}]/' . $this->re_space['m'], Fonts::unichr($chars[($i - 1)], $this->isUnicode))
-                        and @preg_match('/[\p{L}]/' . $this->re_space['m'], Fonts::unichr($chars[($i + 1)], $this->isUnicode))
+                        and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($chars[($i - 1)], $this->isUnicode))
+                        and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
                     )
                 )
             ) {
@@ -5446,12 +5446,12 @@ class PDF
         array_walk($chrw, [$this, 'getRawCharWidth']);
         $maxchwidth = ((is_array($chrw) || $chrw instanceof Countable) && count($chrw) > 0) ? max($chrw) : 0;
         // get array of chars
-        $uchars = Fonts::UTF8ArrayToUniArray($chars, $this->isUnicode);
+        $uchars = $this->utf8ArrayToUnicodeArray($chars, $this->isUnicode);
         // get the number of characters
         $nb = count($chars);
         // replacement for SHY character (minus symbol)
         $shy_replacement      = 45;
-        $shy_replacement_char = Fonts::unichr($shy_replacement, $this->isUnicode);
+        $shy_replacement_char = Fonts::unicodeCharacter($shy_replacement, $this->isUnicode);
         // widht for SHY replacement
         $shy_replacement_width = $this->GetCharWidth($shy_replacement);
         // page width
@@ -5570,11 +5570,11 @@ class PDF
                 // \p{Lo} is needed because Chinese characters are packed next to each other without spaces in between.
                 if (($c != 160)
                     and (($c == 173)
-                        or preg_match($this->re_spaces, Fonts::unichr($c, $this->isUnicode))
+                        or preg_match($this->re_spaces, $this->unicodeCharacter($c, $this->isUnicode))
                         or (($c == 45)
                             and ($i < ($nb - 1))
-                            and @preg_match('/[\p{L}]/' . $this->re_space['m'], Fonts::unichr($pc, $this->isUnicode))
-                            and @preg_match('/[\p{L}]/' . $this->re_space['m'], Fonts::unichr($chars[($i + 1)], $this->isUnicode))
+                            and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($pc, $this->isUnicode))
+                            and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
                         )
                     )
                 ) {
@@ -8720,7 +8720,7 @@ class PDF
         $prev_encrypted    = $this->encrypted;
         $this->encrypted   = false;
         // set XMP data
-        $xmp = '<?xpacket begin="' . Fonts::unichr(0xfeff, $this->isUnicode) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n";
+        $xmp = '<?xpacket begin="' . $this->unicodeCharacter(0xfeff, $this->isUnicode) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n";
         $xmp .= '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.2.1-c043 52.372728, 2009/01/18-15:08:04">' . "\n";
         $xmp .= "\t" . '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">' . "\n";
         $xmp .= "\t\t" . '<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">' . "\n";
@@ -9888,7 +9888,7 @@ class PDF
         $psw       = ''; // password to be returned
         $psw_array = Fonts::utf8Bidi($this->utf8StringToArray($password, $this->isUnicode, $this->CurrentFont), $password, $this->rtl, $this->isUnicode, $this->CurrentFont);
         foreach ($psw_array as $c) {
-            $psw .= Fonts::unichr($c, $this->isUnicode);
+            $psw .= $this->unicodeCharacter($c, $this->isUnicode);
         }
         return substr($psw, 0, 127);
     }
@@ -18914,7 +18914,7 @@ class PDF
                 else {
                     $this->x -= $lspace;
                 }
-                $prev_line_style = $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor;
+                $prev_line_style = $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
                 $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
                 $this->append($prev_line_style); // restore line settings
@@ -19010,7 +19010,7 @@ class PDF
             }
             case 'lower-greek':
             {
-                $textitem = Fonts::unichr((945 + $this->listcount[$this->listnum] - 1), $this->isUnicode);
+                $textitem = $this->unicodeCharacter((945 + $this->listcount[$this->listnum] - 1), $this->isUnicode);
                 break;
             }
             /*
@@ -19090,11 +19090,11 @@ class PDF
             'lMargin'           => $this->lMargin,
             'cell_padding'      => $this->cell_padding,
             'cell_margin'       => $this->cell_margin,
+            'lineCapStyle'      => $this->lineCapStyle,
+            'lineDashStyle'     => $this->lineDashStyle,
+            'lineJoinStyle'     => $this->lineJoinStyle,
             'LineWidth'         => $this->lineWidth,
-            'linestyleWidth'    => $this->linestyleWidth,
-            'linestyleCap'      => $this->lineCapStyle,
-            'linestyleJoin'     => $this->lineJoinStyle,
-            'linestyleDash'     => $this->lineDashStyle,
+            'lineWidthStyle'    => $this->lineWidthStyle,
             'textrendermode'    => $this->textrendermode,
             'textstrokewidth'   => $this->textstrokewidth,
             'DrawColor'         => $this->drawColor,
@@ -19152,11 +19152,11 @@ class PDF
         $this->lMargin           = $gvars['lMargin'];
         $this->cell_padding      = $gvars['cell_padding'];
         $this->cell_margin       = $gvars['cell_margin'];
-        $this->lineWidth         = $gvars['LineWidth'];
-        $this->linestyleWidth    = $gvars['linestyleWidth'];
-        $this->lineCapStyle      = $gvars['linestyleCap'];
-        $this->lineJoinStyle     = $gvars['linestyleJoin'];
-        $this->lineDashStyle     = $gvars['linestyleDash'];
+        $this->lineCapStyle      = $gvars['lineCapStyle'];
+        $this->lineDashStyle     = $gvars['lineDashStyle'];
+        $this->lineJoinStyle     = $gvars['lineJoinStyle'];
+        $this->lineWidth         = $gvars['lineWidth'];
+        $this->lineWidthStyle    = $gvars['lineWidthStyle'];
         $this->textrendermode    = $gvars['textrendermode'];
         $this->textstrokewidth   = $gvars['textstrokewidth'];
         $this->drawColor         = $gvars['DrawColor'];
@@ -19195,7 +19195,7 @@ class PDF
             $this->current_column   = $gvars['current_column'];
             $this->num_columns      = $gvars['num_columns'];
         }
-        $this->append('' . $this->linestyleWidth . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
+        $this->append('' . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
         if (!empty($this->FontFamily)) {
             $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
         }
