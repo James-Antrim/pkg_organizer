@@ -44,11 +44,6 @@ define('K_BLANK_IMAGE', '_blank.png');
 define('PDF_PAGE_FORMAT', 'A4');
 
 /**
- * Page orientation (P=portrait, L=landscape).
- */
-define('PDF_PAGE_ORIENTATION', 'P');
-
-/**
  * Document creator.
  */
 define('PDF_CREATOR', 'TCPDF');

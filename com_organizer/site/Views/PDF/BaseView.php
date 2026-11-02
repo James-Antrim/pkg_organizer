@@ -58,9 +58,6 @@ abstract class BaseView extends PDF implements ViewInterface
      */
     public const CURRENT_SIZE = 12;
 
-    // Orientation
-    public const LANDSCAPE = 'l', PORTRAIT = 'p';
-
     // UOM point (~0.35 mm)
     public const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
 
@@ -74,13 +71,12 @@ abstract class BaseView extends PDF implements ViewInterface
     /**
      * Performs initial construction of the TCPDF Object.
      *
-     * @param string $orientation page orientation
-     * @param string $unit        unit of measure
-     * @param mixed  $format      page format; possible values: string - common format name, array - parameters
-     *
-     * @see StaticMethods::getPageSizeFromFormat(), setPageFormat()
+     * @param string $orientation
+     * @param string $unit   unit of measure
+     * @param mixed  $format page format; possible values: string - common format name, array - parameters
+     * @see self::ORIENTATIONS, StaticMethods::getPageSizeFromFormat(), setPageFormat()
      */
-    public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
+    public function __construct(string $orientation = self::PORTRAIT, string $unit = 'mm', string $format = 'A4')
     {
         $this->authorize();
 
@@ -144,11 +140,11 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param array|string $format the format to set the page to string format constant, [width, height], [options]
      *
      * @return void
-     * @see setPageFormat(), setPageOrientation(), getPageSizeFromFormat()
+     * @see self::ORIENTATIONS, setPageFormat(), setPageOrientation(), getPageSizeFromFormat()
      */
     public function format(array|string $format): void
     {
-        $this->setPageFormat($format, $this->CurOrientation);
+        $this->setPageFormat($format, $this->orientation);
     }
 
     /** @inheritDoc */

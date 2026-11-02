@@ -39,6 +39,9 @@ class PDF
 
     public const FONT_STYLES = [self::BOLD, self::BOLD_ITALIC, self::BOLD_UNDERLINE, self::ITALIC, self::OVERLINE, self::REGULAR, self::STRIKE_THROUGH, self::UNDERLINE];
 
+    protected const LANDSCAPE = 'L', PORTRAIT = 'P';
+    protected const ORIENTATIONS = [self::LANDSCAPE, self::PORTRAIT];
+
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
@@ -87,6 +90,8 @@ class PDF
 
     /** Current object number across all display contexts: javascript, xobjects, ... */
     private int $objectNumber = 2;
+
+    protected string $orientation = self::PORTRAIT;
 
     private array $pageLengths = [];
     private array $pageObjectIDs = [];
@@ -258,11 +263,6 @@ class PDF
      * Compression flag.
      */
     protected $compress;
-
-    /**
-     * Current page orientation (P = Portrait, L = Landscape).
-     */
-    protected $CurOrientation;
 
     /**
      * Page dimensions.
@@ -1409,23 +1409,18 @@ class PDF
      */
     protected $allowLocalFiles = false;
 
-    //------------------------------------------------------------
-    // METHODS
-    //------------------------------------------------------------
-
     /**
-     * This is the class constructor.
-     * It allows to set up the page format, the orientation and the measure unit used in all the methods (except for the font sizes).
+     * Builds the PDF.
      *
-     * @param string        $orientation page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
-     * @param string        $unit        User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
-     * @param mixed         $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool          $unicode     TRUE means that the input text is Unicode (default = true)
-     * @param string        $encoding    Charset encoding (used only when converting back html entities); default is UTF-8.
-     * @param false|integer $pdfa        If not false, set the document to PDF/A mode and the good version (1 or 3).
-     * @see getPageSizeFromFormat(), setPageFormat()
+     * @param string        $orientation
+     * @param string        $unit     User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
+     * @param mixed         $format   The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool          $unicode  TRUE means that the input text is Unicode (default = true)
+     * @param string        $encoding Charset encoding (used only when converting back html entities); default is UTF-8.
+     * @param false|integer $pdfa     If not false, set the document to PDF/A mode and the good version (1 or 3).
+     * @see self::ORIENTATIONS, getPageSizeFromFormat(), setPageFormat()
      */
-    public function __construct(string $orientation = 'P', string $unit = 'mm', array|string $format = 'A4', bool $unicode = true, string $encoding = 'UTF-8', bool|int $pdfa = false)
+    public function __construct(string $orientation = self::PORTRAIT, string $unit = 'mm', array|string $format = 'A4', bool $unicode = true, string $encoding = 'UTF-8', bool|int $pdfa = false)
     {
         // set file ID for trailer
         $serformat          = (is_array($format) ? json_encode($format) : $format);
@@ -1491,7 +1486,6 @@ class PDF
         ];
         // set scale factor
         $this->setPageUnit($unit);
-        // set page format and orientation
         $this->setPageFormat($format, $orientation);
         // page margins (1 cm)
         $margin = 28.35 / $this->scaleFactor;
@@ -1618,8 +1612,8 @@ class PDF
             }
         }
         $this->pdfunit = $unit;
-        if (isset($this->CurOrientation)) {
-            $this->setPageOrientation($this->CurOrientation);
+        if (isset($this->orientation)) {
+            $this->setPageOrientation($this->orientation);
         }
     }
 
@@ -1669,14 +1663,10 @@ class PDF
      *                            <li>['trans']['SS'] : (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0.</li>
      *                            <li>['trans']['B'] : (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li>
      *                            </ul>
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul>
-     *                            <li>P or Portrait (default)</li>
-     *                            <li>L or Landscape</li>
-     *                            <li>'' (empty string) for automatic orientation</li>
-     *                            </ul>
-     * @see   getPageSizeFromFormat()
+     * @param string $orientation
+     * @see   self::ORIENTATIONS, getPageSizeFromFormat()
      */
-    protected function setPageFormat($format, $orientation = 'P')
+    protected function setPageFormat($format, string $orientation = self::PORTRAIT)
     {
         if (!empty($format) and isset($this->pagedim[$this->page])) {
             // remove inherited values
@@ -1789,12 +1779,13 @@ class PDF
     }
 
     /**
-     * Set page orientation.
-     * @param string     $orientation   page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
+     * Sets the page orientation.
+     * @param string     $orientation
      * @param bool|null  $autopagebreak Boolean indicating if auto-page-break mode should be on or off.
      * @param float|null $bottommargin  bottom margin of the page.
+     * @see self::ORIENTATIONS
      */
-    public function setPageOrientation($orientation, $autopagebreak = null, $bottommargin = null)
+    public function setPageOrientation(string $orientation, $autopagebreak = null, $bottommargin = null)
     {
         if (!isset($this->pagedim[$this->page]['MediaBox'])) {
             // the boundaries of the physical medium on which the page shall be displayed or printed
@@ -1824,31 +1815,22 @@ class PDF
             // The page's preferred zoom (magnification) factor
             $this->pagedim[$this->page]['PZ'] = 1;
         }
-        if ($this->fwPt > $this->fhPt) {
-            // landscape
-            $default_orientation = 'L';
+
+
+        $default     = $this->fwPt > $this->fhPt ? self::LANDSCAPE : self::PORTRAIT;
+        $orientation = $orientation ? strtoupper($orientation[0]) : $default;
+
+        if (in_array($orientation, self::ORIENTATIONS) and ($orientation !== $default)) {
+            $this->orientation = $orientation;
+            $this->wPt         = $this->fhPt;
+            $this->hPt         = $this->fwPt;
         }
         else {
-            // portrait
-            $default_orientation = 'P';
+            $this->orientation = $default;
+            $this->wPt         = $this->fwPt;
+            $this->hPt         = $this->fhPt;
         }
-        $valid_orientations = ['P', 'L'];
-        if (empty($orientation)) {
-            $orientation = $default_orientation;
-        }
-        else {
-            $orientation = strtoupper($orientation[0]);
-        }
-        if (in_array($orientation, $valid_orientations) and ($orientation != $default_orientation)) {
-            $this->CurOrientation = $orientation;
-            $this->wPt            = $this->fhPt;
-            $this->hPt            = $this->fwPt;
-        }
-        else {
-            $this->CurOrientation = $default_orientation;
-            $this->wPt            = $this->fwPt;
-            $this->hPt            = $this->fhPt;
-        }
+
         if ((abs($this->pagedim[$this->page]['MediaBox']['urx'] - $this->hPt) < $this->feps) and (abs($this->pagedim[$this->page]['MediaBox']['ury'] - $this->wPt) < $this->feps)) {
             // swap X and Y coordinates (change page orientation)
             $this->pagedim = StaticMethods::swapPageBoxCoordinates($this->page, $this->pagedim);
@@ -1883,7 +1865,7 @@ class PDF
         $this->pagedim[$this->page]['lm']  = $this->lMargin;
         $this->pagedim[$this->page]['rm']  = $this->rMargin;
         $this->pagedim[$this->page]['pb']  = $autopagebreak;
-        $this->pagedim[$this->page]['or']  = $this->CurOrientation;
+        $this->pagedim[$this->page]['or']  = $this->orientation;
         $this->pagedim[$this->page]['olm'] = $this->original_lMargin;
         $this->pagedim[$this->page]['orm'] = $this->original_rMargin;
     }
@@ -2603,7 +2585,7 @@ class PDF
             $this->original_lMargin = $this->pagedim[$this->page]['olm'];
             $this->original_rMargin = $this->pagedim[$this->page]['orm'];
             $this->AutoPageBreak    = $this->pagedim[$this->page]['pb'];
-            $this->CurOrientation   = $this->pagedim[$this->page]['or'];
+            $this->orientation      = $this->pagedim[$this->page]['or'];
             $this->setAutoPageBreak($this->AutoPageBreak, $this->bMargin);
             // restore graphic settings
             //$this->setGraphicVars($gvars);
@@ -2658,12 +2640,12 @@ class PDF
 
     /**
      * Adds a new TOC (Table Of Content) page to the document.
-     * @param string $orientation page orientation.
+     * @param string $orientation
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool   $keepmargins if true overwrites the default page margins with the current margins
-     * @see   AddPage(), startPage(), endPage(), endTOCPage()
+     * @see   self::ORIENTATIONS, AddPage(), startPage(), endPage(), endTOCPage()
      */
-    public function addTOCPage($orientation = '', $format = '', $keepmargins = false)
+    public function addTOCPage(string $orientation = '', $format = '', $keepmargins = false)
     {
         $this->AddPage($orientation, $format, $keepmargins, true);
     }
@@ -2680,11 +2662,11 @@ class PDF
     /**
      * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins (or top-right if in RTL mode), and Header() is called to display the header (if enabled).
      * The origin of the coordinate system is at the top-left corner (or top-right for RTL) and increasing ordinates go downwards.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
+     * @param string $orientation
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool   $keepmargins if true overwrites the default page margins with the current margins
      * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
-     * @see   startPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), setPageFormat()
+     * @see   self::ORIENTATIONS, startPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), setPageFormat()
      */
     public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
     {
@@ -2729,12 +2711,12 @@ class PDF
     /**
      * Starts a new page to the document. The page must be closed using the endPage() function.
      * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $tocpage     if true the page is designated to contain the Table-Of-Content.
-     * @see   AddPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), setPageFormat()
+     * @param string $orientation
+     * @param mixed  $format  The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $tocpage if true the page is designated to contain the Table-Of-Content.
+     * @see   self::ORIENTATIONS, AddPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), setPageFormat()
      */
-    public function startPage($orientation = '', $format = '', $tocpage = false)
+    public function startPage(string $orientation = '', $format = '', $tocpage = false)
     {
         if ($tocpage) {
             $this->tocpage = true;
@@ -4183,7 +4165,7 @@ class PDF
             if ($addpage) {
                 //Automatic page break
                 $x = $this->x;
-                $this->AddPage($this->CurOrientation);
+                $this->AddPage($this->orientation);
                 $this->y = $this->tMargin;
                 $oldpage = $this->page - 1;
                 if ($this->rtl) {
@@ -9477,11 +9459,11 @@ class PDF
 
     /**
      * Initialize a new page.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @see getPageSizeFromFormat(), setPageFormat()
+     * @param string $orientation
+     * @param mixed  $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @see self::ORIENTATIONS, getPageSizeFromFormat(), setPageFormat()
      */
-    protected function _beginpage($orientation = '', $format = '')
+    protected function _beginpage(string $orientation = '', $format = '')
     {
         ++$this->page;
         $this->pageObjectIDs[$this->page] = [];
@@ -9490,16 +9472,16 @@ class PDF
         $this->transfmrk[$this->page] = [];
         $this->state                  = self::READY;
         if (empty($orientation)) {
-            if (isset($this->CurOrientation)) {
-                $orientation = $this->CurOrientation;
+            if (isset($this->orientation)) {
+                $orientation = $this->orientation;
             }
             elseif ($this->fwPt > $this->fhPt) {
                 // landscape
-                $orientation = 'L';
+                $orientation = self::LANDSCAPE;
             }
             else {
                 // portrait
-                $orientation = 'P';
+                $orientation = self::PORTRAIT;
             }
         }
         if (empty($format)) {

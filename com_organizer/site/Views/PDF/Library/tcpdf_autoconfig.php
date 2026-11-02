@@ -120,10 +120,6 @@ if (!defined('PDF_PAGE_FORMAT')) {
     define('PDF_PAGE_FORMAT', 'A4');
 }
 
-if (!defined('PDF_PAGE_ORIENTATION')) {
-    define('PDF_PAGE_ORIENTATION', 'P');
-}
-
 if (!defined('PDF_CREATOR')) {
     define('PDF_CREATOR', 'TCPDF');
 }
