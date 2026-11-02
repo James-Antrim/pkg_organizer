@@ -135,7 +135,6 @@ class PDF
         $seedFormat    = (is_array($format) ? json_encode($format) : $format);
         $this->file_id = md5(StaticMethods::randomSeed('Organizer' . $orientation . $unit . $seedFormat . 'UTF-8'));
 
-        $this->_dochecks();
         $this->pageUnit($unit);
         $this->setPageFormat($format, $orientation);
 
@@ -6993,21 +6992,6 @@ class PDF
                     unset($this->$val);
                 }
             }
-        }
-    }
-
-    /**
-     * Check for locale-related bug
-     */
-    protected function _dochecks()
-    {
-        //Check for locale-related bug
-        if (1.1 == 1) {
-            $this->Error('Don\'t alter the locale before including class file');
-        }
-        //Check for decimal separator
-        if (sprintf('%.1F', 1.0) != '1.0') {
-            setlocale(LC_NUMERIC, 'C');
         }
     }
 
