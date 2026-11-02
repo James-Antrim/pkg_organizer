@@ -160,10 +160,6 @@ if (!defined('PDF_MARGIN_RIGHT')) {
     define('PDF_MARGIN_RIGHT', 15);
 }
 
-if (!defined('PDF_FONT_NAME_MAIN')) {
-    define('PDF_FONT_NAME_MAIN', 'helvetica');
-}
-
 if (!defined('PDF_FONT_SIZE_MAIN')) {
     define('PDF_FONT_SIZE_MAIN', 10);
 }

@@ -122,6 +122,58 @@ class PDF
     private array $xObjects = [];
 
     /**
+     * Builds the PDF.
+     *
+     * @param string $orientation
+     * @param string $unit
+     * @param mixed  $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @see self::ORIENTATIONS, self::UNITS, getPageSizeFromFormat(), setPageFormat()
+     */
+    public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, array|string $format = 'A4')
+    {
+        // set file ID for trailer
+        $seedFormat    = (is_array($format) ? json_encode($format) : $format);
+        $this->file_id = md5(StaticMethods::randomSeed('Organizer' . $orientation . $unit . $seedFormat . 'UTF-8'));
+
+        $this->_dochecks();
+        $this->pageUnit($unit);
+        $this->setPageFormat($format, $orientation);
+
+        // Page derived values
+        $margin = 28.35 / $this->scaleFactor;
+        $this->setAutoPageBreak(true, (2 * $margin));
+        $this->setMargins($margin, $margin);
+        $this->clMargin = $this->lMargin;
+        $this->crMargin = $this->rMargin;
+
+        // Cell derived values
+        $cellPadding = $margin / 10;
+        $this->setCellPaddings($cellPadding, 0, $cellPadding, 0);
+        $this->setCellMargins(0, 0, 0, 0);
+
+        $this->lineWidth      = 0.57 / $this->scaleFactor;
+        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * $this->scaleFactor));
+
+        $this->setDisplayMode('fullwidth');
+        $this->getFontsList();
+        $this->setTextShadow();
+
+        $this->utf8Bidi([], '', false, true, $this->CurrentFont);
+        $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
+        $this->setHeaderFont([$this->FontFamily, $this->FontStyle, $this->FontSizePt]);
+        $this->setFooterFont([$this->FontFamily, $this->FontStyle, $this->FontSizePt]);
+        // check if PCRE Unicode support is enabled
+        (@preg_match('/\pL/u', 'a') == 1) ? $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u') : $this->setSpacesRE();
+
+        // set document creation and modification timestamp
+        $this->doc_creation_timestamp     = time();
+        $this->doc_modification_timestamp = $this->doc_creation_timestamp;
+
+        // get default graphic vars
+        $this->default_graphic_vars = $this->getGraphicVars();
+    }
+
+    /**
      * Creates a new internal link and returns its index.
      * @return int
      * @see Cell(), Write(), Image(), Link(), setLink()
@@ -285,7 +337,7 @@ class PDF
     /**
      * Current page number.
      */
-    protected int $page;
+    protected int $page = 0;
 
     /**
      * Array of object offsets.
@@ -295,12 +347,12 @@ class PDF
     /**
      * Compression flag.
      */
-    protected $compress;
+    protected bool $compress = false;
 
     /**
      * Page dimensions.
      */
-    protected $pagedim = [];
+    protected array $pagedim = [];
 
     /**
      * Width of page format in points.
@@ -385,32 +437,47 @@ class PDF
     /**
      * Height of last cell printed.
      */
-    protected $lasth;
+    protected float $lasth = 0;
 
     /**
      * Array of standard font names.
      */
-    protected $CoreFonts;
+    protected array $CoreFonts = [
+        'courier'      => 'Courier',
+        'courierB'     => 'Courier-Bold',
+        'courierI'     => 'Courier-Oblique',
+        'courierBI'    => 'Courier-BoldOblique',
+        'helvetica'    => 'Helvetica',
+        'helveticaB'   => 'Helvetica-Bold',
+        'helveticaI'   => 'Helvetica-Oblique',
+        'helveticaBI'  => 'Helvetica-BoldOblique',
+        'times'        => 'Times-Roman',
+        'timesB'       => 'Times-Bold',
+        'timesI'       => 'Times-Italic',
+        'timesBI'      => 'Times-BoldItalic',
+        'symbol'       => 'Symbol',
+        'zapfdingbats' => 'ZapfDingbats'
+    ];
 
     /**
      * Array of used fonts.
      */
-    protected $fonts = [];
+    protected array $fonts = [];
 
     /**
      * Array of font files.
      */
-    protected $FontFiles = [];
+    protected array $FontFiles = [];
 
     /**
      * Array of encoding differences.
      */
-    protected $diffs = [];
+    protected array $diffs = [];
 
     /**
      * Array of used images.
      */
-    protected $images = [];
+    protected array $images = [];
 
     /**
      * Depth of the svg tag, to keep track if the svg tag is a subtag or the root tag.
@@ -425,12 +492,12 @@ class PDF
     /**
      * Current font family.
      */
-    protected $FontFamily;
+    protected string $FontFamily = 'helvetica';
 
     /**
      * Current font style.
      */
-    protected $FontStyle;
+    protected string $FontStyle = '';
 
     /**
      * Current font ascent (distance between font top and baseline).
@@ -445,12 +512,12 @@ class PDF
     /**
      * Underlining flag.
      */
-    protected $underline;
+    protected bool $underline = false;
 
     /**
      * Overlining flag.
      */
-    protected $overline;
+    protected bool $overline = false;
 
     /**
      * Current font info.
@@ -460,7 +527,7 @@ class PDF
     /**
      * Current font size in points.
      */
-    protected $FontSizePt;
+    protected int $FontSizePt = 12;
 
     /**
      * Current font size in user unit.
@@ -485,7 +552,7 @@ class PDF
     /**
      * Flag set when processing page footer.
      */
-    protected $InFooter = false;
+    protected bool $InFooter = false;
 
     /**
      * Zoom display mode.
@@ -550,12 +617,12 @@ class PDF
     /**
      * Boolean flag set to true when the input text is Unicode (require Unicode fonts).
      */
-    protected $isUnicode = false;
+    protected bool $isUnicode = true;
 
     /**
      * PDF version.
      */
-    protected $PDFVersion = '1.7';
+    protected string $PDFVersion = '1.7';
 
     /**
      * ID of the stored default header template (-1 = not set).
@@ -565,7 +632,7 @@ class PDF
     /**
      * If true reset the Header Xobject template at each page
      */
-    protected $header_xobj_autoreset = false;
+    protected bool $header_xobj_autoreset = false;
 
     /**
      * Minimum distance between header and top page margin.
@@ -681,7 +748,7 @@ class PDF
     /**
      * HTML PARSER: array to store current link and rendering styles.
      */
-    protected $HREF = [];
+    protected array $HREF = [];
 
     /**
      * List of available fonts on filesystem.
@@ -726,7 +793,7 @@ class PDF
     /**
      * Boolean flag to indicate if the document language is Right-To-Left.
      */
-    protected $rtl = false;
+    protected bool $rtl = false;
 
     /**
      * Boolean flag used to force RTL or LTR string direction.
@@ -738,7 +805,7 @@ class PDF
     /**
      * IBoolean flag indicating whether document is protected.
      */
-    protected $encrypted;
+    protected bool $encrypted = false;
 
     /**
      * Array containing encryption settings.
@@ -748,7 +815,7 @@ class PDF
     /**
      * Last RC4 key encrypted (cached for optimisation).
      */
-    protected $last_enc_key;
+    protected string $last_enc_key = '';
 
     /**
      * Last RC4 computed key.
@@ -777,12 +844,20 @@ class PDF
     /**
      * line through state
      */
-    protected $linethrough;
+    protected bool $linethrough = false;
 
     /**
      * Array with additional document-wide usage rights for the document.
      */
-    protected $ur = [];
+    protected array $ur = [
+        'annots'    => '/Create/Delete/Modify/Copy/Import/Export',
+        'document'  => '/FullSave',
+        'ef'        => '/Create/Delete/Modify/Import',
+        'enabled'   => false,
+        'form'      => '/Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate',
+        'formex'    => '',
+        'signature' => '/Modify',
+    ];
 
     /**
      * DPI (Dot Per Inch) Document Resolution (do not change).
@@ -807,12 +882,12 @@ class PDF
     /**
      * Array of transparency objects and parameters.
      */
-    protected $extgstates;
+    protected array $extgstates = [];
 
     /**
      * Set the default JPEG compression quality (1-100).
      */
-    protected $jpeg_quality;
+    protected int $jpeg_quality = 75;
 
     /**
      * Default cell height ratio.
@@ -833,7 +908,7 @@ class PDF
     /**
      * Array for storing gradient information.
      */
-    protected $gradients = [];
+    protected array $gradients = [];
 
     /**
      * Array used to store positions inside the pages buffer (keys are the page numbers).
@@ -944,7 +1019,7 @@ class PDF
      * Array used to store positions of graphics transformation blocks inside the page buffer.
      * keys are the page numbers
      */
-    protected $transfmrk = [];
+    protected array $transfmrk = [[]];
 
     /**
      * Default color for html links.
@@ -984,7 +1059,7 @@ class PDF
     /**
      * Store the font object IDs.
      */
-    protected $font_obj_ids = [];
+    protected array $font_obj_ids = [];
 
     /**
      * Store the fage status (true when opened, false when closed).
@@ -1019,7 +1094,7 @@ class PDF
     /**
      * Boolean flag to enable document digital signature.
      */
-    protected $sign = false;
+    protected bool $sign = false;
 
     /**
      * Digital signature data.
@@ -1034,22 +1109,22 @@ class PDF
     /**
      * Data for digital signature appearance.
      */
-    protected $signature_appearance = ['page' => 1, 'rect' => '0 0 0 0'];
+    protected $signature_appearance = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
 
     /**
      * Array of empty digital signature appearances.
      */
-    protected $empty_signature_appearance = [];
+    protected array $empty_signature_appearance = [];
 
     /**
      * Boolean flag to enable document timestamping with TSA.
      */
-    protected $tsa_timestamp = false;
+    protected bool $tsa_timestamp = false;
 
     /**
      * Timestamping data.
      */
-    protected $tsa_data = [];
+    protected array $tsa_data = [];
 
     /**
      * Regular expression used to find blank characters (required for word-wrapping).
@@ -1069,12 +1144,12 @@ class PDF
     /**
      * ID of page objects.
      */
-    protected $page_obj_id = [];
+    protected array $page_obj_id = [];
 
     /**
      * List of form annotations IDs.
      */
-    protected $form_obj_id = [];
+    protected array $form_obj_id = [];
 
     /**
      * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
@@ -1215,7 +1290,7 @@ class PDF
     /**
      * Array of PDF layers data.
      */
-    protected $pdflayers = [];
+    protected array $pdflayers = [];
 
     /**
      * A dictionary of names and corresponding destinations (Dests key on document Catalog).
@@ -1359,27 +1434,27 @@ class PDF
     /**
      * If true force sRGB color profile for all document.
      */
-    protected $force_srgb = false;
+    protected bool $force_srgb = false;
 
     /**
      * Document creation date-time
      */
-    protected $doc_creation_timestamp;
+    protected int $doc_creation_timestamp;
 
     /**
      * Document modification date-time
      */
-    protected $doc_modification_timestamp;
+    protected int $doc_modification_timestamp;
 
     /**
      * Custom XMP data.
      */
-    protected $custom_xmp = '';
+    protected string $custom_xmp = '';
 
     /**
      * Custom XMP RDF data.
      */
-    protected $custom_xmp_rdf = '';
+    protected string $custom_xmp_rdf = '';
 
     /**
      * Overprint mode array.
@@ -1400,11 +1475,6 @@ class PDF
     protected $page_boxes = ['MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox'];
 
     /**
-     * If true print TCPDF meta link.
-     */
-    protected $tcpdflink = true;
-
-    /**
      * Cache array for computed GD gamma values.
      */
     protected $gdgammacache = [];
@@ -1421,151 +1491,6 @@ class PDF
      * @var bool
      */
     protected $allowLocalFiles = false;
-
-    /**
-     * Builds the PDF.
-     *
-     * @param string $orientation
-     * @param string $unit    User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
-     * @param mixed  $format  The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $unicode TRUE means that the input text is Unicode (default = true)
-     * @see self::ORIENTATIONS, self::UNITS, getPageSizeFromFormat(), setPageFormat()
-     */
-    public function __construct(
-        string       $orientation = self::PORTRAIT,
-        string       $unit = self::MILLIMETER,
-        array|string $format = 'A4',
-        bool         $unicode = true
-    )
-    {
-        // set file ID for trailer
-        $serformat          = (is_array($format) ? json_encode($format) : $format);
-        $this->file_id      = md5(StaticMethods::randomSeed('Organizer' . $orientation . $unit . $serformat . 'UTF-8'));
-        $this->font_obj_ids = [];
-        $this->page_obj_id  = [];
-        $this->form_obj_id  = [];
-        $this->force_srgb   = false;
-        // set language direction
-        $this->rtl    = false;
-        $this->tmprtl = false;
-        // some checks
-        $this->_dochecks();
-        // initialization of properties
-        $this->isUnicode    = $unicode;
-        $this->page         = 0;
-        $this->transfmrk[0] = [];
-        $this->pagedim      = [];
-        $this->buffer       = '';
-        $this->pages        = [];
-        $this->fonts        = [];
-        $this->FontFiles    = [];
-        $this->diffs        = [];
-        $this->images       = [];
-        $this->gradients    = [];
-        $this->InFooter     = false;
-        $this->lasth        = 0;
-        $this->FontFamily   = defined('PDF_FONT_NAME_MAIN') ? PDF_FONT_NAME_MAIN : 'helvetica';
-        $this->FontStyle    = '';
-        $this->FontSizePt   = 12;
-        $this->underline    = false;
-        $this->overline     = false;
-        $this->linethrough  = false;
-        $this->pdflayers    = [];
-        // encryption values
-        $this->encrypted    = false;
-        $this->last_enc_key = '';
-        // standard Unicode fonts
-        $this->CoreFonts = [
-            'courier'      => 'Courier',
-            'courierB'     => 'Courier-Bold',
-            'courierI'     => 'Courier-Oblique',
-            'courierBI'    => 'Courier-BoldOblique',
-            'helvetica'    => 'Helvetica',
-            'helveticaB'   => 'Helvetica-Bold',
-            'helveticaI'   => 'Helvetica-Oblique',
-            'helveticaBI'  => 'Helvetica-BoldOblique',
-            'times'        => 'Times-Roman',
-            'timesB'       => 'Times-Bold',
-            'timesI'       => 'Times-Italic',
-            'timesBI'      => 'Times-BoldItalic',
-            'symbol'       => 'Symbol',
-            'zapfdingbats' => 'ZapfDingbats'
-        ];
-        // set scale factor
-        $this->pageUnit($unit);
-        $this->setPageFormat($format, $orientation);
-        // page margins (1 cm)
-        $margin = 28.35 / $this->scaleFactor;
-        $this->setMargins($margin, $margin);
-        $this->clMargin = $this->lMargin;
-        $this->crMargin = $this->rMargin;
-        // internal cell padding
-        $cpadding = $margin / 10;
-        $this->setCellPaddings($cpadding, 0, $cpadding, 0);
-        // cell margins
-        $this->setCellMargins(0, 0, 0, 0);
-        // line width (0.2 mm)
-        $this->lineWidth      = 0.57 / $this->scaleFactor;
-        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * $this->scaleFactor));
-        // automatic page break
-        $this->setAutoPageBreak(true, (2 * $margin));
-        // full width display mode
-        $this->setDisplayMode('fullwidth');
-        // compression
-        $this->setCompression();
-        // set default PDF version number
-        $this->setPDFVersion();
-        $this->tcpdflink = true;
-        $this->HREF      = [];
-        $this->getFontsList();
-        $this->extgstates = [];
-        $this->setTextShadow();
-        // signature
-        $this->sign                       = false;
-        $this->tsa_timestamp              = false;
-        $this->tsa_data                   = [];
-        $this->signature_appearance       = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
-        $this->empty_signature_appearance = [];
-        // user's rights
-        $this->ur['enabled']   = false;
-        $this->ur['document']  = '/FullSave';
-        $this->ur['annots']    = '/Create/Delete/Modify/Copy/Import/Export';
-        $this->ur['form']      = '/Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate';
-        $this->ur['signature'] = '/Modify';
-        $this->ur['ef']        = '/Create/Delete/Modify/Import';
-        $this->ur['formex']    = '';
-        // set default JPEG quality
-        $this->jpeg_quality = 75;
-        // initialize some settings
-        Fonts::utf8Bidi([], '', false, $this->isUnicode, $this->CurrentFont);
-        // set default font
-        $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
-        $this->setHeaderFont([$this->FontFamily, $this->FontStyle, $this->FontSizePt]);
-        $this->setFooterFont([$this->FontFamily, $this->FontStyle, $this->FontSizePt]);
-        // check if PCRE Unicode support is enabled
-        if ($this->isUnicode and (@preg_match('/\pL/u', 'a') == 1)) {
-            // PCRE Unicode support is turned ON
-            // \s     : any whitespace character
-            // \p{Z}  : any separator
-            // \p{Lo} : Unicode letter or ideograph that does not have lowercase and uppercase variants. Is used to chunk chinese words.
-            // \xa0   : Unicode Character 'NO-BREAK SPACE' (U+00A0)
-            //$this->setSpacesRE('/(?!\xa0)[\s\p{Z}\p{Lo}]/u');
-            $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u');
-        }
-        else {
-            // PCRE Unicode support is turned OFF
-            $this->setSpacesRE('/[^\S\xa0]/');
-        }
-        $this->default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => [255, 255, 255], 'strokeColor' => [128, 128, 128]];
-        // set document creation and modification timestamp
-        $this->doc_creation_timestamp     = time();
-        $this->doc_modification_timestamp = $this->doc_creation_timestamp;
-        // get default graphic vars
-        $this->default_graphic_vars  = $this->getGraphicVars();
-        $this->header_xobj_autoreset = false;
-        $this->custom_xmp            = '';
-        $this->custom_xmp_rdf        = '';
-    }
 
     /**
      * Default destructor.
@@ -2352,16 +2277,6 @@ class PDF
     }
 
     /**
-     * Activates or deactivates page compression. When activated, the internal representation of each page is compressed, which leads to a compression ratio of about 2 for the resulting document. Compression is on by default.
-     * Note: the Zlib extension is required for this feature. If not present, compression will be turned off.
-     * @param bool $compress Boolean indicating if compression must be enabled.
-     */
-    public function setCompression($compress = true)
-    {
-        $this->compress = false;
-    }
-
-    /**
      * Set flag to force sRGB_IEC61966-2.1 black scaled ICC color profile for the whole document.
      * @param bool $mode If true force sRGB output intent.
      */
@@ -2483,26 +2398,6 @@ class PDF
             $this->AddPage();
         }
         $this->endLayer();
-        if ($this->tcpdflink) {
-            // save current graphic settings
-            $gvars = $this->getGraphicVars();
-            $this->setEqualColumns();
-            $this->lastpage(true);
-            $this->setAutoPageBreak(false);
-            $this->x       = 0;
-            $this->y       = $this->h - (1 / $this->scaleFactor);
-            $this->lMargin = 0;
-            $this->_outSaveGraphicsState();
-            $font = defined('PDF_FONT_NAME_MAIN') ? PDF_FONT_NAME_MAIN : 'helvetica';
-            $this->setFont($font, '', 1);
-            $this->setTextRenderingMode(0, false, false);
-            $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
-            $lnk = "\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67";
-            $this->Cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
-            $this->_outRestoreGraphicsState();
-            // restore graphic settings
-            $this->setGraphicVars($gvars);
-        }
         // close page
         $this->endPage();
         // close document
@@ -12167,15 +12062,6 @@ class PDF
     public function getCellHeightRatio()
     {
         return $this->cell_height_ratio;
-    }
-
-    /**
-     * Set the PDF version (check PDF reference for valid values).
-     * @param string $version PDF document version.
-     */
-    public function setPDFVersion($version = '1.7')
-    {
-        $this->PDFVersion = $version;
     }
 
     /**

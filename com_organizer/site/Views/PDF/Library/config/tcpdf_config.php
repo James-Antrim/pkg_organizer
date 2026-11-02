@@ -94,11 +94,6 @@ define('PDF_MARGIN_LEFT', 15);
 define('PDF_MARGIN_RIGHT', 15);
 
 /**
- * Default main font name.
- */
-define('PDF_FONT_NAME_MAIN', 'helvetica');
-
-/**
  * Default main font size.
  */
 define('PDF_FONT_SIZE_MAIN', 10);
