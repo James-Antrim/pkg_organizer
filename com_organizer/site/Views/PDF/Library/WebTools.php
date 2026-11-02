@@ -91,11 +91,6 @@ trait WebTools
      */
     public function addJavascriptObject(string $script, bool $onload = false): int
     {
-        // javascript is not allowed in PDF/A mode
-        if ($this->pdfaMode) {
-            return false;
-        }
-
         ++$this->objectNumber;
         $this->javascriptObjects[$this->objectNumber] = ['n' => $this->objectNumber, 'js' => $script, 'onload' => $onload];
 
@@ -107,7 +102,7 @@ trait WebTools
      */
     private function appendJavascript(): void
     {
-        if ($this->pdfaMode or (empty($this->javascript) and empty($this->javascriptObjects))) {
+        if (empty($this->javascript) and empty($this->javascriptObjects)) {
             return;
         }
 

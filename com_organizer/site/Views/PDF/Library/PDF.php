@@ -112,8 +112,6 @@ class PDF
 
     protected string $pageUnit = self::MILLIMETER;
 
-    private bool $pdfaMode = false;
-
     /** Number of points in user unit */
     protected float $scaleFactor;
 
@@ -1369,11 +1367,6 @@ class PDF
     protected $force_srgb = false;
 
     /**
-     * version of PDF/A mode (1 - 3).
-     */
-    protected $pdfa_version = 1;
-
-    /**
      * Document creation date-time
      */
     protected $doc_creation_timestamp;
@@ -1450,8 +1443,7 @@ class PDF
         string       $unit = self::MILLIMETER,
         array|string $format = 'A4',
         bool         $unicode = true,
-        string       $encoding = 'UTF-8',
-        bool|int     $pdfa = false
+        string       $encoding = 'UTF-8'
     )
     {
         // set file ID for trailer
@@ -1460,16 +1452,7 @@ class PDF
         $this->font_obj_ids = [];
         $this->page_obj_id  = [];
         $this->form_obj_id  = [];
-
-        // set pdf/a mode
-        if ($pdfa != false) {
-            $this->pdfaMode     = true;
-            $this->pdfa_version = $pdfa;  // 1 or 3
-        }
-        else
-            $this->pdfaMode = false;
-
-        $this->force_srgb = false;
+        $this->force_srgb   = false;
         // set language direction
         $this->rtl    = false;
         $this->tmprtl = false;
@@ -2385,13 +2368,6 @@ class PDF
     public function setCompression($compress = true)
     {
         $this->compress = false;
-        if (function_exists('gzcompress')) {
-            if ($compress) {
-                if (!$this->pdfaMode) {
-                    $this->compress = true;
-                }
-            }
-        }
     }
 
     /**
@@ -3397,9 +3373,6 @@ class PDF
         if ($subset === 'default') {
             $subset = $this->font_subsetting;
         }
-        if ($this->pdfaMode) {
-            $subset = false;
-        }
         if (empty($family)) {
             if (!empty($this->FontFamily)) {
                 $family = $this->FontFamily;
@@ -3424,10 +3397,6 @@ class PDF
         }
         if (($family == 'symbol') or ($family == 'zapfdingbats')) {
             $style = '';
-        }
-        if ($this->pdfaMode and (isset($this->CoreFonts[$family]))) {
-            // all fonts must be embedded
-            $family = 'pdfa' . $family;
         }
         $tempstyle = strtoupper($style === null ? '' : $style);
         $style     = '';
@@ -4006,13 +3975,13 @@ class PDF
             $this->PageAnnots[$page] = [];
         }
         $this->PageAnnots[$page][] = ['n' => ++$this->objectNumber, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
-        if (!$this->pdfaMode || ($this->pdfaMode && $this->pdfa_version == 3)) {
-            if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!empty($opt['FS']))
-                and (@StaticMethods::fileExists($opt['FS']) or StaticMethods::validURL($opt['FS']))
-                and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
-                $this->embeddedfiles[basename($opt['FS'])] = ['f' => ++$this->objectNumber, 'n' => ++$this->objectNumber, 'file' => $opt['FS']];
-            }
+
+        if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!empty($opt['FS']))
+            and (@StaticMethods::fileExists($opt['FS']) or StaticMethods::validURL($opt['FS']))
+            and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
+            $this->embeddedfiles[basename($opt['FS'])] = ['f' => ++$this->objectNumber, 'n' => ++$this->objectNumber, 'file' => $opt['FS']];
         }
+
         // Add widgets annotation's icons
         if (isset($opt['mk']['i']) and @StaticMethods::fileExists($opt['mk']['i'])) {
             $this->Image($opt['mk']['i'], '', '', 10, 10, '', '', '', false, 300, '', false, false, 0, false, true);
@@ -4031,10 +4000,6 @@ class PDF
      */
     protected function _putEmbeddedFiles()
     {
-        if ($this->pdfaMode && $this->pdfa_version != 3) {
-            // embedded files are not allowed in PDF/A mode version 1 and 2
-            return;
-        }
         reset($this->embeddedfiles);
         foreach ($this->embeddedfiles as $filename => $filedata) {
             $data = $this->getCachedFileContents($filedata['file']);
@@ -4056,10 +4021,6 @@ class PDF
                     if ($this->compress) {
                         $data   = gzcompress($data);
                         $filter = ' /Filter /FlateDecode';
-                    }
-
-                    if ($this->pdfa_version == 3) {
-                        $filter = ' /Subtype /text#2Fxml';
                     }
 
                     $stream = $this->_getrawstream($data, $filedata['n']);
@@ -7363,9 +7324,7 @@ class PDF
             }
             $out .= ' /Contents ' . ($this->objectNumber + 1) . ' 0 R';
             $out .= ' /Rotate ' . $this->pagedim[$n]['Rotate'];
-            if (!$this->pdfaMode || $this->pdfa_version >= 2) {
-                $out .= ' /Group << /Type /Group /S /Transparency /CS /DeviceRGB >>';
-            }
+            $out .= ' /Group << /Type /Group /S /Transparency /CS /DeviceRGB >>';
             if (isset($this->pagedim[$n]['trans']) and !empty($this->pagedim[$n]['trans'])) {
                 // page transitions
                 if (isset($this->pagedim[$n]['trans']['Dur'])) {
@@ -7604,10 +7563,6 @@ class PDF
                     }
                     else {
                         $fval = 4;
-                    }
-                    if ($this->pdfaMode) {
-                        // force print flag for PDF/A mode
-                        $fval |= 4;
                     }
                     $annots .= ' /F ' . intval($fval);
                     if (isset($pl['opt']['as']) and is_string($pl['opt']['as'])) {
@@ -7912,10 +7867,6 @@ class PDF
                         }
                         case 'fileattachment':
                         {
-                            if ($this->pdfaMode && $this->pdfa_version != 3) {
-                                // embedded files are not allowed in PDF/A mode version 1 and 2
-                                break;
-                            }
                             if (!isset($pl['opt']['fs'])) {
                                 break;
                             }
@@ -8533,7 +8484,7 @@ class PDF
             $info = $this->getImageBuffer($file);
             // set object for alternate images array
             $altoid = null;
-            if ((!$this->pdfaMode) and isset($info['altimgs']) and !empty($info['altimgs'])) {
+            if (isset($info['altimgs']) and !empty($info['altimgs'])) {
                 $altoid = $this->_newobj();
                 $out    = '[';
                 foreach ($info['altimgs'] as $altimage) {
@@ -8679,34 +8630,6 @@ class PDF
                 $out .= ' /Matrix [1 0 0 1 0 0]';
                 $out .= ' /Resources <<';
                 $out .= ' /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
-                if (!$this->pdfaMode || $this->pdfa_version >= 2) {
-                    // transparency
-                    if (isset($data['extgstates']) and !empty($data['extgstates'])) {
-                        $out .= ' /ExtGState <<';
-                        foreach ($data['extgstates'] as $k => $extgstate) {
-                            if (isset($this->extgstates[$k]['name'])) {
-                                $out .= ' /' . $this->extgstates[$k]['name'];
-                            }
-                            else {
-                                $out .= ' /GS' . $k;
-                            }
-                            $out .= ' ' . $this->extgstates[$k]['n'] . ' 0 R';
-                        }
-                        $out .= ' >>';
-                    }
-                    if (isset($data['gradients']) and !empty($data['gradients'])) {
-                        $gp = '';
-                        $gs = '';
-                        foreach ($data['gradients'] as $id => $grad) {
-                            // gradient patterns
-                            $gp .= ' /p' . $id . ' ' . $this->gradients[$id]['pattern'] . ' 0 R';
-                            // gradient shadings
-                            $gs .= ' /Sh' . $id . ' ' . $this->gradients[$id]['id'] . ' 0 R';
-                        }
-                        $out .= ' /Pattern <<' . $gp . ' >>';
-                        $out .= ' /Shading <<' . $gs . ' >>';
-                    }
-                }
                 // spot colors
                 if (isset($data['spotColors']) and !empty($data['spotColors'])) {
                     $out .= ' /ColorSpace <<';
@@ -8798,33 +8721,31 @@ class PDF
             }
             $out .= ' >>';
         }
-        if (!$this->pdfaMode || $this->pdfa_version >= 2) {
-            // transparency
-            if (isset($this->extgstates) and !empty($this->extgstates)) {
-                $out .= ' /ExtGState <<';
-                foreach ($this->extgstates as $k => $extgstate) {
-                    if (isset($extgstate['name'])) {
-                        $out .= ' /' . $extgstate['name'];
-                    }
-                    else {
-                        $out .= ' /GS' . $k;
-                    }
-                    $out .= ' ' . $extgstate['n'] . ' 0 R';
+        // transparency
+        if (isset($this->extgstates) and !empty($this->extgstates)) {
+            $out .= ' /ExtGState <<';
+            foreach ($this->extgstates as $k => $extgstate) {
+                if (isset($extgstate['name'])) {
+                    $out .= ' /' . $extgstate['name'];
                 }
-                $out .= ' >>';
-            }
-            if (isset($this->gradients) and !empty($this->gradients)) {
-                $gp = '';
-                $gs = '';
-                foreach ($this->gradients as $id => $grad) {
-                    // gradient patterns
-                    $gp .= ' /p' . $id . ' ' . $grad['pattern'] . ' 0 R';
-                    // gradient shadings
-                    $gs .= ' /Sh' . $id . ' ' . $grad['id'] . ' 0 R';
+                else {
+                    $out .= ' /GS' . $k;
                 }
-                $out .= ' /Pattern <<' . $gp . ' >>';
-                $out .= ' /Shading <<' . $gs . ' >>';
+                $out .= ' ' . $extgstate['n'] . ' 0 R';
             }
+            $out .= ' >>';
+        }
+        if (isset($this->gradients) and !empty($this->gradients)) {
+            $gp = '';
+            $gs = '';
+            foreach ($this->gradients as $id => $grad) {
+                // gradient patterns
+                $gp .= ' /p' . $id . ' ' . $grad['pattern'] . ' 0 R';
+                // gradient shadings
+                $gs .= ' /Sh' . $id . ' ' . $grad['id'] . ' 0 R';
+            }
+            $out .= ' /Pattern <<' . $gp . ' >>';
+            $out .= ' /Shading <<' . $gs . ' >>';
         }
         // spot colors
         if (isset($this->spotColors) and !empty($this->spotColors)) {
@@ -8996,12 +8917,6 @@ class PDF
         $xmp        .= "\t\t\t" . '<xmpMM:DocumentID>' . $uuid . '</xmpMM:DocumentID>' . "\n";
         $xmp        .= "\t\t\t" . '<xmpMM:InstanceID>' . $uuid . '</xmpMM:InstanceID>' . "\n";
         $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
-        if ($this->pdfaMode) {
-            $xmp .= "\t\t" . '<rdf:Description rdf:about="" xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">' . "\n";
-            $xmp .= "\t\t\t" . '<pdfaid:part>' . $this->pdfa_version . '</pdfaid:part>' . "\n";
-            $xmp .= "\t\t\t" . '<pdfaid:conformance>B</pdfaid:conformance>' . "\n";
-            $xmp .= "\t\t" . '</rdf:Description>' . "\n";
-        }
         // XMP extension schemas
         $xmp .= "\t\t" . '<rdf:Description rdf:about="" xmlns:pdfaExtension="http://www.aiim.org/pdfa/ns/extension/" xmlns:pdfaSchema="http://www.aiim.org/pdfa/ns/schema#" xmlns:pdfaProperty="http://www.aiim.org/pdfa/ns/property#">' . "\n";
         $xmp .= "\t\t\t" . '<pdfaExtension:schemas>' . "\n";
@@ -9088,7 +9003,7 @@ class PDF
         // put XMP
         $xmpobj = $this->_putXMP();
         // if required, add standard sRGB ICC colour profile
-        if ($this->pdfaMode or $this->force_srgb) {
+        if ($this->force_srgb) {
             $iccobj = $this->_newobj();
             $icc    = file_get_contents(dirname(__FILE__) . '/include/sRGB.icc');
             $filter = '';
@@ -9107,7 +9022,7 @@ class PDF
         $out .= ' /Pages 1 0 R';
         //$out .= ' /PageLabels ' //...;
         $out .= ' /Names <<';
-        if ((!$this->pdfaMode) and !empty($this->javascriptCounter)) {
+        if (!empty($this->javascriptCounter)) {
             $out .= ' /JavaScript ' . $this->javascriptCounter;
         }
         if (!empty($this->efnames)) {
@@ -9155,7 +9070,7 @@ class PDF
         }
         //$out .= ' /SpiderInfo <<>>';
         // set OutputIntent to sRGB IEC61966-2.1 if required
-        if ($this->pdfaMode or $this->force_srgb) {
+        if ($this->force_srgb) {
             $out .= ' /OutputIntents [<<';
             $out .= ' /Type /OutputIntent';
             $out .= ' /S /GTS_PDFA1';
@@ -9243,7 +9158,7 @@ class PDF
                 }
                 $out .= ' >> >>';
             }
-            $font = $this->getFontBuffer((($this->pdfaMode) ? 'pdfa' : '') . 'helvetica');
+            $font = $this->getFontBuffer('helvetica');
             $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g)';
             $out  .= ' /Q ' . (($this->rtl) ? '2' : '0');
             //$out .= ' /XFA ';
@@ -10248,10 +10163,6 @@ class PDF
      */
     public function setProtection($permissions = ['print', 'modify', 'copy', 'annot-forms', 'fill-forms', 'extract', 'assemble', 'print-high'], $user_pass = '', $owner_pass = null, $mode = 0, $pubkeys = null)
     {
-        if ($this->pdfaMode) {
-            // encryption is not allowed in PDF/A mode
-            return;
-        }
         $this->encryptdata['protection'] = StaticMethods::getUserPermissionCode($permissions, $mode);
         if (($pubkeys !== null) and (is_array($pubkeys))) {
             // public-key mode
@@ -11144,10 +11055,6 @@ class PDF
         }
         // set font
         $font = 'zapfdingbats';
-        if ($this->pdfaMode) {
-            // all fonts must be embedded
-            $font = 'pdfa' . $font;
-        }
         $this->AddFont($font);
         $tmpfont = $this->getFontBuffer($font);
         // set data for parent group
@@ -11422,10 +11329,6 @@ class PDF
         $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default options
         $font = 'zapfdingbats';
-        if ($this->pdfaMode) {
-            // all fonts must be embedded
-            $font = 'pdfa' . $font;
-        }
         $this->AddFont($font);
         $tmpfont                                     = $this->getFontBuffer($font);
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
@@ -12099,10 +12002,6 @@ class PDF
      */
     protected function addExtGState($parms)
     {
-        if ($this->pdfaMode || $this->pdfa_version >= 2) {
-            // transparencies are not allowed in PDF/A mode
-            return;
-        }
         // check if this ExtGState already exist
         foreach ($this->extgstates as $i => $ext) {
             if ($ext['parms'] == $parms) {
@@ -12129,7 +12028,7 @@ class PDF
      */
     protected function setExtGState($gs)
     {
-        if (($this->pdfaMode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
+        if ($this->state !== self::READY) {
             // transparency is not allowed in PDF/A-1 mode
             return;
         }
@@ -12209,10 +12108,6 @@ class PDF
      */
     public function setAlpha($stroking = 1, $bm = 'Normal', $nonstroking = null, $ais = false)
     {
-        if ($this->pdfaMode && $this->pdfa_version < 2) {
-            // transparency is not allowed in PDF/A-1 mode
-            return;
-        }
         $stroking = floatval($stroking);
         if (empty($nonstroking)) {
             // default value if not set
@@ -12289,17 +12184,7 @@ class PDF
      */
     public function setPDFVersion($version = '1.7')
     {
-        if ($this->pdfaMode && $this->pdfa_version == 1) {
-            // PDF/A-1 mode
-            $this->PDFVersion = '1.4';
-        }
-        elseif ($this->pdfaMode && $this->pdfa_version >= 2) {
-            // PDF/A-2 mode
-            $this->PDFVersion = '1.7';
-        }
-        else {
-            $this->PDFVersion = $version;
-        }
+        $this->PDFVersion = $version;
     }
 
     /**
@@ -12657,7 +12542,7 @@ class PDF
      */
     public function CoonsPatchMesh($x, $y, $w, $h, $col1 = [], $col2 = [], $col3 = [], $col4 = [], $coords = [0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33], $coords_min = 0, $coords_max = 1, $antialias = false)
     {
-        if (($this->pdfaMode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->Clip($x, $y, $w, $h);
@@ -12773,7 +12658,7 @@ class PDF
      */
     public function Gradient($type, $coords, $stops, $background = [], $antialias = false)
     {
-        if (($this->pdfaMode && $this->pdfa_version < 2) or ($this->state !== self::READY)) {
+        if ($this->state !== self::READY) {
             return;
         }
         $n                                   = count($this->gradients) + 1;
@@ -12835,7 +12720,7 @@ class PDF
             }
             if (isset($stop['opacity'])) {
                 $this->gradients[$n]['colors'][$key]['opacity'] = $stop['opacity'];
-                if ((!($this->pdfaMode && $this->pdfa_version < 2)) and ($stop['opacity'] < 1)) {
+                if ($stop['opacity'] < 1) {
                     $this->gradients[$n]['transparency'] = true;
                 }
             }
@@ -12889,9 +12774,6 @@ class PDF
      */
     function _putshaders()
     {
-        if ($this->pdfaMode && $this->pdfa_version < 2) {
-            return;
-        }
         $idt = count($this->gradients); //index for transparency gradients
         foreach ($this->gradients as $id => $grad) {
             if (($grad['type'] == 2) or ($grad['type'] == 3)) {
@@ -20903,12 +20785,7 @@ class PDF
      */
     public function setFontSubsetting($enable = true)
     {
-        if ($this->pdfaMode) {
-            $this->font_subsetting = false;
-        }
-        else {
-            $this->font_subsetting = $enable ? true : false;
-        }
+        $this->font_subsetting = $enable ? true : false;
     }
 
     /**
@@ -22750,9 +22627,6 @@ class PDF
             }
             case 'linearGradient':
             {
-                if ($this->pdfaMode && $this->pdfa_version < 2) {
-                    break;
-                }
                 if (!isset($attribs['id'])) {
                     $attribs['id'] = 'GR_' . (count($this->svggradients) + 1);
                 }
@@ -22793,9 +22667,6 @@ class PDF
             }
             case 'radialGradient':
             {
-                if ($this->pdfaMode && $this->pdfa_version < 2) {
-                    break;
-                }
                 if (!isset($attribs['id'])) {
                     $attribs['id'] = 'GR_' . (count($this->svggradients) + 1);
                 }
