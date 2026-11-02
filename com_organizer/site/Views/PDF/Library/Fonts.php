@@ -82,7 +82,7 @@ trait Fonts
 
         if (function_exists('mb_convert_encoding')) {
             list(, $value) = @unpack('N', mb_convert_encoding($character, 'UCS-4BE', 'UTF-8'));
-            if ($value >= 0) {
+            if (is_int($value) and $value >= 0) {
                 $this->utf8Map[$character] = $value;
                 return $value;
             }
