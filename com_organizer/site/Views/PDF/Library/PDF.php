@@ -724,11 +724,6 @@ class PDF
     protected $lispacer = '';
 
     /**
-     * Default encoding.
-     */
-    protected $encoding = 'UTF-8';
-
-    /**
      * Boolean flag to indicate if the document language is Right-To-Left.
      */
     protected $rtl = false;
@@ -1430,25 +1425,22 @@ class PDF
     /**
      * Builds the PDF.
      *
-     * @param string        $orientation
-     * @param string        $unit     User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
-     * @param mixed         $format   The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool          $unicode  TRUE means that the input text is Unicode (default = true)
-     * @param string        $encoding Charset encoding (used only when converting back html entities); default is UTF-8.
-     * @param false|integer $pdfa     If not false, set the document to PDF/A mode and the good version (1 or 3).
+     * @param string $orientation
+     * @param string $unit    User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
+     * @param mixed  $format  The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $unicode TRUE means that the input text is Unicode (default = true)
      * @see self::ORIENTATIONS, self::UNITS, getPageSizeFromFormat(), setPageFormat()
      */
     public function __construct(
         string       $orientation = self::PORTRAIT,
         string       $unit = self::MILLIMETER,
         array|string $format = 'A4',
-        bool         $unicode = true,
-        string       $encoding = 'UTF-8'
+        bool         $unicode = true
     )
     {
         // set file ID for trailer
         $serformat          = (is_array($format) ? json_encode($format) : $format);
-        $this->file_id      = md5(StaticMethods::randomSeed('Organizer' . $orientation . $unit . $serformat . $encoding));
+        $this->file_id      = md5(StaticMethods::randomSeed('Organizer' . $orientation . $unit . $serformat . 'UTF-8'));
         $this->font_obj_ids = [];
         $this->page_obj_id  = [];
         $this->form_obj_id  = [];
@@ -1524,7 +1516,6 @@ class PDF
         // set default PDF version number
         $this->setPDFVersion();
         $this->tcpdflink = true;
-        $this->encoding  = $encoding;
         $this->HREF      = [];
         $this->getFontsList();
         $this->extgstates = [];
@@ -9751,7 +9742,7 @@ class PDF
      */
     public function unhtmlentities($text_to_convert)
     {
-        return @html_entity_decode($text_to_convert, ENT_QUOTES, $this->encoding);
+        return @html_entity_decode($text_to_convert, ENT_QUOTES, 'UTF-8');
     }
 
     // ENCRYPTION METHODS ----------------------------------
@@ -15336,7 +15327,7 @@ class PDF
                     if (function_exists('mb_convert_case')) {
                         $ttm = ['capitalize' => MB_CASE_TITLE, 'uppercase' => MB_CASE_UPPER, 'lowercase' => MB_CASE_LOWER];
                         if (isset($ttm[$dom[$dom[$key]['parent']]['text-transform']])) {
-                            $element = mb_convert_case($element, $ttm[$dom[$dom[$key]['parent']]['text-transform']], $this->encoding);
+                            $element = mb_convert_case($element, $ttm[$dom[$dom[$key]['parent']]['text-transform']], 'UTF-8');
                         }
                     }
                     elseif (!$this->isUnicode) {
