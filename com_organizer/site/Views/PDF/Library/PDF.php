@@ -3133,7 +3133,7 @@ class PDF
         }
         // convert UTF-8 array to Latin1 if required
         if ($this->isUnicode and (!$this->isUnicodeFont())) {
-            $sa = Fonts::UTF8ArrToLatin1Arr($sa);
+            $sa = $this->utf8ArrayToLatin1Array($sa);
         }
         $w  = 0; // total width
         $wa = []; // array of characters widths

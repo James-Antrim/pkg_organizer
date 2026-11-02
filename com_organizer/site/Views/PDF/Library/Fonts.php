@@ -163,6 +163,28 @@ trait Fonts
     }
 
     /**
+     * Converts UTF-8 character values array to array of Latin1 character values array.
+     * @param array $utf8Values
+     * @return array
+     */
+    public function utf8ArrayToLatin1Array(array $utf8Values): array
+    {
+        $latin1Values = [];
+        foreach ($utf8Values as $char) {
+            if ($char < 256) {
+                $latin1Values[] = $char;
+            }
+            elseif (array_key_exists($char, FontData::$utf8ToLatin1)) {
+                $latin1Values[] = FontData::$utf8ToLatin1[$char];
+            }
+            elseif ($char !== 0xFFFD) {
+                $latin1Values[] = 63; // '?' character
+            }
+        }
+        return $latin1Values;
+    }
+
+    /**
      * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
      * @param string  $string
      * @param bool    $setBOM   if true set the Byte Order Mark (BOM = 0xFEFF)
@@ -1031,32 +1053,6 @@ trait Fonts
             $string .= $uniarr[$i];
         }
         return $string;
-    }
-
-    /**
-     * Converts UTF-8 characters array to array of Latin1 characters array<br>
-     * @param array $unicode array containing UTF-8 Unicode values
-     * @return array
-     */
-    public static function UTF8ArrToLatin1Arr($unicode)
-    {
-        $outarr = []; // array to be returned
-        foreach ($unicode as $char) {
-            if ($char < 256) {
-                $outarr[] = $char;
-            }
-            elseif (array_key_exists($char, FontData::$utf8ToLatin1)) {
-                // map from UTF-8
-                $outarr[] = FontData::$utf8ToLatin1[$char];
-            }
-            elseif ($char == 0xFFFD) {
-                // skip
-            }
-            else {
-                $outarr[] = 63; // '?' character
-            }
-        }
-        return $outarr;
     }
 
     /**
