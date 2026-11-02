@@ -4286,7 +4286,7 @@ class PDF
             $txt2 = $txt;
             if ($this->isUnicode) {
                 if (($this->CurrentFont['type'] == 'core') or ($this->CurrentFont['type'] == 'TrueType') or ($this->CurrentFont['type'] == 'Type1')) {
-                    $txt2 = Fonts::utf8ToLatin1($txt2, $this->isUnicode, $this->CurrentFont);
+                    $txt2 = $this->utf8ToLatin1($txt2, $this->isUnicode, $this->CurrentFont);
                 }
                 else {
                     $unicode = $this->utf8StringToArray($txt, $this->isUnicode, $this->CurrentFont); // array of UTF-8 Unicode values
@@ -6994,10 +6994,10 @@ class PDF
         $u            = '{' . $a . '}';
         $alias['u'][] = StaticMethods::escape($u);
         if ($this->isUnicode) {
-            $alias['u'][] = StaticMethods::escape(Fonts::utf8ToLatin1($u, $this->isUnicode, $this->CurrentFont));
-            $alias['u'][] = StaticMethods::escape(Fonts::utf8StringReverse($u, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
-            $alias['a'][] = StaticMethods::escape(Fonts::utf8ToLatin1($a, $this->isUnicode, $this->CurrentFont));
-            $alias['a'][] = StaticMethods::escape(Fonts::utf8StringReverse($a, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['u'][] = StaticMethods::escape($this->utf8ToLatin1($u, $this->isUnicode, $this->CurrentFont));
+            $alias['u'][] = StaticMethods::escape($this->utf8StringReverse($u, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['a'][] = StaticMethods::escape($this->utf8ToLatin1($a, $this->isUnicode, $this->CurrentFont));
+            $alias['a'][] = StaticMethods::escape($this->utf8StringReverse($a, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
         }
         $alias['a'][] = StaticMethods::escape($a);
         return $alias;
@@ -7050,7 +7050,7 @@ class PDF
                     if ($type == 'u') {
                         $chrdiff = floor(($diff + 12) * $ratio);
                         $shift   = str_repeat(' ', $chrdiff);
-                        $shift   = Fonts::utf8ToUTF16BE($shift, false, $this->isUnicode, $this->CurrentFont);
+                        $shift   = $this->utf8ToUTF16BE($shift, false, $this->isUnicode, $this->CurrentFont);
                     }
                     else {
                         $chrdiff = floor(($diff + 11) * $ratio);
@@ -7087,7 +7087,7 @@ class PDF
         $pnalias       = $this->getAllInternalPageNumberAliases();
         $num_pages     = $this->numpages;
         $ptpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $num_pages - 1));
-        $ptpu          = Fonts::utf8ToUTF16BE($ptpa, false, $this->isUnicode, $this->CurrentFont);
+        $ptpu          = $this->utf8ToUTF16BE($ptpa, false, $this->isUnicode, $this->CurrentFont);
         $ptp_num_chars = $this->GetNumChars($ptpa);
         $pagegroupnum  = 0;
         $groupnum      = 0;
@@ -7100,7 +7100,7 @@ class PDF
             $pagelen  = strlen($tempPage);
             // set replacements for total pages number
             $pnpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $n - 1));
-            $pnpu          = Fonts::utf8ToUTF16BE($pnpa, false, $this->isUnicode, $this->CurrentFont);
+            $pnpu          = $this->utf8ToUTF16BE($pnpa, false, $this->isUnicode, $this->CurrentFont);
             $pnp_num_chars = $this->GetNumChars($pnpa);
             $pdiff         = 0; // difference used for right shift alignment of page numbers
             $gdiff         = 0; // difference used for right shift alignment of page group numbers
@@ -7109,12 +7109,12 @@ class PDF
                     $pagegroupnum = 0;
                     ++$groupnum;
                     $ptga          = StaticMethods::formatPageNumber($this->pagegroups[$groupnum]);
-                    $ptgu          = Fonts::utf8ToUTF16BE($ptga, false, $this->isUnicode, $this->CurrentFont);
+                    $ptgu          = $this->utf8ToUTF16BE($ptga, false, $this->isUnicode, $this->CurrentFont);
                     $ptg_num_chars = $this->GetNumChars($ptga);
                 }
                 ++$pagegroupnum;
                 $pnga          = StaticMethods::formatPageNumber($pagegroupnum);
-                $pngu          = Fonts::utf8ToUTF16BE($pnga, false, $this->isUnicode, $this->CurrentFont);
+                $pngu          = $this->utf8ToUTF16BE($pnga, false, $this->isUnicode, $this->CurrentFont);
                 $png_num_chars = $this->GetNumChars($pnga);
                 // replace page numbers
                 $replace   = [];
@@ -9453,7 +9453,7 @@ class PDF
     {
         if ($this->isUnicode) {
             //Convert string to UTF-16BE
-            $s = Fonts::utf8ToUTF16BE($s, true, $this->isUnicode, $this->CurrentFont);
+            $s = $this->utf8ToUTF16BE($s, true, $this->isUnicode, $this->CurrentFont);
         }
         return $this->_datastring($s, $n);
     }
@@ -19942,15 +19942,15 @@ class PDF
                         $np = $n;
                     }
                     $na = StaticMethods::formatTOCPageNumber(($this->starting_page_number + $np - 1));
-                    $nu = Fonts::utf8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
+                    $nu = $this->utf8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
                     // replace aliases with numbers
                     foreach ($pnalias['u'] as $u) {
                         $sfill = str_repeat($filler, max(0, (strlen($u) - strlen($nu . ' '))));
                         if ($this->rtl) {
-                            $nr = $nu . Fonts::utf8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
+                            $nr = $nu . $this->utf8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
                         }
                         else {
-                            $nr = Fonts::utf8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
+                            $nr = $this->utf8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
                         }
                         $tempPage = str_replace($u, $nr, $tempPage);
                     }
@@ -20080,16 +20080,16 @@ class PDF
                         $np = $n;
                     }
                     $na = StaticMethods::formatTOCPageNumber(($this->starting_page_number + $np - 1));
-                    $nu = Fonts::utf8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
+                    $nu = $this->utf8ToUTF16BE($na, false, $this->isUnicode, $this->CurrentFont);
                     // replace aliases with numbers
                     foreach ($pnalias['u'] as $u) {
                         if ($correct_align) {
                             $sfill = str_repeat($filler, (strlen($u) - strlen($nu . ' ')));
                             if ($this->rtl) {
-                                $nr = $nu . Fonts::utf8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
+                                $nr = $nu . $this->utf8ToUTF16BE(' ' . $sfill, false, $this->isUnicode, $this->CurrentFont);
                             }
                             else {
-                                $nr = Fonts::utf8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
+                                $nr = $this->utf8ToUTF16BE($sfill . ' ', false, $this->isUnicode, $this->CurrentFont) . $nu;
                             }
                         }
                         else {
