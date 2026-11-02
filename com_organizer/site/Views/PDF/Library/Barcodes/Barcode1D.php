@@ -45,6 +45,7 @@ class Barcode1D
      *                     RMS4CC  => RMS4CC (Royal Mail 4-state Customer Code) - CBC (Customer Bar Code,
      *                     S25 => Standard 2 of 5, S25+=> Standard 2 of 5 + CHECKSUM,
      *                     UPCA => UPC-A, UPCE => UPC-E,
+     * @see self::UNITS
      */
     public function __construct(string $code, string $type)
     {
@@ -2087,6 +2088,7 @@ class Barcode1D
      * @param int    $height Height of barcode in user units.
      * @param string $color  Foreground color (in SVG format) for bar elements (background is transparent).
      * @return string
+     * @see self::UNITS
      */
     public function SVGCode(int $width = 2, int $height = 30, string $color = 'black'): string
     {

@@ -64,11 +64,6 @@ define('PDF_HEADER_TITLE', 'TCPDF Example');
 define('PDF_HEADER_STRING', "by Nicola Asuni - Tecnick.com\nwww.tcpdf.org");
 
 /**
- * Document unit of measure [pt=point, mm=millimeter, cm=centimeter, in=inch].
- */
-define('PDF_UNIT', 'mm');
-
-/**
  * Header margin.
  */
 define('PDF_MARGIN_HEADER', 5);

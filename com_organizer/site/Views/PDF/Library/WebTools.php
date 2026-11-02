@@ -15,10 +15,26 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Trait extracting CSS, HTML, and JavaScript related functions and constants. */
 trait WebTools
 {
+    private const ELEMENT = 'em', PERCENT = '%', PICA = 'pc', PIXEL = 'px', RELATIVE_X = 'ex';
+
+    /**
+     * ELEMENT => em: relative to the font-size of the element.
+     * PERCENT => %: relative to the parent element
+     * PIXEL => px: 1/96th of an inch
+     * RELATIVE_X => ex: relative to the x-height of the current font
+     * @see self::UNITS
+     */
+    private const WEB_UNITS = [self::CENTIMETER, self::ELEMENT, self::INCH, self::MILLIMETER, self::PERCENT, self::PIXEL, self::POINT, self::RELATIVE_X];
+
     private string $javascript = '';
     /** Javascript counter added to the document code. */
     protected string $javascriptCounter = '';
     private array $javascriptObjects = [];
+
+    /**
+     *  Deafult unit of measure for SVG.
+     */
+    protected $svgUnit = self::PIXEL;
 
     /**
      * Adds a javascript form field.

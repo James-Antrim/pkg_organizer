@@ -34,6 +34,7 @@ trait Barcoded
      * @param int    $height Height of a single rectangle element in user units.
      * @param string $color  Foreground color (in SVG format) for bar elements (background is transparent).
      * @return void
+     * @see self::UNITS
      */
     public function SVG(int $width = 3, int $height = 3, string $color = 'black'): void
     {

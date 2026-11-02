@@ -72,11 +72,11 @@ abstract class BaseView extends PDF implements ViewInterface
      * Performs initial construction of the TCPDF Object.
      *
      * @param string $orientation
-     * @param string $unit   unit of measure
+     * @param string $unit
      * @param mixed  $format page format; possible values: string - common format name, array - parameters
-     * @see self::ORIENTATIONS, StaticMethods::getPageSizeFromFormat(), setPageFormat()
+     * @see self::ORIENTATIONS, self::UNITS, StaticMethods::getPageSizeFromFormat(), setPageFormat()
      */
-    public function __construct(string $orientation = self::PORTRAIT, string $unit = 'mm', string $format = 'A4')
+    public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
     {
         $this->authorize();
 

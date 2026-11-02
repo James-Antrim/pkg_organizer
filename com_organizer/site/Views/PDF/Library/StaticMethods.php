@@ -1873,6 +1873,7 @@ class StaticMethods
      * @param float  $factor         scale factor (number of points in user unit).
      * @param array  $pageDimensions array of page dimensions.
      * @return array
+     * @see self::UNITS
      */
     public static function setPageBoxes(int $page, string $type, float $llx, float $lly, float $urx, float $ury, bool $points, float $factor, array $pageDimensions = []): array
     {

@@ -81,6 +81,19 @@ class PDF
         self::STROKE, self::STROKE_CLOSE,
     ];
 
+    public const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
+
+    /**
+     * Units of measure.
+     * CENTIMETER => cm
+     * INCH => in (2.54 cm)
+     * MILLIMETER => mm (default unit of measure)
+     * PIXEL => px
+     * POINT => pt (1/72 of inch / ~ 0.35 mm) Common unit in typography; font sizes are expressed in that unit.
+     */
+    public const UNITS = [self::CENTIMETER, self::INCH, self::MILLIMETER, self::POINT];
+
+
     /** Buffer holding in-memory PDF. */
     private string $buffer = '';
 
@@ -96,6 +109,8 @@ class PDF
     private array $pageLengths = [];
     private array $pageObjectIDs = [];
     private array $pages = [];
+
+    protected string $pageUnit = self::MILLIMETER;
 
     private bool $pdfaMode = false;
 
@@ -208,6 +223,26 @@ class PDF
     public function pagesInGroupAlias(): string
     {
         return $this->isUnicodeFont() ? '{' . StaticMethods::PAGES_IN_GROUP_ALIAS . '}' : StaticMethods::PAGES_IN_GROUP_ALIAS;
+    }
+
+    /**
+     * Set the units of measure for the document.
+     * @param string $unit
+     * @see self::UNITS
+     */
+    public function pageUnit(string $unit): void
+    {
+        $unit              = strtolower($unit);
+        $this->scaleFactor = match ($unit) {
+            self::CENTIMETER => $this->dpi / 2.54,
+            self::PIXEL, self::POINT => 1,
+            self::INCH => $this->dpi,
+            default => $this->dpi / 25.4,
+        };
+        $this->pageUnit    = $unit;
+        if (isset($this->orientation)) {
+            $this->setPageOrientation($this->orientation);
+        }
     }
 
     /**
@@ -1144,11 +1179,6 @@ class PDF
     protected $textstrokewidth = 0;
 
     /**
-     * Default unit of measure for document.
-     */
-    protected $pdfunit = 'mm';
-
-    /**
      * Boolean flag true when we are on TOC (Table Of Content) page.
      */
     protected $tocpage = false;
@@ -1213,11 +1243,6 @@ class PDF
      * Directory used for the last SVG image.
      */
     protected $svgdir = '';
-
-    /**
-     *  Deafult unit of measure for SVG.
-     */
-    protected $svgunit = 'px';
 
     /**
      * Array of SVG gradients.
@@ -1418,13 +1443,20 @@ class PDF
      * @param bool          $unicode  TRUE means that the input text is Unicode (default = true)
      * @param string        $encoding Charset encoding (used only when converting back html entities); default is UTF-8.
      * @param false|integer $pdfa     If not false, set the document to PDF/A mode and the good version (1 or 3).
-     * @see self::ORIENTATIONS, getPageSizeFromFormat(), setPageFormat()
+     * @see self::ORIENTATIONS, self::UNITS, getPageSizeFromFormat(), setPageFormat()
      */
-    public function __construct(string $orientation = self::PORTRAIT, string $unit = 'mm', array|string $format = 'A4', bool $unicode = true, string $encoding = 'UTF-8', bool|int $pdfa = false)
+    public function __construct(
+        string       $orientation = self::PORTRAIT,
+        string       $unit = self::MILLIMETER,
+        array|string $format = 'A4',
+        bool         $unicode = true,
+        string       $encoding = 'UTF-8',
+        bool|int     $pdfa = false
+    )
     {
         // set file ID for trailer
         $serformat          = (is_array($format) ? json_encode($format) : $format);
-        $this->file_id      = md5(StaticMethods::randomSeed('TCPDF' . $orientation . $unit . $serformat . $encoding));
+        $this->file_id      = md5(StaticMethods::randomSeed('Organizer' . $orientation . $unit . $serformat . $encoding));
         $this->font_obj_ids = [];
         $this->page_obj_id  = [];
         $this->form_obj_id  = [];
@@ -1485,7 +1517,7 @@ class PDF
             'zapfdingbats' => 'ZapfDingbats'
         ];
         // set scale factor
-        $this->setPageUnit($unit);
+        $this->pageUnit($unit);
         $this->setPageFormat($format, $orientation);
         // page margins (1 cm)
         $margin = 28.35 / $this->scaleFactor;
@@ -1568,53 +1600,6 @@ class PDF
     {
         // cleanup
         $this->_destroy(true);
-    }
-
-    /**
-     * Set the units of measure for the document.
-     * @param string $unit User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
-     */
-    public function setPageUnit($unit)
-    {
-        $unit = strtolower($unit);
-        //Set scale factor
-        switch ($unit) {
-            // points
-            case 'px':
-            case 'pt':
-            {
-                $this->scaleFactor = 1;
-                break;
-            }
-            // millimeters
-            case 'mm':
-            {
-                $this->scaleFactor = $this->dpi / 25.4;
-                break;
-            }
-            // centimeters
-            case 'cm':
-            {
-                $this->scaleFactor = $this->dpi / 2.54;
-                break;
-            }
-            // inches
-            case 'in':
-            {
-                $this->scaleFactor = $this->dpi;
-                break;
-            }
-            // unsupported unit
-            default :
-            {
-                $this->Error('Incorrect unit: ' . $unit);
-                break;
-            }
-        }
-        $this->pdfunit = $unit;
-        if (isset($this->orientation)) {
-            $this->setPageOrientation($this->orientation);
-        }
     }
 
     /**
@@ -4107,7 +4092,7 @@ class PDF
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
      * @param bool   $rtloff            if true uses the page top-left corner as origin of axis for $x and $y initial position.
-     * @see   Cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
+     * @see Cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
      */
     public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M', $rtloff = false)
     {
@@ -5042,7 +5027,7 @@ class PDF
      * @param string     $valign      Vertical alignment of text (requires $maxHeight = $h > 0). Possible values are:<ul><li>T: TOP</li><li>M: middle</li><li>B: bottom</li></ul>. This feature works only when $ishtml=false and the cell must fit in a single page.
      * @param bool       $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxHeight must be greater than 0 and equal to $h.
      * @return int Return the number of cells or 1 for html mode.
-     * @see   SetFont(), drawColor(), fillColor(), textColor(), lineWidth(), Cell(), Write(), SetAutoPageBreak()
+     * @see SetFont(), drawColor(), fillColor(), textColor(), lineWidth(), Cell(), Write(), SetAutoPageBreak()
      */
     public function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxHeight = 0, $valign = 'T', $fitcell = false)
     {
@@ -6228,8 +6213,8 @@ class PDF
         if ($imsize === FALSE) {
             if (($w > 0) and ($h > 0)) {
                 // get measures from specified data
-                $pw     = $this->getHTMLUnitToUnits($w, 0, $this->pdfunit, true) * $this->imgscale * $this->scaleFactor;
-                $ph     = $this->getHTMLUnitToUnits($h, 0, $this->pdfunit, true) * $this->imgscale * $this->scaleFactor;
+                $pw     = $this->getHTMLUnitToUnits($w, 0, $this->pageUnit, true) * $this->imgscale * $this->scaleFactor;
+                $ph     = $this->getHTMLUnitToUnits($h, 0, $this->pageUnit, true) * $this->imgscale * $this->scaleFactor;
                 $imsize = [$pw, $ph];
             }
             else {
@@ -6436,8 +6421,8 @@ class PDF
                                 $svgtag = $regs[1];
                                 $tmp    = [];
                                 if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
-                                    $ow     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
-                                    $owu    = sprintf('%F', ($ow * $dpi / 72)) . $this->pdfunit;
+                                    $ow     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgUnit);
+                                    $owu    = sprintf('%F', ($ow * $dpi / 72)) . $this->pageUnit;
                                     $svgtag = preg_replace('/[\s]+width[\s]*=[\s]*"[^"]*"/si', ' width="' . $owu . '"', $svgtag, 1);
                                 }
                                 else {
@@ -6445,8 +6430,8 @@ class PDF
                                 }
                                 $tmp = [];
                                 if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
-                                    $oh     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
-                                    $ohu    = sprintf('%F', ($oh * $dpi / 72)) . $this->pdfunit;
+                                    $oh     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgUnit);
+                                    $ohu    = sprintf('%F', ($oh * $dpi / 72)) . $this->pageUnit;
                                     $svgtag = preg_replace('/[\s]+height[\s]*=[\s]*"[^"]*"/si', ' height="' . $ohu . '"', $svgtag, 1);
                                 }
                                 else {
@@ -6825,7 +6810,7 @@ class PDF
      * @param float $y      The value of the ordinate in user units.
      * @param bool  $resetx if true (default) reset the X position.
      * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
-     * @see   GetX(), GetY(), SetY(), SetXY()
+     * @see GetX(), GetY(), SetY(), SetXY()
      */
     public function setY($y, $resetx = true, $rtloff = false)
     {
@@ -6880,7 +6865,7 @@ class PDF
     /**
      * Set the absolute Y coordinate of the current pointer.
      * @param float $y (float) The value of the ordinate in user units.
-     * @see   setAbsX(), setAbsY(), SetAbsXY()
+     * @see setAbsX(), setAbsY(), SetAbsXY()
      */
     public function setAbsY($y)
     {
@@ -6891,7 +6876,7 @@ class PDF
      * Set the absolute X and Y coordinates of the current pointer.
      * @param float $x The value of the abscissa in user units.
      * @param float $y (float) The value of the ordinate in user units.
-     * @see   setAbsX(), setAbsY(), SetAbsXY()
+     * @see setAbsX(), setAbsY(), SetAbsXY()
      */
     public function setAbsXY($x, $y)
     {
@@ -14226,7 +14211,7 @@ class PDF
             $width = (6 / $this->scaleFactor);
         }
         else {
-            $width = $this->getHTMLUnitToUnits($width, 1, 'px', false);
+            $width = $this->getHTMLUnitToUnits($width, 1);
         }
         return $width;
     }
@@ -14380,10 +14365,10 @@ class PDF
         if ($width == 0) {
             $width = $this->w - $this->lMargin - $this->rMargin;
         }
-        $cell_padding['T'] = $this->getHTMLUnitToUnits($cell_padding['T'], $width, 'px', false);
-        $cell_padding['R'] = $this->getHTMLUnitToUnits($cell_padding['R'], $width, 'px', false);
-        $cell_padding['B'] = $this->getHTMLUnitToUnits($cell_padding['B'], $width, 'px', false);
-        $cell_padding['L'] = $this->getHTMLUnitToUnits($cell_padding['L'], $width, 'px', false);
+        $cell_padding['T'] = $this->getHTMLUnitToUnits($cell_padding['T'], $width);
+        $cell_padding['R'] = $this->getHTMLUnitToUnits($cell_padding['R'], $width);
+        $cell_padding['B'] = $this->getHTMLUnitToUnits($cell_padding['B'], $width);
+        $cell_padding['L'] = $this->getHTMLUnitToUnits($cell_padding['L'], $width);
         return $cell_padding;
     }
 
@@ -14438,10 +14423,10 @@ class PDF
         if ($width == 0) {
             $width = $this->w - $this->lMargin - $this->rMargin;
         }
-        $cell_margin['T'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['T']), $width, 'px', false);
-        $cell_margin['R'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['R']), $width, 'px', false);
-        $cell_margin['B'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['B']), $width, 'px', false);
-        $cell_margin['L'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['L']), $width, 'px', false);
+        $cell_margin['T'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['T']), $width);
+        $cell_margin['R'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['R']), $width);
+        $cell_margin['B'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['B']), $width);
+        $cell_margin['L'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['L']), $width);
         return $cell_margin;
     }
 
@@ -14476,8 +14461,8 @@ class PDF
         if ($width == 0) {
             $width = $this->w - $this->lMargin - $this->rMargin;
         }
-        $border_spacing['H'] = $this->getHTMLUnitToUnits($border_spacing['H'], $width, 'px', false);
-        $border_spacing['V'] = $this->getHTMLUnitToUnits($border_spacing['V'], $width, 'px', false);
+        $border_spacing['H'] = $this->getHTMLUnitToUnits($border_spacing['H'], $width);
+        $border_spacing['V'] = $this->getHTMLUnitToUnits($border_spacing['V'], $width);
         return $border_spacing;
     }
 
@@ -14509,7 +14494,7 @@ class PDF
             }
             default:
             {
-                $val = $this->getHTMLUnitToUnits($spacing, 0, 'px', false);
+                $val = $this->getHTMLUnitToUnits($spacing, 0);
             }
         }
         return $val;
@@ -14593,7 +14578,7 @@ class PDF
             }
             default:
             {
-                $val = $this->getHTMLUnitToUnits($stretch, 100, '%', false);
+                $val = $this->getHTMLUnitToUnits($stretch, 100, self::PERCENT);
             }
         }
         return $val;
@@ -14607,7 +14592,7 @@ class PDF
      * @param string $defaultunit Default unit (can be one of the following: %, em, ex, px, in, mm, pc, pt).
      * @return float value in points
      */
-    public function getHTMLFontUnits($val, $refsize = 12, $parent_size = 12, $defaultunit = 'pt')
+    public function getHTMLFontUnits($val, $refsize = 12, $parent_size = 12, $defaultunit = self::POINT)
     {
         $refsize     = Fonts::getFontRefSize($refsize);
         $parent_size = Fonts::getFontRefSize($parent_size, $refsize);
@@ -15034,7 +15019,7 @@ class PDF
                         // font size
                         if (isset($dom[$key]['style']['font-size'])) {
                             $fsize                 = trim($dom[$key]['style']['font-size']);
-                            $dom[$key]['fontsize'] = $this->getHTMLFontUnits($fsize, $dom[0]['fontsize'], $dom[$parentkey]['fontsize'], 'pt');
+                            $dom[$key]['fontsize'] = $this->getHTMLFontUnits($fsize, $dom[0]['fontsize'], $dom[$parentkey]['fontsize']);
                         }
                         // font-stretch
                         if (isset($dom[$key]['style']['font-stretch'])) {
@@ -15064,7 +15049,7 @@ class PDF
                                         // convert to percentage of font height
                                         $lineheight = ($lineheight * 100) . '%';
                                     }
-                                    $dom[$key]['line-height'] = $this->getHTMLUnitToUnits($lineheight, 1, '%', true);
+                                    $dom[$key]['line-height'] = $this->getHTMLUnitToUnits($lineheight, 1, self::PERCENT, true);
                                     if (substr($lineheight, -1) !== '%') {
                                         if ($dom[$key]['fontsize'] <= 0) {
                                             $dom[$key]['line-height'] = 1;
@@ -15239,7 +15224,7 @@ class PDF
                         }
                         foreach ($cellside as $psk => $psv) {
                             if (isset($dom[$key]['style']['padding-' . $psv])) {
-                                $dom[$key]['padding'][$psk] = $this->getHTMLUnitToUnits($dom[$key]['style']['padding-' . $psv], 0, 'px', false);
+                                $dom[$key]['padding'][$psk] = $this->getHTMLUnitToUnits($dom[$key]['style']['padding-' . $psv], 0);
                             }
                         }
                         // check for CSS margin properties
@@ -15251,7 +15236,7 @@ class PDF
                         }
                         foreach ($cellside as $psk => $psv) {
                             if (isset($dom[$key]['style']['margin-' . $psv])) {
-                                $dom[$key]['margin'][$psk] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $dom[$key]['style']['margin-' . $psv]), 0, 'px', false);
+                                $dom[$key]['margin'][$psk] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $dom[$key]['style']['margin-' . $psv]), 0);
                             }
                         }
                         // check for CSS border-spacing properties
@@ -15436,7 +15421,7 @@ class PDF
                     // check for text rendering mode (the following attributes do not exist in HTML)
                     if (isset($dom[$key]['attribute']['stroke'])) {
                         // font stroke width
-                        $dom[$key]['stroke'] = $this->getHTMLUnitToUnits($dom[$key]['attribute']['stroke'], $dom[$key]['fontsize'], 'pt', true);
+                        $dom[$key]['stroke'] = $this->getHTMLUnitToUnits($dom[$key]['attribute']['stroke'], $dom[$key]['fontsize'], self::POINT, true);
                     }
                     if (isset($dom[$key]['attribute']['fill'])) {
                         // font fill
@@ -15802,7 +15787,7 @@ class PDF
                         $this->thead = $tmp_thead;
                         // fix table border properties
                         if (isset($dom[$dom[$key]['parent']]['attribute']['cellspacing'])) {
-                            $tmp_cellspacing = $this->getHTMLUnitToUnits($dom[$dom[$key]['parent']]['attribute']['cellspacing'], 1, 'px');
+                            $tmp_cellspacing = $this->getHTMLUnitToUnits($dom[$dom[$key]['parent']]['attribute']['cellspacing']);
                         }
                         elseif (isset($dom[$dom[$key]['parent']]['border-spacing'])) {
                             $tmp_cellspacing = $dom[$dom[$key]['parent']]['border-spacing']['V'];
@@ -15834,10 +15819,10 @@ class PDF
                 // vertically align image in line
                 if ((!$this->newline) and ($dom[$key]['value'] == 'img') and (isset($dom[$key]['height'])) and ($dom[$key]['height'] > 0)) {
                     // get image height
-                    $imgh          = $this->getHTMLUnitToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->scaleFactor), 'px');
+                    $imgh          = $this->getHTMLUnitToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->scaleFactor));
                     $autolinebreak = false;
                     if (!empty($dom[$key]['width'])) {
-                        $imgw = $this->getHTMLUnitToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->scaleFactor), 'px', false);
+                        $imgw = $this->getHTMLUnitToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->scaleFactor));
                         if (($imgw <= ($this->w - $this->lMargin - $this->rMargin - $this->cell_padding['L'] - $this->cell_padding['R']))
                             and ((($this->rtl) and (($this->x - $imgw) < ($this->lMargin + $this->cell_padding['L'])))
                                 or ((!$this->rtl) and (($this->x + $imgw) > ($this->w - $this->rMargin - $this->cell_padding['R']))))) {
@@ -16552,7 +16537,7 @@ class PDF
                         }
                         // get cell spacing
                         if (isset($dom[$key]['attribute']['cellspacing'])) {
-                            $clsp        = $this->getHTMLUnitToUnits($dom[$key]['attribute']['cellspacing'], 1, 'px');
+                            $clsp        = $this->getHTMLUnitToUnits($dom[$key]['attribute']['cellspacing']);
                             $cellspacing = ['H' => $clsp, 'V' => $clsp];
                         }
                         elseif (isset($dom[$key]['border-spacing'])) {
@@ -16563,7 +16548,7 @@ class PDF
                         }
                         // table width
                         if (isset($dom[$key]['width'])) {
-                            $table_width = $this->getHTMLUnitToUnits($dom[$key]['width'], $wtmp, 'px');
+                            $table_width = $this->getHTMLUnitToUnits($dom[$key]['width'], $wtmp);
                         }
                         else {
                             $table_width = $wtmp;
@@ -16608,7 +16593,7 @@ class PDF
                         }
                         $old_cell_padding = $this->cell_padding;
                         if (isset($dom[($dom[$trid]['parent'])]['attribute']['cellpadding'])) {
-                            $crclpd               = $this->getHTMLUnitToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding'], 1, 'px');
+                            $crclpd               = $this->getHTMLUnitToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding']);
                             $current_cell_padding = ['L' => $crclpd, 'T' => $crclpd, 'R' => $crclpd, 'B' => $crclpd];
                         }
                         elseif (isset($dom[($dom[$trid]['parent'])]['padding'])) {
@@ -16620,7 +16605,7 @@ class PDF
                         $this->cell_padding = $current_cell_padding;
                         if (isset($dom[$key]['height'])) {
                             // minimum cell height
-                            $cellh = $this->getHTMLUnitToUnits($dom[$key]['height'], 0, 'px');
+                            $cellh = $this->getHTMLUnitToUnits($dom[$key]['height'], 0);
                         }
                         else {
                             $cellh = 0;
@@ -16718,7 +16703,7 @@ class PDF
                         }
                         if (isset($dom[$parentid]['width'])) {
                             // user specified width
-                            $cellw = $this->getHTMLUnitToUnits($dom[$parentid]['width'], $table_columns_width, 'px');
+                            $cellw = $this->getHTMLUnitToUnits($dom[$parentid]['width'], $table_columns_width);
                             $tmpcw = ($cellw / $colspan);
                             for ($i = 0; $i < $colspan; ++$i) {
                                 $table_colwidths[($colid + $i)] = $tmpcw;
@@ -17362,14 +17347,14 @@ class PDF
                 // store current margins and page
                 $dom[$key]['old_cell_padding'] = $this->cell_padding;
                 if (isset($tag['attribute']['cellpadding'])) {
-                    $pad = $this->getHTMLUnitToUnits($tag['attribute']['cellpadding'], 1, 'px');
+                    $pad = $this->getHTMLUnitToUnits($tag['attribute']['cellpadding']);
                     $this->setCellPadding($pad);
                 }
                 elseif (isset($tag['padding'])) {
                     $this->cell_padding = $tag['padding'];
                 }
                 if (isset($tag['attribute']['cellspacing'])) {
-                    $cs = $this->getHTMLUnitToUnits($tag['attribute']['cellspacing'], 1, 'px');
+                    $cs = $this->getHTMLUnitToUnits($tag['attribute']['cellspacing']);
                 }
                 elseif (isset($tag['border-spacing'])) {
                     $cs = $tag['border-spacing']['V'];
@@ -17391,7 +17376,7 @@ class PDF
             case 'hr':
             {
                 if ((isset($tag['height'])) and ($tag['height'] != '')) {
-                    $hrHeight = $this->getHTMLUnitToUnits($tag['height'], 1, 'px');
+                    $hrHeight = $this->getHTMLUnitToUnits($tag['height'], 1);
                 }
                 else {
                     $hrHeight = $this->lineWidth;
@@ -17404,7 +17389,7 @@ class PDF
                     $wtmp -= ($this->cell_padding['L'] + $this->cell_padding['R']);
                 }
                 if ((isset($tag['width'])) and ($tag['width'] != '')) {
-                    $hrWidth = $this->getHTMLUnitToUnits($tag['width'], $wtmp, 'px');
+                    $hrWidth = $this->getHTMLUnitToUnits($tag['width'], $wtmp);
                 }
                 else {
                     $hrWidth = $wtmp;
@@ -17562,11 +17547,11 @@ class PDF
                 }
                 $iw = '';
                 if (isset($tag['width'])) {
-                    $iw = $this->getHTMLUnitToUnits($tag['width'], ($tag['fontsize'] / $this->scaleFactor), 'px', false);
+                    $iw = $this->getHTMLUnitToUnits($tag['width'], ($tag['fontsize'] / $this->scaleFactor));
                 }
                 $ih = '';
                 if (isset($tag['height'])) {
-                    $ih = $this->getHTMLUnitToUnits($tag['height'], ($tag['fontsize'] / $this->scaleFactor), 'px', false);
+                    $ih = $this->getHTMLUnitToUnits($tag['height'], ($tag['fontsize'] / $this->scaleFactor));
                 }
                 if (($type == 'eps') or ($type == 'ai')) {
                     $this->ImageEps($imgsrc, $xpos, $this->y, $iw, $ih, $imglink, true, $align, '', $border, true);
@@ -18205,7 +18190,7 @@ class PDF
                     $this->y = $dom[($dom[$key]['parent'])]['endy'];
                 }
                 if (isset($dom[$table_el]['attribute']['cellspacing'])) {
-                    $this->y += $this->getHTMLUnitToUnits($dom[$table_el]['attribute']['cellspacing'], 1, 'px');
+                    $this->y += $this->getHTMLUnitToUnits($dom[$table_el]['attribute']['cellspacing'], 1, self::PIXEL);
                 }
                 elseif (isset($dom[$table_el]['border-spacing'])) {
                     $this->y += $dom[$table_el]['border-spacing']['V'];
@@ -18486,7 +18471,7 @@ class PDF
                         $border = $default_border;
                     } // end for each cell on the row
                     if (isset($table_el['attribute']['cellspacing'])) {
-                        $this->y += $this->getHTMLUnitToUnits($table_el['attribute']['cellspacing'], 1, 'px');
+                        $this->y += $this->getHTMLUnitToUnits($table_el['attribute']['cellspacing'], 1, self::PIXEL);
                     }
                     elseif (isset($table_el['border-spacing'])) {
                         $this->y += $table_el['border-spacing']['V'];
@@ -18759,7 +18744,7 @@ class PDF
             return;
         }
         if (isset($tag['attribute']['cellspacing'])) {
-            $clsp        = $this->getHTMLUnitToUnits($tag['attribute']['cellspacing'], 1, 'px');
+            $clsp        = $this->getHTMLUnitToUnits($tag['attribute']['cellspacing'], 1, self::PIXEL);
             $cellspacing = ['H' => $clsp, 'V' => $clsp];
         }
         elseif (isset($tag['border-spacing'])) {
@@ -19048,19 +19033,15 @@ class PDF
      * @param bool   $points      If true returns points, otherwise returns value in user's units.
      * @return float value in user's unit or point if $points=true
      */
-    public function getHTMLUnitToUnits($htmlval, $refsize = 1, $defaultunit = 'px', $points = false)
+    public function getHTMLUnitToUnits($htmlval, $refsize = 1, $defaultunit = self::PIXEL, $points = false)
     {
-        $supportedunits = ['%', 'em', 'ex', 'px', 'in', 'cm', 'mm', 'pc', 'pt'];
-        $retval         = 0;
-        $value          = 0;
-        $unit           = 'px';
-        if ($points) {
-            $k = 1;
-        }
-        else {
-            $k = $this->scaleFactor;
-        }
-        if (in_array($defaultunit, $supportedunits)) {
+        $retval = 0;
+        $value  = 0;
+        $unit   = self::PIXEL;
+
+        $k = $points ? 1 : $this->scaleFactor;
+
+        if (in_array($defaultunit, self::WEB_UNITS)) {
             $unit = $defaultunit;
         }
         if (is_numeric($htmlval)) {
@@ -19069,7 +19050,7 @@ class PDF
         elseif (preg_match('/([0-9\.\-\+]+)/', $htmlval, $mnum)) {
             $value = floatval($mnum[1]);
             if (preg_match('/([a-z%]+)/', $htmlval, $munit)) {
-                if (in_array($munit[1], $supportedunits)) {
+                if (in_array($munit[1], self::WEB_UNITS)) {
                     $unit = $munit[1];
                 }
             }
@@ -21028,7 +21009,7 @@ class PDF
      * @param int   $h     Template height in user units (empty string or zero = page height less margins).
      * @param mixed $group Set transparency group. Can be a bool value or an array specifying optional parameters: 'CS' (solour space name), 'I' (bool flag to indicate isolated group) and 'K' (bool flag to indicate knockout group).
      * @return string|false the XObject Template ID in case of success or false in case of error.
-     * @see    endTemplate(), printTemplate()
+     * @see endTemplate(), printTemplate()
      */
     public function startTemplate($w = 0, $h = 0, $group = false)
     {
@@ -21118,7 +21099,7 @@ class PDF
      * @param string     $align     Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param string     $palign    Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
      * @param bool       $fitonpage If true the template is resized to not exceed page dimensions.
-     * @see    startTemplate(), endTemplate()
+     * @see startTemplate(), endTemplate()
      */
     public function printTemplate($id, $x = null, $y = null, $w = 0, $h = 0, $align = '', $palign = '', $fitonpage = false)
     {
@@ -21366,6 +21347,7 @@ class PDF
      * @param float $x current X coordinate in user units
      * @param float $y current Y coordinate in user units
      * @return float[] [$x, $y]
+     * @see self::UNITS
      */
     protected function checkPageRegions($h, $x, $y)
     {
@@ -21524,19 +21506,19 @@ class PDF
         if (isset($regs[1]) and !empty($regs[1])) {
             $tmp = [];
             if (preg_match('/[\s]+x[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $ox = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgunit, false);
+                $ox = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgUnit, false);
             }
             $tmp = [];
             if (preg_match('/[\s]+y[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $oy = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgunit, false);
+                $oy = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgUnit, false);
             }
             $tmp = [];
             if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $ow = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
+                $ow = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgUnit, false);
             }
             $tmp = [];
             if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $oh = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
+                $oh = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgUnit, false);
             }
             $tmp      = [];
             $view_box = [];
@@ -21544,7 +21526,7 @@ class PDF
                 if (count($tmp) == 5) {
                     array_shift($tmp);
                     foreach ($tmp as $key => $val) {
-                        $view_box[$key] = $this->getHTMLUnitToUnits($val, 0, $this->svgunit, false);
+                        $view_box[$key] = $this->getHTMLUnitToUnits($val, 0, $this->svgUnit, false);
                     }
                     $ox = $view_box[0];
                     $oy = $view_box[1];
@@ -21830,8 +21812,8 @@ class PDF
         $b = -$tm[1];
         $c = -$tm[2];
         $d = $tm[3];
-        $e = $this->getHTMLUnitToUnits($tm[4], 1, $this->svgunit, false) * $this->scaleFactor;
-        $f = -$this->getHTMLUnitToUnits($tm[5], 1, $this->svgunit, false) * $this->scaleFactor;
+        $e = $this->getHTMLUnitToUnits($tm[4], 1, $this->svgUnit, false) * $this->scaleFactor;
+        $f = -$this->getHTMLUnitToUnits($tm[5], 1, $this->svgUnit, false) * $this->scaleFactor;
         $x = 0;
         $y = $this->h * $this->scaleFactor;
         $e = ($x * (1 - $a)) - ($y * $c) + $e;
@@ -21890,10 +21872,10 @@ class PDF
         $this->textColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
-            $top    = (isset($regs[1]) ? $this->getHTMLUnitToUnits($regs[1], 0, $this->svgunit, false) : 0);
-            $right  = (isset($regs[2]) ? $this->getHTMLUnitToUnits($regs[2], 0, $this->svgunit, false) : 0);
-            $bottom = (isset($regs[3]) ? $this->getHTMLUnitToUnits($regs[3], 0, $this->svgunit, false) : 0);
-            $left   = (isset($regs[4]) ? $this->getHTMLUnitToUnits($regs[4], 0, $this->svgunit, false) : 0);
+            $top    = (isset($regs[1]) ? $this->getHTMLUnitToUnits($regs[1], 0, $this->svgUnit, false) : 0);
+            $right  = (isset($regs[2]) ? $this->getHTMLUnitToUnits($regs[2], 0, $this->svgUnit, false) : 0);
+            $bottom = (isset($regs[3]) ? $this->getHTMLUnitToUnits($regs[3], 0, $this->svgUnit, false) : 0);
+            $left   = (isset($regs[4]) ? $this->getHTMLUnitToUnits($regs[4], 0, $this->svgUnit, false) : 0);
             $cx     = $x + $left;
             $cy     = $y + $top;
             $cw     = $w - $left - $right;
@@ -21951,11 +21933,11 @@ class PDF
                     $gradient['coords'][4] = $r;
                 }
                 // convert SVG coordinates to user units
-                $gradient['coords'][0] = $this->getHTMLUnitToUnits($gradient['coords'][0], 0, $this->svgunit, false);
-                $gradient['coords'][1] = $this->getHTMLUnitToUnits($gradient['coords'][1], 0, $this->svgunit, false);
-                $gradient['coords'][2] = $this->getHTMLUnitToUnits($gradient['coords'][2], 0, $this->svgunit, false);
-                $gradient['coords'][3] = $this->getHTMLUnitToUnits($gradient['coords'][3], 0, $this->svgunit, false);
-                $gradient['coords'][4] = $this->getHTMLUnitToUnits($gradient['coords'][4], 0, $this->svgunit, false);
+                $gradient['coords'][0] = $this->getHTMLUnitToUnits($gradient['coords'][0], 0, $this->svgUnit, false);
+                $gradient['coords'][1] = $this->getHTMLUnitToUnits($gradient['coords'][1], 0, $this->svgUnit, false);
+                $gradient['coords'][2] = $this->getHTMLUnitToUnits($gradient['coords'][2], 0, $this->svgUnit, false);
+                $gradient['coords'][3] = $this->getHTMLUnitToUnits($gradient['coords'][3], 0, $this->svgUnit, false);
+                $gradient['coords'][4] = $this->getHTMLUnitToUnits($gradient['coords'][4], 0, $this->svgUnit, false);
                 if ($w <= $minlen) {
                     $w = $minlen;
                 }
@@ -22037,7 +22019,7 @@ class PDF
             }
             $stroke_style = array(
                 'color' => $this->colorFromHTML($svgstyle['stroke']),
-                'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false),
+                'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgUnit, false),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
             );
@@ -22095,7 +22077,7 @@ class PDF
             $font_stretch = $svgstyle['font-stretch'];
             $font_spacing = $svgstyle['letter-spacing'];
         }
-        $font_size    = $this->getHTMLFontUnits($font_size, $this->svgstyles[0]['font-size'], $prevsvgstyle['font-size'], $this->svgunit);
+        $font_size    = $this->getHTMLFontUnits($font_size, $this->svgstyles[0]['font-size'], $prevsvgstyle['font-size'], $this->svgUnit);
         $font_stretch = $this->getCSSFontStretching($font_stretch, $svgstyle['font-stretch']);
         $font_spacing = $this->getCSSFontSpacing($font_spacing, $svgstyle['letter-spacing']);
         switch ($font_style) {
@@ -22219,7 +22201,7 @@ class PDF
                 $rawparams = preg_split('/([\,\s]+)/si', trim($val[2]));
                 $params    = [];
                 foreach ($rawparams as $ck => $cp) {
-                    $params[$ck] = $this->getHTMLUnitToUnits($cp, 0, $this->svgunit, false);
+                    $params[$ck] = $this->getHTMLUnitToUnits($cp, 0, $this->svgUnit, false);
                     if (abs($params[$ck]) < $minlen) {
                         // approximate little values to zero
                         $params[$ck] = 0;
@@ -22690,8 +22672,8 @@ class PDF
                 // set clipping for width and height
                 $x = 0;
                 $y = 0;
-                $w = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgunit, false) : $this->w);
-                $h = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgunit, false) : $this->h);
+                $w = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgUnit, false) : $this->w);
+                $h = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgUnit, false) : $this->h);
                 // draw clipping rect
                 $this->Rect($x, $y, $w, $h, self::CLIP_NZ);
                 // parse viewbox, calculate extra transformation matrix
@@ -22909,12 +22891,12 @@ class PDF
                 if ($invisible) {
                     break;
                 }
-                $x  = (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0);
-                $y  = (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0);
-                $w  = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgunit, false) : 0);
-                $h  = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgunit, false) : 0);
-                $rx = (isset($attribs['rx']) ? $this->getHTMLUnitToUnits($attribs['rx'], 0, $this->svgunit, false) : 0);
-                $ry = (isset($attribs['ry']) ? $this->getHTMLUnitToUnits($attribs['ry'], 0, $this->svgunit, false) : $rx);
+                $x  = (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgUnit, false) : 0);
+                $y  = (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgUnit, false) : 0);
+                $w  = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgUnit, false) : 0);
+                $h  = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgUnit, false) : 0);
+                $rx = (isset($attribs['rx']) ? $this->getHTMLUnitToUnits($attribs['rx'], 0, $this->svgUnit, false) : 0);
+                $ry = (isset($attribs['ry']) ? $this->getHTMLUnitToUnits($attribs['ry'], 0, $this->svgUnit, false) : $rx);
                 if ($clipping) {
                     $this->SVGTransform($tm);
                     $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', self::CLIP_NZ);
@@ -22935,9 +22917,9 @@ class PDF
                 if ($invisible) {
                     break;
                 }
-                $r  = (isset($attribs['r']) ? $this->getHTMLUnitToUnits($attribs['r'], 0, $this->svgunit, false) : 0);
-                $cx = (isset($attribs['cx']) ? $this->getHTMLUnitToUnits($attribs['cx'], 0, $this->svgunit, false) : (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0));
-                $cy = (isset($attribs['cy']) ? $this->getHTMLUnitToUnits($attribs['cy'], 0, $this->svgunit, false) : (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0));
+                $r  = (isset($attribs['r']) ? $this->getHTMLUnitToUnits($attribs['r'], 0, $this->svgUnit, false) : 0);
+                $cx = (isset($attribs['cx']) ? $this->getHTMLUnitToUnits($attribs['cx'], 0, $this->svgUnit, false) : (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgUnit, false) : 0));
+                $cy = (isset($attribs['cy']) ? $this->getHTMLUnitToUnits($attribs['cy'], 0, $this->svgUnit, false) : (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgUnit, false) : 0));
                 $x  = ($cx - $r);
                 $y  = ($cy - $r);
                 $w  = (2 * $r);
@@ -22962,10 +22944,10 @@ class PDF
                 if ($invisible) {
                     break;
                 }
-                $rx = (isset($attribs['rx']) ? $this->getHTMLUnitToUnits($attribs['rx'], 0, $this->svgunit, false) : 0);
-                $ry = (isset($attribs['ry']) ? $this->getHTMLUnitToUnits($attribs['ry'], 0, $this->svgunit, false) : 0);
-                $cx = (isset($attribs['cx']) ? $this->getHTMLUnitToUnits($attribs['cx'], 0, $this->svgunit, false) : (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0));
-                $cy = (isset($attribs['cy']) ? $this->getHTMLUnitToUnits($attribs['cy'], 0, $this->svgunit, false) : (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0));
+                $rx = (isset($attribs['rx']) ? $this->getHTMLUnitToUnits($attribs['rx'], 0, $this->svgUnit, false) : 0);
+                $ry = (isset($attribs['ry']) ? $this->getHTMLUnitToUnits($attribs['ry'], 0, $this->svgUnit, false) : 0);
+                $cx = (isset($attribs['cx']) ? $this->getHTMLUnitToUnits($attribs['cx'], 0, $this->svgUnit, false) : (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgUnit, false) : 0));
+                $cy = (isset($attribs['cy']) ? $this->getHTMLUnitToUnits($attribs['cy'], 0, $this->svgUnit, false) : (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgUnit, false) : 0));
                 $x  = ($cx - $rx);
                 $y  = ($cy - $ry);
                 $w  = (2 * $rx);
@@ -22990,10 +22972,10 @@ class PDF
                 if ($invisible) {
                     break;
                 }
-                $x1 = (isset($attribs['x1']) ? $this->getHTMLUnitToUnits($attribs['x1'], 0, $this->svgunit, false) : 0);
-                $y1 = (isset($attribs['y1']) ? $this->getHTMLUnitToUnits($attribs['y1'], 0, $this->svgunit, false) : 0);
-                $x2 = (isset($attribs['x2']) ? $this->getHTMLUnitToUnits($attribs['x2'], 0, $this->svgunit, false) : 0);
-                $y2 = (isset($attribs['y2']) ? $this->getHTMLUnitToUnits($attribs['y2'], 0, $this->svgunit, false) : 0);
+                $x1 = (isset($attribs['x1']) ? $this->getHTMLUnitToUnits($attribs['x1'], 0, $this->svgUnit, false) : 0);
+                $y1 = (isset($attribs['y1']) ? $this->getHTMLUnitToUnits($attribs['y1'], 0, $this->svgUnit, false) : 0);
+                $x2 = (isset($attribs['x2']) ? $this->getHTMLUnitToUnits($attribs['x2'], 0, $this->svgUnit, false) : 0);
+                $y2 = (isset($attribs['y2']) ? $this->getHTMLUnitToUnits($attribs['y2'], 0, $this->svgUnit, false) : 0);
                 $x  = $x1;
                 $y  = $y1;
                 $w  = abs($x2 - $x1);
@@ -23026,7 +23008,7 @@ class PDF
                 $ymin = 2147483647;
                 $ymax = 0;
                 foreach ($points as $key => $val) {
-                    $p[$key] = $this->getHTMLUnitToUnits($val, 0, $this->svgunit, false);
+                    $p[$key] = $this->getHTMLUnitToUnits($val, 0, $this->svgUnit, false);
                     if (($key % 2) == 0) {
                         // X coordinate
                         $xmin = min($xmin, $p[$key]);
@@ -23077,10 +23059,10 @@ class PDF
                 if (!isset($attribs['xlink:href']) or empty($attribs['xlink:href'])) {
                     break;
                 }
-                $x   = (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0);
-                $y   = (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0);
-                $w   = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgunit, false) : 0);
-                $h   = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgunit, false) : 0);
+                $x   = (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgUnit, false) : 0);
+                $y   = (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgUnit, false) : 0);
+                $w   = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgUnit, false) : 0);
+                $h   = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgUnit, false) : 0);
                 $img = $attribs['xlink:href'];
                 if (!$clipping) {
                     $this->StartTransform();
@@ -23169,7 +23151,7 @@ class PDF
                 }
                 array_push($this->svgstyles, $svgstyle);
                 if (isset($attribs['x'])) {
-                    $x = $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false);
+                    $x = $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgUnit, false);
                 }
                 elseif ($name == 'tspan') {
                     $x = $this->x;
@@ -23178,10 +23160,10 @@ class PDF
                     $x = 0;
                 }
                 if (isset($attribs['dx'])) {
-                    $x += $this->getHTMLUnitToUnits($attribs['dx'], 0, $this->svgunit, false);
+                    $x += $this->getHTMLUnitToUnits($attribs['dx'], 0, $this->svgUnit, false);
                 }
                 if (isset($attribs['y'])) {
-                    $y = $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false);
+                    $y = $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgUnit, false);
                 }
                 elseif ($name == 'tspan') {
                     $y = $this->y;
@@ -23190,7 +23172,7 @@ class PDF
                     $y = 0;
                 }
                 if (isset($attribs['dy'])) {
-                    $y += $this->getHTMLUnitToUnits($attribs['dy'], 0, $this->svgunit, false);
+                    $y += $this->getHTMLUnitToUnits($attribs['dy'], 0, $this->svgUnit, false);
                 }
                 $svgstyle['text-color'] = $svgstyle['fill'];
                 $this->svgtext          = '';
@@ -23212,7 +23194,7 @@ class PDF
                     $this->svgtextmode['rtl'] = false;
                 }
                 if (isset($svgstyle['stroke']) and ($svgstyle['stroke'] != 'none') and isset($svgstyle['stroke-width']) and ($svgstyle['stroke-width'] > 0)) {
-                    $this->svgtextmode['stroke'] = $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false);
+                    $this->svgtextmode['stroke'] = $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgUnit, false);
                 }
                 else {
                     $this->svgtextmode['stroke'] = false;

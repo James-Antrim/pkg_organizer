@@ -136,10 +136,6 @@ if (!defined('PDF_HEADER_STRING')) {
     define('PDF_HEADER_STRING', "by Nicola Asuni - Tecnick.com\nwww.tcpdf.org");
 }
 
-if (!defined('PDF_UNIT')) {
-    define('PDF_UNIT', 'mm');
-}
-
 if (!defined('PDF_MARGIN_HEADER')) {
     define('PDF_MARGIN_HEADER', 5);
 }

@@ -26,7 +26,7 @@ abstract class ListView extends BaseView
     public Registry $formState;
 
     /** @inheritDoc */
-    public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
+    public function __construct($orientation = self::PORTRAIT, $unit = self::MILLIMETER, $format = 'A4')
     {
         parent::__construct($orientation, $unit, $format);
         $this->formState = $this->model->getState();

@@ -101,6 +101,7 @@ class Barcode2D
      * @param int    $height Height of a single rectangle element in user units.
      * @param string $color  Foreground color (in SVG format) for bar elements (background is transparent).
      * @return string SVG code.
+     * @see self::UNITS
      */
     public function SVGCode(int $width = 3, int $height = 3, string $color = 'black'): string
     {
