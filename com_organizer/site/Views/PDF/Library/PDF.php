@@ -19093,7 +19093,7 @@ class PDF
             'lineCapStyle'      => $this->lineCapStyle,
             'lineDashStyle'     => $this->lineDashStyle,
             'lineJoinStyle'     => $this->lineJoinStyle,
-            'LineWidth'         => $this->lineWidth,
+            'lineWidth'         => $this->lineWidth,
             'lineWidthStyle'    => $this->lineWidthStyle,
             'textrendermode'    => $this->textrendermode,
             'textstrokewidth'   => $this->textstrokewidth,
