@@ -178,6 +178,23 @@ trait Fonts
     }
 
     /**
+     * Extracts a slice of the $characters array and return it as string.
+     * @param string[] $characters
+     * @param int      $start      (inclusive)
+     * @param int      $end        (exclusive)
+     * @return string
+     */
+    public static function unicodeSliceToString(array $characters, int $start = 0, int $end = 0): string
+    {
+        $end = $end ?: count($characters);
+        $return = '';
+        for ($index = $start; $index < $end; ++$index) {
+            $return .= $characters[$index];
+        }
+        return $return;
+    }
+
+    /**
      * Converts UTF-8 character values array to array of Latin1 character values array.
      * @param array $utf8Values
      * @return array
@@ -212,6 +229,32 @@ trait Fonts
         }
 
         return array_map([$this, 'unicodeByASCII'], $utf8Values);
+    }
+
+    /**
+     * Converts a UTF-8 character array to a Latin1 string.
+     * @param array $utf8Values
+     * @return string
+     */
+    public function utf8ArrayToLatin1String(array $utf8Values): string
+    {
+        $return = '';
+        foreach ($utf8Values as $value) {
+            if ($value < 256) {
+                $return .= chr($value);
+            }
+            elseif (array_key_exists($value, FontData::$utf8ToLatin1)) {
+                // map from UTF-8
+                $return .= chr(FontData::$utf8ToLatin1[$value]);
+            }
+            elseif ($value == 0xFFFD) {
+                continue;
+            }
+            else {
+                $return .= '?';
+            }
+        }
+        return $return;
     }
 
     /**
@@ -962,7 +1005,7 @@ trait Fonts
     public function utf8ToLatin1(string $string, bool $isUnicode, array &$currentFont): string
     {
         $unicode = $this->utf8StringToArray($string, $isUnicode, $currentFont); // array containing UTF-8 Unicode values
-        return self::UTF8ArrToLatin1($unicode);
+        return $this->utf8ArrayToLatin1String($unicode);
     }
 
     /**
@@ -1654,53 +1697,5 @@ trait Fonts
             }
         }
         return $size;
-    }
-
-    /**
-     * Extract a slice of the $uniarr array and return it as string.
-     * @param string[] $uniarr The input array of characters.
-     * @param int      $start  the starting element of $strarr.
-     * @param int      $end    first element that will not be returned.
-     * @return string Return part of a string
-     */
-    public static function UniArrSubString($uniarr, $start = '', $end = '')
-    {
-        if (strlen($start) == 0) {
-            $start = 0;
-        }
-        if (strlen($end) == 0) {
-            $end = count($uniarr);
-        }
-        $string = '';
-        for ($i = $start; $i < $end; ++$i) {
-            $string .= $uniarr[$i];
-        }
-        return $string;
-    }
-
-    /**
-     * Converts UTF-8 characters array to Latin1 string<br>
-     * @param array $unicode array containing UTF-8 Unicode values
-     * @return string
-     */
-    public static function UTF8ArrToLatin1($unicode)
-    {
-        $outstr = ''; // string to be returned
-        foreach ($unicode as $char) {
-            if ($char < 256) {
-                $outstr .= chr($char);
-            }
-            elseif (array_key_exists($char, FontData::$utf8ToLatin1)) {
-                // map from UTF-8
-                $outstr .= chr(FontData::$utf8ToLatin1[$char]);
-            }
-            elseif ($char == 0xFFFD) {
-                // skip
-            }
-            else {
-                $outstr .= '?';
-            }
-        }
-        return $outstr;
     }
 }

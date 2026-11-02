@@ -3740,7 +3740,7 @@ class PDF
                 }
             }
         }
-        return Fonts::UniArrSubString($this->utf8ArrayToUnicodeArray($uniarr, $this->isUnicode));
+        return $this->unicodeSliceToString($this->utf8ArrayToUnicodeArray($uniarr, $this->isUnicode));
     }
 
     /**
@@ -5507,7 +5507,7 @@ class PDF
                 else {
                     $talign = $align;
                 }
-                $tmpstr = $this->UniArrSubString($uchars, $j, $i);
+                $tmpstr = $this->unicodeSliceToString($uchars, $j, $i);
                 if ($firstline) {
                     $startx = $this->x;
                     $tmparr = array_slice($chars, $j, ($i - $j));
@@ -5538,7 +5538,7 @@ class PDF
                 unset($tmpstr);
                 if ($firstline) {
                     $this->cell_padding = $tmpcellpadding;
-                    return (Fonts::UniArrSubString($uchars, $i));
+                    return ($this->unicodeSliceToString($uchars, $i));
                 }
                 ++$nl;
                 $j       = $i + 1;
@@ -5621,12 +5621,12 @@ class PDF
                             $this->Cell($w, $h, '', 0, 1);
                             $linebreak = true;
                             if ($firstline) {
-                                return (Fonts::UniArrSubString($uchars, $j));
+                                return ($this->unicodeSliceToString($uchars, $j));
                             }
                         }
                         else {
                             // truncate the word because do not fit on column
-                            $tmpstr = $this->UniArrSubString($uchars, $j, $i);
+                            $tmpstr = $this->unicodeSliceToString($uchars, $j, $i);
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
@@ -5654,7 +5654,7 @@ class PDF
                             unset($tmpstr);
                             if ($firstline) {
                                 $this->cell_padding = $tmpcellpadding;
-                                return (Fonts::UniArrSubString($uchars, $i));
+                                return ($this->unicodeSliceToString($uchars, $i));
                             }
                             $j = $i;
                             --$i;
@@ -5669,11 +5669,11 @@ class PDF
                             $endspace = 0;
                         }
                         // check the length of the next string
-                        $strrest = $this->UniArrSubString($uchars, ($sep + $endspace));
+                        $strrest = $this->unicodeSliceToString($uchars, ($sep + $endspace));
                         $nextstr = preg_split('/' . $this->re_space['p'] . '/' . $this->re_space['m'], $this->stringTrim($strrest));
                         if (isset($nextstr[0]) and ($this->GetStringWidth($nextstr[0]) > $pw)) {
                             // truncate the word because do not fit on a full page width
-                            $tmpstr = $this->UniArrSubString($uchars, $j, $i);
+                            $tmpstr = $this->unicodeSliceToString($uchars, $j, $i);
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
@@ -5701,7 +5701,7 @@ class PDF
                             unset($tmpstr);
                             if ($firstline) {
                                 $this->cell_padding = $tmpcellpadding;
-                                return (Fonts::UniArrSubString($uchars, $i));
+                                return ($this->unicodeSliceToString($uchars, $i));
                             }
                             $j = $i;
                             --$i;
@@ -5725,7 +5725,7 @@ class PDF
                                 $shy_char_left  = '';
                                 $shy_char_right = '';
                             }
-                            $tmpstr = $this->UniArrSubString($uchars, $j, ($sep + $endspace));
+                            $tmpstr = $this->unicodeSliceToString($uchars, $j, ($sep + $endspace));
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, (($sep + $endspace) - $j));
@@ -5758,7 +5758,7 @@ class PDF
                                 }
                                 // return the remaining text
                                 $this->cell_padding = $tmpcellpadding;
-                                return (Fonts::UniArrSubString($uchars, ($sep + $endspace)));
+                                return ($this->unicodeSliceToString($uchars, ($sep + $endspace)));
                             }
                             $i   = $sep;
                             $sep = -1;
@@ -5822,7 +5822,7 @@ class PDF
                     break;
                 }
             }
-            $tmpstr = $this->UniArrSubString($uchars, $j, $nb);
+            $tmpstr = $this->unicodeSliceToString($uchars, $j, $nb);
             if ($firstline) {
                 $startx = $this->x;
                 $tmparr = array_slice($chars, $j, ($nb - $j));
@@ -5850,7 +5850,7 @@ class PDF
             unset($tmpstr);
             if ($firstline) {
                 $this->cell_padding = $tmpcellpadding;
-                return (Fonts::UniArrSubString($uchars, $nb));
+                return ($this->unicodeSliceToString($uchars, $nb));
             }
             ++$nl;
         }
