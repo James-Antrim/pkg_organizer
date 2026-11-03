@@ -39,10 +39,30 @@ trait Fonts
     }
 
     /**
+     * Get a relative font size. This seems broken as it only handles descriptive strings which are the exception and will otherwise return 12.
+     * @param string $size          String containing font size value.
+     * @param float  $referenceSize Reference font size in points.
+     * @return float value in points
+     */
+    public function relativeSize(string $size, float $referenceSize = 12): float
+    {
+        return match ($size) {
+            'xx-small' => ($referenceSize - 4),
+            'smaller', 'x-small' => ($referenceSize - 3),
+            'small' => ($referenceSize - 2),
+            'large' => ($referenceSize + 2),
+            'larger' => ($referenceSize + 3),
+            'x-large' => ($referenceSize + 4),
+            'xx-large' => ($referenceSize + 6),
+            default => $referenceSize,
+        };
+    }
+
+    /**
      * Reverse the RLT substrings array using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
      * @param array  $utf8Values
      * @param string $string
-     * @param bool   $setBOM      set the Byte Order Mark (BOM = 0xFEFF)
+     * @param bool   $setBOM set the Byte Order Mark (BOM = 0xFEFF)
      * @param bool   $forceRTL
      * @param bool   $isUnicode
      * @param array  $currentFont
@@ -180,13 +200,13 @@ trait Fonts
     /**
      * Extracts a slice of the $characters array and return it as string.
      * @param string[] $characters
-     * @param int      $start      (inclusive)
-     * @param int      $end        (exclusive)
+     * @param int      $start (inclusive)
+     * @param int      $end   (exclusive)
      * @return string
      */
-    public static function unicodeSliceToString(array $characters, int $start = 0, int $end = 0): string
+    public function unicodeSliceToString(array $characters, int $start = 0, int $end = 0): string
     {
-        $end = $end ?: count($characters);
+        $end    = $end ?: count($characters);
         $return = '';
         for ($index = $start; $index < $end; ++$index) {
             $return .= $characters[$index];
@@ -310,7 +330,7 @@ trait Fonts
                 $return .= chr($value & 0xFF);
             }
             else {
-                $value   -= 0x10000;
+                $value  -= 0x10000;
                 $w1     = 0xD800 | ($value >> 0x0a);
                 $w2     = 0xDC00 | ($value & 0x3FF);
                 $return .= chr($w1 >> 0x08);
@@ -943,14 +963,14 @@ trait Fonts
     /**
      * Extract a slice of the $utf8Values array converted to characters and returned as a string.
      * @param int[] $utf8Values
-     * @param int   $start      (inclusive)
-     * @param int   $end       (exclusive)
+     * @param int   $start (inclusive)
+     * @param int   $end   (exclusive)
      * @param bool  $isUnicode
      * @return string
      */
     public function utf8SliceToString(array $utf8Values, int $start = 0, int $end = 0, bool $isUnicode = true): string
     {
-        $end = $end > 0 ? $end : count($utf8Values);
+        $end    = $end > 0 ? $end : count($utf8Values);
         $string = '';
         for ($index = $start; $index < $end; ++$index) {
             $string .= $this->unicodeCharacter($utf8Values[$index], $isUnicode);
@@ -1639,63 +1659,5 @@ trait Fonts
             $map[(($cid * 2) + 1)] = chr($gid & 0xFF);
         }
         return $map;
-    }
-
-    /**
-     * Get a reference font size.
-     * @param string $size    String containing font size value.
-     * @param float  $refsize Reference font size in points.
-     * @return float value in points
-     */
-    public static function getFontRefSize($size, $refsize = 12)
-    {
-        switch ($size) {
-            case 'xx-small':
-            {
-                $size = ($refsize - 4);
-                break;
-            }
-            case 'x-small':
-            {
-                $size = ($refsize - 3);
-                break;
-            }
-            case 'small':
-            {
-                $size = ($refsize - 2);
-                break;
-            }
-            case 'medium':
-            {
-                $size = $refsize;
-                break;
-            }
-            case 'large':
-            {
-                $size = ($refsize + 2);
-                break;
-            }
-            case 'x-large':
-            {
-                $size = ($refsize + 4);
-                break;
-            }
-            case 'xx-large':
-            {
-                $size = ($refsize + 6);
-                break;
-            }
-            case 'smaller':
-            {
-                $size = ($refsize - 3);
-                break;
-            }
-            case 'larger':
-            {
-                $size = ($refsize + 3);
-                break;
-            }
-        }
-        return $size;
     }
 }

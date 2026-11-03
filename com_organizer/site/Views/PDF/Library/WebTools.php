@@ -150,6 +150,74 @@ trait WebTools
     }
 
     /**
+     * Convert HTML string containing font size value to points
+     * @param string $htmlValue       HTML font-size value assignment
+     * @param float  $referencePoints reference font size in points
+     * @param float  $parentPoints    Parent font size in points.
+     * @param string $defaultUnit
+     * @return float
+     * @see self::WEB_UNITS
+     */
+    public function htmlFontUnits(string $htmlValue, float $referencePoints = 12, float $parentPoints = 12, string $defaultUnit = self::POINT): float
+    {
+        $referencePoints = $this->relativeSize($referencePoints);
+        $parentPoints    = $this->relativeSize($parentPoints, $referencePoints);
+
+        return match ($htmlValue) {
+            'xx-small' => $referencePoints - 4,
+            'smaller', 'x-small' => $referencePoints - 3,
+            'small' => $referencePoints - 2,
+            'medium' => $referencePoints,
+            'large' => $referencePoints + 2,
+            'larger' => $parentPoints + 3,
+            'x-large' => $referencePoints + 4,
+            'xx-large' => $referencePoints + 6,
+            default => $this->htmlUnitsToUnits($htmlValue, $parentPoints, $defaultUnit, true),
+        };
+    }
+
+    /**
+     * Convert HTML style assignment string to user's units or points.
+     * @param string $htmlValue       HTML font-size value assignment
+     * @param float  $referencePoints reference font size in points
+     * @param string $defaultUnit
+     * @param bool   $usePoints
+     * @return float
+     * @see self::WEB_UNITS
+     */
+    public function htmlUnitsToUnits(string $htmlValue, float $referencePoints = 1, string $defaultUnit = self::PIXEL, bool $usePoints = false): float
+    {
+        $scaleFactor = $usePoints ? 1 : $this->scaleFactor;
+        $unit        = in_array($defaultUnit, self::WEB_UNITS) ? $defaultUnit : self::PIXEL;
+
+        if (is_numeric($htmlValue)) {
+            $value = floatval($htmlValue);
+        }
+        elseif (preg_match('/([0-9.\-+]+) ?([a-z%]+)*/', $htmlValue, $pieces)) {
+            $value = (float) $pieces[1];
+            if (isset($pieces[2]) and in_array($pieces[2], self::WEB_UNITS)) {
+                $unit = $pieces[2];
+            }
+        }
+        else {
+            return 0;
+        }
+
+        return match ($unit) {
+            self::PERCENT => ($value * $referencePoints) / 100,
+            self::ELEMENT => $value * $referencePoints,
+            self::RELATIVE_X => $value * ($referencePoints / 2),
+            self::INCH => ($value * $this->dpi) / $scaleFactor,
+            self::CENTIMETER => ($value / 2.54 * $this->dpi) / $scaleFactor,
+            self::MILLIMETER => ($value / 25.4 * $this->dpi) / $scaleFactor,
+            self::PICA => ($value * 12) / $scaleFactor,
+            self::POINT => $value / $scaleFactor,
+            self::PIXEL => $usePoints ? $this->pixelsToUnits($value) * $this->scaleFactor : $this->pixelsToUnits($value),
+            default => 0,
+        };
+    }
+
+    /**
      * Convert JavaScript form fields properties array to Annotation Properties array.
      * @param array $properties javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @return array of annotation properties
