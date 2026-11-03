@@ -54,7 +54,7 @@ abstract class BaseView extends PDF implements ViewInterface
     public const COURIER = 'courier', CURRENT_FAMILY = '', HELVETICA = 'helvetica', TIMES = 'times';
 
     /**
-     * @see FontSizePt
+     * @see fontSizeInPoints
      */
     public const CURRENT_SIZE = 12;
 

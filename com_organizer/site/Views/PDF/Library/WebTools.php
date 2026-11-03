@@ -61,7 +61,7 @@ trait WebTools
         // the following avoid fields duplication after saving the document
         $this->javascript .= "if (getField('OrganizerSaved').value != 'saved') {";
         $this->javascript .= "f" . $name . "=this.addField('$name','$type',$pageNumber,[$scaledX,$scaledY,$scaledWidth,$scaledHeight]);" . "\n";
-        $this->javascript .= 'f' . $name . '.textSize=' . $this->FontSizePt . ";\n";
+        $this->javascript .= 'f' . $name . '.textSize=' . $this->fontSizeInPoints . ";\n";
 
         foreach ($properties as $key => $value) {
             $value = strcmp(substr($key, -5), 'Color') == 0 ? $this->colorToJavascript($value) : "'" . $value . "'";

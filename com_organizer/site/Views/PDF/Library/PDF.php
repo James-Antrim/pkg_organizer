@@ -164,9 +164,9 @@ class PDF
         $this->setTextShadow();
 
         $this->utf8Bidirectional([], '', false, true, $this->CurrentFont);
-        $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
-        $this->setHeaderFont([$this->FontFamily, $this->FontStyle, $this->FontSizePt]);
-        $this->setFooterFont([$this->FontFamily, $this->FontStyle, $this->FontSizePt]);
+        $this->setFont($this->FontFamily, $this->FontStyle, $this->fontSizeInPoints);
+        $this->setHeaderFont([$this->FontFamily, $this->FontStyle, $this->fontSizeInPoints]);
+        $this->setFooterFont([$this->FontFamily, $this->FontStyle, $this->fontSizeInPoints]);
         // check if PCRE Unicode support is enabled
         (@preg_match('/\pL/u', 'a') == 1) ? $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u') : $this->setSpacesRE();
 
@@ -508,16 +508,6 @@ class PDF
      * Current font info.
      */
     protected array $CurrentFont = [];
-
-    /**
-     * Current font size in points.
-     */
-    protected int $FontSizePt = 12;
-
-    /**
-     * Current font size in user unit.
-     */
-    protected $FontSize;
 
     /**
      * Automatic page breaking.
@@ -1873,7 +1863,7 @@ class PDF
      */
     public function resetLastH()
     {
-        $this->lasth = $this->getCellHeight($this->FontSize);
+        $this->lasth = $this->getCellHeight($this->fontSize);
     }
 
     /**
@@ -3128,7 +3118,7 @@ class PDF
         if (!empty($fontname)) {
             $prev_FontFamily = $this->FontFamily;
             $prev_FontStyle  = $this->FontStyle;
-            $prev_FontSizePt = $this->FontSizePt;
+            $prev_FontSizePt = $this->fontSizeInPoints;
             $this->setFont($fontname, $fontstyle, $fontsize, '', 'default', false);
         }
         // convert UTF-8 array to Latin1 if required
@@ -3506,7 +3496,7 @@ class PDF
     {
         //Select a font; size given in points
         if ($size === null) {
-            $size = $this->FontSizePt;
+            $size = $this->fontSizeInPoints;
         }
         if ($size < 0) {
             $size = 0;
@@ -3533,9 +3523,9 @@ class PDF
     {
         $size = (float) $size;
         // font size in points
-        $this->FontSizePt = $size;
+        $this->fontSizeInPoints = $size;
         // font size in user units
-        $this->FontSize = $size / $this->scaleFactor;
+        $this->fontSize = $size / $this->scaleFactor;
         // calculate some font metrics
         if (isset($this->CurrentFont['desc']['FontBBox'])) {
             $bbox        = explode(' ', substr($this->CurrentFont['desc']['FontBBox'], 1, -1));
@@ -3564,7 +3554,7 @@ class PDF
         $this->FontAscent  = ($font_ascent / $this->scaleFactor);
         $this->FontDescent = ($font_descent / $this->scaleFactor);
         if ($out and ($this->page > 0) and (isset($this->CurrentFont['i'])) and ($this->state === self::READY)) {
-            $this->append(sprintf('BT /F%d %F Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
+            $this->append(sprintf('BT /F%d %F Tf ET', $this->CurrentFont['i'], $this->fontSizeInPoints));
         }
     }
 
@@ -3615,7 +3605,7 @@ class PDF
      */
     public function getAbsFontMeasure($s)
     {
-        return ($s * $this->FontSize / 1000);
+        return ($s * $this->fontSize / 1000);
     }
 
     /**
@@ -4034,7 +4024,7 @@ class PDF
         $prev_cell_padding = $this->cell_padding;
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
-            $min_cell_height = $this->getCellHeight($this->FontSize);
+            $min_cell_height = $this->getCellHeight($this->fontSize);
             if ($h < $min_cell_height) {
                 $h = $min_cell_height;
             }
@@ -4107,7 +4097,7 @@ class PDF
         $rs                = ''; //string to be returned
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
-            $min_cell_height = $this->getCellHeight($this->FontSize);
+            $min_cell_height = $this->getCellHeight($this->fontSize);
             if ($h < $min_cell_height) {
                 $h = $min_cell_height;
             }
@@ -4453,7 +4443,7 @@ class PDF
                     // get string width without spaces
                     $width = $this->GetStringWidth(str_replace(' ', '', $txt));
                     // calculate average space width
-                    $spacewidth = -1000 * ($w - $width - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1) / ($this->FontSize ? $this->FontSize : 1);
+                    $spacewidth = -1000 * ($w - $width - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1) / ($this->fontSize ? $this->fontSize : 1);
                     if ($this->font_stretching != 100) {
                         // word spacing is affected by stretching
                         $spacewidth /= ($this->font_stretching / 100);
@@ -4528,7 +4518,7 @@ class PDF
             if (isset($uniblock)) { // @phpstan-ignore-line
                 // print overlapping characters as separate string
                 $xshift = 0; // horizontal shift
-                $ty     = (($this->h - $basefonty + (0.2 * $this->FontSize)) * $k);
+                $ty     = (($this->h - $basefonty + (0.2 * $this->fontSize)) * $k);
                 $spw    = (($w - $txwidth - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1));
                 foreach ($uniblock as $uk => $uniarr) { // @phpstan-ignore-line
                     if (($uk % 2) == 0) {
@@ -4940,7 +4930,7 @@ class PDF
             $nl = 1;
         }
         else { // ******* Write simple text
-            $prev_FontSizePt = $this->FontSizePt;
+            $prev_FontSizePt = $this->fontSizeInPoints;
             if ($fitcell) {
                 // ajust height values
                 $tobottom = ($this->h - $this->y - $this->bMargin - $this->cell_padding['T'] - $this->cell_padding['B']);
@@ -4950,10 +4940,10 @@ class PDF
             if ($maxHeight > 0) {
                 // get text height
                 $text_height = $this->getStringHeight($w, $txt, $reseth, $autopadding, $mc_padding, $border);
-                if ($fitcell and ($text_height > $maxHeight) and ($this->FontSizePt > 1)) {
+                if ($fitcell and ($text_height > $maxHeight) and ($this->fontSizeInPoints > 1)) {
                     // try to reduce font size to fit text on cell (use a quick search algorithm)
                     $fmin         = 1;
-                    $fmax         = $this->FontSizePt;
+                    $fmax         = $this->fontSizeInPoints;
                     $diff_epsilon = (1 / $this->scaleFactor); // one point (min resolution)
                     $maxit        = (2 * min(100, max(10, intval($fmax)))); // max number of iterations
                     while ($maxit >= 0) {
@@ -5387,7 +5377,7 @@ class PDF
         }
         $this->adjustCellPadding($border);
         $lines              = $this->getNumLines($txt, $w, $reseth, $autopadding, $cellpadding, $border);
-        $height             = $this->getCellHeight(($lines * $this->FontSize), $autopadding);
+        $height             = $this->getCellHeight(($lines * $this->fontSize), $autopadding);
         $this->cell_padding = $prev_cell_padding;
         $this->lasth        = $prev_lasth;
         return $height;
@@ -5473,7 +5463,7 @@ class PDF
             return '';
         }
         // minimum row height
-        $row_height = max($h, $this->getCellHeight($this->FontSize));
+        $row_height = max($h, $this->getCellHeight($this->fontSize));
         // max Y
         $maxy       = $this->y + $maxHeight - max($row_height, $h);
         $start_page = $this->page;
@@ -9319,7 +9309,7 @@ class PDF
      */
     protected function _dounderlinew($x, $y, $w)
     {
-        $linew = -$this->CurrentFont['ut'] / 1000 * $this->FontSizePt;
+        $linew = -$this->CurrentFont['ut'] / 1000 * $this->fontSizeInPoints;
         return sprintf('%F %F %F %F re f', $x * $this->scaleFactor, ((($this->h - $y) * $this->scaleFactor) + $linew), $w * $this->scaleFactor, $linew);
     }
 
@@ -9343,8 +9333,8 @@ class PDF
      */
     protected function _dolinethroughw($x, $y, $w)
     {
-        $linew = -$this->CurrentFont['ut'] / 1000 * $this->FontSizePt;
-        return sprintf('%F %F %F %F re f', $x * $this->scaleFactor, ((($this->h - $y) * $this->scaleFactor) + $linew + ($this->FontSizePt / 3)), $w * $this->scaleFactor, $linew);
+        $linew = -$this->CurrentFont['ut'] / 1000 * $this->fontSizeInPoints;
+        return sprintf('%F %F %F %F re f', $x * $this->scaleFactor, ((($this->h - $y) * $this->scaleFactor) + $linew + ($this->fontSizeInPoints / 3)), $w * $this->scaleFactor, $linew);
     }
 
     /**
@@ -9367,7 +9357,7 @@ class PDF
      */
     protected function _dooverlinew($x, $y, $w)
     {
-        $linew = -$this->CurrentFont['ut'] / 1000 * $this->FontSizePt;
+        $linew = -$this->CurrentFont['ut'] / 1000 * $this->fontSizeInPoints;
         return sprintf('%F %F %F %F re f', $x * $this->scaleFactor, (($this->h - $y + $this->FontAscent) * $this->scaleFactor) - $linew, $w * $this->scaleFactor, $linew);
 
     }
@@ -10781,7 +10771,7 @@ class PDF
         $popt = $this->jsPropertiesToAnnotations($prop);
         // set default appearance stream
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->fontSizeInPoints, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -10935,15 +10925,15 @@ class PDF
         $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default options
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
-        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->fontSizeInPoints, $this->textColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
         $popt['ap']                = [];
         $popt['ap']['n']           = [];
         $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->scaleFactor);
-        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->scaleFactor)) * $this->scaleFactor);
-        $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
-        $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizeInPoints / 1000) / $this->scaleFactor)) * $this->scaleFactor);
+        $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizeInPoints, $fx, $fy);
+        $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizeInPoints, $fx, $fy);
         if (!isset($popt['mk'])) {
             $popt['mk'] = [];
         }
@@ -11016,7 +11006,7 @@ class PDF
         $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default values
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->fontSizeInPoints, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -11104,7 +11094,7 @@ class PDF
         $popt = $this->jsPropertiesToAnnotations($prop);
         // set additional default options
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->fontSizeInPoints, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -11188,15 +11178,15 @@ class PDF
         $this->AddFont($font);
         $tmpfont                                     = $this->getFontBuffer($font);
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
-        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->fontSizeInPoints, $this->textColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
         $popt['ap']             = [];
         $popt['ap']['n']        = [];
         $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->scaleFactor);
-        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->scaleFactor)) * $this->scaleFactor);
-        $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
-        $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizeInPoints / 1000) / $this->scaleFactor)) * $this->scaleFactor);
+        $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizeInPoints, $fx, $fy);
+        $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizeInPoints, $fx, $fy);
         // merge options
         $opt = array_merge($popt, $opt);
         // set remaining annotation data
@@ -11265,7 +11255,7 @@ class PDF
 
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
 
-        $fontstyle  = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle  = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->fontSizeInPoints, $this->textColor);
         $popt['da'] = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -13879,16 +13869,16 @@ class PDF
      */
     public function getFontSize()
     {
-        return $this->FontSize;
+        return $this->fontSize;
     }
 
     /**
      * Returns the current font size in points unit.
      * @return int current font size in points unit
      */
-    public function getFontSizePt()
+    public function getFontSizeInPoints()
     {
-        return $this->FontSizePt;
+        return $this->fontSizeInPoints;
     }
 
     /**
@@ -14477,7 +14467,7 @@ class PDF
         $dom[$key]['hide']           = false;
         $dom[$key]['fontname']       = $this->FontFamily;
         $dom[$key]['fontstyle']      = $this->FontStyle;
-        $dom[$key]['fontsize']       = $this->FontSizePt;
+        $dom[$key]['fontsize']       = $this->fontSizeInPoints;
         $dom[$key]['font-stretch']   = $this->font_stretching;
         $dom[$key]['letter-spacing'] = $this->font_spacing;
         $dom[$key]['stroke']         = $this->textstrokewidth;
@@ -15246,7 +15236,7 @@ class PDF
         $prevrMargin       = $this->rMargin;
         $curfontname       = $this->FontFamily;
         $curfontstyle      = $this->FontStyle;
-        $curfontsize       = $this->FontSizePt;
+        $curfontsize       = $this->fontSizeInPoints;
         $curfontascent     = $this->getFontAscent($curfontname, $curfontstyle, $curfontsize);
         $curfontdescent    = $this->getFontDescent($curfontname, $curfontstyle, $curfontsize);
         $curfontstretcing  = $this->font_stretching;
@@ -15846,13 +15836,13 @@ class PDF
                                 }
                                 // calculate additional space to add to each existing space
                                 $spacewidth = ($mdiff / ($ns - $no)) * $this->scaleFactor;
-                                if ($this->FontSize <= 0) {
-                                    $this->FontSize = 1;
+                                if ($this->fontSize <= 0) {
+                                    $this->fontSize = 1;
                                 }
-                                $spacewidthu = -1000 * ($mdiff + (($ns + $no) * $one_space_width)) / $ns / $this->FontSize;
+                                $spacewidthu = -1000 * ($mdiff + (($ns + $no) * $one_space_width)) / $ns / $this->fontSize;
                                 if ($this->font_spacing != 0) {
                                     // fixed spacing mode
-                                    $osw         = -1000 * $this->font_spacing / $this->FontSize;
+                                    $osw         = -1000 * $this->font_spacing / $this->fontSize;
                                     $spacewidthu += $osw;
                                 }
                                 $nsmax = $ns;
@@ -16130,10 +16120,10 @@ class PDF
                 $startlinex    = $this->x;
                 $startliney    = $this->y;
                 if ($dom[$dom[$key]['parent']]['value'] == 'sup') {
-                    $startliney -= ((0.3 * $this->FontSizePt) / $this->scaleFactor);
+                    $startliney -= ((0.3 * $this->fontSizeInPoints) / $this->scaleFactor);
                 }
                 elseif ($dom[$dom[$key]['parent']]['value'] == 'sub') {
-                    $startliney -= (($this->FontSizePt / 0.7) / $this->scaleFactor);
+                    $startliney -= (($this->fontSizeInPoints / 0.7) / $this->scaleFactor);
                 }
                 else {
                     $minstartliney  = $startliney;
@@ -16507,7 +16497,7 @@ class PDF
                     $this->setFont($pfontname, $pfontstyle, $pfontsize);
                     $this->resetLastH();
                     $minstartliney  = $this->y;
-                    $maxbottomliney = ($startliney + $this->getCellHeight($this->FontSize));
+                    $maxbottomliney = ($startliney + $this->getCellHeight($this->fontSize));
                     if (is_numeric($pfontsize) and ($pfontsize > 0)) {
                         $this->putHtmlListBullet($this->listnum, $this->lispacer, $pfontsize);
                     }
@@ -16596,7 +16586,7 @@ class PDF
                             $same_textdir  = true;
                             $tmp_fontname  = $this->FontFamily;
                             $tmp_fontstyle = $this->FontStyle;
-                            $tmp_fontsize  = $this->FontSizePt;
+                            $tmp_fontsize  = $this->fontSizeInPoints;
                             while ($write_block and isset($dom[$nkey])) {
                                 if ($dom[$nkey]['tag']) {
                                     if ($dom[$nkey]['block']) {
@@ -16605,7 +16595,7 @@ class PDF
                                     }
                                     $tmp_fontname  = isset($dom[$nkey]['fontname']) ? $dom[$nkey]['fontname'] : $this->FontFamily;
                                     $tmp_fontstyle = isset($dom[$nkey]['fontstyle']) ? $dom[$nkey]['fontstyle'] : $this->FontStyle;
-                                    $tmp_fontsize  = isset($dom[$nkey]['fontsize']) ? $dom[$nkey]['fontsize'] : $this->FontSizePt;
+                                    $tmp_fontsize  = isset($dom[$nkey]['fontsize']) ? $dom[$nkey]['fontsize'] : $this->fontSizeInPoints;
                                     $same_textdir  = ($dom[$nkey]['dir'] == $dom[$key]['dir']);
                                 }
                                 else {
@@ -16929,7 +16919,7 @@ class PDF
                 $cur_h = $this->getCellHeight($tag['fontsize'] / $this->scaleFactor);
             }
             else {
-                $cur_h = $this->getCellHeight($this->FontSize);
+                $cur_h = $this->getCellHeight($this->fontSize);
             }
             if (isset($this->tagvspaces[$tag['value']][0]['n'])) {
                 $on = $this->tagvspaces[$tag['value']][0]['n'];
@@ -16951,7 +16941,7 @@ class PDF
                     $hbz = (($parent['fontsize'] / $this->scaleFactor) * $this->cell_height_ratio);
                 }
                 else {
-                    $hbz = $this->getCellHeight($this->FontSize);
+                    $hbz = $this->getCellHeight($this->fontSize);
                 }
             }
             if (isset($dom[($key - 1)]) and ($dom[($key - 1)]['value'] == 'table')) {
@@ -16967,7 +16957,7 @@ class PDF
                 $pre_h = $this->getCellHeight($parent['fontsize'] / $this->scaleFactor);
             }
             else {
-                $pre_h = $this->getCellHeight($this->FontSize);
+                $pre_h = $this->getCellHeight($this->fontSize);
             }
             if (isset($this->tagvspaces[$tag['value']][1]['n'])) {
                 $cn = $this->tagvspaces[$tag['value']][1]['n'];
@@ -17382,12 +17372,12 @@ class PDF
             }
             case 'sup':
             {
-                $this->setXY($this->GetX(), $this->GetY() - ((0.7 * $this->FontSizePt) / $this->scaleFactor));
+                $this->setXY($this->GetX(), $this->GetY() - ((0.7 * $this->fontSizeInPoints) / $this->scaleFactor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->GetX(), $this->GetY() + ((0.3 * $this->FontSizePt) / $this->scaleFactor));
+                $this->setXY($this->GetX(), $this->GetY() + ((0.3 * $this->fontSizeInPoints) / $this->scaleFactor));
                 break;
             }
             case 'h1':
@@ -17442,7 +17432,7 @@ class PDF
                 if (isset($tag['attribute']['maxlength']) and !empty($tag['attribute']['maxlength'])) {
                     $opt['maxlen'] = intval($tag['attribute']['maxlength']);
                 }
-                $h = $this->getCellHeight($this->FontSize);
+                $h = $this->getCellHeight($this->fontSize);
                 if (isset($tag['attribute']['size']) and !empty($tag['attribute']['size'])) {
                     $w = intval($tag['attribute']['size']) * $this->GetStringWidth(chr(32)) * 2;
                 }
@@ -17625,7 +17615,7 @@ class PDF
                     $w = 40;
                 }
                 if (isset($tag['attribute']['rows']) and !empty($tag['attribute']['rows'])) {
-                    $h = intval($tag['attribute']['rows']) * $this->getCellHeight($this->FontSize);
+                    $h = intval($tag['attribute']['rows']) * $this->getCellHeight($this->fontSize);
                 }
                 else {
                     $h = 10;
@@ -17636,7 +17626,7 @@ class PDF
             }
             case 'select':
             {
-                $h = $this->getCellHeight($this->FontSize);
+                $h = $this->getCellHeight($this->fontSize);
                 if (isset($tag['attribute']['size']) and !empty($tag['attribute']['size'])) {
                     $h *= ($tag['attribute']['size'] + 1);
                 }
@@ -17756,7 +17746,7 @@ class PDF
                 $pre_h = $this->getCellHeight($parent['fontsize'] / $this->scaleFactor);
             }
             else {
-                $pre_h = $this->getCellHeight($this->FontSize);
+                $pre_h = $this->getCellHeight($this->fontSize);
             }
             if (isset($this->tagvspaces[$tag['value']][1]['n'])) {
                 $cn = $this->tagvspaces[$tag['value']][1]['n'];
@@ -17774,7 +17764,7 @@ class PDF
                 $hb = ($cn * $pre_h);
             }
             if ($maxbottomliney > $this->PageBreakTrigger) {
-                $hbz = $this->getCellHeight($this->FontSize);
+                $hbz = $this->getCellHeight($this->fontSize);
             }
             elseif ($this->y < $maxbottomliney) {
                 $hbz = ($maxbottomliney - $this->y);
@@ -18889,7 +18879,7 @@ class PDF
         if (!empty($textitem)) {
             // Check whether we need a new page or new column
             $prev_y = $this->y;
-            $h      = $this->getCellHeight($this->FontSize);
+            $h      = $this->getCellHeight($this->fontSize);
             if ($this->checkPageBreak($h) or ($this->y < $prev_y)) {
                 $tmpx = $this->x;
             }
@@ -18926,7 +18916,7 @@ class PDF
         $grapvars = [
             'FontFamily'        => $this->FontFamily,
             'FontStyle'         => $this->FontStyle,
-            'FontSizePt'        => $this->FontSizePt,
+            'FontSizePt'        => $this->fontSizeInPoints,
             'rMargin'           => $this->rMargin,
             'lMargin'           => $this->lMargin,
             'cell_padding'      => $this->cell_padding,
@@ -18988,7 +18978,7 @@ class PDF
         }
         $this->FontFamily        = $gvars['FontFamily'];
         $this->FontStyle         = $gvars['FontStyle'];
-        $this->FontSizePt        = $gvars['FontSizePt'];
+        $this->fontSizeInPoints  = $gvars['FontSizePt'];
         $this->rMargin           = $gvars['rMargin'];
         $this->lMargin           = $gvars['lMargin'];
         $this->cell_padding      = $gvars['cell_padding'];
@@ -19038,7 +19028,7 @@ class PDF
         }
         $this->append('' . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
         if (!empty($this->FontFamily)) {
-            $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
+            $this->setFont($this->FontFamily, $this->FontStyle, $this->fontSizeInPoints);
         }
     }
 
@@ -19612,7 +19602,7 @@ class PDF
      */
     public function addTOC($page = null, $numbersfont = '', $filler = '.', $toc_name = 'TOC', $style = '', $color = [0, 0, 0])
     {
-        $fontsize        = $this->FontSizePt;
+        $fontsize        = $this->fontSizeInPoints;
         $fontfamily      = $this->FontFamily;
         $fontstyle       = $this->FontStyle;
         $w               = $this->w - $this->lMargin - $this->rMargin;
@@ -19664,7 +19654,7 @@ class PDF
             }
             $this->textColorArray($outline['c']);
             // check for page break
-            $this->checkPageBreak(2 * $this->getCellHeight($this->FontSize));
+            $this->checkPageBreak(2 * $this->getCellHeight($this->fontSize));
             // set margins and X position
             if (($this->page == $current_page) and ($this->current_column == $current_column)) {
                 $this->lMargin = $lmargin;
@@ -20928,7 +20918,7 @@ class PDF
             return [$x, $y];
         }
         if (empty($h)) {
-            $h = $this->getCellHeight($this->FontSize);
+            $h = $this->getCellHeight($this->fontSize);
         }
         // check for page break
         if ($this->checkPageBreak($h, $y)) {

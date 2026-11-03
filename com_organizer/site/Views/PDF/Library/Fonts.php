@@ -17,6 +17,10 @@ trait Fonts
 {
     private string $fontPath = JPATH_SITE . '/components/com_organizer/Views/PDF/Library/Fonts/';
 
+    protected float $fontSize;
+
+    protected float $fontSizeInPoints = 12;
+
     /** Cache used for speed up Unicode ord performances. */
     private array $utf8Map = [];
 
