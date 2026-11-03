@@ -372,6 +372,20 @@ class StaticMethods
     }
 
     /**
+     * Output input data and compress it if possible.
+     * @param string $data   Data to output.
+     * @param int    $length Data length in bytes.
+     */
+    public static function sendOutputData(string $data, int $length): void
+    {
+        if (!isset($_SERVER['HTTP_ACCEPT_ENCODING']) or empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+            // the content length may vary if the server is using compression
+            header('Content-Length: ' . $length);
+        }
+        echo $data;
+    }
+
+    /**
      * Convert string to hexadecimal string (byte string)
      * @param string $string string to convert
      * @return string
@@ -543,20 +557,6 @@ class StaticMethods
             return @$object->clone();
         }
         return @clone($object);
-    }
-
-    /**
-     * Output input data and compress it if possible.
-     * @param string $data   Data to output.
-     * @param int    $length Data length in bytes.
-     */
-    public static function sendOutputData($data, $length)
-    {
-        if (!isset($_SERVER['HTTP_ACCEPT_ENCODING']) or empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-            // the content length may vary if the server is using compression
-            header('Content-Length: ' . $length);
-        }
-        echo $data;
     }
 
     /**

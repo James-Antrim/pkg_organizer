@@ -6949,18 +6949,18 @@ class PDF
             }
         }
         $preserve = [
-            'file_id',
-            'state',
-            'bufferlen',
             'buffer',
+            'bufferLength',
+            'byterange_string',
             'cached_files',
+            'file_id',
             'imagekeys',
+            'state',
             'sign',
             'signature_data',
             'signature_max_length',
-            'byterange_string',
-            'tsa_timestamp',
-            'tsa_data'
+            'tsa_data',
+            'tsa_timestamp'
         ];
         foreach (array_keys(get_object_vars($this)) as $val) {
             if ($destroyall or !in_array($val, $preserve)) {
