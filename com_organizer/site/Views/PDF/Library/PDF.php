@@ -1171,7 +1171,7 @@ class PDF
     /**
      * Array of $re_spaces parts.
      */
-    protected $re_space = array('p' => '[^\S\xa0]', 'm' => '');
+    protected $re_space = ['p' => '[^\S\xa0]', 'm' => ''];
 
     /**
      * Digital signature object ID.
@@ -1608,7 +1608,7 @@ class PDF
             }
             else {
                 if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
-                    $pf = array(($format[0] * $this->scaleFactor), ($format[1] * $this->scaleFactor));
+                    $pf = [($format[0] * $this->scaleFactor), ($format[1] * $this->scaleFactor)];
                 }
                 else {
                     if (!isset($format['format'])) {
@@ -2197,12 +2197,12 @@ class PDF
 
         }
 
-        return array(
+        return [
             'T' => ($this->cell_padding['T'] - $cp['T']),
             'R' => ($this->cell_padding['R'] - $cp['R']),
             'B' => ($this->cell_padding['B'] - $cp['B']),
             'L' => ($this->cell_padding['L'] - $cp['L']),
-        );
+        ];
     }
 
     /**
@@ -3468,7 +3468,7 @@ class PDF
                 }
                 $maxWidth = $this->getAbsFontMeasure($maxWidth);
             }
-            $fbbox = array(0, (0 - $this->FontDescent), $maxWidth, $this->FontAscent);
+            $fbbox = [0, (0 - $this->FontDescent), $maxWidth, $this->FontAscent];
         }
         return $fbbox;
     }
@@ -6440,7 +6440,7 @@ class PDF
     {
         $alias = [];
         // build array of Unicode + ASCII variants (the order is important)
-        $alias        = array('u' => [], 'a' => []);
+        $alias        = ['u' => [], 'a' => []];
         $u            = '{' . $a . '}';
         $alias['u'][] = StaticMethods::escape($u);
         if ($this->isUnicode) {
@@ -10015,7 +10015,7 @@ class PDF
                 return;
             }
         }
-        $this->outlines[] = array('t' => $txt, 'l' => $level, 'x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed, 's' => strtoupper($style), 'c' => $color, 'u' => $link);
+        $this->outlines[] = ['t' => $txt, 'l' => $level, 'x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed, 's' => strtoupper($style), 'c' => $color, 'u' => $link];
     }
 
     /**
@@ -11592,7 +11592,7 @@ class PDF
      */
     public function cropMark($x, $y, $w, $h, $type = 'T,R,B,L', $color = [100, 100, 100, 100, 'All'])
     {
-        $this->lineStyle(array('width' => (0.5 / $this->scaleFactor), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
+        $this->lineStyle(['width' => (0.5 / $this->scaleFactor), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color]);
         $type = strtoupper($type);
         $type = preg_replace('/[^A-Z\-\,]*/', '', $type);
         // split type in single components
@@ -11665,7 +11665,7 @@ class PDF
      */
     public function registrationMark($x, $y, $r, $double = false, $cola = [100, 100, 100, 100, 'All'], $colb = [0, 0, 0, 0, 'None'])
     {
-        $line_style = array('width' => max((0.5 / $this->scaleFactor), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
+        $line_style = ['width' => max((0.5 / $this->scaleFactor), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola];
         $this->fillColorArray($cola);
         $this->PieSector($x, $y, $r, 90, 180, 'F');
         $this->PieSector($x, $y, $r, 270, 360, 'F');
@@ -16933,7 +16933,7 @@ class PDF
                 // set default border
                 if (isset($table_el['attribute']['border']) and ($table_el['attribute']['border'] > 0)) {
                     // set default border
-                    $border = array('LTRB' => array('width' => $this->getCSSBorderWidth($table_el['attribute']['border']), 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]));
+                    $border = ['LTRB' => ['width' => $this->getCSSBorderWidth($table_el['attribute']['border']), 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]];
                 }
                 else {
                     $border = 0;
@@ -17748,7 +17748,7 @@ class PDF
                 $lspace          += (2 * $r);
                 $this->x         -= $lspace;
                 $prev_line_style = $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor;
-                $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
+                $new_line_style  = ['width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color];
                 $this->circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
                 $this->append($prev_line_style); // restore line settings
                 break;
@@ -19654,10 +19654,10 @@ class PDF
         if (!empty($this->xObjects[$id]['annotations'])) {
             foreach ($this->xObjects[$id]['annotations'] as $annot) {
                 // transform original coordinates
-                $coordlt = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * $this->scaleFactor), (-$annot['y'] * $this->scaleFactor)));
+                $coordlt = StaticMethods::getTransformationMatrixProduct($tm, [1, 0, 0, 1, ($annot['x'] * $this->scaleFactor), (-$annot['y'] * $this->scaleFactor)]);
                 $ax      = ($coordlt[4] / $this->scaleFactor);
                 $ay      = ($this->h - $h - ($coordlt[5] / $this->scaleFactor));
-                $coordrb = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * $this->scaleFactor), ((-$annot['y'] - $annot['h']) * $this->scaleFactor)));
+                $coordrb = StaticMethods::getTransformationMatrixProduct($tm, [1, 0, 0, 1, (($annot['x'] + $annot['w']) * $this->scaleFactor), ((-$annot['y'] - $annot['h']) * $this->scaleFactor)]);
                 $aw      = ($coordrb[4] / $this->scaleFactor) - $ax;
                 $ah      = ($this->h - $h - ($coordrb[5] / $this->scaleFactor)) - $ay;
                 $this->Annotation($ax, $ay, $aw, $ah, $annot['text'], $annot['opt'], $annot['spaces']);
@@ -20432,12 +20432,12 @@ class PDF
             elseif (preg_match('/rgba\(\d+%?,\s*\d+%?,\s*\d+%?,\s*(\d+(?:\.\d+)?)\)/i', $svgstyle['stroke'], $rgba_matches)) {
                 $this->setAlpha($rgba_matches[1], 'Normal', $this->alpha['ca'], false);
             }
-            $stroke_style = array(
+            $stroke_style = [
                 'color' => $this->colorFromHTML($svgstyle['stroke']),
                 'width' => $this->htmlUnitsToUnits($svgstyle['stroke-width'], 0, $this->svgUnit, false),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
-            );
+            ];
             if (isset($svgstyle['stroke-dasharray']) and !empty($svgstyle['stroke-dasharray']) and ($svgstyle['stroke-dasharray'] != 'none')) {
                 $stroke_style['dash'] = $svgstyle['stroke-dasharray'];
             }
@@ -20940,7 +20940,7 @@ class PDF
             $firstcmd = false;
         } // end foreach
         $this->append($op);
-        return array($xmin, $ymin, ($xmax - $xmin), ($ymax - $ymin));
+        return [$xmin, $ymin, ($xmax - $xmin), ($ymax - $ymin)];
     }
 
     /**
@@ -21141,7 +21141,7 @@ class PDF
                             }
                             $hr = $wr;
                         }
-                        $newtm = array($wr, 0, 0, $hr, (($wr * ($ax - $vx)) - $svgX), (($hr * ($ay - $vy)) - $svgY));
+                        $newtm = [$wr, 0, 0, $hr, (($wr * ($ax - $vx)) - $svgX), (($hr * ($ay - $vy)) - $svgY)];
                         $tm    = StaticMethods::getTransformationMatrixProduct($tm, $newtm);
                         $this->SVGTransform($tm);
                     }
