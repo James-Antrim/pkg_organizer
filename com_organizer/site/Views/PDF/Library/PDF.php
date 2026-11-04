@@ -179,7 +179,7 @@ class PDF
         $this->getFontsList();
         $this->setTextShadow();
 
-        $this->utf8Bidirectional([], '', false, true, $this->CurrentFont);
+        $this->utf8Bidirectional([], $this->CurrentFont);
         $this->setFont($this->FontFamily, $this->FontStyle, $this->fontSizeInPoints);
         $this->setHeaderFont([$this->FontFamily, $this->FontStyle, $this->fontSizeInPoints]);
         $this->setFooterFont([$this->FontFamily, $this->FontStyle, $this->fontSizeInPoints]);
@@ -836,11 +836,6 @@ class PDF
      * Spacer string for LI tags.
      */
     protected $lispacer = '';
-
-    /**
-     * Boolean flag to indicate if the document language is Right-To-Left.
-     */
-    protected bool $rtl = false;
 
     /**
      * Boolean flag used to force RTL or LTR string direction.
@@ -2984,7 +2979,7 @@ class PDF
      */
     public function GetStringWidth($s, $fontname = '', $fontstyle = '', $fontsize = 0, $getarray = false)
     {
-        return $this->GetArrStringWidth($this->utf8Bidirectional($this->utf8StringToArray($s, $this->isUnicode, $this->CurrentFont), $s, $this->tmprtl, $this->isUnicode, $this->CurrentFont), $fontname, $fontstyle, $fontsize, $getarray);
+        return $this->GetArrStringWidth($this->utf8Bidirectional($this->utf8StringToArray($s, $this->isUnicode, $this->CurrentFont), $this->CurrentFont), $fontname, $fontstyle, $fontsize, $getarray);
     }
 
     /**
@@ -4140,7 +4135,7 @@ class PDF
                 }
                 else {
                     $unicode = $this->utf8StringToArray($txt, $this->isUnicode, $this->CurrentFont); // array of UTF-8 Unicode values
-                    $unicode = $this->utf8Bidirectional($unicode, '', $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+                    $unicode = $this->utf8Bidirectional($unicode, $this->CurrentFont);
                     // replace thai chars (if any)
                     if (defined('K_THAI_TOPCHARS') and (K_THAI_TOPCHARS == true)) {
                         // number of chars
@@ -5056,7 +5051,7 @@ class PDF
         }
         $lines         = 1;
         $sum           = 0;
-        $chars         = $this->utf8Bidirectional($this->utf8StringToArray($txt, $this->isUnicode, $this->CurrentFont), $txt, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+        $chars         = $this->utf8Bidirectional($this->utf8StringToArray($txt, $this->isUnicode, $this->CurrentFont), $this->CurrentFont);
         $charsWidth    = $this->GetArrStringWidth($chars, '', '', 0, true);
         $length        = count($chars);
         $lastSeparator = -1;
@@ -5272,7 +5267,7 @@ class PDF
                     $startx = $this->x;
                     $tmparr = array_slice($chars, $j, ($i - $j));
                     if ($rtlmode) {
-                        $tmparr = $this->utf8Bidirectional($tmparr, $tmpstr, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+                        $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
                     }
                     $linew = $this->GetArrStringWidth($tmparr);
                     unset($tmparr);
@@ -5349,7 +5344,7 @@ class PDF
                 if ($this->isUnicodeFont() and ($arabic)) {
                     // with bidirectional algorithm some chars may be changed affecting the line length
                     // *** very slow ***
-                    $l = $this->GetArrStringWidth($this->utf8Bidirectional(array_slice($chars, $j, ($i - $j)), '', $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+                    $l = $this->GetArrStringWidth($this->utf8Bidirectional(array_slice($chars, $j, ($i - $j)), $this->CurrentFont));
                 }
                 else {
                     $l += $this->GetCharWidth($c, ($i + 1 < $nb));
@@ -5377,7 +5372,7 @@ class PDF
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
                                 if ($rtlmode) {
-                                    $tmparr = $this->utf8Bidirectional($tmparr, $tmpstr, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+                                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
                                 }
                                 $linew = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
@@ -5411,7 +5406,7 @@ class PDF
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
                                 if ($rtlmode) {
-                                    $tmparr = $this->utf8Bidirectional($tmparr, $tmpstr, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+                                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
                                 }
                                 $linew = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
@@ -5449,7 +5444,7 @@ class PDF
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, (($sep + $endspace) - $j));
                                 if ($rtlmode) {
-                                    $tmparr = $this->utf8Bidirectional($tmparr, $tmpstr, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+                                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
                                 }
                                 $linew = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
@@ -5524,7 +5519,7 @@ class PDF
                 $startx = $this->x;
                 $tmparr = array_slice($chars, $j, ($nb - $j));
                 if ($rtlmode) {
-                    $tmparr = $this->utf8Bidirectional($tmparr, $tmpstr, $this->tmprtl, $this->isUnicode, $this->CurrentFont);
+                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
                 }
                 $linew = $this->GetArrStringWidth($tmparr);
                 unset($tmparr);
@@ -6492,9 +6487,9 @@ class PDF
         $alias['u'][] = StaticMethods::escape($u);
         if ($this->isUnicode) {
             $alias['u'][] = StaticMethods::escape($this->utf8ToLatin1($u, $this->isUnicode, $this->CurrentFont));
-            $alias['u'][] = StaticMethods::escape($this->utf8StringReverse($u, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['u'][] = StaticMethods::escape($this->utf8StringReverse($u, $this->isUnicode, $this->CurrentFont));
             $alias['a'][] = StaticMethods::escape($this->utf8ToLatin1($a, $this->isUnicode, $this->CurrentFont));
-            $alias['a'][] = StaticMethods::escape($this->utf8StringReverse($a, false, $this->tmprtl, $this->isUnicode, $this->CurrentFont));
+            $alias['a'][] = StaticMethods::escape($this->utf8StringReverse($a, $this->isUnicode, $this->CurrentFont));
         }
         $alias['a'][] = StaticMethods::escape($a);
         return $alias;
@@ -9366,7 +9361,7 @@ class PDF
     protected function _fixAES256Password($password)
     {
         $psw       = ''; // password to be returned
-        $psw_array = $this->utf8Bidirectional($this->utf8StringToArray($password, $this->isUnicode, $this->CurrentFont), $password, $this->rtl, $this->isUnicode, $this->CurrentFont);
+        $psw_array = $this->utf8Bidirectional($this->utf8StringToArray($password, $this->isUnicode, $this->CurrentFont), $this->CurrentFont);
         foreach ($psw_array as $c) {
             $psw .= $this->unicodeCharacter($c, $this->isUnicode);
         }

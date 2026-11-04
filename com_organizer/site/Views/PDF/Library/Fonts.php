@@ -64,17 +64,13 @@ trait Fonts
 
     /**
      * Reverse the RLT substrings array using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param array  $utf8Values
-     * @param string $string
-     * @param bool   $setBOM set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool   $forceRTL
-     * @param bool   $isUnicode
-     * @param array  $currentFont
+     * @param array $utf8Values
+     * @param array $currentFont
      * @return string
      */
-    public function reverseRTLSubstrings(array $utf8Values, string $string, bool $setBOM, bool $forceRTL, bool $isUnicode, array &$currentFont): string
+    public function reverseRTLSubstrings(array $utf8Values, array &$currentFont): string
     {
-        return self::utf8ArrayToUTF16BEString($this->utf8Bidirectional($utf8Values, $string, $forceRTL, $isUnicode, $currentFont), $setBOM);
+        return self::utf8ArrayToUTF16BEString($this->utf8Bidirectional($utf8Values, $currentFont), $setBOM);
     }
 
     /**
@@ -348,59 +344,19 @@ trait Fonts
 
     /**
      * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param array  $utf8Values
-     * @param string $string
-     * @param bool   $forceRTL if 'R' forces RTL, if 'L' forces LTR
-     * @param bool   $isUnicode
-     * @param array  $currentFont
+     * @param array $utf8Values
+     * @param array $currentFont
      * @return array of Unicode chars
      */
-    public function utf8Bidirectional(array $utf8Values, string $string, bool $forceRTL, bool $isUnicode, array &$currentFont): array
+    public function utf8Bidirectional(array $utf8Values, array &$currentFont): array
     {
         // paragraph embedding level
         $pel = 0;
         // max level
         $maxlevel = 0;
-        if (empty($string)) {
-            // create string from array
-            $string = $this->utf8SliceToString($utf8Values, 0, 0, $isUnicode);
-        }
-        // check if string contains arabic text
-        if (preg_match(FontData::$arabidTestPattern, $string)) {
-            $arabic = true;
-        }
-        else {
-            $arabic = false;
-        }
-        // check if string contains RTL text
-        if (!($forceRTL or $arabic or preg_match(FontData::$rtlTestPattern, $string))) {
-            return $utf8Values;
-        }
 
         // get number of chars
         $numchars = count($utf8Values);
-
-        if ($forceRTL == 'R') {
-            $pel = 1;
-        }
-        elseif ($forceRTL == 'L') {
-            $pel = 0;
-        }
-        else {
-            // P2. In each paragraph, find the first character of type L, AL, or R.
-            // P3. If a character is found in P2 and it is of type AL or R, then set the paragraph embedding level to one; otherwise, set it to zero.
-            for ($i = 0; $i < $numchars; ++$i) {
-                $type = FontData::$types[$utf8Values[$i]];
-                if ($type == 'L') {
-                    $pel = 0;
-                    break;
-                }
-                elseif (($type == 'AL') or ($type == 'R')) {
-                    $pel = 1;
-                    break;
-                }
-            }
-        }
 
         // Current Embedding Level
         $cel = $pel;
@@ -663,7 +619,9 @@ trait Fonts
             $prevlevel = $chardata[$i]['level'];
         }
 
-        // N1. A sequence of neutrals takes the direction of the surrounding strong text if the text on both sides has the same direction. European and Arabic numbers act as if they were R in terms of their influence on neutrals. Start-of-level-run (sor) and end-of-level-run (eor) are used at level run boundaries.
+        // N1. A sequence of neutrals takes the direction of the surrounding strong text if the text on both sides has the same direction.
+        // European and Arabic numbers act as if they were R in terms of their influence on neutrals. Start-of-level-run (sor) and end-of-level-run
+        // (eor) are used at level run boundaries.
         $prevlevel = -1;
         $levcount  = 0;
         for ($i = 0; $i < $numchars; ++$i) {
@@ -769,162 +727,6 @@ trait Fonts
             }
         }
 
-        // Arabic Shaping
-        // Cursively connected scripts, such as Arabic or Syriac, require the selection of positional character shapes that depend on adjacent characters. Shaping is logically applied after the Bidirectional Algorithm is used and is limited to characters within the same directional run.
-        if ($arabic) {
-            $endedletter = [1569, 1570, 1571, 1572, 1573, 1575, 1577, 1583, 1584, 1585, 1586, 1608, 1688];
-            $alfletter   = [1570, 1571, 1573, 1575];
-            $chardata2   = $chardata;
-            $laaletter   = false;
-            $charAL      = [];
-            $x           = 0;
-            for ($i = 0; $i < $numchars; ++$i) {
-                if ((FontData::$types[$chardata[$i]['char']] == 'AL') or ($chardata[$i]['char'] == 32) or ($chardata[$i]['char'] == 8204)) {
-                    $charAL[$x]        = $chardata[$i];
-                    $charAL[$x]['i']   = $i;
-                    $chardata[$i]['x'] = $x;
-                    ++$x;
-                }
-            }
-            $numAL = $x;
-            for ($i = 0; $i < $numchars; ++$i) {
-                $thischar = $chardata[$i];
-                if ($i > 0) {
-                    $prevchar = $chardata[($i - 1)];
-                }
-                else {
-                    $prevchar = false;
-                }
-                if (($i + 1) < $numchars) {
-                    $nextchar = $chardata[($i + 1)];
-                }
-                else {
-                    $nextchar = false;
-                }
-                if (FontData::$types[$thischar['char']] == 'AL') {
-                    $x = $thischar['x'];
-                    if ($x > 0) {
-                        $prevchar = $charAL[($x - 1)];
-                    }
-                    else {
-                        $prevchar = false;
-                    }
-                    if (($x + 1) < $numAL) {
-                        $nextchar = $charAL[($x + 1)];
-                    }
-                    else {
-                        $nextchar = false;
-                    }
-                    // if laa letter
-                    if (($prevchar !== false) and ($prevchar['char'] == 1604) and (in_array($thischar['char'], $alfletter))) {
-                        $arabicarr = FontData::$arabicLaCharacter;
-                        $laaletter = true;
-                        if ($x > 1) {
-                            $prevchar = $charAL[($x - 2)];
-                        }
-                        else {
-                            $prevchar = false;
-                        }
-                    }
-                    else {
-                        $arabicarr = FontData::$arabicShapeSubstitutions;
-                        $laaletter = false;
-                    }
-                    if (($prevchar !== false) and ($nextchar !== false) and
-                        ((FontData::$types[$prevchar['char']] == 'AL') or (FontData::$types[$prevchar['char']] == 'NSM')) and
-                        ((FontData::$types[$nextchar['char']] == 'AL') or (FontData::$types[$nextchar['char']] == 'NSM')) and
-                        ($prevchar['type'] == $thischar['type']) and
-                        ($nextchar['type'] == $thischar['type']) and
-                        ($nextchar['char'] != 1567)) {
-                        if (in_array($prevchar['char'], $endedletter)) {
-                            if (isset($arabicarr[$thischar['char']][2])) {
-                                // initial
-                                $chardata2[$i]['char'] = $arabicarr[$thischar['char']][2];
-                            }
-                        }
-                        else {
-                            if (isset($arabicarr[$thischar['char']][3])) {
-                                // medial
-                                $chardata2[$i]['char'] = $arabicarr[$thischar['char']][3];
-                            }
-                        }
-                    }
-                    elseif (($nextchar !== false) and
-                        ((FontData::$types[$nextchar['char']] == 'AL') or (FontData::$types[$nextchar['char']] == 'NSM')) and
-                        ($nextchar['type'] == $thischar['type']) and
-                        ($nextchar['char'] != 1567)) {
-                        if (isset($arabicarr[$chardata[$i]['char']][2])) {
-                            // initial
-                            $chardata2[$i]['char'] = $arabicarr[$thischar['char']][2];
-                        }
-                    }
-                    elseif ((($prevchar !== false) and
-                            ((FontData::$types[$prevchar['char']] == 'AL') or (FontData::$types[$prevchar['char']] == 'NSM')) and
-                            ($prevchar['type'] == $thischar['type'])) or
-                        (($nextchar !== false) and ($nextchar['char'] == 1567))) {
-                        // final
-                        if (($i > 1) and ($thischar['char'] == 1607) and
-                            ($chardata[$i - 1]['char'] == 1604) and
-                            ($chardata[$i - 2]['char'] == 1604)) {
-                            //Allah Word
-                            // mark characters to delete with false
-                            $chardata2[$i - 2]['char'] = false;
-                            $chardata2[$i - 1]['char'] = false;
-                            $chardata2[$i]['char']     = 65010;
-                        }
-                        else {
-                            if (($prevchar !== false) and in_array($prevchar['char'], $endedletter)) {
-                                if (isset($arabicarr[$thischar['char']][0])) {
-                                    // isolated
-                                    $chardata2[$i]['char'] = $arabicarr[$thischar['char']][0];
-                                }
-                            }
-                            else {
-                                if (isset($arabicarr[$thischar['char']][1])) {
-                                    // final
-                                    $chardata2[$i]['char'] = $arabicarr[$thischar['char']][1];
-                                }
-                            }
-                        }
-                    }
-                    elseif (isset($arabicarr[$thischar['char']][0])) {
-                        // isolated
-                        $chardata2[$i]['char'] = $arabicarr[$thischar['char']][0];
-                    }
-                    // if laa letter
-                    if ($laaletter) {
-                        // mark characters to delete with false
-                        $chardata2[($charAL[($x - 1)]['i'])]['char'] = false;
-                    }
-                } // end if AL (Arabic Letter)
-            } // end for each char
-            /*
-			 * Combining characters that can occur with Arabic Shadda (0651 HEX, 1617 DEC) are replaced.
-			 * Putting the combining mark and shadda in the same glyph allows us to avoid the two marks overlapping each other in an illegible manner.
-			 */
-            for ($i = 0; $i < ($numchars - 1); ++$i) {
-                if (($chardata2[$i]['char'] == 1617) and (isset(FontData::$diacriticSubstitutions[($chardata2[$i + 1]['char'])]))) {
-                    // check if the subtitution font is defined on current font
-                    if (isset($currentFont['cw'][(FontData::$diacriticSubstitutions[($chardata2[$i + 1]['char'])])])) {
-                        $chardata2[$i]['char']     = false;
-                        $chardata2[$i + 1]['char'] = FontData::$diacriticSubstitutions[($chardata2[$i + 1]['char'])];
-                    }
-                }
-            }
-            // remove marked characters
-            foreach ($chardata2 as $key => $value) {
-                if ($value['char'] === false) {
-                    unset($chardata2[$key]);
-                }
-            }
-            $chardata = array_values($chardata2);
-            $numchars = count($chardata);
-            unset($chardata2);
-            unset($arabicarr);
-            unset($laaletter);
-            unset($charAL);
-        }
-
         // L2. From the highest level found in the text to the lowest odd level on each line, including intermediate levels not actually present in the text, reverse any contiguous sequence of characters that are at that level or higher.
         for ($j = $maxlevel; $j > 0; $j--) {
             $ordarray = [];
@@ -985,15 +787,13 @@ trait Fonts
     /**
      * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
      * @param string  $string
-     * @param bool    $setBOM   if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool    $forceRTL if true forces RTL text direction
      * @param bool    $isUnicode
      * @param array  &$currentFont
      * @return string
      */
-    public function utf8StringReverse(string $string, bool $setBOM, bool $forceRTL, bool $isUnicode, array &$currentFont): string
+    public function utf8StringReverse(string $string, bool $isUnicode, array &$currentFont): string
     {
-        return $this->reverseRTLSubstrings($this->utf8StringToArray($string, $isUnicode, $currentFont), $string, $setBOM, $forceRTL, $isUnicode, $currentFont);
+        return $this->reverseRTLSubstrings($this->utf8StringToArray($string, $isUnicode, $currentFont), $currentFont);
     }
 
     /**
