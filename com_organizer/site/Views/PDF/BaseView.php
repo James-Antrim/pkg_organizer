@@ -257,21 +257,6 @@ abstract class BaseView extends PDF implements ViewInterface
     }
 
     /**
-     * Redefines the abscissa and ordinate of the current position. If the passed values are negative, they are relative
-     * respectively to the right and bottom of the page.
-     *
-     * @param int $horizontal the horizontal coordinate
-     * @param int $vertical   the vertical coordinate
-     *
-     * @return void
-     * @see SetXY()
-     */
-    public function reposition(int $horizontal, int $vertical): void
-    {
-        $this->SetXY($horizontal, $vertical);
-    }
-
-    /**
      * Changes the current font size used for rendering.
      *
      * @param int $size the font size

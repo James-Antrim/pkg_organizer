@@ -60,7 +60,7 @@ abstract class ListLayout extends BaseLayout
         $view = $this->view;
         $view->Ln();
 
-        if ($view->GetY() > 275) {
+        if ($view->y() > 275) {
             $this->page();
         }
     }

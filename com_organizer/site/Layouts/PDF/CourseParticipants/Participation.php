@@ -48,8 +48,8 @@ class Participation extends ListLayout
 
         foreach ($groupedParticipation as $organization => $programs) {
             $maxLength = 0;
-            $startX    = $view->GetX();
-            $startY    = $view->GetY();
+            $startX    = $view->x();
+            $startY    = $view->y();
 
             $view->fillColor(225);
             foreach (array_keys($this->headers) as $columnName) {
@@ -77,8 +77,8 @@ class Participation extends ListLayout
                 }
 
                 $maxLength = 0;
-                $startX    = $view->GetX();
-                $startY    = $view->GetY();
+                $startX    = $view->x();
+                $startY    = $view->y();
 
                 foreach (array_keys($this->headers) as $columnName) {
                     $value  = $columnName === 'grouping' ?

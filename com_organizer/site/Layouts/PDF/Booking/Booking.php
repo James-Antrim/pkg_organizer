@@ -35,8 +35,8 @@ class Booking extends ListLayout
         foreach ($data as $participant) {
             // Get the starting coordinates for later use with borders
             $maxLength = 0;
-            $startX    = $view->GetX();
-            $startY    = $view->GetY();
+            $startX    = $view->x();
+            $startY    = $view->y();
 
             foreach (array_keys($this->headers) as $columnName) {
                 $value = match ($columnName) {

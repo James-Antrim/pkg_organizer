@@ -341,6 +341,19 @@ class PDF
     }
 
     /**
+     * Defines the abscissa and ordinate of the current position.
+     * If the passed values are negative, they are relative respectively to the right and bottom of the page.
+     * @param float $x the value of the abscissa
+     * @param float $y the value of the ordinate
+     * @see   x(), y()
+     */
+    public function reposition(float $x, float $y): void
+    {
+        $this->x($x);
+        $this->y($y, false);
+    }
+
+    /**
      * Defines the page and position a link points to.
      * @param int        $linkIndex  index returned by addLink()
      * @param float      $y          ordinate of target position; -1 denotes the current position, 0 denotes the top of the page / default value
@@ -375,6 +388,55 @@ class PDF
     public function totalPagesAlias(): string
     {
         return $this->isUnicodeFont() ? '{' . StaticMethods::TOTAL_PAGES_ALIAS . '}' : StaticMethods::TOTAL_PAGES_ALIAS;
+    }
+
+    /**
+     * Defines the abscissa of the current position. If the passed value is negative, it is relative to the right of the page.
+     * @param float|null $x the value of the abscissa in user units
+     * @see   x(), y(), reposition()
+     */
+    public function x(float|null $x = null): float
+    {
+        if ($x !== null) {
+            $x = $x >= 0 ? $x : $this->w + $x;
+            if ($x < 0) {
+                $x = 0;
+            }
+            if ($x > $this->w) {
+                $x = $this->w;
+            }
+            $this->x = $x;
+        }
+
+        return $this->x;
+    }
+
+    /**
+     * Moves the current abscissa back to the left margin and sets the ordinate. If the passed value is negative, it is relative to the bottom of the page.
+     * @param float|null $y      the value of the ordinate in user units.
+     * @param bool       $resetX if true (default) reset the X position.
+     * @return float
+     * @see x(), reposition()
+     */
+    public function y(float|null $y = null, bool $resetX = true): float
+    {
+        if ($y !== null) {
+            if ($resetX) {
+                $this->x = $this->lMargin;
+            }
+
+            $y = $y >= 0 ? $y : $this->h + $y;
+
+            if ($y < 0) {
+                $y = 0;
+            }
+            if ($y > $this->h) {
+                $y = $this->h;
+            }
+            $this->y = $y;
+        }
+
+        return $this->y;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
@@ -2424,7 +2486,7 @@ class PDF
             if ($resetmargins) {
                 $this->lMargin = $this->pagedim[$this->page]['olm'];
                 $this->rMargin = $this->pagedim[$this->page]['orm'];
-                $this->setY($this->tMargin);
+                $this->y($this->tMargin);
             }
             else {
                 // account for booklet mode
@@ -2581,7 +2643,7 @@ class PDF
         if ($this->numpages > $this->page) {
             // this page has been already added
             $this->setPage($this->page + 1);
-            $this->setY($this->tMargin);
+            $this->y($this->tMargin);
             return;
         }
         // start a new page
@@ -2764,20 +2826,20 @@ class PDF
             $this->textColorArray($this->headerTextColor);
             // header title
             $this->setFont($headerfont[0], 'B', $headerfont[2] + 1);
-            $this->setX($header_x);
+            $this->x($header_x);
             $this->Cell($cw, $cell_height, $headerdata['title'], 0, 1, '', 0, '', 0);
             // header string
             $this->setFont($headerfont[0], $headerfont[1], $headerfont[2]);
-            $this->setX($header_x);
+            $this->x($header_x);
             $this->MultiCell($cw, $cell_height, $headerdata['string'], 0, '', 0, 1, '', '', true, 0, false, true, 0, 'T', false);
             // print an ending header line
             $this->lineStyle(['width' => 0.85 / $this->scaleFactor, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']]);
-            $this->setY((2.835 / $this->scaleFactor) + max($imgy, $this->y));
+            $this->y((2.835 / $this->scaleFactor) + max($imgy, $this->y));
             if ($this->rtl) {
-                $this->setX($this->original_rMargin);
+                $this->x($this->original_rMargin);
             }
             else {
-                $this->setX($this->original_lMargin);
+                $this->x($this->original_lMargin);
             }
             $this->Cell(($this->w - $this->original_lMargin - $this->original_rMargin), 0, '', 'T', 0, 'C');
             $this->endTemplate();
@@ -2839,14 +2901,14 @@ class PDF
         else {
             $pagenumtxt = $w_page . $this->groupPageNumberAlias() . ' / ' . $this->pagesInGroupAlias();
         }
-        $this->setY($cur_y);
+        $this->y($cur_y);
         //Print page number
         if ($this->getRTL()) {
-            $this->setX($this->originalRightMargin);
+            $this->x($this->originalRightMargin);
             $this->Cell(0, 0, $pagenumtxt, 'T', 0, 'L');
         }
         else {
-            $this->setX($this->originalLeftMargin);
+            $this->x($this->originalLeftMargin);
             $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
         }
     }
@@ -2871,19 +2933,19 @@ class PDF
         $this->setCellPadding(0);
         //set current position
         if ($this->rtl) {
-            $this->setXY($this->originalRightMargin, $this->headerMargin);
+            $this->reposition($this->originalRightMargin, $this->headerMargin);
         }
         else {
-            $this->setXY($this->originalLeftMargin, $this->headerMargin);
+            $this->reposition($this->originalLeftMargin, $this->headerMargin);
         }
         $this->setFont($this->header_font[0], $this->header_font[1], $this->header_font[2]);
         $this->Header();
         //restore position
         if ($this->rtl) {
-            $this->setXY($this->originalRightMargin, $this->tMargin);
+            $this->reposition($this->originalRightMargin, $this->tMargin);
         }
         else {
-            $this->setXY($this->originalLeftMargin, $this->tMargin);
+            $this->reposition($this->originalLeftMargin, $this->tMargin);
         }
         $this->_outRestoreGraphicsState();
         $this->lasth        = $lasth;
@@ -2921,19 +2983,19 @@ class PDF
             //set current position
             $footer_y = $this->h - $this->footer_margin;
             if ($this->rtl) {
-                $this->setXY($this->originalRightMargin, $footer_y);
+                $this->reposition($this->originalRightMargin, $footer_y);
             }
             else {
-                $this->setXY($this->originalLeftMargin, $footer_y);
+                $this->reposition($this->originalLeftMargin, $footer_y);
             }
             $this->setFont($this->footer_font[0], $this->footer_font[1], $this->footer_font[2]);
             $this->Footer();
             //restore position
             if ($this->rtl) {
-                $this->setXY($this->originalRightMargin, $this->tMargin);
+                $this->reposition($this->originalRightMargin, $this->tMargin);
             }
             else {
-                $this->setXY($this->originalLeftMargin, $this->tMargin);
+                $this->reposition($this->originalLeftMargin, $this->tMargin);
             }
             $this->_outRestoreGraphicsState();
             $this->lasth        = $lasth;
@@ -3868,7 +3930,7 @@ class PDF
         $textrendermode  = $this->textrendermode;
         $textstrokewidth = $this->textstrokewidth;
         $this->setTextRenderingMode($fstroke, $ffill, $fclip);
-        $this->setXY($x, $y, $rtloff);
+        $this->reposition($x, $y, $rtloff);
         $this->Cell(0, 0, $txt, $border, $ln, $align, $fill, $link, $stretch, $ignore_min_height, $calign, $valign);
         // restore previous rendering mode
         $this->textrendermode  = $textrendermode;
@@ -4814,9 +4876,9 @@ class PDF
             $this->resetLastH();
         }
         if (!empty($y)) {
-            $this->setY($y); // set y in order to convert negative y values to positive ones
+            $this->y($y); // set y in order to convert negative y values to positive ones
         }
-        $y     = $this->GetY();
+        $y     = $this->y();
         $resth = 0;
         if (($h > 0) and $this->inPageBody() and (($y + $h + $mc_margin['T'] + $mc_margin['B']) > $this->PageBreakTrigger)) {
             // spit cell in more pages/columns
@@ -4829,10 +4891,10 @@ class PDF
         // get current column
         $startcolumn = $this->current_column;
         if (!empty($x)) {
-            $this->setX($x);
+            $this->x($x);
         }
         else {
-            $x = $this->GetX();
+            $x = $this->x();
         }
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions(0, $x, $y);
@@ -4983,7 +5045,7 @@ class PDF
             $this->setPage($page);
             if ($this->num_columns < 2) {
                 // single-column mode
-                $this->setX($x);
+                $this->x($x);
                 $this->y = $this->tMargin;
             }
             // account for margin changes
@@ -5142,7 +5204,7 @@ class PDF
         // restore page regions check
         $this->check_page_regions = $check_page_regions;
         // Get end-of-cell Y position
-        $currentY = $this->GetY();
+        $currentY = $this->y();
         // restore previous values
         if ($this->num_columns > 1) {
             $this->selectColumn();
@@ -5163,16 +5225,16 @@ class PDF
         }
         if ($ln > 0) {
             //Go to the beginning of the next line
-            $this->setY($currentY + $mc_margin['B']);
+            $this->y($currentY + $mc_margin['B']);
             if ($ln == 2) {
-                $this->setX($x + $w + $mc_margin['L'] + $mc_margin['R']);
+                $this->x($x + $w + $mc_margin['L'] + $mc_margin['R']);
             }
         }
         else {
             // go left or right by case
             $this->setPage($startpage);
             $this->y = $y;
-            $this->setX($x + $w + $mc_margin['L'] + $mc_margin['R']);
+            $this->x($x + $w + $mc_margin['L'] + $mc_margin['R']);
         }
         $this->setContentMark();
         $this->cell_padding = $prev_cell_padding;
@@ -5276,14 +5338,14 @@ class PDF
      *  // store current object
      *  $pdf->startTransaction();
      *  // store starting values
-     *  $start_y = $pdf->GetY();
+     *  $start_y = $pdf->y();
      *  $start_page = $pdf->getPage();
      *  // call your printing functions with your parameters
      *  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      *  $pdf->MultiCell($w=0, $h=0, $txt, $border=1, $align='L', $fill=false, $ln=1, $x=null, $y=null, $reseth=true, $stretch=0, $ishtml=false, $autopadding=true, $maxHeight=0);
      *  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      *  // get the new Y
-     *  $end_y = $pdf->GetY();
+     *  $end_y = $pdf->y();
      *  $end_page = $pdf->getPage();
      *  // calculate height
      *  $height = 0;
@@ -6318,7 +6380,7 @@ class PDF
             }
             case 'N':
             {
-                $this->setY($this->img_rb_y);
+                $this->y($this->img_rb_y);
                 break;
             }
             default:
@@ -6500,157 +6562,6 @@ class PDF
         }
         $this->y       += $h;
         $this->newline = true;
-    }
-
-    /**
-     * Returns the relative X value of current position.
-     * The value is relative to the left border for LTR languages and to the right border for RTL languages.
-     * @return float
-     * @see   SetX(), GetY(), SetY()
-     */
-    public function GetX()
-    {
-        //Get x position
-        if ($this->rtl) {
-            return ($this->w - $this->x);
-        }
-        else {
-            return $this->x;
-        }
-    }
-
-    /**
-     * Returns the absolute X value of current position.
-     * @return float
-     * @see   SetX(), GetY(), SetY()
-     */
-    public function GetAbsX()
-    {
-        return $this->x;
-    }
-
-    /**
-     * Returns the ordinate of the current position.
-     * @return float
-     * @see   SetY(), GetX(), SetX()
-     */
-    public function GetY()
-    {
-        return $this->y;
-    }
-
-    /**
-     * Defines the abscissa of the current position.
-     * If the passed value is negative, it is relative to the right of the page (or left if language is RTL).
-     * @param float $x      The value of the abscissa in user units.
-     * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
-     * @see   GetX(), GetY(), SetY(), SetXY()
-     */
-    public function setX($x, $rtloff = false)
-    {
-        $x = floatval($x);
-        if (!$rtloff and $this->rtl) {
-            if ($x >= 0) {
-                $this->x = $this->w - $x;
-            }
-            else {
-                $this->x = abs($x);
-            }
-        }
-        else {
-            if ($x >= 0) {
-                $this->x = $x;
-            }
-            else {
-                $this->x = $this->w + $x;
-            }
-        }
-        if ($this->x < 0) {
-            $this->x = 0;
-        }
-        if ($this->x > $this->w) {
-            $this->x = $this->w;
-        }
-    }
-
-    /**
-     * Moves the current abscissa back to the left margin and sets the ordinate.
-     * If the passed value is negative, it is relative to the bottom of the page.
-     * @param float $y      The value of the ordinate in user units.
-     * @param bool  $resetx if true (default) reset the X position.
-     * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
-     * @see GetX(), GetY(), SetY(), SetXY()
-     */
-    public function setY($y, $resetx = true, $rtloff = false)
-    {
-        $y = floatval($y);
-        if ($resetx) {
-            //reset x
-            if (!$rtloff and $this->rtl) {
-                $this->x = $this->w - $this->rMargin;
-            }
-            else {
-                $this->x = $this->lMargin;
-            }
-        }
-        if ($y >= 0) {
-            $this->y = $y;
-        }
-        else {
-            $this->y = $this->h + $y;
-        }
-        if ($this->y < 0) {
-            $this->y = 0;
-        }
-        if ($this->y > $this->h) {
-            $this->y = $this->h;
-        }
-    }
-
-    /**
-     * Defines the abscissa and ordinate of the current position.
-     * If the passed values are negative, they are relative respectively to the right and bottom of the page.
-     * @param float $x      The value of the abscissa.
-     * @param float $y      The value of the ordinate.
-     * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
-     * @see   SetX(), SetY()
-     */
-    public function setXY($x, $y, $rtloff = false)
-    {
-        $this->setY($y, false, $rtloff);
-        $this->setX($x, $rtloff);
-    }
-
-    /**
-     * Set the absolute X coordinate of the current pointer.
-     * @param float $x The value of the abscissa in user units.
-     * @see   setAbsX(), setAbsY(), SetAbsXY()
-     */
-    public function setAbsX($x)
-    {
-        $this->x = floatval($x);
-    }
-
-    /**
-     * Set the absolute Y coordinate of the current pointer.
-     * @param float $y (float) The value of the ordinate in user units.
-     * @see setAbsX(), setAbsY(), SetAbsXY()
-     */
-    public function setAbsY($y)
-    {
-        $this->y = floatval($y);
-    }
-
-    /**
-     * Set the absolute X and Y coordinates of the current pointer.
-     * @param float $x The value of the abscissa in user units.
-     * @param float $y (float) The value of the ordinate in user units.
-     * @see setAbsX(), setAbsY(), SetAbsXY()
-     */
-    public function setAbsXY($x, $y)
-    {
-        $this->setAbsX($x);
-        $this->setAbsY($y);
     }
 
     /**
@@ -10386,7 +10297,7 @@ class PDF
             return false;
         }
         if ($y == -1) {
-            $y = $this->GetY();
+            $y = $this->y();
         }
         elseif ($y < 0) {
             $y = 0;
@@ -10395,7 +10306,7 @@ class PDF
             $y = $this->h;
         }
         if ($x == -1) {
-            $x = $this->GetX();
+            $x = $this->x();
         }
         elseif ($x < 0) {
             $x = 0;
@@ -10489,7 +10400,7 @@ class PDF
             $level = $maxlevel;
         }
         if ($y == -1) {
-            $y = $this->GetY();
+            $y = $this->y();
         }
         elseif ($y < 0) {
             $y = 0;
@@ -10498,7 +10409,7 @@ class PDF
             $y = $this->h;
         }
         if ($x == -1) {
-            $x = $this->GetX();
+            $x = $this->x();
         }
         elseif ($x < 0) {
             $x = 0;
@@ -13140,7 +13051,7 @@ class PDF
             }
             case 'N':
             {
-                $this->setY($this->img_rb_y);
+                $this->y($this->img_rb_y);
                 break;
             }
             default:
@@ -13495,7 +13406,7 @@ class PDF
             }
             case 'N':
             {
-                $this->setY($this->img_rb_y);
+                $this->y($this->img_rb_y);
                 break;
             }
             default:
@@ -13747,7 +13658,7 @@ class PDF
             }
             case 'N':
             {
-                $this->setY($this->img_rb_y);
+                $this->y($this->img_rb_y);
                 break;
             }
             default:
@@ -16981,8 +16892,8 @@ class PDF
                     $hrHeight = $this->lineWidth;
                 }
                 $this->addHTMLVertSpace($hbz, max($hb, ($hrHeight / 2)), $cell, $firsttag);
-                $x    = $this->GetX();
-                $y    = $this->GetY();
+                $x    = $this->x();
+                $y    = $this->y();
                 $wtmp = $this->w - $this->lMargin - $this->rMargin;
                 if ($cell) {
                     $wtmp -= ($this->cell_padding['L'] + $this->cell_padding['R']);
@@ -17319,12 +17230,12 @@ class PDF
             }
             case 'sup':
             {
-                $this->setXY($this->GetX(), $this->GetY() - ((0.7 * $this->fontSizeInPoints) / $this->scaleFactor));
+                $this->reposition($this->x(), $this->y() - ((0.7 * $this->fontSizeInPoints) / $this->scaleFactor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->GetX(), $this->GetY() + ((0.3 * $this->fontSizeInPoints) / $this->scaleFactor));
+                $this->reposition($this->x(), $this->y() + ((0.3 * $this->fontSizeInPoints) / $this->scaleFactor));
                 break;
             }
             case 'h1':
@@ -18125,12 +18036,12 @@ class PDF
             }
             case 'sup':
             {
-                $this->setXY($this->GetX(), $this->GetY() + ((0.7 * $parent['fontsize']) / $this->scaleFactor));
+                $this->reposition($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / $this->scaleFactor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->GetX(), $this->GetY() - ((0.3 * $parent['fontsize']) / $this->scaleFactor));
+                $this->reposition($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / $this->scaleFactor));
                 break;
             }
             case 'div':
@@ -19556,7 +19467,7 @@ class PDF
         $spacer          = $this->GetStringWidth(chr(32)) * 4;
         $lmargin         = $this->lMargin;
         $rmargin         = $this->rMargin;
-        $x_start         = $this->GetX();
+        $x_start         = $this->x();
         $page_first      = $this->page;
         $current_page    = $this->page;
         $page_fill_start = false;
@@ -19621,7 +19532,7 @@ class PDF
                 $current_page   = $this->page;
                 $current_column = $this->current_column;
             }
-            $this->setX($x_start);
+            $this->x($x_start);
             $indent = ($spacer * $outline['l']);
             if ($this->rtl) {
                 $this->x       -= $indent;
@@ -20735,7 +20646,7 @@ class PDF
             }
             case 'N':
             {
-                $this->setY($rb_y);
+                $this->y($rb_y);
                 break;
             }
             default:
@@ -21276,7 +21187,7 @@ class PDF
             }
             case 'N':
             {
-                $this->setY($this->img_rb_y);
+                $this->y($this->img_rb_y);
                 break;
             }
             default:

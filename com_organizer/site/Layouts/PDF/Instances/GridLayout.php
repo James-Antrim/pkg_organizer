@@ -229,9 +229,9 @@ abstract class GridLayout extends BaseLayout
     {
         $view = $this->view;
         $view->AddPage();
-        $start = $view->GetY();
-        $view->writeHTMLCell($width, 15, $view->GetX(), $start, $contents, self::INSTANCE_BORDER, 1);
-        $height = $view->GetY() - $start;
+        $start = $view->y();
+        $view->writeHTMLCell($width, 15, $view->x(), $start, $contents, self::INSTANCE_BORDER, 1);
+        $height = $view->y() - $start;
         $view->deletePage($view->getPage());
 
         return $height;
@@ -353,8 +353,8 @@ abstract class GridLayout extends BaseLayout
     {
         $view = $this->view;
 
-        $xPos = $view->GetX();
-        $yPos = $view->GetY();
+        $xPos = $view->x();
+        $yPos = $view->y();
 
         $this->pageBreak(self::TIME_HEIGHT, $monDate, $saturDate);
         $view->writeHTMLCell(self::TIME_WIDTH, self::TIME_HEIGHT, $xPos, $yPos, $label, self::CORNER_BORDER);
@@ -750,7 +750,7 @@ abstract class GridLayout extends BaseLayout
 
         $bottomMargin = $dimensions['bm'];
         $pageHeight   = $dimensions['hk'];
-        $yPos         = $view->GetY();
+        $yPos         = $view->y();
 
         if (($yPos + $rowHeight + $bottomMargin) > $pageHeight) {
             $view->Ln();
@@ -937,13 +937,12 @@ abstract class GridLayout extends BaseLayout
             }
 
             $border = $rowNumber === $lastIndex ? self::CORNER_BORDER : self::TIME_BORDER;
-            $xPos   = $view->GetX();
-            $yPos   = $view->GetY();
+            $xPos   = $view->x();
+            $yPos   = $view->y();
 
             if ($this->pageBreak($row['height'], $monDate, $saturDate)) {
                 // The page and with it the page's y position has been changed.
-                /** @noinspection PhpConditionAlreadyCheckedInspection */
-                $yPos = $view->GetY();
+                $yPos = $view->y();
                 $view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, $label, $border);
             }
             elseif ($rowNumber === 1) {

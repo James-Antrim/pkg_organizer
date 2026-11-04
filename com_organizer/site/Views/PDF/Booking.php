@@ -65,7 +65,7 @@ class Booking extends ListView
             //set style for cell border
             $pageWidth = (0.85 / $this->scaleFactor);
             $this->lineStyle(['width' => $pageWidth, 'color' => $this->footer_line_color]);
-            $this->SetX($this->originalLeftMargin);
+            $this->x($this->originalLeftMargin);
 
             $pageFont = $this->getFontFamily();
             $this->SetFont('zapfdingbats');
