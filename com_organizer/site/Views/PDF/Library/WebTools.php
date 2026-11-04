@@ -48,10 +48,6 @@ trait WebTools
      */
     private function addJavascriptField(string $type, string $name, int $x, int $y, int $width, int $height, array $properties): void
     {
-        if ($this->rtl) {
-            $x = $x - $width;
-        }
-
         $pageNumber   = $this->PageNo() - 1;
         $scaledHeight = ($this->h - $y - $height) * $this->scaleFactor + 1;
         $scaledWidth  = ($x + $width) * $this->scaleFactor;
@@ -69,7 +65,7 @@ trait WebTools
             $this->javascript .= 'f' . $name . '.' . $key . '=' . $value . ";\n";
         }
 
-        $this->x = $this->rtl ? $this->x - $width : $this->x + $width;
+        $this->x = $this->x + $width;
 
         $this->javascript .= '}';
     }
