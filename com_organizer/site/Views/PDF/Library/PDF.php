@@ -99,6 +99,16 @@ class PDF
 
     /** Length of the buffer in bytes. */
     private int $bufferLength = 0;
+    /** @var int[] RBG */
+    protected array $headerBGColor = self::WHITE;
+    protected string $headerLogo = '';
+    /** @var int MM (user units?) */
+    protected int $headerLogoWidth = 30;
+    protected string $headerSubTitle = '';
+    protected string $headerTitle = '';
+    /** @var int[] RBG */
+    protected array $headerTextColor = self::BLACK;
+
     private array $internalLinks = [];
 
     /** Current object number across all display contexts: javascript, xobjects, ... */
@@ -240,6 +250,37 @@ class PDF
     public function groupPageNumberAlias(): string
     {
         return $this->isUnicodeFont() ? '{' . StaticMethods::GROUP_PAGE_NUMBER_ALIAS . '}' : StaticMethods::GROUP_PAGE_NUMBER_ALIAS;
+    }
+
+    /**
+     * Getter / setter for header configuration properties.
+     * @param string $logo
+     * @param int    $logoWidth (mm)
+     * @param string $title     string to print as title on document header
+     * @param string $subTitle  string to print on document header
+     * @param int[]  $textColor RGB array
+     * @param int[]  $bgColor   RGB array color for line.
+     * @return array
+     */
+    public function headerConfig(string $logo = '', int $logoWidth = 0, string $title = '', string $subTitle = '', array $textColor = [], array $bgColor = []): array
+    {
+        if ($logo or $logoWidth or $title or $subTitle or $textColor or $bgColor) {
+            $this->headerLogo      = $logo;
+            $this->headerLogoWidth = $logoWidth;
+            $this->headerTitle     = $title;
+            $this->headerSubTitle  = $subTitle;
+            $this->headerTextColor = $textColor ?: self::BLACK;
+            $this->headerBGColor   = $bgColor ?: self::WHITE;
+        }
+
+        return [
+            'line_color' => $this->headerBGColor,
+            'logo'       => $this->headerLogo,
+            'logo_width' => $this->headerLogoWidth,
+            'string'     => $this->headerSubTitle,
+            'title'      => $this->headerTitle,
+            'text_color' => $this->headerTextColor,
+        ];
     }
 
     /**
@@ -659,40 +700,6 @@ class PDF
      * Boolean flag to print/hide page footer.
      */
     protected $print_footer = true;
-
-    /**
-     * Header image logo.
-     */
-    protected $header_logo = '';
-
-    /**
-     * Width of header image logo in user units.
-     */
-    protected $header_logo_width = 30;
-
-    /**
-     * Title to be printed on default page header.
-     */
-    protected $header_title = '';
-
-    /**
-     * String to print on page header after title.
-     */
-    protected $header_string = '';
-
-    /**
-     * Color for header text (RGB array).
-     * @var int[]
-     * @phpstan-var array{0: int, 1: int, 2: int}
-     */
-    protected $header_text_color = [0, 0, 0];
-
-    /**
-     * Color for header line (RGB array).
-     * @var int[]
-     * @phpstan-var array{0: int, 1: int, 2: int}
-     */
-    protected $header_line_color = [0, 0, 0];
 
     /**
      * Color for footer text (RGB array).
@@ -2634,25 +2641,6 @@ class PDF
     }
 
     /**
-     * Set header data.
-     * @param string $ln header image logo
-     * @param int    $lw header image logo width in mm
-     * @param string $ht string to print as title on document header
-     * @param string $hs string to print on document header
-     * @param int[]  $tc RGB array color for text.
-     * @param int[]  $lc RGB array color for line.
-     */
-    public function setHeaderData($ln = '', $lw = 0, $ht = '', $hs = '', $tc = [0, 0, 0], $lc = [0, 0, 0])
-    {
-        $this->header_logo       = $ln;
-        $this->header_logo_width = $lw;
-        $this->header_title      = $ht;
-        $this->header_string     = $hs;
-        $this->header_text_color = $tc;
-        $this->header_line_color = $lc;
-    }
-
-    /**
      * Set footer data.
      * @param int[] $tc RGB array color for text.
      * @param int[] $lc RGB array color for line.
@@ -2661,23 +2649,6 @@ class PDF
     {
         $this->footer_text_color = $tc;
         $this->footer_line_color = $lc;
-    }
-
-    /**
-     * Returns header data:
-     * <ul><li>$ret['logo'] = logo image</li><li>$ret['logo_width'] = width of the image logo in user units</li><li>$ret['title'] = header title</li><li>$ret['string'] = header description string</li></ul>
-     * @return array<string,mixed>
-     */
-    public function getHeaderData()
-    {
-        $ret               = [];
-        $ret['logo']       = $this->header_logo;
-        $ret['logo_width'] = $this->header_logo_width;
-        $ret['title']      = $this->header_title;
-        $ret['string']     = $this->header_string;
-        $ret['text_color'] = $this->header_text_color;
-        $ret['line_color'] = $this->header_line_color;
-        return $ret;
     }
 
     /**
@@ -2781,7 +2752,7 @@ class PDF
             // start a new XObject Template
             $this->header_xobjid = $this->startTemplate($this->w, $this->tMargin);
             $headerfont          = $this->getHeaderFont();
-            $headerdata          = $this->getHeaderData();
+            $headerdata          = $this->headerConfig();
             $this->y             = $this->header_margin;
             if ($this->rtl) {
                 $this->x = $this->w - $this->original_rMargin;
@@ -2814,7 +2785,7 @@ class PDF
                 $header_x = $this->original_lMargin + ($headerdata['logo_width'] * 1.1);
             }
             $cw = $this->w - $this->original_lMargin - $this->original_rMargin - ($headerdata['logo_width'] * 1.1);
-            $this->textColorArray($this->header_text_color);
+            $this->textColorArray($this->headerTextColor);
             // header title
             $this->setFont($headerfont[0], 'B', $headerfont[2] + 1);
             $this->setX($header_x);

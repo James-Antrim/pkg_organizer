@@ -44,9 +44,6 @@ abstract class BaseView extends PDF implements ViewInterface
         TOP = 'T',
         VERTICAL = 'LR';
 
-    // Colors
-    public const BLACK = [0, 0, 0], WHITE = [255, 255, 255];
-
     // Destinations
     public const DOWNLOAD = 'D', INLINE = 'I';
 

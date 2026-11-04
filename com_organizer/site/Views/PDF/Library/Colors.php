@@ -15,6 +15,8 @@ namespace THM\Organizer\Views\PDF\Library;
 /** PHP color trait. */
 trait Colors
 {
+    public const BLACK = [0, 0, 0], WHITE = [255, 255, 255];
+
     private const COLOR_CONTEXTS = ['draw', 'fill', 'text'];
 
     /**
@@ -691,7 +693,7 @@ trait Colors
      */
     public function fillSpotColor(string $color, float $tint = 100): string
     {
-        return $this->contextColor($color, 'fill',$tint);
+        return $this->contextColor($color, 'fill', $tint);
     }
 
     /**

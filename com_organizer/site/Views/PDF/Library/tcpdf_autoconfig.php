@@ -95,15 +95,6 @@ if (!defined('PDF_HEADER_LOGO')) {
     define('PDF_HEADER_LOGO', $tcpdf_header_logo);
 }
 
-if (!defined('PDF_HEADER_LOGO_WIDTH')) {
-    if (!empty($tcpdf_header_logo)) {
-        define('PDF_HEADER_LOGO_WIDTH', 30);
-    }
-    else {
-        define('PDF_HEADER_LOGO_WIDTH', 0);
-    }
-}
-
 if (!defined('K_PATH_CACHE')) {
     $K_PATH_CACHE = ini_get('upload_tmp_dir') ? ini_get('upload_tmp_dir') : sys_get_temp_dir();
     if (substr($K_PATH_CACHE, -1) != '/') {
