@@ -697,7 +697,7 @@ class PDF
     protected $starting_page_number = 1;
 
     /**
-     * The right-bottom (or left-bottom for RTL) corner X coordinate of last inserted image.
+     * The right-bottom corner X coordinate of last inserted image.
      */
     protected $img_rb_x;
 
@@ -2476,8 +2476,8 @@ class PDF
     }
 
     /**
-     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins (or top-right if in RTL mode), and Header() is called to display the header (if enabled).
-     * The origin of the coordinate system is at the top-left corner (or top-right for RTL) and increasing ordinates go downwards.
+     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
+     * The origin of the coordinate system is at the top-left cornerand increasing ordinates go downwards.
      * @param string $orientation
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool   $keepmargins if true overwrites the default page margins with the current margins
@@ -2676,7 +2676,7 @@ class PDF
     }
 
     /**
-     * Return the right-bottom (or left-bottom for RTL) corner X coordinate of last inserted image
+     * Return the right-bottom corner X coordinate of last inserted image
      * @return float
      */
     public function getImageRBX()
@@ -2685,7 +2685,7 @@ class PDF
     }
 
     /**
-     * Return the right-bottom (or left-bottom for RTL) corner Y coordinate of last inserted image
+     * Return the right-bottom corner Y coordinate of last inserted image
      * @return float
      */
     public function getImageRBY()
@@ -2716,15 +2716,15 @@ class PDF
             $this->y             = $this->header_margin;
             $this->x             = $this->original_lMargin;
             if (($headerdata['logo']) and ($headerdata['logo'] != K_BLANK_IMAGE)) {
-                $imgtype = Images::getImageFileType(K_PATH_IMAGES . $headerdata['logo']);
+                $imgtype = Images::getImageFileType(self::IMAGE_PATH . $headerdata['logo']);
                 if (($imgtype == 'eps') or ($imgtype == 'ai')) {
-                    $this->ImageEps(K_PATH_IMAGES . $headerdata['logo'], '', '', $headerdata['logo_width']);
+                    $this->ImageEps(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
                 }
                 elseif ($imgtype == 'svg') {
-                    $this->ImageSVG(K_PATH_IMAGES . $headerdata['logo'], '', '', $headerdata['logo_width']);
+                    $this->ImageSVG(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
                 }
                 else {
-                    $this->Image(K_PATH_IMAGES . $headerdata['logo'], '', '', $headerdata['logo_width']);
+                    $this->Image(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
                 }
                 $imgy = $this->getImageRBY();
             }
@@ -3780,7 +3780,7 @@ class PDF
      * @param bool   $fclip             if true activate clipping mode (you must call StartTransform() before this function and StopTransform() to stop the clipping tranformation).
      * @param bool   $ffill             if true fills the text
      * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by addLink().
@@ -3788,15 +3788,14 @@ class PDF
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @param bool   $rtloff            if true uses the page top-left corner as origin of axis for $x and $y initial position.
      * @see Cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
      */
-    public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M', $rtloff = false)
+    public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
         $textrendermode  = $this->textrendermode;
         $textstrokewidth = $this->textstrokewidth;
         $this->setTextRenderingMode($fstroke, $ffill, $fclip);
-        $this->reposition($x, $y, $rtloff);
+        $this->reposition($x, $y);
         $this->Cell(0, 0, $txt, $border, $ln, $align, $fill, $link, $stretch, $ignore_min_height, $calign, $valign);
         // restore previous rendering mode
         $this->textrendermode  = $textrendermode;
@@ -3873,7 +3872,7 @@ class PDF
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
      * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by addLink().
@@ -3940,7 +3939,7 @@ class PDF
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
      * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by addLink().
@@ -4541,7 +4540,7 @@ class PDF
                 $s .= sprintf('%F %F %F %F re S ', $xT, $yT, ($w * $k), (-$h * $k));
             }
             elseif (strlen($border) == 3) {
-                if (strpos($border, 'B') === false) { // LTR
+                if (strpos($border, 'B') === false) {
                     $s .= sprintf('%F %F m ', $xL, $yL);
                     $s .= sprintf('%F %F l ', $xT, $yT);
                     $s .= sprintf('%F %F l ', $xR, $yR);
@@ -5183,14 +5182,6 @@ class PDF
         }
         // remove carriage returns
         $s = str_replace("\r", '', $txt);
-        // check if string contains arabic text
-        if (preg_match(FontData::$arabidTestPattern, $s)) {
-            $arabic = true;
-        }
-        else {
-            $arabic = false;
-        }
-        $rtlmode = false;
         // get a char width
         $chrwidth = $this->GetCharWidth(46); // dot character
         // get array of Unicode values
@@ -5255,10 +5246,7 @@ class PDF
                 if ($firstline) {
                     $startx = $this->x;
                     $tmparr = array_slice($chars, $j, ($i - $j));
-                    if ($rtlmode) {
-                        $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
-                    }
-                    $linew = $this->GetArrStringWidth($tmparr);
+                    $linew  = $this->GetArrStringWidth($tmparr);
                     unset($tmparr);
                     $this->endlinex = $startx + $linew;
                     $w              = $linew;
@@ -5330,14 +5318,7 @@ class PDF
                     }
                 }
                 // update string length
-                if ($this->isUnicodeFont() and ($arabic)) {
-                    // with bidirectional algorithm some chars may be changed affecting the line length
-                    // *** very slow ***
-                    $l = $this->GetArrStringWidth($this->utf8Bidirectional(array_slice($chars, $j, ($i - $j)), $this->CurrentFont));
-                }
-                else {
-                    $l += $this->GetCharWidth($c, ($i + 1 < $nb));
-                }
+                $l += $this->GetCharWidth($c, ($i + 1 < $nb));
                 if (($l > $wmax) or (($c == 173) and (($l + $tmp_shy_replacement_width) >= $wmax))) {
                     if (($c == 173) and (($l + $tmp_shy_replacement_width) > $wmax)) {
                         $sep = $prevsep;
@@ -5360,10 +5341,7 @@ class PDF
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
-                                if ($rtlmode) {
-                                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
-                                }
-                                $linew = $this->GetArrStringWidth($tmparr);
+                                $linew  = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
                                 $this->endlinex = $startx + $linew;
                                 $w              = $linew;
@@ -5394,10 +5372,7 @@ class PDF
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
-                                if ($rtlmode) {
-                                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
-                                }
-                                $linew = $this->GetArrStringWidth($tmparr);
+                                $linew  = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
                                 $this->endlinex = ($startx + $linew);
                                 $w              = $linew;
@@ -5432,10 +5407,7 @@ class PDF
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, (($sep + $endspace) - $j));
-                                if ($rtlmode) {
-                                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
-                                }
-                                $linew = $this->GetArrStringWidth($tmparr);
+                                $linew  = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
                                 $this->endlinex = $startx + $linew + $shy_width;
                                 $w              = $linew;
@@ -5507,10 +5479,7 @@ class PDF
             if ($firstline) {
                 $startx = $this->x;
                 $tmparr = array_slice($chars, $j, ($nb - $j));
-                if ($rtlmode) {
-                    $tmparr = $this->utf8Bidirectional($tmparr, $this->CurrentFont);
-                }
-                $linew = $this->GetArrStringWidth($tmparr);
+                $linew  = $this->GetArrStringWidth($tmparr);
                 unset($tmparr);
                 $this->endlinex = $startx + $linew;
                 $w              = $linew;
@@ -5621,16 +5590,16 @@ class PDF
      * It is possible to put a link on the image.<br />
      * Remark: if an image is used several times, only one copy will be embedded in the file.<br />
      * @param string     $file      Name of the file containing the image or a '@' character followed by the image data string. To link an image without embedding it on the document, set an asterisk character before the URL (i.e.: '*http://www.example.com/image.jpg').
-     * @param float|null $x         Abscissa of the upper-left corner (LTR) or upper-right corner (RTL).
-     * @param float|null $y         Ordinate of the upper-left corner (LTR) or upper-right corner (RTL).
+     * @param float|null $x         Abscissa of the upper-left corner
+     * @param float|null $y         Ordinate of the upper-left corner
      * @param float      $w         Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float      $h         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param string     $type      Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
      * @param mixed      $link      URL or identifier returned by addLink().
-     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param mixed      $resize    If true resize (reduce) the image to fit $w and $h (requires GD or ImageMagick library); if false do not resize; if 2 force resize in all cases (upscaling and downscaling).
      * @param int        $dpi       dot-per-inch resolution used on resize
-     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param bool       $ismask    true if this image is a mask, false otherwise
      * @param mixed      $imgmask   image object returned by this function or false
      * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
@@ -6050,10 +6019,10 @@ class PDF
      * @param float  $h        Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param string $type     Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
      * @param mixed  $link     URL or identifier returned by addLink().
-     * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param bool   $resize   If true resize (reduce) the image to fit $w and $h (requires GD library).
      * @param int    $dpi      dot-per-inch resolution used on resize
-     * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param string $filehash File hash used to build unique file names.
      * @see    Image()
      */
@@ -6174,7 +6143,7 @@ class PDF
      * Performs a line break.
      * The current abscissa goes back to the left margin and the ordinate increases by the amount passed in parameter.
      * @param float|null $h    The height of the break. By default, the value equals the height of the last printed cell.
-     * @param bool       $cell if true add the current left (or right o for RTL) padding to the X coordinate
+     * @param bool       $cell if true add the current left padding to the X coordinate
      * @see   Cell()
      */
     public function Ln($h = null, $cell = false)
@@ -9743,7 +9712,7 @@ class PDF
 
     /**
      * Translate graphic object horizontally.
-     * @param int $t_x movement to the right (or left for RTL)
+     * @param int $t_x movement to the right
      * @see   StartTransform(), StopTransform()
      */
     public function TranslateX($t_x)
@@ -11884,7 +11853,7 @@ class PDF
 
     /**
      * Set a rectangular clipping area.
-     * @param float $x abscissa of the top left corner of the rectangle (or top right corner for RTL mode).
+     * @param float $x abscissa of the top left corner of the rectangle
      * @param float $y ordinate of the top left corner of the rectangle.
      * @param float $w width of the rectangle.
      * @param float $h height of the rectangle.
@@ -12270,8 +12239,8 @@ class PDF
      * @param float      $h              Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param mixed      $link           URL or identifier returned by addLink().
      * @param bool       $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
-     * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
-     * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param mixed      $border         Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @param bool       $fitonpage      if true the image is resized to not exceed page dimensions.
      * @param bool       $fixoutvals     if true remove values outside the bounding box.
@@ -12624,7 +12593,7 @@ class PDF
      *                          <li>string $style['stretch'] if true stretch the barcode to best fit the available width, otherwise uses $xres resolution for a single bar.</li>
      *                          <li>string $style['fitwidth'] if true reduce the width to fit the barcode width + padding. When this option is enabled the 'stretch' option is automatically disabled.</li>
      *                          <li>string $style['cellfitalign'] this option works only when 'fitwidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
-     * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      */
     public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
     {
@@ -12931,7 +12900,7 @@ class PDF
      *                            <li>array $style['fgcolor'] color array for bars and text</li>
      *                            <li>mixed $style['bgcolor'] color array for background or false for transparent</li>
      *                            <li>string $style['position'] barcode position on the page: L = left margin; C = center; R = right margin; S = stretch</li>
-     * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param bool       $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
      */
     public function write2DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $style = [], $align = '', $distort = false)
@@ -14522,11 +14491,11 @@ class PDF
      * @param float|null $y           upper-left corner Y coordinate
      * @param string     $html        html text to print. Default value: empty string.
      * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
-     * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL language)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>
+     * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>
      *                                Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
      * @param bool       $reseth      if true reset the last cell height (default true).
-     * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width.
      * @see Multicell(), writeHTML()
      */
@@ -14544,8 +14513,8 @@ class PDF
      * @param bool   $ln     if true add a new line after text (default = true)
      * @param bool   $fill   Indicates if the background must be painted (true) or transparent (false).
      * @param bool   $reseth if true reset the last cell height (default false).
-     * @param bool   $cell   if true add the current left (or right for RTL) padding to each Write (default false).
-     * @param string $align  Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param bool   $cell   if true add the current left padding to each Write (default false).
+     * @param string $align  Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      */
     public function writeHTML($html, $ln = true, $fill = false, $reseth = false, $cell = false, $align = '')
     {
@@ -15074,7 +15043,6 @@ class PDF
                             $t_x = ($mdiff / 2);
                         }
                         elseif ($plalign == 'R') {
-                            // right alignment on LTR document
                             $t_x = $mdiff;
                         }
                         elseif (($plalign == 'J') and ($plalign == $lalign)) {
@@ -15733,7 +15701,6 @@ class PDF
                 }
                 // text
                 $this->htmlvspace = 0;
-                $isRTLString      = preg_match(FontData::$rtlTestPattern, $dom[$key]['value']) || preg_match(FontData::$arabidTestPattern, $dom[$key]['value']);
                 if ($newline) {
                     if (!$this->premode) {
                         $prelen = strlen($dom[$key]['value']);
@@ -15957,7 +15924,6 @@ class PDF
                     $t_x = ($mdiff / 2);
                 }
                 elseif ($plalign == 'R') {
-                    // right alignment on LTR document
                     $t_x = $mdiff;
                 }
             } // end if startlinex
@@ -16020,7 +15986,7 @@ class PDF
      * Process opening tags.
      * @param array $dom  html dom array
      * @param int   $key  current element id
-     * @param bool  $cell if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param bool  $cell if true add the default left padding to each new line (default false).
      * @return array $dom
      */
     protected function openHTMLTagHandler($dom, $key, $cell)
@@ -16821,7 +16787,7 @@ class PDF
      * Process closing tags.
      * @param array $dom            html dom array
      * @param int   $key            current element id
-     * @param bool  $cell           if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param bool  $cell           if true add the default left padding to each new line (default false).
      * @param int   $maxbottomliney maximum y value of current line
      * @return array $dom
      */
@@ -17381,7 +17347,7 @@ class PDF
      * Add vertical spaces if needed.
      * @param string $hbz      Distance between current y and line bottom.
      * @param string $hb       The height of the break.
-     * @param bool   $cell     if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param bool   $cell     if true add the default left padding to each new line (default false).
      * @param bool   $firsttag set to true when the tag is the first.
      * @param bool   $lasttag  set to true when the tag is the last.
      */
@@ -18790,7 +18756,7 @@ class PDF
      * @param int|null $page          page number where this TOC should be inserted (leave empty for current page).
      * @param string   $toc_name      name to use for TOC bookmark.
      * @param array    $templates     array of html templates. Use: "#TOC_DESCRIPTION#" for bookmark title, "#TOC_PAGE_NUMBER#" for page number.
-     * @param bool     $correct_align if true correct the number alignment (numbers must be in monospaced font like courier and right aligned on LTR, or left aligned on RTL)
+     * @param bool     $correct_align if true correct the number alignment (numbers must be in monospaced font like courier and right aligned)
      * @param string   $style         Font style for title: B = Bold, I = Italic, BI = Bold + Italic.
      * @param array    $color         RGB color array for title (values from 0 to 255).
      * @see    addTOCPage(), endTOCPage(), addTOC()
@@ -19599,8 +19565,8 @@ class PDF
      * @param float|null $y         Y position in user units (empty string = current y position)
      * @param float      $w         Width in user units (zero = remaining page width)
      * @param float      $h         Height in user units (zero = remaining page height)
-     * @param string     $align     Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
-     * @param string     $palign    Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align     Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @param string     $palign    Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param bool       $fitonpage If true the template is resized to not exceed page dimensions.
      * @see startTemplate(), endTemplate()
      */
@@ -19918,8 +19884,8 @@ class PDF
      * @param float      $w         Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float      $h         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param mixed      $link      URL or identifier returned by AddLink().
-     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
-     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
+     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]]]
      * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      */
@@ -21625,17 +21591,7 @@ class PDF
                 else {
                     $this->svgtextmode['text-anchor'] = 'start';
                 }
-                if (isset($svgstyle['direction'])) {
-                    if ($svgstyle['direction'] == 'rtl') {
-                        $this->svgtextmode['rtl'] = true;
-                    }
-                    else {
-                        $this->svgtextmode['rtl'] = false;
-                    }
-                }
-                else {
-                    $this->svgtextmode['rtl'] = false;
-                }
+                $this->svgtextmode['rtl'] = false;
                 if (isset($svgstyle['stroke']) and ($svgstyle['stroke'] != 'none') and isset($svgstyle['stroke-width']) and ($svgstyle['stroke-width'] > 0)) {
                     $this->svgtextmode['stroke'] = $this->htmlUnitsToUnits($svgstyle['stroke-width'], 0, $this->svgUnit, false);
                 }
@@ -21770,22 +21726,11 @@ class PDF
                 //$text = $this->stringTrim($text);
                 $textlen = $this->GetStringWidth($text);
                 if ($this->svgtextmode['text-anchor'] != 'start') {
-                    // check if string is RTL text
                     if ($this->svgtextmode['text-anchor'] == 'end') {
-                        if ($this->svgtextmode['rtl']) {
-                            $this->x += $textlen;
-                        }
-                        else {
-                            $this->x -= $textlen;
-                        }
+                        $this->x -= $textlen;
                     }
                     elseif ($this->svgtextmode['text-anchor'] == 'middle') {
-                        if ($this->svgtextmode['rtl']) {
-                            $this->x += ($textlen / 2);
-                        }
-                        else {
-                            $this->x -= ($textlen / 2);
-                        }
+                        $this->x -= ($textlen / 2);
                     }
                 }
                 $textrendermode  = $this->textrendermode;
