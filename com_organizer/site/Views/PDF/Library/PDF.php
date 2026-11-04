@@ -837,11 +837,6 @@ class PDF
      */
     protected $lispacer = '';
 
-    /**
-     * Boolean flag used to force RTL or LTR string direction.
-     */
-    protected $tmprtl = false;
-
     // --- Variables used for document encryption:
 
     /**
@@ -5195,13 +5190,7 @@ class PDF
         else {
             $arabic = false;
         }
-        // check if string contains RTL text
-        if ($arabic or ($this->tmprtl == 'R') or preg_match(FontData::$rtlTestPattern, $s)) {
-            $rtlmode = true;
-        }
-        else {
-            $rtlmode = false;
-        }
+        $rtlmode = false;
         // get a char width
         $chrwidth = $this->GetCharWidth(46); // dot character
         // get array of Unicode values
@@ -16039,8 +16028,6 @@ class PDF
         $tag      = $dom[$key];
         $parent   = $dom[($dom[$key]['parent'])];
         $firsttag = ($key == 1);
-        // check for text direction attribute
-        $this->tmprtl = false;
         if ($tag['block']) {
             $hbz = 0; // distance from y to line bottom
             $hb  = 0; // vertical space between block tags
@@ -17387,7 +17374,6 @@ class PDF
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
         }
-        $this->tmprtl = false;
         return $dom;
     }
 
