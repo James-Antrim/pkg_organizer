@@ -4849,10 +4849,7 @@ class PDF
             }
             // account for margin changes
             if ($page > $startpage) {
-                if (($this->rtl) and ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                    $this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
-                }
-                elseif ((!$this->rtl) and ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
                     $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
                 }
             }
@@ -5365,8 +5362,7 @@ class PDF
                     // we have reached the end of column
                     if ($sep == -1) {
                         // check if the line was already started
-                        if (($this->rtl and ($this->x <= ($this->w - $this->rMargin - $this->cell_padding['R'] - $margin['R'] - $chrwidth)))
-                            or ((!$this->rtl) and ($this->x >= ($this->lMargin + $this->cell_padding['L'] + $margin['L'] + $chrwidth)))) {
+                        if ($this->x >= ($this->lMargin + $this->cell_padding['L'] + $margin['L'] + $chrwidth)) {
                             // print a void cell and go to next line
                             $this->Cell($w, $h, '', 0, 1);
                             $linebreak = true;
@@ -14681,8 +14677,8 @@ class PDF
                     $this->checkPageBreak($this->PageBreakTrigger + 1);
                     $this->htmlvspace = ($this->PageBreakTrigger + 1);
                 }
-                if ((($dom[$key]['attribute']['pagebreak'] == 'left') and (((!$this->rtl) and (($this->page % 2) == 0)) or (($this->rtl) and (($this->page % 2) != 0))))
-                    or (($dom[$key]['attribute']['pagebreak'] == 'right') and (((!$this->rtl) and (($this->page % 2) != 0)) or (($this->rtl) and (($this->page % 2) == 0))))) {
+                if (($dom[$key]['attribute']['pagebreak'] === 'left' and ($this->page % 2) === 0)
+                    or ($dom[$key]['attribute']['pagebreak'] === 'right' and ($this->page % 2) !== 0)) {
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $this->checkPageBreak($this->PageBreakTrigger + 1);
                     $this->htmlvspace = ($this->PageBreakTrigger + 1);
@@ -14805,9 +14801,8 @@ class PDF
                     $autolinebreak = false;
                     if (!empty($dom[$key]['width'])) {
                         $imgw = $this->htmlUnitsToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->scaleFactor));
-                        if (($imgw <= ($this->w - $this->lMargin - $this->rMargin - $this->cell_padding['L'] - $this->cell_padding['R']))
-                            and ((($this->rtl) and (($this->x - $imgw) < ($this->lMargin + $this->cell_padding['L'])))
-                                or ((!$this->rtl) and (($this->x + $imgw) > ($this->w - $this->rMargin - $this->cell_padding['R']))))) {
+                        if ($imgw <= ($this->w - $this->lMargin - $this->rMargin - $this->cell_padding['L'] - $this->cell_padding['R'])
+                            and ($this->x + $imgw) > ($this->w - $this->rMargin - $this->cell_padding['R'])) {
                             // add automatic line break
                             $autolinebreak = true;
                             $this->Ln('', $cell);
@@ -15062,7 +15057,7 @@ class PDF
                             $pend = '';
                         }
                     }
-                    if ((((($plalign == 'C') or ($plalign == 'J') or (($plalign == 'R') and (!$this->rtl)) or (($plalign == 'L') and ($this->rtl)))))) {
+                    if (((($plalign == 'C' or $plalign == 'J' or $plalign == 'R')))) {
                         // calculate shifting amount
                         $tw = $w;
                         if ($this->lMargin != $prevlMargin) {
@@ -15097,10 +15092,6 @@ class PDF
                         elseif ($plalign == 'R') {
                             // right alignment on LTR document
                             $t_x = $mdiff;
-                        }
-                        elseif ($plalign == 'L') {
-                            // left alignment on RTL document
-                            $t_x = -$mdiff;
                         }
                         elseif (($plalign == 'J') and ($plalign == $lalign)) {
                             // Justification
@@ -15573,17 +15564,10 @@ class PDF
                                 $rsstartx = $trwsp['startx'];
                                 $rsendx   = $trwsp['endx'];
                                 // account for margin changes
-                                if ($trwsp['startpage'] < $this->page) {
-                                    if (($this->rtl) and ($this->pagedim[$this->page]['orm'] != $this->pagedim[$trwsp['startpage']]['orm'])) {
-                                        $dl       = ($this->pagedim[$this->page]['orm'] - $this->pagedim[$trwsp['startpage']]['orm']);
-                                        $rsstartx -= $dl;
-                                        $rsendx   -= $dl;
-                                    }
-                                    elseif ((!$this->rtl) and ($this->pagedim[$this->page]['olm'] != $this->pagedim[$trwsp['startpage']]['olm'])) {
-                                        $dl       = ($this->pagedim[$this->page]['olm'] - $this->pagedim[$trwsp['startpage']]['olm']);
-                                        $rsstartx += $dl;
-                                        $rsendx   += $dl;
-                                    }
+                                if ($trwsp['startpage'] < $this->page and $this->pagedim[$this->page]['olm'] !== $this->pagedim[$trwsp['startpage']]['olm']) {
+                                    $dl       = ($this->pagedim[$this->page]['olm'] - $this->pagedim[$trwsp['startpage']]['olm']);
+                                    $rsstartx += $dl;
+                                    $rsendx   += $dl;
                                 }
                                 if (($trwsp['rowspan'] > 0)
                                     and ($rsstartx > ($this->x - $cellspacing['H'] - $current_cell_padding['L'] - $this->feps))
@@ -15956,7 +15940,7 @@ class PDF
                     $pend = '';
                 }
             }
-            if ((((($plalign == 'C') or (($plalign == 'R') and (!$this->rtl)) or (($plalign == 'L') and ($this->rtl)))))) {
+            if ($plalign == 'C' or $plalign == 'R') {
                 // calculate shifting amount
                 $tw = $w;
                 if ($this->lMargin != $prevlMargin) {
@@ -15991,10 +15975,6 @@ class PDF
                 elseif ($plalign == 'R') {
                     // right alignment on LTR document
                     $t_x = $mdiff;
-                }
-                elseif ($plalign == 'L') {
-                    // left alignment on RTL document
-                    $t_x = -$mdiff;
                 }
             } // end if startlinex
             if (($t_x != 0) or ($yshift < 0)) {
@@ -16847,8 +16827,7 @@ class PDF
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
-            if ((($pba == 'left') and (((!$this->rtl) and (($this->page % 2) == 0)) or (($this->rtl) and (($this->page % 2) != 0))))
-                or (($pba == 'right') and (((!$this->rtl) and (($this->page % 2) != 0)) or (($this->rtl) and (($this->page % 2) == 0))))) {
+            if (($pba === 'left' and ($this->page % 2) === 0) or ($pba === 'right' and ($this->page % 2) !== 0)) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
@@ -16990,10 +16969,7 @@ class PDF
                 }
                 // account for booklet mode
                 if ($this->page > $parent['startpage']) {
-                    if (($this->rtl) and ($this->pagedim[$this->page]['orm'] != $this->pagedim[$parent['startpage']]['orm'])) {
-                        $this->x -= ($this->pagedim[$this->page]['orm'] - $this->pagedim[$parent['startpage']]['orm']);
-                    }
-                    elseif ((!$this->rtl) and ($this->pagedim[$this->page]['olm'] != $this->pagedim[$parent['startpage']]['olm'])) {
+                    if ($this->pagedim[$this->page]['olm'] !== $this->pagedim[$parent['startpage']]['olm']) {
                         $this->x += ($this->pagedim[$this->page]['olm'] - $this->pagedim[$parent['startpage']]['olm']);
                     }
                 }
@@ -17103,10 +17079,7 @@ class PDF
                             }
                             // account for margin changes
                             if ($page > $startpage) {
-                                if (($this->rtl) and ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                                    $this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
-                                }
-                                elseif ((!$this->rtl) and ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
                                     $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
                                 }
                             }
@@ -17258,10 +17231,7 @@ class PDF
                     $this->Ln(0, $cell);
                     $this->x = $parent['startx'];
                     if ($endpage > $startpage) {
-                        if (($this->rtl) and ($this->pagedim[$endpage]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                            $this->x += ($this->pagedim[$endpage]['orm'] - $this->pagedim[$startpage]['orm']);
-                        }
-                        elseif ((!$this->rtl) and ($this->pagedim[$endpage]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                        if ($this->pagedim[$endpage]['olm'] !== $this->pagedim[$startpage]['olm']) {
                             $this->x += ($this->pagedim[$endpage]['olm'] - $this->pagedim[$startpage]['olm']);
                         }
                     }
@@ -17417,8 +17387,7 @@ class PDF
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
-            if ((($pba == 'left') and (((!$this->rtl) and (($this->page % 2) == 0)) or (($this->rtl) and (($this->page % 2) != 0))))
-                or (($pba == 'right') and (((!$this->rtl) and (($this->page % 2) != 0)) or (($this->rtl) and (($this->page % 2) == 0))))) {
+            if (($pba === 'left' and ($this->page % 2) === 0) or ($pba == 'right' and ($this->page % 2) !== 0)) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
