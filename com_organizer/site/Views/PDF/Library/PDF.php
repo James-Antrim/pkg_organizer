@@ -1839,31 +1839,6 @@ class PDF
     }
 
     /**
-     * Enable or disable Right-To-Left language mode
-     * @param bool $enable if true enable Right-To-Left language mode.
-     * @param bool $resetx if true reset the X position on direction change.
-     */
-    public function setRTL($enable, $resetx = true)
-    {
-        $enable       = $enable ? true : false;
-        $resetx       = ($resetx and ($enable != $this->rtl));
-        $this->rtl    = $enable;
-        $this->tmprtl = false;
-        if ($resetx) {
-            $this->Ln(0);
-        }
-    }
-
-    /**
-     * Return the RTL status
-     * @return bool
-     */
-    public function getRTL()
-    {
-        return $this->rtl;
-    }
-
-    /**
      * Force temporary RTL language direction
      * @param false|string $mode can be false, 'L' for LTR or 'R' for RTL
      */
@@ -2816,7 +2791,7 @@ class PDF
             }
             $cell_height = $this->getCellHeight($headerfont[2] / $this->scaleFactor);
             // set starting margin for text data cell
-            if ($this->getRTL()) {
+            if ($this->rtl) {
                 $header_x = $this->original_rMargin + ($headerdata['logo_width'] * 1.1);
             }
             else {
@@ -2903,14 +2878,8 @@ class PDF
         }
         $this->y($cur_y);
         //Print page number
-        if ($this->getRTL()) {
-            $this->x($this->originalRightMargin);
-            $this->Cell(0, 0, $pagenumtxt, 'T', 0, 'L');
-        }
-        else {
-            $this->x($this->originalLeftMargin);
-            $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
-        }
+        $this->x($this->originalLeftMargin);
+        $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
     }
 
     /**
