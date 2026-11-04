@@ -1839,40 +1839,6 @@ class PDF
     }
 
     /**
-     * Force temporary RTL language direction
-     * @param false|string $mode can be false, 'L' for LTR or 'R' for RTL
-     */
-    public function setTempRTL($mode)
-    {
-        $newmode = false;
-        switch (strtoupper($mode)) {
-            case 'LTR':
-            case 'L':
-            {
-                if ($this->rtl) {
-                    $newmode = 'L';
-                }
-                break;
-            }
-            case 'RTL':
-            case 'R':
-            {
-                if (!$this->rtl) {
-                    $newmode = 'R';
-                }
-                break;
-            }
-            case false:
-            default:
-            {
-                $newmode = false;
-                break;
-            }
-        }
-        $this->tmprtl = $newmode;
-    }
-
-    /**
      * Return the current temporary RTL status
      * @return bool
      */
@@ -5496,9 +5462,6 @@ class PDF
                         $this->setCellPadding(0);
                     }
                 }
-                if ($firstblock and $this->isRTLTextDir()) {
-                    $tmpstr = $this->stringRightTrim($tmpstr);
-                }
                 // Skip newlines at the beginning of a page or column
                 if (!empty($tmpstr) or ($this->y < ($this->PageBreakTrigger - $row_height))) {
                     $this->Cell($w, $h, $tmpstr, 0, 1, $talign, $fill, $link, $stretch);
@@ -5615,9 +5578,6 @@ class PDF
                                     $this->setCellPadding(0);
                                 }
                             }
-                            if ($firstblock and $this->isRTLTextDir()) {
-                                $tmpstr = $this->stringRightTrim($tmpstr);
-                            }
                             $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
@@ -5661,9 +5621,6 @@ class PDF
                                 if ($maxHeight == 0) {
                                     $this->setCellPadding(0);
                                 }
-                            }
-                            if ($firstblock and $this->isRTLTextDir()) {
-                                $tmpstr = $this->stringRightTrim($tmpstr);
                             }
                             $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
@@ -5715,9 +5672,6 @@ class PDF
                                 }
                             }
                             // print the line
-                            if ($firstblock and $this->isRTLTextDir()) {
-                                $tmpstr = $this->stringRightTrim($tmpstr);
-                            }
                             $this->Cell($w, $h, $shy_char_left . $tmpstr . $shy_char_right, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
@@ -5810,9 +5764,6 @@ class PDF
                 if ($maxHeight == 0) {
                     $this->setCellPadding(0);
                 }
-            }
-            if ($firstblock and $this->isRTLTextDir()) {
-                $tmpstr = $this->stringRightTrim($tmpstr);
             }
             $this->Cell($w, $h, $tmpstr, 0, $ln, $align, $fill, $link, $stretch);
             unset($tmpstr);
@@ -15562,9 +15513,6 @@ class PDF
                     if ((((($plalign == 'C') or ($plalign == 'J') or (($plalign == 'R') and (!$this->rtl)) or (($plalign == 'L') and ($this->rtl)))))) {
                         // calculate shifting amount
                         $tw = $w;
-                        if (($plalign == 'J') and $this->isRTLTextDir() and ($this->num_columns > 1)) {
-                            $tw += $this->cell_padding['R'];
-                        }
                         if ($this->lMargin != $prevlMargin) {
                             $tw += ($prevlMargin - $this->lMargin);
                         }
@@ -15573,47 +15521,21 @@ class PDF
                         }
                         $one_space_width = $this->GetStringWidth(chr(32));
                         $no              = 0; // number of spaces on a line contained on a single block
-                        if ($this->isRTLTextDir()) { // RTL
-                            // remove left space if exist
-                            $pos1 = StaticMethods::revstrpos($pmid, '[(');
-                            if ($pos1 > 0) {
-                                $pos1 = intval($pos1);
-                                if ($this->isUnicodeFont()) {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(0) . chr(32)));
-                                    $spacelen = 2;
-                                }
-                                else {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(32)));
-                                    $spacelen = 1;
-                                }
-                                if ($pos1 == $pos2) {
-                                    $pmid = substr($pmid, 0, ($pos1 + 2)) . substr($pmid, ($pos1 + 2 + $spacelen));
-                                    if (substr($pmid, $pos1, 4) == '[()]') {
-                                        $linew -= $one_space_width;
-                                    }
-                                    elseif ($pos1 == strpos($pmid, '[(')) {
-                                        $no = 1;
-                                    }
-                                }
+                        // remove right space if exist
+                        $pos1 = StaticMethods::revstrpos($pmid, ')]');
+                        if ($pos1 > 0) {
+                            $pos1 = intval($pos1);
+                            if ($this->isUnicodeFont()) {
+                                $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
+                                $spacelen = 2;
                             }
-                        }
-                        else { // LTR
-                            // remove right space if exist
-                            $pos1 = StaticMethods::revstrpos($pmid, ')]');
-                            if ($pos1 > 0) {
-                                $pos1 = intval($pos1);
-                                if ($this->isUnicodeFont()) {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
-                                    $spacelen = 2;
-                                }
-                                else {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
-                                    $spacelen = 1;
-                                }
-                                if ($pos1 == $pos2) {
-                                    $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
-                                    $linew -= $one_space_width;
-                                }
+                            else {
+                                $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
+                                $spacelen = 1;
+                            }
+                            if ($pos1 == $pos2) {
+                                $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
+                                $linew -= $one_space_width;
                             }
                         }
                         $mdiff = ($tw - $linew);
@@ -15635,10 +15557,6 @@ class PDF
                         }
                         elseif (($plalign == 'J') and ($plalign == $lalign)) {
                             // Justification
-                            if ($this->isRTLTextDir()) {
-                                // align text on the left
-                                $t_x = -$mdiff;
-                            }
                             $ns       = 0; // number of spaces
                             $pmidtemp = $pmid;
                             // escape special characters
@@ -15679,9 +15597,6 @@ class PDF
                                 $strcount       = 0;
                                 $prev_epsposbeg = 0;
                                 $textpos        = 0;
-                                if ($this->isRTLTextDir()) {
-                                    $textpos = $this->wPt;
-                                }
                                 while (preg_match('/([0-9\.\+\-]*)[\s](Td|cm|m|l|c|re)[\s]/x', $pmid, $strpiece, PREG_OFFSET_CAPTURE, $offset) == 1) {
                                     // check if we are inside a string section '[( ... )]'
                                     $stroffset = strpos($pmid, '[(', $offset);
@@ -15696,12 +15611,7 @@ class PDF
                                         }
                                         continue;
                                     }
-                                    if ($this->isRTLTextDir()) {
-                                        $spacew = ($spacewidth * ($nsmax - $ns));
-                                    }
-                                    else {
-                                        $spacew = ($spacewidth * $ns);
-                                    }
+                                    $spacew    = ($spacewidth * $ns);
                                     $offset    = $strpiece[2][1] + strlen($strpiece[2][0]);
                                     $epsposend = strpos($pmid, $this->epsmarker . 'Q', $offset);
                                     if ($epsposend !== null) {
@@ -15739,9 +15649,6 @@ class PDF
                                             $textpos     = $currentxpos;
                                             if (($strcount <= $maxkk) and ($strpiece[2][0] == 'Td')) {
                                                 $ns = $lnstring[3][$strcount];
-                                                if ($this->isRTLTextDir()) {
-                                                    $spacew = ($spacewidth * ($nsmax - $ns));
-                                                }
                                                 ++$strcount;
                                             }
                                             // justify block
@@ -15766,32 +15673,18 @@ class PDF
                                             $currentxpos = $xmatches[1];
                                             $x_diff      = 0;
                                             $w_diff      = 0;
-                                            if ($this->isRTLTextDir()) { // RTL
-                                                if ($currentxpos < $textpos) {
-                                                    $x_diff = ($spacewidth * ($nsmax - $lnstring[3][$strcount]));
-                                                    $w_diff = ($spacewidth * $lnstring[2][$strcount]);
+                                            if ($currentxpos > $textpos) {
+                                                if ($strcount > 0) {
+                                                    $x_diff = ($spacewidth * $lnstring[3][($strcount - 1)]);
                                                 }
-                                                else {
-                                                    if ($strcount > 0) {
-                                                        $x_diff = ($spacewidth * ($nsmax - $lnstring[3][($strcount - 1)]));
-                                                        $w_diff = ($spacewidth * $lnstring[2][($strcount - 1)]);
-                                                    }
-                                                }
+                                                $w_diff = ($spacewidth * $lnstring[2][$strcount]);
                                             }
-                                            else { // LTR
-                                                if ($currentxpos > $textpos) {
-                                                    if ($strcount > 0) {
-                                                        $x_diff = ($spacewidth * $lnstring[3][($strcount - 1)]);
-                                                    }
-                                                    $w_diff = ($spacewidth * $lnstring[2][$strcount]);
+                                            else {
+                                                if ($strcount > 1) {
+                                                    $x_diff = ($spacewidth * $lnstring[3][($strcount - 2)]);
                                                 }
-                                                else {
-                                                    if ($strcount > 1) {
-                                                        $x_diff = ($spacewidth * $lnstring[3][($strcount - 2)]);
-                                                    }
-                                                    if ($strcount > 0) {
-                                                        $w_diff = ($spacewidth * $lnstring[2][($strcount - 1)]);
-                                                    }
+                                                if ($strcount > 0) {
+                                                    $w_diff = ($spacewidth * $lnstring[2][($strcount - 1)]);
                                                 }
                                             }
                                             if (preg_match('/(' . $xmatches[1] . ')[\s](' . $xmatches[2] . ')[\s](' . $xmatches[3] . ')[\s](' . $strpiece[1][0] . ')[\s](re)([\s]*)/x', $pmid, $pmatch) == 1) {
@@ -16341,30 +16234,12 @@ class PDF
                 // text
                 $this->htmlvspace = 0;
                 $isRTLString      = preg_match(FontData::$rtlTestPattern, $dom[$key]['value']) || preg_match(FontData::$arabidTestPattern, $dom[$key]['value']);
-                if ((!$this->premode) and $this->isRTLTextDir() and !$isRTLString) {
-                    // reverse spaces order
-                    $lsp = ''; // left spaces
-                    $rsp = ''; // right spaces
-                    if (preg_match('/^(' . $this->re_space['p'] . '+)/' . $this->re_space['m'], $dom[$key]['value'], $matches)) {
-                        $lsp = $matches[1];
-                    }
-                    if (preg_match('/(' . $this->re_space['p'] . '+)$/' . $this->re_space['m'], $dom[$key]['value'], $matches)) {
-                        $rsp = $matches[1];
-                    }
-                    $dom[$key]['value'] = $rsp . $this->stringTrim($dom[$key]['value']) . $lsp;
-                }
                 if ($newline) {
                     if (!$this->premode) {
                         $prelen = strlen($dom[$key]['value']);
-                        if ($this->isRTLTextDir() and !$isRTLString) {
-                            // right trim except non-breaking space
-                            $dom[$key]['value'] = $this->stringRightTrim($dom[$key]['value']);
-                        }
-                        else {
-                            // left trim except non-breaking space
-                            $dom[$key]['value'] = $this->stringLeftTrim($dom[$key]['value']);
-                        }
-                        $postlen = strlen($dom[$key]['value']);
+                        // left trim except non-breaking space
+                        $dom[$key]['value'] = $this->stringLeftTrim($dom[$key]['value']);
+                        $postlen            = strlen($dom[$key]['value']);
                         if (($postlen == 0) and ($prelen > 0)) {
                             $dom[$key]['trimmed_space'] = true;
                         }
@@ -16600,47 +16475,21 @@ class PDF
                 }
                 $one_space_width = $this->GetStringWidth(chr(32));
                 $no              = 0; // number of spaces on a line contained on a single block
-                if ($this->isRTLTextDir()) { // RTL
-                    // remove left space if exist
-                    $pos1 = StaticMethods::revstrpos($pmid, '[(');
-                    if ($pos1 > 0) {
-                        $pos1 = intval($pos1);
-                        if ($this->isUnicodeFont()) {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(0) . chr(32)));
-                            $spacelen = 2;
-                        }
-                        else {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(32)));
-                            $spacelen = 1;
-                        }
-                        if ($pos1 == $pos2) {
-                            $pmid = substr($pmid, 0, ($pos1 + 2)) . substr($pmid, ($pos1 + 2 + $spacelen));
-                            if (substr($pmid, $pos1, 4) == '[()]') {
-                                $linew -= $one_space_width;
-                            }
-                            elseif ($pos1 == strpos($pmid, '[(')) {
-                                $no = 1;
-                            }
-                        }
+                // remove right space if exist
+                $pos1 = StaticMethods::revstrpos($pmid, ')]');
+                if ($pos1 > 0) {
+                    $pos1 = intval($pos1);
+                    if ($this->isUnicodeFont()) {
+                        $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
+                        $spacelen = 2;
                     }
-                }
-                else { // LTR
-                    // remove right space if exist
-                    $pos1 = StaticMethods::revstrpos($pmid, ')]');
-                    if ($pos1 > 0) {
-                        $pos1 = intval($pos1);
-                        if ($this->isUnicodeFont()) {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
-                            $spacelen = 2;
-                        }
-                        else {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
-                            $spacelen = 1;
-                        }
-                        if ($pos1 == $pos2) {
-                            $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
-                            $linew -= $one_space_width;
-                        }
+                    else {
+                        $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
+                        $spacelen = 1;
+                    }
+                    if ($pos1 == $pos2) {
+                        $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
+                        $linew -= $one_space_width;
                     }
                 }
                 $mdiff = ($tw - $linew);
@@ -16729,12 +16578,7 @@ class PDF
         $parent   = $dom[($dom[$key]['parent'])];
         $firsttag = ($key == 1);
         // check for text direction attribute
-        if (isset($tag['dir'])) {
-            $this->setTempRTL($tag['dir']);
-        }
-        else {
-            $this->tmprtl = false;
-        }
+        $this->tmprtl = false;
         if ($tag['block']) {
             $hbz = 0; // distance from y to line bottom
             $hb  = 0; // vertical space between block tags
