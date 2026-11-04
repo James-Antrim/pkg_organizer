@@ -72,7 +72,7 @@ class ContactTracking extends ListView
 
         $pnText = $this->pageNumberAlias() . ' / ' . $this->totalPagesAlias();
 
-        $this->SetX($this->original_lMargin);
+        $this->SetX($this->originalLeftMargin);
         $text = Text::_('ORGANIZER_COVID_CONTACT');
         $this->Cell(0, 0, $text, self::TOP, 0, self::CENTER);
         $this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);

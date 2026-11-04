@@ -10,8 +10,6 @@
 
 namespace THM\Organizer\Views\PDF;
 
-define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
-
 use JetBrains\PhpStorm\NoReturn;
 use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\MVC\{Model\BaseDatabaseModel, View\ViewInterface};
@@ -161,7 +159,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param int $header the header margin
      * @param int $footer the footer margin
      *
-     * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
+     * @see   SetAutoPageBreak(), SetFooterMargin(), headerMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
      */
     public function margins(int $left = 15,
                             int $top = 27,
@@ -172,7 +170,7 @@ abstract class BaseView extends PDF implements ViewInterface
     {
         $this->SetAutoPageBreak(true, $bottom);
         $this->setFooterMargin($footer);
-        $this->setHeaderMargin($header);
+        $this->headerMargin($header);
         $this->SetMargins($left, $top, $right);
     }
 

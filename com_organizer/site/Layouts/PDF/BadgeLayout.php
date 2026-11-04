@@ -110,7 +110,7 @@ abstract class BadgeLayout extends BaseLayout
 
         $params = Input::parameters();
         if (!empty($params->get('signatureFile'))) {
-            $signaturePath = K_PATH_IMAGES . $params->get('signatureFile');
+            $signaturePath = $view::IMAGE_PATH . $params->get('signatureFile');
             $view->Image($signaturePath, $xOffset + 35, $signatureOffset, 20);
         }
 
@@ -143,7 +143,7 @@ abstract class BadgeLayout extends BaseLayout
         $view->Rect($xOffset, $yOffset + 10, 90, 80);
 
         $left = $xOffset + 4;
-        $view->Image(K_PATH_IMAGES . 'logo.png', $left, $yOffset + 15, 30);
+        $view->Image($view::IMAGE_PATH . 'logo.png', $left, $yOffset + 15, 30);
 
         $view->reposition($xOffset + 70, $yOffset + 15);
         $view->changeFont($view::REGULAR, 10);
