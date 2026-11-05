@@ -18,7 +18,6 @@ class Fonts
 
     /**
      * Static cache used for speed up uniord performances
-     * @protected
      */
     protected static $cache_uniord = [];
 
@@ -35,8 +34,6 @@ class Fonts
      * @param boolean $link     If true link to system font instead of copying the font data (not transportable) - Note: do not work with Type1 fonts.
      * @return string|false TCPDF font name or boolean false in case of error.
      * @author Nicola Asuni
-     * @since  5.9.123 (2010-09-30)
-     * @public static
      */
     public static function addTTFfont($fontfile, $fonttype = '', $enc = '', $flags = 32, $outpath = '', $platid = 3, $encid = 1, $addcbbox = false, $link = false)
     {
@@ -888,8 +885,6 @@ class Fonts
      * @param int    $length length of table in bytes
      * @return int checksum
      * @author Nicola Asuni
-     * @since  5.2.000 (2010-06-02)
-     * @public static
      */
     public static function _getTTFtableChecksum($table, $length)
     {
@@ -911,8 +906,6 @@ class Fonts
      * @param array  $subsetchars Array of used characters (the glyphs to keep).
      * @return string A subset of TrueType font data without the unused glyphs.
      * @author Nicola Asuni
-     * @since  5.2.000 (2010-06-02)
-     * @public static
      */
     public static function _getTrueTypeFontSubset($font, $subsetchars)
     {
@@ -1377,8 +1370,6 @@ class Fonts
      * @param int   $cidoffset offset for CID values
      * @return string PDF command string for font widths
      * @author Nicola Asuni
-     * @since  4.4.000 (2008-12-07)
-     * @public static
      */
     public static function _putfontwidths($font, $cidoffset = 0)
     {
@@ -1493,8 +1484,6 @@ class Fonts
      * @param int    $gid GID value.
      * @return string CIDToGIDMap.
      * @author Nicola Asuni
-     * @since  5.9.123 (2011-09-29)
-     * @public static
      */
     public static function updateCIDtoGIDmap($map, $cid, $gid)
     {
@@ -1511,7 +1500,6 @@ class Fonts
     /**
      * Return fonts path
      * @return string
-     * @public static
      */
     public static function _getfontpath()
     {
@@ -1531,8 +1519,6 @@ class Fonts
      * @param string $fontdir Font directory (set to false fto search on default directories)
      * @return string Font full path or empty string
      * @author Nicola Asuni
-     * @since  6.0.025
-     * @public static
      */
     public static function getFontFullPath($file, $fontdir = false)
     {
@@ -1556,7 +1542,6 @@ class Fonts
      * @param string $size    String containing font size value.
      * @param float  $refsize Reference font size in points.
      * @return float value in points
-     * @public static
      */
     public static function getFontRefSize($size, $refsize = 12)
     {
@@ -1659,8 +1644,6 @@ class Fonts
      * @param int     $c       UTF-8 value
      * @param boolean $unicode True if we are in unicode mode, false otherwise.
      * @return string Returns the specified character.
-     * @since  2.3.000 (2008-03-05)
-     * @public static
      */
     public static function unichr($c, $unicode = true)
     {
@@ -1693,7 +1676,6 @@ class Fonts
      * Returns the unicode caracter specified by UTF-8 value
      * @param int $c UTF-8 value
      * @return string Returns the specified character.
-     * @public static
      */
     public static function unichrUnicode($c)
     {
@@ -1704,7 +1686,6 @@ class Fonts
      * Returns the unicode caracter specified by ASCII value
      * @param int $c UTF-8 value
      * @return string Returns the specified character.
-     * @public static
      */
     public static function unichrASCII($c)
     {
@@ -1744,10 +1725,7 @@ class Fonts
      * @param array   $unicode array containing UTF-8 unicode values
      * @param boolean $setbom  if true set the Byte Order Mark (BOM = 0xFEFF)
      * @return string
-     * @protected
      * @author Nicola Asuni
-     * @since  2.1.000 (2008-01-08)
-     * @public static
      */
     public static function arrUTF8ToUTF16BE($unicode, $setbom = false)
     {
@@ -1784,8 +1762,6 @@ class Fonts
      * @param array   $ta        The input array of UTF8 values.
      * @param boolean $isunicode True for Unicode mode, false otherwise.
      * @return array Return array of unicode characters
-     * @since  4.5.037 (2009-04-07)
-     * @public static
      */
     public static function UTF8ArrayToUniArray($ta, $isunicode = true)
     {
@@ -1802,7 +1778,6 @@ class Fonts
      * @param int      $end     first element that will not be returned.
      * @param boolean  $unicode True if we are in unicode mode, false otherwise.
      * @return string Return part of a string
-     * @public static
      */
     public static function UTF8ArrSubString($strarr, $start = '', $end = '', $unicode = true)
     {
@@ -1825,8 +1800,6 @@ class Fonts
      * @param int      $start  the starting element of $strarr.
      * @param int      $end    first element that will not be returned.
      * @return string Return part of a string
-     * @since  4.5.037 (2009-04-07)
-     * @public static
      */
     public static function UniArrSubString($uniarr, $start = '', $end = '')
     {
@@ -1848,8 +1821,6 @@ class Fonts
      * @param array $unicode array containing UTF-8 unicode values
      * @return array
      * @author Nicola Asuni
-     * @since  4.8.023 (2010-01-15)
-     * @public static
      */
     public static function UTF8ArrToLatin1Arr($unicode)
     {
@@ -1877,8 +1848,6 @@ class Fonts
      * @param array $unicode array containing UTF-8 unicode values
      * @return string
      * @author Nicola Asuni
-     * @since  4.8.023 (2010-01-15)
-     * @public static
      */
     public static function UTF8ArrToLatin1($unicode)
     {
@@ -1906,7 +1875,6 @@ class Fonts
      * Uses the getUniord() method if the value is not cached.
      * @param string $uch character string to process.
      * @return int Unicode value
-     * @public static
      */
     public static function uniord($uch)
     {
@@ -1947,7 +1915,6 @@ class Fonts
      * @param string $uch character string to process.
      * @return int Unicode value
      * @author Nicola Asuni
-     * @public static
      */
     public static function getUniord($uch)
     {
@@ -2024,7 +1991,6 @@ class Fonts
      * @param array   $currentfont Reference to current font array.
      * @return array containing codepoints (UTF-8 characters values)
      * @author Nicola Asuni
-     * @public static
      */
     public static function UTF8StringToArray($str, $isunicode, &$currentfont)
     {
@@ -2053,8 +2019,6 @@ class Fonts
      * @param boolean $isunicode   True when the documetn is in Unicode mode, false otherwise.
      * @param array   $currentfont Reference to current font array.
      * @return string
-     * @since  3.2.000 (2008-06-23)
-     * @public static
      */
     public static function UTF8ToLatin1($str, $isunicode, &$currentfont)
     {
@@ -2070,8 +2034,6 @@ class Fonts
      * @param array   $currentfont Reference to current font array.
      * @return string
      * @author Nicola Asuni
-     * @since  1.53.0.TC005 (2005-01-05)
-     * @public static
      */
     public static function UTF8ToUTF16BE($str, $setbom, $isunicode, &$currentfont)
     {
@@ -2091,8 +2053,6 @@ class Fonts
      * @param array   $currentfont Reference to current font array.
      * @return string
      * @author Nicola Asuni
-     * @since  2.1.000 (2008-01-08)
-     * @public static
      */
     public static function utf8StrRev($str, $setbom, $forcertl, $isunicode, &$currentfont)
     {
@@ -2109,8 +2069,6 @@ class Fonts
      * @param array   $currentfont Reference to current font array.
      * @return string
      * @author Nicola Asuni
-     * @since  4.9.000 (2010-03-27)
-     * @public static
      */
     public static function utf8StrArrRev($arr, $str, $setbom, $forcertl, $isunicode, &$currentfont)
     {
@@ -2126,8 +2084,6 @@ class Fonts
      * @param array   $currentfont Reference to current font array.
      * @return array of unicode chars
      * @author Nicola Asuni
-     * @since  2.4.000 (2008-03-06)
-     * @public static
      */
     public static function utf8Bidi($ta, $str, $forcertl, $isunicode, &$currentfont)
     {

@@ -51,7 +51,6 @@ class TCPDF2DBarcode {
 
 	/**
 	 * Array representation of barcode.
-	 * @protected
 	 */
 	protected $barcode_array = [];
 
@@ -82,7 +81,6 @@ class TCPDF2DBarcode {
 	 * @param int $w Width of a single rectangle element in user units.
 	 * @param int $h Height of a single rectangle element in user units.
 	 * @param string $color Foreground color (in SVG format) for bar elements (background is transparent).
- 	 * @public
 	 */
 	public function getBarcodeSVG($w=3, $h=3, $color='black') {
 		// send headers
@@ -103,7 +101,6 @@ class TCPDF2DBarcode {
 	 * @param int $h Height of a single rectangle element in user units.
 	 * @param string $color Foreground color (in SVG format) for bar elements (background is transparent).
  	 * @return string SVG code.
- 	 * @public
 	 */
 	public function getBarcodeSVGcode($w=3, $h=3, $color='black') {
 		// replace table for special characters
@@ -139,7 +136,6 @@ class TCPDF2DBarcode {
 	 * @param int $h Height of a single rectangle element in pixels.
 	 * @param string $color Foreground color for bar elements (background is transparent).
  	 * @return string HTML code.
- 	 * @public
 	 */
 	public function getBarcodeHTML($w=10, $h=10, $color='black') {
 		$html = '<div style="font-size:0;position:relative;width:'.($w * $this->barcode_array['num_cols']).'px;height:'.($h * $this->barcode_array['num_rows']).'px;">'."\n";
@@ -167,7 +163,6 @@ class TCPDF2DBarcode {
 	 * @param int $w Width of a single rectangle element in pixels.
 	 * @param int $h Height of a single rectangle element in pixels.
 	 * @param array $color RGB (0-255) foreground color for bar elements (background is transparent).
- 	 * @public
 	 */
 	public function getBarcodePNG($w=3, $h=3, $color=array(0,0,0)) {
 		$data = $this->getBarcodePngData($w, $h, $color);
@@ -188,7 +183,6 @@ class TCPDF2DBarcode {
 	 * @param int $h Height of a single rectangle element in pixels.
 	 * @param array $color RGB (0-255) foreground color for bar elements (background is transparent).
  	 * @return string|Imagick|false image or false in case of error.
- 	 * @public
 	 */
 	public function getBarcodePngData($w=3, $h=3, $color=array(0,0,0)) {
 		// calculate image size

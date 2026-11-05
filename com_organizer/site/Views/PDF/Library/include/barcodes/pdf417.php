@@ -94,25 +94,21 @@ class PDF417 {
 
 	/**
 	 * Barcode array to be returned which is readable by TCPDF.
-	 * @protected
 	 */
 	protected $barcode_array = [];
 
 	/**
 	 * Start pattern.
-	 * @protected
 	 */
 	protected $start_pattern = '11111111010101000';
 
 	/**
 	 * Stop pattern.
-	 * @protected
 	 */
 	protected $stop_pattern = '111111101000101001';
 
 	/**
 	 * Array of text Compaction Sub-Modes (values 0xFB - 0xFF are used for submode changers).
-	 * @protected
 	 */
 	protected $textsubmodes = array(
 		array(0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x20,0xFD,0xFE,0xFF), // Alpha
@@ -123,7 +119,6 @@ class PDF417 {
 
 	/**
 	 * Array of switching codes for Text Compaction Sub-Modes.
-	 * @protected
 	 */
 	protected $textlatch = array(
 		'01' => array(27), '02' => array(28), '03' => array(28,25), //
@@ -151,7 +146,6 @@ class PDF417 {
 	 * <li>927 : Identifier for an ECI of a character set or code page</li>
 	 * <li>928 : Macro marker codeword to indicate the beginning of a Macro PDF Control Block</li>
 	 * </ul>
-	 * @protected
 	 */
 	protected $clusters = array(
 		array( // cluster 0 -----------------------------------------------------------------------
@@ -440,7 +434,6 @@ class PDF417 {
 
 	/**
 	 * Array of factors of the Reed-Solomon polynomial equations used for error correction; one sub array for each correction level (0-8).
-	 * @protected
 	 */
 	protected $rsfactors = array(
 		array( // ECL 0 (2 factors) -------------------------------------------------------------------------------
@@ -527,7 +520,6 @@ class PDF417 {
 	 * @param int $ecl error correction level (0-8); default -1 = automatic correction level
 	 * @param float $aspectratio the width to height of the symbol (excluding quiet zones)
 	 * @param array $macro information for macro block
-	 * @public
 	 */
 	public function __construct($code, $ecl=-1, $aspectratio=2, $macro=[]) {
 		$barcode_array = [];
@@ -726,7 +718,6 @@ class PDF417 {
 	/**
 	 * Returns a barcode array which is readable by TCPDF
 	 * @return array barcode array readable by TCPDF;
-	 * @public
 	 */
 	public function getBarcodeArray() {
 		return $this->barcode_array;
@@ -737,7 +728,6 @@ class PDF417 {
 	 * @param int $ecl error correction level
 	 * @param int $numcw number of data codewords
 	 * @return int error correction level
-	 * @protected
 	 */
 	protected function getErrorCorrectionLevel($ecl, $numcw) {
 		$maxecl = 8; // starting error level
@@ -775,7 +765,6 @@ class PDF417 {
 	 * @param array $cw array of codewords including Symbol Length Descriptor and pad
 	 * @param int $ecl error correction level 0-8
 	 * @return array of error correction codewords
-	 * @protected
 	 */
 	protected function getErrorCorrection($cw, $ecl) {
 		// get error correction coefficients
@@ -811,7 +800,6 @@ class PDF417 {
 	 * Create array of sequences from input
 	 * @param string $code code
 	 * @return array bi-dimensional array containing characters and classification
-	 * @protected
 	 */
 	protected function getInputSequences($code) {
 		$sequence_array = []; // array to be returned
@@ -868,7 +856,6 @@ class PDF417 {
 	 * @param string $code data to compact
 	 * @param boolean $addmode if true add the mode codeword at first position
 	 * @return array of codewords
-	 * @protected
 	 */
 	protected function getCompaction($mode, $code, $addmode=true) {
 		$cw = []; // array of codewords to return

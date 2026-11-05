@@ -111,13 +111,11 @@ class Datamatrix {
 
 	/**
 	 * Barcode array to be returned which is readable by TCPDF.
-	 * @protected
 	 */
 	protected $barcode_array = [];
 
 	/**
 	 * Store last used encoding for data codewords.
-	 * @protected
 	 */
 	protected $last_enc = ENC_ASCII;
 
@@ -140,7 +138,6 @@ class Datamatrix {
 	 * <li>data codewords per block</li>
 	 * <li>error codewords per block</li>
 	 * </ul>
-	 * @protected
 	 */
 	protected $symbattr = array(
 		// square form ---------------------------------------------------------------------------------------
@@ -179,13 +176,11 @@ class Datamatrix {
 
 	/**
 	 * Map encodation modes whit character sets.
-	 * @protected
 	 */
 	protected $chset_id = array(ENC_C40 => 'C40', ENC_TXT => 'TXT', ENC_X12 =>'X12');
 
 	/**
 	 * Basic set of characters for each encodation mode.
-	 * @protected
 	 */
 	protected $chset = array(
 		'C40' => array( // Basic set for C40 ----------------------------------------------------------------------------
@@ -230,7 +225,6 @@ class Datamatrix {
 	 * This is the class constructor.
 	 * Creates a datamatrix object
 	 * @param string $code Code to represent using Datamatrix.
-	 * @public
 	 */
 	public function __construct($code) {
 		$barcode_array = [];
@@ -347,7 +341,6 @@ class Datamatrix {
 	/**
 	 * Returns a barcode array which is readable by TCPDF
 	 * @return array barcode array readable by TCPDF;
-	 * @public
 	 */
 	public function getBarcodeArray() {
 		return $this->barcode_array;
@@ -361,7 +354,6 @@ class Datamatrix {
 	 * @param array $alog Anti-Log table.
 	 * @param int $gf Number of Factors of the Reed-Solomon polynomial.
 	 * @return int product
-	 * @protected
 	 */
 	protected function getGFProduct($a, $b, $log, $alog, $gf) {
 		if (($a == 0) OR ($b == 0)) {
@@ -379,7 +371,6 @@ class Datamatrix {
 	 * @param int $gf numner of fields on log/antilog table (power of 2).
 	 * @param int $pp The value of its prime modulus polynomial (301 for ECC200).
 	 * @return array data codewords + error codewords
-	 * @protected
 	 */
 	protected function getErrorCorrection($wd, $nb, $nd, $nc, $gf=256, $pp=301) {
 		// generate the log ($log) and antilog ($alog) tables
@@ -441,7 +432,6 @@ class Datamatrix {
 	 * @param int $cwpad Pad codeword.
 	 * @param int $cwpos Number of data codewords from the beginning of encoded data.
 	 * @return int pad codeword
-	 * @protected
 	 */
 	protected function get253StateCodeword($cwpad, $cwpos) {
 		$pad = ($cwpad + (((149 * $cwpos) % 253) + 1));
@@ -456,7 +446,6 @@ class Datamatrix {
 	 * @param int $cwpad Pad codeword.
 	 * @param int $cwpos Number of data codewords from the beginning of encoded data.
 	 * @return int pad codeword
-	 * @protected
 	 */
 	protected function get255StateCodeword($cwpad, $cwpos) {
 		$pad = ($cwpad + (((149 * $cwpos) % 255) + 1));
@@ -471,7 +460,6 @@ class Datamatrix {
 	 * @param int $chr Character (byte) to check.
 	 * @param int $mode Current encoding mode.
 	 * @return boolean true if the char is of the selected mode.
-	 * @protected
 	 */
 	protected function isCharMode($chr, $mode) {
 		$status = false;
@@ -518,7 +506,6 @@ class Datamatrix {
 	 * @param int $pos current position
 	 * @param int $mode current encoding mode
 	 * @return int encoding mode
-	 * @protected
 	 */
 	protected function lookAheadTest($data, $pos, $mode) {
 		$data_length = strlen($data);
@@ -648,7 +635,6 @@ class Datamatrix {
 	 * Get the switching codeword to a new encoding mode (latch codeword)
 	 * @param int $mode New encoding mode.
 	 * @return int Switch codeword.
-	 * @protected
 	 */
 	protected function getSwitchEncodingCodeword($mode) {
 		switch ($mode) {
@@ -687,7 +673,6 @@ class Datamatrix {
 	 * Choose the minimum matrix size and return the max number of data codewords.
 	 * @param int $numcw Number of current codewords.
 	 * @return int number of data codewords in matrix
-	 * @protected
 	 */
 	protected function getMaxDataCodewords($numcw) {
 		foreach ($this->symbattr as $key => $matrix) {
@@ -702,7 +687,6 @@ class Datamatrix {
 	 * Get high level encoding using the minimum symbol data characters for ECC 200
 	 * @param string $data data to encode
 	 * @return array of codewords
-	 * @protected
 	 */
 	protected function getHighLevelEncoding($data) {
 		// STEP A. Start in ASCII encodation.
@@ -978,7 +962,6 @@ class Datamatrix {
 	 * @param int $chr Char byte.
 	 * @param int $bit Bit.
 	 * @return array
-	 * @protected
 	 */
 	protected function placeModule($marr, $nrow, $ncol, $row, $col, $chr, $bit) {
 		if ($row < 0) {
@@ -1003,7 +986,6 @@ class Datamatrix {
 	 * @param int $col Column number.
 	 * @param int $chr Char byte.
 	 * @return array
-	 * @protected
 	 */
 	protected function placeUtah($marr, $nrow, $ncol, $row, $col, $chr) {
 		$marr = $this->placeModule($marr, $nrow, $ncol, $row-2, $col-2, $chr, 1);
@@ -1025,7 +1007,6 @@ class Datamatrix {
 	 * @param int $ncol Number of columns.
 	 * @param int $chr Char byte.
 	 * @return array
-	 * @protected
 	 */
 	protected function placeCornerA($marr, $nrow, $ncol, $chr) {
 		$marr = $this->placeModule($marr, $nrow, $ncol, $nrow-1, 0,       $chr, 1);
@@ -1047,7 +1028,6 @@ class Datamatrix {
 	 * @param int $ncol Number of columns.
 	 * @param int $chr Char byte.
 	 * @return array
-	 * @protected
 	 */
 	protected function placeCornerB($marr, $nrow, $ncol, $chr) {
 		$marr = $this->placeModule($marr, $nrow, $ncol, $nrow-3, 0,       $chr, 1);
@@ -1069,7 +1049,6 @@ class Datamatrix {
 	 * @param int $ncol Number of columns.
 	 * @param int $chr Char byte.
 	 * @return array
-	 * @protected
 	 */
 	protected function placeCornerC($marr, $nrow, $ncol, $chr) {
 		$marr = $this->placeModule($marr, $nrow, $ncol, $nrow-3, 0,       $chr, 1);
@@ -1091,7 +1070,6 @@ class Datamatrix {
 	 * @param int $ncol Number of columns.
 	 * @param int $chr Char byte.
 	 * @return array
-	 * @protected
 	 */
 	protected function placeCornerD($marr, $nrow, $ncol, $chr) {
 		$marr = $this->placeModule($marr, $nrow, $ncol, $nrow-1, 0,       $chr, 1);
@@ -1111,7 +1089,6 @@ class Datamatrix {
 	 * @param int $nrow Number of rows.
 	 * @param int $ncol Number of columns.
 	 * @return array
-	 * @protected
 	 */
 	protected function getPlacementMap($nrow, $ncol) {
 		// initialize array with zeros
