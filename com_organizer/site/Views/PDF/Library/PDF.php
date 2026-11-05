@@ -12,7 +12,8 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-// TCPDF configuration
+//use THM\Organizer\Adapters\Application;
+
 require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
 // TCPDF static color methods and data
 require_once(dirname(__FILE__) . '/include/tcpdf_colors.php');
@@ -850,7 +851,7 @@ class PDF
      * Default cell height ratio.
      * @var float
      */
-    protected $cell_height_ratio = K_CELL_HEIGHT_RATIO;
+    protected float $cell_height_ratio = 1.25;
 
     /**
      * PDF viewer preferences.
@@ -1570,7 +1571,7 @@ class PDF
         $this->gradients    = [];
         $this->InFooter     = false;
         $this->lasth        = 0;
-        $this->FontFamily   = defined('PDF_FONT_NAME_MAIN') ? PDF_FONT_NAME_MAIN : 'helvetica';
+        $this->FontFamily   = self::DEFAULT_FONT;
         $this->FontStyle    = '';
         $this->FontSizePt   = 12;
         $this->underline    = false;
@@ -2639,12 +2640,11 @@ class PDF
     {
         // unset all class variables
         $this->_destroy(true);
-        if (defined('K_TCPDF_THROW_EXCEPTION_ERROR') and !K_TCPDF_THROW_EXCEPTION_ERROR) {
-            die('<strong>TCPDF ERROR: </strong>' . $msg);
-        }
-        else {
-            throw new Exception('TCPDF ERROR: ' . $msg);
-        }
+        die('<strong>PDF Library Error: </strong>' . $msg);
+        // TODO comment in for production
+        /*if (JDEBUG) {
+            Application::error(500, $msg);
+        }*/
     }
 
     /**
@@ -2683,7 +2683,7 @@ class PDF
             $this->y       = $this->h - (1 / $this->k);
             $this->lMargin = 0;
             $this->_outSaveGraphicsState();
-            $font = defined('PDF_FONT_NAME_MAIN') ? PDF_FONT_NAME_MAIN : 'helvetica';
+            $font = self::DEFAULT_FONT;
             $this->setFont($font, '', 1);
             $this->setTextRenderingMode(0, false, false);
             $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
@@ -3054,7 +3054,7 @@ class PDF
             else {
                 $this->x = $this->original_lMargin;
             }
-            if (($headerdata['logo']) and ($headerdata['logo'] != K_BLANK_IMAGE)) {
+            if ($headerdata['logo']) {
                 $imgtype = Images::getImageFileType(self::IMAGE_PATH . $headerdata['logo']);
                 if (($imgtype == 'eps') or ($imgtype == 'ai')) {
                     $this->ImageEps(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
@@ -4918,114 +4918,7 @@ class PDF
                 else {
                     $unicode = Fonts::UTF8StringToArray($txt, $this->isunicode, $this->CurrentFont); // array of UTF-8 unicode values
                     $unicode = Fonts::utf8Bidi($unicode, '', $this->tmprtl, $this->isunicode, $this->CurrentFont);
-                    // replace thai chars (if any)
-                    if (defined('K_THAI_TOPCHARS') and (K_THAI_TOPCHARS == true)) {
-                        // number of chars
-                        $numchars = count($unicode);
-                        // po pla, for far, for fan
-                        $longtail = array(0x0e1b, 0x0e1d, 0x0e1f);
-                        // do chada, to patak
-                        $lowtail = array(0x0e0e, 0x0e0f);
-                        // mai hun arkad, sara i, sara ii, sara ue, sara uee
-                        $upvowel = array(0x0e31, 0x0e34, 0x0e35, 0x0e36, 0x0e37);
-                        // mai ek, mai tho, mai tri, mai chattawa, karan
-                        $tonemark = array(0x0e48, 0x0e49, 0x0e4a, 0x0e4b, 0x0e4c);
-                        // sara u, sara uu, pinthu
-                        $lowvowel = array(0x0e38, 0x0e39, 0x0e3a);
-                        $output   = [];
-                        for ($i = 0; $i < $numchars; $i++) {
-                            if (($unicode[$i] >= 0x0e00) && ($unicode[$i] <= 0x0e5b)) {
-                                $ch0 = $unicode[$i];
-                                $ch1 = ($i > 0) ? $unicode[($i - 1)] : 0;
-                                $ch2 = ($i > 1) ? $unicode[($i - 2)] : 0;
-                                $chn = ($i < ($numchars - 1)) ? $unicode[($i + 1)] : 0;
-                                if (in_array($ch0, $tonemark)) {
-                                    if ($chn == 0x0e33) {
-                                        // sara um
-                                        if (in_array($ch1, $longtail)) {
-                                            // tonemark at upper left
-                                            $output[] = $this->replaceChar($ch0, (0xf713 + $ch0 - 0x0e48));
-                                        }
-                                        else {
-                                            // tonemark at upper right (normal position)
-                                            $output[] = $ch0;
-                                        }
-                                    }
-                                    elseif (in_array($ch1, $longtail) or (in_array($ch2, $longtail) and in_array($ch1, $lowvowel))) {
-                                        // tonemark at lower left
-                                        $output[] = $this->replaceChar($ch0, (0xf705 + $ch0 - 0x0e48));
-                                    }
-                                    elseif (in_array($ch1, $upvowel)) {
-                                        if (in_array($ch2, $longtail)) {
-                                            // tonemark at upper left
-                                            $output[] = $this->replaceChar($ch0, (0xf713 + $ch0 - 0x0e48));
-                                        }
-                                        else {
-                                            // tonemark at upper right (normal position)
-                                            $output[] = $ch0;
-                                        }
-                                    }
-                                    else {
-                                        // tonemark at lower right
-                                        $output[] = $this->replaceChar($ch0, (0xf70a + $ch0 - 0x0e48));
-                                    }
-                                }
-                                elseif (($ch0 == 0x0e33) and (in_array($ch1, $longtail) or (in_array($ch2, $longtail) and in_array($ch1, $tonemark)))) {
-                                    // add lower left nikhahit and sara aa
-                                    if ($this->isCharDefined(0xf711) and $this->isCharDefined(0x0e32)) {
-                                        $output[]                                 = 0xf711;
-                                        $this->CurrentFont['subsetchars'][0xf711] = true;
-                                        $output[]                                 = 0x0e32;
-                                        $this->CurrentFont['subsetchars'][0x0e32] = true;
-                                    }
-                                    else {
-                                        $output[] = $ch0;
-                                    }
-                                }
-                                elseif (in_array($ch1, $longtail)) {
-                                    if ($ch0 == 0x0e31) {
-                                        // lower left mai hun arkad
-                                        $output[] = $this->replaceChar($ch0, 0xf710);
-                                    }
-                                    elseif (in_array($ch0, $upvowel)) {
-                                        // lower left
-                                        $output[] = $this->replaceChar($ch0, (0xf701 + $ch0 - 0x0e34));
-                                    }
-                                    elseif ($ch0 == 0x0e47) {
-                                        // lower left mai tai koo
-                                        $output[] = $this->replaceChar($ch0, 0xf712);
-                                    }
-                                    else {
-                                        // normal character
-                                        $output[] = $ch0;
-                                    }
-                                }
-                                elseif (in_array($ch1, $lowtail) and in_array($ch0, $lowvowel)) {
-                                    // lower vowel
-                                    $output[] = $this->replaceChar($ch0, (0xf718 + $ch0 - 0x0e38));
-                                }
-                                elseif (($ch0 == 0x0e0d) and in_array($chn, $lowvowel)) {
-                                    // yo ying without lower part
-                                    $output[] = $this->replaceChar($ch0, 0xf70f);
-                                }
-                                elseif (($ch0 == 0x0e10) and in_array($chn, $lowvowel)) {
-                                    // tho santan without lower part
-                                    $output[] = $this->replaceChar($ch0, 0xf700);
-                                }
-                                else {
-                                    $output[] = $ch0;
-                                }
-                            }
-                            else {
-                                // non-thai character
-                                $output[] = $unicode[$i];
-                            }
-                        }
-                        $unicode = $output;
-                        // update font subsetchars
-                        $this->setFontSubBuffer($this->CurrentFont['fontkey'], 'subsetchars', $this->CurrentFont['subsetchars']);
-                    } // end of K_THAI_TOPCHARS
-                    $txt2 = Fonts::arrUTF8ToUTF16BE($unicode, false);
+                    $txt2    = Fonts::arrUTF8ToUTF16BE($unicode, false);
                 }
             }
             $txt2 = StaticMethods::_escape($txt2);
@@ -16575,7 +16468,7 @@ class PDF
                     }
                     if (($dom[$key]['value'] == 'small') or ($dom[$key]['value'] == 'sup') or ($dom[$key]['value'] == 'sub')) {
                         if (!isset($dom[$key]['attribute']['size']) and !isset($dom[$key]['style']['font-size'])) {
-                            $dom[$key]['fontsize'] = $dom[$key]['fontsize'] * K_SMALL_RATIO;
+                            $dom[$key]['fontsize'] = $dom[$key]['fontsize'] * self::SMALL_FONT_RATIO;
                         }
                     }
                     if (($dom[$key]['value'] == 'strong') or ($dom[$key]['value'] == 'b')) {
@@ -19270,26 +19163,6 @@ class PDF
                 }
                 else {
                     $this->ComboBox($name, $w, $h, $values, $prop, $opt, '', '', false);
-                }
-                break;
-            }
-            case 'tcpdf':
-            {
-                if (defined('K_TCPDF_CALLS_IN_HTML') and (K_TCPDF_CALLS_IN_HTML === true)) {
-                    // Special tag used to call TCPDF methods
-                    if (isset($tag['attribute']['method'])) {
-                        $tcpdf_method = $tag['attribute']['method'];
-                        if (method_exists($this, $tcpdf_method)) {
-                            if (isset($tag['attribute']['params']) and (!empty($tag['attribute']['params']))) {
-                                $params = $this->unserializeTCPDFtagParameters($tag['attribute']['params']);
-                                call_user_func_array(array($this, $tcpdf_method), $params);
-                            }
-                            else {
-                                $this->$tcpdf_method();
-                            }
-                            $this->newline = true;
-                        }
-                    }
                 }
                 break;
             }
