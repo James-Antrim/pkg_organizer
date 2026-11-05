@@ -4412,7 +4412,7 @@ class PDF
     }
 
     /**
-     * Imports a TrueType, Type1, core, or CID0 font and makes it available.
+     * Imports a TrueType, Type1, or core font and makes it available.
      * It is necessary to generate a font definition file first (read /fonts/utils/README.TXT).
      * The definition file (and the font file itself when embedding) must be present either in the current directory or in the one indicated by K_PATH_FONTS if the constant is defined. If it could not be found, the error "Could not include font definition file" is generated.
      * @param string $family   Font family. The name can be chosen arbitrarily. If it is a standard family name, it will override the corresponding font.
@@ -4605,11 +4605,6 @@ class PDF
         }
         elseif ($type == 'TrueTypeUnicode') {
             $enc = 'Identity-H';
-        }
-        elseif ($type == 'cidfont0') {
-            if ($this->pdfa_mode) {
-                $this->Error('All fonts must be embedded in PDF/A mode!');
-            }
         }
         else {
             $this->Error('Unknow font type: ' . $type . '');
@@ -9522,83 +9517,6 @@ class PDF
             $out .= "\n" . 'endobj';
             $this->_out($out);
         }
-    }
-
-    /**
-     * Output CID-0 fonts.
-     * A Type 0 CIDFont contains glyph descriptions based on the Adobe Type 1 font format
-     * @param array $font font data
-     * @protected
-     * @author Andrew Whitehead, Nicola Asuni, Yukihiro Nakadaira
-     * @since  3.2.000 (2008-06-23)
-     */
-    protected function _putcidfont0($font)
-    {
-        $cidoffset = 0;
-        if (!isset($font['cw'][1])) {
-            $cidoffset = 31;
-        }
-        if (isset($font['cidinfo']['uni2cid'])) {
-            // convert unicode to cid.
-            $uni2cid = $font['cidinfo']['uni2cid'];
-            $cw      = [];
-            foreach ($font['cw'] as $uni => $width) {
-                if (isset($uni2cid[$uni])) {
-                    $cw[($uni2cid[$uni] + $cidoffset)] = $width;
-                }
-                elseif ($uni < 256) {
-                    $cw[$uni] = $width;
-                } // else unknown character
-            }
-            $font = array_merge($font, array('cw' => $cw));
-        }
-        $name = $font['name'];
-        $enc  = $font['enc'];
-        if ($enc) {
-            $longname = $name . '-' . $enc;
-        }
-        else {
-            $longname = $name;
-        }
-        $out = $this->_getobj($this->font_obj_ids[$font['fontkey']]) . "\n";
-        $out .= '<</Type /Font';
-        $out .= ' /Subtype /Type0';
-        $out .= ' /BaseFont /' . $longname;
-        $out .= ' /Name /F' . $font['i'];
-        if ($enc) {
-            $out .= ' /Encoding /' . $enc;
-        }
-        $out .= ' /DescendantFonts [' . ($this->n + 1) . ' 0 R]';
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->_out($out);
-        $oid     = $this->_newobj();
-        $out     = '<</Type /Font';
-        $out     .= ' /Subtype /CIDFontType0';
-        $out     .= ' /BaseFont /' . $name;
-        $cidinfo = '/Registry ' . $this->_datastring($font['cidinfo']['Registry'], $oid);
-        $cidinfo .= ' /Ordering ' . $this->_datastring($font['cidinfo']['Ordering'], $oid);
-        $cidinfo .= ' /Supplement ' . $font['cidinfo']['Supplement'];
-        $out     .= ' /CIDSystemInfo <<' . $cidinfo . '>>';
-        $out     .= ' /FontDescriptor ' . ($this->n + 1) . ' 0 R';
-        $out     .= ' /DW ' . $font['dw'];
-        $out     .= "\n" . Fonts::_putfontwidths($font, $cidoffset);
-        $out     .= ' >>';
-        $out     .= "\n" . 'endobj';
-        $this->_out($out);
-        $this->_newobj();
-        $s = '<</Type /FontDescriptor /FontName /' . $name;
-        foreach ($font['desc'] as $k => $v) {
-            if ($k != 'Style') {
-                if (is_float($v)) {
-                    $v = sprintf('%F', $v);
-                }
-                $s .= ' /' . $k . ' ' . $v . '';
-            }
-        }
-        $s .= '>>';
-        $s .= "\n" . 'endobj';
-        $this->_out($s);
     }
 
     /**
@@ -23700,7 +23618,7 @@ class PDF
      */
     public function isUnicodeFont()
     {
-        return (($this->CurrentFont['type'] == 'TrueTypeUnicode') or ($this->CurrentFont['type'] == 'cidfont0'));
+        return (($this->CurrentFont['type'] == 'TrueTypeUnicode'));
     }
 
     /**
