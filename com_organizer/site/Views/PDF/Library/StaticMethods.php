@@ -12,8 +12,6 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-use TCPDF_COLORS;
-
 /** Static methods used by the PDF class. */
 class StaticMethods
 {

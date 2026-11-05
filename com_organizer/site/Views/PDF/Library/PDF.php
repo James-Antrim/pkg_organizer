@@ -14,9 +14,9 @@ namespace THM\Organizer\Views\PDF\Library;
 
 //use THM\Organizer\Adapters\Application;
 
+use THM\Organizer\Views\PDF\Library\Barcodes\{Barcode1D, Barcode2D};
+
 require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
-// TCPDF static color methods and data
-require_once(dirname(__FILE__) . '/include/tcpdf_colors.php');
 
 /**  PHP class for generating PDF documents without requiring external extensions. */
 class PDF
@@ -3389,7 +3389,7 @@ class PDF
      */
     public function setSpotColor($type, $name, $tint = 100)
     {
-        $spotcolor = TCPDF_COLORS::getSpotColor($name, $this->spot_colors);
+        $spotcolor = Colors::getSpotColor($name, $this->spot_colors);
         if ($spotcolor === false) {
             $this->Error('Undefined spot color: ' . $name . ', you must add it using the AddSpotColor() method.');
         }
@@ -7929,7 +7929,7 @@ class PDF
                         $annots .= '>>';
                     }
                     if (isset($pl['opt']['c']) and (is_array($pl['opt']['c'])) and !empty($pl['opt']['c'])) {
-                        $annots .= ' /C ' . TCPDF_COLORS::getColorStringFromArray($pl['opt']['c']);
+                        $annots .= ' /C ' . Colors::getColorStringFromArray($pl['opt']['c']);
                     }
                     //$annots .= ' /StructParent ';
                     //$annots .= ' /OC ';
@@ -8201,10 +8201,10 @@ class PDF
                                     $annots .= ' /R ' . $pl['opt']['mk']['r'];
                                 }
                                 if (isset($pl['opt']['mk']['bc']) and (is_array($pl['opt']['mk']['bc']))) {
-                                    $annots .= ' /BC ' . TCPDF_COLORS::getColorStringFromArray($pl['opt']['mk']['bc']);
+                                    $annots .= ' /BC ' . Colors::getColorStringFromArray($pl['opt']['mk']['bc']);
                                 }
                                 if (isset($pl['opt']['mk']['bg']) and (is_array($pl['opt']['mk']['bg']))) {
-                                    $annots .= ' /BG ' . TCPDF_COLORS::getColorStringFromArray($pl['opt']['mk']['bg']);
+                                    $annots .= ' /BG ' . Colors::getColorStringFromArray($pl['opt']['mk']['bg']);
                                 }
                                 if (isset($pl['opt']['mk']['ca'])) {
                                     $annots .= ' /CA ' . $pl['opt']['mk']['ca'];
@@ -12021,7 +12021,7 @@ class PDF
         $this->javascript .= 'f' . $name . '.textSize=' . $this->FontSizePt . ";\n";
         foreach ($prop as $key => $val) {
             if (strcmp(substr($key, -5), 'Color') == 0) {
-                $val = TCPDF_COLORS::_JScolor($val);
+                $val = Colors::_JScolor($val);
             }
             else {
                 $val = "'" . $val . "'";
@@ -13566,7 +13566,7 @@ class PDF
                 default:
                 { // SPECIFIC SPOT COLOR NAME
                     $col_a = array(0, 0, 0, 0, 'None');
-                    $col_b = TCPDF_COLORS::getSpotColor($col, $this->spot_colors);
+                    $col_b = Colors::getSpotColor($col, $this->spot_colors);
                     if ($col_b === false) {
                         // in case of error defaults to the registration color
                         $col_b = array(100, 100, 100, 100, 'All');
@@ -14666,11 +14666,10 @@ class PDF
         if (StaticMethods::empty_string(trim($code))) {
             return;
         }
-        require_once(dirname(__FILE__) . '/tcpdf_barcodes_1d.php');
         // save current graphic settings
         $gvars = $this->getGraphicVars();
         // create new barcode object
-        $barcodeobj = new TCPDFBarcode($code, $type);
+        $barcodeobj = new Barcode1D($code, $type);
         $arrcode    = $barcodeobj->getBarcodeArray();
         if (empty($arrcode) or ($arrcode['maxw'] <= 0)) {
             $this->Error('Error in 1D barcode string');
@@ -15016,11 +15015,10 @@ class PDF
         if (StaticMethods::empty_string(trim($code))) {
             return;
         }
-        require_once(dirname(__FILE__) . '/tcpdf_barcodes_2d.php');
         // save current graphic settings
         $gvars = $this->getGraphicVars();
         // create new barcode object
-        $barcodeobj = new TCPDF2DBarcode($code, $type);
+        $barcodeobj = new Barcode2D($code, $type);
         $arrcode    = $barcodeobj->getBarcodeArray();
         if (empty($arrcode) or !isset($arrcode['num_rows']) or ($arrcode['num_rows'] == 0) or !isset($arrcode['num_cols']) or ($arrcode['num_cols'] == 0)) {
             $this->Error('Error in 2D barcode string');
@@ -15461,7 +15459,7 @@ class PDF
             return [];
         }
         $border['width'] = $this->getCSSBorderWidth($width);
-        $border['color'] = TCPDF_COLORS::convertHTMLColorToDec($color, $this->spot_colors);
+        $border['color'] = Colors::convertHTMLColorToDec($color, $this->spot_colors);
         return $border;
     }
 
@@ -16228,14 +16226,14 @@ class PDF
                         }
                         // font color
                         if (isset($dom[$key]['style']['color']) and (!StaticMethods::empty_string($dom[$key]['style']['color']))) {
-                            $dom[$key]['fgcolor'] = TCPDF_COLORS::convertHTMLColorToDec($dom[$key]['style']['color'], $this->spot_colors);
+                            $dom[$key]['fgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['style']['color'], $this->spot_colors);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
                             $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                         }
                         // background color
                         if (isset($dom[$key]['style']['background-color']) and (!StaticMethods::empty_string($dom[$key]['style']['background-color']))) {
-                            $dom[$key]['bgcolor'] = TCPDF_COLORS::convertHTMLColorToDec($dom[$key]['style']['background-color'], $this->spot_colors);
+                            $dom[$key]['bgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['style']['background-color'], $this->spot_colors);
                         }
                         // text-decoration
                         if (isset($dom[$key]['style']['text-decoration'])) {
@@ -16283,16 +16281,16 @@ class PDF
                         if (isset($dom[$key]['style']['border-color'])) {
                             $brd_colors = preg_split('/[\s]+/', trim($dom[$key]['style']['border-color']));
                             if (isset($brd_colors[3])) {
-                                $dom[$key]['border']['L']['color'] = TCPDF_COLORS::convertHTMLColorToDec($brd_colors[3], $this->spot_colors);
+                                $dom[$key]['border']['L']['color'] = Colors::convertHTMLColorToDec($brd_colors[3], $this->spot_colors);
                             }
                             if (isset($brd_colors[1])) {
-                                $dom[$key]['border']['R']['color'] = TCPDF_COLORS::convertHTMLColorToDec($brd_colors[1], $this->spot_colors);
+                                $dom[$key]['border']['R']['color'] = Colors::convertHTMLColorToDec($brd_colors[1], $this->spot_colors);
                             }
                             if (isset($brd_colors[0])) {
-                                $dom[$key]['border']['T']['color'] = TCPDF_COLORS::convertHTMLColorToDec($brd_colors[0], $this->spot_colors);
+                                $dom[$key]['border']['T']['color'] = Colors::convertHTMLColorToDec($brd_colors[0], $this->spot_colors);
                             }
                             if (isset($brd_colors[2])) {
-                                $dom[$key]['border']['B']['color'] = TCPDF_COLORS::convertHTMLColorToDec($brd_colors[2], $this->spot_colors);
+                                $dom[$key]['border']['B']['color'] = Colors::convertHTMLColorToDec($brd_colors[2], $this->spot_colors);
                             }
                         }
                         if (isset($dom[$key]['style']['border-width'])) {
@@ -16354,7 +16352,7 @@ class PDF
                                 }
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-color'])) {
-                                $dom[$key]['border'][$bsk]['color'] = TCPDF_COLORS::convertHTMLColorToDec($dom[$key]['style']['border-' . $bsv . '-color'], $this->spot_colors);
+                                $dom[$key]['border'][$bsk]['color'] = Colors::convertHTMLColorToDec($dom[$key]['style']['border-' . $bsv . '-color'], $this->spot_colors);
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-width'])) {
                                 $dom[$key]['border'][$bsk]['width'] = $this->getCSSBorderWidth($dom[$key]['style']['border-' . $bsv . '-width']);
@@ -16544,18 +16542,18 @@ class PDF
                     }
                     // set foreground color attribute
                     if (isset($dom[$key]['attribute']['color']) and (!StaticMethods::empty_string($dom[$key]['attribute']['color']))) {
-                        $dom[$key]['fgcolor'] = TCPDF_COLORS::convertHTMLColorToDec($dom[$key]['attribute']['color'], $this->spot_colors);
+                        $dom[$key]['fgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['attribute']['color'], $this->spot_colors);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
                         $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                     }
                     // set background color attribute
                     if (isset($dom[$key]['attribute']['bgcolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['bgcolor']))) {
-                        $dom[$key]['bgcolor'] = TCPDF_COLORS::convertHTMLColorToDec($dom[$key]['attribute']['bgcolor'], $this->spot_colors);
+                        $dom[$key]['bgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['attribute']['bgcolor'], $this->spot_colors);
                     }
                     // set stroke color attribute
                     if (isset($dom[$key]['attribute']['strokecolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['strokecolor']))) {
-                        $dom[$key]['strokecolor'] = TCPDF_COLORS::convertHTMLColorToDec($dom[$key]['attribute']['strokecolor'], $this->spot_colors);
+                        $dom[$key]['strokecolor'] = Colors::convertHTMLColorToDec($dom[$key]['attribute']['strokecolor'], $this->spot_colors);
                     }
                     // check for width attribute
                     if (isset($dom[$key]['attribute']['width'])) {
@@ -23083,10 +23081,10 @@ class PDF
             $this->setAlpha($svgstyle['opacity'], 'Normal', $svgstyle['opacity'], false);
         }
         // color
-        $fill_color = TCPDF_COLORS::convertHTMLColorToDec($svgstyle['color'], $this->spot_colors);
+        $fill_color = Colors::convertHTMLColorToDec($svgstyle['color'], $this->spot_colors);
         $this->setFillColorArray($fill_color);
         // text color
-        $text_color = TCPDF_COLORS::convertHTMLColorToDec($svgstyle['text-color'], $this->spot_colors);
+        $text_color = Colors::convertHTMLColorToDec($svgstyle['text-color'], $this->spot_colors);
         $this->setTextColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
@@ -23215,7 +23213,7 @@ class PDF
             }
         }
         elseif ($svgstyle['fill'] != 'none') {
-            $fill_color = TCPDF_COLORS::convertHTMLColorToDec($svgstyle['fill'], $this->spot_colors);
+            $fill_color = Colors::convertHTMLColorToDec($svgstyle['fill'], $this->spot_colors);
             if ($svgstyle['fill-opacity'] != 1) {
                 $this->setAlpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity'], false);
             }
@@ -23236,7 +23234,7 @@ class PDF
                 $this->setAlpha($rgba_matches[1], 'Normal', $this->alpha['ca'], false);
             }
             $stroke_style = array(
-                'color' => TCPDF_COLORS::convertHTMLColorToDec($svgstyle['stroke'], $this->spot_colors),
+                'color' => Colors::convertHTMLColorToDec($svgstyle['stroke'], $this->spot_colors),
                 'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
@@ -24070,7 +24068,7 @@ class PDF
                         $offset /= 100;
                     }
                 }
-                $stop_color                                          = isset($svgstyle['stop-color']) ? TCPDF_COLORS::convertHTMLColorToDec($svgstyle['stop-color'], $this->spot_colors) : 'black';
+                $stop_color                                          = isset($svgstyle['stop-color']) ? Colors::convertHTMLColorToDec($svgstyle['stop-color'], $this->spot_colors) : 'black';
                 $opacity                                             = isset($svgstyle['stop-opacity']) ? $svgstyle['stop-opacity'] : 1;
                 $this->svggradients[$this->svggradientid]['stops'][] = array('offset' => $offset, 'color' => $stop_color, 'opacity' => $opacity);
                 break;
