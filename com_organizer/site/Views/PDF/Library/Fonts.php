@@ -59,7 +59,7 @@ class Fonts
         }
         // set output path
         if (empty($outpath)) {
-            $outpath = self::_getfontpath();
+            $outpath = PDF::FONT_PATH;
         }
         // check if this font already exist
         if (@StaticMethods::file_exists($outpath . $font_name . '.php')) {
@@ -1496,46 +1496,6 @@ class Fonts
         }
         return $map;
     }
-
-    /**
-     * Return fonts path
-     * @return string
-     */
-    public static function _getfontpath()
-    {
-        if (!defined('K_PATH_FONTS') and is_dir($fdir = realpath(dirname(__FILE__) . '/../fonts'))) {
-            if (substr($fdir, -1) != '/') {
-                $fdir .= '/';
-            }
-            define('K_PATH_FONTS', $fdir);
-        }
-        return defined('K_PATH_FONTS') ? K_PATH_FONTS : '';
-    }
-
-
-    /**
-     * Return font full path
-     * @param string $file    Font file name.
-     * @param string $fontdir Font directory (set to false fto search on default directories)
-     * @return string Font full path or empty string
-     * @author Nicola Asuni
-     */
-    public static function getFontFullPath($file, $fontdir = false)
-    {
-        $fontfile = '';
-        // search files on various directories
-        if (($fontdir !== false) and @StaticMethods::file_exists($fontdir . $file)) {
-            $fontfile = $fontdir . $file;
-        }
-        elseif (@StaticMethods::file_exists(self::_getfontpath() . $file)) {
-            $fontfile = self::_getfontpath() . $file;
-        }
-        elseif (@StaticMethods::file_exists($file)) {
-            $fontfile = $file;
-        }
-        return $fontfile;
-    }
-
 
     /**
      * Get a reference font size.

@@ -3801,7 +3801,7 @@ class PDF
      */
     protected function getFontsList()
     {
-        if (($fontsdir = opendir(Fonts::_getfontpath())) !== false) {
+        if (($fontsdir = opendir(self::FONT_PATH)) !== false) {
             while (($file = readdir($fontsdir)) !== false) {
                 if (substr($file, -4) == '.php') {
                     array_push($this->fontlist, strtolower(basename($file, '.php')));
@@ -3814,7 +3814,7 @@ class PDF
     /**
      * Imports a TrueType, Type1, or core font and makes it available.
      * It is necessary to generate a font definition file first (read /fonts/utils/README.TXT).
-     * The definition file (and the font file itself when embedding) must be present either in the current directory or in the one indicated by K_PATH_FONTS if the constant is defined. If it could not be found, the error "Could not include font definition file" is generated.
+     * The definition file (and the font file itself when embedding) must be present either in the fonts directory. If it could not be found, the error "Could not include font definition file" is generated.
      * @param string $family   Font family. The name can be chosen arbitrarily. If it is a standard family name, it will override the corresponding font.
      * @param string $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular (default)</li><li>B: bold</li><li>I: italic</li><li>BI or IB: bold italic</li></ul>
      * @param string $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
@@ -3913,13 +3913,7 @@ class PDF
         if (StaticMethods::empty_string($fontfile) or (!@StaticMethods::file_exists($fontfile))) {
             // build a standard filenames for specified font
             $tmp_fontfile = str_replace(' ', '', $family) . strtolower($style) . '.php';
-            $fontfile     = Fonts::getFontFullPath($tmp_fontfile, $fontdir);
-            if (StaticMethods::empty_string($fontfile)) {
-                $missing_style = true;
-                // try to remove the style part
-                $tmp_fontfile = str_replace(' ', '', $family) . '.php';
-                $fontfile     = Fonts::getFontFullPath($tmp_fontfile, $fontdir);
-            }
+            $fontfile     = self::FONT_PATH . $tmp_fontfile;
         }
         // include font file
         if (!StaticMethods::empty_string($fontfile) and (@StaticMethods::file_exists($fontfile))) {
@@ -4088,7 +4082,7 @@ class PDF
      * The font can be either a standard one or a font added via the AddFont() method. Standard fonts use Windows encoding cp1252 (Western Europe).
      * The method can be called before the first page is created and the font is retained from page to page.
      * If you just wish to change the current font size, it is simpler to call SetFontSize().
-     * Note: for the standard fonts, the font metric files must be accessible. There are three possibilities for this:<ul><li>They are in the current directory (the one where the running script lies)</li><li>They are in one of the directories defined by the include_path parameter</li><li>They are in the directory defined by the K_PATH_FONTS constant</li></ul><br />
+     * Note: for the standard fonts, the font metric files must be accessible. There are three possibilities for this:<ul><li>They are in the current directory (the one where the running script lies)</li><li>They are in one of the directories defined by the include_path parameter</li></ul><br />
      * @param string     $family   Family font. It can be either a name defined by AddFont() or one of the standard Type1 families (case insensitive):<ul><li>times (Times-Roman)</li><li>timesb (Times-Bold)</li><li>timesi (Times-Italic)</li><li>timesbi (Times-BoldItalic)</li><li>helvetica (Helvetica)</li><li>helveticab (Helvetica-Bold)</li><li>helveticai (Helvetica-Oblique)</li><li>helveticabi (Helvetica-BoldOblique)</li><li>courier (Courier)</li><li>courierb (Courier-Bold)</li><li>courieri (Courier-Oblique)</li><li>courierbi (Courier-BoldOblique)</li><li>symbol (Symbol)</li><li>zapfdingbats (ZapfDingbats)</li></ul> It is also possible to pass an empty string. In that case, the current family is retained.
      * @param string     $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular. Bold and italic styles do not apply to Symbol and ZapfDingbats basic fonts or other fonts when not defined.
      * @param float|null $size     Font size in points. The default value is the current size. If no size has been specified since the beginning of the document, the value taken is 12
@@ -8561,7 +8555,7 @@ class PDF
         }
         foreach ($this->FontFiles as $file => $info) {
             // search and get font file to embedd
-            $fontfile = Fonts::getFontFullPath($file, $info['fontdir']);
+            $fontfile = self::FONT_PATH . $file;
             if (!StaticMethods::empty_string($fontfile)) {
                 $font       = file_get_contents($fontfile);
                 $compressed = (substr($file, -2) == '.z');
@@ -8782,12 +8776,9 @@ class PDF
             // search and get CTG font file to embedd
             $ctgfile = strtolower($font['ctg']);
             // search and get ctg font file to embedd
-            $fontfile = Fonts::getFontFullPath($ctgfile, $fontdir);
-            if (StaticMethods::empty_string($fontfile)) {
-                $this->Error('Font file not found: ' . $ctgfile);
-            }
-            $stream = $this->_getrawstream(file_get_contents($fontfile));
-            $out    = '<< /Length ' . strlen($stream) . '';
+            $fontfile = self::FONT_PATH . $ctgfile;
+            $stream   = $this->_getrawstream(file_get_contents($fontfile));
+            $out      = '<< /Length ' . strlen($stream) . '';
             if (substr($fontfile, -2) == '.z') { // check file extension
                 // Decompresses data encoded using the public-domain
                 // zlib/deflate compression method, reproducing the
