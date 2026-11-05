@@ -22,6 +22,8 @@ require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
 class PDF
 {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
+
+    use Colors;
     use Constants;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
@@ -445,27 +447,6 @@ class PDF
      * Current font size in user unit.
      */
     protected $FontSize;
-
-    /**
-     * Commands for drawing color.
-     */
-    protected $DrawColor;
-
-    /**
-     * Commands for filling color.
-     */
-    protected $FillColor;
-
-    /**
-     * Commands for text color.
-     */
-    protected $TextColor;
-
-    /**
-     * Indicates whether fill and text colors are different.
-     */
-    protected $ColorFlag;
-
     /**
      * Automatic page breaking.
      */
@@ -697,11 +678,6 @@ class PDF
     protected $fontlist = [];
 
     /**
-     * Current foreground color.
-     */
-    protected $fgcolor;
-
-    /**
      * HTML PARSER: array of bool values, true in case of ordered list (OL), false otherwise.
      */
     protected $listordered = [];
@@ -725,11 +701,6 @@ class PDF
      * HTML PARSER: current list indententation level.
      */
     protected $listindentlevel = 0;
-
-    /**
-     * Current background color.
-     */
-    protected $bgcolor;
 
     /**
      * Temporary font size in points.
@@ -937,11 +908,6 @@ class PDF
      * Count the latest inserted vertical spaces on HTML.
      */
     protected $htmlvspace = 0;
-
-    /**
-     * Array of Spot colors.
-     */
-    protected $spot_colors = [];
 
     /**
      * Symbol used for HTML unordered list items.
@@ -1243,11 +1209,6 @@ class PDF
      * Text stroke width in doc units.
      */
     protected $textstrokewidth = 0;
-
-    /**
-     * Current stroke color.
-     */
-    protected $strokecolor;
 
     /**
      * Default unit of measure for document.
@@ -1577,10 +1538,6 @@ class PDF
         $this->underline    = false;
         $this->overline     = false;
         $this->linethrough  = false;
-        $this->DrawColor    = '0 G';
-        $this->FillColor    = '0 g';
-        $this->TextColor    = '0 g';
-        $this->ColorFlag    = false;
         $this->pdflayers    = [];
         // encryption values
         $this->encrypted    = false;
@@ -1634,10 +1591,7 @@ class PDF
         $this->encoding  = $encoding;
         $this->HREF      = [];
         $this->getFontsList();
-        $this->fgcolor     = array('R' => 0, 'G' => 0, 'B' => 0);
-        $this->strokecolor = array('R' => 0, 'G' => 0, 'B' => 0);
-        $this->bgcolor     = array('R' => 255, 'G' => 255, 'B' => 255);
-        $this->extgstates  = [];
+        $this->extgstates = [];
         $this->setTextShadow();
         // signature
         $this->sign                       = false;
@@ -3353,116 +3307,6 @@ class PDF
     }
 
     /**
-     * Returns the array of spot colors.
-     * @return array Spot colors array.
-     */
-    public function getAllSpotColors()
-    {
-        return $this->spot_colors;
-    }
-
-    /**
-     * Defines a new spot color.
-     * It can be expressed in RGB components or gray scale.
-     * The method can be called before the first page is created and the value is retained from page to page.
-     * @param string $name Full name of the spot color.
-     * @param float  $c    Cyan color for CMYK. Value between 0 and 100.
-     * @param float  $m    Magenta color for CMYK. Value between 0 and 100.
-     * @param float  $y    Yellow color for CMYK. Value between 0 and 100.
-     * @param float  $k    Key (Black) color for CMYK. Value between 0 and 100.
-     * @see   SetDrawSpotColor(), SetFillSpotColor(), SetTextSpotColor()
-     */
-    public function AddSpotColor($name, $c, $m, $y, $k)
-    {
-        if (!isset($this->spot_colors[$name])) {
-            $i                        = (1 + count($this->spot_colors));
-            $this->spot_colors[$name] = array('C' => $c, 'M' => $m, 'Y' => $y, 'K' => $k, 'name' => $name, 'i' => $i);
-        }
-    }
-
-    /**
-     * Set the spot color for the specified type ('draw', 'fill', 'text').
-     * @param string $type Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param string $name Name of the spot color.
-     * @param float  $tint Intensity of the color (from 0 to 100 ; 100 = full intensity by default).
-     * @return string PDF color command.
-     */
-    public function setSpotColor($type, $name, $tint = 100)
-    {
-        $spotcolor = Colors::getSpotColor($name, $this->spot_colors);
-        if ($spotcolor === false) {
-            $this->Error('Undefined spot color: ' . $name . ', you must add it using the AddSpotColor() method.');
-        }
-        $tint     = (max(0, min(100, $tint)) / 100);
-        $pdfcolor = sprintf('/CS%d ', $this->spot_colors[$name]['i']);
-        switch ($type) {
-            case 'draw':
-            {
-                $pdfcolor          .= sprintf('CS %F SCN', $tint);
-                $this->DrawColor   = $pdfcolor;
-                $this->strokecolor = $spotcolor;
-                break;
-            }
-            case 'fill':
-            {
-                $pdfcolor        .= sprintf('cs %F scn', $tint);
-                $this->FillColor = $pdfcolor;
-                $this->bgcolor   = $spotcolor;
-                break;
-            }
-            case 'text':
-            {
-                $pdfcolor        .= sprintf('cs %F scn', $tint);
-                $this->TextColor = $pdfcolor;
-                $this->fgcolor   = $spotcolor;
-                break;
-            }
-        }
-        $this->ColorFlag = ($this->FillColor != $this->TextColor);
-        if ($this->state == 2) {
-            $this->_out($pdfcolor);
-        }
-        if ($this->inxobj) {
-            // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['spot_colors'][$name] = $this->spot_colors[$name];
-        }
-        return $pdfcolor;
-    }
-
-    /**
-     * Defines the spot color used for all drawing operations (lines, rectangles and cell borders).
-     * @param string $name Name of the spot color.
-     * @param float  $tint Intensity of the color (from 0 to 100 ; 100 = full intensity by default).
-     * @see   AddSpotColor(), SetFillSpotColor(), SetTextSpotColor()
-     */
-    public function setDrawSpotColor($name, $tint = 100)
-    {
-        $this->setSpotColor('draw', $name, $tint);
-    }
-
-    /**
-     * Defines the spot color used for all filling operations (filled rectangles and cell backgrounds).
-     * @param string $name Name of the spot color.
-     * @param float  $tint Intensity of the color (from 0 to 100 ; 100 = full intensity by default).
-     * @see   AddSpotColor(), SetDrawSpotColor(), SetTextSpotColor()
-     */
-    public function setFillSpotColor($name, $tint = 100)
-    {
-        $this->setSpotColor('fill', $name, $tint);
-    }
-
-    /**
-     * Defines the spot color used for text.
-     * @param string $name Name of the spot color.
-     * @param int    $tint Intensity of the color (from 0 to 100 ; 100 = full intensity by default).
-     * @see   AddSpotColor(), SetDrawSpotColor(), SetFillSpotColor()
-     */
-    public function setTextSpotColor($name, $tint = 100)
-    {
-        $this->setSpotColor('text', $name, $tint);
-    }
-
-    /**
      * Set the color array for the specified type ('draw', 'fill', 'text').
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
@@ -3589,34 +3433,34 @@ class PDF
             else {
                 // SPOT COLOR
                 $intcolor = array('C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4, 'name' => $name);
-                $this->AddSpotColor($name, $col1, $col2, $col3, $col4);
-                $pdfcolor = $this->setSpotColor($type, $name, 100);
+                $this->spotColor($name, [$col1, $col2, $col3, $col4]);
+                $pdfcolor = $this->contextColor($name, $type);
             }
         }
         switch ($type) {
             case 'draw':
             {
                 $pdfcolor          .= strtoupper($suffix);
-                $this->DrawColor   = $pdfcolor;
-                $this->strokecolor = $intcolor;
+                $this->drawColor   = $pdfcolor;
+                $this->strokeColor = $intcolor;
                 break;
             }
             case 'fill':
             {
                 $pdfcolor        .= $suffix;
-                $this->FillColor = $pdfcolor;
-                $this->bgcolor   = $intcolor;
+                $this->fillColor = $pdfcolor;
+                $this->bgColor   = $intcolor;
                 break;
             }
             case 'text':
             {
                 $pdfcolor        .= $suffix;
-                $this->TextColor = $pdfcolor;
-                $this->fgcolor   = $intcolor;
+                $this->textColor = $pdfcolor;
+                $this->fgColor   = $intcolor;
                 break;
             }
         }
-        $this->ColorFlag = ($this->FillColor != $this->TextColor);
+        $this->differentColors = ($this->fillColor != $this->textColor);
         if (($type != 'text') and ($this->state == 2) and $type !== 0) {
             if (!$ret) {
                 $this->_out($pdfcolor);
@@ -4672,9 +4516,9 @@ class PDF
             // save data
             $x     = $this->x;
             $y     = $this->y;
-            $bc    = $this->bgcolor;
-            $fc    = $this->fgcolor;
-            $sc    = $this->strokecolor;
+            $bc    = $this->bgColor;
+            $fc    = $this->fgColor;
+            $sc    = $this->strokeColor;
             $alpha = $this->alpha;
             // print shadow
             $this->x += $this->txtshadow['depth_w'];
@@ -4959,8 +4803,8 @@ class PDF
                 // increase/decrease font spacing
                 $rs .= sprintf('BT %F Tc ET ', ($this->font_spacing * $this->k));
             }
-            if ($this->ColorFlag and ($this->textrendermode < 4)) {
-                $s .= 'q ' . $this->TextColor . ' ';
+            if ($this->differentColors and ($this->textrendermode < 4)) {
+                $s .= 'q ' . $this->textColor . ' ';
             }
             // rendering mode
             $s .= sprintf('BT %d Tr %F w ET ', $this->textrendermode, ($this->textstrokewidth * $this->k));
@@ -5076,7 +4920,7 @@ class PDF
             if ($this->overline) {
                 $s .= ' ' . $this->_dooverlinew($xdx, $basefonty, $width);
             }
-            if ($this->ColorFlag and ($this->textrendermode < 4)) {
+            if ($this->differentColors and ($this->textrendermode < 4)) {
                 $s .= ' Q';
             }
             if ($link) {
@@ -5125,7 +4969,7 @@ class PDF
                 $this->x = $x + $w + $this->cell_margin['R'];
             }
         }
-        $gstyles            = '' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ' . $this->FillColor . "\n";
+        $gstyles            = '' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor . ' ' . $this->fillColor . "\n";
         $rs                 = $gstyles . $rs;
         $this->cell_padding = $prev_cell_padding;
         $this->cell_margin  = $prev_cell_margin;
@@ -5204,7 +5048,7 @@ class PDF
         foreach ($brd as $border => $style) {
             if (is_array($style) and !empty($style)) {
                 // apply border style
-                $prev_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ';
+                $prev_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor . ' ';
                 $s          .= $this->lineStyle($style, true) . "\n";
             }
             switch ($mode) {
@@ -5352,7 +5196,7 @@ class PDF
             }
             if (is_array($style) and !empty($style)) {
                 // reset border style to previous value
-                $s .= "\n" . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . "\n";
+                $s .= "\n" . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor . "\n";
             }
         }
         return $s;
@@ -7929,7 +7773,7 @@ class PDF
                         $annots .= '>>';
                     }
                     if (isset($pl['opt']['c']) and (is_array($pl['opt']['c'])) and !empty($pl['opt']['c'])) {
-                        $annots .= ' /C ' . Colors::getColorStringFromArray($pl['opt']['c']);
+                        $annots .= ' /C ' . $this->getColorStringFromArray($pl['opt']['c']);
                     }
                     //$annots .= ' /StructParent ';
                     //$annots .= ' /OC ';
@@ -8201,10 +8045,10 @@ class PDF
                                     $annots .= ' /R ' . $pl['opt']['mk']['r'];
                                 }
                                 if (isset($pl['opt']['mk']['bc']) and (is_array($pl['opt']['mk']['bc']))) {
-                                    $annots .= ' /BC ' . Colors::getColorStringFromArray($pl['opt']['mk']['bc']);
+                                    $annots .= ' /BC ' . $this->getColorStringFromArray($pl['opt']['mk']['bc']);
                                 }
                                 if (isset($pl['opt']['mk']['bg']) and (is_array($pl['opt']['mk']['bg']))) {
-                                    $annots .= ' /BG ' . Colors::getColorStringFromArray($pl['opt']['mk']['bg']);
+                                    $annots .= ' /BG ' . $this->getColorStringFromArray($pl['opt']['mk']['bg']);
                                 }
                                 if (isset($pl['opt']['mk']['ca'])) {
                                     $annots .= ' /CA ' . $pl['opt']['mk']['ca'];
@@ -8871,7 +8715,7 @@ class PDF
                 if (isset($data['spot_colors']) and !empty($data['spot_colors'])) {
                     $out .= ' /ColorSpace <<';
                     foreach ($data['spot_colors'] as $name => $color) {
-                        $out .= ' /CS' . $color['i'] . ' ' . $this->spot_colors[$name]['n'] . ' 0 R';
+                        $out .= ' /CS' . $color['i'] . ' ' . $this->spotColors[$name]['n'] . ' 0 R';
                     }
                     $out .= ' >>';
                 }
@@ -8918,24 +8762,6 @@ class PDF
                 $out    .= "\n" . 'endobj';
                 $this->_out($out);
             }
-        }
-    }
-
-    /**
-     * Output Spot Colors Resources.
-     */
-    protected function _putspotcolors()
-    {
-        foreach ($this->spot_colors as $name => $color) {
-            $this->_newobj();
-            $this->spot_colors[$name]['n'] = $this->n;
-            $out                           = '[/Separation /' . str_replace(' ', '#20', $name);
-            $out                           .= ' /DeviceCMYK <<';
-            $out                           .= ' /Range [0 1 0 1 0 1 0 1] /C0 [0 0 0 0]';
-            $out                           .= ' ' . sprintf('/C1 [%F %F %F %F] ', ($color['C'] / 100), ($color['M'] / 100), ($color['Y'] / 100), ($color['K'] / 100));
-            $out                           .= ' /FunctionType 2 /Domain [0 1] /N 1>>]';
-            $out                           .= "\n" . 'endobj';
-            $this->_out($out);
         }
     }
 
@@ -9003,9 +8829,9 @@ class PDF
             $out .= ' /Shading <<' . $gs . ' >>';
         }
         // spot colors
-        if (isset($this->spot_colors) and !empty($this->spot_colors)) {
+        if (isset($this->spotColors) and !empty($this->spotColors)) {
             $out .= ' /ColorSpace <<';
-            foreach ($this->spot_colors as $color) {
+            foreach ($this->spotColors as $color) {
                 $out .= ' /CS' . $color['i'] . ' ' . $color['n'] . ' 0 R';
             }
             $out .= ' >>';
@@ -9024,7 +8850,7 @@ class PDF
         $this->_putocg();
         $this->_putfonts();
         $this->_putimages();
-        $this->_putspotcolors();
+        $this->appendSpotColors();
         $this->_putshaders();
         $this->_putxobjects();
         $this->_putresourcedict();
@@ -9902,7 +9728,7 @@ class PDF
             }
         }
         // store current settings
-        $prevcolor = $this->fgcolor;
+        $prevcolor = $this->fgColor;
         $prevstyle = $this->FontStyle;
         if (empty($color)) {
             $this->setTextColorArray($this->htmlLinkColorArray);
@@ -12021,7 +11847,7 @@ class PDF
         $this->javascript .= 'f' . $name . '.textSize=' . $this->FontSizePt . ";\n";
         foreach ($prop as $key => $val) {
             if (strcmp(substr($key, -5), 'Color') == 0) {
-                $val = Colors::_JScolor($val);
+                $val = $this->_JScolor($val);
             }
             else {
                 $val = "'" . $val . "'";
@@ -12089,10 +11915,10 @@ class PDF
         // get default style
         $prop = array_merge($this->getFormDefaultProp(), $prop);
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set default appearance stream
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -12244,18 +12070,18 @@ class PDF
         $prop['Radio']         = 'true';
         $prop['borderStyle']   = 'inset';
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set additional default options
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
-        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->TextColor);
+        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->textColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
         $popt['ap']                = [];
         $popt['ap']['n']           = [];
         $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->k);
         $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
-        $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
-        $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         if (!isset($popt['mk'])) {
             $popt['mk'] = [];
         }
@@ -12326,10 +12152,10 @@ class PDF
         // get default style
         $prop = array_merge($this->getFormDefaultProp(), $prop);
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set additional default values
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -12415,10 +12241,10 @@ class PDF
         $prop          = array_merge($this->getFormDefaultProp(), $prop);
         $prop['Combo'] = true;
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set additional default options
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -12497,21 +12323,21 @@ class PDF
         $prop                = array_merge($this->getFormDefaultProp(), $prop);
         $prop['borderStyle'] = 'inset';
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set additional default options
         $font = 'zapfdingbats';
         $this->AddFont($font);
         $tmpfont                                     = $this->getFontBuffer($font);
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
-        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->TextColor);
+        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->textColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
         $popt['ap']             = [];
         $popt['ap']['n']        = [];
         $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->k);
         $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
-        $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
-        $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->TextColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
         // merge options
         $opt = array_merge($popt, $opt);
         // set remaining annotation data
@@ -12577,9 +12403,9 @@ class PDF
         $prop['highlight']  = 'push';
         $prop['display']    = 'display.noPrint';
         // get annotation data
-        $popt                                                  = StaticMethods::getAnnotOptFromJSProp($prop, $this->spot_colors, $this->rtl);
+        $popt                                                  = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         $this->annotation_fonts[$this->CurrentFont['fontkey']] = $this->CurrentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->TextColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->CurrentFont['i'], $this->FontSizePt, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -13449,7 +13275,7 @@ class PDF
         if (strpos($colors, 'ALLSPOT') !== false) {
             // expand spot colors
             $spot_colors = '';
-            foreach ($this->spot_colors as $spot_color_name => $v) {
+            foreach ($this->spotColors as $spot_color_name => $v) {
                 $spot_colors .= ',' . $spot_color_name;
             }
             if (!empty($spot_colors)) {
@@ -13566,7 +13392,7 @@ class PDF
                 default:
                 { // SPECIFIC SPOT COLOR NAME
                     $col_a = array(0, 0, 0, 0, 'None');
-                    $col_b = Colors::getSpotColor($col, $this->spot_colors);
+                    $col_b = $this->spotColor($col);
                     if ($col_b === false) {
                         // in case of error defaults to the registration color
                         $col_b = array(100, 100, 100, 100, 'All');
@@ -14494,8 +14320,8 @@ class PDF
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
-                        $this->AddSpotColor($color_name, ($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100));
-                        $color_cmd = sprintf('/CS%d cs %F scn', $this->spot_colors[$color_name]['i'], (1 - $col_t));
+                        $this->spotColor($color_name, [($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100)]);
+                        $color_cmd = sprintf('/CS%d cs %F scn', $this->spotColors[$color_name]['i'], (1 - $col_t));
                         $this->_out($color_cmd);
                     }
                     break;
@@ -14510,8 +14336,8 @@ class PDF
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
-                        $this->AddSpotColor($color_name, ($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100));
-                        $color_cmd = sprintf('/CS%d CS %F SCN', $this->spot_colors[$color_name]['i'], (1 - $col_t));
+                        $this->spotColor($color_name, [($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100)]);
+                        $color_cmd = sprintf('/CS%d CS %F SCN', $this->spotColors[$color_name]['i'], (1 - $col_t));
                         $this->_out($color_cmd);
                     }
                     break;
@@ -15459,7 +15285,7 @@ class PDF
             return [];
         }
         $border['width'] = $this->getCSSBorderWidth($width);
-        $border['color'] = Colors::convertHTMLColorToDec($color, $this->spot_colors);
+        $border['color'] = $this->convertHTMLColorToDec($color, $this->spotColors);
         return $border;
     }
 
@@ -15972,8 +15798,8 @@ class PDF
         $dom[$key]['clip']           = ($this->textrendermode > 3);
         $dom[$key]['line-height']    = $this->cell_height_ratio;
         $dom[$key]['bgcolor']        = false;
-        $dom[$key]['fgcolor']        = $this->fgcolor; // color
-        $dom[$key]['strokecolor']    = $this->strokecolor;
+        $dom[$key]['fgcolor']        = $this->fgColor; // color
+        $dom[$key]['strokecolor']    = $this->strokeColor;
         $dom[$key]['align']          = '';
         $dom[$key]['listtype']       = '';
         $dom[$key]['text-indent']    = 0;
@@ -16226,14 +16052,14 @@ class PDF
                         }
                         // font color
                         if (isset($dom[$key]['style']['color']) and (!StaticMethods::empty_string($dom[$key]['style']['color']))) {
-                            $dom[$key]['fgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['style']['color'], $this->spot_colors);
+                            $dom[$key]['fgcolor'] = $this->convertHTMLColorToDec($dom[$key]['style']['color'], $this->spotColors);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
                             $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                         }
                         // background color
                         if (isset($dom[$key]['style']['background-color']) and (!StaticMethods::empty_string($dom[$key]['style']['background-color']))) {
-                            $dom[$key]['bgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['style']['background-color'], $this->spot_colors);
+                            $dom[$key]['bgcolor'] = $this->convertHTMLColorToDec($dom[$key]['style']['background-color'], $this->spotColors);
                         }
                         // text-decoration
                         if (isset($dom[$key]['style']['text-decoration'])) {
@@ -16281,16 +16107,16 @@ class PDF
                         if (isset($dom[$key]['style']['border-color'])) {
                             $brd_colors = preg_split('/[\s]+/', trim($dom[$key]['style']['border-color']));
                             if (isset($brd_colors[3])) {
-                                $dom[$key]['border']['L']['color'] = Colors::convertHTMLColorToDec($brd_colors[3], $this->spot_colors);
+                                $dom[$key]['border']['L']['color'] = $this->convertHTMLColorToDec($brd_colors[3], $this->spotColors);
                             }
                             if (isset($brd_colors[1])) {
-                                $dom[$key]['border']['R']['color'] = Colors::convertHTMLColorToDec($brd_colors[1], $this->spot_colors);
+                                $dom[$key]['border']['R']['color'] = $this->convertHTMLColorToDec($brd_colors[1], $this->spotColors);
                             }
                             if (isset($brd_colors[0])) {
-                                $dom[$key]['border']['T']['color'] = Colors::convertHTMLColorToDec($brd_colors[0], $this->spot_colors);
+                                $dom[$key]['border']['T']['color'] = $this->convertHTMLColorToDec($brd_colors[0], $this->spotColors);
                             }
                             if (isset($brd_colors[2])) {
-                                $dom[$key]['border']['B']['color'] = Colors::convertHTMLColorToDec($brd_colors[2], $this->spot_colors);
+                                $dom[$key]['border']['B']['color'] = $this->convertHTMLColorToDec($brd_colors[2], $this->spotColors);
                             }
                         }
                         if (isset($dom[$key]['style']['border-width'])) {
@@ -16352,7 +16178,7 @@ class PDF
                                 }
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-color'])) {
-                                $dom[$key]['border'][$bsk]['color'] = Colors::convertHTMLColorToDec($dom[$key]['style']['border-' . $bsv . '-color'], $this->spot_colors);
+                                $dom[$key]['border'][$bsk]['color'] = $this->convertHTMLColorToDec($dom[$key]['style']['border-' . $bsv . '-color'], $this->spotColors);
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-width'])) {
                                 $dom[$key]['border'][$bsk]['width'] = $this->getCSSBorderWidth($dom[$key]['style']['border-' . $bsv . '-width']);
@@ -16542,18 +16368,18 @@ class PDF
                     }
                     // set foreground color attribute
                     if (isset($dom[$key]['attribute']['color']) and (!StaticMethods::empty_string($dom[$key]['attribute']['color']))) {
-                        $dom[$key]['fgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['attribute']['color'], $this->spot_colors);
+                        $dom[$key]['fgcolor'] = $this->convertHTMLColorToDec($dom[$key]['attribute']['color'], $this->spotColors);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
                         $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                     }
                     // set background color attribute
                     if (isset($dom[$key]['attribute']['bgcolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['bgcolor']))) {
-                        $dom[$key]['bgcolor'] = Colors::convertHTMLColorToDec($dom[$key]['attribute']['bgcolor'], $this->spot_colors);
+                        $dom[$key]['bgcolor'] = $this->convertHTMLColorToDec($dom[$key]['attribute']['bgcolor'], $this->spotColors);
                     }
                     // set stroke color attribute
                     if (isset($dom[$key]['attribute']['strokecolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['strokecolor']))) {
-                        $dom[$key]['strokecolor'] = Colors::convertHTMLColorToDec($dom[$key]['attribute']['strokecolor'], $this->spot_colors);
+                        $dom[$key]['strokecolor'] = $this->convertHTMLColorToDec($dom[$key]['attribute']['strokecolor'], $this->spotColors);
                     }
                     // check for width attribute
                     if (isset($dom[$key]['attribute']['width'])) {
@@ -17662,7 +17488,7 @@ class PDF
                     and ($this->emptypagemrk[$this->page] == $this->pagelen[$this->page]))) {
                     $this->setFont($fontname, $fontstyle, $fontsize);
                     if ($wfill) {
-                        $this->setFillColorArray($this->bgcolor);
+                        $this->setFillColorArray($this->bgColor);
                     }
                 }
             } // end newline
@@ -19864,7 +19690,7 @@ class PDF
         }
         if (isset($tag['bgcolor']) and ($tag['bgcolor'] !== false)) {
             // get background color
-            $old_bgcolor = $this->bgcolor;
+            $old_bgcolor = $this->bgColor;
             $this->setFillColorArray($tag['bgcolor']);
             $fill = true;
         }
@@ -20263,9 +20089,9 @@ class PDF
         }
         $size        /= $this->k;
         $fill        = '';
-        $bgcolor     = $this->bgcolor;
-        $color       = $this->fgcolor;
-        $strokecolor = $this->strokecolor;
+        $bgcolor     = $this->bgColor;
+        $color       = $this->fgColor;
+        $strokecolor = $this->strokeColor;
         $width       = 0;
         $textitem    = '';
         $tmpx        = $this->x;
@@ -20318,7 +20144,7 @@ class PDF
                 else {
                     $this->x -= $lspace;
                 }
-                $prev_line_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor;
+                $prev_line_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
                 $this->Circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
                 $this->_out($prev_line_style); // restore line settings
@@ -20501,12 +20327,12 @@ class PDF
             'linestyleDash'     => $this->linestyleDash,
             'textrendermode'    => $this->textrendermode,
             'textstrokewidth'   => $this->textstrokewidth,
-            'DrawColor'         => $this->DrawColor,
-            'FillColor'         => $this->FillColor,
-            'TextColor'         => $this->TextColor,
-            'ColorFlag'         => $this->ColorFlag,
-            'bgcolor'           => $this->bgcolor,
-            'fgcolor'           => $this->fgcolor,
+            'DrawColor'         => $this->drawColor,
+            'FillColor'         => $this->fillColor,
+            'TextColor'         => $this->textColor,
+            'ColorFlag'         => $this->differentColors,
+            'bgcolor'           => $this->bgColor,
+            'fgcolor'           => $this->fgColor,
             'htmlvspace'        => $this->htmlvspace,
             'listindent'        => $this->listindent,
             'listindentlevel'   => $this->listindentlevel,
@@ -20563,12 +20389,12 @@ class PDF
         $this->linestyleDash     = $gvars['linestyleDash'];
         $this->textrendermode    = $gvars['textrendermode'];
         $this->textstrokewidth   = $gvars['textstrokewidth'];
-        $this->DrawColor         = $gvars['DrawColor'];
-        $this->FillColor         = $gvars['FillColor'];
-        $this->TextColor         = $gvars['TextColor'];
-        $this->ColorFlag         = $gvars['ColorFlag'];
-        $this->bgcolor           = $gvars['bgcolor'];
-        $this->fgcolor           = $gvars['fgcolor'];
+        $this->drawColor         = $gvars['DrawColor'];
+        $this->fillColor         = $gvars['FillColor'];
+        $this->textColor         = $gvars['TextColor'];
+        $this->differentColors   = $gvars['ColorFlag'];
+        $this->bgColor           = $gvars['bgcolor'];
+        $this->fgColor           = $gvars['fgcolor'];
         $this->htmlvspace        = $gvars['htmlvspace'];
         $this->listindent        = $gvars['listindent'];
         $this->listindentlevel   = $gvars['listindentlevel'];
@@ -20599,7 +20425,7 @@ class PDF
             $this->current_column   = $gvars['current_column'];
             $this->num_columns      = $gvars['num_columns'];
         }
-        $this->_out('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->DrawColor . ' ' . $this->FillColor . '');
+        $this->_out('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
         if (!StaticMethods::empty_string($this->FontFamily)) {
             $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
         }
@@ -21907,7 +21733,7 @@ class PDF
             $this->txtshadow['color'] = $params['color'];
         }
         else {
-            $this->txtshadow['color'] = $this->strokecolor;
+            $this->txtshadow['color'] = $this->strokeColor;
         }
         if (isset($params['opacity'])) {
             $this->txtshadow['opacity'] = min(1, max(0, floatval($params['opacity'])));
@@ -23081,10 +22907,10 @@ class PDF
             $this->setAlpha($svgstyle['opacity'], 'Normal', $svgstyle['opacity'], false);
         }
         // color
-        $fill_color = Colors::convertHTMLColorToDec($svgstyle['color'], $this->spot_colors);
+        $fill_color = $this->convertHTMLColorToDec($svgstyle['color'], $this->spotColors);
         $this->setFillColorArray($fill_color);
         // text color
-        $text_color = Colors::convertHTMLColorToDec($svgstyle['text-color'], $this->spot_colors);
+        $text_color = $this->convertHTMLColorToDec($svgstyle['text-color'], $this->spotColors);
         $this->setTextColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
@@ -23213,7 +23039,7 @@ class PDF
             }
         }
         elseif ($svgstyle['fill'] != 'none') {
-            $fill_color = Colors::convertHTMLColorToDec($svgstyle['fill'], $this->spot_colors);
+            $fill_color = $this->convertHTMLColorToDec($svgstyle['fill'], $this->spotColors);
             if ($svgstyle['fill-opacity'] != 1) {
                 $this->setAlpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity'], false);
             }
@@ -23234,7 +23060,7 @@ class PDF
                 $this->setAlpha($rgba_matches[1], 'Normal', $this->alpha['ca'], false);
             }
             $stroke_style = array(
-                'color' => Colors::convertHTMLColorToDec($svgstyle['stroke'], $this->spot_colors),
+                'color' => $this->convertHTMLColorToDec($svgstyle['stroke'], $this->spotColors),
                 'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
@@ -24068,7 +23894,7 @@ class PDF
                         $offset /= 100;
                     }
                 }
-                $stop_color                                          = isset($svgstyle['stop-color']) ? Colors::convertHTMLColorToDec($svgstyle['stop-color'], $this->spot_colors) : 'black';
+                $stop_color                                          = isset($svgstyle['stop-color']) ? $this->convertHTMLColorToDec($svgstyle['stop-color'], $this->spotColors) : 'black';
                 $opacity                                             = isset($svgstyle['stop-opacity']) ? $svgstyle['stop-opacity'] : 1;
                 $this->svggradients[$this->svggradientid]['stops'][] = array('offset' => $offset, 'color' => $stop_color, 'opacity' => $opacity);
                 break;
