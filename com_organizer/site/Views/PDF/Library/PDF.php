@@ -6731,15 +6731,8 @@ class PDF
         }
         // remove carriage returns
         $s = str_replace("\r", '', $txt);
-        // check if string contains arabic text
-        if (preg_match(FontData::$uni_RE_PATTERN_ARABIC, $s)) {
-            $arabic = true;
-        }
-        else {
-            $arabic = false;
-        }
         // check if string contains RTL text
-        if ($arabic or ($this->tmprtl == 'R') or preg_match(FontData::$uni_RE_PATTERN_RTL, $s)) {
+        if (($this->tmprtl == 'R') or preg_match(FontData::$uni_RE_PATTERN_RTL, $s)) {
             $rtlmode = true;
         }
         else {
@@ -6907,14 +6900,7 @@ class PDF
                     }
                 }
                 // update string length
-                if ($this->isUnicodeFont() and ($arabic)) {
-                    // with bidirectional algorithm some chars may be changed affecting the line length
-                    // *** very slow ***
-                    $l = $this->GetArrStringWidth(Fonts::utf8Bidi(array_slice($chars, $j, ($i - $j)), '', $this->tmprtl, $this->isunicode, $this->CurrentFont));
-                }
-                else {
-                    $l += $this->GetCharWidth($c, ($i + 1 < $nb));
-                }
+                $l += $this->GetCharWidth($c, ($i + 1 < $nb));
                 if (($l > $wmax) or (($c == 173) and (($l + $tmp_shy_replacement_width) >= $wmax))) {
                     if (($c == 173) and (($l + $tmp_shy_replacement_width) > $wmax)) {
                         $sep = $prevsep;
@@ -19432,7 +19418,7 @@ class PDF
                 }
                 // text
                 $this->htmlvspace = 0;
-                $isRTLString      = preg_match(FontData::$uni_RE_PATTERN_RTL, $dom[$key]['value']) || preg_match(FontData::$uni_RE_PATTERN_ARABIC, $dom[$key]['value']);
+                $isRTLString      = preg_match(FontData::$uni_RE_PATTERN_RTL, $dom[$key]['value']);
                 if ((!$this->premode) and $this->isRTLTextDir() and !$isRTLString) {
                     // reverse spaces order
                     $lsp = ''; // left spaces
