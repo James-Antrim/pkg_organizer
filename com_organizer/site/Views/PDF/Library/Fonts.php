@@ -70,7 +70,7 @@ trait Fonts
      */
     public function reverseRTLSubstrings(array $utf8Values, array &$currentFont): string
     {
-        return self::utf8ArrayToUTF16BEString($this->utf8Bidirectional($utf8Values, $currentFont), $setBOM);
+        return self::utf8ArrayToUTF16BEString($this->utf8Bidirectional($utf8Values, $currentFont));
     }
 
     /**
