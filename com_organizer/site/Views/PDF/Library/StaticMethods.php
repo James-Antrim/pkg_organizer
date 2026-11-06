@@ -1928,19 +1928,6 @@ class StaticMethods
     }
 
     /**
-     * Get ULONG from string (Big Endian 32-bit unsigned integer).
-     * @param string $str    string from where to extract value
-     * @param int    $offset point from where to read the data
-     * @return int 32 bit value
-     * @author Nicola Asuni
-     */
-    public static function _getULONG($str, $offset)
-    {
-        $v = unpack('Ni', substr($str, $offset, 4));
-        return $v['i'];
-    }
-
-    /**
      * Get USHORT from string (Big Endian 16-bit unsigned integer).
      * @param string $str    string from where to extract value
      * @param int    $offset point from where to read the data

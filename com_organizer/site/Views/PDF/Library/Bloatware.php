@@ -190,7 +190,7 @@ trait Bloatware
      * @return string|false TCPDF font name or boolean false in case of error.
      * @author Nicola Asuni
      */
-    public static function addTTFfont($fontfile, $fonttype = '', $enc = '', $flags = 32, $outpath = '', $platid = 3, $encid = 1, $addcbbox = false, $link = false)
+    public function addTTFfont($fontfile, $fonttype = '', $enc = '', $flags = 32, $outpath = '', $platid = 3, $encid = 1, $addcbbox = false, $link = false)
     {
         if (!StaticMethods::file_exists($fontfile)) {
             // Could not find file
@@ -228,7 +228,7 @@ trait Bloatware
         $fmetric['originalsize'] = strlen($font);
         // autodetect font type
         if (empty($fonttype)) {
-            if (StaticMethods::_getULONG($font, 0) == 0x10000) {
+            if ($this->unsignedLong($font, 0) == 0x10000) {
                 // True Type (Unicode or not)
                 $fonttype = 'TrueTypeUnicode';
             }
@@ -490,7 +490,7 @@ trait Bloatware
         else {
             // ---------- TRUE TYPE ----------
             $offset = 0; // offset position of the font data
-            if (StaticMethods::_getULONG($font, $offset) != 0x10000) {
+            if ($this->unsignedLong($font, $offset) != 0x10000) {
                 // sfnt version must be 0x00010000 for TrueType version 1.0.
                 return false;
             }
@@ -519,16 +519,16 @@ trait Bloatware
                 $tag                     = substr($font, $offset, 4);
                 $offset                  += 4;
                 $table[$tag]             = [];
-                $table[$tag]['checkSum'] = StaticMethods::_getULONG($font, $offset);
+                $table[$tag]['checkSum'] = $this->unsignedLong($font, $offset);
                 $offset                  += 4;
-                $table[$tag]['offset']   = StaticMethods::_getULONG($font, $offset);
+                $table[$tag]['offset']   = $this->unsignedLong($font, $offset);
                 $offset                  += 4;
-                $table[$tag]['length']   = StaticMethods::_getULONG($font, $offset);
+                $table[$tag]['length']   = $this->unsignedLong($font, $offset);
                 $offset                  += 4;
             }
             // check magicNumber
             $offset = $table['head']['offset'] + 12;
-            if (StaticMethods::_getULONG($font, $offset) != 0x5F0F3CF5) {
+            if ($this->unsignedLong($font, $offset) != 0x5F0F3CF5) {
                 // magicNumber must be 0x5F0F3CF5
                 return false;
             }
@@ -580,7 +580,7 @@ trait Bloatware
                 // long version
                 $tot_num_glyphs = floor($table['loca']['length'] / 4); // numGlyphs + 1
                 for ($i = 0; $i < $tot_num_glyphs; ++$i) {
-                    $indexToLoc[$i] = StaticMethods::_getULONG($font, $offset);
+                    $indexToLoc[$i] = $this->unsignedLong($font, $offset);
                     if (isset($indexToLoc[($i - 1)]) && ($indexToLoc[$i] == $indexToLoc[($i - 1)])) {
                         // the last glyph didn't have an outline
                         unset($indexToLoc[($i - 1)]);
@@ -598,7 +598,7 @@ trait Bloatware
                 $offset                           += 2;
                 $encodingTables[$i]['encodingID'] = StaticMethods::_getUSHORT($font, $offset);
                 $offset                           += 2;
-                $encodingTables[$i]['offset']     = StaticMethods::_getULONG($font, $offset);
+                $encodingTables[$i]['offset']     = $this->unsignedLong($font, $offset);
                 $offset                           += 4;
             }
             // ---------- get os/2 metrics ----------
@@ -663,7 +663,7 @@ trait Bloatware
             $offset                        += 2;
             $fmetric['underlineThickness'] = round(StaticMethods::_getFWORD($font, $offset) * $urk);
             $offset                        += 2;
-            $isFixedPitch                  = (StaticMethods::_getULONG($font, $offset) == 0) ? false : true;
+            $isFixedPitch                  = ($this->unsignedLong($font, $offset) == 0) ? false : true;
             $offset                        += 2;
             if ($isFixedPitch) {
                 $fmetric['Flags'] |= 1;
@@ -845,14 +845,14 @@ trait Bloatware
                                 $is32[$k] = StaticMethods::_getBYTE($font, $offset);
                                 ++$offset;
                             }
-                            $nGroups = StaticMethods::_getULONG($font, $offset);
+                            $nGroups = $this->unsignedLong($font, $offset);
                             $offset  += 4;
                             for ($i = 0; $i < $nGroups; ++$i) {
-                                $startCharCode = StaticMethods::_getULONG($font, $offset);
+                                $startCharCode = $this->unsignedLong($font, $offset);
                                 $offset        += 4;
-                                $endCharCode   = StaticMethods::_getULONG($font, $offset);
+                                $endCharCode   = $this->unsignedLong($font, $offset);
                                 $offset        += 4;
-                                $startGlyphID  = StaticMethods::_getULONG($font, $offset);
+                                $startGlyphID  = $this->unsignedLong($font, $offset);
                                 $offset        += 4;
                                 for ($k = $startCharCode; $k <= $endCharCode; ++$k) {
                                     $is32idx = floor($c / 8);
@@ -875,9 +875,9 @@ trait Bloatware
                         case 10:
                         { // Format 10: Trimmed array
                             $offset        += 10; // skip reserved, length and version/language
-                            $startCharCode = StaticMethods::_getULONG($font, $offset);
+                            $startCharCode = $this->unsignedLong($font, $offset);
                             $offset        += 4;
-                            $numChars      = StaticMethods::_getULONG($font, $offset);
+                            $numChars      = $this->unsignedLong($font, $offset);
                             $offset        += 4;
                             for ($k = 0; $k < $numChars; ++$k) {
                                 $c       = ($k + $startCharCode);
@@ -890,14 +890,14 @@ trait Bloatware
                         case 12:
                         { // Format 12: Segmented coverage
                             $offset  += 10; // skip length and version/language
-                            $nGroups = StaticMethods::_getULONG($font, $offset);
+                            $nGroups = $this->unsignedLong($font, $offset);
                             $offset  += 4;
                             for ($k = 0; $k < $nGroups; ++$k) {
-                                $startCharCode  = StaticMethods::_getULONG($font, $offset);
+                                $startCharCode  = $this->unsignedLong($font, $offset);
                                 $offset         += 4;
-                                $endCharCode    = StaticMethods::_getULONG($font, $offset);
+                                $endCharCode    = $this->unsignedLong($font, $offset);
                                 $offset         += 4;
-                                $startGlyphCode = StaticMethods::_getULONG($font, $offset);
+                                $startGlyphCode = $this->unsignedLong($font, $offset);
                                 $offset         += 4;
                                 for ($c = $startCharCode; $c <= $endCharCode; ++$c) {
                                     $ctg[$c] = $startGlyphCode;

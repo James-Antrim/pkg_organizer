@@ -19,7 +19,21 @@ trait Fonts
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
 
+    /**
+     * Get unsigned long (big endian 32-bit unsigned integer) from string.
+     * @param string $string string from where to extract value
+     * @param int    $offset point from where to read the data
+     * @return int
+     */
+    public function unsignedLong(string $string, int $offset): int
+    {
+        $v = unpack('Ni', substr($string, $offset, 4));
+        return $v['i'];
+    }
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
+
 
     /**
      * Returns a subset of the TrueType font data without the unused glyphs.
@@ -28,11 +42,11 @@ trait Fonts
      * @return string A subset of TrueType font data without the unused glyphs.
      * @author Nicola Asuni
      */
-    public static function trueTypeSubset(string $font, array $characters): string
+    public function trueTypeSubset(string $font, array $characters): string
     {
         ksort($characters);
         $offset = 0; // offset position of the font data
-        if (StaticMethods::_getULONG($font, $offset) != 0x10000) {
+        if ($this->unsignedLong($font, $offset) != 0x10000) {
             // sfnt version must be 0x00010000 for TrueType version 1.0.
             return $font;
         }
@@ -51,16 +65,16 @@ trait Fonts
             $tag                     = substr($font, $offset, 4);
             $offset                  += 4;
             $table[$tag]             = [];
-            $table[$tag]['checkSum'] = StaticMethods::_getULONG($font, $offset);
+            $table[$tag]['checkSum'] = $this->unsignedLong($font, $offset);
             $offset                  += 4;
-            $table[$tag]['offset']   = StaticMethods::_getULONG($font, $offset);
+            $table[$tag]['offset']   = $this->unsignedLong($font, $offset);
             $offset                  += 4;
-            $table[$tag]['length']   = StaticMethods::_getULONG($font, $offset);
+            $table[$tag]['length']   = $this->unsignedLong($font, $offset);
             $offset                  += 4;
         }
         // check magicNumber
         $offset = $table['head']['offset'] + 12;
-        if (StaticMethods::_getULONG($font, $offset) != 0x5F0F3CF5) {
+        if ($this->unsignedLong($font, $offset) != 0x5F0F3CF5) {
             // magicNumber must be 0x5F0F3CF5
             return $font;
         }
@@ -84,7 +98,7 @@ trait Fonts
             // long version
             $tot_num_glyphs = ($table['loca']['length'] / 4); // numGlyphs + 1
             for ($i = 0; $i < $tot_num_glyphs; ++$i) {
-                $indexToLoc[$i] = StaticMethods::_getULONG($font, $offset);
+                $indexToLoc[$i] = $this->unsignedLong($font, $offset);
                 $offset         += 4;
             }
         }
@@ -100,7 +114,7 @@ trait Fonts
             $offset                           += 2;
             $encodingTables[$i]['encodingID'] = StaticMethods::_getUSHORT($font, $offset);
             $offset                           += 2;
-            $encodingTables[$i]['offset']     = StaticMethods::_getULONG($font, $offset);
+            $encodingTables[$i]['offset']     = $this->unsignedLong($font, $offset);
             $offset                           += 4;
         }
         foreach ($encodingTables as $enctable) {
@@ -263,14 +277,14 @@ trait Fonts
                         $is32[$k] = StaticMethods::_getBYTE($font, $offset);
                         ++$offset;
                     }
-                    $nGroups = StaticMethods::_getULONG($font, $offset);
+                    $nGroups = $this->unsignedLong($font, $offset);
                     $offset  += 4;
                     for ($i = 0; $i < $nGroups; ++$i) {
-                        $startCharCode = StaticMethods::_getULONG($font, $offset);
+                        $startCharCode = $this->unsignedLong($font, $offset);
                         $offset        += 4;
-                        $endCharCode   = StaticMethods::_getULONG($font, $offset);
+                        $endCharCode   = $this->unsignedLong($font, $offset);
                         $offset        += 4;
-                        $startGlyphID  = StaticMethods::_getULONG($font, $offset);
+                        $startGlyphID  = $this->unsignedLong($font, $offset);
                         $offset        += 4;
                         for ($k = $startCharCode; $k <= $endCharCode; ++$k) {
                             $is32idx = floor($c / 8);
@@ -295,9 +309,9 @@ trait Fonts
                 case 10:
                 { // Format 10: Trimmed array
                     $offset        += 10; // skip reserved, length and version/language
-                    $startCharCode = StaticMethods::_getULONG($font, $offset);
+                    $startCharCode = $this->unsignedLong($font, $offset);
                     $offset        += 4;
-                    $numChars      = StaticMethods::_getULONG($font, $offset);
+                    $numChars      = $this->unsignedLong($font, $offset);
                     $offset        += 4;
                     for ($k = 0; $k < $numChars; ++$k) {
                         $c = ($k + $startCharCode);
@@ -312,14 +326,14 @@ trait Fonts
                 case 12:
                 { // Format 12: Segmented coverage
                     $offset  += 10; // skip length and version/language
-                    $nGroups = StaticMethods::_getULONG($font, $offset);
+                    $nGroups = $this->unsignedLong($font, $offset);
                     $offset  += 4;
                     for ($k = 0; $k < $nGroups; ++$k) {
-                        $startCharCode  = StaticMethods::_getULONG($font, $offset);
+                        $startCharCode  = $this->unsignedLong($font, $offset);
                         $offset         += 4;
-                        $endCharCode    = StaticMethods::_getULONG($font, $offset);
+                        $endCharCode    = $this->unsignedLong($font, $offset);
                         $offset         += 4;
-                        $startGlyphCode = StaticMethods::_getULONG($font, $offset);
+                        $startGlyphCode = $this->unsignedLong($font, $offset);
                         $offset         += 4;
                         for ($c = $startCharCode; $c <= $endCharCode; ++$c) {
                             if (isset($characters[$c])) {
