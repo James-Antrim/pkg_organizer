@@ -402,12 +402,12 @@ trait Colors
      * Set the color array for the specified type ('draw', 'fill', 'text').
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param string $type  Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param array  $color Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
-     * @param bool   $append   If true do not send the PDF command.
+     * @param string $type   Type of object affected by this color: ('draw', 'fill', 'text').
+     * @param array  $color  Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
+     * @param bool   $append If true do not send the PDF command.
      * @return string The PDF command or empty string.
      */
-    public function setColorArray($type, $color, $append = false)
+    public function setColorArray($type, $color, $append = true)
     {
         if (is_array($color)) {
             $color = array_values($color);
@@ -432,12 +432,12 @@ trait Colors
      * Defines the color used for all drawing operations (lines, rectangles and cell borders).
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array $color Array of colors (1, 3 or 4 values).
-     * @param bool  $append   If true do not send the PDF command.
+     * @param array $color  Array of colors (1, 3 or 4 values).
+     * @param bool  $append If true do not send the PDF command.
      * @return string the PDF command
      * @see   SetDrawColor()
      */
-    public function setDrawColorArray($color, $append = false)
+    public function setDrawColorArray($color, $append = true)
     {
         return $this->setColorArray('draw', $color, $append);
     }
@@ -446,11 +446,11 @@ trait Colors
      * Defines the color used for all filling operations (filled rectangles and cell backgrounds).
      * It can be expressed in RGB, CMYK or GRAY SCALE components.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array $color Array of colors (1, 3 or 4 values).
-     * @param bool  $append   If true do not send the PDF command.
+     * @param array $color  Array of colors (1, 3 or 4 values).
+     * @param bool  $append If true do not send the PDF command.
      * @see   SetFillColor()
      */
-    public function setFillColorArray($color, $append = false)
+    public function setFillColorArray($color, $append = true)
     {
         return $this->setColorArray('fill', $color, $append);
     }
@@ -458,27 +458,27 @@ trait Colors
     /**
      * Defines the color used for text. It can be expressed in RGB components or gray scale.
      * The method can be called before the first page is created and the value is retained from page to page.
-     * @param array $color Array of colors (1, 3 or 4 values).
-     * @param bool  $append   If true do not send the PDF command.
+     * @param array $color  Array of colors (1, 3 or 4 values).
+     * @param bool  $append If true do not send the PDF command.
      * @see   SetFillColor()
      */
-    public function setTextColorArray($color, $append = false)
+    public function setTextColorArray($color, $append = true)
     {
         return $this->setColorArray('text', $color, $append);
     }
 
     /**
      * Defines the color used by the specified type ('draw', 'fill', 'text').
-     * @param string $type Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $append  If true do not send the command.
-     * @param string $name spot color name (if any)
+     * @param string $type   Type of object affected by this color: ('draw', 'fill', 'text').
+     * @param float  $col1   GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2   GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3   BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4   KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $append If true do not send the command.
+     * @param string $name   spot color name (if any)
      * @return string The PDF command or empty string.
      */
-    public function setColor($type, $col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = false, $name = '')
+    public function setColor($type, $col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = true, $name = '')
     {
         // set default values
         if (!is_numeric($col1)) {
@@ -554,7 +554,7 @@ trait Colors
         }
         $this->differentColors = ($this->fillColor != $this->textColor);
         if (($type != 'text') and ($this->state == 2) and $type !== 0) {
-            if (!$append) {
+            if ($append) {
                 $this->_out($pdfcolor);
             }
             return $pdfcolor;
@@ -564,48 +564,48 @@ trait Colors
 
     /**
      * Defines the color used for all drawing operations (lines, rectangles and cell borders). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $append  If true do not send the command.
-     * @param string $name spot color name (if any)
+     * @param float  $col1   GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2   GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3   BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4   KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $append If true do not send the command.
+     * @param string $name   spot color name (if any)
      * @return string the PDF command
      * @see   SetDrawColorArray(), SetFillColor(), SetTextColor(), Line(), Rect(), Cell(), MultiCell()
      */
-    public function setDrawColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = false, $name = '')
+    public function setDrawColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = true, $name = '')
     {
         return $this->setColor('draw', $col1, $col2, $col3, $col4, $append, $name);
     }
 
     /**
      * Defines the color used for all filling operations (filled rectangles and cell backgrounds). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $append  If true do not send the command.
-     * @param string $name Spot color name (if any).
+     * @param float  $col1   GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2   GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3   BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4   KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $append If true do not send the command.
+     * @param string $name   Spot color name (if any).
      * @return string The PDF command.
      * @see   SetFillColorArray(), SetDrawColor(), SetTextColor(), Rect(), Cell(), MultiCell()
      */
-    public function setFillColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = false, $name = '')
+    public function setFillColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = true, $name = '')
     {
         return $this->setColor('fill', $col1, $col2, $col3, $col4, $append, $name);
     }
 
     /**
      * Defines the color used for text. It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $append  If true do not send the command.
-     * @param string $name Spot color name (if any).
+     * @param float  $col1   GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2   GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3   BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4   KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $append If true do not send the command.
+     * @param string $name   Spot color name (if any).
      * @return string Empty string.
      * @see   SetTextColorArray(), SetDrawColor(), SetFillColor(), Text(), Cell(), MultiCell()
      */
-    public function setTextColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = false, $name = '')
+    public function setTextColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $append = true, $name = '')
     {
         return $this->setColor('text', $col1, $col2, $col3, $col4, $append, $name);
     }
