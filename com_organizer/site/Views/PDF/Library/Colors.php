@@ -395,6 +395,98 @@ trait Colors
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 
+// waiting on append value default value inversion
+    /**
+     * Applies the color to the context, returns the color command, empty if not appended.
+     * @param string $context
+     * @param float  $value1 gray level for single color, red color for RGB (0-255), or cyan color for CMYK (0-100)
+     * @param float  $value2 green color for RGB (0-255) or magenta color for CMYK (0-100)
+     * @param float  $value3 blue color for RGB (0-255) or yellow color for CMYK (0-100)
+     * @param float  $value4 black (key) color for CMYK (0-100)
+     * @param bool   $append appends the command to the document, defaults to true
+     * @param string $name   spot color name (if any)
+     * @return string
+     * @see self::COLOR_CONTEXTS
+     */
+    public function setColor(string $context, float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = false, string $name = ''): string
+    {
+        if (!in_array($context, self::COLOR_CONTEXTS)) {
+            return '';
+        }
+
+        // set color by case
+        $suffix = '';
+
+        if ($value4 === -1) {
+            if ($value2 === -1 and $value3 === -1) {
+                // Grey scale
+                $value1   = max(0, min(255, $value1));
+                $intcolor = ['G' => $value1];
+                $pdfcolor = sprintf('%F ', ($value1 / 255));
+                $suffix   = 'g';
+            }
+            // RGB
+            else {
+                $value1   = max(0, min(255, $value1));
+                $value2   = max(0, min(255, $value2));
+                $value3   = max(0, min(255, $value3));
+                $intcolor = ['R' => $value1, 'G' => $value2, 'B' => $value3];
+                $pdfcolor = sprintf('%F %F %F ', ($value1 / 255), ($value2 / 255), ($value3 / 255));
+                $suffix   = 'rg';
+            }
+        }
+        else {
+            $value1 = max(0, min(100, $value1));
+            $value2 = max(0, min(100, $value2));
+            $value3 = max(0, min(100, $value3));
+            $value4 = max(0, min(100, $value4));
+            if (empty($name)) {
+                // CMYK
+                $intcolor = ['C' => $value1, 'M' => $value2, 'Y' => $value3, 'K' => $value4];
+                $pdfcolor = sprintf('%F %F %F %F ', ($value1 / 100), ($value2 / 100), ($value3 / 100), ($value4 / 100));
+                $suffix   = 'k';
+            }
+            else {
+                // SPOT COLOR
+                $intcolor = ['C' => $value1, 'M' => $value2, 'Y' => $value3, 'K' => $value4, 'name' => $name];
+                $this->spotColor($name, [$value1, $value2, $value3, $value4]);
+                $pdfcolor = $this->contextColor($name, $context);
+            }
+        }
+        switch ($context) {
+            case 'draw':
+            {
+                $pdfcolor          .= strtoupper($suffix);
+                $this->drawColor   = $pdfcolor;
+                $this->strokeColor = $intcolor;
+                break;
+            }
+            case 'fill':
+            {
+                $pdfcolor        .= $suffix;
+                $this->fillColor = $pdfcolor;
+                $this->bgColor   = $intcolor;
+                break;
+            }
+            case 'text':
+            {
+                $pdfcolor        .= $suffix;
+                $this->textColor = $pdfcolor;
+                $this->fgColor   = $intcolor;
+                break;
+            }
+        }
+        $this->differentColors = ($this->fillColor != $this->textColor);
+        if (($context != 'text') and ($this->state == 2) and $context !== 0) {
+            if (!$append) {
+                $this->_out($pdfcolor);
+            }
+            return $pdfcolor;
+        }
+        return '';
+    }
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
 
@@ -465,101 +557,6 @@ trait Colors
     public function setTextColorArray($color, $ret = false)
     {
         return $this->setColorArray('text', $color, $ret);
-    }
-
-    /**
-     * Defines the color used by the specified type ('draw', 'fill', 'text').
-     * @param string $type Type of object affected by this color: ('draw', 'fill', 'text').
-     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
-     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
-     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
-     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
-     * @param bool   $ret  If true do not send the command.
-     * @param string $name spot color name (if any)
-     * @return string The PDF command or empty string.
-     */
-    public function setColor($type, $col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
-    {
-        // set default values
-        if (!is_numeric($col1)) {
-            $col1 = 0;
-        }
-        if (!is_numeric($col2)) {
-            $col2 = -1;
-        }
-        if (!is_numeric($col3)) {
-            $col3 = -1;
-        }
-        if (!is_numeric($col4)) {
-            $col4 = -1;
-        }
-        // set color by case
-        $suffix = '';
-        if (($col2 == -1) and ($col3 == -1) and ($col4 == -1)) {
-            // Grey scale
-            $col1     = max(0, min(255, $col1));
-            $intcolor = array('G' => $col1);
-            $pdfcolor = sprintf('%F ', ($col1 / 255));
-            $suffix   = 'g';
-        }
-        elseif ($col4 == -1) {
-            // RGB
-            $col1     = max(0, min(255, $col1));
-            $col2     = max(0, min(255, $col2));
-            $col3     = max(0, min(255, $col3));
-            $intcolor = array('R' => $col1, 'G' => $col2, 'B' => $col3);
-            $pdfcolor = sprintf('%F %F %F ', ($col1 / 255), ($col2 / 255), ($col3 / 255));
-            $suffix   = 'rg';
-        }
-        else {
-            $col1 = max(0, min(100, $col1));
-            $col2 = max(0, min(100, $col2));
-            $col3 = max(0, min(100, $col3));
-            $col4 = max(0, min(100, $col4));
-            if (empty($name)) {
-                // CMYK
-                $intcolor = array('C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4);
-                $pdfcolor = sprintf('%F %F %F %F ', ($col1 / 100), ($col2 / 100), ($col3 / 100), ($col4 / 100));
-                $suffix   = 'k';
-            }
-            else {
-                // SPOT COLOR
-                $intcolor = array('C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4, 'name' => $name);
-                $this->spotColor($name, [$col1, $col2, $col3, $col4]);
-                $pdfcolor = $this->contextColor($name, $type);
-            }
-        }
-        switch ($type) {
-            case 'draw':
-            {
-                $pdfcolor          .= strtoupper($suffix);
-                $this->drawColor   = $pdfcolor;
-                $this->strokeColor = $intcolor;
-                break;
-            }
-            case 'fill':
-            {
-                $pdfcolor        .= $suffix;
-                $this->fillColor = $pdfcolor;
-                $this->bgColor   = $intcolor;
-                break;
-            }
-            case 'text':
-            {
-                $pdfcolor        .= $suffix;
-                $this->textColor = $pdfcolor;
-                $this->fgColor   = $intcolor;
-                break;
-            }
-        }
-        $this->differentColors = ($this->fillColor != $this->textColor);
-        if (($type != 'text') and ($this->state == 2) and $type !== 0) {
-            if (!$ret) {
-                $this->_out($pdfcolor);
-            }
-            return $pdfcolor;
-        }
-        return '';
     }
 
     /**
@@ -644,14 +641,14 @@ trait Colors
         }
         // set bar measures
         if ($vertical) {
-            $coords = array(0, 0, 0, 1);
+            $coords = [0, 0, 0, 1];
             $wb     = $w / $numbars; // bar width
             $hb     = $h; // bar height
             $xd     = $wb; // delta x
             $yd     = 0; // delta y
         }
         else {
-            $coords = array(1, 0, 0, 0);
+            $coords = [1, 0, 0, 0];
             $wb     = $w; // bar width
             $hb     = $h / $numbars; // bar height
             $xd     = 0; // delta x
@@ -664,89 +661,89 @@ trait Colors
                 // set transition colors
                 case 'A':
                 { // BLACK (GRAYSCALE)
-                    $col_a = array(255);
-                    $col_b = array(0);
+                    $col_a = [255];
+                    $col_b = [0];
                     break;
                 }
                 case 'W':
                 { // WHITE (GRAYSCALE)
-                    $col_a = array(0);
-                    $col_b = array(255);
+                    $col_a = [0];
+                    $col_b = [255];
                     break;
                 }
                 case 'R':
                 { // RED (RGB)
-                    $col_a = array(255, 255, 255);
-                    $col_b = array(255, 0, 0);
+                    $col_a = [255, 255, 255];
+                    $col_b = [255, 0, 0];
                     break;
                 }
                 case 'G':
                 { // GREEN (RGB)
-                    $col_a = array(255, 255, 255);
-                    $col_b = array(0, 255, 0);
+                    $col_a = [255, 255, 255];
+                    $col_b = [0, 255, 0];
                     break;
                 }
                 case 'B':
                 { // BLUE (RGB)
-                    $col_a = array(255, 255, 255);
-                    $col_b = array(0, 0, 255);
+                    $col_a = [255, 255, 255];
+                    $col_b = [0, 0, 255];
                     break;
                 }
                 case 'C':
                 { // CYAN (CMYK)
-                    $col_a = array(0, 0, 0, 0);
-                    $col_b = array(100, 0, 0, 0);
+                    $col_a = [0, 0, 0, 0];
+                    $col_b = [100, 0, 0, 0];
                     break;
                 }
                 case 'M':
                 { // MAGENTA (CMYK)
-                    $col_a = array(0, 0, 0, 0);
-                    $col_b = array(0, 100, 0, 0);
+                    $col_a = [0, 0, 0, 0];
+                    $col_b = [0, 100, 0, 0];
                     break;
                 }
                 case 'Y':
                 { // YELLOW (CMYK)
-                    $col_a = array(0, 0, 0, 0);
-                    $col_b = array(0, 0, 100, 0);
+                    $col_a = [0, 0, 0, 0];
+                    $col_b = [0, 0, 100, 0];
                     break;
                 }
                 case 'K':
                 { // KEY - BLACK (CMYK)
-                    $col_a = array(0, 0, 0, 0);
-                    $col_b = array(0, 0, 0, 100);
+                    $col_a = [0, 0, 0, 0];
+                    $col_b = [0, 0, 0, 100];
                     break;
                 }
                 case 'RGB':
                 { // BLACK REGISTRATION (RGB)
-                    $col_a = array(255, 255, 255);
-                    $col_b = array(0, 0, 0);
+                    $col_a = [255, 255, 255];
+                    $col_b = [0, 0, 0];
                     break;
                 }
                 case 'CMYK':
                 { // BLACK REGISTRATION (CMYK)
-                    $col_a = array(0, 0, 0, 0);
-                    $col_b = array(100, 100, 100, 100);
+                    $col_a = [0, 0, 0, 0];
+                    $col_b = [100, 100, 100, 100];
                     break;
                 }
                 case 'ALL':
                 { // SPOT COLOR REGISTRATION
-                    $col_a = array(0, 0, 0, 0, 'None');
-                    $col_b = array(100, 100, 100, 100, 'All');
+                    $col_a = [0, 0, 0, 0, 'None'];
+                    $col_b = [100, 100, 100, 100, 'All'];
                     break;
                 }
                 case 'NONE':
                 { // SKIP THIS COLOR
-                    $col_a = array(0, 0, 0, 0, 'None');
-                    $col_b = array(0, 0, 0, 0, 'None');
+                    $col_a = [0, 0, 0, 0, 'None'];
+                    $col_b = [0, 0, 0, 0, 'None'];
                     break;
                 }
                 default:
                 { // SPECIFIC SPOT COLOR NAME
-                    $col_a = array(0, 0, 0, 0, 'None');
+                    $col_a = [0, 0, 0, 0, 'None'];
                     $col_b = $this->spotColor($col);
                     if ($col_b === false) {
                         // in case of error defaults to the registration color
-                        $col_b = array(100, 100, 100, 100, 'All');
+                        $col_b = [100, 100, 100, 100, 'All'];
                     }
                     break;
                 }
