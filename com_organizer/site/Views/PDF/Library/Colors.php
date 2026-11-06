@@ -383,4 +383,406 @@ trait Colors
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
 
+    /**
+     * Color for header text (RGB array).
+     * @var int[]
+     * @phpstan-var array{0: int, 1: int, 2: int}
+     */
+    protected $header_text_color = self::BLACK;
+
+    /**
+     * Color for header line (RGB array).
+     * @var int[]
+     * @phpstan-var array{0: int, 1: int, 2: int}
+     */
+    protected $header_line_color = self::BLACK;
+
+    /**
+     * Color for footer text (RGB array).
+     * @var int[]
+     * @phpstan-var array{0: int, 1: int, 2: int}
+     */
+    protected $footer_text_color = self::BLACK;
+
+    /**
+     * Color for footer line (RGB array).
+     * @var int[]
+     * @phpstan-var array{0: int, 1: int, 2: int}
+     */
+    protected $footer_line_color = self::BLACK;
+
+    /**
+     * Default color for html links.
+     */
+    protected $htmlLinkColorArray = self::BLUE;
+
+    /**
+     * Set the color array for the specified type ('draw', 'fill', 'text').
+     * It can be expressed in RGB, CMYK or GRAY SCALE components.
+     * The method can be called before the first page is created and the value is retained from page to page.
+     * @param string $type  Type of object affected by this color: ('draw', 'fill', 'text').
+     * @param array  $color Array of colors (1=gray, 3=RGB, 4=CMYK or 5=spotcolor=CMYK+name values).
+     * @param bool   $ret   If true do not send the PDF command.
+     * @return string The PDF command or empty string.
+     */
+    public function setColorArray($type, $color, $ret = false)
+    {
+        if (is_array($color)) {
+            $color = array_values($color);
+            // component: grey, RGB red or CMYK cyan
+            $c = isset($color[0]) ? $color[0] : -1;
+            // component: RGB green or CMYK magenta
+            $m = isset($color[1]) ? $color[1] : -1;
+            // component: RGB blue or CMYK yellow
+            $y = isset($color[2]) ? $color[2] : -1;
+            // component: CMYK black
+            $k = isset($color[3]) ? $color[3] : -1;
+            // color name
+            $name = isset($color[4]) ? $color[4] : '';
+            if ($c >= 0) {
+                return $this->setColor($type, $c, $m, $y, $k, $ret, $name);
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Defines the color used for all drawing operations (lines, rectangles and cell borders).
+     * It can be expressed in RGB, CMYK or GRAY SCALE components.
+     * The method can be called before the first page is created and the value is retained from page to page.
+     * @param array $color Array of colors (1, 3 or 4 values).
+     * @param bool  $ret   If true do not send the PDF command.
+     * @return string the PDF command
+     * @see   SetDrawColor()
+     */
+    public function setDrawColorArray($color, $ret = false)
+    {
+        return $this->setColorArray('draw', $color, $ret);
+    }
+
+    /**
+     * Defines the color used for all filling operations (filled rectangles and cell backgrounds).
+     * It can be expressed in RGB, CMYK or GRAY SCALE components.
+     * The method can be called before the first page is created and the value is retained from page to page.
+     * @param array $color Array of colors (1, 3 or 4 values).
+     * @param bool  $ret   If true do not send the PDF command.
+     * @see   SetFillColor()
+     */
+    public function setFillColorArray($color, $ret = false)
+    {
+        return $this->setColorArray('fill', $color, $ret);
+    }
+
+    /**
+     * Defines the color used for text. It can be expressed in RGB components or gray scale.
+     * The method can be called before the first page is created and the value is retained from page to page.
+     * @param array $color Array of colors (1, 3 or 4 values).
+     * @param bool  $ret   If true do not send the PDF command.
+     * @see   SetFillColor()
+     */
+    public function setTextColorArray($color, $ret = false)
+    {
+        return $this->setColorArray('text', $color, $ret);
+    }
+
+    /**
+     * Defines the color used by the specified type ('draw', 'fill', 'text').
+     * @param string $type Type of object affected by this color: ('draw', 'fill', 'text').
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name spot color name (if any)
+     * @return string The PDF command or empty string.
+     */
+    public function setColor($type, $col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
+    {
+        // set default values
+        if (!is_numeric($col1)) {
+            $col1 = 0;
+        }
+        if (!is_numeric($col2)) {
+            $col2 = -1;
+        }
+        if (!is_numeric($col3)) {
+            $col3 = -1;
+        }
+        if (!is_numeric($col4)) {
+            $col4 = -1;
+        }
+        // set color by case
+        $suffix = '';
+        if (($col2 == -1) and ($col3 == -1) and ($col4 == -1)) {
+            // Grey scale
+            $col1     = max(0, min(255, $col1));
+            $intcolor = array('G' => $col1);
+            $pdfcolor = sprintf('%F ', ($col1 / 255));
+            $suffix   = 'g';
+        }
+        elseif ($col4 == -1) {
+            // RGB
+            $col1     = max(0, min(255, $col1));
+            $col2     = max(0, min(255, $col2));
+            $col3     = max(0, min(255, $col3));
+            $intcolor = array('R' => $col1, 'G' => $col2, 'B' => $col3);
+            $pdfcolor = sprintf('%F %F %F ', ($col1 / 255), ($col2 / 255), ($col3 / 255));
+            $suffix   = 'rg';
+        }
+        else {
+            $col1 = max(0, min(100, $col1));
+            $col2 = max(0, min(100, $col2));
+            $col3 = max(0, min(100, $col3));
+            $col4 = max(0, min(100, $col4));
+            if (empty($name)) {
+                // CMYK
+                $intcolor = array('C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4);
+                $pdfcolor = sprintf('%F %F %F %F ', ($col1 / 100), ($col2 / 100), ($col3 / 100), ($col4 / 100));
+                $suffix   = 'k';
+            }
+            else {
+                // SPOT COLOR
+                $intcolor = array('C' => $col1, 'M' => $col2, 'Y' => $col3, 'K' => $col4, 'name' => $name);
+                $this->spotColor($name, [$col1, $col2, $col3, $col4]);
+                $pdfcolor = $this->contextColor($name, $type);
+            }
+        }
+        switch ($type) {
+            case 'draw':
+            {
+                $pdfcolor          .= strtoupper($suffix);
+                $this->drawColor   = $pdfcolor;
+                $this->strokeColor = $intcolor;
+                break;
+            }
+            case 'fill':
+            {
+                $pdfcolor        .= $suffix;
+                $this->fillColor = $pdfcolor;
+                $this->bgColor   = $intcolor;
+                break;
+            }
+            case 'text':
+            {
+                $pdfcolor        .= $suffix;
+                $this->textColor = $pdfcolor;
+                $this->fgColor   = $intcolor;
+                break;
+            }
+        }
+        $this->differentColors = ($this->fillColor != $this->textColor);
+        if (($type != 'text') and ($this->state == 2) and $type !== 0) {
+            if (!$ret) {
+                $this->_out($pdfcolor);
+            }
+            return $pdfcolor;
+        }
+        return '';
+    }
+
+    /**
+     * Defines the color used for all drawing operations (lines, rectangles and cell borders). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name spot color name (if any)
+     * @return string the PDF command
+     * @see   SetDrawColorArray(), SetFillColor(), SetTextColor(), Line(), Rect(), Cell(), MultiCell()
+     */
+    public function setDrawColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
+    {
+        return $this->setColor('draw', $col1, $col2, $col3, $col4, $ret, $name);
+    }
+
+    /**
+     * Defines the color used for all filling operations (filled rectangles and cell backgrounds). It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name Spot color name (if any).
+     * @return string The PDF command.
+     * @see   SetFillColorArray(), SetDrawColor(), SetTextColor(), Rect(), Cell(), MultiCell()
+     */
+    public function setFillColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
+    {
+        return $this->setColor('fill', $col1, $col2, $col3, $col4, $ret, $name);
+    }
+
+    /**
+     * Defines the color used for text. It can be expressed in RGB components or gray scale. The method can be called before the first page is created and the value is retained from page to page.
+     * @param float  $col1 GRAY level for single color, or Red color for RGB (0-255), or CYAN color for CMYK (0-100).
+     * @param float  $col2 GREEN color for RGB (0-255), or MAGENTA color for CMYK (0-100).
+     * @param float  $col3 BLUE color for RGB (0-255), or YELLOW color for CMYK (0-100).
+     * @param float  $col4 KEY (BLACK) color for CMYK (0-100).
+     * @param bool   $ret  If true do not send the command.
+     * @param string $name Spot color name (if any).
+     * @return string Empty string.
+     * @see   SetTextColorArray(), SetDrawColor(), SetFillColor(), Text(), Cell(), MultiCell()
+     */
+    public function setTextColor($col1 = 0, $col2 = -1, $col3 = -1, $col4 = -1, $ret = false, $name = '')
+    {
+        return $this->setColor('text', $col1, $col2, $col3, $col4, $ret, $name);
+    }
+
+    /**
+     * Paints color transition registration bars
+     * @param float  $x          abscissa of the top left corner of the rectangle.
+     * @param float  $y          ordinate of the top left corner of the rectangle.
+     * @param float  $w          width of the rectangle.
+     * @param float  $h          height of the rectangle.
+     * @param bool   $transition if true prints tcolor transitions to white.
+     * @param bool   $vertical   if true prints bar vertically.
+     * @param string $colors     colors to print separated by comma. Valid values are: A,W,R,G,B,C,M,Y,K,RGB,CMYK,ALL,ALLSPOT,<SPOT_COLOR_NAME>. Where: A = grayscale black, W = grayscale white, R = RGB red, G RGB green, B RGB blue, C = CMYK cyan, M = CMYK magenta, Y = CMYK yellow, K = CMYK key/black, RGB = RGB registration color, CMYK = CMYK registration color, ALL = Spot registration color, ALLSPOT = print all defined spot colors, <SPOT_COLOR_NAME> = name of the spot color to print.
+     * @author Nicola Asuni
+     */
+    public function colorRegistrationBar($x, $y, $w, $h, $transition = true, $vertical = false, $colors = 'A,R,G,B,C,M,Y,K')
+    {
+        if (strpos($colors, 'ALLSPOT') !== false) {
+            // expand spot colors
+            $spot_colors = '';
+            foreach ($this->spotColors as $spot_color_name => $v) {
+                $spot_colors .= ',' . $spot_color_name;
+            }
+            if (!empty($spot_colors)) {
+                $spot_colors = substr($spot_colors, 1);
+                $colors      = str_replace('ALLSPOT', $spot_colors, $colors);
+            }
+            else {
+                $colors = str_replace('ALLSPOT', 'NONE', $colors);
+            }
+        }
+        $bars    = explode(',', $colors);
+        $numbars = count($bars); // number of bars to print
+        if ($numbars <= 0) {
+            return;
+        }
+        // set bar measures
+        if ($vertical) {
+            $coords = array(0, 0, 0, 1);
+            $wb     = $w / $numbars; // bar width
+            $hb     = $h; // bar height
+            $xd     = $wb; // delta x
+            $yd     = 0; // delta y
+        }
+        else {
+            $coords = array(1, 0, 0, 0);
+            $wb     = $w; // bar width
+            $hb     = $h / $numbars; // bar height
+            $xd     = 0; // delta x
+            $yd     = $hb; // delta y
+        }
+        $xb = $x;
+        $yb = $y;
+        foreach ($bars as $col) {
+            switch ($col) {
+                // set transition colors
+                case 'A':
+                { // BLACK (GRAYSCALE)
+                    $col_a = array(255);
+                    $col_b = array(0);
+                    break;
+                }
+                case 'W':
+                { // WHITE (GRAYSCALE)
+                    $col_a = array(0);
+                    $col_b = array(255);
+                    break;
+                }
+                case 'R':
+                { // RED (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(255, 0, 0);
+                    break;
+                }
+                case 'G':
+                { // GREEN (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(0, 255, 0);
+                    break;
+                }
+                case 'B':
+                { // BLUE (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(0, 0, 255);
+                    break;
+                }
+                case 'C':
+                { // CYAN (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(100, 0, 0, 0);
+                    break;
+                }
+                case 'M':
+                { // MAGENTA (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(0, 100, 0, 0);
+                    break;
+                }
+                case 'Y':
+                { // YELLOW (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(0, 0, 100, 0);
+                    break;
+                }
+                case 'K':
+                { // KEY - BLACK (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(0, 0, 0, 100);
+                    break;
+                }
+                case 'RGB':
+                { // BLACK REGISTRATION (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(0, 0, 0);
+                    break;
+                }
+                case 'CMYK':
+                { // BLACK REGISTRATION (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(100, 100, 100, 100);
+                    break;
+                }
+                case 'ALL':
+                { // SPOT COLOR REGISTRATION
+                    $col_a = array(0, 0, 0, 0, 'None');
+                    $col_b = array(100, 100, 100, 100, 'All');
+                    break;
+                }
+                case 'NONE':
+                { // SKIP THIS COLOR
+                    $col_a = array(0, 0, 0, 0, 'None');
+                    $col_b = array(0, 0, 0, 0, 'None');
+                    break;
+                }
+                default:
+                { // SPECIFIC SPOT COLOR NAME
+                    $col_a = array(0, 0, 0, 0, 'None');
+                    $col_b = $this->spotColor($col);
+                    if ($col_b === false) {
+                        // in case of error defaults to the registration color
+                        $col_b = array(100, 100, 100, 100, 'All');
+                    }
+                    break;
+                }
+            }
+            if ($col != 'NONE') {
+                if ($transition) {
+                    // color gradient
+                    $this->LinearGradient($xb, $yb, $wb, $hb, $col_a, $col_b, $coords);
+                }
+                else {
+                    $this->setFillColorArray($col_b);
+                    // colored rectangle
+                    $this->Rect($xb, $yb, $wb, $hb, 'F', []);
+                }
+                $xb += $xd;
+                $yb += $yd;
+            }
+        }
+    }
+
 }
