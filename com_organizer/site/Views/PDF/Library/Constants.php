@@ -52,7 +52,7 @@ trait Constants
         'blue'    => [100, 100, 0, 0, 'Blue'],
     ];
 
-    /** Array of Web safe colors */
+    /** Array associating web safe color names to their corresponding hexadecimal values. */
     private const WEB_COLORS = [
         'aliceblue'            => 'f0f8ff',
         'antiquewhite'         => 'faebd7',

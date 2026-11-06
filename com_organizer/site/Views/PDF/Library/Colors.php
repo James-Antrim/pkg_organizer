@@ -78,7 +78,7 @@ trait Colors
         }
 
         // Default to transparent if name is not associated with a predefined value set.
-        $color = in_array($color, self::JS_COLORS) ? $color: self::JS_COLORS[0];
+        $color = in_array($color, self::JS_COLORS) ? $color : self::JS_COLORS[0];
 
         return 'color.' . $color;
     }
@@ -160,6 +160,121 @@ trait Colors
     }
 
     /**
+     * Converts a HTML color string into an array (CMYK, RGB, Grayscale or Transparent).
+     * @param string $htmlColor
+     * @param array  $defaultColor
+     * @return array
+     */
+    public function htmlToColor(string $htmlColor, array $defaultColor = ['R' => 128, 'G' => 128, 'B' => 128]): array
+    {
+        $color = preg_replace('/\s*/', '', $htmlColor);
+        $color = strtolower($color);
+
+        $cmyk = str_starts_with($color, 'cmyk');
+        $rbg  = str_starts_with($color, 'rbg');
+
+        // check for javascript color array syntax
+        if (str_contains($color, '[')) {
+            $pattern = '/\[[\"\'](t|g|rgb|cmyk)[\"\'],?([0-9.]*),?([0-9.]*),?([0-9.]*),?([0-9.]*)]/';
+            if (preg_match($pattern, $color, $matches) > 0) {
+                return match ($matches[1]) {
+                    'cmyk' => [
+                        'C' => max(0, min(100, floatval($matches[2]) * 100)),
+                        'M' => max(0, min(100, floatval($matches[3]) * 100)),
+                        'Y' => max(0, min(100, floatval($matches[4]) * 100)),
+                        'K' => max(0, min(100, floatval($matches[5]) * 100)),
+                    ],
+                    'rgb' => [
+                        'R' => max(0, min(255, floatval($matches[2]) * 255)),
+                        'G' => max(0, min(255, floatval($matches[3]) * 255)),
+                        'B' => max(0, min(255, floatval($matches[4]) * 255)),
+                    ],
+                    'g' => ['G' => max(0, min(255, floatval($matches[2]) * 255))],
+                    default => [],
+                };
+            }
+        }
+
+        // Javascript formatted: 'color.<color name>' => reduce to <color name>
+        if (!$cmyk and !$rbg and ($dotPosition = strpos($color, '.')) !== false) {
+            $color = substr($color, $dotPosition + 1);
+            // transparent doesn't need value resolution
+            if ($color === 'transparent') {
+                return [];
+            }
+        }
+
+        if (!$color) {
+            return $defaultColor;
+        }
+
+        if ($cmyk) {
+            $codes  = substr($color, 5);
+            $codes  = str_replace(')', '', $codes);
+            $return = explode(',', $codes);
+            foreach ($return as $key => $value) {
+                $return[$key] = max(0, min(100, (int) $value));
+            }
+            return $return;
+        }
+
+        if ($rbg) {
+            $codes  = substr($color, 4);
+            $codes  = str_replace(')', '', $codes);
+            $return = explode(',', $codes);
+            foreach ($return as $key => $value) {
+                $integer      = (int) $value;
+                $return[$key] = strpos($value, '%') > 0 ? (255 * $integer / 100) : $integer;
+                $return[$key] = max(0, min(255, $return[$key]));
+            }
+            return $return;
+        }
+
+        // CMYK ARRAY
+        if (str_starts_with($color, '#')) {
+            $colorCode = substr($color, 1);
+        }
+        else {
+            $colorCode = self::WEB_COLORS[$color] ?: false;
+            if (!$colorCode) {
+                return self::spotColor($htmlColor) ?: $defaultColor;
+            }
+        }
+
+        // HEXADECIMAL REPRESENTATION
+        switch (strlen($colorCode)) {
+            // 3-digit RGB hexadecimal representation
+            case 3:
+                $red   = substr($colorCode, 0, 1);
+                $green = substr($colorCode, 1, 1);
+                $blue  = substr($colorCode, 2, 1);
+
+                return [
+                    'B' => max(0, min(255, hexdec($blue . $blue))),
+                    'G' => max(0, min(255, hexdec($green . $green))),
+                    'R' => max(0, min(255, hexdec($red . $red))),
+                ];
+            // 6-digit RGB hexadecimal representation
+            case 6:
+                return [
+                    'B' => max(0, min(255, hexdec(substr($colorCode, 4, 2)))),
+                    'G' => max(0, min(255, hexdec(substr($colorCode, 2, 2)))),
+                    'R' => max(0, min(255, hexdec(substr($colorCode, 0, 2)))),
+                ];
+            // 8-digit CMYK hexadecimal representation
+            case 8:
+                return [
+                    'C' => max(0, min(100, round(hexdec(substr($colorCode, 0, 2)) / 2.55))),
+                    'K' => max(0, min(100, round(hexdec(substr($colorCode, 6, 2)) / 2.55))),
+                    'M' => max(0, min(100, round(hexdec(substr($colorCode, 2, 2)) / 2.55))),
+                    'Y' => max(0, min(100, round(hexdec(substr($colorCode, 4, 2)) / 2.55))),
+                ];
+            default:
+                return $defaultColor;
+        }
+    }
+
+    /**
      * Getter / setter for spot colors.
      * @param string  $name          name of the spot color
      * @param float[] $configuration the CMYK color definition to add
@@ -236,162 +351,6 @@ trait Colors
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-
-    /**
-     * Returns an array (RGB or CMYK) from an html color name, or a six-digit (i.e. #3FE5AA), or three-digit (i.e. #7FF) hexadecimal color, or a javascript color array, or javascript color name.
-     * @param string $hcolor HTML color.
-     * @param array  $spotc  Reference to an array of spot colors.
-     * @param array  $defcol Color to return in case of error.
-     * @return array|false RGB or CMYK color, or false in case of error.
-     */
-    public function convertHTMLColorToDec($hcolor, &$spotc, $defcol = array('R' => 128, 'G' => 128, 'B' => 128))
-    {
-        $color = preg_replace('/[\s]*/', '', $hcolor); // remove extra spaces
-        $color = strtolower($color);
-        // check for javascript color array syntax
-        if (strpos($color, '[') !== false) {
-            if (preg_match('/[\[][\"\'](t|g|rgb|cmyk)[\"\'][\,]?([0-9\.]*)[\,]?([0-9\.]*)[\,]?([0-9\.]*)[\,]?([0-9\.]*)[\]]/', $color, $m) > 0) {
-                $returncolor = [];
-                switch ($m[1]) {
-                    case 'cmyk':
-                    {
-                        // RGB
-                        $returncolor['C'] = max(0, min(100, (floatval($m[2]) * 100)));
-                        $returncolor['M'] = max(0, min(100, (floatval($m[3]) * 100)));
-                        $returncolor['Y'] = max(0, min(100, (floatval($m[4]) * 100)));
-                        $returncolor['K'] = max(0, min(100, (floatval($m[5]) * 100)));
-                        break;
-                    }
-                    case 'rgb':
-                    {
-                        // RGB
-                        $returncolor['R'] = max(0, min(255, (floatval($m[2]) * 255)));
-                        $returncolor['G'] = max(0, min(255, (floatval($m[3]) * 255)));
-                        $returncolor['B'] = max(0, min(255, (floatval($m[4]) * 255)));
-                        break;
-                    }
-                    case 'g':
-                    {
-                        // grayscale
-                        $returncolor['G'] = max(0, min(255, (floatval($m[2]) * 255)));
-                        break;
-                    }
-                    case 't':
-                    default:
-                    {
-                        // transparent (empty array)
-                        break;
-                    }
-                }
-                return $returncolor;
-            }
-        }
-        elseif ((substr($color, 0, 4) != 'cmyk') and (substr($color, 0, 3) != 'rgb') and (($dotpos = strpos($color, '.')) !== false)) {
-            // remove class parent (i.e.: color.red)
-            $color = substr($color, ($dotpos + 1));
-            if ($color == 'transparent') {
-                // transparent (empty array)
-                return [];
-            }
-        }
-        if (strlen($color) == 0) {
-            return $defcol;
-        }
-        // RGB ARRAY
-        if (substr($color, 0, 3) == 'rgb') {
-            $codes       = substr($color, 4);
-            $codes       = str_replace(')', '', $codes);
-            $returncolor = explode(',', $codes);
-            foreach ($returncolor as $key => $val) {
-                if (strpos($val, '%') > 0) {
-                    // percentage
-                    $returncolor[$key] = (255 * intval($val) / 100);
-                }
-                else {
-                    $returncolor[$key] = intval($val);
-                }
-                // normalize value
-                $returncolor[$key] = max(0, min(255, $returncolor[$key]));
-            }
-            return $returncolor;
-        }
-        // CMYK ARRAY
-        if (substr($color, 0, 4) == 'cmyk') {
-            $codes       = substr($color, 5);
-            $codes       = str_replace(')', '', $codes);
-            $returncolor = explode(',', $codes);
-            foreach ($returncolor as $key => $val) {
-                if (strpos($val, '%') !== false) {
-                    // percentage
-                    $returncolor[$key] = (100 * intval($val) / 100);
-                }
-                else {
-                    $returncolor[$key] = intval($val);
-                }
-                // normalize value
-                $returncolor[$key] = max(0, min(100, $returncolor[$key]));
-            }
-            return $returncolor;
-        }
-        if ($color[0] != '#') {
-            // COLOR NAME
-            if (isset(self::WEB_COLORS[$color])) {
-                // web color
-                $color_code = self::WEB_COLORS[$color];
-            }
-            else {
-                // spot color
-                $returncolor = self::spotColor($hcolor);
-                if ($returncolor === false) {
-                    $returncolor = $defcol;
-                }
-                return $returncolor;
-            }
-        }
-        else {
-            $color_code = substr($color, 1);
-        }
-        // HEXADECIMAL REPRESENTATION
-        switch (strlen($color_code)) {
-            case 3:
-            {
-                // 3-digit RGB hexadecimal representation
-                $r                = substr($color_code, 0, 1);
-                $g                = substr($color_code, 1, 1);
-                $b                = substr($color_code, 2, 1);
-                $returncolor      = [];
-                $returncolor['R'] = max(0, min(255, hexdec($r . $r)));
-                $returncolor['G'] = max(0, min(255, hexdec($g . $g)));
-                $returncolor['B'] = max(0, min(255, hexdec($b . $b)));
-                break;
-            }
-            case 6:
-            {
-                // 6-digit RGB hexadecimal representation
-                $returncolor      = [];
-                $returncolor['R'] = max(0, min(255, hexdec(substr($color_code, 0, 2))));
-                $returncolor['G'] = max(0, min(255, hexdec(substr($color_code, 2, 2))));
-                $returncolor['B'] = max(0, min(255, hexdec(substr($color_code, 4, 2))));
-                break;
-            }
-            case 8:
-            {
-                // 8-digit CMYK hexadecimal representation
-                $returncolor      = [];
-                $returncolor['C'] = max(0, min(100, round(hexdec(substr($color_code, 0, 2)) / 2.55)));
-                $returncolor['M'] = max(0, min(100, round(hexdec(substr($color_code, 2, 2)) / 2.55)));
-                $returncolor['Y'] = max(0, min(100, round(hexdec(substr($color_code, 4, 2)) / 2.55)));
-                $returncolor['K'] = max(0, min(100, round(hexdec(substr($color_code, 6, 2)) / 2.55)));
-                break;
-            }
-            default:
-            {
-                $returncolor = $defcol;
-                break;
-            }
-        }
-        return $returncolor;
-    }
 
     /**
      * Convert a color array into a string representation.

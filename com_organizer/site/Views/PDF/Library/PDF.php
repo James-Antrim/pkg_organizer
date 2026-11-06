@@ -15285,7 +15285,7 @@ class PDF
             return [];
         }
         $border['width'] = $this->getCSSBorderWidth($width);
-        $border['color'] = $this->convertHTMLColorToDec($color, $this->spotColors);
+        $border['color'] = $this->htmlToColor($color);
         return $border;
     }
 
@@ -16052,14 +16052,14 @@ class PDF
                         }
                         // font color
                         if (isset($dom[$key]['style']['color']) and (!StaticMethods::empty_string($dom[$key]['style']['color']))) {
-                            $dom[$key]['fgcolor'] = $this->convertHTMLColorToDec($dom[$key]['style']['color'], $this->spotColors);
+                            $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['style']['color']);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
                             $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                         }
                         // background color
                         if (isset($dom[$key]['style']['background-color']) and (!StaticMethods::empty_string($dom[$key]['style']['background-color']))) {
-                            $dom[$key]['bgcolor'] = $this->convertHTMLColorToDec($dom[$key]['style']['background-color'], $this->spotColors);
+                            $dom[$key]['bgcolor'] = $this->htmlToColor($dom[$key]['style']['background-color']);
                         }
                         // text-decoration
                         if (isset($dom[$key]['style']['text-decoration'])) {
@@ -16107,16 +16107,16 @@ class PDF
                         if (isset($dom[$key]['style']['border-color'])) {
                             $brd_colors = preg_split('/[\s]+/', trim($dom[$key]['style']['border-color']));
                             if (isset($brd_colors[3])) {
-                                $dom[$key]['border']['L']['color'] = $this->convertHTMLColorToDec($brd_colors[3], $this->spotColors);
+                                $dom[$key]['border']['L']['color'] = $this->htmlToColor($brd_colors[3]);
                             }
                             if (isset($brd_colors[1])) {
-                                $dom[$key]['border']['R']['color'] = $this->convertHTMLColorToDec($brd_colors[1], $this->spotColors);
+                                $dom[$key]['border']['R']['color'] = $this->htmlToColor($brd_colors[1]);
                             }
                             if (isset($brd_colors[0])) {
-                                $dom[$key]['border']['T']['color'] = $this->convertHTMLColorToDec($brd_colors[0], $this->spotColors);
+                                $dom[$key]['border']['T']['color'] = $this->htmlToColor($brd_colors[0]);
                             }
                             if (isset($brd_colors[2])) {
-                                $dom[$key]['border']['B']['color'] = $this->convertHTMLColorToDec($brd_colors[2], $this->spotColors);
+                                $dom[$key]['border']['B']['color'] = $this->htmlToColor($brd_colors[2]);
                             }
                         }
                         if (isset($dom[$key]['style']['border-width'])) {
@@ -16178,7 +16178,7 @@ class PDF
                                 }
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-color'])) {
-                                $dom[$key]['border'][$bsk]['color'] = $this->convertHTMLColorToDec($dom[$key]['style']['border-' . $bsv . '-color'], $this->spotColors);
+                                $dom[$key]['border'][$bsk]['color'] = $this->htmlToColor($dom[$key]['style']['border-' . $bsv . '-color']);
                             }
                             if (isset($dom[$key]['style']['border-' . $bsv . '-width'])) {
                                 $dom[$key]['border'][$bsk]['width'] = $this->getCSSBorderWidth($dom[$key]['style']['border-' . $bsv . '-width']);
@@ -16368,18 +16368,18 @@ class PDF
                     }
                     // set foreground color attribute
                     if (isset($dom[$key]['attribute']['color']) and (!StaticMethods::empty_string($dom[$key]['attribute']['color']))) {
-                        $dom[$key]['fgcolor'] = $this->convertHTMLColorToDec($dom[$key]['attribute']['color'], $this->spotColors);
+                        $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['attribute']['color']);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
                         $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
                     }
                     // set background color attribute
                     if (isset($dom[$key]['attribute']['bgcolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['bgcolor']))) {
-                        $dom[$key]['bgcolor'] = $this->convertHTMLColorToDec($dom[$key]['attribute']['bgcolor'], $this->spotColors);
+                        $dom[$key]['bgcolor'] = $this->htmlToColor($dom[$key]['attribute']['bgcolor']);
                     }
                     // set stroke color attribute
                     if (isset($dom[$key]['attribute']['strokecolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['strokecolor']))) {
-                        $dom[$key]['strokecolor'] = $this->convertHTMLColorToDec($dom[$key]['attribute']['strokecolor'], $this->spotColors);
+                        $dom[$key]['strokecolor'] = $this->htmlToColor($dom[$key]['attribute']['strokecolor']);
                     }
                     // check for width attribute
                     if (isset($dom[$key]['attribute']['width'])) {
@@ -22907,10 +22907,10 @@ class PDF
             $this->setAlpha($svgstyle['opacity'], 'Normal', $svgstyle['opacity'], false);
         }
         // color
-        $fill_color = $this->convertHTMLColorToDec($svgstyle['color'], $this->spotColors);
+        $fill_color = $this->htmlToColor($svgstyle['color']);
         $this->setFillColorArray($fill_color);
         // text color
-        $text_color = $this->convertHTMLColorToDec($svgstyle['text-color'], $this->spotColors);
+        $text_color = $this->htmlToColor($svgstyle['text-color']);
         $this->setTextColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
@@ -23039,7 +23039,7 @@ class PDF
             }
         }
         elseif ($svgstyle['fill'] != 'none') {
-            $fill_color = $this->convertHTMLColorToDec($svgstyle['fill'], $this->spotColors);
+            $fill_color = $this->htmlToColor($svgstyle['fill']);
             if ($svgstyle['fill-opacity'] != 1) {
                 $this->setAlpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity'], false);
             }
@@ -23060,7 +23060,7 @@ class PDF
                 $this->setAlpha($rgba_matches[1], 'Normal', $this->alpha['ca'], false);
             }
             $stroke_style = array(
-                'color' => $this->convertHTMLColorToDec($svgstyle['stroke'], $this->spotColors),
+                'color' => $this->htmlToColor($svgstyle['stroke']),
                 'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
@@ -23894,7 +23894,7 @@ class PDF
                         $offset /= 100;
                     }
                 }
-                $stop_color                                          = isset($svgstyle['stop-color']) ? $this->convertHTMLColorToDec($svgstyle['stop-color'], $this->spotColors) : 'black';
+                $stop_color                                          = isset($svgstyle['stop-color']) ? $this->htmlToColor($svgstyle['stop-color']) : 'black';
                 $opacity                                             = isset($svgstyle['stop-opacity']) ? $svgstyle['stop-opacity'] : 1;
                 $this->svggradients[$this->svggradientid]['stops'][] = array('offset' => $offset, 'color' => $stop_color, 'opacity' => $opacity);
                 break;
