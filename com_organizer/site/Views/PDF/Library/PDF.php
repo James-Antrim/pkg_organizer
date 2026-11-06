@@ -126,7 +126,7 @@ class PDF
             $command             .= $this->linestyleDash . ' ';
         }
         if (isset($style['color'])) {
-            $command .= $this->setDrawColorArray($style['color'], true) . ' ';
+            $command .= $this->setDrawColorArray($style['color'], false) . ' ';
         }
         if (!$ret and ($this->state == 2)) {
             $this->_out($command);
