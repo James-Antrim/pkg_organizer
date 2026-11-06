@@ -22,6 +22,11 @@ trait Constants
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ENCRYPTION
+
+    public const ENCRYPTION_PADDING = "\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
 
     public const BLACK = [0, 0, 0], BLUE = [0, 0, 255], WHITE = [255, 255, 255];
@@ -242,5 +247,16 @@ trait Constants
 
     public const LANDSCAPE = 'L', PORTRAIT = 'P';
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PRINTING
+
+    public const BYTE_RANGE_STRING = '/ByteRange[0 ********** ********** **********]';
+    public const GROUP_PAGE_NUMBER_ALIAS = '{:png:}', PAGE_NUMBER_ALIAS = '{:pnp:}', PAGES_IN_GROUP_ALIAS = '{:ptg:}', TOTAL_PAGES_ALIAS = '{:ptp:}';
+    public const PAGE_BOXES = ['MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox'];
+    /** Alias for right shift compensation used to correctly align page numbers on the right. */
+    public const RIGHT_SHIFT_ALIAS = '{rsc:';
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////STYLES
+
+
 }

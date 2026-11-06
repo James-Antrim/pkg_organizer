@@ -6756,18 +6756,18 @@ class PDF
             // remove last newline
             $pdfdoc = substr($pdfdoc, 0, -1);
             // remove filler space
-            $byterange_string_len = strlen(StaticMethods::$byterange_string);
+            $byterange_string_len = strlen(self::BYTE_RANGE_STRING);
             // define the ByteRange
             $byte_range    = [];
             $byte_range[0] = 0;
-            $byte_range[1] = strpos($pdfdoc, StaticMethods::$byterange_string) + $byterange_string_len + 10;
+            $byte_range[1] = strpos($pdfdoc, self::BYTE_RANGE_STRING) + $byterange_string_len + 10;
             $byte_range[2] = $byte_range[1] + $this->signature_max_length + 2;
             $byte_range[3] = strlen($pdfdoc) - $byte_range[2];
             $pdfdoc        = substr($pdfdoc, 0, $byte_range[1]) . substr($pdfdoc, $byte_range[2]);
             // replace the ByteRange
             $byterange = sprintf('/ByteRange[0 %u %u %u]', $byte_range[1], $byte_range[2], $byte_range[3]);
             $byterange .= str_repeat(' ', ($byterange_string_len - strlen($byterange)));
-            $pdfdoc    = str_replace(StaticMethods::$byterange_string, $byterange, $pdfdoc);
+            $pdfdoc    = str_replace(self::BYTE_RANGE_STRING, $byterange, $pdfdoc);
             // write the document to a temporary folder
             $tempdoc = StaticMethods::getObjFilename('doc', $this->file_id);
             $f       = StaticMethods::fopenLocal($tempdoc, 'wb');
@@ -6979,7 +6979,6 @@ class PDF
             'sign',
             'signature_data',
             'signature_max_length',
-            'byterange_string',
             'tsa_timestamp',
             'tsa_data'
         );
@@ -7035,7 +7034,7 @@ class PDF
      */
     protected function getAllInternalPageNumberAliases()
     {
-        $basic_alias = array(StaticMethods::$alias_tot_pages, StaticMethods::$alias_num_page, StaticMethods::$alias_group_tot_pages, StaticMethods::$alias_group_num_page, StaticMethods::$alias_right_shift);
+        $basic_alias = array(self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::GROUP_PAGE_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS);
         $pnalias     = [];
         foreach ($basic_alias as $k => $a) {
             $pnalias[$k] = $this->getInternalPageNumberAliases($a);
@@ -7091,7 +7090,7 @@ class PDF
     {
         $this->page_boxes = [];
         foreach ($boxes as $box) {
-            if (in_array($box, StaticMethods::$pageboxes)) {
+            if (in_array($box, self::PAGE_BOXES)) {
                 $this->page_boxes[] = $box;
             }
         }
@@ -9714,10 +9713,10 @@ class PDF
     protected function _Uvalue()
     {
         if ($this->encryptdata['mode'] == 0) { // RC4-40
-            return StaticMethods::_RC4($this->encryptdata['key'], StaticMethods::$enc_padding, $this->last_enc_key, $this->last_enc_key_c);
+            return StaticMethods::_RC4($this->encryptdata['key'], self::ENCRYPTION_PADDING, $this->last_enc_key, $this->last_enc_key_c);
         }
         elseif ($this->encryptdata['mode'] < 3) { // RC4-128, AES-128
-            $tmp = StaticMethods::_md5_16(StaticMethods::$enc_padding . $this->encryptdata['fileid']);
+            $tmp = StaticMethods::_md5_16(self::ENCRYPTION_PADDING . $this->encryptdata['fileid']);
             $enc = StaticMethods::_RC4($this->encryptdata['key'], $tmp, $this->last_enc_key, $this->last_enc_key_c);
             $len = strlen($tmp);
             for ($i = 1; $i <= 19; ++$i) {
@@ -9855,8 +9854,8 @@ class PDF
             }
             else { // RC4-40, RC4-128, AES-128
                 // Pad passwords
-                $this->encryptdata['user_password']  = substr($this->encryptdata['user_password'] . StaticMethods::$enc_padding, 0, 32);
-                $this->encryptdata['owner_password'] = substr($this->encryptdata['owner_password'] . StaticMethods::$enc_padding, 0, 32);
+                $this->encryptdata['user_password']  = substr($this->encryptdata['user_password'] . self::ENCRYPTION_PADDING, 0, 32);
+                $this->encryptdata['owner_password'] = substr($this->encryptdata['owner_password'] . self::ENCRYPTION_PADDING, 0, 32);
                 // Compute O value
                 $this->encryptdata['O'] = $this->_Ovalue();
                 // get default permissions (reverse byte order)
@@ -12328,7 +12327,7 @@ class PDF
         $out      .= '<< /Type /Sig';
         $out      .= ' /Filter /Adobe.PPKLite';
         $out      .= ' /SubFilter /adbe.pkcs7.detached';
-        $out      .= ' ' . StaticMethods::$byterange_string;
+        $out      .= ' ' . self::BYTE_RANGE_STRING;
         $out      .= ' /Contents<' . str_repeat('0', $this->signature_max_length) . '>';
         if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
             $out .= ' /Reference ['; // array of signature reference dictionaries
@@ -12610,7 +12609,7 @@ class PDF
     public function getAliasRightShift()
     {
         // calculate aproximatively the ratio between widths of aliases and replacements.
-        $ref  = '{' . StaticMethods::$alias_right_shift . '}{' . StaticMethods::$alias_tot_pages . '}{' . StaticMethods::$alias_num_page . '}';
+        $ref  = '{' . self::RIGHT_SHIFT_ALIAS . '}{' . self::TOTAL_PAGES_ALIAS . '}{' . self::PAGE_NUMBER_ALIAS . '}';
         $rep  = str_repeat(' ', $this->GetNumChars($ref));
         $wrep = $this->GetStringWidth($rep);
         if ($wrep > 0) {
@@ -12620,7 +12619,7 @@ class PDF
             $wdiff = 1;
         }
         $sdiff = sprintf('%F', $wdiff);
-        $alias = StaticMethods::$alias_right_shift . $sdiff . '}';
+        $alias = self::RIGHT_SHIFT_ALIAS . $sdiff . '}';
         if ($this->isUnicodeFont()) {
             $alias = '{' . $alias;
         }
@@ -12636,9 +12635,9 @@ class PDF
     public function getAliasNbPages()
     {
         if ($this->isUnicodeFont()) {
-            return '{' . StaticMethods::$alias_tot_pages . '}';
+            return '{' . self::TOTAL_PAGES_ALIAS . '}';
         }
-        return StaticMethods::$alias_tot_pages;
+        return self::TOTAL_PAGES_ALIAS;
     }
 
     /**
@@ -12650,9 +12649,9 @@ class PDF
     public function getAliasNumPage()
     {
         if ($this->isUnicodeFont()) {
-            return '{' . StaticMethods::$alias_num_page . '}';
+            return '{' . self::PAGE_NUMBER_ALIAS . '}';
         }
-        return StaticMethods::$alias_num_page;
+        return self::PAGE_NUMBER_ALIAS;
     }
 
     /**
@@ -12664,9 +12663,9 @@ class PDF
     public function getPageGroupAlias()
     {
         if ($this->isUnicodeFont()) {
-            return '{' . StaticMethods::$alias_group_tot_pages . '}';
+            return '{' . self::PAGES_IN_GROUP_ALIAS . '}';
         }
-        return StaticMethods::$alias_group_tot_pages;
+        return self::PAGES_IN_GROUP_ALIAS;
     }
 
     /**
@@ -12678,9 +12677,9 @@ class PDF
     public function getPageNumGroupAlias()
     {
         if ($this->isUnicodeFont()) {
-            return '{' . StaticMethods::$alias_group_num_page . '}';
+            return '{' . self::GROUP_PAGE_NUMBER_ALIAS . '}';
         }
-        return StaticMethods::$alias_group_num_page;
+        return self::GROUP_PAGE_NUMBER_ALIAS;
     }
 
     /**
