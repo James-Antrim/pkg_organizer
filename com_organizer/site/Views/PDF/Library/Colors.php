@@ -137,7 +137,7 @@ trait Colors
      * @return string
      * @see self::COLOR_CONTEXTS
      */
-    public function contextColor(string $color, string $context, float $tint = 100): string
+    public function contextSpotColor(string $color, string $context, float $tint = 100): string
     {
         if ($spotColor = $this->spotColor($color) or !in_array($context, self::COLOR_CONTEXTS)) {
             return '';
@@ -190,7 +190,7 @@ trait Colors
      */
     public function drawSpotColor(string $color, float $tint = 100): string
     {
-        return $this->contextColor($color, 'draw', $tint);
+        return $this->contextSpotColor($color, 'draw', $tint);
     }
 
     /**
@@ -202,7 +202,7 @@ trait Colors
      */
     public function fillSpotColor(string $color, float $tint = 100): string
     {
-        return $this->contextColor($color, 'fill', $tint);
+        return $this->contextSpotColor($color, 'fill', $tint);
     }
 
     /**
@@ -388,7 +388,7 @@ trait Colors
      */
     public function textSpotColor(string $color, float $tint = 100): string
     {
-        return $this->contextColor($color, 'text', $tint);
+        return $this->contextSpotColor($color, 'text', $tint);
     }
 
 
@@ -450,7 +450,7 @@ trait Colors
                 // SPOT COLOR
                 $intcolor = ['C' => $value1, 'M' => $value2, 'Y' => $value3, 'K' => $value4, 'name' => $name];
                 $this->spotColor($name, [$value1, $value2, $value3, $value4]);
-                $pdfcolor = $this->contextColor($name, $context);
+                $pdfcolor = $this->contextSpotColor($name, $context);
             }
         }
         switch ($context) {
