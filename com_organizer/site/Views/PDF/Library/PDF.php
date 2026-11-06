@@ -7773,7 +7773,7 @@ class PDF
                         $annots .= '>>';
                     }
                     if (isset($pl['opt']['c']) and (is_array($pl['opt']['c'])) and !empty($pl['opt']['c'])) {
-                        $annots .= ' /C ' . $this->getColorStringFromArray($pl['opt']['c']);
+                        $annots .= ' /C ' . $this->colorArrayToString($pl['opt']['c']);
                     }
                     //$annots .= ' /StructParent ';
                     //$annots .= ' /OC ';
@@ -8045,10 +8045,10 @@ class PDF
                                     $annots .= ' /R ' . $pl['opt']['mk']['r'];
                                 }
                                 if (isset($pl['opt']['mk']['bc']) and (is_array($pl['opt']['mk']['bc']))) {
-                                    $annots .= ' /BC ' . $this->getColorStringFromArray($pl['opt']['mk']['bc']);
+                                    $annots .= ' /BC ' . $this->colorArrayToString($pl['opt']['mk']['bc']);
                                 }
                                 if (isset($pl['opt']['mk']['bg']) and (is_array($pl['opt']['mk']['bg']))) {
-                                    $annots .= ' /BG ' . $this->getColorStringFromArray($pl['opt']['mk']['bg']);
+                                    $annots .= ' /BG ' . $this->colorArrayToString($pl['opt']['mk']['bg']);
                                 }
                                 if (isset($pl['opt']['mk']['ca'])) {
                                     $annots .= ' /CA ' . $pl['opt']['mk']['ca'];

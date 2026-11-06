@@ -64,6 +64,37 @@ trait Colors
     }
 
     /**
+     * Convert a color array into its string representation.
+     * @param array $color
+     * @return string
+     */
+    public function colorArrayToString(array $color): string
+    {
+        $color = array_values($color);
+        switch (count($color)) {
+            // grayscale
+            case 1:
+                $gray = max(0, min(255, (float) $color[0]) / 255);
+                return "[$gray]";
+            // RGB
+            case 3:
+                $blue  = max(0, min(255, floatval($color[2]))) / 255;
+                $green = max(0, min(255, floatval($color[1]))) / 255;
+                $red   = max(0, min(255, floatval($color[0]))) / 255;
+                return "[$red $blue $green]";
+            // CMYK
+            case 4:
+                $cyan    = max(0, min(100, floatval($color[0]))) / 100;
+                $key     = max(0, min(100, floatval($color[3]))) / 100;
+                $magenta = max(0, min(100, floatval($color[1]))) / 100;
+                $yellow  = max(0, min(100, floatval($color[2]))) / 100;
+                return "[$cyan $magenta $yellow $key]";
+            default:
+                return '[]';
+        }
+    }
+
+    /**
      * Convert color to javascript color.
      * @param string $color color name or "#RRGGBB"
      */
@@ -352,36 +383,4 @@ trait Colors
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
 
-    /**
-     * Convert a color array into a string representation.
-     * @param array $c Array of colors.
-     * @return string The color array representation.
-     */
-    public function getColorStringFromArray($c)
-    {
-        $c     = array_values($c);
-        $color = '[';
-        switch (count($c)) {
-            case 4:
-            {
-                // CMYK
-                $color .= sprintf('%F %F %F %F', (max(0, min(100, floatval($c[0]))) / 100), (max(0, min(100, floatval($c[1]))) / 100), (max(0, min(100, floatval($c[2]))) / 100), (max(0, min(100, floatval($c[3]))) / 100));
-                break;
-            }
-            case 3:
-            {
-                // RGB
-                $color .= sprintf('%F %F %F', (max(0, min(255, floatval($c[0]))) / 255), (max(0, min(255, floatval($c[1]))) / 255), (max(0, min(255, floatval($c[2]))) / 255));
-                break;
-            }
-            case 1:
-            {
-                // grayscale
-                $color .= sprintf('%F', (max(0, min(255, floatval($c[0]))) / 255));
-                break;
-            }
-        }
-        $color .= ']';
-        return $color;
-    }
 }
