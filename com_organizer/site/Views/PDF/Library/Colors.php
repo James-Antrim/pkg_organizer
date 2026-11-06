@@ -64,6 +64,26 @@ trait Colors
     }
 
     /**
+     * Convert color to javascript color.
+     * @param string $color color name or "#RRGGBB"
+     */
+    public function colorToJavascript(string $color): string
+    {
+        // Hexadecimal values get an entirely different format.
+        if (str_starts_with($color, '#')) {
+            $blue  = hexdec(substr($color, 5, 2)) / 255;
+            $green = hexdec(substr($color, 3, 2)) / 255;
+            $red   = hexdec(substr($color, 1, 2)) / 255;
+            return sprintf("['RGB',%F,%F,%F]", $red, $green, $blue);
+        }
+
+        // Default to transparent if name is not associated with a predefined value set.
+        $color = in_array($color, self::JS_COLORS) ? $color: self::JS_COLORS[0];
+
+        return 'color.' . $color;
+    }
+
+    /**
      * Applies the color to the specified context and generates a PDF command for the same.
      * @param string $color
      * @param string $context
@@ -404,21 +424,5 @@ trait Colors
         }
         $color .= ']';
         return $color;
-    }
-
-    /**
-     * Convert color to javascript color.
-     * @param string $color color name or "#RRGGBB"
-     */
-    public function _JScolor($color)
-    {
-        if (substr($color, 0, 1) == '#') {
-            return sprintf("['RGB',%F,%F,%F]", (hexdec(substr($color, 1, 2)) / 255), (hexdec(substr($color, 3, 2)) / 255), (hexdec(substr($color, 5, 2)) / 255));
-        }
-        if (!in_array($color, self::JS_COLORS)) {
-            // default transparent color
-            $color = self::JS_COLORS[0];
-        }
-        return 'color.' . $color;
     }
 }

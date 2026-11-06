@@ -11847,7 +11847,7 @@ class PDF
         $this->javascript .= 'f' . $name . '.textSize=' . $this->FontSizePt . ";\n";
         foreach ($prop as $key => $val) {
             if (strcmp(substr($key, -5), 'Color') == 0) {
-                $val = $this->_JScolor($val);
+                $val = $this->colorToJavascript($val);
             }
             else {
                 $val = "'" . $val . "'";
