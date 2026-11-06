@@ -68,7 +68,7 @@ class ContactTracking extends ListView
     {
         //set style for cell border
         $pageWidth = (0.85 / $this->scaleFactor);
-        $this->lineStyle(['width' => $pageWidth, 'color' => $this->footer_line_color]);
+        $this->lineStyle(['width' => $pageWidth, 'color' => $this->footerLineColor]);
 
         $pnText = $this->pageNumberAlias() . ' / ' . $this->totalPagesAlias();
 

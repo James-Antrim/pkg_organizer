@@ -45,8 +45,8 @@ class PDF
             $this->header_logo_width = $logoWidth;
             $this->header_title      = $title;
             $this->header_string     = $subtitle;
-            $this->header_text_color = $textColor;
-            $this->header_line_color = $bgColor;
+            $this->headerTextColor   = $textColor;
+            $this->headerLineColor   = $bgColor;
         }
 
         return [
@@ -54,8 +54,8 @@ class PDF
             'logo_width' => $this->header_logo_width,
             'title'      => $this->header_title,
             'string'     => $this->header_string,
-            'text_color' => $this->header_text_color,
-            'line_color' => $this->header_line_color,
+            'text_color' => $this->headerTextColor,
+            'line_color' => $this->headerLineColor,
         ];
     }
 
@@ -2879,8 +2879,8 @@ class PDF
      */
     public function setFooterData($tc = array(0, 0, 0), $lc = array(0, 0, 0))
     {
-        $this->footer_text_color = $tc;
-        $this->footer_line_color = $lc;
+        $this->footerTextColor = $tc;
+        $this->footerLineColor = $lc;
     }
 
     /**
@@ -2998,7 +2998,7 @@ class PDF
                 $header_x = $this->original_lMargin + ($headerdata['logo_width'] * 1.1);
             }
             $cw = $this->w - $this->original_lMargin - $this->original_rMargin - ($headerdata['logo_width'] * 1.1);
-            $this->setTextColorArray($this->header_text_color);
+            $this->setTextColorArray($this->headerTextColor);
             // header title
             $this->setFont($headerfont[0], 'B', $headerfont[2] + 1);
             $this->x($header_x);
@@ -3046,10 +3046,10 @@ class PDF
     public function Footer()
     {
         $cur_y = $this->y;
-        $this->setTextColorArray($this->footer_text_color);
+        $this->setTextColorArray($this->footerTextColor);
         //set style for cell border
         $line_width = (0.85 / $this->k);
-        $this->lineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footer_line_color));
+        $this->lineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor));
         //print document barcode
         $barcode = $this->getBarcode();
         if (!empty($barcode)) {
@@ -9484,7 +9484,7 @@ class PDF
         $prevcolor = $this->fgColor;
         $prevstyle = $this->FontStyle;
         if (empty($color)) {
-            $this->setTextColorArray($this->htmlLinkColorArray);
+            $this->setTextColorArray($this->linkColor);
         }
         else {
             $this->setTextColorArray($color);
@@ -15651,7 +15651,7 @@ class PDF
                             $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['style']['color']);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
-                            $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
+                            $dom[$key]['fgcolor'] = $this->linkColor;
                         }
                         // background color
                         if (isset($dom[$key]['style']['background-color']) and (!StaticMethods::empty_string($dom[$key]['style']['background-color']))) {
@@ -15967,7 +15967,7 @@ class PDF
                         $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['attribute']['color']);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
-                        $dom[$key]['fgcolor'] = $this->htmlLinkColorArray;
+                        $dom[$key]['fgcolor'] = $this->linkColor;
                     }
                     // set background color attribute
                     if (isset($dom[$key]['attribute']['bgcolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['bgcolor']))) {
@@ -19572,8 +19572,8 @@ class PDF
      */
     public function setHtmlLinksStyle($color = array(0, 0, 255), $fontstyle = 'U')
     {
-        $this->htmlLinkColorArray = $color;
-        $this->htmlLinkFontStyle  = $fontstyle;
+        $this->linkColor         = $color;
+        $this->htmlLinkFontStyle = $fontstyle;
     }
 
     /**
@@ -20887,14 +20887,14 @@ class PDF
     public function addHTMLTOC($page = null, $toc_name = 'TOC', $templates = [], $correct_align = true, $style = '', $color = array(0, 0, 0))
     {
         $filler                  = ' ';
-        $prev_htmlLinkColorArray = $this->htmlLinkColorArray;
+        $prev_htmlLinkColorArray = $this->linkColor;
         $prev_htmlLinkFontStyle  = $this->htmlLinkFontStyle;
         // set new style for link
-        $this->htmlLinkColorArray = [];
-        $this->htmlLinkFontStyle  = '';
-        $page_first               = $this->getPage();
-        $page_fill_start          = false;
-        $page_fill_end            = false;
+        $this->linkColor         = [];
+        $this->htmlLinkFontStyle = '';
+        $page_first              = $this->getPage();
+        $page_fill_start         = false;
+        $page_fill_end           = false;
         // get the font type used for numbers in each template
         $current_font = $this->FontFamily;
         foreach ($templates as $level => $html) {
@@ -20931,8 +20931,8 @@ class PDF
             $this->writeHTML($row, false, false, true, false, '');
         }
         // restore link styles
-        $this->htmlLinkColorArray = $prev_htmlLinkColorArray;
-        $this->htmlLinkFontStyle  = $prev_htmlLinkFontStyle;
+        $this->linkColor         = $prev_htmlLinkColorArray;
+        $this->htmlLinkFontStyle = $prev_htmlLinkFontStyle;
         // move TOC page and replace numbers
         $page_last = $this->getPage();
         $numpages  = ($page_last - $page_first + 1);

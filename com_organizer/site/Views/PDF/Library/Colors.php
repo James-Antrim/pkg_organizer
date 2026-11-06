@@ -32,6 +32,21 @@ trait Colors
     /** Commands for filling color. */
     protected string $fillColor = '0 g';
 
+    /** @var int[] RGB */
+    protected array $footerLineColor = self::BLACK;
+
+    /** @var int[] RGB */
+    protected array $footerTextColor = self::BLACK;
+
+    /** @var int[] RGB */
+    protected array $headerLineColor = self::BLACK;
+
+    /** @var int[] RGB */
+    protected array $headerTextColor = self::BLACK;
+
+    /** @var int[] RGB */
+    protected array $linkColor = self::BLUE;
+
     /** @var array User defined [CMYK + name + objectNumber] color configurations. */
     protected array $spotColors = [];
 
@@ -382,35 +397,6 @@ trait Colors
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-
-    /**
-     * Color for header text (RGB array).
-     * @var int[]
-     */
-    protected $header_text_color = self::BLACK;
-
-    /**
-     * Color for header line (RGB array).
-     * @var int[]
-     */
-    protected $header_line_color = self::BLACK;
-
-    /**
-     * Color for footer text (RGB array).
-     * @var int[]
-     */
-    protected $footer_text_color = self::BLACK;
-
-    /**
-     * Color for footer line (RGB array).
-     * @var int[]
-     */
-    protected $footer_line_color = self::BLACK;
-
-    /**
-     * Default color for html links.
-     */
-    protected $htmlLinkColorArray = self::BLUE;
 
     /**
      * Set the color array for the specified type ('draw', 'fill', 'text').
