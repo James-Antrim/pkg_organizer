@@ -386,28 +386,24 @@ trait Colors
     /**
      * Color for header text (RGB array).
      * @var int[]
-     * @phpstan-var array{0: int, 1: int, 2: int}
      */
     protected $header_text_color = self::BLACK;
 
     /**
      * Color for header line (RGB array).
      * @var int[]
-     * @phpstan-var array{0: int, 1: int, 2: int}
      */
     protected $header_line_color = self::BLACK;
 
     /**
      * Color for footer text (RGB array).
      * @var int[]
-     * @phpstan-var array{0: int, 1: int, 2: int}
      */
     protected $footer_text_color = self::BLACK;
 
     /**
      * Color for footer line (RGB array).
      * @var int[]
-     * @phpstan-var array{0: int, 1: int, 2: int}
      */
     protected $footer_line_color = self::BLACK;
 

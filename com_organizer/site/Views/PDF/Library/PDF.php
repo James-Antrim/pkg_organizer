@@ -576,14 +576,12 @@ class PDF
     /**
      * Default font used on page header.
      * @var array<int,string|float|null>
-     * @phpstan-var array{0: string, 1: string, 2: float|null}
      */
     protected $header_font;
 
     /**
      * Default font used on page footer.
      * @var array<int,string|float|null>
-     * @phpstan-var array{0: string, 1: string, 2: float|null}
      */
     protected $footer_font;
 
