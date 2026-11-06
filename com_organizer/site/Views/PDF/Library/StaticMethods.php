@@ -26,24 +26,6 @@ class StaticMethods
 
 
     /**
-     * Return the current TCPDF version.
-     * @return string TCPDF version string
-     */
-    public static function getTCPDFVersion()
-    {
-        return '6.6.5';
-    }
-
-    /**
-     * Return the current TCPDF producer.
-     * @return string TCPDF producer string
-     */
-    public static function getTCPDFProducer()
-    {
-        return "\x54\x43\x50\x44\x46\x20" . self::getTCPDFVersion() . "\x20\x28\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
-    }
-
-    /**
      * Check if the URL exist.
      * @param string $url URL to check.
      * @return boolean true if the URl exist, false otherwise.
