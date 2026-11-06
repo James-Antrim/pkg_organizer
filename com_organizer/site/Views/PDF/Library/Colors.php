@@ -15,8 +15,6 @@ namespace THM\Organizer\Views\PDF\Library;
 /** PHP color trait. */
 trait Colors
 {
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
-
     /** Current background color. */
     protected array $bgColor = ['R' => 255, 'G' => 255, 'B' => 255];
 
@@ -308,7 +306,7 @@ trait Colors
      * @param bool   $append appends the command to the document, defaults to true
      * @param string $name   spot color name (if any)
      * @return string the PDF command
-     * @see   drawColorArray(), fillColor(), textColor(), line(), Rect(), Cell(), MultiCell()
+     * @see   contextColor()
      */
     public function drawColor(float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
     {
@@ -320,7 +318,7 @@ trait Colors
      * @param array $color  color configuration array: 1 => grayscale, 3 => RGB, 4 => CMYK, 5 => spotColor (CMYK & name values)
      * @param bool  $append appends the command to the document, defaults to true
      * @return string
-     * @see   drawColor()
+     * @see   contextColorArray(), drawColor())
      */
     public function drawColorArray(array $color, bool $append = true): string
     {
@@ -332,7 +330,7 @@ trait Colors
      * @param string $color
      * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
-     * @see   spotColor(), fillSpotColor(), textSpotColor()
+     * @see contextSpotColor(), spotColor()
      */
     public function drawSpotColor(string $color, float $tint = 100): string
     {
@@ -348,7 +346,7 @@ trait Colors
      * @param bool   $append appends the command to the document, defaults to true
      * @param string $name   spot color name (if any)
      * @return string The PDF command.
-     * @see   fillColorArray(), drawColor(), textColor(), Rect(), Cell(), MultiCell()
+     * @see contextColor()
      */
     public function fillColor(float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
     {
@@ -360,7 +358,7 @@ trait Colors
      * @param array $color  color configuration array: 1 => grayscale, 3 => RGB, 4 => CMYK, 5 => spotColor (CMYK & name values)
      * @param bool  $append appends the command to the document, defaults to true
      * @return string
-     * @see   fillColor()
+     * @see   contextColorArray(), fillColor()
      */
     public function fillColorArray(array $color, bool $append = true): string
     {
@@ -372,7 +370,7 @@ trait Colors
      * @param string $color
      * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
-     * @see   spotColor(), drawSpotColor(), textSpotColor()
+     * @see contextSpotColor(), spotColor()
      */
     public function fillSpotColor(string $color, float $tint = 100): string
     {
@@ -561,8 +559,8 @@ trait Colors
      * @param float  $value4 black (key) color for CMYK (0-100)
      * @param bool   $append appends the command to the document, defaults to true
      * @param string $name   spot color name (if any)
-     * @return string Empty string.
-     * @see   textColorArray(), drawColor(), fillColor(), Text(), Cell(), MultiCell()
+     * @return string
+     * @see   contextColor()
      */
     public function textColor(float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
     {
@@ -574,7 +572,7 @@ trait Colors
      * @param array $color  color configuration array: 1 => grayscale, 3 => RGB, 4 => CMYK, 5 => spotColor (CMYK & name values)
      * @param bool  $append appends the command to the document, defaults to true
      * @return string
-     * @see   fillColor()
+     * @see   contextColorArray(), textColor()
      */
     public function textColorArray(array $color, bool $append = true): string
     {
@@ -586,175 +584,10 @@ trait Colors
      * @param string $color
      * @param float  $tint intensity of the color 0 to 100, where 100 is full intensity (default)
      * @return string
-     * @see   spotColor(), drawSpotColor(), fillSpotColor()
+     * @see contextSpotColor(), spotColor()
      */
     public function textSpotColor(string $color, float $tint = 100): string
     {
         return $this->contextSpotColor($color, 'text', $tint);
     }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
-    /**
-     * Paints color transition registration bars
-     * @param float  $x          abscissa of the top left corner of the rectangle.
-     * @param float  $y          ordinate of the top left corner of the rectangle.
-     * @param float  $w          width of the rectangle.
-     * @param float  $h          height of the rectangle.
-     * @param bool   $transition if true prints tcolor transitions to white.
-     * @param bool   $vertical   if true prints bar vertically.
-     * @param string $colors     colors to print separated by comma. Valid values are: A,W,R,G,B,C,M,Y,K,RGB,CMYK,ALL,ALLSPOT,<SPOT_COLOR_NAME>. Where: A = grayscale black, W = grayscale white, R = RGB red, G RGB green, B RGB blue, C = CMYK cyan, M = CMYK magenta, Y = CMYK yellow, K = CMYK key/black, RGB = RGB registration color, CMYK = CMYK registration color, ALL = Spot registration color, ALLSPOT = print all defined spot colors, <SPOT_COLOR_NAME> = name of the spot color to print.
-     * @author Nicola Asuni
-     */
-    public function colorRegistrationBar($x, $y, $w, $h, $transition = true, $vertical = false, $colors = 'A,R,G,B,C,M,Y,K')
-    {
-        if (strpos($colors, 'ALLSPOT') !== false) {
-            // expand spot colors
-            $spot_colors = '';
-            foreach ($this->spotColors as $spot_color_name => $v) {
-                $spot_colors .= ',' . $spot_color_name;
-            }
-            if (!empty($spot_colors)) {
-                $spot_colors = substr($spot_colors, 1);
-                $colors      = str_replace('ALLSPOT', $spot_colors, $colors);
-            }
-            else {
-                $colors = str_replace('ALLSPOT', 'NONE', $colors);
-            }
-        }
-        $bars    = explode(',', $colors);
-        $numbars = count($bars); // number of bars to print
-        if ($numbars <= 0) {
-            return;
-        }
-        // set bar measures
-        if ($vertical) {
-            $coords = [0, 0, 0, 1];
-            $wb     = $w / $numbars; // bar width
-            $hb     = $h; // bar height
-            $xd     = $wb; // delta x
-            $yd     = 0; // delta y
-        }
-        else {
-            $coords = [1, 0, 0, 0];
-            $wb     = $w; // bar width
-            $hb     = $h / $numbars; // bar height
-            $xd     = 0; // delta x
-            $yd     = $hb; // delta y
-        }
-        $xb = $x;
-        $yb = $y;
-        foreach ($bars as $col) {
-            switch ($col) {
-                // set transition colors
-                case 'A':
-                { // BLACK (GRAYSCALE)
-                    $col_a = [255];
-                    $col_b = [0];
-                    break;
-                }
-                case 'W':
-                { // WHITE (GRAYSCALE)
-                    $col_a = [0];
-                    $col_b = [255];
-                    break;
-                }
-                case 'R':
-                { // RED (RGB)
-                    $col_a = [255, 255, 255];
-                    $col_b = [255, 0, 0];
-                    break;
-                }
-                case 'G':
-                { // GREEN (RGB)
-                    $col_a = [255, 255, 255];
-                    $col_b = [0, 255, 0];
-                    break;
-                }
-                case 'B':
-                { // BLUE (RGB)
-                    $col_a = [255, 255, 255];
-                    $col_b = [0, 0, 255];
-                    break;
-                }
-                case 'C':
-                { // CYAN (CMYK)
-                    $col_a = [0, 0, 0, 0];
-                    $col_b = [100, 0, 0, 0];
-                    break;
-                }
-                case 'M':
-                { // MAGENTA (CMYK)
-                    $col_a = [0, 0, 0, 0];
-                    $col_b = [0, 100, 0, 0];
-                    break;
-                }
-                case 'Y':
-                { // YELLOW (CMYK)
-                    $col_a = [0, 0, 0, 0];
-                    $col_b = [0, 0, 100, 0];
-                    break;
-                }
-                case 'K':
-                { // KEY - BLACK (CMYK)
-                    $col_a = [0, 0, 0, 0];
-                    $col_b = [0, 0, 0, 100];
-                    break;
-                }
-                case 'RGB':
-                { // BLACK REGISTRATION (RGB)
-                    $col_a = [255, 255, 255];
-                    $col_b = [0, 0, 0];
-                    break;
-                }
-                case 'CMYK':
-                { // BLACK REGISTRATION (CMYK)
-                    $col_a = [0, 0, 0, 0];
-                    $col_b = [100, 100, 100, 100];
-                    break;
-                }
-                case 'ALL':
-                { // SPOT COLOR REGISTRATION
-                    $col_a = [0, 0, 0, 0, 'None'];
-                    $col_b = [100, 100, 100, 100, 'All'];
-                    break;
-                }
-                case 'NONE':
-                { // SKIP THIS COLOR
-                    $col_a = [0, 0, 0, 0, 'None'];
-                    $col_b = [0, 0, 0, 0, 'None'];
-                    break;
-                }
-                default:
-                { // SPECIFIC SPOT COLOR NAME
-                    $col_a = [0, 0, 0, 0, 'None'];
-                    $col_b = $this->spotColor($col);
-                    if ($col_b === false) {
-                        // in case of error defaults to the registration color
-                        $col_b = [100, 100, 100, 100, 'All'];
-                    }
-                    break;
-                }
-            }
-            if ($col != 'NONE') {
-                if ($transition) {
-                    // color gradient
-                    $this->LinearGradient($xb, $yb, $wb, $hb, $col_a, $col_b, $coords);
-                }
-                else {
-                    $this->fillColorArray($col_b);
-                    // colored rectangle
-                    $this->Rect($xb, $yb, $wb, $hb, 'F', []);
-                }
-                $xb += $xd;
-                $yb += $yd;
-            }
-        }
-    }
-
 }
