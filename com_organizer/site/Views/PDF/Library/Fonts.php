@@ -19,6 +19,19 @@ trait Fonts
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
 
+    /**
+     * Get unsigned long (big endian 32-bit unsigned integer) from string.
+     * @param string $string string from where to extract value
+     * @param int    $offset point from where to read the data
+     * @return int
+     */
+    public function unsignedLong(string $string, int $offset): int
+    {
+        $v = unpack('Ni', substr($string, $offset, 4));
+        return $v['i'];
+    }
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 
