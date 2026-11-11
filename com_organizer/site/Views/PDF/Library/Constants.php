@@ -248,6 +248,19 @@ trait Constants
     public const LANDSCAPE = 'L', PORTRAIT = 'P';
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IMAGES
+
+
+    public const SVG_PROPERTIES = [
+        'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction',
+        'display', 'fill', 'fill-opacity', 'fill-rule', 'font', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style',
+        'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing',
+        'marker', 'marker-end', 'marker-mid', 'marker-start', 'pointer-events', 'shape-rendering', 'stroke', 'stroke-dasharray', 'stroke-dashoffset',
+        'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-rendering', 'visibility',
+        'word-spacing', 'writing-mode'
+    ];
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PRINTING
 
     public const BYTE_RANGE_STRING = '/ByteRange[0 ********** ********** **********]';
