@@ -13,41 +13,209 @@
 namespace THM\Organizer\Views\PDF\Library;
 
 /** Static image methods used by the TCPDF class. */
-class Images
+trait Images
 {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
+
 
     /**
-     * Array of hinheritable SVG properties.
-     *
-     * @var string[]
+     * Gets the type / extension from the file name or metadata.
+     * @param string $file
+     * @param array  $metadata
+     * @return string
      */
-    public static $svginheritprop = array('clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction', 'display', 'fill', 'fill-opacity', 'fill-rule', 'font', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing', 'marker', 'marker-end', 'marker-mid', 'marker-start', 'pointer-events', 'shape-rendering', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-rendering', 'visibility', 'word-spacing', 'writing-mode');
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    /**
-     * Return the image type given the file name or array returned by getimagesize() function.
-     * @param string $imgfile image file name
-     * @param array  $iminfo  array of image information returned by getimagesize() function.
-     * @return string image type
-     */
-    public static function getImageFileType($imgfile, $iminfo = [])
+    public static function imageType(string $file, array $metadata = []): string
     {
-        $type = '';
-        if (isset($iminfo['mime']) and !empty($iminfo['mime'])) {
-            $mime = explode('/', $iminfo['mime']);
-            if ((count($mime) > 1) and ($mime[0] == 'image') and (!empty($mime[1]))) {
-                $type = strtolower(trim($mime[1]));
-            }
+        $path      = parse_url($file, PHP_URL_PATH);
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $type      = strtolower(trim($extension));
+
+        $mime = $metadata['mime'] ?? '';
+        if ($mime and $mime = explode('/', $metadata['mime']) and count($mime) > 1 and $mime[0] === 'image') {
+            $type = strtolower(trim($mime[1]));
         }
-        if (empty($type)) {
-            $type = strtolower(trim(pathinfo(parse_url($imgfile, PHP_URL_PATH), PATHINFO_EXTENSION)));
-        }
-        if ($type == 'jpg') {
-            $type = 'jpeg';
-        }
-        return $type;
+
+        return $type !== 'jpg' ? $type : 'jpeg';
     }
+
+    /**
+     * Extract structure containing the image data from a PNG file. PNG-Alpha returns 'alpha'. Errors return false.
+     * @param string $filePath
+     * @return array|false|string
+     */
+    public function parsePNG(string $filePath): array|false|string
+    {
+        if (!$file = @fopen($filePath, 'rb')) {
+            return false;
+        }
+
+        // !png
+        if (fread($file, 8) !== chr(137) . 'PNG' . chr(13) . chr(10) . chr(26) . chr(10)) {
+            fclose($file);
+            return false;
+        }
+
+        // Reads the header chunk
+        fread($file, 4);
+
+        // Incorrect PNG file
+        if (fread($file, 4) !== 'IHDR') {
+            return false;
+        }
+
+        $width  = StaticMethods::_freadint($file);
+        $height = StaticMethods::_freadint($file);
+
+        $bpc = ord(fread($file, 1));
+        $ct  = ord(fread($file, 1));
+
+        if (array_key_exists($ct, self::COLOR_SCHEMES)) {
+            $scheme = self::COLOR_SCHEMES[$ct];
+        }
+        else {
+            fclose($file);
+            return 'alpha';
+        }
+
+        // Unknown compression method / unknown filter method / interlacing unsupported
+        if (ord(fread($file, 1)) !== 0 or ord(fread($file, 1)) !== 0 or ord(fread($file, 1)) !== 0) {
+            fclose($file);
+            return false;
+        }
+
+        fread($file, 4);
+
+        $channels   = $ct === self::RGB ? 3 : 1;
+        $parameters = '/DecodeParms << /Predictor 15 /Colors ' . $channels . ' /BitsPerComponent ' . $bpc . ' /Columns ' . $width . ' >>';
+
+        //Scan chunks looking for palette, transparency and image data
+        $data         = '';
+        $icc          = false;
+        $palette      = '';
+        $transparency = '';
+
+        $integer = StaticMethods::_freadint($file);
+        do {
+            $type = fread($file, 4);
+
+            switch ($type) {
+                case 'iCCP':
+                    // Skip profile name
+                    $length = 0;
+                    while (ord(fread($file, 1)) !== 0 and $length < 80) {
+                        ++$length;
+                    }
+
+                    // Unknown filter method
+                    if (ord(fread($file, 1)) !== 0) {
+                        fclose($file);
+                        return false;
+                    }
+
+                    // ICC Color Profile
+                    $icc = StaticMethods::rfread($file, ($integer - $length - 2));
+                    $icc = gzuncompress($icc);
+
+                    fread($file, 4);
+                    break;
+
+                // Image data block
+                case 'IDAT':
+                    $data .= StaticMethods::rfread($file, $integer);
+                    fread($file, 4);
+                    break;
+
+                case 'IEND':
+                    break 2;
+
+                // Palette
+                case 'PLTE':
+                    $palette = StaticMethods::rfread($file, $integer);
+                    fread($file, 4);
+                    break;
+
+                // Transparency
+                case 'tRNS':
+                    $t = StaticMethods::rfread($file, $integer);
+                    switch ($ct) {
+                        case self::CMYK:
+                            if ($integer > 0) {
+                                $transparency = [];
+                                for ($i = 0; $i < $integer; ++$i) {
+                                    $transparency[] = ord($t[$i]);
+                                }
+                            }
+                            break;
+                        case self::GRAYSCALE:
+                            $transparency = array(ord($t[1]));
+                            break;
+                        case self::RGB:
+                            $transparency = array(ord($t[1]), ord($t[3]), ord($t[5]));
+                            break;
+                    }
+                    fread($file, 4);
+                    break;
+                default:
+                    StaticMethods::rfread($file, $integer + 4);
+                    break;
+
+            }
+
+            $integer = StaticMethods::_freadint($file);
+        } while ($integer);
+
+        fclose($file);
+
+        if ($scheme === self::COLOR_SCHEMES[self::CMYK] and empty($palette)) {
+            // Missing palette
+            return false;
+        }
+
+        return [
+            'bpc'   => $bpc,
+            'ch'    => $channels,
+            'cs'    => $scheme,
+            'data'  => $data,
+            'f'     => 'FlateDecode',
+            'h'     => $height,
+            'icc'   => $icc,
+            'pal'   => $palette,
+            'parms' => $parameters,
+            'trns'  => $transparency,
+            'w'     => $width,
+        ];
+    }
+
+    /**
+     * Convert the loaded image to a PNG and then return a structure for the PDF creator. If alpha returns string alpha. Returns false on error.
+     * @param resource $image image resource
+     * @param string   $temp  temporary file name
+     * @return array|false|string
+     * @see parsePNG
+     */
+    public function png($image, string $temp): array|false|string
+    {
+        imageinterlace($image, 0);
+        imagepng($image, $temp);
+        imagedestroy($image);
+
+        // Get PNG image data?
+        $return = $this->parsePNG($temp);
+
+        // tidy up by removing temporary image
+        unlink($temp);
+
+        return $return;
+    }
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
+
 
     /**
      * Set the transparency for the given GD image.
@@ -70,28 +238,6 @@ class Images
         imagefill($new_image, 0, 0, $tid);
         imagecolortransparent($new_image, $tid);
         return $new_image;
-    }
-
-    /**
-     * Convert the loaded image to a PNG and then return a structure for the PDF creator.
-     * This function requires GD library and write access to the directory defined on K_PATH_CACHE constant.
-     * @param resource $image    Image object.
-     * @param string   $tempfile Temporary file name.
-     *                           return image PNG image object.
-     */
-    public static function _toPNG($image, $tempfile)
-    {
-        // turn off interlaced mode
-        imageinterlace($image, 0);
-        // create temporary PNG image
-        imagepng($image, $tempfile);
-        // remove image from memory
-        imagedestroy($image);
-        // get PNG image data
-        $retvars = self::_parsepng($tempfile);
-        // tidy up by removing temporary image
-        unlink($tempfile);
-        return $retvars;
     }
 
     /**
@@ -195,136 +341,5 @@ class Images
             $icc = false;
         }
         return array('w' => $a[0], 'h' => $a[1], 'ch' => $channels, 'icc' => $icc, 'cs' => $colspace, 'bpc' => $bpc, 'f' => 'DCTDecode', 'data' => $data);
-    }
-
-    /**
-     * Extract info from a PNG file without using the GD library.
-     * @param string $file image file to parse
-     * @return array|false structure containing the image data
-     */
-    public static function _parsepng($file)
-    {
-        $f = @fopen($file, 'rb');
-        if ($f === false) {
-            // Can't open image file
-            return false;
-        }
-        //Check signature
-        if (fread($f, 8) != chr(137) . 'PNG' . chr(13) . chr(10) . chr(26) . chr(10)) {
-            // Not a PNG file
-            return false;
-        }
-        //Read header chunk
-        fread($f, 4);
-        if (fread($f, 4) != 'IHDR') {
-            //Incorrect PNG file
-            return false;
-        }
-        $w   = StaticMethods::_freadint($f);
-        $h   = StaticMethods::_freadint($f);
-        $bpc = ord(fread($f, 1));
-        $ct  = ord(fread($f, 1));
-        if ($ct == 0) {
-            $colspace = 'DeviceGray';
-        }
-        elseif ($ct == 2) {
-            $colspace = 'DeviceRGB';
-        }
-        elseif ($ct == 3) {
-            $colspace = 'Indexed';
-        }
-        else {
-            // alpha channel
-            fclose($f);
-            return 'pngalpha';
-        }
-        if (ord(fread($f, 1)) != 0) {
-            // Unknown compression method
-            fclose($f);
-            return false;
-        }
-        if (ord(fread($f, 1)) != 0) {
-            // Unknown filter method
-            fclose($f);
-            return false;
-        }
-        if (ord(fread($f, 1)) != 0) {
-            // Interlacing not supported
-            fclose($f);
-            return false;
-        }
-        fread($f, 4);
-        $channels = ($ct == 2 ? 3 : 1);
-        $parms    = '/DecodeParms << /Predictor 15 /Colors ' . $channels . ' /BitsPerComponent ' . $bpc . ' /Columns ' . $w . ' >>';
-        //Scan chunks looking for palette, transparency and image data
-        $pal  = '';
-        $trns = '';
-        $data = '';
-        $icc  = false;
-        $n    = StaticMethods::_freadint($f);
-        do {
-            $type = fread($f, 4);
-            if ($type == 'PLTE') {
-                // read palette
-                $pal = StaticMethods::rfread($f, $n);
-                fread($f, 4);
-            }
-            elseif ($type == 'tRNS') {
-                // read transparency info
-                $t = StaticMethods::rfread($f, $n);
-                if ($ct == 0) { // DeviceGray
-                    $trns = array(ord($t[1]));
-                }
-                elseif ($ct == 2) { // DeviceRGB
-                    $trns = array(ord($t[1]), ord($t[3]), ord($t[5]));
-                }
-                else { // Indexed
-                    if ($n > 0) {
-                        $trns = [];
-                        for ($i = 0; $i < $n; ++$i) {
-                            $trns[] = ord($t[$i]);
-                        }
-                    }
-                }
-                fread($f, 4);
-            }
-            elseif ($type == 'IDAT') {
-                // read image data block
-                $data .= StaticMethods::rfread($f, $n);
-                fread($f, 4);
-            }
-            elseif ($type == 'iCCP') {
-                // skip profile name
-                $len = 0;
-                while ((ord(fread($f, 1)) != 0) and ($len < 80)) {
-                    ++$len;
-                }
-                // get compression method
-                if (ord(fread($f, 1)) != 0) {
-                    // Unknown filter method
-                    fclose($f);
-                    return false;
-                }
-                // read ICC Color Profile
-                $icc = StaticMethods::rfread($f, ($n - $len - 2));
-                // decompress profile
-                $icc = gzuncompress($icc);
-                fread($f, 4);
-            }
-            elseif ($type == 'IEND') {
-                break;
-            }
-            else {
-                StaticMethods::rfread($f, $n + 4);
-            }
-            $n = StaticMethods::_freadint($f);
-        } while ($n);
-        if (($colspace == 'Indexed') and (empty($pal))) {
-            // Missing palette
-            fclose($f);
-            return false;
-        }
-        fclose($f);
-        return array('w' => $w, 'h' => $h, 'ch' => $channels, 'icc' => $icc, 'cs' => $colspace, 'bpc' => $bpc, 'f' => 'FlateDecode', 'parms' => $parms, 'pal' => $pal, 'trns' => $trns, 'data' => $data);
     }
 }
