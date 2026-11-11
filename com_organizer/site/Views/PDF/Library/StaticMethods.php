@@ -1928,91 +1928,6 @@ class StaticMethods
     }
 
     /**
-     * Get USHORT from string (Big Endian 16-bit unsigned integer).
-     * @param string $str    string from where to extract value
-     * @param int    $offset point from where to read the data
-     * @return int 16 bit value
-     * @author Nicola Asuni
-     */
-    public static function _getUSHORT($str, $offset)
-    {
-        $v = unpack('ni', substr($str, $offset, 2));
-        return $v['i'];
-    }
-
-    /**
-     * Get SHORT from string (Big Endian 16-bit signed integer).
-     * @param string $str    String from where to extract value.
-     * @param int    $offset Point from where to read the data.
-     * @return int 16 bit value
-     * @author Nicola Asuni
-     */
-    public static function _getSHORT($str, $offset)
-    {
-        $v = unpack('si', substr($str, $offset, 2));
-        return $v['i'];
-    }
-
-    /**
-     * Get FWORD from string (Big Endian 16-bit signed integer).
-     * @param string $str    String from where to extract value.
-     * @param int    $offset Point from where to read the data.
-     * @return int 16 bit value
-     * @author Nicola Asuni
-     */
-    public static function _getFWORD($str, $offset)
-    {
-        $v = self::_getUSHORT($str, $offset);
-        if ($v > 0x7fff) {
-            $v -= 0x10000;
-        }
-        return $v;
-    }
-
-    /**
-     * Get UFWORD from string (Big Endian 16-bit unsigned integer).
-     * @param string $str    string from where to extract value
-     * @param int    $offset point from where to read the data
-     * @return int 16 bit value
-     * @author Nicola Asuni
-     */
-    public static function _getUFWORD($str, $offset)
-    {
-        $v = self::_getUSHORT($str, $offset);
-        return $v;
-    }
-
-    /**
-     * Get FIXED from string (32-bit signed fixed-point number (16.16).
-     * @param string $str    string from where to extract value
-     * @param int    $offset point from where to read the data
-     * @return int 16 bit value
-     * @author Nicola Asuni
-     */
-    public static function _getFIXED($str, $offset)
-    {
-        // mantissa
-        $m = self::_getFWORD($str, $offset);
-        // fraction
-        $f = self::_getUSHORT($str, ($offset + 2));
-        $v = floatval('' . $m . '.' . $f . '');
-        return $v;
-    }
-
-    /**
-     * Get BYTE from string (8-bit unsigned integer).
-     * @param string $str    String from where to extract value.
-     * @param int    $offset Point from where to read the data.
-     * @return int 8 bit value
-     * @author Nicola Asuni
-     */
-    public static function _getBYTE($str, $offset)
-    {
-        $v = unpack('Ci', substr($str, $offset, 1));
-        return $v['i'];
-    }
-
-    /**
      * Binary-safe and URL-safe file read.
      * Reads up to length bytes from the file pointer referenced by handle. Reading stops as soon as one of the following conditions is met: length bytes have been read; EOF (end of file) is reached.
      * @param resource $handle
@@ -2031,17 +1946,6 @@ class StaticMethods
             $data .= self::rfread($handle, $rest);
         }
         return $data;
-    }
-
-    /**
-     * Read a 4-byte (32 bit) integer from file.
-     * @param resource $f file resource.
-     * @return int 4-byte integer
-     */
-    public static function _freadint($f)
-    {
-        $a = unpack('Ni', fread($f, 4));
-        return $a['i'];
     }
 
     /**
@@ -2564,6 +2468,5 @@ class StaticMethods
         }
         return $page_mode;
     }
-
 
 }
