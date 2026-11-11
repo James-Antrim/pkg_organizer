@@ -27,7 +27,6 @@ class PDF
     use Colors;
     use Constants;
     use Fonts;
-    use Images;
 
     /**
      * Returns "THM Organizer 5.0.0" in Unicode.
@@ -2986,7 +2985,7 @@ class PDF
                 $this->x = $this->original_lMargin;
             }
             if ($headerdata['logo']) {
-                $imgtype = $this->imageType(self::IMAGE_PATH . $headerdata['logo']);
+                $imgtype = Images::getImageFileType(self::IMAGE_PATH . $headerdata['logo']);
                 if (($imgtype == 'eps') or ($imgtype == 'ai')) {
                     $this->ImageEps(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
                 }
@@ -6308,7 +6307,7 @@ class PDF
             //First use of image, get info
             $type = strtolower($type);
             if ($type == '') {
-                $type = $this->imageType($file, $imsize);
+                $type = Images::getImageFileType($file, $imsize);
             }
             elseif ($type == 'jpg') {
                 $type = 'jpeg';
@@ -6321,7 +6320,7 @@ class PDF
                 // TCPDF image functions
                 $info = Images::$mtd($file);
                 if (($ismask === false) and ($imgmask === false) and (strpos($file, '__tcpdf_' . $this->file_id . '_imgmask_') === FALSE)
-                    and (($info === 'alpha') or (isset($info['trns']) and !empty($info['trns'])))) {
+                    and (($info === 'pngalpha') or (isset($info['trns']) and !empty($info['trns'])))) {
                     return $this->ImagePngAlpha($file, $x, $y, $pixw, $pixh, $w, $h, 'PNG', $link, $align, $resize, $dpi, $palign, $filehash);
                 }
             }
@@ -6339,7 +6338,7 @@ class PDF
                             $img = $imgr;
                         }
                         if (($type == 'gif') or ($type == 'png')) {
-                            $info = $this->png($img, StaticMethods::getObjFilename('img', $this->file_id));
+                            $info = Images::_toPNG($img, StaticMethods::getObjFilename('img', $this->file_id));
                         }
                         else {
                             $info = Images::_toJPEG($img, $this->jpeg_quality, StaticMethods::getObjFilename('img', $this->file_id));
@@ -18037,7 +18036,7 @@ class PDF
                 elseif ($this->allowLocalFiles && substr($imgsrc, 0, 7) === 'file://') {
                     // get image type from a local file path
                     $imgsrc = substr($imgsrc, 7);
-                    $type   = $this->imageType($imgsrc);
+                    $type   = Images::getImageFileType($imgsrc);
                 }
                 else {
                     if (($imgsrc[0] === '/') and !empty($_SERVER['DOCUMENT_ROOT']) and ($_SERVER['DOCUMENT_ROOT'] != '/')) {
@@ -18063,7 +18062,7 @@ class PDF
                         }
                     }
                     // get image type
-                    $type = $this->imageType($imgsrc);
+                    $type = Images::getImageFileType($imgsrc);
                 }
                 if (!isset($tag['width'])) {
                     $tag['width'] = 0;
@@ -23248,7 +23247,7 @@ class PDF
             $attribs['style'] = ';' . $attribs['style'];
         }
         foreach ($prev_svgstyle as $key => $val) {
-            if (in_array($key, self::SVG_INHERITED)) {
+            if (in_array($key, Images::$svginheritprop)) {
                 // inherit previous value
                 $svgstyle[$key] = $val;
             }
@@ -23753,7 +23752,7 @@ class PDF
                         }
                     }
                     // get image type
-                    $imgtype = $this->imageType($img);
+                    $imgtype = Images::getImageFileType($img);
                     if (($imgtype == 'eps') or ($imgtype == 'ai')) {
                         $this->ImageEps($img, $x, $y, $w, $h);
                     }

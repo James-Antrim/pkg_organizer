@@ -32,9 +32,6 @@ trait Constants
     public const BLACK = [0, 0, 0], BLUE = [0, 0, 255], WHITE = [255, 255, 255];
     private const COLOR_CONTEXTS = ['draw', 'fill', 'text'];
 
-    public const GRAYSCALE = 0, RGB = 2, CMYK = 3;
-    public const COLOR_SCHEMES = [self::GRAYSCALE => 'DeviceGray', self::RGB => 'DeviceRGB', self::CMYK => 'Indexed'];
-
     /** Array of valid JavaScript color names. */
     private const JS_COLORS = ['transparent', 'black', 'white', 'red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'dkGray', 'gray', 'ltGray'];
 
@@ -249,18 +246,6 @@ trait Constants
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FORMATTING
 
     public const LANDSCAPE = 'L', PORTRAIT = 'P';
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IMAGES
-
-    public const SVG_INHERITED = [
-        'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction',
-        'display', 'fill', 'fill-opacity', 'fill-rule', 'font', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style',
-        'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing',
-        'marker', 'marker-end', 'marker-mid', 'marker-start', 'pointer-events', 'shape-rendering', 'stroke', 'stroke-dasharray', 'stroke-dashoffset',
-        'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-rendering', 'visibility',
-        'word-spacing', 'writing-mode'
-    ];
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PRINTING
