@@ -130,23 +130,22 @@ trait Colors
     /**
      * Applies the color to the context, returns the color command, empty if not appended.
      * @param string $context
-     * @param float  $value1 gray level for single color, red color for RGB (0-255), or cyan color for CMYK (0-100)
-     * @param float  $value2 green color for RGB (0-255) or magenta color for CMYK (0-100)
-     * @param float  $value3 blue color for RGB (0-255) or yellow color for CMYK (0-100)
-     * @param float  $value4 black (key) color for CMYK (0-100)
-     * @param bool   $append appends the command to the document, defaults to true
-     * @param string $name   spot color name (if any)
+     * @param float  $value1 Grayscale gray / RGB red (0-255), CMYK cyan (0-100)
+     * @param float  $value2 RGB green (0-255), CMYK magenta (0-100)
+     * @param float  $value3 RGB blue (0-255), CMYK yellow (0-100)
+     * @param float  $value4 CMYK key/black (0-100)
+     * @param bool   $append whether to append the command to the document
+     * @param string $scName spot color name
      * @return string
      * @see self::COLOR_CONTEXTS
      */
-    public function contextColor(string $context, float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $name = ''): string
+    public function contextColor(string $context, float $value1 = 0, float $value2 = -1, float $value3 = -1, float $value4 = -1, bool $append = true, string $scName = ''): string
     {
         // set color by case
         $suffix = '';
-
-        // Grayscale & RGB (0-255)
         if ($value4 === -1.0) {
             $value1 = max(0, min(255, $value1));
+
             // Grayscale
             if ($value2 === -1.0 and $value3 === -1.0) {
                 $color   = ['G' => $value1];
@@ -155,30 +154,32 @@ trait Colors
             }
             // RGB
             else {
-                $value2  = max(0, min(255, $value2));
-                $value3  = max(0, min(255, $value3));
+                $value2 = max(0, min(255, $value2));
+                $value3 = max(0, min(255, $value3));
+
                 $color   = ['R' => $value1, 'G' => $value2, 'B' => $value3];
                 $command = sprintf('%F %F %F ', ($value1 / 255), ($value2 / 255), ($value3 / 255));
                 $suffix  = 'rg';
             }
+
         }
-        // CMYK (0-100)
+        // CMYK
         else {
             $value1 = max(0, min(100, $value1));
             $value2 = max(0, min(100, $value2));
             $value3 = max(0, min(100, $value3));
             $value4 = max(0, min(100, $value4));
 
-            if (empty($name)) {
+            // SPOT COLOR
+            if ($scName) {
+                $color = ['C' => $value1, 'M' => $value2, 'Y' => $value3, 'K' => $value4, 'name' => $scName];
+                $this->spotColor($scName, [$value1, $value2, $value3, $value4]);
+                $command = $this->contextSpotColor($scName, $context);
+            }
+            else {
                 $color   = ['C' => $value1, 'M' => $value2, 'Y' => $value3, 'K' => $value4];
                 $command = sprintf('%F %F %F %F ', ($value1 / 100), ($value2 / 100), ($value3 / 100), ($value4 / 100));
                 $suffix  = 'k';
-            }
-            else {
-                // SPOT COLOR
-                $color = ['C' => $value1, 'M' => $value2, 'Y' => $value3, 'K' => $value4, 'name' => $name];
-                $this->spotColor($name, [$value1, $value2, $value3, $value4]);
-                $command = $this->contextSpotColor($name, $context);
             }
         }
 
@@ -205,14 +206,13 @@ trait Colors
 
         $this->differentColors = ($this->fillColor != $this->textColor);
 
-        if ($context === 'text' or $this->state === self::READY) {
+        if ($context === 'text' or $this->state !== self::READY) {
             return '';
         }
 
         if ($append) {
             $this->_out($command);
         }
-
         return $command;
     }
 
@@ -226,23 +226,15 @@ trait Colors
      */
     public function contextColorArray(string $context, array $color, bool $append = true): string
     {
-        if (!in_array($context, self::COLOR_CONTEXTS) or !$color) {
-            return '';
-        }
-
         $color = array_values($color);
 
-        $value1 = isset($color[0]) ?: -1;
+        // Necessary for grayscale, RGB and CMYK resolution
+        $value1 = $color[0] ?? -1;
         if ($value1 < 0) {
             return '';
         }
 
-        $value2 = isset($color[1]) ?: -1;
-        $value3 = isset($color[2]) ?: -1;
-        $value4 = isset($color[3]) ?: -1;
-        $name   = isset($color[4]) ?: '';
-
-        return $this->contextColor($context, $value1, $value2, $value3, $value4, $append, $name);
+        return $this->contextColor($context, $value1, $color[1] ?? -1, $color[2] ?? -1, $color[3] ?? -1, $append, $color[4] ?? '');
     }
 
     /**
@@ -378,7 +370,7 @@ trait Colors
     }
 
     /**
-     * Converts a HTML color string into an array (CMYK, RGB, Grayscale or Transparent).
+     * Converts an HTML color string into an array (CMYK, RGB, Grayscale or Transparent).
      * @param string $htmlColor
      * @param array  $defaultColor
      * @return array
