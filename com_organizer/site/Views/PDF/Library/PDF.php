@@ -5495,7 +5495,7 @@ class PDF
         // remove carriage returns
         $s = str_replace("\r", '', $txt);
         // check if string contains RTL text
-        if (($this->tmprtl == 'R') or preg_match(FontData::$uni_RE_PATTERN_RTL, $s)) {
+        if (($this->tmprtl == 'R')) {
             $rtlmode = true;
         }
         else {
@@ -7607,7 +7607,7 @@ class PDF
         $out .= "\n" . 'endobj';
         $this->_out($out);
         // ToUnicode map for Identity-H
-        $stream = FontData::$uni_identity_h;
+        $stream = self::IDH_UNICODE;
         // ToUnicode Object
         $this->_newobj();
         $stream = ($this->compress) ? gzcompress($stream) : $stream;
@@ -16331,7 +16331,7 @@ class PDF
                 }
                 // text
                 $this->htmlvspace = 0;
-                $isRTLString      = preg_match(FontData::$uni_RE_PATTERN_RTL, $dom[$key]['value']);
+                $isRTLString      = false;
                 if ((!$this->premode) and $this->isRTLTextDir() and !$isRTLString) {
                     // reverse spaces order
                     $lsp = ''; // left spaces
@@ -20317,7 +20317,7 @@ class PDF
         $unichars = $this->UTF8StringToArray($text, $this->isunicode, $this->currentFont);
         // for each char
         foreach ($unichars as $char) {
-            if ((!$intag) and (!$skip) and FontData::$uni_type[$char] == 'L') {
+            if ((!$intag) and (!$skip) and self::UNICODE_TYPES[$char] == 'L') {
                 // letter character
                 $word[] = $char;
             }

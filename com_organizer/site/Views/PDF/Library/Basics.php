@@ -342,9 +342,9 @@ trait Basics
             if ($char < 256) {
                 $outarr[] = $char;
             }
-            elseif (array_key_exists($char, FontData::$uni_utf8tolatin)) {
+            elseif (array_key_exists($char, self::UTF_LATIN1)) {
                 // map from UTF-8
-                $outarr[] = FontData::$uni_utf8tolatin[$char];
+                $outarr[] = self::UTF_LATIN1[$char];
             }
             elseif ($char == 0xFFFD) {
                 // skip
@@ -369,9 +369,9 @@ trait Basics
             if ($char < 256) {
                 $outstr .= chr($char);
             }
-            elseif (array_key_exists($char, FontData::$uni_utf8tolatin)) {
+            elseif (array_key_exists($char, self::UTF_LATIN1)) {
                 // map from UTF-8
-                $outstr .= chr(FontData::$uni_utf8tolatin[$char]);
+                $outstr .= chr(self::UTF_LATIN1[$char]);
             }
             elseif ($char == 0xFFFD) {
                 // skip
@@ -496,7 +496,7 @@ trait Basics
             $string = self::UTF8ArrSubString($utf8Values, '', '', $isUnicode);
         }
         // check if string contains RTL text
-        if (!($forceRTL or preg_match(FontData::$uni_RE_PATTERN_RTL, $string))) {
+        if (!($forceRTL)) {
             return $utf8Values;
         }
 
@@ -513,7 +513,7 @@ trait Basics
             // P2. In each paragraph, find the first character of type L, AL, or R.
             // P3. If a character is found in P2 and it is of type AL or R, then set the paragraph embedding level to one; otherwise, set it to zero.
             for ($i = 0; $i < $numchars; ++$i) {
-                $type = FontData::$uni_type[$utf8Values[$i]];
+                $type = self::UNICODE_TYPES[$utf8Values[$i]];
                 if ($type == 'L') {
                     $pel = 0;
                     break;
@@ -540,66 +540,66 @@ trait Basics
         // X1. Begin by setting the current embedding level to the paragraph embedding level. Set the directional override status to neutral. Process each character iteratively, applying rules X2 through X9. Only embedding levels from 0 to 61 are valid in this phase.
         // In the resolution of levels in rules I1 and I2, the maximum embedding level of 62 can be reached.
         for ($i = 0; $i < $numchars; ++$i) {
-            if ($utf8Values[$i] == FontData::$uni_RLE) {
+            if ($utf8Values[$i] == self::RTL_EMBEDDING) {
                 // X2. With each RLE, compute the least greater odd embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to neutral.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + ($cel % 2) + 1;
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_RLE, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => self::RTL_EMBEDDING, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'N';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($utf8Values[$i] == FontData::$uni_LRE) {
+            elseif ($utf8Values[$i] == self::LTR_EMBEDDING) {
                 // X3. With each LRE, compute the least greater even embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to neutral.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + 2 - ($cel % 2);
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_LRE, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => self::LTR_EMBEDDING, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'N';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($utf8Values[$i] == FontData::$uni_RLO) {
+            elseif ($utf8Values[$i] == self::RTL_OVERRIDE) {
                 // X4. With each RLO, compute the least greater odd embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to right-to-left.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + ($cel % 2) + 1;
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_RLO, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => self::RTL_OVERRIDE, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'R';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($utf8Values[$i] == FontData::$uni_LRO) {
+            elseif ($utf8Values[$i] == self::LTR_OVERRIDE) {
                 // X5. With each LRO, compute the least greater even embedding level.
                 //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to left-to-right.
                 //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
                 $next_level = $cel + 2 - ($cel % 2);
                 if ($next_level < 62) {
-                    $remember[] = array('num' => FontData::$uni_LRO, 'cel' => $cel, 'dos' => $dos);
+                    $remember[] = array('num' => self::LTR_OVERRIDE, 'cel' => $cel, 'dos' => $dos);
                     $cel        = $next_level;
                     $dos        = 'L';
                     $sor        = $eor;
                     $eor        = $cel % 2 ? 'R' : 'L';
                 }
             }
-            elseif ($utf8Values[$i] == FontData::$uni_PDF) {
+            elseif ($utf8Values[$i] == self::POP_DIRECTIONAL_FORMAT) {
                 // X7. With each PDF, determine the matching embedding or override code. If there was a valid matching code, restore (pop) the last remembered (pushed) embedding level and directional override.
                 if (count($remember)) {
                     $last = count($remember) - 1;
-                    if (($remember[$last]['num'] == FontData::$uni_RLE) or
-                        ($remember[$last]['num'] == FontData::$uni_LRE) or
-                        ($remember[$last]['num'] == FontData::$uni_RLO) or
-                        ($remember[$last]['num'] == FontData::$uni_LRO)) {
+                    if (($remember[$last]['num'] == self::RTL_EMBEDDING) or
+                        ($remember[$last]['num'] == self::LTR_EMBEDDING) or
+                        ($remember[$last]['num'] == self::RTL_OVERRIDE) or
+                        ($remember[$last]['num'] == self::LTR_OVERRIDE)) {
                         $match = array_pop($remember);
                         $cel   = $match['cel'];
                         $dos   = $match['dos'];
@@ -608,11 +608,11 @@ trait Basics
                     }
                 }
             }
-            elseif (($utf8Values[$i] != FontData::$uni_RLE) and
-                ($utf8Values[$i] != FontData::$uni_LRE) and
-                ($utf8Values[$i] != FontData::$uni_RLO) and
-                ($utf8Values[$i] != FontData::$uni_LRO) and
-                ($utf8Values[$i] != FontData::$uni_PDF)) {
+            elseif (($utf8Values[$i] != self::RTL_EMBEDDING) and
+                ($utf8Values[$i] != self::LTR_EMBEDDING) and
+                ($utf8Values[$i] != self::RTL_OVERRIDE) and
+                ($utf8Values[$i] != self::LTR_OVERRIDE) and
+                ($utf8Values[$i] != self::POP_DIRECTIONAL_FORMAT)) {
                 // X6. For all types besides RLE, LRE, RLO, LRO, and PDF:
                 //	a. Set the level of the current character to the current embedding level.
                 //	b. Whenever the directional override status is not neutral, reset the current character type to the directional override status.
@@ -620,8 +620,8 @@ trait Basics
                     $chardir = $dos;
                 }
                 else {
-                    if (isset(FontData::$uni_type[$utf8Values[$i]])) {
-                        $chardir = FontData::$uni_type[$utf8Values[$i]];
+                    if (isset(self::UNICODE_TYPES[$utf8Values[$i]])) {
+                        $chardir = self::UNICODE_TYPES[$utf8Values[$i]];
                     }
                     else {
                         $chardir = 'L';
@@ -900,9 +900,9 @@ trait Basics
             for ($i = 0; $i < $numchars; ++$i) {
                 if ($chardata[$i]['level'] >= $j) {
                     $onlevel = true;
-                    if (isset(FontData::$uni_mirror[$chardata[$i]['char']])) {
+                    if (isset(self::MIRROR_CHARACTERS[$chardata[$i]['char']])) {
                         // L4. A character is depicted by a mirrored glyph if and only if (a) the resolved directionality of that character is R, and (b) the Bidi_Mirrored property value of that character is true.
-                        $chardata[$i]['char'] = FontData::$uni_mirror[$chardata[$i]['char']];
+                        $chardata[$i]['char'] = self::MIRROR_CHARACTERS[$chardata[$i]['char']];
                     }
                     $revarr[] = $chardata[$i];
                 }

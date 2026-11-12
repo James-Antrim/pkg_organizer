@@ -268,10 +268,10 @@ trait Bloatware
         $fmetric['enc']  = preg_replace('/[^A-Za-z0-9_\-]/', '', $enc);
         $fmetric['diff'] = '';
         if (($fmetric['type'] == 'TrueType') or ($fmetric['type'] == 'Type1')) {
-            if (!empty($enc) and ($enc != 'cp1252') and isset(FontData::$encmap[$enc])) {
+            if (!empty($enc) and ($enc != 'cp1252') and isset(self::ENCODING_MAPS[$enc])) {
                 // build differences from reference encoding
-                $enc_ref    = FontData::$encmap['cp1252'];
-                $enc_target = FontData::$encmap[$enc];
+                $enc_ref    = self::ENCODING_MAPS['cp1252'];
+                $enc_target = self::ENCODING_MAPS[$enc];
                 $last       = 0;
                 for ($i = 32; $i <= 255; ++$i) {
                     if ($enc_target[$i] != $enc_ref[$i]) {
@@ -400,8 +400,8 @@ trait Bloatware
             // get charstring data
             $eplain = substr($eplain, (strpos($eplain, '/CharStrings') + 1));
             preg_match_all('#/([A-Za-z0-9\.]*)[\s][0-9]+[\s]RD[\s](.*)[\s]ND#sU', $eplain, $matches, PREG_SET_ORDER);
-            if (!empty($enc) and isset(FontData::$encmap[$enc])) {
-                $enc_map = FontData::$encmap[$enc];
+            if (!empty($enc) and isset(self::ENCODING_MAPS[$enc])) {
+                $enc_map = self::ENCODING_MAPS[$enc];
             }
             else {
                 $enc_map = false;
