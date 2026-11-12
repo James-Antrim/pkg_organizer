@@ -15,12 +15,187 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Unicode data and font methods. */
 trait Fonts
 {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
+    // Font style descriptions
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
+    /** Current font configuration */
     protected array $currentFont = [];
+
+    /** Current font ascent (distance between font top and baseline) */
+    protected float $fontAscent;
+
+    protected int $fontCount = 0;
+
+    /** Current font descent (distance between font bottom and baseline) */
+    protected float $fontDescent;
+
+    /** Current font family.*/
+    protected string $fontFamily = self::DEFAULT_FONT;
+
+    protected array $fontFiles = [];
+
+    /** Redundant? array of font names */
+    protected array $fontKeys = [];
+
+    /** List of available fonts on filesystem. */
+    protected array $fontList = [];
+
+    /** Array of used fonts. */
+    protected array $fonts = [];
+
+    /** Current font size in user configured units.*/
+    protected float $fontSize;
+
+    /** Current font size in points.*/
+    protected float $fontSizePT = 12;
+
+    /** Current font style.*/
+    protected string $fontStyle = '';
+
+    protected array $footerFont = ['helvetica', '', 8];
+
+    protected array $headerFont = [self::DEFAULT_FONT, '', 10];
+
+    /**
+     * Getter / setter for font buffer content
+     * @param string $font font key
+     * @param array  $data font data
+     */
+    protected function fontBuffer(string $font, array $data = []): array|false
+    {
+        if ($data) {
+            $this->fonts[$font] = $data;
+
+            if (!in_array($font, $this->fontKeys)) {
+                $this->fontKeys[] = $font;
+
+                // store object ID for current font
+                ++$this->n;
+                $this->font_obj_ids[$font] = $this->n;
+                $this->setFontSubBuffer($font, 'n', $this->n);
+            }
+        }
+
+        return $this->fonts[$font] ?? false;
+    }
+
+    /**
+     * Returns the first valid font family name from a (potentially) comma-separated list of fonts in a string.
+     * @param string $fonts property string containing font family names
+     * @return string
+     */
+    public function fontFamily(string $fonts): string
+    {
+        // Remove spaces and symbols
+        $fonts = preg_replace('/[^a-z0-9_,]/', '', strtolower($fonts));
+
+        // Separate potential multiple font declarations
+        $fonts = explode(',', $fonts);
+
+        foreach ($fonts as $font) {
+
+            // Replace font variations
+            $font = preg_replace('/regular$/', '', $font);
+            $font = preg_replace('/italic$/', 'I', $font);
+            $font = preg_replace('/oblique$/', 'I', $font);
+            $font = preg_replace('/bold([I]?)$/', 'B\\1', $font);
+
+            // Replace common family names and core fonts
+            $pattern     = ['/^serif|^cursive|^fantasy|^timesnewroman/', '/^sansserif/', '/^monospace/'];
+            $replacement = ['times', 'helvetica', 'courier'];
+
+            $font = preg_replace($pattern, $replacement, $font);
+
+            // Stop on first valid font
+            if (in_array(strtolower($font), $this->fontList) or in_array($font, $this->fontKeys)) {
+                return $font;
+            }
+        }
+
+        return $this->currentFont['fontkey'];
+    }
+
+    /**
+     * Getter / setter for the footer font, mostly to ensure the correct configuration type.
+     * @param array $fontConfiguration basic font parameters: [string family, array|string style, float size]
+     * @return array
+     */
+    public function footerFont(array $fontConfiguration = []): array
+    {
+        if ($fontConfiguration) {
+            $this->footerFont = $fontConfiguration;
+        }
+
+        return $this->footerFont;
+    }
+
+    /**
+     * Getter / setter for the header font, mostly to ensure the correct configuration type.
+     * @param array $fontConfiguration basic font parameters: [string family, array|string style, float size]
+     * @return array
+     */
+    public function headerFont(array $fontConfiguration = []): array
+    {
+        if ($fontConfiguration) {
+            $this->headerFont = $fontConfiguration;
+        }
+
+        return $this->headerFont;
+    }
+
+    /** Fills the $fontList with available fonts. */
+    protected function populateFonts(): void
+    {
+        if (($fonts = opendir(self::FONT_PATH)) !== false) {
+            while (($file = readdir($fonts)) !== false) {
+                if (str_ends_with($file, '.php')) {
+                    $this->fontList[] = strtolower(basename($file, '.php'));
+                }
+            }
+            closedir($fonts);
+        }
+    }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /**
+     * Default font style to add to html links.
+     */
+    protected $htmlLinkFontStyle = 'U';
+
+    /**
+     * Store the font object IDs.
+     */
+    protected $font_obj_ids = [];
+
+    /**
+     * Default monospace font.
+     */
+    protected $default_monospaced_font = 'courier';
+
+    /**
+     * List of fonts used on form fields (fontname => fontkey).
+     */
+    protected $annotation_fonts = [];
+
+    /**
+     * bool flag: if true enables font subsetting by default.
+     */
+    protected $font_subsetting = true;
+
+    /**
+     * Percentage of character stretching.
+     */
+    protected $font_stretching = 100;
+
+    /**
+     * Increases or decreases the space between characters in a text by the specified amount (tracking).
+     */
+    protected $font_spacing = 0;
 
     /**
      * Returns a subset of the TrueType font data without the unused glyphs.
@@ -489,6 +664,609 @@ trait Fonts
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
+    /**
+     * Set font buffer content.
+     * @param string $font font key
+     * @param string $key  font sub-key
+     * @param mixed  $data font data
+     */
+    protected function setFontSubBuffer($font, $key, $data)
+    {
+        if (!isset($this->fonts[$font])) {
+            $this->fontBuffer($font, []);
+        }
+        $this->fonts[$font][$key] = $data;
+    }
+
+    /**
+     * Output fonts.
+     * @author Nicola Asuni
+     */
+    protected function _putfonts(): void
+    {
+        $nf = $this->n;
+        foreach ($this->diffs as $diff) {
+            //Encodings
+            $this->_newobj();
+            $this->_out('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
+        }
+        foreach ($this->fontFiles as $file => $info) {
+            // search and get font file to embedd
+            $fontfile = self::FONT_PATH . $file;
+            if (!StaticMethods::empty_string($fontfile)) {
+                $font       = file_get_contents($fontfile);
+                $compressed = (substr($file, -2) == '.z');
+                if ((!$compressed) and (isset($info['length2']))) {
+                    $header = (ord($font[0]) == 128);
+                    if ($header) {
+                        // strip first binary header
+                        $font = substr($font, 6);
+                    }
+                    if ($header and (ord($font[$info['length1']]) == 128)) {
+                        // strip second binary header
+                        $font = substr($font, 0, $info['length1']) . substr($font, ($info['length1'] + 6));
+                    }
+                }
+                elseif ($info['subset'] and ((!$compressed) or ($compressed and function_exists('gzcompress')))) {
+                    if ($compressed) {
+                        // uncompress font
+                        $font = gzuncompress($font);
+                    }
+                    // merge subset characters
+                    $subsetchars = []; // used chars
+                    foreach ($info['fontkeys'] as $fontkey) {
+                        $fontinfo    = $this->fontBuffer($fontkey);
+                        $subsetchars += $fontinfo['subsetchars'];
+                    }
+                    // rebuild a font subset
+                    $font = $this->trueTypeSubset($font, $subsetchars);
+                    // calculate new font length
+                    $info['length1'] = strlen($font);
+                    if ($compressed) {
+                        // recompress font
+                        $font = gzcompress($font);
+                    }
+                }
+                $this->_newobj();
+                $this->fontFiles[$file]['n'] = $this->n;
+                $stream                      = $this->_getrawstream($font);
+                $out                         = '<< /Length ' . strlen($stream);
+                if ($compressed) {
+                    $out .= ' /Filter /FlateDecode';
+                }
+                $out .= ' /Length1 ' . $info['length1'];
+                if (isset($info['length2'])) {
+                    $out .= ' /Length2 ' . $info['length2'] . ' /Length3 0';
+                }
+                $out .= ' >>';
+                $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+                $out .= "\n" . 'endobj';
+                $this->_out($out);
+            }
+        }
+        foreach ($this->fontKeys as $k) {
+            //Font objects
+            $font = $this->fontBuffer($k);
+            $type = $font['type'];
+            $name = $font['name'];
+            if ($type == 'core') {
+                // standard core font
+                $out = $this->_getobj($this->font_obj_ids[$k]) . "\n";
+                $out .= '<</Type /Font';
+                $out .= ' /Subtype /Type1';
+                $out .= ' /BaseFont /' . $name;
+                $out .= ' /Name /F' . $font['i'];
+                if ((strtolower($name) != 'symbol') and (strtolower($name) != 'zapfdingbats')) {
+                    $out .= ' /Encoding /WinAnsiEncoding';
+                }
+                if ($k == 'helvetica') {
+                    // add default font for annotations
+                    $this->annotation_fonts[$k] = $font['i'];
+                }
+                $out .= ' >>';
+                $out .= "\n" . 'endobj';
+                $this->_out($out);
+            }
+            elseif (($type == 'Type1') or ($type == 'TrueType')) {
+                // additional Type1 or TrueType font
+                $out = $this->_getobj($this->font_obj_ids[$k]) . "\n";
+                $out .= '<</Type /Font';
+                $out .= ' /Subtype /' . $type;
+                $out .= ' /BaseFont /' . $name;
+                $out .= ' /Name /F' . $font['i'];
+                $out .= ' /FirstChar 32 /LastChar 255';
+                $out .= ' /Widths ' . ($this->n + 1) . ' 0 R';
+                $out .= ' /FontDescriptor ' . ($this->n + 2) . ' 0 R';
+                if ($font['enc']) {
+                    if (isset($font['diff'])) {
+                        $out .= ' /Encoding ' . ($nf + $font['diff']) . ' 0 R';
+                    }
+                    else {
+                        $out .= ' /Encoding /WinAnsiEncoding';
+                    }
+                }
+                $out .= ' >>';
+                $out .= "\n" . 'endobj';
+                $this->_out($out);
+                // Widths
+                $this->_newobj();
+                $s = '[';
+                for ($i = 32; $i < 256; ++$i) {
+                    if (isset($font['cw'][$i])) {
+                        $s .= $font['cw'][$i] . ' ';
+                    }
+                    else {
+                        $s .= $font['dw'] . ' ';
+                    }
+                }
+                $s .= ']';
+                $s .= "\n" . 'endobj';
+                $this->_out($s);
+                //Descriptor
+                $this->_newobj();
+                $s = '<</Type /FontDescriptor /FontName /' . $name;
+                foreach ($font['desc'] as $fdk => $fdv) {
+                    if (is_float($fdv)) {
+                        $fdv = sprintf('%F', $fdv);
+                    }
+                    $s .= ' /' . $fdk . ' ' . $fdv . '';
+                }
+                if (!StaticMethods::empty_string($font['file'])) {
+                    $s .= ' /FontFile' . ($type == 'Type1' ? '' : '2') . ' ' . $this->fontFiles[$font['file']]['n'] . ' 0 R';
+                }
+                $s .= '>>';
+                $s .= "\n" . 'endobj';
+                $this->_out($s);
+            }
+            else {
+                // additional types
+                $mtd = '_put' . strtolower($type);
+                if (!method_exists($this, $mtd)) {
+                    $this->Error('Unsupported font type: ' . $type);
+                }
+                $this->$mtd($font);
+            }
+        }
+    }
+
+    /**
+     * Imports a TrueType, Type1, or core font and makes it available.
+     * It is necessary to generate a font definition file first (read /fonts/utils/README.TXT).
+     * The definition file (and the font file itself when embedding) must be present either in the fonts directory. If it could not be found, the error "Could not include font definition file" is generated.
+     * @param string $family   Font family. The name can be chosen arbitrarily. If it is a standard family name, it will override the corresponding font.
+     * @param string $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular (default)</li><li>B: bold</li><li>I: italic</li><li>BI or IB: bold italic</li></ul>
+     * @param string $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
+     * @param mixed  $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
+     * @return array|false array containing the font data, or false in case of error.
+     * @see   SetFont(), setFontSubsetting()
+     */
+    public function AddFont($family, $style = '', $fontfile = '', $subset = 'default')
+    {
+        if ($subset === 'default') {
+            $subset = $this->font_subsetting;
+        }
+        if (StaticMethods::empty_string($family)) {
+            if (!StaticMethods::empty_string($this->fontFamily)) {
+                $family = $this->fontFamily;
+            }
+            else {
+                $this->Error('Empty font family');
+            }
+        }
+        // move embedded styles on $style
+        if (substr($family, -1) == 'I') {
+            $style  .= 'I';
+            $family = substr($family, 0, -1);
+        }
+        if (substr($family, -1) == 'B') {
+            $style  .= 'B';
+            $family = substr($family, 0, -1);
+        }
+        // normalize family name
+        $family = strtolower($family);
+        if ((!$this->isunicode) and ($family == 'arial')) {
+            $family = 'helvetica';
+        }
+        if (($family == 'symbol') or ($family == 'zapfdingbats')) {
+            $style = '';
+        }
+        $tempstyle = strtoupper($style === null ? '' : $style);
+        $style     = '';
+        // underline
+        if (strpos($tempstyle, 'U') !== false) {
+            $this->underline = true;
+        }
+        else {
+            $this->underline = false;
+        }
+        // line-through (deleted)
+        if (strpos($tempstyle, 'D') !== false) {
+            $this->linethrough = true;
+        }
+        else {
+            $this->linethrough = false;
+        }
+        // overline
+        if (strpos($tempstyle, 'O') !== false) {
+            $this->overline = true;
+        }
+        else {
+            $this->overline = false;
+        }
+        // bold
+        if (strpos($tempstyle, 'B') !== false) {
+            $style .= 'B';
+        }
+        // oblique
+        if (strpos($tempstyle, 'I') !== false) {
+            $style .= 'I';
+        }
+        $bistyle    = $style;
+        $fontkey    = $family . $style;
+        $font_style = $style . ($this->underline ? 'U' : '') . ($this->linethrough ? 'D' : '') . ($this->overline ? 'O' : '');
+        $fontdata   = array('fontkey' => $fontkey, 'family' => $family, 'style' => $font_style);
+        // check if the font has been already added
+        $fb = $this->fontBuffer($fontkey);
+        if ($fb !== false) {
+            if ($this->inxobj) {
+                // we are inside an XObject template
+                $this->xobjects[$this->xobjid]['fonts'][$fontkey] = $fb['i'];
+            }
+            return $fontdata;
+        }
+        // get specified font directory (if any)
+        $fontdir = false;
+        if (!StaticMethods::empty_string($fontfile)) {
+            $fontdir = dirname($fontfile);
+            if (StaticMethods::empty_string($fontdir) or ($fontdir == '.')) {
+                $fontdir = '';
+            }
+            else {
+                $fontdir .= '/';
+            }
+        }
+        // true when the font style variation is missing
+        $missing_style = false;
+        // search and include font file
+        if (StaticMethods::empty_string($fontfile) or (!@StaticMethods::file_exists($fontfile))) {
+            // build a standard filenames for specified font
+            $tmp_fontfile = str_replace(' ', '', $family) . strtolower($style) . '.php';
+            $fontfile     = self::FONT_PATH . $tmp_fontfile;
+        }
+        // include font file
+        if (!StaticMethods::empty_string($fontfile) and (@StaticMethods::file_exists($fontfile))) {
+            $type         = null;
+            $name         = null;
+            $desc         = null;
+            $up           = -null;
+            $ut           = null;
+            $cw           = null;
+            $cbbox        = null;
+            $dw           = null;
+            $enc          = null;
+            $cidinfo      = null;
+            $file         = null;
+            $ctg          = null;
+            $diff         = null;
+            $originalsize = null;
+            $size1        = null;
+            $size2        = null;
+            include($fontfile);
+        }
+        else {
+            $this->Error('Could not include font definition file: ' . $family . '');
+        }
+        // check font parameters
+        if ((!isset($type)) or (!isset($cw))) {
+            $this->Error('The font definition file has a bad format: ' . $fontfile . '');
+        }
+        // SET default parameters
+        if (!isset($file) or StaticMethods::empty_string($file)) {
+            $file = '';
+        }
+        if (!isset($enc) or StaticMethods::empty_string($enc)) {
+            $enc = '';
+        }
+        if (!isset($cidinfo) or StaticMethods::empty_string($cidinfo)) {
+            $cidinfo            = array('Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0);
+            $cidinfo['uni2cid'] = [];
+        }
+        if (!isset($ctg) or StaticMethods::empty_string($ctg)) {
+            $ctg = '';
+        }
+        if (!isset($desc) or StaticMethods::empty_string($desc)) {
+            $desc = [];
+        }
+        if (!isset($up) or StaticMethods::empty_string($up)) {
+            $up = -100;
+        }
+        if (!isset($ut) or StaticMethods::empty_string($ut)) {
+            $ut = 50;
+        }
+        if (!isset($cw) or StaticMethods::empty_string($cw)) {
+            $cw = [];
+        }
+        if (!isset($dw) or StaticMethods::empty_string($dw)) {
+            // set default width
+            if (isset($desc['MissingWidth']) and ($desc['MissingWidth'] > 0)) {
+                $dw = $desc['MissingWidth'];
+            }
+            elseif (isset($cw[32])) {
+                $dw = $cw[32];
+            }
+            else {
+                $dw = 600;
+            }
+        }
+        ++$this->fontCount;
+        if ($type == 'core') {
+            $name   = self::CORE_FONTS[$fontkey];
+            $subset = false;
+        }
+        elseif (($type == 'TrueType') or ($type == 'Type1')) {
+            $subset = false;
+        }
+        elseif ($type == 'TrueTypeUnicode') {
+            $enc = 'Identity-H';
+        }
+        else {
+            $this->Error('Unknow font type: ' . $type . '');
+        }
+        // set name if unset
+        if (!isset($name) or empty($name)) {
+            $name = $fontkey;
+        }
+        // create artificial font style variations if missing (only works with non-embedded fonts)
+        if (($type != 'core') and $missing_style) {
+            // style variations
+            $styles = array('' => '', 'B' => ',Bold', 'I' => ',Italic', 'BI' => ',BoldItalic');
+            $name   .= $styles[$bistyle];
+            // artificial bold
+            if (strpos($bistyle, 'B') !== false) {
+                if (isset($desc['StemV'])) {
+                    // from normal to bold
+                    $desc['StemV'] = round($desc['StemV'] * 1.75);
+                }
+                else {
+                    // bold
+                    $desc['StemV'] = 123;
+                }
+            }
+            // artificial italic
+            if (strpos($bistyle, 'I') !== false) {
+                if (isset($desc['ItalicAngle'])) {
+                    $desc['ItalicAngle'] -= 11;
+                }
+                else {
+                    $desc['ItalicAngle'] = -11;
+                }
+                if (isset($desc['Flags'])) {
+                    $desc['Flags'] |= 64; //bit 7
+                }
+                else {
+                    $desc['Flags'] = 64;
+                }
+            }
+        }
+        // check if the array of characters bounding boxes is defined
+        if (!isset($cbbox)) {
+            $cbbox = [];
+        }
+        // initialize subsetchars
+        $subsetchars = array_fill(0, 255, true);
+        $this->fontBuffer($fontkey, array('fontkey' => $fontkey, 'i' => $this->fontCount, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetchars' => $subsetchars));
+        if ($this->inxobj) {
+            // we are inside an XObject template
+            $this->xobjects[$this->xobjid]['fonts'][$fontkey] = $this->fontCount;
+        }
+        if (isset($diff) and (!empty($diff))) {
+            //Search existing encodings
+            $d  = 0;
+            $nb = count($this->diffs);
+            for ($i = 1; $i <= $nb; ++$i) {
+                if ($this->diffs[$i] == $diff) {
+                    $d = $i;
+                    break;
+                }
+            }
+            if ($d == 0) {
+                $d               = $nb + 1;
+                $this->diffs[$d] = $diff;
+            }
+            $this->setFontSubBuffer($fontkey, 'diff', $d);
+        }
+        if (!StaticMethods::empty_string($file)) {
+            if (!isset($this->fontFiles[$file])) {
+                if ((strcasecmp($type, 'TrueType') == 0) or (strcasecmp($type, 'TrueTypeUnicode') == 0)) {
+                    $this->fontFiles[$file] = array('length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
+                }
+                elseif ($type != 'core') {
+                    $this->fontFiles[$file] = array('length1' => $size1, 'length2' => $size2, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
+                }
+            }
+            else {
+                // update fontkeys that are sharing this font file
+                $this->fontFiles[$file]['subset'] = ($this->fontFiles[$file]['subset'] and $subset);
+                if (!in_array($fontkey, $this->fontFiles[$file]['fontkeys'])) {
+                    $this->fontFiles[$file]['fontkeys'][] = $fontkey;
+                }
+            }
+        }
+        return $fontdata;
+    }
+
+    /**
+     * Sets the font used to print character strings.
+     * The font can be either a standard one or a font added via the AddFont() method. Standard fonts use Windows encoding cp1252 (Western Europe).
+     * The method can be called before the first page is created and the font is retained from page to page.
+     * If you just wish to change the current font size, it is simpler to call SetFontSize().
+     * Note: for the standard fonts, the font metric files must be accessible. There are three possibilities for this:<ul><li>They are in the current directory (the one where the running script lies)</li><li>They are in one of the directories defined by the include_path parameter</li></ul><br />
+     * @param string     $family   Family font. It can be either a name defined by AddFont() or one of the standard Type1 families (case insensitive):<ul><li>times (Times-Roman)</li><li>timesb (Times-Bold)</li><li>timesi (Times-Italic)</li><li>timesbi (Times-BoldItalic)</li><li>helvetica (Helvetica)</li><li>helveticab (Helvetica-Bold)</li><li>helveticai (Helvetica-Oblique)</li><li>helveticabi (Helvetica-BoldOblique)</li><li>courier (Courier)</li><li>courierb (Courier-Bold)</li><li>courieri (Courier-Oblique)</li><li>courierbi (Courier-BoldOblique)</li><li>symbol (Symbol)</li><li>zapfdingbats (ZapfDingbats)</li></ul> It is also possible to pass an empty string. In that case, the current family is retained.
+     * @param string     $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular. Bold and italic styles do not apply to Symbol and ZapfDingbats basic fonts or other fonts when not defined.
+     * @param float|null $size     Font size in points. The default value is the current size. If no size has been specified since the beginning of the document, the value taken is 12
+     * @param string     $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
+     * @param mixed      $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
+     * @param bool       $out      if true output the font size command, otherwise only set the font properties.
+     * @author Nicola Asuni
+     * @see    AddFont(), SetFontSize()
+     */
+    public function setFont($family, $style = '', $size = null, $fontfile = '', $subset = 'default', $out = true)
+    {
+        //Select a font; size given in points
+        if ($size === null) {
+            $size = $this->fontSizePT;
+        }
+        if ($size < 0) {
+            $size = 0;
+        }
+        // try to add font (if not already added)
+        $fontdata         = $this->AddFont($family, $style, $fontfile, $subset);
+        $this->fontFamily = $fontdata['family'];
+        $this->fontStyle  = $fontdata['style'];
+        if (isset($this->currentFont['fontkey']) and isset($this->currentFont['subsetchars'])) {
+            // save subset chars of the previous font
+            $this->setFontSubBuffer($this->currentFont['fontkey'], 'subsetchars', $this->currentFont['subsetchars']);
+        }
+        $this->currentFont = $this->fontBuffer($fontdata['fontkey']);
+        $this->setFontSize($size, $out);
+    }
+
+    /**
+     * Defines the size of the current font.
+     * @param float $size The font size in points.
+     * @param bool  $out  if true output the font size command, otherwise only set the font properties.
+     * @see   SetFont()
+     */
+    public function setFontSize($size, $out = true)
+    {
+        $size = (float) $size;
+        // font size in points
+        $this->fontSizePT = $size;
+        // font size in user units
+        $this->fontSize = $size / $this->k;
+        // calculate some font metrics
+        if (isset($this->currentFont['desc']['FontBBox'])) {
+            $bbox        = explode(' ', substr($this->currentFont['desc']['FontBBox'], 1, -1));
+            $font_height = ((intval($bbox[3]) - intval($bbox[1])) * $size / 1000);
+        }
+        else {
+            $font_height = $size * 1.219;
+        }
+        if (isset($this->currentFont['desc']['Ascent']) and ($this->currentFont['desc']['Ascent'] > 0)) {
+            $font_ascent = ($this->currentFont['desc']['Ascent'] * $size / 1000);
+        }
+        if (isset($this->currentFont['desc']['Descent']) and ($this->currentFont['desc']['Descent'] <= 0)) {
+            $font_descent = (-$this->currentFont['desc']['Descent'] * $size / 1000);
+        }
+        if (!isset($font_ascent) and !isset($font_descent)) {
+            // core font
+            $font_ascent  = 0.76 * $font_height;
+            $font_descent = $font_height - $font_ascent;
+        }
+        elseif (!isset($font_descent)) {
+            $font_descent = $font_height - $font_ascent;
+        }
+        elseif (!isset($font_ascent)) {
+            $font_ascent = $font_height - $font_descent;
+        }
+        $this->fontAscent  = ($font_ascent / $this->k);
+        $this->fontDescent = ($font_descent / $this->k);
+        if ($out and ($this->page > 0) and (isset($this->currentFont['i'])) and ($this->state == 2)) {
+            $this->_out(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
+        }
+    }
+
+    /**
+     * Returns the bounding box of the current font in user units.
+     * @return array
+     */
+    public function getFontBBox()
+    {
+        $fbbox = [];
+        if (isset($this->currentFont['desc']['FontBBox'])) {
+            $tmpbbox = explode(' ', substr($this->currentFont['desc']['FontBBox'], 1, -1));
+            $fbbox   = array_map(array($this, 'getAbsFontMeasure'), $tmpbbox);
+        }
+        else {
+            // Find max width
+            if (isset($this->currentFont['desc']['MaxWidth'])) {
+                $maxw = $this->getAbsFontMeasure(intval($this->currentFont['desc']['MaxWidth']));
+            }
+            else {
+                $maxw = 0;
+                if (isset($this->currentFont['desc']['MissingWidth'])) {
+                    $maxw = max($maxw, $this->currentFont['desc']['MissingWidth']);
+                }
+                if (isset($this->currentFont['desc']['AvgWidth'])) {
+                    $maxw = max($maxw, $this->currentFont['desc']['AvgWidth']);
+                }
+                if (isset($this->currentFont['dw'])) {
+                    $maxw = max($maxw, $this->currentFont['dw']);
+                }
+                foreach ($this->currentFont['cw'] as $char => $w) {
+                    $maxw = max($maxw, $w);
+                }
+                if ($maxw == 0) {
+                    $maxw = 600;
+                }
+                $maxw = $this->getAbsFontMeasure($maxw);
+            }
+            $fbbox = array(0, (0 - $this->fontDescent), $maxw, $this->fontAscent);
+        }
+        return $fbbox;
+    }
+
+    /**
+     * Convert a relative font measure into absolute value.
+     * @param int $s Font measure.
+     * @return float Absolute measure.
+     */
+    public function getAbsFontMeasure($s)
+    {
+        return ($s * $this->fontSize / 1000);
+    }
+
+    /**
+     * Return the font descent value
+     * @param string $font  font name
+     * @param string $style font style
+     * @param float  $size  The size (in points)
+     * @return int font descent
+     * @author Nicola Asuni
+     */
+    public function getFontDescent($font, $style = '', $size = 0)
+    {
+        $fontdata = $this->AddFont($font, $style);
+        $fontinfo = $this->fontBuffer($fontdata['fontkey']);
+        if (isset($fontinfo['desc']['Descent']) and ($fontinfo['desc']['Descent'] <= 0)) {
+            $descent = (-$fontinfo['desc']['Descent'] * $size / 1000);
+        }
+        else {
+            $descent = (1.219 * 0.24 * $size);
+        }
+        return ($descent / $this->k);
+    }
+
+    /**
+     * Return the font ascent value.
+     * @param string $font  font name
+     * @param string $style font style
+     * @param float  $size  The size (in points)
+     * @return int font ascent
+     * @author Nicola Asuni
+     */
+    public function getFontAscent($font, $style = '', $size = 0)
+    {
+        $fontdata = $this->AddFont($font, $style);
+        $fontinfo = $this->fontBuffer($fontdata['fontkey']);
+        if (isset($fontinfo['desc']['Ascent']) and ($fontinfo['desc']['Ascent'] > 0)) {
+            $ascent = ($fontinfo['desc']['Ascent'] * $size / 1000);
+        }
+        else {
+            $ascent = 1.219 * 0.76 * $size;
+        }
+        return ($ascent / $this->k);
+    }
 
     /**
      * Returs the checksum of a TTF table.

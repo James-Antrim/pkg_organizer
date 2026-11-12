@@ -60,7 +60,6 @@ abstract class BaseView extends PDF implements ViewInterface
     public array $dataFont = ['helvetica', '', 8];
     protected string $destination = self::DOWNLOAD;
     protected string $filename;
-    protected array $headerFont = ['helvetica', '', 10];
     protected BaseLayout $layout;
 
     /**
@@ -79,8 +78,6 @@ abstract class BaseView extends PDF implements ViewInterface
         $this->SetAuthor(User::name());
         $this->setCellPaddings(1, 1.5, 1, 1.5);
         $this->SetCreator('THM Organizer');
-        $this->setFooterFont($this->dataFont);
-        $this->setHeaderFont($this->headerFont);
 
         $name   = $this->getName();
         $layout = Input::cmd('layout', $name);

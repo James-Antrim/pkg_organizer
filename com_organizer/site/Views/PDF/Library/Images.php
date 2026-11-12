@@ -2030,7 +2030,7 @@ trait Images
         $regs = [];
         if (!empty($svgstyle['font'])) {
             if (preg_match('/font-family[\s]*:[\s]*([^\;\"]*)/si', $svgstyle['font'], $regs)) {
-                $font_family = $this->getFontFamilyName($regs[1]);
+                $font_family = $this->fontFamily($regs[1]);
             }
             else {
                 $font_family = $svgstyle['font-family'];
@@ -2067,7 +2067,7 @@ trait Images
             }
         }
         else {
-            $font_family  = $this->getFontFamilyName($svgstyle['font-family']);
+            $font_family  = $this->fontFamily($svgstyle['font-family']);
             $font_size    = $svgstyle['font-size'];
             $font_style   = $svgstyle['font-style'];
             $font_weight  = $svgstyle['font-weight'];

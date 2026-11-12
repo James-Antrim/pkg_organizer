@@ -377,21 +377,6 @@ class PDF
     protected $LineWidth;
 
     /**
-     * Array of standard font names.
-     */
-    protected $CoreFonts;
-
-    /**
-     * Array of used fonts.
-     */
-    protected $fonts = [];
-
-    /**
-     * Array of font files.
-     */
-    protected $FontFiles = [];
-
-    /**
      * Array of encoding differences.
      */
     protected $diffs = [];
@@ -417,26 +402,6 @@ class PDF
     protected $links = [];
 
     /**
-     * Current font family.
-     */
-    protected $FontFamily;
-
-    /**
-     * Current font style.
-     */
-    protected $FontStyle;
-
-    /**
-     * Current font ascent (distance between font top and baseline).
-     */
-    protected $FontAscent;
-
-    /**
-     * Current font descent (distance between font bottom and baseline).
-     */
-    protected $FontDescent;
-
-    /**
      * Underlining flag.
      */
     protected $underline;
@@ -445,16 +410,6 @@ class PDF
      * Overlining flag.
      */
     protected $overline;
-
-    /**
-     * Current font size in points.
-     */
-    protected $FontSizePt;
-
-    /**
-     * Current font size in user unit.
-     */
-    protected $FontSize;
     /**
      * Automatic page breaking.
      */
@@ -564,18 +519,6 @@ class PDF
     protected $original_rMargin;
 
     /**
-     * Default font used on page header.
-     * @var array<int,string|float|null>
-     */
-    protected $header_font;
-
-    /**
-     * Default font used on page footer.
-     * @var array<int,string|float|null>
-     */
-    protected $footer_font;
-
-    /**
      * Language templates.
      */
     protected $l;
@@ -633,11 +576,6 @@ class PDF
     protected $HREF = [];
 
     /**
-     * List of available fonts on filesystem.
-     */
-    protected $fontlist = [];
-
-    /**
      * HTML PARSER: array of bool values, true in case of ordered list (OL), false otherwise.
      */
     protected $listordered = [];
@@ -661,11 +599,6 @@ class PDF
      * HTML PARSER: current list indententation level.
      */
     protected $listindentlevel = 0;
-
-    /**
-     * Temporary font size in points.
-     */
-    protected $tempfontsize = 10;
 
     /**
      * Spacer string for LI tags.
@@ -931,11 +864,6 @@ class PDF
     protected $transfmrk = [];
 
     /**
-     * Default font style to add to html links.
-     */
-    protected $htmlLinkFontStyle = 'U';
-
-    /**
      * Counts the number of pages.
      */
     protected $numpages = 0;
@@ -961,29 +889,9 @@ class PDF
     protected $bufferlen = 0;
 
     /**
-     * Counts the number of fonts.
-     */
-    protected $numfonts = 0;
-
-    /**
-     * Store the font keys.
-     */
-    protected $fontkeys = [];
-
-    /**
-     * Store the font object IDs.
-     */
-    protected $font_obj_ids = [];
-
-    /**
      * Store the fage status (true when opened, false when closed).
      */
     protected $pageopen = [];
-
-    /**
-     * Default monospace font.
-     */
-    protected $default_monospaced_font = 'courier';
 
     /**
      * Cloned copy of the current class object.
@@ -1091,11 +999,6 @@ class PDF
     protected $form_mode = 'post';
 
     /**
-     * List of fonts used on form fields (fontname => fontkey).
-     */
-    protected $annotation_fonts = [];
-
-    /**
      * List of radio buttons parent objects.
      */
     protected $radiobutton_groups = [];
@@ -1181,11 +1084,6 @@ class PDF
     protected $rasterize_vector_images = false;
 
     /**
-     * bool flag: if true enables font subsetting by default.
-     */
-    protected $font_subsetting = true;
-
-    /**
      * Array of default graphic settings.
      */
     protected $default_graphic_vars = [];
@@ -1204,16 +1102,6 @@ class PDF
      * Current XObject ID.
      */
     protected $xobjid = '';
-
-    /**
-     * Percentage of character stretching.
-     */
-    protected $font_stretching = 100;
-
-    /**
-     * Increases or decreases the space between characters in a text by the specified amount (tracking).
-     */
-    protected $font_spacing = 0;
 
     /**
      * Array of no-write regions.
@@ -1479,17 +1367,12 @@ class PDF
         $this->buffer       = '';
         $this->pages        = [];
         $this->state        = 0;
-        $this->fonts        = [];
-        $this->FontFiles    = [];
         $this->diffs        = [];
         $this->images       = [];
         $this->links        = [];
         $this->gradients    = [];
         $this->InFooter     = false;
         $this->lasth        = 0;
-        $this->FontFamily   = self::DEFAULT_FONT;
-        $this->FontStyle    = '';
-        $this->FontSizePt   = 12;
         $this->underline    = false;
         $this->overline     = false;
         $this->linethrough  = false;
@@ -1497,23 +1380,6 @@ class PDF
         // encryption values
         $this->encrypted    = false;
         $this->last_enc_key = '';
-        // standard Unicode fonts
-        $this->CoreFonts = array(
-            'courier'      => 'Courier',
-            'courierB'     => 'Courier-Bold',
-            'courierI'     => 'Courier-Oblique',
-            'courierBI'    => 'Courier-BoldOblique',
-            'helvetica'    => 'Helvetica',
-            'helveticaB'   => 'Helvetica-Bold',
-            'helveticaI'   => 'Helvetica-Oblique',
-            'helveticaBI'  => 'Helvetica-BoldOblique',
-            'times'        => 'Times-Roman',
-            'timesB'       => 'Times-Bold',
-            'timesI'       => 'Times-Italic',
-            'timesBI'      => 'Times-BoldItalic',
-            'symbol'       => 'Symbol',
-            'zapfdingbats' => 'ZapfDingbats'
-        );
         // set scale factor
         $this->setPageUnit($unit);
         // set page format and orientation
@@ -1545,7 +1411,7 @@ class PDF
         $this->tcpdflink = true;
         $this->encoding  = $encoding;
         $this->HREF      = [];
-        $this->getFontsList();
+        $this->populateFonts();
         $this->extgstates = [];
         $this->setTextShadow();
         // signature
@@ -1567,9 +1433,7 @@ class PDF
         // initialize some settings
         $this->utf8Bidirectional([], '', false, $this->isunicode, $this->currentFont);
         // set default font
-        $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
-        $this->setHeaderFont(array($this->FontFamily, $this->FontStyle, $this->FontSizePt));
-        $this->setFooterFont(array($this->FontFamily, $this->FontStyle, $this->FontSizePt));
+        $this->setFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
         // check if PCRE Unicode support is enabled
         if ($this->isunicode and (@preg_match('/\pL/u', 'a') == 1)) {
             // PCRE unicode support is turned ON
@@ -2051,7 +1915,7 @@ class PDF
      */
     public function resetLastH()
     {
-        $this->lasth = $this->getCellHeight($this->FontSize);
+        $this->lasth = $this->getCellHeight($this->fontSize);
     }
 
     /**
@@ -2916,7 +2780,7 @@ class PDF
         if ($this->header_xobjid === false) {
             // start a new XObject Template
             $this->header_xobjid = $this->startTemplate($this->w, $this->tMargin);
-            $headerfont          = $this->getHeaderFont();
+            $headerfont          = $this->headerFont();
             $headerdata          = $this->headerConfig();
             $this->y             = $this->header_margin;
             if ($this->rtl) {
@@ -3065,7 +2929,7 @@ class PDF
         else {
             $this->setXY($this->original_lMargin, $this->header_margin);
         }
-        $this->setFont($this->header_font[0], $this->header_font[1], $this->header_font[2]);
+        $this->setFont($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
         $this->Header();
         //restore position
         if ($this->rtl) {
@@ -3115,7 +2979,7 @@ class PDF
             else {
                 $this->setXY($this->original_lMargin, $footer_y);
             }
-            $this->setFont($this->footer_font[0], $this->footer_font[1], $this->footer_font[2]);
+            $this->setFont($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
             $this->Footer();
             //restore position
             if ($this->rtl) {
@@ -3254,9 +3118,9 @@ class PDF
     {
         // store current values
         if (!StaticMethods::empty_string($fontname)) {
-            $prev_FontFamily = $this->FontFamily;
-            $prev_FontStyle  = $this->FontStyle;
-            $prev_FontSizePt = $this->FontSizePt;
+            $prev_FontFamily = $this->fontFamily;
+            $prev_FontStyle  = $this->fontStyle;
+            $prev_FontSizePt = $this->fontSizePT;
             $this->setFont($fontname, $fontstyle, $fontsize, '', 'default', false);
         }
         // convert UTF-8 array to Latin1 if required
@@ -3346,418 +3210,6 @@ class PDF
     }
 
     /**
-     * Fill the list of available fonts ($this->fontlist).
-     */
-    protected function getFontsList()
-    {
-        if (($fontsdir = opendir(self::FONT_PATH)) !== false) {
-            while (($file = readdir($fontsdir)) !== false) {
-                if (substr($file, -4) == '.php') {
-                    array_push($this->fontlist, strtolower(basename($file, '.php')));
-                }
-            }
-            closedir($fontsdir);
-        }
-    }
-
-    /**
-     * Imports a TrueType, Type1, or core font and makes it available.
-     * It is necessary to generate a font definition file first (read /fonts/utils/README.TXT).
-     * The definition file (and the font file itself when embedding) must be present either in the fonts directory. If it could not be found, the error "Could not include font definition file" is generated.
-     * @param string $family   Font family. The name can be chosen arbitrarily. If it is a standard family name, it will override the corresponding font.
-     * @param string $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular (default)</li><li>B: bold</li><li>I: italic</li><li>BI or IB: bold italic</li></ul>
-     * @param string $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
-     * @param mixed  $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
-     * @return array|false array containing the font data, or false in case of error.
-     * @see   SetFont(), setFontSubsetting()
-     */
-    public function AddFont($family, $style = '', $fontfile = '', $subset = 'default')
-    {
-        if ($subset === 'default') {
-            $subset = $this->font_subsetting;
-        }
-        if (StaticMethods::empty_string($family)) {
-            if (!StaticMethods::empty_string($this->FontFamily)) {
-                $family = $this->FontFamily;
-            }
-            else {
-                $this->Error('Empty font family');
-            }
-        }
-        // move embedded styles on $style
-        if (substr($family, -1) == 'I') {
-            $style  .= 'I';
-            $family = substr($family, 0, -1);
-        }
-        if (substr($family, -1) == 'B') {
-            $style  .= 'B';
-            $family = substr($family, 0, -1);
-        }
-        // normalize family name
-        $family = strtolower($family);
-        if ((!$this->isunicode) and ($family == 'arial')) {
-            $family = 'helvetica';
-        }
-        if (($family == 'symbol') or ($family == 'zapfdingbats')) {
-            $style = '';
-        }
-        $tempstyle = strtoupper($style === null ? '' : $style);
-        $style     = '';
-        // underline
-        if (strpos($tempstyle, 'U') !== false) {
-            $this->underline = true;
-        }
-        else {
-            $this->underline = false;
-        }
-        // line-through (deleted)
-        if (strpos($tempstyle, 'D') !== false) {
-            $this->linethrough = true;
-        }
-        else {
-            $this->linethrough = false;
-        }
-        // overline
-        if (strpos($tempstyle, 'O') !== false) {
-            $this->overline = true;
-        }
-        else {
-            $this->overline = false;
-        }
-        // bold
-        if (strpos($tempstyle, 'B') !== false) {
-            $style .= 'B';
-        }
-        // oblique
-        if (strpos($tempstyle, 'I') !== false) {
-            $style .= 'I';
-        }
-        $bistyle    = $style;
-        $fontkey    = $family . $style;
-        $font_style = $style . ($this->underline ? 'U' : '') . ($this->linethrough ? 'D' : '') . ($this->overline ? 'O' : '');
-        $fontdata   = array('fontkey' => $fontkey, 'family' => $family, 'style' => $font_style);
-        // check if the font has been already added
-        $fb = $this->getFontBuffer($fontkey);
-        if ($fb !== false) {
-            if ($this->inxobj) {
-                // we are inside an XObject template
-                $this->xobjects[$this->xobjid]['fonts'][$fontkey] = $fb['i'];
-            }
-            return $fontdata;
-        }
-        // get specified font directory (if any)
-        $fontdir = false;
-        if (!StaticMethods::empty_string($fontfile)) {
-            $fontdir = dirname($fontfile);
-            if (StaticMethods::empty_string($fontdir) or ($fontdir == '.')) {
-                $fontdir = '';
-            }
-            else {
-                $fontdir .= '/';
-            }
-        }
-        // true when the font style variation is missing
-        $missing_style = false;
-        // search and include font file
-        if (StaticMethods::empty_string($fontfile) or (!@StaticMethods::file_exists($fontfile))) {
-            // build a standard filenames for specified font
-            $tmp_fontfile = str_replace(' ', '', $family) . strtolower($style) . '.php';
-            $fontfile     = self::FONT_PATH . $tmp_fontfile;
-        }
-        // include font file
-        if (!StaticMethods::empty_string($fontfile) and (@StaticMethods::file_exists($fontfile))) {
-            $type         = null;
-            $name         = null;
-            $desc         = null;
-            $up           = -null;
-            $ut           = null;
-            $cw           = null;
-            $cbbox        = null;
-            $dw           = null;
-            $enc          = null;
-            $cidinfo      = null;
-            $file         = null;
-            $ctg          = null;
-            $diff         = null;
-            $originalsize = null;
-            $size1        = null;
-            $size2        = null;
-            include($fontfile);
-        }
-        else {
-            $this->Error('Could not include font definition file: ' . $family . '');
-        }
-        // check font parameters
-        if ((!isset($type)) or (!isset($cw))) {
-            $this->Error('The font definition file has a bad format: ' . $fontfile . '');
-        }
-        // SET default parameters
-        if (!isset($file) or StaticMethods::empty_string($file)) {
-            $file = '';
-        }
-        if (!isset($enc) or StaticMethods::empty_string($enc)) {
-            $enc = '';
-        }
-        if (!isset($cidinfo) or StaticMethods::empty_string($cidinfo)) {
-            $cidinfo            = array('Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0);
-            $cidinfo['uni2cid'] = [];
-        }
-        if (!isset($ctg) or StaticMethods::empty_string($ctg)) {
-            $ctg = '';
-        }
-        if (!isset($desc) or StaticMethods::empty_string($desc)) {
-            $desc = [];
-        }
-        if (!isset($up) or StaticMethods::empty_string($up)) {
-            $up = -100;
-        }
-        if (!isset($ut) or StaticMethods::empty_string($ut)) {
-            $ut = 50;
-        }
-        if (!isset($cw) or StaticMethods::empty_string($cw)) {
-            $cw = [];
-        }
-        if (!isset($dw) or StaticMethods::empty_string($dw)) {
-            // set default width
-            if (isset($desc['MissingWidth']) and ($desc['MissingWidth'] > 0)) {
-                $dw = $desc['MissingWidth'];
-            }
-            elseif (isset($cw[32])) {
-                $dw = $cw[32];
-            }
-            else {
-                $dw = 600;
-            }
-        }
-        ++$this->numfonts;
-        if ($type == 'core') {
-            $name   = $this->CoreFonts[$fontkey];
-            $subset = false;
-        }
-        elseif (($type == 'TrueType') or ($type == 'Type1')) {
-            $subset = false;
-        }
-        elseif ($type == 'TrueTypeUnicode') {
-            $enc = 'Identity-H';
-        }
-        else {
-            $this->Error('Unknow font type: ' . $type . '');
-        }
-        // set name if unset
-        if (!isset($name) or empty($name)) {
-            $name = $fontkey;
-        }
-        // create artificial font style variations if missing (only works with non-embedded fonts)
-        if (($type != 'core') and $missing_style) {
-            // style variations
-            $styles = array('' => '', 'B' => ',Bold', 'I' => ',Italic', 'BI' => ',BoldItalic');
-            $name   .= $styles[$bistyle];
-            // artificial bold
-            if (strpos($bistyle, 'B') !== false) {
-                if (isset($desc['StemV'])) {
-                    // from normal to bold
-                    $desc['StemV'] = round($desc['StemV'] * 1.75);
-                }
-                else {
-                    // bold
-                    $desc['StemV'] = 123;
-                }
-            }
-            // artificial italic
-            if (strpos($bistyle, 'I') !== false) {
-                if (isset($desc['ItalicAngle'])) {
-                    $desc['ItalicAngle'] -= 11;
-                }
-                else {
-                    $desc['ItalicAngle'] = -11;
-                }
-                if (isset($desc['Flags'])) {
-                    $desc['Flags'] |= 64; //bit 7
-                }
-                else {
-                    $desc['Flags'] = 64;
-                }
-            }
-        }
-        // check if the array of characters bounding boxes is defined
-        if (!isset($cbbox)) {
-            $cbbox = [];
-        }
-        // initialize subsetchars
-        $subsetchars = array_fill(0, 255, true);
-        $this->setFontBuffer($fontkey, array('fontkey' => $fontkey, 'i' => $this->numfonts, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetchars' => $subsetchars));
-        if ($this->inxobj) {
-            // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['fonts'][$fontkey] = $this->numfonts;
-        }
-        if (isset($diff) and (!empty($diff))) {
-            //Search existing encodings
-            $d  = 0;
-            $nb = count($this->diffs);
-            for ($i = 1; $i <= $nb; ++$i) {
-                if ($this->diffs[$i] == $diff) {
-                    $d = $i;
-                    break;
-                }
-            }
-            if ($d == 0) {
-                $d               = $nb + 1;
-                $this->diffs[$d] = $diff;
-            }
-            $this->setFontSubBuffer($fontkey, 'diff', $d);
-        }
-        if (!StaticMethods::empty_string($file)) {
-            if (!isset($this->FontFiles[$file])) {
-                if ((strcasecmp($type, 'TrueType') == 0) or (strcasecmp($type, 'TrueTypeUnicode') == 0)) {
-                    $this->FontFiles[$file] = array('length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
-                }
-                elseif ($type != 'core') {
-                    $this->FontFiles[$file] = array('length1' => $size1, 'length2' => $size2, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
-                }
-            }
-            else {
-                // update fontkeys that are sharing this font file
-                $this->FontFiles[$file]['subset'] = ($this->FontFiles[$file]['subset'] and $subset);
-                if (!in_array($fontkey, $this->FontFiles[$file]['fontkeys'])) {
-                    $this->FontFiles[$file]['fontkeys'][] = $fontkey;
-                }
-            }
-        }
-        return $fontdata;
-    }
-
-    /**
-     * Sets the font used to print character strings.
-     * The font can be either a standard one or a font added via the AddFont() method. Standard fonts use Windows encoding cp1252 (Western Europe).
-     * The method can be called before the first page is created and the font is retained from page to page.
-     * If you just wish to change the current font size, it is simpler to call SetFontSize().
-     * Note: for the standard fonts, the font metric files must be accessible. There are three possibilities for this:<ul><li>They are in the current directory (the one where the running script lies)</li><li>They are in one of the directories defined by the include_path parameter</li></ul><br />
-     * @param string     $family   Family font. It can be either a name defined by AddFont() or one of the standard Type1 families (case insensitive):<ul><li>times (Times-Roman)</li><li>timesb (Times-Bold)</li><li>timesi (Times-Italic)</li><li>timesbi (Times-BoldItalic)</li><li>helvetica (Helvetica)</li><li>helveticab (Helvetica-Bold)</li><li>helveticai (Helvetica-Oblique)</li><li>helveticabi (Helvetica-BoldOblique)</li><li>courier (Courier)</li><li>courierb (Courier-Bold)</li><li>courieri (Courier-Oblique)</li><li>courierbi (Courier-BoldOblique)</li><li>symbol (Symbol)</li><li>zapfdingbats (ZapfDingbats)</li></ul> It is also possible to pass an empty string. In that case, the current family is retained.
-     * @param string     $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular. Bold and italic styles do not apply to Symbol and ZapfDingbats basic fonts or other fonts when not defined.
-     * @param float|null $size     Font size in points. The default value is the current size. If no size has been specified since the beginning of the document, the value taken is 12
-     * @param string     $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
-     * @param mixed      $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
-     * @param bool       $out      if true output the font size command, otherwise only set the font properties.
-     * @author Nicola Asuni
-     * @see    AddFont(), SetFontSize()
-     */
-    public function setFont($family, $style = '', $size = null, $fontfile = '', $subset = 'default', $out = true)
-    {
-        //Select a font; size given in points
-        if ($size === null) {
-            $size = $this->FontSizePt;
-        }
-        if ($size < 0) {
-            $size = 0;
-        }
-        // try to add font (if not already added)
-        $fontdata         = $this->AddFont($family, $style, $fontfile, $subset);
-        $this->FontFamily = $fontdata['family'];
-        $this->FontStyle  = $fontdata['style'];
-        if (isset($this->currentFont['fontkey']) and isset($this->currentFont['subsetchars'])) {
-            // save subset chars of the previous font
-            $this->setFontSubBuffer($this->currentFont['fontkey'], 'subsetchars', $this->currentFont['subsetchars']);
-        }
-        $this->currentFont = $this->getFontBuffer($fontdata['fontkey']);
-        $this->setFontSize($size, $out);
-    }
-
-    /**
-     * Defines the size of the current font.
-     * @param float $size The font size in points.
-     * @param bool  $out  if true output the font size command, otherwise only set the font properties.
-     * @see   SetFont()
-     */
-    public function setFontSize($size, $out = true)
-    {
-        $size = (float) $size;
-        // font size in points
-        $this->FontSizePt = $size;
-        // font size in user units
-        $this->FontSize = $size / $this->k;
-        // calculate some font metrics
-        if (isset($this->currentFont['desc']['FontBBox'])) {
-            $bbox        = explode(' ', substr($this->currentFont['desc']['FontBBox'], 1, -1));
-            $font_height = ((intval($bbox[3]) - intval($bbox[1])) * $size / 1000);
-        }
-        else {
-            $font_height = $size * 1.219;
-        }
-        if (isset($this->currentFont['desc']['Ascent']) and ($this->currentFont['desc']['Ascent'] > 0)) {
-            $font_ascent = ($this->currentFont['desc']['Ascent'] * $size / 1000);
-        }
-        if (isset($this->currentFont['desc']['Descent']) and ($this->currentFont['desc']['Descent'] <= 0)) {
-            $font_descent = (-$this->currentFont['desc']['Descent'] * $size / 1000);
-        }
-        if (!isset($font_ascent) and !isset($font_descent)) {
-            // core font
-            $font_ascent  = 0.76 * $font_height;
-            $font_descent = $font_height - $font_ascent;
-        }
-        elseif (!isset($font_descent)) {
-            $font_descent = $font_height - $font_ascent;
-        }
-        elseif (!isset($font_ascent)) {
-            $font_ascent = $font_height - $font_descent;
-        }
-        $this->FontAscent  = ($font_ascent / $this->k);
-        $this->FontDescent = ($font_descent / $this->k);
-        if ($out and ($this->page > 0) and (isset($this->currentFont['i'])) and ($this->state == 2)) {
-            $this->_out(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->FontSizePt));
-        }
-    }
-
-    /**
-     * Returns the bounding box of the current font in user units.
-     * @return array
-     */
-    public function getFontBBox()
-    {
-        $fbbox = [];
-        if (isset($this->currentFont['desc']['FontBBox'])) {
-            $tmpbbox = explode(' ', substr($this->currentFont['desc']['FontBBox'], 1, -1));
-            $fbbox   = array_map(array($this, 'getAbsFontMeasure'), $tmpbbox);
-        }
-        else {
-            // Find max width
-            if (isset($this->currentFont['desc']['MaxWidth'])) {
-                $maxw = $this->getAbsFontMeasure(intval($this->currentFont['desc']['MaxWidth']));
-            }
-            else {
-                $maxw = 0;
-                if (isset($this->currentFont['desc']['MissingWidth'])) {
-                    $maxw = max($maxw, $this->currentFont['desc']['MissingWidth']);
-                }
-                if (isset($this->currentFont['desc']['AvgWidth'])) {
-                    $maxw = max($maxw, $this->currentFont['desc']['AvgWidth']);
-                }
-                if (isset($this->currentFont['dw'])) {
-                    $maxw = max($maxw, $this->currentFont['dw']);
-                }
-                foreach ($this->currentFont['cw'] as $char => $w) {
-                    $maxw = max($maxw, $w);
-                }
-                if ($maxw == 0) {
-                    $maxw = 600;
-                }
-                $maxw = $this->getAbsFontMeasure($maxw);
-            }
-            $fbbox = array(0, (0 - $this->FontDescent), $maxw, $this->FontAscent);
-        }
-        return $fbbox;
-    }
-
-    /**
-     * Convert a relative font measure into absolute value.
-     * @param int $s Font measure.
-     * @return float Absolute measure.
-     */
-    public function getAbsFontMeasure($s)
-    {
-        return ($s * $this->FontSize / 1000);
-    }
-
-    /**
      * Returns the glyph bounding box of the specified character in the current font in user units.
      * @param int $char Input character code.
      * @return false|array array(xMin, yMin, xMax, yMax) or FALSE if not defined.
@@ -3774,48 +3226,6 @@ class PDF
             return array_map(array($this, 'getAbsFontMeasure'), $result);
         }
         return false;
-    }
-
-    /**
-     * Return the font descent value
-     * @param string $font  font name
-     * @param string $style font style
-     * @param float  $size  The size (in points)
-     * @return int font descent
-     * @author Nicola Asuni
-     */
-    public function getFontDescent($font, $style = '', $size = 0)
-    {
-        $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
-        if (isset($fontinfo['desc']['Descent']) and ($fontinfo['desc']['Descent'] <= 0)) {
-            $descent = (-$fontinfo['desc']['Descent'] * $size / 1000);
-        }
-        else {
-            $descent = (1.219 * 0.24 * $size);
-        }
-        return ($descent / $this->k);
-    }
-
-    /**
-     * Return the font ascent value.
-     * @param string $font  font name
-     * @param string $style font style
-     * @param float  $size  The size (in points)
-     * @return int font ascent
-     * @author Nicola Asuni
-     */
-    public function getFontAscent($font, $style = '', $size = 0)
-    {
-        $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
-        if (isset($fontinfo['desc']['Ascent']) and ($fontinfo['desc']['Ascent'] > 0)) {
-            $ascent = ($fontinfo['desc']['Ascent'] * $size / 1000);
-        }
-        else {
-            $ascent = 1.219 * 0.76 * $size;
-        }
-        return ($ascent / $this->k);
     }
 
     /**
@@ -3836,10 +3246,10 @@ class PDF
             if (StaticMethods::empty_string($style)) {
                 return (isset($this->currentFont['cw'][intval($char)]));
             }
-            $font = $this->FontFamily;
+            $font = $this->fontFamily;
         }
         $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
+        $fontinfo = $this->fontBuffer($fontdata['fontkey']);
         return (isset($fontinfo['cw'][intval($char)]));
     }
 
@@ -3857,10 +3267,10 @@ class PDF
             return $text;
         }
         if (StaticMethods::empty_string($font)) {
-            $font = $this->FontFamily;
+            $font = $this->fontFamily;
         }
         $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
+        $fontinfo = $this->fontBuffer($fontdata['fontkey']);
         $uniarr   = $this->UTF8StringToArray($text, $this->isunicode, $this->currentFont);
         foreach ($uniarr as $k => $chr) {
             if (!isset($fontinfo['cw'][$chr])) {
@@ -4210,7 +3620,7 @@ class PDF
         $prev_cell_padding = $this->cell_padding;
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
-            $min_cell_height = $this->getCellHeight($this->FontSize);
+            $min_cell_height = $this->getCellHeight($this->fontSize);
             if ($h < $min_cell_height) {
                 $h = $min_cell_height;
             }
@@ -4283,7 +3693,7 @@ class PDF
         $rs                = ''; //string to be returned
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
-            $min_cell_height = $this->getCellHeight($this->FontSize);
+            $min_cell_height = $this->getCellHeight($this->fontSize);
             if ($h < $min_cell_height) {
                 $h = $min_cell_height;
             }
@@ -4315,7 +3725,7 @@ class PDF
                     case 'B':
                     {
                         // bottom
-                        $y -= ($h - $this->cell_padding['B'] - $this->FontAscent - $this->FontDescent);
+                        $y -= ($h - $this->cell_padding['B'] - $this->fontAscent - $this->fontDescent);
                         break;
                     }
                     default:
@@ -4323,7 +3733,7 @@ class PDF
                     case 'M':
                     {
                         // center
-                        $y -= (($h - $this->FontAscent - $this->FontDescent) / 2);
+                        $y -= (($h - $this->fontAscent - $this->fontDescent) / 2);
                         break;
                     }
                 }
@@ -4336,13 +3746,13 @@ class PDF
                     case 'T':
                     {
                         // top
-                        $y -= ($this->cell_padding['T'] + $this->FontAscent);
+                        $y -= ($this->cell_padding['T'] + $this->fontAscent);
                         break;
                     }
                     case 'B':
                     {
                         // bottom
-                        $y -= ($h - $this->cell_padding['B'] - $this->FontDescent);
+                        $y -= ($h - $this->cell_padding['B'] - $this->fontDescent);
                         break;
                     }
                     default:
@@ -4350,7 +3760,7 @@ class PDF
                     case 'M':
                     {
                         // center
-                        $y -= (($h + $this->FontAscent - $this->FontDescent) / 2);
+                        $y -= (($h + $this->fontAscent - $this->fontDescent) / 2);
                         break;
                     }
                 }
@@ -4363,7 +3773,7 @@ class PDF
                     case 'T':
                     {
                         // top
-                        $y -= ($this->cell_padding['T'] + $this->FontAscent + $this->FontDescent);
+                        $y -= ($this->cell_padding['T'] + $this->fontAscent + $this->fontDescent);
                         break;
                     }
                     case 'B':
@@ -4377,7 +3787,7 @@ class PDF
                     case 'M':
                     {
                         // center
-                        $y -= (($h + $this->FontAscent + $this->FontDescent) / 2);
+                        $y -= (($h + $this->fontAscent + $this->fontDescent) / 2);
                         break;
                     }
                 }
@@ -4414,7 +3824,7 @@ class PDF
             case 'B':
             {
                 // bottom
-                $yt = $y + $h - $this->cell_padding['B'] - $this->FontAscent - $this->FontDescent;
+                $yt = $y + $h - $this->cell_padding['B'] - $this->fontAscent - $this->fontDescent;
                 break;
             }
             default:
@@ -4422,11 +3832,11 @@ class PDF
             case 'M':
             {
                 // center
-                $yt = $y + (($h - $this->FontAscent - $this->FontDescent) / 2);
+                $yt = $y + (($h - $this->fontAscent - $this->fontDescent) / 2);
                 break;
             }
         }
-        $basefonty = $yt + $this->FontAscent;
+        $basefonty = $yt + $this->fontAscent;
         if (StaticMethods::empty_string($w) or ($w <= 0)) {
             if ($this->rtl) {
                 $w = $x - $this->lMargin;
@@ -4522,7 +3932,7 @@ class PDF
                     // get string width without spaces
                     $width = $this->GetStringWidth(str_replace(' ', '', $txt));
                     // calculate average space width
-                    $spacewidth = -1000 * ($w - $width - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1) / ($this->FontSize ? $this->FontSize : 1);
+                    $spacewidth = -1000 * ($w - $width - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1) / ($this->fontSize ? $this->fontSize : 1);
                     if ($this->font_stretching != 100) {
                         // word spacing is affected by stretching
                         $spacewidth /= ($this->font_stretching / 100);
@@ -4597,7 +4007,7 @@ class PDF
             if (isset($uniblock)) { // @phpstan-ignore-line
                 // print overlapping characters as separate string
                 $xshift = 0; // horizontal shift
-                $ty     = (($this->h - $basefonty + (0.2 * $this->FontSize)) * $k);
+                $ty     = (($this->h - $basefonty + (0.2 * $this->fontSize)) * $k);
                 $spw    = (($w - $txwidth - $this->cell_padding['L'] - $this->cell_padding['R']) / ($ns ? $ns : 1));
                 foreach ($uniblock as $uk => $uniarr) { // @phpstan-ignore-line
                     if (($uk % 2) == 0) {
@@ -4629,7 +4039,7 @@ class PDF
                 $s .= ' Q';
             }
             if ($link) {
-                $this->Link($xdx, $yt, $width, ($this->FontAscent + $this->FontDescent), $link, $ns);
+                $this->Link($xdx, $yt, $width, ($this->fontAscent + $this->fontDescent), $link, $ns);
             }
         }
         // output cell
@@ -5009,7 +4419,7 @@ class PDF
             $nl = 1;
         }
         else { // ******* Write simple text
-            $prev_FontSizePt = $this->FontSizePt;
+            $prev_FontSizePt = $this->fontSizePT;
             if ($fitcell) {
                 // ajust height values
                 $tobottom = ($this->h - $this->y - $this->bMargin - $this->cell_padding['T'] - $this->cell_padding['B']);
@@ -5019,10 +4429,10 @@ class PDF
             if ($maxh > 0) {
                 // get text height
                 $text_height = $this->getStringHeight($w, $txt, $reseth, $autopadding, $mc_padding, $border);
-                if ($fitcell and ($text_height > $maxh) and ($this->FontSizePt > 1)) {
+                if ($fitcell and ($text_height > $maxh) and ($this->fontSizePT > 1)) {
                     // try to reduce font size to fit text on cell (use a quick search algorithm)
                     $fmin         = 1;
-                    $fmax         = $this->FontSizePt;
+                    $fmax         = $this->fontSizePT;
                     $diff_epsilon = (1 / $this->k); // one point (min resolution)
                     $maxit        = (2 * min(100, max(10, intval($fmax)))); // max number of iterations
                     while ($maxit >= 0) {
@@ -5458,7 +4868,7 @@ class PDF
         }
         $this->adjustCellPadding($border);
         $lines              = $this->getNumLines($txt, $w, $reseth, $autopadding, $cellpadding, $border);
-        $height             = $this->getCellHeight(($lines * $this->FontSize), $autopadding);
+        $height             = $this->getCellHeight(($lines * $this->fontSize), $autopadding);
         $this->cell_padding = $prev_cell_padding;
         $this->lasth        = $prev_lasth;
         return $height;
@@ -5537,7 +4947,7 @@ class PDF
             return '';
         }
         // minimum row height
-        $row_height = max($h, $this->getCellHeight($this->FontSize));
+        $row_height = max($h, $this->getCellHeight($this->fontSize));
         // max Y
         $maxy       = $this->y + $maxh - max($row_height, $h);
         $start_page = $this->page;
@@ -7427,157 +6837,6 @@ class PDF
     }
 
     /**
-     * Output fonts.
-     * @author Nicola Asuni
-     */
-    protected function _putfonts()
-    {
-        $nf = $this->n;
-        foreach ($this->diffs as $diff) {
-            //Encodings
-            $this->_newobj();
-            $this->_out('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
-        }
-        foreach ($this->FontFiles as $file => $info) {
-            // search and get font file to embedd
-            $fontfile = self::FONT_PATH . $file;
-            if (!StaticMethods::empty_string($fontfile)) {
-                $font       = file_get_contents($fontfile);
-                $compressed = (substr($file, -2) == '.z');
-                if ((!$compressed) and (isset($info['length2']))) {
-                    $header = (ord($font[0]) == 128);
-                    if ($header) {
-                        // strip first binary header
-                        $font = substr($font, 6);
-                    }
-                    if ($header and (ord($font[$info['length1']]) == 128)) {
-                        // strip second binary header
-                        $font = substr($font, 0, $info['length1']) . substr($font, ($info['length1'] + 6));
-                    }
-                }
-                elseif ($info['subset'] and ((!$compressed) or ($compressed and function_exists('gzcompress')))) {
-                    if ($compressed) {
-                        // uncompress font
-                        $font = gzuncompress($font);
-                    }
-                    // merge subset characters
-                    $subsetchars = []; // used chars
-                    foreach ($info['fontkeys'] as $fontkey) {
-                        $fontinfo    = $this->getFontBuffer($fontkey);
-                        $subsetchars += $fontinfo['subsetchars'];
-                    }
-                    // rebuild a font subset
-                    $font = $this->trueTypeSubset($font, $subsetchars);
-                    // calculate new font length
-                    $info['length1'] = strlen($font);
-                    if ($compressed) {
-                        // recompress font
-                        $font = gzcompress($font);
-                    }
-                }
-                $this->_newobj();
-                $this->FontFiles[$file]['n'] = $this->n;
-                $stream                      = $this->_getrawstream($font);
-                $out                         = '<< /Length ' . strlen($stream);
-                if ($compressed) {
-                    $out .= ' /Filter /FlateDecode';
-                }
-                $out .= ' /Length1 ' . $info['length1'];
-                if (isset($info['length2'])) {
-                    $out .= ' /Length2 ' . $info['length2'] . ' /Length3 0';
-                }
-                $out .= ' >>';
-                $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-                $out .= "\n" . 'endobj';
-                $this->_out($out);
-            }
-        }
-        foreach ($this->fontkeys as $k) {
-            //Font objects
-            $font = $this->getFontBuffer($k);
-            $type = $font['type'];
-            $name = $font['name'];
-            if ($type == 'core') {
-                // standard core font
-                $out = $this->_getobj($this->font_obj_ids[$k]) . "\n";
-                $out .= '<</Type /Font';
-                $out .= ' /Subtype /Type1';
-                $out .= ' /BaseFont /' . $name;
-                $out .= ' /Name /F' . $font['i'];
-                if ((strtolower($name) != 'symbol') and (strtolower($name) != 'zapfdingbats')) {
-                    $out .= ' /Encoding /WinAnsiEncoding';
-                }
-                if ($k == 'helvetica') {
-                    // add default font for annotations
-                    $this->annotation_fonts[$k] = $font['i'];
-                }
-                $out .= ' >>';
-                $out .= "\n" . 'endobj';
-                $this->_out($out);
-            }
-            elseif (($type == 'Type1') or ($type == 'TrueType')) {
-                // additional Type1 or TrueType font
-                $out = $this->_getobj($this->font_obj_ids[$k]) . "\n";
-                $out .= '<</Type /Font';
-                $out .= ' /Subtype /' . $type;
-                $out .= ' /BaseFont /' . $name;
-                $out .= ' /Name /F' . $font['i'];
-                $out .= ' /FirstChar 32 /LastChar 255';
-                $out .= ' /Widths ' . ($this->n + 1) . ' 0 R';
-                $out .= ' /FontDescriptor ' . ($this->n + 2) . ' 0 R';
-                if ($font['enc']) {
-                    if (isset($font['diff'])) {
-                        $out .= ' /Encoding ' . ($nf + $font['diff']) . ' 0 R';
-                    }
-                    else {
-                        $out .= ' /Encoding /WinAnsiEncoding';
-                    }
-                }
-                $out .= ' >>';
-                $out .= "\n" . 'endobj';
-                $this->_out($out);
-                // Widths
-                $this->_newobj();
-                $s = '[';
-                for ($i = 32; $i < 256; ++$i) {
-                    if (isset($font['cw'][$i])) {
-                        $s .= $font['cw'][$i] . ' ';
-                    }
-                    else {
-                        $s .= $font['dw'] . ' ';
-                    }
-                }
-                $s .= ']';
-                $s .= "\n" . 'endobj';
-                $this->_out($s);
-                //Descriptor
-                $this->_newobj();
-                $s = '<</Type /FontDescriptor /FontName /' . $name;
-                foreach ($font['desc'] as $fdk => $fdv) {
-                    if (is_float($fdv)) {
-                        $fdv = sprintf('%F', $fdv);
-                    }
-                    $s .= ' /' . $fdk . ' ' . $fdv . '';
-                }
-                if (!StaticMethods::empty_string($font['file'])) {
-                    $s .= ' /FontFile' . ($type == 'Type1' ? '' : '2') . ' ' . $this->FontFiles[$font['file']]['n'] . ' 0 R';
-                }
-                $s .= '>>';
-                $s .= "\n" . 'endobj';
-                $this->_out($s);
-            }
-            else {
-                // additional types
-                $mtd = '_put' . strtolower($type);
-                if (!method_exists($this, $mtd)) {
-                    $this->Error('Unsupported font type: ' . $type);
-                }
-                $this->$mtd($font);
-            }
-        }
-    }
-
-    /**
      * Adds unicode fonts.<br>
      * Based on PDF Reference 1.3 (section 5)
      * @param array $font font data
@@ -7648,8 +6907,8 @@ class PDF
         $fontdir = false;
         if (!StaticMethods::empty_string($font['file'])) {
             // A stream containing a TrueType font
-            $out     .= ' /FontFile2 ' . $this->FontFiles[$font['file']]['n'] . ' 0 R';
-            $fontdir = $this->FontFiles[$font['file']]['fontdir'];
+            $out     .= ' /FontFile2 ' . $this->fontFiles[$font['file']]['n'] . ' 0 R';
+            $fontdir = $this->fontFiles[$font['file']]['fontdir'];
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
@@ -7800,8 +7059,8 @@ class PDF
         $out = $this->_getobj(2) . "\n";
         $out .= '<< /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
         $out .= ' /Font <<';
-        foreach ($this->fontkeys as $fontkey) {
-            $font = $this->getFontBuffer($fontkey);
+        foreach ($this->fontKeys as $fontkey) {
+            $font = $this->fontBuffer($fontkey);
             $out  .= ' /F' . $font['i'] . ' ' . $font['n'] . ' 0 R';
         }
         $out .= ' >>';
@@ -8160,7 +7419,7 @@ class PDF
                 }
                 $out .= ' >> >>';
             }
-            $font = $this->getFontBuffer('helvetica');
+            $font = $this->fontBuffer('helvetica');
             $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g)';
             $out  .= ' /Q ' . (($this->rtl) ? '2' : '0');
             //$out .= ' /XFA ';
@@ -8462,7 +7721,7 @@ class PDF
      */
     protected function _dounderlinew($x, $y, $w)
     {
-        $linew = -$this->currentFont['ut'] / 1000 * $this->FontSizePt;
+        $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
         return sprintf('%F %F %F %F re f', $x * $this->k, ((($this->h - $y) * $this->k) + $linew), $w * $this->k, $linew);
     }
 
@@ -8486,8 +7745,8 @@ class PDF
      */
     protected function _dolinethroughw($x, $y, $w)
     {
-        $linew = -$this->currentFont['ut'] / 1000 * $this->FontSizePt;
-        return sprintf('%F %F %F %F re f', $x * $this->k, ((($this->h - $y) * $this->k) + $linew + ($this->FontSizePt / 3)), $w * $this->k, $linew);
+        $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
+        return sprintf('%F %F %F %F re f', $x * $this->k, ((($this->h - $y) * $this->k) + $linew + ($this->fontSizePT / 3)), $w * $this->k, $linew);
     }
 
     /**
@@ -8510,8 +7769,8 @@ class PDF
      */
     protected function _dooverlinew($x, $y, $w)
     {
-        $linew = -$this->currentFont['ut'] / 1000 * $this->FontSizePt;
-        return sprintf('%F %F %F %F re f', $x * $this->k, (($this->h - $y + $this->FontAscent) * $this->k) - $linew, $w * $this->k, $linew);
+        $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
+        return sprintf('%F %F %F %F re f', $x * $this->k, (($this->h - $y + $this->fontAscent) * $this->k) - $linew, $w * $this->k, $linew);
 
     }
 
@@ -8648,46 +7907,6 @@ class PDF
     }
 
     /**
-     * Set header font.
-     * @param array<int,string|float|null>                       $font Array describing the basic font parameters: (family, style, size).
-     * @phpstan-param array{0: string, 1: string, 2: float|null} $font
-     */
-    public function setHeaderFont($font)
-    {
-        $this->header_font = $font;
-    }
-
-    /**
-     * Get header font.
-     * @return array<int,string|float|null> Array describing the basic font parameters: (family, style, size).
-     * @phpstan-return array{0: string, 1: string, 2: float|null}
-     */
-    public function getHeaderFont()
-    {
-        return $this->header_font;
-    }
-
-    /**
-     * Set footer font.
-     * @param array<int,string|float|null>                       $font Array describing the basic font parameters: (family, style, size).
-     * @phpstan-param array{0: string, 1: string, 2: float|null} $font
-     */
-    public function setFooterFont($font)
-    {
-        $this->footer_font = $font;
-    }
-
-    /**
-     * Get Footer font.
-     * @return array<int,string|float|null> Array describing the basic font parameters: (family, style, size).
-     * @phpstan-return array{0: string, 1: string, 2: float|null} $font
-     */
-    public function getFooterFont()
-    {
-        return $this->footer_font;
-    }
-
-    /**
      * Set language array.
      * @param array $language
      */
@@ -8743,7 +7962,7 @@ class PDF
         }
         // store current settings
         $prevcolor = $this->fgColor;
-        $prevstyle = $this->FontStyle;
+        $prevstyle = $this->fontStyle;
         if (empty($color)) {
             $this->textColorArray($this->linkColor);
         }
@@ -8751,10 +7970,10 @@ class PDF
             $this->textColorArray($color);
         }
         if ($style == -1) {
-            $this->setFont('', $this->FontStyle . $this->htmlLinkFontStyle);
+            $this->setFont('', $this->fontStyle . $this->htmlLinkFontStyle);
         }
         else {
-            $this->setFont('', $this->FontStyle . $style);
+            $this->setFont('', $this->fontStyle . $style);
         }
         $ret = $this->Write($this->lasth, $name, $url, $fill, '', false, 0, $firstline, $firstblock, 0);
         // restore settings
@@ -9234,9 +8453,7 @@ class PDF
             if (extension_loaded('openssl') && !in_array('aes-256-cbc', openssl_get_cipher_methods())) {
                 $this->Error('AES encryption requires openssl/aes-256-cbc cypher.');
             }
-            if (extension_loaded('mcrypt') && mcrypt_get_cipher_name(MCRYPT_RIJNDAEL_128) === false) {
-                $this->Error('AES encryption requires MCRYPT_RIJNDAEL_128 cypher.');
-            }
+
             if (($mode == 3) and !function_exists('hash')) {
                 // the Hash extension requires no external libraries and is enabled by default as of PHP 5.1.2.
                 $this->Error('AES 256 encryption requires HASH Message Digest Framework (http://www.php.net/manual/en/book.hash.php).');
@@ -10857,7 +10074,7 @@ class PDF
         $this->javascript .= "if (getField('tcpdfdocsaved').value != 'saved') {";
         $k                = $this->k;
         $this->javascript .= sprintf("f" . $name . "=this.addField('%s','%s',%u,[%F,%F,%F,%F]);", $name, $type, $this->PageNo() - 1, $x * $k, ($this->h - $y) * $k + 1, ($x + $w) * $k, ($this->h - $y - $h) * $k + 1) . "\n";
-        $this->javascript .= 'f' . $name . '.textSize=' . $this->FontSizePt . ";\n";
+        $this->javascript .= 'f' . $name . '.textSize=' . $this->fontSizePT . ";\n";
         foreach ($prop as $key => $val) {
             if (strcmp(substr($key, -5), 'Color') == 0) {
                 $val = $this->colorToJavascript($val);
@@ -10931,7 +10148,7 @@ class PDF
         $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set default appearance stream
         $this->annotation_fonts[$this->currentFont['fontkey']] = $this->currentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -11063,7 +10280,7 @@ class PDF
         // set font
         $font = 'zapfdingbats';
         $this->AddFont($font);
-        $tmpfont = $this->getFontBuffer($font);
+        $tmpfont = $this->fontBuffer($font);
         // set data for parent group
         if (!isset($this->radiobutton_groups[$this->page])) {
             $this->radiobutton_groups[$this->page] = [];
@@ -11086,15 +10303,15 @@ class PDF
         $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set additional default options
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
-        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->fontSizePT, $this->textColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
         $popt['ap']                = [];
         $popt['ap']['n']           = [];
         $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->k);
-        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
-        $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
-        $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->k)) * $this->k);
+        $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
+        $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         if (!isset($popt['mk'])) {
             $popt['mk'] = [];
         }
@@ -11168,7 +10385,7 @@ class PDF
         $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set additional default values
         $this->annotation_fonts[$this->currentFont['fontkey']] = $this->currentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -11257,7 +10474,7 @@ class PDF
         $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         // set additional default options
         $this->annotation_fonts[$this->currentFont['fontkey']] = $this->currentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -11340,17 +10557,17 @@ class PDF
         // set additional default options
         $font = 'zapfdingbats';
         $this->AddFont($font);
-        $tmpfont                                     = $this->getFontBuffer($font);
+        $tmpfont                                     = $this->fontBuffer($font);
         $this->annotation_fonts[$tmpfont['fontkey']] = $tmpfont['i'];
-        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                   = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->fontSizePT, $this->textColor);
         $popt['da']                                  = $fontstyle;
         // build appearance stream
         $popt['ap']             = [];
         $popt['ap']['n']        = [];
         $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->k);
-        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->FontSizePt / 1000) / $this->k)) * $this->k);
-        $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
-        $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->FontSizePt, $fx, $fy);
+        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->k)) * $this->k);
+        $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
+        $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         // merge options
         $opt = array_merge($popt, $opt);
         // set remaining annotation data
@@ -11418,7 +10635,7 @@ class PDF
         // get annotation data
         $popt                                                  = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
         $this->annotation_fonts[$this->currentFont['fontkey']] = $this->currentFont['i'];
-        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->FontSizePt, $this->textColor);
+        $fontstyle                                             = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
         $popt['da']                                            = $fontstyle;
         // build appearance stream
         $popt['ap']      = [];
@@ -13618,7 +12835,7 @@ class PDF
      */
     public function getFontSize()
     {
-        return $this->FontSize;
+        return $this->fontSize;
     }
 
     /**
@@ -13627,7 +12844,7 @@ class PDF
      */
     public function getFontSizePt()
     {
-        return $this->FontSizePt;
+        return $this->fontSizePT;
     }
 
     /**
@@ -13636,7 +12853,7 @@ class PDF
      */
     public function getFontFamily()
     {
-        return $this->FontFamily;
+        return $this->fontFamily;
     }
 
     /**
@@ -13645,7 +12862,7 @@ class PDF
      */
     public function getFontStyle()
     {
-        return $this->FontStyle;
+        return $this->fontStyle;
     }
 
     /**
@@ -14282,9 +13499,9 @@ class PDF
         $dom[$key]['value']          = '';
         $dom[$key]['parent']         = 0;
         $dom[$key]['hide']           = false;
-        $dom[$key]['fontname']       = $this->FontFamily;
-        $dom[$key]['fontstyle']      = $this->FontStyle;
-        $dom[$key]['fontsize']       = $this->FontSizePt;
+        $dom[$key]['fontname']       = $this->fontFamily;
+        $dom[$key]['fontstyle']      = $this->fontStyle;
+        $dom[$key]['fontsize']       = $this->fontSizePT;
         $dom[$key]['font-stretch']   = $this->font_stretching;
         $dom[$key]['letter-spacing'] = $this->font_spacing;
         $dom[$key]['stroke']         = $this->textstrokewidth;
@@ -14465,7 +13682,7 @@ class PDF
                         }
                         // font family
                         if (isset($dom[$key]['style']['font-family'])) {
-                            $dom[$key]['fontname'] = $this->getFontFamilyName($dom[$key]['style']['font-family']);
+                            $dom[$key]['fontname'] = $this->fontFamily($dom[$key]['style']['font-family']);
                         }
                         // list-style-type
                         if (isset($dom[$key]['style']['list-style-type'])) {
@@ -14754,7 +13971,7 @@ class PDF
                     if ($dom[$key]['value'] == 'font') {
                         // font family
                         if (isset($dom[$key]['attribute']['face'])) {
-                            $dom[$key]['fontname'] = $this->getFontFamilyName($dom[$key]['attribute']['face']);
+                            $dom[$key]['fontname'] = $this->fontFamily($dom[$key]['attribute']['face']);
                         }
                         // font size
                         if (isset($dom[$key]['attribute']['size'])) {
@@ -15052,9 +14269,9 @@ class PDF
         $prevPage          = $this->page;
         $prevlMargin       = $this->lMargin;
         $prevrMargin       = $this->rMargin;
-        $curfontname       = $this->FontFamily;
-        $curfontstyle      = $this->FontStyle;
-        $curfontsize       = $this->FontSizePt;
+        $curfontname       = $this->fontFamily;
+        $curfontstyle      = $this->fontStyle;
+        $curfontsize       = $this->fontSizePT;
         $curfontascent     = $this->getFontAscent($curfontname, $curfontstyle, $curfontsize);
         $curfontdescent    = $this->getFontDescent($curfontname, $curfontstyle, $curfontsize);
         $curfontstretcing  = $this->font_stretching;
@@ -15654,13 +14871,13 @@ class PDF
                                 }
                                 // calculate additional space to add to each existing space
                                 $spacewidth = ($mdiff / ($ns - $no)) * $this->k;
-                                if ($this->FontSize <= 0) {
-                                    $this->FontSize = 1;
+                                if ($this->fontSize <= 0) {
+                                    $this->fontSize = 1;
                                 }
-                                $spacewidthu = -1000 * ($mdiff + (($ns + $no) * $one_space_width)) / $ns / $this->FontSize;
+                                $spacewidthu = -1000 * ($mdiff + (($ns + $no) * $one_space_width)) / $ns / $this->fontSize;
                                 if ($this->font_spacing != 0) {
                                     // fixed spacing mode
-                                    $osw         = -1000 * $this->font_spacing / $this->FontSize;
+                                    $osw         = -1000 * $this->font_spacing / $this->fontSize;
                                     $spacewidthu += $osw;
                                 }
                                 $nsmax = $ns;
@@ -15938,10 +15155,10 @@ class PDF
                 $startlinex    = $this->x;
                 $startliney    = $this->y;
                 if ($dom[$dom[$key]['parent']]['value'] == 'sup') {
-                    $startliney -= ((0.3 * $this->FontSizePt) / $this->k);
+                    $startliney -= ((0.3 * $this->fontSizePT) / $this->k);
                 }
                 elseif ($dom[$dom[$key]['parent']]['value'] == 'sub') {
-                    $startliney -= (($this->FontSizePt / 0.7) / $this->k);
+                    $startliney -= (($this->fontSizePT / 0.7) / $this->k);
                 }
                 else {
                     $minstartliney  = $startliney;
@@ -16315,7 +15532,7 @@ class PDF
                     $this->setFont($pfontname, $pfontstyle, $pfontsize);
                     $this->resetLastH();
                     $minstartliney  = $this->y;
-                    $maxbottomliney = ($startliney + $this->getCellHeight($this->FontSize));
+                    $maxbottomliney = ($startliney + $this->getCellHeight($this->fontSize));
                     if (is_numeric($pfontsize) and ($pfontsize > 0)) {
                         $this->putHtmlListBullet($this->listnum, $this->lispacer, $pfontsize);
                     }
@@ -16402,18 +15619,18 @@ class PDF
                             $nkey          = ($key + 1);
                             $write_block   = true;
                             $same_textdir  = true;
-                            $tmp_fontname  = $this->FontFamily;
-                            $tmp_fontstyle = $this->FontStyle;
-                            $tmp_fontsize  = $this->FontSizePt;
+                            $tmp_fontname  = $this->fontFamily;
+                            $tmp_fontstyle = $this->fontStyle;
+                            $tmp_fontsize  = $this->fontSizePT;
                             while ($write_block and isset($dom[$nkey])) {
                                 if ($dom[$nkey]['tag']) {
                                     if ($dom[$nkey]['block']) {
                                         // end of block
                                         $write_block = false;
                                     }
-                                    $tmp_fontname  = isset($dom[$nkey]['fontname']) ? $dom[$nkey]['fontname'] : $this->FontFamily;
-                                    $tmp_fontstyle = isset($dom[$nkey]['fontstyle']) ? $dom[$nkey]['fontstyle'] : $this->FontStyle;
-                                    $tmp_fontsize  = isset($dom[$nkey]['fontsize']) ? $dom[$nkey]['fontsize'] : $this->FontSizePt;
+                                    $tmp_fontname  = isset($dom[$nkey]['fontname']) ? $dom[$nkey]['fontname'] : $this->fontFamily;
+                                    $tmp_fontstyle = isset($dom[$nkey]['fontstyle']) ? $dom[$nkey]['fontstyle'] : $this->fontStyle;
+                                    $tmp_fontsize  = isset($dom[$nkey]['fontsize']) ? $dom[$nkey]['fontsize'] : $this->fontSizePT;
                                     $same_textdir  = ($dom[$nkey]['dir'] == $dom[$key]['dir']);
                                 }
                                 else {
@@ -16737,7 +15954,7 @@ class PDF
                 $cur_h = $this->getCellHeight($tag['fontsize'] / $this->k);
             }
             else {
-                $cur_h = $this->getCellHeight($this->FontSize);
+                $cur_h = $this->getCellHeight($this->fontSize);
             }
             if (isset($this->tagvspaces[$tag['value']][0]['n'])) {
                 $on = $this->tagvspaces[$tag['value']][0]['n'];
@@ -16759,7 +15976,7 @@ class PDF
                     $hbz = (($parent['fontsize'] / $this->k) * $this->cell_height_ratio);
                 }
                 else {
-                    $hbz = $this->getCellHeight($this->FontSize);
+                    $hbz = $this->getCellHeight($this->fontSize);
                 }
             }
             if (isset($dom[($key - 1)]) and ($dom[($key - 1)]['value'] == 'table')) {
@@ -16775,7 +15992,7 @@ class PDF
                 $pre_h = $this->getCellHeight($parent['fontsize'] / $this->k);
             }
             else {
-                $pre_h = $this->getCellHeight($this->FontSize);
+                $pre_h = $this->getCellHeight($this->fontSize);
             }
             if (isset($this->tagvspaces[$tag['value']][1]['n'])) {
                 $cn = $this->tagvspaces[$tag['value']][1]['n'];
@@ -17189,12 +16406,12 @@ class PDF
             }
             case 'sup':
             {
-                $this->setXY($this->x(), $this->y() - ((0.7 * $this->FontSizePt) / $this->k));
+                $this->setXY($this->x(), $this->y() - ((0.7 * $this->fontSizePT) / $this->k));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->x(), $this->y() + ((0.3 * $this->FontSizePt) / $this->k));
+                $this->setXY($this->x(), $this->y() + ((0.3 * $this->fontSizePT) / $this->k));
                 break;
             }
             case 'h1':
@@ -17249,7 +16466,7 @@ class PDF
                 if (isset($tag['attribute']['maxlength']) and !StaticMethods::empty_string($tag['attribute']['maxlength'])) {
                     $opt['maxlen'] = intval($tag['attribute']['maxlength']);
                 }
-                $h = $this->getCellHeight($this->FontSize);
+                $h = $this->getCellHeight($this->fontSize);
                 if (isset($tag['attribute']['size']) and !StaticMethods::empty_string($tag['attribute']['size'])) {
                     $w = intval($tag['attribute']['size']) * $this->GetStringWidth(chr(32)) * 2;
                 }
@@ -17432,7 +16649,7 @@ class PDF
                     $w = 40;
                 }
                 if (isset($tag['attribute']['rows']) and !StaticMethods::empty_string($tag['attribute']['rows'])) {
-                    $h = intval($tag['attribute']['rows']) * $this->getCellHeight($this->FontSize);
+                    $h = intval($tag['attribute']['rows']) * $this->getCellHeight($this->fontSize);
                 }
                 else {
                     $h = 10;
@@ -17443,7 +16660,7 @@ class PDF
             }
             case 'select':
             {
-                $h = $this->getCellHeight($this->FontSize);
+                $h = $this->getCellHeight($this->fontSize);
                 if (isset($tag['attribute']['size']) and !StaticMethods::empty_string($tag['attribute']['size'])) {
                     $h *= ($tag['attribute']['size'] + 1);
                 }
@@ -17543,7 +16760,7 @@ class PDF
                 $pre_h = $this->getCellHeight($parent['fontsize'] / $this->k);
             }
             else {
-                $pre_h = $this->getCellHeight($this->FontSize);
+                $pre_h = $this->getCellHeight($this->fontSize);
             }
             if (isset($this->tagvspaces[$tag['value']][1]['n'])) {
                 $cn = $this->tagvspaces[$tag['value']][1]['n'];
@@ -17561,7 +16778,7 @@ class PDF
                 $hb = ($cn * $pre_h);
             }
             if ($maxbottomliney > $this->PageBreakTrigger) {
-                $hbz = $this->getCellHeight($this->FontSize);
+                $hbz = $this->getCellHeight($this->fontSize);
             }
             elseif ($this->y < $maxbottomliney) {
                 $hbz = ($maxbottomliney - $this->y);
@@ -18772,7 +17989,7 @@ class PDF
         if (!StaticMethods::empty_string($textitem)) {
             // Check whether we need a new page or new column
             $prev_y = $this->y;
-            $h      = $this->getCellHeight($this->FontSize);
+            $h      = $this->getCellHeight($this->fontSize);
             if ($this->checkPageBreak($h) or ($this->y < $prev_y)) {
                 $tmpx = $this->x;
             }
@@ -18807,9 +18024,9 @@ class PDF
     protected function getGraphicVars()
     {
         $grapvars = array(
-            'FontFamily'        => $this->FontFamily,
-            'FontStyle'         => $this->FontStyle,
-            'FontSizePt'        => $this->FontSizePt,
+            'FontFamily'        => $this->fontFamily,
+            'FontStyle'         => $this->fontStyle,
+            'FontSizePt'        => $this->fontSizePT,
             'rMargin'           => $this->rMargin,
             'lMargin'           => $this->lMargin,
             'cell_padding'      => $this->cell_padding,
@@ -18869,9 +18086,9 @@ class PDF
         if ($this->state != 2) {
             return;
         }
-        $this->FontFamily        = $gvars['FontFamily'];
-        $this->FontStyle         = $gvars['FontStyle'];
-        $this->FontSizePt        = $gvars['FontSizePt'];
+        $this->fontFamily        = $gvars['FontFamily'];
+        $this->fontStyle         = $gvars['FontStyle'];
+        $this->fontSizePT        = $gvars['FontSizePt'];
         $this->rMargin           = $gvars['rMargin'];
         $this->lMargin           = $gvars['lMargin'];
         $this->cell_padding      = $gvars['cell_padding'];
@@ -18920,8 +18137,8 @@ class PDF
             $this->num_columns      = $gvars['num_columns'];
         }
         $this->_out('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
-        if (!StaticMethods::empty_string($this->FontFamily)) {
-            $this->setFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
+        if (!StaticMethods::empty_string($this->fontFamily)) {
+            $this->setFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
         }
     }
 
@@ -19001,50 +18218,6 @@ class PDF
     {
         if (isset($this->pages[$page])) {
             return $this->pages[$page];
-        }
-        return false;
-    }
-
-    /**
-     * Set font buffer content.
-     * @param string $font font key
-     * @param array  $data font data
-     */
-    protected function setFontBuffer($font, $data)
-    {
-        $this->fonts[$font] = $data;
-        if (!in_array($font, $this->fontkeys)) {
-            $this->fontkeys[] = $font;
-            // store object ID for current font
-            ++$this->n;
-            $this->font_obj_ids[$font] = $this->n;
-            $this->setFontSubBuffer($font, 'n', $this->n);
-        }
-    }
-
-    /**
-     * Set font buffer content.
-     * @param string $font font key
-     * @param string $key  font sub-key
-     * @param mixed  $data font data
-     */
-    protected function setFontSubBuffer($font, $key, $data)
-    {
-        if (!isset($this->fonts[$font])) {
-            $this->setFontBuffer($font, []);
-        }
-        $this->fonts[$font][$key] = $data;
-    }
-
-    /**
-     * Get font buffer content.
-     * @param string $font font key
-     * @return string|false font buffer content or false in case of error
-     */
-    protected function getFontBuffer($font)
-    {
-        if (isset($this->fonts[$font])) {
-            return $this->fonts[$font];
         }
         return false;
     }
@@ -19516,9 +18689,9 @@ class PDF
      */
     public function addTOC($page = null, $numbersfont = '', $filler = '.', $toc_name = 'TOC', $style = '', $color = array(0, 0, 0))
     {
-        $fontsize        = $this->FontSizePt;
-        $fontfamily      = $this->FontFamily;
-        $fontstyle       = $this->FontStyle;
+        $fontsize        = $this->fontSizePT;
+        $fontfamily      = $this->fontFamily;
+        $fontstyle       = $this->fontStyle;
         $w               = $this->w - $this->lMargin - $this->rMargin;
         $spacer          = $this->GetStringWidth(chr(32)) * 4;
         $lmargin         = $this->lMargin;
@@ -19568,7 +18741,7 @@ class PDF
             }
             $this->textColorArray($outline['c']);
             // check for page break
-            $this->checkPageBreak(2 * $this->getCellHeight($this->FontSize));
+            $this->checkPageBreak(2 * $this->getCellHeight($this->fontSize));
             // set margins and X position
             if (($this->page == $current_page) and ($this->current_column == $current_column)) {
                 $this->lMargin = $lmargin;
@@ -19750,7 +18923,7 @@ class PDF
         $page_fill_start         = false;
         $page_fill_end           = false;
         // get the font type used for numbers in each template
-        $current_font = $this->FontFamily;
+        $current_font = $this->fontFamily;
         foreach ($templates as $level => $html) {
             $dom = $this->getHtmlDomArray($html);
             foreach ($dom as $key => $value) {
@@ -20434,43 +19607,6 @@ class PDF
     }
 
     /**
-     * Return normalized font name
-     * @param string $fontfamily property string containing font family names
-     * @return string normalized font name
-     * @author Nicola Asuni
-     */
-    public function getFontFamilyName($fontfamily)
-    {
-        // remove spaces and symbols
-        $fontfamily = preg_replace('/[^a-z0-9_\,]/', '', strtolower($fontfamily));
-        // extract all font names
-        $fontslist = preg_split('/[,]/', $fontfamily);
-        // find first valid font name
-        foreach ($fontslist as $font) {
-            // replace font variations
-            $font = preg_replace('/regular$/', '', $font);
-            $font = preg_replace('/italic$/', 'I', $font);
-            $font = preg_replace('/oblique$/', 'I', $font);
-            $font = preg_replace('/bold([I]?)$/', 'B\\1', $font);
-            // replace common family names and core fonts
-            $pattern       = [];
-            $replacement   = [];
-            $pattern[]     = '/^serif|^cursive|^fantasy|^timesnewroman/';
-            $replacement[] = 'times';
-            $pattern[]     = '/^sansserif/';
-            $replacement[] = 'helvetica';
-            $pattern[]     = '/^monospace/';
-            $replacement[] = 'courier';
-            $font          = preg_replace($pattern, $replacement, $font);
-            if (in_array(strtolower($font), $this->fontlist) or in_array($font, $this->fontkeys)) {
-                return $font;
-            }
-        }
-        // return current font as default
-        return $this->currentFont['fontkey'];
-    }
-
-    /**
      * Start a new XObject Template.
      * An XObject Template is a PDF block that is a self-contained description of any sequence of graphics objects (including path objects, text objects, and sampled images).
      * An XObject Template may be painted multiple times, either on several pages or at several locations on the same page and produces the same results each time, subject only to the graphics state at the time it is invoked.
@@ -20844,7 +19980,7 @@ class PDF
             return array($x, $y);
         }
         if (empty($h)) {
-            $h = $this->getCellHeight($this->FontSize);
+            $h = $this->getCellHeight($this->fontSize);
         }
         // check for page break
         if ($this->checkPageBreak($h, $y)) {
