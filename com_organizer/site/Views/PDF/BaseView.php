@@ -81,7 +81,6 @@ abstract class BaseView extends PDF implements ViewInterface
         $this->SetCreator('THM Organizer');
         $this->setFooterFont($this->dataFont);
         $this->setHeaderFont($this->headerFont);
-        $this->setImageScale(1.25);
 
         $name   = $this->getName();
         $layout = Input::cmd('layout', $name);

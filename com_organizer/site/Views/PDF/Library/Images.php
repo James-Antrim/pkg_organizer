@@ -15,6 +15,15 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Static image methods used by the TCPDF class. */
 trait Images
 {
+    /** The right-bottom corner X coordinate of last inserted image. */
+    protected float $imageRBX = 0;
+
+    /** The right-bottom corner Y coordinate of last inserted image. */
+    protected float $imageRBY = 0;
+
+    /** Adjusting factor to convert pixels to user units. */
+    protected float $imageScale = 1.25;
+
     /**
      * Set the transparency on the given image based on the values of the reference image.
      * @param resource $image
@@ -469,8 +478,8 @@ trait Images
         if ($imsize === FALSE) {
             if (($w > 0) and ($h > 0)) {
                 // get measures from specified data
-                $pw     = $this->getHTMLUnitToUnits($w, 0, $this->pdfunit, true) * $this->imgscale * $this->k;
-                $ph     = $this->getHTMLUnitToUnits($h, 0, $this->pdfunit, true) * $this->imgscale * $this->k;
+                $pw     = $this->getHTMLUnitToUnits($w, 0, $this->pdfunit, true) * $this->imageScale * $this->k;
+                $ph     = $this->getHTMLUnitToUnits($h, 0, $this->pdfunit, true) * $this->imageScale * $this->k;
                 $imsize = array($pw, $ph);
             }
             else {
@@ -694,8 +703,8 @@ trait Images
                                 }
                                 $tmp = [];
                                 if (!preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $svgtag, $tmp)) {
-                                    $vbw    = ($ow * $this->imgscale * $this->k);
-                                    $vbh    = ($oh * $this->imgscale * $this->k);
+                                    $vbw    = ($ow * $this->imageScale * $this->k);
+                                    $vbh    = ($oh * $this->imageScale * $this->k);
                                     $vbox   = sprintf(' viewBox="0 0 %F %F" ', $vbw, $vbh);
                                     $svgtag = $vbox . $svgtag;
                                 }
@@ -741,8 +750,8 @@ trait Images
             $info['i'] = $this->setImageBuffer($file, $info);
         }
         // set alignment
-        $this->img_rb_x = $x + $w;
-        $this->img_rb_y = $y + $h;
+        $this->imageRBX = $x + $w;
+        $this->imageRBY = $y + $h;
 
         // set alignment
         if ($palign == 'L') {
@@ -787,24 +796,24 @@ trait Images
             case 'T':
             {
                 $this->y = $y;
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'M':
             {
                 $this->y = $y + round($h / 2);
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'B':
             {
-                $this->y = $this->img_rb_y;
-                $this->x = $this->img_rb_x;
+                $this->y = $this->imageRBY;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'N':
             {
-                $this->y($this->img_rb_y);
+                $this->y($this->imageRBY);
                 break;
             }
             default:
@@ -812,7 +821,7 @@ trait Images
                 break;
             }
         }
-        $this->endlinex = $this->img_rb_x;
+        $this->endlinex = $this->imageRBX;
         if ($this->inxobj) {
             // we are inside an XObject template
             $this->xobjects[$this->xobjid]['images'][] = $info['i'];
@@ -1172,7 +1181,7 @@ trait Images
         $scale_x = $w / (($x2 - $x1) / $k);
         $scale_y = $h / (($y2 - $y1) / $k);
         // set alignment
-        $this->img_rb_y = $y + $h;
+        $this->imageRBY = $y + $h;
         // set alignment
         if ($this->rtl) {
             if ($palign == 'L') {
@@ -1187,7 +1196,7 @@ trait Images
             else {
                 $ximg = $x - $w;
             }
-            $this->img_rb_x = $ximg;
+            $this->imageRBX = $ximg;
         }
         else {
             if ($palign == 'L') {
@@ -1202,7 +1211,7 @@ trait Images
             else {
                 $ximg = $x;
             }
-            $this->img_rb_x = $ximg + $w;
+            $this->imageRBX = $ximg + $w;
         }
         if ($useBoundingBox) {
             $dx = $ximg * $k - $x1;
@@ -1398,24 +1407,24 @@ trait Images
             case 'T':
             {
                 $this->y = $y;
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'M':
             {
                 $this->y = $y + round($h / 2);
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'B':
             {
-                $this->y = $this->img_rb_y;
-                $this->x = $this->img_rb_x;
+                $this->y = $this->imageRBY;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'N':
             {
-                $this->y($this->img_rb_y);
+                $this->y($this->imageRBY);
                 break;
             }
             default:
@@ -1423,47 +1432,8 @@ trait Images
                 break;
             }
         }
-        $this->endlinex = $this->img_rb_x;
+        $this->endlinex = $this->imageRBX;
     }
-
-    /**
-     * Set the adjusting factor to convert pixels to user units.
-     * @param float $scale adjusting factor to convert pixels to user units.
-     * @author Nicola Asuni
-     */
-    public function setImageScale($scale)
-    {
-        $this->imgscale = $scale;
-    }
-
-    /**
-     * Returns the adjusting factor to convert pixels to user units.
-     * @return float adjusting factor to convert pixels to user units.
-     * @author Nicola Asuni
-     */
-    public function getImageScale()
-    {
-        return $this->imgscale;
-    }
-
-    /**
-     * Return the right-bottom (or left-bottom for RTL) corner X coordinate of last inserted image
-     * @return float
-     */
-    public function getImageRBX()
-    {
-        return $this->img_rb_x;
-    }
-
-    /**
-     * Return the right-bottom (or left-bottom for RTL) corner Y coordinate of last inserted image
-     * @return float
-     */
-    public function getImageRBY()
-    {
-        return $this->img_rb_y;
-    }
-
 
     /**
      * Embedd a Scalable Vector Graphics (SVG) image.
@@ -1609,7 +1579,7 @@ trait Images
             return $this->Image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
         }
         // set alignment
-        $this->img_rb_y = $y + $h;
+        $this->imageRBY = $y + $h;
         // set alignment
         if ($this->rtl) {
             if ($palign == 'L') {
@@ -1624,7 +1594,7 @@ trait Images
             else {
                 $ximg = $x - $w;
             }
-            $this->img_rb_x = $ximg;
+            $this->imageRBX = $ximg;
         }
         else {
             if ($palign == 'L') {
@@ -1639,7 +1609,7 @@ trait Images
             else {
                 $ximg = $x;
             }
-            $this->img_rb_x = $ximg + $w;
+            $this->imageRBX = $ximg + $w;
         }
         // store current graphic vars
         $gvars = $this->getGraphicVars();
@@ -1783,24 +1753,24 @@ trait Images
             case 'T':
             {
                 $this->y = $y;
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'M':
             {
                 $this->y = $y + round($h / 2);
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'B':
             {
-                $this->y = $this->img_rb_y;
-                $this->x = $this->img_rb_x;
+                $this->y = $this->imageRBY;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'N':
             {
-                $this->y($this->img_rb_y);
+                $this->y($this->imageRBY);
                 break;
             }
             default:
@@ -1821,7 +1791,7 @@ trait Images
                 break;
             }
         }
-        $this->endlinex = $this->img_rb_x;
+        $this->endlinex = $this->imageRBX;
         // restore page break
         $this->setAutoPageBreak($page_break_mode, $page_break_margin);
         $this->cell_padding = $cell_padding;

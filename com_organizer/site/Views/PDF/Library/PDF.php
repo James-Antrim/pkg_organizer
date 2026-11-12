@@ -525,24 +525,6 @@ class PDF
     protected $starting_page_number = 1;
 
     /**
-     * The right-bottom (or left-bottom for RTL) corner X coordinate of last inserted image.
-     * @author Nicola Asuni
-     */
-    protected $img_rb_x;
-
-    /**
-     * The right-bottom corner Y coordinate of last inserted image.
-     * @author Nicola Asuni
-     */
-    protected $img_rb_y;
-
-    /**
-     * Adjusting factor to convert pixels to user units.
-     * @author Nicola Asuni
-     */
-    protected $imgscale = 1;
-
-    /**
      * bool flag set to true when the input text is unicode (require unicode fonts).
      * @author Nicola Asuni
      */
@@ -2958,7 +2940,7 @@ class PDF
                 else {
                     $this->Image(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
                 }
-                $imgy = $this->getImageRBY();
+                $imgy = $this->imageRBY;
             }
             else {
                 $imgy = $this->y;
@@ -8789,11 +8771,10 @@ class PDF
      * Converts pixels to User's Units.
      * @param int $px pixels
      * @return float value in user's unit
-     * @see setImageScale(), getImageScale()
      */
     public function pixelsToUnits($px)
     {
-        return ($px / ($this->imgscale * $this->k));
+        return ($px / ($this->imageScale * $this->k));
     }
 
     /**
@@ -13196,7 +13177,7 @@ class PDF
         // fit the barcode on available space
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, false);
         // set alignment
-        $this->img_rb_y = $y + $h;
+        $this->imageRBY = $y + $h;
         // set alignment
         if ($this->rtl) {
             if ($style['position'] == 'L') {
@@ -13211,7 +13192,7 @@ class PDF
             else {
                 $xpos = $x - $w;
             }
-            $this->img_rb_x = $xpos;
+            $this->imageRBX = $xpos;
         }
         else {
             if ($style['position'] == 'L') {
@@ -13226,7 +13207,7 @@ class PDF
             else {
                 $xpos = $x;
             }
-            $this->img_rb_x = $xpos + $w;
+            $this->imageRBX = $xpos + $w;
         }
         $xpos_rect = $xpos;
         if (!isset($style['align'])) {
@@ -13303,24 +13284,24 @@ class PDF
             case 'T':
             {
                 $this->y = $y;
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'M':
             {
                 $this->y = $y + round($h / 2);
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'B':
             {
-                $this->y = $this->img_rb_y;
-                $this->x = $this->img_rb_x;
+                $this->y = $this->imageRBY;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'N':
             {
-                $this->y($this->img_rb_y);
+                $this->y($this->imageRBY);
                 break;
             }
             default:
@@ -13328,7 +13309,7 @@ class PDF
                 break;
             }
         }
-        $this->endlinex = $this->img_rb_x;
+        $this->endlinex = $this->imageRBX;
     }
 
     /**
@@ -13486,7 +13467,7 @@ class PDF
         // fit the barcode on available space
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, false);
         // set alignment
-        $this->img_rb_y = $y + $h;
+        $this->imageRBY = $y + $h;
         // set alignment
         if ($this->rtl) {
             if ($style['position'] == 'L') {
@@ -13501,7 +13482,7 @@ class PDF
             else {
                 $xpos = $x - $w;
             }
-            $this->img_rb_x = $xpos;
+            $this->imageRBX = $xpos;
         }
         else {
             if ($style['position'] == 'L') {
@@ -13516,7 +13497,7 @@ class PDF
             else {
                 $xpos = $x;
             }
-            $this->img_rb_x = $xpos + $w;
+            $this->imageRBX = $xpos + $w;
         }
         $xstart = $xpos + ($style['hpadding'] * $cw);
         $ystart = $y + ($style['vpadding'] * $ch);
@@ -13555,24 +13536,24 @@ class PDF
             case 'T':
             {
                 $this->y = $y;
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'M':
             {
                 $this->y = $y + round($h / 2);
-                $this->x = $this->img_rb_x;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'B':
             {
-                $this->y = $this->img_rb_y;
-                $this->x = $this->img_rb_x;
+                $this->y = $this->imageRBY;
+                $this->x = $this->imageRBX;
                 break;
             }
             case 'N':
             {
-                $this->y($this->img_rb_y);
+                $this->y($this->imageRBY);
                 break;
             }
             default:
@@ -13580,7 +13561,7 @@ class PDF
                 break;
             }
         }
-        $this->endlinex = $this->img_rb_x;
+        $this->endlinex = $this->imageRBX;
     }
 
     /**
@@ -17062,12 +17043,12 @@ class PDF
                     }
                     case 'M':
                     {
-                        $this->y = (($this->img_rb_y + $prevy - ($this->getCellHeight($tag['fontsize'] / $this->k))) / 2);
+                        $this->y = (($this->imageRBY + $prevy - ($this->getCellHeight($tag['fontsize'] / $this->k))) / 2);
                         break;
                     }
                     case 'B':
                     {
-                        $this->y = $this->img_rb_y - ($this->getCellHeight($tag['fontsize'] / $this->k) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cell_height_ratio));
+                        $this->y = $this->imageRBY - ($this->getCellHeight($tag['fontsize'] / $this->k) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cell_height_ratio));
                         break;
                     }
                 }
