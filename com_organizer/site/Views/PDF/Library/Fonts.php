@@ -15,11 +15,10 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Unicode data and font methods. */
 trait Fonts
 {
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
-    // Font style descriptions
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
+
+    /** List of fonts used on form fields (fontname => fontKey) */
+    protected array $annotationFonts = [];
 
     /** Current font configuration */
     protected array $currentFont = [];
@@ -64,9 +63,9 @@ trait Fonts
      * @param string $font font key
      * @param array  $data font data
      */
-    protected function fontBuffer(string $font, array $data = []): array|false
+    protected function fontBuffer(string $font, array|null $data = null): array|false
     {
-        if ($data) {
+        if (!is_null($data)) {
             $this->fonts[$font] = $data;
 
             if (!in_array($font, $this->fontKeys)) {
@@ -75,7 +74,7 @@ trait Fonts
                 // store object ID for current font
                 ++$this->n;
                 $this->font_obj_ids[$font] = $this->n;
-                $this->setFontSubBuffer($font, 'n', $this->n);
+                $this->fontSubBuffer($font, 'n', $this->n);
             }
         }
 
@@ -115,7 +114,22 @@ trait Fonts
             }
         }
 
-        return $this->currentFont['fontkey'];
+        return $this->currentFont['fontKey'];
+    }
+
+    /**
+     * Set font sub-buffer content
+     * @param string    $font font key
+     * @param string    $key  font sub-key
+     * @param array|int $data font data
+     */
+    protected function fontSubBuffer(string $font, string $key, array|int $data): void
+    {
+        if (!isset($this->fonts[$font])) {
+            $this->fontBuffer($font, []);
+        }
+
+        $this->fonts[$font][$key] = $data;
     }
 
     /**
@@ -159,6 +173,36 @@ trait Fonts
         }
     }
 
+    /**
+     * Sets the current font used to print character strings.
+     * @param string     $family
+     * @param string     $style
+     * @param float|null $size   points, default current
+     * @param string     $file
+     * @param mixed      $subset if true embed only a subset of the font (stores only the information related to the used characters); if false embed full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
+     * @param bool       $append appends the command to the document, defaults to true
+     * @see    self::CORE_FONTS, AddFont(), self::FONT_STYLES, SetFontSize()
+     */
+    public function setCurrentFont(string $family, string $style = self::REGULAR, float|null $size = null, string $file = '', bool|string $subset = 'default', bool $append = true): void
+    {
+        $size = $size === null ? $this->fontSizePT : $size;
+        $size = max($size, 0);
+
+        // try to add font (if not already added)
+        $font = $this->AddFont($family, $style, $file, $subset);
+
+        $this->fontFamily = $font['family'];
+        $this->fontStyle  = $font['style'];
+
+        if (isset($this->currentFont['fontKey']) and isset($this->currentFont['subsetCharacters'])) {
+            // save subset chars of the previous font
+            $this->fontSubBuffer($this->currentFont['fontKey'], 'subsetCharacters', $this->currentFont['subsetCharacters']);
+        }
+
+        $this->currentFont = $this->fontBuffer($font['fontKey']);
+        $this->setFontSize($size, $append);
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 
@@ -176,11 +220,6 @@ trait Fonts
      * Default monospace font.
      */
     protected $default_monospaced_font = 'courier';
-
-    /**
-     * List of fonts used on form fields (fontname => fontkey).
-     */
-    protected $annotation_fonts = [];
 
     /**
      * bool flag: if true enables font subsetting by default.
@@ -664,19 +703,6 @@ trait Fonts
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-    /**
-     * Set font buffer content.
-     * @param string $font font key
-     * @param string $key  font sub-key
-     * @param mixed  $data font data
-     */
-    protected function setFontSubBuffer($font, $key, $data)
-    {
-        if (!isset($this->fonts[$font])) {
-            $this->fontBuffer($font, []);
-        }
-        $this->fonts[$font][$key] = $data;
-    }
 
     /**
      * Output fonts.
@@ -713,13 +739,13 @@ trait Fonts
                         $font = gzuncompress($font);
                     }
                     // merge subset characters
-                    $subsetchars = []; // used chars
-                    foreach ($info['fontkeys'] as $fontkey) {
-                        $fontinfo    = $this->fontBuffer($fontkey);
-                        $subsetchars += $fontinfo['subsetchars'];
+                    $subset = []; // used chars
+                    foreach ($info['fontKeys'] as $fontKey) {
+                        $fontinfo = $this->fontBuffer($fontKey);
+                        $subset   += $fontinfo['subsetCharacters'];
                     }
                     // rebuild a font subset
-                    $font = $this->trueTypeSubset($font, $subsetchars);
+                    $font = $this->trueTypeSubset($font, $subset);
                     // calculate new font length
                     $info['length1'] = strlen($font);
                     if ($compressed) {
@@ -761,7 +787,7 @@ trait Fonts
                 }
                 if ($k == 'helvetica') {
                     // add default font for annotations
-                    $this->annotation_fonts[$k] = $font['i'];
+                    $this->annotationFonts[$k] = $font['i'];
                 }
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
@@ -838,7 +864,7 @@ trait Fonts
      * @param string $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
      * @param mixed  $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
      * @return array|false array containing the font data, or false in case of error.
-     * @see   SetFont(), setFontSubsetting()
+     * @see   setCurrentFont(), setFontSubsetting()
      */
     public function AddFont($family, $style = '', $fontfile = '', $subset = 'default')
     {
@@ -902,15 +928,15 @@ trait Fonts
             $style .= 'I';
         }
         $bistyle    = $style;
-        $fontkey    = $family . $style;
+        $fontKey    = $family . $style;
         $font_style = $style . ($this->underline ? 'U' : '') . ($this->linethrough ? 'D' : '') . ($this->overline ? 'O' : '');
-        $fontdata   = array('fontkey' => $fontkey, 'family' => $family, 'style' => $font_style);
+        $fontdata   = array('fontKey' => $fontKey, 'family' => $family, 'style' => $font_style);
         // check if the font has been already added
-        $fb = $this->fontBuffer($fontkey);
+        $fb = $this->fontBuffer($fontKey);
         if ($fb !== false) {
             if ($this->inxobj) {
                 // we are inside an XObject template
-                $this->xobjects[$this->xobjid]['fonts'][$fontkey] = $fb['i'];
+                $this->xobjects[$this->xobjid]['fonts'][$fontKey] = $fb['i'];
             }
             return $fontdata;
         }
@@ -1000,7 +1026,7 @@ trait Fonts
         }
         ++$this->fontCount;
         if ($type == 'core') {
-            $name   = self::CORE_FONTS[$fontkey];
+            $name   = self::CORE_FONTS[$fontKey];
             $subset = false;
         }
         elseif (($type == 'TrueType') or ($type == 'Type1')) {
@@ -1014,7 +1040,7 @@ trait Fonts
         }
         // set name if unset
         if (!isset($name) or empty($name)) {
-            $name = $fontkey;
+            $name = $fontKey;
         }
         // create artificial font style variations if missing (only works with non-embedded fonts)
         if (($type != 'core') and $missing_style) {
@@ -1052,12 +1078,12 @@ trait Fonts
         if (!isset($cbbox)) {
             $cbbox = [];
         }
-        // initialize subsetchars
-        $subsetchars = array_fill(0, 255, true);
-        $this->fontBuffer($fontkey, array('fontkey' => $fontkey, 'i' => $this->fontCount, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetchars' => $subsetchars));
+
+        $subsetCharacters = array_fill(0, 255, true);
+        $this->fontBuffer($fontKey, array('fontKey' => $fontKey, 'i' => $this->fontCount, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetCharacters' => $subsetCharacters));
         if ($this->inxobj) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['fonts'][$fontkey] = $this->fontCount;
+            $this->xobjects[$this->xobjid]['fonts'][$fontKey] = $this->fontCount;
         }
         if (isset($diff) and (!empty($diff))) {
             //Search existing encodings
@@ -1073,22 +1099,22 @@ trait Fonts
                 $d               = $nb + 1;
                 $this->diffs[$d] = $diff;
             }
-            $this->setFontSubBuffer($fontkey, 'diff', $d);
+            $this->fontSubBuffer($fontKey, 'diff', $d);
         }
         if (!StaticMethods::empty_string($file)) {
             if (!isset($this->fontFiles[$file])) {
                 if ((strcasecmp($type, 'TrueType') == 0) or (strcasecmp($type, 'TrueTypeUnicode') == 0)) {
-                    $this->fontFiles[$file] = array('length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
+                    $this->fontFiles[$file] = array('length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontKeys' => array($fontKey));
                 }
                 elseif ($type != 'core') {
-                    $this->fontFiles[$file] = array('length1' => $size1, 'length2' => $size2, 'fontdir' => $fontdir, 'subset' => $subset, 'fontkeys' => array($fontkey));
+                    $this->fontFiles[$file] = array('length1' => $size1, 'length2' => $size2, 'fontdir' => $fontdir, 'subset' => $subset, 'fontKeys' => array($fontKey));
                 }
             }
             else {
-                // update fontkeys that are sharing this font file
+                // update fontKeys that are sharing this font file
                 $this->fontFiles[$file]['subset'] = ($this->fontFiles[$file]['subset'] and $subset);
-                if (!in_array($fontkey, $this->fontFiles[$file]['fontkeys'])) {
-                    $this->fontFiles[$file]['fontkeys'][] = $fontkey;
+                if (!in_array($fontKey, $this->fontFiles[$file]['fontKeys'])) {
+                    $this->fontFiles[$file]['fontKeys'][] = $fontKey;
                 }
             }
         }
@@ -1096,46 +1122,10 @@ trait Fonts
     }
 
     /**
-     * Sets the font used to print character strings.
-     * The font can be either a standard one or a font added via the AddFont() method. Standard fonts use Windows encoding cp1252 (Western Europe).
-     * The method can be called before the first page is created and the font is retained from page to page.
-     * If you just wish to change the current font size, it is simpler to call SetFontSize().
-     * Note: for the standard fonts, the font metric files must be accessible. There are three possibilities for this:<ul><li>They are in the current directory (the one where the running script lies)</li><li>They are in one of the directories defined by the include_path parameter</li></ul><br />
-     * @param string     $family   Family font. It can be either a name defined by AddFont() or one of the standard Type1 families (case insensitive):<ul><li>times (Times-Roman)</li><li>timesb (Times-Bold)</li><li>timesi (Times-Italic)</li><li>timesbi (Times-BoldItalic)</li><li>helvetica (Helvetica)</li><li>helveticab (Helvetica-Bold)</li><li>helveticai (Helvetica-Oblique)</li><li>helveticabi (Helvetica-BoldOblique)</li><li>courier (Courier)</li><li>courierb (Courier-Bold)</li><li>courieri (Courier-Oblique)</li><li>courierbi (Courier-BoldOblique)</li><li>symbol (Symbol)</li><li>zapfdingbats (ZapfDingbats)</li></ul> It is also possible to pass an empty string. In that case, the current family is retained.
-     * @param string     $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular. Bold and italic styles do not apply to Symbol and ZapfDingbats basic fonts or other fonts when not defined.
-     * @param float|null $size     Font size in points. The default value is the current size. If no size has been specified since the beginning of the document, the value taken is 12
-     * @param string     $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
-     * @param mixed      $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
-     * @param bool       $out      if true output the font size command, otherwise only set the font properties.
-     * @author Nicola Asuni
-     * @see    AddFont(), SetFontSize()
-     */
-    public function setFont($family, $style = '', $size = null, $fontfile = '', $subset = 'default', $out = true)
-    {
-        //Select a font; size given in points
-        if ($size === null) {
-            $size = $this->fontSizePT;
-        }
-        if ($size < 0) {
-            $size = 0;
-        }
-        // try to add font (if not already added)
-        $fontdata         = $this->AddFont($family, $style, $fontfile, $subset);
-        $this->fontFamily = $fontdata['family'];
-        $this->fontStyle  = $fontdata['style'];
-        if (isset($this->currentFont['fontkey']) and isset($this->currentFont['subsetchars'])) {
-            // save subset chars of the previous font
-            $this->setFontSubBuffer($this->currentFont['fontkey'], 'subsetchars', $this->currentFont['subsetchars']);
-        }
-        $this->currentFont = $this->fontBuffer($fontdata['fontkey']);
-        $this->setFontSize($size, $out);
-    }
-
-    /**
      * Defines the size of the current font.
      * @param float $size The font size in points.
      * @param bool  $out  if true output the font size command, otherwise only set the font properties.
-     * @see   SetFont()
+     * @see   setCurrentFont()
      */
     public function setFontSize($size, $out = true)
     {
@@ -1237,7 +1227,7 @@ trait Fonts
     public function getFontDescent($font, $style = '', $size = 0)
     {
         $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->fontBuffer($fontdata['fontkey']);
+        $fontinfo = $this->fontBuffer($fontdata['fontKey']);
         if (isset($fontinfo['desc']['Descent']) and ($fontinfo['desc']['Descent'] <= 0)) {
             $descent = (-$fontinfo['desc']['Descent'] * $size / 1000);
         }
@@ -1258,7 +1248,7 @@ trait Fonts
     public function getFontAscent($font, $style = '', $size = 0)
     {
         $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->fontBuffer($fontdata['fontkey']);
+        $fontinfo = $this->fontBuffer($fontdata['fontKey']);
         if (isset($fontinfo['desc']['Ascent']) and ($fontinfo['desc']['Ascent'] > 0)) {
             $ascent = ($fontinfo['desc']['Ascent'] * $size / 1000);
         }
@@ -1307,7 +1297,7 @@ trait Fonts
         // for each character
         foreach ($font['cw'] as $cid => $width) {
             $cid -= $cidoffset;
-            if ($font['subset'] and (!isset($font['subsetchars'][$cid]))) {
+            if ($font['subset'] and (!isset($font['subsetCharacters'][$cid]))) {
                 // ignore the unused characters (font subsetting)
                 continue;
             }

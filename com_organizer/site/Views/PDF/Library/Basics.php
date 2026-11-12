@@ -404,11 +404,11 @@ trait Basics
             $chars = str_split($string);
             $carr  = array_map('ord', $chars);
         }
-        if (is_array($currentfont['subsetchars']) && is_array($carr)) {
-            $currentfont['subsetchars'] += array_fill_keys($carr, true);
+        if (is_array($currentfont['subsetCharacters']) && is_array($carr)) {
+            $currentfont['subsetCharacters'] += array_fill_keys($carr, true);
         }
         else {
-            $currentfont['subsetchars'] = array_merge($currentfont['subsetchars'], $carr);
+            $currentfont['subsetCharacters'] = array_merge($currentfont['subsetCharacters'], $carr);
         }
         return $carr;
     }
@@ -926,7 +926,7 @@ trait Basics
         foreach ($chardata as $cd) {
             $ordarray[] = $cd['char'];
             // store char values for subsetting
-            $currentFont['subsetchars'][$cd['char']] = true;
+            $currentFont['subsetCharacters'][$cd['char']] = true;
         }
         return $ordarray;
     }

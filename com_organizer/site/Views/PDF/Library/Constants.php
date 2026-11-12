@@ -19,13 +19,11 @@ trait Constants
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GENERAL
 
+    // Used in multiple contexts.
+    public const BOLD = 'B';
+
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ENCRYPTION
-
-    public const ENCRYPTION_PADDING = "\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
 
@@ -300,6 +298,11 @@ trait Constants
     ];
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ENCRYPTION
+
+    public const ENCRYPTION_PADDING = "\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FONTS
 
     public const CORE_FONTS = [
@@ -318,7 +321,13 @@ trait Constants
         'symbol'       => 'Symbol',
         'zapfdingbats' => 'ZapfDingbats'
     ];
+
     public const DEFAULT_FONT = 'helvetica';
+
+    public const BOLD_ITALIC = 'BI', BOLD_UNDERLINE = 'BU', ITALIC = 'I', OVERLINE = 'O', REGULAR = '', STRIKE_THROUGH = 'D', UNDERLINE = 'U';
+
+    public const FONT_STYLES = [self::BOLD, self::BOLD_ITALIC, self::BOLD_UNDERLINE, self::ITALIC, self::OVERLINE, self::REGULAR, self::STRIKE_THROUGH, self::UNDERLINE];
+
     public const SMALL_FONT_RATIO = 2 / 3;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FORMATTING

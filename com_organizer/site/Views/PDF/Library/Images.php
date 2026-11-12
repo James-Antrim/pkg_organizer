@@ -2135,7 +2135,7 @@ trait Images
                 break;
             }
         }
-        $this->setFont($font_family, $font_style, $font_size);
+        $this->setCurrentFont($font_family, $font_style, $font_size);
         $this->setFontStretching($font_stretch);
         $this->setFontSpacing($font_spacing);
         return $objstyle;

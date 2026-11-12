@@ -381,7 +381,7 @@ abstract class GridLayout extends BaseLayout
     protected function headers(string $startDate, string $endDate): void
     {
         $view = $this->view;
-        $view->SetFont('helvetica', '', 10);
+        $view->setCurrentFont('helvetica', '', 10);
         $view->lineStyle(['width' => 0.5, 'dash' => 0, 'color' => [74, 92, 102]]);
         $view->renderMultiCell(
             self::TIME_WIDTH,
@@ -404,7 +404,7 @@ abstract class GridLayout extends BaseLayout
         }
 
         $view->Ln();
-        $view->SetFont('helvetica', '', $this::FONT_SIZE);
+        $view->setCurrentFont('helvetica', '', $this::FONT_SIZE);
     }
 
     /**
