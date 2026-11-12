@@ -14,7 +14,7 @@ namespace THM\Organizer\Views\PDF\Library;
 
 //use THM\Organizer\Adapters\Application;
 
-use THM\Organizer\Views\PDF\Library\Barcodes\{Barcode1D, Barcode2D, Barcoded};
+use THM\Organizer\Views\PDF\Library\Barcodes\{Barcode1D, Barcode2D};
 
 require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
 
@@ -23,7 +23,6 @@ class PDF
 {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
-    use Barcoded;
     use Bloatware;
     use Colors;
     use Constants;
@@ -13014,7 +13013,7 @@ class PDF
         $gvars = $this->getGraphicVars();
         // create new barcode object
         $barcodeobj = new Barcode1D($code, $type);
-        $arrcode    = $barcodeobj->getBarcodeArray();
+        $arrcode    = $barcodeobj->barcode();
         if (empty($arrcode) or ($arrcode['maxw'] <= 0)) {
             $this->Error('Error in 1D barcode string');
         }
@@ -13363,7 +13362,7 @@ class PDF
         $gvars = $this->getGraphicVars();
         // create new barcode object
         $barcodeobj = new Barcode2D($code, $type);
-        $arrcode    = $barcodeobj->getBarcodeArray();
+        $arrcode    = $barcodeobj->barcode();
         if (empty($arrcode) or !isset($arrcode['num_rows']) or ($arrcode['num_rows'] == 0) or !isset($arrcode['num_cols']) or ($arrcode['num_cols'] == 0)) {
             $this->Error('Error in 2D barcode string');
         }
