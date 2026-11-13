@@ -478,8 +478,8 @@ trait Images
         if ($imsize === FALSE) {
             if (($w > 0) and ($h > 0)) {
                 // get measures from specified data
-                $pw     = $this->getHTMLUnitToUnits($w, 0, $this->pdfunit, true) * $this->imageScale * $this->k;
-                $ph     = $this->getHTMLUnitToUnits($h, 0, $this->pdfunit, true) * $this->imageScale * $this->k;
+                $pw     = $this->fontSizeToUnits($w, 0, self::MILLIMETER, true) * $this->imageScale * $this->k;
+                $ph     = $this->fontSizeToUnits($h, 0, self::MILLIMETER, true) * $this->imageScale * $this->k;
                 $imsize = array($pw, $ph);
             }
             else {
@@ -685,8 +685,8 @@ trait Images
                                 $svgtag = $regs[1];
                                 $tmp    = [];
                                 if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
-                                    $ow     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
-                                    $owu    = sprintf('%F', ($ow * $dpi / 72)) . $this->pdfunit;
+                                    $ow     = $this->fontSizeToUnits($tmp[1]);
+                                    $owu    = sprintf('%F', ($ow * $dpi / 72)) . self::MILLIMETER;
                                     $svgtag = preg_replace('/[\s]+width[\s]*=[\s]*"[^"]*"/si', ' width="' . $owu . '"', $svgtag, 1);
                                 }
                                 else {
@@ -694,8 +694,8 @@ trait Images
                                 }
                                 $tmp = [];
                                 if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
-                                    $oh     = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
-                                    $ohu    = sprintf('%F', ($oh * $dpi / 72)) . $this->pdfunit;
+                                    $oh     = $this->fontSizeToUnits($tmp[1]);
+                                    $ohu    = sprintf('%F', ($oh * $dpi / 72)) . self::MILLIMETER;
                                     $svgtag = preg_replace('/[\s]+height[\s]*=[\s]*"[^"]*"/si', ' height="' . $ohu . '"', $svgtag, 1);
                                 }
                                 else {
@@ -1502,19 +1502,19 @@ trait Images
         if (isset($regs[1]) and !empty($regs[1])) {
             $tmp = [];
             if (preg_match('/[\s]+x[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $ox = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgunit, false);
+                $ox = $this->fontSizeToUnits($tmp[1], 0);
             }
             $tmp = [];
             if (preg_match('/[\s]+y[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $oy = $this->getHTMLUnitToUnits($tmp[1], 0, $this->svgunit, false);
+                $oy = $this->fontSizeToUnits($tmp[1], 0);
             }
             $tmp = [];
             if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $ow = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
+                $ow = $this->fontSizeToUnits($tmp[1]);
             }
             $tmp = [];
             if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $regs[1], $tmp)) {
-                $oh = $this->getHTMLUnitToUnits($tmp[1], 1, $this->svgunit, false);
+                $oh = $this->fontSizeToUnits($tmp[1]);
             }
             $tmp      = [];
             $view_box = [];
@@ -1522,7 +1522,7 @@ trait Images
                 if (count($tmp) == 5) {
                     array_shift($tmp);
                     foreach ($tmp as $key => $val) {
-                        $view_box[$key] = $this->getHTMLUnitToUnits($val, 0, $this->svgunit, false);
+                        $view_box[$key] = $this->fontSizeToUnits($val);
                     }
                     $ox = $view_box[0];
                     $oy = $view_box[1];
@@ -1808,8 +1808,8 @@ trait Images
         $b = -$tm[1];
         $c = -$tm[2];
         $d = $tm[3];
-        $e = $this->getHTMLUnitToUnits($tm[4], 1, $this->svgunit, false) * $this->k;
-        $f = -$this->getHTMLUnitToUnits($tm[5], 1, $this->svgunit, false) * $this->k;
+        $e = $this->fontSizeToUnits($tm[4]) * $this->k;
+        $f = -$this->fontSizeToUnits($tm[5]) * $this->k;
         $x = 0;
         $y = $this->h * $this->k;
         $e = ($x * (1 - $a)) - ($y * $c) + $e;
@@ -1869,10 +1869,10 @@ trait Images
         $this->textColorArray($text_color);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
-            $top    = (isset($regs[1]) ? $this->getHTMLUnitToUnits($regs[1], 0, $this->svgunit, false) : 0);
-            $right  = (isset($regs[2]) ? $this->getHTMLUnitToUnits($regs[2], 0, $this->svgunit, false) : 0);
-            $bottom = (isset($regs[3]) ? $this->getHTMLUnitToUnits($regs[3], 0, $this->svgunit, false) : 0);
-            $left   = (isset($regs[4]) ? $this->getHTMLUnitToUnits($regs[4], 0, $this->svgunit, false) : 0);
+            $top    = (isset($regs[1]) ? $this->fontSizeToUnits($regs[1], 0) : 0);
+            $right  = (isset($regs[2]) ? $this->fontSizeToUnits($regs[2], 0) : 0);
+            $bottom = (isset($regs[3]) ? $this->fontSizeToUnits($regs[3], 0) : 0);
+            $left   = (isset($regs[4]) ? $this->fontSizeToUnits($regs[4], 0) : 0);
             $cx     = $x + $left;
             $cy     = $y + $top;
             $cw     = $w - $left - $right;
@@ -1930,11 +1930,11 @@ trait Images
                     $gradient['coords'][4] = $r;
                 }
                 // convert SVG coordinates to user units
-                $gradient['coords'][0] = $this->getHTMLUnitToUnits($gradient['coords'][0], 0, $this->svgunit, false);
-                $gradient['coords'][1] = $this->getHTMLUnitToUnits($gradient['coords'][1], 0, $this->svgunit, false);
-                $gradient['coords'][2] = $this->getHTMLUnitToUnits($gradient['coords'][2], 0, $this->svgunit, false);
-                $gradient['coords'][3] = $this->getHTMLUnitToUnits($gradient['coords'][3], 0, $this->svgunit, false);
-                $gradient['coords'][4] = $this->getHTMLUnitToUnits($gradient['coords'][4], 0, $this->svgunit, false);
+                $gradient['coords'][0] = $this->fontSizeToUnits($gradient['coords'][0], 0);
+                $gradient['coords'][1] = $this->fontSizeToUnits($gradient['coords'][1], 0);
+                $gradient['coords'][2] = $this->fontSizeToUnits($gradient['coords'][2], 0);
+                $gradient['coords'][3] = $this->fontSizeToUnits($gradient['coords'][3], 0);
+                $gradient['coords'][4] = $this->fontSizeToUnits($gradient['coords'][4], 0);
                 if ($w <= $minlen) {
                     $w = $minlen;
                 }
@@ -2016,7 +2016,7 @@ trait Images
             }
             $stroke_style = array(
                 'color' => $this->htmlToColor($svgstyle['stroke']),
-                'width' => $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false),
+                'width' => $this->fontSizeToUnits($svgstyle['stroke-width'], 0),
                 'cap'   => $svgstyle['stroke-linecap'],
                 'join'  => $svgstyle['stroke-linejoin']
             );
@@ -2074,7 +2074,7 @@ trait Images
             $font_stretch = $svgstyle['font-stretch'];
             $font_spacing = $svgstyle['letter-spacing'];
         }
-        $font_size    = $this->getHTMLFontUnits($font_size, $this->svgstyles[0]['font-size'], $prevsvgstyle['font-size'], $this->svgunit);
+        $font_size    = $this->fontSizeToUnits($font_size, $prevsvgstyle['font-size'], self::PIXEL, true);
         $font_stretch = $this->getCSSFontStretching($font_stretch, $svgstyle['font-stretch']);
         $font_spacing = $this->getCSSFontSpacing($font_spacing, $svgstyle['letter-spacing']);
         switch ($font_style) {
@@ -2207,7 +2207,7 @@ trait Images
                 $rawparams = preg_split('/([\,\s]+)/si', trim($val[2]));
                 $params    = [];
                 foreach ($rawparams as $ck => $cp) {
-                    $params[$ck] = $this->getHTMLUnitToUnits($cp, 0, $this->svgunit, false);
+                    $params[$ck] = $this->fontSizeToUnits($cp, 0);
                     if (abs($params[$ck]) < $minlen) {
                         // approximate little values to zero
                         $params[$ck] = 0;
@@ -2666,8 +2666,8 @@ trait Images
                 // set clipping for width and height
                 $x = 0;
                 $y = 0;
-                $w = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgunit, false) : $this->w);
-                $h = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgunit, false) : $this->h);
+                $w = (isset($attribs['width']) ? $this->fontSizeToUnits($attribs['width'], 0) : $this->w);
+                $h = (isset($attribs['height']) ? $this->fontSizeToUnits($attribs['height'], 0) : $this->h);
                 // draw clipping rect
                 $this->Rect($x, $y, $w, $h, 'CNZ', [], []);
                 // parse viewbox, calculate extra transformation matrix
@@ -2878,12 +2878,12 @@ trait Images
                 if ($invisible) {
                     break;
                 }
-                $x  = (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0);
-                $y  = (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0);
-                $w  = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgunit, false) : 0);
-                $h  = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgunit, false) : 0);
-                $rx = (isset($attribs['rx']) ? $this->getHTMLUnitToUnits($attribs['rx'], 0, $this->svgunit, false) : 0);
-                $ry = (isset($attribs['ry']) ? $this->getHTMLUnitToUnits($attribs['ry'], 0, $this->svgunit, false) : $rx);
+                $x  = (isset($attribs['x']) ? $this->fontSizeToUnits($attribs['x'], 0) : 0);
+                $y  = (isset($attribs['y']) ? $this->fontSizeToUnits($attribs['y'], 0) : 0);
+                $w  = (isset($attribs['width']) ? $this->fontSizeToUnits($attribs['width'], 0) : 0);
+                $h  = (isset($attribs['height']) ? $this->fontSizeToUnits($attribs['height'], 0) : 0);
+                $rx = (isset($attribs['rx']) ? $this->fontSizeToUnits($attribs['rx'], 0) : 0);
+                $ry = (isset($attribs['ry']) ? $this->fontSizeToUnits($attribs['ry'], 0) : $rx);
                 if ($clipping) {
                     $this->SVGTransform($tm);
                     $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', 'CNZ', [], []);
@@ -2904,9 +2904,9 @@ trait Images
                 if ($invisible) {
                     break;
                 }
-                $r  = (isset($attribs['r']) ? $this->getHTMLUnitToUnits($attribs['r'], 0, $this->svgunit, false) : 0);
-                $cx = (isset($attribs['cx']) ? $this->getHTMLUnitToUnits($attribs['cx'], 0, $this->svgunit, false) : (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0));
-                $cy = (isset($attribs['cy']) ? $this->getHTMLUnitToUnits($attribs['cy'], 0, $this->svgunit, false) : (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0));
+                $r  = (isset($attribs['r']) ? $this->fontSizeToUnits($attribs['r'], 0) : 0);
+                $cx = (isset($attribs['cx']) ? $this->fontSizeToUnits($attribs['cx'], 0) : (isset($attribs['x']) ? $this->fontSizeToUnits($attribs['x'], 0) : 0));
+                $cy = (isset($attribs['cy']) ? $this->fontSizeToUnits($attribs['cy'], 0) : (isset($attribs['y']) ? $this->fontSizeToUnits($attribs['y'], 0) : 0));
                 $x  = ($cx - $r);
                 $y  = ($cy - $r);
                 $w  = (2 * $r);
@@ -2931,10 +2931,10 @@ trait Images
                 if ($invisible) {
                     break;
                 }
-                $rx = (isset($attribs['rx']) ? $this->getHTMLUnitToUnits($attribs['rx'], 0, $this->svgunit, false) : 0);
-                $ry = (isset($attribs['ry']) ? $this->getHTMLUnitToUnits($attribs['ry'], 0, $this->svgunit, false) : 0);
-                $cx = (isset($attribs['cx']) ? $this->getHTMLUnitToUnits($attribs['cx'], 0, $this->svgunit, false) : (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0));
-                $cy = (isset($attribs['cy']) ? $this->getHTMLUnitToUnits($attribs['cy'], 0, $this->svgunit, false) : (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0));
+                $rx = (isset($attribs['rx']) ? $this->fontSizeToUnits($attribs['rx'], 0) : 0);
+                $ry = (isset($attribs['ry']) ? $this->fontSizeToUnits($attribs['ry'], 0) : 0);
+                $cx = (isset($attribs['cx']) ? $this->fontSizeToUnits($attribs['cx'], 0) : (isset($attribs['x']) ? $this->fontSizeToUnits($attribs['x'], 0) : 0));
+                $cy = (isset($attribs['cy']) ? $this->fontSizeToUnits($attribs['cy'], 0) : (isset($attribs['y']) ? $this->fontSizeToUnits($attribs['y'], 0) : 0));
                 $x  = ($cx - $rx);
                 $y  = ($cy - $ry);
                 $w  = (2 * $rx);
@@ -2959,10 +2959,10 @@ trait Images
                 if ($invisible) {
                     break;
                 }
-                $x1 = (isset($attribs['x1']) ? $this->getHTMLUnitToUnits($attribs['x1'], 0, $this->svgunit, false) : 0);
-                $y1 = (isset($attribs['y1']) ? $this->getHTMLUnitToUnits($attribs['y1'], 0, $this->svgunit, false) : 0);
-                $x2 = (isset($attribs['x2']) ? $this->getHTMLUnitToUnits($attribs['x2'], 0, $this->svgunit, false) : 0);
-                $y2 = (isset($attribs['y2']) ? $this->getHTMLUnitToUnits($attribs['y2'], 0, $this->svgunit, false) : 0);
+                $x1 = (isset($attribs['x1']) ? $this->fontSizeToUnits($attribs['x1'], 0) : 0);
+                $y1 = (isset($attribs['y1']) ? $this->fontSizeToUnits($attribs['y1'], 0) : 0);
+                $x2 = (isset($attribs['x2']) ? $this->fontSizeToUnits($attribs['x2'], 0) : 0);
+                $y2 = (isset($attribs['y2']) ? $this->fontSizeToUnits($attribs['y2'], 0) : 0);
                 $x  = $x1;
                 $y  = $y1;
                 $w  = abs($x2 - $x1);
@@ -2995,7 +2995,7 @@ trait Images
                 $ymin = 2147483647;
                 $ymax = 0;
                 foreach ($points as $key => $val) {
-                    $p[$key] = $this->getHTMLUnitToUnits($val, 0, $this->svgunit, false);
+                    $p[$key] = $this->fontSizeToUnits($val, 0);
                     if (($key % 2) == 0) {
                         // X coordinate
                         $xmin = min($xmin, $p[$key]);
@@ -3046,10 +3046,10 @@ trait Images
                 if (!isset($attribs['xlink:href']) or empty($attribs['xlink:href'])) {
                     break;
                 }
-                $x   = (isset($attribs['x']) ? $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false) : 0);
-                $y   = (isset($attribs['y']) ? $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false) : 0);
-                $w   = (isset($attribs['width']) ? $this->getHTMLUnitToUnits($attribs['width'], 0, $this->svgunit, false) : 0);
-                $h   = (isset($attribs['height']) ? $this->getHTMLUnitToUnits($attribs['height'], 0, $this->svgunit, false) : 0);
+                $x   = (isset($attribs['x']) ? $this->fontSizeToUnits($attribs['x'], 0) : 0);
+                $y   = (isset($attribs['y']) ? $this->fontSizeToUnits($attribs['y'], 0) : 0);
+                $w   = (isset($attribs['width']) ? $this->fontSizeToUnits($attribs['width'], 0) : 0);
+                $h   = (isset($attribs['height']) ? $this->fontSizeToUnits($attribs['height'], 0) : 0);
                 $img = $attribs['xlink:href'];
                 if (!$clipping) {
                     $this->StartTransform();
@@ -3138,7 +3138,7 @@ trait Images
                 }
                 array_push($this->svgstyles, $svgstyle);
                 if (isset($attribs['x'])) {
-                    $x = $this->getHTMLUnitToUnits($attribs['x'], 0, $this->svgunit, false);
+                    $x = $this->fontSizeToUnits($attribs['x'], 0);
                 }
                 elseif ($name == 'tspan') {
                     $x = $this->x;
@@ -3147,10 +3147,10 @@ trait Images
                     $x = 0;
                 }
                 if (isset($attribs['dx'])) {
-                    $x += $this->getHTMLUnitToUnits($attribs['dx'], 0, $this->svgunit, false);
+                    $x += $this->fontSizeToUnits($attribs['dx'], 0);
                 }
                 if (isset($attribs['y'])) {
-                    $y = $this->getHTMLUnitToUnits($attribs['y'], 0, $this->svgunit, false);
+                    $y = $this->fontSizeToUnits($attribs['y'], 0);
                 }
                 elseif ($name == 'tspan') {
                     $y = $this->y;
@@ -3159,7 +3159,7 @@ trait Images
                     $y = 0;
                 }
                 if (isset($attribs['dy'])) {
-                    $y += $this->getHTMLUnitToUnits($attribs['dy'], 0, $this->svgunit, false);
+                    $y += $this->fontSizeToUnits($attribs['dy'], 0);
                 }
                 $svgstyle['text-color'] = $svgstyle['fill'];
                 $this->svgtext          = '';
@@ -3181,7 +3181,7 @@ trait Images
                     $this->svgtextmode['rtl'] = false;
                 }
                 if (isset($svgstyle['stroke']) and ($svgstyle['stroke'] != 'none') and isset($svgstyle['stroke-width']) and ($svgstyle['stroke-width'] > 0)) {
-                    $this->svgtextmode['stroke'] = $this->getHTMLUnitToUnits($svgstyle['stroke-width'], 0, $this->svgunit, false);
+                    $this->svgtextmode['stroke'] = $this->fontSizeToUnits($svgstyle['stroke-width'], 0);
                 }
                 else {
                     $this->svgtextmode['stroke'] = false;

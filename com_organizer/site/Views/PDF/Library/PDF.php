@@ -1375,7 +1375,10 @@ class PDF
         $this->encrypted    = false;
         $this->last_enc_key = '';
         // set scale factor
-        $this->setPageUnit($unit);
+        $this->k = $this->dpi / 25.4;
+        if (isset($this->CurOrientation)) {
+            $this->setPageOrientation($this->CurOrientation);
+        }
         // set page format and orientation
         $this->setPageFormat($format, $orientation);
         // page margins (1 cm)
@@ -1460,52 +1463,6 @@ class PDF
         $this->_destroy(true);
     }
 
-    /**
-     * Set the units of measure for the document.
-     * @param string $unit User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
-     */
-    public function setPageUnit($unit)
-    {
-        $unit = strtolower($unit);
-        //Set scale factor
-        switch ($unit) {
-            // points
-            case 'px':
-            case 'pt':
-            {
-                $this->k = 1;
-                break;
-            }
-            // millimeters
-            case 'mm':
-            {
-                $this->k = $this->dpi / 25.4;
-                break;
-            }
-            // centimeters
-            case 'cm':
-            {
-                $this->k = $this->dpi / 2.54;
-                break;
-            }
-            // inches
-            case 'in':
-            {
-                $this->k = $this->dpi;
-                break;
-            }
-            // unsupported unit
-            default :
-            {
-                $this->Error('Incorrect unit: ' . $unit);
-                break;
-            }
-        }
-        $this->pdfunit = $unit;
-        if (isset($this->CurOrientation)) {
-            $this->setPageOrientation($this->CurOrientation);
-        }
-    }
 
     /**
      * Change the format of the current page
@@ -12871,7 +12828,7 @@ class PDF
             $width = (6 / $this->k);
         }
         else {
-            $width = $this->getHTMLUnitToUnits($width, 1, 'px', false);
+            $width = $this->fontSizeToUnits($width);
         }
         return $width;
     }
@@ -13025,10 +12982,10 @@ class PDF
         if ($width == 0) {
             $width = $this->w - $this->lMargin - $this->rMargin;
         }
-        $cell_padding['T'] = $this->getHTMLUnitToUnits($cell_padding['T'], $width, 'px', false);
-        $cell_padding['R'] = $this->getHTMLUnitToUnits($cell_padding['R'], $width, 'px', false);
-        $cell_padding['B'] = $this->getHTMLUnitToUnits($cell_padding['B'], $width, 'px', false);
-        $cell_padding['L'] = $this->getHTMLUnitToUnits($cell_padding['L'], $width, 'px', false);
+        $cell_padding['T'] = $this->fontSizeToUnits($cell_padding['T'], $width);
+        $cell_padding['R'] = $this->fontSizeToUnits($cell_padding['R'], $width);
+        $cell_padding['B'] = $this->fontSizeToUnits($cell_padding['B'], $width);
+        $cell_padding['L'] = $this->fontSizeToUnits($cell_padding['L'], $width);
         return $cell_padding;
     }
 
@@ -13083,10 +13040,10 @@ class PDF
         if ($width == 0) {
             $width = $this->w - $this->lMargin - $this->rMargin;
         }
-        $cell_margin['T'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['T']), $width, 'px', false);
-        $cell_margin['R'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['R']), $width, 'px', false);
-        $cell_margin['B'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['B']), $width, 'px', false);
-        $cell_margin['L'] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $cell_margin['L']), $width, 'px', false);
+        $cell_margin['T'] = $this->fontSizeToUnits(str_replace('auto', '0', $cell_margin['T']), $width);
+        $cell_margin['R'] = $this->fontSizeToUnits(str_replace('auto', '0', $cell_margin['R']), $width);
+        $cell_margin['B'] = $this->fontSizeToUnits(str_replace('auto', '0', $cell_margin['B']), $width);
+        $cell_margin['L'] = $this->fontSizeToUnits(str_replace('auto', '0', $cell_margin['L']), $width);
         return $cell_margin;
     }
 
@@ -13121,8 +13078,8 @@ class PDF
         if ($width == 0) {
             $width = $this->w - $this->lMargin - $this->rMargin;
         }
-        $border_spacing['H'] = $this->getHTMLUnitToUnits($border_spacing['H'], $width, 'px', false);
-        $border_spacing['V'] = $this->getHTMLUnitToUnits($border_spacing['V'], $width, 'px', false);
+        $border_spacing['H'] = $this->fontSizeToUnits($border_spacing['H'], $width);
+        $border_spacing['V'] = $this->fontSizeToUnits($border_spacing['V'], $width);
         return $border_spacing;
     }
 
@@ -13154,7 +13111,7 @@ class PDF
             }
             default:
             {
-                $val = $this->getHTMLUnitToUnits($spacing, 0, 'px', false);
+                $val = $this->fontSizeToUnits($spacing, 0);
             }
         }
         return $val;
@@ -13238,77 +13195,10 @@ class PDF
             }
             default:
             {
-                $val = $this->getHTMLUnitToUnits($stretch, 100, '%', false);
+                $val = $this->fontSizeToUnits($stretch, 100, self::PERCENT);
             }
         }
         return $val;
-    }
-
-    /**
-     * Convert HTML string containing font size value to points
-     * @param string $val         String containing font size value and unit.
-     * @param float  $refsize     Reference font size in points.
-     * @param float  $parent_size Parent font size in points.
-     * @param string $defaultunit Default unit (can be one of the following: %, em, ex, px, in, mm, pc, pt).
-     * @return float value in points
-     */
-    public function getHTMLFontUnits($val, $refsize = 12, $parent_size = 12, $defaultunit = 'pt')
-    {
-        $refsize     = $this->getFontRefSize($refsize);
-        $parent_size = $this->getFontRefSize($parent_size, $refsize);
-        switch ($val) {
-            case 'xx-small':
-            {
-                $size = ($refsize - 4);
-                break;
-            }
-            case 'x-small':
-            {
-                $size = ($refsize - 3);
-                break;
-            }
-            case 'small':
-            {
-                $size = ($refsize - 2);
-                break;
-            }
-            case 'medium':
-            {
-                $size = $refsize;
-                break;
-            }
-            case 'large':
-            {
-                $size = ($refsize + 2);
-                break;
-            }
-            case 'x-large':
-            {
-                $size = ($refsize + 4);
-                break;
-            }
-            case 'xx-large':
-            {
-                $size = ($refsize + 6);
-                break;
-            }
-            case 'smaller':
-            {
-                $size = ($parent_size - 3);
-                break;
-            }
-            case 'larger':
-            {
-                $size = ($parent_size + 3);
-                break;
-            }
-            default:
-            {
-                $parentSize = $this->getHTMLUnitToUnits($parent_size, $refsize, $defaultunit, true);
-                $size       = $this->getHTMLUnitToUnits($val, $parent_size, $defaultunit, true);
-            }
-        }
-        return $size;
     }
 
     /**
@@ -13667,7 +13557,7 @@ class PDF
                         }
                         // text-indent
                         if (isset($dom[$key]['style']['text-indent'])) {
-                            $dom[$key]['text-indent'] = $this->getHTMLUnitToUnits($dom[$key]['style']['text-indent']);
+                            $dom[$key]['text-indent'] = $this->fontSizeToUnits($dom[$key]['style']['text-indent']);
                             if ($dom[$key]['text-indent'] == 'inherit') {
                                 $dom[$key]['text-indent'] = $dom[$parentkey]['text-indent'];
                             }
@@ -13679,7 +13569,7 @@ class PDF
                         // font size
                         if (isset($dom[$key]['style']['font-size'])) {
                             $fsize                 = trim($dom[$key]['style']['font-size']);
-                            $dom[$key]['fontsize'] = $this->getHTMLFontUnits($fsize, $dom[0]['fontsize'], $dom[$parentkey]['fontsize'], 'pt');
+                            $dom[$key]['fontsize'] = $this->fontSizeToUnits($fsize, $dom[$parentkey]['fontsize'], self::POINT, true);
                         }
                         // font-stretch
                         if (isset($dom[$key]['style']['font-stretch'])) {
@@ -13709,7 +13599,7 @@ class PDF
                                         // convert to percentage of font height
                                         $lineheight = ($lineheight * 100) . '%';
                                     }
-                                    $dom[$key]['line-height'] = $this->getHTMLUnitToUnits($lineheight, 1, '%', true);
+                                    $dom[$key]['line-height'] = $this->fontSizeToUnits($lineheight, 1, self::PERCENT, true);
                                     if (substr($lineheight, -1) !== '%') {
                                         if ($dom[$key]['fontsize'] <= 0) {
                                             $dom[$key]['line-height'] = 1;
@@ -13884,7 +13774,7 @@ class PDF
                         }
                         foreach ($cellside as $psk => $psv) {
                             if (isset($dom[$key]['style']['padding-' . $psv])) {
-                                $dom[$key]['padding'][$psk] = $this->getHTMLUnitToUnits($dom[$key]['style']['padding-' . $psv], 0, 'px', false);
+                                $dom[$key]['padding'][$psk] = $this->fontSizeToUnits($dom[$key]['style']['padding-' . $psv], 0);
                             }
                         }
                         // check for CSS margin properties
@@ -13896,7 +13786,7 @@ class PDF
                         }
                         foreach ($cellside as $psk => $psv) {
                             if (isset($dom[$key]['style']['margin-' . $psv])) {
-                                $dom[$key]['margin'][$psk] = $this->getHTMLUnitToUnits(str_replace('auto', '0', $dom[$key]['style']['margin-' . $psv]), 0, 'px', false);
+                                $dom[$key]['margin'][$psk] = $this->fontSizeToUnits(str_replace('auto', '0', $dom[$key]['style']['margin-' . $psv]), 0);
                             }
                         }
                         // check for CSS border-spacing properties
@@ -14081,7 +13971,7 @@ class PDF
                     // check for text rendering mode (the following attributes do not exist in HTML)
                     if (isset($dom[$key]['attribute']['stroke'])) {
                         // font stroke width
-                        $dom[$key]['stroke'] = $this->getHTMLUnitToUnits($dom[$key]['attribute']['stroke'], $dom[$key]['fontsize'], 'pt', true);
+                        $dom[$key]['stroke'] = $this->fontSizeToUnits($dom[$key]['attribute']['stroke'], $dom[$key]['fontsize'], self::POINT, true);
                     }
                     if (isset($dom[$key]['attribute']['fill'])) {
                         // font fill
@@ -14448,7 +14338,7 @@ class PDF
                         $this->thead = $tmp_thead;
                         // fix table border properties
                         if (isset($dom[$dom[$key]['parent']]['attribute']['cellspacing'])) {
-                            $tmp_cellspacing = $this->getHTMLUnitToUnits($dom[$dom[$key]['parent']]['attribute']['cellspacing'], 1, 'px');
+                            $tmp_cellspacing = $this->fontSizeToUnits($dom[$dom[$key]['parent']]['attribute']['cellspacing']);
                         }
                         elseif (isset($dom[$dom[$key]['parent']]['border-spacing'])) {
                             $tmp_cellspacing = $dom[$dom[$key]['parent']]['border-spacing']['V'];
@@ -14480,10 +14370,10 @@ class PDF
                 // vertically align image in line
                 if ((!$this->newline) and ($dom[$key]['value'] == 'img') and (isset($dom[$key]['height'])) and ($dom[$key]['height'] > 0)) {
                     // get image height
-                    $imgh          = $this->getHTMLUnitToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->k), 'px');
+                    $imgh          = $this->fontSizeToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->k));
                     $autolinebreak = false;
                     if (!empty($dom[$key]['width'])) {
-                        $imgw = $this->getHTMLUnitToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->k), 'px', false);
+                        $imgw = $this->fontSizeToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->k));
                         if (($imgw <= ($this->w - $this->lMargin - $this->rMargin - $this->cell_padding['L'] - $this->cell_padding['R']))
                             and ((($this->rtl) and (($this->x - $imgw) < ($this->lMargin + $this->cell_padding['L'])))
                                 or ((!$this->rtl) and (($this->x + $imgw) > ($this->w - $this->rMargin - $this->cell_padding['R']))))) {
@@ -15198,7 +15088,7 @@ class PDF
                         }
                         // get cell spacing
                         if (isset($dom[$key]['attribute']['cellspacing'])) {
-                            $clsp        = $this->getHTMLUnitToUnits($dom[$key]['attribute']['cellspacing'], 1, 'px');
+                            $clsp        = $this->fontSizeToUnits($dom[$key]['attribute']['cellspacing']);
                             $cellspacing = array('H' => $clsp, 'V' => $clsp);
                         }
                         elseif (isset($dom[$key]['border-spacing'])) {
@@ -15209,7 +15099,7 @@ class PDF
                         }
                         // table width
                         if (isset($dom[$key]['width'])) {
-                            $table_width = $this->getHTMLUnitToUnits($dom[$key]['width'], $wtmp, 'px');
+                            $table_width = $this->fontSizeToUnits($dom[$key]['width'], $wtmp);
                         }
                         else {
                             $table_width = $wtmp;
@@ -15254,7 +15144,7 @@ class PDF
                         }
                         $old_cell_padding = $this->cell_padding;
                         if (isset($dom[($dom[$trid]['parent'])]['attribute']['cellpadding'])) {
-                            $crclpd               = $this->getHTMLUnitToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding'], 1, 'px');
+                            $crclpd               = $this->fontSizeToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding']);
                             $current_cell_padding = array('L' => $crclpd, 'T' => $crclpd, 'R' => $crclpd, 'B' => $crclpd);
                         }
                         elseif (isset($dom[($dom[$trid]['parent'])]['padding'])) {
@@ -15266,7 +15156,7 @@ class PDF
                         $this->cell_padding = $current_cell_padding;
                         if (isset($dom[$key]['height'])) {
                             // minimum cell height
-                            $cellh = $this->getHTMLUnitToUnits($dom[$key]['height'], 0, 'px');
+                            $cellh = $this->fontSizeToUnits($dom[$key]['height'], 0);
                         }
                         else {
                             $cellh = 0;
@@ -15364,7 +15254,7 @@ class PDF
                         }
                         if (isset($dom[$parentid]['width'])) {
                             // user specified width
-                            $cellw = $this->getHTMLUnitToUnits($dom[$parentid]['width'], $table_columns_width, 'px');
+                            $cellw = $this->fontSizeToUnits($dom[$parentid]['width'], $table_columns_width);
                             $tmpcw = ($cellw / $colspan);
                             for ($i = 0; $i < $colspan; ++$i) {
                                 $table_colwidths[($colid + $i)] = $tmpcw;
@@ -16008,14 +15898,14 @@ class PDF
                 // store current margins and page
                 $dom[$key]['old_cell_padding'] = $this->cell_padding;
                 if (isset($tag['attribute']['cellpadding'])) {
-                    $pad = $this->getHTMLUnitToUnits($tag['attribute']['cellpadding'], 1, 'px');
+                    $pad = $this->fontSizeToUnits($tag['attribute']['cellpadding']);
                     $this->setCellPadding($pad);
                 }
                 elseif (isset($tag['padding'])) {
                     $this->cell_padding = $tag['padding'];
                 }
                 if (isset($tag['attribute']['cellspacing'])) {
-                    $cs = $this->getHTMLUnitToUnits($tag['attribute']['cellspacing'], 1, 'px');
+                    $cs = $this->fontSizeToUnits($tag['attribute']['cellspacing']);
                 }
                 elseif (isset($tag['border-spacing'])) {
                     $cs = $tag['border-spacing']['V'];
@@ -16037,7 +15927,7 @@ class PDF
             case 'hr':
             {
                 if ((isset($tag['height'])) and ($tag['height'] != '')) {
-                    $hrHeight = $this->getHTMLUnitToUnits($tag['height'], 1, 'px');
+                    $hrHeight = $this->fontSizeToUnits($tag['height']);
                 }
                 else {
                     $hrHeight = $this->GetLineWidth();
@@ -16050,7 +15940,7 @@ class PDF
                     $wtmp -= ($this->cell_padding['L'] + $this->cell_padding['R']);
                 }
                 if ((isset($tag['width'])) and ($tag['width'] != '')) {
-                    $hrWidth = $this->getHTMLUnitToUnits($tag['width'], $wtmp, 'px');
+                    $hrWidth = $this->fontSizeToUnits($tag['width'], $wtmp);
                 }
                 else {
                     $hrWidth = $wtmp;
@@ -16207,11 +16097,11 @@ class PDF
                 }
                 $iw = '';
                 if (isset($tag['width'])) {
-                    $iw = $this->getHTMLUnitToUnits($tag['width'], ($tag['fontsize'] / $this->k), 'px', false);
+                    $iw = $this->fontSizeToUnits($tag['width'], ($tag['fontsize'] / $this->k));
                 }
                 $ih = '';
                 if (isset($tag['height'])) {
-                    $ih = $this->getHTMLUnitToUnits($tag['height'], ($tag['fontsize'] / $this->k), 'px', false);
+                    $ih = $this->fontSizeToUnits($tag['height'], ($tag['fontsize'] / $this->k));
                 }
                 if (($type == 'eps') or ($type == 'ai')) {
                     $this->ImageEps($imgsrc, $xpos, $this->y, $iw, $ih, $imglink, true, $align, '', $border, true);
@@ -16830,7 +16720,7 @@ class PDF
                     $this->y = $dom[($dom[$key]['parent'])]['endy'];
                 }
                 if (isset($dom[$table_el]['attribute']['cellspacing'])) {
-                    $this->y += $this->getHTMLUnitToUnits($dom[$table_el]['attribute']['cellspacing'], 1, 'px');
+                    $this->y += $this->fontSizeToUnits($dom[$table_el]['attribute']['cellspacing']);
                 }
                 elseif (isset($dom[$table_el]['border-spacing'])) {
                     $this->y += $dom[$table_el]['border-spacing']['V'];
@@ -17111,7 +17001,7 @@ class PDF
                         $border = $default_border;
                     } // end for each cell on the row
                     if (isset($table_el['attribute']['cellspacing'])) {
-                        $this->y += $this->getHTMLUnitToUnits($table_el['attribute']['cellspacing'], 1, 'px');
+                        $this->y += $this->fontSizeToUnits($table_el['attribute']['cellspacing']);
                     }
                     elseif (isset($table_el['border-spacing'])) {
                         $this->y += $table_el['border-spacing']['V'];
@@ -17384,7 +17274,7 @@ class PDF
             return;
         }
         if (isset($tag['attribute']['cellspacing'])) {
-            $clsp        = $this->getHTMLUnitToUnits($tag['attribute']['cellspacing'], 1, 'px');
+            $clsp        = $this->fontSizeToUnits($tag['attribute']['cellspacing']);
             $cellspacing = array('H' => $clsp, 'V' => $clsp);
         }
         elseif (isset($tag['border-spacing'])) {
@@ -17663,102 +17553,6 @@ class PDF
     {
         $this->linkColor         = $color;
         $this->htmlLinkFontStyle = $fontstyle;
-    }
-
-    /**
-     * Convert HTML string containing value and unit of measure to user's units or points.
-     * @param string $htmlval     String containing values and unit.
-     * @param string $refsize     Reference value in points.
-     * @param string $defaultunit Default unit (can be one of the following: %, em, ex, px, in, mm, pc, pt).
-     * @param bool   $points      If true returns points, otherwise returns value in user's units.
-     * @return float value in user's unit or point if $points=true
-     */
-    public function getHTMLUnitToUnits($htmlval, $refsize = 1, $defaultunit = 'px', $points = false)
-    {
-        $supportedunits = array('%', 'em', 'ex', 'px', 'in', 'cm', 'mm', 'pc', 'pt');
-        $retval         = 0;
-        $value          = 0;
-        $unit           = 'px';
-        if ($points) {
-            $k = 1;
-        }
-        else {
-            $k = $this->k;
-        }
-        if (in_array($defaultunit, $supportedunits)) {
-            $unit = $defaultunit;
-        }
-        if (is_numeric($htmlval)) {
-            $value = floatval($htmlval);
-        }
-        elseif (preg_match('/([0-9\.\-\+]+)/', $htmlval, $mnum)) {
-            $value = floatval($mnum[1]);
-            if (preg_match('/([a-z%]+)/', $htmlval, $munit)) {
-                if (in_array($munit[1], $supportedunits)) {
-                    $unit = $munit[1];
-                }
-            }
-        }
-        switch ($unit) {
-            // percentage
-            case '%':
-            {
-                $retval = (($value * $refsize) / 100);
-                break;
-            }
-            // relative-size
-            case 'em':
-            {
-                $retval = ($value * $refsize);
-                break;
-            }
-            // height of lower case 'x' (about half the font-size)
-            case 'ex':
-            {
-                $retval = ($value * ($refsize / 2));
-                break;
-            }
-            // absolute-size
-            case 'in':
-            {
-                $retval = (($value * $this->dpi) / $k);
-                break;
-            }
-            // centimeters
-            case 'cm':
-            {
-                $retval = (($value / 2.54 * $this->dpi) / $k);
-                break;
-            }
-            // millimeters
-            case 'mm':
-            {
-                $retval = (($value / 25.4 * $this->dpi) / $k);
-                break;
-            }
-            // one pica is 12 points
-            case 'pc':
-            {
-                $retval = (($value * 12) / $k);
-                break;
-            }
-            // points
-            case 'pt':
-            {
-                $retval = ($value / $k);
-                break;
-            }
-            // pixels
-            case 'px':
-            {
-                $retval = $this->pixelsToUnits($value);
-                if ($points) {
-                    $retval *= $this->k;
-                }
-                break;
-            }
-        }
-        return $retval;
     }
 
     /**

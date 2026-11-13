@@ -25,6 +25,17 @@ trait Constants
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
+    public const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
+
+    /**
+     * Units of measure.
+     * CENTIMETER => cm
+     * INCH => in (2.54 cm)
+     * MILLIMETER => mm (default unit of measure)
+     * POINT => pt (1/72 of inch / ~ 0.35 mm) Common unit in typography; font sizes are expressed in that unit.
+     */
+    public const UNITS = [self::CENTIMETER, self::INCH, self::MILLIMETER, self::POINT];
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
 
     public const BLACK = [0, 0, 0], BLUE = [0, 0, 255], WHITE = [255, 255, 255];
@@ -18439,4 +18450,19 @@ trait Constants
         1048576 => 'L',
         1114109 => 'L'
     ];
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////WEB
+
+
+    private const ELEMENT = 'em', PERCENT = '%', PICA = 'pc', PIXEL = 'px', RELATIVE_X = 'ex';
+
+    /**
+     * ELEMENT => em: relative to the font-size of the element.
+     * PERCENT => %: relative to the parent element
+     * PIXEL => px: 1/96th of an inch
+     * RELATIVE_X => ex: relative to the x-height of the current font
+     * @see self::UNITS
+     */
+    private const WEB_UNITS = [self::CENTIMETER, self::ELEMENT, self::INCH, self::MILLIMETER, self::PERCENT, self::PIXEL, self::POINT, self::RELATIVE_X];
 }

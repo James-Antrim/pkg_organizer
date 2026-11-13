@@ -121,6 +121,45 @@ trait Fonts
     }
 
     /**
+     * Convert a string containing font size and unit or measure to user's units or points.
+     * @param string $fontSize
+     * @param float  $referenceValue (points)
+     * @param string $unit
+     * @param bool   $points         true if return value should be in points
+     * @return float
+     * @see self::WEB_UNITS
+     */
+    public function fontSizeToUnits(string $fontSize, float $referenceValue = 1, string $unit = self::PIXEL, bool $points = false): float
+    {
+        $k     = $points ? 1 : $this->k;
+        $unit  = in_array($unit, self::WEB_UNITS) ? $unit : self::PIXEL;
+        $value = 0;
+
+        if (is_numeric($fontSize)) {
+            $value = (float) $fontSize;
+        }
+        elseif (preg_match('/([0-9.\-+]+) ?([a-z%]+)?/', $fontSize, $matches)) {
+            $value = (float) $matches[1];
+            if (isset($matches[2]) and in_array($matches[2], self::WEB_UNITS)) {
+                $unit = $matches[2];
+            }
+        }
+
+        return match ($unit) {
+            self::PERCENT => ($value * $referenceValue) / 100,
+            self::ELEMENT => $value * $referenceValue,
+            self::RELATIVE_X => $value * ($referenceValue / 2),
+            self::INCH => ($value * $this->dpi) / $k,
+            self::CENTIMETER => ($value / 2.54 * $this->dpi) / $k,
+            self::MILLIMETER => ($value / 25.4 * $this->dpi) / $k,
+            self::PICA => ($value * 12) / $k,
+            self::POINT => $value / $k,
+            self::PIXEL => $points ? $this->pixelsToUnits($value) * $this->k : $this->pixelsToUnits($value),
+            default => 0,
+        };
+    }
+
+    /**
      * Set font sub-buffer content
      * @param string    $font font key
      * @param string    $key  font sub-key
@@ -628,7 +667,7 @@ trait Fonts
         }
         // array of table names to preserve (loca and glyf tables will be added later)
         // the cmap table is not needed and shall not be present, since the mapping from character codes to glyph descriptions is provided separately
-        $table_names = array('head', 'hhea', 'hmtx', 'maxp', 'cvt ', 'fpgm', 'prep'); // minimum required table names
+        $table_names = ['head', 'hhea', 'hmtx', 'maxp', 'cvt ', 'fpgm', 'prep']; // minimum required table names
         // get the tables to preserve
         $offset = 12;
         foreach ($table as $tag => $val) {
@@ -933,7 +972,7 @@ trait Fonts
         $bistyle    = $style;
         $fontKey    = $family . $style;
         $font_style = $style . ($this->underline ? 'U' : '') . ($this->linethrough ? 'D' : '') . ($this->overline ? 'O' : '');
-        $fontdata   = array('fontKey' => $fontKey, 'family' => $family, 'style' => $font_style);
+        $fontdata   = ['fontKey' => $fontKey, 'family' => $family, 'style' => $font_style];
         // check if the font has been already added
         $fb = $this->fontBuffer($fontKey);
         if ($fb !== false) {
@@ -997,7 +1036,7 @@ trait Fonts
             $enc = '';
         }
         if (!isset($cidinfo) or StaticMethods::empty_string($cidinfo)) {
-            $cidinfo            = array('Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0);
+            $cidinfo            = ['Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0];
             $cidinfo['uni2cid'] = [];
         }
         if (!isset($ctg) or StaticMethods::empty_string($ctg)) {
@@ -1048,7 +1087,7 @@ trait Fonts
         // create artificial font style variations if missing (only works with non-embedded fonts)
         if (($type != 'core') and $missing_style) {
             // style variations
-            $styles = array('' => '', 'B' => ',Bold', 'I' => ',Italic', 'BI' => ',BoldItalic');
+            $styles = ['' => '', 'B' => ',Bold', 'I' => ',Italic', 'BI' => ',BoldItalic'];
             $name   .= $styles[$bistyle];
             // artificial bold
             if (strpos($bistyle, 'B') !== false) {
@@ -1083,7 +1122,7 @@ trait Fonts
         }
 
         $subsetCharacters = array_fill(0, 255, true);
-        $this->fontBuffer($fontKey, array('fontKey' => $fontKey, 'i' => $this->fontCount, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetCharacters' => $subsetCharacters));
+        $this->fontBuffer($fontKey, ['fontKey' => $fontKey, 'i' => $this->fontCount, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetCharacters' => $subsetCharacters]);
         if ($this->inxobj) {
             // we are inside an XObject template
             $this->xobjects[$this->xobjid]['fonts'][$fontKey] = $this->fontCount;
@@ -1107,10 +1146,10 @@ trait Fonts
         if (!StaticMethods::empty_string($file)) {
             if (!isset($this->fontFiles[$file])) {
                 if ((strcasecmp($type, 'TrueType') == 0) or (strcasecmp($type, 'TrueTypeUnicode') == 0)) {
-                    $this->fontFiles[$file] = array('length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontKeys' => array($fontKey));
+                    $this->fontFiles[$file] = ['length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontKeys' => [$fontKey]];
                 }
                 elseif ($type != 'core') {
-                    $this->fontFiles[$file] = array('length1' => $size1, 'length2' => $size2, 'fontdir' => $fontdir, 'subset' => $subset, 'fontKeys' => array($fontKey));
+                    $this->fontFiles[$file] = ['length1' => $size1, 'length2' => $size2, 'fontdir' => $fontdir, 'subset' => $subset, 'fontKeys' => [$fontKey]];
                 }
             }
             else {
@@ -1178,7 +1217,7 @@ trait Fonts
         $fbbox = [];
         if (isset($this->currentFont['desc']['FontBBox'])) {
             $tmpbbox = explode(' ', substr($this->currentFont['desc']['FontBBox'], 1, -1));
-            $fbbox   = array_map(array($this, 'getAbsFontMeasure'), $tmpbbox);
+            $fbbox   = array_map([$this, 'getAbsFontMeasure'], $tmpbbox);
         }
         else {
             // Find max width
@@ -1392,63 +1431,5 @@ trait Fonts
             }
         }
         return '/W [' . $w . ' ]';
-    }
-
-    /**
-     * Get a reference font size.
-     * @param string $size    String containing font size value.
-     * @param float  $refsize Reference font size in points.
-     * @return float value in points
-     */
-    public static function getFontRefSize($size, $refsize = 12)
-    {
-        switch ($size) {
-            case 'xx-small':
-            {
-                $size = ($refsize - 4);
-                break;
-            }
-            case 'x-small':
-            {
-                $size = ($refsize - 3);
-                break;
-            }
-            case 'small':
-            {
-                $size = ($refsize - 2);
-                break;
-            }
-            case 'medium':
-            {
-                $size = $refsize;
-                break;
-            }
-            case 'large':
-            {
-                $size = ($refsize + 2);
-                break;
-            }
-            case 'x-large':
-            {
-                $size = ($refsize + 4);
-                break;
-            }
-            case 'xx-large':
-            {
-                $size = ($refsize + 6);
-                break;
-            }
-            case 'smaller':
-            {
-                $size = ($refsize - 3);
-                break;
-            }
-            case 'larger':
-            {
-                $size = ($refsize + 3);
-                break;
-            }
-        }
-        return $size;
     }
 }
