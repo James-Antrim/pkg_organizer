@@ -53,9 +53,6 @@ abstract class BaseView extends PDF implements ViewInterface
      */
     public const CURRENT_SIZE = 12;
 
-    // UOM point (~0.35 mm)
-    public const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
-
     public array $border = ['width' => '.1', 'color' => 220];
     public array $dataFont = ['helvetica', '', 8];
     protected string $destination = self::DOWNLOAD;

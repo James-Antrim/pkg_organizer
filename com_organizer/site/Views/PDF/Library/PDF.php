@@ -1132,11 +1132,6 @@ class PDF
     protected $svgdir = '';
 
     /**
-     *  Deafult unit of measure for SVG.
-     */
-    protected $svgunit = 'px';
-
-    /**
      * Array of SVG gradients.
      */
     protected $svggradients = [];
@@ -6335,11 +6330,11 @@ class PDF
                         case 'link':
                         {
                             if (is_string($pl['txt']) && !empty($pl['txt'])) {
-                                if ($pl['txt'][0] == '#') {
+                                if ($pl['txt'][0] === '#') {
                                     // internal destination
                                     $annots .= ' /A <</S /GoTo /D /' . StaticMethods::encodeNameObject(substr($pl['txt'], 1)) . '>>';
                                 }
-                                elseif ($pl['txt'][0] == '%') {
+                                elseif ($pl['txt'][0] === '%') {
                                     // embedded PDF file
                                     $filename = basename(substr($pl['txt'], 1));
                                     $annots   .= ' /A << /S /GoToE /D [0 /Fit] /NewWindow true /T << /R /C /P ' . ($n - 1) . ' /A ' . $this->embeddedfiles[$filename]['a'] . ' >> >>';
@@ -9842,11 +9837,11 @@ class PDF
             if (isset($o['u']) and !empty($o['u'])) {
                 // link
                 if (is_string($o['u'])) {
-                    if ($o['u'][0] == '#') {
+                    if ($o['u'][0] === '#') {
                         // internal destination
                         $out .= ' /Dest /' . StaticMethods::encodeNameObject(substr($o['u'], 1));
                     }
-                    elseif ($o['u'][0] == '%') {
+                    elseif ($o['u'][0] === '%') {
                         // embedded PDF file
                         $filename = basename(substr($o['u'], 1));
                         $out      .= ' /A <</S /GoToE /D [0 /Fit] /NewWindow true /T << /R /C /P ' . ($o['p'] - 1) . ' /A ' . $this->embeddedfiles[$filename]['a'] . ' >> >>';

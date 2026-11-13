@@ -1245,7 +1245,7 @@ trait Images
                     $color_name = $matches[0];
                     // remove color name from string
                     $line = str_replace(' ' . $color_name, '', $line);
-                    // remove pharentesis from color name
+                    // remove pharenthesis from color name
                     $color_name = substr($color_name, 1, -1);
                 }
             }
@@ -2759,10 +2759,10 @@ trait Images
                 }
                 //$attribs['spreadMethod']
                 if (((!isset($attribs['x1'])) and (!isset($attribs['y1'])) and (!isset($attribs['x2'])) and (!isset($attribs['y2'])))
-                    or ((isset($attribs['x1']) and (substr($attribs['x1'], -1) == '%'))
-                        or (isset($attribs['y1']) and (substr($attribs['y1'], -1) == '%'))
-                        or (isset($attribs['x2']) and (substr($attribs['x2'], -1) == '%'))
-                        or (isset($attribs['y2']) and (substr($attribs['y2'], -1) == '%')))) {
+                    or ((isset($attribs['x1']) and (str_ends_with($attribs['x1'], '%')))
+                        or (isset($attribs['y1']) and (str_ends_with($attribs['y1'], '%')))
+                        or (isset($attribs['x2']) and (str_ends_with($attribs['x2'], '%')))
+                        or (isset($attribs['y2']) and (str_ends_with($attribs['y2'], '%'))))) {
                     $this->svggradients[$this->svggradientid]['mode'] = 'percentage';
                 }
                 else {
@@ -2799,8 +2799,8 @@ trait Images
                 }
                 //$attribs['spreadMethod']
                 if (((!isset($attribs['cx'])) and (!isset($attribs['cy'])))
-                    or ((isset($attribs['cx']) and (substr($attribs['cx'], -1) == '%'))
-                        or (isset($attribs['cy']) and (substr($attribs['cy'], -1) == '%')))) {
+                    or ((isset($attribs['cx']) and (str_ends_with($attribs['cx'], '%')))
+                        or (isset($attribs['cy']) and (str_ends_with($attribs['cy'], '%'))))) {
                     $this->svggradients[$this->svggradientid]['mode'] = 'percentage';
                 }
                 elseif (isset($attribs['r']) and is_numeric($attribs['r']) and ($attribs['r']) <= 1) {
@@ -2827,7 +2827,7 @@ trait Images
             case 'stop':
             {
                 // gradient stops
-                if (substr($attribs['offset'], -1) == '%') {
+                if (str_ends_with($attribs['offset'], '%')) {
                     $offset = floatval(substr($attribs['offset'], 0, -1)) / 100;
                 }
                 else {
