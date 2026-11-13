@@ -321,8 +321,7 @@ trait Basics
     public function utf8StringToArray(string $string): array
     {
         if ($this->isUnicode) {
-            // Normal PHP preg_split does some wild shit here.
-            $characters = StaticMethods::pregSplit('//', 'u', $string, -1, PREG_SPLIT_NO_EMPTY);
+            $characters = preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
             $numbers    = array_map([$this, 'unicodeOrd'], $characters);
         }
         else {
@@ -365,5 +364,6 @@ trait Basics
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
+
 
 }
