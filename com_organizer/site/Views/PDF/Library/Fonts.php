@@ -761,7 +761,7 @@ trait Fonts
         foreach ($this->fontFiles as $file => $info) {
             // search and get font file to embedd
             $fontfile = self::FONT_PATH . $file;
-            if (!StaticMethods::empty_string($fontfile)) {
+            if (!empty($fontfile)) {
                 $font       = file_get_contents($fontfile);
                 $compressed = (substr($file, -2) == '.z');
                 if ((!$compressed) and (isset($info['length2']))) {
@@ -879,7 +879,7 @@ trait Fonts
                     }
                     $s .= ' /' . $fdk . ' ' . $fdv . '';
                 }
-                if (!StaticMethods::empty_string($font['file'])) {
+                if (!empty($font['file'])) {
                     $s .= ' /FontFile' . ($type == 'Type1' ? '' : '2') . ' ' . $this->fontFiles[$font['file']]['n'] . ' 0 R';
                 }
                 $s .= '>>';
@@ -913,8 +913,8 @@ trait Fonts
         if ($subset === 'default') {
             $subset = $this->font_subsetting;
         }
-        if (StaticMethods::empty_string($family)) {
-            if (!StaticMethods::empty_string($this->fontFamily)) {
+        if (empty($family)) {
+            if (!empty($this->fontFamily)) {
                 $family = $this->fontFamily;
             }
             else {
@@ -984,9 +984,9 @@ trait Fonts
         }
         // get specified font directory (if any)
         $fontdir = false;
-        if (!StaticMethods::empty_string($fontfile)) {
+        if (!empty($fontfile)) {
             $fontdir = dirname($fontfile);
-            if (StaticMethods::empty_string($fontdir) or ($fontdir == '.')) {
+            if (empty($fontdir) or ($fontdir == '.')) {
                 $fontdir = '';
             }
             else {
@@ -996,13 +996,13 @@ trait Fonts
         // true when the font style variation is missing
         $missing_style = false;
         // search and include font file
-        if (StaticMethods::empty_string($fontfile) or (!@StaticMethods::file_exists($fontfile))) {
+        if (empty($fontfile) or (!@StaticMethods::file_exists($fontfile))) {
             // build a standard filenames for specified font
             $tmp_fontfile = str_replace(' ', '', $family) . strtolower($style) . '.php';
             $fontfile     = self::FONT_PATH . $tmp_fontfile;
         }
         // include font file
-        if (!StaticMethods::empty_string($fontfile) and (@StaticMethods::file_exists($fontfile))) {
+        if (!empty($fontfile) and (@StaticMethods::file_exists($fontfile))) {
             $type         = null;
             $name         = null;
             $desc         = null;
@@ -1029,32 +1029,32 @@ trait Fonts
             $this->Error('The font definition file has a bad format: ' . $fontfile . '');
         }
         // SET default parameters
-        if (!isset($file) or StaticMethods::empty_string($file)) {
+        if (!isset($file) or empty($file)) {
             $file = '';
         }
-        if (!isset($enc) or StaticMethods::empty_string($enc)) {
+        if (!isset($enc) or empty($enc)) {
             $enc = '';
         }
-        if (!isset($cidinfo) or StaticMethods::empty_string($cidinfo)) {
+        if (!isset($cidinfo) or empty($cidinfo)) {
             $cidinfo            = ['Registry' => 'Adobe', 'Ordering' => 'Identity', 'Supplement' => 0];
             $cidinfo['uni2cid'] = [];
         }
-        if (!isset($ctg) or StaticMethods::empty_string($ctg)) {
+        if (!isset($ctg) or empty($ctg)) {
             $ctg = '';
         }
-        if (!isset($desc) or StaticMethods::empty_string($desc)) {
+        if (!isset($desc) or empty($desc)) {
             $desc = [];
         }
-        if (!isset($up) or StaticMethods::empty_string($up)) {
+        if (!isset($up) or empty($up)) {
             $up = -100;
         }
-        if (!isset($ut) or StaticMethods::empty_string($ut)) {
+        if (!isset($ut) or empty($ut)) {
             $ut = 50;
         }
-        if (!isset($cw) or StaticMethods::empty_string($cw)) {
+        if (!isset($cw) or empty($cw)) {
             $cw = [];
         }
-        if (!isset($dw) or StaticMethods::empty_string($dw)) {
+        if (!isset($dw) or empty($dw)) {
             // set default width
             if (isset($desc['MissingWidth']) and ($desc['MissingWidth'] > 0)) {
                 $dw = $desc['MissingWidth'];
@@ -1143,7 +1143,7 @@ trait Fonts
             }
             $this->fontSubBuffer($fontKey, 'diff', $d);
         }
-        if (!StaticMethods::empty_string($file)) {
+        if (!empty($file)) {
             if (!isset($this->fontFiles[$file])) {
                 if ((strcasecmp($type, 'TrueType') == 0) or (strcasecmp($type, 'TrueTypeUnicode') == 0)) {
                     $this->fontFiles[$file] = ['length1' => $originalsize, 'fontdir' => $fontdir, 'subset' => $subset, 'fontKeys' => [$fontKey]];
