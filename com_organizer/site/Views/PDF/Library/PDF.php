@@ -13452,7 +13452,7 @@ class PDF
                         && !empty($dom[($dom[$key]['parent'])]['thead'])
                         && ($dom[($dom[$key]['parent'])]['thead'] === true)
                     ) {
-                        if (StaticMethods::empty_string($dom[($dom[($dom[$key]['parent'])]['parent'])]['thead'])) {
+                        if (empty($dom[($dom[($dom[$key]['parent'])]['parent'])]['thead'])) {
                             $dom[($dom[($dom[$key]['parent'])]['parent'])]['thead'] = $csstagarray . $a[$dom[($dom[($dom[$key]['parent'])]['parent'])]['elkey']];
                         }
                         for ($i = $dom[$key]['parent']; $i <= $key; ++$i) {
@@ -13464,7 +13464,7 @@ class PDF
                         // header elements must be always contained in a single page
                         $dom[($dom[$key]['parent'])]['attribute']['nobr'] = 'true';
                     }
-                    if (($dom[$key]['value'] == 'table') and (!StaticMethods::empty_string($dom[($dom[$key]['parent'])]['thead']))) {
+                    if (($dom[$key]['value'] == 'table') and (!empty($dom[($dom[$key]['parent'])]['thead']))) {
                         // remove the nobr attributes from the table header
                         $dom[($dom[$key]['parent'])]['thead'] = str_replace(' nobr="true"', '', $dom[($dom[$key]['parent'])]['thead']);
                         $dom[($dom[$key]['parent'])]['thead'] .= '</tablehead>';
@@ -13618,14 +13618,14 @@ class PDF
                             $dom[$key]['fontstyle'] .= 'I';
                         }
                         // font color
-                        if (isset($dom[$key]['style']['color']) and (!StaticMethods::empty_string($dom[$key]['style']['color']))) {
+                        if (isset($dom[$key]['style']['color']) and (!empty($dom[$key]['style']['color']))) {
                             $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['style']['color']);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
                             $dom[$key]['fgcolor'] = $this->linkColor;
                         }
                         // background color
-                        if (isset($dom[$key]['style']['background-color']) and (!StaticMethods::empty_string($dom[$key]['style']['background-color']))) {
+                        if (isset($dom[$key]['style']['background-color']) and (!empty($dom[$key]['style']['background-color']))) {
                             $dom[$key]['bgcolor'] = $this->htmlToColor($dom[$key]['style']['background-color']);
                         }
                         // text-decoration
@@ -13633,7 +13633,7 @@ class PDF
                             $decors = explode(' ', strtolower($dom[$key]['style']['text-decoration']));
                             foreach ($decors as $dec) {
                                 $dec = trim($dec);
-                                if (!StaticMethods::empty_string($dec)) {
+                                if (!empty($dec)) {
                                     if ($dec[0] == 'u') {
                                         // underline
                                         $dom[$key]['fontstyle'] .= 'U';
@@ -13849,7 +13849,7 @@ class PDF
                     }
                     // force natural alignment for lists
                     if ((($dom[$key]['value'] == 'ul') or ($dom[$key]['value'] == 'ol') or ($dom[$key]['value'] == 'dl'))
-                        and (!isset($dom[$key]['align']) or StaticMethods::empty_string($dom[$key]['align']) or ($dom[$key]['align'] != 'J'))) {
+                        and (!isset($dom[$key]['align']) or empty($dom[$key]['align']) or ($dom[$key]['align'] != 'J'))) {
                         if ($this->rtl) {
                             $dom[$key]['align'] = 'R';
                         }
@@ -13934,18 +13934,18 @@ class PDF
                         $dom[$key]['dir'] = $dom[$key]['attribute']['dir'];
                     }
                     // set foreground color attribute
-                    if (isset($dom[$key]['attribute']['color']) and (!StaticMethods::empty_string($dom[$key]['attribute']['color']))) {
+                    if (isset($dom[$key]['attribute']['color']) and (!empty($dom[$key]['attribute']['color']))) {
                         $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['attribute']['color']);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
                         $dom[$key]['fgcolor'] = $this->linkColor;
                     }
                     // set background color attribute
-                    if (isset($dom[$key]['attribute']['bgcolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['bgcolor']))) {
+                    if (isset($dom[$key]['attribute']['bgcolor']) and (!empty($dom[$key]['attribute']['bgcolor']))) {
                         $dom[$key]['bgcolor'] = $this->htmlToColor($dom[$key]['attribute']['bgcolor']);
                     }
                     // set stroke color attribute
-                    if (isset($dom[$key]['attribute']['strokecolor']) and (!StaticMethods::empty_string($dom[$key]['attribute']['strokecolor']))) {
+                    if (isset($dom[$key]['attribute']['strokecolor']) and (!empty($dom[$key]['attribute']['strokecolor']))) {
                         $dom[$key]['strokecolor'] = $this->htmlToColor($dom[$key]['attribute']['strokecolor']);
                     }
                     // check for width attribute
@@ -13957,7 +13957,7 @@ class PDF
                         $dom[$key]['height'] = $dom[$key]['attribute']['height'];
                     }
                     // check for text alignment
-                    if (isset($dom[$key]['attribute']['align']) and (!StaticMethods::empty_string($dom[$key]['attribute']['align'])) and ($dom[$key]['value'] !== 'img')) {
+                    if (isset($dom[$key]['attribute']['align']) and (!empty($dom[$key]['attribute']['align'])) and ($dom[$key]['value'] !== 'img')) {
                         $dom[$key]['align'] = strtoupper($dom[$key]['attribute']['align'][0]);
                     }
                     // check for text rendering mode (the following attributes do not exist in HTML)
