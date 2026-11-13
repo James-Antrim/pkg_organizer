@@ -12,10 +12,13 @@
 
 namespace THM\Organizer\Views\PDF\Library\Barcodes;
 
+use THM\Organizer\Views\PDF\Library\Constants;
+
 /** Creates array representations for common 1D barcodes. */
 class Barcode1D
 {
     use Barcoded;
+    use Constants;
 
     /**
      * Creates a 1D Barcode.
@@ -1790,7 +1793,7 @@ class Barcode1D
      * @param int   $height Height of a single bar element in pixels.
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      */
-    public function PNG(int $width = 2, int $height = 30, array $color = [0, 0, 0]): void
+    public function PNG(int $width = 2, int $height = 30, array $color = self::BLACK): void
     {
         $data = $this->PNGData($width, $height, $color);
         header('Content-Type: image/png');
@@ -1882,7 +1885,7 @@ class Barcode1D
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      * @return string|false
      */
-    public function PNGData(int $width = 2, int $height = 30, array $color = [0, 0, 0]): string|false
+    public function PNGData(int $width = 2, int $height = 30, array $color = self::BLACK): string|false
     {
         $png     = imagecreate(($this->barcode['maxWidth'] * $width), $height);
         $bgColor = imagecolorallocate($png, 255, 255, 255);

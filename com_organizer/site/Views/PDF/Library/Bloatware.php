@@ -104,19 +104,19 @@ trait Bloatware
                 }
                 case 'R':
                 { // RED (RGB)
-                    $col_a = [255, 255, 255];
+                    $col_a = self::WHITE;
                     $col_b = [255, 0, 0];
                     break;
                 }
                 case 'G':
                 { // GREEN (RGB)
-                    $col_a = [255, 255, 255];
+                    $col_a = self::WHITE;
                     $col_b = [0, 255, 0];
                     break;
                 }
                 case 'B':
                 { // BLUE (RGB)
-                    $col_a = [255, 255, 255];
+                    $col_a = self::WHITE;
                     $col_b = [0, 0, 255];
                     break;
                 }
@@ -146,8 +146,8 @@ trait Bloatware
                 }
                 case 'RGB':
                 { // BLACK REGISTRATION (RGB)
-                    $col_a = [255, 255, 255];
-                    $col_b = [0, 0, 0];
+                    $col_a = self::WHITE;
+                    $col_b = self::BLACK;
                     break;
                 }
                 case 'CMYK':

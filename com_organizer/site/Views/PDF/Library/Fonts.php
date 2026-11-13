@@ -1203,7 +1203,7 @@ trait Fonts
         }
         $this->fontAscent  = ($font_ascent / $this->k);
         $this->fontDescent = ($font_descent / $this->k);
-        if ($out and ($this->page > 0) and (isset($this->currentFont['i'])) and ($this->state == 2)) {
+        if ($out and ($this->page > 0) and (isset($this->currentFont['i'])) and ($this->state === self::READY)) {
             $this->_out(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
         }
     }

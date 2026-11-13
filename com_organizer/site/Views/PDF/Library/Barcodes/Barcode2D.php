@@ -12,6 +12,8 @@
 
 namespace THM\Organizer\Views\PDF\Library\Barcodes;
 
+use THM\Organizer\Views\PDF\Library\Constants;
+
 /**
  * Creates array representations for 2D barcodes.
  *    $code[
@@ -24,6 +26,7 @@ namespace THM\Organizer\Views\PDF\Library\Barcodes;
 class Barcode2D
 {
     use Barcoded;
+    use Constants;
 
     /**
      * Creates a 2D barcode.
@@ -164,7 +167,7 @@ class Barcode2D
      * @param int   $height Height of a single rectangle element in pixels.
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      */
-    public function PNG(int $width = 3, int $height = 3, array $color = [0, 0, 0]): void
+    public function PNG(int $width = 3, int $height = 3, array $color = self::BLACK): void
     {
         $data = $this->PNGData($width, $height, $color);
         // send headers
@@ -184,7 +187,7 @@ class Barcode2D
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      * @return string|false image or false in case of error.
      */
-    public function PNGData(int $width = 3, int $height = 3, array $color = [0, 0, 0]): string|false
+    public function PNGData(int $width = 3, int $height = 3, array $color = self::BLACK): string|false
     {
         $png     = imagecreate($this->barcode['columnCount'] * $width, $this->barcode['rowCount'] * $height);
         $bgColor = imagecolorallocate($png, 255, 255, 255);

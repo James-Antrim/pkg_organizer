@@ -24,7 +24,7 @@ abstract class BadgeLayout extends BaseLayout
         'cap'   => 'butt',
         'join'  => 'miter',
         'dash'  => 0,
-        'color' => [0, 0, 0]
+        'color' => BaseView::BLACK
     ];
 
     /** @inheritDoc */

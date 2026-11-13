@@ -40,7 +40,7 @@ abstract class GridLayout extends BaseLayout
 
     protected const TIME_BORDER = [
         'R' => ['width' => '.5', 'color' => [74, 92, 102]],
-        'B' => ['width' => '.5', 'color' => [255, 255, 255]]
+        'B' => ['width' => '.5', 'color' => iView::WHITE]
     ];
 
     protected bool $bookmark = false;

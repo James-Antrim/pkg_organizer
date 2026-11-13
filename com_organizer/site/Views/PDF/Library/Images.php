@@ -407,7 +407,7 @@ trait Images
      * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
      * @param bool       $ismask    true if this image is a mask, false otherwise
      * @param mixed      $imgmask   image object returned by this function or false
-     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param mixed      $fitbox    If not false scale image dimensions proportionally to fit within the ($w, $h) box. $fitbox can be true or a 2 characters string indicating the image alignment inside the box. The first character indicate the horizontal alignment (L = left, C = center, R = right) the second character indicate the vertical algnment (T = top, M = middle, B = bottom).
      * @param bool       $hidden    If true do not display the image.
      * @param bool       $fitonpage If true the image is resized to not exceed page dimensions.
@@ -417,7 +417,7 @@ trait Images
      */
     public function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = [])
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return false;
         }
         if (StaticMethods::empty_string($x)) {
@@ -1087,14 +1087,14 @@ trait Images
      * @param bool       $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
      * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param mixed      $border         Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed      $border         Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param bool       $fitonpage      if true the image is resized to not exceed page dimensions.
      * @param bool       $fixoutvals     if true remove values outside the bounding box.
      * @author Valentin Schmidt, Nicola Asuni
      */
     public function ImageEps($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $useBoundingBox = true, $align = '', $palign = '', $border = 0, $fitonpage = false, $fixoutvals = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
@@ -1446,13 +1446,13 @@ trait Images
      * @param mixed      $link      URL or identifier returned by AddLink().
      * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
      * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      * @author Nicola Asuni
      */
     public function ImageSVG($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         // reset SVG vars
@@ -1841,7 +1841,7 @@ trait Images
      */
     protected function setSVGStyles($svgstyle, $prevsvgstyle, $x = 0, $y = 0, $w = 1, $h = 1, $clip_function = '', $clip_params = [])
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $objstyle = '';
@@ -2159,7 +2159,7 @@ trait Images
      */
     protected function SVGPath($d, $style = '')
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         // set fill/stroke style

@@ -30,6 +30,9 @@ class PDF
     use Fonts;
     use Images;
 
+    /** Current document state. */
+    protected int $state = self::INITIAL;
+
     /**
      * Returns "THM Organizer 5.0.0" in Unicode.
      * @return string
@@ -141,7 +144,7 @@ class PDF
         if (isset($style['color'])) {
             $command .= $this->drawColorArray($style['color'], true) . ' ';
         }
-        if (!$ret and ($this->state == 2)) {
+        if (!$ret and ($this->state === self::READY)) {
             $this->_out($command);
         }
         return $command;
@@ -260,11 +263,6 @@ class PDF
      * Array containing pages.
      */
     protected $pages = [];
-
-    /**
-     * Current document state.
-     */
-    protected $state;
 
     /**
      * Compression flag.
@@ -970,7 +968,7 @@ class PDF
     /**
      * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
      */
-    protected $default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => [255, 255, 255], 'strokeColor' => [128, 128, 128]];
+    protected $default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => [128, 128, 128]];
 
     /**
      * Javascript objects array.
@@ -1360,7 +1358,6 @@ class PDF
         $this->n            = 2;
         $this->buffer       = '';
         $this->pages        = [];
-        $this->state        = 0;
         $this->diffs        = [];
         $this->images       = [];
         $this->links        = [];
@@ -1443,7 +1440,7 @@ class PDF
             // PCRE unicode support is turned OFF
             $this->setSpacesRE('/[^\S\xa0]/');
         }
-        $this->default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => [255, 255, 255], 'strokeColor' => [128, 128, 128]];
+        $this->default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => [128, 128, 128]];
         // set document creation and modification timestamp
         $this->doc_creation_timestamp     = time();
         $this->doc_modification_timestamp = $this->doc_creation_timestamp;
@@ -2096,7 +2093,7 @@ class PDF
 
     /**
      * Adjust the internal Cell padding array to take account of the line width.
-     * @param string|array|int|bool $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param string|array|int|bool $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @return void|array array of adjustments
      */
     protected function adjustCellPadding($brd = 0)
@@ -2357,7 +2354,7 @@ class PDF
      */
     public function Open()
     {
-        $this->state = 1;
+        $this->state = self::NEUTRAL;
     }
 
     /**
@@ -2368,7 +2365,7 @@ class PDF
      */
     public function Close()
     {
-        if ($this->state == 3) {
+        if ($this->state === self::FINAL) {
             return;
         }
         if ($this->page == 0) {
@@ -2411,11 +2408,11 @@ class PDF
      */
     public function setPage($pnum, $resetmargins = false)
     {
-        if (($pnum == $this->page) and ($this->state == 2)) {
+        if (($pnum == $this->page) and ($this->state === self::READY)) {
             return;
         }
         if (($pnum > 0) and ($pnum <= $this->numpages)) {
-            $this->state = 2;
+            $this->state = self::READY;
             // save current graphic settings
             //$gvars = $this->getGraphicVars();
             $oldpage                = $this->page;
@@ -2597,7 +2594,7 @@ class PDF
             return;
         }
         // start a new page
-        if ($this->state == 0) {
+        if ($this->state === self::INITIAL) {
             $this->Open();
         }
         ++$this->numpages;
@@ -2660,7 +2657,7 @@ class PDF
      * @param int[] $tc RGB array color for text.
      * @param int[] $lc RGB array color for line.
      */
-    public function setFooterData($tc = [0, 0, 0], $lc = [0, 0, 0])
+    public function setFooterData($tc = self::BLACK, $lc = self::BLACK)
     {
         $this->footerTextColor = $tc;
         $this->footerLineColor = $lc;
@@ -2828,7 +2825,7 @@ class PDF
                 'cellfitalign' => '',
                 'border'       => false,
                 'padding'      => 0,
-                'fgcolor'      => [0, 0, 0],
+                'fgcolor'      => self::BLACK,
                 'bgcolor'      => false,
                 'text'         => false
             ];
@@ -2858,7 +2855,7 @@ class PDF
      */
     protected function setHeader()
     {
-        if (!$this->print_header or ($this->state != 2)) {
+        if (!$this->print_header or ($this->state !== self::READY)) {
             return;
         }
         $this->InHeader = true;
@@ -2900,7 +2897,7 @@ class PDF
      */
     protected function setFooter()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->InFooter = true;
@@ -3447,7 +3444,7 @@ class PDF
      * @param int    $fstroke           outline size in user units (0 = disable)
      * @param bool   $fclip             if true activate clipping mode (you must call StartTransform() before this function and StopTransform() to stop the clipping tranformation).
      * @param bool   $ffill             if true fills the text
-     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
@@ -3550,7 +3547,7 @@ class PDF
      * @param float  $w                 Cell width. If 0, the cell extends up to the right margin.
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
-     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
@@ -3591,7 +3588,7 @@ class PDF
             if ($this->txtshadow['opacity'] != $alpha['CA']) {
                 $this->setAlpha($this->txtshadow['opacity'], $this->txtshadow['blend_mode']);
             }
-            if ($this->state == 2) {
+            if ($this->state === self::READY) {
                 $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
             }
             //restore data
@@ -3604,7 +3601,7 @@ class PDF
                 $this->setAlpha($alpha['CA'], $alpha['BM'], $alpha['ca'], $alpha['AIS']);
             }
         }
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
         }
         $this->cell_padding = $prev_cell_padding;
@@ -3617,7 +3614,7 @@ class PDF
      * @param float  $w                 Cell width. If 0, the cell extends up to the right margin.
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
-     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
@@ -4061,7 +4058,7 @@ class PDF
      * @param float            $y   Y coordinate.
      * @param float            $w   Cell width.
      * @param float            $h   Cell height.
-     * @param string|array|int $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param string|array|int $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @return string containing cell border code
      * @see   lineStyle()
      */
@@ -4270,7 +4267,7 @@ class PDF
      * @param float      $w           Width of cells. If 0, they extend up to the right margin of the page.
      * @param float      $h           Cell minimum height. The cell extends automatically if needed.
      * @param string     $txt         String to print
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align</li><li>C: center</li><li>R: right align</li><li>J: justification (default value when $ishtml=false)</li></ul>
      * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
      * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line [DEFAULT]</li><li>2: below</li></ul>
@@ -4677,7 +4674,7 @@ class PDF
      * @param bool       $reseth      if true reset the last cell height (default false).
      * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
      * @param array|null $cellpadding Internal cell padding, if empty uses default cell padding.
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @return float Return the minimal height needed for multicell method for printing the $txt param.
      * @author Alexander Escalona Fern\E1ndez, Nicola Asuni
      */
@@ -4800,7 +4797,7 @@ class PDF
      * @param bool       $reseth      if true reset the last cell height (default false).
      * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
      * @param array|null $cellpadding Internal cell padding, if empty uses default cell padding.
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @return float Return the minimal height needed for multicell method for printing the $txt param.
      * @author Nicola Asuni, Alexander Escalona Fern\E1ndez
      */
@@ -5476,7 +5473,7 @@ class PDF
     {
         //Output PDF to some destination
         //Finish document if necessary
-        if ($this->state < 3) {
+        if ($this->state < self::FINAL) {
             $this->Close();
         }
         //Normalize parameters
@@ -7466,7 +7463,7 @@ class PDF
             // save subset chars of the previous font
             $this->fontSubBuffer($this->currentFont['fontKey'], 'subsetCharacters', $this->currentFont['subsetCharacters']);
         }
-        $this->state = 1;
+        $this->state = self::NEUTRAL;
         $this->_putheader();
         $this->_putpages();
         $this->_putresources();
@@ -7543,7 +7540,7 @@ class PDF
         $this->_out('startxref');
         $this->_out($o);
         $this->_out('%%EOF');
-        $this->state = 3; // end-of-doc
+        $this->state = self::FINAL;
     }
 
     /**
@@ -7559,7 +7556,7 @@ class PDF
         $this->setPageBuffer($this->page, '');
         // initialize array for graphics tranformation positions inside a page buffer
         $this->transfmrk[$this->page] = [];
-        $this->state                  = 2;
+        $this->state                  = self::READY;
         if (StaticMethods::empty_string($orientation)) {
             if (isset($this->CurOrientation)) {
                 $orientation = $this->CurOrientation;
@@ -7603,7 +7600,7 @@ class PDF
     protected function _endpage()
     {
         $this->setVisibility('all');
-        $this->state = 1;
+        $this->state = self::NEUTRAL;
     }
 
     /**
@@ -7812,7 +7809,7 @@ class PDF
      */
     protected function _out($s)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             if ($this->inxobj) {
                 // we are inside an XObject template
                 $this->xobjects[$this->xobjid]['outdata'] .= $s . "\n";
@@ -7831,7 +7828,7 @@ class PDF
                 $this->setPageBuffer($this->page, $s . "\n", true);
             }
         }
-        elseif ($this->state > 0) {
+        elseif ($this->state > self::INITIAL) {
             // set general data
             $this->setBuffer($s . "\n");
         }
@@ -7857,7 +7854,7 @@ class PDF
      */
     public function getPDFData()
     {
-        if ($this->state < 3) {
+        if ($this->state < self::FINAL) {
             $this->Close();
         }
         return $this->buffer;
@@ -8457,7 +8454,7 @@ class PDF
      */
     public function StartTransform()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->_outSaveGraphicsState();
@@ -8480,7 +8477,7 @@ class PDF
      */
     public function StopTransform()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->_outRestoreGraphicsState();
@@ -8745,7 +8742,7 @@ class PDF
      */
     protected function Transform($tm)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->_out(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
@@ -8780,7 +8777,7 @@ class PDF
         //Set line width
         $this->LineWidth      = $width;
         $this->linestyleWidth = sprintf('%F w', ($width * $this->k));
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out($this->linestyleWidth);
         }
     }
@@ -8802,7 +8799,7 @@ class PDF
      */
     protected function _outPoint($x, $y)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F m', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
@@ -8815,7 +8812,7 @@ class PDF
      */
     protected function _outLine($x, $y)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F l', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
@@ -8830,7 +8827,7 @@ class PDF
      */
     protected function _outRect($x, $y, $w, $h, $op)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->h - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
         }
     }
@@ -8847,7 +8844,7 @@ class PDF
      */
     protected function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
@@ -8862,7 +8859,7 @@ class PDF
      */
     protected function _outCurveV($x2, $y2, $x3, $y3)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F %F %F v', ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
@@ -8877,7 +8874,7 @@ class PDF
      */
     protected function _outCurveY($x1, $y1, $x3, $y3)
     {
-        if ($this->state == 2) {
+        if ($this->state === self::READY) {
             $this->_out(sprintf('%F %F %F %F y', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
@@ -8893,7 +8890,7 @@ class PDF
      */
     public function Line($x1, $y1, $x2, $y2, $style = [])
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (is_array($style)) {
@@ -8922,7 +8919,7 @@ class PDF
      */
     public function Rect($x, $y, $w, $h, $style = '', $border_style = [], $fill_color = [])
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (empty($style)) {
@@ -8993,7 +8990,7 @@ class PDF
      */
     public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = [], $fill_color = [])
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
@@ -9022,7 +9019,7 @@ class PDF
      */
     public function Polycurve($x0, $y0, $segments, $style = '', $line_style = [], $fill_color = [])
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
@@ -9061,7 +9058,7 @@ class PDF
      */
     public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (StaticMethods::empty_string($ry) or ($ry == 0)) {
@@ -9269,7 +9266,7 @@ class PDF
      */
     public function Polygon($p, $style = '', $line_style = [], $fill_color = [], $closed = true)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $nc = count($p); // number of coordinates
@@ -9478,7 +9475,7 @@ class PDF
      */
     public function RoundedRectXY($x, $y, $w, $h, $rx, $ry, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (($round_corner == '0000') or (($rx == $ry) and ($rx == 0))) {
@@ -9699,7 +9696,7 @@ class PDF
      * @param float      $x     X position in user units of the bookmark on the selected page (default = -1 = current position;).
      * @param mixed      $link  URL, or numerical link ID, or named destination (# character followed by the destination name), or embedded file (* character followed by the file name).
      */
-    public function setBookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = [0, 0, 0], $x = -1, $link = '')
+    public function setBookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = self::BLACK, $x = -1, $link = '')
     {
         $this->Bookmark($txt, $level, $y, $page, $style, $color, $x, $link);
     }
@@ -9715,7 +9712,7 @@ class PDF
      * @param float      $x     X position in user units of the bookmark on the selected page (default = -1 = current position;).
      * @param mixed      $link  URL, or numerical link ID, or named destination (# character followed by the destination name), or embedded file (* character followed by the file name).
      */
-    public function Bookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = [0, 0, 0], $x = -1, $link = '')
+    public function Bookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = self::BLACK, $x = -1, $link = '')
     {
         if ($level < 0) {
             $level = 0;
@@ -11149,7 +11146,7 @@ class PDF
      */
     public function startLayer($name = '', $print = true, $view = true, $lock = true)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $layer = sprintf('LYR%03d', (count($this->pdflayers) + 1));
@@ -11169,7 +11166,7 @@ class PDF
      */
     public function endLayer()
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->openMarkedContent) {
@@ -11187,7 +11184,7 @@ class PDF
      */
     public function setVisibility($v)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->endLayer();
@@ -11249,7 +11246,7 @@ class PDF
      */
     protected function setExtGState($gs)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             // transparency is not allowed in PDF/A-1 mode
             return;
         }
@@ -11291,7 +11288,7 @@ class PDF
      */
     public function setOverprint($stroking = true, $nonstroking = null, $mode = 0)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $stroking = $stroking ? true : false;
@@ -11614,7 +11611,7 @@ class PDF
      */
     public function CoonsPatchMesh($x, $y, $w, $h, $col1 = [], $col2 = [], $col3 = [], $col4 = [], $coords = [0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33], $coords_min = 0, $coords_max = 1, $antialias = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->Clip($x, $y, $w, $h);
@@ -11706,7 +11703,7 @@ class PDF
      */
     protected function Clip($x, $y, $w, $h)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->rtl) {
@@ -11732,7 +11729,7 @@ class PDF
      */
     public function Gradient($type, $coords, $stops, $background = [], $antialias = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $n                                   = count($this->gradients) + 1;
@@ -12060,7 +12057,7 @@ class PDF
      */
     public function PieSectorXY($xc, $yc, $rx, $ry, $a, $b, $style = 'FD', $cw = false, $o = 0, $nc = 2)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if ($this->rtl) {
@@ -12175,7 +12172,7 @@ class PDF
             }
         }
         if (!isset($style['fgcolor'])) {
-            $style['fgcolor'] = [0, 0, 0]; // default black
+            $style['fgcolor'] = self::BLACK;
         }
         if (!isset($style['bgcolor'])) {
             $style['bgcolor'] = false; // default transparent
@@ -12496,7 +12493,7 @@ class PDF
             $style['position'] = '';
         }
         if (!isset($style['fgcolor'])) {
-            $style['fgcolor'] = [0, 0, 0]; // default black
+            $style['fgcolor'] = self::BLACK;
         }
         if (!isset($style['bgcolor'])) {
             $style['bgcolor'] = false; // default transparent
@@ -14098,7 +14095,7 @@ class PDF
      * @param float|null $x           upper-left corner X coordinate
      * @param float|null $y           upper-left corner Y coordinate
      * @param string     $html        html text to print. Default value: empty string.
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL language)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>
      *                                Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
@@ -16403,7 +16400,7 @@ class PDF
                         }
                         $w           = $this->GetStringWidth($value) * 1.5;
                         $h           *= 1.6;
-                        $prop        = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
+                        $prop        = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         $action      = [];
                         $action['S'] = 'SubmitForm';
                         $action['F'] = $this->form_action;
@@ -16423,7 +16420,7 @@ class PDF
                         }
                         $w    = $this->GetStringWidth($value) * 1.5;
                         $h    *= 1.6;
-                        $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
+                        $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         $this->Button($name, $w, $h, $value, ['S' => 'ResetForm'], $prop, $opt, '', '', false);
                         break;
                     }
@@ -16436,7 +16433,7 @@ class PDF
                         }
                         $w        = $this->GetStringWidth($value) * 2;
                         $h        *= 1.2;
-                        $prop     = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
+                        $prop     = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         $jsaction = 'var f=this.getField(\'' . $name . '\'); f.browseForFileToSubmit();';
                         $this->Button('FB_' . $name, $w, $h, $value, $jsaction, $prop, $opt, '', '', false);
                         break;
@@ -16476,7 +16473,7 @@ class PDF
                         }
                         $w    = $this->GetStringWidth($value) * 1.5;
                         $h    *= 1.6;
-                        $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
+                        $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         if (isset($tag['attribute']['onclick']) and !empty($tag['attribute']['onclick'])) {
                             $jsaction = $tag['attribute']['onclick'];
                         }
@@ -16749,7 +16746,7 @@ class PDF
                 // set default border
                 if (isset($table_el['attribute']['border']) and ($table_el['attribute']['border'] > 0)) {
                     // set default border
-                    $border = array('LTRB' => array('width' => $this->getCSSBorderWidth($table_el['attribute']['border']), 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]));
+                    $border = array('LTRB' => array('width' => $this->getCSSBorderWidth($table_el['attribute']['border']), 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK));
                 }
                 else {
                     $border = 0;
@@ -17562,7 +17559,7 @@ class PDF
      */
     protected function putHtmlListBullet($listdepth, $listtype = '', $size = 10)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $size        /= $this->k;
@@ -17850,7 +17847,7 @@ class PDF
      */
     protected function setGraphicVars($gvars, $extended = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         $this->fontFamily        = $gvars['FontFamily'];
@@ -18454,7 +18451,7 @@ class PDF
      * @author Nicola Asuni
      * @see    addTOCPage(), endTOCPage(), addHTMLTOC()
      */
-    public function addTOC($page = null, $numbersfont = '', $filler = '.', $toc_name = 'TOC', $style = '', $color = [0, 0, 0])
+    public function addTOC($page = null, $numbersfont = '', $filler = '.', $toc_name = 'TOC', $style = '', $color = self::BLACK)
     {
         $fontsize        = $this->fontSizePT;
         $fontfamily      = $this->fontFamily;
@@ -18678,7 +18675,7 @@ class PDF
      * @author Nicola Asuni
      * @see    addTOCPage(), endTOCPage(), addTOC()
      */
-    public function addHTMLTOC($page = null, $toc_name = 'TOC', $templates = [], $correct_align = true, $style = '', $color = [0, 0, 0])
+    public function addHTMLTOC($page = null, $toc_name = 'TOC', $templates = [], $correct_align = true, $style = '', $color = self::BLACK)
     {
         $filler                  = ' ';
         $prev_htmlLinkColorArray = $this->linkColor;
@@ -19479,7 +19476,7 @@ class PDF
      */
     public function printTemplate($id, $x = null, $y = null, $w = 0, $h = 0, $align = '', $palign = '', $fitonpage = false)
     {
-        if ($this->state != 2) {
+        if ($this->state !== self::READY) {
             return;
         }
         if (!isset($this->xobjects[$id])) {
