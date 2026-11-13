@@ -1030,7 +1030,7 @@ class StaticMethods
     public static function fixHTMLCode($html, $default_css, $tagvs, $tidy_options, &$tagvspaces)
     {
         // configure parameters for HTML Tidy
-        if (StaticMethods::empty_string($tidy_options)) {
+        if (empty($tidy_options)) {
             $tidy_options = [
                 'clean'                       => 1,
                 'drop-empty-paras'            => 0,
@@ -1078,7 +1078,7 @@ class StaticMethods
         // remove some empty tag blocks
         $html = preg_replace('/<div([^\>]*)><\/div>/', '', $html);
         $html = preg_replace('/<p([^\>]*)><\/p>/', '', $html);
-        if (!StaticMethods::empty_string($tagvs)) {
+        if (!empty($tagvs)) {
             // set vertical space for some XHTML tags
             $tagvspaces = $tagvs;
         }
@@ -1444,7 +1444,7 @@ class StaticMethods
         // create new language array of patterns
         $patterns = [];
         foreach ($patterns_array as $val) {
-            if (!StaticMethods::empty_string($val)) {
+            if (!empty($val)) {
                 $val            = trim($val);
                 $val            = str_replace('\'', '\\\'', $val);
                 $key            = preg_replace('/[0-9]+/', '', $val);
