@@ -129,6 +129,6 @@ class Booking extends ListView
         $this->headerConfig('pdf_logo.png', 55, $title, $subTitle);
         $this->setFooterData(self::BLACK, self::WHITE);
 
-        parent::setHeader();
+        parent::header();
     }
 }

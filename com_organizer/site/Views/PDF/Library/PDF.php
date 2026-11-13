@@ -29,6 +29,7 @@ class PDF
     use Constants;
     use Fonts;
     use Images;
+    use Headers;
 
     protected string $buffer = '';
 
@@ -107,23 +108,13 @@ class PDF
      */
     protected function pageBuffer(int $pageNumber, string $content = '', bool $append = false): string
     {
-        $this->pages[$pageNumber]       = $this->pages[$pageNumber] ?? '';
-        $this->pageLengths[$pageNumber] = $this->pageLengths[$pageNumber] ?? 0;
-
         if ($content) {
-            $contentLength = strlen($content);
-
-            if ($append) {
-                $this->pages[$pageNumber]       .= $content;
-                $this->pageLengths[$pageNumber] += $contentLength;
-            }
-            else {
-                $this->pages[$pageNumber]       = $content;
-                $this->pageLengths[$pageNumber] = $contentLength;
-            }
+            $existing                       = $this->pages[$pageNumber] ?? '';
+            $this->pages[$pageNumber]       = $append ? $existing . $content : $content;
+            $this->pageLengths[$pageNumber] = strlen($this->pages[$pageNumber]);
         }
 
-        return $this->pages[$pageNumber];
+        return $this->pages[$pageNumber] ?? '';
     }
 
     /**
@@ -137,50 +128,6 @@ class PDF
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-    /**
-     * Set header data.
-     * @param string $logo      header image logo
-     * @param float  $logoWidth header image logo width in mm
-     * @param string $title     string to print as title on document header
-     * @param string $subtitle  string to print on document header
-     * @param int[]  $textColor RGB array color for text.
-     * @param int[]  $bgColor   RGB array color for line.
-     * @return array
-     */
-    public function headerConfig(string $logo = '', float $logoWidth = 0, string $title = '', string $subtitle = '', array $textColor = self::BLACK, array $bgColor = self::WHITE): array
-    {
-        if ($logo or $title or $subtitle) {
-            $this->header_logo       = $logo;
-            $this->header_logo_width = $logoWidth;
-            $this->header_title      = $title;
-            $this->header_string     = $subtitle;
-            $this->headerTextColor   = $textColor;
-            $this->headerLineColor   = $bgColor;
-        }
-
-        return [
-            'logo'       => $this->header_logo,
-            'logo_width' => $this->header_logo_width,
-            'title'      => $this->header_title,
-            'string'     => $this->header_string,
-            'text_color' => $this->headerTextColor,
-            'line_color' => $this->headerLineColor,
-        ];
-    }
-
-    /**
-     * Set header margin: minimum distance between header and top page margin)
-     * @param float|null $margin distance in user units
-     * @return float
-     */
-    public function headerMargin(float|null $margin = null): float
-    {
-        if (is_float($margin)) {
-            $this->header_margin = $margin;
-        }
-
-        return $this->header_margin;
-    }
 
     /**
      * Set line style.the PDF command
@@ -502,11 +449,6 @@ class PDF
     protected $PageBreakTrigger;
 
     /**
-     * Flag set when processing page header.
-     */
-    protected $InHeader = false;
-
-    /**
      * Zoom display mode.
      */
     protected $ZoomMode;
@@ -557,22 +499,6 @@ class PDF
     protected $PDFVersion = '1.7';
 
     /**
-     * ID of the stored default header template (-1 = not set).
-     */
-    protected $header_xobjid = false;
-
-    /**
-     * If true reset the Header Xobject template at each page
-     */
-    protected $header_xobj_autoreset = false;
-
-    /**
-     * Minimum distance between header and top page margin.
-     * @var float
-     */
-    protected $header_margin;
-
-    /**
      * Minimum distance between footer and bottom page margin.
      * @var float
      */
@@ -599,34 +525,9 @@ class PDF
     protected $barcode = false;
 
     /**
-     * bool flag to print/hide page header.
-     */
-    protected $print_header = true;
-
-    /**
      * bool flag to print/hide page footer.
      */
     protected $print_footer = true;
-
-    /**
-     * Header image logo.
-     */
-    protected $header_logo = '';
-
-    /**
-     * Width of header image logo in user units.
-     */
-    protected $header_logo_width = 30;
-
-    /**
-     * Title to be printed on default page header.
-     */
-    protected $header_title = '';
-
-    /**
-     * String to print on page header after title.
-     */
-    protected $header_string = '';
 
     /**
      * Text shadow data array.
@@ -1488,10 +1389,9 @@ class PDF
         $this->doc_creation_timestamp     = time();
         $this->doc_modification_timestamp = $this->doc_creation_timestamp;
         // get default graphic vars
-        $this->default_graphic_vars  = $this->getGraphicVars();
-        $this->header_xobj_autoreset = false;
-        $this->custom_xmp            = '';
-        $this->custom_xmp_rdf        = '';
+        $this->default_graphic_vars = $this->getGraphicVars();
+        $this->custom_xmp           = '';
+        $this->custom_xmp_rdf       = '';
     }
 
     /**
@@ -2653,7 +2553,7 @@ class PDF
         // mark this point
         $this->setPageMark();
         // print page header
-        $this->setHeader();
+        $this->header();
         // restore graphic settings
         $this->setGraphicVars($gvars);
         // mark this point
@@ -2726,122 +2626,12 @@ class PDF
     }
 
     /**
-     * Set a flag to print page header.
-     * @param bool $val set to true to print the page header (default), false otherwise.
-     */
-    public function setPrintHeader($val = true)
-    {
-        $this->print_header = $val ? true : false;
-    }
-
-    /**
      * Set a flag to print page footer.
      * @param bool $val set to true to print the page footer (default), false otherwise.
      */
     public function setPrintFooter($val = true)
     {
         $this->print_footer = $val ? true : false;
-    }
-
-    /**
-     * Reset the xobject template used by Header() method.
-     */
-    public function resetHeaderTemplate()
-    {
-        $this->header_xobjid = false;
-    }
-
-    /**
-     * Set a flag to automatically reset the xobject template used by Header() method at each page.
-     * @param bool $val set to true to reset Header xobject template at each page, false otherwise.
-     */
-    public function setHeaderTemplateAutoreset($val = true)
-    {
-        $this->header_xobj_autoreset = $val ? true : false;
-    }
-
-    /**
-     * This method is used to render the page header.
-     * It is automatically called by AddPage() and could be overwritten in your own inherited class.
-     */
-    public function Header()
-    {
-        if ($this->header_xobjid === false) {
-            // start a new XObject Template
-            $this->header_xobjid = $this->startTemplate($this->w, $this->tMargin);
-            $headerfont          = $this->headerFont();
-            $headerdata          = $this->headerConfig();
-            $this->y             = $this->header_margin;
-            if ($this->rtl) {
-                $this->x = $this->w - $this->original_rMargin;
-            }
-            else {
-                $this->x = $this->original_lMargin;
-            }
-            if ($headerdata['logo']) {
-                $imgtype = $this->imageType(self::IMAGE_PATH . $headerdata['logo']);
-                if (($imgtype == 'eps') or ($imgtype == 'ai')) {
-                    $this->ImageEps(self::IMAGE_PATH . $headerdata['logo'], null, null, $headerdata['logo_width']);
-                }
-                elseif ($imgtype == 'svg') {
-                    $this->ImageSVG(self::IMAGE_PATH . $headerdata['logo'], null, null, $headerdata['logo_width']);
-                }
-                else {
-                    $this->Image(self::IMAGE_PATH . $headerdata['logo'], null, null, $headerdata['logo_width']);
-                }
-                $imgy = $this->imageRBY;
-            }
-            else {
-                $imgy = $this->y;
-            }
-            $cell_height = $this->getCellHeight($headerfont[2] / $this->k);
-            // set starting margin for text data cell
-            if ($this->getRTL()) {
-                $header_x = $this->original_rMargin + ($headerdata['logo_width'] * 1.1);
-            }
-            else {
-                $header_x = $this->original_lMargin + ($headerdata['logo_width'] * 1.1);
-            }
-            $cw = $this->w - $this->original_lMargin - $this->original_rMargin - ($headerdata['logo_width'] * 1.1);
-            $this->textColorArray($this->headerTextColor);
-            // header title
-            $this->setCurrentFont($headerfont[0], 'B', $headerfont[2] + 1);
-            $this->x($header_x);
-            $this->Cell($cw, $cell_height, $headerdata['title'], 0, 1, '', 0, '', 0);
-            // header string
-            $this->setCurrentFont($headerfont[0], $headerfont[1], $headerfont[2]);
-            $this->x($header_x);
-            $this->MultiCell($cw, $cell_height, $headerdata['string'], 0, '', 0, 1, '', '', true, 0, false, true, 0, 'T', false);
-            // print an ending header line
-            $this->lineStyle(['width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']]);
-            $this->y((2.835 / $this->k) + max($imgy, $this->y));
-            if ($this->rtl) {
-                $this->x($this->original_rMargin);
-            }
-            else {
-                $this->x($this->original_lMargin);
-            }
-            $this->Cell(($this->w - $this->original_lMargin - $this->original_rMargin), 0, '', 'T', 0, 'C');
-            $this->endTemplate();
-        }
-        // print header template
-        $x  = 0;
-        $dx = 0;
-        if (!$this->header_xobj_autoreset and $this->booklet and (($this->page % 2) == 0)) {
-            // adjust margins for booklet mode
-            $dx = ($this->original_lMargin - $this->original_rMargin);
-        }
-        if ($this->rtl) {
-            $x = $this->w + $dx;
-        }
-        else {
-            $x = 0 + $dx;
-        }
-        $this->printTemplate($this->header_xobjid, $x, 0, 0, 0, '', '', false);
-        if ($this->header_xobj_autoreset) {
-            // reset header xobject template at each page
-            $this->header_xobjid = false;
-        }
     }
 
     /**
@@ -2891,48 +2681,6 @@ class PDF
             $this->x($this->original_lMargin);
             $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
         }
-    }
-
-    /**
-     * This method is used to render the page header.
-     */
-    protected function setHeader()
-    {
-        if (!$this->print_header or ($this->state !== self::READY)) {
-            return;
-        }
-        $this->InHeader = true;
-        $this->setGraphicVars($this->default_graphic_vars);
-        $temp_thead        = $this->thead;
-        $temp_theadMargins = $this->theadMargins;
-        $lasth             = $this->lasth;
-        $newline           = $this->newline;
-        $this->_outSaveGraphicsState();
-        $this->rMargin = $this->original_rMargin;
-        $this->lMargin = $this->original_lMargin;
-        $this->setCellPadding(0);
-        //set current position
-        if ($this->rtl) {
-            $this->setXY($this->original_rMargin, $this->header_margin);
-        }
-        else {
-            $this->setXY($this->original_lMargin, $this->header_margin);
-        }
-        $this->setCurrentFont($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
-        $this->Header();
-        //restore position
-        if ($this->rtl) {
-            $this->setXY($this->original_rMargin, $this->tMargin);
-        }
-        else {
-            $this->setXY($this->original_lMargin, $this->tMargin);
-        }
-        $this->_outRestoreGraphicsState();
-        $this->lasth        = $lasth;
-        $this->thead        = $temp_thead;
-        $this->theadMargins = $temp_theadMargins;
-        $this->newline      = $newline;
-        $this->InHeader     = false;
     }
 
     /**
@@ -2997,7 +2745,7 @@ class PDF
      */
     protected function inPageBody()
     {
-        return (($this->InHeader === false) and ($this->inFooter === false));
+        return (($this->inHeader === false) and ($this->inFooter === false));
     }
 
     /**
@@ -5746,17 +5494,17 @@ class PDF
             }
         }
         $preserve = [
-            'file_id',
-            'state',
-            'bufferlen',
             'buffer',
+            'bufferLength',
             'cached_files',
+            'file_id',
             'imagekeys',
             'sign',
             'signature_data',
             'signature_max_length',
-            'tsa_timestamp',
-            'tsa_data'
+            'state',
+            'tsa_data',
+            'tsa_timestamp'
         ];
         foreach (array_keys(get_object_vars($this)) as $val) {
             if ($destroyall or !in_array($val, $preserve)) {
@@ -7489,15 +7237,6 @@ class PDF
     }
 
     /**
-     * Output PDF File Header (7.5.2).
-     */
-    protected function _putheader()
-    {
-        $this->append('%PDF-' . $this->PDFVersion);
-        $this->append('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
-    }
-
-    /**
      * Output end of document (EOF).
      */
     protected function _enddoc()
@@ -7507,7 +7246,8 @@ class PDF
             $this->fontSubBuffer($this->currentFont['fontKey'], 'subsetCharacters', $this->currentFont['subsetCharacters']);
         }
         $this->state = self::NEUTRAL;
-        $this->_putheader();
+        $this->append('%PDF-1.7');
+        $this->append('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
         $this->_putpages();
         $this->_putresources();
         // empty signature fields
@@ -12741,7 +12481,7 @@ class PDF
             'right'          => $this->rMargin,
             'top'            => $this->tMargin,
             'bottom'         => $this->bMargin,
-            'header'         => $this->header_margin,
+            'header'         => $this->headerMargin,
             'footer'         => $this->footer_margin,
             'cell'           => $this->cell_padding,
             'padding_left'   => $this->cell_padding['L'],

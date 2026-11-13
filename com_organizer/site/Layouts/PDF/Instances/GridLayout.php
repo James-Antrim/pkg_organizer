@@ -76,7 +76,7 @@ abstract class GridLayout extends BaseLayout
         $view->setPageOrientation($view::LANDSCAPE);
 
         // This allows new header data per page.
-        $view->setHeaderTemplateAutoreset();
+        $view->headerTemplateAutoreset();
     }
 
     /**

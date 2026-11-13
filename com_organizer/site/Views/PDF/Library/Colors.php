@@ -37,12 +37,6 @@ trait Colors
     protected array $footerTextColor = self::BLACK;
 
     /** @var int[] RGB */
-    protected array $headerLineColor = self::BLACK;
-
-    /** @var int[] RGB */
-    protected array $headerTextColor = self::BLACK;
-
-    /** @var int[] RGB */
     protected array $linkColor = self::BLUE;
 
     /** @var array User defined [CMYK + name + objectNumber] color configurations. */

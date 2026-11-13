@@ -65,6 +65,6 @@ class Instances extends ListView
         // Header data is set per page.
         $this->setFooterData(self::BLACK, self::WHITE);
 
-        parent::setHeader();
+        parent::header();
     }
 }
