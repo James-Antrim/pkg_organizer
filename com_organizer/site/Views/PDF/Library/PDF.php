@@ -30,13 +30,19 @@ class PDF
     use Fonts;
     use Images;
 
+    protected string $buffer = '';
 
-    /** @var int[] */
+    protected int $bufferLength = 0;
+
     protected array $footerLengths = [];
 
     protected bool $inFooter = false;
 
     protected bool $inXObject = false;
+
+    protected array $pageLengths = [];
+
+    protected array $pages = [];
 
     protected int $state = self::INITIAL;
 
@@ -57,24 +63,67 @@ class PDF
             }
 
             if (!$this->inFooter and isset($this->footerLengths[$this->page]) and ($pageLength = $this->footerLengths[$this->page]) > 0) {
-                $pageBuffer = $this->getPageBuffer($this->page);
+                $pageBuffer = $this->pageBuffer($this->page);
 
                 $page   = substr($pageBuffer, 0, -$pageLength);
                 $footer = substr($pageBuffer, -$pageLength);
 
-                $this->setPageBuffer($this->page, $page . $string . "\n" . $footer);
+                $this->pageBuffer($this->page, $page . $string . "\n" . $footer);
                 // update footer position
                 $this->footerpos[$this->page] += strlen($string . "\n");
                 return;
             }
 
-            $this->setPageBuffer($this->page, $string . "\n", true);
+            $this->pageBuffer($this->page, $string . "\n", true);
             return;
         }
 
         if ($this->state > self::INITIAL) {
-            $this->setBuffer($string . "\n");
+            $this->buffer($string . "\n");
         }
+    }
+
+    /**
+     * Getter / setter for the buffer
+     * @param string $content
+     * @return string
+     */
+    protected function buffer(string $content = ''): string
+    {
+        if ($content) {
+            $this->buffer       .= $content;
+            $this->bufferLength += strlen($content);
+        }
+
+        return $this->buffer;
+    }
+
+    /**
+     * Getter / setter for the page buffer
+     * @param int    $pageNumber
+     * @param string $content
+     * @param bool   $append true => append, false => replace
+     * @return string
+     */
+    protected function pageBuffer(int $pageNumber, string $content = '', bool $append = false): string
+    {
+        $this->pages[$pageNumber]       = $this->pages[$pageNumber] ?? '';
+        $this->pageLengths[$pageNumber] = $this->pageLengths[$pageNumber] ?? 0;
+
+        if ($content) {
+            $contentLength = strlen($content);
+
+            if ($append) {
+                $this->pages[$pageNumber]       .= $content;
+                $this->pageLengths[$pageNumber] += $contentLength;
+            }
+            else {
+                $this->pages[$pageNumber]       = $content;
+                $this->pageLengths[$pageNumber] = $contentLength;
+            }
+        }
+
+        return $this->pages[$pageNumber];
     }
 
     /**
@@ -297,16 +346,6 @@ class PDF
      * Array of object IDs for each page.
      */
     protected $pageobjects = [];
-
-    /**
-     * Buffer holding in-memory PDF.
-     */
-    protected $buffer;
-
-    /**
-     * Array containing pages.
-     */
-    protected $pages = [];
 
     /**
      * Compression flag.
@@ -895,11 +934,6 @@ class PDF
     protected $numpages = 0;
 
     /**
-     * Array containing page lengths in bytes.
-     */
-    protected $pagelen = [];
-
-    /**
      * Counts the number of pages.
      */
     protected $numimages = 0;
@@ -908,11 +942,6 @@ class PDF
      * Store the image keys.
      */
     protected $imagekeys = [];
-
-    /**
-     * Length of the buffer in bytes.
-     */
-    protected $bufferlen = 0;
 
     /**
      * Store the fage status (true when opened, false when closed).
@@ -2632,7 +2661,7 @@ class PDF
         // print table header (if any)
         $this->setTableHeader();
         // set mark for empty page check
-        $this->emptypagemrk[$this->page] = $this->pagelen[$this->page];
+        $this->emptypagemrk[$this->page] = $this->pageLengths[$this->page];
     }
 
     /**
@@ -2643,7 +2672,7 @@ class PDF
      */
     public function setPageMark()
     {
-        $this->intmrk[$this->page]    = $this->pagelen[$this->page];
+        $this->intmrk[$this->page]    = $this->pageLengths[$this->page];
         $this->bordermrk[$this->page] = $this->intmrk[$this->page];
         $this->setContentMark();
     }
@@ -2659,10 +2688,10 @@ class PDF
             $page = $this->page;
         }
         if (isset($this->footerLengths[$page])) {
-            $this->cntmrk[$page] = $this->pagelen[$page] - $this->footerLengths[$page];
+            $this->cntmrk[$page] = $this->pageLengths[$page] - $this->footerLengths[$page];
         }
         else {
-            $this->cntmrk[$page] = $this->pagelen[$page];
+            $this->cntmrk[$page] = $this->pageLengths[$page];
         }
     }
 
@@ -2918,7 +2947,7 @@ class PDF
         // save current graphic settings
         $gvars = $this->getGraphicVars();
         // mark this point
-        $this->footerpos[$this->page] = $this->pagelen[$this->page];
+        $this->footerpos[$this->page] = $this->pageLengths[$this->page];
         $this->append("\n");
         if ($this->print_footer) {
             $this->setGraphicVars($this->default_graphic_vars);
@@ -2958,7 +2987,7 @@ class PDF
         $this->current_column = $gvars['current_column'];
         $this->num_columns    = $gvars['num_columns'];
         // calculate footer length
-        $this->footerLengths[$this->page] = $this->pagelen[$this->page] - $this->footerpos[$this->page] + 1;
+        $this->footerLengths[$this->page] = $this->pageLengths[$this->page] - $this->footerpos[$this->page] + 1;
         $this->inFooter                   = false;
     }
 
@@ -4631,10 +4660,10 @@ class PDF
                         $pagemark                  = $this->intmrk[$this->page];
                         $this->intmrk[$this->page] += $offsetlen;
                     }
-                    $pagebuff = $this->getPageBuffer($this->page);
+                    $pagebuff = $this->pageBuffer($this->page);
                     $pstart   = substr($pagebuff, 0, $pagemark);
                     $pend     = substr($pagebuff, $pagemark);
-                    $this->setPageBuffer($this->page, $pstart . $ccode . $pend);
+                    $this->pageBuffer($this->page, $pstart . $ccode . $pend);
                 }
             }
         } // end for each page
@@ -5499,7 +5528,7 @@ class PDF
         if ($this->sign) {
             // *** apply digital signature to the document ***
             // get the document content
-            $pdfdoc = $this->getBuffer();
+            $pdfdoc = $this->buffer();
             // remove last newline
             $pdfdoc = substr($pdfdoc, 0, -1);
             // remove filler space
@@ -5547,8 +5576,8 @@ class PDF
             $signature = current(unpack('H*', $signature));
             $signature = str_pad($signature, $this->signature_max_length, '0');
             // Add signature to the document
-            $this->buffer    = substr($pdfdoc, 0, $byte_range[1]) . '<' . $signature . '>' . substr($pdfdoc, $byte_range[1]);
-            $this->bufferlen = strlen($this->buffer);
+            $this->buffer       = substr($pdfdoc, 0, $byte_range[1]) . '<' . $signature . '>' . substr($pdfdoc, $byte_range[1]);
+            $this->bufferLength = strlen($this->buffer);
         }
         switch ($dest) {
             case 'I':
@@ -5570,10 +5599,10 @@ class PDF
                     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
                     header('Content-Disposition: inline; filename="' . rawurlencode(basename($name)) . '"; ' .
                         'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
-                    StaticMethods::sendOutputData($this->getBuffer(), $this->bufferlen);
+                    StaticMethods::sendOutputData($this->buffer(), $this->bufferLength);
                 }
                 else {
-                    echo $this->getBuffer();
+                    echo $this->buffer();
                 }
                 break;
             }
@@ -5606,7 +5635,7 @@ class PDF
                 header('Content-Disposition: attachment; filename="' . rawurlencode(basename($name)) . '"; ' .
                     'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
                 header('Content-Transfer-Encoding: binary');
-                StaticMethods::sendOutputData($this->getBuffer(), $this->bufferlen);
+                StaticMethods::sendOutputData($this->buffer(), $this->bufferLength);
                 break;
             }
             case 'F':
@@ -5618,7 +5647,7 @@ class PDF
                 if (!$f) {
                     $this->Error('Unable to create output file: ' . $name);
                 }
-                fwrite($f, $this->getBuffer(), $this->bufferlen);
+                fwrite($f, $this->buffer(), $this->bufferLength);
                 fclose($f);
                 if ($dest == 'FI') {
                     // send headers to browser
@@ -5669,13 +5698,13 @@ class PDF
                 $retval .= 'Content-Transfer-Encoding: base64' . "\r\n";
                 $retval .= 'Content-Disposition: attachment;' . "\r\n";
                 $retval .= ' filename="' . $name . '"' . "\r\n\r\n";
-                $retval .= chunk_split(base64_encode($this->getBuffer()), 76, "\r\n");
+                $retval .= chunk_split(base64_encode($this->buffer()), 76, "\r\n");
                 return $retval;
             }
             case 'S':
             {
                 // returns PDF as a string
-                return $this->getBuffer();
+                return $this->buffer();
             }
             default:
             {
@@ -5862,7 +5891,7 @@ class PDF
         $ptg_num_chars = 1;
         for ($n = 1; $n <= $num_pages; ++$n) {
             // get current page
-            $temppage = $this->getPageBuffer($n);
+            $temppage = $this->pageBuffer($n);
             $pagelen  = strlen($temppage);
             // set replacements for total pages number
             $pnpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $n - 1));
@@ -7524,7 +7553,7 @@ class PDF
         // Catalog
         $objid_catalog = $this->_putcatalog();
         // Cross-ref
-        $o = $this->bufferlen;
+        $o = $this->bufferLength;
         // XREF section
         $this->append('xref');
         $this->append('0 ' . ($this->n + 1));
@@ -7567,7 +7596,7 @@ class PDF
     {
         ++$this->page;
         $this->pageobjects[$this->page] = [];
-        $this->setPageBuffer($this->page, '');
+        $this->pageBuffer($this->page, '');
         // initialize array for graphics tranformation positions inside a page buffer
         $this->transfmrk[$this->page] = [];
         $this->state                  = self::READY;
@@ -7638,7 +7667,7 @@ class PDF
             ++$this->n;
             $objid = $this->n;
         }
-        $this->offsets[$objid]            = $this->bufferlen;
+        $this->offsets[$objid]            = $this->bufferLength;
         $this->pageobjects[$this->page][] = $objid;
         return $objid . ' 0 obj';
     }
@@ -8446,7 +8475,7 @@ class PDF
             $this->xObjects[$this->xObjectID]['transfmrk'][] = strlen($this->xObjects[$this->xObjectID]['outdata']);
         }
         else {
-            $this->transfmrk[$this->page][] = $this->pagelen[$this->page];
+            $this->transfmrk[$this->page][] = $this->pageLengths[$this->page];
         }
         ++$this->transfmatrix_key;
         $this->transfmatrix[$this->transfmatrix_key] = [];
@@ -8741,7 +8770,7 @@ class PDF
         }
         elseif (end($this->transfmrk[$this->page]) !== false) {
             $key                                = key($this->transfmrk[$this->page]);
-            $this->transfmrk[$this->page][$key] = $this->pagelen[$this->page];
+            $this->transfmrk[$this->page][$key] = $this->pageLengths[$this->page];
         }
     }
 
@@ -14151,16 +14180,16 @@ class PDF
         }
         elseif (!$this->inFooter) {
             if (isset($this->footerLengths[$this->page])) {
-                $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerLengths[$this->page];
+                $this->footerpos[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
             }
             else {
-                $this->footerpos[$this->page] = $this->pagelen[$this->page];
+                $this->footerpos[$this->page] = $this->pageLengths[$this->page];
             }
             $startlinepos = $this->footerpos[$this->page];
         }
         else {
             // we are inside the footer
-            $startlinepos = $this->pagelen[$this->page];
+            $startlinepos = $this->pageLengths[$this->page];
         }
         $lalign  = $align;
         $plalign = $align;
@@ -14378,16 +14407,16 @@ class PDF
                         if ($this->page > $startlinepage) {
                             // fix line splitted over two pages
                             if (isset($this->footerLengths[$startlinepage])) {
-                                $curpos = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
+                                $curpos = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
                             }
                             // line to be moved one page forward
-                            $pagebuff = $this->getPageBuffer($startlinepage);
+                            $pagebuff = $this->pageBuffer($startlinepage);
                             $linebeg  = substr($pagebuff, $startlinepos, ($curpos - $startlinepos));
                             $tstart   = substr($pagebuff, 0, $startlinepos);
-                            $tend     = substr($this->getPageBuffer($startlinepage), $curpos);
+                            $tend     = substr($this->pageBuffer($startlinepage), $curpos);
                             // remove line from previous page
-                            $this->setPageBuffer($startlinepage, $tstart . '' . $tend);
-                            $pagebuff = $this->getPageBuffer($this->page);
+                            $this->pageBuffer($startlinepage, $tstart . '' . $tend);
+                            $pagebuff = $this->pageBuffer($this->page);
                             $tstart   = substr($pagebuff, 0, $this->cntmrk[$this->page]);
                             $tend     = substr($pagebuff, $this->cntmrk[$this->page]);
                             // add line start to current page
@@ -14396,7 +14425,7 @@ class PDF
                                 $yshift += ($curfontsize / $this->k);
                             }
                             $try = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->k));
-                            $this->setPageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
+                            $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                             // shift the annotations and links
                             if (isset($this->PageAnnots[$this->page])) {
                                 $next_pask = count($this->PageAnnots[$this->page]);
@@ -14448,22 +14477,22 @@ class PDF
                             if ($this->page > $startlinepage) {
                                 // fix lines splitted over two pages
                                 if (isset($this->footerLengths[$startlinepage])) {
-                                    $curpos = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
+                                    $curpos = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
                                 }
                                 // line to be moved one page forward
-                                $pagebuff = $this->getPageBuffer($startlinepage);
+                                $pagebuff = $this->pageBuffer($startlinepage);
                                 $linebeg  = substr($pagebuff, $startlinepos, ($curpos - $startlinepos));
                                 $tstart   = substr($pagebuff, 0, $startlinepos);
-                                $tend     = substr($this->getPageBuffer($startlinepage), $curpos);
+                                $tend     = substr($this->pageBuffer($startlinepage), $curpos);
                                 // remove line start from previous page
-                                $this->setPageBuffer($startlinepage, $tstart . '' . $tend);
-                                $pagebuff = $this->getPageBuffer($this->page);
+                                $this->pageBuffer($startlinepage, $tstart . '' . $tend);
+                                $pagebuff = $this->pageBuffer($this->page);
                                 $tstart   = substr($pagebuff, 0, $this->cntmrk[$this->page]);
                                 $tend     = substr($pagebuff, $this->cntmrk[$this->page]);
                                 // add line start to current page
                                 $yshift = ($minstartliney - $this->y);
                                 $try    = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->k));
-                                $this->setPageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
+                                $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                                 // shift the annotations and links
                                 if (isset($this->PageAnnots[$this->page])) {
                                     $next_pask = count($this->PageAnnots[$this->page]);
@@ -14534,7 +14563,7 @@ class PDF
                     $plalign = '';
                 }
                 // get current position on page buffer
-                $curpos = $this->pagelen[$startlinepage];
+                $curpos = $this->pageLengths[$startlinepage];
                 if (isset($dom[$key]['bgcolor']) and ($dom[$key]['bgcolor'] !== false)) {
                     $this->fillColorArray($dom[$key]['bgcolor']);
                     $wfill = true;
@@ -14587,27 +14616,27 @@ class PDF
                         }
                     }
                     else {
-                        $pstart = substr($this->getPageBuffer($startlinepage), 0, $startlinepos);
+                        $pstart = substr($this->pageBuffer($startlinepage), 0, $startlinepos);
                         if (isset($opentagpos) and isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                            $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
+                            $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
                             $midpos                          = min($opentagpos, $this->footerpos[$startlinepage]);
                         }
                         elseif (isset($opentagpos)) {
                             $midpos = $opentagpos;
                         }
                         elseif (isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                            $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
+                            $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
                             $midpos                          = $this->footerpos[$startlinepage];
                         }
                         else {
                             $midpos = 0;
                         }
                         if ($midpos > 0) {
-                            $pmid = substr($this->getPageBuffer($startlinepage), $startlinepos, ($midpos - $startlinepos));
-                            $pend = substr($this->getPageBuffer($startlinepage), $midpos);
+                            $pmid = substr($this->pageBuffer($startlinepage), $startlinepos, ($midpos - $startlinepos));
+                            $pend = substr($this->pageBuffer($startlinepage), $midpos);
                         }
                         else {
-                            $pmid = substr($this->getPageBuffer($startlinepage), $startlinepos);
+                            $pmid = substr($this->pageBuffer($startlinepage), $startlinepos);
                             $pend = '';
                         }
                     }
@@ -14940,7 +14969,7 @@ class PDF
                                         $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\n" . $pend;
                                     }
                                     else {
-                                        $this->setPageBuffer($startlinepage, $pstart . "\n" . $pmid . "\n" . $pend);
+                                        $this->pageBuffer($startlinepage, $pstart . "\n" . $pmid . "\n" . $pend);
                                     }
                                     $endlinepos = strlen($pstart . "\n" . $pmid . "\n");
                                 }
@@ -14957,7 +14986,7 @@ class PDF
                                         $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
                                     }
                                     else {
-                                        $this->setPageBuffer($startlinepage, $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend);
+                                        $this->pageBuffer($startlinepage, $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend);
                                     }
                                     $endlinepos = strlen($pstart . "\n" . $pmid . "\nBT 0 Tw ET\n");
                                 }
@@ -14980,7 +15009,7 @@ class PDF
                             }
                         }
                         else {
-                            $this->setPageBuffer($startlinepage, $pstart . $pend);
+                            $this->pageBuffer($startlinepage, $pstart . $pend);
                             // shift the annotations and links
                             if (isset($this->PageAnnots[$this->page])) {
                                 foreach ($this->PageAnnots[$this->page] as $pak => $pac) {
@@ -15019,15 +15048,15 @@ class PDF
                     }
                     elseif (!$this->inFooter) {
                         if (isset($this->footerLengths[$this->page])) {
-                            $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerLengths[$this->page];
+                            $this->footerpos[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
                         }
                         else {
-                            $this->footerpos[$this->page] = $this->pagelen[$this->page];
+                            $this->footerpos[$this->page] = $this->pageLengths[$this->page];
                         }
                         $startlinepos = $this->footerpos[$this->page];
                     }
                     else {
-                        $startlinepos = $this->pagelen[$this->page];
+                        $startlinepos = $this->pageLengths[$this->page];
                     }
                 }
                 unset($endlinepos);
@@ -15040,7 +15069,7 @@ class PDF
                 }
                 if (!($dom[$key]['tag'] and !$dom[$key]['opening'] and ($dom[$key]['value'] == 'table')
                     and (isset($this->emptypagemrk[$this->page]))
-                    and ($this->emptypagemrk[$this->page] == $this->pagelen[$this->page]))) {
+                    and ($this->emptypagemrk[$this->page] == $this->pageLengths[$this->page]))) {
                     $this->setCurrentFont($fontname, $fontstyle, $fontsize);
                     if ($wfill) {
                         $this->fillColorArray($this->bgColor);
@@ -15347,10 +15376,10 @@ class PDF
                             }
                             elseif (!$this->inFooter) {
                                 if (isset($this->footerLengths[$this->page])) {
-                                    $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerLengths[$this->page];
+                                    $this->footerpos[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
                                 }
                                 else {
-                                    $this->footerpos[$this->page] = $this->pagelen[$this->page];
+                                    $this->footerpos[$this->page] = $this->pageLengths[$this->page];
                                 }
                                 $opentagpos = $this->footerpos[$this->page];
                             }
@@ -15617,27 +15646,27 @@ class PDF
                 }
             }
             else {
-                $pstart = substr($this->getPageBuffer($startlinepage), 0, $startlinepos);
+                $pstart = substr($this->pageBuffer($startlinepage), 0, $startlinepos);
                 if (isset($opentagpos) and isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                    $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
+                    $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
                     $midpos                          = min($opentagpos, $this->footerpos[$startlinepage]);
                 }
                 elseif (isset($opentagpos)) {
                     $midpos = $opentagpos;
                 }
                 elseif (isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                    $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
+                    $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
                     $midpos                          = $this->footerpos[$startlinepage];
                 }
                 else {
                     $midpos = 0;
                 }
                 if ($midpos > 0) {
-                    $pmid = substr($this->getPageBuffer($startlinepage), $startlinepos, ($midpos - $startlinepos));
-                    $pend = substr($this->getPageBuffer($startlinepage), $midpos);
+                    $pmid = substr($this->pageBuffer($startlinepage), $startlinepos, ($midpos - $startlinepos));
+                    $pend = substr($this->pageBuffer($startlinepage), $midpos);
                 }
                 else {
-                    $pmid = substr($this->getPageBuffer($startlinepage), $startlinepos);
+                    $pmid = substr($this->pageBuffer($startlinepage), $startlinepos);
                     $pend = '';
                 }
             }
@@ -15729,7 +15758,7 @@ class PDF
                     }
                 }
                 else {
-                    $this->setPageBuffer($startlinepage, $pstart . $pend);
+                    $this->pageBuffer($startlinepage, $pstart . $pend);
                     // shift the annotations and links
                     if (isset($this->PageAnnots[$this->page])) {
                         foreach ($this->PageAnnots[$this->page] as $pak => $pac) {
@@ -16969,10 +16998,10 @@ class PDF
                                     else {
                                         $pagemark = $this->intmrk[$this->page];
                                     }
-                                    $pagebuff = $this->getPageBuffer($this->page);
+                                    $pagebuff = $this->pageBuffer($this->page);
                                     $pstart   = substr($pagebuff, 0, $pagemark);
                                     $pend     = substr($pagebuff, $pagemark);
-                                    $this->setPageBuffer($this->page, $pstart . $ccode . $pend);
+                                    $this->pageBuffer($this->page, $pstart . $ccode . $pend);
                                 }
                             }
                         } // end for each page
@@ -17001,9 +17030,9 @@ class PDF
                     // reset row height
                     $this->resetLastH();
                     if (($this->page == ($this->numpages - 1)) and ($this->pageopen[$this->numpages])) {
-                        $plendiff = ($this->pagelen[$this->numpages] - $this->emptypagemrk[$this->numpages]);
+                        $plendiff = ($this->pageLengths[$this->numpages] - $this->emptypagemrk[$this->numpages]);
                         if (($plendiff > 0) and ($plendiff < 60)) {
-                            $pagediff = substr($this->getPageBuffer($this->numpages), $this->emptypagemrk[$this->numpages], $plendiff);
+                            $pagediff = substr($this->pageBuffer($this->numpages), $this->emptypagemrk[$this->numpages], $plendiff);
                             if (substr($pagediff, 0, 5) == 'BT /F') {
                                 // the difference is only a font setting
                                 $plendiff = 0;
@@ -17414,10 +17443,10 @@ class PDF
                     else {
                         $pagemark = $this->intmrk[$this->page];
                     }
-                    $pagebuff = $this->getPageBuffer($this->page);
+                    $pagebuff = $this->pageBuffer($this->page);
                     $pstart   = substr($pagebuff, 0, $pagemark);
                     $pend     = substr($pagebuff, $pagemark);
-                    $this->setPageBuffer($this->page, $pstart . $ccode . $pend);
+                    $this->pageBuffer($this->page, $pstart . $ccode . $pend);
                     $this->bordermrk[$this->page] += $offsetlen;
                     $this->cntmrk[$this->page]    += $offsetlen;
                 }
@@ -17906,67 +17935,13 @@ class PDF
     }
 
     /**
-     * Set buffer content (always append data).
-     * @param string $data data
-     */
-    protected function setBuffer($data)
-    {
-        $this->bufferlen += strlen($data);
-        $this->buffer    .= $data;
-    }
-
-    /**
      * Replace the buffer content
      * @param string $data data
      */
     protected function replaceBuffer($data)
     {
-        $this->bufferlen = strlen($data);
-        $this->buffer    = $data;
-    }
-
-    /**
-     * Get buffer content.
-     * @return string buffer content
-     */
-    protected function getBuffer()
-    {
-        return $this->buffer;
-    }
-
-    /**
-     * Set page buffer content.
-     * @param int    $page   page number
-     * @param string $data   page data
-     * @param bool   $append if true append data, false replace.
-     */
-    protected function setPageBuffer($page, $data, $append = false)
-    {
-        if ($append) {
-            $this->pages[$page] .= $data;
-        }
-        else {
-            $this->pages[$page] = $data;
-        }
-        if ($append and isset($this->pagelen[$page])) {
-            $this->pagelen[$page] += strlen($data);
-        }
-        else {
-            $this->pagelen[$page] = strlen($data);
-        }
-    }
-
-    /**
-     * Get page buffer content.
-     * @param int $page page number
-     * @return string page buffer content or false in case of error
-     */
-    protected function getPageBuffer($page)
-    {
-        if (isset($this->pages[$page])) {
-            return $this->pages[$page];
-        }
-        return false;
+        $this->bufferLength = strlen($data);
+        $this->buffer       = $data;
     }
 
     /**
@@ -17985,9 +17960,9 @@ class PDF
             $this->endPage();
         }
         // move all page-related states
-        $tmppage        = $this->getPageBuffer($frompage);
+        $tmppage        = $this->pageBuffer($frompage);
         $tmppagedim     = $this->pagedim[$frompage];
-        $tmppagelen     = $this->pagelen[$frompage];
+        $tmppagelen     = $this->pageLengths[$frompage];
         $tmpintmrk      = $this->intmrk[$frompage];
         $tmpbordermrk   = $this->bordermrk[$frompage];
         $tmpcntmrk      = $this->cntmrk[$frompage];
@@ -18021,9 +17996,9 @@ class PDF
         for ($i = $frompage; $i > $topage; --$i) {
             $j = $i - 1;
             // shift pages down
-            $this->setPageBuffer($i, $this->getPageBuffer($j));
+            $this->pageBuffer($i, $this->pageBuffer($j));
             $this->pagedim[$i]     = $this->pagedim[$j];
-            $this->pagelen[$i]     = $this->pagelen[$j];
+            $this->pageLengths[$i] = $this->pageLengths[$j];
             $this->intmrk[$i]      = $this->intmrk[$j];
             $this->bordermrk[$i]   = $this->bordermrk[$j];
             $this->cntmrk[$i]      = $this->cntmrk[$j];
@@ -18060,9 +18035,9 @@ class PDF
                 $this->currpagegroup = $i;
             }
         }
-        $this->setPageBuffer($topage, $tmppage);
+        $this->pageBuffer($topage, $tmppage);
         $this->pagedim[$topage]     = $tmppagedim;
-        $this->pagelen[$topage]     = $tmppagelen;
+        $this->pageLengths[$topage] = $tmppagelen;
         $this->intmrk[$topage]      = $tmpintmrk;
         $this->bordermrk[$topage]   = $tmpbordermrk;
         $this->cntmrk[$topage]      = $tmpcntmrk;
@@ -18166,7 +18141,7 @@ class PDF
         // delete current page
         unset($this->pages[$page]);
         unset($this->pagedim[$page]);
-        unset($this->pagelen[$page]);
+        unset($this->pageLengths[$page]);
         unset($this->intmrk[$page]);
         unset($this->bordermrk[$page]);
         unset($this->cntmrk[$page]);
@@ -18204,9 +18179,9 @@ class PDF
             for ($i = $page; $i < $this->numpages; ++$i) {
                 $j = $i + 1;
                 // shift pages
-                $this->setPageBuffer($i, $this->getPageBuffer($j));
+                $this->pageBuffer($i, $this->pageBuffer($j));
                 $this->pagedim[$i]     = $this->pagedim[$j];
-                $this->pagelen[$i]     = $this->pagelen[$j];
+                $this->pageLengths[$i] = $this->pageLengths[$j];
                 $this->intmrk[$i]      = $this->intmrk[$j];
                 $this->bordermrk[$i]   = $this->bordermrk[$j];
                 $this->cntmrk[$i]      = $this->cntmrk[$j];
@@ -18252,7 +18227,7 @@ class PDF
             // remove last page
             unset($this->pages[$this->numpages]);
             unset($this->pagedim[$this->numpages]);
-            unset($this->pagelen[$this->numpages]);
+            unset($this->pageLengths[$this->numpages]);
             unset($this->intmrk[$this->numpages]);
             unset($this->bordermrk[$this->numpages]);
             unset($this->cntmrk[$this->numpages]);
@@ -18371,9 +18346,9 @@ class PDF
         // copy all page-related states
         ++$this->numpages;
         $this->page = $this->numpages;
-        $this->setPageBuffer($this->page, $this->getPageBuffer($page));
+        $this->pageBuffer($this->page, $this->pageBuffer($page));
         $this->pagedim[$this->page]     = $this->pagedim[$page];
-        $this->pagelen[$this->page]     = $this->pagelen[$page];
+        $this->pageLengths[$this->page] = $this->pageLengths[$page];
         $this->intmrk[$this->page]      = $this->intmrk[$page];
         $this->bordermrk[$this->page]   = $this->bordermrk[$page];
         $this->cntmrk[$this->page]      = $this->cntmrk[$page];
@@ -18593,7 +18568,7 @@ class PDF
         if (!StaticMethods::empty_string($page)) {
             for ($p = $page_first; $p <= $page_last; ++$p) {
                 // get page data
-                $temppage = $this->getPageBuffer($p);
+                $temppage = $this->pageBuffer($p);
                 for ($n = 1; $n <= $maxpage; ++$n) {
                     // update page numbers
                     $a = '{#' . $n . '}';
@@ -18631,7 +18606,7 @@ class PDF
                     }
                 }
                 // save changes
-                $this->setPageBuffer($p, $temppage);
+                $this->pageBuffer($p, $temppage);
             }
             // move pages
             $this->Bookmark($toc_name, 0, 0, $page_first, $style, $color);
@@ -18732,7 +18707,7 @@ class PDF
         if (!StaticMethods::empty_string($page)) {
             for ($p = $page_first; $p <= $page_last; ++$p) {
                 // get page data
-                $temppage = $this->getPageBuffer($p);
+                $temppage = $this->pageBuffer($p);
                 for ($n = 1; $n <= $maxpage; ++$n) {
                     // update page numbers
                     $a = '{#' . $n . '}';
@@ -18780,7 +18755,7 @@ class PDF
                     }
                 }
                 // save changes
-                $this->setPageBuffer($p, $temppage);
+                $this->pageBuffer($p, $temppage);
             }
             // move pages
             $this->Bookmark($toc_name, 0, 0, $page_first, $style, $color);
