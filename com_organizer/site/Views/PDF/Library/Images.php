@@ -407,7 +407,7 @@ trait Images
      * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
      * @param bool       $ismask    true if this image is a mask, false otherwise
      * @param mixed      $imgmask   image object returned by this function or false
-     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param mixed      $fitbox    If not false scale image dimensions proportionally to fit within the ($w, $h) box. $fitbox can be true or a 2 characters string indicating the image alignment inside the box. The first character indicate the horizontal alignment (L = left, C = center, R = right) the second character indicate the vertical algnment (T = top, M = middle, B = bottom).
      * @param bool       $hidden    If true do not display the image.
      * @param bool       $fitonpage If true the image is resized to not exceed page dimensions.
@@ -452,7 +452,7 @@ trait Images
                 return false;
             }
             if (false !== $info = $this->getImageBuffer($file)) {
-                $imsize = array($info['w'], $info['h']);
+                $imsize = [$info['w'], $info['h']];
             }
             elseif (($imsize = @getimagesize($file)) === FALSE && strpos($file, '__tcpdf_' . $this->file_id . '_img') === FALSE) {
                 $imgdata = $this->getCachedFileContents($file);
@@ -480,7 +480,7 @@ trait Images
                 // get measures from specified data
                 $pw     = $this->fontSizeToUnits($w, 0, self::MILLIMETER, true) * $this->imageScale * $this->k;
                 $ph     = $this->fontSizeToUnits($h, 0, self::MILLIMETER, true) * $this->imageScale * $this->k;
-                $imsize = array($pw, $ph);
+                $imsize = [$pw, $ph];
             }
             else {
                 $this->Error('[Image] Unable to get the size of the image: ' . $file);
@@ -861,7 +861,7 @@ trait Images
             }
             // set image object
             $oid                              = $this->_newobj();
-            $this->xobjects['I' . $info['i']] = array('n' => $oid);
+            $this->xobjects['I' . $info['i']] = ['n' => $oid];
             $this->setImageSubBuffer($file, 'n', $this->n);
             $out = '<</Type /XObject';
             $out .= ' /Subtype /Image';
@@ -1087,7 +1087,7 @@ trait Images
      * @param bool       $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
      * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param mixed      $border         Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed      $border         Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param bool       $fitonpage      if true the image is resized to not exceed page dimensions.
      * @param bool       $fixoutvals     if true remove values outside the bounding box.
      * @author Valentin Schmidt, Nicola Asuni
@@ -1446,7 +1446,7 @@ trait Images
      * @param mixed      $link      URL or identifier returned by AddLink().
      * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
      * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      * @author Nicola Asuni
      */
@@ -1814,7 +1814,7 @@ trait Images
         $y = $this->h * $this->k;
         $e = ($x * (1 - $a)) - ($y * $c) + $e;
         $f = ($y * (1 - $d)) - ($x * $b) + $f;
-        return array($a, $b, $c, $d, $e, $f);
+        return [$a, $b, $c, $d, $e, $f];
     }
 
     /**
@@ -1906,7 +1906,7 @@ trait Images
             $this->_outSaveGraphicsState();
             //set clipping area
             if (!empty($clip_function) and method_exists($this, $clip_function)) {
-                $bbox = call_user_func_array(array($this, $clip_function), $clip_params);
+                $bbox = call_user_func_array([$this, $clip_function], $clip_params);
                 if ((!isset($gradient['type']) or ($gradient['type'] != 3)) and is_array($bbox) and (count($bbox) == 4)) {
                     list($x, $y, $w, $h) = $bbox;
                 }
@@ -2547,20 +2547,20 @@ trait Images
         $name = $this->removeTagNamespace($name);
         // check if we are in clip mode
         if ($this->svgclipmode) {
-            $this->svgclippaths[$this->svgclipid][] = array('name' => $name, 'attribs' => $attribs, 'tm' => $this->svgcliptm[$this->svgclipid]);
+            $this->svgclippaths[$this->svgclipid][] = ['name' => $name, 'attribs' => $attribs, 'tm' => $this->svgcliptm[$this->svgclipid]];
             return;
         }
-        if ($this->svgdefsmode and !in_array($name, array('clipPath', 'linearGradient', 'radialGradient', 'stop'))) {
+        if ($this->svgdefsmode and !in_array($name, ['clipPath', 'linearGradient', 'radialGradient', 'stop'])) {
             if (isset($attribs['id'])) {
                 $attribs['child_elements']     = [];
-                $this->svgdefs[$attribs['id']] = array('name' => $name, 'attribs' => $attribs);
+                $this->svgdefs[$attribs['id']] = ['name' => $name, 'attribs' => $attribs];
                 return;
             }
             if (end($this->svgdefs) !== FALSE) {
                 $last_svgdefs_id = key($this->svgdefs);
                 if (isset($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'])) {
                     $attribs['id']                                                                = 'DF_' . (count($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements']) + 1);
-                    $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$attribs['id']] = array('name' => $name, 'attribs' => $attribs);
+                    $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$attribs['id']] = ['name' => $name, 'attribs' => $attribs];
                     return;
                 }
             }
@@ -2614,7 +2614,7 @@ trait Images
             $tm = $ctm;
         }
         else {
-            $tm = array(1, 0, 0, 1, 0, 0);
+            $tm = [1, 0, 0, 1, 0, 0];
         }
         if (isset($attribs['transform']) and !empty($attribs['transform'])) {
             $tm = StaticMethods::getTransformationMatrixProduct($tm, StaticMethods::getSVGTransformMatrix($attribs['transform']));
@@ -2661,7 +2661,7 @@ trait Images
                 $svgW = (isset($attribs['width']) ? $attribs['width'] : 0);
                 $svgH = (isset($attribs['height']) ? $attribs['height'] : 0);
                 // set x, y position using transform matrix
-                $tm = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, $svgX, $svgY));
+                $tm = StaticMethods::getTransformationMatrixProduct($tm, [1, 0, 0, 1, $svgX, $svgY]);
                 $this->SVGTransform($tm);
                 // set clipping for width and height
                 $x = 0;
@@ -2692,7 +2692,7 @@ trait Images
                             else {
                                 preg_match_all('/[a-zA-Z]+/', $attribs['preserveAspectRatio'], $tmp);
                                 $tmp = $tmp[0];
-                                if ((sizeof($tmp) == 2) and (strlen($tmp[0]) == 8) and (in_array($tmp[1], array('meet', 'slice', 'none')))) {
+                                if ((sizeof($tmp) == 2) and (strlen($tmp[0]) == 8) and (in_array($tmp[1], ['meet', 'slice', 'none']))) {
                                     $aspectX = substr($tmp[0], 0, 4);
                                     $aspectY = substr($tmp[0], 4, 4);
                                     $fit     = $tmp[1];
@@ -2737,7 +2737,7 @@ trait Images
                 $y  = (isset($attribs['y']) ? $attribs['y'] : 0);
                 $w  = 1;//(isset($attribs['width'])?$attribs['width']:1);
                 $h  = 1;//(isset($attribs['height'])?$attribs['height']:1);
-                $tm = StaticMethods::getTransformationMatrixProduct($tm, array($w, 0, 0, $h, $x, $y));
+                $tm = StaticMethods::getTransformationMatrixProduct($tm, [$w, 0, 0, $h, $x, $y]);
                 $this->SVGTransform($tm);
                 $this->setSVGStyles($svgstyle, $prev_svgstyle);
                 break;
@@ -2775,7 +2775,7 @@ trait Images
                 if (isset($attribs['gradientTransform'])) {
                     $this->svggradients[$this->svggradientid]['gradientTransform'] = StaticMethods::getSVGTransformMatrix($attribs['gradientTransform']);
                 }
-                $this->svggradients[$this->svggradientid]['coords'] = array($x1, $y1, $x2, $y2);
+                $this->svggradients[$this->svggradientid]['coords'] = [$x1, $y1, $x2, $y2];
                 if (isset($attribs['xlink:href']) and !empty($attribs['xlink:href'])) {
                     // gradient is defined on another place
                     $this->svggradients[$this->svggradientid]['xref'] = substr($attribs['xlink:href'], 1);
@@ -2817,7 +2817,7 @@ trait Images
                 if (isset($attribs['gradientTransform'])) {
                     $this->svggradients[$this->svggradientid]['gradientTransform'] = StaticMethods::getSVGTransformMatrix($attribs['gradientTransform']);
                 }
-                $this->svggradients[$this->svggradientid]['coords'] = array($cx, $cy, $fx, $fy, $r);
+                $this->svggradients[$this->svggradientid]['coords'] = [$cx, $cy, $fx, $fy, $r];
                 if (isset($attribs['xlink:href']) and !empty($attribs['xlink:href'])) {
                     // gradient is defined on another place
                     $this->svggradients[$this->svggradientid]['xref'] = substr($attribs['xlink:href'], 1);
@@ -2838,7 +2838,7 @@ trait Images
                 }
                 $stop_color                                          = isset($svgstyle['stop-color']) ? $this->htmlToColor($svgstyle['stop-color']) : 'black';
                 $opacity                                             = isset($svgstyle['stop-opacity']) ? $svgstyle['stop-opacity'] : 1;
-                $this->svggradients[$this->svggradientid]['stops'][] = array('offset' => $offset, 'color' => $stop_color, 'opacity' => $opacity);
+                $this->svggradients[$this->svggradientid]['stops'][] = ['offset' => $offset, 'color' => $stop_color, 'opacity' => $opacity];
                 break;
             }
             // paths
@@ -2854,7 +2854,7 @@ trait Images
                         $y  = (isset($attribs['y']) ? $attribs['y'] : 0);
                         $w  = (isset($attribs['width']) ? $attribs['width'] : 1);
                         $h  = (isset($attribs['height']) ? $attribs['height'] : 1);
-                        $tm = StaticMethods::getTransformationMatrixProduct($tm, array($w, 0, 0, $h, $x, $y));
+                        $tm = StaticMethods::getTransformationMatrixProduct($tm, [$w, 0, 0, $h, $x, $y]);
                         if ($clipping) {
                             $this->SVGTransform($tm);
                             $this->SVGPath($d, 'CNZ');
@@ -2862,7 +2862,7 @@ trait Images
                         else {
                             $this->StartTransform();
                             $this->SVGTransform($tm);
-                            $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'SVGPath', array($d, 'CNZ'));
+                            $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'SVGPath', [$d, 'CNZ']);
                             if (!empty($obstyle)) {
                                 $this->SVGPath($d, $obstyle);
                             }
@@ -2891,7 +2891,7 @@ trait Images
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'RoundedRectXY', array($x, $y, $w, $h, $rx, $ry, '1111', 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'RoundedRectXY', [$x, $y, $w, $h, $rx, $ry, '1111', 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', $obstyle, [], []);
                     }
@@ -2918,7 +2918,7 @@ trait Images
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', array($cx, $cy, $r, 0, 360, 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', [$cx, $cy, $r, 0, 360, 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->Circle($cx, $cy, $r, 0, 360, $obstyle, [], [], 8);
                     }
@@ -2946,7 +2946,7 @@ trait Images
                 else {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', array($cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', [$cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, [], [], 8);
                     }
@@ -2970,7 +2970,7 @@ trait Images
                 if (!$clipping) {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Line', array($x1, $y1, $x2, $y2));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Line', [$x1, $y1, $x2, $y2]);
                     $this->Line($x1, $y1, $x2, $y2);
                     $this->StopTransform();
                 }
@@ -3014,7 +3014,7 @@ trait Images
                 if ($name == 'polyline') {
                     $this->StartTransform();
                     $this->SVGTransform($tm);
-                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'PolyLine', array($p, 'CNZ'));
+                    $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'PolyLine', [$p, 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->PolyLine($p, $obstyle, [], []);
                     }
@@ -3028,7 +3028,7 @@ trait Images
                     else {
                         $this->StartTransform();
                         $this->SVGTransform($tm);
-                        $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Polygon', array($p, 'CNZ'));
+                        $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Polygon', [$p, 'CNZ']);
                         if (!empty($obstyle)) {
                             $this->Polygon($p, $obstyle, [], [], true);
                         }
@@ -3258,19 +3258,19 @@ trait Images
     protected function endSVGElementHandler($parser, $name)
     {
         $name = $this->removeTagNamespace($name);
-        if ($this->svgdefsmode and !in_array($name, array('defs', 'clipPath', 'linearGradient', 'radialGradient', 'stop'))) {
+        if ($this->svgdefsmode and !in_array($name, ['defs', 'clipPath', 'linearGradient', 'radialGradient', 'stop'])) {
             ;
             if (end($this->svgdefs) !== FALSE) {
                 $last_svgdefs_id = key($this->svgdefs);
                 if (isset($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'])) {
                     foreach ($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'] as $child_element) {
                         if (isset($child_element['attribs']['id']) and ($child_element['name'] == $name)) {
-                            $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$child_element['attribs']['id'] . '_CLOSE'] = array('name' => $name, 'attribs' => array('closing_tag' => TRUE, 'content' => $this->svgtext));
+                            $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$child_element['attribs']['id'] . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => TRUE, 'content' => $this->svgtext]];
                             return;
                         }
                     }
                     if ($this->svgdefs[$last_svgdefs_id]['name'] == $name) {
-                        $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$last_svgdefs_id . '_CLOSE'] = array('name' => $name, 'attribs' => array('closing_tag' => TRUE, 'content' => $this->svgtext));
+                        $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$last_svgdefs_id . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => TRUE, 'content' => $this->svgtext]];
                         return;
                     }
                 }

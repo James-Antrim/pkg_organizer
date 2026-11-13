@@ -102,14 +102,14 @@ class PDF
             $command              .= $this->linestyleWidth . ' ';
         }
         if (isset($style['cap'])) {
-            $ca = array('butt' => 0, 'round' => 1, 'square' => 2);
+            $ca = ['butt' => 0, 'round' => 1, 'square' => 2];
             if (isset($ca[$style['cap']])) {
                 $this->linestyleCap = $ca[$style['cap']] . ' J';
                 $command            .= $this->linestyleCap . ' ';
             }
         }
         if (isset($style['join'])) {
-            $ja = array('miter' => 0, 'round' => 1, 'bevel' => 2);
+            $ja = ['miter' => 0, 'round' => 1, 'bevel' => 2];
             if (isset($ja[$style['join']])) {
                 $this->linestyleJoin = $ja[$style['join']] . ' j';
                 $command             .= $this->linestyleJoin . ' ';
@@ -122,7 +122,7 @@ class PDF
                     $tab = explode(',', $style['dash']);
                 }
                 else {
-                    $tab = array($style['dash']);
+                    $tab = [$style['dash']];
                 }
                 $dash_string = '';
                 foreach ($tab as $i => $v) {
@@ -349,12 +349,12 @@ class PDF
     /**
      * Array of cell internal paddings ('T' => top, 'R' => right, 'B' => bottom, 'L' => left).
      */
-    protected $cell_padding = array('T' => 0, 'R' => 0, 'B' => 0, 'L' => 0);
+    protected $cell_padding = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
 
     /**
      * Array of cell margins ('T' => top, 'R' => right, 'B' => bottom, 'L' => left).
      */
-    protected $cell_margin = array('T' => 0, 'R' => 0, 'B' => 0, 'L' => 0);
+    protected $cell_margin = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
 
     /**
      * Current horizontal position in user unit for cell positioning.
@@ -555,7 +555,7 @@ class PDF
     /**
      * Text shadow data array.
      */
-    protected $txtshadow = array('enabled' => false, 'depth_w' => 0, 'depth_h' => 0, 'color' => false, 'opacity' => 1, 'blend_mode' => 'Normal');
+    protected $txtshadow = ['enabled' => false, 'depth_w' => 0, 'depth_h' => 0, 'color' => false, 'opacity' => 1, 'blend_mode' => 'Normal'];
 
     /**
      * Default number of columns for html table.
@@ -925,7 +925,7 @@ class PDF
     /**
      * Data for digital signature appearance.
      */
-    protected $signature_appearance = array('page' => 1, 'rect' => '0 0 0 0');
+    protected $signature_appearance = ['page' => 1, 'rect' => '0 0 0 0'];
 
     /**
      * Array of empty digital signature appearances.
@@ -970,7 +970,7 @@ class PDF
     /**
      * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
      */
-    protected $default_form_prop = array('lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => array(255, 255, 255), 'strokeColor' => array(128, 128, 128));
+    protected $default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => [255, 255, 255], 'strokeColor' => [128, 128, 128]];
 
     /**
      * Javascript objects array.
@@ -1045,12 +1045,12 @@ class PDF
     /**
      * Maximum page and column selected.
      */
-    protected $maxselcol = array('page' => 0, 'column' => 0);
+    protected $maxselcol = ['page' => 0, 'column' => 0];
 
     /**
      * Array of: X difference between table cell x start and starting page margin, cellspacing, cellpadding.
      */
-    protected $colxshift = array('x' => 0, 's' => array('H' => 0, 'V' => 0), 'p' => array('L' => 0, 'T' => 0, 'R' => 0, 'B' => 0));
+    protected $colxshift = ['x' => 0, 's' => ['H' => 0, 'V' => 0], 'p' => ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0]];
 
     /**
      * Text rendering mode: 0 = Fill text; 1 = Stroke text; 2 = Fill, then stroke text; 3 = Neither fill nor stroke text (invisible); 4 = Fill text and add to path for clipping; 5 = Stroke text and add to path for clipping; 6 = Fill, then stroke text and add to path for clipping; 7 = Add text to path for clipping.
@@ -1191,7 +1191,7 @@ class PDF
     /**
      * Array of SVG properties.
      */
-    protected $svgstyles = array(array(
+    protected $svgstyles = array([
         'alignment-baseline'           => 'auto',
         'baseline-shift'               => 'baseline',
         'clip'                         => 'auto',
@@ -1254,8 +1254,8 @@ class PDF
         'word-spacing'                 => 'normal',
         'writing-mode'                 => 'lr-tb',
         'text-color'                   => 'black',
-        'transfmatrix'                 => array(1, 0, 0, 1, 0, 0)
-    ));
+        'transfmatrix'                 => [1, 0, 0, 1, 0, 0]
+    ]);
 
     /**
      * If true force sRGB color profile for all document.
@@ -1287,18 +1287,18 @@ class PDF
      * (Check the "Entries in a Graphics State Parameter Dictionary" on PDF 32000-1:2008).
      * @var array<string,bool|int>
      */
-    protected $overprint = array('OP' => false, 'op' => false, 'OPM' => 0);
+    protected $overprint = ['OP' => false, 'op' => false, 'OPM' => 0];
 
     /**
      * Alpha mode array.
      * (Check the "Entries in a Graphics State Parameter Dictionary" on PDF 32000-1:2008).
      */
-    protected $alpha = array('CA' => 1, 'ca' => 1, 'BM' => '/Normal', 'AIS' => false);
+    protected $alpha = ['CA' => 1, 'ca' => 1, 'BM' => '/Normal', 'AIS' => false];
 
     /**
      * Define the page boundaries boxes to be set on document.
      */
-    protected $page_boxes = array('MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox');
+    protected $page_boxes = ['MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox'];
 
     /**
      * If true print TCPDF meta link.
@@ -1415,7 +1415,7 @@ class PDF
         $this->sign                       = false;
         $this->tsa_timestamp              = false;
         $this->tsa_data                   = [];
-        $this->signature_appearance       = array('page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature');
+        $this->signature_appearance       = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
         $this->empty_signature_appearance = [];
         // user's rights
         $this->ur['enabled']   = false;
@@ -1443,7 +1443,7 @@ class PDF
             // PCRE unicode support is turned OFF
             $this->setSpacesRE('/[^\S\xa0]/');
         }
-        $this->default_form_prop = array('lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => array(255, 255, 255), 'strokeColor' => array(128, 128, 128));
+        $this->default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => [255, 255, 255], 'strokeColor' => [128, 128, 128]];
         // set document creation and modification timestamp
         $this->doc_creation_timestamp     = time();
         $this->doc_modification_timestamp = $this->doc_creation_timestamp;
@@ -1585,21 +1585,21 @@ class PDF
                     // The page's display duration
                     $this->pagedim[$this->page]['trans']['Dur'] = floatval($format['trans']['Dur']);
                 }
-                $stansition_styles = array('Split', 'Blinds', 'Box', 'Wipe', 'Dissolve', 'Glitter', 'R', 'Fly', 'Push', 'Cover', 'Uncover', 'Fade');
+                $stansition_styles = ['Split', 'Blinds', 'Box', 'Wipe', 'Dissolve', 'Glitter', 'R', 'Fly', 'Push', 'Cover', 'Uncover', 'Fade'];
                 if (isset($format['trans']['S']) and in_array($format['trans']['S'], $stansition_styles)) {
                     // The transition style that shall be used when moving to this page from another during a presentation
                     $this->pagedim[$this->page]['trans']['S'] = $format['trans']['S'];
-                    $valid_effect                             = array('Split', 'Blinds');
-                    $valid_vals                               = array('H', 'V');
+                    $valid_effect                             = ['Split', 'Blinds'];
+                    $valid_vals                               = ['H', 'V'];
                     if (isset($format['trans']['Dm']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['Dm'], $valid_vals)) {
                         $this->pagedim[$this->page]['trans']['Dm'] = $format['trans']['Dm'];
                     }
-                    $valid_effect = array('Split', 'Box', 'Fly');
-                    $valid_vals   = array('I', 'O');
+                    $valid_effect = ['Split', 'Box', 'Fly'];
+                    $valid_vals   = ['I', 'O'];
                     if (isset($format['trans']['M']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['M'], $valid_vals)) {
                         $this->pagedim[$this->page]['trans']['M'] = $format['trans']['M'];
                     }
-                    $valid_effect = array('Wipe', 'Glitter', 'Fly', 'Cover', 'Uncover', 'Push');
+                    $valid_effect = ['Wipe', 'Glitter', 'Fly', 'Cover', 'Uncover', 'Push'];
                     if (isset($format['trans']['Di']) and in_array($format['trans']['S'], $valid_effect)) {
                         if (((($format['trans']['Di'] == 90) or ($format['trans']['Di'] == 180)) and ($format['trans']['S'] == 'Wipe'))
                             or (($format['trans']['Di'] == 315) and ($format['trans']['S'] == 'Glitter'))
@@ -1673,7 +1673,7 @@ class PDF
             // portrait
             $default_orientation = 'P';
         }
-        $valid_orientations = array('P', 'L');
+        $valid_orientations = ['P', 'L'];
         if (empty($orientation)) {
             $orientation = $default_orientation;
         }
@@ -2096,7 +2096,7 @@ class PDF
 
     /**
      * Adjust the internal Cell padding array to take account of the line width.
-     * @param string|array|int|bool $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param string|array|int|bool $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @return void|array array of adjustments
      */
     protected function adjustCellPadding($brd = 0)
@@ -2118,7 +2118,7 @@ class PDF
             || ($brd === true)
             || (is_numeric($brd) && ((int) $brd > 0))
         ) {
-            $brd = array('LRTB' => true);
+            $brd = ['LRTB' => true];
         }
         if (!is_array($brd)) {
             return;
@@ -2660,7 +2660,7 @@ class PDF
      * @param int[] $tc RGB array color for text.
      * @param int[] $lc RGB array color for line.
      */
-    public function setFooterData($tc = array(0, 0, 0), $lc = array(0, 0, 0))
+    public function setFooterData($tc = [0, 0, 0], $lc = [0, 0, 0])
     {
         $this->footerTextColor = $tc;
         $this->footerLineColor = $lc;
@@ -2773,7 +2773,7 @@ class PDF
             $this->x($header_x);
             $this->MultiCell($cw, $cell_height, $headerdata['string'], 0, '', 0, 1, '', '', true, 0, false, true, 0, 'T', false);
             // print an ending header line
-            $this->lineStyle(array('width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
+            $this->lineStyle(['width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']]);
             $this->y((2.835 / $this->k) + max($imgy, $this->y));
             if ($this->rtl) {
                 $this->x($this->original_rMargin);
@@ -2814,13 +2814,13 @@ class PDF
         $this->textColorArray($this->footerTextColor);
         //set style for cell border
         $line_width = (0.85 / $this->k);
-        $this->lineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor));
+        $this->lineStyle(['width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor]);
         //print document barcode
         $barcode = $this->getBarcode();
         if (!empty($barcode)) {
             $this->Ln($line_width);
             $barcode_width = round(($this->w - $this->original_lMargin - $this->original_rMargin) / 3);
-            $style         = array(
+            $style         = [
                 'position'     => $this->rtl ? 'R' : 'L',
                 'align'        => $this->rtl ? 'R' : 'L',
                 'stretch'      => false,
@@ -2828,10 +2828,10 @@ class PDF
                 'cellfitalign' => '',
                 'border'       => false,
                 'padding'      => 0,
-                'fgcolor'      => array(0, 0, 0),
+                'fgcolor'      => [0, 0, 0],
                 'bgcolor'      => false,
                 'text'         => false
-            );
+            ];
             $this->write1DBarcode($barcode, 'C128', '', $cur_y + $line_width, '', (($this->footer_margin / 3) - $line_width), 0.3, $style, '');
         }
         $w_page = isset($this->l['w_page']) ? $this->l['w_page'] . ' ' : '';
@@ -3159,18 +3159,18 @@ class PDF
     /**
      * Returns the glyph bounding box of the specified character in the current font in user units.
      * @param int $char Input character code.
-     * @return false|array array(xMin, yMin, xMax, yMax) or FALSE if not defined.
+     * @return false|array [xMin, yMin, xMax, yMax] or FALSE if not defined.
      */
     public function getCharBBox($char)
     {
         $c = intval($char);
         if (isset($this->currentFont['cw'][$c])) {
             // glyph is defined ... use zero width & height for glyphs without outlines
-            $result = array(0, 0, 0, 0);
+            $result = [0, 0, 0, 0];
             if (isset($this->currentFont['cbbox'][$c])) {
                 $result = $this->currentFont['cbbox'][$c];
             }
-            return array_map(array($this, 'getAbsFontMeasure'), $result);
+            return array_map([$this, 'getAbsFontMeasure'], $result);
         }
         return false;
     }
@@ -3259,7 +3259,7 @@ class PDF
     {
         // create a new internal link
         $n               = count($this->links) + 1;
-        $this->links[$n] = array('p' => 0, 'y' => 0, 'f' => false);
+        $this->links[$n] = ['p' => 0, 'y' => 0, 'f' => false];
         return $n;
     }
 
@@ -3284,7 +3284,7 @@ class PDF
         if ($y == -1) {
             $y = $this->y;
         }
-        $this->links[$link] = array('p' => $page, 'y' => $y, 'f' => $fixed);
+        $this->links[$link] = ['p' => $page, 'y' => $y, 'f' => $fixed];
     }
 
     /**
@@ -3300,7 +3300,7 @@ class PDF
      */
     public function Link($x, $y, $w, $h, $link, $spaces = 0)
     {
-        $this->Annotation($x, $y, $w, $h, $link, array('Subtype' => 'Link'), $spaces);
+        $this->Annotation($x, $y, $w, $h, $link, ['Subtype' => 'Link'], $spaces);
     }
 
     /**
@@ -3314,11 +3314,11 @@ class PDF
      * @param array  $opt    array of options (see section 8.4 of PDF reference 1.7).
      * @param int    $spaces number of spaces on the text to link
      */
-    public function Annotation($x, $y, $w, $h, $text, $opt = array('Subtype' => 'Text'), $spaces = 0)
+    public function Annotation($x, $y, $w, $h, $text, $opt = ['Subtype' => 'Text'], $spaces = 0)
     {
         if ($this->inxobj) {
             // store parameters for later use on template
-            $this->xobjects[$this->xobjid]['annotations'][] = array('x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'text' => $text, 'opt' => $opt, 'spaces' => $spaces);
+            $this->xobjects[$this->xobjid]['annotations'][] = ['x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'text' => $text, 'opt' => $opt, 'spaces' => $spaces];
             return;
         }
         if ($x === '') {
@@ -3380,11 +3380,11 @@ class PDF
         if (!isset($this->PageAnnots[$page])) {
             $this->PageAnnots[$page] = [];
         }
-        $this->PageAnnots[$page][] = array('n' => ++$this->n, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces);
+        $this->PageAnnots[$page][] = ['n' => ++$this->n, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
         if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!StaticMethods::empty_string($opt['FS']))
             and (@StaticMethods::file_exists($opt['FS']) or StaticMethods::isValidURL($opt['FS']))
             and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
-            $this->embeddedfiles[basename($opt['FS'])] = array('f' => ++$this->n, 'n' => ++$this->n, 'file' => $opt['FS']);
+            $this->embeddedfiles[basename($opt['FS'])] = ['f' => ++$this->n, 'n' => ++$this->n, 'file' => $opt['FS']];
         }
         // Add widgets annotation's icons
         if (isset($opt['mk']['i']) and @StaticMethods::file_exists($opt['mk']['i'])) {
@@ -3447,7 +3447,7 @@ class PDF
      * @param int    $fstroke           outline size in user units (0 = disable)
      * @param bool   $fclip             if true activate clipping mode (you must call StartTransform() before this function and StopTransform() to stop the clipping tranformation).
      * @param bool   $ffill             if true fills the text
-     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
@@ -3550,7 +3550,7 @@ class PDF
      * @param float  $w                 Cell width. If 0, the cell extends up to the right margin.
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
-     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
@@ -3617,7 +3617,7 @@ class PDF
      * @param float  $w                 Cell width. If 0, the cell extends up to the right margin.
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
-     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
@@ -4061,7 +4061,7 @@ class PDF
      * @param float            $y   Y coordinate.
      * @param float            $w   Cell width.
      * @param float            $h   Cell height.
-     * @param string|array|int $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param string|array|int $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @return string containing cell border code
      * @see   lineStyle()
      */
@@ -4072,7 +4072,7 @@ class PDF
             return $s;
         }
         if ($brd == 1) {
-            $brd = array('LRTB' => true);
+            $brd = ['LRTB' => true];
         }
         // calculate coordinates for border
         $k = $this->k;
@@ -4095,7 +4095,7 @@ class PDF
             $slen   = strlen($brd);
             $newbrd = [];
             for ($i = 0; $i < $slen; ++$i) {
-                $newbrd[$brd[$i]] = array('cap' => 'square', 'join' => 'miter');
+                $newbrd[$brd[$i]] = ['cap' => 'square', 'join' => 'miter'];
             }
             $brd = $newbrd;
         }
@@ -4270,7 +4270,7 @@ class PDF
      * @param float      $w           Width of cells. If 0, they extend up to the right margin of the page.
      * @param float      $h           Cell minimum height. The cell extends automatically if needed.
      * @param string     $txt         String to print
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align</li><li>C: center</li><li>R: right align</li><li>J: justification (default value when $ishtml=false)</li></ul>
      * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
      * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line [DEFAULT]</li><li>2: below</li></ul>
@@ -4677,7 +4677,7 @@ class PDF
      * @param bool       $reseth      if true reset the last cell height (default false).
      * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
      * @param array|null $cellpadding Internal cell padding, if empty uses default cell padding.
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @return float Return the minimal height needed for multicell method for printing the $txt param.
      * @author Alexander Escalona Fern\E1ndez, Nicola Asuni
      */
@@ -4800,7 +4800,7 @@ class PDF
      * @param bool       $reseth      if true reset the last cell height (default false).
      * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width (default true).
      * @param array|null $cellpadding Internal cell padding, if empty uses default cell padding.
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @return float Return the minimal height needed for multicell method for printing the $txt param.
      * @author Nicola Asuni, Alexander Escalona Fern\E1ndez
      */
@@ -4863,7 +4863,7 @@ class PDF
         $chars = $this->utf8StringToArray($s);
         // calculate maximum width for a single character on string
         $chrw = $this->GetArrStringWidth($chars, '', '', 0, true);
-        array_walk($chrw, array($this, 'getRawCharWidth'));
+        array_walk($chrw, [$this, 'getRawCharWidth']);
         $maxchwidth = ((is_array($chrw) || $chrw instanceof Countable) && count($chrw) > 0) ? max($chrw) : 0;
         // get array of chars
         $uchars = $this->utf8ArrayToUnicodeArray($chars, $this->isUnicode);
@@ -5280,7 +5280,7 @@ class PDF
      * @param float $x         X coordinate
      * @param float $y         Y coodiante
      * @param bool  $fitonpage if true the block is resized to not exceed page dimensions.
-     * @return array array($w, $h, $x, $y)
+     * @return array [$w, $h, $x, $y]
      */
     protected function fitBlock($w, $h, $x, $y, $fitonpage = false)
     {
@@ -5345,7 +5345,7 @@ class PDF
                 $h = ($w / $ratio_wh);
             }
         }
-        return array($w, $h, $x, $y);
+        return [$w, $h, $x, $y];
     }
 
     /**
@@ -5516,10 +5516,10 @@ class PDF
             // get digital signature via openssl library
             $tempsign = StaticMethods::getObjFilename('sig', $this->file_id);
             if (empty($this->signature_data['extracerts'])) {
-                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], array($this->signature_data['privkey'], $this->signature_data['password']), [], PKCS7_BINARY | PKCS7_DETACHED);
+                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED);
             }
             else {
-                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], array($this->signature_data['privkey'], $this->signature_data['password']), [], PKCS7_BINARY | PKCS7_DETACHED, $this->signature_data['extracerts']);
+                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED, $this->signature_data['extracerts']);
             }
             // read signature
             $signature = file_get_contents($tempsign);
@@ -5705,7 +5705,7 @@ class PDF
                 }
             }
         }
-        $preserve = array(
+        $preserve = [
             'file_id',
             'state',
             'bufferlen',
@@ -5717,7 +5717,7 @@ class PDF
             'signature_max_length',
             'tsa_timestamp',
             'tsa_data'
-        );
+        ];
         foreach (array_keys(get_object_vars($this)) as $val) {
             if ($destroyall or !in_array($val, $preserve)) {
                 if ((!$preserve_objcopy or ($val != 'objcopy')) and ($val != 'file_id') and isset($this->$val)) {
@@ -5751,7 +5751,7 @@ class PDF
     {
         $alias = [];
         // build array of Unicode + ASCII variants (the order is important)
-        $alias        = array('u' => [], 'a' => []);
+        $alias        = ['u' => [], 'a' => []];
         $u            = '{' . $a . '}';
         $alias['u'][] = StaticMethods::_escape($u);
         if ($this->isUnicode) {
@@ -5770,7 +5770,7 @@ class PDF
      */
     protected function getAllInternalPageNumberAliases()
     {
-        $basic_alias = array(self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::GROUP_PAGE_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS);
+        $basic_alias = [self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::GROUP_PAGE_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS];
         $pnalias     = [];
         foreach ($basic_alias as $k => $a) {
             $pnalias[$k] = $this->getInternalPageNumberAliases($a);
@@ -5873,18 +5873,18 @@ class PDF
                 $png_num_chars = $this->GetNumChars($pnga);
                 // replace page numbers
                 $replace   = [];
-                $replace[] = array($ptgu, $ptg_num_chars, 9, $pnalias[2]['u']);
-                $replace[] = array($ptga, $ptg_num_chars, 7, $pnalias[2]['a']);
-                $replace[] = array($pngu, $png_num_chars, 9, $pnalias[3]['u']);
-                $replace[] = array($pnga, $png_num_chars, 7, $pnalias[3]['a']);
+                $replace[] = [$ptgu, $ptg_num_chars, 9, $pnalias[2]['u']];
+                $replace[] = [$ptga, $ptg_num_chars, 7, $pnalias[2]['a']];
+                $replace[] = [$pngu, $png_num_chars, 9, $pnalias[3]['u']];
+                $replace[] = [$pnga, $png_num_chars, 7, $pnalias[3]['a']];
                 list($temppage, $gdiff) = StaticMethods::replacePageNumAliases($temppage, $replace, $gdiff);
             }
             // replace page numbers
             $replace   = [];
-            $replace[] = array($ptpu, $ptp_num_chars, 9, $pnalias[0]['u']);
-            $replace[] = array($ptpa, $ptp_num_chars, 7, $pnalias[0]['a']);
-            $replace[] = array($pnpu, $pnp_num_chars, 9, $pnalias[1]['u']);
-            $replace[] = array($pnpa, $pnp_num_chars, 7, $pnalias[1]['a']);
+            $replace[] = [$ptpu, $ptp_num_chars, 9, $pnalias[0]['u']];
+            $replace[] = [$ptpa, $ptp_num_chars, 7, $pnalias[0]['a']];
+            $replace[] = [$pnpu, $pnp_num_chars, 9, $pnalias[1]['u']];
+            $replace[] = [$pnpa, $pnp_num_chars, 7, $pnalias[1]['a']];
             list($temppage, $pdiff) = StaticMethods::replacePageNumAliases($temppage, $replace, $pdiff);
             // replace right shift alias
             $temppage = $this->replaceRightShiftPageNumAliases($temppage, $pnalias[4], max($pdiff, $gdiff));
@@ -6097,7 +6097,7 @@ class PDF
                     $annots = '<</Type /Annot';
                     $annots .= ' /Subtype /' . $pl['opt']['subtype'];
                     $annots .= ' /Rect [' . $rect . ']';
-                    $ft     = array('Btn', 'Tx', 'Ch', 'Sig');
+                    $ft     = ['Btn', 'Tx', 'Ch', 'Sig'];
                     if (isset($pl['opt']['ft']) and in_array($pl['opt']['ft'], $ft)) {
                         $annots    .= ' /FT /' . $pl['opt']['ft'];
                         $formfield = true;
@@ -6215,7 +6215,7 @@ class PDF
                         if (isset($pl['opt']['bs']['w'])) {
                             $annots .= ' /W ' . intval($pl['opt']['bs']['w']);
                         }
-                        $bstyles = array('S', 'D', 'B', 'I', 'U');
+                        $bstyles = ['S', 'D', 'B', 'I', 'U'];
                         if (isset($pl['opt']['bs']['s']) and in_array($pl['opt']['bs']['s'], $bstyles)) {
                             $annots .= ' /S /' . $pl['opt']['bs']['s'];
                         }
@@ -6249,7 +6249,7 @@ class PDF
                     }
                     if (isset($pl['opt']['be']) and (is_array($pl['opt']['be']))) {
                         $annots  .= ' /BE <<';
-                        $bstyles = array('S', 'C');
+                        $bstyles = ['S', 'C'];
                         if (isset($pl['opt']['be']['s']) and in_array($pl['opt']['be']['s'], $bstyles)) {
                             $annots .= ' /S /' . $pl['opt']['bs']['s'];
                         }
@@ -6266,7 +6266,7 @@ class PDF
                     }
                     //$annots .= ' /StructParent ';
                     //$annots .= ' /OC ';
-                    $markups = array('text', 'freetext', 'line', 'square', 'circle', 'polygon', 'polyline', 'highlight', 'underline', 'squiggly', 'strikeout', 'stamp', 'caret', 'ink', 'fileattachment', 'sound');
+                    $markups = ['text', 'freetext', 'line', 'square', 'circle', 'polygon', 'polyline', 'highlight', 'underline', 'squiggly', 'strikeout', 'stamp', 'caret', 'ink', 'fileattachment', 'sound'];
                     if (in_array(strtolower($pl['opt']['subtype']), $markups)) {
                         // this is a markup type
                         if (isset($pl['opt']['t']) and is_string($pl['opt']['t'])) {
@@ -6288,7 +6288,7 @@ class PDF
                         //$annots .= ' /IT ';
                         //$annots .= ' /ExData ';
                     }
-                    $lineendings = array('Square', 'Circle', 'Diamond', 'OpenArrow', 'ClosedArrow', 'None', 'Butt', 'ROpenArrow', 'RClosedArrow', 'Slash');
+                    $lineendings = ['Square', 'Circle', 'Diamond', 'OpenArrow', 'ClosedArrow', 'None', 'Butt', 'ROpenArrow', 'RClosedArrow', 'Slash'];
                     // Annotation types
                     switch (strtolower($pl['opt']['subtype'])) {
                         case 'text':
@@ -6296,7 +6296,7 @@ class PDF
                             if (isset($pl['opt']['open'])) {
                                 $annots .= ' /Open ' . (strtolower($pl['opt']['open']) == 'true' ? 'true' : 'false');
                             }
-                            $iconsapp = array('Comment', 'Help', 'Insert', 'Key', 'NewParagraph', 'Note', 'Paragraph');
+                            $iconsapp = ['Comment', 'Help', 'Insert', 'Key', 'NewParagraph', 'Note', 'Paragraph'];
                             if (isset($pl['opt']['name']) and in_array($pl['opt']['name'], $iconsapp)) {
                                 $annots .= ' /Name /' . $pl['opt']['name'];
                             }
@@ -6305,7 +6305,7 @@ class PDF
                             }
                             $hasStateModel = isset($pl['opt']['statemodel']);
                             $hasState      = isset($pl['opt']['state']);
-                            $statemodels   = array('Marked', 'Review');
+                            $statemodels   = ['Marked', 'Review'];
                             if (!$hasStateModel && !$hasState) {
                                 break;
                             }
@@ -6317,10 +6317,10 @@ class PDF
                                 $annots                  .= ' /StateModel /' . $pl['opt']['statemodel'];
                             }
                             if ($pl['opt']['statemodel'] == 'Marked') {
-                                $states = array('Accepted', 'Unmarked');
+                                $states = ['Accepted', 'Unmarked'];
                             }
                             else {
-                                $states = array('Accepted', 'Rejected', 'Cancelled', 'Completed', 'None');
+                                $states = ['Accepted', 'Rejected', 'Cancelled', 'Completed', 'None'];
                             }
                             if ($hasState and in_array($pl['opt']['state'], $states)) {
                                 $annots .= ' /State /' . $pl['opt']['state'];
@@ -6378,7 +6378,7 @@ class PDF
                                     $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->k)));
                                 }
                             }
-                            $hmodes = array('N', 'I', 'O', 'P');
+                            $hmodes = ['N', 'I', 'O', 'P'];
                             if (isset($pl['opt']['h']) and in_array($pl['opt']['h'], $hmodes)) {
                                 $annots .= ' /H /' . $pl['opt']['h'];
                             }
@@ -6410,7 +6410,7 @@ class PDF
                                 }
                                 $annots .= ']';
                             }
-                            $tfit = array('FreeText', 'FreeTextCallout', 'FreeTextTypeWriter');
+                            $tfit = ['FreeText', 'FreeTextCallout', 'FreeTextTypeWriter'];
                             if (isset($pl['opt']['it']) and in_array($pl['opt']['it'], $tfit)) {
                                 $annots .= ' /IT /' . $pl['opt']['it'];
                             }
@@ -6486,7 +6486,7 @@ class PDF
                             $filename = basename($pl['opt']['fs']);
                             if (isset($this->embeddedfiles[$filename]['f'])) {
                                 $annots   .= ' /FS ' . $this->embeddedfiles[$filename]['f'] . ' 0 R';
-                                $iconsapp = array('Graph', 'Paperclip', 'PushPin', 'Tag');
+                                $iconsapp = ['Graph', 'Paperclip', 'PushPin', 'Tag'];
                                 if (isset($pl['opt']['name']) and in_array($pl['opt']['name'], $iconsapp)) {
                                     $annots .= ' /Name /' . $pl['opt']['name'];
                                 }
@@ -6508,7 +6508,7 @@ class PDF
                                 // ... TO BE COMPLETED ...
                                 // /R /C /B /E /CO /CP
                                 $annots   .= ' /Sound ' . $this->embeddedfiles[$filename]['f'] . ' 0 R';
-                                $iconsapp = array('Speaker', 'Mic');
+                                $iconsapp = ['Speaker', 'Mic'];
                                 if (isset($pl['opt']['name']) and in_array($pl['opt']['name'], $iconsapp)) {
                                     $annots .= ' /Name /' . $pl['opt']['name'];
                                 }
@@ -6524,7 +6524,7 @@ class PDF
                         }
                         case 'widget':
                         {
-                            $hmode = array('N', 'I', 'O', 'P', 'T');
+                            $hmode = ['N', 'I', 'O', 'P', 'T'];
                             if (isset($pl['opt']['h']) and in_array($pl['opt']['h'], $hmode)) {
                                 $annots .= ' /H /' . $pl['opt']['h'];
                             }
@@ -6568,11 +6568,11 @@ class PDF
                                 }
                                 if (isset($pl['opt']['mk']['if']) and (is_array($pl['opt']['mk']['if'])) and !empty($pl['opt']['mk']['if'])) {
                                     $annots .= ' /IF <<';
-                                    $if_sw  = array('A', 'B', 'S', 'N');
+                                    $if_sw  = ['A', 'B', 'S', 'N'];
                                     if (isset($pl['opt']['mk']['if']['sw']) and in_array($pl['opt']['mk']['if']['sw'], $if_sw)) {
                                         $annots .= ' /SW /' . $pl['opt']['mk']['if']['sw'];
                                     }
-                                    $if_s = array('A', 'P');
+                                    $if_s = ['A', 'P'];
                                     if (isset($pl['opt']['mk']['if']['s']) and in_array($pl['opt']['mk']['if']['s'], $if_s)) {
                                         $annots .= ' /S /' . $pl['opt']['mk']['if']['s'];
                                     }
@@ -6745,7 +6745,7 @@ class PDF
     {
         $stream                          = trim($stream);
         $out                             = $this->_getobj() . "\n";
-        $this->xobjects['AX' . $this->n] = array('n' => $this->n);
+        $this->xobjects['AX' . $this->n] = ['n' => $this->n];
         $out                             .= '<<';
         $out                             .= ' /Type /XObject';
         $out                             .= ' /Subtype /Form';
@@ -8348,10 +8348,10 @@ class PDF
      * @param string      $user_pass   user password. Empty by default.
      * @param string|null $owner_pass  owner password. If not specified, a random value is used.
      * @param int         $mode        encryption strength: 0 = RC4 40 bit; 1 = RC4 128 bit; 2 = AES 128 bit; 3 = AES 256 bit.
-     * @param array|null  $pubkeys     array of recipients containing public-key certificates ('c') and permissions ('p'). For example: array(array('c' => 'file://../examples/data/cert/tcpdf.crt', 'p' => array('print')))
+     * @param array|null  $pubkeys     array of recipients containing public-key certificates ('c') and permissions ('p'). For example: array(['c' => 'file://../examples/data/cert/tcpdf.crt', 'p' => ['print']])
      * @author Nicola Asuni
      */
-    public function setProtection($permissions = array('print', 'modify', 'copy', 'annot-forms', 'fill-forms', 'extract', 'assemble', 'print-high'), $user_pass = '', $owner_pass = null, $mode = 0, $pubkeys = null)
+    public function setProtection($permissions = ['print', 'modify', 'copy', 'annot-forms', 'fill-forms', 'extract', 'assemble', 'print-high'], $user_pass = '', $owner_pass = null, $mode = 0, $pubkeys = null)
     {
         $this->encryptdata['protection'] = StaticMethods::getUserPermissionCode($permissions, $mode);
         if (($pubkeys !== null) and (is_array($pubkeys))) {
@@ -8750,7 +8750,7 @@ class PDF
         }
         $this->_out(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
         // add tranformation matrix
-        $this->transfmatrix[$this->transfmatrix_key][] = array('a' => $tm[0], 'b' => $tm[1], 'c' => $tm[2], 'd' => $tm[3], 'e' => $tm[4], 'f' => $tm[5]);
+        $this->transfmatrix[$this->transfmatrix_key][] = ['a' => $tm[0], 'b' => $tm[1], 'c' => $tm[2], 'd' => $tm[3], 'e' => $tm[4], 'f' => $tm[5]];
         // update transformation mark
         if ($this->inxobj) {
             // we are inside an XObject template
@@ -8917,7 +8917,7 @@ class PDF
      *                             <li>L, T, R, B or combinations: Line style of left, top, right or bottom border. Array like for SetLineStyle().</li>
      *                             </ul>
      *                             If a key is not present or is null, the correspondent border is not drawn. Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @see   lineStyle()
      */
     public function Rect($x, $y, $w, $h, $style = '', $border_style = [], $fill_color = [])
@@ -8940,7 +8940,7 @@ class PDF
             }
             else {
                 // remove stroke operator from style
-                $opnostroke = array('S' => '', 'D' => '', 's' => '', 'd' => '', 'B' => 'F', 'FD' => 'F', 'DF' => 'F', 'B*' => 'F*', 'F*D' => 'F*', 'DF*' => 'F*', 'b' => 'f', 'fd' => 'f', 'df' => 'f', 'b*' => 'f*', 'f*d' => 'f*', 'df*' => 'f*');
+                $opnostroke = ['S' => '', 'D' => '', 's' => '', 'd' => '', 'B' => 'F', 'FD' => 'F', 'DF' => 'F', 'B*' => 'F*', 'F*D' => 'F*', 'DF*' => 'F*', 'b' => 'f', 'fd' => 'f', 'df' => 'f', 'b*' => 'f*', 'f*d' => 'f*', 'df*' => 'f*'];
                 if (isset($opnostroke[$style])) {
                     $style = $opnostroke[$style];
                 }
@@ -8988,7 +8988,7 @@ class PDF
      * @param float  $y3         Ordinate of end point.
      * @param string $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @see   lineStyle()
      */
     public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = [], $fill_color = [])
@@ -9014,10 +9014,10 @@ class PDF
      * either end of the curve.
      * @param float   $x0         Abscissa of start point.
      * @param float   $y0         Ordinate of start point.
-     * @param float[] $segments   An array of bezier descriptions. Format: array(x1, y1, x2, y2, x3, y3).
+     * @param float[] $segments   An array of bezier descriptions. Format: [x1, y1, x2, y2, x3, y3].
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @see   lineStyle()
      */
     public function Polycurve($x0, $y0, $segments, $style = '', $line_style = [], $fill_color = [])
@@ -9055,7 +9055,7 @@ class PDF
      * @param float   $afinish    Angle finish of draw line. Default value: 360.
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of ellipse. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @param integer $nc         Number of curves used to draw a 90 degrees portion of ellipse.
      * @author Nicola Asuni
      */
@@ -9216,7 +9216,7 @@ class PDF
             $xmax = max($xmax, $xc);
             $ymax = max($ymax, $yc);
         }
-        return array($xmin, $ymin, $xmax, $ymax);
+        return [$xmin, $ymin, $xmax, $ymax];
     }
 
     /**
@@ -9229,7 +9229,7 @@ class PDF
      * @param float   $angend     Angle finish of draw line. Default value: 360.
      * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array   $line_style Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $fill_color Fill color. Format: [red, green, blue]. Default value: default color (empty array).
      * @param integer $nc         Number of curves used to draw a 90 degrees portion of circle.
      */
     public function Circle($x0, $y0, $r, $angstr = 0, $angend = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
@@ -9247,7 +9247,7 @@ class PDF
      *                           <li>0 to ($np - 1): Line style of each line. Array like for SetLineStyle().</li>
      *                           </ul>
      *                           If a key is not present or is null, not draws the line. Default value is default line style (empty array).
-     * @param array  $fill_color Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      */
     public function PolyLine($p, $style = '', $line_style = [], $fill_color = [])
     {
@@ -9264,7 +9264,7 @@ class PDF
      *                            <li>0 to ($np - 1): Line style of each line. Array like for SetLineStyle().</li>
      *                            </ul>
      *                            If a key is not present or is null, not draws the line. Default value is default line style (empty array).
-     * @param array  $fill_color  Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color  Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      * @param bool   $closed      if true the polygon is closes, otherwise will remain open
      */
     public function Polygon($p, $style = '', $line_style = [], $fill_color = [], $closed = true)
@@ -9358,7 +9358,7 @@ class PDF
      *                                      <li>0 to ($ns - 1): Line style of each side. Array like for SetLineStyle().</li>
      *                                      </ul>
      *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
-     * @param array   $fill_color           Fill color. Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
      * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
      *                                      <ul>
      *                                      <li>D or empty string: Draw (default).</li>
@@ -9368,7 +9368,7 @@ class PDF
      *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
      *                                      </ul>
      * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
      */
     public function RegularPolygon($x0, $y0, $r, $ns, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
     {
@@ -9405,7 +9405,7 @@ class PDF
      *                                      <li>0 to (n - 1): Line style of each side. Array like for SetLineStyle().</li>
      *                                      </ul>
      *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
-     * @param array   $fill_color           Fill color. Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
      * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
      *                                      <ul>
      *                                      <li>D or empty string: Draw (default).</li>
@@ -9415,7 +9415,7 @@ class PDF
      *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
      *                                      </ul>
      * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: array(red, green, blue). Default value: default color (empty array).
+     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
      */
     public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
     {
@@ -9456,7 +9456,7 @@ class PDF
      * @param string $round_corner Draws rounded corner or not. String with a 0 (not rounded i-corner) or 1 (rounded i-corner) in i-position. Positions are, in order and begin to 0: top right, bottom right, bottom left and top left. Default value: all rounded corner ("1111").
      * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $border_style Border style of rectangle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      */
     public function RoundedRect($x, $y, $w, $h, $r, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
     {
@@ -9474,7 +9474,7 @@ class PDF
      * @param string $round_corner Draws rounded corner or not. String with a 0 (not rounded i-corner) or 1 (rounded i-corner) in i-position. Positions are, in order and begin to 0: top right, bottom right, bottom left and top left. Default value: all rounded corner ("1111").
      * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
      * @param array  $border_style Border style of rectangle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: array(GREY) or array(R,G,B) or array(C,M,Y,K) or array(C,M,Y,K,SpotColorName). Default value: default color (empty array).
+     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
      */
     public function RoundedRectXY($x, $y, $w, $h, $rx, $ry, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
     {
@@ -9581,7 +9581,7 @@ class PDF
             {
                 // draw only arrowhead arms
                 $mode  = 'D';
-                $style = array(1, 1, 0);
+                $style = [1, 1, 0];
                 break;
             }
             case 1:
@@ -9603,7 +9603,7 @@ class PDF
                 break;
             }
         }
-        $this->Polygon(array($x2L, $y2L, $x1, $y1, $x2R, $y2R), $mode, $style, []);
+        $this->Polygon([$x2L, $y2L, $x1, $y1, $x2R, $y2R], $mode, $style, []);
     }
 
     // END GRAPHIC FUNCTIONS SECTION -----------------------
@@ -9655,7 +9655,7 @@ class PDF
                 return;
             }
         }
-        $this->dests[$name] = array('x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed);
+        $this->dests[$name] = ['x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed];
         return $name;
     }
 
@@ -9699,7 +9699,7 @@ class PDF
      * @param float      $x     X position in user units of the bookmark on the selected page (default = -1 = current position;).
      * @param mixed      $link  URL, or numerical link ID, or named destination (# character followed by the destination name), or embedded file (* character followed by the file name).
      */
-    public function setBookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = array(0, 0, 0), $x = -1, $link = '')
+    public function setBookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = [0, 0, 0], $x = -1, $link = '')
     {
         $this->Bookmark($txt, $level, $y, $page, $style, $color, $x, $link);
     }
@@ -9715,7 +9715,7 @@ class PDF
      * @param float      $x     X position in user units of the bookmark on the selected page (default = -1 = current position;).
      * @param mixed      $link  URL, or numerical link ID, or named destination (# character followed by the destination name), or embedded file (* character followed by the file name).
      */
-    public function Bookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = array(0, 0, 0), $x = -1, $link = '')
+    public function Bookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = [0, 0, 0], $x = -1, $link = '')
     {
         if ($level < 0) {
             $level = 0;
@@ -9931,7 +9931,7 @@ class PDF
     public function addJavascriptObject($script, $onload = false)
     {
         ++$this->n;
-        $this->js_objects[$this->n] = array('n' => $this->n, 'js' => $script, 'onload' => $onload);
+        $this->js_objects[$this->n] = ['n' => $this->n, 'js' => $script, 'onload' => $onload];
         return $this->n;
     }
 
@@ -10224,7 +10224,7 @@ class PDF
         }
         $kid = ($this->n + 1);
         // save object ID to be added on Kids entry on parent object
-        $this->radiobutton_groups[$this->page][$name][] = array('kid' => $kid, 'def' => $defval);
+        $this->radiobutton_groups[$this->page][$name][] = ['kid' => $kid, 'def' => $defval];
         // get default style
         $prop                  = array_merge($this->getFormDefaultProp(), $prop);
         $prop['NoToggleToOff'] = 'true';
@@ -10253,7 +10253,7 @@ class PDF
         $opt['Subtype'] = 'Widget';
         $opt['ft']      = 'Btn';
         if ($checked) {
-            $opt['v']  = array('/' . $onvalue);
+            $opt['v']  = ['/' . $onvalue];
             $opt['as'] = $onvalue;
         }
         else {
@@ -10478,7 +10478,7 @@ class PDF
             return;
         }
         if (!isset($prop['value'])) {
-            $prop['value'] = array('Yes');
+            $prop['value'] = ['Yes'];
         }
         // get default style
         $prop                = array_merge($this->getFormDefaultProp(), $prop);
@@ -10508,13 +10508,13 @@ class PDF
         if (StaticMethods::empty_string($onvalue)) {
             $onvalue = 'Yes';
         }
-        $opt['opt'] = array($onvalue);
+        $opt['opt'] = [$onvalue];
         if ($checked) {
-            $opt['v']  = array('/Yes');
+            $opt['v']  = ['/Yes'];
             $opt['as'] = 'Yes';
         }
         else {
-            $opt['v']  = array('/Off');
+            $opt['v']  = ['/Off'];
             $opt['as'] = 'Off';
         }
         $this->Annotation($x, $y, $w, $w, $name, $opt, 0);
@@ -10574,10 +10574,10 @@ class PDF
         $tmpid           = $this->startTemplate($w, $h, false);
         $bw              = (2 / $this->k); // border width
         $border          = array(
-            'L' => array('width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => array(231)),
-            'R' => array('width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => array(51)),
-            'T' => array('width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => array(231)),
-            'B' => array('width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => array(51)));
+            'L' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
+            'R' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]],
+            'T' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
+            'B' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]]);
         $this->fillColor(204);
         $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
@@ -10607,7 +10607,7 @@ class PDF
             if (is_array($action)) {
                 // form action options as on section 12.7.5 of PDF32000_2008.
                 $opt['aa'] = '/D <<';
-                $bmode     = array('SubmitForm', 'ResetForm', 'ImportData');
+                $bmode     = ['SubmitForm', 'ResetForm', 'ImportData'];
                 foreach ($action as $key => $val) {
                     if (($key == 'S') and in_array($val, $bmode)) {
                         $opt['aa'] .= ' /S /' . $val;
@@ -10903,7 +10903,7 @@ class PDF
     public function addEmptySignatureAppearance($x = 0, $y = 0, $w = 0, $h = 0, $page = -1, $name = '')
     {
         ++$this->n;
-        $this->empty_signature_appearance[] = array('objid' => $this->n) + $this->getSignatureAppearanceArray($x, $y, $w, $h, $page, $name);
+        $this->empty_signature_appearance[] = ['objid' => $this->n] + $this->getSignatureAppearanceArray($x, $y, $w, $h, $page, $name);
     }
 
     /**
@@ -11159,7 +11159,7 @@ class PDF
         else {
             $name = preg_replace('/[^a-zA-Z0-9_\-]/', '', $name);
         }
-        $this->pdflayers[]       = array('layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock);
+        $this->pdflayers[]       = ['layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock];
         $this->openMarkedContent = true;
         $this->_out('/OC /' . $layer . ' BDC');
     }
@@ -11235,7 +11235,7 @@ class PDF
             }
         }
         $n                    = (count($this->extgstates) + 1);
-        $this->extgstates[$n] = array('parms' => $parms);
+        $this->extgstates[$n] = ['parms' => $parms];
         if ($this->inxobj) {
             // we are inside an XObject template
             $this->xobjects[$this->xobjid]['extgstates'][$n] = $this->extgstates[$n];
@@ -11305,7 +11305,7 @@ class PDF
         if (($mode != 0) and ($mode != 1)) {
             $mode = 0;
         }
-        $this->overprint = array('OP' => $stroking, 'op' => $nonstroking, 'OPM' => $mode);
+        $this->overprint = ['OP' => $stroking, 'op' => $nonstroking, 'OPM' => $mode];
         $gs              = $this->addExtGState($this->overprint);
         $this->setExtGState($gs);
     }
@@ -11341,11 +11341,11 @@ class PDF
             // remove trailing slash
             $bm = substr($bm, 1);
         }
-        if (!in_array($bm, array('Normal', 'Multiply', 'Screen', 'Overlay', 'Darken', 'Lighten', 'ColorDodge', 'ColorBurn', 'HardLight', 'SoftLight', 'Difference', 'Exclusion', 'Hue', 'Saturation', 'Color', 'Luminosity'))) {
+        if (!in_array($bm, ['Normal', 'Multiply', 'Screen', 'Overlay', 'Darken', 'Lighten', 'ColorDodge', 'ColorBurn', 'HardLight', 'SoftLight', 'Difference', 'Exclusion', 'Hue', 'Saturation', 'Color', 'Luminosity'])) {
             $bm = 'Normal';
         }
         $ais         = $ais ? true : false;
-        $this->alpha = array('CA' => $stroking, 'ca' => $nonstroking, 'BM' => '/' . $bm, 'AIS' => $ais);
+        $this->alpha = ['CA' => $stroking, 'ca' => $nonstroking, 'BM' => '/' . $bm, 'AIS' => $ais];
         $gs          = $this->addExtGState($this->alpha);
         $this->setExtGState($gs);
     }
@@ -11430,7 +11430,7 @@ class PDF
      * @param array  $color crop mark color (default spot registration color).
      * @author Nicola Asuni
      */
-    public function cropMark($x, $y, $w, $h, $type = 'T,R,B,L', $color = array(100, 100, 100, 100, 'All'))
+    public function cropMark($x, $y, $w, $h, $type = 'T,R,B,L', $color = [100, 100, 100, 100, 'All'])
     {
         $this->lineStyle(array('width' => (0.5 / $this->k), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
         $type = strtoupper($type);
@@ -11504,7 +11504,7 @@ class PDF
      * @param array $colb   second crop mark color (default spot registration color 'None').
      * @author Nicola Asuni
      */
-    public function registrationMark($x, $y, $r, $double = false, $cola = array(100, 100, 100, 100, 'All'), $colb = array(0, 0, 0, 0, 'None'))
+    public function registrationMark($x, $y, $r, $double = false, $cola = [100, 100, 100, 100, 'All'], $colb = [0, 0, 0, 0, 'None'])
     {
         $line_style = array('width' => max((0.5 / $this->k), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
         $this->fillColorArray($cola);
@@ -11539,20 +11539,20 @@ class PDF
         // external radius
         $re = ($r * 1.3);
         // Cyan
-        $this->fillColorArray(array(100, 0, 0, 0));
+        $this->fillColorArray([100, 0, 0, 0]);
         $this->PieSector($x, $y, $ri, 270, 360, 'F');
         // Magenta
-        $this->fillColorArray(array(0, 100, 0, 0));
+        $this->fillColorArray([0, 100, 0, 0]);
         $this->PieSector($x, $y, $ri, 0, 90, 'F');
         // Yellow
-        $this->fillColorArray(array(0, 0, 100, 0));
+        $this->fillColorArray([0, 0, 100, 0]);
         $this->PieSector($x, $y, $ri, 90, 180, 'F');
         // Key - black
-        $this->fillColorArray(array(0, 0, 0, 100));
+        $this->fillColorArray([0, 0, 0, 100]);
         $this->PieSector($x, $y, $ri, 180, 270, 'F');
         // registration color
-        $line_style = array('width' => $lw, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(100, 100, 100, 100, 'All'));
-        $this->fillColorArray(array(100, 100, 100, 100, 'All'));
+        $line_style = ['width' => $lw, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [100, 100, 100, 100, 'All']];
+        $this->fillColorArray([100, 100, 100, 100, 'All']);
         // external circle
         $this->Circle($x, $y, $r, 0, 360, 'C', $line_style, [], 8);
         // cross lines
@@ -11573,10 +11573,10 @@ class PDF
      * @param array $coords array of the form (x1, y1, x2, y2) which defines the gradient vector (see linear_gradient_coords.jpg). The default value is from left to right (x1=0, y1=0, x2=1, y2=0).
      * @author Andreas W\FCrmser, Nicola Asuni
      */
-    public function LinearGradient($x, $y, $w, $h, $col1 = [], $col2 = [], $coords = array(0, 0, 1, 0))
+    public function LinearGradient($x, $y, $w, $h, $col1 = [], $col2 = [], $coords = [0, 0, 1, 0])
     {
         $this->Clip($x, $y, $w, $h);
-        $this->Gradient(2, $coords, array(array('color' => $col1, 'offset' => 0, 'exponent' => 1), array('color' => $col2, 'offset' => 1, 'exponent' => 1)), [], false);
+        $this->Gradient(2, $coords, [['color' => $col1, 'offset' => 0, 'exponent' => 1], ['color' => $col2, 'offset' => 1, 'exponent' => 1]], [], false);
     }
 
     /**
@@ -11590,10 +11590,10 @@ class PDF
      * @param array $coords array of the form (fx, fy, cx, cy, r) where (fx, fy) is the starting point of the gradient with color1, (cx, cy) is the center of the circle with color2, and r is the radius of the circle (see radial_gradient_coords.jpg). (fx, fy) should be inside the circle, otherwise some areas will not be defined.
      * @author Andreas W\FCrmser, Nicola Asuni
      */
-    public function RadialGradient($x, $y, $w, $h, $col1 = [], $col2 = [], $coords = array(0.5, 0.5, 0.5, 0.5, 1))
+    public function RadialGradient($x, $y, $w, $h, $col1 = [], $col2 = [], $coords = [0.5, 0.5, 0.5, 0.5, 1])
     {
         $this->Clip($x, $y, $w, $h);
-        $this->Gradient(3, $coords, array(array('color' => $col1, 'offset' => 0, 'exponent' => 1), array('color' => $col2, 'offset' => 1, 'exponent' => 1)), [], false);
+        $this->Gradient(3, $coords, [['color' => $col1, 'offset' => 0, 'exponent' => 1], ['color' => $col2, 'offset' => 1, 'exponent' => 1]], [], false);
     }
 
     /**
@@ -11606,13 +11606,13 @@ class PDF
      * @param array $col2       second color (lower right corner) (RGB components).
      * @param array $col3       third color (upper right corner) (RGB components).
      * @param array $col4       fourth color (upper left corner) (RGB components).
-     * @param array $coords     <ul><li>for one patch mesh: array(float x1, float y1, .... float x12, float y12): 12 pairs of coordinates (normally from 0 to 1) which specify the Bezier control points that define the patch. First pair is the lower left edge point, next is its right control point (control point 2). Then the other points are defined in the order: control point 1, edge point, control point 2 going counter-clockwise around the patch. Last (x12, y12) is the first edge point's left control point (control point 1).</li><li>for two or more patch meshes: array[number of patches]: arrays with the following keys for each patch: f: where to put that patch (0 = first patch, 1, 2, 3 = right, top and left of precedent patch - I didn't figure this out completely - just try and error ;-) points: 12 pairs of coordinates of the Bezier control points as above for the first patch, 8 pairs of coordinates for the following patches, ignoring the coordinates already defined by the precedent patch (I also didn't figure out the order of these - also: try and see what's happening) colors: must be 4 colors for the first patch, 2 colors for the following patches</li></ul>
+     * @param array $coords     <ul><li>for one patch mesh: [float x1, float y1, .... float x12, float y12]: 12 pairs of coordinates (normally from 0 to 1) which specify the Bezier control points that define the patch. First pair is the lower left edge point, next is its right control point (control point 2). Then the other points are defined in the order: control point 1, edge point, control point 2 going counter-clockwise around the patch. Last (x12, y12) is the first edge point's left control point (control point 1).</li><li>for two or more patch meshes: array[number of patches]: arrays with the following keys for each patch: f: where to put that patch (0 = first patch, 1, 2, 3 = right, top and left of precedent patch - I didn't figure this out completely - just try and error ;-) points: 12 pairs of coordinates of the Bezier control points as above for the first patch, 8 pairs of coordinates for the following patches, ignoring the coordinates already defined by the precedent patch (I also didn't figure out the order of these - also: try and see what's happening) colors: must be 4 colors for the first patch, 2 colors for the following patches</li></ul>
      * @param array $coords_min minimum value used by the coordinates. If a coordinate's value is smaller than this it will be cut to coords_min. default: 0
      * @param array $coords_max maximum value used by the coordinates. If a coordinate's value is greater than this it will be cut to coords_max. default: 1
      * @param bool  $antialias  A flag indicating whether to filter the shading function to prevent aliasing artifacts.
      * @author Andreas W\FCrmser, Nicola Asuni
      */
-    public function CoonsPatchMesh($x, $y, $w, $h, $col1 = [], $col2 = [], $col3 = [], $col4 = [], $coords = array(0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33), $coords_min = 0, $coords_max = 1, $antialias = false)
+    public function CoonsPatchMesh($x, $y, $w, $h, $col1 = [], $col2 = [], $col3 = [], $col4 = [], $coords = [0.00, 0.0, 0.33, 0.00, 0.67, 0.00, 1.00, 0.00, 1.00, 0.33, 1.00, 0.67, 1.00, 1.00, 0.67, 1.00, 0.33, 1.00, 0.00, 1.00, 0.00, 0.67, 0.00, 0.33], $coords_min = 0, $coords_max = 1, $antialias = false)
     {
         if ($this->state != 2) {
             return;
@@ -11991,7 +11991,7 @@ class PDF
                 $this->gradients[$idgs]['pattern'] = $this->n;
                 // luminosity XObject
                 $oid                         = $this->_newobj();
-                $this->xobjects['LX' . $oid] = array('n' => $oid);
+                $this->xobjects['LX' . $oid] = ['n' => $oid];
                 $filter                      = '';
                 $stream                      = 'q /a0 gs /Pattern cs /p' . $idgs . ' scn 0 0 ' . $this->wPt . ' ' . $this->hPt . ' re f Q';
                 if ($this->compress) {
@@ -12020,7 +12020,7 @@ class PDF
                 $this->_newobj();
                 $out = '<< /Type /ExtGState /SMask ' . ($this->n - 1) . ' 0 R /AIS false >>' . "\n" . 'endobj';
                 $this->_out($out);
-                $this->extgstates[] = array('n' => $this->n, 'name' => 'TGS' . $id);
+                $this->extgstates[] = ['n' => $this->n, 'name' => 'TGS' . $id];
             }
         }
     }
@@ -12175,7 +12175,7 @@ class PDF
             }
         }
         if (!isset($style['fgcolor'])) {
-            $style['fgcolor'] = array(0, 0, 0); // default black
+            $style['fgcolor'] = [0, 0, 0]; // default black
         }
         if (!isset($style['bgcolor'])) {
             $style['bgcolor'] = false; // default transparent
@@ -12496,7 +12496,7 @@ class PDF
             $style['position'] = '';
         }
         if (!isset($style['fgcolor'])) {
-            $style['fgcolor'] = array(0, 0, 0); // default black
+            $style['fgcolor'] = [0, 0, 0]; // default black
         }
         if (!isset($style['bgcolor'])) {
             $style['bgcolor'] = false; // default transparent
@@ -12727,7 +12727,7 @@ class PDF
      */
     public function getMargins()
     {
-        $ret = array(
+        $ret = [
             'left'           => $this->lMargin,
             'right'          => $this->rMargin,
             'top'            => $this->tMargin,
@@ -12739,7 +12739,7 @@ class PDF
             'padding_top'    => $this->cell_padding['T'],
             'padding_right'  => $this->cell_padding['R'],
             'padding_bottom' => $this->cell_padding['B']
-        );
+        ];
         return $ret;
     }
 
@@ -12753,10 +12753,10 @@ class PDF
      */
     public function getOriginalMargins()
     {
-        $ret = array(
+        $ret = [
             'left'  => $this->original_lMargin,
             'right' => $this->original_rMargin
-        );
+        ];
         return $ret;
     }
 
@@ -13072,7 +13072,7 @@ class PDF
             }
             default:
             {
-                return array('H' => 0, 'V' => 0);
+                return ['H' => 0, 'V' => 0];
             }
         }
         if ($width == 0) {
@@ -13261,16 +13261,16 @@ class PDF
         $html = preg_replace('/<head([^\>]*?)>(.*?)<\/head>/is', '', $html);
         $html = preg_replace('/<style([^\>]*?)>([^\<]*?)<\/style>/is', '', $html);
         // define block tags
-        $blocktags = array('blockquote', 'br', 'dd', 'dl', 'div', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'li', 'ol', 'p', 'pre', 'ul', 'tcpdf', 'table', 'tr', 'td');
+        $blocktags = ['blockquote', 'br', 'dd', 'dl', 'div', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'li', 'ol', 'p', 'pre', 'ul', 'tcpdf', 'table', 'tr', 'td'];
         // define self-closing tags
-        $selfclosingtags = array('area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta');
+        $selfclosingtags = ['area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'];
         // remove all unsupported tags (the line below lists all supported tags)
         $html = strip_tags($html, '<marker/><a><b><blockquote><body><br><br/><dd><del><div><dl><dt><em><font><form><h1><h2><h3><h4><h5><h6><hr><hr/><i><img><input><label><li><ol><option><p><pre><s><select><small><span><strike><strong><sub><sup><table><tablehead><tcpdf><td><textarea><th><thead><tr><tt><u><ul>');
         //replace some blank characters
         $html     = preg_replace('/<pre/', '<xre', $html); // preserve pre tag
         $html     = preg_replace('/<(table|tr|td|th|tcpdf|blockquote|dd|div|dl|dt|form|h1|h2|h3|h4|h5|h6|br|hr|li|ol|ul|p)([^\>]*)>[\n\r\t]+/', '<\\1\\2>', $html);
         $html     = preg_replace('@(\r\n|\r)@', "\n", $html);
-        $repTable = array("\t" => ' ', "\0" => ' ', "\x0B" => ' ', "\\" => "\\\\");
+        $repTable = ["\t" => ' ', "\0" => ' ', "\x0B" => ' ', "\\" => "\\\\"];
         $html     = strtr($html, $repTable);
         $offset   = 0;
         while (($offset < strlen($html)) and ($pos = strpos($html, '</pre>', $offset)) !== false) {
@@ -13744,7 +13744,7 @@ class PDF
                                 }
                             }
                         }
-                        $cellside = array('L' => 'left', 'R' => 'right', 'T' => 'top', 'B' => 'bottom');
+                        $cellside = ['L' => 'left', 'R' => 'right', 'T' => 'top', 'B' => 'bottom'];
                         foreach ($cellside as $bsk => $bsv) {
                             if (isset($dom[$key]['style']['border-' . $bsv])) {
                                 $borderstyle = $this->getCSSBorderStyle($dom[$key]['style']['border-' . $bsv]);
@@ -14002,7 +14002,7 @@ class PDF
                 if (!empty($dom[$dom[$key]['parent']]['text-transform'])) {
                     // text-transform for unicode requires mb_convert_case (Multibyte String Functions)
                     if (function_exists('mb_convert_case')) {
-                        $ttm = array('capitalize' => MB_CASE_TITLE, 'uppercase' => MB_CASE_UPPER, 'lowercase' => MB_CASE_LOWER);
+                        $ttm = ['capitalize' => MB_CASE_TITLE, 'uppercase' => MB_CASE_UPPER, 'lowercase' => MB_CASE_LOWER];
                         if (isset($ttm[$dom[$dom[$key]['parent']]['text-transform']])) {
                             $element = mb_convert_case($element, $ttm[$dom[$dom[$key]['parent']]['text-transform']], $this->encoding);
                         }
@@ -14098,7 +14098,7 @@ class PDF
      * @param float|null $x           upper-left corner X coordinate
      * @param float|null $y           upper-left corner Y coordinate
      * @param string     $html        html text to print. Default value: empty string.
-     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)))
+     * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]])
      * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL language)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>
      *                                Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
@@ -14514,7 +14514,7 @@ class PDF
                                     $this->y += (((($curfontsize * $this->cell_height_ratio) - ($fontsize * $dom[$key]['line-height'])) / $this->k) + $curfontascent - $fontascent - $curfontdescent + $fontdescent) / 2;
                                 }
                                 if (($dom[$key]['value'] != 'sup') and ($dom[$key]['value'] != 'sub')) {
-                                    $current_line_align_data = array($key, $minstartliney, $maxbottomliney);
+                                    $current_line_align_data = [$key, $minstartliney, $maxbottomliney];
                                     if (isset($line_align_data) and (($line_align_data[0] == ($key - 1)) or (($line_align_data[0] == ($key - 2)) and (isset($dom[($key - 1)])) and (preg_match('/^([\s]+)$/', $dom[($key - 1)]['value']) > 0)))) {
                                         $minstartliney  = min($this->y, $line_align_data[1]);
                                         $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / $this->k)), $line_align_data[2]);
@@ -15089,13 +15089,13 @@ class PDF
                         // get cell spacing
                         if (isset($dom[$key]['attribute']['cellspacing'])) {
                             $clsp        = $this->fontSizeToUnits($dom[$key]['attribute']['cellspacing']);
-                            $cellspacing = array('H' => $clsp, 'V' => $clsp);
+                            $cellspacing = ['H' => $clsp, 'V' => $clsp];
                         }
                         elseif (isset($dom[$key]['border-spacing'])) {
                             $cellspacing = $dom[$key]['border-spacing'];
                         }
                         else {
-                            $cellspacing = array('H' => 0, 'V' => 0);
+                            $cellspacing = ['H' => 0, 'V' => 0];
                         }
                         // table width
                         if (isset($dom[$key]['width'])) {
@@ -15145,13 +15145,13 @@ class PDF
                         $old_cell_padding = $this->cell_padding;
                         if (isset($dom[($dom[$trid]['parent'])]['attribute']['cellpadding'])) {
                             $crclpd               = $this->fontSizeToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding']);
-                            $current_cell_padding = array('L' => $crclpd, 'T' => $crclpd, 'R' => $crclpd, 'B' => $crclpd);
+                            $current_cell_padding = ['L' => $crclpd, 'T' => $crclpd, 'R' => $crclpd, 'B' => $crclpd];
                         }
                         elseif (isset($dom[($dom[$trid]['parent'])]['padding'])) {
                             $current_cell_padding = $dom[($dom[$trid]['parent'])]['padding'];
                         }
                         else {
-                            $current_cell_padding = array('L' => 0, 'T' => 0, 'R' => 0, 'B' => 0);
+                            $current_cell_padding = ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0];
                         }
                         $this->cell_padding = $current_cell_padding;
                         if (isset($dom[$key]['height'])) {
@@ -15272,9 +15272,9 @@ class PDF
                         $colid += $colspan;
                         // add rowspan information to table element
                         if ($rowspan > 1) {
-                            $trsid = array_push($dom[$table_el]['rowspans'], array('trid' => $trid, 'rowspan' => $rowspan, 'mrowspan' => $rowspan, 'colspan' => $colspan, 'startpage' => $this->page, 'startcolumn' => $this->current_column, 'startx' => $this->x, 'starty' => $this->y));
+                            $trsid = array_push($dom[$table_el]['rowspans'], ['trid' => $trid, 'rowspan' => $rowspan, 'mrowspan' => $rowspan, 'colspan' => $colspan, 'startpage' => $this->page, 'startcolumn' => $this->current_column, 'startx' => $this->x, 'starty' => $this->y]);
                         }
-                        $cellid = array_push($dom[$trid]['cellpos'], array('startx' => $this->x));
+                        $cellid = array_push($dom[$trid]['cellpos'], ['startx' => $this->x]);
                         if ($rowspan > 1) {
                             $dom[$trid]['cellpos'][($cellid - 1)]['rowspanid'] = ($trsid - 1);
                         }
@@ -15299,7 +15299,7 @@ class PDF
                         // ****** write the cell content ******
                         $this->MultiCell($cellw, $cellh, $cell_content, false, $lalign, false, 2, '', '', true, 0, true, true, 0, 'T', false);
                         // restore some values
-                        $this->colxshift                              = array('x' => 0, 's' => array('H' => 0, 'V' => 0), 'p' => array('L' => 0, 'T' => 0, 'R' => 0, 'B' => 0));
+                        $this->colxshift                              = ['x' => 0, 's' => ['H' => 0, 'V' => 0], 'p' => ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0]];
                         $this->lasth                                  = $prevLastH;
                         $this->cell_padding                           = $old_cell_padding;
                         $dom[$trid]['cellpos'][($cellid - 1)]['endx'] = $this->x;
@@ -15829,7 +15829,7 @@ class PDF
             else {
                 $on = 1;
             }
-            if ((!isset($this->tagvspaces[$tag['value']])) and (in_array($tag['value'], array('div', 'dt', 'dd', 'li', 'br', 'hr')))) {
+            if ((!isset($this->tagvspaces[$tag['value']])) and (in_array($tag['value'], ['div', 'dt', 'dd', 'li', 'br', 'hr']))) {
                 $hb = 0;
             }
             else {
@@ -16403,15 +16403,15 @@ class PDF
                         }
                         $w           = $this->GetStringWidth($value) * 1.5;
                         $h           *= 1.6;
-                        $prop        = array('lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => array(196, 196, 196), 'strokeColor' => array(255, 255, 255));
+                        $prop        = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
                         $action      = [];
                         $action['S'] = 'SubmitForm';
                         $action['F'] = $this->form_action;
                         if ($this->form_enctype != 'FDF') {
-                            $action['Flags'] = array('ExportFormat');
+                            $action['Flags'] = ['ExportFormat'];
                         }
                         if ($this->form_mode == 'get') {
-                            $action['Flags'] = array('GetMethod');
+                            $action['Flags'] = ['GetMethod'];
                         }
                         $this->Button($name, $w, $h, $value, $action, $prop, $opt, '', '', false);
                         break;
@@ -16423,8 +16423,8 @@ class PDF
                         }
                         $w    = $this->GetStringWidth($value) * 1.5;
                         $h    *= 1.6;
-                        $prop = array('lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => array(196, 196, 196), 'strokeColor' => array(255, 255, 255));
-                        $this->Button($name, $w, $h, $value, array('S' => 'ResetForm'), $prop, $opt, '', '', false);
+                        $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
+                        $this->Button($name, $w, $h, $value, ['S' => 'ResetForm'], $prop, $opt, '', '', false);
                         break;
                     }
                     case 'file':
@@ -16436,7 +16436,7 @@ class PDF
                         }
                         $w        = $this->GetStringWidth($value) * 2;
                         $h        *= 1.2;
-                        $prop     = array('lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => array(196, 196, 196), 'strokeColor' => array(255, 255, 255));
+                        $prop     = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
                         $jsaction = 'var f=this.getField(\'' . $name . '\'); f.browseForFileToSubmit();';
                         $this->Button('FB_' . $name, $w, $h, $value, $jsaction, $prop, $opt, '', '', false);
                         break;
@@ -16446,7 +16446,7 @@ class PDF
                         if (isset($value)) {
                             $opt['v'] = $value;
                         }
-                        $opt['f'] = array('invisible', 'hidden');
+                        $opt['f'] = ['invisible', 'hidden'];
                         $this->TextField($name, 0, 0, $prop, $opt, '', '', false);
                         break;
                     }
@@ -16460,7 +16460,6 @@ class PDF
                             break;
                         }
                         $value = 'img';
-                        //$opt['mk'] = array('i'=>$img, 'tp'=>1, 'if'=>array('sw'=>'A', 's'=>'A', 'fb'=>false));
                         if (isset($tag['attribute']['onclick']) and !empty($tag['attribute']['onclick'])) {
                             $jsaction = $tag['attribute']['onclick'];
                         }
@@ -16477,7 +16476,7 @@ class PDF
                         }
                         $w    = $this->GetStringWidth($value) * 1.5;
                         $h    *= 1.6;
-                        $prop = array('lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => array(196, 196, 196), 'strokeColor' => array(255, 255, 255));
+                        $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => [255, 255, 255]];
                         if (isset($tag['attribute']['onclick']) and !empty($tag['attribute']['onclick'])) {
                             $jsaction = $tag['attribute']['onclick'];
                         }
@@ -16571,7 +16570,7 @@ class PDF
             }
         }
         // define tags that support borders and background colors
-        $bordertags = array('blockquote', 'br', 'dd', 'dl', 'div', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'li', 'ol', 'p', 'pre', 'ul', 'tcpdf', 'table');
+        $bordertags = ['blockquote', 'br', 'dd', 'dl', 'div', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'li', 'ol', 'p', 'pre', 'ul', 'tcpdf', 'table'];
         if (in_array($tag['value'], $bordertags)) {
             // set border
             $dom[$key]['borderposition'] = $this->getBorderStartPosition();
@@ -16750,7 +16749,7 @@ class PDF
                 // set default border
                 if (isset($table_el['attribute']['border']) and ($table_el['attribute']['border'] > 0)) {
                     // set default border
-                    $border = array('LTRB' => array('width' => $this->getCSSBorderWidth($table_el['attribute']['border']), 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+                    $border = array('LTRB' => array('width' => $this->getCSSBorderWidth($table_el['attribute']['border']), 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [0, 0, 0]));
                 }
                 else {
                     $border = 0;
@@ -17235,7 +17234,7 @@ class PDF
         else {
             $xmax = $this->w - $this->rMargin;
         }
-        return array('page' => $this->page, 'column' => $this->current_column, 'x' => $this->x, 'y' => $this->y, 'xmax' => $xmax);
+        return ['page' => $this->page, 'column' => $this->current_column, 'x' => $this->x, 'y' => $this->y, 'xmax' => $xmax];
     }
 
     /**
@@ -17275,13 +17274,13 @@ class PDF
         }
         if (isset($tag['attribute']['cellspacing'])) {
             $clsp        = $this->fontSizeToUnits($tag['attribute']['cellspacing']);
-            $cellspacing = array('H' => $clsp, 'V' => $clsp);
+            $cellspacing = ['H' => $clsp, 'V' => $clsp];
         }
         elseif (isset($tag['border-spacing'])) {
             $cellspacing = $tag['border-spacing'];
         }
         else {
-            $cellspacing = array('H' => 0, 'V' => 0);
+            $cellspacing = ['H' => 0, 'V' => 0];
         }
         if (($tag['value'] != 'table') and (is_array($border)) and (!empty($border))) {
             // draw the border externally respect the sqare edge.
@@ -17468,7 +17467,7 @@ class PDF
             return;
         }
         $symbol        = strtolower($symbol);
-        $valid_symbols = array('!', '#', 'disc', 'circle', 'square', '1', 'decimal', 'decimal-leading-zero', 'i', 'lower-roman', 'I', 'upper-roman', 'a', 'lower-alpha', 'lower-latin', 'A', 'upper-alpha', 'upper-latin', 'lower-greek');
+        $valid_symbols = ['!', '#', 'disc', 'circle', 'square', '1', 'decimal', 'decimal-leading-zero', 'i', 'lower-roman', 'I', 'upper-roman', 'a', 'lower-alpha', 'lower-latin', 'A', 'upper-alpha', 'upper-latin', 'lower-greek'];
         if (in_array($symbol, $valid_symbols)) {
             $this->lisymbol = $symbol;
         }
@@ -17514,7 +17513,7 @@ class PDF
     /**
      * Set the vertical spaces for HTML tags.
      * The array must have the following structure (example):
-     * $tagvs = array('h1' => array(0 => array('h' => '', 'n' => 2), 1 => array('h' => 1.3, 'n' => 1)));
+     * $tagvs = array('h1' => [0 => ['h' => '', 'n' => 2], 1 => ['h' => 1.3, 'n' => 1]]);
      * The first array level contains the tag names,
      * the second level contains 0 for opening tags or 1 for closing tags,
      * the third level contains the vertical space unit (h) and the number spaces to add (n).
@@ -17549,7 +17548,7 @@ class PDF
      * @param array  $color     RGB array of colors
      * @param string $fontstyle additional font styles to add
      */
-    public function setHtmlLinksStyle($color = array(0, 0, 255), $fontstyle = 'U')
+    public function setHtmlLinksStyle($color = [0, 0, 255], $fontstyle = 'U')
     {
         $this->linkColor         = $color;
         $this->htmlLinkFontStyle = $fontstyle;
@@ -17582,7 +17581,7 @@ class PDF
         }
         elseif ($listtype == '!') {
             // set default list type for unordered list
-            $deftypes = array('disc', 'circle', 'square');
+            $deftypes = ['disc', 'circle', 'square'];
             $listtype = $deftypes[($listdepth - 1) % 3];
         }
         elseif ($listtype == '#') {
@@ -17791,7 +17790,7 @@ class PDF
      */
     protected function getGraphicVars()
     {
-        $grapvars = array(
+        $grapvars = [
             'FontFamily'        => $this->fontFamily,
             'FontStyle'         => $this->fontStyle,
             'FontSizePt'        => $this->fontSizePT,
@@ -17840,7 +17839,7 @@ class PDF
             'page'              => $this->page,
             'current_column'    => $this->current_column,
             'num_columns'       => $this->num_columns
-        );
+        ];
         return $grapvars;
     }
 
@@ -18425,14 +18424,14 @@ class PDF
         $tmpoutlines = $this->outlines;
         foreach ($tmpoutlines as $key => $outline) {
             if ($outline['p'] == $page) {
-                $this->outlines[] = array('t' => $outline['t'], 'l' => $outline['l'], 'x' => $outline['x'], 'y' => $outline['y'], 'p' => $this->page, 'f' => $outline['f'], 's' => $outline['s'], 'c' => $outline['c']);
+                $this->outlines[] = ['t' => $outline['t'], 'l' => $outline['l'], 'x' => $outline['x'], 'y' => $outline['y'], 'p' => $this->page, 'f' => $outline['f'], 's' => $outline['s'], 'c' => $outline['c']];
             }
         }
         // copy links
         $tmplinks = $this->links;
         foreach ($tmplinks as $key => $link) {
             if ($link['p'] == $page) {
-                $this->links[] = array('p' => $this->page, 'y' => $link['y'], 'f' => $link['f']);
+                $this->links[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
             }
         }
         // return to last page
@@ -18455,7 +18454,7 @@ class PDF
      * @author Nicola Asuni
      * @see    addTOCPage(), endTOCPage(), addHTMLTOC()
      */
-    public function addTOC($page = null, $numbersfont = '', $filler = '.', $toc_name = 'TOC', $style = '', $color = array(0, 0, 0))
+    public function addTOC($page = null, $numbersfont = '', $filler = '.', $toc_name = 'TOC', $style = '', $color = [0, 0, 0])
     {
         $fontsize        = $this->fontSizePT;
         $fontfamily      = $this->fontFamily;
@@ -18679,7 +18678,7 @@ class PDF
      * @author Nicola Asuni
      * @see    addTOCPage(), endTOCPage(), addTOC()
      */
-    public function addHTMLTOC($page = null, $toc_name = 'TOC', $templates = [], $correct_align = true, $style = '', $color = array(0, 0, 0))
+    public function addHTMLTOC($page = null, $toc_name = 'TOC', $templates = [], $correct_align = true, $style = '', $color = [0, 0, 0])
     {
         $filler                  = ' ';
         $prev_htmlLinkColorArray = $this->linkColor;
@@ -18899,7 +18898,7 @@ class PDF
             $space = (($this->w - $this->original_lMargin - $this->original_rMargin - ($numcols * $width)) / ($numcols - 1));
             // fill the columns array (with, space, starting Y position)
             for ($i = 0; $i < $numcols; ++$i) {
-                $this->columns[$i] = array('w' => $width, 's' => $space, 'y' => $y);
+                $this->columns[$i] = ['w' => $width, 's' => $space, 'y' => $y];
             }
         }
         $this->num_columns       = $numcols;
@@ -18944,7 +18943,7 @@ class PDF
         elseif ($col >= $this->num_columns) {
             $col = 0;
         }
-        $xshift       = array('x' => 0, 's' => array('H' => 0, 'V' => 0), 'p' => array('L' => 0, 'T' => 0, 'R' => 0, 'B' => 0));
+        $xshift       = ['x' => 0, 's' => ['H' => 0, 'V' => 0], 'p' => ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0]];
         $enable_thead = false;
         if ($this->num_columns > 1) {
             if ($col != $this->current_column) {
@@ -19100,7 +19099,7 @@ class PDF
      * Set parameters for drop shadow effect for text.
      * @param array $params Array of parameters: enabled (bool) set to true to enable shadow; depth_w (float) shadow width in user units; depth_h (float) shadow height in user units; color (array) shadow color or false to use the stroke color; opacity (float) Alpha value: real value from 0 (transparent) to 1 (opaque); blend_mode (string) blend mode, one of the following: Normal, Multiply, Screen, Overlay, Darken, Lighten, ColorDodge, ColorBurn, HardLight, SoftLight, Difference, Exclusion, Hue, Saturation, Color, Luminosity.
      */
-    public function setTextShadow($params = array('enabled' => false, 'depth_w' => 0, 'depth_h' => 0, 'color' => false, 'opacity' => 1, 'blend_mode' => 'Normal'))
+    public function setTextShadow($params = ['enabled' => false, 'depth_w' => 0, 'depth_h' => 0, 'color' => false, 'opacity' => 1, 'blend_mode' => 'Normal'])
     {
         if (isset($params['enabled'])) {
             $this->txtshadow['enabled'] = $params['enabled'] ? true : false;
@@ -19132,7 +19131,7 @@ class PDF
         else {
             $this->txtshadow['opacity'] = 1;
         }
-        if (isset($params['blend_mode']) and in_array($params['blend_mode'], array('Normal', 'Multiply', 'Screen', 'Overlay', 'Darken', 'Lighten', 'ColorDodge', 'ColorBurn', 'HardLight', 'SoftLight', 'Difference', 'Exclusion', 'Hue', 'Saturation', 'Color', 'Luminosity'))) {
+        if (isset($params['blend_mode']) and in_array($params['blend_mode'], ['Normal', 'Multiply', 'Screen', 'Overlay', 'Darken', 'Lighten', 'ColorDodge', 'ColorBurn', 'HardLight', 'SoftLight', 'Difference', 'Exclusion', 'Hue', 'Saturation', 'Color', 'Luminosity'])) {
             $this->txtshadow['blend_mode'] = $params['blend_mode'];
         }
         else {
@@ -19187,7 +19186,7 @@ class PDF
             return $this->utf8StringToArray($dictionary[$word_string]);
         }
         // surround word with '_' characters
-        $tmpword     = array_merge(array(46), $word, array(46));
+        $tmpword     = array_merge([46], $word, [46]);
         $tmpnumchars = $numchars + 2;
         $maxpos      = $tmpnumchars - 1;
         for ($pos = 0; $pos < $maxpos; ++$pos) {
@@ -19278,12 +19277,12 @@ class PDF
                     // end of HTML tag
                     $intag = false;
                     // check for style tag
-                    $expected = array(115, 116, 121, 108, 101); // = 'style'
+                    $expected = [115, 116, 121, 108, 101]; // = 'style'
                     $current  = array_slice($txtarr, -6, 5); // last 5 chars
                     $compare  = array_diff($expected, $current);
                     if (empty($compare)) {
                         // check if it is a closing tag
-                        $expected = array(47); // = '/'
+                        $expected = [47]; // = '/'
                         $current  = array_slice($txtarr, -7, 1);
                         $compare  = array_diff($expected, $current);
                         if (empty($compare)) {
@@ -19397,7 +19396,7 @@ class PDF
         // XObject ID
         $this->xobjid = 'XT' . $this->n;
         // object ID
-        $this->xobjects[$this->xobjid] = array('n' => $this->n);
+        $this->xobjects[$this->xobjid] = ['n' => $this->n];
         // store current graphic state
         $this->xobjects[$this->xobjid]['gvars'] = $this->getGraphicVars();
         // initialize data
@@ -19731,7 +19730,7 @@ class PDF
      * @param float $h height of the text/image/object to print in user units
      * @param float $x current X coordinate in user units
      * @param float $y current Y coordinate in user units
-     * @return float[] array($x, $y)
+     * @return float[] [$x, $y]
      * @author Nicola Asuni
      */
     protected function checkPageRegions($h, $x, $y)
@@ -19745,7 +19744,7 @@ class PDF
         }
         if (!$this->check_page_regions or empty($this->page_regions)) {
             // no page regions defined
-            return array($x, $y);
+            return [$x, $y];
         }
         if (empty($h)) {
             $h = $this->getCellHeight($this->fontSize);
@@ -19820,7 +19819,7 @@ class PDF
                 }
             }
         }
-        return array($x, $y);
+        return [$x, $y];
     }
 
     /**
