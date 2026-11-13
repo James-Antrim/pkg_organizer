@@ -19,6 +19,43 @@ trait Basics
     protected array $utf8Map = [];
 
     /**
+     * Gets an 8-bit unsigned integer from string.
+     * @param string $string
+     * @param int    $offset
+     * @return int
+     */
+    public function byte(string $string, int $offset): int
+    {
+        $v = unpack('Ci', substr($string, $offset, 1));
+        return $v['i'];
+    }
+
+    /**
+     * Gets a 32-bit signed fixed-point number from string.
+     * @param string $string
+     * @param int    $offset
+     * @return int
+     */
+    public function signedLong(string $string, int $offset): int
+    {
+        $mantissa = $this->signedShort($string, $offset);
+        $fraction = $this->unsignedShort($string, ($offset + 2));
+        return (float) $mantissa . '.' . $fraction;
+    }
+
+    /**
+     * Gets a Big-Endian 16-bit signed integer from string.
+     * @param string $string
+     * @param int    $offset
+     * @return int
+     */
+    public function signedShort(string $string, int $offset): int
+    {
+        $v = unpack('si', substr($string, $offset, 2));
+        return $v['i'];
+    }
+
+    /**
      * Returns the Unicode character specified by ASCII value
      * @param int $value UTF-8 value
      * @return string Returns the specified character.
@@ -168,6 +205,18 @@ trait Basics
     public function unsignedLong(string $string, int $offset): int
     {
         $v = unpack('Ni', substr($string, $offset, 4));
+        return $v['i'];
+    }
+
+    /**
+     * Gets Big-Endian 16-bit unsigned integer from string.
+     * @param string $string
+     * @param int    $offset
+     * @return int
+     */
+    public function unsignedShort(string $string, int $offset): int
+    {
+        $v = unpack('ni', substr($string, $offset, 2));
         return $v['i'];
     }
 

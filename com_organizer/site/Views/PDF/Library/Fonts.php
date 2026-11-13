@@ -296,7 +296,7 @@ trait Fonts
         $c      = 0;
         $offset += 4;
         // get number of tables
-        $numTables = StaticMethods::_getUSHORT($font, $offset);
+        $numTables = $this->unsignedShort($font, $offset);
         $offset    += 2;
         // skip searchRange, entrySelector and rangeShift
         $offset += 6;
@@ -324,7 +324,7 @@ trait Fonts
         $offset += 4;
         // get offset mode (indexToLocFormat : 0 = short, 1 = long)
         $offset       = $table['head']['offset'] + 50;
-        $short_offset = (StaticMethods::_getSHORT($font, $offset) == 0);
+        $short_offset = ($this->signedShort($font, $offset) == 0);
         $offset       += 2;
         // get the offsets to the locations of the glyphs in the font, relative to the beginning of the glyphData table
         $indexToLoc = [];
@@ -333,7 +333,7 @@ trait Fonts
             // short version
             $tot_num_glyphs = floor($table['loca']['length'] / 2); // numGlyphs + 1
             for ($i = 0; $i < $tot_num_glyphs; ++$i) {
-                $indexToLoc[$i] = StaticMethods::_getUSHORT($font, $offset) * 2;
+                $indexToLoc[$i] = $this->unsignedShort($font, $offset) * 2;
                 $offset         += 2;
             }
         }
@@ -349,13 +349,13 @@ trait Fonts
         $subsetglyphs      = []; // glyph IDs on key
         $subsetglyphs[0]   = true; // character codes that do not correspond to any glyph in the font should be mapped to glyph index 0
         $offset            = $table['cmap']['offset'] + 2;
-        $numEncodingTables = StaticMethods::_getUSHORT($font, $offset);
+        $numEncodingTables = $this->unsignedShort($font, $offset);
         $offset            += 2;
         $encodingTables    = [];
         for ($i = 0; $i < $numEncodingTables; ++$i) {
-            $encodingTables[$i]['platformID'] = StaticMethods::_getUSHORT($font, $offset);
+            $encodingTables[$i]['platformID'] = $this->unsignedShort($font, $offset);
             $offset                           += 2;
-            $encodingTables[$i]['encodingID'] = StaticMethods::_getUSHORT($font, $offset);
+            $encodingTables[$i]['encodingID'] = $this->unsignedShort($font, $offset);
             $offset                           += 2;
             $encodingTables[$i]['offset']     = $this->unsignedLong($font, $offset);
             $offset                           += 4;
@@ -363,7 +363,7 @@ trait Fonts
         foreach ($encodingTables as $enctable) {
             // get all platforms and encodings
             $offset = $table['cmap']['offset'] + $enctable['offset'];
-            $format = StaticMethods::_getUSHORT($font, $offset);
+            $format = $this->unsignedShort($font, $offset);
             $offset += 2;
             switch ($format) {
                 case 0:
@@ -371,7 +371,7 @@ trait Fonts
                     $offset += 4; // skip length and version/language
                     for ($c = 0; $c < 256; ++$c) {
                         if (isset($characters[$c])) {
-                            $g                = StaticMethods::_getBYTE($font, $offset);
+                            $g                = $this->byte($font, $offset);
                             $subsetglyphs[$g] = true;
                         }
                         ++$offset;
@@ -384,7 +384,7 @@ trait Fonts
                     $numSubHeaders = 0;
                     for ($i = 0; $i < 256; ++$i) {
                         // Array that maps high bytes to subHeaders: value is subHeader index * 8.
-                        $subHeaderKeys[$i] = (StaticMethods::_getUSHORT($font, $offset) / 8);
+                        $subHeaderKeys[$i] = ($this->unsignedShort($font, $offset) / 8);
                         $offset            += 2;
                         if ($numSubHeaders < $subHeaderKeys[$i]) {
                             $numSubHeaders = $subHeaderKeys[$i];
@@ -396,20 +396,20 @@ trait Fonts
                     $subHeaders         = [];
                     $numGlyphIndexArray = 0;
                     for ($k = 0; $k < $numSubHeaders; ++$k) {
-                        $subHeaders[$k]['firstCode']     = StaticMethods::_getUSHORT($font, $offset);
+                        $subHeaders[$k]['firstCode']     = $this->unsignedShort($font, $offset);
                         $offset                          += 2;
-                        $subHeaders[$k]['entryCount']    = StaticMethods::_getUSHORT($font, $offset);
+                        $subHeaders[$k]['entryCount']    = $this->unsignedShort($font, $offset);
                         $offset                          += 2;
-                        $subHeaders[$k]['idDelta']       = StaticMethods::_getUSHORT($font, $offset);
+                        $subHeaders[$k]['idDelta']       = $this->unsignedShort($font, $offset);
                         $offset                          += 2;
-                        $subHeaders[$k]['idRangeOffset'] = StaticMethods::_getUSHORT($font, $offset);
+                        $subHeaders[$k]['idRangeOffset'] = $this->unsignedShort($font, $offset);
                         $offset                          += 2;
                         $subHeaders[$k]['idRangeOffset'] -= (2 + (($numSubHeaders - $k - 1) * 8));
                         $subHeaders[$k]['idRangeOffset'] /= 2;
                         $numGlyphIndexArray              += $subHeaders[$k]['entryCount'];
                     }
                     for ($k = 0; $k < $numGlyphIndexArray; ++$k) {
-                        $glyphIndexArray[$k] = StaticMethods::_getUSHORT($font, $offset);
+                        $glyphIndexArray[$k] = $this->unsignedShort($font, $offset);
                         $offset              += 2;
                     }
                     for ($i = 0; $i < 256; ++$i) {
@@ -444,37 +444,37 @@ trait Fonts
                 }
                 case 4:
                 { // Format 4: Segment mapping to delta values
-                    $length   = StaticMethods::_getUSHORT($font, $offset);
+                    $length   = $this->unsignedShort($font, $offset);
                     $offset   += 2;
                     $offset   += 2; // skip version/language
-                    $segCount = floor(StaticMethods::_getUSHORT($font, $offset) / 2);
+                    $segCount = floor($this->unsignedShort($font, $offset) / 2);
                     $offset   += 2;
                     $offset   += 6; // skip searchRange, entrySelector, rangeShift
                     $endCount = []; // array of end character codes for each segment
                     for ($k = 0; $k < $segCount; ++$k) {
-                        $endCount[$k] = StaticMethods::_getUSHORT($font, $offset);
+                        $endCount[$k] = $this->unsignedShort($font, $offset);
                         $offset       += 2;
                     }
                     $offset     += 2; // skip reservedPad
                     $startCount = []; // array of start character codes for each segment
                     for ($k = 0; $k < $segCount; ++$k) {
-                        $startCount[$k] = StaticMethods::_getUSHORT($font, $offset);
+                        $startCount[$k] = $this->unsignedShort($font, $offset);
                         $offset         += 2;
                     }
                     $idDelta = []; // delta for all character codes in segment
                     for ($k = 0; $k < $segCount; ++$k) {
-                        $idDelta[$k] = StaticMethods::_getUSHORT($font, $offset);
+                        $idDelta[$k] = $this->unsignedShort($font, $offset);
                         $offset      += 2;
                     }
                     $idRangeOffset = []; // Offsets into glyphIdArray or 0
                     for ($k = 0; $k < $segCount; ++$k) {
-                        $idRangeOffset[$k] = StaticMethods::_getUSHORT($font, $offset);
+                        $idRangeOffset[$k] = $this->unsignedShort($font, $offset);
                         $offset            += 2;
                     }
                     $gidlen       = (floor($length / 2) - 8 - (4 * $segCount));
                     $glyphIdArray = []; // glyph index array
                     for ($k = 0; $k < $gidlen; ++$k) {
-                        $glyphIdArray[$k] = StaticMethods::_getUSHORT($font, $offset);
+                        $glyphIdArray[$k] = $this->unsignedShort($font, $offset);
                         $offset           += 2;
                     }
                     for ($k = 0; $k < $segCount; ++$k) {
@@ -499,14 +499,14 @@ trait Fonts
                 case 6:
                 { // Format 6: Trimmed table mapping
                     $offset     += 4; // skip length and version/language
-                    $firstCode  = StaticMethods::_getUSHORT($font, $offset);
+                    $firstCode  = $this->unsignedShort($font, $offset);
                     $offset     += 2;
-                    $entryCount = StaticMethods::_getUSHORT($font, $offset);
+                    $entryCount = $this->unsignedShort($font, $offset);
                     $offset     += 2;
                     for ($k = 0; $k < $entryCount; ++$k) {
                         $c = ($k + $firstCode);
                         if (isset($characters[$c])) {
-                            $g                = StaticMethods::_getUSHORT($font, $offset);
+                            $g                = $this->unsignedShort($font, $offset);
                             $subsetglyphs[$g] = true;
                         }
                         $offset += 2;
@@ -517,7 +517,7 @@ trait Fonts
                 { // Format 8: Mixed 16-bit and 32-bit coverage
                     $offset += 10; // skip reserved, length and version/language
                     for ($k = 0; $k < 8192; ++$k) {
-                        $is32[$k] = StaticMethods::_getBYTE($font, $offset);
+                        $is32[$k] = $this->byte($font, $offset);
                         ++$offset;
                     }
                     $nGroups = $this->unsignedLong($font, $offset);
@@ -559,7 +559,7 @@ trait Fonts
                     for ($k = 0; $k < $numChars; ++$k) {
                         $c = ($k + $startCharCode);
                         if (isset($characters[$c])) {
-                            $g                = StaticMethods::_getUSHORT($font, $offset);
+                            $g                = $this->unsignedShort($font, $offset);
                             $subsetglyphs[$g] = true;
                         }
                         $offset += 2;
@@ -607,14 +607,14 @@ trait Fonts
             foreach ($sga as $key => $val) {
                 if (isset($indexToLoc[$key])) {
                     $offset           = ($table['glyf']['offset'] + $indexToLoc[$key]);
-                    $numberOfContours = StaticMethods::_getSHORT($font, $offset);
+                    $numberOfContours = $this->signedShort($font, $offset);
                     $offset           += 2;
                     if ($numberOfContours < 0) { // composite glyph
                         $offset += 8; // skip xMin, yMin, xMax, yMax
                         do {
-                            $flags      = StaticMethods::_getUSHORT($font, $offset);
+                            $flags      = $this->unsignedShort($font, $offset);
                             $offset     += 2;
-                            $glyphIndex = StaticMethods::_getUSHORT($font, $offset);
+                            $glyphIndex = $this->unsignedShort($font, $offset);
                             $offset     += 2;
                             if (!isset($subsetglyphs[$glyphIndex])) {
                                 // add missing glyphs

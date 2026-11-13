@@ -292,7 +292,7 @@ trait Images
         $offset = 0;
         while (($pos = strpos($file, "ICC_PROFILE\0", $offset)) !== false) {
             // ICC sequence length
-            $length = (StaticMethods::_getUSHORT($file, ($pos - 2)) - 16);
+            $length = ($this->unsignedShort($file, ($pos - 2)) - 16);
             // Marker sequence number
             $msn = max(1, ord($file[($pos + 12)]));
             // Sequence segment
