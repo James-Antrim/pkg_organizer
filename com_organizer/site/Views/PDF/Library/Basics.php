@@ -15,42 +15,55 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Character and string manipulation methods. */
 trait Basics
 {
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
+    /** Static cache used for speed up unicodeOrd performances */
+    protected array $utf8Map = [];
 
     /**
-     * Get unsigned long (big endian 32-bit unsigned integer) from string.
-     * @param string $string string from where to extract value
-     * @param int    $offset point from where to read the data
-     * @return int
+     * Returns the Unicode character specified by ASCII value
+     * @param int $value UTF-8 value
+     * @return string Returns the specified character.
      */
-    public function unsignedLong(string $string, int $offset): int
+    public function unicodeByASCII(int $value): string
     {
-        $v = unpack('Ni', substr($string, $offset, 4));
-        return $v['i'];
+        return $this->unicodeCharacter($value, false);
     }
 
+    /**
+     * Returns the Unicode character specified by the value
+     * @param int  $value     UTF-8 value
+     * @param bool $isUnicode True if we are in Unicode mode, false otherwise.
+     * @return string Returns the specified character.
+     */
+    public static function unicodeCharacter(int $value, bool $isUnicode = true): string
+    {
+        if (!$isUnicode) {
+            return chr($value);
+        }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
-    /** Static cache used for speed up unicodeOrd performances */
-    protected static array $utf8Map = [];
+        return match (true) {
+            ($value <= 0x7F) => chr($value),
+            ($value <= 0x7FF) => chr(0xC0 | $value >> 6) . chr(0x80 | $value & 0x3F),
+            ($value <= 0xFFFF) => chr(0xE0 | $value >> 12) . chr(0x80 | $value >> 6 & 0x3F) . chr(0x80 | $value & 0x3F),
+            ($value <= 0x10FFFF) => chr(0xF0 | $value >> 18) . chr(0x80 | $value >> 12 & 0x3F) . chr(0x80 | $value >> 6 & 0x3F) . chr(0x80 | $value & 0x3F),
+            default => '',
+        };
+    }
 
     /**
      * Converts UTF-8 character to integer value.
      * @param string $character character string to process.
      * @return int
      */
-    public static function unicodeOrd(string $character): int
+    public function unicodeOrd(string $character): int
     {
-        if (isset(self::$utf8Map[$character])) {
-            return self::$utf8Map[$character];
+        if (isset($this->utf8Map[$character])) {
+            return $this->utf8Map[$character];
         }
 
         if (function_exists('mb_convert_encoding')) {
             list(, $value) = @unpack('N', mb_convert_encoding($character, 'UCS-4BE', 'UTF-8'));
             if (is_int($value) and $value >= 0) {
-                self::$utf8Map[$character] = $value;
+                $this->utf8Map[$character] = $value;
                 return $value;
             }
         }
@@ -125,84 +138,96 @@ trait Basics
             }
         }
 
-        self::$utf8Map[$character] = $byte;
+        $this->utf8Map[$character] = $byte;
         return $byte;
     }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
+    /**
+     * Extracts a slice of the $characters array and return it as string.
+     * @param string[] $characters
+     * @param int      $start (inclusive)
+     * @param int      $end   (exclusive)
+     * @return string
+     */
+    public function unicodeSliceToString(array $characters, int $start = 0, int $end = 0): string
+    {
+        $end    = $end ?: count($characters);
+        $return = '';
+        for ($index = $start; $index < $end; ++$index) {
+            $return .= $characters[$index];
+        }
+        return $return;
+    }
 
     /**
-     * Update the CIDToGIDMap string with a new value.
-     * @param string $map CIDToGIDMap.
-     * @param int    $cid CID value.
-     * @param int    $gid GID value.
-     * @return string CIDToGIDMap.
-     * @author Nicola Asuni
+     * Get unsigned long (big endian 32-bit unsigned integer) from string.
+     * @param string $string string from where to extract value
+     * @param int    $offset point from where to read the data
+     * @return int
      */
-    public static function updateCIDtoGIDmap($map, $cid, $gid)
+    public function unsignedLong(string $string, int $offset): int
     {
-        if (($cid >= 0) and ($cid <= 0xFFFF) and ($gid >= 0)) {
-            if ($gid > 0xFFFF) {
-                $gid -= 0x10000;
+        $v = unpack('Ni', substr($string, $offset, 4));
+        return $v['i'];
+    }
+
+    /**
+     * Converts UTF-8 character values array to array of Latin1 character values array.
+     * @param array $utf8Values
+     * @return array
+     */
+    public static function utf8ArrayToLatin1Array(array $utf8Values): array
+    {
+        $latin1Values = [];
+        foreach ($utf8Values as $char) {
+            if ($char < 256) {
+                $latin1Values[] = $char;
             }
-            $map[($cid * 2)]       = chr($gid >> 8);
-            $map[(($cid * 2) + 1)] = chr($gid & 0xFF);
+            elseif (array_key_exists($char, self::UTF_LATIN1)) {
+                $latin1Values[] = self::UTF_LATIN1[$char];
+            }
+            elseif ($char !== 0xFFFD) {
+                $latin1Values[] = 63; // '?' character
+            }
         }
-        return $map;
+        return $latin1Values;
     }
 
     /**
-     * Returns the unicode caracter specified by the value
-     * @param int     $c       UTF-8 value
-     * @param boolean $unicode True if we are in unicode mode, false otherwise.
-     * @return string Returns the specified character.
+     * Converts a UTF-8 character array to a Latin1 string.
+     * @param array $utf8Values
+     * @return string
      */
-    public static function unichr($c, $unicode = true)
+    public function utf8ArrayToLatin1String(array $utf8Values): string
     {
-        $c = intval($c);
-        if (!$unicode) {
-            return chr($c);
+        $return = '';
+        foreach ($utf8Values as $value) {
+            if ($value < 256) {
+                $return .= chr($value);
+            }
+            elseif (array_key_exists($value, self::UTF_LATIN1)) {
+                // map from UTF-8
+                $return .= chr(self::UTF_LATIN1[$value]);
+            }
+            elseif ($value == 0xFFFD) {
+                continue;
+            }
+            else {
+                $return .= '?';
+            }
         }
-        elseif ($c <= 0x7F) {
-            // one byte
-            return chr($c);
-        }
-        elseif ($c <= 0x7FF) {
-            // two bytes
-            return chr(0xC0 | $c >> 6) . chr(0x80 | $c & 0x3F);
-        }
-        elseif ($c <= 0xFFFF) {
-            // three bytes
-            return chr(0xE0 | $c >> 12) . chr(0x80 | $c >> 6 & 0x3F) . chr(0x80 | $c & 0x3F);
-        }
-        elseif ($c <= 0x10FFFF) {
-            // four bytes
-            return chr(0xF0 | $c >> 18) . chr(0x80 | $c >> 12 & 0x3F) . chr(0x80 | $c >> 6 & 0x3F) . chr(0x80 | $c & 0x3F);
-        }
-        else {
-            return '';
-        }
+        return $return;
     }
 
     /**
-     * Returns the unicode caracter specified by UTF-8 value
-     * @param int $c UTF-8 value
-     * @return string Returns the specified character.
+     * Convert an array of UTF8 values to array of Unicode characters.
+     * @param array $utf8Values
+     * @param bool  $isUnicode
+     * @return array
      */
-    public static function unichrUnicode($c)
+    public function utf8ArrayToUnicodeArray(array $utf8Values, bool $isUnicode = true): array
     {
-        return self::unichr($c, true);
-    }
-
-    /**
-     * Returns the unicode caracter specified by ASCII value
-     * @param int $c UTF-8 value
-     * @return string Returns the specified character.
-     */
-    public static function unichrASCII($c)
-    {
-        return self::unichr($c, false);
+        return $isUnicode ? array_map([$this, 'unicodeCharacter'], $utf8Values) : array_map([$this, 'unicodeByASCII'], $utf8Values);
     }
 
     /**
@@ -235,699 +260,110 @@ trait Basics
      *    W1 = 110110yyyyyyyyyy
      *    W2 = 110111xxxxxxxxxx
      * </pre>
-     * @param array   $unicode array containing UTF-8 unicode values
-     * @param boolean $setBOM  if true set the Byte Order Mark (BOM = 0xFEFF)
+     * @param array $utf8Values array containing UTF-8 Unicode values
+     * @param bool  $setBOM     if true set the Byte Order Mark (BOM = 0xFEFF)
      * @return string
-     * @author Nicola Asuni
      */
-    public static function arrUTF8ToUTF16BE($unicode, $setBOM = false)
+    public static function utf8ArrayToUTF16BEString(array $utf8Values, bool $setBOM = false): string
     {
-        $outstr = ''; // string to be returned
+        $return = ''; // string to be returned
         if ($setBOM) {
-            $outstr .= "\xFE\xFF"; // Byte Order Mark (BOM)
+            $return .= "\xFE\xFF"; // Byte Order Mark (BOM)
         }
-        foreach ($unicode as $char) {
-            if ($char == 0x200b) {
+        foreach ($utf8Values as $value) {
+            if ($value == 0x200b) {
                 // skip Unicode Character 'ZERO WIDTH SPACE' (DEC:8203, U+200B)
+                continue;
             }
-            elseif ($char == 0xFFFD) {
-                $outstr .= "\xFF\xFD"; // replacement character
+            elseif ($value == 0xFFFD) {
+                $return .= "\xFF\xFD"; // replacement character
             }
-            elseif ($char < 0x10000) {
-                $outstr .= chr($char >> 0x08);
-                $outstr .= chr($char & 0xFF);
+            elseif ($value < 0x10000) {
+                $return .= chr($value >> 0x08);
+                $return .= chr($value & 0xFF);
             }
             else {
-                $char   -= 0x10000;
-                $w1     = 0xD800 | ($char >> 0x0a);
-                $w2     = 0xDC00 | ($char & 0x3FF);
-                $outstr .= chr($w1 >> 0x08);
-                $outstr .= chr($w1 & 0xFF);
-                $outstr .= chr($w2 >> 0x08);
-                $outstr .= chr($w2 & 0xFF);
+                $value  -= 0x10000;
+                $w1     = 0xD800 | ($value >> 0x0a);
+                $w2     = 0xDC00 | ($value & 0x3FF);
+                $return .= chr($w1 >> 0x08);
+                $return .= chr($w1 & 0xFF);
+                $return .= chr($w2 >> 0x08);
+                $return .= chr($w2 & 0xFF);
             }
         }
-        return $outstr;
+        return $return;
     }
 
     /**
-     * Convert an array of UTF8 values to array of unicode characters
-     * @param array   $ta        The input array of UTF8 values.
-     * @param boolean $isunicode True for Unicode mode, false otherwise.
-     * @return array Return array of unicode characters
+     * Extract a slice of the $utf8Values array converted to characters and returned as a string.
+     * @param int[] $utf8Values
+     * @param int   $start (inclusive)
+     * @param int   $end   (exclusive)
+     * @param bool  $isUnicode
+     * @return string
      */
-    public static function UTF8ArrayToUniArray($ta, $isunicode = true)
+    public function utf8SliceToString(array $utf8Values, int $start = 0, int $end = 0, bool $isUnicode = true): string
     {
-        if ($isunicode) {
-            return array_map(get_called_class() . '::unichrUnicode', $ta);
-        }
-        return array_map(get_called_class() . '::unichrASCII', $ta);
-    }
-
-    /**
-     * Extract a slice of the $strarr array and return it as string.
-     * @param string[] $strarr  The input array of characters.
-     * @param int      $start   the starting element of $strarr.
-     * @param int      $end     first element that will not be returned.
-     * @param boolean  $unicode True if we are in unicode mode, false otherwise.
-     * @return string Return part of a string
-     */
-    public static function UTF8ArrSubString($strarr, $start = '', $end = '', $unicode = true)
-    {
-        if (strlen($start) == 0) {
-            $start = 0;
-        }
-        if (strlen($end) == 0) {
-            $end = count($strarr);
-        }
+        $end    = $end > 0 ? $end : count($utf8Values);
         $string = '';
-        for ($i = $start; $i < $end; ++$i) {
-            $string .= self::unichr($strarr[$i], $unicode);
+        for ($index = $start; $index < $end; ++$index) {
+            $string .= $this->unicodeCharacter($utf8Values[$index], $isUnicode);
         }
         return $string;
     }
 
     /**
-     * Extract a slice of the $uniarr array and return it as string.
-     * @param string[] $uniarr The input array of characters.
-     * @param int      $start  the starting element of $strarr.
-     * @param int      $end    first element that will not be returned.
-     * @return string Return part of a string
-     */
-    public static function UniArrSubString($uniarr, $start = '', $end = '')
-    {
-        if (strlen($start) == 0) {
-            $start = 0;
-        }
-        if (strlen($end) == 0) {
-            $end = count($uniarr);
-        }
-        $string = '';
-        for ($i = $start; $i < $end; ++$i) {
-            $string .= $uniarr[$i];
-        }
-        return $string;
-    }
-
-    /**
-     * Converts UTF-8 characters array to array of Latin1 characters array<br>
-     * @param array $unicode array containing UTF-8 unicode values
+     * Converts UTF-8 strings to codepoints (character values) array. Invalid byte sequences will be replaced with 0xFFFD (replacement character).
+     * @param string $string
      * @return array
-     * @author Nicola Asuni
      */
-    public static function UTF8ArrToLatin1Arr($unicode)
+    public function utf8StringToArray(string $string): array
     {
-        $outarr = []; // array to be returned
-        foreach ($unicode as $char) {
-            if ($char < 256) {
-                $outarr[] = $char;
-            }
-            elseif (array_key_exists($char, self::UTF_LATIN1)) {
-                // map from UTF-8
-                $outarr[] = self::UTF_LATIN1[$char];
-            }
-            elseif ($char == 0xFFFD) {
-                // skip
-            }
-            else {
-                $outarr[] = 63; // '?' character
-            }
-        }
-        return $outarr;
-    }
-
-    /**
-     * Converts UTF-8 characters array to Latin1 string<br>
-     * @param array $unicode array containing UTF-8 unicode values
-     * @return string
-     * @author Nicola Asuni
-     */
-    public static function UTF8ArrToLatin1($unicode)
-    {
-        $outstr = ''; // string to be returned
-        foreach ($unicode as $char) {
-            if ($char < 256) {
-                $outstr .= chr($char);
-            }
-            elseif (array_key_exists($char, self::UTF_LATIN1)) {
-                // map from UTF-8
-                $outstr .= chr(self::UTF_LATIN1[$char]);
-            }
-            elseif ($char == 0xFFFD) {
-                // skip
-            }
-            else {
-                $outstr .= '?';
-            }
-        }
-        return $outstr;
-    }
-
-    /**
-     * Converts UTF-8 strings to codepoints array.<br>
-     * Invalid byte sequences will be replaced with 0xFFFD (replacement character)<br>
-     * @param string  $string      string to process.
-     * @param boolean $isunicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
-     * @return array containing codepoints (UTF-8 characters values)
-     * @author Nicola Asuni
-     */
-    public static function UTF8StringToArray($string, $isunicode, &$currentfont)
-    {
-        $string = is_null($string) ? '' : $string;
-        if ($isunicode) {
-            // requires PCRE unicode support turned on
-            $chars = StaticMethods::pregSplit('//', 'u', $string, -1, PREG_SPLIT_NO_EMPTY);
-            $carr  = array_map(get_called_class() . '::unicodeOrd', $chars);
+        if ($this->isUnicode) {
+            // Normal PHP preg_split does some wild shit here.
+            $characters = StaticMethods::pregSplit('//', 'u', $string, -1, PREG_SPLIT_NO_EMPTY);
+            $numbers    = array_map([$this, 'unicodeOrd'], $characters);
         }
         else {
-            $chars = str_split($string);
-            $carr  = array_map('ord', $chars);
+            $characters = str_split($string);
+            $numbers    = array_map('ord', $characters);
         }
-        if (is_array($currentfont['subsetCharacters']) && is_array($carr)) {
-            $currentfont['subsetCharacters'] += array_fill_keys($carr, true);
-        }
-        else {
-            $currentfont['subsetCharacters'] = array_merge($currentfont['subsetCharacters'], $carr);
-        }
-        return $carr;
+
+        $this->currentFont['subsetCharacters'] = is_array($this->currentFont['subsetCharacters']) ?
+            $this->currentFont['subsetCharacters'] + array_fill_keys($numbers, true) : array_merge($this->currentFont['subsetCharacters'], $numbers);
+        return $numbers;
     }
 
     /**
-     * Converts UTF-8 strings to Latin1 when using the standard 14 core fonts.<br>
-     * @param string  $str         string to process.
-     * @param boolean $isunicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * Converts UTF-8 strings to Latin1 strings when using the standard 14 core fonts.
+     * @param string $string
      * @return string
      */
-    public static function UTF8ToLatin1($str, $isunicode, &$currentfont)
+    public function utf8ToLatin1(string $string): string
     {
-        $unicode = self::UTF8StringToArray($str, $isunicode, $currentfont); // array containing UTF-8 unicode values
-        return self::UTF8ArrToLatin1($unicode);
+        return $this->utf8ArrayToLatin1String($this->utf8StringToArray($string));
     }
 
     /**
-     * Converts UTF-8 strings to UTF16-BE.<br>
-     * @param string  $str         string to process.
-     * @param boolean $setBOM      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param boolean $isunicode   True when the documetn is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
+     * Converts UTF-8 strings to UTF16-BE string.
+     * @param string $string
+     * @param bool   $setBOM if true set the Byte Order Mark (BOM = 0xFEFF)
      * @return string
-     * @author Nicola Asuni
      */
-    public static function UTF8ToUTF16BE($str, $setBOM, $isunicode, &$currentfont)
+    public function utf8ToUTF16BE(string $string, bool $setBOM = false): string
     {
-        if (!$isunicode) {
-            return $str; // string is not in unicode
+        if (!$this->isUnicode) {
+            return $string;
         }
-        $unicode = self::UTF8StringToArray($str, $isunicode, $currentfont); // array containing UTF-8 unicode values
-        return self::arrUTF8ToUTF16BE($unicode, $setBOM);
+
+        return $this->utf8ArrayToUTF16BEString($this->utf8StringToArray($string), $setBOM);
     }
 
-    /**
-     * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param string  $str         string to manipulate.
-     * @param bool    $setBOM      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool    $forcertl    if true forces RTL text direction
-     * @param boolean $isunicode   True if the document is in Unicode mode, false otherwise.
-     * @param array   $currentfont Reference to current font array.
-     * @return string
-     * @author Nicola Asuni
-     */
-    public static function utf8StrRev($str, $setBOM, $forcertl, $isunicode, &$currentfont)
-    {
-        return self::utf8StrArrRev(self::UTF8StringToArray($str, $isunicode, $currentfont), $str, $setBOM, $forcertl, $isunicode, $currentfont);
-    }
 
-    /**
-     * Reverse the RLT substrings array using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param array   $utf8Values  array of unicode values.
-     * @param string  $string      string to manipulate (or empty value).
-     * @param bool    $setBOM      if true set the Byte Order Mark (BOM = 0xFEFF)
-     * @param bool    $forceRTL    if true forces RTL text direction
-     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
-     * @param array   $currentFont Reference to current font array.
-     * @return string
-     * @author Nicola Asuni
-     */
-    public static function utf8StrArrRev(array $utf8Values, string $string, bool $setBOM, bool $forceRTL, bool $isUnicode, array &$currentFont)
-    {
-        return self::arrUTF8ToUTF16BE(self::utf8Bidirectional($utf8Values, $string, $forceRTL, $isUnicode, $currentFont), $setBOM);
-    }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-    /**
-     * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
-     * @param array   $utf8Values  array of characters composing the string.
-     * @param string  $string      string to process
-     * @param bool    $forceRTL    if 'R' forces RTL, if 'L' forces LTR
-     * @param boolean $isUnicode   True if the document is in Unicode mode, false otherwise.
-     * @param array   $currentFont Reference to current font array.
-     * @return array of unicode chars
-     * @author Nicola Asuni
-     */
-    public static function utf8Bidirectional(array $utf8Values, string $string, bool $forceRTL, bool $isUnicode, array &$currentFont): array
-    {
-        // paragraph embedding level
-        $pel = 0;
-        // max level
-        $maxlevel = 0;
-        if (StaticMethods::empty_string($string)) {
-            // create string from array
-            $string = self::UTF8ArrSubString($utf8Values, '', '', $isUnicode);
-        }
-        // check if string contains RTL text
-        if (!($forceRTL)) {
-            return $utf8Values;
-        }
 
-        // get number of chars
-        $numchars = count($utf8Values);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-        if ($forceRTL == 'R') {
-            $pel = 1;
-        }
-        elseif ($forceRTL == 'L') {
-            $pel = 0;
-        }
-        else {
-            // P2. In each paragraph, find the first character of type L, AL, or R.
-            // P3. If a character is found in P2 and it is of type AL or R, then set the paragraph embedding level to one; otherwise, set it to zero.
-            for ($i = 0; $i < $numchars; ++$i) {
-                $type = self::UNICODE_TYPES[$utf8Values[$i]];
-                if ($type == 'L') {
-                    $pel = 0;
-                    break;
-                }
-                elseif (($type == 'AL') or ($type == 'R')) {
-                    $pel = 1;
-                    break;
-                }
-            }
-        }
-
-        // Current Embedding Level
-        $cel = $pel;
-        // directional override status
-        $dos      = 'N';
-        $remember = [];
-        // start-of-level-run
-        $sor = $pel % 2 ? 'R' : 'L';
-        $eor = $sor;
-
-        // Array of characters data
-        $chardata = array();
-
-        // X1. Begin by setting the current embedding level to the paragraph embedding level. Set the directional override status to neutral. Process each character iteratively, applying rules X2 through X9. Only embedding levels from 0 to 61 are valid in this phase.
-        // In the resolution of levels in rules I1 and I2, the maximum embedding level of 62 can be reached.
-        for ($i = 0; $i < $numchars; ++$i) {
-            if ($utf8Values[$i] == self::RTL_EMBEDDING) {
-                // X2. With each RLE, compute the least greater odd embedding level.
-                //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to neutral.
-                //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
-                $next_level = $cel + ($cel % 2) + 1;
-                if ($next_level < 62) {
-                    $remember[] = array('num' => self::RTL_EMBEDDING, 'cel' => $cel, 'dos' => $dos);
-                    $cel        = $next_level;
-                    $dos        = 'N';
-                    $sor        = $eor;
-                    $eor        = $cel % 2 ? 'R' : 'L';
-                }
-            }
-            elseif ($utf8Values[$i] == self::LTR_EMBEDDING) {
-                // X3. With each LRE, compute the least greater even embedding level.
-                //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to neutral.
-                //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
-                $next_level = $cel + 2 - ($cel % 2);
-                if ($next_level < 62) {
-                    $remember[] = array('num' => self::LTR_EMBEDDING, 'cel' => $cel, 'dos' => $dos);
-                    $cel        = $next_level;
-                    $dos        = 'N';
-                    $sor        = $eor;
-                    $eor        = $cel % 2 ? 'R' : 'L';
-                }
-            }
-            elseif ($utf8Values[$i] == self::RTL_OVERRIDE) {
-                // X4. With each RLO, compute the least greater odd embedding level.
-                //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to right-to-left.
-                //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
-                $next_level = $cel + ($cel % 2) + 1;
-                if ($next_level < 62) {
-                    $remember[] = array('num' => self::RTL_OVERRIDE, 'cel' => $cel, 'dos' => $dos);
-                    $cel        = $next_level;
-                    $dos        = 'R';
-                    $sor        = $eor;
-                    $eor        = $cel % 2 ? 'R' : 'L';
-                }
-            }
-            elseif ($utf8Values[$i] == self::LTR_OVERRIDE) {
-                // X5. With each LRO, compute the least greater even embedding level.
-                //	a. If this new level would be valid, then this embedding code is valid. Remember (push) the current embedding level and override status. Reset the current level to this new level, and reset the override status to left-to-right.
-                //	b. If the new level would not be valid, then this code is invalid. Do not change the current level or override status.
-                $next_level = $cel + 2 - ($cel % 2);
-                if ($next_level < 62) {
-                    $remember[] = array('num' => self::LTR_OVERRIDE, 'cel' => $cel, 'dos' => $dos);
-                    $cel        = $next_level;
-                    $dos        = 'L';
-                    $sor        = $eor;
-                    $eor        = $cel % 2 ? 'R' : 'L';
-                }
-            }
-            elseif ($utf8Values[$i] == self::POP_DIRECTIONAL_FORMAT) {
-                // X7. With each PDF, determine the matching embedding or override code. If there was a valid matching code, restore (pop) the last remembered (pushed) embedding level and directional override.
-                if (count($remember)) {
-                    $last = count($remember) - 1;
-                    if (($remember[$last]['num'] == self::RTL_EMBEDDING) or
-                        ($remember[$last]['num'] == self::LTR_EMBEDDING) or
-                        ($remember[$last]['num'] == self::RTL_OVERRIDE) or
-                        ($remember[$last]['num'] == self::LTR_OVERRIDE)) {
-                        $match = array_pop($remember);
-                        $cel   = $match['cel'];
-                        $dos   = $match['dos'];
-                        $sor   = $eor;
-                        $eor   = ($cel > $match['cel'] ? $cel : $match['cel']) % 2 ? 'R' : 'L';
-                    }
-                }
-            }
-            elseif (($utf8Values[$i] != self::RTL_EMBEDDING) and
-                ($utf8Values[$i] != self::LTR_EMBEDDING) and
-                ($utf8Values[$i] != self::RTL_OVERRIDE) and
-                ($utf8Values[$i] != self::LTR_OVERRIDE) and
-                ($utf8Values[$i] != self::POP_DIRECTIONAL_FORMAT)) {
-                // X6. For all types besides RLE, LRE, RLO, LRO, and PDF:
-                //	a. Set the level of the current character to the current embedding level.
-                //	b. Whenever the directional override status is not neutral, reset the current character type to the directional override status.
-                if ($dos != 'N') {
-                    $chardir = $dos;
-                }
-                else {
-                    if (isset(self::UNICODE_TYPES[$utf8Values[$i]])) {
-                        $chardir = self::UNICODE_TYPES[$utf8Values[$i]];
-                    }
-                    else {
-                        $chardir = 'L';
-                    }
-                }
-                // stores string characters and other information
-                $chardata[] = array('char' => $utf8Values[$i], 'level' => $cel, 'type' => $chardir, 'sor' => $sor, 'eor' => $eor);
-            }
-        } // end for each char
-
-        // X8. All explicit directional embeddings and overrides are completely terminated at the end of each paragraph. Paragraph separators are not included in the embedding.
-        // X9. Remove all RLE, LRE, RLO, LRO, PDF, and BN codes.
-        // X10. The remaining rules are applied to each run of characters at the same level. For each run, determine the start-of-level-run (sor) and end-of-level-run (eor) type, either L or R. This depends on the higher of the two levels on either side of the boundary (at the start or end of the paragraph, the level of the 'other' run is the base embedding level). If the higher level is odd, the type is R; otherwise, it is L.
-
-        // 3.3.3 Resolving Weak Types
-        // Weak types are now resolved one level run at a time. At level run boundaries where the type of the character on the other side of the boundary is required, the type assigned to sor or eor is used.
-        // Nonspacing marks are now resolved based on the previous characters.
-        $numchars = count($chardata);
-
-        // W1. Examine each nonspacing mark (NSM) in the level run, and change the type of the NSM to the type of the previous character. If the NSM is at the start of the level run, it will get the type of sor.
-        $prevlevel = -1; // track level changes
-        $levcount  = 0; // counts consecutive chars at the same level
-        for ($i = 0; $i < $numchars; ++$i) {
-            if ($chardata[$i]['type'] == 'NSM') {
-                if ($levcount) {
-                    $chardata[$i]['type'] = $chardata[$i]['sor'];
-                }
-                elseif ($i > 0) {
-                    $chardata[$i]['type'] = $chardata[($i - 1)]['type'];
-                }
-            }
-            if ($chardata[$i]['level'] != $prevlevel) {
-                $levcount = 0;
-            }
-            else {
-                ++$levcount;
-            }
-            $prevlevel = $chardata[$i]['level'];
-        }
-
-        // W2. Search backward from each instance of a European number until the first strong type (R, L, AL, or sor) is found. If an AL is found, change the type of the European number to Arabic number.
-        $prevlevel = -1;
-        $levcount  = 0;
-        for ($i = 0; $i < $numchars; ++$i) {
-            if ($chardata[$i]['char'] == 'EN') {
-                for ($j = $levcount; $j >= 0; $j--) {
-                    if ($chardata[$j]['type'] == 'AL') {
-                        $chardata[$i]['type'] = 'AN';
-                    }
-                    elseif (($chardata[$j]['type'] == 'L') or ($chardata[$j]['type'] == 'R')) {
-                        break;
-                    }
-                }
-            }
-            if ($chardata[$i]['level'] != $prevlevel) {
-                $levcount = 0;
-            }
-            else {
-                ++$levcount;
-            }
-            $prevlevel = $chardata[$i]['level'];
-        }
-
-        // W3. Change all ALs to R.
-        for ($i = 0; $i < $numchars; ++$i) {
-            if ($chardata[$i]['type'] == 'AL') {
-                $chardata[$i]['type'] = 'R';
-            }
-        }
-
-        // W4. A single European separator between two European numbers changes to a European number. A single common separator between two numbers of the same type changes to that type.
-        $prevlevel = -1;
-        $levcount  = 0;
-        for ($i = 0; $i < $numchars; ++$i) {
-            if (($levcount > 0) and (($i + 1) < $numchars) and ($chardata[($i + 1)]['level'] == $prevlevel)) {
-                if (($chardata[$i]['type'] == 'ES') and ($chardata[($i - 1)]['type'] == 'EN') and ($chardata[($i + 1)]['type'] == 'EN')) {
-                    $chardata[$i]['type'] = 'EN';
-                }
-                elseif (($chardata[$i]['type'] == 'CS') and ($chardata[($i - 1)]['type'] == 'EN') and ($chardata[($i + 1)]['type'] == 'EN')) {
-                    $chardata[$i]['type'] = 'EN';
-                }
-                elseif (($chardata[$i]['type'] == 'CS') and ($chardata[($i - 1)]['type'] == 'AN') and ($chardata[($i + 1)]['type'] == 'AN')) {
-                    $chardata[$i]['type'] = 'AN';
-                }
-            }
-            if ($chardata[$i]['level'] != $prevlevel) {
-                $levcount = 0;
-            }
-            else {
-                ++$levcount;
-            }
-            $prevlevel = $chardata[$i]['level'];
-        }
-
-        // W5. A sequence of European terminators adjacent to European numbers changes to all European numbers.
-        $prevlevel = -1;
-        $levcount  = 0;
-        for ($i = 0; $i < $numchars; ++$i) {
-            if ($chardata[$i]['type'] == 'ET') {
-                if (($levcount > 0) and ($chardata[($i - 1)]['type'] == 'EN')) {
-                    $chardata[$i]['type'] = 'EN';
-                }
-                else {
-                    $j = $i + 1;
-                    while (($j < $numchars) and ($chardata[$j]['level'] == $prevlevel)) {
-                        if ($chardata[$j]['type'] == 'EN') {
-                            $chardata[$i]['type'] = 'EN';
-                            break;
-                        }
-                        elseif ($chardata[$j]['type'] != 'ET') {
-                            break;
-                        }
-                        ++$j;
-                    }
-                }
-            }
-            if ($chardata[$i]['level'] != $prevlevel) {
-                $levcount = 0;
-            }
-            else {
-                ++$levcount;
-            }
-            $prevlevel = $chardata[$i]['level'];
-        }
-
-        // W6. Otherwise, separators and terminators change to Other Neutral.
-        $prevlevel = -1;
-        $levcount  = 0;
-        for ($i = 0; $i < $numchars; ++$i) {
-            if (($chardata[$i]['type'] == 'ET') or ($chardata[$i]['type'] == 'ES') or ($chardata[$i]['type'] == 'CS')) {
-                $chardata[$i]['type'] = 'ON';
-            }
-            if ($chardata[$i]['level'] != $prevlevel) {
-                $levcount = 0;
-            }
-            else {
-                ++$levcount;
-            }
-            $prevlevel = $chardata[$i]['level'];
-        }
-
-        //W7. Search backward from each instance of a European number until the first strong type (R, L, or sor) is found. If an L is found, then change the type of the European number to L.
-        $prevlevel = -1;
-        $levcount  = 0;
-        for ($i = 0; $i < $numchars; ++$i) {
-            if ($chardata[$i]['char'] == 'EN') {
-                for ($j = $levcount; $j >= 0; $j--) {
-                    if ($chardata[$j]['type'] == 'L') {
-                        $chardata[$i]['type'] = 'L';
-                    }
-                    elseif ($chardata[$j]['type'] == 'R') {
-                        break;
-                    }
-                }
-            }
-            if ($chardata[$i]['level'] != $prevlevel) {
-                $levcount = 0;
-            }
-            else {
-                ++$levcount;
-            }
-            $prevlevel = $chardata[$i]['level'];
-        }
-
-        // N1. A sequence of neutrals takes the direction of the surrounding strong text if the text on both sides has the same direction. Numbers act as if they were R in terms of their influence on neutrals. Start-of-level-run (sor) and end-of-level-run (eor) are used at level run boundaries.
-        $prevlevel = -1;
-        $levcount  = 0;
-        for ($i = 0; $i < $numchars; ++$i) {
-            if (($levcount > 0) and (($i + 1) < $numchars) and ($chardata[($i + 1)]['level'] == $prevlevel)) {
-                if (($chardata[$i]['type'] == 'N') and ($chardata[($i - 1)]['type'] == 'L') and ($chardata[($i + 1)]['type'] == 'L')) {
-                    $chardata[$i]['type'] = 'L';
-                }
-                elseif (($chardata[$i]['type'] == 'N') and
-                    (($chardata[($i - 1)]['type'] == 'R') or ($chardata[($i - 1)]['type'] == 'EN') or ($chardata[($i - 1)]['type'] == 'AN')) and
-                    (($chardata[($i + 1)]['type'] == 'R') or ($chardata[($i + 1)]['type'] == 'EN') or ($chardata[($i + 1)]['type'] == 'AN'))) {
-                    $chardata[$i]['type'] = 'R';
-                }
-                elseif ($chardata[$i]['type'] == 'N') {
-                    // N2. Any remaining neutrals take the embedding direction
-                    $chardata[$i]['type'] = $chardata[$i]['sor'];
-                }
-            }
-            elseif (($levcount == 0) and (($i + 1) < $numchars) and ($chardata[($i + 1)]['level'] == $prevlevel)) {
-                // first char
-                if (($chardata[$i]['type'] == 'N') and ($chardata[$i]['sor'] == 'L') and ($chardata[($i + 1)]['type'] == 'L')) {
-                    $chardata[$i]['type'] = 'L';
-                }
-                elseif (($chardata[$i]['type'] == 'N') and
-                    (($chardata[$i]['sor'] == 'R') or ($chardata[$i]['sor'] == 'EN') or ($chardata[$i]['sor'] == 'AN')) and
-                    (($chardata[($i + 1)]['type'] == 'R') or ($chardata[($i + 1)]['type'] == 'EN') or ($chardata[($i + 1)]['type'] == 'AN'))) {
-                    $chardata[$i]['type'] = 'R';
-                }
-                elseif ($chardata[$i]['type'] == 'N') {
-                    // N2. Any remaining neutrals take the embedding direction
-                    $chardata[$i]['type'] = $chardata[$i]['sor'];
-                }
-            }
-            elseif (($levcount > 0) and ((($i + 1) == $numchars) or (($i + 1) < $numchars) and ($chardata[($i + 1)]['level'] != $prevlevel))) {
-                //last char
-                if (($chardata[$i]['type'] == 'N') and ($chardata[($i - 1)]['type'] == 'L') and ($chardata[$i]['eor'] == 'L')) {
-                    $chardata[$i]['type'] = 'L';
-                }
-                elseif (($chardata[$i]['type'] == 'N') and
-                    (($chardata[($i - 1)]['type'] == 'R') or ($chardata[($i - 1)]['type'] == 'EN') or ($chardata[($i - 1)]['type'] == 'AN')) and
-                    (($chardata[$i]['eor'] == 'R') or ($chardata[$i]['eor'] == 'EN') or ($chardata[$i]['eor'] == 'AN'))) {
-                    $chardata[$i]['type'] = 'R';
-                }
-                elseif ($chardata[$i]['type'] == 'N') {
-                    // N2. Any remaining neutrals take the embedding direction
-                    $chardata[$i]['type'] = $chardata[$i]['sor'];
-                }
-            }
-            elseif ($chardata[$i]['type'] == 'N') {
-                // N2. Any remaining neutrals take the embedding direction
-                $chardata[$i]['type'] = $chardata[$i]['sor'];
-            }
-            if ($chardata[$i]['level'] != $prevlevel) {
-                $levcount = 0;
-            }
-            else {
-                ++$levcount;
-            }
-            $prevlevel = $chardata[$i]['level'];
-        }
-
-        // I1. For all characters with an even (left-to-right) embedding direction, those of type R go up one level and those of type AN or EN go up two levels.
-        // I2. For all characters with an odd (right-to-left) embedding direction, those of type L, EN or AN go up one level.
-        for ($i = 0; $i < $numchars; ++$i) {
-            $odd = $chardata[$i]['level'] % 2;
-            if ($odd) {
-                if (($chardata[$i]['type'] == 'L') or ($chardata[$i]['type'] == 'AN') or ($chardata[$i]['type'] == 'EN')) {
-                    $chardata[$i]['level'] += 1;
-                }
-            }
-            else {
-                if ($chardata[$i]['type'] == 'R') {
-                    $chardata[$i]['level'] += 1;
-                }
-                elseif (($chardata[$i]['type'] == 'AN') or ($chardata[$i]['type'] == 'EN')) {
-                    $chardata[$i]['level'] += 2;
-                }
-            }
-            $maxlevel = max($chardata[$i]['level'], $maxlevel);
-        }
-
-        // L1. On each line, reset the embedding level of the following characters to the paragraph embedding level:
-        //	1. Segment separators,
-        //	2. Paragraph separators,
-        //	3. Any sequence of whitespace characters preceding a segment separator or paragraph separator, and
-        //	4. Any sequence of white space characters at the end of the line.
-        for ($i = 0; $i < $numchars; ++$i) {
-            if (($chardata[$i]['type'] == 'B') or ($chardata[$i]['type'] == 'S')) {
-                $chardata[$i]['level'] = $pel;
-            }
-            elseif ($chardata[$i]['type'] == 'WS') {
-                $j = $i + 1;
-                while ($j < $numchars) {
-                    if ((($chardata[$j]['type'] == 'B') or ($chardata[$j]['type'] == 'S')) or
-                        (($j == ($numchars - 1)) and ($chardata[$j]['type'] == 'WS'))) {
-                        $chardata[$i]['level'] = $pel;
-                        break;
-                    }
-                    elseif ($chardata[$j]['type'] != 'WS') {
-                        break;
-                    }
-                    ++$j;
-                }
-            }
-        }
-
-        // L2. From the highest level found in the text to the lowest odd level on each line, including intermediate levels not actually present in the text, reverse any contiguous sequence of characters that are at that level or higher.
-        for ($j = $maxlevel; $j > 0; $j--) {
-            $ordarray = array();
-            $revarr   = array();
-            $onlevel  = false;
-            for ($i = 0; $i < $numchars; ++$i) {
-                if ($chardata[$i]['level'] >= $j) {
-                    $onlevel = true;
-                    if (isset(self::MIRROR_CHARACTERS[$chardata[$i]['char']])) {
-                        // L4. A character is depicted by a mirrored glyph if and only if (a) the resolved directionality of that character is R, and (b) the Bidi_Mirrored property value of that character is true.
-                        $chardata[$i]['char'] = self::MIRROR_CHARACTERS[$chardata[$i]['char']];
-                    }
-                    $revarr[] = $chardata[$i];
-                }
-                else {
-                    if ($onlevel) {
-                        $revarr   = array_reverse($revarr);
-                        $ordarray = array_merge($ordarray, $revarr);
-                        $revarr   = array();
-                        $onlevel  = false;
-                    }
-                    $ordarray[] = $chardata[$i];
-                }
-            }
-            if ($onlevel) {
-                $revarr   = array_reverse($revarr);
-                $ordarray = array_merge($ordarray, $revarr);
-            }
-            $chardata = $ordarray;
-        }
-        $ordarray = [];
-        foreach ($chardata as $cd) {
-            $ordarray[] = $cd['char'];
-            // store char values for subsetting
-            $currentFont['subsetCharacters'][$cd['char']] = true;
-        }
-        return $ordarray;
-    }
 }

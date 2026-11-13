@@ -6,6 +6,32 @@ namespace THM\Organizer\Views\PDF\Library;
 trait Bloatware
 {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////BITS-PROCESSED
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////BITS-UNPROCESSED
+
+
+    /**
+     * Update the CIDToGIDMap string with a new value.
+     * @param string $map CIDToGIDMap.
+     * @param int    $cid CID value.
+     * @param int    $gid GID value.
+     * @return string CIDToGIDMap.
+     * @author Nicola Asuni
+     */
+    public static function updateCIDtoGIDmap($map, $cid, $gid)
+    {
+        if (($cid >= 0) and ($cid <= 0xFFFF) and ($gid >= 0)) {
+            if ($gid > 0xFFFF) {
+                $gid -= 0x10000;
+            }
+            $map[($cid * 2)]       = chr($gid >> 8);
+            $map[(($cid * 2) + 1)] = chr($gid & 0xFF);
+        }
+        return $map;
+    }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS-PROCESSED
 
 
@@ -1033,6 +1059,5 @@ trait Bloatware
         // return TCPDF font name
         return $font_name;
     }
-
 
 }
