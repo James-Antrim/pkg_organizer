@@ -755,13 +755,13 @@ trait Images
 
         // set alignment
         if ($palign == 'L') {
-            $ximg = $this->leftMargin;
+            $ximg = $this->lMargin;
         }
         elseif ($palign == 'C') {
-            $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+            $ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
         }
         elseif ($palign == 'R') {
-            $ximg = $this->w - $this->rightMargin - $w;
+            $ximg = $this->w - $this->rMargin - $w;
         }
         else {
             $ximg = $this->rtl ? $x - $w : $x;
@@ -1185,13 +1185,13 @@ trait Images
         // set alignment
         if ($this->rtl) {
             if ($palign == 'L') {
-                $ximg = $this->leftMargin;
+                $ximg = $this->lMargin;
             }
             elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+                $ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
             }
             elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
+                $ximg = $this->w - $this->rMargin - $w;
             }
             else {
                 $ximg = $x - $w;
@@ -1200,13 +1200,13 @@ trait Images
         }
         else {
             if ($palign == 'L') {
-                $ximg = $this->leftMargin;
+                $ximg = $this->lMargin;
             }
             elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+                $ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
             }
             elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
+                $ximg = $this->w - $this->rMargin - $w;
             }
             else {
                 $ximg = $x;
@@ -1583,13 +1583,13 @@ trait Images
         // set alignment
         if ($this->rtl) {
             if ($palign == 'L') {
-                $ximg = $this->leftMargin;
+                $ximg = $this->lMargin;
             }
             elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+                $ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
             }
             elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
+                $ximg = $this->w - $this->rMargin - $w;
             }
             else {
                 $ximg = $x - $w;
@@ -1598,13 +1598,13 @@ trait Images
         }
         else {
             if ($palign == 'L') {
-                $ximg = $this->leftMargin;
+                $ximg = $this->lMargin;
             }
             elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+                $ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
             }
             elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
+                $ximg = $this->w - $this->rMargin - $w;
             }
             else {
                 $ximg = $x;
@@ -1732,7 +1732,7 @@ trait Images
         $this->append($this->epsmarker . 'Q');
         // restore graphic vars
         $this->setGraphicVars($gvars);
-        $this->lastPrintedCellHeight = $gvars['lasth'];
+        $this->lasth = $gvars['lasth'];
         if (!empty($border)) {
             $bx      = $this->x;
             $by      = $this->y;

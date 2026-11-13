@@ -14,14 +14,11 @@ namespace THM\Organizer\Views\PDF\Library;
 
 trait Headers
 {
-
-    protected string $headerContent = '';
     /** @var int[] RGB */
     protected array $headerLineColor = self::BLACK;
     protected string $headerLogo = '';
     protected float $headerLogoWidth = 30;
     protected float $headerMargin = 5;
-    protected array $headerMargins = [];
     protected string $headerSubtitle = '';
     /** @var int[] RGB */
     protected array $headerTextColor = self::BLACK;
@@ -103,8 +100,10 @@ trait Headers
         $this->printHeader = $print;
     }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
+
     /**
-     * Renders the page header.
+     * This method is used to render the page header.
      */
     protected function header(): void
     {
@@ -114,18 +113,16 @@ trait Headers
 
         $this->inHeader = true;
         $this->setGraphicVars($this->default_graphic_vars);
-
-        $content    = $this->headerContent;
-        $margins    = $this->headerMargins;
-        $lastHeight = $this->lastPrintedCellHeight;
-        $newline    = $this->newline;
+        $temp_thead        = $this->thead;
+        $temp_theadMargins = $this->theadMargins;
+        $lasth             = $this->lasth;
+        $newline           = $this->newline;
         $this->_outSaveGraphicsState();
-
-        $this->rightMargin = $this->originalRightMargin;
-        $this->leftMargin  = $this->originalLeftMargin;
+        $this->rMargin = $this->original_rMargin;
+        $this->lMargin = $this->original_lMargin;
         $this->setCellPadding(0);
 
-        $this->setXY($this->originalLeftMargin, $this->headerMargin);
+        $this->setXY($this->original_lMargin, $this->headerMargin);
         $this->setCurrentFont($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
 
         if (!$this->headerXObjectID) {
@@ -136,7 +133,7 @@ trait Headers
             $configuration = $this->headerConfig();
 
             $this->y = $this->headerMargin;
-            $this->x = $this->originalLeftMargin;
+            $this->x = $this->original_lMargin;
 
             if (empty($configuration['logo'])) {
                 $imageY = $this->y;
@@ -160,8 +157,8 @@ trait Headers
             $cellHeight = $this->getCellHeight($font[2] / $this->k);
 
             // Set starting margin for text data cell
-            $header_x = $this->originalLeftMargin + ($configuration['logoWidth'] * 1.1);
-            $cw       = $this->w - $this->originalLeftMargin - $this->originalRightMargin - ($configuration['logoWidth'] * 1.1);
+            $header_x = $this->original_lMargin + ($configuration['logoWidth'] * 1.1);
+            $cw       = $this->w - $this->original_lMargin - $this->original_rMargin - ($configuration['logoWidth'] * 1.1);
             $this->textColorArray($this->headerTextColor);
 
             // Title
@@ -177,15 +174,15 @@ trait Headers
             // Print an ending header line
             $this->lineStyle(['width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $configuration['line_color']]);
             $this->y((2.835 / $this->k) + max($imageY, $this->y));
-            $this->x($this->originalLeftMargin);
-            $this->Cell(($this->w - $this->originalLeftMargin - $this->originalRightMargin), 0, '', 'T', 0, 'C');
+            $this->x($this->original_lMargin);
+            $this->Cell(($this->w - $this->original_lMargin - $this->original_rMargin), 0, '', 'T', 0, 'C');
             $this->endTemplate();
         }
 
         // Adjust margins for booklet mode
         $dx = 0;
-        if (!$this->headerXObjectAutoreset and $this->bookletMode and $this->page % 2 === 0) {
-            $dx = ($this->originalLeftMargin - $this->originalRightMargin);
+        if (!$this->headerXObjectAutoreset and $this->booklet and $this->page % 2 === 0) {
+            $dx = ($this->original_lMargin - $this->original_rMargin);
         }
 
         $this->printTemplate($this->headerXObjectID, $dx, 0);
@@ -194,12 +191,12 @@ trait Headers
             $this->headerXObjectID = '';
         }
 
-        $this->setXY($this->originalLeftMargin, $this->tMargin);
+        $this->setXY($this->original_lMargin, $this->tMargin);
         $this->_outRestoreGraphicsState();
-        $this->lastPrintedCellHeight = $lastHeight;
-        $this->headerContent         = $content;
-        $this->headerMargins         = $margins;
-        $this->newline               = $newline;
-        $this->inHeader              = false;
+        $this->lasth        = $lasth;
+        $this->thead        = $temp_thead;
+        $this->theadMargins = $temp_theadMargins;
+        $this->newline      = $newline;
+        $this->inHeader     = false;
     }
 }
