@@ -2733,13 +2733,13 @@ class PDF
             if ($headerdata['logo']) {
                 $imgtype = $this->imageType(self::IMAGE_PATH . $headerdata['logo']);
                 if (($imgtype == 'eps') or ($imgtype == 'ai')) {
-                    $this->ImageEps(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
+                    $this->ImageEps(self::IMAGE_PATH . $headerdata['logo'], null, null, $headerdata['logo_width']);
                 }
                 elseif ($imgtype == 'svg') {
-                    $this->ImageSVG(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
+                    $this->ImageSVG(self::IMAGE_PATH . $headerdata['logo'], null, null, $headerdata['logo_width']);
                 }
                 else {
-                    $this->Image(self::IMAGE_PATH . $headerdata['logo'], '', '', $headerdata['logo_width']);
+                    $this->Image(self::IMAGE_PATH . $headerdata['logo'], null, null, $headerdata['logo_width']);
                 }
                 $imgy = $this->imageRBY;
             }
@@ -3380,13 +3380,13 @@ class PDF
         }
         // Add widgets annotation's icons
         if (isset($opt['mk']['i']) and @StaticMethods::file_exists($opt['mk']['i'])) {
-            $this->Image($opt['mk']['i'], '', '', 10, 10, '', '', '', false, 300, '', false, false, 0, false, true);
+            $this->Image($opt['mk']['i'], null, null, 10, 10, '', '', '', false, 300, '', false, false, 0, false, true);
         }
         if (isset($opt['mk']['ri']) and @StaticMethods::file_exists($opt['mk']['ri'])) {
-            $this->Image($opt['mk']['ri'], '', '', 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
+            $this->Image($opt['mk']['ri'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
         if (isset($opt['mk']['ix']) and @StaticMethods::file_exists($opt['mk']['ix'])) {
-            $this->Image($opt['mk']['ix'], '', '', 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
+            $this->Image($opt['mk']['ix'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
     }
 

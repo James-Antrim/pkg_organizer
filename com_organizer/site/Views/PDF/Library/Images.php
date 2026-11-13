@@ -415,15 +415,15 @@ trait Images
      * @param array      $altimgs   Array of alternate images IDs. Each alternative image must be an array with two values: an integer representing the image ID (the value returned by the Image method) and a bool value to indicate if the image is the default for printing.
      * @return mixed|false image information
      */
-    public function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = [])
+    public function Image($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = [])
     {
         if ($this->state !== self::READY) {
             return false;
         }
-        if (StaticMethods::empty_string($x)) {
+        if (is_null($x)) {
             $x = $this->x;
         }
-        if (StaticMethods::empty_string($y)) {
+        if (is_null($y)) {
             $y = $this->y;
         }
         // check page for no-write regions and adapt page margins if necessary
@@ -1092,7 +1092,7 @@ trait Images
      * @param bool       $fixoutvals     if true remove values outside the bounding box.
      * @author Valentin Schmidt, Nicola Asuni
      */
-    public function ImageEps($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $useBoundingBox = true, $align = '', $palign = '', $border = 0, $fitonpage = false, $fixoutvals = false)
+    public function ImageEps($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $link = '', $useBoundingBox = true, $align = '', $palign = '', $border = 0, $fitonpage = false, $fixoutvals = false)
     {
         if ($this->state !== self::READY) {
             return;
@@ -1101,10 +1101,10 @@ trait Images
             // convert EPS to raster image using GD or ImageMagick libraries
             return $this->Image($file, $x, $y, $w, $h, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
         }
-        if (StaticMethods::empty_string($x)) {
+        if (empty($x)) {
             $x = $this->x;
         }
-        if (StaticMethods::empty_string($y)) {
+        if (empty($y)) {
             $y = $this->y;
         }
         // check page for no-write regions and adapt page margins if necessary
@@ -1450,7 +1450,7 @@ trait Images
      * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      * @author Nicola Asuni
      */
-    public function ImageSVG($file, $x = null, $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
+    public function ImageSVG($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
     {
         if ($this->state !== self::READY) {
             return;
@@ -1481,10 +1481,10 @@ trait Images
         if ($svgdata === FALSE) {
             $this->Error('SVG file not found: ' . $file);
         }
-        if (StaticMethods::empty_string($x)) {
+        if (empty($x)) {
             $x = $this->x;
         }
-        if (StaticMethods::empty_string($y)) {
+        if (empty($y)) {
             $y = $this->y;
         }
         // check page for no-write regions and adapt page margins if necessary
@@ -2578,7 +2578,7 @@ trait Images
             // default fill attribute for clipping
             $attribs['fill'] = 'none';
         }
-        if (isset($attribs['style']) and !StaticMethods::empty_string($attribs['style']) and ($attribs['style'][0] != ';')) {
+        if (isset($attribs['style']) and !empty($attribs['style']) and ($attribs['style'][0] != ';')) {
             // fix style for regular expression
             $attribs['style'] = ';' . $attribs['style'];
         }
@@ -2587,7 +2587,7 @@ trait Images
                 // inherit previous value
                 $svgstyle[$key] = $val;
             }
-            if (isset($attribs[$key]) and !StaticMethods::empty_string($attribs[$key])) {
+            if (isset($attribs[$key]) and !empty($attribs[$key])) {
                 // specific attribute settings
                 if ($attribs[$key] == 'inherit') {
                     $svgstyle[$key] = $val;
@@ -2596,7 +2596,7 @@ trait Images
                     $svgstyle[$key] = $attribs[$key];
                 }
             }
-            elseif (isset($attribs['style']) and !StaticMethods::empty_string($attribs['style'])) {
+            elseif (isset($attribs['style']) and !empty($attribs['style'])) {
                 // CSS style syntax
                 $attrval = [];
                 if (preg_match('/[;\"\s]{1}' . $key . '[\s]*:[\s]*([^;\"]*)/si', $attribs['style'], $attrval) and isset($attrval[1])) {
@@ -3061,7 +3061,7 @@ trait Images
                     }
                     else {
                         // fix image path
-                        if (!StaticMethods::empty_string($this->svgdir) and (($img[0] == '.') or (basename($img) == $img))) {
+                        if (!empty($this->svgdir) and (($img[0] == '.') or (basename($img) == $img))) {
                             // replace relative path with full server path
                             $img = $this->svgdir . '/' . $img;
                         }
