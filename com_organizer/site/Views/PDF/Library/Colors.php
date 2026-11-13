@@ -72,7 +72,7 @@ trait Colors
             $out .= ' /FunctionType 2 /Domain [0 1] /N 1>>]';
             $out .= "\n" . 'endobj';
 
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -211,7 +211,7 @@ trait Colors
         }
 
         if ($append) {
-            $this->_out($command);
+            $this->append($command);
         }
         return $command;
     }
@@ -278,12 +278,12 @@ trait Colors
         $this->differentColors = ($this->fillColor != $this->textColor);
 
         if ($this->state === self::READY) {
-            $this->_out($command);
+            $this->append($command);
         }
 
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['spot_colors'][$color] = $this->spotColors[$color];
+            $this->xObjects[$this->xObjectID]['spot_colors'][$color] = $this->spotColors[$color];
         }
 
         return $command;

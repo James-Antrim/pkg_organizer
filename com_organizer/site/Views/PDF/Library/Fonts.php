@@ -756,7 +756,7 @@ trait Fonts
         foreach ($this->diffs as $diff) {
             //Encodings
             $this->_newobj();
-            $this->_out('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
+            $this->append('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
         }
         foreach ($this->fontFiles as $file => $info) {
             // search and get font file to embedd
@@ -809,7 +809,7 @@ trait Fonts
                 $out .= ' >>';
                 $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
         foreach ($this->fontKeys as $k) {
@@ -833,7 +833,7 @@ trait Fonts
                 }
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
             elseif (($type == 'Type1') or ($type == 'TrueType')) {
                 // additional Type1 or TrueType font
@@ -855,7 +855,7 @@ trait Fonts
                 }
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 // Widths
                 $this->_newobj();
                 $s = '[';
@@ -869,7 +869,7 @@ trait Fonts
                 }
                 $s .= ']';
                 $s .= "\n" . 'endobj';
-                $this->_out($s);
+                $this->append($s);
                 //Descriptor
                 $this->_newobj();
                 $s = '<</Type /FontDescriptor /FontName /' . $name;
@@ -884,7 +884,7 @@ trait Fonts
                 }
                 $s .= '>>';
                 $s .= "\n" . 'endobj';
-                $this->_out($s);
+                $this->append($s);
             }
             else {
                 // additional types
@@ -976,9 +976,9 @@ trait Fonts
         // check if the font has been already added
         $fb = $this->fontBuffer($fontKey);
         if ($fb !== false) {
-            if ($this->inxobj) {
+            if ($this->inXObject) {
                 // we are inside an XObject template
-                $this->xobjects[$this->xobjid]['fonts'][$fontKey] = $fb['i'];
+                $this->xObjects[$this->xObjectID]['fonts'][$fontKey] = $fb['i'];
             }
             return $fontdata;
         }
@@ -1123,9 +1123,9 @@ trait Fonts
 
         $subsetCharacters = array_fill(0, 255, true);
         $this->fontBuffer($fontKey, ['fontKey' => $fontKey, 'i' => $this->fontCount, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'cbbox' => $cbbox, 'dw' => $dw, 'enc' => $enc, 'cidinfo' => $cidinfo, 'file' => $file, 'ctg' => $ctg, 'subset' => $subset, 'subsetCharacters' => $subsetCharacters]);
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['fonts'][$fontKey] = $this->fontCount;
+            $this->xObjects[$this->xObjectID]['fonts'][$fontKey] = $this->fontCount;
         }
         if (isset($diff) and (!empty($diff))) {
             //Search existing encodings
@@ -1204,7 +1204,7 @@ trait Fonts
         $this->fontAscent  = ($font_ascent / $this->k);
         $this->fontDescent = ($font_descent / $this->k);
         if ($out and ($this->page > 0) and (isset($this->currentFont['i'])) and ($this->state === self::READY)) {
-            $this->_out(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
+            $this->append(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
         }
     }
 

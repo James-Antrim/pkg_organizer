@@ -30,8 +30,52 @@ class PDF
     use Fonts;
     use Images;
 
-    /** Current document state. */
+
+    /** @var int[] */
+    protected array $footerLengths = [];
+
+    protected bool $inFooter = false;
+
+    protected bool $inXObject = false;
+
     protected int $state = self::INITIAL;
+
+    protected string $xObjectID = '';
+
+    protected array $xObjects = [];
+
+    /**
+     * Appends a string to the document.
+     * @param string $string
+     */
+    protected function append(string $string): void
+    {
+        if ($this->state === self::READY) {
+            if ($this->inXObject) {
+                $this->xObjects[$this->xObjectID]['outdata'] .= $string . "\n";
+                return;
+            }
+
+            if (!$this->inFooter and isset($this->footerLengths[$this->page]) and ($pageLength = $this->footerLengths[$this->page]) > 0) {
+                $pageBuffer = $this->getPageBuffer($this->page);
+
+                $page   = substr($pageBuffer, 0, -$pageLength);
+                $footer = substr($pageBuffer, -$pageLength);
+
+                $this->setPageBuffer($this->page, $page . $string . "\n" . $footer);
+                // update footer position
+                $this->footerpos[$this->page] += strlen($string . "\n");
+                return;
+            }
+
+            $this->setPageBuffer($this->page, $string . "\n", true);
+            return;
+        }
+
+        if ($this->state > self::INITIAL) {
+            $this->setBuffer($string . "\n");
+        }
+    }
 
     /**
      * Returns "THM Organizer 5.0.0" in Unicode.
@@ -145,7 +189,7 @@ class PDF
             $command .= $this->drawColorArray($style['color'], true) . ' ';
         }
         if (!$ret and ($this->state === self::READY)) {
-            $this->_out($command);
+            $this->append($command);
         }
         return $command;
     }
@@ -422,11 +466,6 @@ class PDF
      * Flag set when processing page header.
      */
     protected $InHeader = false;
-
-    /**
-     * Flag set when processing page footer.
-     */
-    protected $InFooter = false;
 
     /**
      * Zoom display mode.
@@ -748,11 +787,6 @@ class PDF
      * Array used to store footer positions of each page.
      */
     protected $footerpos = [];
-
-    /**
-     * Array used to store footer length of each page.
-     */
-    protected $footerlen = [];
 
     /**
      * bool flag to indicate if a new line is created.
@@ -1081,21 +1115,6 @@ class PDF
     protected $default_graphic_vars = [];
 
     /**
-     * Array of XObjects.
-     */
-    protected $xobjects = [];
-
-    /**
-     * bool value true when we are inside an XObject.
-     */
-    protected $inxobj = false;
-
-    /**
-     * Current XObject ID.
-     */
-    protected $xobjid = '';
-
-    /**
      * Array of no-write regions.
      * ('page' => page number or empy for current page, 'xt' => X top, 'yt' => Y top, 'xb' => X bottom, 'yb' => Y bottom, 'side' => page side 'L' = left or 'R' = right)
      */
@@ -1357,7 +1376,7 @@ class PDF
         $this->images       = [];
         $this->links        = [];
         $this->gradients    = [];
-        $this->InFooter     = false;
+        $this->inFooter     = false;
         $this->lasth        = 0;
         $this->underline    = false;
         $this->overline     = false;
@@ -2506,7 +2525,7 @@ class PDF
      */
     public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
     {
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
             return;
         }
@@ -2639,8 +2658,8 @@ class PDF
         if ($page <= 0) {
             $page = $this->page;
         }
-        if (isset($this->footerlen[$page])) {
-            $this->cntmrk[$page] = $this->pagelen[$page] - $this->footerlen[$page];
+        if (isset($this->footerLengths[$page])) {
+            $this->cntmrk[$page] = $this->pagelen[$page] - $this->footerLengths[$page];
         }
         else {
             $this->cntmrk[$page] = $this->pagelen[$page];
@@ -2895,12 +2914,12 @@ class PDF
         if ($this->state !== self::READY) {
             return;
         }
-        $this->InFooter = true;
+        $this->inFooter = true;
         // save current graphic settings
         $gvars = $this->getGraphicVars();
         // mark this point
         $this->footerpos[$this->page] = $this->pagelen[$this->page];
-        $this->_out("\n");
+        $this->append("\n");
         if ($this->print_footer) {
             $this->setGraphicVars($this->default_graphic_vars);
             $this->current_column = 0;
@@ -2939,8 +2958,8 @@ class PDF
         $this->current_column = $gvars['current_column'];
         $this->num_columns    = $gvars['num_columns'];
         // calculate footer length
-        $this->footerlen[$this->page] = $this->pagelen[$this->page] - $this->footerpos[$this->page] + 1;
-        $this->InFooter               = false;
+        $this->footerLengths[$this->page] = $this->pagelen[$this->page] - $this->footerpos[$this->page] + 1;
+        $this->inFooter                   = false;
     }
 
     /**
@@ -2949,7 +2968,7 @@ class PDF
      */
     protected function inPageBody()
     {
-        return (($this->InHeader === false) and ($this->InFooter === false));
+        return (($this->InHeader === false) and ($this->inFooter === false));
     }
 
     /**
@@ -3308,9 +3327,9 @@ class PDF
      */
     public function Annotation($x, $y, $w, $h, $text, $opt = ['Subtype' => 'Text'], $spaces = 0)
     {
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // store parameters for later use on template
-            $this->xobjects[$this->xobjid]['annotations'][] = ['x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'text' => $text, 'opt' => $opt, 'spaces' => $spaces];
+            $this->xObjects[$this->xObjectID]['annotations'][] = ['x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'text' => $text, 'opt' => $opt, 'spaces' => $spaces];
             return;
         }
         if ($x === '') {
@@ -3411,7 +3430,7 @@ class PDF
                     $out .= ' /AFRelationship /Source';
                     $out .= ' /EF <</F ' . $filedata['n'] . ' 0 R>> >>';
                     $out .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                     // embedded file object
                     $filter = '';
                     if ($this->compress) {
@@ -3424,7 +3443,7 @@ class PDF
                     $out    .= '<< /Type /EmbeddedFile' . $filter . ' /Length ' . strlen($stream) . ' /Params <</Size ' . $rawsize . '>> >>';
                     $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                     $out    .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                 }
             }
         }
@@ -3584,7 +3603,7 @@ class PDF
                 $this->setAlpha($this->txtshadow['opacity'], $this->txtshadow['blend_mode']);
             }
             if ($this->state === self::READY) {
-                $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
+                $this->append($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
             }
             //restore data
             $this->x = $x;
@@ -3597,7 +3616,7 @@ class PDF
             }
         }
         if ($this->state === self::READY) {
-            $this->_out($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
+            $this->append($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
         }
         $this->cell_padding = $prev_cell_padding;
         $this->cell_margin  = $prev_cell_margin;
@@ -4582,21 +4601,21 @@ class PDF
             if ($cborder or $fill) {
                 $offsetlen = strlen($ccode);
                 // draw border and fill
-                if ($this->inxobj) {
+                if ($this->inXObject) {
                     // we are inside an XObject template
-                    if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
-                        $pagemarkkey                                              = key($this->xobjects[$this->xobjid]['transfmrk']);
-                        $pagemark                                                 = $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey];
-                        $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey] += $offsetlen;
+                    if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
+                        $pagemarkkey                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
+                        $pagemark                                                    = $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey];
+                        $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey] += $offsetlen;
                     }
                     else {
-                        $pagemark                                = $this->xobjects[$this->xobjid]['intmrk'];
-                        $this->xobjects[$this->xobjid]['intmrk'] += $offsetlen;
+                        $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
+                        $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                     }
-                    $pagebuff                                 = $this->xobjects[$this->xobjid]['outdata'];
-                    $pstart                                   = substr($pagebuff, 0, $pagemark);
-                    $pend                                     = substr($pagebuff, $pagemark);
-                    $this->xobjects[$this->xobjid]['outdata'] = $pstart . $ccode . $pend;
+                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                    $pstart                                      = substr($pagebuff, 0, $pagemark);
+                    $pend                                        = substr($pagebuff, $pagemark);
+                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
                 }
                 else {
                     if (end($this->transfmrk[$this->page]) !== false) {
@@ -4604,7 +4623,7 @@ class PDF
                         $pagemark                                   = $this->transfmrk[$this->page][$pagemarkkey];
                         $this->transfmrk[$this->page][$pagemarkkey] += $offsetlen;
                     }
-                    elseif ($this->InFooter) {
+                    elseif ($this->inFooter) {
                         $pagemark                     = $this->footerpos[$this->page];
                         $this->footerpos[$this->page] += $offsetlen;
                     }
@@ -5962,12 +5981,12 @@ class PDF
             $out .= ' /PZ ' . $this->pagedim[$n]['PZ'];
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             //Page content
             $p = ($this->compress) ? gzcompress($temppage) : $temppage;
             $this->_newobj();
             $p = $this->_getrawstream($p);
-            $this->_out('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
+            $this->append('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
         }
         //Pages root
         $out = $this->_getobj(1) . "\n";
@@ -5977,7 +5996,7 @@ class PDF
         }
         $out .= ' ] /Count ' . $num_pages . ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -6073,7 +6092,7 @@ class PDF
                             $annots .= ' /V /' . $defval;
                         }
                         $annots .= ' >>';
-                        $this->_out($this->_getobj($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
+                        $this->append($this->_getobj($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
                         $this->form_obj_id[] = $radio_button_obj_id;
                         // store object id to be used on Parent entry of Kids
                         $this->radiobutton_groups[$n][$pl['txt']] = $radio_button_obj_id;
@@ -6716,7 +6735,7 @@ class PDF
                     }
                     $annots .= '>>';
                     // create new annotation object
-                    $this->_out($this->_getobj($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
+                    $this->append($this->_getobj($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
                     if ($formfield and !isset($this->radiobutton_groups[$n][$pl['txt']])) {
                         // store reference of form object
                         $this->form_obj_id[] = $annot_obj_id;
@@ -6737,7 +6756,7 @@ class PDF
     {
         $stream                          = trim($stream);
         $out                             = $this->_getobj() . "\n";
-        $this->xobjects['AX' . $this->n] = ['n' => $this->n];
+        $this->xObjects['AX' . $this->n] = ['n' => $this->n];
         $out                             .= '<<';
         $out                             .= ' /Type /XObject';
         $out                             .= ' /Subtype /Form';
@@ -6755,7 +6774,7 @@ class PDF
         $out    .= ' >>';
         $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
         $out    .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         return $this->n;
     }
 
@@ -6787,7 +6806,7 @@ class PDF
         $out .= ' /DescendantFonts [' . ($this->n + 2) . ' 0 R]';
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         // ToUnicode map for Identity-H
         $stream = self::IDH_UNICODE;
         // ToUnicode Object
@@ -6795,7 +6814,7 @@ class PDF
         $stream = ($this->compress) ? gzcompress($stream) : $stream;
         $filter = ($this->compress) ? '/Filter /FlateDecode ' : '';
         $stream = $this->_getrawstream($stream);
-        $this->_out('<<' . $filter . '/Length ' . strlen($stream) . '>> stream' . "\n" . $stream . "\n" . 'endstream' . "\n" . 'endobj');
+        $this->append('<<' . $filter . '/Length ' . strlen($stream) . '>> stream' . "\n" . $stream . "\n" . 'endstream' . "\n" . 'endobj');
         // CIDFontType2
         // A CIDFont whose glyph descriptions are based on TrueType font technology
         $oid = $this->_newobj();
@@ -6815,7 +6834,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         // Font descriptor
         // A font descriptor describing the CIDFont default metrics other than its glyph widths
         $this->_newobj();
@@ -6835,7 +6854,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         if (isset($font['ctg']) and (!StaticMethods::empty_string($font['ctg']))) {
             $this->_newobj();
             // Embed CIDToGIDMap
@@ -6855,7 +6874,7 @@ class PDF
             $out .= ' >>';
             $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -6866,7 +6885,7 @@ class PDF
      */
     protected function _putxobjects()
     {
-        foreach ($this->xobjects as $key => $data) {
+        foreach ($this->xObjects as $key => $data) {
             if (isset($data['outdata'])) {
                 $stream = str_replace($this->epsmarker, '', trim($data['outdata']));
                 $out    = $this->_getobj($data['n']) . "\n";
@@ -6927,7 +6946,7 @@ class PDF
                 if (!empty($data['images']) or !empty($data['xobjects'])) {
                     $out .= ' /XObject <<';
                     foreach ($data['images'] as $imgid) {
-                        $out .= ' /I' . $imgid . ' ' . $this->xobjects['I' . $imgid]['n'] . ' 0 R';
+                        $out .= ' /I' . $imgid . ' ' . $this->xObjects['I' . $imgid]['n'] . ' 0 R';
                     }
                     foreach ($data['xobjects'] as $sub_id => $sub_objid) {
                         $out .= ' /' . $sub_id . ' ' . $sub_objid['n'] . ' 0 R';
@@ -6956,7 +6975,7 @@ class PDF
                 $out    .= ' >>';
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                 $out    .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
     }
@@ -6968,7 +6987,7 @@ class PDF
     protected function _getxobjectdict()
     {
         $out = '';
-        foreach ($this->xobjects as $id => $objid) {
+        foreach ($this->xObjects as $id => $objid) {
             $out .= ' /' . $id . ' ' . $objid['n'] . ' 0 R';
         }
         return $out;
@@ -7034,7 +7053,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -7104,7 +7123,7 @@ class PDF
         $out .= ' /Trapped /False';
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         return $oid;
     }
 
@@ -7204,7 +7223,7 @@ class PDF
         // restore previous isunicode value
         $this->isUnicode = $prev_isunicode;
         $this->encrypted = $prev_encrypted;
-        $this->_out($out);
+        $this->append($out);
         return $oid;
     }
 
@@ -7360,7 +7379,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
         return $oid;
     }
 
@@ -7445,8 +7464,8 @@ class PDF
      */
     protected function _putheader()
     {
-        $this->_out('%PDF-' . $this->PDFVersion);
-        $this->_out('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
+        $this->append('%PDF-' . $this->PDFVersion);
+        $this->append('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
     }
 
     /**
@@ -7478,7 +7497,7 @@ class PDF
                 $out     .= ' /Ff 0';
                 $out     .= ' >>';
                 $out     .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
         // Signature
@@ -7496,7 +7515,7 @@ class PDF
             $out .= ' /V ' . ($this->sig_obj_id + 1) . ' 0 R';
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             // signature
             $this->_putsignature();
         }
@@ -7507,17 +7526,17 @@ class PDF
         // Cross-ref
         $o = $this->bufferlen;
         // XREF section
-        $this->_out('xref');
-        $this->_out('0 ' . ($this->n + 1));
-        $this->_out('0000000000 65535 f ');
+        $this->append('xref');
+        $this->append('0 ' . ($this->n + 1));
+        $this->append('0000000000 65535 f ');
         $freegen = ($this->n + 2);
         for ($i = 1; $i <= $this->n; ++$i) {
             if (!isset($this->offsets[$i]) and ($i > 1)) {
-                $this->_out(sprintf('0000000000 %05d f ', $freegen));
+                $this->append(sprintf('0000000000 %05d f ', $freegen));
                 ++$freegen;
             }
             else {
-                $this->_out(sprintf('%010d 00000 n ', $this->offsets[$i]));
+                $this->append(sprintf('%010d 00000 n ', $this->offsets[$i]));
             }
         }
         // TRAILER
@@ -7531,10 +7550,10 @@ class PDF
         }
         $out .= ' /ID [ <' . $this->file_id . '> <' . $this->file_id . '> ]';
         $out .= ' >>';
-        $this->_out($out);
-        $this->_out('startxref');
-        $this->_out($o);
-        $this->_out('%%EOF');
+        $this->append($out);
+        $this->append('startxref');
+        $this->append($o);
+        $this->append('%%EOF');
         $this->state = self::FINAL;
     }
 
@@ -7604,7 +7623,7 @@ class PDF
      */
     protected function _newobj()
     {
-        $this->_out($this->_getobj());
+        $this->append($this->_getobj());
         return $this->n;
     }
 
@@ -7796,37 +7815,6 @@ class PDF
             $n = $this->n;
         }
         return $this->_encrypt_data($n, $s);
-    }
-
-    /**
-     * Output a string to the document.
-     * @param string $s string to output.
-     */
-    protected function _out($s)
-    {
-        if ($this->state === self::READY) {
-            if ($this->inxobj) {
-                // we are inside an XObject template
-                $this->xobjects[$this->xobjid]['outdata'] .= $s . "\n";
-            }
-            elseif ((!$this->InFooter) and isset($this->footerlen[$this->page]) and ($this->footerlen[$this->page] > 0)) {
-                // puts data before page footer
-                $pagebuff = $this->getPageBuffer($this->page);
-                $page     = substr($pagebuff, 0, -$this->footerlen[$this->page]);
-                $footer   = substr($pagebuff, -$this->footerlen[$this->page]);
-                $this->setPageBuffer($this->page, $page . $s . "\n" . $footer);
-                // update footer position
-                $this->footerpos[$this->page] += strlen($s . "\n");
-            }
-            else {
-                // set page data
-                $this->setPageBuffer($this->page, $s . "\n", true);
-            }
-        }
-        elseif ($this->state > self::INITIAL) {
-            // set general data
-            $this->setBuffer($s . "\n");
-        }
     }
 
     /**
@@ -8104,7 +8092,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -8453,9 +8441,9 @@ class PDF
             return;
         }
         $this->_outSaveGraphicsState();
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['transfmrk'][] = strlen($this->xobjects[$this->xobjid]['outdata']);
+            $this->xObjects[$this->xObjectID]['transfmrk'][] = strlen($this->xObjects[$this->xObjectID]['outdata']);
         }
         else {
             $this->transfmrk[$this->page][] = $this->pagelen[$this->page];
@@ -8480,9 +8468,9 @@ class PDF
             array_pop($this->transfmatrix[$this->transfmatrix_key]);
             --$this->transfmatrix_key;
         }
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            array_pop($this->xobjects[$this->xobjid]['transfmrk']);
+            array_pop($this->xObjects[$this->xObjectID]['transfmrk']);
         }
         else {
             array_pop($this->transfmrk[$this->page]);
@@ -8740,15 +8728,15 @@ class PDF
         if ($this->state !== self::READY) {
             return;
         }
-        $this->_out(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
+        $this->append(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
         // add tranformation matrix
         $this->transfmatrix[$this->transfmatrix_key][] = ['a' => $tm[0], 'b' => $tm[1], 'c' => $tm[2], 'd' => $tm[3], 'e' => $tm[4], 'f' => $tm[5]];
         // update transformation mark
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
-                $key                                              = key($this->xobjects[$this->xobjid]['transfmrk']);
-                $this->xobjects[$this->xobjid]['transfmrk'][$key] = strlen($this->xobjects[$this->xobjid]['outdata']);
+            if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
+                $key                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
+                $this->xObjects[$this->xObjectID]['transfmrk'][$key] = strlen($this->xObjects[$this->xObjectID]['outdata']);
             }
         }
         elseif (end($this->transfmrk[$this->page]) !== false) {
@@ -8773,7 +8761,7 @@ class PDF
         $this->LineWidth      = $width;
         $this->linestyleWidth = sprintf('%F w', ($width * $this->k));
         if ($this->state === self::READY) {
-            $this->_out($this->linestyleWidth);
+            $this->append($this->linestyleWidth);
         }
     }
 
@@ -8795,7 +8783,7 @@ class PDF
     protected function _outPoint($x, $y)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F m', ($x * $this->k), (($this->h - $y) * $this->k)));
+            $this->append(sprintf('%F %F m', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
 
@@ -8808,7 +8796,7 @@ class PDF
     protected function _outLine($x, $y)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F l', ($x * $this->k), (($this->h - $y) * $this->k)));
+            $this->append(sprintf('%F %F l', ($x * $this->k), (($this->h - $y) * $this->k)));
         }
     }
 
@@ -8823,7 +8811,7 @@ class PDF
     protected function _outRect($x, $y, $w, $h, $op)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->h - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
+            $this->append(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->h - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
         }
     }
 
@@ -8840,7 +8828,7 @@ class PDF
     protected function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
+            $this->append(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
 
@@ -8855,7 +8843,7 @@ class PDF
     protected function _outCurveV($x2, $y2, $x3, $y3)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F %F %F v', ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
+            $this->append(sprintf('%F %F %F %F v', ($x2 * $this->k), (($this->h - $y2) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
 
@@ -8870,7 +8858,7 @@ class PDF
     protected function _outCurveY($x1, $y1, $x3, $y3)
     {
         if ($this->state === self::READY) {
-            $this->_out(sprintf('%F %F %F %F y', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
+            $this->append(sprintf('%F %F %F %F y', ($x1 * $this->k), (($this->h - $y1) * $this->k), ($x3 * $this->k), (($this->h - $y3) * $this->k)));
         }
     }
 
@@ -8893,7 +8881,7 @@ class PDF
         }
         $this->_outPoint($x1, $y1);
         $this->_outLine($x2, $y2);
-        $this->_out('S');
+        $this->append('S');
     }
 
     /**
@@ -8997,7 +8985,7 @@ class PDF
         }
         $this->_outPoint($x0, $y0);
         $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -9032,7 +9020,7 @@ class PDF
             list($x1, $y1, $x2, $y2, $x3, $y3) = $segment;
             $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
         }
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -9070,7 +9058,7 @@ class PDF
             $this->lineStyle($line_style);
         }
         $this->_outellipticalarc($x0, $y0, $rx, $ry, $angle, $astart, $afinish, false, $nc, true, true, false);
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -9298,7 +9286,7 @@ class PDF
                     for ($i = 2; $i < $nc; $i = $i + 2) {
                         $this->_outLine($p[$i], $p[$i + 1]);
                     }
-                    $this->_out($op);
+                    $this->append($op);
                 }
                 // draw outline
                 $this->_outPoint($p[0], $p[1]);
@@ -9307,11 +9295,11 @@ class PDF
                     if (isset($line_style[$line_num])) {
                         if ($line_style[$line_num] != 0) {
                             if (is_array($line_style[$line_num])) {
-                                $this->_out('S');
+                                $this->append('S');
                                 $this->lineStyle($line_style[$line_num]);
                                 $this->_outPoint($p[$i - 2], $p[$i - 1]);
                                 $this->_outLine($p[$i], $p[$i + 1]);
-                                $this->_out('S');
+                                $this->append('S');
                                 $this->_outPoint($p[$i], $p[$i + 1]);
                             }
                             else {
@@ -9323,7 +9311,7 @@ class PDF
                         $this->_outLine($p[$i], $p[$i + 1]);
                     }
                 }
-                $this->_out($op);
+                $this->append($op);
             }
         }
         if ($draw) {
@@ -9331,7 +9319,7 @@ class PDF
             for ($i = 2; $i < $nc; $i = $i + 2) {
                 $this->_outLine($p[$i], $p[$i + 1]);
             }
-            $this->_out($op);
+            $this->append($op);
         }
     }
 
@@ -9528,7 +9516,7 @@ class PDF
             $this->_outLine($x, $y);
             $this->_outLine($x + $rx, $y);
         }
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -9677,7 +9665,7 @@ class PDF
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -9894,11 +9882,11 @@ class PDF
             $out .= ' /Count 0'; // normally closed item
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
         //Outline root
         $this->OutlineRoot = $this->_newobj();
-        $this->_out('<< /Type /Outlines /First ' . $n . ' 0 R /Last ' . ($n + $lru[0]) . ' 0 R >>' . "\n" . 'endobj');
+        $this->append('<< /Type /Outlines /First ' . $n . ' 0 R /Last ' . ($n + $lru[0]) . ' 0 R >>' . "\n" . 'endobj');
     }
 
     // --- JAVASCRIPT ------------------------------------------------------
@@ -9966,13 +9954,13 @@ class PDF
             $out    .= ' /JS ' . $this->_textstring($this->javascript, $obj_id);
             $out    .= ' >>';
             $out    .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
         // additional Javascript objects
         if (!empty($this->js_objects)) {
             foreach ($this->js_objects as $key => $val) {
                 $out = $this->_getobj($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js'], $key) . ' >>' . "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
         }
     }
@@ -10112,8 +10100,8 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, $align, false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xobjects[$tmpid]['outdata'];
-        unset($this->xobjects[$tmpid]);
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
         $opt = array_merge($popt, $opt);
@@ -10326,8 +10314,8 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xobjects[$tmpid]['outdata'];
-        unset($this->xobjects[$tmpid]);
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
         $opt = array_merge($popt, $opt);
@@ -10415,8 +10403,8 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xobjects[$tmpid]['outdata'];
-        unset($this->xobjects[$tmpid]);
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
         $opt = array_merge($popt, $opt);
@@ -10574,8 +10562,8 @@ class PDF
         $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
         --$this->n;
-        $popt['ap']['n'] .= $this->xobjects[$tmpid]['outdata'];
-        unset($this->xobjects[$tmpid]);
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // set additional default options
         if (!isset($popt['mk'])) {
@@ -10787,7 +10775,7 @@ class PDF
         $out .= ' /M ' . $this->_datestring($sigobjid, $this->doc_modification_timestamp);
         $out .= ' >>';
         $out .= "\n" . 'endobj';
-        $this->_out($out);
+        $this->append($out);
     }
 
     /**
@@ -11128,7 +11116,7 @@ class PDF
             $out .= ' /View <</ViewState /' . ($layer['view'] ? 'ON' : 'OFF') . '>>';
             $out .= ' >> >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -11153,7 +11141,7 @@ class PDF
         }
         $this->pdflayers[]       = ['layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock];
         $this->openMarkedContent = true;
-        $this->_out('/OC /' . $layer . ' BDC');
+        $this->append('/OC /' . $layer . ' BDC');
     }
 
     /**
@@ -11166,7 +11154,7 @@ class PDF
         }
         if ($this->openMarkedContent) {
             // close existing open marked-content layer
-            $this->_out('EMC');
+            $this->append('EMC');
             $this->openMarkedContent = false;
         }
     }
@@ -11197,7 +11185,7 @@ class PDF
             }
             case 'all':
             {
-                $this->_out('');
+                $this->append('');
                 break;
             }
             default:
@@ -11218,9 +11206,9 @@ class PDF
         // check if this ExtGState already exist
         foreach ($this->extgstates as $i => $ext) {
             if ($ext['parms'] == $parms) {
-                if ($this->inxobj) {
+                if ($this->inXObject) {
                     // we are inside an XObject template
-                    $this->xobjects[$this->xobjid]['extgstates'][$i] = $ext;
+                    $this->xObjects[$this->xObjectID]['extgstates'][$i] = $ext;
                 }
                 // return reference to existing ExtGState
                 return $i;
@@ -11228,9 +11216,9 @@ class PDF
         }
         $n                    = (count($this->extgstates) + 1);
         $this->extgstates[$n] = ['parms' => $parms];
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['extgstates'][$n] = $this->extgstates[$n];
+            $this->xObjects[$this->xObjectID]['extgstates'][$n] = $this->extgstates[$n];
         }
         return $n;
     }
@@ -11245,7 +11233,7 @@ class PDF
             // transparency is not allowed in PDF/A-1 mode
             return;
         }
-        $this->_out(sprintf('/GS%d gs', $gs));
+        $this->append(sprintf('/GS%d gs', $gs));
     }
 
     /**
@@ -11270,7 +11258,7 @@ class PDF
             }
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
         }
     }
 
@@ -11679,12 +11667,12 @@ class PDF
             }
         }
         //paint the gradient
-        $this->_out('/Sh' . $n . ' sh');
+        $this->append('/Sh' . $n . ' sh');
         //restore previous Graphic State
         $this->_outRestoreGraphicsState();
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['gradients'][$n] = $this->gradients[$n];
+            $this->xObjects[$this->xObjectID]['gradients'][$n] = $this->gradients[$n];
         }
     }
 
@@ -11710,7 +11698,7 @@ class PDF
         $s .= sprintf(' %F %F %F %F re W n', $x * $this->k, ($this->h - $y) * $this->k, $w * $this->k, -$h * $this->k);
         //set up transformation matrix for gradient
         $s .= sprintf(' %F 0 0 %F %F %F cm', $w * $this->k, $h * $this->k, $x * $this->k, ($this->h - ($y + $h)) * $this->k);
-        $this->_out($s);
+        $this->append($s);
     }
 
     /**
@@ -11823,15 +11811,15 @@ class PDF
         }
         if ($this->gradients[$n]['transparency']) {
             // paint luminosity gradient
-            $this->_out('/TGS' . $n . ' gs');
+            $this->append('/TGS' . $n . ' gs');
         }
         //paint the gradient
-        $this->_out('/Sh' . $n . ' sh');
+        $this->append('/Sh' . $n . ' sh');
         //restore previous Graphic State
         $this->_outRestoreGraphicsState();
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['gradients'][$n] = $this->gradients[$n];
+            $this->xObjects[$this->xObjectID]['gradients'][$n] = $this->gradients[$n];
         }
     }
 
@@ -11866,7 +11854,7 @@ class PDF
                 $out .= ' /Encode [' . trim($encode) . ']';
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 for ($i = 1; $i < $num_cols; ++$i) {
                     $this->_newobj();
                     $out = '<<';
@@ -11877,7 +11865,7 @@ class PDF
                     $out .= ' /N ' . $grad['colors'][$i]['exponent'];
                     $out .= ' >>';
                     $out .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                 }
                 // set transparency functions
                 if ($grad['transparency']) {
@@ -11896,7 +11884,7 @@ class PDF
                     $out .= ' /Encode [' . trim($encode) . ']';
                     $out .= ' >>';
                     $out .= "\n" . 'endobj';
-                    $this->_out($out);
+                    $this->append($out);
                     for ($i = 1; $i < $num_cols; ++$i) {
                         $this->_newobj();
                         $out = '<<';
@@ -11907,7 +11895,7 @@ class PDF
                         $out .= ' /N ' . $grad['colors'][$i]['exponent'];
                         $out .= ' >>';
                         $out .= "\n" . 'endobj';
-                        $this->_out($out);
+                        $this->append($out);
                     }
                 }
             }
@@ -11953,7 +11941,7 @@ class PDF
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             }
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             if ($grad['transparency']) {
                 $shading_transparency = preg_replace('/\/ColorSpace \/[^\s]+/si', '/ColorSpace /DeviceGray', $out);
                 $shading_transparency = preg_replace('/\/Function [0-9]+ /si', '/Function ' . $ft . ' ', $shading_transparency);
@@ -11965,25 +11953,25 @@ class PDF
             $out .= ' /Shading ' . $this->gradients[$id]['id'] . ' 0 R';
             $out .= ' >>';
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             $this->gradients[$id]['pattern'] = $this->n;
             // set shading and pattern for transparency mask
             if ($grad['transparency']) {
                 // luminosity pattern
                 $idgs = $id + $idt;
                 $this->_newobj();
-                $this->_out($shading_transparency);
+                $this->append($shading_transparency);
                 $this->gradients[$idgs]['id'] = $this->n;
                 $this->_newobj();
                 $out = '<< /Type /Pattern /PatternType 2';
                 $out .= ' /Shading ' . $this->gradients[$idgs]['id'] . ' 0 R';
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 $this->gradients[$idgs]['pattern'] = $this->n;
                 // luminosity XObject
                 $oid                         = $this->_newobj();
-                $this->xobjects['LX' . $oid] = ['n' => $oid];
+                $this->xObjects['LX' . $oid] = ['n' => $oid];
                 $filter                      = '';
                 $stream                      = 'q /a0 gs /Pattern cs /p' . $idgs . ' scn 0 0 ' . $this->wPt . ' ' . $this->hPt . ' re f Q';
                 if ($this->compress) {
@@ -12003,15 +11991,15 @@ class PDF
                 $out    .= ' >> ';
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                 $out    .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 // SMask
                 $this->_newobj();
                 $out = '<< /Type /Mask /S /Luminosity /G ' . ($this->n - 1) . ' 0 R >>' . "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 // ExtGState
                 $this->_newobj();
                 $out = '<< /Type /ExtGState /SMask ' . ($this->n - 1) . ' 0 R /AIS false >>' . "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
                 $this->extgstates[] = ['n' => $this->n, 'name' => 'TGS' . $id];
             }
         }
@@ -12072,7 +12060,7 @@ class PDF
             $a += $o;
         }
         $this->_outellipticalarc($xc, $yc, $rx, $ry, 0, $a, $b, true, $nc);
-        $this->_out($op);
+        $this->append($op);
     }
 
     /**
@@ -14147,9 +14135,9 @@ class PDF
         $fontaligned       = false;
         $reverse_dir       = false; // true when the text direction is reversed
         $this->premode     = false;
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $pask = count($this->xobjects[$this->xobjid]['annotations']);
+            $pask = count($this->xObjects[$this->xObjectID]['annotations']);
         }
         elseif (isset($this->PageAnnots[$this->page])) {
             $pask = count($this->PageAnnots[$this->page]);
@@ -14157,13 +14145,13 @@ class PDF
         else {
             $pask = 0;
         }
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $startlinepos = strlen($this->xobjects[$this->xobjid]['outdata']);
+            $startlinepos = strlen($this->xObjects[$this->xObjectID]['outdata']);
         }
-        elseif (!$this->InFooter) {
-            if (isset($this->footerlen[$this->page])) {
-                $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerlen[$this->page];
+        elseif (!$this->inFooter) {
+            if (isset($this->footerLengths[$this->page])) {
+                $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerLengths[$this->page];
             }
             else {
                 $this->footerpos[$this->page] = $this->pagelen[$this->page];
@@ -14389,8 +14377,8 @@ class PDF
                         }
                         if ($this->page > $startlinepage) {
                             // fix line splitted over two pages
-                            if (isset($this->footerlen[$startlinepage])) {
-                                $curpos = $this->pagelen[$startlinepage] - $this->footerlen[$startlinepage];
+                            if (isset($this->footerLengths[$startlinepage])) {
+                                $curpos = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
                             }
                             // line to be moved one page forward
                             $pagebuff = $this->getPageBuffer($startlinepage);
@@ -14459,8 +14447,8 @@ class PDF
                             )) {
                             if ($this->page > $startlinepage) {
                                 // fix lines splitted over two pages
-                                if (isset($this->footerlen[$startlinepage])) {
-                                    $curpos = $this->pagelen[$startlinepage] - $this->footerlen[$startlinepage];
+                                if (isset($this->footerLengths[$startlinepage])) {
+                                    $curpos = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
                                 }
                                 // line to be moved one page forward
                                 $pagebuff = $this->getPageBuffer($startlinepage);
@@ -14580,9 +14568,9 @@ class PDF
                     $t_x = 0;
                     // the last line must be shifted to be aligned as requested
                     $linew = abs($this->endlinex - $startlinex);
-                    if ($this->inxobj) {
+                    if ($this->inXObject) {
                         // we are inside an XObject template
-                        $pstart = substr($this->xobjects[$this->xobjid]['outdata'], 0, $startlinepos);
+                        $pstart = substr($this->xObjects[$this->xObjectID]['outdata'], 0, $startlinepos);
                         if (isset($opentagpos)) {
                             $midpos = $opentagpos;
                         }
@@ -14590,25 +14578,25 @@ class PDF
                             $midpos = 0;
                         }
                         if ($midpos > 0) {
-                            $pmid = substr($this->xobjects[$this->xobjid]['outdata'], $startlinepos, ($midpos - $startlinepos));
-                            $pend = substr($this->xobjects[$this->xobjid]['outdata'], $midpos);
+                            $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos, ($midpos - $startlinepos));
+                            $pend = substr($this->xObjects[$this->xObjectID]['outdata'], $midpos);
                         }
                         else {
-                            $pmid = substr($this->xobjects[$this->xobjid]['outdata'], $startlinepos);
+                            $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos);
                             $pend = '';
                         }
                     }
                     else {
                         $pstart = substr($this->getPageBuffer($startlinepage), 0, $startlinepos);
-                        if (isset($opentagpos) and isset($this->footerlen[$startlinepage]) and (!$this->InFooter)) {
-                            $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerlen[$startlinepage];
+                        if (isset($opentagpos) and isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
+                            $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
                             $midpos                          = min($opentagpos, $this->footerpos[$startlinepage]);
                         }
                         elseif (isset($opentagpos)) {
                             $midpos = $opentagpos;
                         }
-                        elseif (isset($this->footerlen[$startlinepage]) and (!$this->InFooter)) {
-                            $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerlen[$startlinepage];
+                        elseif (isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
+                            $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
                             $midpos                          = $this->footerpos[$startlinepage];
                         }
                         else {
@@ -14890,16 +14878,16 @@ class PDF
                                     // shift the annotations and links
                                     $cxpos = ($currentxpos / $this->k);
                                     $lmpos = ($this->lMargin + $this->cell_padding['L'] + $this->feps);
-                                    if ($this->inxobj) {
+                                    if ($this->inXObject) {
                                         // we are inside an XObject template
-                                        foreach ($this->xobjects[$this->xobjid]['annotations'] as $pak => $pac) {
+                                        foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
                                             if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->k) >= ($currentxpos - $this->feps)) and (($pac['x'] * $this->k) <= ($currentxpos + $this->feps))) {
                                                 if ($cxpos > $lmpos) {
-                                                    $this->xobjects[$this->xobjid]['annotations'][$pak]['x'] += ($spacew / $this->k);
-                                                    $this->xobjects[$this->xobjid]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += ($spacew / $this->k);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
                                                 }
                                                 else {
-                                                    $this->xobjects[$this->xobjid]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
                                                 }
                                                 break;
                                             }
@@ -14947,9 +14935,9 @@ class PDF
                                         }
                                         unset($pamatch);
                                     }
-                                    if ($this->inxobj) {
+                                    if ($this->inXObject) {
                                         // we are inside an XObject template
-                                        $this->xobjects[$this->xobjid]['outdata'] = $pstart . "\n" . $pmid . "\n" . $pend;
+                                        $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\n" . $pend;
                                     }
                                     else {
                                         $this->setPageBuffer($startlinepage, $pstart . "\n" . $pmid . "\n" . $pend);
@@ -14964,9 +14952,9 @@ class PDF
                                     }
                                     $rs   = sprintf('%F Tw', $spacewidth);
                                     $pmid = preg_replace("/\[\(/x", $rs . ' [(', $pmid);
-                                    if ($this->inxobj) {
+                                    if ($this->inXObject) {
                                         // we are inside an XObject template
-                                        $this->xobjects[$this->xobjid]['outdata'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
+                                        $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
                                     }
                                     else {
                                         $this->setPageBuffer($startlinepage, $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend);
@@ -14981,13 +14969,13 @@ class PDF
                         $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->k), ($yshift * $this->k));
                         $pstart     .= "\nq\n" . $trx . "\n" . $pmid . "\nQ\n";
                         $endlinepos = strlen($pstart);
-                        if ($this->inxobj) {
+                        if ($this->inXObject) {
                             // we are inside an XObject template
-                            $this->xobjects[$this->xobjid]['outdata'] = $pstart . $pend;
-                            foreach ($this->xobjects[$this->xobjid]['annotations'] as $pak => $pac) {
+                            $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $pend;
+                            foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
                                 if ($pak >= $pask) {
-                                    $this->xobjects[$this->xobjid]['annotations'][$pak]['x'] += $t_x;
-                                    $this->xobjects[$this->xobjid]['annotations'][$pak]['y'] -= $yshift;
+                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += $t_x;
+                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['y'] -= $yshift;
                                 }
                             }
                         }
@@ -15025,13 +15013,13 @@ class PDF
                     $startlinepos = $endlinepos;
                 }
                 else {
-                    if ($this->inxobj) {
+                    if ($this->inXObject) {
                         // we are inside an XObject template
-                        $startlinepos = strlen($this->xobjects[$this->xobjid]['outdata']);
+                        $startlinepos = strlen($this->xObjects[$this->xObjectID]['outdata']);
                     }
-                    elseif (!$this->InFooter) {
-                        if (isset($this->footerlen[$this->page])) {
-                            $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerlen[$this->page];
+                    elseif (!$this->inFooter) {
+                        if (isset($this->footerLengths[$this->page])) {
+                            $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerLengths[$this->page];
                         }
                         else {
                             $this->footerpos[$this->page] = $this->pagelen[$this->page];
@@ -15353,13 +15341,13 @@ class PDF
                     else {
                         // opening tag (or self-closing tag)
                         if (!isset($opentagpos)) {
-                            if ($this->inxobj) {
+                            if ($this->inXObject) {
                                 // we are inside an XObject template
-                                $opentagpos = strlen($this->xobjects[$this->xobjid]['outdata']);
+                                $opentagpos = strlen($this->xObjects[$this->xObjectID]['outdata']);
                             }
-                            elseif (!$this->InFooter) {
-                                if (isset($this->footerlen[$this->page])) {
-                                    $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerlen[$this->page];
+                            elseif (!$this->inFooter) {
+                                if (isset($this->footerLengths[$this->page])) {
+                                    $this->footerpos[$this->page] = $this->pagelen[$this->page] - $this->footerLengths[$this->page];
                                 }
                                 else {
                                     $this->footerpos[$this->page] = $this->pagelen[$this->page];
@@ -15610,9 +15598,9 @@ class PDF
             $t_x = 0;
             // the last line must be shifted to be aligned as requested
             $linew = abs($this->endlinex - $startlinex);
-            if ($this->inxobj) {
+            if ($this->inXObject) {
                 // we are inside an XObject template
-                $pstart = substr($this->xobjects[$this->xobjid]['outdata'], 0, $startlinepos);
+                $pstart = substr($this->xObjects[$this->xObjectID]['outdata'], 0, $startlinepos);
                 if (isset($opentagpos)) {
                     $midpos = $opentagpos;
                 }
@@ -15620,25 +15608,25 @@ class PDF
                     $midpos = 0;
                 }
                 if ($midpos > 0) {
-                    $pmid = substr($this->xobjects[$this->xobjid]['outdata'], $startlinepos, ($midpos - $startlinepos));
-                    $pend = substr($this->xobjects[$this->xobjid]['outdata'], $midpos);
+                    $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos, ($midpos - $startlinepos));
+                    $pend = substr($this->xObjects[$this->xObjectID]['outdata'], $midpos);
                 }
                 else {
-                    $pmid = substr($this->xobjects[$this->xobjid]['outdata'], $startlinepos);
+                    $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos);
                     $pend = '';
                 }
             }
             else {
                 $pstart = substr($this->getPageBuffer($startlinepage), 0, $startlinepos);
-                if (isset($opentagpos) and isset($this->footerlen[$startlinepage]) and (!$this->InFooter)) {
-                    $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerlen[$startlinepage];
+                if (isset($opentagpos) and isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
+                    $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
                     $midpos                          = min($opentagpos, $this->footerpos[$startlinepage]);
                 }
                 elseif (isset($opentagpos)) {
                     $midpos = $opentagpos;
                 }
-                elseif (isset($this->footerlen[$startlinepage]) and (!$this->InFooter)) {
-                    $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerlen[$startlinepage];
+                elseif (isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
+                    $this->footerpos[$startlinepage] = $this->pagelen[$startlinepage] - $this->footerLengths[$startlinepage];
                     $midpos                          = $this->footerpos[$startlinepage];
                 }
                 else {
@@ -15730,13 +15718,13 @@ class PDF
                 $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->k), ($yshift * $this->k));
                 $pstart     .= "\nq\n" . $trx . "\n" . $pmid . "\nQ\n";
                 $endlinepos = strlen($pstart);
-                if ($this->inxobj) {
+                if ($this->inXObject) {
                     // we are inside an XObject template
-                    $this->xobjects[$this->xobjid]['outdata'] = $pstart . $pend;
-                    foreach ($this->xobjects[$this->xobjid]['annotations'] as $pak => $pac) {
+                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $pend;
+                    foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
                         if ($pak >= $pask) {
-                            $this->xobjects[$this->xobjid]['annotations'][$pak]['x'] += $t_x;
-                            $this->xobjects[$this->xobjid]['annotations'][$pak]['y'] -= $yshift;
+                            $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += $t_x;
+                            $this->xObjects[$this->xObjectID]['annotations'][$pak]['y'] -= $yshift;
                         }
                     }
                 }
@@ -16953,21 +16941,21 @@ class PDF
                             if (!empty($cborder) or !empty($fill)) {
                                 $offsetlen = strlen($ccode);
                                 // draw border and fill
-                                if ($this->inxobj) {
+                                if ($this->inXObject) {
                                     // we are inside an XObject template
-                                    if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
-                                        $pagemarkkey                                              = key($this->xobjects[$this->xobjid]['transfmrk']);
-                                        $pagemark                                                 = $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey];
-                                        $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey] += $offsetlen;
+                                    if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
+                                        $pagemarkkey                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
+                                        $pagemark                                                    = $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey];
+                                        $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey] += $offsetlen;
                                     }
                                     else {
-                                        $pagemark                                = $this->xobjects[$this->xobjid]['intmrk'];
-                                        $this->xobjects[$this->xobjid]['intmrk'] += $offsetlen;
+                                        $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
+                                        $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                                     }
-                                    $pagebuff                                 = $this->xobjects[$this->xobjid]['outdata'];
-                                    $pstart                                   = substr($pagebuff, 0, $pagemark);
-                                    $pend                                     = substr($pagebuff, $pagemark);
-                                    $this->xobjects[$this->xobjid]['outdata'] = $pstart . $ccode . $pend;
+                                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                                    $pstart                                      = substr($pagebuff, 0, $pagemark);
+                                    $pend                                        = substr($pagebuff, $pagemark);
+                                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
                                 }
                                 else {
                                     // draw border and fill
@@ -16975,7 +16963,7 @@ class PDF
                                         $pagemarkkey = key($this->transfmrk[$this->page]);
                                         $pagemark    = $this->transfmrk[$this->page][$pagemarkkey];
                                     }
-                                    elseif ($this->InFooter) {
+                                    elseif ($this->inFooter) {
                                         $pagemark = $this->footerpos[$this->page];
                                     }
                                     else {
@@ -17399,28 +17387,28 @@ class PDF
             if ($cborder or $fill) {
                 $offsetlen = strlen($ccode);
                 // draw border and fill
-                if ($this->inxobj) {
+                if ($this->inXObject) {
                     // we are inside an XObject template
-                    if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
-                        $pagemarkkey                                              = key($this->xobjects[$this->xobjid]['transfmrk']);
-                        $pagemark                                                 = $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey];
-                        $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey] += $offsetlen;
+                    if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
+                        $pagemarkkey                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
+                        $pagemark                                                    = $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey];
+                        $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey] += $offsetlen;
                     }
                     else {
-                        $pagemark                                = $this->xobjects[$this->xobjid]['intmrk'];
-                        $this->xobjects[$this->xobjid]['intmrk'] += $offsetlen;
+                        $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
+                        $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                     }
-                    $pagebuff                                 = $this->xobjects[$this->xobjid]['outdata'];
-                    $pstart                                   = substr($pagebuff, 0, $pagemark);
-                    $pend                                     = substr($pagebuff, $pagemark);
-                    $this->xobjects[$this->xobjid]['outdata'] = $pstart . $ccode . $pend;
+                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                    $pstart                                      = substr($pagebuff, 0, $pagemark);
+                    $pend                                        = substr($pagebuff, $pagemark);
+                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
                 }
                 else {
                     if (end($this->transfmrk[$this->page]) !== false) {
                         $pagemarkkey = key($this->transfmrk[$this->page]);
                         $pagemark    = $this->transfmrk[$this->page][$pagemarkkey];
                     }
-                    elseif ($this->InFooter) {
+                    elseif ($this->inFooter) {
                         $pagemark = $this->footerpos[$this->page];
                     }
                     else {
@@ -17617,7 +17605,7 @@ class PDF
                 $prev_line_style = $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
                 $this->Circle(($this->x + $r), ($this->y + ($this->lasth / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
-                $this->_out($prev_line_style); // restore line settings
+                $this->append($prev_line_style); // restore line settings
                 break;
             }
             case 'square':
@@ -17895,7 +17883,7 @@ class PDF
             $this->current_column   = $gvars['current_column'];
             $this->num_columns      = $gvars['num_columns'];
         }
-        $this->_out('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
+        $this->append('' . $this->linestyleWidth . ' ' . $this->linestyleCap . ' ' . $this->linestyleJoin . ' ' . $this->linestyleDash . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
         if (!StaticMethods::empty_string($this->fontFamily)) {
             $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
         }
@@ -17906,7 +17894,7 @@ class PDF
      */
     protected function _outSaveGraphicsState()
     {
-        $this->_out('q');
+        $this->append('q');
     }
 
     /**
@@ -17914,7 +17902,7 @@ class PDF
      */
     protected function _outRestoreGraphicsState()
     {
-        $this->_out('Q');
+        $this->append('Q');
     }
 
     /**
@@ -18007,8 +17995,8 @@ class PDF
         if (isset($this->footerpos[$frompage])) {
             $tmpfooterpos = $this->footerpos[$frompage];
         }
-        if (isset($this->footerlen[$frompage])) {
-            $tmpfooterlen = $this->footerlen[$frompage];
+        if (isset($this->footerLengths[$frompage])) {
+            $tmpfooterlen = $this->footerLengths[$frompage];
         }
         if (isset($this->transfmrk[$frompage])) {
             $tmptransfmrk = $this->transfmrk[$frompage];
@@ -18046,11 +18034,11 @@ class PDF
             elseif (isset($this->footerpos[$i])) {
                 unset($this->footerpos[$i]);
             }
-            if (isset($this->footerlen[$j])) {
-                $this->footerlen[$i] = $this->footerlen[$j];
+            if (isset($this->footerLengths[$j])) {
+                $this->footerLengths[$i] = $this->footerLengths[$j];
             }
-            elseif (isset($this->footerlen[$i])) {
-                unset($this->footerlen[$i]);
+            elseif (isset($this->footerLengths[$i])) {
+                unset($this->footerLengths[$i]);
             }
             if (isset($this->transfmrk[$j])) {
                 $this->transfmrk[$i] = $this->transfmrk[$j];
@@ -18086,10 +18074,10 @@ class PDF
             unset($this->footerpos[$topage]);
         }
         if (isset($tmpfooterlen)) {
-            $this->footerlen[$topage] = $tmpfooterlen;
+            $this->footerLengths[$topage] = $tmpfooterlen;
         }
-        elseif (isset($this->footerlen[$topage])) {
-            unset($this->footerlen[$topage]);
+        elseif (isset($this->footerLengths[$topage])) {
+            unset($this->footerLengths[$topage]);
         }
         if (isset($tmptransfmrk)) {
             $this->transfmrk[$topage] = $tmptransfmrk;
@@ -18191,8 +18179,8 @@ class PDF
         if (isset($this->footerpos[$page])) {
             unset($this->footerpos[$page]);
         }
-        if (isset($this->footerlen[$page])) {
-            unset($this->footerlen[$page]);
+        if (isset($this->footerLengths[$page])) {
+            unset($this->footerLengths[$page]);
         }
         if (isset($this->transfmrk[$page])) {
             unset($this->transfmrk[$page]);
@@ -18229,11 +18217,11 @@ class PDF
                 elseif (isset($this->footerpos[$i])) {
                     unset($this->footerpos[$i]);
                 }
-                if (isset($this->footerlen[$j])) {
-                    $this->footerlen[$i] = $this->footerlen[$j];
+                if (isset($this->footerLengths[$j])) {
+                    $this->footerLengths[$i] = $this->footerLengths[$j];
                 }
-                elseif (isset($this->footerlen[$i])) {
-                    unset($this->footerlen[$i]);
+                elseif (isset($this->footerLengths[$i])) {
+                    unset($this->footerLengths[$i]);
                 }
                 if (isset($this->transfmrk[$j])) {
                     $this->transfmrk[$i] = $this->transfmrk[$j];
@@ -18277,8 +18265,8 @@ class PDF
             if (isset($this->footerpos[$this->numpages])) {
                 unset($this->footerpos[$this->numpages]);
             }
-            if (isset($this->footerlen[$this->numpages])) {
-                unset($this->footerlen[$this->numpages]);
+            if (isset($this->footerLengths[$this->numpages])) {
+                unset($this->footerLengths[$this->numpages]);
             }
             if (isset($this->transfmrk[$this->numpages])) {
                 unset($this->transfmrk[$this->numpages]);
@@ -18394,8 +18382,8 @@ class PDF
         if (isset($this->footerpos[$page])) {
             $this->footerpos[$this->page] = $this->footerpos[$page];
         }
-        if (isset($this->footerlen[$page])) {
-            $this->footerlen[$this->page] = $this->footerlen[$page];
+        if (isset($this->footerLengths[$page])) {
+            $this->footerLengths[$this->page] = $this->footerLengths[$page];
         }
         if (isset($this->transfmrk[$page])) {
             $this->transfmrk[$this->page] = $this->transfmrk[$page];
@@ -19379,29 +19367,29 @@ class PDF
      */
     public function startTemplate($w = 0, $h = 0, $group = false)
     {
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are already inside an XObject template
             return false;
         }
-        $this->inxobj = true;
+        $this->inXObject = true;
         ++$this->n;
         // XObject ID
-        $this->xobjid = 'XT' . $this->n;
+        $this->xObjectID = 'XT' . $this->n;
         // object ID
-        $this->xobjects[$this->xobjid] = ['n' => $this->n];
+        $this->xObjects[$this->xObjectID] = ['n' => $this->n];
         // store current graphic state
-        $this->xobjects[$this->xobjid]['gvars'] = $this->getGraphicVars();
+        $this->xObjects[$this->xObjectID]['gvars'] = $this->getGraphicVars();
         // initialize data
-        $this->xobjects[$this->xobjid]['intmrk']      = 0;
-        $this->xobjects[$this->xobjid]['transfmrk']   = [];
-        $this->xobjects[$this->xobjid]['outdata']     = '';
-        $this->xobjects[$this->xobjid]['xobjects']    = [];
-        $this->xobjects[$this->xobjid]['images']      = [];
-        $this->xobjects[$this->xobjid]['fonts']       = [];
-        $this->xobjects[$this->xobjid]['annotations'] = [];
-        $this->xobjects[$this->xobjid]['extgstates']  = [];
-        $this->xobjects[$this->xobjid]['gradients']   = [];
-        $this->xobjects[$this->xobjid]['spot_colors'] = [];
+        $this->xObjects[$this->xObjectID]['intmrk']      = 0;
+        $this->xObjects[$this->xObjectID]['transfmrk']   = [];
+        $this->xObjects[$this->xObjectID]['outdata']     = '';
+        $this->xObjects[$this->xObjectID]['xobjects']    = [];
+        $this->xObjects[$this->xObjectID]['images']      = [];
+        $this->xObjects[$this->xObjectID]['fonts']       = [];
+        $this->xObjects[$this->xObjectID]['annotations'] = [];
+        $this->xObjects[$this->xObjectID]['extgstates']  = [];
+        $this->xObjects[$this->xObjectID]['gradients']   = [];
+        $this->xObjects[$this->xObjectID]['spot_colors'] = [];
         // set new environment
         $this->num_columns    = 1;
         $this->current_column = 0;
@@ -19412,25 +19400,25 @@ class PDF
         if (($h === '') or ($h <= 0)) {
             $h = $this->h - $this->tMargin - $this->bMargin;
         }
-        $this->xobjects[$this->xobjid]['x'] = 0;
-        $this->xobjects[$this->xobjid]['y'] = 0;
-        $this->xobjects[$this->xobjid]['w'] = $w;
-        $this->xobjects[$this->xobjid]['h'] = $h;
-        $this->w                            = $w;
-        $this->h                            = $h;
-        $this->wPt                          = $this->w * $this->k;
-        $this->hPt                          = $this->h * $this->k;
-        $this->fwPt                         = $this->wPt;
-        $this->fhPt                         = $this->hPt;
-        $this->x                            = 0;
-        $this->y                            = 0;
-        $this->lMargin                      = 0;
-        $this->rMargin                      = 0;
-        $this->tMargin                      = 0;
-        $this->bMargin                      = 0;
+        $this->xObjects[$this->xObjectID]['x'] = 0;
+        $this->xObjects[$this->xObjectID]['y'] = 0;
+        $this->xObjects[$this->xObjectID]['w'] = $w;
+        $this->xObjects[$this->xObjectID]['h'] = $h;
+        $this->w                               = $w;
+        $this->h                               = $h;
+        $this->wPt                             = $this->w * $this->k;
+        $this->hPt                             = $this->h * $this->k;
+        $this->fwPt                            = $this->wPt;
+        $this->fhPt                            = $this->hPt;
+        $this->x                               = 0;
+        $this->y                               = 0;
+        $this->lMargin                         = 0;
+        $this->rMargin                         = 0;
+        $this->tMargin                         = 0;
+        $this->bMargin                         = 0;
         // set group mode
-        $this->xobjects[$this->xobjid]['group'] = $group;
-        return $this->xobjid;
+        $this->xObjects[$this->xObjectID]['group'] = $group;
+        return $this->xObjectID;
     }
 
     /**
@@ -19443,14 +19431,14 @@ class PDF
      */
     public function endTemplate()
     {
-        if (!$this->inxobj) {
+        if (!$this->inXObject) {
             // we are not inside a template
             return false;
         }
-        $this->inxobj = false;
+        $this->inXObject = false;
         // restore previous graphic state
-        $this->setGraphicVars($this->xobjects[$this->xobjid]['gvars'], true);
-        return $this->xobjid;
+        $this->setGraphicVars($this->xObjects[$this->xObjectID]['gvars'], true);
+        return $this->xObjectID;
     }
 
     /**
@@ -19474,17 +19462,17 @@ class PDF
         if ($this->state !== self::READY) {
             return;
         }
-        if (!isset($this->xobjects[$id])) {
+        if (!isset($this->xObjects[$id])) {
             $this->Error('The XObject Template \'' . $id . '\' doesn\'t exist!');
         }
-        if ($this->inxobj) {
-            if ($id == $this->xobjid) {
+        if ($this->inXObject) {
+            if ($id == $this->xObjectID) {
                 // close current template
                 $this->endTemplate();
             }
             else {
                 // use the template as resource for the template currently opened
-                $this->xobjects[$this->xobjid]['xobjects'][$id] = $this->xobjects[$id];
+                $this->xObjects[$this->xObjectID]['xobjects'][$id] = $this->xObjects[$id];
             }
         }
         // set default values
@@ -19496,11 +19484,11 @@ class PDF
         }
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        $ow = $this->xobjects[$id]['w'];
+        $ow = $this->xObjects[$id]['w'];
         if ($ow <= 0) {
             $ow = 1;
         }
-        $oh = $this->xobjects[$id]['h'];
+        $oh = $this->xObjects[$id]['h'];
         if ($oh <= 0) {
             $oh = 1;
         }
@@ -19564,11 +19552,11 @@ class PDF
         $tm[5] = ($this->h - $h - $y) * $this->k;
         $this->Transform($tm);
         // set object
-        $this->_out('/' . $id . ' Do');
+        $this->append('/' . $id . ' Do');
         $this->StopTransform();
         // add annotations
-        if (!empty($this->xobjects[$id]['annotations'])) {
-            foreach ($this->xobjects[$id]['annotations'] as $annot) {
+        if (!empty($this->xObjects[$id]['annotations'])) {
+            foreach ($this->xObjects[$id]['annotations'] as $annot) {
                 // transform original coordinates
                 $coordlt = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * $this->k), (-$annot['y'] * $this->k)));
                 $ax      = ($coordlt[4] / $this->k);

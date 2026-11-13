@@ -774,7 +774,7 @@ trait Images
         $xkimg = $ximg * $this->k;
         if (!$alt) {
             // only non-alternative immages will be set
-            $this->_out(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->h - ($y + $h)) * $this->k), $info['i']));
+            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->h - ($y + $h)) * $this->k), $info['i']));
         }
         if (!empty($border)) {
             $bx      = $this->x;
@@ -822,9 +822,9 @@ trait Images
             }
         }
         $this->endlinex = $this->imageRBX;
-        if ($this->inxobj) {
+        if ($this->inXObject) {
             // we are inside an XObject template
-            $this->xobjects[$this->xobjid]['images'][] = $info['i'];
+            $this->xObjects[$this->xObjectID]['images'][] = $info['i'];
         }
         return $info['i'];
     }
@@ -843,8 +843,8 @@ trait Images
                 $altoid = $this->_newobj();
                 $out    = '[';
                 foreach ($info['altimgs'] as $altimage) {
-                    if (isset($this->xobjects['I' . $altimage[0]]['n'])) {
-                        $out .= ' << /Image ' . $this->xobjects['I' . $altimage[0]]['n'] . ' 0 R';
+                    if (isset($this->xObjects['I' . $altimage[0]]['n'])) {
+                        $out .= ' << /Image ' . $this->xObjects['I' . $altimage[0]]['n'] . ' 0 R';
                         $out .= ' /DefaultForPrinting';
                         if ($altimage[1] === true) {
                             $out .= ' true';
@@ -857,11 +857,11 @@ trait Images
                 }
                 $out .= ' ]';
                 $out .= "\n" . 'endobj';
-                $this->_out($out);
+                $this->append($out);
             }
             // set image object
             $oid                              = $this->_newobj();
-            $this->xobjects['I' . $info['i']] = ['n' => $oid];
+            $this->xObjects['I' . $info['i']] = ['n' => $oid];
             $this->setImageSubBuffer($file, 'n', $this->n);
             $out = '<</Type /XObject';
             $out .= ' /Subtype /Image';
@@ -945,20 +945,20 @@ trait Images
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             }
             $out .= "\n" . 'endobj';
-            $this->_out($out);
+            $this->append($out);
             if ($icc) {
                 // ICC colour profile
                 $this->_newobj();
                 $icc = ($this->compress) ? gzcompress($info['icc']) : $info['icc'];
                 $icc = $this->_getrawstream($icc);
-                $this->_out('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
+                $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
             }
             elseif ($info['cs'] == 'Indexed') {
                 // colour palette
                 $this->_newobj();
                 $pal = ($this->compress) ? gzcompress($info['pal']) : $info['pal'];
                 $pal = $this->_getrawstream($pal);
-                $this->_out('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
+                $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
             }
         }
     }
@@ -1222,11 +1222,11 @@ trait Images
             $dy = $y * $k;
         }
         // save the current graphic state
-        $this->_out('q' . $this->epsmarker);
+        $this->append('q' . $this->epsmarker);
         // translate
-        $this->_out(sprintf('%F %F %F %F %F %F cm', 1, 0, 0, 1, $dx, $dy + ($this->hPt - (2 * $y * $k) - ($y2 - $y1))));
+        $this->append(sprintf('%F %F %F %F %F %F cm', 1, 0, 0, 1, $dx, $dy + ($this->hPt - (2 * $y * $k) - ($y2 - $y1))));
         // scale
-        $this->_out(sprintf('%F %F %F %F %F %F cm', $scale_x, 0, 0, $scale_y, $x1 * (1 - $scale_x), $y2 * (1 - $scale_y)));
+        $this->append(sprintf('%F %F %F %F %F %F cm', $scale_x, 0, 0, $scale_y, $x1 * (1 - $scale_x), $y2 * (1 - $scale_y)));
         // handle pc/unix/mac line endings
         $lines = preg_split('/[\r\n]+/si', $data, -1, PREG_SPLIT_NO_EMPTY);
         $u     = 0;
@@ -1256,7 +1256,7 @@ trait Images
                 $b = array_pop($chunks);
                 $g = array_pop($chunks);
                 $r = array_pop($chunks);
-                $this->_out('' . $r . ' ' . $g . ' ' . $b . ' ' . ($cmd == 'Xa' ? 'rg' : 'RG')); //substr($line, 0, -2).'rg' -> in EPS (AI8): c m y k r g b rg!
+                $this->append('' . $r . ' ' . $g . ' ' . $b . ' ' . ($cmd == 'Xa' ? 'rg' : 'RG')); //substr($line, 0, -2).'rg' -> in EPS (AI8): c m y k r g b rg!
                 continue;
             }
             $skip = false;
@@ -1301,7 +1301,7 @@ trait Images
                     if ($skip) {
                         break;
                     }
-                    $this->_out($line);
+                    $this->append($line);
                     break;
                 }
                 case 'x':
@@ -1309,14 +1309,14 @@ trait Images
                     if (empty($color_name)) {
                         // CMYK color
                         list($col_c, $col_m, $col_y, $col_k) = $chunks;
-                        $this->_out('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' k');
+                        $this->append('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' k');
                     }
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
                         $this->spotColor($color_name, [($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100)]);
                         $color_cmd = sprintf('/CS%d cs %F scn', $this->spotColors[$color_name]['i'], (1 - $col_t));
-                        $this->_out($color_cmd);
+                        $this->append($color_cmd);
                     }
                     break;
                 }
@@ -1325,14 +1325,14 @@ trait Images
                     if (empty($color_name)) {
                         // CMYK color
                         list($col_c, $col_m, $col_y, $col_k) = $chunks;
-                        $this->_out('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' K');
+                        $this->append('' . $col_c . ' ' . $col_m . ' ' . $col_y . ' ' . $col_k . ' K');
                     }
                     else {
                         // Spot Color (CMYK + tint)
                         list($col_c, $col_m, $col_y, $col_k, $col_t) = $chunks;
                         $this->spotColor($color_name, [($col_c * 100), ($col_m * 100), ($col_y * 100), ($col_k * 100)]);
                         $color_cmd = sprintf('/CS%d CS %F SCN', $this->spotColors[$color_name]['i'], (1 - $col_t));
-                        $this->_out($color_cmd);
+                        $this->append($color_cmd);
                     }
                     break;
                 }
@@ -1346,13 +1346,13 @@ trait Images
                         break;
                     }
                     $line[($len - 1)] = strtolower($cmd);
-                    $this->_out($line);
+                    $this->append($line);
                     break;
                 }
                 case 'b':
                 case 'B':
                 {
-                    $this->_out($cmd . '*');
+                    $this->append($cmd . '*');
                     break;
                 }
                 case 'f':
@@ -1365,11 +1365,11 @@ trait Images
                             $isU = ($isU or (($lines[$j] == 'U') or ($lines[$j] == '*U')));
                         }
                         if ($isU) {
-                            $this->_out('f*');
+                            $this->append('f*');
                         }
                     }
                     else {
-                        $this->_out('f*');
+                        $this->append('f*');
                     }
                     break;
                 }
@@ -1386,7 +1386,7 @@ trait Images
             }
         }
         // restore previous graphic state
-        $this->_out($this->epsmarker . 'Q');
+        $this->append($this->epsmarker . 'Q');
         if (!empty($border)) {
             $bx      = $this->x;
             $by      = $this->y;
@@ -1700,13 +1700,13 @@ trait Images
         $this->setCellPadding(0);
         $this->setAutoPageBreak(false);
         // save the current graphic state
-        $this->_out('q' . $this->epsmarker);
+        $this->append('q' . $this->epsmarker);
         // set initial clipping mask
         $this->Rect($ximg, $y, $w, $h, 'CNZ', [], []);
         // scale and translate
         $e = $ox * $this->k * (1 - $svgscale_x);
         $f = ($this->h - $oy) * $this->k * (1 - $svgscale_y);
-        $this->_out(sprintf('%F %F %F %F %F %F cm', $svgscale_x, 0, 0, $svgscale_y, ($e + $svgoffset_x), ($f + $svgoffset_y)));
+        $this->append(sprintf('%F %F %F %F %F %F cm', $svgscale_x, 0, 0, $svgscale_y, ($e + $svgoffset_x), ($f + $svgoffset_y)));
         // creates a new XML parser to be used by the other XML functions
         $parser = xml_parser_create('UTF-8');
         // the following function allows to use parser inside object
@@ -1729,7 +1729,7 @@ trait Images
         unset($parser);
 
         // restore previous graphic state
-        $this->_out($this->epsmarker . 'Q');
+        $this->append($this->epsmarker . 'Q');
         // restore graphic vars
         $this->setGraphicVars($gvars);
         $this->lasth = $gvars['lasth'];
@@ -1988,7 +1988,7 @@ trait Images
             else {
                 $cy -= $h;
             }
-            $this->_out(sprintf('%F 0 0 %F %F %F cm', ($w * $this->k), ($h * $this->k), ($x * $this->k), ($cy * $this->k)));
+            $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * $this->k), ($h * $this->k), ($x * $this->k), ($cy * $this->k)));
             if (count($gradient['stops']) > 1) {
                 $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops'], [], false);
             }
@@ -2522,7 +2522,7 @@ trait Images
                 }
                 case 'Z':
                 {
-                    $this->_out('h');
+                    $this->append('h');
                     $x = $x0 = $xinitial;
                     $y = $y0 = $yinitial;
                     break;
@@ -2530,7 +2530,7 @@ trait Images
             }
             $firstcmd = false;
         } // end foreach
-        $this->_out($op);
+        $this->append($op);
         return array($xmin, $ymin, ($xmax - $xmin), ($ymax - $ymin));
     }
 
