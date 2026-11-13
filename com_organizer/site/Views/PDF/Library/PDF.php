@@ -7552,7 +7552,7 @@ class PDF
         // initialize array for graphics tranformation positions inside a page buffer
         $this->transfmrk[$this->page] = [];
         $this->state                  = self::READY;
-        if (StaticMethods::empty_string($orientation)) {
+        if (empty($orientation)) {
             if (isset($this->CurOrientation)) {
                 $orientation = $this->CurOrientation;
             }
@@ -7565,7 +7565,7 @@ class PDF
                 $orientation = 'P';
             }
         }
-        if (StaticMethods::empty_string($format)) {
+        if (empty($format)) {
             $this->pagedim[$this->page] = $this->pagedim[($this->page - 1)];
             $this->setPageOrientation($orientation);
         }
@@ -7615,7 +7615,7 @@ class PDF
      */
     protected function _getobj($objid = null)
     {
-        if (StaticMethods::empty_string($objid)) {
+        if (empty($objid)) {
             ++$this->n;
             $objid = $this->n;
         }
@@ -15873,7 +15873,7 @@ class PDF
                 if (!isset($dom[$key]['attribute']['nested']) or ($dom[$key]['attribute']['nested'] != 'true')) {
                     $this->htmlvspace = 0;
                     // set table header
-                    if (!StaticMethods::empty_string($dom[$key]['thead'])) {
+                    if (!empty($dom[$key]['thead'])) {
                         // set table header
                         $this->thead = $dom[$key]['thead'];
                         if (!isset($this->theadMargins) or (empty($this->theadMargins))) {
@@ -16061,7 +16061,7 @@ class PDF
                 $prevy   = $this->y;
                 $xpos    = $this->x;
                 $imglink = '';
-                if (isset($this->HREF['url']) and !StaticMethods::empty_string($this->HREF['url'])) {
+                if (isset($this->HREF['url']) and !empty($this->HREF['url'])) {
                     $imglink = $this->HREF['url'];
                     if ($imglink[0] == '#') {
                         // convert url to internal link
@@ -16193,13 +16193,13 @@ class PDF
                 }
                 if ($this->listordered[$this->listnum]) {
                     // ordered item
-                    if (isset($parent['attribute']['type']) and !StaticMethods::empty_string($parent['attribute']['type'])) {
+                    if (isset($parent['attribute']['type']) and !empty($parent['attribute']['type'])) {
                         $this->lispacer = $parent['attribute']['type'];
                     }
-                    elseif (isset($parent['listtype']) and !StaticMethods::empty_string($parent['listtype'])) {
+                    elseif (isset($parent['listtype']) and !empty($parent['listtype'])) {
                         $this->lispacer = $parent['listtype'];
                     }
-                    elseif (isset($this->lisymbol) and !StaticMethods::empty_string($this->lisymbol)) {
+                    elseif (isset($this->lisymbol) and !empty($this->lisymbol)) {
                         $this->lispacer = $this->lisymbol;
                     }
                     else {
@@ -16212,13 +16212,13 @@ class PDF
                 }
                 else {
                     // unordered item
-                    if (isset($parent['attribute']['type']) and !StaticMethods::empty_string($parent['attribute']['type'])) {
+                    if (isset($parent['attribute']['type']) and !empty($parent['attribute']['type'])) {
                         $this->lispacer = $parent['attribute']['type'];
                     }
-                    elseif (isset($parent['listtype']) and !StaticMethods::empty_string($parent['listtype'])) {
+                    elseif (isset($parent['listtype']) and !empty($parent['listtype'])) {
                         $this->lispacer = $parent['listtype'];
                     }
-                    elseif (isset($this->lisymbol) and !StaticMethods::empty_string($this->lisymbol)) {
+                    elseif (isset($this->lisymbol) and !empty($this->lisymbol)) {
                         $this->lispacer = $this->lisymbol;
                     }
                     else {
@@ -16305,7 +16305,7 @@ class PDF
             }
             case 'input':
             {
-                if (isset($tag['attribute']['name']) and !StaticMethods::empty_string($tag['attribute']['name'])) {
+                if (isset($tag['attribute']['name']) and !empty($tag['attribute']['name'])) {
                     $name = $tag['attribute']['name'];
                 }
                 else {
@@ -16313,17 +16313,17 @@ class PDF
                 }
                 $prop = [];
                 $opt  = [];
-                if (isset($tag['attribute']['readonly']) and !StaticMethods::empty_string($tag['attribute']['readonly'])) {
+                if (isset($tag['attribute']['readonly']) and !empty($tag['attribute']['readonly'])) {
                     $prop['readonly'] = true;
                 }
-                if (isset($tag['attribute']['value']) and !StaticMethods::empty_string($tag['attribute']['value'])) {
+                if (isset($tag['attribute']['value']) and !empty($tag['attribute']['value'])) {
                     $value = $tag['attribute']['value'];
                 }
-                if (isset($tag['attribute']['maxlength']) and !StaticMethods::empty_string($tag['attribute']['maxlength'])) {
+                if (isset($tag['attribute']['maxlength']) and !empty($tag['attribute']['maxlength'])) {
                     $opt['maxlen'] = intval($tag['attribute']['maxlength']);
                 }
                 $h = $this->getCellHeight($this->fontSize);
-                if (isset($tag['attribute']['size']) and !StaticMethods::empty_string($tag['attribute']['size'])) {
+                if (isset($tag['attribute']['size']) and !empty($tag['attribute']['size'])) {
                     $w = intval($tag['attribute']['size']) * $this->GetStringWidth(chr(32)) * 2;
                 }
                 else {
@@ -16445,7 +16445,7 @@ class PDF
                     case 'image':
                     {
                         // THIS TYPE MUST BE FIXED
-                        if (isset($tag['attribute']['src']) and !StaticMethods::empty_string($tag['attribute']['src'])) {
+                        if (isset($tag['attribute']['src']) and !empty($tag['attribute']['src'])) {
                             $img = $tag['attribute']['src'];
                         }
                         else {
@@ -16485,25 +16485,25 @@ class PDF
             {
                 $prop = [];
                 $opt  = [];
-                if (isset($tag['attribute']['readonly']) and !StaticMethods::empty_string($tag['attribute']['readonly'])) {
+                if (isset($tag['attribute']['readonly']) and !empty($tag['attribute']['readonly'])) {
                     $prop['readonly'] = true;
                 }
-                if (isset($tag['attribute']['name']) and !StaticMethods::empty_string($tag['attribute']['name'])) {
+                if (isset($tag['attribute']['name']) and !empty($tag['attribute']['name'])) {
                     $name = $tag['attribute']['name'];
                 }
                 else {
                     break;
                 }
-                if (isset($tag['attribute']['value']) and !StaticMethods::empty_string($tag['attribute']['value'])) {
+                if (isset($tag['attribute']['value']) and !empty($tag['attribute']['value'])) {
                     $opt['v'] = $tag['attribute']['value'];
                 }
-                if (isset($tag['attribute']['cols']) and !StaticMethods::empty_string($tag['attribute']['cols'])) {
+                if (isset($tag['attribute']['cols']) and !empty($tag['attribute']['cols'])) {
                     $w = intval($tag['attribute']['cols']) * $this->GetStringWidth(chr(32)) * 2;
                 }
                 else {
                     $w = 40;
                 }
-                if (isset($tag['attribute']['rows']) and !StaticMethods::empty_string($tag['attribute']['rows'])) {
+                if (isset($tag['attribute']['rows']) and !empty($tag['attribute']['rows'])) {
                     $h = intval($tag['attribute']['rows']) * $this->getCellHeight($this->fontSize);
                 }
                 else {
@@ -16516,19 +16516,19 @@ class PDF
             case 'select':
             {
                 $h = $this->getCellHeight($this->fontSize);
-                if (isset($tag['attribute']['size']) and !StaticMethods::empty_string($tag['attribute']['size'])) {
+                if (isset($tag['attribute']['size']) and !empty($tag['attribute']['size'])) {
                     $h *= ($tag['attribute']['size'] + 1);
                 }
                 $prop = [];
                 $opt  = [];
-                if (isset($tag['attribute']['name']) and !StaticMethods::empty_string($tag['attribute']['name'])) {
+                if (isset($tag['attribute']['name']) and !empty($tag['attribute']['name'])) {
                     $name = $tag['attribute']['name'];
                 }
                 else {
                     break;
                 }
                 $w = 0;
-                if (isset($tag['attribute']['opt']) and !StaticMethods::empty_string($tag['attribute']['opt'])) {
+                if (isset($tag['attribute']['opt']) and !empty($tag['attribute']['opt'])) {
                     $options = explode('#!NwL!#', $tag['attribute']['opt']);
                     $values  = [];
                     foreach ($options as $val) {
