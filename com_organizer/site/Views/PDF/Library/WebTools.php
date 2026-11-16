@@ -48,7 +48,7 @@ trait WebTools
      * @param int|null $page          page number where this TOC should be inserted (leave empty for current page).
      * @param string   $toc_name      name to use for TOC bookmark.
      * @param array    $templates     array of html templates. Use: "#TOC_DESCRIPTION#" for bookmark title, "#TOC_PAGE_NUMBER#" for page number.
-     * @param bool     $correct_align if true correct the number alignment (numbers must be in monospaced font like courier and right aligned on LTR, or left aligned on RTL)
+     * @param bool     $correct_align if true correct the number alignment (numbers must be in monospaced font like courier and right aligned)
      * @param string   $style         Font style for title: B = Bold, I = Italic, BI = Bold + Italic.
      * @param array    $color         RGB color array for title (values from 0 to 255).
      * @author Nicola Asuni
@@ -147,12 +147,7 @@ trait WebTools
                     foreach ($pnalias['u'] as $u) {
                         if ($correct_align) {
                             $sfill = str_repeat($filler, (strlen($u) - strlen($nu . ' ')));
-                            if ($this->rtl) {
-                                $nr = $nu . $this->utf8ToUTF16BE(' ' . $sfill);
-                            }
-                            else {
-                                $nr = $this->utf8ToUTF16BE($sfill . ' ') . $nu;
-                            }
+                            $nr    = $this->utf8ToUTF16BE($sfill . ' ') . $nu;
                         }
                         else {
                             $nr = $nu;
@@ -162,12 +157,7 @@ trait WebTools
                     foreach ($pnalias['a'] as $a) {
                         if ($correct_align) {
                             $sfill = str_repeat($filler, (strlen($a) - strlen($na . ' ')));
-                            if ($this->rtl) {
-                                $nr = $na . ' ' . $sfill;
-                            }
-                            else {
-                                $nr = $sfill . ' ' . $na;
-                            }
+                            $nr    = $sfill . ' ' . $na;
                         }
                         else {
                             $nr = $na;
@@ -236,27 +226,17 @@ trait WebTools
             }
             case 'disc':
             {
-                $r      = $size / 6;
-                $lspace += (2 * $r);
-                if ($this->rtl) {
-                    $this->x += $lspace;
-                }
-                else {
-                    $this->x -= $lspace;
-                }
+                $r       = $size / 6;
+                $lspace  += (2 * $r);
+                $this->x -= $lspace;
                 $this->Circle(($this->x + $r), ($this->y + ($this->lastPrintedCellHeight / 2)), $r, 0, 360, 'F', [], $color, 8);
                 break;
             }
             case 'circle':
             {
-                $r      = $size / 6;
-                $lspace += (2 * $r);
-                if ($this->rtl) {
-                    $this->x += $lspace;
-                }
-                else {
-                    $this->x -= $lspace;
-                }
+                $r               = $size / 6;
+                $lspace          += (2 * $r);
+                $this->x         -= $lspace;
                 $prev_line_style = $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
                 $this->Circle(($this->x + $r), ($this->y + ($this->lastPrintedCellHeight / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
@@ -265,29 +245,17 @@ trait WebTools
             }
             case 'square':
             {
-                $l      = $size / 3;
-                $lspace += $l;
-                if ($this->rtl) {
-                    ;
-                    $this->x += $lspace;
-                }
-                else {
-                    $this->x -= $lspace;
-                }
+                $l       = $size / 3;
+                $lspace  += $l;
+                $this->x -= $lspace;
                 $this->Rect($this->x, ($this->y + (($this->lastPrintedCellHeight - $l) / 2)), $l, $l, 'F', [], $color);
                 break;
             }
             case 'img':
             {
                 // 1=>type, 2=>width, 3=>height, 4=>image.ext
-                $lspace += $img[2];
-                if ($this->rtl) {
-                    ;
-                    $this->x += $lspace;
-                }
-                else {
-                    $this->x -= $lspace;
-                }
+                $lspace  += $img[2];
+                $this->x -= $lspace;
                 $imgtype = strtolower($img[1]);
                 $prev_y  = $this->y;
                 switch ($imgtype) {
@@ -396,19 +364,9 @@ trait WebTools
                 $tmpx = $this->x;
             }
             // print ordered item
-            if ($this->rtl) {
-                $textitem = '.' . $textitem;
-            }
-            else {
-                $textitem = $textitem . '.';
-            }
-            $lspace += $this->GetStringWidth($textitem);
-            if ($this->rtl) {
-                $this->x += $lspace;
-            }
-            else {
-                $this->x -= $lspace;
-            }
+            $textitem = $textitem . '.';
+            $lspace   += $this->GetStringWidth($textitem);
+            $this->x  -= $lspace;
             $this->Write($this->lastPrintedCellHeight, $textitem, '', false, '', false, 0, false);
         }
         $this->x        = $tmpx;
@@ -432,11 +390,11 @@ trait WebTools
      * @param float|null $y           upper-left corner Y coordinate
      * @param string     $html        html text to print. Default value: empty string.
      * @param mixed      $border      Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
-     * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL language)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>
+     * @param int        $ln          Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>
      *                                Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param bool       $fill        Indicates if the cell background must be painted (true) or transparent (false).
      * @param bool       $reseth      if true reset the last cell height (default true).
-     * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align       Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width.
      * @see Multicell(), writeHTML()
      */
@@ -454,8 +412,8 @@ trait WebTools
      * @param bool   $ln     if true add a new line after text (default = true)
      * @param bool   $fill   Indicates if the background must be painted (true) or transparent (false).
      * @param bool   $reseth if true reset the last cell height (default false).
-     * @param bool   $cell   if true add the current left (or right for RTL) padding to each Write (default false).
-     * @param string $align  Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param bool   $cell   if true add the current left padding to each Write (default false).
+     * @param string $align  Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      */
     public function writeHTML($html, $ln = true, $fill = false, $reseth = false, $cell = false, $align = '')
     {
@@ -486,7 +444,6 @@ trait WebTools
         $this_method_vars = [];
         $undo             = false;
         $fontaligned      = false;
-        $reverse_dir      = false; // true when the text direction is reversed
         $this->premode    = false;
         if ($this->inXObject) {
             // we are inside an XObject template
@@ -517,22 +474,11 @@ trait WebTools
         }
         $lalign  = $align;
         $plalign = $align;
-        if ($this->rtl) {
-            $w = $this->x - $this->leftMargin;
-        }
-        else {
-            $w = $this->w - $this->rightMargin - $this->x;
-        }
-        $w -= ($this->cellPaddings['L'] + $this->cellPaddings['R']);
+        $w       = $this->w - $this->rightMargin - $this->x;
+        $w       -= ($this->cellPaddings['L'] + $this->cellPaddings['R']);
         if ($cell) {
-            if ($this->rtl) {
-                $this->x          -= $this->cellPaddings['R'];
-                $this->leftMargin += $this->cellPaddings['L'];
-            }
-            else {
-                $this->x           += $this->cellPaddings['L'];
-                $this->rightMargin += $this->cellPaddings['R'];
-            }
+            $this->x           += $this->cellPaddings['L'];
+            $this->rightMargin += $this->cellPaddings['R'];
         }
         if ($this->customlistindent >= 0) {
             $this->listindent = $this->customlistindent;
@@ -583,8 +529,7 @@ trait WebTools
                     $this->checkPageBreak($this->PageBreakTrigger + 1);
                     $this->htmlvspace = ($this->PageBreakTrigger + 1);
                 }
-                if ((($dom[$key]['attribute']['pagebreak'] == 'left') and (((!$this->rtl) and (($this->page % 2) == 0)) or (($this->rtl) and (($this->page % 2) != 0))))
-                    or (($dom[$key]['attribute']['pagebreak'] == 'right') and (((!$this->rtl) and (($this->page % 2) != 0)) or (($this->rtl) and (($this->page % 2) == 0))))) {
+                if (($dom[$key]['attribute']['pagebreak'] === 'left' and $this->page % 2 === 0) or ($dom[$key]['attribute']['pagebreak'] === 'right' and $this->page % 2 !== 0)) {
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $this->checkPageBreak($this->PageBreakTrigger + 1);
                     $this->htmlvspace = ($this->PageBreakTrigger + 1);
@@ -698,7 +643,7 @@ trait WebTools
             }
             if ($dom[$key]['tag'] or ($key == 0)) {
                 if ((($dom[$key]['value'] == 'table') or ($dom[$key]['value'] == 'tr')) and (isset($dom[$key]['align']))) {
-                    $dom[$key]['align'] = ($this->rtl) ? 'R' : 'L';
+                    $dom[$key]['align'] = 'L';
                 }
                 // vertically align image in line
                 if ((!$this->newLine) and ($dom[$key]['value'] == 'img') and (isset($dom[$key]['height'])) and ($dom[$key]['height'] > 0)) {
@@ -707,9 +652,7 @@ trait WebTools
                     $autolinebreak = false;
                     if (!empty($dom[$key]['width'])) {
                         $imgw = $this->fontSizeToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->k));
-                        if (($imgw <= ($this->w - $this->leftMargin - $this->rightMargin - $this->cellPaddings['L'] - $this->cellPaddings['R']))
-                            and ((($this->rtl) and (($this->x - $imgw) < ($this->leftMargin + $this->cellPaddings['L'])))
-                                or ((!$this->rtl) and (($this->x + $imgw) > ($this->w - $this->rightMargin - $this->cellPaddings['R']))))) {
+                        if (($imgw <= ($this->w - $this->leftMargin - $this->rightMargin - $this->cellPaddings['L'] - $this->cellPaddings['R'])) and ($this->x + $imgw) > ($this->w - $this->rightMargin - $this->cellPaddings['R'])) {
                             // add automatic line break
                             $autolinebreak = true;
                             $this->Ln('', $cell);
@@ -964,12 +907,9 @@ trait WebTools
                             $pend = '';
                         }
                     }
-                    if ((((($plalign == 'C') or ($plalign == 'J') or (($plalign == 'R') and (!$this->rtl)) or (($plalign == 'L') and ($this->rtl)))))) {
+                    if (((($plalign == 'C' or $plalign == 'J' or $plalign == 'R')))) {
                         // calculate shifting amount
                         $tw = $w;
-                        if (($plalign == 'J') and $this->isRTLTextDir() and ($this->num_columns > 1)) {
-                            $tw += $this->cellPaddings['R'];
-                        }
                         if ($this->leftMargin != $prevlMargin) {
                             $tw += ($prevlMargin - $this->leftMargin);
                         }
@@ -978,72 +918,33 @@ trait WebTools
                         }
                         $one_space_width = $this->GetStringWidth(chr(32));
                         $no              = 0; // number of spaces on a line contained on a single block
-                        if ($this->isRTLTextDir()) { // RTL
-                            // remove left space if exist
-                            $pos1 = StaticMethods::revstrpos($pmid, '[(');
-                            if ($pos1 > 0) {
-                                $pos1 = intval($pos1);
-                                if ($this->isUnicodeFont()) {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(0) . chr(32)));
-                                    $spacelen = 2;
-                                }
-                                else {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(32)));
-                                    $spacelen = 1;
-                                }
-                                if ($pos1 == $pos2) {
-                                    $pmid = substr($pmid, 0, ($pos1 + 2)) . substr($pmid, ($pos1 + 2 + $spacelen));
-                                    if (substr($pmid, $pos1, 4) == '[()]') {
-                                        $linew -= $one_space_width;
-                                    }
-                                    elseif ($pos1 == strpos($pmid, '[(')) {
-                                        $no = 1;
-                                    }
-                                }
+                        // remove right space if exist
+                        $pos1 = StaticMethods::revstrpos($pmid, ')]');
+                        if ($pos1 > 0) {
+                            $pos1 = intval($pos1);
+                            if ($this->isUnicodeFont()) {
+                                $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
+                                $spacelen = 2;
                             }
-                        }
-                        else { // LTR
-                            // remove right space if exist
-                            $pos1 = StaticMethods::revstrpos($pmid, ')]');
-                            if ($pos1 > 0) {
-                                $pos1 = intval($pos1);
-                                if ($this->isUnicodeFont()) {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
-                                    $spacelen = 2;
-                                }
-                                else {
-                                    $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
-                                    $spacelen = 1;
-                                }
-                                if ($pos1 == $pos2) {
-                                    $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
-                                    $linew -= $one_space_width;
-                                }
+                            else {
+                                $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
+                                $spacelen = 1;
+                            }
+                            if ($pos1 == $pos2) {
+                                $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
+                                $linew -= $one_space_width;
                             }
                         }
                         $mdiff = ($tw - $linew);
                         if ($plalign == 'C') {
-                            if ($this->rtl) {
-                                $t_x = -($mdiff / 2);
-                            }
-                            else {
-                                $t_x = ($mdiff / 2);
-                            }
+                            $t_x = ($mdiff / 2);
                         }
                         elseif ($plalign == 'R') {
                             // right alignment on LTR document
                             $t_x = $mdiff;
                         }
-                        elseif ($plalign == 'L') {
-                            // left alignment on RTL document
-                            $t_x = -$mdiff;
-                        }
                         elseif (($plalign == 'J') and ($plalign == $lalign)) {
                             // Justification
-                            if ($this->isRTLTextDir()) {
-                                // align text on the left
-                                $t_x = -$mdiff;
-                            }
                             $ns       = 0; // number of spaces
                             $pmidtemp = $pmid;
                             // escape special characters
@@ -1084,9 +985,6 @@ trait WebTools
                                 $strcount       = 0;
                                 $prev_epsposbeg = 0;
                                 $textpos        = 0;
-                                if ($this->isRTLTextDir()) {
-                                    $textpos = $this->wPt;
-                                }
                                 while (preg_match('/([0-9\.\+\-]*)[\s](Td|cm|m|l|c|re)[\s]/x', $pmid, $strpiece, PREG_OFFSET_CAPTURE, $offset) == 1) {
                                     // check if we are inside a string section '[( ... )]'
                                     $stroffset = strpos($pmid, '[(', $offset);
@@ -1101,12 +999,7 @@ trait WebTools
                                         }
                                         continue;
                                     }
-                                    if ($this->isRTLTextDir()) {
-                                        $spacew = ($spacewidth * ($nsmax - $ns));
-                                    }
-                                    else {
-                                        $spacew = ($spacewidth * $ns);
-                                    }
+                                    $spacew    = ($spacewidth * $ns);
                                     $offset    = $strpiece[2][1] + strlen($strpiece[2][0]);
                                     $epsposend = strpos($pmid, $this->epsmarker . 'Q', $offset);
                                     if ($epsposend !== null) {
@@ -1144,9 +1037,6 @@ trait WebTools
                                             $textpos     = $currentxpos;
                                             if (($strcount <= $maxkk) and ($strpiece[2][0] == 'Td')) {
                                                 $ns = $lnstring[3][$strcount];
-                                                if ($this->isRTLTextDir()) {
-                                                    $spacew = ($spacewidth * ($nsmax - $ns));
-                                                }
                                                 ++$strcount;
                                             }
                                             // justify block
@@ -1171,32 +1061,18 @@ trait WebTools
                                             $currentxpos = $xmatches[1];
                                             $x_diff      = 0;
                                             $w_diff      = 0;
-                                            if ($this->isRTLTextDir()) { // RTL
-                                                if ($currentxpos < $textpos) {
-                                                    $x_diff = ($spacewidth * ($nsmax - $lnstring[3][$strcount]));
-                                                    $w_diff = ($spacewidth * $lnstring[2][$strcount]);
+                                            if ($currentxpos > $textpos) {
+                                                if ($strcount > 0) {
+                                                    $x_diff = ($spacewidth * $lnstring[3][($strcount - 1)]);
                                                 }
-                                                else {
-                                                    if ($strcount > 0) {
-                                                        $x_diff = ($spacewidth * ($nsmax - $lnstring[3][($strcount - 1)]));
-                                                        $w_diff = ($spacewidth * $lnstring[2][($strcount - 1)]);
-                                                    }
-                                                }
+                                                $w_diff = ($spacewidth * $lnstring[2][$strcount]);
                                             }
-                                            else { // LTR
-                                                if ($currentxpos > $textpos) {
-                                                    if ($strcount > 0) {
-                                                        $x_diff = ($spacewidth * $lnstring[3][($strcount - 1)]);
-                                                    }
-                                                    $w_diff = ($spacewidth * $lnstring[2][$strcount]);
+                                            else {
+                                                if ($strcount > 1) {
+                                                    $x_diff = ($spacewidth * $lnstring[3][($strcount - 2)]);
                                                 }
-                                                else {
-                                                    if ($strcount > 1) {
-                                                        $x_diff = ($spacewidth * $lnstring[3][($strcount - 2)]);
-                                                    }
-                                                    if ($strcount > 0) {
-                                                        $w_diff = ($spacewidth * $lnstring[2][($strcount - 1)]);
-                                                    }
+                                                if ($strcount > 0) {
+                                                    $w_diff = ($spacewidth * $lnstring[2][($strcount - 1)]);
                                                 }
                                             }
                                             if (preg_match('/(' . $xmatches[1] . ')[\s](' . $xmatches[2] . ')[\s](' . $xmatches[3] . ')[\s](' . $strpiece[1][0] . ')[\s](re)([\s]*)/x', $pmid, $pmatch) == 1) {
@@ -1413,12 +1289,7 @@ trait WebTools
                     // table
                     if (($dom[$key]['value'] == 'table') and isset($dom[$key]['cols']) and ($dom[$key]['cols'] > 0)) {
                         // available page width
-                        if ($this->rtl) {
-                            $wtmp = $this->x - $this->leftMargin;
-                        }
-                        else {
-                            $wtmp = $this->w - $this->rightMargin - $this->x;
-                        }
+                        $wtmp = $this->w - $this->rightMargin - $this->x;
                         // get cell spacing
                         if (isset($dom[$key]['attribute']['cellspacing'])) {
                             $clsp        = $this->fontSizeToUnits($dom[$key]['attribute']['cellspacing']);
@@ -1441,12 +1312,7 @@ trait WebTools
                         if (!$this->inthead) {
                             $this->y += $cellspacing['V'];
                         }
-                        if ($this->rtl) {
-                            $cellspacingx = -$cellspacing['H'];
-                        }
-                        else {
-                            $cellspacingx = $cellspacing['H'];
-                        }
+                        $cellspacingx = $cellspacing['H'];
                         // total table width without cellspaces
                         $table_columns_width = ($table_width - ($cellspacing['H'] * ($dom[$key]['cols'] - 1)));
                         // minimum column width
@@ -1549,12 +1415,7 @@ trait WebTools
                                 $rsendx   = $trwsp['endx'];
                                 // account for margin changes
                                 if ($trwsp['startpage'] < $this->page) {
-                                    if (($this->rtl) and ($this->pagedim[$this->page]['orm'] != $this->pagedim[$trwsp['startpage']]['orm'])) {
-                                        $dl       = ($this->pagedim[$this->page]['orm'] - $this->pagedim[$trwsp['startpage']]['orm']);
-                                        $rsstartx -= $dl;
-                                        $rsendx   -= $dl;
-                                    }
-                                    elseif ((!$this->rtl) and ($this->pagedim[$this->page]['olm'] != $this->pagedim[$trwsp['startpage']]['olm'])) {
+                                    if ($this->pagedim[$this->page]['olm'] != $this->pagedim[$trwsp['startpage']]['olm']) {
                                         $dl       = ($this->pagedim[$this->page]['olm'] - $this->pagedim[$trwsp['startpage']]['olm']);
                                         $rsstartx += $dl;
                                         $rsendx   += $dl;
@@ -1621,12 +1482,7 @@ trait WebTools
                         }
                         $prevLastH = $this->lastPrintedCellHeight;
                         // store some info for multicolumn mode
-                        if ($this->rtl) {
-                            $this->colxshift['x'] = $this->w - $this->x - $this->rightMargin;
-                        }
-                        else {
-                            $this->colxshift['x'] = $this->x - $this->leftMargin;
-                        }
+                        $this->colxshift['x'] = $this->x - $this->leftMargin;
                         $this->colxshift['s'] = $cellspacing;
                         $this->colxshift['p'] = $currentPaddings;
                         // ****** write the cell content ******
@@ -1745,31 +1601,12 @@ trait WebTools
                 }
                 // text
                 $this->htmlvspace = 0;
-                $isRTLString      = false;
-                if ((!$this->premode) and $this->isRTLTextDir() and !$isRTLString) {
-                    // reverse spaces order
-                    $lsp = ''; // left spaces
-                    $rsp = ''; // right spaces
-                    if (preg_match('/^(' . $this->re_space['p'] . '+)/' . $this->re_space['m'], $dom[$key]['value'], $matches)) {
-                        $lsp = $matches[1];
-                    }
-                    if (preg_match('/(' . $this->re_space['p'] . '+)$/' . $this->re_space['m'], $dom[$key]['value'], $matches)) {
-                        $rsp = $matches[1];
-                    }
-                    $dom[$key]['value'] = $rsp . $this->stringTrim($dom[$key]['value']) . $lsp;
-                }
                 if ($newline) {
                     if (!$this->premode) {
                         $prelen = strlen($dom[$key]['value']);
-                        if ($this->isRTLTextDir() and !$isRTLString) {
-                            // right trim except non-breaking space
-                            $dom[$key]['value'] = $this->stringRightTrim($dom[$key]['value']);
-                        }
-                        else {
-                            // left trim except non-breaking space
-                            $dom[$key]['value'] = $this->stringLeftTrim($dom[$key]['value']);
-                        }
-                        $postlen = strlen($dom[$key]['value']);
+                        // left trim except non-breaking space
+                        $dom[$key]['value'] = $this->stringLeftTrim($dom[$key]['value']);
+                        $postlen            = strlen($dom[$key]['value']);
                         if (($postlen == 0) and ($prelen > 0)) {
                             $dom[$key]['trimmed_space'] = true;
                         }
@@ -1783,12 +1620,7 @@ trait WebTools
                     $dom[$key]['value'] = preg_replace('/^' . $this->re_space['p'] . '+$/' . $this->re_space['m'], chr(32), $dom[$key]['value']);
                 }
                 $strrest = '';
-                if ($this->rtl) {
-                    $this->x -= $this->textindent;
-                }
-                else {
-                    $this->x += $this->textindent;
-                }
+                $this->x += $this->textindent;
                 if (!isset($dom[$key]['trimmed_space']) or !$dom[$key]['trimmed_space']) {
                     $strlinelen = $this->GetStringWidth($dom[$key]['value']);
                     if (!empty($this->HREF) and (isset($this->HREF['url']))) {
@@ -1805,12 +1637,7 @@ trait WebTools
                     }
                     else {
                         $wadj = 0; // space to leave for block continuity
-                        if ($this->rtl) {
-                            $cwa = ($this->x - $this->leftMargin);
-                        }
-                        else {
-                            $cwa = ($this->w - $this->rightMargin - $this->x);
-                        }
+                        $cwa  = ($this->w - $this->rightMargin - $this->x);
                         if (($strlinelen < $cwa) and (isset($dom[($key + 1)])) and ($dom[($key + 1)]['tag']) and (!$dom[($key + 1)]['block'])) {
                             // check the next text blocks for continuity
                             $nkey          = ($key + 1);
@@ -1855,28 +1682,9 @@ trait WebTools
                                 $wadj = $this->GetStringWidth($nextstr[0]);
                             }
                         }
-                        // check for reversed text direction
-                        if (($wadj > 0) and (($this->rtl and ($this->tmprtl === 'L')) or (!$this->rtl and ($this->tmprtl === 'R')))) {
-                            // LTR text on RTL direction or RTL text on LTR direction
-                            $reverse_dir = true;
-                            $this->rtl   = !$this->rtl;
-                            $revshift    = ($strlinelen + $wadj + 0.000001); // add little quantity for rounding problems
-                            if ($this->rtl) {
-                                $this->x += $revshift;
-                            }
-                            else {
-                                $this->x -= $revshift;
-                            }
-                            $xws = $this->x;
-                        }
                         // ****** write only until the end of the line and get the rest ******
                         $strrest = $this->Write($this->lastPrintedCellHeight, $dom[$key]['value'], '', $wfill, '', false, 0, true, $firstblock, 0, $wadj);
                         // restore default direction
-                        if ($reverse_dir and ($wadj == 0)) {
-                            $this->x     = $xws; // @phpstan-ignore-line
-                            $this->rtl   = !$this->rtl;
-                            $reverse_dir = false;
-                        }
                     }
                 }
                 $this->textindent = 0;
@@ -1892,12 +1700,7 @@ trait WebTools
                     }
                     $dom[$key]['value'] = $strrest;
                     if ($cell) {
-                        if ($this->rtl) {
-                            $this->x -= $this->cellPaddings['R'];
-                        }
-                        else {
-                            $this->x += $this->cellPaddings['L'];
-                        }
+                        $this->x += $this->cellPaddings['L'];
                     }
                     if ($loop < 3) {
                         --$key;
@@ -1907,12 +1710,7 @@ trait WebTools
                     $loop = 0;
                     // add the positive font spacing of the last character (if any)
                     if ($this->fontSpacing > 0) {
-                        if ($this->rtl) {
-                            $this->x -= $this->fontSpacing;
-                        }
-                        else {
-                            $this->x += $this->fontSpacing;
-                        }
+                        $this->x += $this->fontSpacing;
                     }
                 }
             }
@@ -1994,7 +1792,7 @@ trait WebTools
                     $pend = '';
                 }
             }
-            if ((((($plalign == 'C') or (($plalign == 'R') and (!$this->rtl)) or (($plalign == 'L') and ($this->rtl)))))) {
+            if ($plalign === 'C' or $plalign === 'R') {
                 // calculate shifting amount
                 $tw = $w;
                 if ($this->leftMargin != $prevlMargin) {
@@ -2005,65 +1803,30 @@ trait WebTools
                 }
                 $one_space_width = $this->GetStringWidth(chr(32));
                 $no              = 0; // number of spaces on a line contained on a single block
-                if ($this->isRTLTextDir()) { // RTL
-                    // remove left space if exist
-                    $pos1 = StaticMethods::revstrpos($pmid, '[(');
-                    if ($pos1 > 0) {
-                        $pos1 = intval($pos1);
-                        if ($this->isUnicodeFont()) {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(0) . chr(32)));
-                            $spacelen = 2;
-                        }
-                        else {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, '[(' . chr(32)));
-                            $spacelen = 1;
-                        }
-                        if ($pos1 == $pos2) {
-                            $pmid = substr($pmid, 0, ($pos1 + 2)) . substr($pmid, ($pos1 + 2 + $spacelen));
-                            if (substr($pmid, $pos1, 4) == '[()]') {
-                                $linew -= $one_space_width;
-                            }
-                            elseif ($pos1 == strpos($pmid, '[(')) {
-                                $no = 1;
-                            }
-                        }
+                // remove right space if exist
+                $pos1 = StaticMethods::revstrpos($pmid, ')]');
+                if ($pos1 > 0) {
+                    $pos1 = intval($pos1);
+                    if ($this->isUnicodeFont()) {
+                        $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
+                        $spacelen = 2;
                     }
-                }
-                else { // LTR
-                    // remove right space if exist
-                    $pos1 = StaticMethods::revstrpos($pmid, ')]');
-                    if ($pos1 > 0) {
-                        $pos1 = intval($pos1);
-                        if ($this->isUnicodeFont()) {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
-                            $spacelen = 2;
-                        }
-                        else {
-                            $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
-                            $spacelen = 1;
-                        }
-                        if ($pos1 == $pos2) {
-                            $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
-                            $linew -= $one_space_width;
-                        }
+                    else {
+                        $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
+                        $spacelen = 1;
+                    }
+                    if ($pos1 == $pos2) {
+                        $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
+                        $linew -= $one_space_width;
                     }
                 }
                 $mdiff = ($tw - $linew);
-                if ($plalign == 'C') {
-                    if ($this->rtl) {
-                        $t_x = -($mdiff / 2);
-                    }
-                    else {
-                        $t_x = ($mdiff / 2);
-                    }
+                if ($plalign === 'C') {
+                    $t_x = ($mdiff / 2);
                 }
-                elseif ($plalign == 'R') {
+                else {
                     // right alignment on LTR document
                     $t_x = $mdiff;
-                }
-                elseif ($plalign == 'L') {
-                    // left alignment on RTL document
-                    $t_x = -$mdiff;
                 }
             } // end if startlinex
             if (($t_x != 0) or ($yshift < 0)) {
@@ -2125,7 +1888,7 @@ trait WebTools
      * Process opening tags.
      * @param array $dom  html dom array
      * @param int   $key  current element id
-     * @param bool  $cell if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param bool  $cell if true add the default left padding to each new line (default false).
      * @return array $dom
      */
     protected function openHTMLTagHandler($dom, $key, $cell)
@@ -2133,13 +1896,6 @@ trait WebTools
         $tag      = $dom[$key];
         $parent   = $dom[($dom[$key]['parent'])];
         $firsttag = ($key == 1);
-        // check for text direction attribute
-        if (isset($tag['dir'])) {
-            $this->setTempRTL($tag['dir']);
-        }
-        else {
-            $this->tmprtl = false;
-        }
         if ($tag['block']) {
             $hbz = 0; // distance from y to line bottom
             $hb  = 0; // vertical space between block tags
@@ -2479,12 +2235,7 @@ trait WebTools
             }
             case 'dd':
             {
-                if ($this->rtl) {
-                    $this->rightMargin += $this->listindent;
-                }
-                else {
-                    $this->leftMargin += $this->listindent;
-                }
+                $this->leftMargin += $this->listindent;
                 ++$this->listindentlevel;
                 $this->addHTMLVertSpace($hbz, $hb, $cell, $firsttag);
                 break;
@@ -2505,14 +2256,8 @@ trait WebTools
                 else {
                     $this->listcount[$this->listnum] = 0;
                 }
-                if ($this->rtl) {
-                    $this->rightMargin += $this->listindent;
-                    $this->x           -= $this->listindent;
-                }
-                else {
-                    $this->leftMargin += $this->listindent;
-                    $this->x          += $this->listindent;
-                }
+                $this->leftMargin += $this->listindent;
+                $this->x          += $this->listindent;
                 ++$this->listindentlevel;
                 if ($this->listnum == 1) {
                     if ($key > 1) {
@@ -2567,12 +2312,7 @@ trait WebTools
             }
             case 'blockquote':
             {
-                if ($this->rtl) {
-                    $this->rightMargin += $this->listindent;
-                }
-                else {
-                    $this->leftMargin += $this->listindent;
-                }
+                $this->leftMargin += $this->listindent;
                 ++$this->listindentlevel;
                 $this->addHTMLVertSpace($hbz, $hb, $cell, $firsttag);
                 break;
@@ -2912,8 +2652,7 @@ trait WebTools
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
-            if ((($pba == 'left') and (((!$this->rtl) and (($this->page % 2) == 0)) or (($this->rtl) and (($this->page % 2) != 0))))
-                or (($pba == 'right') and (((!$this->rtl) and (($this->page % 2) != 0)) or (($this->rtl) and (($this->page % 2) == 0))))) {
+            if (($pba === 'left' and $this->page % 2 == 0) or ($pba === 'right' and $this->page % 2 !== 0)) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
@@ -2925,7 +2664,7 @@ trait WebTools
      * Process closing tags.
      * @param array $dom            html dom array
      * @param int   $key            current element id
-     * @param bool  $cell           if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param bool  $cell           if true add the default left padding to each new line (default false).
      * @param int   $maxbottomliney maximum y value of current line
      * @return array $dom
      */
@@ -2936,12 +2675,7 @@ trait WebTools
         $lasttag       = ((!isset($dom[($key + 1)])) or ((!isset($dom[($key + 2)])) and ($dom[($key + 1)]['value'] == 'marker')));
         $in_table_head = false;
         // maximum x position (used to draw borders)
-        if ($this->rtl) {
-            $xmax = $this->w;
-        }
-        else {
-            $xmax = 0;
-        }
+        $xmax = 0;
         if ($tag['block']) {
             $hbz = 0; // distance from y to line bottom
             $hb  = 0; // vertical space between block tags
@@ -3060,10 +2794,7 @@ trait WebTools
                 }
                 // account for booklet mode
                 if ($this->page > $parent['startpage']) {
-                    if (($this->rtl) and ($this->pagedim[$this->page]['orm'] != $this->pagedim[$parent['startpage']]['orm'])) {
-                        $this->x -= ($this->pagedim[$this->page]['orm'] - $this->pagedim[$parent['startpage']]['orm']);
-                    }
-                    elseif ((!$this->rtl) and ($this->pagedim[$this->page]['olm'] != $this->pagedim[$parent['startpage']]['olm'])) {
+                    if ($this->pagedim[$this->page]['olm'] !== $this->pagedim[$parent['startpage']]['olm']) {
                         $this->x += ($this->pagedim[$this->page]['olm'] - $this->pagedim[$parent['startpage']]['olm']);
                     }
                 }
@@ -3173,10 +2904,7 @@ trait WebTools
                             }
                             // account for margin changes
                             if ($page > $startpage) {
-                                if (($this->rtl) and ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                                    $this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
-                                }
-                                elseif ((!$this->rtl) and ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
                                     $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
                                 }
                             }
@@ -3192,16 +2920,11 @@ trait WebTools
                                         $this->x = $x;
                                     }
                                     elseif ($column == $startcolumn) { // first column
-                                        $cborder = $border_start;
-                                        $this->y = $starty;
-                                        $this->x = $x;
-                                        $h       = $this->h - $this->y - $this->bMargin;
-                                        if ($this->rtl) {
-                                            $deltacol = $this->x + $this->rightMargin - $this->w;
-                                        }
-                                        else {
-                                            $deltacol = $this->x - $this->leftMargin;
-                                        }
+                                        $cborder  = $border_start;
+                                        $this->y  = $starty;
+                                        $this->x  = $x;
+                                        $h        = $this->h - $this->y - $this->bMargin;
+                                        $deltacol = $this->x - $this->leftMargin;
                                     }
                                     elseif ($column == $endcolumn) { // end column
                                         $cborder = $border_end;
@@ -3228,16 +2951,11 @@ trait WebTools
                                 for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
                                     $this->selectColumn($column);
                                     if ($column == $startcolumn) { // first column
-                                        $cborder = $border_start;
-                                        $this->y = $starty;
-                                        $this->x = $x;
-                                        $h       = $this->h - $this->y - $this->bMargin;
-                                        if ($this->rtl) {
-                                            $deltacol = $this->x + $this->rightMargin - $this->w;
-                                        }
-                                        else {
-                                            $deltacol = $this->x - $this->leftMargin;
-                                        }
+                                        $cborder  = $border_start;
+                                        $this->y  = $starty;
+                                        $this->x  = $x;
+                                        $h        = $this->h - $this->y - $this->bMargin;
+                                        $deltacol = $this->x - $this->leftMargin;
                                     }
                                     else { // middle column
                                         $cborder = $border_middle;
@@ -3338,10 +3056,7 @@ trait WebTools
                     $this->Ln(0, $cell);
                     $this->x = $parent['startx'];
                     if ($endpage > $startpage) {
-                        if (($this->rtl) and ($this->pagedim[$endpage]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                            $this->x += ($this->pagedim[$endpage]['orm'] - $this->pagedim[$startpage]['orm']);
-                        }
-                        elseif ((!$this->rtl) and ($this->pagedim[$endpage]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                        if ($this->pagedim[$endpage]['olm'] !== $this->pagedim[$startpage]['olm']) {
                             $this->x += ($this->pagedim[$endpage]['olm'] - $this->pagedim[$startpage]['olm']);
                         }
                     }
@@ -3400,12 +3115,7 @@ trait WebTools
             }
             case 'blockquote':
             {
-                if ($this->rtl) {
-                    $this->rightMargin -= $this->listindent;
-                }
-                else {
-                    $this->leftMargin -= $this->listindent;
-                }
+                $this->leftMargin -= $this->listindent;
                 --$this->listindentlevel;
                 $this->addHTMLVertSpace($hbz, $hb, $cell, false, $lasttag);
                 break;
@@ -3442,13 +3152,8 @@ trait WebTools
             }
             case 'dd':
             {
-                $this->lispacer = '';
-                if ($this->rtl) {
-                    $this->rightMargin -= $this->listindent;
-                }
-                else {
-                    $this->leftMargin -= $this->listindent;
-                }
+                $this->lispacer   = '';
+                $this->leftMargin -= $this->listindent;
                 --$this->listindentlevel;
                 $this->addHTMLVertSpace(0, 0, $cell, false, $lasttag);
                 break;
@@ -3457,13 +3162,8 @@ trait WebTools
             case 'ol':
             {
                 --$this->listnum;
-                $this->lispacer = '';
-                if ($this->rtl) {
-                    $this->rightMargin -= $this->listindent;
-                }
-                else {
-                    $this->leftMargin -= $this->listindent;
-                }
+                $this->lispacer   = '';
+                $this->leftMargin -= $this->listindent;
                 --$this->listindentlevel;
                 if ($this->listnum <= 0) {
                     $this->listnum = 0;
@@ -3512,13 +3212,11 @@ trait WebTools
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
-            if ((($pba == 'left') and (((!$this->rtl) and (($this->page % 2) == 0)) or (($this->rtl) and (($this->page % 2) != 0))))
-                or (($pba == 'right') and (((!$this->rtl) and (($this->page % 2) != 0)) or (($this->rtl) and (($this->page % 2) == 0))))) {
+            if (($pba === 'left' and $this->page % 2 === 0) or ($pba === 'right' and $this->page % 2 !== 0)) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
                 $this->checkPageBreak($this->PageBreakTrigger + 1);
             }
         }
-        $this->tmprtl = false;
         return $dom;
     }
 
@@ -3684,7 +3382,7 @@ trait WebTools
         $dom[$key]['block']          = false;
         $dom[$key]['border']         = [];
         $dom[$key]['clip']           = ($this->textrendermode > 3);
-        $dom[$key]['dir']            = $this->rtl ? 'rtl' : 'ltr';
+        $dom[$key]['dir']            = 'ltr';
         $dom[$key]['fgColor']        = $this->fgColor;
         $dom[$key]['fill']           = (($this->textrendermode % 2) == 0);
         $dom[$key]['fontname']       = $this->fontFamily;
@@ -4179,12 +3877,7 @@ trait WebTools
                     // force natural alignment for lists
                     if ((($dom[$key]['value'] == 'ul') or ($dom[$key]['value'] == 'ol') or ($dom[$key]['value'] == 'dl'))
                         and (!isset($dom[$key]['align']) or empty($dom[$key]['align']) or ($dom[$key]['align'] != 'J'))) {
-                        if ($this->rtl) {
-                            $dom[$key]['align'] = 'R';
-                        }
-                        else {
-                            $dom[$key]['align'] = 'L';
-                        }
+                        $dom[$key]['align'] = 'L';
                     }
                     if (($dom[$key]['value'] == 'small') or ($dom[$key]['value'] == 'sup') or ($dom[$key]['value'] == 'sub')) {
                         if (!isset($dom[$key]['attribute']['size']) and !isset($dom[$key]['style']['font-size'])) {

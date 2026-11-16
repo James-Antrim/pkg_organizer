@@ -18,7 +18,7 @@ use THM\Organizer\Views\PDF\Library\Barcodes\{Barcode1D, Barcode2D};
 
 require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
 
-/**  PHP class for generating PDF documents without requiring external extensions. */
+/**  Class for generating PDF documents without requiring external extensions. */
 class PDF
 {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
@@ -319,29 +319,18 @@ class PDF
 
     /**
      * Defines the abscissa of the current position.
-     * If the passed value is negative, it is relative to the right of the page (or left if language is RTL).
-     * @param float|null $x      The value of the abscissa in user units.
-     * @param bool       $rtloff if true always uses the page top-left corner as origin of axis.
+     * If the passed value is negative, it is relative to the right of the page.
+     * @param float|null $x The value of the abscissa in user units.
      * @see   y(), SetXY()
      */
-    public function x(float|null $x = null, bool $rtloff = false)
+    public function x(float|null $x = null)
     {
         if (is_float($x)) {
-            if (!$rtloff and $this->rtl) {
-                if ($x >= 0) {
-                    $this->x = $this->w - $x;
-                }
-                else {
-                    $this->x = abs($x);
-                }
+            if ($x >= 0) {
+                $this->x = $x;
             }
             else {
-                if ($x >= 0) {
-                    $this->x = $x;
-                }
-                else {
-                    $this->x = $this->w + $x;
-                }
+                $this->x = $this->w + $x;
             }
             if ($this->x < 0) {
                 $this->x = 0;
@@ -351,12 +340,7 @@ class PDF
             }
         }
 
-        if ($this->rtl) {
-            return ($this->w - $this->x);
-        }
-        else {
-            return $this->x;
-        }
+        return $this->x;
     }
 
     /**
@@ -364,21 +348,15 @@ class PDF
      * If the passed value is negative, it is relative to the bottom of the page.
      * @param float|null $y      The value of the ordinate in user units.
      * @param bool       $resetx if true (default) reset the X position.
-     * @param bool       $rtloff if true always uses the page top-left corner as origin of axis.
      * @return float
      * @see   x(), SetXY()
      */
-    public function y(float|null $y = null, bool $resetx = true, bool $rtloff = false): float
+    public function y(float|null $y = null, bool $resetx = true): float
     {
         if (is_float($y)) {
             if ($resetx) {
                 //reset x
-                if (!$rtloff and $this->rtl) {
-                    $this->x = $this->w - $this->rightMargin;
-                }
-                else {
-                    $this->x = $this->leftMargin;
-                }
+                $this->x = $this->leftMargin;
             }
             if ($y >= 0) {
                 $this->y = $y;
@@ -660,16 +638,6 @@ class PDF
      * Default encoding.
      */
     protected $encoding = 'UTF-8';
-
-    /**
-     * bool flag to indicate if the document language is Right-To-Left.
-     */
-    protected $rtl = false;
-
-    /**
-     * bool flag used to force RTL or LTR string direction.
-     */
-    protected $tmprtl = false;
 
     // --- Variables used for document encryption:
 
@@ -1313,9 +1281,6 @@ class PDF
         $this->page_obj_id  = [];
         $this->form_obj_id  = [];
         $this->force_srgb   = false;
-        // set language direction
-        $this->rtl    = false;
-        $this->tmprtl = false;
         // some checks
         $this->_dochecks();
         // initialization of properties
@@ -1723,74 +1688,6 @@ class PDF
         else {
             $this->re_space['m'] = '';
         }
-    }
-
-    /**
-     * Enable or disable Right-To-Left language mode
-     * @param bool $enable if true enable Right-To-Left language mode.
-     * @param bool $resetx if true reset the X position on direction change.
-     */
-    public function setRTL($enable, $resetx = true)
-    {
-        $enable       = $enable ? true : false;
-        $resetx       = ($resetx and ($enable != $this->rtl));
-        $this->rtl    = $enable;
-        $this->tmprtl = false;
-        if ($resetx) {
-            $this->Ln(0);
-        }
-    }
-
-    /**
-     * Return the RTL status
-     * @return bool
-     */
-    public function getRTL()
-    {
-        return $this->rtl;
-    }
-
-    /**
-     * Force temporary RTL language direction
-     * @param false|string $mode can be false, 'L' for LTR or 'R' for RTL
-     */
-    public function setTempRTL($mode)
-    {
-        $newmode = false;
-        switch (strtoupper($mode)) {
-            case 'LTR':
-            case 'L':
-            {
-                if ($this->rtl) {
-                    $newmode = 'L';
-                }
-                break;
-            }
-            case 'RTL':
-            case 'R':
-            {
-                if (!$this->rtl) {
-                    $newmode = 'R';
-                }
-                break;
-            }
-            case false:
-            default:
-            {
-                $newmode = false;
-                break;
-            }
-        }
-        $this->tmprtl = $newmode;
-    }
-
-    /**
-     * Return the current temporary RTL status
-     * @return bool
-     */
-    public function isRTLTextDir()
-    {
-        return ($this->rtl or ($this->tmprtl == 'R'));
     }
 
     /**
@@ -2461,8 +2358,8 @@ class PDF
     }
 
     /**
-     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins (or top-right if in RTL mode), and Header() is called to display the header (if enabled).
-     * The origin of the coordinate system is at the top-left corner (or top-right for RTL) and increasing ordinates go downwards.
+     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
+     * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
      * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool   $keepmargins if true overwrites the default page margins with the current margins
@@ -2668,14 +2565,14 @@ class PDF
             $this->Ln($line_width);
             $barcode_width = round(($this->w - $this->originalLeftMargin - $this->originalRightMargin) / 3);
             $style         = [
-                'align'        => $this->rtl ? 'R' : 'L',
+                'align'        => 'L',
                 'bgColor'      => false,
                 'border'       => false,
                 'cellfitalign' => '',
                 'fgColor'      => self::BLACK,
                 'fitwidth'     => true,
                 'padding'      => 0,
-                'position'     => $this->rtl ? 'R' : 'L',
+                'position'     => 'L',
                 'stretch'      => false,
                 'text'         => false
             ];
@@ -2690,14 +2587,8 @@ class PDF
         }
         $this->y($cur_y);
         //Print page number
-        if ($this->getRTL()) {
-            $this->x($this->originalRightMargin);
-            $this->Cell(0, 0, $pagenumtxt, 'T', 0, 'L');
-        }
-        else {
-            $this->x($this->originalLeftMargin);
-            $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
-        }
+        $this->x($this->originalLeftMargin);
+        $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
     }
 
     /**
@@ -2727,21 +2618,11 @@ class PDF
             $this->setCellPadding(0);
             //set current position
             $footer_y = $this->h - $this->footer_margin;
-            if ($this->rtl) {
-                $this->setXY($this->originalRightMargin, $footer_y);
-            }
-            else {
-                $this->setXY($this->originalLeftMargin, $footer_y);
-            }
+            $this->setXY($this->originalLeftMargin, $footer_y);
             $this->setCurrentFont($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
             $this->Footer();
             //restore position
-            if ($this->rtl) {
-                $this->setXY($this->originalRightMargin, $this->tMargin);
-            }
-            else {
-                $this->setXY($this->originalLeftMargin, $this->tMargin);
-            }
+            $this->setXY($this->originalLeftMargin, $this->tMargin);
             $this->_outRestoreGraphicsState();
             $this->lastPrintedCellHeight = $lasth;
             $this->headerTemplate        = $temp_thead;
@@ -2788,20 +2669,10 @@ class PDF
             $this->leftMargin   = $this->headerTemplateMargins['lmargin'] + ($this->pagedim[$this->page]['olm'] - $this->pagedim[$this->headerTemplateMargins['page']]['olm']);
             $this->rightMargin  = $this->headerTemplateMargins['rmargin'] + ($this->pagedim[$this->page]['orm'] - $this->pagedim[$this->headerTemplateMargins['page']]['orm']);
             $this->cellPaddings = $this->headerTemplateMargins['cellPaddings'];
-            if ($this->rtl) {
-                $this->x = $this->w - $this->rightMargin;
-            }
-            else {
-                $this->x = $this->leftMargin;
-            }
+            $this->x            = $this->leftMargin;
             // account for special "cell" mode
             if ($this->headerTemplateMargins['cell']) {
-                if ($this->rtl) {
-                    $this->x -= $this->cellPaddings['R'];
-                }
-                else {
-                    $this->x += $this->cellPaddings['L'];
-                }
+                $this->x += $this->cellPaddings['L'];
             }
             $gvars = $this->graphicsConfiguration();
             if (!empty($this->headerTemplateMargins['gvars'])) {
@@ -3253,7 +3124,7 @@ class PDF
      * @param bool   $fclip             if true activate clipping mode (you must call StartTransform() before this function and StopTransform() to stop the clipping tranformation).
      * @param bool   $ffill             if true fills the text
      * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
-     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by AddLink().
@@ -3261,15 +3132,14 @@ class PDF
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @param bool   $rtloff            if true uses the page top-left corner as origin of axis for $x and $y initial position.
      * @see   Cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
      */
-    public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M', $rtloff = false)
+    public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
         $textrendermode  = $this->textrendermode;
         $textstrokewidth = $this->textstrokewidth;
         $this->setTextRenderingMode($fstroke, $ffill, $fclip);
-        $this->setXY($x, $y, $rtloff);
+        $this->setXY($x, $y);
         $this->Cell(0, 0, $txt, $border, $ln, $align, $fill, $link, $stretch, $ignore_min_height, $calign, $valign);
         // restore previous rendering mode
         $this->textrendermode  = $textrendermode;
@@ -3323,21 +3193,11 @@ class PDF
                 $this->AddPage($this->CurOrientation);
                 $this->y = $this->tMargin;
                 $oldpage = $this->page - 1;
-                if ($this->rtl) {
-                    if ($this->pagedim[$this->page]['orm'] != $this->pagedim[$oldpage]['orm']) {
-                        $this->x = $x - ($this->pagedim[$this->page]['orm'] - $this->pagedim[$oldpage]['orm']);
-                    }
-                    else {
-                        $this->x = $x;
-                    }
+                if ($this->pagedim[$this->page]['olm'] != $this->pagedim[$oldpage]['olm']) {
+                    $this->x = $x + ($this->pagedim[$this->page]['olm'] - $this->pagedim[$oldpage]['olm']);
                 }
                 else {
-                    if ($this->pagedim[$this->page]['olm'] != $this->pagedim[$oldpage]['olm']) {
-                        $this->x = $x + ($this->pagedim[$this->page]['olm'] - $this->pagedim[$oldpage]['olm']);
-                    }
-                    else {
-                        $this->x = $x;
-                    }
+                    $this->x = $x;
                 }
             }
             return true;
@@ -3356,7 +3216,7 @@ class PDF
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
      * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
-     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul> Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by AddLink().
@@ -3423,7 +3283,7 @@ class PDF
      * @param float  $h                 Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
      * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
-     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right (or left for RTL languages)</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
+     * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by AddLink().
@@ -3453,12 +3313,7 @@ class PDF
         $k = $this->k;
         // check page for no-write regions and adapt page margins if necessary
         list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
-        if ($this->rtl) {
-            $x = $this->x - $this->cellMargins['R'];
-        }
-        else {
-            $x = $this->x + $this->cellMargins['L'];
-        }
+        $x                  = $this->x + $this->cellMargins['L'];
         $y                  = $this->y + $this->cellMargins['T'];
         $previousSpacing    = $this->fontSpacing;
         $previousStretching = $this->fontStretching;
@@ -3590,12 +3445,7 @@ class PDF
         }
         $basefonty = $yt + $this->fontAscent;
         if (StaticMethods::empty_string($w) or ($w <= 0)) {
-            if ($this->rtl) {
-                $w = $x - $this->leftMargin;
-            }
-            else {
-                $w = $this->w - $this->rightMargin - $x;
-            }
+            $w = $this->w - $this->rightMargin - $x;
         }
         $s = '';
         // fill and borders
@@ -3610,13 +3460,8 @@ class PDF
             else {
                 $op = 'S';
             }
-            if ($this->rtl) {
-                $xk = (($x - $w) * $k);
-            }
-            else {
-                $xk = ($x * $k);
-            }
-            $s .= sprintf('%F %F %F %F re %s ', $xk, (($this->h - $y) * $k), ($w * $k), (-$h * $k), $op);
+            $xk = ($x * $k);
+            $s  .= sprintf('%F %F %F %F re %s ', $xk, (($this->h - $y) * $k), ($w * $k), (-$h * $k), $op);
         }
         // draw borders
         $s .= $this->getCellBorder($x, $y, $w, $h, $border);
@@ -3716,42 +3561,22 @@ class PDF
                 }
                 case 'R':
                 {
-                    if ($this->rtl) {
-                        $dx = $this->cellPaddings['R'];
-                    }
-                    else {
-                        $dx = $w - $width - $this->cellPaddings['R'];
-                    }
+                    $dx = $w - $width - $this->cellPaddings['R'];
                     break;
                 }
                 case 'L':
                 {
-                    if ($this->rtl) {
-                        $dx = $w - $width - $this->cellPaddings['L'];
-                    }
-                    else {
-                        $dx = $this->cellPaddings['L'];
-                    }
+                    $dx = $this->cellPaddings['L'];
                     break;
                 }
                 case 'J':
                 default:
                 {
-                    if ($this->rtl) {
-                        $dx = $this->cellPaddings['R'];
-                    }
-                    else {
-                        $dx = $this->cellPaddings['L'];
-                    }
+                    $dx = $this->cellPaddings['L'];
                     break;
                 }
             }
-            if ($this->rtl) {
-                $xdx = $x - $dx - $width;
-            }
-            else {
-                $xdx = $x + $dx;
-            }
+            $xdx = $x + $dx;
             $xdk = $xdx * $k;
             // print text
             $s .= sprintf('BT %F %F Td [(%s)] TJ ET', $xdk, (($this->h - $basefonty) * $k), $txt2);
@@ -3818,22 +3643,11 @@ class PDF
             //Go to the beginning of the next line
             $this->y = $y + $h + $this->cellMargins['B'];
             if ($ln == 1) {
-                if ($this->rtl) {
-                    $this->x = $this->w - $this->rightMargin;
-                }
-                else {
-                    $this->x = $this->leftMargin;
-                }
+                $this->x = $this->leftMargin;
             }
         }
         else {
-            // go left or right by case
-            if ($this->rtl) {
-                $this->x = $x - $w - $this->cellMargins['L'];
-            }
-            else {
-                $this->x = $x + $w + $this->cellMargins['R'];
-            }
+            $this->x = $x + $w + $this->cellMargins['R'];
         }
         $gstyles            = '' . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . "\n";
         $rs                 = $gstyles . $rs;
@@ -3880,15 +3694,9 @@ class PDF
             $brd = ['LRTB' => true];
         }
         // calculate coordinates for border
-        $k = $this->k;
-        if ($this->rtl) {
-            $xeL = ($x - $w) * $k;
-            $xeR = $x * $k;
-        }
-        else {
-            $xeL = $x * $k;
-            $xeR = ($x + $w) * $k;
-        }
+        $k   = $this->k;
+        $xeL = $x * $k;
+        $xeR = ($x + $w) * $k;
         $yeL = (($this->h - ($y + $h)) * $k);
         $yeT = (($this->h - $y) * $k);
         $xeT = $xeL;
@@ -4130,37 +3938,21 @@ class PDF
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions(0, $x, $y);
         // apply margins
-        $oy = $y + $mc_margin['T'];
-        if ($this->rtl) {
-            $ox = ($this->w - $x - $mc_margin['R']);
-        }
-        else {
-            $ox = ($x + $mc_margin['L']);
-        }
+        $oy      = $y + $mc_margin['T'];
+        $ox      = ($x + $mc_margin['L']);
         $this->x = $ox;
         $this->y = $oy;
         // set width
         if (StaticMethods::empty_string($w) or ($w <= 0)) {
-            if ($this->rtl) {
-                $w = ($this->x - $this->leftMargin - $mc_margin['L']);
-            }
-            else {
-                $w = ($this->w - $this->x - $this->rightMargin - $mc_margin['R']);
-            }
+            $w = ($this->w - $this->x - $this->rightMargin - $mc_margin['R']);
         }
         // store original margin values
-        $lMargin = $this->leftMargin;
-        $rMargin = $this->rightMargin;
-        if ($this->rtl) {
-            $this->rightMargin = ($this->w - $this->x);
-            $this->leftMargin  = ($this->x - $w);
-        }
-        else {
-            $this->leftMargin  = ($this->x);
-            $this->rightMargin = ($this->w - $this->x - $w);
-        }
-        $this->clMargin = $this->leftMargin;
-        $this->crMargin = $this->rightMargin;
+        $lMargin           = $this->leftMargin;
+        $rMargin           = $this->rightMargin;
+        $this->leftMargin  = ($this->x);
+        $this->rightMargin = ($this->w - $this->x - $w);
+        $this->clMargin    = $this->leftMargin;
+        $this->crMargin    = $this->rightMargin;
         if ($autopadding) {
             // add top padding
             $this->y += $mc_padding['T'];
@@ -4281,10 +4073,7 @@ class PDF
             }
             // account for margin changes
             if ($page > $startpage) {
-                if (($this->rtl) and ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                    $this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
-                }
-                elseif ((!$this->rtl) and ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
                     $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
                 }
             }
@@ -4294,12 +4083,7 @@ class PDF
                     if ($column != $this->current_column) {
                         $this->selectColumn($column);
                     }
-                    if ($this->rtl) {
-                        $this->x -= $mc_margin['R'];
-                    }
-                    else {
-                        $this->x += $mc_margin['L'];
-                    }
+                    $this->x += $mc_margin['L'];
                     if ($startcolumn == $endcolumn) { // single column
                         $cborder = $border;
                         $h       = max($h, ($currentY - $oy));
@@ -4330,12 +4114,7 @@ class PDF
                     if ($column != $this->current_column) {
                         $this->selectColumn($column);
                     }
-                    if ($this->rtl) {
-                        $this->x -= $mc_margin['R'];
-                    }
-                    else {
-                        $this->x += $mc_margin['L'];
-                    }
+                    $this->x += $mc_margin['L'];
                     if ($column == $startcolumn) { // first column
                         $cborder = $border_start;
                         $this->y = $oy;
@@ -4354,12 +4133,7 @@ class PDF
                     if ($column != $this->current_column) {
                         $this->selectColumn($column);
                     }
-                    if ($this->rtl) {
-                        $this->x -= $mc_margin['R'];
-                    }
-                    else {
-                        $this->x += $mc_margin['L'];
-                    }
+                    $this->x += $mc_margin['L'];
                     if ($column == $endcolumn) {
                         // end column
                         $cborder = $border_end;
@@ -4380,12 +4154,7 @@ class PDF
             else { // middle page
                 for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
                     $this->selectColumn($column);
-                    if ($this->rtl) {
-                        $this->x -= $mc_margin['R'];
-                    }
-                    else {
-                        $this->x += $mc_margin['L'];
-                    }
+                    $this->x += $mc_margin['L'];
                     $cborder = $border_middle;
                     $h       = $this->h - $this->y - $this->bMargin;
                     $resth   -= $h;
@@ -4503,12 +4272,7 @@ class PDF
         }
         $this->adjustCellPadding($border);
         if (StaticMethods::empty_string($w) or ($w <= 0)) {
-            if ($this->rtl) {
-                $w = $this->x - $this->leftMargin;
-            }
-            else {
-                $w = $this->w - $this->rightMargin - $this->x;
-            }
+            $w = $this->w - $this->rightMargin - $this->x;
         }
         $wmax = $w - $this->cellPaddings['L'] - $this->cellPaddings['R'];
         if ($reseth) {
@@ -4655,13 +4419,6 @@ class PDF
         }
         // remove carriage returns
         $s = str_replace("\r", '', $txt);
-        // check if string contains RTL text
-        if (($this->tmprtl == 'R')) {
-            $rtlmode = true;
-        }
-        else {
-            $rtlmode = false;
-        }
         // get a char width
         $chrwidth = $this->GetCharWidth(46); // dot character
         // get array of unicode values
@@ -4682,12 +4439,7 @@ class PDF
         // page width
         $pw = $w = $this->w - $this->leftMargin - $this->rightMargin;
         // calculate remaining line width ($w)
-        if ($this->rtl) {
-            $w = $this->x - $this->leftMargin;
-        }
-        else {
-            $w = $this->w - $this->rightMargin - $this->x;
-        }
+        $w = $this->w - $this->rightMargin - $this->x;
         // max column width
         $wmax = ($w - $wadj);
         if (!$firstline) {
@@ -4722,12 +4474,7 @@ class PDF
             if ($c == 10) { // 10 = "\n" = new line
                 //Explicit line break
                 if ($align == 'J') {
-                    if ($this->rtl) {
-                        $talign = 'R';
-                    }
-                    else {
-                        $talign = 'L';
-                    }
+                    $talign = 'L';
                 }
                 else {
                     $talign = $align;
@@ -4738,20 +4485,12 @@ class PDF
                     $tmparr = array_slice($chars, $j, ($i - $j));
                     $linew  = $this->GetArrStringWidth($tmparr);
                     unset($tmparr);
-                    if ($this->rtl) {
-                        $this->endlinex = $startx - $linew;
-                    }
-                    else {
-                        $this->endlinex = $startx + $linew;
-                    }
+                    $this->endlinex = $startx + $linew;
                     $w              = $linew;
                     $tmpcellpadding = $this->cellPaddings;
                     if ($maxh == 0) {
                         $this->setCellPadding(0);
                     }
-                }
-                if ($firstblock and $this->isRTLTextDir()) {
-                    $tmpstr = $this->stringRightTrim($tmpstr);
                 }
                 // Skip newlines at the beginning of a page or column
                 if (!empty($tmpstr) or ($this->y < ($this->PageBreakTrigger - $row_height))) {
@@ -4771,12 +4510,7 @@ class PDF
                 // account for margin changes
                 if ((($this->y + $this->lastPrintedCellHeight) > $this->PageBreakTrigger) and ($this->inPageBody())) {
                     if ($this->AcceptPageBreak()) {
-                        if ($this->rtl) {
-                            $this->x -= $margin['R'];
-                        }
-                        else {
-                            $this->x += $margin['L'];
-                        }
+                        $this->x           += $margin['L'];
                         $this->leftMargin  += $margin['L'];
                         $this->rightMargin += $margin['R'];
                     }
@@ -4830,8 +4564,7 @@ class PDF
                     // we have reached the end of column
                     if ($sep == -1) {
                         // check if the line was already started
-                        if (($this->rtl and ($this->x <= ($this->w - $this->rightMargin - $this->cellPaddings['R'] - $margin['R'] - $chrwidth)))
-                            or ((!$this->rtl) and ($this->x >= ($this->leftMargin + $this->cellPaddings['L'] + $margin['L'] + $chrwidth)))) {
+                        if ($this->x >= ($this->leftMargin + $this->cellPaddings['L'] + $margin['L'] + $chrwidth)) {
                             // print a void cell and go to next line
                             $this->Cell($w, $h, '', 0, 1);
                             $linebreak = true;
@@ -4847,20 +4580,12 @@ class PDF
                                 $tmparr = array_slice($chars, $j, ($i - $j));
                                 $linew  = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
-                                if ($this->rtl) {
-                                    $this->endlinex = $startx - $linew;
-                                }
-                                else {
-                                    $this->endlinex = $startx + $linew;
-                                }
+                                $this->endlinex = $startx + $linew;
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cellPaddings;
                                 if ($maxh == 0) {
                                     $this->setCellPadding(0);
                                 }
-                            }
-                            if ($firstblock and $this->isRTLTextDir()) {
-                                $tmpstr = $this->stringRightTrim($tmpstr);
                             }
                             $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
@@ -4874,12 +4599,7 @@ class PDF
                     }
                     else {
                         // word wrapping
-                        if ($this->rtl and (!$firstblock) and ($sep < $i)) {
-                            $endspace = 1;
-                        }
-                        else {
-                            $endspace = 0;
-                        }
+                        $endspace = 0;
                         // check the length of the next string
                         $strrest = $this->unicodeSliceToString($uchars, ($sep + $endspace));
                         $nextstr = preg_split('/' . $this->re_space['p'] . '/' . $this->re_space['m'], $this->stringTrim($strrest));
@@ -4891,20 +4611,12 @@ class PDF
                                 $tmparr = array_slice($chars, $j, ($i - $j));
                                 $linew  = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
-                                if ($this->rtl) {
-                                    $this->endlinex = ($startx - $linew);
-                                }
-                                else {
-                                    $this->endlinex = ($startx + $linew);
-                                }
+                                $this->endlinex = ($startx + $linew);
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cellPaddings;
                                 if ($maxh == 0) {
                                     $this->setCellPadding(0);
                                 }
-                            }
-                            if ($firstblock and $this->isRTLTextDir()) {
-                                $tmpstr = $this->stringRightTrim($tmpstr);
                             }
                             $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
@@ -4919,15 +4631,9 @@ class PDF
                             // word wrapping
                             if ($shy) {
                                 // add hypen (minus symbol) at the end of the line
-                                $shy_width = $tmp_shy_replacement_width;
-                                if ($this->rtl) {
-                                    $shy_char_left  = $tmp_shy_replacement_char;
-                                    $shy_char_right = '';
-                                }
-                                else {
-                                    $shy_char_left  = '';
-                                    $shy_char_right = $tmp_shy_replacement_char;
-                                }
+                                $shy_width      = $tmp_shy_replacement_width;
+                                $shy_char_left  = '';
+                                $shy_char_right = $tmp_shy_replacement_char;
                             }
                             else {
                                 $shy_width      = 0;
@@ -4940,12 +4646,7 @@ class PDF
                                 $tmparr = array_slice($chars, $j, (($sep + $endspace) - $j));
                                 $linew  = $this->GetArrStringWidth($tmparr);
                                 unset($tmparr);
-                                if ($this->rtl) {
-                                    $this->endlinex = $startx - $linew - $shy_width;
-                                }
-                                else {
-                                    $this->endlinex = $startx + $linew + $shy_width;
-                                }
+                                $this->endlinex = $startx + $linew + $shy_width;
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cellPaddings;
                                 if ($maxh == 0) {
@@ -4953,9 +4654,6 @@ class PDF
                                 }
                             }
                             // print the line
-                            if ($firstblock and $this->isRTLTextDir()) {
-                                $tmpstr = $this->stringRightTrim($tmpstr);
-                            }
                             $this->Cell($w, $h, $shy_char_left . $tmpstr . $shy_char_right, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
@@ -4975,12 +4673,7 @@ class PDF
                     // account for margin changes
                     if ((($this->y + $this->lastPrintedCellHeight) > $this->PageBreakTrigger) and ($this->inPageBody())) {
                         if ($this->AcceptPageBreak()) {
-                            if ($this->rtl) {
-                                $this->x -= $margin['R'];
-                            }
-                            else {
-                                $this->x += $margin['L'];
-                            }
+                            $this->x           += $margin['L'];
                             $this->leftMargin  += $margin['L'];
                             $this->rightMargin += $margin['R'];
                         }
@@ -5005,21 +4698,8 @@ class PDF
             switch ($align) {
                 case 'J':
                 case 'C':
-                {
-                    break;
-                }
-                case 'L':
-                {
-                    if (!$this->rtl) {
-                        $w = $l;
-                    }
-                    break;
-                }
                 case 'R':
                 {
-                    if ($this->rtl) {
-                        $w = $l;
-                    }
                     break;
                 }
                 default:
@@ -5034,20 +4714,12 @@ class PDF
                 $tmparr = array_slice($chars, $j, ($nb - $j));
                 $linew  = $this->GetArrStringWidth($tmparr);
                 unset($tmparr);
-                if ($this->rtl) {
-                    $this->endlinex = $startx - $linew;
-                }
-                else {
-                    $this->endlinex = $startx + $linew;
-                }
+                $this->endlinex = $startx + $linew;
                 $w              = $linew;
                 $tmpcellpadding = $this->cellPaddings;
                 if ($maxh == 0) {
                     $this->setCellPadding(0);
                 }
-            }
-            if ($firstblock and $this->isRTLTextDir()) {
-                $tmpstr = $this->stringRightTrim($tmpstr);
             }
             $this->Cell($w, $h, $tmpstr, 0, $ln, $align, $fill, $link, $stretch);
             unset($tmpstr);
@@ -5070,12 +4742,7 @@ class PDF
     protected function getRemainingWidth()
     {
         list($this->x, $this->y) = $this->checkPageRegions(0, $this->x, $this->y);
-        if ($this->rtl) {
-            return ($this->x - $this->leftMargin);
-        }
-        else {
-            return ($this->w - $this->rightMargin - $this->x);
-        }
+        return ($this->w - $this->rightMargin - $this->x);
     }
 
     /**
@@ -5123,13 +4790,8 @@ class PDF
         $prev_x = $this->x;
         $prev_y = $this->y;
         if ($this->checkPageBreak($h, $y) or ($this->y < $prev_y)) {
-            $y = $this->y;
-            if ($this->rtl) {
-                $x += ($prev_x - $this->x);
-            }
-            else {
-                $x += ($this->x - $prev_x);
-            }
+            $y             = $this->y;
+            $x             += ($this->x - $prev_x);
             $this->newLine = true;
         }
         // resize the block to be contained on the remaining available page or column space
@@ -5141,12 +4803,8 @@ class PDF
                 $h = $this->PageBreakTrigger - $y;
                 $w = ($h * $ratio_wh);
             }
-            if ((!$this->rtl) and (($x + $w) > ($this->w - $this->rightMargin))) {
+            if (($x + $w) > ($this->w - $this->rightMargin)) {
                 $w = $this->w - $this->rightMargin - $x;
-                $h = ($w / $ratio_wh);
-            }
-            elseif (($this->rtl) and (($x - $w) < ($this->leftMargin))) {
-                $w = $x - $this->leftMargin;
                 $h = ($w / $ratio_wh);
             }
         }
@@ -5179,7 +4837,7 @@ class PDF
      * Performs a line break.
      * The current abscissa goes back to the left margin and the ordinate increases by the amount passed in parameter.
      * @param float|null $h    The height of the break. By default, the value equals the height of the last printed cell.
-     * @param bool       $cell if true add the current left (or right o for RTL) padding to the X coordinate
+     * @param bool       $cell if true add the current left padding to the X coordinate
      * @see   Cell()
      */
     public function Ln($h = null, $cell = false)
@@ -5189,22 +4847,12 @@ class PDF
             return;
         }
         if ($cell) {
-            if ($this->rtl) {
-                $cellpadding = $this->cellPaddings['R'];
-            }
-            else {
-                $cellpadding = $this->cellPaddings['L'];
-            }
+            $cellpadding = $this->cellPaddings['L'];
         }
         else {
             $cellpadding = 0;
         }
-        if ($this->rtl) {
-            $this->x = $this->w - $this->rightMargin - $cellpadding;
-        }
-        else {
-            $this->x = $this->leftMargin + $cellpadding;
-        }
+        $this->x = $this->leftMargin + $cellpadding;
         if (StaticMethods::empty_string($h)) {
             $h = $this->lastPrintedCellHeight;
         }
@@ -5225,15 +4873,14 @@ class PDF
     /**
      * Defines the abscissa and ordinate of the current position.
      * If the passed values are negative, they are relative respectively to the right and bottom of the page.
-     * @param float $x      The value of the abscissa.
-     * @param float $y      The value of the ordinate.
-     * @param bool  $rtloff if true always uses the page top-left corner as origin of axis.
+     * @param float $x The value of the abscissa.
+     * @param float $y The value of the ordinate.
      * @see   x(), y()
      */
-    public function setXY($x, $y, $rtloff = false)
+    public function setXY($x, $y)
     {
-        $this->y($y, false, $rtloff);
-        $this->x($x, $rtloff);
+        $this->y($y, false);
+        $this->x($x);
     }
 
     /**
@@ -7156,10 +6803,8 @@ class PDF
                 $out .= ' >> >>';
             }
             $font = $this->fontBuffer('helvetica');
-            $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g)';
-            $out  .= ' /Q ' . (($this->rtl) ? '2' : '0');
-            //$out .= ' /XFA ';
-            $out .= ' >>';
+            $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g) /Q 0';
+            $out  .= ' >>';
             // signatures
             if ($this->sign and isset($this->signature_data['cert_type'])
                 and (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A'))) {
@@ -7186,12 +6831,7 @@ class PDF
     {
         $vp  = $this->viewer_preferences;
         $out = ' /ViewerPreferences <<';
-        if ($this->rtl) {
-            $out .= ' /Direction /R2L';
-        }
-        else {
-            $out .= ' /Direction /L2R';
-        }
+        $out .= ' /Direction /L2R';
         if (isset($vp['HideToolbar']) and ($vp['HideToolbar'])) {
             $out .= ' /HideToolbar true';
         }
@@ -7377,12 +7017,7 @@ class PDF
         else {
             $this->setPageFormat($format, $orientation);
         }
-        if ($this->rtl) {
-            $this->x = $this->w - $this->rightMargin;
-        }
-        else {
-            $this->x = $this->leftMargin;
-        }
+        $this->x = $this->leftMargin;
         $this->y = $this->tMargin;
         if (isset($this->newpagegroup[$this->page])) {
             // start a new group
@@ -7610,12 +7245,6 @@ class PDF
     public function setLanguageArray($language)
     {
         $this->l = $language;
-        if (isset($this->l['a_meta_dir'])) {
-            $this->rtl = $this->l['a_meta_dir'] == 'rtl' ? true : false;
-        }
-        else {
-            $this->rtl = false;
-        }
     }
 
     /**
@@ -8380,7 +8009,7 @@ class PDF
 
     /**
      * Translate graphic object horizontally.
-     * @param int $t_x movement to the right (or left for RTL)
+     * @param int $t_x movement to the right
      * @see   StartTransform(), StopTransform()
      */
     public function TranslateX($t_x)
@@ -9764,9 +9393,6 @@ class PDF
      */
     protected function _addfield($type, $name, $x, $y, $w, $h, $prop)
     {
-        if ($this->rtl) {
-            $x = $x - $w;
-        }
         // the followind avoid fields duplication after saving the document
         $this->javascript .= "if (getField('tcpdfdocsaved').value != 'saved') {";
         $k                = $this->k;
@@ -9781,12 +9407,7 @@ class PDF
             }
             $this->javascript .= 'f' . $name . '.' . $key . '=' . $val . ";\n";
         }
-        if ($this->rtl) {
-            $this->x -= $w;
-        }
-        else {
-            $this->x += $w;
-        }
+        $this->x          += $w;
         $this->javascript .= '}';
     }
 
@@ -9842,7 +9463,7 @@ class PDF
         // get default style
         $prop = array_merge($this->getFormDefaultProp(), $prop);
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
         // set default appearance stream
         $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
         $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
@@ -9930,12 +9551,7 @@ class PDF
         //$opt['aa']
         //$opt['q']
         $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
-        if ($this->rtl) {
-            $this->x -= $w;
-        }
-        else {
-            $this->x += $w;
-        }
+        $this->x += $w;
     }
 
     /**
@@ -9997,7 +9613,7 @@ class PDF
         $prop['Radio']         = 'true';
         $prop['borderStyle']   = 'inset';
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
         // set additional default options
         $this->annotationFonts[$tmpfont['fontKey']] = $tmpfont['i'];
         $fontstyle                                  = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->fontSizePT, $this->textColor);
@@ -10031,12 +9647,7 @@ class PDF
         }
         $this->radiobutton_groups[$this->page][$name]['#readonly#'] |= ($opt['f'] & 64);
         $this->Annotation($x, $y, $w, $w, $name, $opt, 0);
-        if ($this->rtl) {
-            $this->x -= $w;
-        }
-        else {
-            $this->x += $w;
-        }
+        $this->x += $w;
     }
 
     /**
@@ -10079,7 +9690,7 @@ class PDF
         // get default style
         $prop = array_merge($this->getFormDefaultProp(), $prop);
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
         // set additional default values
         $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
         $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
@@ -10119,12 +9730,7 @@ class PDF
         unset($opt['mk']['if']);
         unset($opt['mk']['tp']);
         $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
-        if ($this->rtl) {
-            $this->x -= $w;
-        }
-        else {
-            $this->x += $w;
-        }
+        $this->x += $w;
     }
 
     /**
@@ -10168,7 +9774,7 @@ class PDF
         $prop          = array_merge($this->getFormDefaultProp(), $prop);
         $prop['Combo'] = true;
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
         // set additional default options
         $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
         $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
@@ -10208,12 +9814,7 @@ class PDF
         unset($opt['mk']['if']);
         unset($opt['mk']['tp']);
         $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
-        if ($this->rtl) {
-            $this->x -= $w;
-        }
-        else {
-            $this->x += $w;
-        }
+        $this->x += $w;
     }
 
     /**
@@ -10250,7 +9851,7 @@ class PDF
         $prop                = array_merge($this->getFormDefaultProp(), $prop);
         $prop['borderStyle'] = 'inset';
         // get annotation data
-        $popt = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
         // set additional default options
         $font = 'zapfdingbats';
         $this->AddFont($font);
@@ -10284,12 +9885,7 @@ class PDF
             $opt['as'] = 'Off';
         }
         $this->Annotation($x, $y, $w, $w, $name, $opt, 0);
-        if ($this->rtl) {
-            $this->x -= $w;
-        }
-        else {
-            $this->x += $w;
-        }
+        $this->x += $w;
     }
 
     /**
@@ -10330,7 +9926,7 @@ class PDF
         $prop['highlight']  = 'push';
         $prop['display']    = 'display.noPrint';
         // get annotation data
-        $popt                                                 = StaticMethods::getAnnotOptFromJSProp($prop, $this->spotColors, $this->rtl);
+        $popt                                                 = StaticMethods::getAnnotOptFromJSProp($prop);
         $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
         $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
         $popt['da']                                           = $fontstyle;
@@ -10476,12 +10072,7 @@ class PDF
             }
         }
         $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
-        if ($this->rtl) {
-            $this->x -= $w;
-        }
-        else {
-            $this->x += $w;
-        }
+        $this->x += $w;
     }
 
     // --- END FORMS FIELDS ------------------------------------------------
@@ -11464,7 +11055,7 @@ class PDF
 
     /**
      * Set a rectangular clipping area.
-     * @param float $x abscissa of the top left corner of the rectangle (or top right corner for RTL mode).
+     * @param float $x abscissa of the top left corner of the rectangle.
      * @param float $y ordinate of the top left corner of the rectangle.
      * @param float $w width of the rectangle.
      * @param float $h height of the rectangle.
@@ -11474,9 +11065,6 @@ class PDF
     {
         if ($this->state !== self::READY) {
             return;
-        }
-        if ($this->rtl) {
-            $x = $this->w - $x - $w;
         }
         //save current Graphic State
         $s = 'q';
@@ -11829,9 +11417,6 @@ class PDF
         if ($this->state !== self::READY) {
             return;
         }
-        if ($this->rtl) {
-            $xc = ($this->w - $xc);
-        }
         $op = StaticMethods::getPathPaintOperator($style);
         if ($op == 'f') {
             $line_style = [];
@@ -11892,7 +11477,7 @@ class PDF
      *                          <li>string $style['stretch'] if true stretch the barcode to best fit the available width, otherwise uses $xres resolution for a single bar.</li>
      *                          <li>string $style['fitwidth'] if true reduce the width to fit the barcode width + padding. When this option is enabled the 'stretch' option is automatically disabled.</li>
      *                          <li>string $style['cellfitalign'] this option works only when 'fitwidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
-     * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @author Nicola Asuni
      */
     public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
@@ -11971,12 +11556,7 @@ class PDF
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
         if (StaticMethods::empty_string($w) or ($w <= 0)) {
-            if ($this->rtl) {
-                $w = $x - $this->leftMargin;
-            }
-            else {
-                $w = $this->w - $this->rightMargin - $x;
-            }
+            $w = $this->w - $this->rightMargin - $x;
         }
         // padding
         if (!isset($style['padding'])) {
@@ -12034,28 +11614,14 @@ class PDF
             $w    = (($arrcode['maxw'] * $xres) + (2 * $hpadding));
             if (isset($style['cellfitalign'])) {
                 switch ($style['cellfitalign']) {
-                    case 'L':
-                    {
-                        if ($this->rtl) {
-                            $x -= ($wold - $w);
-                        }
-                        break;
-                    }
                     case 'R':
                     {
-                        if (!$this->rtl) {
-                            $x += ($wold - $w);
-                        }
+                        $x += ($wold - $w);
                         break;
                     }
                     case 'C':
                     {
-                        if ($this->rtl) {
-                            $x -= (($wold - $w) / 2);
-                        }
-                        else {
-                            $x += (($wold - $w) / 2);
-                        }
+                        $x += (($wold - $w) / 2);
                         break;
                     }
                     default :
@@ -12089,37 +11655,20 @@ class PDF
         // set alignment
         $this->imageRBY = $y + $h;
         // set alignment
-        if ($this->rtl) {
-            if ($style['position'] == 'L') {
-                $xpos = $this->leftMargin;
-            }
-            elseif ($style['position'] == 'C') {
-                $xpos = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($style['position'] == 'R') {
-                $xpos = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $xpos = $x - $w;
-            }
-            $this->imageRBX = $xpos;
+        if ($style['position'] == 'L') {
+            $xpos = $this->leftMargin;
+        }
+        elseif ($style['position'] == 'C') {
+            $xpos = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+        }
+        elseif ($style['position'] == 'R') {
+            $xpos = $this->w - $this->rightMargin - $w;
         }
         else {
-            if ($style['position'] == 'L') {
-                $xpos = $this->leftMargin;
-            }
-            elseif ($style['position'] == 'C') {
-                $xpos = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($style['position'] == 'R') {
-                $xpos = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $xpos = $x;
-            }
-            $this->imageRBX = $xpos + $w;
+            $xpos = $x;
         }
-        $xpos_rect = $xpos;
+        $this->imageRBX = $xpos + $w;
+        $xpos_rect      = $xpos;
         if (!isset($style['align'])) {
             $style['align'] = 'C';
         }
@@ -12142,9 +11691,6 @@ class PDF
             }
         }
         $xpos_text = $xpos;
-        // barcode is always printed in LTR direction
-        $tempRTL   = $this->rtl;
-        $this->rtl = false;
         // print background color
         if ($style['bgColor']) {
             $this->Rect($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
@@ -12185,8 +11731,6 @@ class PDF
             $this->Cell($txtwidth, 0, $label, 0, 0, 'C', false, '', $style['stretchtext'], false, 'T', 'T');
             $this->cellPaddings = $cellpadding;
         }
-        // restore original direction
-        $this->rtl = $tempRTL;
         // restore previous settings
         $this->graphicsConfiguration($gvars);
         // set pointer to align the next text/objects
@@ -12240,7 +11784,7 @@ class PDF
      *                            <li>array $style['fgColor'] color array for bars and text</li>
      *                            <li>mixed $style['bgColor'] color array for background or false for transparent</li>
      *                            <li>string $style['position'] barcode position on the page: L = left margin; C = center; R = right margin; S = stretch</li>
-     * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param bool       $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
      * @author Nicola Asuni
      */
@@ -12319,12 +11863,7 @@ class PDF
             $this->Error('Error in 2D barcode string');
         }
         // get max dimensions
-        if ($this->rtl) {
-            $maxw = $x - $this->leftMargin;
-        }
-        else {
-            $maxw = $this->w - $this->rightMargin - $x;
-        }
+        $maxw    = $this->w - $this->rightMargin - $x;
         $maxh    = ($this->h - $this->tMargin - $this->bMargin);
         $ratioHW = ((($rows * $mh) + $hpad) / (($cols * $mw) + $vpad));
         $ratioWH = ((($cols * $mw) + $vpad) / (($rows * $mh) + $hpad));
@@ -12379,41 +11918,21 @@ class PDF
         // set alignment
         $this->imageRBY = $y + $h;
         // set alignment
-        if ($this->rtl) {
-            if ($style['position'] == 'L') {
-                $xpos = $this->leftMargin;
-            }
-            elseif ($style['position'] == 'C') {
-                $xpos = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($style['position'] == 'R') {
-                $xpos = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $xpos = $x - $w;
-            }
-            $this->imageRBX = $xpos;
+        if ($style['position'] == 'L') {
+            $xpos = $this->leftMargin;
+        }
+        elseif ($style['position'] == 'C') {
+            $xpos = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+        }
+        elseif ($style['position'] == 'R') {
+            $xpos = $this->w - $this->rightMargin - $w;
         }
         else {
-            if ($style['position'] == 'L') {
-                $xpos = $this->leftMargin;
-            }
-            elseif ($style['position'] == 'C') {
-                $xpos = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($style['position'] == 'R') {
-                $xpos = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $xpos = $x;
-            }
-            $this->imageRBX = $xpos + $w;
+            $xpos = $x;
         }
-        $xstart = $xpos + ($style['hpadding'] * $cw);
-        $ystart = $y + ($style['vpadding'] * $ch);
-        // barcode is always printed in LTR direction
-        $tempRTL   = $this->rtl;
-        $this->rtl = false;
+        $this->imageRBX = $xpos + $w;
+        $xstart         = $xpos + ($style['hpadding'] * $cw);
+        $ystart         = $y + ($style['vpadding'] * $ch);
         // print background color
         if ($style['bgColor']) {
             $this->Rect($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
@@ -12437,8 +11956,6 @@ class PDF
             }
             $ystart += $ch;
         }
-        // restore original direction
-        $this->rtl = $tempRTL;
         // restore previous settings
         $this->graphicsConfiguration($gvars);
         // set pointer to align the next text/objects
@@ -12580,7 +12097,7 @@ class PDF
      * Add vertical spaces if needed.
      * @param string $hbz      Distance between current y and line bottom.
      * @param string $hb       The height of the break.
-     * @param bool   $cell     if true add the default left (or right if RTL) padding to each new line (default false).
+     * @param bool   $cell     if true add the default left padding to each new line (default false).
      * @param bool   $firsttag set to true when the tag is the first.
      * @param bool   $lasttag  set to true when the tag is the last.
      */
@@ -12612,12 +12129,7 @@ class PDF
      */
     protected function getBorderStartPosition()
     {
-        if ($this->rtl) {
-            $xmax = $this->leftMargin;
-        }
-        else {
-            $xmax = $this->w - $this->rightMargin;
-        }
+        $xmax = $this->w - $this->rightMargin;
         return ['page' => $this->page, 'column' => $this->current_column, 'x' => $this->x, 'y' => $this->y, 'xmax' => $xmax];
     }
 
@@ -12670,18 +12182,10 @@ class PDF
             // draw the border externally respect the sqare edge.
             $border['mode'] = 'ext';
         }
-        if ($this->rtl) {
-            if ($xmax >= $tag['borderposition']['x']) {
-                $xmax = $tag['borderposition']['xmax'];
-            }
-            $w = ($tag['borderposition']['x'] - $xmax);
+        if ($xmax <= $tag['borderposition']['x']) {
+            $xmax = $tag['borderposition']['xmax'];
         }
-        else {
-            if ($xmax <= $tag['borderposition']['x']) {
-                $xmax = $tag['borderposition']['xmax'];
-            }
-            $w = ($xmax - $tag['borderposition']['x']);
-        }
+        $w = ($xmax - $tag['borderposition']['x']);
         if ($w <= 0) {
             return;
         }
@@ -12717,10 +12221,7 @@ class PDF
             }
             // account for margin changes
             if ($page > $startpage) {
-                if (($this->rtl) and ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                    $this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
-                }
-                elseif ((!$this->rtl) and ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
                     $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
                 }
             }
@@ -13456,14 +12957,8 @@ class PDF
             if (($this->page > $page_first) and ($outline['p'] >= $this->numpages)) {
                 $outline['p'] += ($this->page - $page_first);
             }
-            if ($this->rtl) {
-                $aligntext = 'R';
-                $alignnum  = 'L';
-            }
-            else {
-                $aligntext = 'L';
-                $alignnum  = 'R';
-            }
+            $aligntext = 'L';
+            $alignnum  = 'R';
             if ($outline['l'] == 0) {
                 $this->setCurrentFont($fontfamily, $outline['s'] . 'B', $fontsize);
             }
@@ -13480,12 +12975,7 @@ class PDF
             }
             else {
                 if ($this->current_column != $current_column) {
-                    if ($this->rtl) {
-                        $x_start = $this->w - $this->columns[$this->current_column]['x'];
-                    }
-                    else {
-                        $x_start = $this->columns[$this->current_column]['x'];
-                    }
+                    $x_start = $this->columns[$this->current_column]['x'];
                 }
                 $lmargin        = $this->leftMargin;
                 $rmargin        = $this->rightMargin;
@@ -13493,31 +12983,15 @@ class PDF
                 $current_column = $this->current_column;
             }
             $this->x($x_start);
-            $indent = ($spacer * $outline['l']);
-            if ($this->rtl) {
-                $this->x           -= $indent;
-                $this->rightMargin = $this->w - $this->x;
-            }
-            else {
-                $this->x          += $indent;
-                $this->leftMargin = $this->x;
-            }
-            $link = $this->AddLink();
+            $indent           = ($spacer * $outline['l']);
+            $this->x          += $indent;
+            $this->leftMargin = $this->x;
+            $link             = $this->AddLink();
             $this->setLink($link, $outline['y'], $outline['p']);
             // write the text
-            if ($this->rtl) {
-                $txt = ' ' . $outline['t'];
-            }
-            else {
-                $txt = $outline['t'] . ' ';
-            }
+            $txt = $outline['t'] . ' ';
             $this->Write(0, $txt, $link, false, $aligntext, false, 0, false, false, 0, $numwidth, '');
-            if ($this->rtl) {
-                $tw = $this->x - $this->leftMargin;
-            }
-            else {
-                $tw = $this->w - $this->rightMargin - $this->x;
-            }
+            $tw = $this->w - $this->rightMargin - $this->x;
             $this->setCurrentFont($numbersfont, $fontstyle, $fontsize);
             if (StaticMethods::empty_string($page)) {
                 $pagenum = $outline['p'];
@@ -13544,12 +13018,7 @@ class PDF
             else {
                 $rowfill = '';
             }
-            if ($this->rtl) {
-                $pagenum = $pagenum . $gap . $rowfill;
-            }
-            else {
-                $pagenum = $rowfill . $gap . $pagenum;
-            }
+            $pagenum = $rowfill . $gap . $pagenum;
             // write the number
             $this->Cell($tw, 0, $pagenum, 0, 1, $alignnum, 0, $link, 0);
         }
@@ -13594,23 +13063,13 @@ class PDF
                     $nu = $this->utf8ToUTF16BE($na);
                     // replace aliases with numbers
                     foreach ($pnalias['u'] as $u) {
-                        $sfill = str_repeat($filler, max(0, (strlen($u) - strlen($nu . ' '))));
-                        if ($this->rtl) {
-                            $nr = $nu . $this->utf8ToUTF16BE(' ' . $sfill);
-                        }
-                        else {
-                            $nr = $this->utf8ToUTF16BE($sfill . ' ') . $nu;
-                        }
+                        $sfill    = str_repeat($filler, max(0, (strlen($u) - strlen($nu . ' '))));
+                        $nr       = $this->utf8ToUTF16BE($sfill . ' ') . $nu;
                         $temppage = str_replace($u, $nr, $temppage);
                     }
                     foreach ($pnalias['a'] as $a) {
-                        $sfill = str_repeat($filler, max(0, (strlen($a) - strlen($na . ' '))));
-                        if ($this->rtl) {
-                            $nr = $na . ' ' . $sfill;
-                        }
-                        else {
-                            $nr = $sfill . ' ' . $na;
-                        }
+                        $sfill    = str_repeat($filler, max(0, (strlen($a) - strlen($na . ' '))));
+                        $nr       = $sfill . ' ' . $na;
                         $temppage = str_replace($a, $nr, $temppage);
                     }
                 }
@@ -13784,18 +13243,10 @@ class PDF
             for ($i = 0; $i < $col; ++$i) {
                 $colpos += ($this->columns[$i]['w'] + $this->columns[$i]['s']);
             }
-            if ($this->rtl) {
-                $x                 = $this->w - $this->originalRightMargin - $colpos;
-                $this->rightMargin = ($this->w - $x + $listindent);
-                $this->leftMargin  = ($x - $this->columns[$col]['w']);
-                $this->x           = $x - $listindent;
-            }
-            else {
-                $x                 = $this->originalLeftMargin + $colpos;
-                $this->leftMargin  = ($x + $listindent);
-                $this->rightMargin = ($this->w - $x - $this->columns[$col]['w']);
-                $this->x           = $x + $listindent;
-            }
+            $x                        = $this->originalLeftMargin + $colpos;
+            $this->leftMargin         = ($x + $listindent);
+            $this->rightMargin        = ($this->w - $x - $this->columns[$col]['w']);
+            $this->x                  = $x + $listindent;
             $this->columns[$col]['x'] = $x;
         }
         $this->current_column = $col;
@@ -13819,14 +13270,8 @@ class PDF
             }
         }
         // account for an html table cell over multiple columns
-        if ($this->rtl) {
-            $this->rightMargin += $xshift['x'];
-            $this->x           -= ($xshift['x'] + $xshift['p']['R']);
-        }
-        else {
-            $this->leftMargin += $xshift['x'];
-            $this->x          += $xshift['x'] + $xshift['p']['L'];
-        }
+        $this->leftMargin += $xshift['x'];
+        $this->x          += $xshift['x'] + $xshift['p']['L'];
     }
 
     /**
@@ -14266,8 +13711,8 @@ class PDF
      * @param float|null $y         Y position in user units (empty string = current y position)
      * @param float      $w         Width in user units (zero = remaining page width)
      * @param float      $h         Height in user units (zero = remaining page height)
-     * @param string     $align     Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
-     * @param string     $palign    Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align     Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @param string     $palign    Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param bool       $fitonpage If true the template is resized to not exceed page dimensions.
      * @author Nicola Asuni
      * @see    startTemplate(), endTemplate()
@@ -14323,36 +13768,19 @@ class PDF
         // set page alignment
         $rb_y = $y + $h;
         // set alignment
-        if ($this->rtl) {
-            if ($palign == 'L') {
-                $xt = $this->leftMargin;
-            }
-            elseif ($palign == 'C') {
-                $xt = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($palign == 'R') {
-                $xt = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $xt = $x - $w;
-            }
-            $rb_x = $xt;
+        if ($palign == 'L') {
+            $xt = $this->leftMargin;
+        }
+        elseif ($palign == 'C') {
+            $xt = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+        }
+        elseif ($palign == 'R') {
+            $xt = $this->w - $this->rightMargin - $w;
         }
         else {
-            if ($palign == 'L') {
-                $xt = $this->leftMargin;
-            }
-            elseif ($palign == 'C') {
-                $xt = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($palign == 'R') {
-                $xt = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $xt = $x;
-            }
-            $rb_x = $xt + $w;
+            $xt = $x;
         }
+        $rb_x = $xt + $w;
         // print XObject Template + Transformation matrix
         $this->StartTransform();
         // translate and scale
@@ -14551,20 +13979,10 @@ class PDF
             $y = $this->y;
         }
         if ($this->num_columns > 1) {
-            if ($this->rtl) {
-                $this->leftMargin = ($this->columns[$this->current_column]['x'] - $this->columns[$this->current_column]['w']);
-            }
-            else {
-                $this->rightMargin = ($this->w - $this->columns[$this->current_column]['x'] - $this->columns[$this->current_column]['w']);
-            }
+            $this->rightMargin = ($this->w - $this->columns[$this->current_column]['x'] - $this->columns[$this->current_column]['w']);
         }
         else {
-            if ($this->rtl) {
-                $this->leftMargin = max($this->clMargin, $this->originalLeftMargin);
-            }
-            else {
-                $this->rightMargin = max($this->crMargin, $this->originalRightMargin);
-            }
+            $this->rightMargin = max($this->crMargin, $this->originalRightMargin);
         }
         // adjust coordinates and page margins
         foreach ($this->page_regions as $regid => $regdata) {
@@ -14580,10 +13998,6 @@ class PDF
                     if ($regdata['side'] == 'L') { // left side
                         $new_margin = max($xt, $xb);
                         if ($this->leftMargin < $new_margin) {
-                            if ($this->rtl) {
-                                // adjust left page margin
-                                $this->leftMargin = max(0, $new_margin);
-                            }
                             if ($x < $new_margin) {
                                 // adjust x position
                                 $x = $new_margin;
@@ -14597,10 +14011,7 @@ class PDF
                     elseif ($regdata['side'] == 'R') { // right side
                         $new_margin = min($xt, $xb);
                         if (($this->w - $this->rightMargin) > $new_margin) {
-                            if (!$this->rtl) {
-                                // adjust right page margin
-                                $this->rightMargin = max(0, ($this->w - $new_margin));
-                            }
+                            $this->rightMargin = max(0, ($this->w - $new_margin));
                             if ($x > $new_margin) {
                                 // adjust x position
                                 $x = $new_margin;

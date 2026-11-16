@@ -504,13 +504,11 @@ class StaticMethods
 
     /**
      * Convert JavaScript form fields properties array to Annotation Properties array.
-     * @param array   $prop        javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
-     * @param array   $spot_colors Reference to spot colors array.
-     * @param boolean $rtl         True if in Right-To-Left text direction mode, false otherwise.
+     * @param array $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @return array of annotation properties
      * @author Nicola Asuni
      */
-    public static function getAnnotOptFromJSProp($prop, &$spot_colors, $rtl = false)
+    public static function getAnnotOptFromJSProp($prop)
     {
         if (isset($prop['aopt']) and is_array($prop['aopt'])) {
             // the annotation options are already defined
@@ -537,7 +535,7 @@ class StaticMethods
                 }
                 default:
                 {
-                    $opt['q'] = ($rtl) ? 2 : 0;
+                    $opt['q'] = 0;
                     break;
                 }
             }

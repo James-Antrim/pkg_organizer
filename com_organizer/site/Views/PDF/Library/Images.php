@@ -395,16 +395,16 @@ trait Images
      * It is possible to put a link on the image.<br />
      * Remark: if an image is used several times, only one copy will be embedded in the file.<br />
      * @param string     $file      Name of the file containing the image or a '@' character followed by the image data string. To link an image without embedding it on the document, set an asterisk character before the URL (i.e.: '*http://www.example.com/image.jpg').
-     * @param float|null $x         Abscissa of the upper-left corner (LTR) or upper-right corner (RTL).
-     * @param float|null $y         Ordinate of the upper-left corner (LTR) or upper-right corner (RTL).
+     * @param float|null $x         Abscissa of the upper-left corner.
+     * @param float|null $y         Ordinate of the upper-left corner.
      * @param float      $w         Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float      $h         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param string     $type      Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
      * @param mixed      $link      URL or identifier returned by AddLink().
-     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param mixed      $resize    If true resize (reduce) the image to fit $w and $h (requires GD or ImageMagick library); if false do not resize; if 2 force resize in all cases (upscaling and downscaling).
      * @param int        $dpi       dot-per-inch resolution used on resize
-     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param bool       $ismask    true if this image is a mask, false otherwise
      * @param mixed      $imgmask   image object returned by this function or false
      * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
@@ -542,30 +542,12 @@ trait Images
                 $wdiff = ($oldw - $w);
                 // horizontal alignment
                 switch (strtoupper($fitbox[0])) {
-                    case 'L':
-                    {
-                        if ($this->rtl) {
-                            $x -= $wdiff;
-                        }
-                        break;
-                    }
                     case 'C':
-                    {
-                        if ($this->rtl) {
-                            $x -= ($wdiff / 2);
-                        }
-                        else {
-                            $x += ($wdiff / 2);
-                        }
+                        $x += ($wdiff / 2);
                         break;
-                    }
                     case 'R':
-                    {
-                        if (!$this->rtl) {
-                            $x += $wdiff;
-                        }
+                        $x += $wdiff;
                         break;
-                    }
                 }
             }
         }
@@ -764,7 +746,7 @@ trait Images
             $ximg = $this->w - $this->rightMargin - $w;
         }
         else {
-            $ximg = $this->rtl ? $x - $w : $x;
+            $ximg = $x;
         }
 
         if ($ismask or $hidden) {
@@ -780,9 +762,6 @@ trait Images
             $bx      = $this->x;
             $by      = $this->y;
             $this->x = $ximg;
-            if ($this->rtl) {
-                $this->x += $w;
-            }
             $this->y = $y;
             $this->Cell($w, $h, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
@@ -974,10 +953,10 @@ trait Images
      * @param float  $h        Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param string $type     Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
      * @param mixed  $link     URL or identifier returned by AddLink().
-     * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
+     * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param bool   $resize   If true resize (reduce) the image to fit $w and $h (requires GD library).
      * @param int    $dpi      dot-per-inch resolution used on resize
-     * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param string $filehash File hash used to build unique file names.
      * @author Nicola Asuni
      * @see    Image()
@@ -1085,8 +1064,8 @@ trait Images
      * @param float      $h              Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param mixed      $link           URL or identifier returned by AddLink().
      * @param bool       $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
-     * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
-     * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @param string     $palign         Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param mixed      $border         Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param bool       $fitonpage      if true the image is resized to not exceed page dimensions.
      * @param bool       $fixoutvals     if true remove values outside the bounding box.
@@ -1183,36 +1162,19 @@ trait Images
         // set alignment
         $this->imageRBY = $y + $h;
         // set alignment
-        if ($this->rtl) {
-            if ($palign == 'L') {
-                $ximg = $this->leftMargin;
-            }
-            elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $ximg = $x - $w;
-            }
-            $this->imageRBX = $ximg;
+        if ($palign == 'L') {
+            $ximg = $this->leftMargin;
+        }
+        elseif ($palign == 'C') {
+            $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+        }
+        elseif ($palign == 'R') {
+            $ximg = $this->w - $this->rightMargin - $w;
         }
         else {
-            if ($palign == 'L') {
-                $ximg = $this->leftMargin;
-            }
-            elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $ximg = $x;
-            }
-            $this->imageRBX = $ximg + $w;
+            $ximg = $x;
         }
+        $this->imageRBX = $ximg + $w;
         if ($useBoundingBox) {
             $dx = $ximg * $k - $x1;
             $dy = $y * $k - $y1;
@@ -1391,9 +1353,6 @@ trait Images
             $bx      = $this->x;
             $by      = $this->y;
             $this->x = $ximg;
-            if ($this->rtl) {
-                $this->x += $w;
-            }
             $this->y = $y;
             $this->Cell($w, $h, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
@@ -1444,8 +1403,8 @@ trait Images
      * @param float      $w         Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param float      $h         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param mixed      $link      URL or identifier returned by AddLink().
-     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
-     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
+     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
+     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      * @author Nicola Asuni
@@ -1581,36 +1540,19 @@ trait Images
         // set alignment
         $this->imageRBY = $y + $h;
         // set alignment
-        if ($this->rtl) {
-            if ($palign == 'L') {
-                $ximg = $this->leftMargin;
-            }
-            elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $ximg = $x - $w;
-            }
-            $this->imageRBX = $ximg;
+        if ($palign == 'L') {
+            $ximg = $this->leftMargin;
+        }
+        elseif ($palign == 'C') {
+            $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+        }
+        elseif ($palign == 'R') {
+            $ximg = $this->w - $this->rightMargin - $w;
         }
         else {
-            if ($palign == 'L') {
-                $ximg = $this->leftMargin;
-            }
-            elseif ($palign == 'C') {
-                $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
-            }
-            elseif ($palign == 'R') {
-                $ximg = $this->w - $this->rightMargin - $w;
-            }
-            else {
-                $ximg = $x;
-            }
-            $this->imageRBX = $ximg + $w;
+            $ximg = $x;
         }
+        $this->imageRBX = $ximg + $w;
         // store current graphic vars
         $gvars = $this->graphicsConfiguration();
         // store SVG position and scale factors
@@ -1737,9 +1679,6 @@ trait Images
             $bx      = $this->x;
             $by      = $this->y;
             $this->x = $ximg;
-            if ($this->rtl) {
-                $this->x += $w;
-            }
             $this->y = $y;
             $this->Cell($w, $h, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
@@ -3169,17 +3108,7 @@ trait Images
                 else {
                     $this->svgtextmode['text-anchor'] = 'start';
                 }
-                if (isset($svgstyle['direction'])) {
-                    if ($svgstyle['direction'] == 'rtl') {
-                        $this->svgtextmode['rtl'] = true;
-                    }
-                    else {
-                        $this->svgtextmode['rtl'] = false;
-                    }
-                }
-                else {
-                    $this->svgtextmode['rtl'] = false;
-                }
+                $this->svgtextmode['rtl'] = false;
                 if (isset($svgstyle['stroke']) and ($svgstyle['stroke'] != 'none') and isset($svgstyle['stroke-width']) and ($svgstyle['stroke-width'] > 0)) {
                     $this->svgtextmode['stroke'] = $this->fontSizeToUnits($svgstyle['stroke-width'], 0);
                 }
@@ -3315,22 +3244,11 @@ trait Images
                 //$text = $this->stringTrim($text);
                 $textlen = $this->GetStringWidth($text);
                 if ($this->svgtextmode['text-anchor'] != 'start') {
-                    // check if string is RTL text
                     if ($this->svgtextmode['text-anchor'] == 'end') {
-                        if ($this->svgtextmode['rtl']) {
-                            $this->x += $textlen;
-                        }
-                        else {
-                            $this->x -= $textlen;
-                        }
+                        $this->x -= $textlen;
                     }
                     elseif ($this->svgtextmode['text-anchor'] == 'middle') {
-                        if ($this->svgtextmode['rtl']) {
-                            $this->x += ($textlen / 2);
-                        }
-                        else {
-                            $this->x -= ($textlen / 2);
-                        }
+                        $this->x -= ($textlen / 2);
                     }
                 }
                 $textrendermode  = $this->textrendermode;
