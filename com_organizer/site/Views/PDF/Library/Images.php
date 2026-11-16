@@ -454,14 +454,14 @@ trait Images
             if (false !== $info = $this->getImageBuffer($file)) {
                 $imsize = [$info['w'], $info['h']];
             }
-            elseif (($imsize = @getimagesize($file)) === FALSE && strpos($file, '__tcpdf_' . $this->file_id . '_img') === FALSE) {
+            elseif (($imsize = @getimagesize($file)) === FALSE && strpos($file, '__tcpdf_' . $this->fileID . '_img') === FALSE) {
                 $imgdata = $this->getCachedFileContents($file);
             }
         }
         if (!empty($imgdata)) {
             // copy image to cache
             $original_file = $file;
-            $file          = StaticMethods::getObjFilename('img', $this->file_id);
+            $file          = StaticMethods::getObjFilename('img', $this->fileID);
             $fp            = StaticMethods::fopenLocal($file, 'w');
             if (!$fp) {
                 $this->Error('Unable to write file: ' . $file);
@@ -571,7 +571,7 @@ trait Images
             $newimage = false;
             // get existing image data
             $info = $this->getImageBuffer($file);
-            if (strpos($file, '__tcpdf_' . $this->file_id . '_imgmask_') === FALSE) {
+            if (strpos($file, '__tcpdf_' . $this->fileID . '_imgmask_') === FALSE) {
                 // check if the newer image is larger
                 $oldsize = ($info['w'] * $info['h']);
                 if ((($oldsize < $newsize) and ($resize)) or (($oldsize < $pixsize) and (!$resize))) {
@@ -579,11 +579,11 @@ trait Images
                 }
             }
         }
-        elseif (($ismask === false) and ($imgmask === false) and (strpos($file, '__tcpdf_' . $this->file_id . '_imgmask_') === FALSE)) {
+        elseif (($ismask === false) and ($imgmask === false) and (strpos($file, '__tcpdf_' . $this->fileID . '_imgmask_') === FALSE)) {
             // create temp image file (without alpha channel)
-            $tempfile_plain = K_PATH_CACHE . '__tcpdf_' . $this->file_id . '_imgmask_plain_' . $filehash;
+            $tempfile_plain = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_plain_' . $filehash;
             // create temp alpha file
-            $tempfile_alpha = K_PATH_CACHE . '__tcpdf_' . $this->file_id . '_imgmask_alpha_' . $filehash;
+            $tempfile_alpha = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_alpha_' . $filehash;
             // check for cached images
             if (in_array($tempfile_plain, $this->imagekeys)) {
                 // get existing image data
@@ -618,7 +618,7 @@ trait Images
             if ((method_exists('THM\Organizer\Views\PDF\Library\Images', $mtd)) and (!($resize and (function_exists($gdfunction) or extension_loaded('imagick'))))) {
                 // TCPDF image functions
                 $info = $this->$mtd($file);
-                if (($ismask === false) and ($imgmask === false) and (strpos($file, '__tcpdf_' . $this->file_id . '_imgmask_') === FALSE)
+                if (($ismask === false) and ($imgmask === false) and (strpos($file, '__tcpdf_' . $this->fileID . '_imgmask_') === FALSE)
                     and (($info === 'alpha') or (isset($info['trns']) and !empty($info['trns'])))) {
                     return $this->ImagePngAlpha($file, $x, $y, $pixw, $pixh, $w, $h, 'PNG', $link, $align, $resize, $dpi, $palign, $filehash);
                 }
@@ -637,10 +637,10 @@ trait Images
                             $img = $imgr;
                         }
                         if (($type == 'gif') or ($type == 'png')) {
-                            $info = $this->png($img, StaticMethods::getObjFilename('img', $this->file_id));
+                            $info = $this->png($img, StaticMethods::getObjFilename('img', $this->fileID));
                         }
                         else {
-                            $info = $this->jpeg($img, $this->jpeg_quality, StaticMethods::getObjFilename('img', $this->file_id));
+                            $info = $this->jpeg($img, $this->jpeg_quality, StaticMethods::getObjFilename('img', $this->fileID));
                         }
                     }
                 } catch (Exception $e) {
@@ -703,7 +703,7 @@ trait Images
                     }
                     $img->setCompressionQuality($this->jpeg_quality);
                     $img->setImageFormat('jpeg');
-                    $tempname = StaticMethods::getObjFilename('img', $this->file_id);
+                    $tempname = StaticMethods::getObjFilename('img', $this->fileID);
                     $img->writeImage($tempname);
                     $info = $this->parseJPEG($tempname);
                     unlink($tempname);
@@ -841,24 +841,24 @@ trait Images
             // set image object
             $oid                              = $this->_newobj();
             $this->xObjects['I' . $info['i']] = ['n' => $oid];
-            $this->setImageSubBuffer($file, 'n', $this->n);
+            $this->setImageSubBuffer($file, 'n', $this->objectNumber);
             $out = '<</Type /XObject';
             $out .= ' /Subtype /Image';
             $out .= ' /Width ' . $info['w'];
             $out .= ' /Height ' . $info['h'];
             if (array_key_exists('masked', $info)) {
-                $out .= ' /SMask ' . ($this->n - 1) . ' 0 R';
+                $out .= ' /SMask ' . ($this->objectNumber - 1) . ' 0 R';
             }
             // set color space
             $icc = false;
             if (isset($info['icc']) and ($info['icc'] !== false)) {
                 // ICC Colour Space
                 $icc = true;
-                $out .= ' /ColorSpace [/ICCBased ' . ($this->n + 1) . ' 0 R]';
+                $out .= ' /ColorSpace [/ICCBased ' . ($this->objectNumber + 1) . ' 0 R]';
             }
             elseif ($info['cs'] == 'Indexed') {
                 // Indexed Colour Space
-                $out .= ' /ColorSpace [/Indexed /DeviceRGB ' . ((strlen($info['pal']) / 3) - 1) . ' ' . ($this->n + 1) . ' 0 R]';
+                $out .= ' /ColorSpace [/Indexed /DeviceRGB ' . ((strlen($info['pal']) / 3) - 1) . ' ' . ($this->objectNumber + 1) . ' 0 R]';
             }
             else {
                 // Device Colour Space
@@ -968,9 +968,9 @@ trait Images
             $filehash = md5($file);
         }
         // create temp image file (without alpha channel)
-        $tempfile_plain = K_PATH_CACHE . '__tcpdf_' . $this->file_id . '_imgmask_plain_' . $filehash;
+        $tempfile_plain = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_plain_' . $filehash;
         // create temp alpha file
-        $tempfile_alpha = K_PATH_CACHE . '__tcpdf_' . $this->file_id . '_imgmask_alpha_' . $filehash;
+        $tempfile_alpha = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_alpha_' . $filehash;
         $parsed         = false;
         $parse_error    = '';
         // ImageMagick extension

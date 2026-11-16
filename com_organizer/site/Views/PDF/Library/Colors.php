@@ -36,6 +36,8 @@ trait Colors
     /** @var int[] RGB */
     protected array $footerTextColor = self::BLACK;
 
+    protected array $gradients = [];
+
     /** @var array User defined [CMYK + name + objectNumber] color configurations. */
     protected array $spotColors = [];
 
@@ -50,7 +52,7 @@ trait Colors
     {
         foreach ($this->spotColors as $color => $configuration) {
             $this->_newobj();
-            $this->spotColors[$color]['n'] = $this->n;
+            $this->spotColors[$color]['n'] = $this->objectNumber;
 
             $black   = $configuration['K'] / 100;
             $color   = str_replace(' ', '#20', $color);

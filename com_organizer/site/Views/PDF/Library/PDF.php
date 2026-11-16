@@ -25,21 +25,26 @@ class PDF
 
     use Basics;
     use Bloatware;
+    use Cells;
     use Colors;
     use Constants;
     use Fonts;
     use Images;
-    use Headers;
+    use Pages;
     use WebTools;
 
+    protected array $annotationIDs = [];
     protected string $buffer = '';
     protected int $bufferLength = 0;
-    protected float $cellHeightRatio = 1.25;
-    protected array $cellMargins = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
-    protected array $cellPaddings = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
+    /**
+     * Default encoding.
+     */
+    protected string $encoding = 'UTF-8';
+    protected bool $encrypted = false;
+    /** File ID for document trailer */
+    protected string $fileID;
     protected array $footerLengths = [];
     protected $lastPrintedCellHeight;
-    protected float $leftMargin = 0;
     protected string $lineCapStyle = '0 J';
     protected string $lineDashStyle = '[] 0 d';
     protected string $lineJoinStyle = '0 j';
@@ -48,15 +53,24 @@ class PDF
     protected string $lineWidthStyle = '';
     protected bool $inFooter = false;
     protected bool $inXObject = false;
+    protected string $lastEncryptedKey = '';
+    protected string $lastComputedKey = '';
     protected bool $newLine = true;
-    protected float $originalLeftMargin = 0;
-    protected float $originalRightMargin = 0;
+    protected int $objectNumber = 2;
     protected bool $overline = false;
-    protected array $pageLengths = [];
-    protected array $pages = [];
-    protected float $rightMargin = 0;
+    protected bool $signable = false;
     protected int $state = self::INITIAL;
     protected bool $underline = false;
+    /** Additional document-wide usage rights for the document */
+    protected array $userRights = [
+        'enabled'   => false,
+        'document'  => '/FullSave',
+        'annots'    => '/Create/Delete/Modify/Copy/Import/Export',
+        'form'      => '/Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate',
+        'signature' => '/Modify',
+        'ef'        => '/Create/Delete/Modify/Import',
+        'formex'    => '',
+    ];
     protected string $xObjectID = '';
     protected array $xObjects = [];
 
@@ -109,24 +123,6 @@ class PDF
     }
 
     /**
-     * Getter / setter for the page buffer
-     * @param int    $pageNumber
-     * @param string $content
-     * @param bool   $append true => append, false => replace
-     * @return string
-     */
-    protected function pageBuffer(int $pageNumber, string $content = '', bool $append = false): string
-    {
-        if ($content) {
-            $existing                       = $this->pages[$pageNumber] ?? '';
-            $this->pages[$pageNumber]       = $append ? $existing . $content : $content;
-            $this->pageLengths[$pageNumber] = strlen($this->pages[$pageNumber]);
-        }
-
-        return $this->pages[$pageNumber] ?? '';
-    }
-
-    /**
      * Returns "THM Organizer 5.0.0" in Unicode.
      * @return string
      */
@@ -137,6 +133,97 @@ class PDF
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /**
+     * This is the class constructor.
+     * It allows to set up the page format, the orientation and the measure unit used in all the methods (except for the font sizes).
+     *
+     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
+     * @param string $unit        User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @see getPageSizeFromFormat(), setPageFormat()
+     */
+    public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
+    {
+        // set file ID for trailer
+        $serformat        = (is_array($format) ? json_encode($format) : $format);
+        $this->fileID     = md5(StaticMethods::getRandomSeed('Organizer' . $orientation . $unit . $serformat . 'UTF-8'));
+        $this->force_srgb = false;
+        // some checks
+        $this->_dochecks();
+        $this->transfmrk[0]          = [];
+        $this->diffs                 = [];
+        $this->links                 = [];
+        $this->inFooter              = false;
+        $this->lastPrintedCellHeight = 0;
+        $this->pdflayers             = [];
+        // set scale factor
+        $this->k = self::DPI / 25.4;
+        if (isset($this->CurOrientation)) {
+            $this->setPageOrientation($this->CurOrientation);
+        }
+        // set page format and orientation
+        $this->setPageFormat($format, $orientation);
+        // page margins (1 cm)
+        $margin = 28.35 / $this->k;
+        $this->setMargins($margin, $margin);
+        $this->clMargin = $this->leftMargin;
+        $this->crMargin = $this->rightMargin;
+        // internal cell padding
+        $cpadding = $margin / 10;
+        $this->setCellPaddings($cpadding, 0, $cpadding, 0);
+        // cell margins
+        $this->setCellMargins(0, 0, 0, 0);
+        // line width (0.2 mm)
+        $this->lineWidth      = 0.57 / $this->k;
+        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * $this->k));
+        // automatic page break
+        $this->setAutoPageBreak(true, (2 * $margin));
+        // full width display mode
+        $this->displayMode();
+        // compression
+        $this->setCompression();
+        // set default PDF version number
+        $this->setPDFVersion();
+        $this->tcpdflink = true;
+        $this->encoding  = 'UTF-8';
+        $this->HREF      = [];
+        $this->populateFonts();
+        $this->extgstates = [];
+        $this->setTextShadow();
+        // signature
+        $this->signable                   = false;
+        $this->tsa_timestamp              = false;
+        $this->tsa_data                   = [];
+        $this->signature_appearance       = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
+        $this->empty_signature_appearance = [];
+        // set default JPEG quality
+        $this->jpeg_quality = 75;
+        // set default font
+        $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
+        // check if PCRE Unicode support is enabled
+        if ($this->isUnicode and (@preg_match('/\pL/u', 'a') == 1)) {
+            // PCRE unicode support is turned ON
+            // \s     : any whitespace character
+            // \p{Z}  : any separator
+            // \p{Lo} : Unicode letter or ideograph that does not have lowercase and uppercase variants. Is used to chunk chinese words.
+            // \xa0   : Unicode Character 'NO-BREAK SPACE' (U+00A0)
+            //$this->setSpacesRE('/(?!\xa0)[\s\p{Z}\p{Lo}]/u');
+            $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u');
+        }
+        else {
+            // PCRE unicode support is turned OFF
+            $this->setSpacesRE('/[^\S\xa0]/');
+        }
+        $this->default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => [128, 128, 128]];
+        // set document creation and modification timestamp
+        $this->doc_creation_timestamp     = time();
+        $this->doc_modification_timestamp = $this->doc_creation_timestamp;
+        // get default graphic vars
+        $this->default_graphic_vars = $this->graphicsConfiguration();
+        $this->custom_xmp           = '';
+        $this->custom_xmp_rdf       = '';
+    }
 
     /**
      * Set graphic variables.
@@ -378,27 +465,10 @@ class PDF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
 
-    // Protected properties
-
-    /**
-     * Current page number.
-     */
-    protected $page;
-
-    /**
-     * Current object number.
-     */
-    protected $n;
-
     /**
      * Array of object offsets.
      */
     protected $offsets = [];
-
-    /**
-     * Array of object IDs for each page.
-     */
-    protected $pageobjects = [];
 
     /**
      * Compression flag.
@@ -411,64 +481,9 @@ class PDF
     protected $CurOrientation;
 
     /**
-     * Page dimensions.
-     */
-    protected $pagedim = [];
-
-    /**
      * Scale factor (number of points in user unit).
      */
     protected $k;
-
-    /**
-     * Width of page format in points.
-     */
-    protected $fwPt;
-
-    /**
-     * Height of page format in points.
-     */
-    protected $fhPt;
-
-    /**
-     * Current width of page in points.
-     */
-    protected $wPt;
-
-    /**
-     * Current height of page in points.
-     */
-    protected $hPt;
-
-    /**
-     * Current width of page in user unit.
-     */
-    protected $w;
-
-    /**
-     * Current height of page in user unit.
-     */
-    protected $h;
-
-    /**
-     * Cell left margin (used by regions).
-     */
-    protected $clMargin;
-
-    /**
-     * Cell right margin (used by regions).
-     */
-    protected $crMargin;
-
-    /**
-     * Top margin.
-     */
-    protected $tMargin;
-
-    /**
-     * Page break margin.
-     */
-    protected $bMargin;
 
     /**
      * Current horizontal position in user unit for cell positioning.
@@ -496,29 +511,9 @@ class PDF
     protected $svg_tag_depth = 0;
 
     /**
-     * Array of Annotations in pages.
-     */
-    protected $PageAnnots = [];
-
-    /**
      * Array of internal links.
      */
     protected $links = [];
-
-    /**
-     * Automatic page breaking.
-     */
-    protected $AutoPageBreak;
-
-    /**
-     * Threshold used to trigger page breaks.
-     */
-    protected $PageBreakTrigger;
-
-    /**
-     * Zoom display mode.
-     */
-    protected $ZoomMode;
 
     /**
      * Layout display mode.
@@ -635,36 +630,9 @@ class PDF
     protected $lispacer = '';
 
     /**
-     * Default encoding.
-     */
-    protected $encoding = 'UTF-8';
-
-    // --- Variables used for document encryption:
-
-    /**
-     * Ibool flag indicating whether document is protected.
-     */
-    protected $encrypted;
-
-    /**
      * Array containing encryption settings.
      */
     protected $encryptdata = [];
-
-    /**
-     * Last RC4 key encrypted (cached for optimisation).
-     */
-    protected $last_enc_key;
-
-    /**
-     * Last RC4 computed key.
-     */
-    protected $last_enc_key_c;
-
-    /**
-     * File ID (used on document trailer).
-     */
-    protected $file_id;
 
     // --- bookmark ---
 
@@ -686,24 +654,9 @@ class PDF
     protected $n_js;
 
     /**
-     * Array with additional document-wide usage rights for the document.
-     */
-    protected $ur = [];
-
-    /**
      * Array of page numbers were a new page group was started (the page numbers are the keys of the array).
      */
     protected $newpagegroup = [];
-
-    /**
-     * Array that contains the number of pages in each page group.
-     */
-    protected $pagegroups = [];
-
-    /**
-     * Current page group number.
-     */
-    protected $currpagegroup = 0;
 
     /**
      * Array of transparency objects and parameters.
@@ -719,16 +672,6 @@ class PDF
      * PDF viewer preferences.
      */
     protected $viewer_preferences;
-
-    /**
-     * A name object specifying how the document should be displayed when opened.
-     */
-    protected $PageMode;
-
-    /**
-     * Array for storing gradient information.
-     */
-    protected $gradients = [];
 
     /**
      * Array used to store positions inside the pages buffer (keys are the page numbers).
@@ -862,11 +805,6 @@ class PDF
     protected $cache_file_length = [];
 
     /**
-     * bool flag to enable document digital signature.
-     */
-    protected $sign = false;
-
-    /**
      * Digital signature data.
      */
     protected $signature_data = [];
@@ -911,15 +849,6 @@ class PDF
      */
     protected $sig_obj_id = 0;
 
-    /**
-     * ID of page objects.
-     */
-    protected $page_obj_id = [];
-
-    /**
-     * List of form annotations IDs.
-     */
-    protected $form_obj_id = [];
 
     /**
      * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
@@ -1262,295 +1191,12 @@ class PDF
     //------------------------------------------------------------
 
     /**
-     * This is the class constructor.
-     * It allows to set up the page format, the orientation and the measure unit used in all the methods (except for the font sizes).
-     *
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
-     * @param string $unit        User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $unicode     TRUE means that the input text is unicode (default = true)
-     * @param string $encoding    Charset encoding (used only when converting back html entities); default is UTF-8.
-     * @see getPageSizeFromFormat(), setPageFormat()
-     */
-    public function __construct($orientation = 'P', $unit = 'mm', $format = 'A4', $unicode = true, $encoding = 'UTF-8')
-    {
-        // set file ID for trailer
-        $serformat          = (is_array($format) ? json_encode($format) : $format);
-        $this->file_id      = md5(StaticMethods::getRandomSeed('TCPDF' . $orientation . $unit . $serformat . $encoding));
-        $this->font_obj_ids = [];
-        $this->page_obj_id  = [];
-        $this->form_obj_id  = [];
-        $this->force_srgb   = false;
-        // some checks
-        $this->_dochecks();
-        // initialization of properties
-        $this->isUnicode             = $unicode;
-        $this->page                  = 0;
-        $this->transfmrk[0]          = [];
-        $this->pagedim               = [];
-        $this->n                     = 2;
-        $this->pages                 = [];
-        $this->diffs                 = [];
-        $this->links                 = [];
-        $this->gradients             = [];
-        $this->inFooter              = false;
-        $this->lastPrintedCellHeight = 0;
-        $this->pdflayers             = [];
-        // encryption values
-        $this->encrypted    = false;
-        $this->last_enc_key = '';
-        // set scale factor
-        $this->k = self::DPI / 25.4;
-        if (isset($this->CurOrientation)) {
-            $this->setPageOrientation($this->CurOrientation);
-        }
-        // set page format and orientation
-        $this->setPageFormat($format, $orientation);
-        // page margins (1 cm)
-        $margin = 28.35 / $this->k;
-        $this->setMargins($margin, $margin);
-        $this->clMargin = $this->leftMargin;
-        $this->crMargin = $this->rightMargin;
-        // internal cell padding
-        $cpadding = $margin / 10;
-        $this->setCellPaddings($cpadding, 0, $cpadding, 0);
-        // cell margins
-        $this->setCellMargins(0, 0, 0, 0);
-        // line width (0.2 mm)
-        $this->lineWidth      = 0.57 / $this->k;
-        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * $this->k));
-        $this->lineCapStyle   = '0 J';
-        $this->lineJoinStyle  = '0 j';
-        $this->lineDashStyle  = '[] 0 d';
-        // automatic page break
-        $this->setAutoPageBreak(true, (2 * $margin));
-        // full width display mode
-        $this->setDisplayMode('fullwidth');
-        // compression
-        $this->setCompression();
-        // set default PDF version number
-        $this->setPDFVersion();
-        $this->tcpdflink = true;
-        $this->encoding  = $encoding;
-        $this->HREF      = [];
-        $this->populateFonts();
-        $this->extgstates = [];
-        $this->setTextShadow();
-        // signature
-        $this->sign                       = false;
-        $this->tsa_timestamp              = false;
-        $this->tsa_data                   = [];
-        $this->signature_appearance       = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
-        $this->empty_signature_appearance = [];
-        // user's rights
-        $this->ur['enabled']   = false;
-        $this->ur['document']  = '/FullSave';
-        $this->ur['annots']    = '/Create/Delete/Modify/Copy/Import/Export';
-        $this->ur['form']      = '/Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate';
-        $this->ur['signature'] = '/Modify';
-        $this->ur['ef']        = '/Create/Delete/Modify/Import';
-        $this->ur['formex']    = '';
-        // set default JPEG quality
-        $this->jpeg_quality = 75;
-        // set default font
-        $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
-        // check if PCRE Unicode support is enabled
-        if ($this->isUnicode and (@preg_match('/\pL/u', 'a') == 1)) {
-            // PCRE unicode support is turned ON
-            // \s     : any whitespace character
-            // \p{Z}  : any separator
-            // \p{Lo} : Unicode letter or ideograph that does not have lowercase and uppercase variants. Is used to chunk chinese words.
-            // \xa0   : Unicode Character 'NO-BREAK SPACE' (U+00A0)
-            //$this->setSpacesRE('/(?!\xa0)[\s\p{Z}\p{Lo}]/u');
-            $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u');
-        }
-        else {
-            // PCRE unicode support is turned OFF
-            $this->setSpacesRE('/[^\S\xa0]/');
-        }
-        $this->default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => [128, 128, 128]];
-        // set document creation and modification timestamp
-        $this->doc_creation_timestamp     = time();
-        $this->doc_modification_timestamp = $this->doc_creation_timestamp;
-        // get default graphic vars
-        $this->default_graphic_vars = $this->graphicsConfiguration();
-        $this->custom_xmp           = '';
-        $this->custom_xmp_rdf       = '';
-    }
-
-    /**
      * Default destructor.
      */
     public function __destruct()
     {
         // cleanup
         $this->_destroy(true);
-    }
-
-
-    /**
-     * Change the format of the current page
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() documentation or an array of two numbers (width, height) or an array containing the following measures and options:<ul>
-     *                            <li>['format'] = page format name (one of the above);</li>
-     *                            <li>['Rotate'] : The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.</li>
-     *                            <li>['PZ'] : The page's preferred zoom (magnification) factor.</li>
-     *                            <li>['MediaBox'] : the boundaries of the physical medium on which the page shall be displayed or printed:</li>
-     *                            <li>['MediaBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['MediaBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['MediaBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['MediaBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['CropBox'] : the visible region of default user space:</li>
-     *                            <li>['CropBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['CropBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['CropBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['CropBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['BleedBox'] : the region to which the contents of the page shall be clipped when output in a production environment:</li>
-     *                            <li>['BleedBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['BleedBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['BleedBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['BleedBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['TrimBox'] : the intended dimensions of the finished page after trimming:</li>
-     *                            <li>['TrimBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['TrimBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['TrimBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['TrimBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['ArtBox'] : the extent of the page's meaningful content:</li>
-     *                            <li>['ArtBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['ArtBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['ArtBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['ArtBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['BoxColorInfo'] :specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for each of the possible page boundaries other than the MediaBox:</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['C'] : an array of three numbers in the range 0-255, representing the components in the DeviceRGB colour space.</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['W'] : the guideline width in default user units</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['S'] : the guideline style: S = Solid; D = Dashed</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['D'] : dash array defining a pattern of dashes and gaps to be used in drawing dashed guidelines</li>
-     *                            <li>['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation</li>
-     *                            <li>['trans']['Dur'] : The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.</li>
-     *                            <li>['trans']['S'] : transition style : Split, Blinds, Box, Wipe, Dissolve, Glitter, R, Fly, Push, Cover, Uncover, Fade</li>
-     *                            <li>['trans']['D'] : The duration of the transition effect, in seconds.</li>
-     *                            <li>['trans']['Dm'] : (Split and Blinds transition styles only) The dimension in which the specified transition effect shall occur: H = Horizontal, V = Vertical. Default value: H.</li>
-     *                            <li>['trans']['M'] : (Split, Box and Fly transition styles only) The direction of motion for the specified transition effect: I = Inward from the edges of the page, O = Outward from the center of the pageDefault value: I.</li>
-     *                            <li>['trans']['Di'] : (Wipe, Glitter, Fly, Cover, Uncover and Push transition styles only) The direction in which the specified transition effect shall moves, expressed in degrees counterclockwise starting from a left-to-right direction. If the value is a number, it shall be one of: 0 = Left to right, 90 = Bottom to top (Wipe only), 180 = Right to left (Wipe only), 270 = Top to bottom, 315 = Top-left to bottom-right (Glitter only). If the value is a name, it shall be None, which is relevant only for the Fly transition when the value of SS is not 1.0. Default value: 0.</li>
-     *                            <li>['trans']['SS'] : (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0.</li>
-     *                            <li>['trans']['B'] : (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li>
-     *                            </ul>
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul>
-     *                            <li>P or Portrait (default)</li>
-     *                            <li>L or Landscape</li>
-     *                            <li>'' (empty string) for automatic orientation</li>
-     *                            </ul>
-     * @see   getPageSizeFromFormat()
-     */
-    protected function setPageFormat($format, $orientation = 'P')
-    {
-        if (!empty($format) and isset($this->pagedim[$this->page])) {
-            // remove inherited values
-            unset($this->pagedim[$this->page]);
-        }
-        if (is_string($format)) {
-            // get page measures from format name
-            $pf         = StaticMethods::getPageSizeFromFormat($format);
-            $this->fwPt = $pf[0];
-            $this->fhPt = $pf[1];
-        }
-        else {
-            // the boundaries of the physical medium on which the page shall be displayed or printed
-            if (isset($format['MediaBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', $format['MediaBox']['llx'], $format['MediaBox']['lly'], $format['MediaBox']['urx'], $format['MediaBox']['ury'], false, $this->k, $this->pagedim);
-                $this->fwPt    = (($format['MediaBox']['urx'] - $format['MediaBox']['llx']) * $this->k);
-                $this->fhPt    = (($format['MediaBox']['ury'] - $format['MediaBox']['lly']) * $this->k);
-            }
-            else {
-                if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
-                    $pf = array(($format[0] * $this->k), ($format[1] * $this->k));
-                }
-                else {
-                    if (!isset($format['format'])) {
-                        // default value
-                        $format['format'] = 'A4';
-                    }
-                    $pf = StaticMethods::getPageSizeFromFormat($format['format']);
-                }
-                $this->fwPt    = $pf[0];
-                $this->fhPt    = $pf[1];
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pagedim);
-            }
-            // the visible region of default user space
-            if (isset($format['CropBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'CropBox', $format['CropBox']['llx'], $format['CropBox']['lly'], $format['CropBox']['urx'], $format['CropBox']['ury'], false, $this->k, $this->pagedim);
-            }
-            // the region to which the contents of the page shall be clipped when output in a production environment
-            if (isset($format['BleedBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'BleedBox', $format['BleedBox']['llx'], $format['BleedBox']['lly'], $format['BleedBox']['urx'], $format['BleedBox']['ury'], false, $this->k, $this->pagedim);
-            }
-            // the intended dimensions of the finished page after trimming
-            if (isset($format['TrimBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'TrimBox', $format['TrimBox']['llx'], $format['TrimBox']['lly'], $format['TrimBox']['urx'], $format['TrimBox']['ury'], false, $this->k, $this->pagedim);
-            }
-            // the page's meaningful content (including potential white space)
-            if (isset($format['ArtBox'])) {
-                $this->pagedim = StaticMethods::setPageBoxes($this->page, 'ArtBox', $format['ArtBox']['llx'], $format['ArtBox']['lly'], $format['ArtBox']['urx'], $format['ArtBox']['ury'], false, $this->k, $this->pagedim);
-            }
-            // specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for the various page boundaries
-            if (isset($format['BoxColorInfo'])) {
-                $this->pagedim[$this->page]['BoxColorInfo'] = $format['BoxColorInfo'];
-            }
-            if (isset($format['Rotate']) and (($format['Rotate'] % 90) == 0)) {
-                // The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
-                $this->pagedim[$this->page]['Rotate'] = intval($format['Rotate']);
-            }
-            if (isset($format['PZ'])) {
-                // The page's preferred zoom (magnification) factor
-                $this->pagedim[$this->page]['PZ'] = floatval($format['PZ']);
-            }
-            if (isset($format['trans'])) {
-                // The style and duration of the visual transition to use when moving from another page to the given page during a presentation
-                if (isset($format['trans']['Dur'])) {
-                    // The page's display duration
-                    $this->pagedim[$this->page]['trans']['Dur'] = floatval($format['trans']['Dur']);
-                }
-                $stansition_styles = ['Split', 'Blinds', 'Box', 'Wipe', 'Dissolve', 'Glitter', 'R', 'Fly', 'Push', 'Cover', 'Uncover', 'Fade'];
-                if (isset($format['trans']['S']) and in_array($format['trans']['S'], $stansition_styles)) {
-                    // The transition style that shall be used when moving to this page from another during a presentation
-                    $this->pagedim[$this->page]['trans']['S'] = $format['trans']['S'];
-                    $valid_effect                             = ['Split', 'Blinds'];
-                    $valid_vals                               = ['H', 'V'];
-                    if (isset($format['trans']['Dm']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['Dm'], $valid_vals)) {
-                        $this->pagedim[$this->page]['trans']['Dm'] = $format['trans']['Dm'];
-                    }
-                    $valid_effect = ['Split', 'Box', 'Fly'];
-                    $valid_vals   = ['I', 'O'];
-                    if (isset($format['trans']['M']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['M'], $valid_vals)) {
-                        $this->pagedim[$this->page]['trans']['M'] = $format['trans']['M'];
-                    }
-                    $valid_effect = ['Wipe', 'Glitter', 'Fly', 'Cover', 'Uncover', 'Push'];
-                    if (isset($format['trans']['Di']) and in_array($format['trans']['S'], $valid_effect)) {
-                        if (((($format['trans']['Di'] == 90) or ($format['trans']['Di'] == 180)) and ($format['trans']['S'] == 'Wipe'))
-                            or (($format['trans']['Di'] == 315) and ($format['trans']['S'] == 'Glitter'))
-                            or (($format['trans']['Di'] == 0) or ($format['trans']['Di'] == 270))) {
-                            $this->pagedim[$this->page]['trans']['Di'] = intval($format['trans']['Di']);
-                        }
-                    }
-                    if (isset($format['trans']['SS']) and ($format['trans']['S'] == 'Fly')) {
-                        $this->pagedim[$this->page]['trans']['SS'] = floatval($format['trans']['SS']);
-                    }
-                    if (isset($format['trans']['B']) and ($format['trans']['B'] === true) and ($format['trans']['S'] == 'Fly')) {
-                        $this->pagedim[$this->page]['trans']['B'] = 'true';
-                    }
-                }
-                else {
-                    $this->pagedim[$this->page]['trans']['S'] = 'R';
-                }
-                if (isset($format['trans']['D'])) {
-                    // The duration of the transition effect, in seconds
-                    $this->pagedim[$this->page]['trans']['D'] = floatval($format['trans']['D']);
-                }
-                else {
-                    $this->pagedim[$this->page]['trans']['D'] = 1;
-                }
-            }
-        }
-        $this->setPageOrientation($orientation);
     }
 
     /**
@@ -1561,33 +1207,33 @@ class PDF
      */
     public function setPageOrientation($orientation, $autopagebreak = null, $bottommargin = null)
     {
-        if (!isset($this->pagedim[$this->page]['MediaBox'])) {
+        if (!isset($this->pageDimensions[$this->page]['MediaBox'])) {
             // the boundaries of the physical medium on which the page shall be displayed or printed
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pagedim);
+            $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pageDimensions);
         }
-        if (!isset($this->pagedim[$this->page]['CropBox'])) {
+        if (!isset($this->pageDimensions[$this->page]['CropBox'])) {
             // the visible region of default user space
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'CropBox', $this->pagedim[$this->page]['MediaBox']['llx'], $this->pagedim[$this->page]['MediaBox']['lly'], $this->pagedim[$this->page]['MediaBox']['urx'], $this->pagedim[$this->page]['MediaBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'CropBox', $this->pageDimensions[$this->page]['MediaBox']['llx'], $this->pageDimensions[$this->page]['MediaBox']['lly'], $this->pageDimensions[$this->page]['MediaBox']['urx'], $this->pageDimensions[$this->page]['MediaBox']['ury'], true, $this->k, $this->pageDimensions);
         }
-        if (!isset($this->pagedim[$this->page]['BleedBox'])) {
+        if (!isset($this->pageDimensions[$this->page]['BleedBox'])) {
             // the region to which the contents of the page shall be clipped when output in a production environment
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'BleedBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'BleedBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
         }
-        if (!isset($this->pagedim[$this->page]['TrimBox'])) {
+        if (!isset($this->pageDimensions[$this->page]['TrimBox'])) {
             // the intended dimensions of the finished page after trimming
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'TrimBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'TrimBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
         }
-        if (!isset($this->pagedim[$this->page]['ArtBox'])) {
+        if (!isset($this->pageDimensions[$this->page]['ArtBox'])) {
             // the page's meaningful content (including potential white space)
-            $this->pagedim = StaticMethods::setPageBoxes($this->page, 'ArtBox', $this->pagedim[$this->page]['CropBox']['llx'], $this->pagedim[$this->page]['CropBox']['lly'], $this->pagedim[$this->page]['CropBox']['urx'], $this->pagedim[$this->page]['CropBox']['ury'], true, $this->k, $this->pagedim);
+            $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'ArtBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
         }
-        if (!isset($this->pagedim[$this->page]['Rotate'])) {
+        if (!isset($this->pageDimensions[$this->page]['Rotate'])) {
             // The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
-            $this->pagedim[$this->page]['Rotate'] = 0;
+            $this->pageDimensions[$this->page]['Rotate'] = 0;
         }
-        if (!isset($this->pagedim[$this->page]['PZ'])) {
+        if (!isset($this->pageDimensions[$this->page]['PZ'])) {
             // The page's preferred zoom (magnification) factor
-            $this->pagedim[$this->page]['PZ'] = 1;
+            $this->pageDimensions[$this->page]['PZ'] = 1;
         }
         if ($this->fwPt > $this->fhPt) {
             // landscape
@@ -1614,9 +1260,9 @@ class PDF
             $this->wPt            = $this->fwPt;
             $this->hPt            = $this->fhPt;
         }
-        if ((abs($this->pagedim[$this->page]['MediaBox']['urx'] - $this->hPt) < $this->feps) and (abs($this->pagedim[$this->page]['MediaBox']['ury'] - $this->wPt) < $this->feps)) {
+        if ((abs($this->pageDimensions[$this->page]['MediaBox']['urx'] - $this->hPt) < $this->feps) and (abs($this->pageDimensions[$this->page]['MediaBox']['ury'] - $this->wPt) < $this->feps)) {
             // swap X and Y coordinates (change page orientation)
-            $this->pagedim = StaticMethods::swapPageBoxCoordinates($this->page, $this->pagedim);
+            $this->pageDimensions = StaticMethods::swapPageBoxCoordinates($this->page, $this->pageDimensions);
         }
         $this->w = ($this->wPt / $this->k);
         $this->h = ($this->hPt / $this->k);
@@ -1639,18 +1285,18 @@ class PDF
         }
         $this->setAutoPageBreak($autopagebreak, $bottommargin);
         // store page dimensions
-        $this->pagedim[$this->page]['w']   = $this->wPt;
-        $this->pagedim[$this->page]['h']   = $this->hPt;
-        $this->pagedim[$this->page]['wk']  = $this->w;
-        $this->pagedim[$this->page]['hk']  = $this->h;
-        $this->pagedim[$this->page]['tm']  = $this->tMargin;
-        $this->pagedim[$this->page]['bm']  = $bottommargin;
-        $this->pagedim[$this->page]['lm']  = $this->leftMargin;
-        $this->pagedim[$this->page]['rm']  = $this->rightMargin;
-        $this->pagedim[$this->page]['pb']  = $autopagebreak;
-        $this->pagedim[$this->page]['or']  = $this->CurOrientation;
-        $this->pagedim[$this->page]['olm'] = $this->originalLeftMargin;
-        $this->pagedim[$this->page]['orm'] = $this->originalRightMargin;
+        $this->pageDimensions[$this->page]['w']   = $this->wPt;
+        $this->pageDimensions[$this->page]['h']   = $this->hPt;
+        $this->pageDimensions[$this->page]['wk']  = $this->w;
+        $this->pageDimensions[$this->page]['hk']  = $this->h;
+        $this->pageDimensions[$this->page]['tm']  = $this->tMargin;
+        $this->pageDimensions[$this->page]['bm']  = $bottommargin;
+        $this->pageDimensions[$this->page]['lm']  = $this->leftMargin;
+        $this->pageDimensions[$this->page]['rm']  = $this->rightMargin;
+        $this->pageDimensions[$this->page]['pb']  = $autopagebreak;
+        $this->pageDimensions[$this->page]['or']  = $this->CurOrientation;
+        $this->pageDimensions[$this->page]['olm'] = $this->originalLeftMargin;
+        $this->pageDimensions[$this->page]['orm'] = $this->originalRightMargin;
     }
 
     /**
@@ -1744,7 +1390,7 @@ class PDF
         if (empty($pagenum)) {
             $pagenum = $this->page;
         }
-        return $this->pagedim[$pagenum];
+        return $this->pageDimensions[$pagenum];
     }
 
     /**
@@ -1759,7 +1405,7 @@ class PDF
         if (empty($pagenum)) {
             return $this->w;
         }
-        return $this->pagedim[$pagenum]['w'];
+        return $this->pageDimensions[$pagenum]['w'];
     }
 
     /**
@@ -1774,7 +1420,7 @@ class PDF
         if (empty($pagenum)) {
             return $this->h;
         }
-        return $this->pagedim[$pagenum]['h'];
+        return $this->pageDimensions[$pagenum]['h'];
     }
 
     /**
@@ -1789,7 +1435,7 @@ class PDF
         if (empty($pagenum)) {
             return $this->bMargin;
         }
-        return $this->pagedim[$pagenum]['bm'];
+        return $this->pageDimensions[$pagenum]['bm'];
     }
 
     /**
@@ -2078,24 +1724,6 @@ class PDF
     }
 
     /**
-     * Defines the way the document is to be displayed by the viewer.
-     * @param mixed  $zoom   The zoom to use. It can be one of the following string values or a number indicating the zooming factor to use. <ul><li>fullpage: displays the entire page on screen </li><li>fullwidth: uses maximum width of window</li><li>real: uses real size (equivalent to 100% zoom)</li><li>default: uses viewer default mode</li></ul>
-     * @param string $layout The page layout. Possible values are:<ul><li>SinglePage Display one page at a time</li><li>OneColumn Display the pages in one column</li><li>TwoColumnLeft Display the pages in two columns, with odd-numbered pages on the left</li><li>TwoColumnRight Display the pages in two columns, with odd-numbered pages on the right</li><li>TwoPageLeft (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the left</li><li>TwoPageRight (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the right</li></ul>
-     * @param string $mode   A name object specifying how the document should be displayed when opened:<ul><li>UseNone Neither document outline nor thumbnail images visible</li><li>UseOutlines Document outline visible</li><li>UseThumbs Thumbnail images visible</li><li>FullScreen Full-screen mode, with no menu bar, window controls, or any other window visible</li><li>UseOC (PDF 1.5) Optional content group panel visible</li><li>UseAttachments (PDF 1.6) Attachments panel visible</li></ul>
-     */
-    public function setDisplayMode($zoom, $layout = 'SinglePage', $mode = 'UseNone')
-    {
-        if (($zoom == 'fullpage') or ($zoom == 'fullwidth') or ($zoom == 'real') or ($zoom == 'default') or (!is_string($zoom))) {
-            $this->ZoomMode = $zoom;
-        }
-        else {
-            $this->Error('Incorrect zoom display mode: ' . $zoom);
-        }
-        $this->LayoutMode = StaticMethods::getPageLayoutMode($layout);
-        $this->PageMode   = StaticMethods::getPageMode($mode);
-    }
-
-    /**
      * Activates or deactivates page compression. When activated, the internal representation of each page is compressed, which leads to a compression ratio of about 2 for the resulting document. Compression is on by default.
      * Note: the Zlib extension is required for this feature. If not present, compression will be turned off.
      * @param bool $compress bool indicating if compression must be enabled.
@@ -2275,27 +1903,27 @@ class PDF
             // save current graphic settings
             $oldpage                   = $this->page;
             $this->page                = $pnum;
-            $this->wPt                 = $this->pagedim[$this->page]['w'];
-            $this->hPt                 = $this->pagedim[$this->page]['h'];
-            $this->w                   = $this->pagedim[$this->page]['wk'];
-            $this->h                   = $this->pagedim[$this->page]['hk'];
-            $this->tMargin             = $this->pagedim[$this->page]['tm'];
-            $this->bMargin             = $this->pagedim[$this->page]['bm'];
-            $this->originalLeftMargin  = $this->pagedim[$this->page]['olm'];
-            $this->originalRightMargin = $this->pagedim[$this->page]['orm'];
-            $this->AutoPageBreak       = $this->pagedim[$this->page]['pb'];
-            $this->CurOrientation      = $this->pagedim[$this->page]['or'];
+            $this->wPt                 = $this->pageDimensions[$this->page]['w'];
+            $this->hPt                 = $this->pageDimensions[$this->page]['h'];
+            $this->w                   = $this->pageDimensions[$this->page]['wk'];
+            $this->h                   = $this->pageDimensions[$this->page]['hk'];
+            $this->tMargin             = $this->pageDimensions[$this->page]['tm'];
+            $this->bMargin             = $this->pageDimensions[$this->page]['bm'];
+            $this->originalLeftMargin  = $this->pageDimensions[$this->page]['olm'];
+            $this->originalRightMargin = $this->pageDimensions[$this->page]['orm'];
+            $this->AutoPageBreak       = $this->pageDimensions[$this->page]['pb'];
+            $this->CurOrientation      = $this->pageDimensions[$this->page]['or'];
             $this->setAutoPageBreak($this->AutoPageBreak, $this->bMargin);
             // restore graphic settings
             if ($resetmargins) {
-                $this->leftMargin  = $this->pagedim[$this->page]['olm'];
-                $this->rightMargin = $this->pagedim[$this->page]['orm'];
+                $this->leftMargin  = $this->pageDimensions[$this->page]['olm'];
+                $this->rightMargin = $this->pageDimensions[$this->page]['orm'];
                 $this->y($this->tMargin);
             }
             else {
                 // account for booklet mode
-                if ($this->pagedim[$this->page]['olm'] != $this->pagedim[$oldpage]['olm']) {
-                    $deltam            = $this->pagedim[$this->page]['olm'] - $this->pagedim[$this->page]['orm'];
+                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
+                    $deltam            = $this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->page]['orm'];
                     $this->leftMargin  += $deltam;
                     $this->rightMargin -= $deltam;
                 }
@@ -2579,7 +2207,7 @@ class PDF
             $this->write1DBarcode($barcode, 'C128', '', $cur_y + $line_width, '', (($this->footer_margin / 3) - $line_width), 0.3, $style, '');
         }
         $w_page = isset($this->l['w_page']) ? $this->l['w_page'] . ' ' : '';
-        if (empty($this->pagegroups)) {
+        if (empty($this->pageGroups)) {
             $pagenumtxt = $w_page . $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
         }
         else {
@@ -2657,17 +2285,17 @@ class PDF
         }
         if (isset($this->headerTemplateMargins['top'])) {
             // restore the original top-margin
-            $this->tMargin                    = $this->headerTemplateMargins['top'];
-            $this->pagedim[$this->page]['tm'] = $this->tMargin;
-            $this->y                          = $this->tMargin;
+            $this->tMargin                           = $this->headerTemplateMargins['top'];
+            $this->pageDimensions[$this->page]['tm'] = $this->tMargin;
+            $this->y                                 = $this->tMargin;
         }
         if (!StaticMethods::empty_string($this->headerTemplate) and (!$this->inthead)) {
             // set margins
             $prev_lMargin       = $this->leftMargin;
             $prev_rMargin       = $this->rightMargin;
             $previousPaddings   = $this->cellPaddings;
-            $this->leftMargin   = $this->headerTemplateMargins['lmargin'] + ($this->pagedim[$this->page]['olm'] - $this->pagedim[$this->headerTemplateMargins['page']]['olm']);
-            $this->rightMargin  = $this->headerTemplateMargins['rmargin'] + ($this->pagedim[$this->page]['orm'] - $this->pagedim[$this->headerTemplateMargins['page']]['orm']);
+            $this->leftMargin   = $this->headerTemplateMargins['lmargin'] + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['olm']);
+            $this->rightMargin  = $this->headerTemplateMargins['rmargin'] + ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['orm']);
             $this->cellPaddings = $this->headerTemplateMargins['cellPaddings'];
             $this->x            = $this->leftMargin;
             // account for special "cell" mode
@@ -2694,7 +2322,7 @@ class PDF
             }
             $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
             $this->tMargin                                     = $this->y;
-            $this->pagedim[$this->page]['tm']                  = $this->tMargin;
+            $this->pageDimensions[$this->page]['tm']           = $this->tMargin;
             $this->lastPrintedCellHeight                       = 0;
             $this->leftMargin                                  = $prev_lMargin;
             $this->rightMargin                                 = $prev_rMargin;
@@ -3053,14 +2681,14 @@ class PDF
         else {
             $page = $this->page;
         }
-        if (!isset($this->PageAnnots[$page])) {
-            $this->PageAnnots[$page] = [];
+        if (!isset($this->pageAnnotations[$page])) {
+            $this->pageAnnotations[$page] = [];
         }
-        $this->PageAnnots[$page][] = ['n' => ++$this->n, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
+        $this->pageAnnotations[$page][] = ['n' => ++$this->objectNumber, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
         if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!StaticMethods::empty_string($opt['FS']))
             and (@StaticMethods::file_exists($opt['FS']) or StaticMethods::isValidURL($opt['FS']))
             and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
-            $this->embeddedfiles[basename($opt['FS'])] = ['f' => ++$this->n, 'n' => ++$this->n, 'file' => $opt['FS']];
+            $this->embeddedfiles[basename($opt['FS'])] = ['f' => ++$this->objectNumber, 'n' => ++$this->objectNumber, 'file' => $opt['FS']];
         }
         // Add widgets annotation's icons
         if (isset($opt['mk']['i']) and @StaticMethods::file_exists($opt['mk']['i'])) {
@@ -3193,8 +2821,8 @@ class PDF
                 $this->AddPage($this->CurOrientation);
                 $this->y = $this->tMargin;
                 $oldpage = $this->page - 1;
-                if ($this->pagedim[$this->page]['olm'] != $this->pagedim[$oldpage]['olm']) {
-                    $this->x = $x + ($this->pagedim[$this->page]['olm'] - $this->pagedim[$oldpage]['olm']);
+                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
+                    $this->x = $x + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$oldpage]['olm']);
                 }
                 else {
                     $this->x = $x;
@@ -4073,8 +3701,8 @@ class PDF
             }
             // account for margin changes
             if ($page > $startpage) {
-                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
-                    $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
+                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
+                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
                 }
             }
             if ($startpage == $endpage) {
@@ -4215,8 +3843,8 @@ class PDF
             $this->rightMargin = $rMargin;
             if ($this->page > $startpage) {
                 // check for margin variations between pages (i.e. booklet mode)
-                $dl = ($this->pagedim[$this->page]['olm'] - $this->pagedim[$startpage]['olm']);
-                $dr = ($this->pagedim[$this->page]['orm'] - $this->pagedim[$startpage]['orm']);
+                $dl = ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$startpage]['olm']);
+                $dr = ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$startpage]['orm']);
                 if (($dl != 0) or ($dr != 0)) {
                     $this->leftMargin  += $dl;
                     $this->rightMargin += $dr;
@@ -4937,7 +4565,7 @@ class PDF
         }
         $dest = strtoupper($dest);
 
-        if ($this->sign) {
+        if ($this->signable) {
             // *** apply digital signature to the document ***
             // get the document content
             $pdfdoc = $this->buffer();
@@ -4957,7 +4585,7 @@ class PDF
             $byterange .= str_repeat(' ', ($byterange_string_len - strlen($byterange)));
             $pdfdoc    = str_replace(self::BYTE_RANGE_STRING, $byterange, $pdfdoc);
             // write the document to a temporary folder
-            $tempdoc = StaticMethods::getObjFilename('doc', $this->file_id);
+            $tempdoc = StaticMethods::getObjFilename('doc', $this->fileID);
             $f       = StaticMethods::fopenLocal($tempdoc, 'wb');
             if (!$f) {
                 $this->Error('Unable to create temporary file: ' . $tempdoc);
@@ -4966,7 +4594,7 @@ class PDF
             fwrite($f, $pdfdoc, $pdfdoc_length);
             fclose($f);
             // get digital signature via openssl library
-            $tempsign = StaticMethods::getObjFilename('sig', $this->file_id);
+            $tempsign = StaticMethods::getObjFilename('sig', $this->fileID);
             if (empty($this->signature_data['extracerts'])) {
                 openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED);
             }
@@ -5135,15 +4763,15 @@ class PDF
      */
     public function _destroy($destroyall = false, $preserve_objcopy = false)
     {
-        if (isset(self::$cleaned_ids[$this->file_id])) {
+        if (isset(self::$cleaned_ids[$this->fileID])) {
             $destroyall = false;
         }
-        if ($destroyall and !$preserve_objcopy && isset($this->file_id)) {
-            self::$cleaned_ids[$this->file_id] = true;
+        if ($destroyall and !$preserve_objcopy && isset($this->fileID)) {
+            self::$cleaned_ids[$this->fileID] = true;
             // remove all temporary files
             if ($handle = @opendir(K_PATH_CACHE)) {
                 while (false !== ($file_name = readdir($handle))) {
-                    if (strpos($file_name, '__tcpdf_' . $this->file_id . '_') === 0) {
+                    if (strpos($file_name, '__tcpdf_' . $this->fileID . '_') === 0) {
                         unlink(K_PATH_CACHE . $file_name);
                     }
                 }
@@ -5163,7 +4791,7 @@ class PDF
             'cached_files',
             'file_id',
             'imagekeys',
-            'sign',
+            'signable',
             'signature_data',
             'signature_max_length',
             'state',
@@ -5184,10 +4812,6 @@ class PDF
      */
     protected function _dochecks()
     {
-        //Check for locale-related bug
-        if (1.1 == 1) {
-            $this->Error('Don\'t alter the locale before including class file');
-        }
         //Check for decimal separator
         if (sprintf('%.1F', 1.0) != '1.0') {
             setlocale(LC_NUMERIC, 'C');
@@ -5222,7 +4846,7 @@ class PDF
      */
     protected function getAllInternalPageNumberAliases()
     {
-        $basic_alias = [self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::GROUP_PAGE_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS];
+        $basic_alias = [self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::PAGE_GROUP_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS];
         $pnalias     = [];
         foreach ($basic_alias as $k => $a) {
             $pnalias[$k] = $this->getInternalPageNumberAliases($a);
@@ -5311,11 +4935,11 @@ class PDF
             $pnp_num_chars = $this->GetNumChars($pnpa);
             $pdiff         = 0; // difference used for right shift alignment of page numbers
             $gdiff         = 0; // difference used for right shift alignment of page group numbers
-            if (!empty($this->pagegroups)) {
+            if (!empty($this->pageGroups)) {
                 if (isset($this->newpagegroup[$n])) {
                     $pagegroupnum = 0;
                     ++$groupnum;
-                    $ptga          = StaticMethods::formatPageNumber($this->pagegroups[$groupnum]);
+                    $ptga          = StaticMethods::formatPageNumber($this->pageGroups[$groupnum]);
                     $ptgu          = $this->utf8ToUTF16BE($ptga);
                     $ptg_num_chars = $this->GetNumChars($ptga);
                 }
@@ -5343,37 +4967,37 @@ class PDF
             // replace EPS marker
             $temppage = str_replace($this->epsmarker, '', $temppage);
             //Page
-            $this->page_obj_id[$n] = $this->_newobj();
-            $out                   = '<<';
-            $out                   .= ' /Type /Page';
-            $out                   .= ' /Parent 1 0 R';
+            $this->pageObjectIDs[$n] = $this->_newobj();
+            $out                     = '<<';
+            $out                     .= ' /Type /Page';
+            $out                     .= ' /Parent 1 0 R';
             if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
                 $out .= ' /LastModified ' . $this->_datestring(0, $this->doc_modification_timestamp);
             }
             $out .= ' /Resources 2 0 R';
             foreach ($this->page_boxes as $box) {
                 $out .= ' /' . $box;
-                $out .= sprintf(' [%F %F %F %F]', $this->pagedim[$n][$box]['llx'], $this->pagedim[$n][$box]['lly'], $this->pagedim[$n][$box]['urx'], $this->pagedim[$n][$box]['ury']);
+                $out .= sprintf(' [%F %F %F %F]', $this->pageDimensions[$n][$box]['llx'], $this->pageDimensions[$n][$box]['lly'], $this->pageDimensions[$n][$box]['urx'], $this->pageDimensions[$n][$box]['ury']);
             }
-            if (isset($this->pagedim[$n]['BoxColorInfo']) and !empty($this->pagedim[$n]['BoxColorInfo'])) {
+            if (isset($this->pageDimensions[$n]['BoxColorInfo']) and !empty($this->pageDimensions[$n]['BoxColorInfo'])) {
                 $out .= ' /BoxColorInfo <<';
                 foreach ($this->page_boxes as $box) {
-                    if (isset($this->pagedim[$n]['BoxColorInfo'][$box])) {
+                    if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box])) {
                         $out .= ' /' . $box . ' <<';
-                        if (isset($this->pagedim[$n]['BoxColorInfo'][$box]['C'])) {
-                            $color = $this->pagedim[$n]['BoxColorInfo'][$box]['C'];
+                        if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['C'])) {
+                            $color = $this->pageDimensions[$n]['BoxColorInfo'][$box]['C'];
                             $out   .= ' /C [';
                             $out   .= sprintf(' %F %F %F', ($color[0] / 255), ($color[1] / 255), ($color[2] / 255));
                             $out   .= ' ]';
                         }
-                        if (isset($this->pagedim[$n]['BoxColorInfo'][$box]['W'])) {
-                            $out .= ' /W ' . ($this->pagedim[$n]['BoxColorInfo'][$box]['W'] * $this->k);
+                        if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'])) {
+                            $out .= ' /W ' . ($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'] * $this->k);
                         }
-                        if (isset($this->pagedim[$n]['BoxColorInfo'][$box]['S'])) {
-                            $out .= ' /S /' . $this->pagedim[$n]['BoxColorInfo'][$box]['S'];
+                        if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['S'])) {
+                            $out .= ' /S /' . $this->pageDimensions[$n]['BoxColorInfo'][$box]['S'];
                         }
-                        if (isset($this->pagedim[$n]['BoxColorInfo'][$box]['D'])) {
-                            $dashes = $this->pagedim[$n]['BoxColorInfo'][$box]['D'];
+                        if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['D'])) {
+                            $dashes = $this->pageDimensions[$n]['BoxColorInfo'][$box]['D'];
                             $out    .= ' /D [';
                             foreach ($dashes as $dash) {
                                 $out .= sprintf(' %F', ($dash * $this->k));
@@ -5385,41 +5009,41 @@ class PDF
                 }
                 $out .= ' >>';
             }
-            $out .= ' /Contents ' . ($this->n + 1) . ' 0 R';
-            $out .= ' /Rotate ' . $this->pagedim[$n]['Rotate'];
+            $out .= ' /Contents ' . ($this->objectNumber + 1) . ' 0 R';
+            $out .= ' /Rotate ' . $this->pageDimensions[$n]['Rotate'];
             $out .= ' /Group << /Type /Group /S /Transparency /CS /DeviceRGB >>';
-            if (isset($this->pagedim[$n]['trans']) and !empty($this->pagedim[$n]['trans'])) {
+            if (isset($this->pageDimensions[$n]['trans']) and !empty($this->pageDimensions[$n]['trans'])) {
                 // page transitions
-                if (isset($this->pagedim[$n]['trans']['Dur'])) {
-                    $out .= ' /Dur ' . $this->pagedim[$n]['trans']['Dur'];
+                if (isset($this->pageDimensions[$n]['trans']['Dur'])) {
+                    $out .= ' /Dur ' . $this->pageDimensions[$n]['trans']['Dur'];
                 }
                 $out .= ' /Trans <<';
                 $out .= ' /Type /Trans';
-                if (isset($this->pagedim[$n]['trans']['S'])) {
-                    $out .= ' /S /' . $this->pagedim[$n]['trans']['S'];
+                if (isset($this->pageDimensions[$n]['trans']['S'])) {
+                    $out .= ' /S /' . $this->pageDimensions[$n]['trans']['S'];
                 }
-                if (isset($this->pagedim[$n]['trans']['D'])) {
-                    $out .= ' /D ' . $this->pagedim[$n]['trans']['D'];
+                if (isset($this->pageDimensions[$n]['trans']['D'])) {
+                    $out .= ' /D ' . $this->pageDimensions[$n]['trans']['D'];
                 }
-                if (isset($this->pagedim[$n]['trans']['Dm'])) {
-                    $out .= ' /Dm /' . $this->pagedim[$n]['trans']['Dm'];
+                if (isset($this->pageDimensions[$n]['trans']['Dm'])) {
+                    $out .= ' /Dm /' . $this->pageDimensions[$n]['trans']['Dm'];
                 }
-                if (isset($this->pagedim[$n]['trans']['M'])) {
-                    $out .= ' /M /' . $this->pagedim[$n]['trans']['M'];
+                if (isset($this->pageDimensions[$n]['trans']['M'])) {
+                    $out .= ' /M /' . $this->pageDimensions[$n]['trans']['M'];
                 }
-                if (isset($this->pagedim[$n]['trans']['Di'])) {
-                    $out .= ' /Di ' . $this->pagedim[$n]['trans']['Di'];
+                if (isset($this->pageDimensions[$n]['trans']['Di'])) {
+                    $out .= ' /Di ' . $this->pageDimensions[$n]['trans']['Di'];
                 }
-                if (isset($this->pagedim[$n]['trans']['SS'])) {
-                    $out .= ' /SS ' . $this->pagedim[$n]['trans']['SS'];
+                if (isset($this->pageDimensions[$n]['trans']['SS'])) {
+                    $out .= ' /SS ' . $this->pageDimensions[$n]['trans']['SS'];
                 }
-                if (isset($this->pagedim[$n]['trans']['B'])) {
-                    $out .= ' /B ' . $this->pagedim[$n]['trans']['B'];
+                if (isset($this->pageDimensions[$n]['trans']['B'])) {
+                    $out .= ' /B ' . $this->pageDimensions[$n]['trans']['B'];
                 }
                 $out .= ' >>';
             }
             $out .= $this->_getannotsrefs($n);
-            $out .= ' /PZ ' . $this->pagedim[$n]['PZ'];
+            $out .= ' /PZ ' . $this->pageDimensions[$n]['PZ'];
             $out .= ' >>';
             $out .= "\n" . 'endobj';
             $this->append($out);
@@ -5432,7 +5056,7 @@ class PDF
         //Pages root
         $out = $this->_getobj(1) . "\n";
         $out .= '<< /Type /Pages /Kids [';
-        foreach ($this->page_obj_id as $page_obj) {
+        foreach ($this->pageObjectIDs as $page_obj) {
             $out .= ' ' . $page_obj . ' 0 R';
         }
         $out .= ' ] /Count ' . $num_pages . ' >>';
@@ -5448,12 +5072,12 @@ class PDF
      */
     protected function _getannotsrefs($n)
     {
-        if (!(isset($this->PageAnnots[$n]) or ($this->sign and isset($this->signature_data['cert_type'])))) {
+        if (!(isset($this->pageAnnotations[$n]) or ($this->signable and isset($this->signature_data['cert_type'])))) {
             return '';
         }
         $out = ' /Annots [';
-        if (isset($this->PageAnnots[$n])) {
-            foreach ($this->PageAnnots[$n] as $key => $val) {
+        if (isset($this->pageAnnotations[$n])) {
+            foreach ($this->pageAnnotations[$n] as $key => $val) {
                 if (!in_array($val['n'], $this->radio_groups)) {
                     $out .= ' ' . $val['n'] . ' 0 R';
                 }
@@ -5467,7 +5091,7 @@ class PDF
                 }
             }
         }
-        if ($this->sign and ($n == $this->signature_appearance['page']) and isset($this->signature_data['cert_type'])) {
+        if ($this->signable and ($n == $this->signature_appearance['page']) and isset($this->signature_data['cert_type'])) {
             // set reference for signature object
             $out .= ' ' . $this->sig_obj_id . ' 0 R';
         }
@@ -5493,10 +5117,10 @@ class PDF
     {
         // reset object counter
         for ($n = 1; $n <= $this->numpages; ++$n) {
-            if (isset($this->PageAnnots[$n])) {
+            if (isset($this->pageAnnotations[$n])) {
                 // set page annotations
-                foreach ($this->PageAnnots[$n] as $key => $pl) {
-                    $annot_obj_id = $this->PageAnnots[$n][$key]['n'];
+                foreach ($this->pageAnnotations[$n] as $key => $pl) {
+                    $annot_obj_id = $this->pageAnnotations[$n][$key]['n'];
                     // create annotation object for grouping radiobuttons
                     if (isset($this->radiobutton_groups[$n][$pl['txt']]) and is_array($this->radiobutton_groups[$n][$pl['txt']])) {
                         $radio_button_obj_id = $this->radiobutton_groups[$n][$pl['txt']]['n'];
@@ -5534,14 +5158,14 @@ class PDF
                         }
                         $annots .= ' >>';
                         $this->append($this->_getobj($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
-                        $this->form_obj_id[] = $radio_button_obj_id;
+                        $this->annotationIDs[] = $radio_button_obj_id;
                         // store object id to be used on Parent entry of Kids
                         $this->radiobutton_groups[$n][$pl['txt']] = $radio_button_obj_id;
                     }
                     $formfield = false;
                     $pl['opt'] = array_change_key_case($pl['opt'], CASE_LOWER);
                     $a         = $pl['x'] * $this->k;
-                    $b         = $this->pagedim[$n]['h'] - (($pl['y'] + $pl['h']) * $this->k);
+                    $b         = $this->pageDimensions[$n]['h'] - (($pl['y'] + $pl['h']) * $this->k);
                     $c         = $pl['w'] * $this->k;
                     $d         = $pl['h'] * $this->k;
                     $rect      = sprintf('%F %F %F %F', $a, $b, $a + $c, $b + $d);
@@ -5557,7 +5181,7 @@ class PDF
                     if ($pl['opt']['subtype'] !== 'Link') {
                         $annots .= ' /Contents ' . $this->_textstring($pl['txt'], $annot_obj_id);
                     }
-                    $annots .= ' /P ' . $this->page_obj_id[$n] . ' 0 R';
+                    $annots .= ' /P ' . $this->pageObjectIDs[$n] . ' 0 R';
                     $annots .= ' /NM ' . $this->_datastring(sprintf('%04u-%04u', $n, $key), $annot_obj_id);
                     $annots .= ' /M ' . $this->_datestring($annot_obj_id, $this->doc_modification_timestamp);
                     if (isset($pl['opt']['f'])) {
@@ -5826,8 +5450,8 @@ class PDF
                             elseif (isset($this->links[$pl['txt']])) {
                                 // internal link ID
                                 $l = $this->links[$pl['txt']];
-                                if (isset($this->page_obj_id[($l['p'])])) {
-                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->k)));
+                                if (isset($this->pageObjectIDs[($l['p'])])) {
+                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->k)));
                                 }
                             }
                             $hmodes = ['N', 'I', 'O', 'P'];
@@ -6179,7 +5803,7 @@ class PDF
                     $this->append($this->_getobj($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
                     if ($formfield and !isset($this->radiobutton_groups[$n][$pl['txt']])) {
                         // store reference of form object
-                        $this->form_obj_id[] = $annot_obj_id;
+                        $this->annotationIDs[] = $annot_obj_id;
                     }
                 }
             }
@@ -6195,13 +5819,13 @@ class PDF
      */
     protected function _putAPXObject($w = 0, $h = 0, $stream = '')
     {
-        $stream                          = trim($stream);
-        $out                             = $this->_getobj() . "\n";
-        $this->xObjects['AX' . $this->n] = ['n' => $this->n];
-        $out                             .= '<<';
-        $out                             .= ' /Type /XObject';
-        $out                             .= ' /Subtype /Form';
-        $out                             .= ' /FormType 1';
+        $stream                                     = trim($stream);
+        $out                                        = $this->_getobj() . "\n";
+        $this->xObjects['AX' . $this->objectNumber] = ['n' => $this->objectNumber];
+        $out                                        .= '<<';
+        $out                                        .= ' /Type /XObject';
+        $out                                        .= ' /Subtype /Form';
+        $out                                        .= ' /FormType 1';
         if ($this->compress) {
             $stream = gzcompress($stream);
             $out    .= ' /Filter /FlateDecode';
@@ -6216,7 +5840,7 @@ class PDF
         $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
         $out    .= "\n" . 'endobj';
         $this->append($out);
-        return $this->n;
+        return $this->objectNumber;
     }
 
     /**
@@ -6237,14 +5861,14 @@ class PDF
         $fontname .= $font['name'];
         // Type0 Font
         // A composite font composed of other fonts, organized hierarchically
-        $out = $this->_getobj($this->font_obj_ids[$font['fontKey']]) . "\n";
+        $out = $this->_getobj($this->fontObjectIDs[$font['fontKey']]) . "\n";
         $out .= '<< /Type /Font';
         $out .= ' /Subtype /Type0';
         $out .= ' /BaseFont /' . $fontname;
         $out .= ' /Name /F' . $font['i'];
         $out .= ' /Encoding /' . $font['enc'];
-        $out .= ' /ToUnicode ' . ($this->n + 1) . ' 0 R';
-        $out .= ' /DescendantFonts [' . ($this->n + 2) . ' 0 R]';
+        $out .= ' /ToUnicode ' . ($this->objectNumber + 1) . ' 0 R';
+        $out .= ' /DescendantFonts [' . ($this->objectNumber + 2) . ' 0 R]';
         $out .= ' >>';
         $out .= "\n" . 'endobj';
         $this->append($out);
@@ -6267,11 +5891,11 @@ class PDF
         $cidinfo .= ' /Ordering ' . $this->_datastring($font['cidinfo']['Ordering'], $oid);
         $cidinfo .= ' /Supplement ' . $font['cidinfo']['Supplement'];
         $out     .= ' /CIDSystemInfo << ' . $cidinfo . ' >>';
-        $out     .= ' /FontDescriptor ' . ($this->n + 1) . ' 0 R';
+        $out     .= ' /FontDescriptor ' . ($this->objectNumber + 1) . ' 0 R';
         $out     .= ' /DW ' . $font['dw']; // default width
         $out     .= "\n" . $this->_putfontwidths($font, 0);
         if (isset($font['ctg']) and (!StaticMethods::empty_string($font['ctg']))) {
-            $out .= "\n" . '/CIDToGIDMap ' . ($this->n + 2) . ' 0 R';
+            $out .= "\n" . '/CIDToGIDMap ' . ($this->objectNumber + 2) . ' 0 R';
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
@@ -6379,7 +6003,7 @@ class PDF
                 if (!empty($data['fonts'])) {
                     $out .= ' /Font <<';
                     foreach ($data['fonts'] as $fontKey => $fontID) {
-                        $out .= ' /F' . $fontID . ' ' . $this->font_obj_ids[$fontKey] . ' 0 R';
+                        $out .= ' /F' . $fontID . ' ' . $this->fontObjectIDs[$fontKey] . ' 0 R';
                     }
                     $out .= ' >>';
                 }
@@ -6650,7 +6274,7 @@ class PDF
         $xmp        .= "\t\t\t" . '<pdf:Producer>' . StaticMethods::_escapeXML($this->producer()) . '</pdf:Producer>' . "\n";
         $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
         $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/">' . "\n";
-        $uuid       = 'uuid:' . substr($this->file_id, 0, 8) . '-' . substr($this->file_id, 8, 4) . '-' . substr($this->file_id, 12, 4) . '-' . substr($this->file_id, 16, 4) . '-' . substr($this->file_id, 20, 12);
+        $uuid       = 'uuid:' . substr($this->fileID, 0, 8) . '-' . substr($this->fileID, 8, 4) . '-' . substr($this->fileID, 12, 4) . '-' . substr($this->fileID, 16, 4) . '-' . substr($this->fileID, 20, 12);
         $xmp        .= "\t\t\t" . '<xmpMM:DocumentID>' . $uuid . '</xmpMM:DocumentID>' . "\n";
         $xmp        .= "\t\t\t" . '<xmpMM:InstanceID>' . $uuid . '</xmpMM:InstanceID>' . "\n";
         $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
@@ -6702,25 +6326,25 @@ class PDF
         if (isset($this->LayoutMode) and (!StaticMethods::empty_string($this->LayoutMode))) {
             $out .= ' /PageLayout /' . $this->LayoutMode;
         }
-        if (isset($this->PageMode) and (!StaticMethods::empty_string($this->PageMode))) {
-            $out .= ' /PageMode /' . $this->PageMode;
+        if (isset($this->pageMode) and (!StaticMethods::empty_string($this->pageMode))) {
+            $out .= ' /PageMode /' . $this->pageMode;
         }
         if (count($this->outlines) > 0) {
             $out .= ' /Outlines ' . $this->OutlineRoot . ' 0 R';
             $out .= ' /PageMode /UseOutlines';
         }
         //$out .= ' /Threads []';
-        if ($this->ZoomMode == 'fullpage') {
-            $out .= ' /OpenAction [' . $this->page_obj_id[1] . ' 0 R /Fit]';
+        if ($this->pageZoom == 'fullpage') {
+            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /Fit]';
         }
-        elseif ($this->ZoomMode == 'fullwidth') {
-            $out .= ' /OpenAction [' . $this->page_obj_id[1] . ' 0 R /FitH null]';
+        elseif ($this->pageZoom == 'fullwidth') {
+            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /FitH null]';
         }
-        elseif ($this->ZoomMode == 'real') {
-            $out .= ' /OpenAction [' . $this->page_obj_id[1] . ' 0 R /XYZ null null 1]';
+        elseif ($this->pageZoom == 'real') {
+            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /XYZ null null 1]';
         }
-        elseif (!is_string($this->ZoomMode)) {
-            $out .= sprintf(' /OpenAction [' . $this->page_obj_id[1] . ' 0 R /XYZ null null %F]', ($this->ZoomMode / 100));
+        elseif (!is_string($this->pageZoom)) {
+            $out .= sprintf(' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /XYZ null null %F]', ($this->pageZoom / 100));
         }
         $out .= ' /Metadata ' . $xmpobj . ' 0 R';
         if (isset($this->l['a_meta_language'])) {
@@ -6760,12 +6384,12 @@ class PDF
             $out .= ' >>';
         }
         // AcroForm
-        if (!empty($this->form_obj_id)
-            or ($this->sign and isset($this->signature_data['cert_type']))
+        if (!empty($this->annotationIDs)
+            or ($this->signable and isset($this->signature_data['cert_type']))
             or !empty($this->empty_signature_appearance)) {
             $out     .= ' /AcroForm <<';
             $objrefs = '';
-            if ($this->sign and isset($this->signature_data['cert_type'])) {
+            if ($this->signable and isset($this->signature_data['cert_type'])) {
                 // set reference for signature object
                 $objrefs .= $this->sig_obj_id . ' 0 R';
             }
@@ -6775,8 +6399,8 @@ class PDF
                     $objrefs .= ' ' . $esa['objid'] . ' 0 R';
                 }
             }
-            if (!empty($this->form_obj_id)) {
-                foreach ($this->form_obj_id as $objid) {
+            if (!empty($this->annotationIDs)) {
+                foreach ($this->annotationIDs as $objid) {
                     $objrefs .= ' ' . $objid . ' 0 R';
                 }
             }
@@ -6785,7 +6409,7 @@ class PDF
             if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
                 $out .= ' /NeedAppearances false';
             }
-            if ($this->sign and isset($this->signature_data['cert_type'])) {
+            if ($this->signable and isset($this->signature_data['cert_type'])) {
                 if ($this->signature_data['cert_type'] > 0) {
                     $out .= ' /SigFlags 3';
                 }
@@ -6798,7 +6422,7 @@ class PDF
                 $out .= ' /DR <<';
                 $out .= ' /Font <<';
                 foreach ($this->annotationFonts as $fontKey => $fontID) {
-                    $out .= ' /F' . $fontID . ' ' . $this->font_obj_ids[$fontKey] . ' 0 R';
+                    $out .= ' /F' . $fontID . ' ' . $this->fontObjectIDs[$fontKey] . ' 0 R';
                 }
                 $out .= ' >> >>';
             }
@@ -6806,7 +6430,7 @@ class PDF
             $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g) /Q 0';
             $out  .= ' >>';
             // signatures
-            if ($this->sign and isset($this->signature_data['cert_type'])
+            if ($this->signable and isset($this->signature_data['cert_type'])
                 and (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A'))) {
                 if ($this->signature_data['cert_type'] > 0) {
                     $out .= ' /Perms << /DocMDP ' . ($this->sig_obj_id + 1) . ' 0 R >>';
@@ -6915,7 +6539,7 @@ class PDF
                 $out     .= '<< /Type /Annot';
                 $out     .= ' /Subtype /Widget';
                 $out     .= ' /Rect [' . $esa['rect'] . ']';
-                $out     .= ' /P ' . $this->page_obj_id[($esa['page'])] . ' 0 R'; // link to signature appearance page
+                $out     .= ' /P ' . $this->pageObjectIDs[($esa['page'])] . ' 0 R'; // link to signature appearance page
                 $out     .= ' /F 4';
                 $out     .= ' /FT /Sig';
                 $signame = $esa['name'] . sprintf(' [%03d]', ($key + 1));
@@ -6927,13 +6551,13 @@ class PDF
             }
         }
         // Signature
-        if ($this->sign and isset($this->signature_data['cert_type'])) {
+        if ($this->signable and isset($this->signature_data['cert_type'])) {
             // widget annotation for signature
             $out = $this->_getobj($this->sig_obj_id) . "\n";
             $out .= '<< /Type /Annot';
             $out .= ' /Subtype /Widget';
             $out .= ' /Rect [' . $this->signature_appearance['rect'] . ']';
-            $out .= ' /P ' . $this->page_obj_id[($this->signature_appearance['page'])] . ' 0 R'; // link to signature appearance page
+            $out .= ' /P ' . $this->pageObjectIDs[($this->signature_appearance['page'])] . ' 0 R'; // link to signature appearance page
             $out .= ' /F 4';
             $out .= ' /FT /Sig';
             $out .= ' /T ' . $this->_textstring($this->signature_appearance['name'], $this->sig_obj_id);
@@ -6953,10 +6577,10 @@ class PDF
         $o = $this->bufferLength;
         // XREF section
         $this->append('xref');
-        $this->append('0 ' . ($this->n + 1));
+        $this->append('0 ' . ($this->objectNumber + 1));
         $this->append('0000000000 65535 f ');
-        $freegen = ($this->n + 2);
-        for ($i = 1; $i <= $this->n; ++$i) {
+        $freegen = ($this->objectNumber + 2);
+        for ($i = 1; $i <= $this->objectNumber; ++$i) {
             if (!isset($this->offsets[$i]) and ($i > 1)) {
                 $this->append(sprintf('0000000000 %05d f ', $freegen));
                 ++$freegen;
@@ -6968,13 +6592,13 @@ class PDF
         // TRAILER
         $out = 'trailer' . "\n";
         $out .= '<<';
-        $out .= ' /Size ' . ($this->n + 1);
+        $out .= ' /Size ' . ($this->objectNumber + 1);
         $out .= ' /Root ' . $objid_catalog . ' 0 R';
         $out .= ' /Info ' . $objid_info . ' 0 R';
         if ($this->encrypted) {
             $out .= ' /Encrypt ' . $this->encryptdata['objid'] . ' 0 R';
         }
-        $out .= ' /ID [ <' . $this->file_id . '> <' . $this->file_id . '> ]';
+        $out .= ' /ID [ <' . $this->fileID . '> <' . $this->fileID . '> ]';
         $out .= ' >>';
         $this->append($out);
         $this->append('startxref');
@@ -6992,7 +6616,7 @@ class PDF
     protected function _beginpage($orientation = '', $format = '')
     {
         ++$this->page;
-        $this->pageobjects[$this->page] = [];
+        $this->pageObjects[$this->page] = [];
         $this->pageBuffer($this->page, '');
         // initialize array for graphics tranformation positions inside a page buffer
         $this->transfmrk[$this->page] = [];
@@ -7011,7 +6635,7 @@ class PDF
             }
         }
         if (empty($format)) {
-            $this->pagedim[$this->page] = $this->pagedim[($this->page - 1)];
+            $this->pageDimensions[$this->page] = $this->pageDimensions[($this->page - 1)];
             $this->setPageOrientation($orientation);
         }
         else {
@@ -7021,11 +6645,11 @@ class PDF
         $this->y = $this->tMargin;
         if (isset($this->newpagegroup[$this->page])) {
             // start a new group
-            $this->currpagegroup                    = $this->newpagegroup[$this->page];
-            $this->pagegroups[$this->currpagegroup] = 1;
+            $this->currentPageGroup                    = $this->newpagegroup[$this->page];
+            $this->pageGroups[$this->currentPageGroup] = 1;
         }
-        elseif (isset($this->currpagegroup) and ($this->currpagegroup > 0)) {
-            ++$this->pagegroups[$this->currpagegroup];
+        elseif (isset($this->currentPageGroup) and ($this->currentPageGroup > 0)) {
+            ++$this->pageGroups[$this->currentPageGroup];
         }
     }
 
@@ -7045,7 +6669,7 @@ class PDF
     protected function _newobj()
     {
         $this->append($this->_getobj());
-        return $this->n;
+        return $this->objectNumber;
     }
 
     /**
@@ -7056,11 +6680,11 @@ class PDF
     protected function _getobj($objid = null)
     {
         if (empty($objid)) {
-            ++$this->n;
-            $objid = $this->n;
+            ++$this->objectNumber;
+            $objid = $this->objectNumber;
         }
         $this->offsets[$objid]            = $this->bufferLength;
-        $this->pageobjects[$this->page][] = $objid;
+        $this->pageObjects[$this->page][] = $objid;
         return $objid . ' 0 obj';
     }
 
@@ -7146,7 +6770,7 @@ class PDF
     protected function _datastring($s, $n = 0)
     {
         if ($n == 0) {
-            $n = $this->n;
+            $n = $this->objectNumber;
         }
         $s = $this->_encrypt_data($n, $s);
         return '(' . StaticMethods::_escape($s) . ')';
@@ -7233,7 +6857,7 @@ class PDF
     {
         if ($n <= 0) {
             // default to current object
-            $n = $this->n;
+            $n = $this->objectNumber;
         }
         return $this->_encrypt_data($n, $s);
     }
@@ -7366,7 +6990,7 @@ class PDF
             case 0:   // RC4-40
             case 1:
             { // RC4-128
-                $s = StaticMethods::_RC4($this->_objectkey($n), $s, $this->last_enc_key, $this->last_enc_key_c);
+                $s = StaticMethods::_RC4($this->_objectkey($n), $s, $this->lastEncryptedKey, $this->lastComputedKey);
                 break;
             }
             case 2:
@@ -7518,18 +7142,18 @@ class PDF
     protected function _Uvalue()
     {
         if ($this->encryptdata['mode'] == 0) { // RC4-40
-            return StaticMethods::_RC4($this->encryptdata['key'], self::ENCRYPTION_PADDING, $this->last_enc_key, $this->last_enc_key_c);
+            return StaticMethods::_RC4($this->encryptdata['key'], self::ENCRYPTION_PADDING, $this->lastEncryptedKey, $this->lastComputedKey);
         }
         elseif ($this->encryptdata['mode'] < 3) { // RC4-128, AES-128
             $tmp = StaticMethods::_md5_16(self::ENCRYPTION_PADDING . $this->encryptdata['fileid']);
-            $enc = StaticMethods::_RC4($this->encryptdata['key'], $tmp, $this->last_enc_key, $this->last_enc_key_c);
+            $enc = StaticMethods::_RC4($this->encryptdata['key'], $tmp, $this->lastEncryptedKey, $this->lastComputedKey);
             $len = strlen($tmp);
             for ($i = 1; $i <= 19; ++$i) {
                 $ek = '';
                 for ($j = 0; $j < $len; ++$j) {
                     $ek .= chr(ord($this->encryptdata['key'][$j]) ^ $i);
                 }
-                $enc = StaticMethods::_RC4($ek, $enc, $this->last_enc_key, $this->last_enc_key_c);
+                $enc = StaticMethods::_RC4($ek, $enc, $this->lastEncryptedKey, $this->lastComputedKey);
             }
             $enc .= str_repeat("\x00", 16);
             return substr($enc, 0, 32);
@@ -7570,7 +7194,7 @@ class PDF
                 }
             }
             $owner_key = substr($tmp, 0, ($this->encryptdata['Length'] / 8));
-            $enc       = StaticMethods::_RC4($owner_key, $this->encryptdata['user_password'], $this->last_enc_key, $this->last_enc_key_c);
+            $enc       = StaticMethods::_RC4($owner_key, $this->encryptdata['user_password'], $this->lastEncryptedKey, $this->lastComputedKey);
             if ($this->encryptdata['mode'] > 0) {
                 $len = strlen($owner_key);
                 for ($i = 1; $i <= 19; ++$i) {
@@ -7578,7 +7202,7 @@ class PDF
                     for ($j = 0; $j < $len; ++$j) {
                         $ek .= chr(ord($owner_key[$j]) ^ $i);
                     }
-                    $enc = StaticMethods::_RC4($ek, $enc, $this->last_enc_key, $this->last_enc_key_c);
+                    $enc = StaticMethods::_RC4($ek, $enc, $this->lastEncryptedKey, $this->lastComputedKey);
                 }
             }
             return $enc;
@@ -7696,7 +7320,7 @@ class PDF
                 // envelope data
                 $envelope = $seed . $pkpermissions;
                 // write the envelope data to a temporary file
-                $tempkeyfile = StaticMethods::getObjFilename('key', $this->file_id);
+                $tempkeyfile = StaticMethods::getObjFilename('key', $this->fileID);
                 $f           = StaticMethods::fopenLocal($tempkeyfile, 'wb');
                 if (!$f) {
                     $this->Error('Unable to create temporary key file: ' . $tempkeyfile);
@@ -7704,7 +7328,7 @@ class PDF
                 $envelope_length = strlen($envelope);
                 fwrite($f, $envelope, $envelope_length);
                 fclose($f);
-                $tempencfile = StaticMethods::getObjFilename('enc', $this->file_id);
+                $tempencfile = StaticMethods::getObjFilename('enc', $this->fileID);
                 if (!openssl_pkcs7_encrypt($tempkeyfile, $tempencfile, $pubkey['c'], [], PKCS7_BINARY | PKCS7_DETACHED)) {
                     $this->Error('Unable to encrypt the file: ' . $tempkeyfile);
                 }
@@ -7836,7 +7460,7 @@ class PDF
             }
         }
         $this->encrypted             = true;
-        $this->encryptdata['fileid'] = StaticMethods::convertHexStringToString($this->file_id);
+        $this->encryptdata['fileid'] = StaticMethods::convertHexStringToString($this->fileID);
         $this->_generateencryptionkey();
     }
 
@@ -9076,7 +8700,7 @@ class PDF
         $this->n_dests = $this->_newobj();
         $out           = ' <<';
         foreach ($this->dests as $name => $o) {
-            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->page_obj_id[($o['p'])], ($o['x'] * $this->k), ($this->pagedim[$o['p']]['h'] - ($o['y'] * $this->k)));
+            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->k), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->k)));
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
@@ -9213,7 +8837,7 @@ class PDF
             $level        = $o['l'];
         }
         //Outline items
-        $n      = $this->n + 1;
+        $n      = $this->objectNumber + 1;
         $nltags = '/<br[\s]?\/>|<\/(blockquote|dd|dl|div|dt|h1|h2|h3|h4|h5|h6|hr|li|ol|p|pre|ul|tcpdf|table|tr|td)>/si';
         foreach ($this->outlines as $i => $o) {
             $oid = $this->_newobj();
@@ -9263,14 +8887,14 @@ class PDF
                 elseif (isset($this->links[$o['u']])) {
                     // internal link ID
                     $l = $this->links[$o['u']];
-                    if (isset($this->page_obj_id[($l['p'])])) {
-                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->page_obj_id[($l['p'])], ($this->pagedim[$l['p']]['h'] - ($l['y'] * $this->k)));
+                    if (isset($this->pageObjectIDs[($l['p'])])) {
+                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->k)));
                     }
                 }
             }
-            elseif (isset($this->page_obj_id[($o['p'])])) {
+            elseif (isset($this->pageObjectIDs[($o['p'])])) {
                 // link to a page
-                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->page_obj_id[($o['p'])], ($o['x'] * $this->k), ($this->pagedim[$o['p']]['h'] - ($o['y'] * $this->k)));
+                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->k), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->k)));
             }
             // set font style
             $style = 0;
@@ -9325,9 +8949,9 @@ class PDF
      */
     public function addJavascriptObject($script, $onload = false)
     {
-        ++$this->n;
-        $this->js_objects[$this->n] = ['n' => $this->n, 'js' => $script, 'onload' => $onload];
-        return $this->n;
+        ++$this->objectNumber;
+        $this->js_objects[$this->objectNumber] = ['n' => $this->objectNumber, 'js' => $script, 'onload' => $onload];
+        return $this->objectNumber;
     }
 
     /**
@@ -9340,7 +8964,7 @@ class PDF
             return;
         }
         if (strpos($this->javascript, 'this.addField') > 0) {
-            if (!$this->ur['enabled']) {
+            if (!$this->userRights['enabled']) {
                 //$this->setUserRights();
             }
             // the following two lines are used to avoid form fields duplication after saving
@@ -9352,7 +8976,7 @@ class PDF
         // name tree for javascript
         $this->n_js = '<< /Names [';
         if (!empty($this->javascript)) {
-            $this->n_js .= ' (EmbeddedJS) ' . ($this->n + 1) . ' 0 R';
+            $this->n_js .= ' (EmbeddedJS) ' . ($this->objectNumber + 1) . ' 0 R';
         }
         if (!empty($this->js_objects)) {
             foreach ($this->js_objects as $key => $val) {
@@ -9506,7 +9130,7 @@ class PDF
         }
         $this->MultiCell($w, $h, $text, 0, $align, false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
-        --$this->n;
+        --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
@@ -9600,11 +9224,11 @@ class PDF
         }
         if (!isset($this->radiobutton_groups[$this->page][$name])) {
             $this->radiobutton_groups[$this->page][$name] = [];
-            ++$this->n;
-            $this->radiobutton_groups[$this->page][$name]['n'] = $this->n;
-            $this->radio_groups[]                              = $this->n;
+            ++$this->objectNumber;
+            $this->radiobutton_groups[$this->page][$name]['n'] = $this->objectNumber;
+            $this->radio_groups[]                              = $this->objectNumber;
         }
-        $kid = ($this->n + 1);
+        $kid = ($this->objectNumber + 1);
         // save object ID to be added on Kids entry on parent object
         $this->radiobutton_groups[$this->page][$name][] = ['kid' => $kid, 'def' => $defval];
         // get default style
@@ -9710,7 +9334,7 @@ class PDF
         $tmpid = $this->startTemplate($w, $h, false);
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
-        --$this->n;
+        --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
@@ -9794,7 +9418,7 @@ class PDF
         $tmpid = $this->startTemplate($w, $h, false);
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
-        --$this->n;
+        --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
@@ -9943,7 +9567,7 @@ class PDF
         $this->fillColor(204);
         $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
-        --$this->n;
+        --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
@@ -9951,9 +9575,9 @@ class PDF
         if (!isset($popt['mk'])) {
             $popt['mk'] = [];
         }
-        $ann_obj_id = ($this->n + 1);
+        $ann_obj_id = ($this->objectNumber + 1);
         if (!empty($action) and !is_array($action)) {
-            $ann_obj_id = ($this->n + 2);
+            $ann_obj_id = ($this->objectNumber + 2);
         }
         $popt['mk']['ca'] = $this->_textstring($caption, $ann_obj_id);
         $popt['mk']['rc'] = $this->_textstring($caption, $ann_obj_id);
@@ -10084,7 +9708,7 @@ class PDF
      */
     protected function _putsignature()
     {
-        if ((!$this->sign) or (!isset($this->signature_data['cert_type']))) {
+        if ((!$this->signable) or (!isset($this->signature_data['cert_type']))) {
             return;
         }
         $sigobjid = ($this->sig_obj_id + 1);
@@ -10109,23 +9733,23 @@ class PDF
                 $out .= ' /TransformParams <<';
                 $out .= ' /Type /TransformParams';
                 $out .= ' /V /2.2';
-                if (!StaticMethods::empty_string($this->ur['document'])) {
-                    $out .= ' /Document[' . $this->ur['document'] . ']';
+                if (!StaticMethods::empty_string($this->userRights['document'])) {
+                    $out .= ' /Document[' . $this->userRights['document'] . ']';
                 }
-                if (!StaticMethods::empty_string($this->ur['form'])) {
-                    $out .= ' /Form[' . $this->ur['form'] . ']';
+                if (!StaticMethods::empty_string($this->userRights['form'])) {
+                    $out .= ' /Form[' . $this->userRights['form'] . ']';
                 }
-                if (!StaticMethods::empty_string($this->ur['signature'])) {
-                    $out .= ' /Signature[' . $this->ur['signature'] . ']';
+                if (!StaticMethods::empty_string($this->userRights['signature'])) {
+                    $out .= ' /Signature[' . $this->userRights['signature'] . ']';
                 }
-                if (!StaticMethods::empty_string($this->ur['annots'])) {
-                    $out .= ' /Annots[' . $this->ur['annots'] . ']';
+                if (!StaticMethods::empty_string($this->userRights['annots'])) {
+                    $out .= ' /Annots[' . $this->userRights['annots'] . ']';
                 }
-                if (!StaticMethods::empty_string($this->ur['ef'])) {
-                    $out .= ' /EF[' . $this->ur['ef'] . ']';
+                if (!StaticMethods::empty_string($this->userRights['ef'])) {
+                    $out .= ' /EF[' . $this->userRights['ef'] . ']';
                 }
-                if (!StaticMethods::empty_string($this->ur['formex'])) {
-                    $out .= ' /FormEX[' . $this->ur['formex'] . ']';
+                if (!StaticMethods::empty_string($this->userRights['formex'])) {
+                    $out .= ' /FormEX[' . $this->userRights['formex'] . ']';
                 }
             }
             $out .= ' >>'; // close TransformParams
@@ -10179,14 +9803,14 @@ class PDF
         $ef = '/Create/Delete/Modify/Import',
         $formex = '')
     {
-        $this->ur['enabled']   = $enable;
-        $this->ur['document']  = $document;
-        $this->ur['annots']    = $annots;
-        $this->ur['form']      = $form;
-        $this->ur['signature'] = $signature;
-        $this->ur['ef']        = $ef;
-        $this->ur['formex']    = $formex;
-        if (!$this->sign) {
+        $this->userRights['enabled']   = $enable;
+        $this->userRights['document']  = $document;
+        $this->userRights['annots']    = $annots;
+        $this->userRights['form']      = $form;
+        $this->userRights['signature'] = $signature;
+        $this->userRights['ef']        = $ef;
+        $this->userRights['formex']    = $formex;
+        if (!$this->signable) {
             $this->setSignature('', '', '', '', 0, []);
         }
     }
@@ -10212,10 +9836,10 @@ class PDF
         // to export crt to p12: openssl pkcs12 -export -in tcpdf.crt -out tcpdf.p12
         // to convert pfx certificate to pem: openssl
         //     OpenSSL> pkcs12 -in <cert.pfx> -out <cert.crt> -nodes
-        $this->sign = true;
-        ++$this->n;
-        $this->sig_obj_id = $this->n; // signature widget
-        ++$this->n; // signature object ($this->sig_obj_id + 1)
+        $this->signable = true;
+        ++$this->objectNumber;
+        $this->sig_obj_id = $this->objectNumber; // signature widget
+        ++$this->objectNumber; // signature object ($this->sig_obj_id + 1)
         $this->signature_data = [];
         if (strlen($signing_cert) == 0) {
             $this->Error('Please provide a certificate file and password!');
@@ -10259,8 +9883,8 @@ class PDF
      */
     public function addEmptySignatureAppearance($x = 0, $y = 0, $w = 0, $h = 0, $page = -1, $name = '')
     {
-        ++$this->n;
-        $this->empty_signature_appearance[] = ['objid' => $this->n] + $this->getSignatureAppearanceArray($x, $y, $w, $h, $page, $name);
+        ++$this->objectNumber;
+        $this->empty_signature_appearance[] = ['objid' => $this->objectNumber] + $this->getSignatureAppearanceArray($x, $y, $w, $h, $page, $name);
     }
 
     /**
@@ -10290,7 +9914,7 @@ class PDF
             $sigapp['name'] = $name;
         }
         $a              = $x * $this->k;
-        $b              = $this->pagedim[($sigapp['page'])]['h'] - (($y + $h) * $this->k);
+        $b              = $this->pageDimensions[($sigapp['page'])]['h'] - (($y + $h) * $this->k);
         $c              = $w * $this->k;
         $d              = $h * $this->k;
         $sigapp['rect'] = sprintf('%F %F %F %F', $a, $b, ($a + $c), ($b + $d));
@@ -10442,9 +10066,9 @@ class PDF
     public function getPageNumGroupAlias()
     {
         if ($this->isUnicodeFont()) {
-            return '{' . self::GROUP_PAGE_NUMBER_ALIAS . '}';
+            return '{' . self::PAGE_GROUP_NUMBER_ALIAS . '}';
         }
-        return self::GROUP_PAGE_NUMBER_ALIAS;
+        return self::PAGE_GROUP_NUMBER_ALIAS;
     }
 
     /**
@@ -10453,7 +10077,7 @@ class PDF
      */
     public function getGroupPageNo()
     {
-        return $this->pagegroups[$this->currpagegroup];
+        return $this->pageGroups[$this->currentPageGroup];
     }
 
     /**
@@ -11320,7 +10944,7 @@ class PDF
                 $shading_transparency = preg_replace('/\/ColorSpace \/[^\s]+/si', '/ColorSpace /DeviceGray', $out);
                 $shading_transparency = preg_replace('/\/Function [0-9]+ /si', '/Function ' . $ft . ' ', $shading_transparency);
             }
-            $this->gradients[$id]['id'] = $this->n;
+            $this->gradients[$id]['id'] = $this->objectNumber;
             // set pattern object
             $this->_newobj();
             $out = '<< /Type /Pattern /PatternType 2';
@@ -11328,21 +10952,21 @@ class PDF
             $out .= ' >>';
             $out .= "\n" . 'endobj';
             $this->append($out);
-            $this->gradients[$id]['pattern'] = $this->n;
+            $this->gradients[$id]['pattern'] = $this->objectNumber;
             // set shading and pattern for transparency mask
             if ($grad['transparency']) {
                 // luminosity pattern
                 $idgs = $id + $idt;
                 $this->_newobj();
                 $this->append($shading_transparency);
-                $this->gradients[$idgs]['id'] = $this->n;
+                $this->gradients[$idgs]['id'] = $this->objectNumber;
                 $this->_newobj();
                 $out = '<< /Type /Pattern /PatternType 2';
                 $out .= ' /Shading ' . $this->gradients[$idgs]['id'] . ' 0 R';
                 $out .= ' >>';
                 $out .= "\n" . 'endobj';
                 $this->append($out);
-                $this->gradients[$idgs]['pattern'] = $this->n;
+                $this->gradients[$idgs]['pattern'] = $this->objectNumber;
                 // luminosity XObject
                 $oid                         = $this->_newobj();
                 $this->xObjects['LX' . $oid] = ['n' => $oid];
@@ -11368,13 +10992,13 @@ class PDF
                 $this->append($out);
                 // SMask
                 $this->_newobj();
-                $out = '<< /Type /Mask /S /Luminosity /G ' . ($this->n - 1) . ' 0 R >>' . "\n" . 'endobj';
+                $out = '<< /Type /Mask /S /Luminosity /G ' . ($this->objectNumber - 1) . ' 0 R >>' . "\n" . 'endobj';
                 $this->append($out);
                 // ExtGState
                 $this->_newobj();
-                $out = '<< /Type /ExtGState /SMask ' . ($this->n - 1) . ' 0 R /AIS false >>' . "\n" . 'endobj';
+                $out = '<< /Type /ExtGState /SMask ' . ($this->objectNumber - 1) . ' 0 R /AIS false >>' . "\n" . 'endobj';
                 $this->append($out);
-                $this->extgstates[] = ['n' => $this->n, 'name' => 'TGS' . $id];
+                $this->extgstates[] = ['n' => $this->objectNumber, 'name' => 'TGS' . $id];
             }
         }
     }
@@ -12064,7 +11688,7 @@ class PDF
      */
     protected function getHashForTCPDFtagParams($data)
     {
-        return md5(strlen($data) . $this->file_id . $data);
+        return md5(strlen($data) . $this->fileID . $data);
     }
 
     /**
@@ -12221,8 +11845,8 @@ class PDF
             }
             // account for margin changes
             if ($page > $startpage) {
-                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
-                    $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
+                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
+                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
                 }
             }
             if ($startpage == $endpage) {
@@ -12471,12 +12095,12 @@ class PDF
         }
         // move all page-related states
         $tmppage        = $this->pageBuffer($frompage);
-        $tmppagedim     = $this->pagedim[$frompage];
+        $tmppagedim     = $this->pageDimensions[$frompage];
         $tmppagelen     = $this->pageLengths[$frompage];
         $tmpintmrk      = $this->intmrk[$frompage];
         $tmpbordermrk   = $this->bordermrk[$frompage];
         $tmpcntmrk      = $this->cntmrk[$frompage];
-        $tmppageobjects = $this->pageobjects[$frompage];
+        $tmppageobjects = $this->pageObjects[$frompage];
         if (isset($this->footerpos[$frompage])) {
             $tmpfooterpos = $this->footerpos[$frompage];
         }
@@ -12486,19 +12110,19 @@ class PDF
         if (isset($this->transfmrk[$frompage])) {
             $tmptransfmrk = $this->transfmrk[$frompage];
         }
-        if (isset($this->PageAnnots[$frompage])) {
-            $tmpannots = $this->PageAnnots[$frompage];
+        if (isset($this->pageAnnotations[$frompage])) {
+            $tmpannots = $this->pageAnnotations[$frompage];
         }
         if (isset($this->newpagegroup) and !empty($this->newpagegroup)) {
             for ($i = $frompage; $i > $topage; --$i) {
-                if (isset($this->newpagegroup[$i]) and (($i + $this->pagegroups[$this->newpagegroup[$i]]) > $frompage)) {
-                    --$this->pagegroups[$this->newpagegroup[$i]];
+                if (isset($this->newpagegroup[$i]) and (($i + $this->pageGroups[$this->newpagegroup[$i]]) > $frompage)) {
+                    --$this->pageGroups[$this->newpagegroup[$i]];
                     break;
                 }
             }
             for ($i = $topage; $i > 0; --$i) {
-                if (isset($this->newpagegroup[$i]) and (($i + $this->pagegroups[$this->newpagegroup[$i]]) > $topage)) {
-                    ++$this->pagegroups[$this->newpagegroup[$i]];
+                if (isset($this->newpagegroup[$i]) and (($i + $this->pageGroups[$this->newpagegroup[$i]]) > $topage)) {
+                    ++$this->pageGroups[$this->newpagegroup[$i]];
                     break;
                 }
             }
@@ -12507,12 +12131,12 @@ class PDF
             $j = $i - 1;
             // shift pages down
             $this->pageBuffer($i, $this->pageBuffer($j));
-            $this->pagedim[$i]     = $this->pagedim[$j];
-            $this->pageLengths[$i] = $this->pageLengths[$j];
-            $this->intmrk[$i]      = $this->intmrk[$j];
-            $this->bordermrk[$i]   = $this->bordermrk[$j];
-            $this->cntmrk[$i]      = $this->cntmrk[$j];
-            $this->pageobjects[$i] = $this->pageobjects[$j];
+            $this->pageDimensions[$i] = $this->pageDimensions[$j];
+            $this->pageLengths[$i]    = $this->pageLengths[$j];
+            $this->intmrk[$i]         = $this->intmrk[$j];
+            $this->bordermrk[$i]      = $this->bordermrk[$j];
+            $this->cntmrk[$i]         = $this->cntmrk[$j];
+            $this->pageObjects[$i]    = $this->pageObjects[$j];
             if (isset($this->footerpos[$j])) {
                 $this->footerpos[$i] = $this->footerpos[$j];
             }
@@ -12531,27 +12155,27 @@ class PDF
             elseif (isset($this->transfmrk[$i])) {
                 unset($this->transfmrk[$i]);
             }
-            if (isset($this->PageAnnots[$j])) {
-                $this->PageAnnots[$i] = $this->PageAnnots[$j];
+            if (isset($this->pageAnnotations[$j])) {
+                $this->pageAnnotations[$i] = $this->pageAnnotations[$j];
             }
-            elseif (isset($this->PageAnnots[$i])) {
-                unset($this->PageAnnots[$i]);
+            elseif (isset($this->pageAnnotations[$i])) {
+                unset($this->pageAnnotations[$i]);
             }
             if (isset($this->newpagegroup[$j])) {
                 $this->newpagegroup[$i] = $this->newpagegroup[$j];
                 unset($this->newpagegroup[$j]);
             }
-            if ($this->currpagegroup == $j) {
-                $this->currpagegroup = $i;
+            if ($this->currentPageGroup == $j) {
+                $this->currentPageGroup = $i;
             }
         }
         $this->pageBuffer($topage, $tmppage);
-        $this->pagedim[$topage]     = $tmppagedim;
-        $this->pageLengths[$topage] = $tmppagelen;
-        $this->intmrk[$topage]      = $tmpintmrk;
-        $this->bordermrk[$topage]   = $tmpbordermrk;
-        $this->cntmrk[$topage]      = $tmpcntmrk;
-        $this->pageobjects[$topage] = $tmppageobjects;
+        $this->pageDimensions[$topage] = $tmppagedim;
+        $this->pageLengths[$topage]    = $tmppagelen;
+        $this->intmrk[$topage]         = $tmpintmrk;
+        $this->bordermrk[$topage]      = $tmpbordermrk;
+        $this->cntmrk[$topage]         = $tmpcntmrk;
+        $this->pageObjects[$topage]    = $tmppageobjects;
         if (isset($tmpfooterpos)) {
             $this->footerpos[$topage] = $tmpfooterpos;
         }
@@ -12571,10 +12195,10 @@ class PDF
             unset($this->transfmrk[$topage]);
         }
         if (isset($tmpannots)) {
-            $this->PageAnnots[$topage] = $tmpannots;
+            $this->pageAnnotations[$topage] = $tmpannots;
         }
-        elseif (isset($this->PageAnnots[$topage])) {
-            unset($this->PageAnnots[$topage]);
+        elseif (isset($this->pageAnnotations[$topage])) {
+            unset($this->pageAnnotations[$topage]);
         }
         // adjust outlines
         $tmpoutlines = $this->outlines;
@@ -12650,17 +12274,17 @@ class PDF
         }
         // delete current page
         unset($this->pages[$page]);
-        unset($this->pagedim[$page]);
+        unset($this->pageDimensions[$page]);
         unset($this->pageLengths[$page]);
         unset($this->intmrk[$page]);
         unset($this->bordermrk[$page]);
         unset($this->cntmrk[$page]);
-        foreach ($this->pageobjects[$page] as $oid) {
+        foreach ($this->pageObjects[$page] as $oid) {
             if (isset($this->offsets[$oid])) {
                 unset($this->offsets[$oid]);
             }
         }
-        unset($this->pageobjects[$page]);
+        unset($this->pageObjects[$page]);
         if (isset($this->footerpos[$page])) {
             unset($this->footerpos[$page]);
         }
@@ -12670,13 +12294,13 @@ class PDF
         if (isset($this->transfmrk[$page])) {
             unset($this->transfmrk[$page]);
         }
-        if (isset($this->PageAnnots[$page])) {
-            unset($this->PageAnnots[$page]);
+        if (isset($this->pageAnnotations[$page])) {
+            unset($this->pageAnnotations[$page]);
         }
         if (isset($this->newpagegroup) and !empty($this->newpagegroup)) {
             for ($i = $page; $i > 0; --$i) {
-                if (isset($this->newpagegroup[$i]) and (($i + $this->pagegroups[$this->newpagegroup[$i]]) > $page)) {
-                    --$this->pagegroups[$this->newpagegroup[$i]];
+                if (isset($this->newpagegroup[$i]) and (($i + $this->pageGroups[$this->newpagegroup[$i]]) > $page)) {
+                    --$this->pageGroups[$this->newpagegroup[$i]];
                     break;
                 }
             }
@@ -12690,12 +12314,12 @@ class PDF
                 $j = $i + 1;
                 // shift pages
                 $this->pageBuffer($i, $this->pageBuffer($j));
-                $this->pagedim[$i]     = $this->pagedim[$j];
-                $this->pageLengths[$i] = $this->pageLengths[$j];
-                $this->intmrk[$i]      = $this->intmrk[$j];
-                $this->bordermrk[$i]   = $this->bordermrk[$j];
-                $this->cntmrk[$i]      = $this->cntmrk[$j];
-                $this->pageobjects[$i] = $this->pageobjects[$j];
+                $this->pageDimensions[$i] = $this->pageDimensions[$j];
+                $this->pageLengths[$i]    = $this->pageLengths[$j];
+                $this->intmrk[$i]         = $this->intmrk[$j];
+                $this->bordermrk[$i]      = $this->bordermrk[$j];
+                $this->cntmrk[$i]         = $this->cntmrk[$j];
+                $this->pageObjects[$i]    = $this->pageObjects[$j];
                 if (isset($this->footerpos[$j])) {
                     $this->footerpos[$i] = $this->footerpos[$j];
                 }
@@ -12714,18 +12338,18 @@ class PDF
                 elseif (isset($this->transfmrk[$i])) {
                     unset($this->transfmrk[$i]);
                 }
-                if (isset($this->PageAnnots[$j])) {
-                    $this->PageAnnots[$i] = $this->PageAnnots[$j];
+                if (isset($this->pageAnnotations[$j])) {
+                    $this->pageAnnotations[$i] = $this->pageAnnotations[$j];
                 }
-                elseif (isset($this->PageAnnots[$i])) {
-                    unset($this->PageAnnots[$i]);
+                elseif (isset($this->pageAnnotations[$i])) {
+                    unset($this->pageAnnotations[$i]);
                 }
                 if (isset($this->newpagegroup[$j])) {
                     $this->newpagegroup[$i] = $this->newpagegroup[$j];
                     unset($this->newpagegroup[$j]);
                 }
-                if ($this->currpagegroup == $j) {
-                    $this->currpagegroup = $i;
+                if ($this->currentPageGroup == $j) {
+                    $this->currentPageGroup = $i;
                 }
                 if (isset($this->pageopen[$j])) {
                     $this->pageopen[$i] = $this->pageopen[$j];
@@ -12736,17 +12360,17 @@ class PDF
             }
             // remove last page
             unset($this->pages[$this->numpages]);
-            unset($this->pagedim[$this->numpages]);
+            unset($this->pageDimensions[$this->numpages]);
             unset($this->pageLengths[$this->numpages]);
             unset($this->intmrk[$this->numpages]);
             unset($this->bordermrk[$this->numpages]);
             unset($this->cntmrk[$this->numpages]);
-            foreach ($this->pageobjects[$this->numpages] as $oid) {
+            foreach ($this->pageObjects[$this->numpages] as $oid) {
                 if (isset($this->offsets[$oid])) {
                     unset($this->offsets[$oid]);
                 }
             }
-            unset($this->pageobjects[$this->numpages]);
+            unset($this->pageObjects[$this->numpages]);
             if (isset($this->footerpos[$this->numpages])) {
                 unset($this->footerpos[$this->numpages]);
             }
@@ -12756,17 +12380,17 @@ class PDF
             if (isset($this->transfmrk[$this->numpages])) {
                 unset($this->transfmrk[$this->numpages]);
             }
-            if (isset($this->PageAnnots[$this->numpages])) {
-                unset($this->PageAnnots[$this->numpages]);
+            if (isset($this->pageAnnotations[$this->numpages])) {
+                unset($this->pageAnnotations[$this->numpages]);
             }
             if (isset($this->newpagegroup[$this->numpages])) {
                 unset($this->newpagegroup[$this->numpages]);
             }
-            if ($this->currpagegroup == $this->numpages) {
-                $this->currpagegroup = ($this->numpages - 1);
+            if ($this->currentPageGroup == $this->numpages) {
+                $this->currentPageGroup = ($this->numpages - 1);
             }
-            if (isset($this->pagegroups[$this->numpages])) {
-                unset($this->pagegroups[$this->numpages]);
+            if (isset($this->pageGroups[$this->numpages])) {
+                unset($this->pageGroups[$this->numpages]);
             }
             if (isset($this->pageopen[$this->numpages])) {
                 unset($this->pageopen[$this->numpages]);
@@ -12857,13 +12481,13 @@ class PDF
         ++$this->numpages;
         $this->page = $this->numpages;
         $this->pageBuffer($this->page, $this->pageBuffer($page));
-        $this->pagedim[$this->page]     = $this->pagedim[$page];
-        $this->pageLengths[$this->page] = $this->pageLengths[$page];
-        $this->intmrk[$this->page]      = $this->intmrk[$page];
-        $this->bordermrk[$this->page]   = $this->bordermrk[$page];
-        $this->cntmrk[$this->page]      = $this->cntmrk[$page];
-        $this->pageobjects[$this->page] = $this->pageobjects[$page];
-        $this->pageopen[$this->page]    = false;
+        $this->pageDimensions[$this->page] = $this->pageDimensions[$page];
+        $this->pageLengths[$this->page]    = $this->pageLengths[$page];
+        $this->intmrk[$this->page]         = $this->intmrk[$page];
+        $this->bordermrk[$this->page]      = $this->bordermrk[$page];
+        $this->cntmrk[$this->page]         = $this->cntmrk[$page];
+        $this->pageObjects[$this->page]    = $this->pageObjects[$page];
+        $this->pageopen[$this->page]       = false;
         if (isset($this->footerpos[$page])) {
             $this->footerpos[$this->page] = $this->footerpos[$page];
         }
@@ -12873,17 +12497,17 @@ class PDF
         if (isset($this->transfmrk[$page])) {
             $this->transfmrk[$this->page] = $this->transfmrk[$page];
         }
-        if (isset($this->PageAnnots[$page])) {
-            $this->PageAnnots[$this->page] = $this->PageAnnots[$page];
+        if (isset($this->pageAnnotations[$page])) {
+            $this->pageAnnotations[$this->page] = $this->pageAnnotations[$page];
         }
         if (isset($this->newpagegroup[$page])) {
             // start a new group
-            $this->newpagegroup[$this->page]        = sizeof($this->newpagegroup) + 1;
-            $this->currpagegroup                    = $this->newpagegroup[$this->page];
-            $this->pagegroups[$this->currpagegroup] = 1;
+            $this->newpagegroup[$this->page]           = sizeof($this->newpagegroup) + 1;
+            $this->currentPageGroup                    = $this->newpagegroup[$this->page];
+            $this->pageGroups[$this->currentPageGroup] = 1;
         }
-        elseif (isset($this->currpagegroup) and ($this->currpagegroup > 0)) {
-            ++$this->pagegroups[$this->currpagegroup];
+        elseif (isset($this->currentPageGroup) and ($this->currentPageGroup > 0)) {
+            ++$this->pageGroups[$this->currentPageGroup];
         }
         // copy outlines
         $tmpoutlines = $this->outlines;
@@ -13138,7 +12762,7 @@ class PDF
                 return $this;
             }
             /* The unique file_id should not be used during cleanup again */
-            $this->file_id = NULL;
+            $this->fileID = NULL;
             return $objcopy;
         }
         return $this;
@@ -13632,11 +13256,11 @@ class PDF
             return false;
         }
         $this->inXObject = true;
-        ++$this->n;
+        ++$this->objectNumber;
         // XObject ID
-        $this->xObjectID = 'XT' . $this->n;
+        $this->xObjectID = 'XT' . $this->objectNumber;
         // object ID
-        $this->xObjects[$this->xObjectID] = ['n' => $this->n];
+        $this->xObjects[$this->xObjectID] = ['n' => $this->objectNumber];
         // store current graphic state
         $this->xObjects[$this->xObjectID]['gvars'] = $this->graphicsConfiguration();
         // initialize data

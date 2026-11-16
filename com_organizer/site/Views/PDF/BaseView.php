@@ -65,7 +65,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param string $orientation
      * @param string $unit
      * @param mixed  $format page format; possible values: string - common format name, array - parameters
-     * @see self::ORIENTATIONS, self::UNITS, StaticMethods::getPageSizeFromFormat(), setPageFormat()
+     * @see self::ORIENTATIONS, self::UNITS, self::PAGE_FORMATS, setPageFormat()
      */
     public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
     {

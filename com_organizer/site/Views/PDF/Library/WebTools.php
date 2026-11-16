@@ -449,8 +449,8 @@ trait WebTools
             // we are inside an XObject template
             $pask = count($this->xObjects[$this->xObjectID]['annotations']);
         }
-        elseif (isset($this->PageAnnots[$this->page])) {
-            $pask = count($this->PageAnnots[$this->page]);
+        elseif (isset($this->pageAnnotations[$this->page])) {
+            $pask = count($this->pageAnnotations[$this->page]);
         }
         else {
             $pask = 0;
@@ -694,19 +694,19 @@ trait WebTools
                             $try = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->k));
                             $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                             // shift the annotations and links
-                            if (isset($this->PageAnnots[$this->page])) {
-                                $next_pask = count($this->PageAnnots[$this->page]);
+                            if (isset($this->pageAnnotations[$this->page])) {
+                                $next_pask = count($this->pageAnnotations[$this->page]);
                             }
                             else {
                                 $next_pask = 0;
                             }
-                            if (isset($this->PageAnnots[$startlinepage])) {
-                                foreach ($this->PageAnnots[$startlinepage] as $pak => $pac) {
+                            if (isset($this->pageAnnotations[$startlinepage])) {
+                                foreach ($this->pageAnnotations[$startlinepage] as $pak => $pac) {
                                     if ($pak >= $pask) {
-                                        $this->PageAnnots[$this->page][] = $pac;
-                                        unset($this->PageAnnots[$startlinepage][$pak]);
-                                        $npak                                      = count($this->PageAnnots[$this->page]) - 1;
-                                        $this->PageAnnots[$this->page][$npak]['y'] -= $yshift;
+                                        $this->pageAnnotations[$this->page][] = $pac;
+                                        unset($this->pageAnnotations[$startlinepage][$pak]);
+                                        $npak                                           = count($this->pageAnnotations[$this->page]) - 1;
+                                        $this->pageAnnotations[$this->page][$npak]['y'] -= $yshift;
                                     }
                                 }
                             }
@@ -761,19 +761,19 @@ trait WebTools
                                 $try    = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->k));
                                 $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                                 // shift the annotations and links
-                                if (isset($this->PageAnnots[$this->page])) {
-                                    $next_pask = count($this->PageAnnots[$this->page]);
+                                if (isset($this->pageAnnotations[$this->page])) {
+                                    $next_pask = count($this->pageAnnotations[$this->page]);
                                 }
                                 else {
                                     $next_pask = 0;
                                 }
-                                if (isset($this->PageAnnots[$startlinepage])) {
-                                    foreach ($this->PageAnnots[$startlinepage] as $pak => $pac) {
+                                if (isset($this->pageAnnotations[$startlinepage])) {
+                                    foreach ($this->pageAnnotations[$startlinepage] as $pak => $pac) {
                                         if ($pak >= $pask) {
-                                            $this->PageAnnots[$this->page][] = $pac;
-                                            unset($this->PageAnnots[$startlinepage][$pak]);
-                                            $npak                                      = count($this->PageAnnots[$this->page]) - 1;
-                                            $this->PageAnnots[$this->page][$npak]['y'] -= $yshift;
+                                            $this->pageAnnotations[$this->page][] = $pac;
+                                            unset($this->pageAnnotations[$startlinepage][$pak]);
+                                            $npak                                           = count($this->pageAnnotations[$this->page]) - 1;
+                                            $this->pageAnnotations[$this->page][$npak]['y'] -= $yshift;
                                         }
                                     }
                                 }
@@ -1122,15 +1122,15 @@ trait WebTools
                                             }
                                         }
                                     }
-                                    elseif (isset($this->PageAnnots[$this->page])) {
-                                        foreach ($this->PageAnnots[$this->page] as $pak => $pac) {
+                                    elseif (isset($this->pageAnnotations[$this->page])) {
+                                        foreach ($this->pageAnnotations[$this->page] as $pak => $pac) {
                                             if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->k) >= ($currentxpos - $this->feps)) and (($pac['x'] * $this->k) <= ($currentxpos + $this->feps))) {
                                                 if ($cxpos > $lmpos) {
-                                                    $this->PageAnnots[$this->page][$pak]['x'] += ($spacew / $this->k);
-                                                    $this->PageAnnots[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->pageAnnotations[$this->page][$pak]['x'] += ($spacew / $this->k);
+                                                    $this->pageAnnotations[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
                                                 }
                                                 else {
-                                                    $this->PageAnnots[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
+                                                    $this->pageAnnotations[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->k);
                                                 }
                                                 break;
                                             }
@@ -1211,11 +1211,11 @@ trait WebTools
                         else {
                             $this->pageBuffer($startlinepage, $pstart . $pend);
                             // shift the annotations and links
-                            if (isset($this->PageAnnots[$this->page])) {
-                                foreach ($this->PageAnnots[$this->page] as $pak => $pac) {
+                            if (isset($this->pageAnnotations[$this->page])) {
+                                foreach ($this->pageAnnotations[$this->page] as $pak => $pac) {
                                     if ($pak >= $pask) {
-                                        $this->PageAnnots[$this->page][$pak]['x'] += $t_x;
-                                        $this->PageAnnots[$this->page][$pak]['y'] -= $yshift;
+                                        $this->pageAnnotations[$this->page][$pak]['x'] += $t_x;
+                                        $this->pageAnnotations[$this->page][$pak]['y'] -= $yshift;
                                     }
                                 }
                             }
@@ -1261,8 +1261,8 @@ trait WebTools
                 }
                 unset($endlinepos);
                 $plalign = $lalign;
-                if (isset($this->PageAnnots[$this->page])) {
-                    $pask = count($this->PageAnnots[$this->page]);
+                if (isset($this->pageAnnotations[$this->page])) {
+                    $pask = count($this->pageAnnotations[$this->page]);
                 }
                 else {
                     $pask = 0;
@@ -1415,8 +1415,8 @@ trait WebTools
                                 $rsendx   = $trwsp['endx'];
                                 // account for margin changes
                                 if ($trwsp['startpage'] < $this->page) {
-                                    if ($this->pagedim[$this->page]['olm'] != $this->pagedim[$trwsp['startpage']]['olm']) {
-                                        $dl       = ($this->pagedim[$this->page]['olm'] - $this->pagedim[$trwsp['startpage']]['olm']);
+                                    if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$trwsp['startpage']]['olm']) {
+                                        $dl       = ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$trwsp['startpage']]['olm']);
                                         $rsstartx += $dl;
                                         $rsendx   += $dl;
                                     }
@@ -1539,7 +1539,7 @@ trait WebTools
                                             $dom[$table_el]['rowspans'][$k]['endcolumn'] = $dom[$trid]['endcolumn'];
                                         }
                                         else {
-                                            $dom[$trid]['endy'] = $this->pagedim[$dom[$trid]['endpage']]['hk'] - $this->pagedim[$dom[$trid]['endpage']]['bm'];
+                                            $dom[$trid]['endy'] = $this->pageDimensions[$dom[$trid]['endpage']]['hk'] - $this->pageDimensions[$dom[$trid]['endpage']]['bm'];
                                         }
                                     }
                                 }
@@ -1847,11 +1847,11 @@ trait WebTools
                 else {
                     $this->pageBuffer($startlinepage, $pstart . $pend);
                     // shift the annotations and links
-                    if (isset($this->PageAnnots[$this->page])) {
-                        foreach ($this->PageAnnots[$this->page] as $pak => $pac) {
+                    if (isset($this->pageAnnotations[$this->page])) {
+                        foreach ($this->pageAnnotations[$this->page] as $pak => $pac) {
                             if ($pak >= $pask) {
-                                $this->PageAnnots[$this->page][$pak]['x'] += $t_x;
-                                $this->PageAnnots[$this->page][$pak]['y'] -= $yshift;
+                                $this->pageAnnotations[$this->page][$pak]['x'] += $t_x;
+                                $this->pageAnnotations[$this->page][$pak]['y'] -= $yshift;
                             }
                         }
                     }
@@ -1866,8 +1866,8 @@ trait WebTools
             $this->selectColumn();
         }
         elseif ($this->page > $prevPage) {
-            $this->leftMargin  = $this->pagedim[$this->page]['olm'];
-            $this->rightMargin = $this->pagedim[$this->page]['orm'];
+            $this->leftMargin  = $this->pageDimensions[$this->page]['olm'];
+            $this->rightMargin = $this->pageDimensions[$this->page]['orm'];
         }
         // restore previous list state
         $this->cellHeightRatio = $previousHeightRatio;
@@ -2794,8 +2794,8 @@ trait WebTools
                 }
                 // account for booklet mode
                 if ($this->page > $parent['startpage']) {
-                    if ($this->pagedim[$this->page]['olm'] !== $this->pagedim[$parent['startpage']]['olm']) {
-                        $this->x += ($this->pagedim[$this->page]['olm'] - $this->pagedim[$parent['startpage']]['olm']);
+                    if ($this->pageDimensions[$this->page]['olm'] !== $this->pageDimensions[$parent['startpage']]['olm']) {
+                        $this->x += ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$parent['startpage']]['olm']);
                     }
                 }
                 break;
@@ -2830,7 +2830,7 @@ trait WebTools
                         }
                     }
                     if (isset($prevtrkey) and ($dom[$trkey]['startpage'] > $dom[$prevtrkey]['endpage'])) {
-                        $pgendy                  = $this->pagedim[$dom[$prevtrkey]['endpage']]['hk'] - $this->pagedim[$dom[$prevtrkey]['endpage']]['bm'];
+                        $pgendy                  = $this->pageDimensions[$dom[$prevtrkey]['endpage']]['hk'] - $this->pageDimensions[$dom[$prevtrkey]['endpage']]['bm'];
                         $dom[$prevtrkey]['endy'] = $pgendy;
                         // update row-spanned cells
                         if (isset($dom[($dom[$key]['parent'])]['rowspans'])) {
@@ -2904,8 +2904,8 @@ trait WebTools
                             }
                             // account for margin changes
                             if ($page > $startpage) {
-                                if ($this->pagedim[$page]['olm'] !== $this->pagedim[$startpage]['olm']) {
-                                    $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
+                                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
+                                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
                                 }
                             }
                             if ($startpage == $endpage) { // single page
@@ -3056,8 +3056,8 @@ trait WebTools
                     $this->Ln(0, $cell);
                     $this->x = $parent['startx'];
                     if ($endpage > $startpage) {
-                        if ($this->pagedim[$endpage]['olm'] !== $this->pagedim[$startpage]['olm']) {
-                            $this->x += ($this->pagedim[$endpage]['olm'] - $this->pagedim[$startpage]['olm']);
+                        if ($this->pageDimensions[$endpage]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
+                            $this->x += ($this->pageDimensions[$endpage]['olm'] - $this->pageDimensions[$startpage]['olm']);
                         }
                     }
                 }
@@ -3085,9 +3085,9 @@ trait WebTools
                     }
                     if (!isset($table_el['attribute']['nested']) or ($table_el['attribute']['nested'] != 'true')) {
                         // reset main table header
-                        $this->headerTemplate             = '';
-                        $this->headerTemplateMargins      = [];
-                        $this->pagedim[$this->page]['tm'] = $this->tMargin;
+                        $this->headerTemplate                    = '';
+                        $this->headerTemplateMargins             = [];
+                        $this->pageDimensions[$this->page]['tm'] = $this->tMargin;
                     }
                 }
                 $parent = $table_el;

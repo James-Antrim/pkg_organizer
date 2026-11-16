@@ -42,6 +42,8 @@ trait Fonts
     /** List of available fonts on filesystem. */
     protected array $fontList = [];
 
+    protected array $fontObjectIDs = [];
+
     /** Array of used fonts. */
     protected array $fonts = [];
 
@@ -83,9 +85,9 @@ trait Fonts
                 $this->fontKeys[] = $font;
 
                 // store object ID for current font
-                ++$this->n;
-                $this->font_obj_ids[$font] = $this->n;
-                $this->fontSubBuffer($font, 'n', $this->n);
+                ++$this->objectNumber;
+                $this->fontObjectIDs[$font] = $this->objectNumber;
+                $this->fontSubBuffer($font, 'n', $this->objectNumber);
             }
         }
 
@@ -326,11 +328,6 @@ trait Fonts
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-
-    /**
-     * Store the font object IDs.
-     */
-    protected $font_obj_ids = [];
 
     /**
      * Default monospace font.
@@ -811,7 +808,7 @@ trait Fonts
      */
     protected function _putfonts(): void
     {
-        $nf = $this->n;
+        $nf = $this->objectNumber;
         foreach ($this->diffs as $diff) {
             //Encodings
             $this->_newobj();
@@ -855,7 +852,7 @@ trait Fonts
                     }
                 }
                 $this->_newobj();
-                $this->fontFiles[$file]['n'] = $this->n;
+                $this->fontFiles[$file]['n'] = $this->objectNumber;
                 $stream                      = $this->_getrawstream($font);
                 $out                         = '<< /Length ' . strlen($stream);
                 if ($compressed) {
@@ -878,7 +875,7 @@ trait Fonts
             $name = $font['name'];
             if ($type == 'core') {
                 // standard core font
-                $out = $this->_getobj($this->font_obj_ids[$k]) . "\n";
+                $out = $this->_getobj($this->fontObjectIDs[$k]) . "\n";
                 $out .= '<</Type /Font';
                 $out .= ' /Subtype /Type1';
                 $out .= ' /BaseFont /' . $name;
@@ -896,14 +893,14 @@ trait Fonts
             }
             elseif (($type == 'Type1') or ($type == 'TrueType')) {
                 // additional Type1 or TrueType font
-                $out = $this->_getobj($this->font_obj_ids[$k]) . "\n";
+                $out = $this->_getobj($this->fontObjectIDs[$k]) . "\n";
                 $out .= '<</Type /Font';
                 $out .= ' /Subtype /' . $type;
                 $out .= ' /BaseFont /' . $name;
                 $out .= ' /Name /F' . $font['i'];
                 $out .= ' /FirstChar 32 /LastChar 255';
-                $out .= ' /Widths ' . ($this->n + 1) . ' 0 R';
-                $out .= ' /FontDescriptor ' . ($this->n + 2) . ' 0 R';
+                $out .= ' /Widths ' . ($this->objectNumber + 1) . ' 0 R';
+                $out .= ' /FontDescriptor ' . ($this->objectNumber + 2) . ' 0 R';
                 if ($font['enc']) {
                     if (isset($font['diff'])) {
                         $out .= ' /Encoding ' . ($nf + $font['diff']) . ' 0 R';
