@@ -1696,7 +1696,7 @@ trait Images
         // store current page break mode
         $page_break_mode   = $this->AutoPageBreak;
         $page_break_margin = $this->getBreakMargin();
-        $cell_padding      = $this->cell_padding;
+        $cellPaddings      = $this->cellPaddings;
         $this->setCellPadding(0);
         $this->setAutoPageBreak(false);
         // save the current graphic state
@@ -1794,7 +1794,7 @@ trait Images
         $this->endlinex = $this->imageRBX;
         // restore page break
         $this->setAutoPageBreak($page_break_mode, $page_break_margin);
-        $this->cell_padding = $cell_padding;
+        $this->cellPaddings = $cellPaddings;
     }
 
     /**
