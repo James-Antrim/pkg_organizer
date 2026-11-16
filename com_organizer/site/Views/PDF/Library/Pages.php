@@ -116,6 +116,38 @@ trait Pages
 
 
     /**
+     * Set page boundaries.
+     * @param int     $page    page number
+     * @param string  $type    valid values are: <ul><li>'MediaBox' : the boundaries of the physical medium on which the page shall be displayed or printed;</li><li>'CropBox' : the visible region of default user space;</li><li>'BleedBox' : the region to which the contents of the page shall be clipped when output in a production environment;</li><li>'TrimBox' : the intended dimensions of the finished page after trimming;</li><li>'ArtBox' : the page's meaningful content (including potential white space).</li></ul>
+     * @param float   $llx     lower-left x coordinate in user units.
+     * @param float   $lly     lower-left y coordinate in user units.
+     * @param float   $urx     upper-right x coordinate in user units.
+     * @param float   $ury     upper-right y coordinate in user units.
+     * @param boolean $points  If true uses user units as unit of measure, otherwise uses PDF points.
+     * @param float   $k       Scale factor (number of points in user unit).
+     * @param array   $pagedim Array of page dimensions.
+     * @return array pagedim array of page dimensions.
+     */
+    public function setPageBoxes($page, $type, $llx, $lly, $urx, $ury, $points, $k, $pagedim = [])
+    {
+        if (!isset($pagedim[$page])) {
+            // initialize array
+            $pagedim[$page] = [];
+        }
+        if (!in_array($type, PDF::PAGE_BOXES)) {
+            return;
+        }
+        if ($points) {
+            $k = 1;
+        }
+        $pagedim[$page][$type]['llx'] = ($llx * $k);
+        $pagedim[$page][$type]['lly'] = ($lly * $k);
+        $pagedim[$page][$type]['urx'] = ($urx * $k);
+        $pagedim[$page][$type]['ury'] = ($ury * $k);
+        return $pagedim;
+    }
+
+    /**
      * Change the format of the current page
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() documentation or an array of two numbers (width, height) or an array containing the following measures and options:<ul>
      *                            <li>['format'] = page format name (one of the above);</li>
@@ -183,7 +215,7 @@ trait Pages
         else {
             // the boundaries of the physical medium on which the page shall be displayed or printed
             if (isset($format['MediaBox'])) {
-                $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'MediaBox', $format['MediaBox']['llx'], $format['MediaBox']['lly'], $format['MediaBox']['urx'], $format['MediaBox']['ury'], false, $this->k, $this->pageDimensions);
+                $this->pageDimensions = $this->setPageBoxes($this->page, 'MediaBox', $format['MediaBox']['llx'], $format['MediaBox']['lly'], $format['MediaBox']['urx'], $format['MediaBox']['ury'], false, $this->k, $this->pageDimensions);
                 $this->fwPt           = (($format['MediaBox']['urx'] - $format['MediaBox']['llx']) * $this->k);
                 $this->fhPt           = (($format['MediaBox']['ury'] - $format['MediaBox']['lly']) * $this->k);
             }
@@ -200,23 +232,23 @@ trait Pages
                 }
                 $this->fwPt           = $pf[0];
                 $this->fhPt           = $pf[1];
-                $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pageDimensions);
+                $this->pageDimensions = $this->setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pageDimensions);
             }
             // the visible region of default user space
             if (isset($format['CropBox'])) {
-                $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'CropBox', $format['CropBox']['llx'], $format['CropBox']['lly'], $format['CropBox']['urx'], $format['CropBox']['ury'], false, $this->k, $this->pageDimensions);
+                $this->pageDimensions = $this->setPageBoxes($this->page, 'CropBox', $format['CropBox']['llx'], $format['CropBox']['lly'], $format['CropBox']['urx'], $format['CropBox']['ury'], false, $this->k, $this->pageDimensions);
             }
             // the region to which the contents of the page shall be clipped when output in a production environment
             if (isset($format['BleedBox'])) {
-                $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'BleedBox', $format['BleedBox']['llx'], $format['BleedBox']['lly'], $format['BleedBox']['urx'], $format['BleedBox']['ury'], false, $this->k, $this->pageDimensions);
+                $this->pageDimensions = $this->setPageBoxes($this->page, 'BleedBox', $format['BleedBox']['llx'], $format['BleedBox']['lly'], $format['BleedBox']['urx'], $format['BleedBox']['ury'], false, $this->k, $this->pageDimensions);
             }
             // the intended dimensions of the finished page after trimming
             if (isset($format['TrimBox'])) {
-                $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'TrimBox', $format['TrimBox']['llx'], $format['TrimBox']['lly'], $format['TrimBox']['urx'], $format['TrimBox']['ury'], false, $this->k, $this->pageDimensions);
+                $this->pageDimensions = $this->setPageBoxes($this->page, 'TrimBox', $format['TrimBox']['llx'], $format['TrimBox']['lly'], $format['TrimBox']['urx'], $format['TrimBox']['ury'], false, $this->k, $this->pageDimensions);
             }
             // the page's meaningful content (including potential white space)
             if (isset($format['ArtBox'])) {
-                $this->pageDimensions = StaticMethods::setPageBoxes($this->page, 'ArtBox', $format['ArtBox']['llx'], $format['ArtBox']['lly'], $format['ArtBox']['urx'], $format['ArtBox']['ury'], false, $this->k, $this->pageDimensions);
+                $this->pageDimensions = $this->setPageBoxes($this->page, 'ArtBox', $format['ArtBox']['llx'], $format['ArtBox']['lly'], $format['ArtBox']['urx'], $format['ArtBox']['ury'], false, $this->k, $this->pageDimensions);
             }
             // specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for the various page boundaries
             if (isset($format['BoxColorInfo'])) {
@@ -278,6 +310,106 @@ trait Pages
             }
         }
         $this->setPageOrientation($orientation);
+    }
+
+    /**
+     * Set page orientation.
+     * @param string     $orientation   page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
+     * @param bool|null  $autopagebreak bool indicating if auto-page-break mode should be on or off.
+     * @param float|null $bottommargin  bottom margin of the page.
+     */
+    public function setPageOrientation($orientation, $autopagebreak = null, $bottommargin = null)
+    {
+        if (!isset($this->pageDimensions[$this->page]['MediaBox'])) {
+            // the boundaries of the physical medium on which the page shall be displayed or printed
+            $this->pageDimensions = $this->setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pageDimensions);
+        }
+        if (!isset($this->pageDimensions[$this->page]['CropBox'])) {
+            // the visible region of default user space
+            $this->pageDimensions = $this->setPageBoxes($this->page, 'CropBox', $this->pageDimensions[$this->page]['MediaBox']['llx'], $this->pageDimensions[$this->page]['MediaBox']['lly'], $this->pageDimensions[$this->page]['MediaBox']['urx'], $this->pageDimensions[$this->page]['MediaBox']['ury'], true, $this->k, $this->pageDimensions);
+        }
+        if (!isset($this->pageDimensions[$this->page]['BleedBox'])) {
+            // the region to which the contents of the page shall be clipped when output in a production environment
+            $this->pageDimensions = $this->setPageBoxes($this->page, 'BleedBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
+        }
+        if (!isset($this->pageDimensions[$this->page]['TrimBox'])) {
+            // the intended dimensions of the finished page after trimming
+            $this->pageDimensions = $this->setPageBoxes($this->page, 'TrimBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
+        }
+        if (!isset($this->pageDimensions[$this->page]['ArtBox'])) {
+            // the page's meaningful content (including potential white space)
+            $this->pageDimensions = $this->setPageBoxes($this->page, 'ArtBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
+        }
+        if (!isset($this->pageDimensions[$this->page]['Rotate'])) {
+            // The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
+            $this->pageDimensions[$this->page]['Rotate'] = 0;
+        }
+        if (!isset($this->pageDimensions[$this->page]['PZ'])) {
+            // The page's preferred zoom (magnification) factor
+            $this->pageDimensions[$this->page]['PZ'] = 1;
+        }
+        if ($this->fwPt > $this->fhPt) {
+            // landscape
+            $default_orientation = 'L';
+        }
+        else {
+            // portrait
+            $default_orientation = 'P';
+        }
+        $valid_orientations = ['P', 'L'];
+        if (empty($orientation)) {
+            $orientation = $default_orientation;
+        }
+        else {
+            $orientation = strtoupper($orientation[0]);
+        }
+        if (in_array($orientation, $valid_orientations) and ($orientation != $default_orientation)) {
+            $this->CurOrientation = $orientation;
+            $this->wPt            = $this->fhPt;
+            $this->hPt            = $this->fwPt;
+        }
+        else {
+            $this->CurOrientation = $default_orientation;
+            $this->wPt            = $this->fwPt;
+            $this->hPt            = $this->fhPt;
+        }
+        if ((abs($this->pageDimensions[$this->page]['MediaBox']['urx'] - $this->hPt) < $this->feps) and (abs($this->pageDimensions[$this->page]['MediaBox']['ury'] - $this->wPt) < $this->feps)) {
+            // swap X and Y coordinates (change page orientation)
+            $this->pageDimensions = StaticMethods::swapPageBoxCoordinates($this->page, $this->pageDimensions);
+        }
+        $this->w = ($this->wPt / $this->k);
+        $this->h = ($this->hPt / $this->k);
+        if (StaticMethods::empty_string($autopagebreak)) {
+            if (isset($this->AutoPageBreak)) {
+                $autopagebreak = $this->AutoPageBreak;
+            }
+            else {
+                $autopagebreak = true;
+            }
+        }
+        if (StaticMethods::empty_string($bottommargin)) {
+            if (isset($this->bMargin)) {
+                $bottommargin = $this->bMargin;
+            }
+            else {
+                // default value = 2 cm
+                $bottommargin = 2 * 28.35 / $this->k;
+            }
+        }
+        $this->setAutoPageBreak($autopagebreak, $bottommargin);
+        // store page dimensions
+        $this->pageDimensions[$this->page]['w']   = $this->wPt;
+        $this->pageDimensions[$this->page]['h']   = $this->hPt;
+        $this->pageDimensions[$this->page]['wk']  = $this->w;
+        $this->pageDimensions[$this->page]['hk']  = $this->h;
+        $this->pageDimensions[$this->page]['tm']  = $this->tMargin;
+        $this->pageDimensions[$this->page]['bm']  = $bottommargin;
+        $this->pageDimensions[$this->page]['lm']  = $this->leftMargin;
+        $this->pageDimensions[$this->page]['rm']  = $this->rightMargin;
+        $this->pageDimensions[$this->page]['pb']  = $autopagebreak;
+        $this->pageDimensions[$this->page]['or']  = $this->CurOrientation;
+        $this->pageDimensions[$this->page]['olm'] = $this->originalLeftMargin;
+        $this->pageDimensions[$this->page]['orm'] = $this->originalRightMargin;
     }
 
     /**
