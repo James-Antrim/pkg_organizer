@@ -250,19 +250,6 @@ abstract class BaseView extends PDF implements ViewInterface
     }
 
     /**
-     * Changes the current font size used for rendering.
-     *
-     * @param int $size the font size
-     *
-     * @return void
-     * @see SetFontSize()
-     */
-    public function resize(int $size): void
-    {
-        $this->SetFontSize($size);
-    }
-
-    /**
      * Toggles display of the document's header and footer.
      *
      * @param bool $display whether to display the header and footer

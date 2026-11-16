@@ -104,7 +104,7 @@ abstract class BadgeLayout extends BaseLayout
             $view->renderMultiCell(80, 5, Text::_('ORGANIZER_BADGE_TAX_TEXT'), $view::CENTER);
         }
 
-        $view->resize(8);
+        $view->fontSize(8);
         $view->reposition($badgeCenter, $labelOffset);
         $view->renderCell(80, 5, Text::_('ORGANIZER_REPRESENTATIVE'), $view::CENTER);
 
@@ -114,11 +114,11 @@ abstract class BadgeLayout extends BaseLayout
             $view->Image($signaturePath, $xOffset + 35, $signatureOffset, 20);
         }
 
-        $view->resize(7);
+        $view->fontSize(7);
         $view->reposition($badgeCenter, $nameOffset);
         $view->renderCell(80, 5, $params->get('representativeName', ''), $view::CENTER);
 
-        $view->resize(6);
+        $view->fontSize(6);
         $view->reposition($badgeCenter, $addressOffset);
         $view->renderCell(80, 5, $params->get('address'), $view::CENTER);
 

@@ -152,7 +152,7 @@ class PDF
             $this->fgColor         = $parameters['fgColor'];
             $this->fillColor       = $parameters['fillColor'];
             $this->fontFamily      = $parameters['fontFamily'];
-            $this->fontSizePT      = $parameters['FontSizePt'];
+            $this->fontSizePT      = $parameters['fontSizePT'];
             $this->font_spacing    = $parameters['font_spacing'];
             $this->font_stretching = $parameters['font_stretching'];
             $this->fontStyle       = $parameters['FontStyle'];
@@ -210,7 +210,7 @@ class PDF
             'fgColor'          => $this->fgColor,
             'fillColor'        => $this->fillColor,
             'fontFamily'       => $this->fontFamily,
-            'FontSizePt'       => $this->fontSizePT,
+            'fontSizePT'       => $this->fontSizePT,
             'font_spacing'     => $this->font_spacing,
             'font_stretching'  => $this->font_stretching,
             'FontStyle'        => $this->fontStyle,
@@ -4195,7 +4195,7 @@ class PDF
             $nl = 1;
         }
         else { // ******* Write simple text
-            $prev_FontSizePt = $this->fontSizePT;
+            $previousFontSizePT = $this->fontSizePT;
             if ($fitcell) {
                 // ajust height values
                 $tobottom = ($this->h - $this->y - $this->bMargin - $this->cellPaddings['T'] - $this->cellPaddings['B']);
@@ -4213,7 +4213,7 @@ class PDF
                     $maxit        = (2 * min(100, max(10, intval($fmax)))); // max number of iterations
                     while ($maxit >= 0) {
                         $fmid = (($fmax + $fmin) / 2);
-                        $this->setFontSize($fmid, false);
+                        $this->fontSize($fmid, false);
                         $this->resetLastH();
                         $text_height = $this->getStringHeight($w, $txt, $reseth, $autopadding, $mc_padding, $border);
                         $diff        = ($maxh - $text_height);
@@ -4230,12 +4230,12 @@ class PDF
                     }
                     if ($maxit < 0) {
                         // premature exit, we get the minimum font value to fit the cell
-                        $this->setFontSize($fmin);
+                        $this->fontSize($fmin);
                         $this->resetLastH();
                         $text_height = $this->getStringHeight($w, $txt, $reseth, $autopadding, $mc_padding, $border);
                     }
                     else {
-                        $this->setFontSize($fmid);
+                        $this->fontSize($fmid);
                         $this->resetLastH();
                     }
                 }
@@ -4253,7 +4253,7 @@ class PDF
             $nl = $this->Write($this->lastPrintedCellHeight, $txt, '', 0, $align, true, $stretch, false, true, $maxh, 0, $mc_margin);
             if ($fitcell) {
                 // restore font size
-                $this->setFontSize($prev_FontSizePt);
+                $this->fontSize($previousFontSizePT);
             }
         }
         if ($autopadding) {
@@ -12549,33 +12549,6 @@ class PDF
             'right' => $this->originalRightMargin
         ];
         return $ret;
-    }
-
-    /**
-     * Returns the current font size.
-     * @return float current font size
-     */
-    public function getFontSize()
-    {
-        return $this->fontSize;
-    }
-
-    /**
-     * Returns the current font size in points unit.
-     * @return int current font size in points unit
-     */
-    public function getFontSizePt()
-    {
-        return $this->fontSizePT;
-    }
-
-    /**
-     * Returns the current font style.
-     * @return string current font style
-     */
-    public function getFontStyle()
-    {
-        return $this->fontStyle;
     }
 
     /**

@@ -202,6 +202,68 @@ trait Fonts
         return $this->headerFont;
     }
 
+    /**
+     * Getter / setter for the font size, returns the font size value in user units.
+     * @param float|null $size   (points)
+     * @param bool       $append whether to append the font size command
+     * @return float
+     */
+    public function fontSize(float|null $size = null, bool $append = true): float
+    {
+        if (is_float($size)) {
+            $this->fontSize   = $size / $this->k;
+            $this->fontSizePT = $size;
+
+            // calculate some font metrics
+            if (isset($this->currentFont['desc']['FontBBox'])) {
+                $bbox   = explode(' ', substr($this->currentFont['desc']['FontBBox'], 1, -1));
+                $height = ((intval($bbox[3]) - intval($bbox[1])) * $size / 1000);
+            }
+            else {
+                $height = $size * 1.219;
+            }
+
+            $ascent = $descent = 0;
+            if (isset($this->currentFont['desc']['Ascent']) and ($this->currentFont['desc']['Ascent'] > 0)) {
+                $ascent = ($this->currentFont['desc']['Ascent'] * $size / 1000);
+            }
+
+            if (isset($this->currentFont['desc']['Descent']) and ($this->currentFont['desc']['Descent'] <= 0)) {
+                $descent = (-$this->currentFont['desc']['Descent'] * $size / 1000);
+            }
+
+            if (empty($ascent) and empty($descent)) {
+                // core font
+                $ascent  = 0.76 * $height;
+                $descent = $height - $ascent;
+            }
+            elseif (empty($ascent)) {
+                $ascent = $height - $descent;
+            }
+            elseif (empty($descent)) {
+                $descent = $height - $ascent;
+            }
+
+            $this->fontAscent  = $ascent / $this->k;
+            $this->fontDescent = $descent / $this->k;
+
+            if ($append and $this->page > 0 and isset($this->currentFont['i']) and $this->state === self::READY) {
+                $this->append(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
+            }
+        }
+
+        return $this->fontSize;
+    }
+
+    /**
+     * Returns the current font size in points.
+     * @return float
+     */
+    public function fontSizePT(): float
+    {
+        return $this->fontSizePT;
+    }
+
     /** Fills the $fontList with available fonts. */
     protected function populateFonts(): void
     {
@@ -223,7 +285,7 @@ trait Fonts
      * @param string     $file
      * @param mixed      $subset if true embed only a subset of the font (stores only the information related to the used characters); if false embed full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
      * @param bool       $append appends the command to the document, defaults to true
-     * @see    self::CORE_FONTS, AddFont(), self::FONT_STYLES, SetFontSize()
+     * @see    self::CORE_FONTS, AddFont(), self::FONT_STYLES, fontSize()
      */
     public function setCurrentFont(string $family, string $style = self::REGULAR, float|null $size = null, string $file = '', bool|string $subset = 'default', bool $append = true): void
     {
@@ -242,7 +304,7 @@ trait Fonts
         }
 
         $this->currentFont = $this->fontBuffer($font['fontKey']);
-        $this->setFontSize($size, $append);
+        $this->fontSize($size, $append);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
@@ -1173,48 +1235,12 @@ trait Fonts
     }
 
     /**
-     * Defines the size of the current font.
-     * @param float $size The font size in points.
-     * @param bool  $out  if true output the font size command, otherwise only set the font properties.
-     * @see   setCurrentFont()
+     * Returns the current font style.
+     * @return string current font style
      */
-    public function setFontSize($size, $out = true)
+    public function getFontStyle()
     {
-        $size = (float) $size;
-        // font size in points
-        $this->fontSizePT = $size;
-        // font size in user units
-        $this->fontSize = $size / $this->k;
-        // calculate some font metrics
-        if (isset($this->currentFont['desc']['FontBBox'])) {
-            $bbox        = explode(' ', substr($this->currentFont['desc']['FontBBox'], 1, -1));
-            $font_height = ((intval($bbox[3]) - intval($bbox[1])) * $size / 1000);
-        }
-        else {
-            $font_height = $size * 1.219;
-        }
-        if (isset($this->currentFont['desc']['Ascent']) and ($this->currentFont['desc']['Ascent'] > 0)) {
-            $font_ascent = ($this->currentFont['desc']['Ascent'] * $size / 1000);
-        }
-        if (isset($this->currentFont['desc']['Descent']) and ($this->currentFont['desc']['Descent'] <= 0)) {
-            $font_descent = (-$this->currentFont['desc']['Descent'] * $size / 1000);
-        }
-        if (!isset($font_ascent) and !isset($font_descent)) {
-            // core font
-            $font_ascent  = 0.76 * $font_height;
-            $font_descent = $font_height - $font_ascent;
-        }
-        elseif (!isset($font_descent)) {
-            $font_descent = $font_height - $font_ascent;
-        }
-        elseif (!isset($font_ascent)) {
-            $font_ascent = $font_height - $font_descent;
-        }
-        $this->fontAscent  = ($font_ascent / $this->k);
-        $this->fontDescent = ($font_descent / $this->k);
-        if ($out and ($this->page > 0) and (isset($this->currentFont['i'])) and ($this->state === self::READY)) {
-            $this->append(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
-        }
+        return $this->fontStyle;
     }
 
     /**
