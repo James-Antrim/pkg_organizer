@@ -150,8 +150,8 @@ class PDF
             $this->differentColors = $parameters['differentColors'];
             $this->drawColor       = $parameters['drawColor'];
             $this->fgColor         = $parameters['fgColor'];
-            $this->fillColor       = $parameters['FillColor'];
-            $this->fontFamily      = $parameters['FontFamily'];
+            $this->fillColor       = $parameters['fillColor'];
+            $this->fontFamily      = $parameters['fontFamily'];
             $this->fontSizePT      = $parameters['FontSizePt'];
             $this->font_spacing    = $parameters['font_spacing'];
             $this->font_stretching = $parameters['font_stretching'];
@@ -208,8 +208,8 @@ class PDF
             'differentColors'  => $this->differentColors,
             'drawColor'        => $this->drawColor,
             'fgColor'          => $this->fgColor,
-            'FillColor'        => $this->fillColor,
-            'FontFamily'       => $this->fontFamily,
+            'fillColor'        => $this->fillColor,
+            'fontFamily'       => $this->fontFamily,
             'FontSizePt'       => $this->fontSizePT,
             'font_spacing'     => $this->font_spacing,
             'font_stretching'  => $this->font_stretching,
@@ -2895,9 +2895,9 @@ class PDF
     {
         // store current values
         if (!StaticMethods::empty_string($fontname)) {
-            $prev_FontFamily = $this->fontFamily;
-            $prev_FontStyle  = $this->fontStyle;
-            $prev_FontSizePt = $this->fontSizePT;
+            $previousFont   = $this->fontFamily;
+            $previousStyle  = $this->fontStyle;
+            $previousSizePT = $this->fontSizePT;
             $this->setCurrentFont($fontname, $fontstyle, $fontsize, '', 'default', false);
         }
         // convert UTF-8 array to Latin1 if required
@@ -2914,7 +2914,7 @@ class PDF
         }
         // restore previous values
         if (!StaticMethods::empty_string($fontname)) {
-            $this->setCurrentFont($prev_FontFamily, $prev_FontStyle, $prev_FontSizePt, '', 'default', false);
+            $this->setCurrentFont($previousFont, $previousStyle, $previousSizePT, '', 'default', false);
         }
         if ($getarray) {
             return $wa;
@@ -12567,15 +12567,6 @@ class PDF
     public function getFontSizePt()
     {
         return $this->fontSizePT;
-    }
-
-    /**
-     * Returns the current font family name.
-     * @return string current font family name
-     */
-    public function getFontFamily()
-    {
-        return $this->fontFamily;
     }
 
     /**

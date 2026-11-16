@@ -89,7 +89,7 @@ trait Fonts
      * @param string $fonts property string containing font family names
      * @return string
      */
-    public function fontFamily(string $fonts): string
+    public function fontFamily(string $fonts = ''): string
     {
         // Remove spaces and symbols
         $fonts = preg_replace('/[^a-z0-9_,]/', '', strtolower($fonts));
@@ -1161,6 +1161,15 @@ trait Fonts
             }
         }
         return $fontdata;
+    }
+
+    /**
+     * Returns the current font family name.
+     * @return string current font family name
+     */
+    public function getFontFamily()
+    {
+        return $this->fontFamily;
     }
 
     /**
