@@ -51,8 +51,16 @@ trait Fonts
     /** Current font size in points.*/
     protected float $fontSizePT = 12;
 
+    /** Increases or decreases the space between characters in a text by the specified amount (tracking). */
+    protected float $fontSpacing = 0;
+
+    /** Percentage of character stretching. */
+    protected float $fontStretching = 100;
+
     /** Current font style.*/
     protected string $fontStyle = '';
+
+    protected bool $fontSubsetting = true;
 
     protected array $footerFont = ['helvetica', '', 8];
 
@@ -264,6 +272,15 @@ trait Fonts
         return $this->fontSizePT;
     }
 
+    /**
+     * Returns the current font style.
+     * @return string current font style
+     */
+    public function fontStyle(): string
+    {
+        return $this->fontStyle;
+    }
+
     /** Fills the $fontList with available fonts. */
     protected function populateFonts(): void
     {
@@ -311,11 +328,6 @@ trait Fonts
 
 
     /**
-     * Default font style to add to html links.
-     */
-    protected $htmlLinkFontStyle = 'U';
-
-    /**
      * Store the font object IDs.
      */
     protected $font_obj_ids = [];
@@ -324,21 +336,6 @@ trait Fonts
      * Default monospace font.
      */
     protected $default_monospaced_font = 'courier';
-
-    /**
-     * bool flag: if true enables font subsetting by default.
-     */
-    protected $font_subsetting = true;
-
-    /**
-     * Percentage of character stretching.
-     */
-    protected $font_stretching = 100;
-
-    /**
-     * Increases or decreases the space between characters in a text by the specified amount (tracking).
-     */
-    protected $font_spacing = 0;
 
     /**
      * Returns a subset of the TrueType font data without the unused glyphs.
@@ -973,7 +970,7 @@ trait Fonts
     public function AddFont($family, $style = '', $fontfile = '', $subset = 'default')
     {
         if ($subset === 'default') {
-            $subset = $this->font_subsetting;
+            $subset = $this->fontSubsetting;
         }
         if (empty($family)) {
             if (!empty($this->fontFamily)) {
@@ -1031,10 +1028,10 @@ trait Fonts
         if (strpos($tempstyle, 'I') !== false) {
             $style .= 'I';
         }
-        $bistyle    = $style;
-        $fontKey    = $family . $style;
-        $font_style = $style . ($this->underline ? 'U' : '') . ($this->linethrough ? 'D' : '') . ($this->overline ? 'O' : '');
-        $fontdata   = ['fontKey' => $fontKey, 'family' => $family, 'style' => $font_style];
+        $bistyle   = $style;
+        $fontKey   = $family . $style;
+        $fontStyle = $style . ($this->underline ? 'U' : '') . ($this->linethrough ? 'D' : '') . ($this->overline ? 'O' : '');
+        $fontdata  = ['fontKey' => $fontKey, 'family' => $family, 'style' => $fontStyle];
         // check if the font has been already added
         $fb = $this->fontBuffer($fontKey);
         if ($fb !== false) {
@@ -1232,15 +1229,6 @@ trait Fonts
     public function getFontFamily()
     {
         return $this->fontFamily;
-    }
-
-    /**
-     * Returns the current font style.
-     * @return string current font style
-     */
-    public function getFontStyle()
-    {
-        return $this->fontStyle;
     }
 
     /**
@@ -1466,5 +1454,25 @@ trait Fonts
             }
         }
         return '/W [' . $w . ' ]';
+    }
+
+    /**
+     * Enable or disable default option for font subsetting.
+     * @param bool $enable if true enable font subsetting by default.
+     * @author Nicola Asuni
+     */
+    public function setFontSubsetting($enable = true)
+    {
+        $this->fontSubsetting = $enable ? true : false;
+    }
+
+    /**
+     * Return the default option for font subsetting.
+     * @return bool default font subsetting state.
+     * @author Nicola Asuni
+     */
+    public function getFontSubsetting()
+    {
+        return $this->fontSubsetting;
     }
 }

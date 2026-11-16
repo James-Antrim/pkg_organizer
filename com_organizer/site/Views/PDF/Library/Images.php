@@ -2030,85 +2030,85 @@ trait Images
         $regs = [];
         if (!empty($svgstyle['font'])) {
             if (preg_match('/font-family[\s]*:[\s]*([^\;\"]*)/si', $svgstyle['font'], $regs)) {
-                $font_family = $this->fontFamily($regs[1]);
+                $fontFamily = $this->fontFamily($regs[1]);
             }
             else {
-                $font_family = $svgstyle['font-family'];
+                $fontFamily = $svgstyle['font-family'];
             }
             if (preg_match('/font-size[\s]*:[\s]*([^\s\;\"]*)/si', $svgstyle['font'], $regs)) {
-                $font_size = trim($regs[1]);
+                $fontSize = trim($regs[1]);
             }
             else {
-                $font_size = $svgstyle['font-size'];
+                $fontSize = $svgstyle['font-size'];
             }
             if (preg_match('/font-style[\s]*:[\s]*([^\s\;\"]*)/si', $svgstyle['font'], $regs)) {
-                $font_style = trim($regs[1]);
+                $fontStyle = trim($regs[1]);
             }
             else {
-                $font_style = $svgstyle['font-style'];
+                $fontStyle = $svgstyle['font-style'];
             }
             if (preg_match('/font-weight[\s]*:[\s]*([^\s\;\"]*)/si', $svgstyle['font'], $regs)) {
-                $font_weight = trim($regs[1]);
+                $fontWeight = trim($regs[1]);
             }
             else {
-                $font_weight = $svgstyle['font-weight'];
+                $fontWeight = $svgstyle['font-weight'];
             }
             if (preg_match('/font-stretch[\s]*:[\s]*([^\s\;\"]*)/si', $svgstyle['font'], $regs)) {
-                $font_stretch = trim($regs[1]);
+                $fontStretch = trim($regs[1]);
             }
             else {
-                $font_stretch = $svgstyle['font-stretch'];
+                $fontStretch = $svgstyle['font-stretch'];
             }
             if (preg_match('/letter-spacing[\s]*:[\s]*([^\s\;\"]*)/si', $svgstyle['font'], $regs)) {
-                $font_spacing = trim($regs[1]);
+                $fontSpacing = trim($regs[1]);
             }
             else {
-                $font_spacing = $svgstyle['letter-spacing'];
+                $fontSpacing = $svgstyle['letter-spacing'];
             }
         }
         else {
-            $font_family  = $this->fontFamily($svgstyle['font-family']);
-            $font_size    = $svgstyle['font-size'];
-            $font_style   = $svgstyle['font-style'];
-            $font_weight  = $svgstyle['font-weight'];
-            $font_stretch = $svgstyle['font-stretch'];
-            $font_spacing = $svgstyle['letter-spacing'];
+            $fontFamily  = $this->fontFamily($svgstyle['font-family']);
+            $fontSize    = $svgstyle['font-size'];
+            $fontStyle   = $svgstyle['font-style'];
+            $fontWeight  = $svgstyle['font-weight'];
+            $fontStretch = $svgstyle['font-stretch'];
+            $fontSpacing = $svgstyle['letter-spacing'];
         }
-        $font_size    = $this->fontSizeToUnits($font_size, $prevsvgstyle['font-size'], self::PIXEL, true);
-        $font_stretch = $this->getCSSFontStretching($font_stretch, $svgstyle['font-stretch']);
-        $font_spacing = $this->getCSSFontSpacing($font_spacing, $svgstyle['letter-spacing']);
-        switch ($font_style) {
+        $fontSize    = $this->fontSizeToUnits($fontSize, $prevsvgstyle['font-size'], self::PIXEL, true);
+        $fontStretch = $this->getCSSFontStretching($fontStretch, $svgstyle['font-stretch']);
+        $fontSpacing = $this->getCSSFontSpacing($fontSpacing, $svgstyle['letter-spacing']);
+        switch ($fontStyle) {
             case 'italic':
             {
-                $font_style = 'I';
+                $fontStyle = 'I';
                 break;
             }
             case 'oblique':
             {
-                $font_style = 'I';
+                $fontStyle = 'I';
                 break;
             }
             default:
             case 'normal':
             {
-                $font_style = '';
+                $fontStyle = '';
                 break;
             }
         }
-        switch ($font_weight) {
+        switch ($fontWeight) {
             case 'bold':
             case 'bolder':
             {
-                $font_style .= 'B';
+                $fontStyle .= 'B';
                 break;
             }
             case 'normal':
             {
-                if ((substr($font_family, -1) == 'I') and (substr($font_family, -2, 1) == 'B')) {
-                    $font_family = substr($font_family, 0, -2) . 'I';
+                if ((substr($fontFamily, -1) == 'I') and (substr($fontFamily, -2, 1) == 'B')) {
+                    $fontFamily = substr($fontFamily, 0, -2) . 'I';
                 }
-                elseif (substr($font_family, -1) == 'B') {
-                    $font_family = substr($font_family, 0, -1);
+                elseif (substr($fontFamily, -1) == 'B') {
+                    $fontFamily = substr($fontFamily, 0, -1);
                 }
                 break;
             }
@@ -2116,17 +2116,17 @@ trait Images
         switch ($svgstyle['text-decoration']) {
             case 'underline':
             {
-                $font_style .= 'U';
+                $fontStyle .= 'U';
                 break;
             }
             case 'overline':
             {
-                $font_style .= 'O';
+                $fontStyle .= 'O';
                 break;
             }
             case 'line-through':
             {
-                $font_style .= 'D';
+                $fontStyle .= 'D';
                 break;
             }
             default:
@@ -2135,9 +2135,9 @@ trait Images
                 break;
             }
         }
-        $this->setCurrentFont($font_family, $font_style, $font_size);
-        $this->setFontStretching($font_stretch);
-        $this->setFontSpacing($font_spacing);
+        $this->setCurrentFont($fontFamily, $fontStyle, $fontSize);
+        $this->setFontStretching($fontStretch);
+        $this->setFontSpacing($fontSpacing);
         return $objstyle;
     }
 

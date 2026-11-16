@@ -36,9 +36,6 @@ trait Colors
     /** @var int[] RGB */
     protected array $footerTextColor = self::BLACK;
 
-    /** @var int[] RGB */
-    protected array $linkColor = self::BLUE;
-
     /** @var array User defined [CMYK + name + objectNumber] color configurations. */
     protected array $spotColors = [];
 
