@@ -1932,26 +1932,4 @@ class StaticMethods
         $a = unpack('Ni', fread($f, 4));
         return $a['i'];
     }
-
-    /**
-     * Swap X and Y coordinates of page boxes (change page boxes orientation).
-     * @param int   $page    page number
-     * @param array $pagedim Array of page dimensions.
-     * @return array pagedim array of page dimensions.
-     */
-    public static function swapPageBoxCoordinates($page, $pagedim)
-    {
-        foreach (PDF::PAGE_BOXES as $type) {
-            // swap X and Y coordinates
-            if (isset($pagedim[$page][$type])) {
-                $tmp                          = $pagedim[$page][$type]['llx'];
-                $pagedim[$page][$type]['llx'] = $pagedim[$page][$type]['lly'];
-                $pagedim[$page][$type]['lly'] = $tmp;
-                $tmp                          = $pagedim[$page][$type]['urx'];
-                $pagedim[$page][$type]['urx'] = $pagedim[$page][$type]['ury'];
-                $pagedim[$page][$type]['ury'] = $tmp;
-            }
-        }
-        return $pagedim;
-    }
 }

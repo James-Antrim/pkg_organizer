@@ -16,7 +16,15 @@ trait Pages
 {
     use Headers;
 
+    protected bool $autoPageBreak = true;
+    protected float $bottomMargin = 0;
+    protected float $breakTrigger = 0;
+    protected string $currentOrientation = self::PORTRAIT;
     protected int $currentPageGroup = 0;
+    protected float $formatHeightPT = 0;
+    protected float $formatWidthPT = 0;
+    protected float $height = 0;
+    protected float $heightPT = 0;
     protected float $leftMargin = 0;
     protected float $originalLeftMargin = 0;
     protected float $originalRightMargin = 0;
@@ -31,6 +39,26 @@ trait Pages
     protected array $pageObjects = [];
     protected array $pages = [];
     protected string $pageZoom = self::FULL_WIDTH;
+    protected float $topMargin = 0;
+    protected float $width = 0;
+    protected float $widthPT = 0;
+
+    /**
+     * Getter / setter for  automatic page breaking. When enabling, the second parameter is the minimum bottom margin on break.
+     * @param bool  $auto   bool indicating if mode should be on or off.
+     * @param float $margin Distance from the bottom of the page.
+     * @see   Cell(), MultiCell(), AcceptPageBreak()
+     */
+    public function autoPageBreak(bool|null $auto = null, float $margin = 0): bool
+    {
+        if (!is_null($auto)) {
+            $this->autoPageBreak = $auto;
+            $this->bottomMargin  = $margin;
+            $this->breakTrigger  = $this->height - $margin;
+        }
+
+        return $this->autoPageBreak;
+    }
 
     /**
      * Defines the way the document is to be displayed by the viewer.
@@ -64,6 +92,36 @@ trait Pages
     }
 
     /**
+     * Set page boundaries.
+     * @param int    $page   page number
+     * @param string $box
+     * @param float  $llx    lower-left x coordinate in user units.
+     * @param float  $lly    lower-left y coordinate in user units.
+     * @param float  $urx    upper-right x coordinate in user units.
+     * @param float  $ury    upper-right y coordinate in user units.
+     * @param bool   $points If true uses user units as unit of measure, otherwise uses PDF points.
+     * @see self::PAGE_BOXES
+     */
+    public function pageBoxes(int $page, string $box, float $llx, float $lly, float $urx, float $ury, bool $points): void
+    {
+        if (!isset($this->pageDimensions[$page])) {
+            // initialize array
+            $this->pageDimensions[$page] = [];
+        }
+
+        if (!in_array($box, self::PAGE_BOXES)) {
+            return;
+        }
+
+        $factor = $points ? 1 : $this->k;
+
+        $this->pageDimensions[$page][$box]['llx'] = ($llx * $factor);
+        $this->pageDimensions[$page][$box]['lly'] = ($lly * $factor);
+        $this->pageDimensions[$page][$box]['urx'] = ($urx * $factor);
+        $this->pageDimensions[$page][$box]['ury'] = ($ury * $factor);
+    }
+
+    /**
      * Getter / setter for the page buffer
      * @param int    $pageNumber
      * @param string $content
@@ -93,6 +151,85 @@ trait Pages
     }
 
     /**
+     * Configure the page formatting.
+     * @param array|string $format
+     * @param string       $orientation
+     * @see   self::PAGE_FORMAT_CONFIGURATION_DESCRIPTION, self::PAGE_FORMATS, self::ORIENTATIONS
+     */
+    protected function pageFormat(array|string $format, string $orientation = self::PORTRAIT): void
+    {
+        if (!empty($format) and isset($this->pageDimensions[$this->page])) {
+            // remove inherited values
+            unset($this->pageDimensions[$this->page]);
+        }
+        if (is_string($format)) {
+            // get page measures from format name
+            $dimensions           = $this->pageDimensionsFromFormat($format);
+            $this->formatWidthPT  = $dimensions[0];
+            $this->formatHeightPT = $dimensions[1];
+        }
+        else {
+            $mediaBox = $format['MediaBox'] ?? false;
+            if ($mediaBox) {
+                $this->pageBoxes($this->page, 'MediaBox', $mediaBox['llx'], $mediaBox['lly'], $mediaBox['urx'], $mediaBox['ury'], false);
+                $this->formatWidthPT  = ($mediaBox['urx'] - $mediaBox['llx']) * $this->k;
+                $this->formatHeightPT = ($mediaBox['ury'] - $mediaBox['lly']) * $this->k;
+            }
+            else {
+                if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
+                    $dimensions = array(($format[0] * $this->k), ($format[1] * $this->k));
+                }
+                else {
+                    if (!isset($format['format'])) {
+                        // default value
+                        $format['format'] = 'A4';
+                    }
+                    $dimensions = $this->pageDimensionsFromFormat($format['format']);
+                }
+                $this->formatWidthPT  = $dimensions[0];
+                $this->formatHeightPT = $dimensions[1];
+                $this->pageBoxes($this->page, 'MediaBox', 0, 0, $this->formatWidthPT, $this->formatHeightPT, true);
+            }
+
+            $artBox = $format['ArtBox'] ?? false;
+            if (!empty($format['ArtBox'])) {
+                $this->pageBoxes($this->page, 'ArtBox', $artBox['llx'], $artBox['lly'], $artBox['urx'], $artBox['ury'], false);
+            }
+
+            $bleedBox = $format['BleedBox'] ?? false;
+            if ($bleedBox) {
+                $this->pageBoxes($this->page, 'BleedBox', $bleedBox['llx'], $bleedBox['lly'], $bleedBox['urx'], $bleedBox['ury'], false);
+            }
+
+            $cropBox = $format['CropBox'] ?? false;
+            if ($cropBox) {
+                $this->pageBoxes($this->page, 'CropBox', $cropBox['llx'], $cropBox['lly'], $cropBox['urx'], $cropBox['ury'], false);
+            }
+
+            $trimBox = $format['TrimBox'] ?? false;
+            if ($trimBox) {
+                $this->pageBoxes($this->page, 'TrimBox', $trimBox['llx'], $trimBox['lly'], $trimBox['urx'], $trimBox['ury'], false);
+            }
+
+            $page =& $this->pageDimensions[$this->page];
+
+            if (isset($format['BoxColorInfo'])) {
+                $page['BoxColorInfo'] = $format['BoxColorInfo'];
+            }
+
+            if (isset($format['Rotate']) and ($format['Rotate'] % 90 === 0)) {
+                $page['Rotate'] = (int) $format['Rotate'];
+            }
+
+            if (isset($format['PZ'])) {
+                $page['PZ'] = (float) $format['PZ'];
+            }
+        }
+
+        $this->pageOrientation($orientation);
+    }
+
+    /**
      * Sets the canonical page layout mode, specifying how the document should be displayed when opened.
      * @param string $mode
      * @see self::PAGE_MODE_DESCRIPTIONS
@@ -109,6 +246,98 @@ trait Pages
         };
     }
 
+    /**
+     * Set page orientation.
+     * @param string     $orientation
+     * @param bool|null  $autoPagebreak
+     * @param float|null $bottomMargin
+     * @see self::ORIENTATIONS
+     */
+    public function pageOrientation(string $orientation, bool $autoPagebreak = null, float|null $bottomMargin = null): void
+    {
+        $page =& $this->pageDimensions[$this->page];
+        if (!isset($page['MediaBox'])) {
+            $this->pageBoxes($this->page, 'MediaBox', 0, 0, $this->formatWidthPT, $this->formatHeightPT, true);
+        }
+
+        $mediaBox = $page['MediaBox'];
+        if (!isset($page['CropBox'])) {
+            $this->pageBoxes($this->page, 'CropBox', $mediaBox['llx'], $mediaBox['lly'], $mediaBox['urx'], $mediaBox['ury'], true);
+        }
+
+        $cropBox = $page['CropBox'];
+        if (!isset($page['BleedBox'])) {
+            $this->pageBoxes($this->page, 'BleedBox', $cropBox['llx'], $cropBox['lly'], $cropBox['urx'], $cropBox['ury'], true);
+        }
+        if (!isset($page['TrimBox'])) {
+            $this->pageBoxes($this->page, 'TrimBox', $cropBox['llx'], $cropBox['lly'], $cropBox['urx'], $cropBox['ury'], true);
+        }
+        if (!isset($page['ArtBox'])) {
+            $this->pageBoxes($this->page, 'ArtBox', $cropBox['llx'], $cropBox['lly'], $cropBox['urx'], $cropBox['ury'], true);
+        }
+
+        if (!isset($page['PZ'])) {
+            $page['PZ'] = 1;
+        }
+        if (!isset($page['Rotate'])) {
+            $page['Rotate'] = 0;
+        }
+
+        $defaultOrientation = $this->formatHeightPT < $this->formatWidthPT ? self::LANDSCAPE : self::PORTRAIT;
+        $orientation        = $orientation ?: $defaultOrientation;
+
+        if (in_array($orientation, self::ORIENTATIONS) and ($orientation !== $defaultOrientation)) {
+            $this->currentOrientation = $orientation;
+            $this->heightPT           = $this->formatWidthPT;
+            $this->widthPT            = $this->formatHeightPT;
+        }
+        else {
+            $this->currentOrientation = $defaultOrientation;
+            $this->heightPT           = $this->formatHeightPT;
+            $this->widthPT            = $this->formatWidthPT;
+        }
+
+        if ((abs($mediaBox['urx'] - $this->heightPT) < self::EPSILON) and (abs($mediaBox['ury'] - $this->widthPT) < self::EPSILON)) {
+            foreach (self::PAGE_BOXES as $box) {
+                // swap X and Y coordinates
+                if (isset($page[$box])) {
+                    $lly = $page[$box]['llx'];
+                    $ury = $page[$box]['urx'];
+
+                    $page[$box]['llx'] = $page[$box]['lly'];
+                    $page[$box]['lly'] = $lly;
+                    $page[$box]['urx'] = $page[$box]['ury'];
+                    $page[$box]['ury'] = $ury;
+                }
+            }
+        }
+
+        $this->width  = ($this->widthPT / $this->k);
+        $this->height = ($this->heightPT / $this->k);
+
+        if (is_null($autoPagebreak)) {
+            $autoPagebreak = $this->autoPageBreak;
+        }
+        if (is_null($bottomMargin)) {
+            $bottomMargin = $this->bottomMargin ?: 2 * 28.35 / $this->k;
+        }
+        $this->autoPageBreak($autoPagebreak, $bottomMargin);
+
+        // store page dimensions
+        $page['bm']  = $bottomMargin;
+        $page['h']   = $this->heightPT;
+        $page['hk']  = $this->height;
+        $page['lm']  = $this->leftMargin;
+        $page['olm'] = $this->originalLeftMargin;
+        $page['or']  = $this->currentOrientation;
+        $page['orm'] = $this->originalRightMargin;
+        $page['pb']  = $autoPagebreak;
+        $page['rm']  = $this->rightMargin;
+        $page['tm']  = $this->topMargin;
+        $page['w']   = $this->widthPT;
+        $page['wk']  = $this->width;
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 
@@ -116,352 +345,30 @@ trait Pages
 
 
     /**
-     * Set page boundaries.
-     * @param int     $page    page number
-     * @param string  $type    valid values are: <ul><li>'MediaBox' : the boundaries of the physical medium on which the page shall be displayed or printed;</li><li>'CropBox' : the visible region of default user space;</li><li>'BleedBox' : the region to which the contents of the page shall be clipped when output in a production environment;</li><li>'TrimBox' : the intended dimensions of the finished page after trimming;</li><li>'ArtBox' : the page's meaningful content (including potential white space).</li></ul>
-     * @param float   $llx     lower-left x coordinate in user units.
-     * @param float   $lly     lower-left y coordinate in user units.
-     * @param float   $urx     upper-right x coordinate in user units.
-     * @param float   $ury     upper-right y coordinate in user units.
-     * @param boolean $points  If true uses user units as unit of measure, otherwise uses PDF points.
-     * @param float   $k       Scale factor (number of points in user unit).
-     * @param array   $pagedim Array of page dimensions.
-     * @return array pagedim array of page dimensions.
+     * Whenever a page break condition is met, the method is called, and the break is issued or not depending on the returned value.
+     * The default implementation returns a value according to the mode selected by SetAutoPageBreak().<br />
+     * This method is called automatically and should not be called directly by the application.
+     * @return bool
+     * @see   autoPageBreak()
      */
-    public function setPageBoxes($page, $type, $llx, $lly, $urx, $ury, $points, $k, $pagedim = [])
+    public function AcceptPageBreak()
     {
-        if (!isset($pagedim[$page])) {
-            // initialize array
-            $pagedim[$page] = [];
+        if ($this->num_columns > 1) {
+            // multi column mode
+            if ($this->current_column < ($this->num_columns - 1)) {
+                // go to next column
+                $this->selectColumn($this->current_column + 1);
+            }
+            elseif ($this->autoPageBreak) {
+                // add a new page
+                $this->AddPage();
+                // set first column
+                $this->selectColumn(0);
+            }
+            // avoid page breaking from checkPageBreak()
+            return false;
         }
-        if (!in_array($type, PDF::PAGE_BOXES)) {
-            return;
-        }
-        if ($points) {
-            $k = 1;
-        }
-        $pagedim[$page][$type]['llx'] = ($llx * $k);
-        $pagedim[$page][$type]['lly'] = ($lly * $k);
-        $pagedim[$page][$type]['urx'] = ($urx * $k);
-        $pagedim[$page][$type]['ury'] = ($ury * $k);
-        return $pagedim;
+        return $this->autoPageBreak;
     }
-
-    /**
-     * Change the format of the current page
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() documentation or an array of two numbers (width, height) or an array containing the following measures and options:<ul>
-     *                            <li>['format'] = page format name (one of the above);</li>
-     *                            <li>['Rotate'] : The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.</li>
-     *                            <li>['PZ'] : The page's preferred zoom (magnification) factor.</li>
-     *                            <li>['MediaBox'] : the boundaries of the physical medium on which the page shall be displayed or printed:</li>
-     *                            <li>['MediaBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['MediaBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['MediaBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['MediaBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['CropBox'] : the visible region of default user space:</li>
-     *                            <li>['CropBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['CropBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['CropBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['CropBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['BleedBox'] : the region to which the contents of the page shall be clipped when output in a production environment:</li>
-     *                            <li>['BleedBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['BleedBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['BleedBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['BleedBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['TrimBox'] : the intended dimensions of the finished page after trimming:</li>
-     *                            <li>['TrimBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['TrimBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['TrimBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['TrimBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['ArtBox'] : the extent of the page's meaningful content:</li>
-     *                            <li>['ArtBox']['llx'] : lower-left x coordinate</li>
-     *                            <li>['ArtBox']['lly'] : lower-left y coordinate</li>
-     *                            <li>['ArtBox']['urx'] : upper-right x coordinate</li>
-     *                            <li>['ArtBox']['ury'] : upper-right y coordinate</li>
-     *                            <li>['BoxColorInfo'] :specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for each of the possible page boundaries other than the MediaBox:</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['C'] : an array of three numbers in the range 0-255, representing the components in the DeviceRGB colour space.</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['W'] : the guideline width in default user units</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['S'] : the guideline style: S = Solid; D = Dashed</li>
-     *                            <li>['BoxColorInfo'][BOXTYPE]['D'] : dash array defining a pattern of dashes and gaps to be used in drawing dashed guidelines</li>
-     *                            <li>['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation</li>
-     *                            <li>['trans']['Dur'] : The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.</li>
-     *                            <li>['trans']['S'] : transition style : Split, Blinds, Box, Wipe, Dissolve, Glitter, R, Fly, Push, Cover, Uncover, Fade</li>
-     *                            <li>['trans']['D'] : The duration of the transition effect, in seconds.</li>
-     *                            <li>['trans']['Dm'] : (Split and Blinds transition styles only) The dimension in which the specified transition effect shall occur: H = Horizontal, V = Vertical. Default value: H.</li>
-     *                            <li>['trans']['M'] : (Split, Box and Fly transition styles only) The direction of motion for the specified transition effect: I = Inward from the edges of the page, O = Outward from the center of the pageDefault value: I.</li>
-     *                            <li>['trans']['Di'] : (Wipe, Glitter, Fly, Cover, Uncover and Push transition styles only) The direction in which the specified transition effect shall moves, expressed in degrees counterclockwise starting from a left-to-right direction. If the value is a number, it shall be one of: 0 = Left to right, 90 = Bottom to top (Wipe only), 180 = Right to left (Wipe only), 270 = Top to bottom, 315 = Top-left to bottom-right (Glitter only). If the value is a name, it shall be None, which is relevant only for the Fly transition when the value of SS is not 1.0. Default value: 0.</li>
-     *                            <li>['trans']['SS'] : (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0.</li>
-     *                            <li>['trans']['B'] : (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li>
-     *                            </ul>
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul>
-     *                            <li>P or Portrait (default)</li>
-     *                            <li>L or Landscape</li>
-     *                            <li>'' (empty string) for automatic orientation</li>
-     *                            </ul>
-     * @see   getPageSizeFromFormat()
-     */
-    protected function setPageFormat($format, $orientation = 'P')
-    {
-        if (!empty($format) and isset($this->pageDimensions[$this->page])) {
-            // remove inherited values
-            unset($this->pageDimensions[$this->page]);
-        }
-        if (is_string($format)) {
-            // get page measures from format name
-            $pf         = $this->pageDimensionsFromFormat($format);
-            $this->fwPt = $pf[0];
-            $this->fhPt = $pf[1];
-        }
-        else {
-            // the boundaries of the physical medium on which the page shall be displayed or printed
-            if (isset($format['MediaBox'])) {
-                $this->pageDimensions = $this->setPageBoxes($this->page, 'MediaBox', $format['MediaBox']['llx'], $format['MediaBox']['lly'], $format['MediaBox']['urx'], $format['MediaBox']['ury'], false, $this->k, $this->pageDimensions);
-                $this->fwPt           = (($format['MediaBox']['urx'] - $format['MediaBox']['llx']) * $this->k);
-                $this->fhPt           = (($format['MediaBox']['ury'] - $format['MediaBox']['lly']) * $this->k);
-            }
-            else {
-                if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
-                    $pf = array(($format[0] * $this->k), ($format[1] * $this->k));
-                }
-                else {
-                    if (!isset($format['format'])) {
-                        // default value
-                        $format['format'] = 'A4';
-                    }
-                    $pf = $this->pageDimensionsFromFormat($format['format']);
-                }
-                $this->fwPt           = $pf[0];
-                $this->fhPt           = $pf[1];
-                $this->pageDimensions = $this->setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pageDimensions);
-            }
-            // the visible region of default user space
-            if (isset($format['CropBox'])) {
-                $this->pageDimensions = $this->setPageBoxes($this->page, 'CropBox', $format['CropBox']['llx'], $format['CropBox']['lly'], $format['CropBox']['urx'], $format['CropBox']['ury'], false, $this->k, $this->pageDimensions);
-            }
-            // the region to which the contents of the page shall be clipped when output in a production environment
-            if (isset($format['BleedBox'])) {
-                $this->pageDimensions = $this->setPageBoxes($this->page, 'BleedBox', $format['BleedBox']['llx'], $format['BleedBox']['lly'], $format['BleedBox']['urx'], $format['BleedBox']['ury'], false, $this->k, $this->pageDimensions);
-            }
-            // the intended dimensions of the finished page after trimming
-            if (isset($format['TrimBox'])) {
-                $this->pageDimensions = $this->setPageBoxes($this->page, 'TrimBox', $format['TrimBox']['llx'], $format['TrimBox']['lly'], $format['TrimBox']['urx'], $format['TrimBox']['ury'], false, $this->k, $this->pageDimensions);
-            }
-            // the page's meaningful content (including potential white space)
-            if (isset($format['ArtBox'])) {
-                $this->pageDimensions = $this->setPageBoxes($this->page, 'ArtBox', $format['ArtBox']['llx'], $format['ArtBox']['lly'], $format['ArtBox']['urx'], $format['ArtBox']['ury'], false, $this->k, $this->pageDimensions);
-            }
-            // specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for the various page boundaries
-            if (isset($format['BoxColorInfo'])) {
-                $this->pageDimensions[$this->page]['BoxColorInfo'] = $format['BoxColorInfo'];
-            }
-            if (isset($format['Rotate']) and (($format['Rotate'] % 90) == 0)) {
-                // The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
-                $this->pageDimensions[$this->page]['Rotate'] = intval($format['Rotate']);
-            }
-            if (isset($format['PZ'])) {
-                // The page's preferred zoom (magnification) factor
-                $this->pageDimensions[$this->page]['PZ'] = floatval($format['PZ']);
-            }
-            if (isset($format['trans'])) {
-                // The style and duration of the visual transition to use when moving from another page to the given page during a presentation
-                if (isset($format['trans']['Dur'])) {
-                    // The page's display duration
-                    $this->pageDimensions[$this->page]['trans']['Dur'] = floatval($format['trans']['Dur']);
-                }
-                $stansition_styles = ['Split', 'Blinds', 'Box', 'Wipe', 'Dissolve', 'Glitter', 'R', 'Fly', 'Push', 'Cover', 'Uncover', 'Fade'];
-                if (isset($format['trans']['S']) and in_array($format['trans']['S'], $stansition_styles)) {
-                    // The transition style that shall be used when moving to this page from another during a presentation
-                    $this->pageDimensions[$this->page]['trans']['S'] = $format['trans']['S'];
-                    $valid_effect                                    = ['Split', 'Blinds'];
-                    $valid_vals                                      = ['H', 'V'];
-                    if (isset($format['trans']['Dm']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['Dm'], $valid_vals)) {
-                        $this->pageDimensions[$this->page]['trans']['Dm'] = $format['trans']['Dm'];
-                    }
-                    $valid_effect = ['Split', 'Box', 'Fly'];
-                    $valid_vals   = ['I', 'O'];
-                    if (isset($format['trans']['M']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['M'], $valid_vals)) {
-                        $this->pageDimensions[$this->page]['trans']['M'] = $format['trans']['M'];
-                    }
-                    $valid_effect = ['Wipe', 'Glitter', 'Fly', 'Cover', 'Uncover', 'Push'];
-                    if (isset($format['trans']['Di']) and in_array($format['trans']['S'], $valid_effect)) {
-                        if (((($format['trans']['Di'] == 90) or ($format['trans']['Di'] == 180)) and ($format['trans']['S'] == 'Wipe'))
-                            or (($format['trans']['Di'] == 315) and ($format['trans']['S'] == 'Glitter'))
-                            or (($format['trans']['Di'] == 0) or ($format['trans']['Di'] == 270))) {
-                            $this->pageDimensions[$this->page]['trans']['Di'] = intval($format['trans']['Di']);
-                        }
-                    }
-                    if (isset($format['trans']['SS']) and ($format['trans']['S'] == 'Fly')) {
-                        $this->pageDimensions[$this->page]['trans']['SS'] = floatval($format['trans']['SS']);
-                    }
-                    if (isset($format['trans']['B']) and ($format['trans']['B'] === true) and ($format['trans']['S'] == 'Fly')) {
-                        $this->pageDimensions[$this->page]['trans']['B'] = 'true';
-                    }
-                }
-                else {
-                    $this->pageDimensions[$this->page]['trans']['S'] = 'R';
-                }
-                if (isset($format['trans']['D'])) {
-                    // The duration of the transition effect, in seconds
-                    $this->pageDimensions[$this->page]['trans']['D'] = floatval($format['trans']['D']);
-                }
-                else {
-                    $this->pageDimensions[$this->page]['trans']['D'] = 1;
-                }
-            }
-        }
-        $this->setPageOrientation($orientation);
-    }
-
-    /**
-     * Set page orientation.
-     * @param string     $orientation   page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
-     * @param bool|null  $autopagebreak bool indicating if auto-page-break mode should be on or off.
-     * @param float|null $bottommargin  bottom margin of the page.
-     */
-    public function setPageOrientation($orientation, $autopagebreak = null, $bottommargin = null)
-    {
-        if (!isset($this->pageDimensions[$this->page]['MediaBox'])) {
-            // the boundaries of the physical medium on which the page shall be displayed or printed
-            $this->pageDimensions = $this->setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pageDimensions);
-        }
-        if (!isset($this->pageDimensions[$this->page]['CropBox'])) {
-            // the visible region of default user space
-            $this->pageDimensions = $this->setPageBoxes($this->page, 'CropBox', $this->pageDimensions[$this->page]['MediaBox']['llx'], $this->pageDimensions[$this->page]['MediaBox']['lly'], $this->pageDimensions[$this->page]['MediaBox']['urx'], $this->pageDimensions[$this->page]['MediaBox']['ury'], true, $this->k, $this->pageDimensions);
-        }
-        if (!isset($this->pageDimensions[$this->page]['BleedBox'])) {
-            // the region to which the contents of the page shall be clipped when output in a production environment
-            $this->pageDimensions = $this->setPageBoxes($this->page, 'BleedBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
-        }
-        if (!isset($this->pageDimensions[$this->page]['TrimBox'])) {
-            // the intended dimensions of the finished page after trimming
-            $this->pageDimensions = $this->setPageBoxes($this->page, 'TrimBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
-        }
-        if (!isset($this->pageDimensions[$this->page]['ArtBox'])) {
-            // the page's meaningful content (including potential white space)
-            $this->pageDimensions = $this->setPageBoxes($this->page, 'ArtBox', $this->pageDimensions[$this->page]['CropBox']['llx'], $this->pageDimensions[$this->page]['CropBox']['lly'], $this->pageDimensions[$this->page]['CropBox']['urx'], $this->pageDimensions[$this->page]['CropBox']['ury'], true, $this->k, $this->pageDimensions);
-        }
-        if (!isset($this->pageDimensions[$this->page]['Rotate'])) {
-            // The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
-            $this->pageDimensions[$this->page]['Rotate'] = 0;
-        }
-        if (!isset($this->pageDimensions[$this->page]['PZ'])) {
-            // The page's preferred zoom (magnification) factor
-            $this->pageDimensions[$this->page]['PZ'] = 1;
-        }
-        if ($this->fwPt > $this->fhPt) {
-            // landscape
-            $default_orientation = 'L';
-        }
-        else {
-            // portrait
-            $default_orientation = 'P';
-        }
-        $valid_orientations = ['P', 'L'];
-        if (empty($orientation)) {
-            $orientation = $default_orientation;
-        }
-        else {
-            $orientation = strtoupper($orientation[0]);
-        }
-        if (in_array($orientation, $valid_orientations) and ($orientation != $default_orientation)) {
-            $this->CurOrientation = $orientation;
-            $this->wPt            = $this->fhPt;
-            $this->hPt            = $this->fwPt;
-        }
-        else {
-            $this->CurOrientation = $default_orientation;
-            $this->wPt            = $this->fwPt;
-            $this->hPt            = $this->fhPt;
-        }
-        if ((abs($this->pageDimensions[$this->page]['MediaBox']['urx'] - $this->hPt) < $this->feps) and (abs($this->pageDimensions[$this->page]['MediaBox']['ury'] - $this->wPt) < $this->feps)) {
-            // swap X and Y coordinates (change page orientation)
-            $this->pageDimensions = StaticMethods::swapPageBoxCoordinates($this->page, $this->pageDimensions);
-        }
-        $this->w = ($this->wPt / $this->k);
-        $this->h = ($this->hPt / $this->k);
-        if (StaticMethods::empty_string($autopagebreak)) {
-            if (isset($this->AutoPageBreak)) {
-                $autopagebreak = $this->AutoPageBreak;
-            }
-            else {
-                $autopagebreak = true;
-            }
-        }
-        if (StaticMethods::empty_string($bottommargin)) {
-            if (isset($this->bMargin)) {
-                $bottommargin = $this->bMargin;
-            }
-            else {
-                // default value = 2 cm
-                $bottommargin = 2 * 28.35 / $this->k;
-            }
-        }
-        $this->setAutoPageBreak($autopagebreak, $bottommargin);
-        // store page dimensions
-        $this->pageDimensions[$this->page]['w']   = $this->wPt;
-        $this->pageDimensions[$this->page]['h']   = $this->hPt;
-        $this->pageDimensions[$this->page]['wk']  = $this->w;
-        $this->pageDimensions[$this->page]['hk']  = $this->h;
-        $this->pageDimensions[$this->page]['tm']  = $this->tMargin;
-        $this->pageDimensions[$this->page]['bm']  = $bottommargin;
-        $this->pageDimensions[$this->page]['lm']  = $this->leftMargin;
-        $this->pageDimensions[$this->page]['rm']  = $this->rightMargin;
-        $this->pageDimensions[$this->page]['pb']  = $autopagebreak;
-        $this->pageDimensions[$this->page]['or']  = $this->CurOrientation;
-        $this->pageDimensions[$this->page]['olm'] = $this->originalLeftMargin;
-        $this->pageDimensions[$this->page]['orm'] = $this->originalRightMargin;
-    }
-
-    /**
-     * Width of page format in points.
-     */
-    protected $fwPt;
-
-    /**
-     * Height of page format in points.
-     */
-    protected $fhPt;
-
-    /**
-     * Current width of page in points.
-     */
-    protected $wPt;
-
-    /**
-     * Current height of page in points.
-     */
-    protected $hPt;
-
-    /**
-     * Current width of page in user unit.
-     */
-    protected $w;
-
-    /**
-     * Current height of page in user unit.
-     */
-    protected $h;
-
-    /**
-     * Top margin.
-     */
-    protected $tMargin;
-
-    /**
-     * Page break margin.
-     */
-    protected $bMargin;
-
-
-    /**
-     * Automatic page breaking.
-     */
-    protected $AutoPageBreak;
-
-    /**
-     * Threshold used to trigger page breaks.
-     */
-    protected $PageBreakTrigger;
-
 
 }

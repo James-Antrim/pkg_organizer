@@ -22,6 +22,9 @@ trait Constants
     // Used in multiple contexts.
     public const BOLD = 'B';
 
+    /** Epsilon value used for float calculations. */
+    public const EPSILON = 0.005;
+
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
 
@@ -247,6 +250,25 @@ trait Constants
         'width' => 'width of the line in user units (float)',
     ];
 
+
+    public const PAGE_FORMAT_CONFIGURATION_DESCRIPTION = [
+        self::ART_BOX   => 'The extent of the meaningful content, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        self::BLEED_BOX => 'The region to which the contents shall be clipped when output in a production environment, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        self::CROP_BOX  => 'The visible region of default user space, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        self::MEDIA_BOX => 'The boundaries of the physical medium when displayed or printed, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        self::TRIM_BOX  => 'The intended dimensions after trimming, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        'BoxColorInfo'  => [
+            '!self::MEDIA_BOX' => [
+                'C' => 'int[] RGB (0-255)',
+                'W' => 'Guideline width in default user units',
+                'S' => 'Guideline style: Solid (S) or Dashed (D)',
+                'D' => 'int[] defining a pattern of dashes and gaps to be used in drawing dashed guidelines',
+            ]
+        ],
+        'format'        => self::PAGE_FORMATS,
+        'PZ'            => 'The preferred zoom (magnification) factor.',
+        'Rotate'        => 'The number of degrees by which the page shall be rotated clockwise when displayed or printed. (Multiples of 90)',
+    ];
     public const PAGE_LAYOUT_DESCRIPTIONS = [
         self::ONE_COLUMN       => 'Display the pages in one column',
         self::SINGLE_PAGE      => 'Display one page at a time',
@@ -367,7 +389,6 @@ trait Constants
     public const SMALL_FONT_RATIO = 2 / 3;
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IMAGES
 
 
@@ -383,17 +404,16 @@ trait Constants
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PAGES
 
+
     public const LANDSCAPE = 'L', PORTRAIT = 'P';
     public const ORIENTATIONS = [self::LANDSCAPE, self::PORTRAIT];
-    public const PAGE_BOXES = ['MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox'];
-
+    public const ART_BOX = 'ArtBox', BLEED_BOX = 'BleedBox', CROP_BOX = 'CropBox', MEDIA_BOX = 'MediaBox', TRIM_BOX = 'TrimBox';
+    public const PAGE_BOXES = [self::ART_BOX, self::BLEED_BOX, self::CROP_BOX, self::MEDIA_BOX, self::TRIM_BOX];
     /**
-     * Array of page formats
-     * measures are calculated in this way: (inches * 72) or (millimeters * 72 / 25.4)
-     *
+     * Measurements are calculated in this way: (inches * 72) or (millimeters * 72 / 25.4)
      * @var array<string,float[]>
      */
-    public const PAGE_FORMATS = array(
+    public const PAGE_FORMATS = [
         // ISO 216 A Series + 2 SIS 014711 extensions
         'A0'                    => [2383.937, 3370.394], // = (  841 x 1189 ) mm  = ( 33.11 x 46.81 ) in
         'A1'                    => [1683.780, 2383.937], // = (  594 x 841  ) mm  = ( 23.39 x 33.11 ) in
@@ -742,14 +762,12 @@ trait Constants
         'FR_COURONNE'           => [1020.472, 1303.937], // = (  360 x 460  ) mm  = ( 14.17 x 18.11 ) in
         'FR_TELLIERE'           => [963.780, 1247.244], // = (  340 x 440  ) mm  = ( 13.39 x 17.32 ) in
         'FR_POT'                => [878.740, 1133.858], // = (  310 x 400  ) mm  = ( 12.20 x 15.75 ) in
-    );
-
+    ];
     public const ONE_COLUMN = 'OneColumn', SINGLE_PAGE = 'SinglePage', TWO_COLUMN_LEFT = 'TwoColumnLeft', TWO_COLUMN_RIGHT = 'TwoColumnRight', TWO_PAGE_LEFT = 'TwoPageLeft', TWO_PAGE_RIGHT = 'TwoPageRight';
     public const PAGE_LAYOUTS = [self::ONE_COLUMN, self::SINGLE_PAGE, self::TWO_COLUMN_LEFT, self::TWO_COLUMN_RIGHT, self::TWO_PAGE_LEFT, self::TWO_PAGE_RIGHT,
     ];
     public const FULL_SCREEN = 'FullScreen', USE_ATTACHMENTS = 'UseAttachments', USE_NONE = 'UseNone', USE_OC = 'UseOC', USE_OUTLINES = 'UseOutlines', USE_THUMBS = 'UseThumbs';
     public const PAGE_MODES = [self::FULL_SCREEN, self::USE_ATTACHMENTS, self::USE_NONE, self::USE_OC, self::USE_OUTLINES, self::USE_THUMBS];
-
     public const FULL_PAGE = 'fullpage', FULL_WIDTH = 'fullwidth', REAL_SIZE = 'real', DEFAULT_ZOOM = 'default';
     public const PAGE_ZOOMS = [self::FULL_PAGE, self::FULL_WIDTH, self::REAL_SIZE, self::DEFAULT_ZOOM];
 

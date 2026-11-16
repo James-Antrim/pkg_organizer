@@ -133,7 +133,7 @@ trait Headers
 
         if (!$this->headerXObjectID) {
             // start a new XObject Template
-            $this->headerXObjectID = $this->startTemplate($this->w, $this->tMargin);
+            $this->headerXObjectID = $this->startTemplate($this->width, $this->topMargin);
 
             $font          = $this->headerFont();
             $configuration = $this->headerConfig();
@@ -164,7 +164,7 @@ trait Headers
 
             // Set starting margin for text data cell
             $header_x = $this->originalLeftMargin + ($configuration['logoWidth'] * 1.1);
-            $cw       = $this->w - $this->originalLeftMargin - $this->originalRightMargin - ($configuration['logoWidth'] * 1.1);
+            $cw       = $this->width - $this->originalLeftMargin - $this->originalRightMargin - ($configuration['logoWidth'] * 1.1);
             $this->textColorArray($this->headerTextColor);
 
             // Title
@@ -181,7 +181,7 @@ trait Headers
             $this->lineStyle(['width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $configuration['line_color']]);
             $this->y((2.835 / $this->k) + max($imageY, $this->y));
             $this->x($this->originalLeftMargin);
-            $this->Cell(($this->w - $this->originalLeftMargin - $this->originalRightMargin), 0, '', 'T', 0, 'C');
+            $this->Cell(($this->width - $this->originalLeftMargin - $this->originalRightMargin), 0, '', 'T', 0, 'C');
             $this->endTemplate();
         }
 
@@ -197,7 +197,7 @@ trait Headers
             $this->headerXObjectID = '';
         }
 
-        $this->setXY($this->originalLeftMargin, $this->tMargin);
+        $this->setXY($this->originalLeftMargin, $this->topMargin);
         $this->_outRestoreGraphicsState();
         $this->lastPrintedCellHeight = $lastHeight;
         $this->headerTemplate        = $template;

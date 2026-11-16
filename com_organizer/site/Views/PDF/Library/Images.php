@@ -740,10 +740,10 @@ trait Images
             $ximg = $this->leftMargin;
         }
         elseif ($palign == 'C') {
-            $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+            $ximg = ($this->width + $this->leftMargin - $this->rightMargin - $w) / 2;
         }
         elseif ($palign == 'R') {
-            $ximg = $this->w - $this->rightMargin - $w;
+            $ximg = $this->width - $this->rightMargin - $w;
         }
         else {
             $ximg = $x;
@@ -755,8 +755,8 @@ trait Images
         }
         $xkimg = $ximg * $this->k;
         if (!$alt) {
-            // only non-alternative immages will be set
-            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->h - ($y + $h)) * $this->k), $info['i']));
+            // only non-alternative images will be set
+            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->height - ($y + $h)) * $this->k), $info['i']));
         }
         if (!empty($border)) {
             $bx      = $this->x;
@@ -1166,10 +1166,10 @@ trait Images
             $ximg = $this->leftMargin;
         }
         elseif ($palign == 'C') {
-            $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+            $ximg = ($this->width + $this->leftMargin - $this->rightMargin - $w) / 2;
         }
         elseif ($palign == 'R') {
-            $ximg = $this->w - $this->rightMargin - $w;
+            $ximg = $this->width - $this->rightMargin - $w;
         }
         else {
             $ximg = $x;
@@ -1186,7 +1186,7 @@ trait Images
         // save the current graphic state
         $this->append('q' . $this->epsmarker);
         // translate
-        $this->append(sprintf('%F %F %F %F %F %F cm', 1, 0, 0, 1, $dx, $dy + ($this->hPt - (2 * $y * $k) - ($y2 - $y1))));
+        $this->append(sprintf('%F %F %F %F %F %F cm', 1, 0, 0, 1, $dx, $dy + ($this->heightPT - (2 * $y * $k) - ($y2 - $y1))));
         // scale
         $this->append(sprintf('%F %F %F %F %F %F cm', $scale_x, 0, 0, $scale_y, $x1 * (1 - $scale_x), $y2 * (1 - $scale_y)));
         // handle pc/unix/mac line endings
@@ -1544,10 +1544,10 @@ trait Images
             $ximg = $this->leftMargin;
         }
         elseif ($palign == 'C') {
-            $ximg = ($this->w + $this->leftMargin - $this->rightMargin - $w) / 2;
+            $ximg = ($this->width + $this->leftMargin - $this->rightMargin - $w) / 2;
         }
         elseif ($palign == 'R') {
-            $ximg = $this->w - $this->rightMargin - $w;
+            $ximg = $this->width - $this->rightMargin - $w;
         }
         else {
             $ximg = $x;
@@ -1636,18 +1636,18 @@ trait Images
             }
         }
         // store current page break mode
-        $page_break_mode   = $this->AutoPageBreak;
+        $page_break_mode   = $this->autoPageBreak;
         $page_break_margin = $this->getBreakMargin();
         $cellPaddings      = $this->cellPaddings;
         $this->setCellPadding(0);
-        $this->setAutoPageBreak(false);
+        $this->autoPageBreak(false);
         // save the current graphic state
         $this->append('q' . $this->epsmarker);
         // set initial clipping mask
         $this->Rect($ximg, $y, $w, $h, 'CNZ', [], []);
         // scale and translate
         $e = $ox * $this->k * (1 - $svgscale_x);
-        $f = ($this->h - $oy) * $this->k * (1 - $svgscale_y);
+        $f = ($this->height - $oy) * $this->k * (1 - $svgscale_y);
         $this->append(sprintf('%F %F %F %F %F %F cm', $svgscale_x, 0, 0, $svgscale_y, ($e + $svgoffset_x), ($f + $svgoffset_y)));
         // creates a new XML parser to be used by the other XML functions
         $parser = xml_parser_create('UTF-8');
@@ -1719,20 +1719,20 @@ trait Images
                 $this->y              = $gvars['y'];
                 $this->page           = $gvars['page'];
                 $this->current_column = $gvars['current_column'];
-                $this->tMargin        = $gvars['tMargin'];
-                $this->bMargin        = $gvars['bMargin'];
-                $this->w              = $gvars['w'];
-                $this->h              = $gvars['h'];
-                $this->wPt            = $gvars['wPt'];
-                $this->hPt            = $gvars['hPt'];
-                $this->fwPt           = $gvars['fwPt'];
-                $this->fhPt           = $gvars['fhPt'];
+                $this->topMargin      = $gvars['tMargin'];
+                $this->bottomMargin   = $gvars['bMargin'];
+                $this->width          = $gvars['w'];
+                $this->height         = $gvars['h'];
+                $this->widthPT        = $gvars['wPt'];
+                $this->heightPT       = $gvars['hPt'];
+                $this->formatWidthPT  = $gvars['fwPt'];
+                $this->formatHeightPT = $gvars['fhPt'];
                 break;
             }
         }
         $this->endlinex = $this->imageRBX;
         // restore page break
-        $this->setAutoPageBreak($page_break_mode, $page_break_margin);
+        $this->autoPageBreak($page_break_mode, $page_break_margin);
         $this->cellPaddings = $cellPaddings;
     }
 
@@ -1750,7 +1750,7 @@ trait Images
         $e = $this->fontSizeToUnits($tm[4]) * $this->k;
         $f = -$this->fontSizeToUnits($tm[5]) * $this->k;
         $x = 0;
-        $y = $this->h * $this->k;
+        $y = $this->height * $this->k;
         $e = ($x * (1 - $a)) - ($y * $c) + $e;
         $f = ($y * (1 - $d)) - ($x * $b) + $f;
         return [$a, $b, $c, $d, $e, $f];
@@ -1918,7 +1918,7 @@ trait Images
             $gradient['coords'][1] = $gradient['coords'][3];
             $gradient['coords'][3] = $tmp;
             // set transformation map for gradient
-            $cy = ($this->h - $y);
+            $cy = ($this->height - $y);
             if ($gradient['type'] == 3) {
                 // circular gradient
                 $cy -= ($gradient['coords'][1] * ($w + $h));
@@ -2605,8 +2605,8 @@ trait Images
                 // set clipping for width and height
                 $x = 0;
                 $y = 0;
-                $w = (isset($attribs['width']) ? $this->fontSizeToUnits($attribs['width'], 0) : $this->w);
-                $h = (isset($attribs['height']) ? $this->fontSizeToUnits($attribs['height'], 0) : $this->h);
+                $w = (isset($attribs['width']) ? $this->fontSizeToUnits($attribs['width'], 0) : $this->width);
+                $h = (isset($attribs['height']) ? $this->fontSizeToUnits($attribs['height'], 0) : $this->height);
                 // draw clipping rect
                 $this->Rect($x, $y, $w, $h, 'CNZ', [], []);
                 // parse viewbox, calculate extra transformation matrix

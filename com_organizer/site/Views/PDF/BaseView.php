@@ -65,7 +65,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param string $orientation
      * @param string $unit
      * @param mixed  $format page format; possible values: string - common format name, array - parameters
-     * @see self::ORIENTATIONS, self::UNITS, self::PAGE_FORMATS, setPageFormat()
+     * @see self::ORIENTATIONS, self::UNITS, self::PAGE_FORMATS, pageFormat()
      */
     public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
     {
@@ -128,11 +128,11 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param array|string $format the format to set the page to string format constant, [width, height], [options]
      *
      * @return void
-     * @see self::ORIENTATIONS, setPageFormat(), setPageOrientation(), getPageSizeFromFormat()
+     * @see self::ORIENTATIONS, pageFormat(), pageOrientation(), getPageSizeFromFormat()
      */
     public function format(array|string $format): void
     {
-        $this->setPageFormat($format, $this->orientation);
+        $this->pageFormat($format, $this->orientation);
     }
 
     /** @inheritDoc */
@@ -152,7 +152,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param int $header the header margin
      * @param int $footer the footer margin
      *
-     * @see   SetAutoPageBreak(), SetFooterMargin(), headerMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
+     * @see   autoPageBreak(), SetFooterMargin(), headerMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
      */
     public function margins(int $left = 15,
                             int $top = 27,
@@ -161,7 +161,7 @@ abstract class BaseView extends PDF implements ViewInterface
                             int $header = 5,
                             int $footer = 10): void
     {
-        $this->SetAutoPageBreak(true, $bottom);
+        $this->autoPageBreak(true, $bottom);
         $this->setFooterMargin($footer);
         $this->headerMargin($header);
         $this->SetMargins($left, $top, $right);
@@ -217,7 +217,7 @@ abstract class BaseView extends PDF implements ViewInterface
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
-     * @see   Cell(), drawColor(),fillColor(), setCurrentFont(), textColor(), lineWidth(), SetAutoPageBreak(), Write()
+     * @see   Cell(), drawColor(),fillColor(), setCurrentFont(), textColor(), lineWidth(), autoPageBreak(), Write()
      */
     public function renderMultiCell(
         int    $width,

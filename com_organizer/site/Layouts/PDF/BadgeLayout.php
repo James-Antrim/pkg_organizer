@@ -32,7 +32,7 @@ abstract class BadgeLayout extends BaseLayout
     {
         parent::__construct($view);
         $view->margins();
-        $view->setPageOrientation($view::LANDSCAPE);
+        $view->pageOrientation($view::LANDSCAPE);
         $view->showHeaderFooter(false);
     }
 
