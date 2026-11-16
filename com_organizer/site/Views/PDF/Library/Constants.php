@@ -366,12 +366,6 @@ trait Constants
 
     public const SMALL_FONT_RATIO = 2 / 3;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FORMATTING
-
-    /** DPI (Dot Per Inch) document resolution */
-    public const DPI = 72;
-
-    public const LANDSCAPE = 'L', PORTRAIT = 'P';
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IMAGES
@@ -389,6 +383,8 @@ trait Constants
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PAGES
 
+    public const LANDSCAPE = 'L', PORTRAIT = 'P';
+    public const ORIENTATIONS = [self::LANDSCAPE, self::PORTRAIT];
     public const PAGE_BOXES = ['MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox'];
 
     /**
@@ -760,6 +756,8 @@ trait Constants
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PRINTING
 
     public const BYTE_RANGE_STRING = '/ByteRange[0 ********** ********** **********]';
+    /** DPI (Dot Per Inch) document resolution */
+    public const DPI = 72;
     public const PAGE_GROUP_NUMBER_ALIAS = '{:png:}', PAGE_NUMBER_ALIAS = '{:pnp:}', PAGES_IN_GROUP_ALIAS = '{:ptg:}', TOTAL_PAGES_ALIAS = '{:ptp:}';
     /** Alias for right shift compensation used to correctly align page numbers on the right. */
     public const RIGHT_SHIFT_ALIAS = '{rsc:';
