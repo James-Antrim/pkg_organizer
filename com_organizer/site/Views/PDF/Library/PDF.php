@@ -33,6 +33,7 @@ class PDF
 
     protected string $buffer = '';
     protected int $bufferLength = 0;
+    protected float $cellHeightRatio = 1.25;
     protected array $cellMargins = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
     protected array $cellPaddings = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
     protected array $footerLengths = [];
@@ -132,6 +133,124 @@ class PDF
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /**
+     * Set graphic variables.
+     * @param array $parameters array of graphic variablesto restore
+     * @param bool  $extended   if true restore extended graphic variables
+     */
+    protected function graphicsConfiguration(array $parameters = [], bool $extended = false): array
+    {
+        if ($this->state === self::READY and $parameters) {
+            $this->alpha           = $parameters['alpha'];
+            $this->bgColor         = $parameters['bgColor'];
+            $this->cellHeightRatio = $parameters['cellHeightRatio'];
+            $this->cellMargins     = $parameters['cellMargins'];
+            $this->cellPaddings    = $parameters['cellPaddings'];
+            $this->differentColors = $parameters['differentColors'];
+            $this->drawColor       = $parameters['drawColor'];
+            $this->fgColor         = $parameters['fgColor'];
+            $this->fillColor       = $parameters['FillColor'];
+            $this->fontFamily      = $parameters['FontFamily'];
+            $this->fontSizePT      = $parameters['FontSizePt'];
+            $this->font_spacing    = $parameters['font_spacing'];
+            $this->font_stretching = $parameters['font_stretching'];
+            $this->fontStyle       = $parameters['FontStyle'];
+            $this->htmlvspace      = $parameters['htmlvspace'];
+            $this->leftMargin      = $parameters['lMargin'];
+            $this->lineCapStyle    = $parameters['lineCapStyle'];
+            $this->lineDashStyle   = $parameters['lineDashStyle'];
+            $this->lineJoinStyle   = $parameters['lineJoinStyle'];
+            $this->lineWidth       = $parameters['lineWidth'];
+            $this->lineWidthStyle  = $parameters['lineWidthStyle'];
+            $this->lispacer        = $parameters['lispacer'];
+            $this->listcount       = $parameters['listcount'];
+            $this->listindent      = $parameters['listindent'];
+            $this->listindentlevel = $parameters['listindentlevel'];
+            $this->listnum         = $parameters['listnum'];
+            $this->listordered     = $parameters['listordered'];
+            $this->rightMargin     = $parameters['rMargin'];
+            $this->textColor       = $parameters['TextColor'];
+            $this->textrendermode  = $parameters['textrendermode'];
+            $this->textstrokewidth = $parameters['textstrokewidth'];
+
+            // Restore extended values
+            if ($extended) {
+                $this->AutoPageBreak         = $parameters['AutoPageBreak'];
+                $this->bMargin               = $parameters['bMargin'];
+                $this->current_column        = $parameters['current_column'];
+                $this->fhPt                  = $parameters['fhPt'];
+                $this->fwPt                  = $parameters['fwPt'];
+                $this->h                     = $parameters['h'];
+                $this->hPt                   = $parameters['hPt'];
+                $this->lastPrintedCellHeight = $parameters['lasth'];
+                $this->num_columns           = $parameters['num_columns'];
+                $this->page                  = $parameters['page'];
+                $this->PageBreakTrigger      = $parameters['PageBreakTrigger'];
+                $this->tMargin               = $parameters['tMargin'];
+                $this->w                     = $parameters['w'];
+                $this->wPt                   = $parameters['wPt'];
+                $this->x                     = $parameters['x'];
+                $this->y                     = $parameters['y'];
+            }
+            $this->append('' . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
+            if ($this->fontFamily) {
+                $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
+            }
+        }
+
+        return [
+            'alpha'            => $this->alpha,
+            'bgColor'          => $this->bgColor,
+            'cellHeightRatio'  => $this->cellHeightRatio,
+            'cellMargins'      => $this->cellMargins,
+            'cellPaddings'     => $this->cellPaddings,
+            'differentColors'  => $this->differentColors,
+            'drawColor'        => $this->drawColor,
+            'fgColor'          => $this->fgColor,
+            'FillColor'        => $this->fillColor,
+            'FontFamily'       => $this->fontFamily,
+            'FontSizePt'       => $this->fontSizePT,
+            'font_spacing'     => $this->font_spacing,
+            'font_stretching'  => $this->font_stretching,
+            'FontStyle'        => $this->fontStyle,
+            'htmlvspace'       => $this->htmlvspace,
+            'lMargin'          => $this->leftMargin,
+            'lineCapStyle'     => $this->lineCapStyle,
+            'lineDashStyle'    => $this->lineDashStyle,
+            'lineJoinStyle'    => $this->lineJoinStyle,
+            'lineWidth'        => $this->lineWidth,
+            'lineWidthStyle'   => $this->lineWidthStyle,
+            'lispacer'         => $this->lispacer,
+            'listcount'        => $this->listcount,
+            'listindent'       => $this->listindent,
+            'listindentlevel'  => $this->listindentlevel,
+            'listnum'          => $this->listnum,
+            'listordered'      => $this->listordered,
+            'rMargin'          => $this->rightMargin,
+            'TextColor'        => $this->textColor,
+            'textrendermode'   => $this->textrendermode,
+            'textstrokewidth'  => $this->textstrokewidth,
+
+            // Extended
+            'AutoPageBreak'    => $this->AutoPageBreak,
+            'bMargin'          => $this->bMargin,
+            'current_column'   => $this->current_column,
+            'fhPt'             => $this->fhPt,
+            'fwPt'             => $this->fwPt,
+            'h'                => $this->h,
+            'hPt'              => $this->hPt,
+            'lasth'            => $this->lastPrintedCellHeight,
+            'num_columns'      => $this->num_columns,
+            'page'             => $this->page,
+            'PageBreakTrigger' => $this->PageBreakTrigger,
+            'tMargin'          => $this->tMargin,
+            'w'                => $this->w,
+            'wPt'              => $this->wPt,
+            'x'                => $this->x,
+            'y'                => $this->y,
+        ];
+    }
 
     /**
      * Set line style.the PDF command
@@ -275,182 +394,6 @@ class PDF
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
-    /**
-     * Returns current graphic variables as array.
-     * @return array of graphic variables
-     */
-    protected function getGraphicVars()
-    {
-        $grapvars = [
-            'cellMargins'       => $this->cellMargins,
-            'cellPaddings'      => $this->cellPaddings,
-            'FontFamily'        => $this->fontFamily,
-            'FontSizePt'        => $this->fontSizePT,
-            'FontStyle'         => $this->fontStyle,
-            'rMargin'           => $this->rightMargin,
-            'lMargin'           => $this->leftMargin,
-            'lineCapStyle'      => $this->lineCapStyle,
-            'lineDashStyle'     => $this->lineDashStyle,
-            'lineJoinStyle'     => $this->lineJoinStyle,
-            'lineWidth'         => $this->lineWidth,
-            'lineWidthStyle'    => $this->lineWidthStyle,
-            'textrendermode'    => $this->textrendermode,
-            'textstrokewidth'   => $this->textstrokewidth,
-            'DrawColor'         => $this->drawColor,
-            'FillColor'         => $this->fillColor,
-            'TextColor'         => $this->textColor,
-            'ColorFlag'         => $this->differentColors,
-            'bgcolor'           => $this->bgColor,
-            'fgcolor'           => $this->fgColor,
-            'htmlvspace'        => $this->htmlvspace,
-            'listindent'        => $this->listindent,
-            'listindentlevel'   => $this->listindentlevel,
-            'listnum'           => $this->listnum,
-            'listordered'       => $this->listordered,
-            'listcount'         => $this->listcount,
-            'lispacer'          => $this->lispacer,
-            'cell_height_ratio' => $this->cell_height_ratio,
-            'font_stretching'   => $this->font_stretching,
-            'font_spacing'      => $this->font_spacing,
-            'alpha'             => $this->alpha,
-            // extended
-            'lasth'             => $this->lastPrintedCellHeight,
-            'tMargin'           => $this->tMargin,
-            'bMargin'           => $this->bMargin,
-            'AutoPageBreak'     => $this->AutoPageBreak,
-            'PageBreakTrigger'  => $this->PageBreakTrigger,
-            'x'                 => $this->x,
-            'y'                 => $this->y,
-            'w'                 => $this->w,
-            'h'                 => $this->h,
-            'wPt'               => $this->wPt,
-            'hPt'               => $this->hPt,
-            'fwPt'              => $this->fwPt,
-            'fhPt'              => $this->fhPt,
-            'page'              => $this->page,
-            'current_column'    => $this->current_column,
-            'num_columns'       => $this->num_columns
-        ];
-        return $grapvars;
-    }
-
-    /**
-     * Set graphic variables.
-     * @param array $gvars    array of graphic variablesto restore
-     * @param bool  $extended if true restore extended graphic variables
-     */
-    protected function setGraphicVars(array $gvars, $extended = false)
-    {
-        if ($this->state === self::READY) {
-            $this->cellMargins  = $gvars['cellMargins'];
-            $this->cellPaddings = $gvars['cellPaddings'];
-            $this->fontFamily   = $gvars['FontFamily'];
-            $this->fontStyle         = $gvars['FontStyle'];
-            $this->fontSizePT        = $gvars['FontSizePt'];
-            $this->leftMargin        = $gvars['lMargin'];
-            $this->lineCapStyle      = $gvars['lineCapStyle'];
-            $this->lineDashStyle     = $gvars['lineDashStyle'];
-            $this->lineJoinStyle     = $gvars['lineJoinStyle'];
-            $this->lineWidth         = $gvars['lineWidth'];
-            $this->lineWidthStyle    = $gvars['lineWidthStyle'];
-            $this->rightMargin       = $gvars['rMargin'];
-            $this->textrendermode    = $gvars['textrendermode'];
-            $this->textstrokewidth   = $gvars['textstrokewidth'];
-            $this->drawColor         = $gvars['DrawColor'];
-            $this->fillColor         = $gvars['FillColor'];
-            $this->textColor         = $gvars['TextColor'];
-            $this->differentColors   = $gvars['ColorFlag'];
-            $this->bgColor           = $gvars['bgcolor'];
-            $this->fgColor           = $gvars['fgcolor'];
-            $this->htmlvspace        = $gvars['htmlvspace'];
-            $this->listindent        = $gvars['listindent'];
-            $this->listindentlevel   = $gvars['listindentlevel'];
-            $this->listnum           = $gvars['listnum'];
-            $this->listordered       = $gvars['listordered'];
-            $this->listcount         = $gvars['listcount'];
-            $this->lispacer          = $gvars['lispacer'];
-            $this->cell_height_ratio = $gvars['cell_height_ratio'];
-            $this->font_stretching   = $gvars['font_stretching'];
-            $this->font_spacing      = $gvars['font_spacing'];
-            $this->alpha             = $gvars['alpha'];
-            if ($extended) {
-                // restore extended values
-                $this->lastPrintedCellHeight = $gvars['lasth'];
-                $this->tMargin               = $gvars['tMargin'];
-                $this->bMargin               = $gvars['bMargin'];
-                $this->AutoPageBreak         = $gvars['AutoPageBreak'];
-                $this->PageBreakTrigger      = $gvars['PageBreakTrigger'];
-                $this->x                     = $gvars['x'];
-                $this->y                     = $gvars['y'];
-                $this->w                     = $gvars['w'];
-                $this->h                     = $gvars['h'];
-                $this->wPt                   = $gvars['wPt'];
-                $this->hPt                   = $gvars['hPt'];
-                $this->fwPt                  = $gvars['fwPt'];
-                $this->fhPt                  = $gvars['fhPt'];
-                $this->page                  = $gvars['page'];
-                $this->current_column        = $gvars['current_column'];
-                $this->num_columns           = $gvars['num_columns'];
-            }
-            $this->append('' . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
-            if ($this->fontFamily) {
-                $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
-            }
-        }
-
-        return [
-            'FontFamily'        => $this->fontFamily,
-            'FontStyle'         => $this->fontStyle,
-            'FontSizePt'        => $this->fontSizePT,
-            'rMargin'           => $this->rightMargin,
-            'lMargin'           => $this->leftMargin,
-            'cellPaddings'      => $this->cellPaddings,
-            'cellMargins'       => $this->cellMargins,
-            'lineWidth'         => $this->lineWidth,
-            'lineWidthStyle'    => $this->lineWidthStyle,
-            'lineCapStyle'      => $this->lineCapStyle,
-            'lineJoinStyle'     => $this->lineJoinStyle,
-            'lineDashStyle'     => $this->lineDashStyle,
-            'textrendermode'    => $this->textrendermode,
-            'textstrokewidth'   => $this->textstrokewidth,
-            'DrawColor'         => $this->drawColor,
-            'FillColor'         => $this->fillColor,
-            'TextColor'         => $this->textColor,
-            'ColorFlag'         => $this->differentColors,
-            'bgcolor'           => $this->bgColor,
-            'fgcolor'           => $this->fgColor,
-            'htmlvspace'        => $this->htmlvspace,
-            'listindent'        => $this->listindent,
-            'listindentlevel'   => $this->listindentlevel,
-            'listnum'           => $this->listnum,
-            'listordered'       => $this->listordered,
-            'listcount'         => $this->listcount,
-            'lispacer'          => $this->lispacer,
-            'cell_height_ratio' => $this->cell_height_ratio,
-            'font_stretching'   => $this->font_stretching,
-            'font_spacing'      => $this->font_spacing,
-            'alpha'             => $this->alpha,
-            // extended
-            'lasth'             => $this->lastPrintedCellHeight,
-            'tMargin'           => $this->tMargin,
-            'bMargin'           => $this->bMargin,
-            'AutoPageBreak'     => $this->AutoPageBreak,
-            'PageBreakTrigger'  => $this->PageBreakTrigger,
-            'x'                 => $this->x,
-            'y'                 => $this->y,
-            'w'                 => $this->w,
-            'h'                 => $this->h,
-            'wPt'               => $this->wPt,
-            'hPt'               => $this->hPt,
-            'fwPt'              => $this->fwPt,
-            'fhPt'              => $this->fhPt,
-            'page'              => $this->page,
-            'current_column'    => $this->current_column,
-            'num_columns'       => $this->num_columns
-        ];
-    }
 
 
     // Protected properties
@@ -823,12 +766,6 @@ class PDF
      * Set the default JPEG compression quality (1-100).
      */
     protected $jpeg_quality;
-
-    /**
-     * Default cell height ratio.
-     * @var float
-     */
-    protected float $cell_height_ratio = 1.25;
 
     /**
      * PDF viewer preferences.
@@ -1496,7 +1433,7 @@ class PDF
         $this->doc_creation_timestamp     = time();
         $this->doc_modification_timestamp = $this->doc_creation_timestamp;
         // get default graphic vars
-        $this->default_graphic_vars = $this->getGraphicVars();
+        $this->default_graphic_vars = $this->graphicsConfiguration();
         $this->custom_xmp           = '';
         $this->custom_xmp_rdf       = '';
     }
@@ -1899,7 +1836,7 @@ class PDF
      */
     public function getCellHeight($fontsize, $padding = TRUE)
     {
-        $height = ($fontsize * $this->cell_height_ratio);
+        $height = ($fontsize * $this->cellHeightRatio);
         if ($padding && !empty($this->cellPaddings)) {
             $height += ($this->cellPaddings['T'] + $this->cellPaddings['B']);
         }
@@ -2424,7 +2361,7 @@ class PDF
         $this->endLayer();
         if ($this->tcpdflink) {
             // save current graphic settings
-            $gvars = $this->getGraphicVars();
+            $gvars = $this->graphicsConfiguration();
             $this->setEqualColumns();
             $this->lastpage(true);
             $this->setAutoPageBreak(false);
@@ -2440,7 +2377,7 @@ class PDF
             $this->Cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
             $this->_outRestoreGraphicsState();
             // restore graphic settings
-            $this->setGraphicVars($gvars);
+            $this->graphicsConfiguration($gvars);
         }
         // close page
         $this->endPage();
@@ -2464,7 +2401,6 @@ class PDF
         if (($pnum > 0) and ($pnum <= $this->numpages)) {
             $this->state = self::READY;
             // save current graphic settings
-            //$gvars = $this->getGraphicVars();
             $oldpage                   = $this->page;
             $this->page                = $pnum;
             $this->wPt                 = $this->pagedim[$this->page]['w'];
@@ -2479,7 +2415,6 @@ class PDF
             $this->CurOrientation      = $this->pagedim[$this->page]['or'];
             $this->setAutoPageBreak($this->AutoPageBreak, $this->bMargin);
             // restore graphic settings
-            //$this->setGraphicVars($gvars);
             if ($resetmargins) {
                 $this->leftMargin  = $this->pagedim[$this->page]['olm'];
                 $this->rightMargin = $this->pagedim[$this->page]['orm'];
@@ -2650,19 +2585,19 @@ class PDF
         ++$this->numpages;
         $this->swapMargins($this->booklet);
         // save current graphic settings
-        $gvars = $this->getGraphicVars();
+        $gvars = $this->graphicsConfiguration();
         // start new page
         $this->_beginpage($orientation, $format);
         // mark page as open
         $this->pageopen[$this->page] = true;
         // restore graphic settings
-        $this->setGraphicVars($gvars);
+        $this->graphicsConfiguration($gvars);
         // mark this point
         $this->setPageMark();
         // print page header
         $this->header();
         // restore graphic settings
-        $this->setGraphicVars($gvars);
+        $this->graphicsConfiguration($gvars);
         // mark this point
         $this->setPageMark();
         // print table header (if any)
@@ -2758,15 +2693,15 @@ class PDF
             $this->Ln($line_width);
             $barcode_width = round(($this->w - $this->originalLeftMargin - $this->originalRightMargin) / 3);
             $style         = [
-                'position'     => $this->rtl ? 'R' : 'L',
                 'align'        => $this->rtl ? 'R' : 'L',
-                'stretch'      => false,
-                'fitwidth'     => true,
-                'cellfitalign' => '',
+                'bgColor'      => false,
                 'border'       => false,
+                'cellfitalign' => '',
+                'fgColor'      => self::BLACK,
+                'fitwidth'     => true,
                 'padding'      => 0,
-                'fgcolor'      => self::BLACK,
-                'bgcolor'      => false,
+                'position'     => $this->rtl ? 'R' : 'L',
+                'stretch'      => false,
                 'text'         => false
             ];
             $this->write1DBarcode($barcode, 'C128', '', $cur_y + $line_width, '', (($this->footer_margin / 3) - $line_width), 0.3, $style, '');
@@ -2800,12 +2735,12 @@ class PDF
         }
         $this->inFooter = true;
         // save current graphic settings
-        $gvars = $this->getGraphicVars();
+        $gvars = $this->graphicsConfiguration();
         // mark this point
         $this->footerpos[$this->page] = $this->pageLengths[$this->page];
         $this->append("\n");
         if ($this->print_footer) {
-            $this->setGraphicVars($this->default_graphic_vars);
+            $this->graphicsConfiguration($this->default_graphic_vars);
             $this->current_column = 0;
             $this->num_columns    = 1;
             $temp_thead           = $this->headerTemplate;
@@ -2838,7 +2773,7 @@ class PDF
             $this->headerTemplateMargins = $temp_theadMargins;
         }
         // restore graphic settings
-        $this->setGraphicVars($gvars);
+        $this->graphicsConfiguration($gvars);
         $this->current_column = $gvars['current_column'];
         $this->num_columns    = $gvars['num_columns'];
         // calculate footer length
@@ -2874,7 +2809,7 @@ class PDF
             // set margins
             $prev_lMargin       = $this->leftMargin;
             $prev_rMargin       = $this->rightMargin;
-            $previousPaddings  = $this->cellPaddings;
+            $previousPaddings   = $this->cellPaddings;
             $this->leftMargin   = $this->headerTemplateMargins['lmargin'] + ($this->pagedim[$this->page]['olm'] - $this->pagedim[$this->headerTemplateMargins['page']]['olm']);
             $this->rightMargin  = $this->headerTemplateMargins['rmargin'] + ($this->pagedim[$this->page]['orm'] - $this->pagedim[$this->headerTemplateMargins['page']]['orm']);
             $this->cellPaddings = $this->headerTemplateMargins['cellPaddings'];
@@ -2893,16 +2828,16 @@ class PDF
                     $this->x += $this->cellPaddings['L'];
                 }
             }
-            $gvars = $this->getGraphicVars();
+            $gvars = $this->graphicsConfiguration();
             if (!empty($this->headerTemplateMargins['gvars'])) {
                 // set the correct graphic style
-                $this->setGraphicVars($this->headerTemplateMargins['gvars']);
+                $this->graphicsConfiguration($this->headerTemplateMargins['gvars']);
                 $this->rightMargin = $gvars['rMargin'];
                 $this->leftMargin  = $gvars['lMargin'];
             }
             // print table header
             $this->writeHTML($this->headerTemplate, false, false, false, false, '');
-            $this->setGraphicVars($gvars);
+            $this->graphicsConfiguration($gvars);
             // set new top margin to skip the table headers
             if (!isset($this->headerTemplateMargins['top'])) {
                 $this->headerTemplateMargins['top'] = $this->tMargin;
@@ -3458,7 +3393,7 @@ class PDF
      */
     public function Cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
-        $previousMargins   = $this->cellMargins;
+        $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
@@ -3527,12 +3462,12 @@ class PDF
     protected function getCellCode($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
         // replace 'NO-BREAK SPACE' (U+00A0) character with a simple space
-        $txt               = is_null($txt) ? '' : $txt;
-        $txt               = str_replace($this->unicodeCharacter(160, $this->isUnicode), ' ', $txt);
-        $previousMargins   = $this->cellMargins;
+        $txt              = is_null($txt) ? '' : $txt;
+        $txt              = str_replace($this->unicodeCharacter(160, $this->isUnicode), ' ', $txt);
+        $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
-        $txt               = StaticMethods::removeSHY($txt, $this->isUnicode);
-        $rs                = ''; //string to be returned
+        $txt              = StaticMethods::removeSHY($txt, $this->isUnicode);
+        $rs               = ''; //string to be returned
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
             $min_cell_height = $this->getCellHeight($this->fontSize);
@@ -4183,7 +4118,7 @@ class PDF
      */
     public function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = 0, $valign = 'T', $fitcell = false)
     {
-        $previousMargins   = $this->cellMargins;
+        $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
         // adjust internal padding
         $this->adjustCellPadding($border);
@@ -4587,7 +4522,7 @@ class PDF
         }
         // adjust internal padding
         $previousPaddings = $this->cellPaddings;
-        $prev_lasth        = $this->lastPrintedCellHeight;
+        $prev_lasth       = $this->lastPrintedCellHeight;
         if (is_array($cellpadding)) {
             $this->cellPaddings = $cellpadding;
         }
@@ -4702,8 +4637,8 @@ class PDF
     public function getStringHeight($w, $txt, $reseth = false, $autopadding = true, $cellpadding = null, $border = 0)
     {
         // adjust internal padding
-        $previousPaddings           = $this->cellPaddings;
-        $prev_lasth                  = $this->lastPrintedCellHeight;
+        $previousPaddings = $this->cellPaddings;
+        $prev_lasth       = $this->lastPrintedCellHeight;
         if (is_array($cellpadding)) {
             $this->cellPaddings = $cellpadding;
         }
@@ -11243,7 +11178,7 @@ class PDF
      */
     public function setCellHeightRatio($h)
     {
-        $this->cell_height_ratio = $h;
+        $this->cellHeightRatio = $h;
     }
 
     /**
@@ -11252,7 +11187,7 @@ class PDF
      */
     public function getCellHeightRatio()
     {
-        return $this->cell_height_ratio;
+        return $this->cellHeightRatio;
     }
 
     /**
@@ -11971,8 +11906,8 @@ class PDF
      *                          <li>int $style['padding'] padding to leave around the barcode in user units (set to 'auto' for automatic padding)</li>
      *                          <li>int $style['hpadding'] horizontal padding in user units (set to 'auto' for automatic padding)</li>
      *                          <li>int $style['vpadding'] vertical padding in user units (set to 'auto' for automatic padding)</li>
-     *                          <li>array $style['fgcolor'] color array for bars and text</li>
-     *                          <li>mixed $style['bgcolor'] color array for background (set to false for transparent)</li>
+     *                          <li>array $style['fgColor'] color array for bars and text</li>
+     *                          <li>mixed $style['bgColor'] color array for background (set to false for transparent)</li>
      *                          <li>bool $style['text'] if true prints text below the barcode</li>
      *                          <li>string $style['label'] override default label</li>
      *                          <li>string $style['font'] font name for text</li><li>int $style['fontsize'] font size for text</li>
@@ -11991,7 +11926,7 @@ class PDF
             return;
         }
         // save current graphic settings
-        $gvars = $this->getGraphicVars();
+        $gvars = $this->graphicsConfiguration();
         // create new barcode object
         $barcodeobj = new Barcode1D($code, $type);
         $arrcode    = $barcodeobj->barcode();
@@ -12030,11 +11965,11 @@ class PDF
                 $style['stretch'] = true;
             }
         }
-        if (!isset($style['fgcolor'])) {
-            $style['fgcolor'] = self::BLACK;
+        if (!isset($style['fgColor'])) {
+            $style['fgColor'] = self::BLACK;
         }
-        if (!isset($style['bgcolor'])) {
-            $style['bgcolor'] = false; // default transparent
+        if (!isset($style['bgColor'])) {
+            $style['bgColor'] = false; // default transparent
         }
         if (!isset($style['border'])) {
             $style['border'] = false;
@@ -12165,7 +12100,7 @@ class PDF
         if ($barh <= 0) {
             // try to reduce font or padding to fit barcode on available height
             if ($text_height > $h) {
-                $fontsize    = (($h * $this->k) / (4 * $this->cell_height_ratio));
+                $fontsize    = (($h * $this->k) / (4 * $this->cellHeightRatio));
                 $text_height = $this->getCellHeight($fontsize / $this->k);
                 $this->setCurrentFont($style['font'], '', $fontsize);
             }
@@ -12236,22 +12171,22 @@ class PDF
         $tempRTL   = $this->rtl;
         $this->rtl = false;
         // print background color
-        if ($style['bgcolor']) {
-            $this->Rect($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgcolor']);
+        if ($style['bgColor']) {
+            $this->Rect($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
         }
         elseif ($style['border']) {
             $this->Rect($xpos_rect, $y, $w, $h, 'D');
         }
         // set foreground color
-        $this->drawColorArray($style['fgcolor']);
-        $this->textColorArray($style['fgcolor']);
+        $this->drawColorArray($style['fgColor']);
+        $this->textColorArray($style['fgColor']);
         // print bars
         foreach ($arrcode['bcode'] as $k => $v) {
             $bw = ($v['w'] * $xres);
             if ($v['t']) {
                 // draw a vertical bar
                 $ypos = $y + $vpadding + ($v['p'] * $barh / $arrcode['maxh']);
-                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', [], $style['fgcolor']);
+                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', [], $style['fgColor']);
             }
             $xpos += $bw;
         }
@@ -12278,7 +12213,7 @@ class PDF
         // restore original direction
         $this->rtl = $tempRTL;
         // restore previous settings
-        $this->setGraphicVars($gvars);
+        $this->graphicsConfiguration($gvars);
         // set pointer to align the next text/objects
         switch ($align) {
             case 'T':
@@ -12327,8 +12262,8 @@ class PDF
      *                            <li>int $style['vpadding'] vertical padding in barcode units (set to 'auto' for automatic padding)</li>
      *                            <li>int $style['module_width'] width of a single module in points</li>
      *                            <li>int $style['module_height'] height of a single module in points</li>
-     *                            <li>array $style['fgcolor'] color array for bars and text</li>
-     *                            <li>mixed $style['bgcolor'] color array for background or false for transparent</li>
+     *                            <li>array $style['fgColor'] color array for bars and text</li>
+     *                            <li>mixed $style['bgColor'] color array for background or false for transparent</li>
      *                            <li>string $style['position'] barcode position on the page: L = left margin; C = center; R = right margin; S = stretch</li>
      * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
      * @param bool       $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
@@ -12340,7 +12275,7 @@ class PDF
             return;
         }
         // save current graphic settings
-        $gvars = $this->getGraphicVars();
+        $gvars = $this->graphicsConfiguration();
         // create new barcode object
         $barcodeobj = new Barcode2D($code, $type);
         $arrcode    = $barcodeobj->barcode();
@@ -12351,11 +12286,11 @@ class PDF
         if (!isset($style['position'])) {
             $style['position'] = '';
         }
-        if (!isset($style['fgcolor'])) {
-            $style['fgcolor'] = self::BLACK;
+        if (!isset($style['fgColor'])) {
+            $style['fgColor'] = self::BLACK;
         }
-        if (!isset($style['bgcolor'])) {
-            $style['bgcolor'] = false; // default transparent
+        if (!isset($style['bgColor'])) {
+            $style['bgColor'] = false; // default transparent
         }
         if (!isset($style['border'])) {
             $style['border'] = false;
@@ -12505,14 +12440,14 @@ class PDF
         $tempRTL   = $this->rtl;
         $this->rtl = false;
         // print background color
-        if ($style['bgcolor']) {
-            $this->Rect($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgcolor']);
+        if ($style['bgColor']) {
+            $this->Rect($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
         }
         elseif ($style['border']) {
             $this->Rect($xpos, $y, $w, $h, 'D');
         }
         // set foreground color
-        $this->drawColorArray($style['fgcolor']);
+        $this->drawColorArray($style['fgColor']);
         // print barcode cells
         // for each row
         for ($r = 0; $r < $rows; ++$r) {
@@ -12521,7 +12456,7 @@ class PDF
             for ($c = 0; $c < $cols; ++$c) {
                 if ($arrcode['bcode'][$r][$c] == 1) {
                     // draw a single barcode cell
-                    $this->Rect($xr, $ystart, $cw, $ch, 'F', [], $style['fgcolor']);
+                    $this->Rect($xr, $ystart, $cw, $ch, 'F', [], $style['fgColor']);
                 }
                 $xr += $cw;
             }
@@ -12530,7 +12465,7 @@ class PDF
         // restore original direction
         $this->rtl = $tempRTL;
         // restore previous settings
-        $this->setGraphicVars($gvars);
+        $this->graphicsConfiguration($gvars);
         // set pointer to align the next text/objects
         switch ($align) {
             case 'T':
@@ -12795,7 +12730,7 @@ class PDF
      */
     public function getCSSPadding($csspadding, $width = 0)
     {
-        $padding      = preg_split('/[\s]+/', trim($csspadding));
+        $padding  = preg_split('/[\s]+/', trim($csspadding));
         $paddings = []; // value to be returned
         switch (count($padding)) {
             case 4:
@@ -13214,29 +13149,29 @@ class PDF
         $dom[$key] = [];
         // set inheritable properties fot the first void element
         // possible inheritable properties are: azimuth, border-collapse, border-spacing, caption-side, color, cursor, direction, empty-cells, font, font-family, font-stretch, font-size, font-size-adjust, font-style, font-variant, font-weight, letter-spacing, line-height, list-style, list-style-image, list-style-position, list-style-type, orphans, page, page-break-inside, quotes, speak, speak-header, text-align, text-indent, text-transform, volume, white-space, widows, word-spacing
-        $dom[$key]['tag']            = false;
+        $dom[$key]['align']          = '';
+        $dom[$key]['bgColor']        = false;
         $dom[$key]['block']          = false;
-        $dom[$key]['value']          = '';
-        $dom[$key]['parent']         = 0;
-        $dom[$key]['hide']           = false;
+        $dom[$key]['border']         = [];
+        $dom[$key]['clip']           = ($this->textrendermode > 3);
+        $dom[$key]['dir']            = $this->rtl ? 'rtl' : 'ltr';
+        $dom[$key]['fgColor']        = $this->fgColor;
+        $dom[$key]['fill']           = (($this->textrendermode % 2) == 0);
         $dom[$key]['fontname']       = $this->fontFamily;
-        $dom[$key]['fontstyle']      = $this->fontStyle;
         $dom[$key]['fontsize']       = $this->fontSizePT;
         $dom[$key]['font-stretch']   = $this->font_stretching;
+        $dom[$key]['fontstyle']      = $this->fontStyle;
+        $dom[$key]['hide']           = false;
         $dom[$key]['letter-spacing'] = $this->font_spacing;
-        $dom[$key]['stroke']         = $this->textstrokewidth;
-        $dom[$key]['fill']           = (($this->textrendermode % 2) == 0);
-        $dom[$key]['clip']           = ($this->textrendermode > 3);
-        $dom[$key]['line-height']    = $this->cell_height_ratio;
-        $dom[$key]['bgcolor']        = false;
-        $dom[$key]['fgcolor']        = $this->fgColor; // color
-        $dom[$key]['strokecolor']    = $this->strokeColor;
-        $dom[$key]['align']          = '';
+        $dom[$key]['line-height']    = $this->cellHeightRatio;
         $dom[$key]['listtype']       = '';
+        $dom[$key]['parent']         = 0;
+        $dom[$key]['stroke']         = $this->textstrokewidth;
+        $dom[$key]['strokecolor']    = $this->strokeColor;
+        $dom[$key]['tag']            = false;
         $dom[$key]['text-indent']    = 0;
         $dom[$key]['text-transform'] = '';
-        $dom[$key]['border']         = [];
-        $dom[$key]['dir']            = $this->rtl ? 'rtl' : 'ltr';
+        $dom[$key]['value']          = '';
         $thead                       = false; // true when we are inside the THEAD tag
         ++$key;
         $level = [];
@@ -13275,22 +13210,22 @@ class PDF
                     $dom[$key]['opening'] = false;
                     $dom[$key]['parent']  = end($level);
                     array_pop($level);
-                    $dom[$key]['hide']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['hide'];
+                    $dom[$key]['align']          = $dom[($dom[($dom[$key]['parent'])]['parent'])]['align'];
+                    $dom[$key]['bgColor']        = $dom[($dom[($dom[$key]['parent'])]['parent'])]['bgColor'];
+                    $dom[$key]['clip']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['clip'];
+                    $dom[$key]['dir']            = $dom[($dom[($dom[$key]['parent'])]['parent'])]['dir'];
+                    $dom[$key]['fgColor']        = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fgColor'];
+                    $dom[$key]['fill']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fill'];
                     $dom[$key]['fontname']       = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontname'];
-                    $dom[$key]['fontstyle']      = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontstyle'];
                     $dom[$key]['fontsize']       = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontsize'];
                     $dom[$key]['font-stretch']   = $dom[($dom[($dom[$key]['parent'])]['parent'])]['font-stretch'];
+                    $dom[$key]['fontstyle']      = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontstyle'];
+                    $dom[$key]['hide']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['hide'];
                     $dom[$key]['letter-spacing'] = $dom[($dom[($dom[$key]['parent'])]['parent'])]['letter-spacing'];
-                    $dom[$key]['stroke']         = $dom[($dom[($dom[$key]['parent'])]['parent'])]['stroke'];
-                    $dom[$key]['fill']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fill'];
-                    $dom[$key]['clip']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['clip'];
                     $dom[$key]['line-height']    = $dom[($dom[($dom[$key]['parent'])]['parent'])]['line-height'];
-                    $dom[$key]['bgcolor']        = $dom[($dom[($dom[$key]['parent'])]['parent'])]['bgcolor'];
-                    $dom[$key]['fgcolor']        = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fgcolor'];
+                    $dom[$key]['stroke']         = $dom[($dom[($dom[$key]['parent'])]['parent'])]['stroke'];
                     $dom[$key]['strokecolor']    = $dom[($dom[($dom[$key]['parent'])]['parent'])]['strokecolor'];
-                    $dom[$key]['align']          = $dom[($dom[($dom[$key]['parent'])]['parent'])]['align'];
                     $dom[$key]['text-transform'] = $dom[($dom[($dom[$key]['parent'])]['parent'])]['text-transform'];
-                    $dom[$key]['dir']            = $dom[($dom[($dom[$key]['parent'])]['parent'])]['dir'];
                     if (isset($dom[($dom[($dom[$key]['parent'])]['parent'])]['listtype'])) {
                         $dom[$key]['listtype'] = $dom[($dom[($dom[$key]['parent'])]['parent'])]['listtype'];
                     }
@@ -13361,8 +13296,8 @@ class PDF
                         $dom[$key]['fill']           = $dom[$parentkey]['fill'];
                         $dom[$key]['clip']           = $dom[$parentkey]['clip'];
                         $dom[$key]['line-height']    = $dom[$parentkey]['line-height'];
-                        $dom[$key]['bgcolor']        = $dom[$parentkey]['bgcolor'];
-                        $dom[$key]['fgcolor']        = $dom[$parentkey]['fgcolor'];
+                        $dom[$key]['bgColor']        = $dom[$parentkey]['bgColor'];
+                        $dom[$key]['fgColor']        = $dom[$parentkey]['fgColor'];
                         $dom[$key]['strokecolor']    = $dom[$parentkey]['strokecolor'];
                         $dom[$key]['align']          = $dom[$parentkey]['align'];
                         $dom[$key]['listtype']       = $dom[$parentkey]['listtype'];
@@ -13483,14 +13418,14 @@ class PDF
                         }
                         // font color
                         if (isset($dom[$key]['style']['color']) and (!empty($dom[$key]['style']['color']))) {
-                            $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['style']['color']);
+                            $dom[$key]['fgColor'] = $this->htmlToColor($dom[$key]['style']['color']);
                         }
                         elseif ($dom[$key]['value'] == 'a') {
-                            $dom[$key]['fgcolor'] = $this->linkColor;
+                            $dom[$key]['fgColor'] = $this->linkColor;
                         }
                         // background color
                         if (isset($dom[$key]['style']['background-color']) and (!empty($dom[$key]['style']['background-color']))) {
-                            $dom[$key]['bgcolor'] = $this->htmlToColor($dom[$key]['style']['background-color']);
+                            $dom[$key]['bgColor'] = $this->htmlToColor($dom[$key]['style']['background-color']);
                         }
                         // text-decoration
                         if (isset($dom[$key]['style']['text-decoration'])) {
@@ -13799,14 +13734,14 @@ class PDF
                     }
                     // set foreground color attribute
                     if (isset($dom[$key]['attribute']['color']) and (!empty($dom[$key]['attribute']['color']))) {
-                        $dom[$key]['fgcolor'] = $this->htmlToColor($dom[$key]['attribute']['color']);
+                        $dom[$key]['fgColor'] = $this->htmlToColor($dom[$key]['attribute']['color']);
                     }
                     elseif (!isset($dom[$key]['style']['color']) and ($dom[$key]['value'] == 'a')) {
-                        $dom[$key]['fgcolor'] = $this->linkColor;
+                        $dom[$key]['fgColor'] = $this->linkColor;
                     }
                     // set background color attribute
-                    if (isset($dom[$key]['attribute']['bgcolor']) and (!empty($dom[$key]['attribute']['bgcolor']))) {
-                        $dom[$key]['bgcolor'] = $this->htmlToColor($dom[$key]['attribute']['bgcolor']);
+                    if (isset($dom[$key]['attribute']['bgColor']) and (!empty($dom[$key]['attribute']['bgColor']))) {
+                        $dom[$key]['bgColor'] = $this->htmlToColor($dom[$key]['attribute']['bgColor']);
                     }
                     // set stroke color attribute
                     if (isset($dom[$key]['attribute']['strokecolor']) and (!empty($dom[$key]['attribute']['strokecolor']))) {
@@ -13982,35 +13917,35 @@ class PDF
      */
     public function writeHTML($html, $ln = true, $fill = false, $reseth = false, $cell = false, $align = '')
     {
-        $gvars = $this->getGraphicVars();
+        $gvars = $this->graphicsConfiguration();
         // store current values
-        $previousMargins   = $this->cellMargins;
+        $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
-        $prevPage          = $this->page;
-        $prevlMargin       = $this->leftMargin;
-        $prevrMargin       = $this->rightMargin;
-        $curfontname       = $this->fontFamily;
-        $curfontstyle      = $this->fontStyle;
-        $curfontsize       = $this->fontSizePT;
-        $curfontascent     = $this->getFontAscent($curfontname, $curfontstyle, $curfontsize);
-        $curfontdescent    = $this->getFontDescent($curfontname, $curfontstyle, $curfontsize);
-        $curfontstretcing  = $this->font_stretching;
-        $curfonttracking   = $this->font_spacing;
-        $this->newLine     = true;
-        $newline           = true;
-        $startlinepage     = $this->page;
-        $minstartliney     = $this->y;
-        $maxbottomliney    = 0;
-        $startlinex        = $this->x;
-        $startliney        = $this->y;
-        $yshift            = 0;
-        $loop              = 0;
-        $curpos            = 0;
-        $this_method_vars  = [];
-        $undo              = false;
-        $fontaligned       = false;
-        $reverse_dir       = false; // true when the text direction is reversed
-        $this->premode     = false;
+        $prevPage         = $this->page;
+        $prevlMargin      = $this->leftMargin;
+        $prevrMargin      = $this->rightMargin;
+        $curfontname      = $this->fontFamily;
+        $curfontstyle     = $this->fontStyle;
+        $curfontsize      = $this->fontSizePT;
+        $curfontascent    = $this->getFontAscent($curfontname, $curfontstyle, $curfontsize);
+        $curfontdescent   = $this->getFontDescent($curfontname, $curfontstyle, $curfontsize);
+        $curfontstretcing = $this->font_stretching;
+        $curfonttracking  = $this->font_spacing;
+        $this->newLine    = true;
+        $newline          = true;
+        $startlinepage    = $this->page;
+        $minstartliney    = $this->y;
+        $maxbottomliney   = 0;
+        $startlinex       = $this->x;
+        $startliney       = $this->y;
+        $yshift           = 0;
+        $loop             = 0;
+        $curpos           = 0;
+        $this_method_vars = [];
+        $undo             = false;
+        $fontaligned      = false;
+        $reverse_dir      = false; // true when the text direction is reversed
+        $this->premode    = false;
         if ($this->inXObject) {
             // we are inside an XObject template
             $pask = count($this->xObjects[$this->xObjectID]['annotations']);
@@ -14065,15 +14000,15 @@ class PDF
         }
         $this->listindentlevel = 0;
         // save previous states
-        $prev_cell_height_ratio = $this->cell_height_ratio;
-        $prev_listnum           = $this->listnum;
-        $prev_listordered       = $this->listordered;
-        $prev_listcount         = $this->listcount;
-        $prev_lispacer          = $this->lispacer;
-        $this->listnum          = 0;
-        $this->listordered      = [];
-        $this->listcount        = [];
-        $this->lispacer         = '';
+        $previousHeightRatio = $this->cellHeightRatio;
+        $prev_listnum        = $this->listnum;
+        $prev_listordered    = $this->listordered;
+        $prev_listcount      = $this->listcount;
+        $prev_lispacer       = $this->lispacer;
+        $this->listnum       = 0;
+        $this->listordered   = [];
+        $this->listcount     = [];
+        $this->lispacer      = '';
         if ((StaticMethods::empty_string($this->lastPrintedCellHeight)) or ($reseth)) {
             // reset row height
             $this->resetLastH();
@@ -14121,47 +14056,47 @@ class PDF
                     // store current object
                     $this->startTransaction();
                     // save this method vars
-                    $this_method_vars['html']                   = $html;
-                    $this_method_vars['ln']                     = $ln;
-                    $this_method_vars['fill']                   = $fill;
-                    $this_method_vars['reseth']                 = $reseth;
-                    $this_method_vars['cell']                   = $cell;
-                    $this_method_vars['align']                  = $align;
-                    $this_method_vars['gvars']                  = $gvars;
-                    $this_method_vars['prevPage']               = $prevPage;
-                    $this_method_vars['previousMargins']        = $previousMargins;
-                    $this_method_vars['previousPaddings']      = $previousPaddings;
-                    $this_method_vars['prevlMargin']            = $prevlMargin;
-                    $this_method_vars['prevrMargin']            = $prevrMargin;
-                    $this_method_vars['curfontname']            = $curfontname;
-                    $this_method_vars['curfontstyle']           = $curfontstyle;
-                    $this_method_vars['curfontsize']            = $curfontsize;
-                    $this_method_vars['curfontascent']          = $curfontascent;
-                    $this_method_vars['curfontdescent']         = $curfontdescent;
-                    $this_method_vars['curfontstretcing']       = $curfontstretcing;
-                    $this_method_vars['curfonttracking']        = $curfonttracking;
-                    $this_method_vars['minstartliney']          = $minstartliney;
-                    $this_method_vars['maxbottomliney']         = $maxbottomliney;
-                    $this_method_vars['yshift']                 = $yshift;
-                    $this_method_vars['startlinepage']          = $startlinepage;
-                    $this_method_vars['startlinepos']           = $startlinepos;
-                    $this_method_vars['startlinex']             = $startlinex;
-                    $this_method_vars['startliney']             = $startliney;
-                    $this_method_vars['newline']                = $newline;
-                    $this_method_vars['loop']                   = $loop;
-                    $this_method_vars['curpos']                 = $curpos;
-                    $this_method_vars['pask']                   = $pask;
-                    $this_method_vars['lalign']                 = $lalign;
-                    $this_method_vars['plalign']                = $plalign;
-                    $this_method_vars['w']                      = $w;
-                    $this_method_vars['prev_cell_height_ratio'] = $prev_cell_height_ratio;
-                    $this_method_vars['prev_listnum']           = $prev_listnum;
-                    $this_method_vars['prev_listordered']       = $prev_listordered;
-                    $this_method_vars['prev_listcount']         = $prev_listcount;
-                    $this_method_vars['prev_lispacer']          = $prev_lispacer;
-                    $this_method_vars['fontaligned']            = $fontaligned;
-                    $this_method_vars['key']                    = $key;
-                    $this_method_vars['dom']                    = $dom;
+                    $this_method_vars['html']                = $html;
+                    $this_method_vars['ln']                  = $ln;
+                    $this_method_vars['fill']                = $fill;
+                    $this_method_vars['reseth']              = $reseth;
+                    $this_method_vars['cell']                = $cell;
+                    $this_method_vars['align']               = $align;
+                    $this_method_vars['gvars']               = $gvars;
+                    $this_method_vars['prevPage']            = $prevPage;
+                    $this_method_vars['previousMargins']     = $previousMargins;
+                    $this_method_vars['previousPaddings']    = $previousPaddings;
+                    $this_method_vars['prevlMargin']         = $prevlMargin;
+                    $this_method_vars['prevrMargin']         = $prevrMargin;
+                    $this_method_vars['curfontname']         = $curfontname;
+                    $this_method_vars['curfontstyle']        = $curfontstyle;
+                    $this_method_vars['curfontsize']         = $curfontsize;
+                    $this_method_vars['curfontascent']       = $curfontascent;
+                    $this_method_vars['curfontdescent']      = $curfontdescent;
+                    $this_method_vars['curfontstretcing']    = $curfontstretcing;
+                    $this_method_vars['curfonttracking']     = $curfonttracking;
+                    $this_method_vars['minstartliney']       = $minstartliney;
+                    $this_method_vars['maxbottomliney']      = $maxbottomliney;
+                    $this_method_vars['yshift']              = $yshift;
+                    $this_method_vars['startlinepage']       = $startlinepage;
+                    $this_method_vars['startlinepos']        = $startlinepos;
+                    $this_method_vars['startlinex']          = $startlinex;
+                    $this_method_vars['startliney']          = $startliney;
+                    $this_method_vars['newline']             = $newline;
+                    $this_method_vars['loop']                = $loop;
+                    $this_method_vars['curpos']              = $curpos;
+                    $this_method_vars['pask']                = $pask;
+                    $this_method_vars['lalign']              = $lalign;
+                    $this_method_vars['plalign']             = $plalign;
+                    $this_method_vars['w']                   = $w;
+                    $this_method_vars['previousHeightRatio'] = $previousHeightRatio;
+                    $this_method_vars['prev_listnum']        = $prev_listnum;
+                    $this_method_vars['prev_listordered']    = $prev_listordered;
+                    $this_method_vars['prev_listcount']      = $prev_listcount;
+                    $this_method_vars['prev_lispacer']       = $prev_lispacer;
+                    $this_method_vars['fontaligned']         = $fontaligned;
+                    $this_method_vars['key']                 = $key;
+                    $this_method_vars['dom']                 = $dom;
                 }
             }
             // print THEAD block
@@ -14296,7 +14231,7 @@ class PDF
                             $startliney    = $this->y;
                             $this->newLine = false;
                         }
-                        $this->y        += ($this->getCellHeight($curfontsize / $this->k) - ($curfontdescent * $this->cell_height_ratio) - $imgh);
+                        $this->y        += ($this->getCellHeight($curfontsize / $this->k) - ($curfontdescent * $this->cellHeightRatio) - $imgh);
                         $minstartliney  = min($this->y, $minstartliney);
                         $maxbottomliney = ($startliney + $this->getCellHeight($curfontsize / $this->k));
                     }
@@ -14312,11 +14247,11 @@ class PDF
                     $fontascent  = $this->getFontAscent($fontname, $fontstyle, $fontsize);
                     $fontdescent = $this->getFontDescent($fontname, $fontstyle, $fontsize);
                     if (($fontname != $curfontname) or ($fontstyle != $curfontstyle) or ($fontsize != $curfontsize)
-                        or ($this->cell_height_ratio != $dom[$key]['line-height'])
+                        or ($this->cellHeightRatio != $dom[$key]['line-height'])
                         or ($dom[$key]['tag'] and $dom[$key]['opening'] and ($dom[$key]['value'] == 'li'))) {
                         if (($key < ($maxel - 1)) and (
                                 ($dom[$key]['tag'] and $dom[$key]['opening'] and ($dom[$key]['value'] == 'li'))
-                                or ($this->cell_height_ratio != $dom[$key]['line-height'])
+                                or ($this->cellHeightRatio != $dom[$key]['line-height'])
                                 or (!$this->newLine and is_numeric($fontsize) and is_numeric($curfontsize)
                                     and ($fontsize >= 0) and ($curfontsize >= 0)
                                     and (($fontsize != $curfontsize) or ($fontstyle != $curfontstyle) or ($fontname != $curfontname)))
@@ -14363,11 +14298,11 @@ class PDF
                                 $startliney    = $this->y;
                             }
                             if (!isset($dom[$key]['line-height'])) {
-                                $dom[$key]['line-height'] = $this->cell_height_ratio;
+                                $dom[$key]['line-height'] = $this->cellHeightRatio;
                             }
                             if (!$dom[$key]['block']) {
                                 if (!(isset($dom[($key + 1)]) and $dom[($key + 1)]['tag'] and (!$dom[($key + 1)]['opening']) and ($dom[($key + 1)]['value'] != 'li') and $dom[$key]['tag'] and (!$dom[$key]['opening']))) {
-                                    $this->y += (((($curfontsize * $this->cell_height_ratio) - ($fontsize * $dom[$key]['line-height'])) / $this->k) + $curfontascent - $fontascent - $curfontdescent + $fontdescent) / 2;
+                                    $this->y += (((($curfontsize * $this->cellHeightRatio) - ($fontsize * $dom[$key]['line-height'])) / $this->k) + $curfontascent - $fontascent - $curfontdescent + $fontdescent) / 2;
                                 }
                                 if (($dom[$key]['value'] != 'sup') and ($dom[$key]['value'] != 'sub')) {
                                     $current_line_align_data = [$key, $minstartliney, $maxbottomliney];
@@ -14382,8 +14317,8 @@ class PDF
                                     $line_align_data = $current_line_align_data;
                                 }
                             }
-                            $this->cell_height_ratio = $dom[$key]['line-height'];
-                            $fontaligned             = true;
+                            $this->cellHeightRatio = $dom[$key]['line-height'];
+                            $fontaligned           = true;
                         }
                         $this->setCurrentFont($fontname, $fontstyle, $fontsize);
                         // reset row height
@@ -14411,15 +14346,15 @@ class PDF
                 }
                 // get current position on page buffer
                 $curpos = $this->pageLengths[$startlinepage];
-                if (isset($dom[$key]['bgcolor']) and ($dom[$key]['bgcolor'] !== false)) {
-                    $this->fillColorArray($dom[$key]['bgcolor']);
+                if (isset($dom[$key]['bgColor']) and ($dom[$key]['bgColor'] !== false)) {
+                    $this->fillColorArray($dom[$key]['bgColor']);
                     $wfill = true;
                 }
                 else {
                     $wfill = $fill | false;
                 }
-                if (isset($dom[$key]['fgcolor']) and ($dom[$key]['fgcolor'] !== false)) {
-                    $this->textColorArray($dom[$key]['fgcolor']);
+                if (isset($dom[$key]['fgColor']) and ($dom[$key]['fgColor'] !== false)) {
+                    $this->textColorArray($dom[$key]['fgColor']);
                 }
                 if (isset($dom[$key]['strokecolor']) and ($dom[$key]['strokecolor'] !== false)) {
                     $this->drawColorArray($dom[$key]['strokecolor']);
@@ -15000,7 +14935,7 @@ class PDF
                         }
                         $oldPaddings = $this->cellPaddings;
                         if (isset($dom[($dom[$trid]['parent'])]['attribute']['cellpadding'])) {
-                            $crclpd               = $this->fontSizeToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding']);
+                            $crclpd          = $this->fontSizeToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding']);
                             $currentPaddings = ['L' => $crclpd, 'T' => $crclpd, 'R' => $crclpd, 'B' => $crclpd];
                         }
                         elseif (isset($dom[($dom[$trid]['parent'])]['padding'])) {
@@ -15009,7 +14944,7 @@ class PDF
                         else {
                             $currentPaddings = ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0];
                         }
-                        $this->cellPaddings                           = $currentPaddings;
+                        $this->cellPaddings = $currentPaddings;
                         if (isset($dom[$key]['height'])) {
                             // minimum cell height
                             $cellh = $this->fontSizeToUnits($dom[$key]['height'], 0);
@@ -15135,8 +15070,8 @@ class PDF
                             $dom[$trid]['cellpos'][($cellid - 1)]['rowspanid'] = ($trsid - 1);
                         }
                         // push background colors
-                        if (isset($dom[$parentid]['bgcolor']) and ($dom[$parentid]['bgcolor'] !== false)) {
-                            $dom[$trid]['cellpos'][($cellid - 1)]['bgcolor'] = $dom[$parentid]['bgcolor'];
+                        if (isset($dom[$parentid]['bgColor']) and ($dom[$parentid]['bgColor'] !== false)) {
+                            $dom[$trid]['cellpos'][($cellid - 1)]['bgColor'] = $dom[$parentid]['bgColor'];
                         }
                         // store border info
                         if (!empty($tdborder)) {
@@ -15317,8 +15252,8 @@ class PDF
                     if (!empty($this->HREF) and (isset($this->HREF['url']))) {
                         // HTML <a> Link
                         $hrefcolor = '';
-                        if (isset($dom[($dom[$key]['parent'])]['fgcolor']) and ($dom[($dom[$key]['parent'])]['fgcolor'] !== false)) {
-                            $hrefcolor = $dom[($dom[$key]['parent'])]['fgcolor'];
+                        if (isset($dom[($dom[$key]['parent'])]['fgColor']) and ($dom[($dom[$key]['parent'])]['fgColor'] !== false)) {
+                            $hrefcolor = $dom[($dom[$key]['parent'])]['fgColor'];
                         }
                         $hrefstyle = -1;
                         if (isset($dom[($dom[$key]['parent'])]['fontstyle']) and ($dom[($dom[$key]['parent'])]['fontstyle'] !== false)) {
@@ -15621,7 +15556,7 @@ class PDF
             }
         }
         // restore previous values
-        $this->setGraphicVars($gvars);
+        $this->graphicsConfiguration($gvars);
         if ($this->num_columns > 1) {
             $this->selectColumn();
         }
@@ -15630,11 +15565,11 @@ class PDF
             $this->rightMargin = $this->pagedim[$this->page]['orm'];
         }
         // restore previous list state
-        $this->cell_height_ratio = $prev_cell_height_ratio;
-        $this->listnum           = $prev_listnum;
-        $this->listordered       = $prev_listordered;
-        $this->listcount         = $prev_listcount;
-        $this->lispacer          = $prev_lispacer;
+        $this->cellHeightRatio = $previousHeightRatio;
+        $this->listnum         = $prev_listnum;
+        $this->listordered     = $prev_listordered;
+        $this->listcount       = $prev_listcount;
+        $this->lispacer        = $prev_lispacer;
         if ($ln and (!($cell and ($dom[$key - 1]['value'] == 'table')))) {
             $this->Ln($this->lastPrintedCellHeight);
             if (($this->y < $maxbottomliney) and ($startlinepage == $this->page)) {
@@ -15693,7 +15628,7 @@ class PDF
             }
             if (($this->htmlvspace <= 0) and ($on > 0)) {
                 if (isset($parent['fontsize'])) {
-                    $hbz = (($parent['fontsize'] / $this->k) * $this->cell_height_ratio);
+                    $hbz = (($parent['fontsize'] / $this->k) * $this->cellHeightRatio);
                 }
                 else {
                     $hbz = $this->getCellHeight($this->fontSize);
@@ -15747,7 +15682,7 @@ class PDF
                             $this->headerTemplateMargins['rmargin']      = $this->rightMargin;
                             $this->headerTemplateMargins['page']         = $this->page;
                             $this->headerTemplateMargins['cell']         = $cell;
-                            $this->headerTemplateMargins['gvars']        = $this->getGraphicVars();
+                            $this->headerTemplateMargins['gvars']        = $this->graphicsConfiguration();
                         }
                     }
                 }
@@ -15805,12 +15740,9 @@ class PDF
                 $this->setLineWidth($hrHeight);
 
                 $lineStyle = [];
-                if (isset($tag['fgcolor'])) {
-                    $lineStyle['color'] = $tag['fgcolor'];
-                }
 
-                if (isset($tag['fgcolor'])) {
-                    $lineStyle['color'] = $tag['fgcolor'];
+                if (isset($tag['fgColor'])) {
+                    $lineStyle['color'] = $tag['fgColor'];
                 }
 
                 if (isset($tag['style']['cap'])) {
@@ -15981,7 +15913,7 @@ class PDF
                     }
                     case 'B':
                     {
-                        $this->y = $this->imageRBY - ($this->getCellHeight($tag['fontsize'] / $this->k) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cell_height_ratio));
+                        $this->y = $this->imageRBY - ($this->getCellHeight($tag['fontsize'] / $this->k) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cellHeightRatio));
                         break;
                     }
                 }
@@ -16673,8 +16605,8 @@ class PDF
                         if (isset($cellpos['border'])) {
                             $border = $cellpos['border'];
                         }
-                        if (isset($cellpos['bgcolor']) and ($cellpos['bgcolor']) !== false) {
-                            $this->fillColorArray($cellpos['bgcolor']);
+                        if (isset($cellpos['bgColor']) and ($cellpos['bgColor']) !== false) {
+                            $this->fillColorArray($cellpos['bgColor']);
                             $fill = true;
                         }
                         else {
@@ -17118,10 +17050,10 @@ class PDF
                 $border = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
             }
         }
-        if (isset($tag['bgcolor']) and ($tag['bgcolor'] !== false)) {
+        if (isset($tag['bgColor']) and ($tag['bgColor'] !== false)) {
             // get background color
-            $old_bgcolor = $this->bgColor;
-            $this->fillColorArray($tag['bgcolor']);
+            $oldBGColor = $this->bgColor;
+            $this->fillColorArray($tag['bgColor']);
             $fill = true;
         }
         if (!$border and !$fill) {
@@ -17301,9 +17233,9 @@ class PDF
         } // end for each page
         // restore page regions
         $this->page_regions = $temp_page_regions;
-        if (isset($old_bgcolor)) {
+        if (isset($oldBGColor)) {
             // restore background color
-            $this->fillColorArray($old_bgcolor);
+            $this->fillColorArray($oldBGColor);
         }
         // restore pointer position
         $this->x                     = $prev_x;
@@ -17423,7 +17355,7 @@ class PDF
         }
         $size        /= $this->k;
         $fill        = '';
-        $bgcolor     = $this->bgColor;
+        $bgColor     = $this->bgColor;
         $color       = $this->fgColor;
         $strokecolor = $this->strokeColor;
         $width       = 0;
@@ -17635,7 +17567,7 @@ class PDF
         $this->x        = $tmpx;
         $this->lispacer = '^';
         // restore colors
-        $this->fillColorArray($bgcolor);
+        $this->fillColorArray($bgColor);
         $this->drawColorArray($strokecolor);
         $this->textColorArray($color);
     }
@@ -19075,7 +19007,7 @@ class PDF
         // object ID
         $this->xObjects[$this->xObjectID] = ['n' => $this->n];
         // store current graphic state
-        $this->xObjects[$this->xObjectID]['gvars'] = $this->getGraphicVars();
+        $this->xObjects[$this->xObjectID]['gvars'] = $this->graphicsConfiguration();
         // initialize data
         $this->xObjects[$this->xObjectID]['intmrk']      = 0;
         $this->xObjects[$this->xObjectID]['transfmrk']   = [];
@@ -19134,7 +19066,7 @@ class PDF
         }
         $this->inXObject = false;
         // restore previous graphic state
-        $this->setGraphicVars($this->xObjects[$this->xObjectID]['gvars'], true);
+        $this->graphicsConfiguration($this->xObjects[$this->xObjectID]['gvars'], true);
         return $this->xObjectID;
     }
 

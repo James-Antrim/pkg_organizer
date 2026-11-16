@@ -114,7 +114,7 @@ trait Headers
         }
 
         $this->inHeader = true;
-        $this->setGraphicVars($this->default_graphic_vars);
+        $this->graphicsConfiguration($this->default_graphic_vars);
 
         $lastHeight = $this->lastPrintedCellHeight;
         $margins    = $this->headerTemplateMargins;
