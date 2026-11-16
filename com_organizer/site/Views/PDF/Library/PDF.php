@@ -43,6 +43,7 @@ class PDF
     protected string $lineCapStyle = '0 J';
     protected string $lineDashStyle = '[] 0 d';
     protected string $lineJoinStyle = '0 j';
+    protected bool $lineThrough = false;
     protected float $lineWidth = 0;
     protected string $lineWidthStyle = '';
     protected bool $inFooter = false;
@@ -50,10 +51,12 @@ class PDF
     protected bool $newLine = true;
     protected float $originalLeftMargin = 0;
     protected float $originalRightMargin = 0;
+    protected bool $overline = false;
     protected array $pageLengths = [];
     protected array $pages = [];
     protected float $rightMargin = 0;
     protected int $state = self::INITIAL;
+    protected bool $underline = false;
     protected string $xObjectID = '';
     protected array $xObjects = [];
 
@@ -525,15 +528,6 @@ class PDF
     protected $links = [];
 
     /**
-     * Underlining flag.
-     */
-    protected $underline;
-
-    /**
-     * Overlining flag.
-     */
-    protected $overline;
-    /**
      * Automatic page breaking.
      */
     protected $AutoPageBreak;
@@ -724,19 +718,9 @@ class PDF
     protected $n_js;
 
     /**
-     * line through state
-     */
-    protected $linethrough;
-
-    /**
      * Array with additional document-wide usage rights for the document.
      */
     protected $ur = [];
-
-    /**
-     * DPI (Dot Per Inch) Document Resolution (do not change).
-     */
-    protected $dpi = 72;
 
     /**
      * Array of page numbers were a new page group was started (the page numbers are the keys of the array).
@@ -1340,23 +1324,18 @@ class PDF
         $this->transfmrk[0]          = [];
         $this->pagedim               = [];
         $this->n                     = 2;
-        $this->buffer                = '';
         $this->pages                 = [];
         $this->diffs                 = [];
-        $this->images                = [];
         $this->links                 = [];
         $this->gradients             = [];
         $this->inFooter              = false;
         $this->lastPrintedCellHeight = 0;
-        $this->underline             = false;
-        $this->overline              = false;
-        $this->linethrough           = false;
         $this->pdflayers             = [];
         // encryption values
         $this->encrypted    = false;
         $this->last_enc_key = '';
         // set scale factor
-        $this->k = $this->dpi / 25.4;
+        $this->k = self::DPI / 25.4;
         if (isset($this->CurOrientation)) {
             $this->setPageOrientation($this->CurOrientation);
         }
@@ -3801,7 +3780,7 @@ class PDF
             if ($this->underline) {
                 $s .= ' ' . $this->_dounderlinew($xdx, $basefonty, $width);
             }
-            if ($this->linethrough) {
+            if ($this->lineThrough) {
                 $s .= ' ' . $this->_dolinethroughw($xdx, $basefonty, $width);
             }
             if ($this->overline) {
@@ -7478,7 +7457,7 @@ class PDF
      * Line through text.
      * @param int    $x   X coordinate
      * @param int    $y   Y coordinate
-     * @param string $txt text to linethrough
+     * @param string $txt text to line-through
      */
     protected function _dolinethrough($x, $y, $txt)
     {

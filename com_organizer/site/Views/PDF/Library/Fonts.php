@@ -157,9 +157,9 @@ trait Fonts
             self::PERCENT => ($value * $referenceValue) / 100,
             self::ELEMENT => $value * $referenceValue,
             self::RELATIVE_X => $value * ($referenceValue / 2),
-            self::INCH => ($value * $this->dpi) / $k,
-            self::CENTIMETER => ($value / 2.54 * $this->dpi) / $k,
-            self::MILLIMETER => ($value / 25.4 * $this->dpi) / $k,
+            self::INCH => ($value * self::DPI) / $k,
+            self::CENTIMETER => ($value / 2.54 * self::DPI) / $k,
+            self::MILLIMETER => ($value / 25.4 * self::DPI) / $k,
             self::PICA => ($value * 12) / $k,
             self::POINT => $value / $k,
             self::PIXEL => $points ? $this->pixelsToUnits($value) * $this->k : $this->pixelsToUnits($value),
@@ -1008,10 +1008,10 @@ trait Fonts
         }
         // line-through (deleted)
         if (strpos($tempstyle, 'D') !== false) {
-            $this->linethrough = true;
+            $this->lineThrough = true;
         }
         else {
-            $this->linethrough = false;
+            $this->lineThrough = false;
         }
         // overline
         if (strpos($tempstyle, 'O') !== false) {
@@ -1030,7 +1030,7 @@ trait Fonts
         }
         $bistyle   = $style;
         $fontKey   = $family . $style;
-        $fontStyle = $style . ($this->underline ? 'U' : '') . ($this->linethrough ? 'D' : '') . ($this->overline ? 'O' : '');
+        $fontStyle = $style . ($this->underline ? 'U' : '') . ($this->lineThrough ? 'D' : '') . ($this->overline ? 'O' : '');
         $fontdata  = ['fontKey' => $fontKey, 'family' => $family, 'style' => $fontStyle];
         // check if the font has been already added
         $fb = $this->fontBuffer($fontKey);

@@ -572,8 +572,8 @@ trait Images
         // fit the image on available space
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
         // calculate new minimum dimensions in pixels
-        $neww = round($w * $this->k * $dpi / $this->dpi);
-        $newh = round($h * $this->k * $dpi / $this->dpi);
+        $neww = round($w * $this->k * $dpi / self::DPI);
+        $newh = round($h * $this->k * $dpi / self::DPI);
         // check if resize is necessary (resize is used only to reduce the image)
         $newsize = ($neww * $newh);
         $pixsize = ($pixw * $pixh);
