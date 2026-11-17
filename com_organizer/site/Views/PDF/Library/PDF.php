@@ -166,6 +166,30 @@ class PDF
     }
 
     /**
+     * Gets the path painting operators.
+     * @param string $style
+     * @return string
+     * @see PDF::RENDERING_STYLES
+     */
+    public function pathPaintingOperators(string $style): string
+    {
+        $style = in_array($style, PDF::RENDERING_STYLES) ? $style : PDF::STROKE;
+        return match ($style) {
+            PDF::STROKE_CLOSE, PDF::DRAW_CLOSE => PDF::STROKE_CLOSE,
+            PDF::FILL => PDF::FILL,
+            PDF::FILL_EO => PDF::FILL_EO,
+            PDF::BOLD, PDF::DRAW_FILL, PDF::FILL_DRAW => PDF::BOLD,
+            PDF::BOLD_EO, PDF::DRAW_FILL_EO, PDF::FILL_DRAW_EO => PDF::BOLD_EO,
+            PDF::BOLD_CLOSE, PDF::DRAW_FILL_CLOSE, PDF::FILL_DRAW_CLOSE => PDF::BOLD_CLOSE,
+            PDF::BOLD_CLOSE_EO, PDF::DRAW_FILL_CLOSE_EO, PDF::FILL_DRAW_CLOSE_EO => PDF::BOLD_CLOSE_EO,
+            PDF::CLIP_NZ => 'W n',
+            PDF::CLIP_EO => 'W* n',
+            PDF::END_PATH => PDF::END_PATH,
+            default => PDF::STROKE,
+        };
+    }
+
+    /**
      * Returns "THM Organizer 5.0.0" in Unicode.
      * @return string
      */
@@ -7481,7 +7505,7 @@ class PDF
      * (Check the "Entries in a Graphics State Parameter Dictionary" on PDF 32000-1:2008).
      * @param bool      $stroking    If true apply overprint for stroking operations.
      * @param bool|null $nonstroking If true apply overprint for painting operations other than stroking.
-     * @param integer   $mode        Overprint mode: (0 = each source colour component value replaces the value previously painted for the corresponding device colorant; 1 = a tint value of 0.0 for a source colour component shall leave the corresponding component of the previously painted colour unchanged).
+     * @param int       $mode        Overprint mode: (0 = each source colour component value replaces the value previously painted for the corresponding device colorant; 1 = a tint value of 0.0 for a source colour component shall leave the corresponding component of the previously painted colour unchanged).
      */
     public function setOverprint($stroking = true, $nonstroking = null, $mode = 0)
     {
@@ -7702,17 +7726,17 @@ class PDF
     {
         $line_style = array('width' => max((0.5 / self::FACTOR), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
         $this->fillColorArray($cola);
-        $this->PieSector($x, $y, $r, 90, 180, 'F');
-        $this->PieSector($x, $y, $r, 270, 360, 'F');
+        $this->pieSector($x, $y, $r, 90, 180, 'F');
+        $this->pieSector($x, $y, $r, 270, 360, 'F');
         $this->circle($x, $y, $r, 0, 360, 'C', $line_style, [], 8);
         if ($double) {
             $ri = $r * 0.5;
             $this->fillColorArray($colb);
-            $this->PieSector($x, $y, $ri, 90, 180, 'F');
-            $this->PieSector($x, $y, $ri, 270, 360, 'F');
+            $this->pieSector($x, $y, $ri, 90, 180, 'F');
+            $this->pieSector($x, $y, $ri, 270, 360, 'F');
             $this->fillColorArray($cola);
-            $this->PieSector($x, $y, $ri, 0, 90, 'F');
-            $this->PieSector($x, $y, $ri, 180, 270, 'F');
+            $this->pieSector($x, $y, $ri, 0, 90, 'F');
+            $this->pieSector($x, $y, $ri, 180, 270, 'F');
             $this->circle($x, $y, $ri, 0, 360, 'C', $line_style, [], 8);
         }
     }
@@ -7734,16 +7758,16 @@ class PDF
         $re = ($r * 1.3);
         // Cyan
         $this->fillColorArray([100, 0, 0, 0]);
-        $this->PieSector($x, $y, $ri, 270, 360, 'F');
+        $this->pieSector($x, $y, $ri, 270, 360, 'F');
         // Magenta
         $this->fillColorArray([0, 100, 0, 0]);
-        $this->PieSector($x, $y, $ri, 0, 90, 'F');
+        $this->pieSector($x, $y, $ri, 0, 90, 'F');
         // Yellow
         $this->fillColorArray([0, 0, 100, 0]);
-        $this->PieSector($x, $y, $ri, 90, 180, 'F');
+        $this->pieSector($x, $y, $ri, 90, 180, 'F');
         // Key - black
         $this->fillColorArray([0, 0, 0, 100]);
-        $this->PieSector($x, $y, $ri, 180, 270, 'F');
+        $this->pieSector($x, $y, $ri, 180, 270, 'F');
         // registration color
         $line_style = ['width' => $lw, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [100, 100, 100, 100, 'All']];
         $this->fillColorArray([100, 100, 100, 100, 'All']);
@@ -8217,61 +8241,6 @@ class PDF
     }
 
     /**
-     * Draw the sector of a circle.
-     * It can be used for instance to render pie charts.
-     * @param float  $xc    abscissa of the center.
-     * @param float  $yc    ordinate of the center.
-     * @param float  $r     radius.
-     * @param float  $a     start angle (in degrees).
-     * @param float  $b     end angle (in degrees).
-     * @param string $style Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param float  $cw    indicates whether to go clockwise (default: true).
-     * @param float  $o     origin of angles (0 for 3 o'clock, 90 for noon, 180 for 9 o'clock, 270 for 6 o'clock). Default: 90.
-     * @author Maxime Delorme, Nicola Asuni
-     */
-    public function PieSector($xc, $yc, $r, $a, $b, $style = 'FD', $cw = true, $o = 90)
-    {
-        $this->PieSectorXY($xc, $yc, $r, $r, $a, $b, $style, $cw, $o);
-    }
-
-    /**
-     * Draw the sector of an ellipse.
-     * It can be used for instance to render pie charts.
-     * @param float   $xc    abscissa of the center.
-     * @param float   $yc    ordinate of the center.
-     * @param float   $rx    the x-axis radius.
-     * @param float   $ry    the y-axis radius.
-     * @param float   $a     start angle (in degrees).
-     * @param float   $b     end angle (in degrees).
-     * @param string  $style Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param float   $cw    indicates whether to go clockwise.
-     * @param float   $o     origin of angles (0 for 3 o'clock, 90 for noon, 180 for 9 o'clock, 270 for 6 o'clock).
-     * @param integer $nc    Number of curves used to draw a 90 degrees portion of arc.
-     * @author Maxime Delorme, Nicola Asuni
-     */
-    public function PieSectorXY($xc, $yc, $rx, $ry, $a, $b, $style = 'FD', $cw = false, $o = 0, $nc = 2)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $op = StaticMethods::pathPaintingOperators($style);
-        if ($op == 'f') {
-            $line_style = [];
-        }
-        if ($cw) {
-            $d = $b;
-            $b = (360 - $a + $o);
-            $a = (360 - $d + $o);
-        }
-        else {
-            $b += $o;
-            $a += $o;
-        }
-        $this->_outellipticalarc($xc, $yc, $rx, $ry, 0, $a, $b, true, $nc);
-        $this->append($op);
-    }
-
-    /**
      * Set document barcode.
      * @param string $bc barcode
      */
@@ -8530,10 +8499,10 @@ class PDF
         $xpos_text = $xpos;
         // print background color
         if ($style['bgColor']) {
-            $this->Rect($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
+            $this->rectangle($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
         }
         elseif ($style['border']) {
-            $this->Rect($xpos_rect, $y, $w, $h, 'D');
+            $this->rectangle($xpos_rect, $y, $w, $h, 'D');
         }
         // set foreground color
         $this->drawColorArray($style['fgColor']);
@@ -8544,7 +8513,7 @@ class PDF
             if ($v['t']) {
                 // draw a vertical bar
                 $ypos = $y + $vpadding + ($v['p'] * $barh / $arrcode['maxh']);
-                $this->Rect($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', [], $style['fgColor']);
+                $this->rectangle($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', [], $style['fgColor']);
             }
             $xpos += $bw;
         }
@@ -8772,10 +8741,10 @@ class PDF
         $ystart         = $y + ($style['vpadding'] * $ch);
         // print background color
         if ($style['bgColor']) {
-            $this->Rect($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
+            $this->rectangle($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
         }
         elseif ($style['border']) {
-            $this->Rect($xpos, $y, $w, $h, 'D');
+            $this->rectangle($xpos, $y, $w, $h, 'D');
         }
         // set foreground color
         $this->drawColorArray($style['fgColor']);
@@ -8787,7 +8756,7 @@ class PDF
             for ($c = 0; $c < $cols; ++$c) {
                 if ($arrcode['bcode'][$r][$c] == 1) {
                     // draw a single barcode cell
-                    $this->Rect($xr, $ystart, $cw, $ch, 'F', [], $style['fgColor']);
+                    $this->rectangle($xr, $ystart, $cw, $ch, 'F', [], $style['fgColor']);
                 }
                 $xr += $cw;
             }

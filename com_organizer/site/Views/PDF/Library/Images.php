@@ -1644,7 +1644,7 @@ trait Images
         // save the current graphic state
         $this->append('q' . $this->epsmarker);
         // set initial clipping mask
-        $this->Rect($ximg, $y, $w, $h, 'CNZ', [], []);
+        $this->rectangle($ximg, $y, $w, $h, 'CNZ', [], []);
         // scale and translate
         $e = $ox * self::FACTOR * (1 - $svgscale_x);
         $f = ($this->height - $oy) * self::FACTOR * (1 - $svgscale_y);
@@ -1822,7 +1822,7 @@ trait Images
             else {
                 $clip_rule = 'CEO';
             }
-            $this->Rect($cx, $cy, $cw, $ch, $clip_rule, [], []);
+            $this->rectangle($cx, $cy, $cw, $ch, $clip_rule, [], []);
         }
         // fill
         $regs = [];
@@ -2102,7 +2102,7 @@ trait Images
             return;
         }
         // set fill/stroke style
-        $op = StaticMethods::pathPaintingOperators($style, '');
+        $op = $this->pathPaintingOperators($style, '');
         if (empty($op)) {
             return;
         }
@@ -2419,8 +2419,8 @@ trait Images
                                 $cx = ($cax * $cos_ang) - ($cay * $sin_ang) + (($x0 + $x) / 2);
                                 $cy = ($cax * $sin_ang) + ($cay * $cos_ang) + (($y0 + $y) / 2);
                                 // get angles
-                                $angs = StaticMethods::getVectorsAngle(1, 0, (($xa - $cax) / $rx), (($cay - $ya) / $ry));
-                                $dang = StaticMethods::getVectorsAngle((($xa - $cax) / $rx), (($ya - $cay) / $ry), ((-$xa - $cax) / $rx), ((-$ya - $cay) / $ry));
+                                $angs = $this->vectorAngle(1, 0, (($xa - $cax) / $rx), (($cay - $ya) / $ry));
+                                $dang = $this->vectorAngle((($xa - $cax) / $rx), (($ya - $cay) / $ry), ((-$xa - $cax) / $rx), ((-$ya - $cay) / $ry));
                                 if (($fs == 0) and ($dang > 0)) {
                                     $dang -= (2 * M_PI);
                                 }
@@ -2445,7 +2445,7 @@ trait Images
                                 if (($key == 0) and (isset($paths[($key + 1)][1])) and (trim($paths[($key + 1)][1]) == 'z')) {
                                     $pie = true;
                                 }
-                                list($axmin, $aymin, $axmax, $aymax) = $this->_outellipticalarc($cx, $cy, $rx, $ry, $ang, $angs, $angf, $pie, 2, false, ($fs == 0), true);
+                                list($axmin, $aymin, $axmax, $aymax) = $this->appendArc($cx, $cy, $rx, $ry, $ang, $angs, $angf, $pie, 2, false, ($fs == 0), true);
                                 $xmin = min($xmin, $x, $axmin);
                                 $ymin = min($ymin, $y, $aymin);
                                 $xmax = max($xmax, $x, $axmax);
@@ -2608,7 +2608,7 @@ trait Images
                 $w = (isset($attribs['width']) ? $this->fontSizeToUnits($attribs['width'], 0) : $this->width);
                 $h = (isset($attribs['height']) ? $this->fontSizeToUnits($attribs['height'], 0) : $this->height);
                 // draw clipping rect
-                $this->Rect($x, $y, $w, $h, 'CNZ', [], []);
+                $this->rectangle($x, $y, $w, $h, 'CNZ', [], []);
                 // parse viewbox, calculate extra transformation matrix
                 if (isset($attribs['viewBox'])) {
                     $tmp = [];
@@ -2955,21 +2955,21 @@ trait Images
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'PolyLine', [$p, 'CNZ']);
                     if (!empty($obstyle)) {
-                        $this->PolyLine($p, $obstyle, [], []);
+                        $this->polyLine($p, $obstyle, [], []);
                     }
                     $this->endTransformation();
                 }
                 else { // polygon
                     if ($clipping) {
                         $this->SVGTransform($tm);
-                        $this->Polygon($p, 'CNZ', [], [], true);
+                        $this->polygon($p, 'CNZ', [], [], true);
                     }
                     else {
                         $this->startTransformation();
                         $this->SVGTransform($tm);
                         $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Polygon', [$p, 'CNZ']);
                         if (!empty($obstyle)) {
-                            $this->Polygon($p, $obstyle, [], [], true);
+                            $this->polygon($p, $obstyle, [], [], true);
                         }
                         $this->endTransformation();
                     }

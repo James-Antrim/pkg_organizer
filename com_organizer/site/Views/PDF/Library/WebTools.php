@@ -248,7 +248,7 @@ trait WebTools
                 $l       = $size / 3;
                 $lspace  += $l;
                 $this->x -= $lspace;
-                $this->Rect($this->x, ($this->y + (($this->lastPrintedCellHeight - $l) / 2)), $l, $l, 'F', [], $color);
+                $this->rectangle($this->x, ($this->y + (($this->lastPrintedCellHeight - $l) / 2)), $l, $l, 'F', [], $color);
                 break;
             }
             case 'img':

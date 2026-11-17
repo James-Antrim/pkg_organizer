@@ -16,31 +16,6 @@ namespace THM\Organizer\Views\PDF\Library;
 class StaticMethods
 {
 
-    /**
-     * Gets the path painting operators.
-     * @param string $style
-     * @return string
-     * @see PDF::RENDERING_STYLES
-     */
-    public static function pathPaintingOperators(string $style): string
-    {
-        $style = in_array($style, PDF::RENDERING_STYLES) ? $style : PDF::STROKE;
-        return match ($style) {
-            PDF::STROKE_CLOSE, PDF::DRAW_CLOSE => PDF::STROKE_CLOSE,
-            PDF::FILL, PDF::FILL2 => PDF::FILL2,
-            PDF::FILL_EO, PDF::FILL2_EO => PDF::FILL2_EO,
-            PDF::BOLD, PDF::DRAW_FILL, PDF::FILL_DRAW => PDF::BOLD,
-            PDF::BOLD_EO, PDF::DRAW_FILL_EO, PDF::FILL_DRAW_EO => PDF::BOLD_EO,
-            PDF::BOLD_CLOSE, PDF::DRAW_FILL_CLOSE, PDF::FILL_DRAW_CLOSE => PDF::BOLD_CLOSE,
-            PDF::BOLD_CLOSE_EO, PDF::DRAW_FILL_CLOSE_EO, PDF::FILL_DRAW_CLOSE_EO => PDF::BOLD_CLOSE_EO,
-            PDF::CLIP_NZ => 'W n',
-            PDF::CLIP_EO => 'W* n',
-            PDF::END_PATH => PDF::END_PATH,
-            default => PDF::STROKE,
-        };
-    }
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 
@@ -1594,29 +1569,6 @@ class StaticMethods
             }
         }
         return $tm;
-    }
-
-    /**
-     * Returns the angle in radiants between two vectors
-     * @param int $x1 X coordinate of first vector point
-     * @param int $y1 Y coordinate of first vector point
-     * @param int $x2 X coordinate of second vector point
-     * @param int $y2 Y coordinate of second vector point
-     * @author Nicola Asuni
-     */
-    public static function getVectorsAngle($x1, $y1, $x2, $y2)
-    {
-        $dprod = ($x1 * $x2) + ($y1 * $y2);
-        $dist1 = sqrt(($x1 * $x1) + ($y1 * $y1));
-        $dist2 = sqrt(($x2 * $x2) + ($y2 * $y2));
-        $angle = acos($dprod / ($dist1 * $dist2));
-        if (is_nan($angle)) {
-            $angle = M_PI;
-        }
-        if ((($x1 * $y2) - ($x2 * $y1)) < 0) {
-            $angle *= -1;
-        }
-        return $angle;
     }
 
     /**

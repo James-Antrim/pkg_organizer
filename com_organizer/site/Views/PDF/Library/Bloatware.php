@@ -187,7 +187,7 @@ trait Bloatware
                 else {
                     $this->fillColorArray($col_b);
                     // colored rectangle
-                    $this->Rect($xb, $yb, $wb, $hb, 'F', []);
+                    $this->rectangle($xb, $yb, $wb, $hb, 'F', []);
                 }
                 $xb += $xd;
                 $yb += $yd;
@@ -265,6 +265,228 @@ trait Bloatware
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GEOMETRY-UNPROCESSED
+
+    /**
+     * Append a cubic Bézier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using the current point and (x2, y2) as the Bezier control points.
+     * The new current point shall be (x3, y3).
+     * @param float $x2 Abscissa of control point 2.
+     * @param float $y2 Ordinate of control point 2.
+     * @param float $x3 Abscissa of end point.
+     * @param float $y3 Ordinate of end point.
+     */
+    protected function _outCurveV($x2, $y2, $x3, $y3)
+    {
+        if ($this->state === self::READY) {
+            $this->append(sprintf('%F %F %F %F v', ($x2 * self::FACTOR), (($this->height - $y2) * self::FACTOR), ($x3 * self::FACTOR), (($this->height - $y3) * self::FACTOR)));
+        }
+    }
+
+    /**
+     * Append a cubic Bézier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x3, y3) as the Bezier control points.
+     * The new current point shall be (x3, y3).
+     * @param float $x1 Abscissa of control point 1.
+     * @param float $y1 Ordinate of control point 1.
+     * @param float $x3 Abscissa of end point.
+     * @param float $y3 Ordinate of end point.
+     */
+    protected function _outCurveY($x1, $y1, $x3, $y3)
+    {
+        if ($this->state === self::READY) {
+            $this->append(sprintf('%F %F %F %F y', ($x1 * self::FACTOR), (($this->height - $y1) * self::FACTOR), ($x3 * self::FACTOR), (($this->height - $y3) * self::FACTOR)));
+        }
+    }
+
+    /**
+     * Draws a Bezier curve.
+     * The Bezier curve is a tangent to the line between the control points at
+     * either end of the curve.
+     * @param float  $x0         Abscissa of start point.
+     * @param float  $y0         Ordinate of start point.
+     * @param float  $x1         abscissa of control point 1.
+     * @param float  $y1         ordinate of control point 1.
+     * @param float  $x2         abscissa of control point 2.
+     * @param float  $y2         ordinate of control point 2.
+     * @param float  $x3         abscissa of end point.
+     * @param float  $y3         ordinate of end point.
+     * @param string $style
+     * @param array  $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
+     * @see self::RENDERING_STYLES
+     */
+    public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = [], $fill_color = [])
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
+            $this->fillColorArray($fill_color);
+        }
+        $op = $this->pathPaintingOperators($style);
+        if ($line_style) {
+            $this->lineStyle($line_style);
+        }
+        $this->point($x0, $y0);
+        $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
+        $this->append($op);
+    }
+
+    /**
+     * Draws a poly-Bezier curve.
+     * Each Bezier curve segment is a tangent to the line between the control points at
+     * either end of the curve.
+     * @param float   $x0         Abscissa of start point.
+     * @param float   $y0         Ordinate of start point.
+     * @param float[] $segments   An array of bezier descriptions. Format: [x1, y1, x2, y2, x3, y3].
+     * @param string  $style
+     * @param array   $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
+     * @see self::RENDERING_STYLES
+     */
+    public function Polycurve($x0, $y0, $segments, $style = '', $line_style = [], $fill_color = [])
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
+            $this->fillColorArray($fill_color);
+        }
+        $op = $this->pathPaintingOperators($style);
+        if ($op == 'f') {
+            $line_style = [];
+        }
+        if ($line_style) {
+            $this->lineStyle($line_style);
+        }
+        $this->point($x0, $y0);
+        foreach ($segments as $segment) {
+            list($x1, $y1, $x2, $y2, $x3, $y3) = $segment;
+            $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
+        }
+        $this->append($op);
+    }
+
+    /**
+     * Draws a regular polygon.
+     * @param float  $x0                    Abscissa of center point.
+     * @param float  $y0                    Ordinate of center point.
+     * @param float  $r                     Radius of inscribed circle.
+     * @param int    $ns                    Number of sides.
+     * @param float  $angle                 Angle oriented (anti-clockwise). Default value: 0.
+     * @param bool   $draw_circle           Draw inscribed circle or not. Default value: false.
+     * @param string $style
+     * @param array  $line_style            Line style of polygon sides. Array with keys among the following:
+     *                                      <ul>
+     *                                      <li>all: Line style of all sides. Array like for SetLineStyle().</li>
+     *                                      <li>0 to ($ns - 1): Line style of each side. Array like for SetLineStyle().</li>
+     *                                      </ul>
+     *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
+     * @param array  $fillColor             Fill color. Format: [red, green, blue]. Default value: default color (empty array).
+     * @param string $circle_style          Style of rendering of inscribed circle (if draws). Possible values are:
+     *                                      <ul>
+     *                                      <li>D or empty string: Draw (default).</li>
+     *                                      <li>F: Fill.</li>
+     *                                      <li>DF or FD: Draw and fill.</li>
+     *                                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
+     *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
+     *                                      </ul>
+     * @param array  $circle_outLine_style  Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array  $circle_fill_color     Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
+     * @see self::RENDERING_STYLES
+     */
+    public function RegularPolygon($x0, $y0, $r, $ns, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fillColor = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
+    {
+        if (3 > $ns) {
+            $ns = 3;
+        }
+        if ($draw_circle) {
+            $this->circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
+        }
+        $p = [];
+        for ($i = 0; $i < $ns; ++$i) {
+            $a     = $angle + ($i * 360 / $ns);
+            $a_rad = deg2rad((float) $a);
+            $p[]   = $x0 + ($r * sin($a_rad));
+            $p[]   = $y0 + ($r * cos($a_rad));
+        }
+        $this->polygon($p, $style, $line_style, $fillColor);
+    }
+
+    /**
+     * Draws a rounded rectangle.
+     * @param float  $x            Abscissa of upper-left corner.
+     * @param float  $y            Ordinate of upper-left corner.
+     * @param float  $w            Width.
+     * @param float  $h            Height.
+     * @param float  $r            the radius of the circle used to round off the corners of the rectangle.
+     * @param string $round_corner Draws rounded corner or not. String with a 0 (not rounded i-corner) or 1 (rounded i-corner) in i-position. Positions are, in order and begin to 0: top right, bottom right, bottom left and top left. Default value: all rounded corner ("1111").
+     * @param string $style
+     * @param array  $border_style Border style of rectangle. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
+     * @see self::RENDERING_STYLES
+     */
+    public function RoundedRect($x, $y, $w, $h, $r, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
+    {
+        $this->RoundedRectXY($x, $y, $w, $h, $r, $r, $round_corner, $style, $border_style, $fill_color);
+    }
+
+    /**
+     * Draws a star polygon
+     * @param float  $x0                    Abscissa of center point.
+     * @param float  $y0                    Ordinate of center point.
+     * @param float  $r                     Radius of inscribed circle.
+     * @param int    $nv                    Number of vertices.
+     * @param int    $ng                    Number of gap (if ($ng % $nv = 1) then is a regular polygon).
+     * @param float  $angle                 Angle oriented (anti-clockwise). Default value: 0.
+     * @param bool   $draw_circle           Draw inscribed circle or not. Default value is false.
+     * @param string $style
+     * @param array  $lineStyle             Line style of polygon sides. Array with keys among the following:
+     *                                      <ul>
+     *                                      <li>all: Line style of all sides. Array like for
+     *                                      SetLineStyle().</li>
+     *                                      <li>0 to (n - 1): Line style of each side. Array like for SetLineStyle().</li>
+     *                                      </ul>
+     *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
+     * @param array  $fillColor             Fill color. Format: [red, green, blue]. Default value: default color (empty array).
+     * @param string $circleStyle           Style of rendering of inscribed circle (if draws). Possible values are:
+     *                                      <ul>
+     *                                      <li>D or empty string: Draw (default).</li>
+     *                                      <li>F: Fill.</li>
+     *                                      <li>DF or FD: Draw and fill.</li>
+     *                                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
+     *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
+     *                                      </ul>
+     * @param array  $circle_outLine_style  Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array  $circle_fill_color     Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
+     * @see self::RENDERING_STYLES
+     */
+    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $lineStyle = [], $fillColor = [], $circleStyle = '', $circle_outLine_style = [], $circle_fill_color = [])
+    {
+        if ($nv < 2) {
+            $nv = 2;
+        }
+        if ($draw_circle) {
+            $this->circle($x0, $y0, $r, 0, 360, $circleStyle, $circle_outLine_style, $circle_fill_color);
+        }
+        $p2      = [];
+        $visited = [];
+        for ($i = 0; $i < $nv; ++$i) {
+            $a         = $angle + ($i * 360 / $nv);
+            $a_rad     = deg2rad((float) $a);
+            $p2[]      = $x0 + ($r * sin($a_rad));
+            $p2[]      = $y0 + ($r * cos($a_rad));
+            $visited[] = false;
+        }
+        $p = [];
+        $i = 0;
+        do {
+            $p[]         = $p2[$i * 2];
+            $p[]         = $p2[($i * 2) + 1];
+            $visited[$i] = true;
+            $i           += $ng;
+            $i           %= $nv;
+        } while (!$visited[$i]);
+        $this->polygon($p, $style, $lineStyle, $fillColor);
+    }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TRANSFORMATIONS-PROCESSED
 

@@ -20,7 +20,7 @@ trait Constants
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GENERAL
 
     // Used in multiple contexts.
-    public const BOLD = 'B';
+    public const BOLD = 'B', REGULAR = '';
 
     /** Epsilon value used for float calculations. */
     public const EPSILON = 0.005, FACTOR = 2.8346456692913;
@@ -384,7 +384,7 @@ trait Constants
 
     public const DEFAULT_FONT = 'helvetica';
 
-    public const BOLD_ITALIC = 'BI', BOLD_UNDERLINE = 'BU', ITALIC = 'I', OVERLINE = 'O', REGULAR = '', STRIKE_THROUGH = 'D', UNDERLINE = 'U';
+    public const BOLD_ITALIC = 'BI', BOLD_UNDERLINE = 'BU', ITALIC = 'I', OVERLINE = 'O', STRIKE_THROUGH = 'D', UNDERLINE = 'U';
 
     public const FONT_STYLES = [self::BOLD, self::BOLD_ITALIC, self::BOLD_UNDERLINE, self::ITALIC, self::OVERLINE, self::REGULAR, self::STRIKE_THROUGH, self::UNDERLINE];
 
@@ -795,8 +795,7 @@ trait Constants
     public const DRAW = 'D', DRAW_CLOSE = 'd';
     public const DRAW_FILL = 'DF', DRAW_FILL_CLOSE = 'df', DRAW_FILL_CLOSE_EO = 'df*', DRAW_FILL_EO = 'DF*';
     public const END_PATH = 'n';
-    public const FILL = 'F', FILL_EO = 'F*';
-    public const FILL2 = 'f', FILL2_EO = 'f*'; // duplicates of fill
+    public const FILL = 'f', FILL_EO = 'f*';
     public const FILL_DRAW = 'FD', FILL_DRAW_CLOSE = 'fd', FILL_DRAW_CLOSE_EO = 'f*d', FILL_DRAW_EO = 'F*D'; // duplicates of draw & fill
     public const STROKE = 'S', STROKE_CLOSE = 's';
 
@@ -810,8 +809,8 @@ trait Constants
      * self::DRAW_FILL_CLOSE_EO, self::BOLD_CLOSE_EO, self::FILL_DRAW_CLOSE_EO => close, fill, and then stroke the path, using the even-odd rule to determine the region to fill
      * self::DRAW_FILL_EO, self::BOLD_EO, self::FILL_DRAW_EO => fill and then stroke the path using the even-odd rule to determine the region to fill
      * self::END_PATH => end the path object without filling or stroking it
-     * self::FILL, self::FILL2 => fill the path using the nonzero winding number rule to determine the region to fill
-     * self::FILL_EO, self::FILL2_EO => fill the path, using the even-odd rule to determine the region to fill
+     * self::FILL => fill the path using the nonzero winding number rule to determine the region to fill
+     * self::FILL_EO => fill the path, using the even-odd rule to determine the region to fill
      */
     public const RENDERING_STYLES = [
         self::BOLD, self::BOLD_CLOSE, self::BOLD_CLOSE_EO, self::BOLD_EO,
@@ -820,9 +819,14 @@ trait Constants
         self::DRAW_FILL, self::DRAW_FILL_CLOSE, self::DRAW_FILL_CLOSE_EO, self::DRAW_FILL_EO,
         self::END_PATH,
         self::FILL, self::FILL_EO,
-        self::FILL2, self::FILL2_EO,
         self::FILL_DRAW, self::FILL_DRAW_CLOSE, self::FILL_DRAW_CLOSE_EO, self::FILL_DRAW_EO,
         self::STROKE, self::STROKE_CLOSE,
+    ];
+
+    public const FILLING_STYLES = [
+        self::DRAW_FILL, self::DRAW_FILL_CLOSE, self::DRAW_FILL_CLOSE_EO, self::DRAW_FILL_EO,
+        self::FILL, self::FILL_EO,
+        self::FILL_DRAW, self::FILL_DRAW_CLOSE, self::FILL_DRAW_CLOSE_EO, self::FILL_DRAW_EO,
     ];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNICODE

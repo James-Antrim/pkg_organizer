@@ -49,7 +49,7 @@ abstract class BadgeLayout extends BaseLayout
         /* @var CourseParticipants $view */
         $view = $this->view;
         $view->lineStyle($this->rectangleStyle);
-        $view->Rect($xOffset, 10 + $yOffset, 90, 80);
+        $view->rectangle($xOffset, 10 + $yOffset, 90, 80);
 
         $badgeCenter = $xOffset + 5;
 
@@ -140,7 +140,7 @@ abstract class BadgeLayout extends BaseLayout
         /** @var CourseParticipants $view */
         $view = $this->view;
         $view->lineStyle($this->rectangleStyle);
-        $view->Rect($xOffset, $yOffset + 10, 90, 80);
+        $view->rectangle($xOffset, $yOffset + 10, 90, 80);
 
         $left = $xOffset + 4;
         $view->Image($view::IMAGE_PATH . 'logo.png', $left, $yOffset + 15, 30);
