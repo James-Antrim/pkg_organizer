@@ -147,17 +147,6 @@ class StaticMethods
     }
 
     /**
-     * Returns a temporary filename for caching object on filesystem.
-     * @param string $type   Type of file (name of the subdir on the tcpdf cache folder).
-     * @param string $fileID internal file id
-     * @return string filename.
-     */
-    public static function getObjFilename($type = 'tmp', $fileID = '')
-    {
-        return tempnam(PDF::CACHE_PATH, '__organizer_' . $fileID . '_' . $type . '_' . md5(StaticMethods::getRandomSeed()) . '_');
-    }
-
-    /**
      * Add "\" before "\", "(" and ")"
      * @param string $s string to escape.
      * @return string escaped string.
@@ -253,162 +242,6 @@ class StaticMethods
     }
 
     /**
-     * Returns a string containing random data to be used as a seed for encryption methods.
-     * @param string $seed starting seed value
-     * @return string containing random data
-     * @author Nicola Asuni
-     */
-    public static function getRandomSeed($seed = '')
-    {
-        $rnd = uniqid(rand() . microtime(true), true);
-        if (function_exists('posix_getpid')) {
-            $rnd .= posix_getpid();
-        }
-        if (function_exists('openssl_random_pseudo_bytes') and (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')) {
-            // this is not used on windows systems because it is very slow for a know bug
-            $rnd .= openssl_random_pseudo_bytes(512);
-        }
-        else {
-            for ($i = 0; $i < 23; ++$i) {
-                $rnd .= uniqid('', true);
-            }
-        }
-        return $rnd . $seed . __FILE__ . serialize($_SERVER) . microtime(true);
-    }
-
-    /**
-     * Encrypts a string using MD5 and returns it's value as a binary string.
-     * @param string $str input string
-     * @return string MD5 encrypted binary string
-     */
-    public static function _md5_16($str)
-    {
-        return pack('H*', md5($str));
-    }
-
-    /**
-     * Returns the input text encrypted using AES algorithm and the specified key.
-     * This method requires openssl or mcrypt. Text is padded to 16bytes blocks
-     * @param string $key  encryption key
-     * @param string $text input text to be encrypted
-     * @return string encrypted text
-     * @author Nicola Asuni
-     */
-    public static function _AES($key, $text)
-    {
-        // padding (RFC 2898, PKCS #5: Password-Based Cryptography Specification Version 2.0)
-        $padding = 16 - (strlen($text) % 16);
-        $text    .= str_repeat(chr($padding), $padding);
-        $algo    = 'aes-256-cbc';
-        if (strlen($key) == 16) {
-            $algo = 'aes-128-cbc';
-        }
-        $iv   = openssl_random_pseudo_bytes(openssl_cipher_iv_length($algo));
-        $text = openssl_encrypt($text, $algo, $key, OPENSSL_RAW_DATA, $iv);
-        return $iv . substr($text, 0, -16);
-    }
-
-    /**
-     * Returns the input text encrypted using AES algorithm and the specified key.
-     * This method requires openssl or mcrypt. Text is not padded
-     * @param string $key  encryption key
-     * @param string $text input text to be encrypted
-     * @return string encrypted text
-     * @author Nicola Asuni
-     */
-    public static function _AESnopad($key, $text)
-    {
-        $algo = 'aes-256-cbc';
-        if (strlen($key) == 16) {
-            $algo = 'aes-128-cbc';
-        }
-        $iv   = str_repeat("\x00", openssl_cipher_iv_length($algo));
-        $text = openssl_encrypt($text, $algo, $key, OPENSSL_RAW_DATA, $iv);
-        return substr($text, 0, -16);
-    }
-
-    /**
-     * Returns the input text encrypted using RC4 algorithm and the specified key.
-     * RC4 is the standard encryption algorithm used in PDF format
-     * @param string $key            Encryption key.
-     * @param string $text           Input text to be encrypted.
-     * @param string $last_enc_key   Reference to last RC4 key encrypted.
-     * @param string $last_enc_key_c Reference to last RC4 computed key.
-     * @return string encrypted text
-     * @author Klemen Vodopivec, Nicola Asuni
-     */
-    public static function _RC4($key, $text, &$last_enc_key, &$last_enc_key_c)
-    {
-        if ($last_enc_key != $key) {
-            $k   = str_repeat($key, (int) ((256 / strlen($key)) + 1));
-            $rc4 = range(0, 255);
-            $j   = 0;
-            for ($i = 0; $i < 256; ++$i) {
-                $t       = $rc4[$i];
-                $j       = ($j + $t + ord($k[$i])) % 256;
-                $rc4[$i] = $rc4[$j];
-                $rc4[$j] = $t;
-            }
-            $last_enc_key   = $key;
-            $last_enc_key_c = $rc4;
-        }
-        else {
-            $rc4 = $last_enc_key_c;
-        }
-        $len = strlen($text);
-        $a   = 0;
-        $b   = 0;
-        $out = '';
-        for ($i = 0; $i < $len; ++$i) {
-            $a       = ($a + 1) % 256;
-            $t       = $rc4[$a];
-            $b       = ($b + $t) % 256;
-            $rc4[$a] = $rc4[$b];
-            $rc4[$b] = $t;
-            $k       = $rc4[($rc4[$a] + $rc4[$b]) % 256];
-            $out     .= chr(ord($text[$i]) ^ $k);
-        }
-        return $out;
-    }
-
-    /**
-     * Return the permission code used on encryption (P value).
-     * @param array $permissions the set of permissions (specify the ones you want to block).
-     * @param int   $mode        encryption strength: 0 = RC4 40 bit; 1 = RC4 128 bit; 2 = AES 128 bit; 3 = AES 256 bit.
-     * @author Nicola Asuni
-     */
-    public static function getUserPermissionCode($permissions, $mode = 0)
-    {
-        $options    = [
-            'owner'       => 2, // bit 2 -- inverted logic: cleared by default
-            'print'       => 4, // bit 3
-            'modify'      => 8, // bit 4
-            'copy'        => 16, // bit 5
-            'annot-forms' => 32, // bit 6
-            'fill-forms'  => 256, // bit 9
-            'extract'     => 512, // bit 10
-            'assemble'    => 1024,// bit 11
-            'print-high'  => 2048 // bit 12
-        ];
-        $protection = 2147422012; // 32 bit: (01111111 11111111 00001111 00111100)
-        foreach ($permissions as $permission) {
-            if (isset($options[$permission])) {
-                if (($mode > 0) or ($options[$permission] <= 32)) {
-                    // set only valid permissions
-                    if ($options[$permission] == 2) {
-                        // the logic for bit 2 is inverted (cleared by default)
-                        $protection += $options[$permission];
-                    }
-                    else {
-                        $protection -= $options[$permission];
-                    }
-                }
-            }
-        }
-        return $protection;
-    }
-
-    /**
      * Convert hexadecimal string to string
      * @param string $bs byte-string to convert
      * @return string
@@ -427,22 +260,6 @@ class StaticMethods
             $string .= chr(hexdec($bs[$i] . $bs[($i + 1)]));
         }
         return $string;
-    }
-
-    /**
-     * Convert encryption P value to a string of bytes, low-order byte first.
-     * @param string $protection 32bit encryption permission value (P value)
-     * @return string
-     * @author Nicola Asuni
-     */
-    public static function getEncPermissionsString($protection)
-    {
-        $binprot = sprintf('%032b', $protection);
-        $str     = chr(bindec(substr($binprot, 24, 8)));
-        $str     .= chr(bindec(substr($binprot, 16, 8)));
-        $str     .= chr(bindec(substr($binprot, 8, 8)));
-        $str     .= chr(bindec(substr($binprot, 0, 8)));
-        return $str;
     }
 
     /**

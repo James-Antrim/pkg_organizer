@@ -461,7 +461,7 @@ trait Images
         if (!empty($imgdata)) {
             // copy image to cache
             $original_file = $file;
-            $file          = StaticMethods::getObjFilename('img', $this->fileID);
+            $file          = $this->getObjFilename('img', $this->fileID);
             $fp            = $this->openLocal($file, 'w');
             if (!$fp) {
                 $this->Error('Unable to write file: ' . $file);
@@ -637,10 +637,10 @@ trait Images
                             $img = $imgr;
                         }
                         if (($type == 'gif') or ($type == 'png')) {
-                            $info = $this->png($img, StaticMethods::getObjFilename('img', $this->fileID));
+                            $info = $this->png($img, $this->getObjFilename('img', $this->fileID));
                         }
                         else {
-                            $info = $this->jpeg($img, $this->jpeg_quality, StaticMethods::getObjFilename('img', $this->fileID));
+                            $info = $this->jpeg($img, $this->jpeg_quality, $this->getObjFilename('img', $this->fileID));
                         }
                     }
                 } catch (Exception $e) {
@@ -703,7 +703,7 @@ trait Images
                     }
                     $img->setCompressionQuality($this->jpeg_quality);
                     $img->setImageFormat('jpeg');
-                    $tempname = StaticMethods::getObjFilename('img', $this->fileID);
+                    $tempname = $this->getObjFilename('img', $this->fileID);
                     $img->writeImage($tempname);
                     $info = $this->parseJPEG($tempname);
                     unlink($tempname);

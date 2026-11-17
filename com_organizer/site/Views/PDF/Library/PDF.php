@@ -27,6 +27,7 @@ class PDF
     use Cells;
     use Colors;
     use Constants;
+    use Encryption;
     use FileSystem;
     use Geometry;
     use Fonts;
@@ -42,7 +43,6 @@ class PDF
     protected array $defaultGraphicsConfiguration = [];
     protected string $encoding = 'UTF-8';
     protected array $encodingDeltas = [];
-    protected bool $encrypted = false;
     /** File ID for document trailer */
     protected string $fileID;
     protected array $footerLengths = [];
@@ -53,8 +53,6 @@ class PDF
     protected array $links = [];
     protected bool $inFooter = false;
     protected bool $inXObject = false;
-    protected string $lastEncryptedKey = '';
-    protected string $lastComputedKey = '';
     /** Transformation matrix */
     protected array $matrix = [];
     protected int $matrixKey = 0;
@@ -269,7 +267,7 @@ class PDF
         $this->libraryURL = Uri::base() . '/components/com_organizer/Views/PDF/Library/';
         // set file ID for trailer
         $serformat               = (is_array($format) ? json_encode($format) : $format);
-        $this->fileID            = md5(StaticMethods::getRandomSeed('Organizer' . $orientation . $unit . $serformat . 'UTF-8'));
+        $this->fileID            = md5($this->randomSeed('Organizer' . $orientation . $unit . $serformat . 'UTF-8'));
         $this->force_srgb        = false;
         $this->transpositions[0] = [];
         $this->pageFormat($format, $orientation);
@@ -472,6 +470,17 @@ class PDF
         return $this->y;
     }
 
+    /**
+     * Returns a temporary filename for caching object on filesystem.
+     * @param string $type   Type of file (name of the subdir on the tcpdf cache folder).
+     * @param string $fileID internal file id
+     * @return string filename.
+     */
+    public function getObjFilename($type = 'tmp', $fileID = '')
+    {
+        return tempnam(PDF::CACHE_PATH, '__organizer_' . $fileID . '_' . $type . '_' . md5($this->randomSeed()) . '_');
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
 
@@ -625,11 +634,6 @@ class PDF
      * Spacer string for LI tags.
      */
     protected $lispacer = '';
-
-    /**
-     * Array containing encryption settings.
-     */
-    protected $encryptdata = [];
 
     // --- bookmark ---
 
@@ -3177,7 +3181,7 @@ class PDF
             $byterange .= str_repeat(' ', ($byterange_string_len - strlen($byterange)));
             $pdfdoc    = str_replace(self::BYTE_RANGE_STRING, $byterange, $pdfdoc);
             // write the document to a temporary folder
-            $tempdoc = StaticMethods::getObjFilename('doc', $this->fileID);
+            $tempdoc = $this->getObjFilename('doc', $this->fileID);
             $f       = $this->openLocal($tempdoc, 'wb');
             if (!$f) {
                 $this->Error('Unable to create temporary file: ' . $tempdoc);
@@ -3186,7 +3190,7 @@ class PDF
             fwrite($f, $pdfdoc, $pdfdoc_length);
             fclose($f);
             // get digital signature via openssl library
-            $tempsign = StaticMethods::getObjFilename('sig', $this->fileID);
+            $tempsign = $this->getObjFilename('sig', $this->fileID);
             if (empty($this->signature_data['extracerts'])) {
                 openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED);
             }
@@ -5057,7 +5061,7 @@ class PDF
         $out .= ' /Root ' . $objid_catalog . ' 0 R';
         $out .= ' /Info ' . $objid_info . ' 0 R';
         if ($this->encrypted) {
-            $out .= ' /Encrypt ' . $this->encryptdata['objid'] . ' 0 R';
+            $out .= ' /Encrypt ' . $this->encryptionSettings['objid'] . ' 0 R';
         }
         $out .= ' /ID [ <' . $this->fileID . '> <' . $this->fileID . '> ]';
         $out .= ' >>';
@@ -5233,7 +5237,7 @@ class PDF
         if ($n == 0) {
             $n = $this->objectNumber;
         }
-        $s = $this->_encrypt_data($n, $s);
+        $s = $this->encryptData($n, $s);
         return '(' . StaticMethods::_escape($s) . ')';
     }
 
@@ -5278,7 +5282,7 @@ class PDF
             // default to current object
             $n = $this->objectNumber;
         }
-        return $this->_encrypt_data($n, $s);
+        return $this->encryptData($n, $s);
     }
 
     /**
@@ -5351,519 +5355,6 @@ class PDF
     {
         return @html_entity_decode($text_to_convert, ENT_QUOTES, $this->encoding);
     }
-
-    // ENCRYPTION METHODS ----------------------------------
-
-    /**
-     * Compute encryption key depending on object number where the encrypted data is stored.
-     * This is used for all strings and streams without crypt filter specifier.
-     * @param int $n object number
-     * @return int object key
-     * @author Nicola Asuni
-     */
-    protected function _objectkey($n)
-    {
-        $objkey = $this->encryptdata['key'] . pack('VXxx', $n);
-        if ($this->encryptdata['mode'] == 2) { // AES-128
-            // AES padding
-            $objkey .= "\x73\x41\x6C\x54"; // sAlT
-        }
-        $objkey = substr(StaticMethods::_md5_16($objkey), 0, (($this->encryptdata['Length'] / 8) + 5));
-        $objkey = substr($objkey, 0, 16);
-        return $objkey;
-    }
-
-    /**
-     * Encrypt the input string.
-     * @param int    $n object number
-     * @param string $s data string to encrypt
-     * @return string encrypted string
-     * @author Nicola Asuni
-     */
-    protected function _encrypt_data($n, $s)
-    {
-        if (!$this->encrypted) {
-            return $s;
-        }
-        switch ($this->encryptdata['mode']) {
-            case 0:   // RC4-40
-            case 1:
-            { // RC4-128
-                $s = StaticMethods::_RC4($this->_objectkey($n), $s, $this->lastEncryptedKey, $this->lastComputedKey);
-                break;
-            }
-            case 2:
-            { // AES-128
-                $s = StaticMethods::_AES($this->_objectkey($n), $s);
-                break;
-            }
-            case 3:
-            { // AES-256
-                $s = StaticMethods::_AES($this->encryptdata['key'], $s);
-                break;
-            }
-        }
-        return $s;
-    }
-
-    /**
-     * Put encryption on PDF document.
-     * @author Nicola Asuni
-     */
-    protected function _putencryption()
-    {
-        if (!$this->encrypted) {
-            return;
-        }
-        $this->encryptdata['objid'] = $this->_newobj();
-        $out                        = '<<';
-        if (!isset($this->encryptdata['Filter']) or empty($this->encryptdata['Filter'])) {
-            $this->encryptdata['Filter'] = 'Standard';
-        }
-        $out .= ' /Filter /' . $this->encryptdata['Filter'];
-        if (isset($this->encryptdata['SubFilter']) and !empty($this->encryptdata['SubFilter'])) {
-            $out .= ' /SubFilter /' . $this->encryptdata['SubFilter'];
-        }
-        if (!isset($this->encryptdata['V']) or empty($this->encryptdata['V'])) {
-            $this->encryptdata['V'] = 1;
-        }
-        // V is a code specifying the algorithm to be used in encrypting and decrypting the document
-        $out .= ' /V ' . $this->encryptdata['V'];
-        if (isset($this->encryptdata['Length']) and !empty($this->encryptdata['Length'])) {
-            // The length of the encryption key, in bits. The value shall be a multiple of 8, in the range 40 to 256
-            $out .= ' /Length ' . $this->encryptdata['Length'];
-        }
-        else {
-            $out .= ' /Length 40';
-        }
-        if ($this->encryptdata['V'] >= 4) {
-            if (!isset($this->encryptdata['StmF']) or empty($this->encryptdata['StmF'])) {
-                $this->encryptdata['StmF'] = 'Identity';
-            }
-            if (!isset($this->encryptdata['StrF']) or empty($this->encryptdata['StrF'])) {
-                // The name of the crypt filter that shall be used when decrypting all strings in the document.
-                $this->encryptdata['StrF'] = 'Identity';
-            }
-            // A dictionary whose keys shall be crypt filter names and whose values shall be the corresponding crypt filter dictionaries.
-            if (isset($this->encryptdata['CF']) and !empty($this->encryptdata['CF'])) {
-                $out .= ' /CF <<';
-                $out .= ' /' . $this->encryptdata['StmF'] . ' <<';
-                $out .= ' /Type /CryptFilter';
-                if (isset($this->encryptdata['CF']['CFM']) and !empty($this->encryptdata['CF']['CFM'])) {
-                    // The method used
-                    $out .= ' /CFM /' . $this->encryptdata['CF']['CFM'];
-                    if ($this->encryptdata['pubkey']) {
-                        $out .= ' /Recipients [';
-                        foreach ($this->encryptdata['Recipients'] as $rec) {
-                            $out .= ' <' . $rec . '>';
-                        }
-                        $out .= ' ]';
-                        if (isset($this->encryptdata['CF']['EncryptMetadata']) and (!$this->encryptdata['CF']['EncryptMetadata'])) {
-                            $out .= ' /EncryptMetadata false';
-                        }
-                        else {
-                            $out .= ' /EncryptMetadata true';
-                        }
-                    }
-                }
-                else {
-                    $out .= ' /CFM /None';
-                }
-                if (isset($this->encryptdata['CF']['AuthEvent']) and !empty($this->encryptdata['CF']['AuthEvent'])) {
-                    // The event to be used to trigger the authorization that is required to access encryption keys used by this filter.
-                    $out .= ' /AuthEvent /' . $this->encryptdata['CF']['AuthEvent'];
-                }
-                else {
-                    $out .= ' /AuthEvent /DocOpen';
-                }
-                if (isset($this->encryptdata['CF']['Length']) and !empty($this->encryptdata['CF']['Length'])) {
-                    // The bit length of the encryption key.
-                    $out .= ' /Length ' . $this->encryptdata['CF']['Length'];
-                }
-                $out .= ' >> >>';
-            }
-            // The name of the crypt filter that shall be used by default when decrypting streams.
-            $out .= ' /StmF /' . $this->encryptdata['StmF'];
-            // The name of the crypt filter that shall be used when decrypting all strings in the document.
-            $out .= ' /StrF /' . $this->encryptdata['StrF'];
-            if (isset($this->encryptdata['EFF']) and !empty($this->encryptdata['EFF'])) {
-                // The name of the crypt filter that shall be used when encrypting embedded file streams that do not have their own crypt filter specifier.
-                $out .= ' /EFF /' . $this->encryptdata[''];
-            }
-        }
-        // Additional encryption dictionary entries for the standard security handler
-        if ($this->encryptdata['pubkey']) {
-            if (($this->encryptdata['V'] < 4) and isset($this->encryptdata['Recipients']) and !empty($this->encryptdata['Recipients'])) {
-                $out .= ' /Recipients [';
-                foreach ($this->encryptdata['Recipients'] as $rec) {
-                    $out .= ' <' . $rec . '>';
-                }
-                $out .= ' ]';
-            }
-        }
-        else {
-            $out .= ' /R';
-            if ($this->encryptdata['V'] == 5) { // AES-256
-                $out .= ' 5';
-                $out .= ' /OE (' . StaticMethods::_escape($this->encryptdata['OE']) . ')';
-                $out .= ' /UE (' . StaticMethods::_escape($this->encryptdata['UE']) . ')';
-                $out .= ' /Perms (' . StaticMethods::_escape($this->encryptdata['perms']) . ')';
-            }
-            elseif ($this->encryptdata['V'] == 4) { // AES-128
-                $out .= ' 4';
-            }
-            elseif ($this->encryptdata['V'] < 2) { // RC-40
-                $out .= ' 2';
-            }
-            else { // RC-128
-                $out .= ' 3';
-            }
-            $out .= ' /O (' . StaticMethods::_escape($this->encryptdata['O']) . ')';
-            $out .= ' /U (' . StaticMethods::_escape($this->encryptdata['U']) . ')';
-            $out .= ' /P ' . $this->encryptdata['P'];
-            if (isset($this->encryptdata['EncryptMetadata']) and (!$this->encryptdata['EncryptMetadata'])) {
-                $out .= ' /EncryptMetadata false';
-            }
-            else {
-                $out .= ' /EncryptMetadata true';
-            }
-        }
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-    }
-
-    /**
-     * Compute U value (used for encryption)
-     * @return string U value
-     * @author Nicola Asuni
-     */
-    protected function _Uvalue()
-    {
-        if ($this->encryptdata['mode'] == 0) { // RC4-40
-            return StaticMethods::_RC4($this->encryptdata['key'], self::ENCRYPTION_PADDING, $this->lastEncryptedKey, $this->lastComputedKey);
-        }
-        elseif ($this->encryptdata['mode'] < 3) { // RC4-128, AES-128
-            $tmp = StaticMethods::_md5_16(self::ENCRYPTION_PADDING . $this->encryptdata['fileid']);
-            $enc = StaticMethods::_RC4($this->encryptdata['key'], $tmp, $this->lastEncryptedKey, $this->lastComputedKey);
-            $len = strlen($tmp);
-            for ($i = 1; $i <= 19; ++$i) {
-                $ek = '';
-                for ($j = 0; $j < $len; ++$j) {
-                    $ek .= chr(ord($this->encryptdata['key'][$j]) ^ $i);
-                }
-                $enc = StaticMethods::_RC4($ek, $enc, $this->lastEncryptedKey, $this->lastComputedKey);
-            }
-            $enc .= str_repeat("\x00", 16);
-            return substr($enc, 0, 32);
-        }
-        elseif ($this->encryptdata['mode'] == 3) { // AES-256
-            $seed = StaticMethods::_md5_16(StaticMethods::getRandomSeed());
-            // User Validation Salt
-            $this->encryptdata['UVS'] = substr($seed, 0, 8);
-            // User Key Salt
-            $this->encryptdata['UKS'] = substr($seed, 8, 16);
-            return hash('sha256', $this->encryptdata['user_password'] . $this->encryptdata['UVS'], true) . $this->encryptdata['UVS'] . $this->encryptdata['UKS'];
-        }
-    }
-
-    /**
-     * Compute UE value (used for encryption)
-     * @return string UE value
-     * @author Nicola Asuni
-     */
-    protected function _UEvalue()
-    {
-        $hashkey = hash('sha256', $this->encryptdata['user_password'] . $this->encryptdata['UKS'], true);
-        return StaticMethods::_AESnopad($hashkey, $this->encryptdata['key']);
-    }
-
-    /**
-     * Compute O value (used for encryption)
-     * @return string O value
-     * @author Nicola Asuni
-     */
-    protected function _Ovalue()
-    {
-        if ($this->encryptdata['mode'] < 3) { // RC4-40, RC4-128, AES-128
-            $tmp = StaticMethods::_md5_16($this->encryptdata['owner_password']);
-            if ($this->encryptdata['mode'] > 0) {
-                for ($i = 0; $i < 50; ++$i) {
-                    $tmp = StaticMethods::_md5_16($tmp);
-                }
-            }
-            $owner_key = substr($tmp, 0, ($this->encryptdata['Length'] / 8));
-            $enc       = StaticMethods::_RC4($owner_key, $this->encryptdata['user_password'], $this->lastEncryptedKey, $this->lastComputedKey);
-            if ($this->encryptdata['mode'] > 0) {
-                $len = strlen($owner_key);
-                for ($i = 1; $i <= 19; ++$i) {
-                    $ek = '';
-                    for ($j = 0; $j < $len; ++$j) {
-                        $ek .= chr(ord($owner_key[$j]) ^ $i);
-                    }
-                    $enc = StaticMethods::_RC4($ek, $enc, $this->lastEncryptedKey, $this->lastComputedKey);
-                }
-            }
-            return $enc;
-        }
-        elseif ($this->encryptdata['mode'] == 3) { // AES-256
-            $seed = StaticMethods::_md5_16(StaticMethods::getRandomSeed());
-            // Owner Validation Salt
-            $this->encryptdata['OVS'] = substr($seed, 0, 8);
-            // Owner Key Salt
-            $this->encryptdata['OKS'] = substr($seed, 8, 16);
-            return hash('sha256', $this->encryptdata['owner_password'] . $this->encryptdata['OVS'] . $this->encryptdata['U'], true) . $this->encryptdata['OVS'] . $this->encryptdata['OKS'];
-        }
-    }
-
-    /**
-     * Compute OE value (used for encryption)
-     * @return string OE value
-     * @author Nicola Asuni
-     */
-    protected function _OEvalue()
-    {
-        $hashkey = hash('sha256', $this->encryptdata['owner_password'] . $this->encryptdata['OKS'] . $this->encryptdata['U'], true);
-        return StaticMethods::_AESnopad($hashkey, $this->encryptdata['key']);
-    }
-
-    /**
-     * Convert password for AES-256 encryption mode
-     * @param string $password password
-     * @return string password
-     * @author Nicola Asuni
-     */
-    protected function _fixAES256Password($password)
-    {
-        $psw       = ''; // password to be returned
-        $psw_array = $this->utf8StringToArray($password);
-        foreach ($psw_array as $c) {
-            $psw .= $this->unicodeCharacter($c, $this->isUnicode);
-        }
-        return substr($psw, 0, 127);
-    }
-
-    /**
-     * Compute encryption key
-     * @author Nicola Asuni
-     */
-    protected function _generateencryptionkey()
-    {
-        $keybytelen = ($this->encryptdata['Length'] / 8);
-        if (!$this->encryptdata['pubkey']) { // standard mode
-            if ($this->encryptdata['mode'] == 3) { // AES-256
-                // generate 256 bit random key
-                $this->encryptdata['key'] = substr(hash('sha256', StaticMethods::getRandomSeed(), true), 0, $keybytelen);
-                // truncate passwords
-                $this->encryptdata['user_password']  = $this->_fixAES256Password($this->encryptdata['user_password']);
-                $this->encryptdata['owner_password'] = $this->_fixAES256Password($this->encryptdata['owner_password']);
-                // Compute U value
-                $this->encryptdata['U'] = $this->_Uvalue();
-                // Compute UE value
-                $this->encryptdata['UE'] = $this->_UEvalue();
-                // Compute O value
-                $this->encryptdata['O'] = $this->_Ovalue();
-                // Compute OE value
-                $this->encryptdata['OE'] = $this->_OEvalue();
-                // Compute P value
-                $this->encryptdata['P'] = $this->encryptdata['protection'];
-                // Computing the encryption dictionary's Perms (permissions) value
-                $perms = StaticMethods::getEncPermissionsString($this->encryptdata['protection']); // bytes 0-3
-                $perms .= chr(255) . chr(255) . chr(255) . chr(255); // bytes 4-7
-                if (isset($this->encryptdata['CF']['EncryptMetadata']) and (!$this->encryptdata['CF']['EncryptMetadata'])) { // byte 8
-                    $perms .= 'F';
-                }
-                else {
-                    $perms .= 'T';
-                }
-                $perms                      .= 'adb'; // bytes 9-11
-                $perms                      .= 'nick'; // bytes 12-15
-                $this->encryptdata['perms'] = StaticMethods::_AESnopad($this->encryptdata['key'], $perms);
-            }
-            else { // RC4-40, RC4-128, AES-128
-                // Pad passwords
-                $this->encryptdata['user_password']  = substr($this->encryptdata['user_password'] . self::ENCRYPTION_PADDING, 0, 32);
-                $this->encryptdata['owner_password'] = substr($this->encryptdata['owner_password'] . self::ENCRYPTION_PADDING, 0, 32);
-                // Compute O value
-                $this->encryptdata['O'] = $this->_Ovalue();
-                // get default permissions (reverse byte order)
-                $permissions = StaticMethods::getEncPermissionsString($this->encryptdata['protection']);
-                // Compute encryption key
-                $tmp = StaticMethods::_md5_16($this->encryptdata['user_password'] . $this->encryptdata['O'] . $permissions . $this->encryptdata['fileid']);
-                if ($this->encryptdata['mode'] > 0) {
-                    for ($i = 0; $i < 50; ++$i) {
-                        $tmp = StaticMethods::_md5_16(substr($tmp, 0, $keybytelen));
-                    }
-                }
-                $this->encryptdata['key'] = substr($tmp, 0, $keybytelen);
-                // Compute U value
-                $this->encryptdata['U'] = $this->_Uvalue();
-                // Compute P value
-                $this->encryptdata['P'] = $this->encryptdata['protection'];
-            }
-        }
-        else { // Public-Key mode
-            // random 20-byte seed
-            $seed            = sha1(StaticMethods::getRandomSeed(), true);
-            $recipient_bytes = '';
-            foreach ($this->encryptdata['pubkeys'] as $pubkey) {
-                // for each public certificate
-                if (isset($pubkey['p'])) {
-                    $pkprotection = StaticMethods::getUserPermissionCode($pubkey['p'], $this->encryptdata['mode']);
-                }
-                else {
-                    $pkprotection = $this->encryptdata['protection'];
-                }
-                // get default permissions (reverse byte order)
-                $pkpermissions = StaticMethods::getEncPermissionsString($pkprotection);
-                // envelope data
-                $envelope = $seed . $pkpermissions;
-                // write the envelope data to a temporary file
-                $tempkeyfile = StaticMethods::getObjFilename('key', $this->fileID);
-                $f           = $this->openLocal($tempkeyfile, 'wb');
-                if (!$f) {
-                    $this->Error('Unable to create temporary key file: ' . $tempkeyfile);
-                }
-                $envelope_length = strlen($envelope);
-                fwrite($f, $envelope, $envelope_length);
-                fclose($f);
-                $tempencfile = StaticMethods::getObjFilename('enc', $this->fileID);
-                if (!openssl_pkcs7_encrypt($tempkeyfile, $tempencfile, $pubkey['c'], [], PKCS7_BINARY | PKCS7_DETACHED)) {
-                    $this->Error('Unable to encrypt the file: ' . $tempkeyfile);
-                }
-                // read encryption signature
-                $signature = file_get_contents($tempencfile, false, null, $envelope_length);
-                // extract signature
-                $signature = substr($signature, strpos($signature, 'Content-Disposition'));
-                $tmparr    = explode("\n\n", $signature);
-                $signature = trim($tmparr[1]);
-                unset($tmparr);
-                // decode signature
-                $signature = base64_decode($signature);
-                // convert signature to hex
-                $hexsignature = current(unpack('H*', $signature));
-                // store signature on recipients array
-                $this->encryptdata['Recipients'][] = $hexsignature;
-                // The bytes of each item in the Recipients array of PKCS#7 objects in the order in which they appear in the array
-                $recipient_bytes .= $signature;
-            }
-            // calculate encryption key
-            if ($this->encryptdata['mode'] == 3) { // AES-256
-                $this->encryptdata['key'] = substr(hash('sha256', $seed . $recipient_bytes, true), 0, $keybytelen);
-            }
-            else { // RC4-40, RC4-128, AES-128
-                $this->encryptdata['key'] = substr(sha1($seed . $recipient_bytes, true), 0, $keybytelen);
-            }
-        }
-    }
-
-    /**
-     * Set document protection
-     * Remark: the protection against modification is for people who have the full Acrobat product.
-     * If you don't set any password, the document will open as usual. If you set a user password, the PDF viewer will ask for it before displaying the document. The master password, if different from the user one, can be used to get full access.
-     * Note: protecting a document requires to encrypt it, which increases the processing time a lot. This can cause a PHP time-out in some cases, especially if the document contains images or fonts.
-     * @param array       $permissions the set of permissions (specify the ones you want to block):<ul><li>print : Print the document;</li><li>modify : Modify the contents of the document by operations other than those controlled by 'fill-forms', 'extract' and 'assemble';</li><li>copy : Copy or otherwise extract text and graphics from the document;</li><li>annot-forms : Add or modify text annotations, fill in interactive form fields, and, if 'modify' is also set, create or modify interactive form fields (including signature fields);</li><li>fill-forms : Fill in existing interactive form fields (including signature fields), even if 'annot-forms' is not specified;</li><li>extract : Extract text and graphics (in support of accessibility to users with disabilities or for other purposes);</li><li>assemble : Assemble the document (insert, rotate, or delete pages and create bookmarks or thumbnail images), even if 'modify' is not set;</li><li>print-high : Print the document to a representation from which a faithful digital copy of the PDF content could be generated. When this is not set, printing is limited to a low-level representation of the appearance, possibly of degraded quality.</li><li>owner : (inverted logic - only for public-key) when set permits change of encryption and enables all other permissions.</li></ul>
-     * @param string      $user_pass   user password. Empty by default.
-     * @param string|null $owner_pass  owner password. If not specified, a random value is used.
-     * @param int         $mode        encryption strength: 0 = RC4 40 bit; 1 = RC4 128 bit; 2 = AES 128 bit; 3 = AES 256 bit.
-     * @param array|null  $pubkeys     array of recipients containing public-key certificates ('c') and permissions ('p'). For example: array(['c' => 'file://../examples/data/cert/tcpdf.crt', 'p' => ['print']])
-     * @author Nicola Asuni
-     */
-    public function setProtection($permissions = ['print', 'modify', 'copy', 'annot-forms', 'fill-forms', 'extract', 'assemble', 'print-high'], $user_pass = '', $owner_pass = null, $mode = 0, $pubkeys = null)
-    {
-        $this->encryptdata['protection'] = StaticMethods::getUserPermissionCode($permissions, $mode);
-        if (($pubkeys !== null) and (is_array($pubkeys))) {
-            // public-key mode
-            $this->encryptdata['pubkeys'] = $pubkeys;
-            if ($mode == 0) {
-                // public-Key Security requires at least 128 bit
-                $mode = 1;
-            }
-            if (!function_exists('openssl_pkcs7_encrypt')) {
-                $this->Error('Public-Key Security requires openssl library.');
-            }
-            // Set Public-Key filter (available are: Entrust.PPKEF, Adobe.PPKLite, Adobe.PubSec)
-            $this->encryptdata['pubkey'] = true;
-            $this->encryptdata['Filter'] = 'Adobe.PubSec';
-            $this->encryptdata['StmF']   = 'DefaultCryptFilter';
-            $this->encryptdata['StrF']   = 'DefaultCryptFilter';
-        }
-        else {
-            // standard mode (password mode)
-            $this->encryptdata['pubkey'] = false;
-            $this->encryptdata['Filter'] = 'Standard';
-            $this->encryptdata['StmF']   = 'StdCF';
-            $this->encryptdata['StrF']   = 'StdCF';
-        }
-        if ($mode > 1) { // AES
-            if (!extension_loaded('openssl') && !extension_loaded('mcrypt')) {
-                $this->Error('AES encryption requires openssl or mcrypt extension (http://www.php.net/manual/en/mcrypt.requirements.php).');
-            }
-            if (extension_loaded('openssl') && !in_array('aes-256-cbc', openssl_get_cipher_methods())) {
-                $this->Error('AES encryption requires openssl/aes-256-cbc cypher.');
-            }
-
-            if (($mode == 3) and !function_exists('hash')) {
-                // the Hash extension requires no external libraries and is enabled by default as of PHP 5.1.2.
-                $this->Error('AES 256 encryption requires HASH Message Digest Framework (http://www.php.net/manual/en/book.hash.php).');
-            }
-        }
-        if ($owner_pass === null) {
-            $owner_pass = md5(StaticMethods::getRandomSeed());
-        }
-        $this->encryptdata['user_password']  = $user_pass;
-        $this->encryptdata['owner_password'] = $owner_pass;
-        $this->encryptdata['mode']           = $mode;
-        switch ($mode) {
-            case 0:
-            { // RC4 40 bit
-                $this->encryptdata['V']         = 1;
-                $this->encryptdata['Length']    = 40;
-                $this->encryptdata['CF']['CFM'] = 'V2';
-                break;
-            }
-            case 1:
-            { // RC4 128 bit
-                $this->encryptdata['V']         = 2;
-                $this->encryptdata['Length']    = 128;
-                $this->encryptdata['CF']['CFM'] = 'V2';
-                if ($this->encryptdata['pubkey']) {
-                    $this->encryptdata['SubFilter']  = 'adbe.pkcs7.s4';
-                    $this->encryptdata['Recipients'] = [];
-                }
-                break;
-            }
-            case 2:
-            { // AES 128 bit
-                $this->encryptdata['V']            = 4;
-                $this->encryptdata['Length']       = 128;
-                $this->encryptdata['CF']['CFM']    = 'AESV2';
-                $this->encryptdata['CF']['Length'] = 128;
-                if ($this->encryptdata['pubkey']) {
-                    $this->encryptdata['SubFilter']  = 'adbe.pkcs7.s5';
-                    $this->encryptdata['Recipients'] = [];
-                }
-                break;
-            }
-            case 3:
-            { // AES 256 bit
-                $this->encryptdata['V']            = 5;
-                $this->encryptdata['Length']       = 256;
-                $this->encryptdata['CF']['CFM']    = 'AESV3';
-                $this->encryptdata['CF']['Length'] = 256;
-                if ($this->encryptdata['pubkey']) {
-                    $this->encryptdata['SubFilter']  = 'adbe.pkcs7.s5';
-                    $this->encryptdata['Recipients'] = [];
-                }
-                break;
-            }
-        }
-        $this->encrypted             = true;
-        $this->encryptdata['fileid'] = StaticMethods::convertHexStringToString($this->fileID);
-        $this->_generateencryptionkey();
-    }
-
-    // END OF ENCRYPTION FUNCTIONS -------------------------
 
     /**
      * Add a Named Destination.
