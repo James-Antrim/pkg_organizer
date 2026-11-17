@@ -16,7 +16,29 @@ namespace THM\Organizer\Views\PDF\Library;
 class StaticMethods
 {
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
+    /**
+     * Gets the path painting operators.
+     * @param string $style
+     * @return string
+     * @see PDF::RENDERING_STYLES
+     */
+    public static function pathPaintingOperators(string $style): string
+    {
+        $style = in_array($style, PDF::RENDERING_STYLES) ? $style : PDF::STROKE;
+        return match ($style) {
+            PDF::STROKE_CLOSE, PDF::DRAW_CLOSE => PDF::STROKE_CLOSE,
+            PDF::FILL, PDF::FILL2 => PDF::FILL2,
+            PDF::FILL_EO, PDF::FILL2_EO => PDF::FILL2_EO,
+            PDF::BOLD, PDF::DRAW_FILL, PDF::FILL_DRAW => PDF::BOLD,
+            PDF::BOLD_EO, PDF::DRAW_FILL_EO, PDF::FILL_DRAW_EO => PDF::BOLD_EO,
+            PDF::BOLD_CLOSE, PDF::DRAW_FILL_CLOSE, PDF::FILL_DRAW_CLOSE => PDF::BOLD_CLOSE,
+            PDF::BOLD_CLOSE_EO, PDF::DRAW_FILL_CLOSE_EO, PDF::FILL_DRAW_CLOSE_EO => PDF::BOLD_CLOSE_EO,
+            PDF::CLIP_NZ => 'W n',
+            PDF::CLIP_EO => 'W* n',
+            PDF::END_PATH => PDF::END_PATH,
+            default => PDF::STROKE,
+        };
+    }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
@@ -1450,110 +1472,6 @@ class StaticMethods
             }
         }
         return $patterns;
-    }
-
-    /**
-     * Get the Path-Painting Operators.
-     * @param string $style   Style of rendering. Possible values are:
-     *                        <ul>
-     *                        <li>S or D: Stroke the path.</li>
-     *                        <li>s or d: Close and stroke the path.</li>
-     *                        <li>f or F: Fill the path, using the nonzero winding number rule to determine the region to fill.</li>
-     *                        <li>f* or F*: Fill the path, using the even-odd rule to determine the region to fill.</li>
-     *                        <li>B or FD or DF: Fill and then stroke the path, using the nonzero winding number rule to determine the region to fill.</li>
-     *                        <li>B* or F*D or DF*: Fill and then stroke the path, using the even-odd rule to determine the region to fill.</li>
-     *                        <li>b or fd or df: Close, fill, and then stroke the path, using the nonzero winding number rule to determine the region to fill.</li>
-     *                        <li>b or f*d or df*: Close, fill, and then stroke the path, using the even-odd rule to determine the region to fill.</li>
-     *                        <li>CNZ: Clipping mode using the even-odd rule to determine which regions lie inside the clipping path.</li>
-     *                        <li>CEO: Clipping mode using the nonzero winding number rule to determine which regions lie inside the clipping path</li>
-     *                        <li>n: End the path object without filling or stroking it.</li>
-     *                        </ul>
-     * @param string $default default style
-     * @return string
-     * @author Nicola Asuni
-     */
-    public static function getPathPaintOperator($style, $default = 'S')
-    {
-        $op = '';
-        switch ($style) {
-            case 'S':
-            case 'D':
-            {
-                $op = 'S';
-                break;
-            }
-            case 's':
-            case 'd':
-            {
-                $op = 's';
-                break;
-            }
-            case 'f':
-            case 'F':
-            {
-                $op = 'f';
-                break;
-            }
-            case 'f*':
-            case 'F*':
-            {
-                $op = 'f*';
-                break;
-            }
-            case 'B':
-            case 'FD':
-            case 'DF':
-            {
-                $op = 'B';
-                break;
-            }
-            case 'B*':
-            case 'F*D':
-            case 'DF*':
-            {
-                $op = 'B*';
-                break;
-            }
-            case 'b':
-            case 'fd':
-            case 'df':
-            {
-                $op = 'b';
-                break;
-            }
-            case 'b*':
-            case 'f*d':
-            case 'df*':
-            {
-                $op = 'b*';
-                break;
-            }
-            case 'CNZ':
-            {
-                $op = 'W n';
-                break;
-            }
-            case 'CEO':
-            {
-                $op = 'W* n';
-                break;
-            }
-            case 'n':
-            {
-                $op = 'n';
-                break;
-            }
-            default:
-            {
-                if (!empty($default)) {
-                    $op = self::getPathPaintOperator($default, '');
-                }
-                else {
-                    $op = '';
-                }
-            }
-        }
-        return $op;
     }
 
     /**

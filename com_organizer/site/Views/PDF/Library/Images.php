@@ -2102,7 +2102,7 @@ trait Images
             return;
         }
         // set fill/stroke style
-        $op = StaticMethods::getPathPaintOperator($style, '');
+        $op = StaticMethods::pathPaintingOperators($style, '');
         if (empty($op)) {
             return;
         }
@@ -2167,13 +2167,13 @@ trait Images
                             $y = $cp + $yoffset;
                             if ($firstcmd or (abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
                                 if ($ck == 1) {
-                                    $this->_outPoint($x, $y);
+                                    $this->point($x, $y);
                                     $firstcmd = false;
                                     $xinitial = $x;
                                     $yinitial = $y;
                                 }
                                 else {
-                                    $this->_outLine($x, $y);
+                                    $this->appendLine($x, $y);
                                 }
                                 $x0 = $x;
                                 $y0 = $y;
@@ -2199,7 +2199,7 @@ trait Images
                         else {
                             $y = $cp + $yoffset;
                             if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                                $this->_outLine($x, $y);
+                                $this->appendLine($x, $y);
                                 $x0 = $x;
                                 $y0 = $y;
                             }
@@ -2220,7 +2220,7 @@ trait Images
                     foreach ($params as $ck => $cp) {
                         $x = $cp + $xoffset;
                         if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                            $this->_outLine($x, $y);
+                            $this->appendLine($x, $y);
                             $x0 = $x;
                             $y0 = $y;
                         }
@@ -2237,7 +2237,7 @@ trait Images
                     foreach ($params as $ck => $cp) {
                         $y = $cp + $yoffset;
                         if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                            $this->_outLine($x, $y);
+                            $this->appendLine($x, $y);
                             $x0 = $x;
                             $y0 = $y;
                         }
@@ -2260,7 +2260,7 @@ trait Images
                             $y2 = $params[($ck - 2)] + $yoffset;
                             $x  = $params[($ck - 1)] + $xoffset;
                             $y  = $params[($ck)] + $yoffset;
-                            $this->_outCurve($x1, $y1, $x2, $y2, $x, $y);
+                            $this->appendCurve($x1, $y1, $x2, $y2, $x, $y);
                             $xmin = min($xmin, $x, $x1, $x2);
                             $ymin = min($ymin, $y, $y1, $y2);
                             $xmax = max($xmax, $x, $x1, $x2);
@@ -2290,7 +2290,7 @@ trait Images
                             $y2 = $params[($ck - 2)] + $yoffset;
                             $x  = $params[($ck - 1)] + $xoffset;
                             $y  = $params[($ck)] + $yoffset;
-                            $this->_outCurve($x1, $y1, $x2, $y2, $x, $y);
+                            $this->appendCurve($x1, $y1, $x2, $y2, $x, $y);
                             $xmin = min($xmin, $x, $x1, $x2);
                             $ymin = min($ymin, $y, $y1, $y2);
                             $xmax = max($xmax, $x, $x1, $x2);
@@ -2317,7 +2317,7 @@ trait Images
                             $y  = $params[($ck)] + $yoffset;
                             $xb = ($x + (2 * $x1)) / 3;
                             $yb = ($y + (2 * $y1)) / 3;
-                            $this->_outCurve($xa, $ya, $xb, $yb, $x, $y);
+                            $this->appendCurve($xa, $ya, $xb, $yb, $x, $y);
                             $xmin = min($xmin, $x, $xa, $xb);
                             $ymin = min($ymin, $y, $ya, $yb);
                             $xmax = max($xmax, $x, $xa, $xb);
@@ -2350,7 +2350,7 @@ trait Images
                             $y  = $params[($ck)] + $yoffset;
                             $xb = ($x + (2 * $x1)) / 3;
                             $yb = ($y + (2 * $y1)) / 3;
-                            $this->_outCurve($xa, $ya, $xb, $yb, $x, $y);
+                            $this->appendCurve($xa, $ya, $xb, $yb, $x, $y);
                             $xmin = min($xmin, $x, $xa, $xb);
                             $ymin = min($ymin, $y, $ya, $yb);
                             $xmax = max($xmax, $x, $xa, $xb);
@@ -2852,14 +2852,14 @@ trait Images
                 $h  = $w;
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->Circle($cx, $cy, $r, 0, 360, 'CNZ', [], [], 8);
+                    $this->circle($cx, $cy, $r, 0, 360, 'CNZ', [], [], 8);
                 }
                 else {
                     $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', [$cx, $cy, $r, 0, 360, 'CNZ']);
                     if (!empty($obstyle)) {
-                        $this->Circle($cx, $cy, $r, 0, 360, $obstyle, [], [], 8);
+                        $this->circle($cx, $cy, $r, 0, 360, $obstyle, [], [], 8);
                     }
                     $this->endTransformation();
                 }
@@ -2880,14 +2880,14 @@ trait Images
                 $h  = (2 * $ry);
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ', [], [], 8);
+                    $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ', [], [], 8);
                 }
                 else {
                     $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', [$cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ']);
                     if (!empty($obstyle)) {
-                        $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, [], [], 8);
+                        $this->ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, [], [], 8);
                     }
                     $this->endTransformation();
                 }
@@ -2910,7 +2910,7 @@ trait Images
                     $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Line', [$x1, $y1, $x2, $y2]);
-                    $this->Line($x1, $y1, $x2, $y2);
+                    $this->line($x1, $y1, $x2, $y2);
                     $this->endTransformation();
                 }
                 break;

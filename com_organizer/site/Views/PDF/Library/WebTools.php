@@ -229,7 +229,7 @@ trait WebTools
                 $r       = $size / 6;
                 $lspace  += (2 * $r);
                 $this->x -= $lspace;
-                $this->Circle(($this->x + $r), ($this->y + ($this->lastPrintedCellHeight / 2)), $r, 0, 360, 'F', [], $color, 8);
+                $this->circle(($this->x + $r), ($this->y + ($this->lastPrintedCellHeight / 2)), $r, 0, 360, 'F', [], $color, 8);
                 break;
             }
             case 'circle':
@@ -239,7 +239,7 @@ trait WebTools
                 $this->x         -= $lspace;
                 $prev_line_style = $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor;
                 $new_line_style  = array('width' => ($r / 3), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 0, 'color' => $color);
-                $this->Circle(($this->x + $r), ($this->y + ($this->lastPrintedCellHeight / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
+                $this->circle(($this->x + $r), ($this->y + ($this->lastPrintedCellHeight / 2)), ($r * (1 - (1 / 6))), 0, 360, 'D', $new_line_style, [], 8);
                 $this->append($prev_line_style); // restore line settings
                 break;
             }
@@ -2019,7 +2019,7 @@ trait WebTools
                     $hrHeight = $this->fontSizeToUnits($tag['height']);
                 }
                 else {
-                    $hrHeight = $this->GetLineWidth();
+                    $hrHeight = $this->lineWidth();
                 }
                 $this->addHTMLVertSpace($hbz, max($hb, ($hrHeight / 2)), $cell, $firsttag);
                 $x    = $this->x();
@@ -2034,8 +2034,8 @@ trait WebTools
                 else {
                     $hrWidth = $wtmp;
                 }
-                $prevlinewidth = $this->GetLineWidth();
-                $this->setLineWidth($hrHeight);
+                $prevlinewidth = $this->lineWidth();
+                $this->lineWidth($hrHeight);
 
                 $lineStyle = [];
 
@@ -2061,8 +2061,8 @@ trait WebTools
 
                 $lineStyle = array_filter($lineStyle);
 
-                $this->Line($x, $y, $x + $hrWidth, $y, $lineStyle);
-                $this->setLineWidth($prevlinewidth);
+                $this->line($x, $y, $x + $hrWidth, $y, $lineStyle);
+                $this->lineWidth($prevlinewidth);
                 $this->addHTMLVertSpace(max($hbc, ($hrHeight / 2)), 0, $cell, !isset($dom[($key + 1)]));
                 break;
             }

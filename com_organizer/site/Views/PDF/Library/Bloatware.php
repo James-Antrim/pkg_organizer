@@ -202,8 +202,71 @@ trait Bloatware
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FONTS-UNPROCESSED
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TRANSFORMATIONS-PROCESSED
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GEOMETRY-PROCESSED
 
+    public const ARMS = 0, CLOSED = 1, CLOSED_FILLED = 2, FILLED = 3;
+    public const ARROW_HEAD_STYLES = [self::ARMS, self::CLOSED, self::CLOSED_FILLED, self::FILLED];
+
+    /**
+     * Draws a graphic arrow.
+     * @param float $x0            abscissa of first point.
+     * @param float $y0            ordinate of first point.
+     * @param float $x1            abscissa of second point.
+     * @param float $y1            ordinate of second point.
+     * @param int   $headStyle     (0 = draw only arrowhead arms, 1 = draw closed arrowhead, but no fill, 2 = closed and filled arrowhead, 3 = filled arrowhead)
+     * @param float $armSize       length of arrowhead arms
+     * @param int   $armShaftAngle angle between an arm and the shaft
+     */
+    public function arrow(float $x0, float $y0, float $x1, float $y1, int $headStyle = self::ARMS, float $armSize = 5, int $armShaftAngle = 15): void
+    {
+        $armShaftAngle  = deg2rad($armShaftAngle);
+        $directionAngle = atan2($y0 - $y1, $x0 - $x1);
+        if ($directionAngle < 0) {
+            $directionAngle += (2 * M_PI);
+        }
+
+        $sx1 = $x1;
+        $sy1 = $y1;
+
+        if ($headStyle > 0) {
+            // calculate the stopping point for the arrow shaft
+            $sx1 = $x1 + (($armSize - $this->lineWidth) * cos($directionAngle));
+            $sy1 = $y1 + (($armSize - $this->lineWidth) * sin($directionAngle));
+        }
+
+        // main arrow line / shaft
+        $this->line($x0, $y0, $sx1, $sy1);
+
+        // left arrowhead arm tip
+        $x2L = $x1 + ($armSize * cos($directionAngle + $armShaftAngle));
+        $y2L = $y1 + ($armSize * sin($directionAngle + $armShaftAngle));
+
+        // right arrowhead arm tip
+        $x2R = $x1 + ($armSize * cos($directionAngle - $armShaftAngle));
+        $y2R = $y1 + ($armSize * sin($directionAngle - $armShaftAngle));
+
+        $headStyle = in_array($headStyle, self::ARROW_HEAD_STYLES) ?: self::ARMS;
+
+        $mode  = 'D';
+        $style = [];
+        switch ($headStyle) {
+            case self::ARMS:
+                $style = [1, 1, 0];
+                break;
+            case self::CLOSED_FILLED:
+                $mode = self::DRAW_FILL;
+                break;
+            case self::FILLED:
+                $mode = self::FILL;
+                break;
+        }
+
+        $this->Polygon([$x2L, $y2L, $x1, $y1, $x2R, $y2R], $mode, $style, []);
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GEOMETRY-UNPROCESSED
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TRANSFORMATIONS-PROCESSED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TRANSFORMATIONS-UNPROCESSED
 

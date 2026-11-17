@@ -24,33 +24,270 @@ trait Geometry
     /** Width value of the last line. */
     protected string $lineWidthStyle = '';
 
+    /**
+     * Append a cubic Bézier curve to the current path.
+     * The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bézier control points.
+     * The new current point shall be (x3, y3).
+     * @param float $x1 abscissa of control point 1.
+     * @param float $y1 ordinate of control point 1.
+     * @param float $x2 abscissa of control point 2.
+     * @param float $y2 ordinate of control point 2.
+     * @param float $x3 abscissa of end point.
+     * @param float $y3 ordinate of end point.
+     */
+    protected function appendCurve(float $x1, float $y1, float $x2, float $y2, float $x3, float $y3): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $x1Points = $x1 * self::FACTOR;
+        $x2Points = $x2 * self::FACTOR;
+        $x3Points = $x3 * self::FACTOR;
+        $y1Points = ($this->height - $y1) * self::FACTOR;
+        $y2Points = ($this->height - $y2) * self::FACTOR;
+        $y3Points = ($this->height - $y3) * self::FACTOR;
+
+        $this->append(sprintf('%F %F %F %F %F %F c', $x1Points, $y1Points, $x2Points, $y2Points, $x3Points, $y3Points));
+
+    }
+
+    /**
+     * Append a straight line segment from the current point to the point (x, y).
+     * The new current point shall be (x, y).
+     * @param float $x abscissa of end point.
+     * @param float $y ordinate of end point.
+     * @return void
+     */
+    protected function appendLine(float $x, float $y): void
+    {
+        if ($this->state === self::READY) {
+            $this->append(sprintf('%F %F l', $x * self::FACTOR, ($this->height - $y) * self::FACTOR));
+        }
+    }
+
+    /**
+     * Append a rectangle to the current path as a complete subpath, with lower-left corner (x, y) and dimensions widthand height in user space.
+     * @param float  $x       abscissa of upper-left corner.
+     * @param float  $y       ordinate of upper-left corner.
+     * @param float  $w       Width.
+     * @param float  $h       Height.
+     * @param string $options options
+     * @return void
+     */
+    protected function appendRectangle(float $x, float $y, float $w, float $h, string $options): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $heightPoints = -$h * self::FACTOR;
+        $widthPoints  = $w * self::FACTOR;
+        $xPoints      = $x * self::FACTOR;
+        $yPoints      = ($this->height - $y) * self::FACTOR;
+        $this->append(sprintf('%F %F %F %F re %s', $xPoints, $yPoints, $widthPoints, $heightPoints, $options));
+    }
+
+    /**
+     * Draws a circle formed from n Bézier curves.
+     * @param float   $x          abscissa of center point.
+     * @param float   $y          ordinate of center point.
+     * @param float   $radius     Radius.
+     * @param float   $startAngle Angle start of draw line. Default value: 0.
+     * @param float   $endAngle   Angle finish of draw line. Default value: 360.
+     * @param string  $style      Style of rendering.
+     * @param array   $lineStyle  Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array   $fillColor  fill color. Format: [red, green, blue]. Default value: default color (empty array).
+     * @param integer $curves     number of curves used to draw a 90 degrees portion of circle.
+     * @see self::RENDERING_STYLES
+     */
+    public function circle(float $x, float $y, float $radius, float $startAngle = 0, float $endAngle = 360, string $style = '', array $lineStyle = [], array $fillColor = [], int $curves = 2): void
+    {
+        $this->ellipse($x, $y, $radius, $radius, 0, $startAngle, $endAngle, $style, $lineStyle, $fillColor, $curves);
+    }
+
+    /**
+     * Draws an ellipse formed from n Bézier curves.
+     * @param float   $x          abscissa of center point.
+     * @param float   $y          ordinate of center point.
+     * @param float   $xRadius    Horizontal radius.
+     * @param float   $yRadius    Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
+     * @param float   $angle      Angle oriented (anti-clockwise). Default value: 0.
+     * @param float   $startAngle Angle start of draw line. Default value: 0.
+     * @param float   $endAngle   Angle finish of draw line. Default value: 360.
+     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
+     * @param array   $lineStyle  Line style of ellipse. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @param array   $fillColor  Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
+     * @param integer $curves     Number of curves used to draw a 90 degrees portion of ellipse.
+     */
+    public function ellipse(float $x, float $y, float $xRadius, float $yRadius = 0, float $angle = 0, float $startAngle = 0, float $endAngle = 360, string $style = '', array $lineStyle = [], array $fillColor = [], int $curves = 2): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $yRadius = $yRadius ?: $xRadius;
+
+        if (str_contains($style, self::FILL) and $fillColor) {
+            $this->fillColorArray($fillColor);
+        }
+
+        $operator = StaticMethods::pathPaintingOperators($style);
+
+        if ($operator === self::FILL2) {
+            $lineStyle = [];
+        }
+
+        if ($lineStyle) {
+            $this->lineStyle($lineStyle);
+        }
+
+        $this->_outellipticalarc($x, $y, $xRadius, $yRadius, $angle, $startAngle, $endAngle, false, $curves);
+        $this->append($operator);
+    }
+
+    /**
+     * Draws a line between two points.
+     * @param float $x1    abscissa of first point.
+     * @param float $y1    ordinate of first point.
+     * @param float $x2    abscissa of second point.
+     * @param float $y2    ordinate of second point.
+     * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
+     * @see   lineWidth(), SetDrawColor(), lineStyle()
+     */
+    public function line(float $x1, float $y1, float $x2, float $y2, array $style = []): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        if (is_array($style)) {
+            $this->lineStyle($style);
+        }
+
+        $this->point($x1, $y1);
+        $this->appendLine($x2, $y2);
+        $this->append(self::STROKE);
+    }
+
+    /**
+     * Sets line style properties and generates a PDF style command, optionally appends the command to the document.
+     * @param array $configuration   Keys among the following:
+     *                               - cap (string): type of cap to put on the line, possible values are:
+     *                               => butt: normal rectangular end
+     *                               => round: rounded end
+     *                               => square: projects a flat end past the end of the line
+     *                               - color (array): draw color, format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]
+     *                               - dash (mixed): dash pattern, possible values are:
+     *                               => 0: no dash
+     *                               => series of length values of the on and off dashes
+     *                               ==> ex "2" 2 on, 2 off, 2 on, 2 off, ...
+     *                               ==> ex "2,1" is 2 on, 1 off, 2 on, 1 off, ...
+     *                               - join (string): Type of join. Possible values are: miter, round, bevel
+     *                               - phase (integer): dash pattern modifier, shifts the point at which the pattern starts
+     *                               - width (float): Width of the line in user units
+     * @param bool  $append          whether to append the style
+     * @return string
+     */
+    public function lineStyle(array $configuration, bool $append = true): string
+    {
+        $style = '';
+
+        if (isset($configuration['width'])) {
+            $this->lineWidth      = $configuration['width'];
+            $this->lineWidthStyle = sprintf('%F w', ($configuration['width'] * self::FACTOR));
+
+            $style .= $this->lineWidthStyle . ' ';
+        }
+
+        if (isset($configuration['cap'])) {
+            $ca = ['butt' => 0, 'round' => 1, 'square' => 2];
+
+            if (isset($ca[$configuration['cap']])) {
+                $this->lineCapStyle = $ca[$configuration['cap']] . ' J';
+
+                $style .= $this->lineCapStyle . ' ';
+            }
+        }
+
+        if (isset($configuration['join'])) {
+            $ja = ['miter' => 0, 'round' => 1, 'bevel' => 2];
+            if (isset($ja[$configuration['join']])) {
+                $this->lineJoinStyle = $ja[$configuration['join']] . ' j';
+
+                $style .= $this->lineJoinStyle . ' ';
+            }
+        }
+
+        if (isset($configuration['dash'])) {
+            $dashString = '';
+            if ($configuration['dash']) {
+                $tab = preg_match('/^.+,/', $configuration['dash']) > 0 ? explode(',', $configuration['dash']) : [$configuration['dash']];
+
+                foreach ($tab as $key => $value) {
+                    if ($key) {
+                        $dashString .= ' ';
+                    }
+
+                    $dashString .= sprintf('%F', $value);
+                }
+            }
+
+            if (!isset($configuration['phase']) or !$configuration['dash']) {
+                $configuration['phase'] = 0;
+            }
+
+            $this->lineDashStyle = sprintf('[%s] %F d', $dashString, $configuration['phase']);
+
+            $style .= $this->lineDashStyle . ' ';
+        }
+
+        if (isset($configuration['color'])) {
+            $style .= $this->drawColorArray($configuration['color'], false) . ' ';
+        }
+
+        if ($append and $this->state === self::READY) {
+            $this->append($style);
+        }
+
+        return $style;
+    }
+
+    /**
+     * Defines the line width. By default, the value equals 0.2 mm. The method can be called before the first page is created and the value is retained from page to page.
+     * @param float $width The width.
+     * @see   line(), Rect(), Cell(), MultiCell()
+     */
+    public function lineWidth(float|null $width): float
+    {
+        if (is_float($width)) {
+            $this->lineWidth      = $width;
+            $this->lineWidthStyle = sprintf('%F w', ($width * self::FACTOR));
+
+            if ($this->state === self::READY) {
+                $this->append($this->lineWidthStyle);
+            }
+        }
+
+        return $this->lineWidth;
+    }
+
+    /**
+     * Begin a new subpath by moving the current point to coordinates (x, y), omitting any connecting line segment.
+     * @param float $x abscissa of point.
+     * @param float $y ordinate of point.
+     */
+    protected function point(float $x, float $y): void
+    {
+        if ($this->state === self::READY) {
+            $this->append(sprintf('%F %F m', $x * self::FACTOR, ($this->height - $y) * self::FACTOR));
+        }
+    }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-    /**
-     * Draws a line between two points.
-     * @param float $x1    Abscissa of first point.
-     * @param float $y1    Ordinate of first point.
-     * @param float $x2    Abscissa of second point.
-     * @param float $y2    Ordinate of second point.
-     * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @see   SetLineWidth(), drawColor(), lineStyle()
-     */
-    public function Line($x1, $y1, $x2, $y2, $style = [])
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (is_array($style)) {
-            $this->lineStyle($style);
-        }
-        $this->_outPoint($x1, $y1);
-        $this->_outLine($x2, $y2);
-        $this->append('S');
-    }
 
     /**
      * Draws a rectangle.
@@ -95,8 +332,8 @@ trait Geometry
             }
         }
         if (!empty($style)) {
-            $op = StaticMethods::getPathPaintOperator($style);
-            $this->_outRect($x, $y, $w, $h, $op);
+            $op = StaticMethods::pathPaintingOperators($style);
+            $this->appendRectangle($x, $y, $w, $h, $op);
         }
         if (!empty($border_style)) {
             $border_style2 = [];
@@ -108,16 +345,16 @@ trait Geometry
             }
             $border_style = $border_style2;
             if (isset($border_style['L']) and $border_style['L']) {
-                $this->Line($x, $y, $x, $y + $h, $border_style['L']);
+                $this->line($x, $y, $x, $y + $h, $border_style['L']);
             }
             if (isset($border_style['T']) and $border_style['T']) {
-                $this->Line($x, $y, $x + $w, $y, $border_style['T']);
+                $this->line($x, $y, $x + $w, $y, $border_style['T']);
             }
             if (isset($border_style['R']) and $border_style['R']) {
-                $this->Line($x + $w, $y, $x + $w, $y + $h, $border_style['R']);
+                $this->line($x + $w, $y, $x + $w, $y + $h, $border_style['R']);
             }
             if (isset($border_style['B']) and $border_style['B']) {
-                $this->Line($x, $y + $h, $x + $w, $y + $h, $border_style['B']);
+                $this->line($x, $y + $h, $x + $w, $y + $h, $border_style['B']);
             }
         }
     }
@@ -147,12 +384,12 @@ trait Geometry
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->fillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($line_style) {
             $this->lineStyle($line_style);
         }
-        $this->_outPoint($x0, $y0);
-        $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
+        $this->point($x0, $y0);
+        $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
         $this->append($op);
     }
 
@@ -176,75 +413,19 @@ trait Geometry
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->fillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
             $line_style = [];
         }
         if ($line_style) {
             $this->lineStyle($line_style);
         }
-        $this->_outPoint($x0, $y0);
+        $this->point($x0, $y0);
         foreach ($segments as $segment) {
             list($x1, $y1, $x2, $y2, $x3, $y3) = $segment;
-            $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
+            $this->appendCurve($x1, $y1, $x2, $y2, $x3, $y3);
         }
         $this->append($op);
-    }
-
-    /**
-     * Draws an ellipse.
-     * An ellipse is formed from n Bezier curves.
-     * @param float   $x0         Abscissa of center point.
-     * @param float   $y0         Ordinate of center point.
-     * @param float   $rx         Horizontal radius.
-     * @param float   $ry         Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
-     * @param float   $angle      Angle oriented (anti-clockwise). Default value: 0.
-     * @param float   $astart     Angle start of draw line. Default value: 0.
-     * @param float   $afinish    Angle finish of draw line. Default value: 360.
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of ellipse. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @param integer $nc         Number of curves used to draw a 90 degrees portion of ellipse.
-     * @author Nicola Asuni
-     */
-    public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (StaticMethods::empty_string($ry) or ($ry == 0)) {
-            $ry = $rx;
-        }
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->fillColorArray($fill_color);
-        }
-        $op = StaticMethods::getPathPaintOperator($style);
-        if ($op == 'f') {
-            $line_style = [];
-        }
-        if ($line_style) {
-            $this->lineStyle($line_style);
-        }
-        $this->_outellipticalarc($x0, $y0, $rx, $ry, $angle, $astart, $afinish, false, $nc, true, true, false);
-        $this->append($op);
-    }
-
-    /**
-     * Draws a circle.
-     * A circle is formed from n Bezier curves.
-     * @param float   $x0         Abscissa of center point.
-     * @param float   $y0         Ordinate of center point.
-     * @param float   $r          Radius.
-     * @param float   $angstr     Angle start of draw line. Default value: 0.
-     * @param float   $angend     Angle finish of draw line. Default value: 360.
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [red, green, blue]. Default value: default color (empty array).
-     * @param integer $nc         Number of curves used to draw a 90 degrees portion of circle.
-     */
-    public function Circle($x0, $y0, $r, $angstr = 0, $angend = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
-    {
-        $this->Ellipse($x0, $y0, $r, $r, 0, $angstr, $angend, $style, $line_style, $fill_color, $nc);
     }
 
     /**
@@ -298,7 +479,7 @@ trait Geometry
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->fillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
             $line_style = [];
         }
@@ -312,14 +493,14 @@ trait Geometry
                 if ($op == 'B') {
                     // draw fill
                     $op = 'f';
-                    $this->_outPoint($p[0], $p[1]);
+                    $this->point($p[0], $p[1]);
                     for ($i = 2; $i < $nc; $i = $i + 2) {
-                        $this->_outLine($p[$i], $p[$i + 1]);
+                        $this->appendLine($p[$i], $p[$i + 1]);
                     }
                     $this->append($op);
                 }
                 // draw outline
-                $this->_outPoint($p[0], $p[1]);
+                $this->point($p[0], $p[1]);
                 for ($i = 2; $i < $nc; $i = $i + 2) {
                     $line_num = ($i / 2) - 1;
                     if (isset($line_style[$line_num])) {
@@ -327,111 +508,29 @@ trait Geometry
                             if (is_array($line_style[$line_num])) {
                                 $this->append('S');
                                 $this->lineStyle($line_style[$line_num]);
-                                $this->_outPoint($p[$i - 2], $p[$i - 1]);
-                                $this->_outLine($p[$i], $p[$i + 1]);
+                                $this->point($p[$i - 2], $p[$i - 1]);
+                                $this->appendLine($p[$i], $p[$i + 1]);
                                 $this->append('S');
-                                $this->_outPoint($p[$i], $p[$i + 1]);
+                                $this->point($p[$i], $p[$i + 1]);
                             }
                             else {
-                                $this->_outLine($p[$i], $p[$i + 1]);
+                                $this->appendLine($p[$i], $p[$i + 1]);
                             }
                         }
                     }
                     else {
-                        $this->_outLine($p[$i], $p[$i + 1]);
+                        $this->appendLine($p[$i], $p[$i + 1]);
                     }
                 }
                 $this->append($op);
             }
         }
         if ($draw) {
-            $this->_outPoint($p[0], $p[1]);
+            $this->point($p[0], $p[1]);
             for ($i = 2; $i < $nc; $i = $i + 2) {
-                $this->_outLine($p[$i], $p[$i + 1]);
+                $this->appendLine($p[$i], $p[$i + 1]);
             }
             $this->append($op);
-        }
-    }
-
-    /**
-     * Defines the line width. By default, the value equals 0.2 mm. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float $width The width.
-     * @see   Line(), Rect(), Cell(), MultiCell()
-     */
-    public function setLineWidth($width)
-    {
-        //Set line width
-        $this->lineWidth      = $width;
-        $this->lineWidthStyle = sprintf('%F w', ($width * self::FACTOR));
-        if ($this->state === self::READY) {
-            $this->append($this->lineWidthStyle);
-        }
-    }
-
-    /**
-     * Returns the current the line width.
-     * @return int Line width
-     * @see   Line(), SetLineWidth()
-     */
-    public function GetLineWidth()
-    {
-        return $this->lineWidth;
-    }
-
-    /**
-     * Begin a new subpath by moving the current point to coordinates (x, y), omitting any connecting line segment.
-     * @param float $x Abscissa of point.
-     * @param float $y Ordinate of point.
-     */
-    protected function _outPoint($x, $y)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F m', ($x * self::FACTOR), (($this->height - $y) * self::FACTOR)));
-        }
-    }
-
-    /**
-     * Append a straight line segment from the current point to the point (x, y).
-     * The new current point shall be (x, y).
-     * @param float $x Abscissa of end point.
-     * @param float $y Ordinate of end point.
-     */
-    protected function _outLine($x, $y)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F l', ($x * self::FACTOR), (($this->height - $y) * self::FACTOR)));
-        }
-    }
-
-    /**
-     * Append a rectangle to the current path as a complete subpath, with lower-left corner (x, y) and dimensions widthand height in user space.
-     * @param float  $x  Abscissa of upper-left corner.
-     * @param float  $y  Ordinate of upper-left corner.
-     * @param float  $w  Width.
-     * @param float  $h  Height.
-     * @param string $op options
-     */
-    protected function _outRect($x, $y, $w, $h, $op)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F re %s', ($x * self::FACTOR), (($this->height - $y) * self::FACTOR), ($w * self::FACTOR), (-$h * self::FACTOR), $op));
-        }
-    }
-
-    /**
-     * Append a cubic Bezier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bezier control points.
-     * The new current point shall be (x3, y3).
-     * @param float $x1 Abscissa of control point 1.
-     * @param float $y1 Ordinate of control point 1.
-     * @param float $x2 Abscissa of control point 2.
-     * @param float $y2 Ordinate of control point 2.
-     * @param float $x3 Abscissa of end point.
-     * @param float $y3 Ordinate of end point.
-     */
-    protected function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F %F %F c', ($x1 * self::FACTOR), (($this->height - $y1) * self::FACTOR), ($x2 * self::FACTOR), (($this->height - $y2) * self::FACTOR), ($x3 * self::FACTOR), (($this->height - $y3) * self::FACTOR)));
         }
     }
 
@@ -498,7 +597,7 @@ trait Geometry
         $ymax = 0;
         if ($pie) {
             // center of the arc
-            $this->_outPoint($xc, $yc);
+            $this->point($xc, $yc);
         }
         $xang = deg2rad((float) $xang);
         $angs = deg2rad((float) $angs);
@@ -552,11 +651,11 @@ trait Geometry
         $qy1 = ($alpha * ((-$rx * $sin_xang * $sin_ang) + ($ry * $cos_xang * $cos_ang)));
         if ($pie) {
             // line from center to arc starting point
-            $this->_outLine($px1, $this->height - $py1);
+            $this->appendLine($px1, $this->height - $py1);
         }
         elseif ($startpoint) {
             // arc starting point
-            $this->_outPoint($px1, $this->height - $py1);
+            $this->point($px1, $this->height - $py1);
         }
         // draw arcs
         for ($i = 1; $i <= $nc; ++$i) {
@@ -580,7 +679,7 @@ trait Geometry
             $cy2 = ($this->height - ($py2 - $qy2));
             $cx3 = $px2;
             $cy3 = ($this->height - $py2);
-            $this->_outCurve($cx1, $cy1, $cx2, $cy2, $cx3, $cy3);
+            $this->appendCurve($cx1, $cy1, $cx2, $cy2, $cx3, $cy3);
             // get bounding box coordinates
             $xmin = min($xmin, $cx1, $cx2, $cx3);
             $ymin = min($ymin, $cy1, $cy2, $cy3);
@@ -593,7 +692,7 @@ trait Geometry
             $qy1 = $qy2;
         }
         if ($pie) {
-            $this->_outLine($xc, $yc);
+            $this->appendLine($xc, $yc);
             // get bounding box coordinates
             $xmin = min($xmin, $xc);
             $ymin = min($ymin, $yc);
@@ -636,7 +735,7 @@ trait Geometry
             $ns = 3;
         }
         if ($draw_circle) {
-            $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
+            $this->circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
         }
         $p = [];
         for ($i = 0; $i < $ns; ++$i) {
@@ -683,7 +782,7 @@ trait Geometry
             $nv = 2;
         }
         if ($draw_circle) {
-            $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
+            $this->circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
         }
         $p2      = [];
         $visited = [];
@@ -750,7 +849,7 @@ trait Geometry
         if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
             $this->fillColorArray($fill_color);
         }
-        $op = StaticMethods::getPathPaintOperator($style);
+        $op = StaticMethods::pathPaintingOperators($style);
         if ($op == 'f') {
             $border_style = [];
         }
@@ -758,111 +857,44 @@ trait Geometry
             $this->lineStyle($border_style);
         }
         $MyArc = 4 / 3 * (sqrt(2) - 1);
-        $this->_outPoint($x + $rx, $y);
+        $this->point($x + $rx, $y);
         $xc = $x + $w - $rx;
         $yc = $y + $ry;
-        $this->_outLine($xc, $y);
+        $this->appendLine($xc, $y);
         if ($round_corner[0]) {
-            $this->_outCurve($xc + ($rx * $MyArc), $yc - $ry, $xc + $rx, $yc - ($ry * $MyArc), $xc + $rx, $yc);
+            $this->appendCurve($xc + ($rx * $MyArc), $yc - $ry, $xc + $rx, $yc - ($ry * $MyArc), $xc + $rx, $yc);
         }
         else {
-            $this->_outLine($x + $w, $y);
+            $this->appendLine($x + $w, $y);
         }
         $xc = $x + $w - $rx;
         $yc = $y + $h - $ry;
-        $this->_outLine($x + $w, $yc);
+        $this->appendLine($x + $w, $yc);
         if ($round_corner[1]) {
-            $this->_outCurve($xc + $rx, $yc + ($ry * $MyArc), $xc + ($rx * $MyArc), $yc + $ry, $xc, $yc + $ry);
+            $this->appendCurve($xc + $rx, $yc + ($ry * $MyArc), $xc + ($rx * $MyArc), $yc + $ry, $xc, $yc + $ry);
         }
         else {
-            $this->_outLine($x + $w, $y + $h);
+            $this->appendLine($x + $w, $y + $h);
         }
         $xc = $x + $rx;
         $yc = $y + $h - $ry;
-        $this->_outLine($xc, $y + $h);
+        $this->appendLine($xc, $y + $h);
         if ($round_corner[2]) {
-            $this->_outCurve($xc - ($rx * $MyArc), $yc + $ry, $xc - $rx, $yc + ($ry * $MyArc), $xc - $rx, $yc);
+            $this->appendCurve($xc - ($rx * $MyArc), $yc + $ry, $xc - $rx, $yc + ($ry * $MyArc), $xc - $rx, $yc);
         }
         else {
-            $this->_outLine($x, $y + $h);
+            $this->appendLine($x, $y + $h);
         }
         $xc = $x + $rx;
         $yc = $y + $ry;
-        $this->_outLine($x, $yc);
+        $this->appendLine($x, $yc);
         if ($round_corner[3]) {
-            $this->_outCurve($xc - $rx, $yc - ($ry * $MyArc), $xc - ($rx * $MyArc), $yc - $ry, $xc, $yc - $ry);
+            $this->appendCurve($xc - $rx, $yc - ($ry * $MyArc), $xc - ($rx * $MyArc), $yc - $ry, $xc, $yc - $ry);
         }
         else {
-            $this->_outLine($x, $y);
-            $this->_outLine($x + $rx, $y);
+            $this->appendLine($x, $y);
+            $this->appendLine($x + $rx, $y);
         }
         $this->append($op);
-    }
-
-    /**
-     * Draws a grahic arrow.
-     * @param float $x0         Abscissa of first point.
-     * @param float $y0         Ordinate of first point.
-     * @param float $x1         Abscissa of second point.
-     * @param float $y1         Ordinate of second point.
-     * @param int   $head_style (0 = draw only arrowhead arms, 1 = draw closed arrowhead, but no fill, 2 = closed and filled arrowhead, 3 = filled arrowhead)
-     * @param float $arm_size   length of arrowhead arms
-     * @param int   $arm_angle  angle between an arm and the shaft
-     * @author Piotr Galecki, Nicola Asuni, Andy Meier
-     */
-    public function Arrow($x0, $y0, $x1, $y1, $head_style = 0, $arm_size = 5, $arm_angle = 15)
-    {
-        // getting arrow direction angle
-        // 0 deg angle is when both arms go along X axis. angle grows clockwise.
-        $dir_angle = atan2(($y0 - $y1), ($x0 - $x1));
-        if ($dir_angle < 0) {
-            $dir_angle += (2 * M_PI);
-        }
-        $arm_angle = deg2rad($arm_angle);
-        $sx1       = $x1;
-        $sy1       = $y1;
-        if ($head_style > 0) {
-            // calculate the stopping point for the arrow shaft
-            $sx1 = $x1 + (($arm_size - $this->lineWidth) * cos($dir_angle));
-            $sy1 = $y1 + (($arm_size - $this->lineWidth) * sin($dir_angle));
-        }
-        // main arrow line / shaft
-        $this->Line($x0, $y0, $sx1, $sy1);
-        // left arrowhead arm tip
-        $x2L = $x1 + ($arm_size * cos($dir_angle + $arm_angle));
-        $y2L = $y1 + ($arm_size * sin($dir_angle + $arm_angle));
-        // right arrowhead arm tip
-        $x2R   = $x1 + ($arm_size * cos($dir_angle - $arm_angle));
-        $y2R   = $y1 + ($arm_size * sin($dir_angle - $arm_angle));
-        $mode  = 'D';
-        $style = [];
-        switch ($head_style) {
-            case 0:
-            {
-                // draw only arrowhead arms
-                $mode  = 'D';
-                $style = [1, 1, 0];
-                break;
-            }
-            case 1:
-            {
-                // draw closed arrowhead, but no fill
-                $mode = 'D';
-                break;
-            }
-            case 2:
-            {
-                // closed and filled arrowhead
-                $mode = 'DF';
-                break;
-            }
-            case 3:
-            {
-                // filled arrowhead
-                $mode = 'F';
-                break;
-            }
-        }
-        $this->Polygon([$x2L, $y2L, $x1, $y1, $x2R, $y2R], $mode, $style, []);
     }
 }
