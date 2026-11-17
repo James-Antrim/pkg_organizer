@@ -73,7 +73,7 @@ abstract class BaseView extends PDF implements ViewInterface
 
         parent::__construct($orientation, $unit, $format);
         $this->SetAuthor(User::name());
-        $this->setCellPaddings(1, 1.5, 1, 1.5);
+        $this->cellPaddings(1, 1.5, 1, 1.5);
         $this->SetCreator('THM Organizer');
 
         $name   = $this->getName();

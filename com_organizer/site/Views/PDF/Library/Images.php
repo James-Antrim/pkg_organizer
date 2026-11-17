@@ -1639,7 +1639,7 @@ trait Images
         $page_break_mode   = $this->autoPageBreak;
         $page_break_margin = $this->getBreakMargin();
         $cellPaddings      = $this->cellPaddings;
-        $this->setCellPadding(0);
+        $this->cellPadding(0);
         $this->autoPageBreak(false);
         // save the current graphic state
         $this->append('q' . $this->epsmarker);

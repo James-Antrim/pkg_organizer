@@ -1988,7 +1988,7 @@ trait WebTools
                 $dom[$key]['oldPaddings'] = $this->cellPaddings;
                 if (isset($tag['attribute']['cellpadding'])) {
                     $pad = $this->fontSizeToUnits($tag['attribute']['cellpadding']);
-                    $this->setCellPadding($pad);
+                    $this->cellPadding($pad);
                 }
                 elseif (isset($tag['padding'])) {
                     $this->cellPaddings = $tag['padding'];

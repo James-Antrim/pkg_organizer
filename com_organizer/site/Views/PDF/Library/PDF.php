@@ -40,6 +40,7 @@ class PDF
      * Default encoding.
      */
     protected string $encoding = 'UTF-8';
+    protected array $encodingDeltas = [];
     protected bool $encrypted = false;
     /** File ID for document trailer */
     protected string $fileID;
@@ -51,6 +52,7 @@ class PDF
     protected bool $lineThrough = false;
     protected float $lineWidth = 0;
     protected string $lineWidthStyle = '';
+    protected array $links = [];
     protected bool $inFooter = false;
     protected bool $inXObject = false;
     protected string $lastEncryptedKey = '';
@@ -152,8 +154,6 @@ class PDF
         // some checks
         $this->_dochecks();
         $this->transfmrk[0]          = [];
-        $this->diffs                 = [];
-        $this->links                 = [];
         $this->inFooter              = false;
         $this->lastPrintedCellHeight = 0;
         $this->pdflayers             = [];
@@ -165,11 +165,12 @@ class PDF
         $this->setMargins($margin, $margin);
         $this->clMargin = $this->leftMargin;
         $this->crMargin = $this->rightMargin;
-        // internal cell padding
-        $cpadding = $margin / 10;
-        $this->setCellPaddings($cpadding, 0, $cpadding, 0);
-        // cell margins
-        $this->setCellMargins(0, 0, 0, 0);
+
+        // Cell derived values
+        $cellPadding = $margin / 10;
+        $this->cellPaddings($cellPadding, 0, $cellPadding, 0);
+        $this->cellMargins(0, 0, 0, 0);
+
         // line width (0.2 mm)
         $this->lineWidth      = 0.57 / $this->k;
         $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * $this->k));
@@ -483,10 +484,6 @@ class PDF
      */
     protected $y;
 
-    /**
-     * Array of encoding differences.
-     */
-    protected $diffs = [];
 
     /**
      * Array of used images.
@@ -498,10 +495,6 @@ class PDF
      */
     protected $svg_tag_depth = 0;
 
-    /**
-     * Array of internal links.
-     */
-    protected $links = [];
 
     /**
      * Layout display mode.
@@ -1397,194 +1390,6 @@ class PDF
     }
 
     /**
-     * Set the same internal Cell padding for top, right, bottom, left-
-     * @param int|float $pad internal padding.
-     * @see   getCellPaddings(), setCellPaddings()
-     */
-    public function setCellPadding($pad)
-    {
-        if ($pad >= 0) {
-            $this->cellPaddings['L'] = $pad;
-            $this->cellPaddings['T'] = $pad;
-            $this->cellPaddings['R'] = $pad;
-            $this->cellPaddings['B'] = $pad;
-        }
-    }
-
-    /**
-     * Set the internal Cell paddings.
-     * @param int|float|null $left   left padding
-     * @param int|float|null $top    top padding
-     * @param int|float|null $right  right padding
-     * @param int|float|null $bottom bottom padding
-     * @see   getCellPaddings(), SetCellPadding()
-     */
-    public function setCellPaddings($left = null, $top = null, $right = null, $bottom = null)
-    {
-        if (!StaticMethods::empty_string($left) and ($left >= 0)) {
-            $this->cellPaddings['L'] = $left;
-        }
-        if (!StaticMethods::empty_string($top) and ($top >= 0)) {
-            $this->cellPaddings['T'] = $top;
-        }
-        if (!StaticMethods::empty_string($right) and ($right >= 0)) {
-            $this->cellPaddings['R'] = $right;
-        }
-        if (!StaticMethods::empty_string($bottom) and ($bottom >= 0)) {
-            $this->cellPaddings['B'] = $bottom;
-        }
-    }
-
-    /**
-     * Get the internal Cell padding array.
-     * @return array of padding values
-     * @see   setCellPaddings(), SetCellPadding()
-     */
-    public function getCellPaddings()
-    {
-        return $this->cellPaddings;
-    }
-
-    /**
-     * Set the internal Cell margins.
-     * @param int|float|null $left   left margin
-     * @param int|float|null $top    top margin
-     * @param int|float|null $right  right margin
-     * @param int|float|null $bottom bottom margin
-     * @see   getCellMargins()
-     */
-    public function setCellMargins($left = null, $top = null, $right = null, $bottom = null)
-    {
-        if (!StaticMethods::empty_string($left) and ($left >= 0)) {
-            $this->cellMargins['L'] = $left;
-        }
-        if (!StaticMethods::empty_string($top) and ($top >= 0)) {
-            $this->cellMargins['T'] = $top;
-        }
-        if (!StaticMethods::empty_string($right) and ($right >= 0)) {
-            $this->cellMargins['R'] = $right;
-        }
-        if (!StaticMethods::empty_string($bottom) and ($bottom >= 0)) {
-            $this->cellMargins['B'] = $bottom;
-        }
-    }
-
-    /**
-     * Get the internal Cell margin array.
-     * @return array of margin values
-     * @see   setCellMargins()
-     */
-    public function getCellMargins()
-    {
-        return $this->cellMargins;
-    }
-
-    /**
-     * Adjust the internal Cell padding array to take account of the line width.
-     * @param string|array|int|bool $brd Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
-     * @return void|array array of adjustments
-     */
-    protected function adjustCellPadding($brd = 0)
-    {
-        if (empty($brd)) {
-            return;
-        }
-        if (is_string($brd)) {
-            // convert string to array
-            $slen   = strlen($brd);
-            $newbrd = [];
-            for ($i = 0; $i < $slen; ++$i) {
-                $newbrd[$brd[$i]] = true;
-            }
-            $brd = $newbrd;
-        }
-        elseif (
-            ($brd === 1)
-            || ($brd === true)
-            || (is_numeric($brd) && ((int) $brd > 0))
-        ) {
-            $brd = ['LRTB' => true];
-        }
-        if (!is_array($brd)) {
-            return;
-        }
-        // store current cell padding
-        $cp = $this->cellPaddings;
-        // select border mode
-        if (isset($brd['mode'])) {
-            $mode = $brd['mode'];
-            unset($brd['mode']);
-        }
-        else {
-            $mode = 'normal';
-        }
-        // process borders
-        foreach ($brd as $border => $style) {
-            $line_width = $this->lineWidth;
-            if (is_array($style) && isset($style['width'])) {
-                // get border width
-                $line_width = $style['width'];
-            }
-            $adj = 0; // line width inside the cell
-            switch ($mode) {
-                case 'ext':
-                {
-                    $adj = 0;
-                    break;
-                }
-                case 'int':
-                {
-                    $adj = $line_width;
-                    break;
-                }
-                case 'normal':
-                default:
-                {
-                    $adj = ($line_width / 2);
-                    break;
-                }
-            }
-            // correct internal cell padding if required to avoid overlap between text and lines
-            if (
-                is_numeric($this->cellPaddings['T'])
-                && ($this->cellPaddings['T'] < $adj)
-                && (strpos($border, 'T') !== false)
-            ) {
-                $this->cellPaddings['T'] = $adj;
-            }
-            if (
-                is_numeric($this->cellPaddings['R'])
-                && ($this->cellPaddings['R'] < $adj)
-                && (strpos($border, 'R') !== false)
-            ) {
-                $this->cellPaddings['R'] = $adj;
-            }
-            if (
-                is_numeric($this->cellPaddings['B'])
-                && ($this->cellPaddings['B'] < $adj)
-                && (strpos($border, 'B') !== false)
-            ) {
-                $this->cellPaddings['B'] = $adj;
-            }
-            if (
-                is_numeric($this->cellPaddings['L'])
-                && ($this->cellPaddings['L'] < $adj)
-                && (strpos($border, 'L') !== false)
-            ) {
-                $this->cellPaddings['L'] = $adj;
-            }
-
-        }
-
-        return array(
-            'T' => ($this->cellPaddings['T'] - $cp['T']),
-            'R' => ($this->cellPaddings['R'] - $cp['R']),
-            'B' => ($this->cellPaddings['B'] - $cp['B']),
-            'L' => ($this->cellPaddings['L'] - $cp['L']),
-        );
-    }
-
-    /**
      * Activates or deactivates page compression. When activated, the internal representation of each page is compressed, which leads to a compression ratio of about 2 for the resulting document. Compression is on by default.
      * Note: the Zlib extension is required for this feature. If not present, compression will be turned off.
      * @param bool $compress bool indicating if compression must be enabled.
@@ -2104,7 +1909,7 @@ class PDF
             $this->_outSaveGraphicsState();
             $this->rightMargin = $this->originalRightMargin;
             $this->leftMargin  = $this->originalLeftMargin;
-            $this->setCellPadding(0);
+            $this->cellPadding(0);
             //set current position
             $footer_y = $this->height - $this->footer_margin;
             $this->setXY($this->originalLeftMargin, $footer_y);
@@ -3371,7 +3176,7 @@ class PDF
         $mc_margin               = $this->cellMargins;
         $this->cellPaddings['T'] = 0;
         $this->cellPaddings['B'] = 0;
-        $this->setCellMargins(0, 0, 0, 0);
+        $this->cellMargins(0, 0, 0, 0);
         if (StaticMethods::empty_string($this->lastPrintedCellHeight) or $reseth) {
             // reset row height
             $this->resetLastH();
@@ -3951,7 +3756,7 @@ class PDF
                     $w              = $linew;
                     $tmpcellpadding = $this->cellPaddings;
                     if ($maxh == 0) {
-                        $this->setCellPadding(0);
+                        $this->cellPadding(0);
                     }
                 }
                 // Skip newlines at the beginning of a page or column
@@ -4046,7 +3851,7 @@ class PDF
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cellPaddings;
                                 if ($maxh == 0) {
-                                    $this->setCellPadding(0);
+                                    $this->cellPadding(0);
                                 }
                             }
                             $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
@@ -4077,7 +3882,7 @@ class PDF
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cellPaddings;
                                 if ($maxh == 0) {
-                                    $this->setCellPadding(0);
+                                    $this->cellPadding(0);
                                 }
                             }
                             $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
@@ -4112,7 +3917,7 @@ class PDF
                                 $w              = $linew;
                                 $tmpcellpadding = $this->cellPaddings;
                                 if ($maxh == 0) {
-                                    $this->setCellPadding(0);
+                                    $this->cellPadding(0);
                                 }
                             }
                             // print the line
@@ -4180,7 +3985,7 @@ class PDF
                 $w              = $linew;
                 $tmpcellpadding = $this->cellPaddings;
                 if ($maxh == 0) {
-                    $this->setCellPadding(0);
+                    $this->cellPadding(0);
                 }
             }
             $this->Cell($w, $h, $tmpstr, 0, $ln, $align, $fill, $link, $stretch);
@@ -11185,7 +10990,7 @@ class PDF
             $this->x     = $xpos_text;
             $this->y     = $y + $vpadding + $barh;
             $cellpadding = $this->cellPaddings;
-            $this->setCellPadding(0);
+            $this->cellPadding(0);
             $this->Cell($txtwidth, 0, $label, 0, 0, 'C', false, '', $style['stretchtext'], false, 'T', 'T');
             $this->cellPaddings = $cellpadding;
         }

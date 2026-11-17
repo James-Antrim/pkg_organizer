@@ -72,7 +72,7 @@ abstract class GridLayout extends BaseLayout
 
         // 10 bottom m because of the footer
         $view->margins(5, 25, 5, 10);
-        $view->setCellPaddings('', 1, '', 1);
+        $view->cellPaddings(null, 1, null, 1);
         $view->pageOrientation($view::LANDSCAPE);
 
         // This allows new header data per page.

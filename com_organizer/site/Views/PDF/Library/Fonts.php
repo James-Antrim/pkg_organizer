@@ -809,7 +809,7 @@ trait Fonts
     protected function _putfonts(): void
     {
         $nf = $this->objectNumber;
-        foreach ($this->diffs as $diff) {
+        foreach ($this->encodingDeltas as $diff) {
             //Encodings
             $this->_newobj();
             $this->append('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
@@ -1186,16 +1186,16 @@ trait Fonts
         if (isset($diff) and (!empty($diff))) {
             //Search existing encodings
             $d  = 0;
-            $nb = count($this->diffs);
+            $nb = count($this->encodingDeltas);
             for ($i = 1; $i <= $nb; ++$i) {
-                if ($this->diffs[$i] == $diff) {
+                if ($this->encodingDeltas[$i] == $diff) {
                     $d = $i;
                     break;
                 }
             }
             if ($d == 0) {
-                $d               = $nb + 1;
-                $this->diffs[$d] = $diff;
+                $d                        = $nb + 1;
+                $this->encodingDeltas[$d] = $diff;
             }
             $this->fontSubBuffer($fontKey, 'diff', $d);
         }

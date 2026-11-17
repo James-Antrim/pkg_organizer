@@ -126,7 +126,7 @@ trait Headers
         $this->rightMargin = $this->originalRightMargin;
         $this->leftMargin  = $this->originalLeftMargin;
 
-        $this->setCellPadding(0);
+        $this->cellPadding(0);
 
         $this->setXY($this->originalLeftMargin, $this->headerMargin);
         $this->setCurrentFont($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
