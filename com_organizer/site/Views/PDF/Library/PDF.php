@@ -36,16 +36,17 @@ class PDF
     protected array $annotationIDs = [];
     protected string $buffer = '';
     protected int $bufferLength = 0;
-    /**
-     * Default encoding.
-     */
+
+    protected int $creationTimestamp = 0;
+    protected array $defaultGraphicsConfiguration = [];
     protected string $encoding = 'UTF-8';
     protected array $encodingDeltas = [];
     protected bool $encrypted = false;
     /** File ID for document trailer */
     protected string $fileID;
     protected array $footerLengths = [];
-    protected $lastPrintedCellHeight;
+    protected float $lastPrintedCellHeight = 0;
+    protected array $layers = [];
     protected string $libraryURL = '';
     protected bool $lineThrough = false;
     protected array $links = [];
@@ -56,6 +57,7 @@ class PDF
     /** Transformation matrix */
     protected array $matrix = [];
     protected int $matrixKey = 0;
+    protected int $modificationTimestamp = 0;
     protected bool $newLine = true;
     protected int $objectNumber = 2;
     protected bool $overline = false;
@@ -234,68 +236,29 @@ class PDF
         $this->force_srgb = false;
         // some checks
         $this->_dochecks();
-        $this->transpositions[0]     = [];
-        $this->inFooter              = false;
-        $this->lastPrintedCellHeight = 0;
-        $this->pdflayers             = [];
+        $this->transpositions[0] = [];
         $this->pageFormat($format, $orientation);
+
         // page margins (1 cm)
         $margin = 28.35 / self::FACTOR;
         $this->setMargins($margin, $margin);
         $this->clMargin = $this->leftMargin;
         $this->crMargin = $this->rightMargin;
-
-        // Cell derived values
-        $cellPadding = $margin / 10;
+        $cellPadding    = $margin / 10;
         $this->cellPaddings($cellPadding, 0, $cellPadding, 0);
         $this->cellMargins(0, 0, 0, 0);
 
-        // line width (0.2 mm)
-        $this->lineWidth      = 0.57 / self::FACTOR;
-        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * self::FACTOR));
+        $this->lineWidthStyle = sprintf('%F w', $this->lineWidth * self::FACTOR);
         $this->displayMode();
-        // compression
         $this->setCompression();
-        // set default PDF version number
         $this->setPDFVersion();
-        $this->tcpdflink = true;
-        $this->encoding  = 'UTF-8';
-        $this->HREF      = [];
         $this->populateFonts();
-        $this->extgstates = [];
         $this->setTextShadow();
-        // signature
-        $this->signable                   = false;
-        $this->tsa_timestamp              = false;
-        $this->tsa_data                   = [];
-        $this->signature_appearance       = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
-        $this->empty_signature_appearance = [];
-        // set default JPEG quality
-        $this->jpeg_quality = 75;
-        // set default font
         $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
-        // check if PCRE Unicode support is enabled
-        if ($this->isUnicode and (@preg_match('/\pL/u', 'a') == 1)) {
-            // PCRE unicode support is turned ON
-            // \s     : any whitespace character
-            // \p{Z}  : any separator
-            // \p{Lo} : Unicode letter or ideograph that does not have lowercase and uppercase variants. Is used to chunk chinese words.
-            // \xa0   : Unicode Character 'NO-BREAK SPACE' (U+00A0)
-            //$this->setSpacesRE('/(?!\xa0)[\s\p{Z}\p{Lo}]/u');
-            $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u');
-        }
-        else {
-            // PCRE unicode support is turned OFF
-            $this->setSpacesRE('/[^\S\xa0]/');
-        }
-        $this->default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => [128, 128, 128]];
-        // set document creation and modification timestamp
-        $this->doc_creation_timestamp     = time();
-        $this->doc_modification_timestamp = $this->doc_creation_timestamp;
-        // get default graphic vars
-        $this->default_graphic_vars = $this->graphicsConfiguration();
-        $this->custom_xmp           = '';
-        $this->custom_xmp_rdf       = '';
+        $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u');
+        $this->creationTimestamp            = time();
+        $this->modificationTimestamp        = $this->creationTimestamp;
+        $this->defaultGraphicsConfiguration = $this->graphicsConfiguration();
     }
 
     /**
@@ -657,7 +620,7 @@ class PDF
     /**
      * HTML PARSER: array to store current link and rendering styles.
      */
-    protected $HREF = [];
+    protected array $HREF = [];
 
     /**
      * HTML PARSER: array of bool values, true in case of ordered list (OL), false otherwise.
@@ -721,12 +684,12 @@ class PDF
     /**
      * Array of transparency objects and parameters.
      */
-    protected $extgstates;
+    protected array $extgstates = [];
 
     /**
      * Set the default JPEG compression quality (1-100).
      */
-    protected $jpeg_quality;
+    protected int $jpeg_quality = 75;
 
     /**
      * PDF viewer preferences.
@@ -856,22 +819,22 @@ class PDF
     /**
      * Data for digital signature appearance.
      */
-    protected $signature_appearance = ['page' => 1, 'rect' => '0 0 0 0'];
+    protected array $signature_appearance = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
 
     /**
      * Array of empty digital signature appearances.
      */
-    protected $empty_signature_appearance = [];
+    protected array $empty_signature_appearance = [];
 
     /**
      * bool flag to enable document timestamping with TSA.
      */
-    protected $tsa_timestamp = false;
+    protected bool $tsa_timestamp = false;
 
     /**
      * Timestamping data.
      */
-    protected $tsa_data = [];
+    protected array $tsa_data = [];
 
     /**
      * Regular expression used to find blank characters (required for word-wrapping).
@@ -892,7 +855,7 @@ class PDF
     /**
      * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
      */
-    protected $default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => [128, 128, 128]];
+    protected array $default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => self::GRAY];
 
     /**
      * Javascript objects array.
@@ -1000,11 +963,6 @@ class PDF
     protected $rasterize_vector_images = false;
 
     /**
-     * Array of default graphic settings.
-     */
-    protected $default_graphic_vars = [];
-
-    /**
      * Array of no-write regions.
      * ('page' => page number or empy for current page, 'xt' => X top, 'yt' => Y top, 'xb' => X bottom, 'yb' => Y bottom, 'side' => page side 'L' = left or 'R' = right)
      */
@@ -1014,11 +972,6 @@ class PDF
      * bool value true when page region check is active.
      */
     protected $check_page_regions = true;
-
-    /**
-     * Array of PDF layers data.
-     */
-    protected $pdflayers = [];
 
     /**
      * A dictionary of names and corresponding destinations (Dests key on document Catalog).
@@ -1165,24 +1118,14 @@ class PDF
     protected $force_srgb = false;
 
     /**
-     * Document creation date-time
-     */
-    protected $doc_creation_timestamp;
-
-    /**
-     * Document modification date-time
-     */
-    protected $doc_modification_timestamp;
-
-    /**
      * Custom XMP data.
      */
-    protected $custom_xmp = '';
+    protected string $custom_xmp = '';
 
     /**
      * Custom XMP RDF data.
      */
-    protected $custom_xmp_rdf = '';
+    protected string $custom_xmp_rdf = '';
 
     /**
      * Overprint mode array.
@@ -1205,7 +1148,7 @@ class PDF
     /**
      * If true print TCPDF meta link.
      */
-    protected $tcpdflink = true;
+    protected bool $tcpdflink = true;
 
     /**
      * Cache array for computed GD gamma values.
@@ -1953,7 +1896,7 @@ class PDF
         $this->footerpos[$this->page] = $this->pageLengths[$this->page];
         $this->append("\n");
         if ($this->print_footer) {
-            $this->graphicsConfiguration($this->default_graphic_vars);
+            $this->graphicsConfiguration($this->defaultGraphicsConfiguration);
             $this->current_column = 0;
             $this->num_columns    = 1;
             $temp_thead           = $this->headerTemplate;
@@ -4664,7 +4607,7 @@ class PDF
             $out                     .= ' /Type /Page';
             $out                     .= ' /Parent 1 0 R';
             if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
-                $out .= ' /LastModified ' . $this->_datestring(0, $this->doc_modification_timestamp);
+                $out .= ' /LastModified ' . $this->_datestring(0, $this->modificationTimestamp);
             }
             $out .= ' /Resources 2 0 R';
             foreach ($this->page_boxes as $box) {
@@ -4875,7 +4818,7 @@ class PDF
                     }
                     $annots .= ' /P ' . $this->pageObjectIDs[$n] . ' 0 R';
                     $annots .= ' /NM ' . $this->_datastring(sprintf('%04u-%04u', $n, $key), $annot_obj_id);
-                    $annots .= ' /M ' . $this->_datestring($annot_obj_id, $this->doc_modification_timestamp);
+                    $annots .= ' /M ' . $this->_datestring($annot_obj_id, $this->modificationTimestamp);
                     if (isset($pl['opt']['f'])) {
                         $fval = 0;
                         if (is_array($pl['opt']['f'])) {
@@ -5047,7 +4990,7 @@ class PDF
                         if (isset($pl['opt']['rc'])) {
                             $annots .= ' /RC ' . $this->_textstring($pl['opt']['rc'], $annot_obj_id);
                         }
-                        $annots .= ' /CreationDate ' . $this->_datestring($annot_obj_id, $this->doc_creation_timestamp);
+                        $annots .= ' /CreationDate ' . $this->_datestring($annot_obj_id, $this->creationTimestamp);
                         //$annots .= ' /IRT ';
                         if (isset($pl['opt']['subj'])) {
                             $annots .= ' /Subj ' . $this->_textstring($pl['opt']['subj'], $annot_obj_id);
@@ -5667,9 +5610,9 @@ class PDF
         $out .= $this->_getxobjectdict();
         $out .= ' >>';
         // layers
-        if (!empty($this->pdflayers)) {
+        if (!empty($this->layers)) {
             $out .= ' /Properties <<';
-            foreach ($this->pdflayers as $layer) {
+            foreach ($this->layers as $layer) {
                 $out .= ' /' . $layer['layer'] . ' ' . $layer['objid'] . ' 0 R';
             }
             $out .= ' >>';
@@ -5773,9 +5716,9 @@ class PDF
         // default producer
         $out .= ' /Producer ' . $this->_textstring($this->producer(), $oid);
         // The date and time the document was created, in human-readable form
-        $out .= ' /CreationDate ' . $this->_datestring(0, $this->doc_creation_timestamp);
+        $out .= ' /CreationDate ' . $this->_datestring(0, $this->creationTimestamp);
         // The date and time the document was most recently modified, in human-readable form
-        $out .= ' /ModDate ' . $this->_datestring(0, $this->doc_modification_timestamp);
+        $out .= ' /ModDate ' . $this->_datestring(0, $this->modificationTimestamp);
         // A name object indicating whether the document has been modified to include trapping information
         $out .= ' /Trapped /False';
         $out .= ' >>';
@@ -5824,13 +5767,13 @@ class PDF
         $xmp .= "\t\t\t" . '</dc:subject>' . "\n";
         $xmp .= "\t\t" . '</rdf:Description>' . "\n";
         // convert doc creation date format
-        $dcdate          = StaticMethods::getFormattedDate($this->doc_creation_timestamp);
+        $dcdate          = StaticMethods::getFormattedDate($this->creationTimestamp);
         $doccreationdate = substr($dcdate, 0, 4) . '-' . substr($dcdate, 4, 2) . '-' . substr($dcdate, 6, 2);
         $doccreationdate .= 'T' . substr($dcdate, 8, 2) . ':' . substr($dcdate, 10, 2) . ':' . substr($dcdate, 12, 2);
         $doccreationdate .= substr($dcdate, 14, 3) . ':' . substr($dcdate, 18, 2);
         $doccreationdate = StaticMethods::_escapeXML($doccreationdate);
         // convert doc modification date format
-        $dmdate     = StaticMethods::getFormattedDate($this->doc_modification_timestamp);
+        $dmdate     = StaticMethods::getFormattedDate($this->modificationTimestamp);
         $docmoddate = substr($dmdate, 0, 4) . '-' . substr($dmdate, 4, 2) . '-' . substr($dmdate, 6, 2);
         $docmoddate .= 'T' . substr($dmdate, 8, 2) . ':' . substr($dmdate, 10, 2) . ':' . substr($dmdate, 12, 2);
         $docmoddate .= substr($dmdate, 14, 3) . ':' . substr($dmdate, 18, 2);
@@ -5922,11 +5865,11 @@ class PDF
         if (isset($this->l['a_meta_language'])) {
             $out .= ' /Lang ' . $this->_textstring($this->l['a_meta_language'], $oid);
         }
-        if (!empty($this->pdflayers)) {
+        if (!empty($this->layers)) {
             $lyrobjs      = '';
             $lyrobjs_off  = '';
             $lyrobjs_lock = '';
-            foreach ($this->pdflayers as $layer) {
+            foreach ($this->layers as $layer) {
                 $layer_obj_ref = ' ' . $layer['objid'] . ' 0 R';
                 $lyrobjs       .= $layer_obj_ref;
                 if ($layer['view'] === false) {
@@ -6357,7 +6300,7 @@ class PDF
     protected function _datestring($n = 0, $timestamp = 0)
     {
         if ((empty($timestamp)) or ($timestamp < 0)) {
-            $timestamp = $this->doc_creation_timestamp;
+            $timestamp = $this->creationTimestamp;
         }
         return $this->_datastring('D:' . StaticMethods::getFormattedDate($timestamp), $n);
     }
@@ -8122,7 +8065,7 @@ class PDF
         if (isset($this->signature_data['info']['ContactInfo']) and !StaticMethods::empty_string($this->signature_data['info']['ContactInfo'])) {
             $out .= ' /ContactInfo ' . $this->_textstring($this->signature_data['info']['ContactInfo'], $sigobjid);
         }
-        $out .= ' /M ' . $this->_datestring($sigobjid, $this->doc_modification_timestamp);
+        $out .= ' /M ' . $this->_datestring($sigobjid, $this->modificationTimestamp);
         $out .= ' >>';
         $out .= "\n" . 'endobj';
         $this->append($out);
@@ -8452,14 +8395,14 @@ class PDF
      */
     protected function _putocg()
     {
-        if (empty($this->pdflayers)) {
+        if (empty($this->layers)) {
             return;
         }
-        foreach ($this->pdflayers as $key => $layer) {
-            $this->pdflayers[$key]['objid'] = $this->_newobj();
-            $out                            = '<< /Type /OCG';
-            $out                            .= ' /Name ' . $this->_textstring($layer['name'], $this->pdflayers[$key]['objid']);
-            $out                            .= ' /Usage <<';
+        foreach ($this->layers as $key => $layer) {
+            $this->layers[$key]['objid'] = $this->_newobj();
+            $out                         = '<< /Type /OCG';
+            $out                         .= ' /Name ' . $this->_textstring($layer['name'], $this->layers[$key]['objid']);
+            $out                         .= ' /Usage <<';
             if (isset($layer['print']) and ($layer['print'] !== NULL)) {
                 $out .= ' /Print <</PrintState /' . ($layer['print'] ? 'ON' : 'OFF') . '>>';
             }
@@ -8482,14 +8425,14 @@ class PDF
         if ($this->state !== self::READY) {
             return;
         }
-        $layer = sprintf('LYR%03d', (count($this->pdflayers) + 1));
+        $layer = sprintf('LYR%03d', (count($this->layers) + 1));
         if (empty($name)) {
             $name = $layer;
         }
         else {
             $name = preg_replace('/[^a-zA-Z0-9_\-]/', '', $name);
         }
-        $this->pdflayers[]       = ['layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock];
+        $this->layers[]          = ['layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock];
         $this->openMarkedContent = true;
         $this->append('/OC /' . $layer . ' BDC');
     }

@@ -20,7 +20,7 @@ trait Geometry
     protected string $lineDashStyle = '[] 0 d';
     /** Join value of the last line. */
     protected string $lineJoinStyle = '0 j';
-    protected float $lineWidth = 0;
+    protected float $lineWidth = 0.20108333333334;
     /** Width value of the last line. */
     protected string $lineWidthStyle = '';
 

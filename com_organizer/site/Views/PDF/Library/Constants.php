@@ -41,7 +41,7 @@ trait Constants
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
 
-    public const BLACK = [0, 0, 0], BLUE = [0, 0, 255], WHITE = [255, 255, 255];
+    public const BLACK = [0, 0, 0], BLUE = [0, 0, 255], GRAY = [128, 128, 128], WHITE = [255, 255, 255];
     private const COLOR_CONTEXTS = ['draw', 'fill', 'text'];
 
     /** Array of valid JavaScript color names. */
