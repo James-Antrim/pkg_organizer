@@ -141,7 +141,7 @@ trait Fonts
      */
     public function fontSizeToUnits(string $fontSize, float $referenceValue = 1, string $unit = self::PIXEL, bool $points = false): float
     {
-        $k     = $points ? 1 : $this->k;
+        $k     = $points ? 1 : self::FACTOR;
         $unit  = in_array($unit, self::WEB_UNITS) ? $unit : self::PIXEL;
         $value = 0;
 
@@ -164,7 +164,7 @@ trait Fonts
             self::MILLIMETER => ($value / 25.4 * self::DPI) / $k,
             self::PICA => ($value * 12) / $k,
             self::POINT => $value / $k,
-            self::PIXEL => $points ? $this->pixelsToUnits($value) * $this->k : $this->pixelsToUnits($value),
+            self::PIXEL => $points ? $this->pixelsToUnits($value) * self::FACTOR : $this->pixelsToUnits($value),
             default => 0,
         };
     }
@@ -221,7 +221,7 @@ trait Fonts
     public function fontSize(float|null $size = null, bool $append = true): float
     {
         if (is_float($size)) {
-            $this->fontSize   = $size / $this->k;
+            $this->fontSize   = $size / self::FACTOR;
             $this->fontSizePT = $size;
 
             // calculate some font metrics
@@ -254,8 +254,8 @@ trait Fonts
                 $descent = $height - $ascent;
             }
 
-            $this->fontAscent  = $ascent / $this->k;
-            $this->fontDescent = $descent / $this->k;
+            $this->fontAscent  = $ascent / self::FACTOR;
+            $this->fontDescent = $descent / self::FACTOR;
 
             if ($append and $this->page > 0 and isset($this->currentFont['i']) and $this->state === self::READY) {
                 $this->append(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
@@ -1296,7 +1296,7 @@ trait Fonts
         else {
             $descent = (1.219 * 0.24 * $size);
         }
-        return ($descent / $this->k);
+        return ($descent / self::FACTOR);
     }
 
     /**
@@ -1317,7 +1317,7 @@ trait Fonts
         else {
             $ascent = 1.219 * 0.76 * $size;
         }
-        return ($ascent / $this->k);
+        return ($ascent / self::FACTOR);
     }
 
     /**

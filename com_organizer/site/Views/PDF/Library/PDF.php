@@ -23,13 +23,14 @@ class PDF
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
     use Basics;
-    use Bloatware;
     use Cells;
     use Colors;
     use Constants;
+    use Geometry;
     use Fonts;
     use Images;
     use Pages;
+    use Transformations;
     use WebTools;
 
     protected array $annotationIDs = [];
@@ -46,12 +47,7 @@ class PDF
     protected array $footerLengths = [];
     protected $lastPrintedCellHeight;
     protected string $libraryURL = '';
-    protected string $lineCapStyle = '0 J';
-    protected string $lineDashStyle = '[] 0 d';
-    protected string $lineJoinStyle = '0 j';
     protected bool $lineThrough = false;
-    protected float $lineWidth = 0;
-    protected string $lineWidthStyle = '';
     protected array $links = [];
     protected bool $inFooter = false;
     protected bool $inXObject = false;
@@ -158,11 +154,9 @@ class PDF
         $this->inFooter              = false;
         $this->lastPrintedCellHeight = 0;
         $this->pdflayers             = [];
-        // set scale factor
-        $this->k = self::DPI / 25.4;
         $this->pageFormat($format, $orientation);
         // page margins (1 cm)
-        $margin = 28.35 / $this->k;
+        $margin = 28.35 / self::FACTOR;
         $this->setMargins($margin, $margin);
         $this->clMargin = $this->leftMargin;
         $this->crMargin = $this->rightMargin;
@@ -173,8 +167,8 @@ class PDF
         $this->cellMargins(0, 0, 0, 0);
 
         // line width (0.2 mm)
-        $this->lineWidth      = 0.57 / $this->k;
-        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * $this->k));
+        $this->lineWidth      = 0.57 / self::FACTOR;
+        $this->lineWidthStyle = sprintf('%F w', ($this->lineWidth * self::FACTOR));
         $this->displayMode();
         // compression
         $this->setCompression();
@@ -350,7 +344,7 @@ class PDF
         $command = '';
         if (isset($style['width'])) {
             $this->lineWidth      = $style['width'];
-            $this->lineWidthStyle = sprintf('%F w', ($style['width'] * $this->k));
+            $this->lineWidthStyle = sprintf('%F w', ($style['width'] * self::FACTOR));
             $command              .= $this->lineWidthStyle . ' ';
         }
         if (isset($style['cap'])) {
@@ -1316,16 +1310,6 @@ class PDF
     }
 
     /**
-     * Returns the scale factor (number of points in user unit).
-     * @return int scale factor.
-     * @author Nicola Asuni
-     */
-    public function getScaleFactor()
-    {
-        return $this->k;
-    }
-
-    /**
      * Defines the left, top and right margins.
      * @param int|float      $left        Left margin.
      * @param int|float      $top         Top margin.
@@ -1533,7 +1517,7 @@ class PDF
             $this->lastpage(true);
             $this->autoPageBreak(false);
             $this->x          = 0;
-            $this->y          = $this->height - (1 / $this->k);
+            $this->y          = $this->height - (1 / self::FACTOR);
             $this->leftMargin = 0;
             $this->_outSaveGraphicsState();
             $font = self::DEFAULT_FONT;
@@ -1852,7 +1836,7 @@ class PDF
         $cur_y = $this->y;
         $this->textColorArray($this->footerTextColor);
         //set style for cell border
-        $line_width = (0.85 / $this->k);
+        $line_width = (0.85 / self::FACTOR);
         $this->lineStyle(['width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor]);
         //print document barcode
         $barcode = $this->getBarcode();
@@ -2307,10 +2291,10 @@ class PDF
                 for ($j = $maxid; $j >= 0; --$j) {
                     $ctm = $this->transfmatrix[$i][$j];
                     if (isset($ctm['a'])) {
-                        $x = $x * $this->k;
-                        $y = ($this->height - $y) * $this->k;
-                        $w = $w * $this->k;
-                        $h = $h * $this->k;
+                        $x = $x * self::FACTOR;
+                        $y = ($this->height - $y) * self::FACTOR;
+                        $w = $w * self::FACTOR;
+                        $h = $h * self::FACTOR;
                         // top left
                         $xt = $x;
                         $yt = $y;
@@ -2334,10 +2318,10 @@ class PDF
                         // new coordinates (rectangle area)
                         $x = min($x1, $x2, $x3, $x4);
                         $y = max($y1, $y2, $y3, $y4);
-                        $w = (max($x1, $x2, $x3, $x4) - $x) / $this->k;
-                        $h = ($y - min($y1, $y2, $y3, $y4)) / $this->k;
-                        $x = $x / $this->k;
-                        $y = $this->height - ($y / $this->k);
+                        $w = (max($x1, $x2, $x3, $x4) - $x) / self::FACTOR;
+                        $h = ($y - min($y1, $y2, $y3, $y4)) / self::FACTOR;
+                        $x = $x / self::FACTOR;
+                        $y = $this->height - ($y / self::FACTOR);
                     }
                 }
             }
@@ -2578,7 +2562,7 @@ class PDF
                 $h = $min_cell_height;
             }
         }
-        $k = $this->k;
+        $k = self::FACTOR;
         // check page for no-write regions and adapt page margins if necessary
         list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
         $x                  = $this->x + $this->cellMargins['L'];
@@ -2780,13 +2764,13 @@ class PDF
             }
             if ($this->fontSpacing != 0) {
                 // increase/decrease font spacing
-                $rs .= sprintf('BT %F Tc ET ', ($this->fontSpacing * $this->k));
+                $rs .= sprintf('BT %F Tc ET ', ($this->fontSpacing * self::FACTOR));
             }
             if ($this->differentColors and ($this->textrendermode < 4)) {
                 $s .= 'q ' . $this->textColor . ' ';
             }
             // rendering mode
-            $s .= sprintf('BT %d Tr %F w ET ', $this->textrendermode, ($this->textstrokewidth * $this->k));
+            $s .= sprintf('BT %d Tr %F w ET ', $this->textrendermode, ($this->textstrokewidth * self::FACTOR));
             // count number of spaces
             $ns = substr_count($txt, chr(32));
             // Justification
@@ -2809,7 +2793,7 @@ class PDF
                     // get string width
                     $width = $txwidth;
                     // new space width
-                    $spacewidth = (($w - $width - $this->cellPaddings['L'] - $this->cellPaddings['R']) / ($ns ? $ns : 1)) * $this->k;
+                    $spacewidth = (($w - $width - $this->cellPaddings['L'] - $this->cellPaddings['R']) / ($ns ? $ns : 1)) * self::FACTOR;
                     if ($this->fontStretching != 100) {
                         // word spacing (Tw) is affected by stretching
                         $spacewidth /= ($this->fontStretching / 100);
@@ -2962,7 +2946,7 @@ class PDF
             $brd = ['LRTB' => true];
         }
         // calculate coordinates for border
-        $k   = $this->k;
+        $k   = self::FACTOR;
         $xeL = $x * $k;
         $xeR = ($x + $w) * $k;
         $yeL = (($this->height - ($y + $h)) * $k);
@@ -3244,7 +3228,7 @@ class PDF
                     // try to reduce font size to fit text on cell (use a quick search algorithm)
                     $fmin         = 1;
                     $fmax         = $this->fontSizePT;
-                    $diff_epsilon = (1 / $this->k); // one point (min resolution)
+                    $diff_epsilon = (1 / self::FACTOR); // one point (min resolution)
                     $maxit        = (2 * min(100, max(10, intval($fmax)))); // max number of iterations
                     while ($maxit >= 0) {
                         $fmid = (($fmax + $fmin) / 2);
@@ -4631,7 +4615,7 @@ class PDF
                             $out   .= ' ]';
                         }
                         if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'])) {
-                            $out .= ' /W ' . ($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'] * $this->k);
+                            $out .= ' /W ' . ($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'] * self::FACTOR);
                         }
                         if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['S'])) {
                             $out .= ' /S /' . $this->pageDimensions[$n]['BoxColorInfo'][$box]['S'];
@@ -4640,7 +4624,7 @@ class PDF
                             $dashes = $this->pageDimensions[$n]['BoxColorInfo'][$box]['D'];
                             $out    .= ' /D [';
                             foreach ($dashes as $dash) {
-                                $out .= sprintf(' %F', ($dash * $this->k));
+                                $out .= sprintf(' %F', ($dash * self::FACTOR));
                             }
                             $out .= ' ]';
                         }
@@ -4804,10 +4788,10 @@ class PDF
                     }
                     $formfield = false;
                     $pl['opt'] = array_change_key_case($pl['opt'], CASE_LOWER);
-                    $a         = $pl['x'] * $this->k;
-                    $b         = $this->pageDimensions[$n]['h'] - (($pl['y'] + $pl['h']) * $this->k);
-                    $c         = $pl['w'] * $this->k;
-                    $d         = $pl['h'] * $this->k;
+                    $a         = $pl['x'] * self::FACTOR;
+                    $b         = $this->pageDimensions[$n]['h'] - (($pl['y'] + $pl['h']) * self::FACTOR);
+                    $c         = $pl['w'] * self::FACTOR;
+                    $d         = $pl['h'] * self::FACTOR;
                     $rect      = sprintf('%F %F %F %F', $a, $b, $a + $c, $b + $d);
                     // create new annotation object
                     $annots = '<</Type /Annot';
@@ -5091,7 +5075,7 @@ class PDF
                                 // internal link ID
                                 $l = $this->links[$pl['txt']];
                                 if (isset($this->pageObjectIDs[($l['p'])])) {
-                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->k)));
+                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * self::FACTOR)));
                                 }
                             }
                             $hmodes = ['N', 'I', 'O', 'P'];
@@ -5122,7 +5106,7 @@ class PDF
                             if (isset($pl['opt']['cl']) and is_array($pl['opt']['cl'])) {
                                 $annots .= ' /CL [';
                                 foreach ($pl['opt']['cl'] as $cl) {
-                                    $annots .= sprintf('%F ', $cl * $this->k);
+                                    $annots .= sprintf('%F ', $cl * self::FACTOR);
                                 }
                                 $annots .= ']';
                             }
@@ -5131,10 +5115,10 @@ class PDF
                                 $annots .= ' /IT /' . $pl['opt']['it'];
                             }
                             if (isset($pl['opt']['rd']) and is_array($pl['opt']['rd'])) {
-                                $l      = $pl['opt']['rd'][0] * $this->k;
-                                $r      = $pl['opt']['rd'][1] * $this->k;
-                                $t      = $pl['opt']['rd'][2] * $this->k;
-                                $b      = $pl['opt']['rd'][3] * $this->k;
+                                $l      = $pl['opt']['rd'][0] * self::FACTOR;
+                                $r      = $pl['opt']['rd'][1] * self::FACTOR;
+                                $t      = $pl['opt']['rd'][2] * self::FACTOR;
+                                $b      = $pl['opt']['rd'][3] * self::FACTOR;
                                 $annots .= ' /RD [' . sprintf('%F %F %F %F', $l, $r, $t, $b) . ']';
                             }
                             if (isset($pl['opt']['le']) and in_array($pl['opt']['le'], $lineendings)) {
@@ -5484,106 +5468,6 @@ class PDF
     }
 
     /**
-     * Adds unicode fonts.<br>
-     * Based on PDF Reference 1.3 (section 5)
-     * @param array $font font data
-     * @author Nicola Asuni
-     */
-    protected function _puttruetypeunicode($font)
-    {
-        $fontname = '';
-        if ($font['subset']) {
-            // change name for font subsetting
-            $subtag   = sprintf('%06u', $font['i']);
-            $subtag   = strtr($subtag, '0123456789', 'ABCDEFGHIJ');
-            $fontname .= $subtag . '+';
-        }
-        $fontname .= $font['name'];
-        // Type0 Font
-        // A composite font composed of other fonts, organized hierarchically
-        $out = $this->_getobj($this->fontObjectIDs[$font['fontKey']]) . "\n";
-        $out .= '<< /Type /Font';
-        $out .= ' /Subtype /Type0';
-        $out .= ' /BaseFont /' . $fontname;
-        $out .= ' /Name /F' . $font['i'];
-        $out .= ' /Encoding /' . $font['enc'];
-        $out .= ' /ToUnicode ' . ($this->objectNumber + 1) . ' 0 R';
-        $out .= ' /DescendantFonts [' . ($this->objectNumber + 2) . ' 0 R]';
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-        // ToUnicode map for Identity-H
-        $stream = self::IDH_UNICODE;
-        // ToUnicode Object
-        $this->_newobj();
-        $stream = ($this->compress) ? gzcompress($stream) : $stream;
-        $filter = ($this->compress) ? '/Filter /FlateDecode ' : '';
-        $stream = $this->_getrawstream($stream);
-        $this->append('<<' . $filter . '/Length ' . strlen($stream) . '>> stream' . "\n" . $stream . "\n" . 'endstream' . "\n" . 'endobj');
-        // CIDFontType2
-        // A CIDFont whose glyph descriptions are based on TrueType font technology
-        $oid = $this->_newobj();
-        $out = '<< /Type /Font';
-        $out .= ' /Subtype /CIDFontType2';
-        $out .= ' /BaseFont /' . $fontname;
-        // A dictionary containing entries that define the character collection of the CIDFont.
-        $cidinfo = '/Registry ' . $this->_datastring($font['cidinfo']['Registry'], $oid);
-        $cidinfo .= ' /Ordering ' . $this->_datastring($font['cidinfo']['Ordering'], $oid);
-        $cidinfo .= ' /Supplement ' . $font['cidinfo']['Supplement'];
-        $out     .= ' /CIDSystemInfo << ' . $cidinfo . ' >>';
-        $out     .= ' /FontDescriptor ' . ($this->objectNumber + 1) . ' 0 R';
-        $out     .= ' /DW ' . $font['dw']; // default width
-        $out     .= "\n" . $this->_putfontwidths($font, 0);
-        if (isset($font['ctg']) and (!StaticMethods::empty_string($font['ctg']))) {
-            $out .= "\n" . '/CIDToGIDMap ' . ($this->objectNumber + 2) . ' 0 R';
-        }
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-        // Font descriptor
-        // A font descriptor describing the CIDFont default metrics other than its glyph widths
-        $this->_newobj();
-        $out = '<< /Type /FontDescriptor';
-        $out .= ' /FontName /' . $fontname;
-        foreach ($font['desc'] as $key => $value) {
-            if (is_float($value)) {
-                $value = sprintf('%F', $value);
-            }
-            $out .= ' /' . $key . ' ' . $value;
-        }
-        $fontdir = false;
-        if (!StaticMethods::empty_string($font['file'])) {
-            // A stream containing a TrueType font
-            $out     .= ' /FontFile2 ' . $this->fontFiles[$font['file']]['n'] . ' 0 R';
-            $fontdir = $this->fontFiles[$font['file']]['fontdir'];
-        }
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-        if (isset($font['ctg']) and (!StaticMethods::empty_string($font['ctg']))) {
-            $this->_newobj();
-            // Embed CIDToGIDMap
-            // A specification of the mapping from CIDs to glyph indices
-            // search and get CTG font file to embedd
-            $ctgfile = strtolower($font['ctg']);
-            // search and get ctg font file to embedd
-            $fontfile = self::FONT_PATH . $ctgfile;
-            $stream   = $this->_getrawstream(file_get_contents($fontfile));
-            $out      = '<< /Length ' . strlen($stream) . '';
-            if (substr($fontfile, -2) == '.z') { // check file extension
-                // Decompresses data encoded using the public-domain
-                // zlib/deflate compression method, reproducing the
-                // original text or binary data
-                $out .= ' /Filter /FlateDecode';
-            }
-            $out .= ' >>';
-            $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-            $out .= "\n" . 'endobj';
-            $this->append($out);
-        }
-    }
-
-    /**
      * Output Form XObjects Templates.
      * @author Nicola Asuni
      * @see    startTemplate(), endTemplate(), printTemplate()
@@ -5602,7 +5486,7 @@ class PDF
                     $stream = gzcompress($stream);
                     $out    .= ' /Filter /FlateDecode';
                 }
-                $out .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * $this->k), (-$data['y'] * $this->k), (($data['w'] + $data['x']) * $this->k), (($data['h'] - $data['y']) * $this->k));
+                $out .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * self::FACTOR), (-$data['y'] * self::FACTOR), (($data['w'] + $data['x']) * self::FACTOR), (($data['h'] - $data['y']) * self::FACTOR));
                 $out .= ' /Matrix [1 0 0 1 0 0]';
                 $out .= ' /Resources <<';
                 $out .= ' /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
@@ -5830,26 +5714,6 @@ class PDF
         $out .= "\n" . 'endobj';
         $this->append($out);
         return $oid;
-    }
-
-    /**
-     * Set additional XMP data to be added on the default XMP data just before the end of "x:xmpmeta" tag.
-     * IMPORTANT: This data is added as-is without controls, so you have to validate your data before using this method!
-     * @param string $xmp Custom XMP data.
-     */
-    public function setExtraXMP($xmp)
-    {
-        $this->custom_xmp = $xmp;
-    }
-
-    /**
-     * Set additional XMP data to be added on the default XMP data just before the end of "rdf:RDF" tag.
-     * IMPORTANT: This data is added as-is without controls, so you have to validate your data before using this method!
-     * @param string $xmp Custom XMP RDF data.
-     */
-    public function setExtraXMPRDF($xmp)
-    {
-        $this->custom_xmp_rdf = $xmp;
     }
 
     /**
@@ -6349,7 +6213,7 @@ class PDF
     protected function _dounderlinew($x, $y, $w)
     {
         $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
-        return sprintf('%F %F %F %F re f', $x * $this->k, ((($this->height - $y) * $this->k) + $linew), $w * $this->k, $linew);
+        return sprintf('%F %F %F %F re f', $x * self::FACTOR, ((($this->height - $y) * self::FACTOR) + $linew), $w * self::FACTOR, $linew);
     }
 
     /**
@@ -6373,7 +6237,7 @@ class PDF
     protected function _dolinethroughw($x, $y, $w)
     {
         $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
-        return sprintf('%F %F %F %F re f', $x * $this->k, ((($this->height - $y) * $this->k) + $linew + ($this->fontSizePT / 3)), $w * $this->k, $linew);
+        return sprintf('%F %F %F %F re f', $x * self::FACTOR, ((($this->height - $y) * self::FACTOR) + $linew + ($this->fontSizePT / 3)), $w * self::FACTOR, $linew);
     }
 
     /**
@@ -6397,7 +6261,7 @@ class PDF
     protected function _dooverlinew($x, $y, $w)
     {
         $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
-        return sprintf('%F %F %F %F re f', $x * $this->k, (($this->height - $y + $this->fontAscent) * $this->k) - $linew, $w * $this->k, $linew);
+        return sprintf('%F %F %F %F re f', $x * self::FACTOR, (($this->height - $y + $this->fontAscent) * self::FACTOR) - $linew, $w * self::FACTOR, $linew);
 
     }
 
@@ -6414,48 +6278,6 @@ class PDF
         }
         $s = $this->_encrypt_data($n, $s);
         return '(' . StaticMethods::_escape($s) . ')';
-    }
-
-    /**
-     * Set the document creation timestamp
-     * @param mixed $time Document creation timestamp in seconds or date-time string.
-     */
-    public function setDocCreationTimestamp($time)
-    {
-        if (is_string($time)) {
-            $time = StaticMethods::getTimestamp($time);
-        }
-        $this->doc_creation_timestamp = intval($time);
-    }
-
-    /**
-     * Set the document modification timestamp
-     * @param mixed $time Document modification timestamp in seconds or date-time string.
-     */
-    public function setDocModificationTimestamp($time)
-    {
-        if (is_string($time)) {
-            $time = StaticMethods::getTimestamp($time);
-        }
-        $this->doc_modification_timestamp = intval($time);
-    }
-
-    /**
-     * Returns document creation timestamp in seconds.
-     * @return int Creation timestamp in seconds.
-     */
-    public function getDocCreationTimestamp()
-    {
-        return $this->doc_creation_timestamp;
-    }
-
-    /**
-     * Returns document modification timestamp in seconds.
-     * @return int Modfication timestamp in seconds.
-     */
-    public function getDocModificationTimestamp()
-    {
-        return $this->doc_modification_timestamp;
     }
 
     /**
@@ -6500,26 +6322,6 @@ class PDF
             $n = $this->objectNumber;
         }
         return $this->_encrypt_data($n, $s);
-    }
-
-    /**
-     * Set language array.
-     * @param array $language
-     */
-    public function setLanguageArray($language)
-    {
-        $this->l = $language;
-    }
-
-    /**
-     * Returns the PDF data.
-     */
-    public function getPDFData()
-    {
-        if ($this->state < self::FINAL) {
-            $this->Close();
-        }
-        return $this->buffer;
     }
 
     /**
@@ -6579,7 +6381,7 @@ class PDF
      */
     public function pixelsToUnits($px)
     {
-        return ($px / ($this->imageScale * $this->k));
+        return ($px / ($this->imageScale * self::FACTOR));
     }
 
     /**
@@ -7106,1167 +6908,6 @@ class PDF
 
     // END OF ENCRYPTION FUNCTIONS -------------------------
 
-    // START TRANSFORMATIONS SECTION -----------------------
-
-    /**
-     * Starts a 2D tranformation saving current graphic state.
-     * This function must be called before scaling, mirroring, translation, rotation and skewing.
-     * Use StartTransform() before, and StopTransform() after the transformations to restore the normal behavior.
-     * @see   StartTransform(), StopTransform()
-     */
-    public function StartTransform()
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $this->_outSaveGraphicsState();
-        if ($this->inXObject) {
-            // we are inside an XObject template
-            $this->xObjects[$this->xObjectID]['transfmrk'][] = strlen($this->xObjects[$this->xObjectID]['outdata']);
-        }
-        else {
-            $this->transfmrk[$this->page][] = $this->pageLengths[$this->page];
-        }
-        ++$this->transfmatrix_key;
-        $this->transfmatrix[$this->transfmatrix_key] = [];
-    }
-
-    /**
-     * Stops a 2D tranformation restoring previous graphic state.
-     * This function must be called after scaling, mirroring, translation, rotation and skewing.
-     * Use StartTransform() before, and StopTransform() after the transformations to restore the normal behavior.
-     * @see   StartTransform(), StopTransform()
-     */
-    public function StopTransform()
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $this->_outRestoreGraphicsState();
-        if (isset($this->transfmatrix[$this->transfmatrix_key])) {
-            array_pop($this->transfmatrix[$this->transfmatrix_key]);
-            --$this->transfmatrix_key;
-        }
-        if ($this->inXObject) {
-            // we are inside an XObject template
-            array_pop($this->xObjects[$this->xObjectID]['transfmrk']);
-        }
-        else {
-            array_pop($this->transfmrk[$this->page]);
-        }
-    }
-
-    /**
-     * Horizontal Scaling.
-     * @param float $s_x scaling factor for width as percent. 0 is not allowed.
-     * @param int   $x   abscissa of the scaling center. Default is current x position
-     * @param int   $y   ordinate of the scaling center. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function ScaleX($s_x, $x = '', $y = '')
-    {
-        $this->Scale($s_x, 100, $x, $y);
-    }
-
-    /**
-     * Vertical Scaling.
-     * @param float $s_y scaling factor for height as percent. 0 is not allowed.
-     * @param int   $x   abscissa of the scaling center. Default is current x position
-     * @param int   $y   ordinate of the scaling center. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function ScaleY($s_y, $x = '', $y = '')
-    {
-        $this->Scale(100, $s_y, $x, $y);
-    }
-
-    /**
-     * Vertical and horizontal proportional Scaling.
-     * @param float $s scaling factor for width and height as percent. 0 is not allowed.
-     * @param int   $x abscissa of the scaling center. Default is current x position
-     * @param int   $y ordinate of the scaling center. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function ScaleXY($s, $x = '', $y = '')
-    {
-        $this->Scale($s, $s, $x, $y);
-    }
-
-    /**
-     * Vertical and horizontal non-proportional Scaling.
-     * @param float      $s_x scaling factor for width as percent. 0 is not allowed.
-     * @param float      $s_y scaling factor for height as percent. 0 is not allowed.
-     * @param float|null $x   abscissa of the scaling center. Default is current x position
-     * @param float|null $y   ordinate of the scaling center. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function Scale($s_x, $s_y, $x = null, $y = null)
-    {
-        if (StaticMethods::empty_string($x)) {
-            $x = $this->x;
-        }
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
-        }
-        if (($s_x == 0) or ($s_y == 0)) {
-            $this->Error('Please do not use values equal to zero for scaling');
-        }
-        $y = ($this->height - $y) * $this->k;
-        $x *= $this->k;
-        //calculate elements of transformation matrix
-        $s_x   /= 100;
-        $s_y   /= 100;
-        $tm    = [];
-        $tm[0] = $s_x;
-        $tm[1] = 0;
-        $tm[2] = 0;
-        $tm[3] = $s_y;
-        $tm[4] = $x * (1 - $s_x);
-        $tm[5] = $y * (1 - $s_y);
-        //scale the coordinate system
-        $this->Transform($tm);
-    }
-
-    /**
-     * Horizontal Mirroring.
-     * @param float|null $x abscissa of the point. Default is current x position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function MirrorH($x = null)
-    {
-        $this->Scale(-100, 100, $x);
-    }
-
-    /**
-     * Verical Mirroring.
-     * @param float|null $y ordinate of the point. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function MirrorV($y = null)
-    {
-        $this->Scale(100, -100, null, $y);
-    }
-
-    /**
-     * Point reflection mirroring.
-     * @param float|null $x abscissa of the point. Default is current x position
-     * @param float|null $y ordinate of the point. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function MirrorP($x = null, $y = null)
-    {
-        $this->Scale(-100, -100, $x, $y);
-    }
-
-    /**
-     * Reflection against a straight line through point (x, y) with the gradient angle (angle).
-     * @param float      $angle gradient angle of the straight line. Default is 0 (horizontal line).
-     * @param float|null $x     abscissa of the point. Default is current x position
-     * @param float|null $y     ordinate of the point. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function MirrorL($angle = 0, $x = null, $y = null)
-    {
-        $this->Scale(-100, 100, $x, $y);
-        $this->Rotate(-2 * ($angle - 90), $x, $y);
-    }
-
-    /**
-     * Translate graphic object horizontally.
-     * @param int $t_x movement to the right
-     * @see   StartTransform(), StopTransform()
-     */
-    public function TranslateX($t_x)
-    {
-        $this->Translate($t_x, 0);
-    }
-
-    /**
-     * Translate graphic object vertically.
-     * @param int $t_y movement to the bottom
-     * @see   StartTransform(), StopTransform()
-     */
-    public function TranslateY($t_y)
-    {
-        $this->Translate(0, $t_y);
-    }
-
-    /**
-     * Translate graphic object horizontally and vertically.
-     * @param int $t_x movement to the right
-     * @param int $t_y movement to the bottom
-     * @see   StartTransform(), StopTransform()
-     */
-    public function Translate($t_x, $t_y)
-    {
-        //calculate elements of transformation matrix
-        $tm    = [];
-        $tm[0] = 1;
-        $tm[1] = 0;
-        $tm[2] = 0;
-        $tm[3] = 1;
-        $tm[4] = $t_x * $this->k;
-        $tm[5] = -$t_y * $this->k;
-        //translate the coordinate system
-        $this->Transform($tm);
-    }
-
-    /**
-     * Rotate object.
-     * @param float      $angle angle in degrees for counter-clockwise rotation
-     * @param float|null $x     abscissa of the rotation center. Default is current x position
-     * @param float|null $y     ordinate of the rotation center. Default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function Rotate($angle, $x = null, $y = null)
-    {
-        if (StaticMethods::empty_string($x)) {
-            $x = $this->x;
-        }
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
-        }
-        $y = ($this->height - $y) * $this->k;
-        $x *= $this->k;
-        //calculate elements of transformation matrix
-        $tm    = [];
-        $tm[0] = cos(deg2rad($angle));
-        $tm[1] = sin(deg2rad($angle));
-        $tm[2] = -$tm[1];
-        $tm[3] = $tm[0];
-        $tm[4] = $x + ($tm[1] * $y) - ($tm[0] * $x);
-        $tm[5] = $y - ($tm[0] * $y) - ($tm[1] * $x);
-        //rotate the coordinate system around ($x,$y)
-        $this->Transform($tm);
-    }
-
-    /**
-     * Skew horizontally.
-     * @param float      $angle_x angle in degrees between -90 (skew to the left) and 90 (skew to the right)
-     * @param float|null $x       abscissa of the skewing center. default is current x position
-     * @param float|null $y       ordinate of the skewing center. default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function SkewX($angle_x, $x = null, $y = null)
-    {
-        $this->Skew($angle_x, 0, $x, $y);
-    }
-
-    /**
-     * Skew vertically.
-     * @param float      $angle_y angle in degrees between -90 (skew to the bottom) and 90 (skew to the top)
-     * @param float|null $x       abscissa of the skewing center. default is current x position
-     * @param float|null $y       ordinate of the skewing center. default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function SkewY($angle_y, $x = null, $y = null)
-    {
-        $this->Skew(0, $angle_y, $x, $y);
-    }
-
-    /**
-     * Skew.
-     * @param float      $angle_x angle in degrees between -90 (skew to the left) and 90 (skew to the right)
-     * @param float      $angle_y angle in degrees between -90 (skew to the bottom) and 90 (skew to the top)
-     * @param float|null $x       abscissa of the skewing center. default is current x position
-     * @param float|null $y       ordinate of the skewing center. default is current y position
-     * @see   StartTransform(), StopTransform()
-     */
-    public function Skew($angle_x, $angle_y, $x = null, $y = null)
-    {
-        if (StaticMethods::empty_string($x)) {
-            $x = $this->x;
-        }
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
-        }
-        if (($angle_x <= -90) or ($angle_x >= 90) or ($angle_y <= -90) or ($angle_y >= 90)) {
-            $this->Error('Please use values between -90 and +90 degrees for Skewing.');
-        }
-        $x *= $this->k;
-        $y = ($this->height - $y) * $this->k;
-        //calculate elements of transformation matrix
-        $tm    = [];
-        $tm[0] = 1;
-        $tm[1] = tan(deg2rad($angle_y));
-        $tm[2] = tan(deg2rad($angle_x));
-        $tm[3] = 1;
-        $tm[4] = -$tm[2] * $y;
-        $tm[5] = -$tm[1] * $x;
-        //skew the coordinate system
-        $this->Transform($tm);
-    }
-
-    /**
-     * Apply graphic transformations.
-     * @param array $tm transformation matrix
-     * @see   StartTransform(), StopTransform()
-     */
-    protected function Transform($tm)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $this->append(sprintf('%F %F %F %F %F %F cm', $tm[0], $tm[1], $tm[2], $tm[3], $tm[4], $tm[5]));
-        // add tranformation matrix
-        $this->transfmatrix[$this->transfmatrix_key][] = ['a' => $tm[0], 'b' => $tm[1], 'c' => $tm[2], 'd' => $tm[3], 'e' => $tm[4], 'f' => $tm[5]];
-        // update transformation mark
-        if ($this->inXObject) {
-            // we are inside an XObject template
-            if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
-                $key                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
-                $this->xObjects[$this->xObjectID]['transfmrk'][$key] = strlen($this->xObjects[$this->xObjectID]['outdata']);
-            }
-        }
-        elseif (end($this->transfmrk[$this->page]) !== false) {
-            $key                                = key($this->transfmrk[$this->page]);
-            $this->transfmrk[$this->page][$key] = $this->pageLengths[$this->page];
-        }
-    }
-
-    // END TRANSFORMATIONS SECTION -------------------------
-
-    // START GRAPHIC FUNCTIONS SECTION ---------------------
-    // The following section is based on the code provided by David Hernandez Sanz
-
-    /**
-     * Defines the line width. By default, the value equals 0.2 mm. The method can be called before the first page is created and the value is retained from page to page.
-     * @param float $width The width.
-     * @see   Line(), Rect(), Cell(), MultiCell()
-     */
-    public function setLineWidth($width)
-    {
-        //Set line width
-        $this->lineWidth      = $width;
-        $this->lineWidthStyle = sprintf('%F w', ($width * $this->k));
-        if ($this->state === self::READY) {
-            $this->append($this->lineWidthStyle);
-        }
-    }
-
-    /**
-     * Returns the current the line width.
-     * @return int Line width
-     * @see   Line(), SetLineWidth()
-     */
-    public function GetLineWidth()
-    {
-        return $this->lineWidth;
-    }
-
-    /**
-     * Begin a new subpath by moving the current point to coordinates (x, y), omitting any connecting line segment.
-     * @param float $x Abscissa of point.
-     * @param float $y Ordinate of point.
-     */
-    protected function _outPoint($x, $y)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F m', ($x * $this->k), (($this->height - $y) * $this->k)));
-        }
-    }
-
-    /**
-     * Append a straight line segment from the current point to the point (x, y).
-     * The new current point shall be (x, y).
-     * @param float $x Abscissa of end point.
-     * @param float $y Ordinate of end point.
-     */
-    protected function _outLine($x, $y)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F l', ($x * $this->k), (($this->height - $y) * $this->k)));
-        }
-    }
-
-    /**
-     * Append a rectangle to the current path as a complete subpath, with lower-left corner (x, y) and dimensions widthand height in user space.
-     * @param float  $x  Abscissa of upper-left corner.
-     * @param float  $y  Ordinate of upper-left corner.
-     * @param float  $w  Width.
-     * @param float  $h  Height.
-     * @param string $op options
-     */
-    protected function _outRect($x, $y, $w, $h, $op)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F re %s', ($x * $this->k), (($this->height - $y) * $this->k), ($w * $this->k), (-$h * $this->k), $op));
-        }
-    }
-
-    /**
-     * Append a cubic Bezier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x2, y2) as the Bezier control points.
-     * The new current point shall be (x3, y3).
-     * @param float $x1 Abscissa of control point 1.
-     * @param float $y1 Ordinate of control point 1.
-     * @param float $x2 Abscissa of control point 2.
-     * @param float $y2 Ordinate of control point 2.
-     * @param float $x3 Abscissa of end point.
-     * @param float $y3 Ordinate of end point.
-     */
-    protected function _outCurve($x1, $y1, $x2, $y2, $x3, $y3)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F %F %F c', ($x1 * $this->k), (($this->height - $y1) * $this->k), ($x2 * $this->k), (($this->height - $y2) * $this->k), ($x3 * $this->k), (($this->height - $y3) * $this->k)));
-        }
-    }
-
-    /**
-     * Append a cubic Bezier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using the current point and (x2, y2) as the Bezier control points.
-     * The new current point shall be (x3, y3).
-     * @param float $x2 Abscissa of control point 2.
-     * @param float $y2 Ordinate of control point 2.
-     * @param float $x3 Abscissa of end point.
-     * @param float $y3 Ordinate of end point.
-     */
-    protected function _outCurveV($x2, $y2, $x3, $y3)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F v', ($x2 * $this->k), (($this->height - $y2) * $this->k), ($x3 * $this->k), (($this->height - $y3) * $this->k)));
-        }
-    }
-
-    /**
-     * Append a cubic Bezier curve to the current path. The curve shall extend from the current point to the point (x3, y3), using (x1, y1) and (x3, y3) as the Bezier control points.
-     * The new current point shall be (x3, y3).
-     * @param float $x1 Abscissa of control point 1.
-     * @param float $y1 Ordinate of control point 1.
-     * @param float $x3 Abscissa of end point.
-     * @param float $y3 Ordinate of end point.
-     */
-    protected function _outCurveY($x1, $y1, $x3, $y3)
-    {
-        if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F %F %F y', ($x1 * $this->k), (($this->height - $y1) * $this->k), ($x3 * $this->k), (($this->height - $y3) * $this->k)));
-        }
-    }
-
-    /**
-     * Draws a line between two points.
-     * @param float $x1    Abscissa of first point.
-     * @param float $y1    Ordinate of first point.
-     * @param float $x2    Abscissa of second point.
-     * @param float $y2    Ordinate of second point.
-     * @param array $style Line style. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @see   SetLineWidth(), drawColor(), lineStyle()
-     */
-    public function Line($x1, $y1, $x2, $y2, $style = [])
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (is_array($style)) {
-            $this->lineStyle($style);
-        }
-        $this->_outPoint($x1, $y1);
-        $this->_outLine($x2, $y2);
-        $this->append('S');
-    }
-
-    /**
-     * Draws a rectangle.
-     * @param float  $x            Abscissa of upper-left corner.
-     * @param float  $y            Ordinate of upper-left corner.
-     * @param float  $w            Width.
-     * @param float  $h            Height.
-     * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array  $border_style Border style of rectangle. Array with keys among the following:
-     *                             <ul>
-     *                             <li>all: Line style of all borders. Array like for SetLineStyle().</li>
-     *                             <li>L, T, R, B or combinations: Line style of left, top, right or bottom border. Array like for SetLineStyle().</li>
-     *                             </ul>
-     *                             If a key is not present or is null, the correspondent border is not drawn. Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @see   lineStyle()
-     */
-    public function Rect($x, $y, $w, $h, $style = '', $border_style = [], $fill_color = [])
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (empty($style)) {
-            $style = 'S';
-        }
-        if (!(strpos($style, 'F') === false) and !empty($fill_color)) {
-            // set background color
-            $this->fillColorArray($fill_color);
-        }
-        if (!empty($border_style)) {
-            if (isset($border_style['all']) and !empty($border_style['all'])) {
-                //set global style for border
-                $this->lineStyle($border_style['all']);
-                $border_style = [];
-            }
-            else {
-                // remove stroke operator from style
-                $opnostroke = ['S' => '', 'D' => '', 's' => '', 'd' => '', 'B' => 'F', 'FD' => 'F', 'DF' => 'F', 'B*' => 'F*', 'F*D' => 'F*', 'DF*' => 'F*', 'b' => 'f', 'fd' => 'f', 'df' => 'f', 'b*' => 'f*', 'f*d' => 'f*', 'df*' => 'f*'];
-                if (isset($opnostroke[$style])) {
-                    $style = $opnostroke[$style];
-                }
-            }
-        }
-        if (!empty($style)) {
-            $op = StaticMethods::getPathPaintOperator($style);
-            $this->_outRect($x, $y, $w, $h, $op);
-        }
-        if (!empty($border_style)) {
-            $border_style2 = [];
-            foreach ($border_style as $line => $value) {
-                $length = strlen($line);
-                for ($i = 0; $i < $length; ++$i) {
-                    $border_style2[$line[$i]] = $value;
-                }
-            }
-            $border_style = $border_style2;
-            if (isset($border_style['L']) and $border_style['L']) {
-                $this->Line($x, $y, $x, $y + $h, $border_style['L']);
-            }
-            if (isset($border_style['T']) and $border_style['T']) {
-                $this->Line($x, $y, $x + $w, $y, $border_style['T']);
-            }
-            if (isset($border_style['R']) and $border_style['R']) {
-                $this->Line($x + $w, $y, $x + $w, $y + $h, $border_style['R']);
-            }
-            if (isset($border_style['B']) and $border_style['B']) {
-                $this->Line($x, $y + $h, $x + $w, $y + $h, $border_style['B']);
-            }
-        }
-    }
-
-    /**
-     * Draws a Bezier curve.
-     * The Bezier curve is a tangent to the line between the control points at
-     * either end of the curve.
-     * @param float  $x0         Abscissa of start point.
-     * @param float  $y0         Ordinate of start point.
-     * @param float  $x1         Abscissa of control point 1.
-     * @param float  $y1         Ordinate of control point 1.
-     * @param float  $x2         Abscissa of control point 2.
-     * @param float  $y2         Ordinate of control point 2.
-     * @param float  $x3         Abscissa of end point.
-     * @param float  $y3         Ordinate of end point.
-     * @param string $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array  $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @see   lineStyle()
-     */
-    public function Curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3, $style = '', $line_style = [], $fill_color = [])
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->fillColorArray($fill_color);
-        }
-        $op = StaticMethods::getPathPaintOperator($style);
-        if ($line_style) {
-            $this->lineStyle($line_style);
-        }
-        $this->_outPoint($x0, $y0);
-        $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
-        $this->append($op);
-    }
-
-    /**
-     * Draws a poly-Bezier curve.
-     * Each Bezier curve segment is a tangent to the line between the control points at
-     * either end of the curve.
-     * @param float   $x0         Abscissa of start point.
-     * @param float   $y0         Ordinate of start point.
-     * @param float[] $segments   An array of bezier descriptions. Format: [x1, y1, x2, y2, x3, y3].
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of curve. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @see   lineStyle()
-     */
-    public function Polycurve($x0, $y0, $segments, $style = '', $line_style = [], $fill_color = [])
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->fillColorArray($fill_color);
-        }
-        $op = StaticMethods::getPathPaintOperator($style);
-        if ($op == 'f') {
-            $line_style = [];
-        }
-        if ($line_style) {
-            $this->lineStyle($line_style);
-        }
-        $this->_outPoint($x0, $y0);
-        foreach ($segments as $segment) {
-            list($x1, $y1, $x2, $y2, $x3, $y3) = $segment;
-            $this->_outCurve($x1, $y1, $x2, $y2, $x3, $y3);
-        }
-        $this->append($op);
-    }
-
-    /**
-     * Draws an ellipse.
-     * An ellipse is formed from n Bezier curves.
-     * @param float   $x0         Abscissa of center point.
-     * @param float   $y0         Ordinate of center point.
-     * @param float   $rx         Horizontal radius.
-     * @param float   $ry         Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
-     * @param float   $angle      Angle oriented (anti-clockwise). Default value: 0.
-     * @param float   $astart     Angle start of draw line. Default value: 0.
-     * @param float   $afinish    Angle finish of draw line. Default value: 360.
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of ellipse. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @param integer $nc         Number of curves used to draw a 90 degrees portion of ellipse.
-     * @author Nicola Asuni
-     */
-    public function Ellipse($x0, $y0, $rx, $ry = 0, $angle = 0, $astart = 0, $afinish = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (StaticMethods::empty_string($ry) or ($ry == 0)) {
-            $ry = $rx;
-        }
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->fillColorArray($fill_color);
-        }
-        $op = StaticMethods::getPathPaintOperator($style);
-        if ($op == 'f') {
-            $line_style = [];
-        }
-        if ($line_style) {
-            $this->lineStyle($line_style);
-        }
-        $this->_outellipticalarc($x0, $y0, $rx, $ry, $angle, $astart, $afinish, false, $nc, true, true, false);
-        $this->append($op);
-    }
-
-    /**
-     * Append an elliptical arc to the current path.
-     * An ellipse is formed from n Bezier curves.
-     * @param float   $xc         Abscissa of center point.
-     * @param float   $yc         Ordinate of center point.
-     * @param float   $rx         Horizontal radius.
-     * @param float   $ry         Vertical radius (if ry = 0 then is a circle, see Circle()). Default value: 0.
-     * @param float   $xang       Angle between the X-axis and the major axis of the ellipse. Default value: 0.
-     * @param float   $angs       Angle start of draw line. Default value: 0.
-     * @param float   $angf       Angle finish of draw line. Default value: 360.
-     * @param bool    $pie        if true do not mark the border point (used to draw pie sectors).
-     * @param integer $nc         Number of curves used to draw a 90 degrees portion of ellipse.
-     * @param bool    $startpoint if true output a starting point.
-     * @param bool    $ccw        if true draws in counter-clockwise.
-     * @param bool    $svg        if true the angles are in svg mode (already calculated).
-     * @return array bounding box coordinates (x min, y min, x max, y max)
-     * @author Nicola Asuni
-     */
-    protected function _outellipticalarc($xc, $yc, $rx, $ry, $xang = 0, $angs = 0, $angf = 360, $pie = false, $nc = 2, $startpoint = true, $ccw = true, $svg = false)
-    {
-        if (($rx <= 0) or ($ry < 0)) {
-            return;
-        }
-        $k = $this->k;
-        if ($nc < 2) {
-            $nc = 2;
-        }
-        $xmin = 2147483647;
-        $ymin = 2147483647;
-        $xmax = 0;
-        $ymax = 0;
-        if ($pie) {
-            // center of the arc
-            $this->_outPoint($xc, $yc);
-        }
-        $xang = deg2rad((float) $xang);
-        $angs = deg2rad((float) $angs);
-        $angf = deg2rad((float) $angf);
-        if ($svg) {
-            $as = $angs;
-            $af = $angf;
-        }
-        else {
-            $as = atan2((sin($angs) / $ry), (cos($angs) / $rx));
-            $af = atan2((sin($angf) / $ry), (cos($angf) / $rx));
-        }
-        if ($as < 0) {
-            $as += (2 * M_PI);
-        }
-        if ($af < 0) {
-            $af += (2 * M_PI);
-        }
-        if ($ccw and ($as > $af)) {
-            // reverse rotation
-            $as -= (2 * M_PI);
-        }
-        elseif (!$ccw and ($as < $af)) {
-            // reverse rotation
-            $af -= (2 * M_PI);
-        }
-        $total_angle = ($af - $as);
-        if ($nc < 2) {
-            $nc = 2;
-        }
-        // total arcs to draw
-        $nc *= (2 * abs($total_angle) / M_PI);
-        $nc = round($nc) + 1;
-        // angle of each arc
-        $arcang = ($total_angle / $nc);
-        // center point in PDF coordinates
-        $x0 = $xc;
-        $y0 = ($this->height - $yc);
-        // starting angle
-        $ang      = $as;
-        $alpha    = sin($arcang) * ((sqrt(4 + (3 * pow(tan(($arcang) / 2), 2))) - 1) / 3);
-        $cos_xang = cos($xang);
-        $sin_xang = sin($xang);
-        $cos_ang  = cos($ang);
-        $sin_ang  = sin($ang);
-        // first arc point
-        $px1 = $x0 + ($rx * $cos_xang * $cos_ang) - ($ry * $sin_xang * $sin_ang);
-        $py1 = $y0 + ($rx * $sin_xang * $cos_ang) + ($ry * $cos_xang * $sin_ang);
-        // first Bezier control point
-        $qx1 = ($alpha * ((-$rx * $cos_xang * $sin_ang) - ($ry * $sin_xang * $cos_ang)));
-        $qy1 = ($alpha * ((-$rx * $sin_xang * $sin_ang) + ($ry * $cos_xang * $cos_ang)));
-        if ($pie) {
-            // line from center to arc starting point
-            $this->_outLine($px1, $this->height - $py1);
-        }
-        elseif ($startpoint) {
-            // arc starting point
-            $this->_outPoint($px1, $this->height - $py1);
-        }
-        // draw arcs
-        for ($i = 1; $i <= $nc; ++$i) {
-            // starting angle
-            $ang = $as + ($i * $arcang);
-            if ($i == $nc) {
-                $ang = $af;
-            }
-            $cos_ang = cos($ang);
-            $sin_ang = sin($ang);
-            // second arc point
-            $px2 = $x0 + ($rx * $cos_xang * $cos_ang) - ($ry * $sin_xang * $sin_ang);
-            $py2 = $y0 + ($rx * $sin_xang * $cos_ang) + ($ry * $cos_xang * $sin_ang);
-            // second Bezier control point
-            $qx2 = ($alpha * ((-$rx * $cos_xang * $sin_ang) - ($ry * $sin_xang * $cos_ang)));
-            $qy2 = ($alpha * ((-$rx * $sin_xang * $sin_ang) + ($ry * $cos_xang * $cos_ang)));
-            // draw arc
-            $cx1 = ($px1 + $qx1);
-            $cy1 = ($this->height - ($py1 + $qy1));
-            $cx2 = ($px2 - $qx2);
-            $cy2 = ($this->height - ($py2 - $qy2));
-            $cx3 = $px2;
-            $cy3 = ($this->height - $py2);
-            $this->_outCurve($cx1, $cy1, $cx2, $cy2, $cx3, $cy3);
-            // get bounding box coordinates
-            $xmin = min($xmin, $cx1, $cx2, $cx3);
-            $ymin = min($ymin, $cy1, $cy2, $cy3);
-            $xmax = max($xmax, $cx1, $cx2, $cx3);
-            $ymax = max($ymax, $cy1, $cy2, $cy3);
-            // move to next point
-            $px1 = $px2;
-            $py1 = $py2;
-            $qx1 = $qx2;
-            $qy1 = $qy2;
-        }
-        if ($pie) {
-            $this->_outLine($xc, $yc);
-            // get bounding box coordinates
-            $xmin = min($xmin, $xc);
-            $ymin = min($ymin, $yc);
-            $xmax = max($xmax, $xc);
-            $ymax = max($ymax, $yc);
-        }
-        return [$xmin, $ymin, $xmax, $ymax];
-    }
-
-    /**
-     * Draws a circle.
-     * A circle is formed from n Bezier curves.
-     * @param float   $x0         Abscissa of center point.
-     * @param float   $y0         Ordinate of center point.
-     * @param float   $r          Radius.
-     * @param float   $angstr     Angle start of draw line. Default value: 0.
-     * @param float   $angend     Angle finish of draw line. Default value: 360.
-     * @param string  $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style Line style of circle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $fill_color Fill color. Format: [red, green, blue]. Default value: default color (empty array).
-     * @param integer $nc         Number of curves used to draw a 90 degrees portion of circle.
-     */
-    public function Circle($x0, $y0, $r, $angstr = 0, $angend = 360, $style = '', $line_style = [], $fill_color = [], $nc = 2)
-    {
-        $this->Ellipse($x0, $y0, $r, $r, 0, $angstr, $angend, $style, $line_style, $fill_color, $nc);
-    }
-
-    /**
-     * Draws a polygonal line
-     * @param array  $p          Points 0 to ($np - 1). Array with values (x0, y0, x1, y1,..., x(np-1), y(np - 1))
-     * @param string $style      Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array  $line_style Line style of polygon. Array with keys among the following:
-     *                           <ul>
-     *                           <li>all: Line style of all lines. Array like for SetLineStyle().</li>
-     *                           <li>0 to ($np - 1): Line style of each line. Array like for SetLineStyle().</li>
-     *                           </ul>
-     *                           If a key is not present or is null, not draws the line. Default value is default line style (empty array).
-     * @param array  $fill_color Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     */
-    public function PolyLine($p, $style = '', $line_style = [], $fill_color = [])
-    {
-        $this->Polygon($p, $style, $line_style, $fill_color, false);
-    }
-
-    /**
-     * Draws a polygon.
-     * @param array  $p           Points 0 to ($np - 1). Array with values (x0, y0, x1, y1,..., x(np-1), y(np - 1))
-     * @param string $style       Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array  $line_style  Line style of polygon. Array with keys among the following:
-     *                            <ul>
-     *                            <li>all: Line style of all lines. Array like for SetLineStyle().</li>
-     *                            <li>0 to ($np - 1): Line style of each line. Array like for SetLineStyle().</li>
-     *                            </ul>
-     *                            If a key is not present or is null, not draws the line. Default value is default line style (empty array).
-     * @param array  $fill_color  Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     * @param bool   $closed      if true the polygon is closes, otherwise will remain open
-     */
-    public function Polygon($p, $style = '', $line_style = [], $fill_color = [], $closed = true)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $nc = count($p); // number of coordinates
-        $np = $nc / 2; // number of points
-        if ($closed) {
-            // close polygon by adding the first 2 points at the end (one line)
-            for ($i = 0; $i < 4; ++$i) {
-                $p[$nc + $i] = $p[$i];
-            }
-            // copy style for the last added line
-            if (isset($line_style[0])) {
-                $line_style[$np] = $line_style[0];
-            }
-            $nc += 4;
-        }
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->fillColorArray($fill_color);
-        }
-        $op = StaticMethods::getPathPaintOperator($style);
-        if ($op == 'f') {
-            $line_style = [];
-        }
-        $draw = true;
-        if ($line_style) {
-            if (isset($line_style['all'])) {
-                $this->lineStyle($line_style['all']);
-            }
-            else {
-                $draw = false;
-                if ($op == 'B') {
-                    // draw fill
-                    $op = 'f';
-                    $this->_outPoint($p[0], $p[1]);
-                    for ($i = 2; $i < $nc; $i = $i + 2) {
-                        $this->_outLine($p[$i], $p[$i + 1]);
-                    }
-                    $this->append($op);
-                }
-                // draw outline
-                $this->_outPoint($p[0], $p[1]);
-                for ($i = 2; $i < $nc; $i = $i + 2) {
-                    $line_num = ($i / 2) - 1;
-                    if (isset($line_style[$line_num])) {
-                        if ($line_style[$line_num] != 0) {
-                            if (is_array($line_style[$line_num])) {
-                                $this->append('S');
-                                $this->lineStyle($line_style[$line_num]);
-                                $this->_outPoint($p[$i - 2], $p[$i - 1]);
-                                $this->_outLine($p[$i], $p[$i + 1]);
-                                $this->append('S');
-                                $this->_outPoint($p[$i], $p[$i + 1]);
-                            }
-                            else {
-                                $this->_outLine($p[$i], $p[$i + 1]);
-                            }
-                        }
-                    }
-                    else {
-                        $this->_outLine($p[$i], $p[$i + 1]);
-                    }
-                }
-                $this->append($op);
-            }
-        }
-        if ($draw) {
-            $this->_outPoint($p[0], $p[1]);
-            for ($i = 2; $i < $nc; $i = $i + 2) {
-                $this->_outLine($p[$i], $p[$i + 1]);
-            }
-            $this->append($op);
-        }
-    }
-
-    /**
-     * Draws a regular polygon.
-     * @param float   $x0                   Abscissa of center point.
-     * @param float   $y0                   Ordinate of center point.
-     * @param float   $r                    Radius of inscribed circle.
-     * @param integer $ns                   Number of sides.
-     * @param float   $angle                Angle oriented (anti-clockwise). Default value: 0.
-     * @param bool    $draw_circle          Draw inscribed circle or not. Default value: false.
-     * @param string  $style                Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style           Line style of polygon sides. Array with keys among the following:
-     *                                      <ul>
-     *                                      <li>all: Line style of all sides. Array like for SetLineStyle().</li>
-     *                                      <li>0 to ($ns - 1): Line style of each side. Array like for SetLineStyle().</li>
-     *                                      </ul>
-     *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
-     * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
-     * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
-     *                                      <ul>
-     *                                      <li>D or empty string: Draw (default).</li>
-     *                                      <li>F: Fill.</li>
-     *                                      <li>DF or FD: Draw and fill.</li>
-     *                                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
-     *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
-     *                                      </ul>
-     * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
-     */
-    public function RegularPolygon($x0, $y0, $r, $ns, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
-    {
-        if (3 > $ns) {
-            $ns = 3;
-        }
-        if ($draw_circle) {
-            $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
-        }
-        $p = [];
-        for ($i = 0; $i < $ns; ++$i) {
-            $a     = $angle + ($i * 360 / $ns);
-            $a_rad = deg2rad((float) $a);
-            $p[]   = $x0 + ($r * sin($a_rad));
-            $p[]   = $y0 + ($r * cos($a_rad));
-        }
-        $this->Polygon($p, $style, $line_style, $fill_color);
-    }
-
-    /**
-     * Draws a star polygon
-     * @param float   $x0                   Abscissa of center point.
-     * @param float   $y0                   Ordinate of center point.
-     * @param float   $r                    Radius of inscribed circle.
-     * @param integer $nv                   Number of vertices.
-     * @param integer $ng                   Number of gap (if ($ng % $nv = 1) then is a regular polygon).
-     * @param float   $angle                Angle oriented (anti-clockwise). Default value: 0.
-     * @param bool    $draw_circle          Draw inscribed circle or not. Default value is false.
-     * @param string  $style                Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array   $line_style           Line style of polygon sides. Array with keys among the following:
-     *                                      <ul>
-     *                                      <li>all: Line style of all sides. Array like for
-     *                                      SetLineStyle().</li>
-     *                                      <li>0 to (n - 1): Line style of each side. Array like for SetLineStyle().</li>
-     *                                      </ul>
-     *                                      If a key is not present or is null, not draws the side. Default value is default line style (empty array).
-     * @param array   $fill_color           Fill color. Format: [red, green, blue]. Default value: default color (empty array).
-     * @param string  $circle_style         Style of rendering of inscribed circle (if draws). Possible values are:
-     *                                      <ul>
-     *                                      <li>D or empty string: Draw (default).</li>
-     *                                      <li>F: Fill.</li>
-     *                                      <li>DF or FD: Draw and fill.</li>
-     *                                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
-     *                                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
-     *                                      </ul>
-     * @param array   $circle_outLine_style Line style of inscribed circle (if draws). Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array   $circle_fill_color    Fill color of inscribed circle (if draws). Format: [red, green, blue]. Default value: default color (empty array).
-     */
-    public function StarPolygon($x0, $y0, $r, $nv, $ng, $angle = 0, $draw_circle = false, $style = '', $line_style = [], $fill_color = [], $circle_style = '', $circle_outLine_style = [], $circle_fill_color = [])
-    {
-        if ($nv < 2) {
-            $nv = 2;
-        }
-        if ($draw_circle) {
-            $this->Circle($x0, $y0, $r, 0, 360, $circle_style, $circle_outLine_style, $circle_fill_color);
-        }
-        $p2      = [];
-        $visited = [];
-        for ($i = 0; $i < $nv; ++$i) {
-            $a         = $angle + ($i * 360 / $nv);
-            $a_rad     = deg2rad((float) $a);
-            $p2[]      = $x0 + ($r * sin($a_rad));
-            $p2[]      = $y0 + ($r * cos($a_rad));
-            $visited[] = false;
-        }
-        $p = [];
-        $i = 0;
-        do {
-            $p[]         = $p2[$i * 2];
-            $p[]         = $p2[($i * 2) + 1];
-            $visited[$i] = true;
-            $i           += $ng;
-            $i           %= $nv;
-        } while (!$visited[$i]);
-        $this->Polygon($p, $style, $line_style, $fill_color);
-    }
-
-    /**
-     * Draws a rounded rectangle.
-     * @param float  $x            Abscissa of upper-left corner.
-     * @param float  $y            Ordinate of upper-left corner.
-     * @param float  $w            Width.
-     * @param float  $h            Height.
-     * @param float  $r            the radius of the circle used to round off the corners of the rectangle.
-     * @param string $round_corner Draws rounded corner or not. String with a 0 (not rounded i-corner) or 1 (rounded i-corner) in i-position. Positions are, in order and begin to 0: top right, bottom right, bottom left and top left. Default value: all rounded corner ("1111").
-     * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array  $border_style Border style of rectangle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     */
-    public function RoundedRect($x, $y, $w, $h, $r, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
-    {
-        $this->RoundedRectXY($x, $y, $w, $h, $r, $r, $round_corner, $style, $border_style, $fill_color);
-    }
-
-    /**
-     * Draws a rounded rectangle.
-     * @param float  $x            Abscissa of upper-left corner.
-     * @param float  $y            Ordinate of upper-left corner.
-     * @param float  $w            Width.
-     * @param float  $h            Height.
-     * @param float  $rx           the x-axis radius of the ellipse used to round off the corners of the rectangle.
-     * @param float  $ry           the y-axis radius of the ellipse used to round off the corners of the rectangle.
-     * @param string $round_corner Draws rounded corner or not. String with a 0 (not rounded i-corner) or 1 (rounded i-corner) in i-position. Positions are, in order and begin to 0: top right, bottom right, bottom left and top left. Default value: all rounded corner ("1111").
-     * @param string $style        Style of rendering. See the getPathPaintOperator() function for more information.
-     * @param array  $border_style Border style of rectangle. Array like for SetLineStyle(). Default value: default line style (empty array).
-     * @param array  $fill_color   Fill color. Format: [GREY] or [R,G,B] or [C,M,Y,K] or [C,M,Y,K,SpotColorName]. Default value: default color (empty array).
-     */
-    public function RoundedRectXY($x, $y, $w, $h, $rx, $ry, $round_corner = '1111', $style = '', $border_style = [], $fill_color = [])
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if (($round_corner == '0000') or (($rx == $ry) and ($rx == 0))) {
-            // Not rounded
-            $this->Rect($x, $y, $w, $h, $style, $border_style, $fill_color);
-            return;
-        }
-        // Rounded
-        if (!(false === strpos($style, 'F')) and is_array($fill_color)) {
-            $this->fillColorArray($fill_color);
-        }
-        $op = StaticMethods::getPathPaintOperator($style);
-        if ($op == 'f') {
-            $border_style = [];
-        }
-        if ($border_style) {
-            $this->lineStyle($border_style);
-        }
-        $MyArc = 4 / 3 * (sqrt(2) - 1);
-        $this->_outPoint($x + $rx, $y);
-        $xc = $x + $w - $rx;
-        $yc = $y + $ry;
-        $this->_outLine($xc, $y);
-        if ($round_corner[0]) {
-            $this->_outCurve($xc + ($rx * $MyArc), $yc - $ry, $xc + $rx, $yc - ($ry * $MyArc), $xc + $rx, $yc);
-        }
-        else {
-            $this->_outLine($x + $w, $y);
-        }
-        $xc = $x + $w - $rx;
-        $yc = $y + $h - $ry;
-        $this->_outLine($x + $w, $yc);
-        if ($round_corner[1]) {
-            $this->_outCurve($xc + $rx, $yc + ($ry * $MyArc), $xc + ($rx * $MyArc), $yc + $ry, $xc, $yc + $ry);
-        }
-        else {
-            $this->_outLine($x + $w, $y + $h);
-        }
-        $xc = $x + $rx;
-        $yc = $y + $h - $ry;
-        $this->_outLine($xc, $y + $h);
-        if ($round_corner[2]) {
-            $this->_outCurve($xc - ($rx * $MyArc), $yc + $ry, $xc - $rx, $yc + ($ry * $MyArc), $xc - $rx, $yc);
-        }
-        else {
-            $this->_outLine($x, $y + $h);
-        }
-        $xc = $x + $rx;
-        $yc = $y + $ry;
-        $this->_outLine($x, $yc);
-        if ($round_corner[3]) {
-            $this->_outCurve($xc - $rx, $yc - ($ry * $MyArc), $xc - ($rx * $MyArc), $yc - $ry, $xc, $yc - $ry);
-        }
-        else {
-            $this->_outLine($x, $y);
-            $this->_outLine($x + $rx, $y);
-        }
-        $this->append($op);
-    }
-
-    /**
-     * Draws a grahic arrow.
-     * @param float $x0         Abscissa of first point.
-     * @param float $y0         Ordinate of first point.
-     * @param float $x1         Abscissa of second point.
-     * @param float $y1         Ordinate of second point.
-     * @param int   $head_style (0 = draw only arrowhead arms, 1 = draw closed arrowhead, but no fill, 2 = closed and filled arrowhead, 3 = filled arrowhead)
-     * @param float $arm_size   length of arrowhead arms
-     * @param int   $arm_angle  angle between an arm and the shaft
-     * @author Piotr Galecki, Nicola Asuni, Andy Meier
-     */
-    public function Arrow($x0, $y0, $x1, $y1, $head_style = 0, $arm_size = 5, $arm_angle = 15)
-    {
-        // getting arrow direction angle
-        // 0 deg angle is when both arms go along X axis. angle grows clockwise.
-        $dir_angle = atan2(($y0 - $y1), ($x0 - $x1));
-        if ($dir_angle < 0) {
-            $dir_angle += (2 * M_PI);
-        }
-        $arm_angle = deg2rad($arm_angle);
-        $sx1       = $x1;
-        $sy1       = $y1;
-        if ($head_style > 0) {
-            // calculate the stopping point for the arrow shaft
-            $sx1 = $x1 + (($arm_size - $this->lineWidth) * cos($dir_angle));
-            $sy1 = $y1 + (($arm_size - $this->lineWidth) * sin($dir_angle));
-        }
-        // main arrow line / shaft
-        $this->Line($x0, $y0, $sx1, $sy1);
-        // left arrowhead arm tip
-        $x2L = $x1 + ($arm_size * cos($dir_angle + $arm_angle));
-        $y2L = $y1 + ($arm_size * sin($dir_angle + $arm_angle));
-        // right arrowhead arm tip
-        $x2R   = $x1 + ($arm_size * cos($dir_angle - $arm_angle));
-        $y2R   = $y1 + ($arm_size * sin($dir_angle - $arm_angle));
-        $mode  = 'D';
-        $style = [];
-        switch ($head_style) {
-            case 0:
-            {
-                // draw only arrowhead arms
-                $mode  = 'D';
-                $style = [1, 1, 0];
-                break;
-            }
-            case 1:
-            {
-                // draw closed arrowhead, but no fill
-                $mode = 'D';
-                break;
-            }
-            case 2:
-            {
-                // closed and filled arrowhead
-                $mode = 'DF';
-                break;
-            }
-            case 3:
-            {
-                // filled arrowhead
-                $mode = 'F';
-                break;
-            }
-        }
-        $this->Polygon([$x2L, $y2L, $x1, $y1, $x2R, $y2R], $mode, $style, []);
-    }
-
-    // END GRAPHIC FUNCTIONS SECTION -----------------------
-
     /**
      * Add a Named Destination.
      * NOTE: destination names are unique, so only last entry will be saved.
@@ -8340,7 +6981,7 @@ class PDF
         $this->n_dests = $this->_newobj();
         $out           = ' <<';
         foreach ($this->dests as $name => $o) {
-            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->k), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->k)));
+            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * self::FACTOR), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * self::FACTOR)));
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
@@ -8528,13 +7169,13 @@ class PDF
                     // internal link ID
                     $l = $this->links[$o['u']];
                     if (isset($this->pageObjectIDs[($l['p'])])) {
-                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->k)));
+                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * self::FACTOR)));
                     }
                 }
             }
             elseif (isset($this->pageObjectIDs[($o['p'])])) {
                 // link to a page
-                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->k), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->k)));
+                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * self::FACTOR), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * self::FACTOR)));
             }
             // set font style
             $style = 0;
@@ -8659,7 +7300,7 @@ class PDF
     {
         // the followind avoid fields duplication after saving the document
         $this->javascript .= "if (getField('tcpdfdocsaved').value != 'saved') {";
-        $k                = $this->k;
+        $k                = self::FACTOR;
         $this->javascript .= sprintf("f" . $name . "=this.addField('%s','%s',%u,[%F,%F,%F,%F]);", $name, $type, $this->PageNo() - 1, $x * $k, ($this->height - $y) * $k + 1, ($x + $w) * $k, ($this->height - $y - $h) * $k + 1) . "\n";
         $this->javascript .= 'f' . $name . '.textSize=' . $this->fontSizePT . ";\n";
         foreach ($prop as $key => $val) {
@@ -8885,8 +7526,8 @@ class PDF
         // build appearance stream
         $popt['ap']                = [];
         $popt['ap']['n']           = [];
-        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->k);
-        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->k)) * $this->k);
+        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * self::FACTOR);
+        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / self::FACTOR)) * self::FACTOR);
         $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         if (!isset($popt['mk'])) {
@@ -9126,8 +7767,8 @@ class PDF
         // build appearance stream
         $popt['ap']             = [];
         $popt['ap']['n']        = [];
-        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->k);
-        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->k)) * $this->k);
+        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * self::FACTOR);
+        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / self::FACTOR)) * self::FACTOR);
         $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         // merge options
@@ -9198,7 +7839,7 @@ class PDF
         $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
         $tmpid           = $this->startTemplate($w, $h, false);
-        $bw              = (2 / $this->k); // border width
+        $bw              = (2 / self::FACTOR); // border width
         $border          = array(
             'L' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
             'R' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]],
@@ -9553,10 +8194,10 @@ class PDF
         else {
             $sigapp['name'] = $name;
         }
-        $a              = $x * $this->k;
-        $b              = $this->pageDimensions[($sigapp['page'])]['h'] - (($y + $h) * $this->k);
-        $c              = $w * $this->k;
-        $d              = $h * $this->k;
+        $a              = $x * self::FACTOR;
+        $b              = $this->pageDimensions[($sigapp['page'])]['h'] - (($y + $h) * self::FACTOR);
+        $c              = $w * self::FACTOR;
+        $d              = $h * self::FACTOR;
         $sigapp['rect'] = sprintf('%F %F %F %F', $a, $b, ($a + $c), ($b + $d));
         return $sigapp;
     }
@@ -10053,7 +8694,7 @@ class PDF
      */
     public function cropMark($x, $y, $w, $h, $type = 'T,R,B,L', $color = [100, 100, 100, 100, 'All'])
     {
-        $this->lineStyle(array('width' => (0.5 / $this->k), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
+        $this->lineStyle(array('width' => (0.5 / self::FACTOR), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
         $type = strtoupper($type);
         $type = preg_replace('/[^A-Z\-\,]*/', '', $type);
         // split type in single components
@@ -10127,7 +8768,7 @@ class PDF
      */
     public function registrationMark($x, $y, $r, $double = false, $cola = [100, 100, 100, 100, 'All'], $colb = [0, 0, 0, 0, 'None'])
     {
-        $line_style = array('width' => max((0.5 / $this->k), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
+        $line_style = array('width' => max((0.5 / self::FACTOR), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
         $this->fillColorArray($cola);
         $this->PieSector($x, $y, $r, 90, 180, 'F');
         $this->PieSector($x, $y, $r, 270, 360, 'F');
@@ -10154,7 +8795,7 @@ class PDF
     public function registrationMarkCMYK($x, $y, $r)
     {
         // line width
-        $lw = max((0.5 / $this->k), ($r / 8));
+        $lw = max((0.5 / self::FACTOR), ($r / 8));
         // internal radius
         $ri = ($r * 0.6);
         // external radius
@@ -10333,9 +8974,9 @@ class PDF
         //save current Graphic State
         $s = 'q';
         //set clipping area
-        $s .= sprintf(' %F %F %F %F re W n', $x * $this->k, ($this->height - $y) * $this->k, $w * $this->k, -$h * $this->k);
+        $s .= sprintf(' %F %F %F %F re W n', $x * self::FACTOR, ($this->height - $y) * self::FACTOR, $w * self::FACTOR, -$h * self::FACTOR);
         //set up transformation matrix for gradient
-        $s .= sprintf(' %F 0 0 %F %F %F cm', $w * $this->k, $h * $this->k, $x * $this->k, ($this->height - ($y + $h)) * $this->k);
+        $s .= sprintf(' %F 0 0 %F %F %F cm', $w * self::FACTOR, $h * self::FACTOR, $x * self::FACTOR, ($this->height - ($y + $h)) * self::FACTOR);
         $this->append($s);
     }
 
@@ -10859,7 +9500,7 @@ class PDF
         }
         else {
             if (StaticMethods::empty_string($xres)) {
-                $xres = (0.141 * $this->k); // default bar width = 0.4 mm
+                $xres = (0.141 * self::FACTOR); // default bar width = 0.4 mm
             }
             if ($xres > $max_xres) {
                 // correct xres to fit on $w
@@ -10895,7 +9536,7 @@ class PDF
                 }
             }
         }
-        $text_height = $this->getCellHeight($fontsize / $this->k);
+        $text_height = $this->getCellHeight($fontsize / self::FACTOR);
         // height
         if (StaticMethods::empty_string($h) or ($h <= 0)) {
             // set default height
@@ -10905,8 +9546,8 @@ class PDF
         if ($barh <= 0) {
             // try to reduce font or padding to fit barcode on available height
             if ($text_height > $h) {
-                $fontsize    = (($h * $this->k) / (4 * $this->cellHeightRatio));
-                $text_height = $this->getCellHeight($fontsize / $this->k);
+                $fontsize    = (($h * self::FACTOR) / (4 * $this->cellHeightRatio));
+                $text_height = $this->getCellHeight($fontsize / self::FACTOR);
                 $this->setCurrentFont($style['font'], '', $fontsize);
             }
             if ($vpadding > 0) {
@@ -11148,8 +9789,8 @@ class PDF
         }
         // set dimensions
         if ((StaticMethods::empty_string($w) or ($w <= 0)) and (StaticMethods::empty_string($h) or ($h <= 0))) {
-            $w = ($cols + $hpad) * ($mw / $this->k);
-            $h = ($rows + $vpad) * ($mh / $this->k);
+            $w = ($cols + $hpad) * ($mw / self::FACTOR);
+            $h = ($rows + $vpad) * ($mh / self::FACTOR);
         }
         elseif (($w === '') or ($w <= 0)) {
             $w = $h * $ratioWH;
@@ -12927,8 +11568,8 @@ class PDF
         $this->xObjects[$this->xObjectID]['h'] = $h;
         $this->width                           = $w;
         $this->height                          = $h;
-        $this->widthPT                         = $this->width * $this->k;
-        $this->heightPT                        = $this->height * $this->k;
+        $this->widthPT                         = $this->width * self::FACTOR;
+        $this->heightPT                        = $this->height * self::FACTOR;
         $this->formatWidthPT                   = $this->widthPT;
         $this->formatHeightPT                  = $this->heightPT;
         $this->x                               = 0;
@@ -13052,8 +11693,8 @@ class PDF
         $tm[1] = 0;
         $tm[2] = 0;
         $tm[3] = $sy;
-        $tm[4] = $xt * $this->k;
-        $tm[5] = ($this->height - $h - $y) * $this->k;
+        $tm[4] = $xt * self::FACTOR;
+        $tm[5] = ($this->height - $h - $y) * self::FACTOR;
         $this->Transform($tm);
         // set object
         $this->append('/' . $id . ' Do');
@@ -13062,12 +11703,12 @@ class PDF
         if (!empty($this->xObjects[$id]['annotations'])) {
             foreach ($this->xObjects[$id]['annotations'] as $annot) {
                 // transform original coordinates
-                $coordlt = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * $this->k), (-$annot['y'] * $this->k)));
-                $ax      = ($coordlt[4] / $this->k);
-                $ay      = ($this->height - $h - ($coordlt[5] / $this->k));
-                $coordrb = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * $this->k), ((-$annot['y'] - $annot['h']) * $this->k)));
-                $aw      = ($coordrb[4] / $this->k) - $ax;
-                $ah      = ($this->height - $h - ($coordrb[5] / $this->k)) - $ay;
+                $coordlt = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * self::FACTOR), (-$annot['y'] * self::FACTOR)));
+                $ax      = ($coordlt[4] / self::FACTOR);
+                $ay      = ($this->height - $h - ($coordlt[5] / self::FACTOR));
+                $coordrb = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * self::FACTOR), ((-$annot['y'] - $annot['h']) * self::FACTOR)));
+                $aw      = ($coordrb[4] / self::FACTOR) - $ax;
+                $ah      = ($this->height - $h - ($coordrb[5] / self::FACTOR)) - $ay;
                 $this->Annotation($ax, $ay, $aw, $ah, $annot['text'], $annot['opt'], $annot['spaces']);
             }
         }

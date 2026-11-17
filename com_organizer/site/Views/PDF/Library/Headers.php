@@ -160,7 +160,7 @@ trait Headers
                 $imageY = $this->imageRBY;
             }
 
-            $cellHeight = $this->getCellHeight($font[2] / $this->k);
+            $cellHeight = $this->getCellHeight($font[2] / self::FACTOR);
 
             // Set starting margin for text data cell
             $header_x = $this->originalLeftMargin + ($configuration['logoWidth'] * 1.1);
@@ -178,8 +178,8 @@ trait Headers
             $this->MultiCell($cw, $cellHeight, $configuration['subtitle'], 0, '', 0, 1, '', '');
 
             // Print an ending header line
-            $this->lineStyle(['width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $configuration['line_color']]);
-            $this->y((2.835 / $this->k) + max($imageY, $this->y));
+            $this->lineStyle(['width' => 0.85 / self::FACTOR, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $configuration['line_color']]);
+            $this->y((2.835 / self::FACTOR) + max($imageY, $this->y));
             $this->x($this->originalLeftMargin);
             $this->Cell(($this->width - $this->originalLeftMargin - $this->originalRightMargin), 0, '', 'T', 0, 'C');
             $this->endTemplate();

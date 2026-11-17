@@ -23,7 +23,7 @@ trait Constants
     public const BOLD = 'B';
 
     /** Epsilon value used for float calculations. */
-    public const EPSILON = 0.005;
+    public const EPSILON = 0.005, FACTOR = 2.8346456692913;
 
     private const FINAL = 3, INITIAL = 0, NEUTRAL = 1, READY = 2;
     private const STATES = [self::FINAL, self::INITIAL, self::NEUTRAL, self::READY];
@@ -390,6 +390,11 @@ trait Constants
 
     public const SMALL_FONT_RATIO = 2 / 3;
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GEOMETRY
+
+    public const ARMS = 0, CLOSED = 1, CLOSED_FILLED = 2, FILLED = 3;
+    public const ARROW_HEAD_STYLES = [self::ARMS, self::CLOSED, self::CLOSED_FILLED, self::FILLED];
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IMAGES
 

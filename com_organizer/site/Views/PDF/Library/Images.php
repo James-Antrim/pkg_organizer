@@ -478,8 +478,8 @@ trait Images
         if ($imsize === false) {
             if (($w > 0) and ($h > 0)) {
                 // get measures from specified data
-                $pw     = $this->fontSizeToUnits($w, 0, self::MILLIMETER, true) * $this->imageScale * $this->k;
-                $ph     = $this->fontSizeToUnits($h, 0, self::MILLIMETER, true) * $this->imageScale * $this->k;
+                $pw     = $this->fontSizeToUnits($w, 0, self::MILLIMETER, true) * $this->imageScale * self::FACTOR;
+                $ph     = $this->fontSizeToUnits($h, 0, self::MILLIMETER, true) * $this->imageScale * self::FACTOR;
                 $imsize = [$pw, $ph];
             }
             else {
@@ -554,8 +554,8 @@ trait Images
         // fit the image on available space
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
         // calculate new minimum dimensions in pixels
-        $neww = round($w * $this->k * $dpi / self::DPI);
-        $newh = round($h * $this->k * $dpi / self::DPI);
+        $neww = round($w * self::FACTOR * $dpi / self::DPI);
+        $newh = round($h * self::FACTOR * $dpi / self::DPI);
         // check if resize is necessary (resize is used only to reduce the image)
         $newsize = ($neww * $newh);
         $pixsize = ($pixw * $pixh);
@@ -685,8 +685,8 @@ trait Images
                                 }
                                 $tmp = [];
                                 if (!preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $svgtag, $tmp)) {
-                                    $vbw    = ($ow * $this->imageScale * $this->k);
-                                    $vbh    = ($oh * $this->imageScale * $this->k);
+                                    $vbw    = ($ow * $this->imageScale * self::FACTOR);
+                                    $vbh    = ($oh * $this->imageScale * self::FACTOR);
                                     $vbox   = sprintf(' viewBox="0 0 %F %F" ', $vbw, $vbh);
                                     $svgtag = $vbox . $svgtag;
                                 }
@@ -753,10 +753,10 @@ trait Images
             // image is not displayed
             return $info['i'];
         }
-        $xkimg = $ximg * $this->k;
+        $xkimg = $ximg * self::FACTOR;
         if (!$alt) {
             // only non-alternative images will be set
-            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->k), ($h * $this->k), $xkimg, (($this->height - ($y + $h)) * $this->k), $info['i']));
+            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * self::FACTOR), ($h * self::FACTOR), $xkimg, (($this->height - ($y + $h)) * self::FACTOR), $info['i']));
         }
         if (!empty($border)) {
             $bx      = $this->x;
@@ -1088,7 +1088,7 @@ trait Images
         }
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        $k = $this->k;
+        $k = self::FACTOR;
         if ($file[0] === '@') { // image from string
             $data = substr($file, 1);
         }
@@ -1448,7 +1448,7 @@ trait Images
         }
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        $k                  = $this->k;
+        $k                  = self::FACTOR;
         $ox                 = 0;
         $oy                 = 0;
         $ow                 = $w;
@@ -1556,8 +1556,8 @@ trait Images
         // store current graphic vars
         $gvars = $this->graphicsConfiguration();
         // store SVG position and scale factors
-        $svgoffset_x = ($ximg - $ox) * $this->k;
-        $svgoffset_y = -($y - $oy) * $this->k;
+        $svgoffset_x = ($ximg - $ox) * self::FACTOR;
+        $svgoffset_y = -($y - $oy) * self::FACTOR;
         if (isset($view_box[2]) and ($view_box[2] > 0) and ($view_box[3] > 0)) {
             $ow = $view_box[2];
             $oh = $view_box[3];
@@ -1605,13 +1605,13 @@ trait Images
                 }
                 case 'Max':
                 {
-                    $svgoffset_x += (($w * $this->k) - ($ow * $this->k * $svgscale_x));
+                    $svgoffset_x += (($w * self::FACTOR) - ($ow * self::FACTOR * $svgscale_x));
                     break;
                 }
                 default:
                 case 'Mid':
                 {
-                    $svgoffset_x += ((($w * $this->k) - ($ow * $this->k * $svgscale_x)) / 2);
+                    $svgoffset_x += ((($w * self::FACTOR) - ($ow * self::FACTOR * $svgscale_x)) / 2);
                     break;
                 }
             }
@@ -1624,13 +1624,13 @@ trait Images
                 }
                 case 'Max':
                 {
-                    $svgoffset_y -= (($h * $this->k) - ($oh * $this->k * $svgscale_y));
+                    $svgoffset_y -= (($h * self::FACTOR) - ($oh * self::FACTOR * $svgscale_y));
                     break;
                 }
                 default:
                 case 'Mid':
                 {
-                    $svgoffset_y -= ((($h * $this->k) - ($oh * $this->k * $svgscale_y)) / 2);
+                    $svgoffset_y -= ((($h * self::FACTOR) - ($oh * self::FACTOR * $svgscale_y)) / 2);
                     break;
                 }
             }
@@ -1646,8 +1646,8 @@ trait Images
         // set initial clipping mask
         $this->Rect($ximg, $y, $w, $h, 'CNZ', [], []);
         // scale and translate
-        $e = $ox * $this->k * (1 - $svgscale_x);
-        $f = ($this->height - $oy) * $this->k * (1 - $svgscale_y);
+        $e = $ox * self::FACTOR * (1 - $svgscale_x);
+        $f = ($this->height - $oy) * self::FACTOR * (1 - $svgscale_y);
         $this->append(sprintf('%F %F %F %F %F %F cm', $svgscale_x, 0, 0, $svgscale_y, ($e + $svgoffset_x), ($f + $svgoffset_y)));
         // creates a new XML parser to be used by the other XML functions
         $parser = xml_parser_create('UTF-8');
@@ -1747,10 +1747,10 @@ trait Images
         $b = -$tm[1];
         $c = -$tm[2];
         $d = $tm[3];
-        $e = $this->fontSizeToUnits($tm[4]) * $this->k;
-        $f = -$this->fontSizeToUnits($tm[5]) * $this->k;
+        $e = $this->fontSizeToUnits($tm[4]) * self::FACTOR;
+        $f = -$this->fontSizeToUnits($tm[5]) * self::FACTOR;
         $x = 0;
-        $y = $this->height * $this->k;
+        $y = $this->height * self::FACTOR;
         $e = ($x * (1 - $a)) - ($y * $c) + $e;
         $f = ($y * (1 - $d)) - ($x * $b) + $f;
         return [$a, $b, $c, $d, $e, $f];
@@ -1784,7 +1784,7 @@ trait Images
             return;
         }
         $objstyle = '';
-        $minlen   = (0.01 / $this->k); // minimum acceptable length
+        $minlen   = (0.01 / self::FACTOR); // minimum acceptable length
         if (!isset($svgstyle['opacity'])) {
             return $objstyle;
         }
@@ -1927,7 +1927,7 @@ trait Images
             else {
                 $cy -= $h;
             }
-            $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * $this->k), ($h * $this->k), ($x * $this->k), ($cy * $this->k)));
+            $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * self::FACTOR), ($h * self::FACTOR), ($x * self::FACTOR), ($cy * self::FACTOR)));
             if (count($gradient['stops']) > 1) {
                 $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops'], [], false);
             }
@@ -2123,7 +2123,7 @@ trait Images
         $xinitial = 0;
         $yinitial = 0;
         $relcoord = false;
-        $minlen   = (0.01 / $this->k); // minimum acceptable length (3 point)
+        $minlen   = (0.01 / self::FACTOR); // minimum acceptable length (3 point)
         $firstcmd = true; // used to print first point
         // draw curve pieces
         foreach ($paths as $key => $val) {

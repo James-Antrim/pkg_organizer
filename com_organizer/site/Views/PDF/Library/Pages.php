@@ -113,7 +113,7 @@ trait Pages
             return;
         }
 
-        $factor = $points ? 1 : $this->k;
+        $factor = $points ? 1 : self::FACTOR;
 
         $this->pageDimensions[$page][$box]['llx'] = ($llx * $factor);
         $this->pageDimensions[$page][$box]['lly'] = ($lly * $factor);
@@ -172,12 +172,12 @@ trait Pages
             $mediaBox = $format['MediaBox'] ?? false;
             if ($mediaBox) {
                 $this->pageBoxes($this->page, 'MediaBox', $mediaBox['llx'], $mediaBox['lly'], $mediaBox['urx'], $mediaBox['ury'], false);
-                $this->formatWidthPT  = ($mediaBox['urx'] - $mediaBox['llx']) * $this->k;
-                $this->formatHeightPT = ($mediaBox['ury'] - $mediaBox['lly']) * $this->k;
+                $this->formatWidthPT  = ($mediaBox['urx'] - $mediaBox['llx']) * self::FACTOR;
+                $this->formatHeightPT = ($mediaBox['ury'] - $mediaBox['lly']) * self::FACTOR;
             }
             else {
                 if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
-                    $dimensions = array(($format[0] * $this->k), ($format[1] * $this->k));
+                    $dimensions = array(($format[0] * self::FACTOR), ($format[1] * self::FACTOR));
                 }
                 else {
                     if (!isset($format['format'])) {
@@ -312,14 +312,14 @@ trait Pages
             }
         }
 
-        $this->width  = ($this->widthPT / $this->k);
-        $this->height = ($this->heightPT / $this->k);
+        $this->width  = ($this->widthPT / self::FACTOR);
+        $this->height = ($this->heightPT / self::FACTOR);
 
         if (is_null($autoPagebreak)) {
             $autoPagebreak = $this->autoPageBreak;
         }
         if (is_null($bottomMargin)) {
-            $bottomMargin = $this->bottomMargin ?: 2 * 28.35 / $this->k;
+            $bottomMargin = $this->bottomMargin ?: 2 * 28.35 / self::FACTOR;
         }
         $this->autoPageBreak($autoPagebreak, $bottomMargin);
 
