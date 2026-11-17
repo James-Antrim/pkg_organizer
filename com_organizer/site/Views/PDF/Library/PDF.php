@@ -14,9 +14,8 @@ namespace THM\Organizer\Views\PDF\Library;
 
 //use THM\Organizer\Adapters\Application;
 
+use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Views\PDF\Library\Barcodes\{Barcode1D, Barcode2D};
-
-require_once(dirname(__FILE__) . '/tcpdf_autoconfig.php');
 
 /**  Class for generating PDF documents without requiring external extensions. */
 class PDF
@@ -46,6 +45,7 @@ class PDF
     protected string $fileID;
     protected array $footerLengths = [];
     protected $lastPrintedCellHeight;
+    protected string $libraryURL = '';
     protected string $lineCapStyle = '0 J';
     protected string $lineDashStyle = '[] 0 d';
     protected string $lineJoinStyle = '0 j';
@@ -147,6 +147,7 @@ class PDF
      */
     public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
     {
+        $this->libraryURL = Uri::base() . '/components/com_organizer/Views/PDF/Library/';
         // set file ID for trailer
         $serformat        = (is_array($format) ? json_encode($format) : $format);
         $this->fileID     = md5(StaticMethods::getRandomSeed('Organizer' . $orientation . $unit . $serformat . 'UTF-8'));
@@ -1228,7 +1229,7 @@ class PDF
      * @param bool $padding  If true add cell padding
      * @return float
      */
-    public function getCellHeight($fontsize, $padding = TRUE)
+    public function getCellHeight($fontsize, $padding = true)
     {
         $height = ($fontsize * $this->cellHeightRatio);
         if ($padding && !empty($this->cellPaddings)) {
@@ -2129,7 +2130,7 @@ class PDF
     /**
      * Returns the glyph bounding box of the specified character in the current font in user units.
      * @param int $char Input character code.
-     * @return false|array [xMin, yMin, xMax, yMax] or FALSE if not defined.
+     * @return false|array [xMin, yMin, xMax, yMax] or false if not defined.
      */
     public function getCharBBox($char)
     {
@@ -2377,7 +2378,7 @@ class PDF
         reset($this->embeddedfiles);
         foreach ($this->embeddedfiles as $filename => $filedata) {
             $data = $this->getCachedFileContents($filedata['file']);
-            if ($data !== FALSE) {
+            if ($data !== false) {
                 $rawsize = strlen($data);
                 if ($rawsize > 0) {
                     // update name tree
@@ -4408,17 +4409,17 @@ class PDF
         if ($destroyall and !$preserve_objcopy && isset($this->fileID)) {
             self::$cleaned_ids[$this->fileID] = true;
             // remove all temporary files
-            if ($handle = @opendir(K_PATH_CACHE)) {
+            if ($handle = @opendir(self::CACHE_PATH)) {
                 while (false !== ($file_name = readdir($handle))) {
-                    if (strpos($file_name, '__tcpdf_' . $this->fileID . '_') === 0) {
-                        unlink(K_PATH_CACHE . $file_name);
+                    if (strpos($file_name, '__organizer_' . $this->fileID . '_') === 0) {
+                        unlink(self::CACHE_PATH . $file_name);
                     }
                 }
                 closedir($handle);
             }
             if (isset($this->imagekeys)) {
                 foreach ($this->imagekeys as $file) {
-                    if (strpos($file, K_PATH_CACHE) === 0 && StaticMethods::file_exists($file)) {
+                    if (strpos($file, self::CACHE_PATH) === 0 && StaticMethods::file_exists($file)) {
                         @unlink($file);
                     }
                 }
@@ -4439,7 +4440,7 @@ class PDF
         ];
         foreach (array_keys(get_object_vars($this)) as $val) {
             if ($destroyall or !in_array($val, $preserve)) {
-                if ((!$preserve_objcopy or ($val != 'objcopy')) and ($val != 'file_id') and isset($this->$val)) {
+                if ((!$preserve_objcopy or ($val != 'objcopy')) and ($val != 'fileID') and isset($this->$val)) {
                     unset($this->$val);
                 }
             }
@@ -9763,7 +9764,7 @@ class PDF
     /**
      * Start a new pdf layer.
      * @param string    $name  Layer name (only a-z letters and numbers). Leave empty for automatic name.
-     * @param bool|null $print Set to TRUE to print this layer, FALSE to not print and NULL to not set this option
+     * @param bool|null $print Set to true to print this layer, false to not print and NULL to not set this option
      * @param bool      $view  Set to true to view this layer.
      * @param bool      $lock  If true lock the layer
      */
@@ -12373,8 +12374,7 @@ class PDF
     {
         if (isset($this->objcopy)) {
             $this->objcopy->_destroy(true, true);
-            /* The unique file_id should not be used during cleanup again */
-            $this->objcopy->file_id = NULL;
+            $this->objcopy->fileID = NULL;
             unset($this->objcopy);
         }
     }
@@ -12395,12 +12395,10 @@ class PDF
                     $this->$key = $value;
                 }
                 $objcopy->_destroy(true, true);
-                /* The unique file_id should not be used during cleanup again */
-                $objcopy->file_id = NULL;
+                $objcopy->fileID = NULL;
                 unset($objcopy);
                 return $this;
             }
-            /* The unique file_id should not be used during cleanup again */
             $this->fileID = NULL;
             return $objcopy;
         }

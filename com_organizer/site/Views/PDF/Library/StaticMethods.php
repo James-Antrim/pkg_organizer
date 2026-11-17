@@ -152,13 +152,13 @@ class StaticMethods
 
     /**
      * Returns a temporary filename for caching object on filesystem.
-     * @param string $type    Type of file (name of the subdir on the tcpdf cache folder).
-     * @param string $file_id TCPDF file_id.
+     * @param string $type   Type of file (name of the subdir on the tcpdf cache folder).
+     * @param string $fileID internal file id
      * @return string filename.
      */
-    public static function getObjFilename($type = 'tmp', $file_id = '')
+    public static function getObjFilename($type = 'tmp', $fileID = '')
     {
-        return tempnam(K_PATH_CACHE, '__tcpdf_' . $file_id . '_' . $type . '_' . md5(StaticMethods::getRandomSeed()) . '_');
+        return tempnam(PDF::CACHE_PATH, '__organizer_' . $fileID . '_' . $type . '_' . md5(StaticMethods::getRandomSeed()) . '_');
     }
 
     /**
@@ -1410,7 +1410,7 @@ class StaticMethods
      * @param string $haystack The string to search in.
      * @param string $needle   substring to search.
      * @param int    $offset   May be specified to begin searching an arbitrary number of characters into the string.
-     * @return int|false Returns the position where the needle exists. Returns FALSE if the needle was not found.
+     * @return int|false Returns the position where the needle exists. Returns false if the needle was not found.
      */
     public static function revstrpos($haystack, $needle, $offset = 0)
     {
@@ -1705,7 +1705,7 @@ class StaticMethods
      * Wrapper to use fopen only with local files
      * @param string $filename Name of the file to open
      * @param string $mode
-     * @return resource|false Returns a file pointer resource on success, or FALSE on error.
+     * @return resource|false Returns a file pointer resource on success, or false on error.
      */
     public static function fopenLocal($filename, $mode)
     {
@@ -1721,7 +1721,7 @@ class StaticMethods
     /**
      * Check if the URL exist.
      * @param string $url URL to check.
-     * @return bool Returns TRUE if the URL exists; FALSE otherwise.
+     * @return bool Returns true if the URL exists; false otherwise.
      */
     public static function url_exists($url)
     {
@@ -1775,7 +1775,7 @@ class StaticMethods
      * Checks whether a file or directory exists.
      * Only allows some protocols and local files.
      * @param string $filename Path to the file or directory.
-     * @return bool Returns TRUE if the file or directory specified by filename exists; FALSE otherwise.
+     * @return bool Returns true if the file or directory specified by filename exists; false otherwise.
      */
     public static function file_exists($filename)
     {
@@ -1792,7 +1792,7 @@ class StaticMethods
      * Reads entire file into a string.
      * The file can be also an URL.
      * @param string $file Name of the file or URL to read.
-     * @return string|false The function returns the read data or FALSE on failure.
+     * @return string|false The function returns the read data or false on failure.
      * @author Nicola Asuni
      */
     public static function fileGetContents($file)
@@ -1906,7 +1906,7 @@ class StaticMethods
      * Reads up to length bytes from the file pointer referenced by handle. Reading stops as soon as one of the following conditions is met: length bytes have been read; EOF (end of file) is reached.
      * @param resource $handle
      * @param int      $length
-     * @return string|false Returns the read string or FALSE in case of error.
+     * @return string|false Returns the read string or false in case of error.
      * @author Nicola Asuni
      */
     public static function rfread($handle, $length)

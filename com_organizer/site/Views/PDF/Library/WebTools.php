@@ -1157,7 +1157,7 @@ trait WebTools
                                             $replace = str_replace('#!#CP#!#', ')', $replace);
                                             $newpmid = '[(' . str_replace(chr(0) . chr(32), ') ' . sprintf('%F', $spacew) . ' (', $replace) . ')]';
                                             $pos     = strpos($pmid, $pmatch, $pos);
-                                            if ($pos !== FALSE) {
+                                            if ($pos !== false) {
                                                 $pmid = substr_replace($pmid, $newpmid, $pos, strlen($pmatch));
                                             }
                                             ++$pos;
@@ -2109,11 +2109,11 @@ trait WebTools
                         $testscrtype = @parse_url($imgsrc);
                         if (empty($testscrtype['query'])) {
                             // convert URL to server path
-                            $imgsrc = str_replace(K_PATH_URL, K_PATH_MAIN, $imgsrc);
+                            $imgsrc = str_replace($this->libraryURL, self::LIBRARY_PATH, $imgsrc);
                         }
                         elseif (preg_match('|^https?://|', $imgsrc) !== 1) {
                             // convert URL to server path
-                            $imgsrc = str_replace(K_PATH_MAIN, K_PATH_URL, $imgsrc);
+                            $imgsrc = str_replace(self::LIBRARY_PATH, $this->libraryURL, $imgsrc);
                         }
                     }
                     // get image type
@@ -3252,7 +3252,7 @@ trait WebTools
                         if (preg_match('/href[\s]*=[\s]*"([^"]*)"/', $link, $type) > 0) {
                             // read CSS data file
                             $cssdata = $this->getCachedFileContents(trim($type[1]));
-                            if (($cssdata !== FALSE) and (strlen($cssdata) > 0)) {
+                            if (($cssdata !== false) and (strlen($cssdata) > 0)) {
                                 $css = array_merge($css, StaticMethods::extractCSSproperties($cssdata));
                             }
                         }

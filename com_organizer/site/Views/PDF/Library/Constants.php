@@ -224,8 +224,10 @@ trait Constants
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////CONFIGURATION
 
-    public const FONT_PATH = JPATH_ROOT . '/components/com_organizer/Views/PDF/Library/Fonts/';
+    public const CACHE_PATH = JPATH_ROOT . '/tmp/';
+    public const FONT_PATH = self::LIBRARY_PATH . 'Fonts/';
     public const IMAGE_PATH = JPATH_ROOT . '/components/com_organizer/images/';
+    public const LIBRARY_PATH = JPATH_ROOT . '/components/com_organizer/Views/PDF/Library/';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DESCRIPTIONS
 

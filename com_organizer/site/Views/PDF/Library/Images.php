@@ -360,7 +360,7 @@ trait Images
      */
     protected function setImageBuffer($image, $data)
     {
-        if (($data['i'] = array_search($image, $this->imagekeys)) === FALSE) {
+        if (($data['i'] = array_search($image, $this->imagekeys)) === false) {
             $this->imagekeys[$this->numimages] = $image;
             $data['i']                         = $this->numimages;
             ++$this->numimages;
@@ -429,7 +429,7 @@ trait Images
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
         $exurl  = ''; // external streams
-        $imsize = FALSE;
+        $imsize = false;
 
         // Make sure the file variable is not empty or null because accessing $file[0] later
         // results in error when running PHP 7.4
@@ -454,7 +454,7 @@ trait Images
             if (false !== $info = $this->getImageBuffer($file)) {
                 $imsize = [$info['w'], $info['h']];
             }
-            elseif (($imsize = @getimagesize($file)) === FALSE && strpos($file, '__tcpdf_' . $this->fileID . '_img') === FALSE) {
+            elseif (($imsize = @getimagesize($file)) === false && strpos($file, '__organizer_' . $this->fileID . '_img') === false) {
                 $imgdata = $this->getCachedFileContents($file);
             }
         }
@@ -470,12 +470,12 @@ trait Images
             fclose($fp);
             unset($imgdata);
             $imsize = @getimagesize($file);
-            if ($imsize === FALSE) {
+            if ($imsize === false) {
                 unlink($file);
                 $file = $original_file;
             }
         }
-        if ($imsize === FALSE) {
+        if ($imsize === false) {
             if (($w > 0) and ($h > 0)) {
                 // get measures from specified data
                 $pw     = $this->fontSizeToUnits($w, 0, self::MILLIMETER, true) * $this->imageScale * $this->k;
@@ -571,7 +571,7 @@ trait Images
             $newimage = false;
             // get existing image data
             $info = $this->getImageBuffer($file);
-            if (strpos($file, '__tcpdf_' . $this->fileID . '_imgmask_') === FALSE) {
+            if (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false) {
                 // check if the newer image is larger
                 $oldsize = ($info['w'] * $info['h']);
                 if ((($oldsize < $newsize) and ($resize)) or (($oldsize < $pixsize) and (!$resize))) {
@@ -579,11 +579,11 @@ trait Images
                 }
             }
         }
-        elseif (($ismask === false) and ($imgmask === false) and (strpos($file, '__tcpdf_' . $this->fileID . '_imgmask_') === FALSE)) {
+        elseif (($ismask === false) and ($imgmask === false) and (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false)) {
             // create temp image file (without alpha channel)
-            $tempfile_plain = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_plain_' . $filehash;
+            $tempfile_plain = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_plain_' . $filehash;
             // create temp alpha file
-            $tempfile_alpha = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_alpha_' . $filehash;
+            $tempfile_alpha = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_alpha_' . $filehash;
             // check for cached images
             if (in_array($tempfile_plain, $this->imagekeys)) {
                 // get existing image data
@@ -618,7 +618,7 @@ trait Images
             if ((method_exists('THM\Organizer\Views\PDF\Library\Images', $mtd)) and (!($resize and (function_exists($gdfunction) or extension_loaded('imagick'))))) {
                 // TCPDF image functions
                 $info = $this->$mtd($file);
-                if (($ismask === false) and ($imgmask === false) and (strpos($file, '__tcpdf_' . $this->fileID . '_imgmask_') === FALSE)
+                if (($ismask === false) and ($imgmask === false) and (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false)
                     and (($info === 'alpha') or (isset($info['trns']) and !empty($info['trns'])))) {
                     return $this->ImagePngAlpha($file, $x, $y, $pixw, $pixh, $w, $h, 'PNG', $link, $align, $resize, $dpi, $palign, $filehash);
                 }
@@ -660,7 +660,7 @@ trait Images
                             // get SVG file content
                             $svgimg = $this->getCachedFileContents($file);
                         }
-                        if ($svgimg !== FALSE) {
+                        if ($svgimg !== false) {
                             // get width and height
                             $regs = [];
                             if (preg_match('/<svg([^\>]*)>/si', $svgimg, $regs)) {
@@ -968,9 +968,9 @@ trait Images
             $filehash = md5($file);
         }
         // create temp image file (without alpha channel)
-        $tempfile_plain = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_plain_' . $filehash;
+        $tempfile_plain = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_plain_' . $filehash;
         // create temp alpha file
-        $tempfile_alpha = K_PATH_CACHE . '__tcpdf_' . $this->fileID . '_imgmask_alpha_' . $filehash;
+        $tempfile_alpha = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_alpha_' . $filehash;
         $parsed         = false;
         $parse_error    = '';
         // ImageMagick extension
@@ -1095,7 +1095,7 @@ trait Images
         else { // EPS/AI file
             $data = $this->getCachedFileContents($file);
         }
-        if ($data === FALSE) {
+        if ($data === false) {
             $this->Error('EPS file not found: ' . $file);
         }
         $regs = [];
@@ -1437,7 +1437,7 @@ trait Images
             $this->svgdir = dirname($file);
             $svgdata      = $this->getCachedFileContents($file);
         }
-        if ($svgdata === FALSE) {
+        if ($svgdata === false) {
             $this->Error('SVG file not found: ' . $file);
         }
         if (empty($x)) {
@@ -2495,7 +2495,7 @@ trait Images
                 $this->svgdefs[$attribs['id']] = ['name' => $name, 'attribs' => $attribs];
                 return;
             }
-            if (end($this->svgdefs) !== FALSE) {
+            if (end($this->svgdefs) !== false) {
                 $last_svgdefs_id = key($this->svgdefs);
                 if (isset($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'])) {
                     $attribs['id']                                                                = 'DF_' . (count($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements']) + 1);
@@ -3019,11 +3019,11 @@ trait Images
                         $testscrtype = @parse_url($img);
                         if (empty($testscrtype['query'])) {
                             // convert URL to server path
-                            $img = str_replace(K_PATH_URL, K_PATH_MAIN, $img);
+                            $img = str_replace($this->libraryURL, self::LIBRARY_PATH, $img);
                         }
                         elseif (preg_match('|^https?://|', $img) !== 1) {
                             // convert server path to URL
-                            $img = str_replace(K_PATH_MAIN, K_PATH_URL, $img);
+                            $img = str_replace(self::LIBRARY_PATH, $this->libraryURL, $img);
                         }
                     }
                     // get image type
@@ -3189,17 +3189,17 @@ trait Images
         $name = $this->removeTagNamespace($name);
         if ($this->svgdefsmode and !in_array($name, ['defs', 'clipPath', 'linearGradient', 'radialGradient', 'stop'])) {
             ;
-            if (end($this->svgdefs) !== FALSE) {
+            if (end($this->svgdefs) !== false) {
                 $last_svgdefs_id = key($this->svgdefs);
                 if (isset($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'])) {
                     foreach ($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'] as $child_element) {
                         if (isset($child_element['attribs']['id']) and ($child_element['name'] == $name)) {
-                            $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$child_element['attribs']['id'] . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => TRUE, 'content' => $this->svgtext]];
+                            $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$child_element['attribs']['id'] . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => true, 'content' => $this->svgtext]];
                             return;
                         }
                     }
                     if ($this->svgdefs[$last_svgdefs_id]['name'] == $name) {
-                        $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$last_svgdefs_id . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => TRUE, 'content' => $this->svgtext]];
+                        $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$last_svgdefs_id . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => true, 'content' => $this->svgtext]];
                         return;
                     }
                 }
