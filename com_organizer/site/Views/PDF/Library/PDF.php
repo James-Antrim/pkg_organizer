@@ -27,6 +27,7 @@ class PDF
     use Cells;
     use Colors;
     use Constants;
+    use FileSystem;
     use Geometry;
     use Fonts;
     use Images;
@@ -2321,18 +2322,18 @@ class PDF
         }
         $this->pageAnnotations[$page][] = ['n' => ++$this->objectNumber, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
         if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!StaticMethods::empty_string($opt['FS']))
-            and (@StaticMethods::file_exists($opt['FS']) or StaticMethods::isValidURL($opt['FS']))
+            and (@file_exists($opt['FS']) or StaticMethods::isValidURL($opt['FS']))
             and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
             $this->embeddedfiles[basename($opt['FS'])] = ['f' => ++$this->objectNumber, 'n' => ++$this->objectNumber, 'file' => $opt['FS']];
         }
         // Add widgets annotation's icons
-        if (isset($opt['mk']['i']) and @StaticMethods::file_exists($opt['mk']['i'])) {
+        if (isset($opt['mk']['i']) and @file_exists($opt['mk']['i'])) {
             $this->Image($opt['mk']['i'], null, null, 10, 10, '', '', '', false, 300, '', false, false, 0, false, true);
         }
-        if (isset($opt['mk']['ri']) and @StaticMethods::file_exists($opt['mk']['ri'])) {
+        if (isset($opt['mk']['ri']) and @file_exists($opt['mk']['ri'])) {
             $this->Image($opt['mk']['ri'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
-        if (isset($opt['mk']['ix']) and @StaticMethods::file_exists($opt['mk']['ix'])) {
+        if (isset($opt['mk']['ix']) and @file_exists($opt['mk']['ix'])) {
             $this->Image($opt['mk']['ix'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
     }
@@ -3177,7 +3178,7 @@ class PDF
             $pdfdoc    = str_replace(self::BYTE_RANGE_STRING, $byterange, $pdfdoc);
             // write the document to a temporary folder
             $tempdoc = StaticMethods::getObjFilename('doc', $this->fileID);
-            $f       = StaticMethods::fopenLocal($tempdoc, 'wb');
+            $f       = $this->openLocal($tempdoc, 'wb');
             if (!$f) {
                 $this->Error('Unable to create temporary file: ' . $tempdoc);
             }
@@ -3274,7 +3275,7 @@ class PDF
             case 'FD':
             {
                 // save PDF to a local file
-                $f = StaticMethods::fopenLocal($name, 'wb');
+                $f = $this->openLocal($name, 'wb');
                 if (!$f) {
                     $this->Error('Unable to create output file: ' . $name);
                 }
@@ -3370,7 +3371,7 @@ class PDF
             }
             if (isset($this->imagekeys)) {
                 foreach ($this->imagekeys as $file) {
-                    if (strpos($file, self::CACHE_PATH) === 0 && StaticMethods::file_exists($file)) {
+                    if (strpos($file, self::CACHE_PATH) === 0 && @file_exists($file)) {
                         @unlink($file);
                     }
                 }
@@ -5719,7 +5720,7 @@ class PDF
                 $envelope = $seed . $pkpermissions;
                 // write the envelope data to a temporary file
                 $tempkeyfile = StaticMethods::getObjFilename('key', $this->fileID);
-                $f           = StaticMethods::fopenLocal($tempkeyfile, 'wb');
+                $f           = $this->openLocal($tempkeyfile, 'wb');
                 if (!$f) {
                     $this->Error('Unable to create temporary key file: ' . $tempkeyfile);
                 }
@@ -10297,9 +10298,6 @@ class PDF
         $txtarr = []; // text to be returned
         $intag  = false; // true if we are inside an HTML tag
         $skip   = false; // true to skip hyphenation
-        if (!is_array($patterns)) {
-            $patterns = StaticMethods::getHyphenPatternsFromTEX($patterns);
-        }
         // get array of characters
         $unichars = $this->utf8StringToArray($text);
         // for each char
@@ -10588,10 +10586,10 @@ class PDF
         if (!empty($this->xObjects[$id]['annotations'])) {
             foreach ($this->xObjects[$id]['annotations'] as $annot) {
                 // transform original coordinates
-                $coordlt = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * self::FACTOR), (-$annot['y'] * self::FACTOR)));
+                $coordlt = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * self::FACTOR), (-$annot['y'] * self::FACTOR)));
                 $ax      = ($coordlt[4] / self::FACTOR);
                 $ay      = ($this->height - $h - ($coordlt[5] / self::FACTOR));
-                $coordrb = StaticMethods::getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * self::FACTOR), ((-$annot['y'] - $annot['h']) * self::FACTOR)));
+                $coordrb = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * self::FACTOR), ((-$annot['y'] - $annot['h']) * self::FACTOR)));
                 $aw      = ($coordrb[4] / self::FACTOR) - $ax;
                 $ah      = ($this->height - $h - ($coordrb[5] / self::FACTOR)) - $ay;
                 $this->Annotation($ax, $ay, $aw, $ah, $annot['text'], $annot['opt'], $annot['spaces']);
@@ -10823,7 +10821,7 @@ class PDF
     protected function getCachedFileContents($file)
     {
         if (!isset($this->fileContentCache[$file])) {
-            $this->fileContentCache[$file] = StaticMethods::fileGetContents($file);
+            $this->fileContentCache[$file] = $this->readContents($file);
         }
         return $this->fileContentCache[$file];
     }
@@ -10835,11 +10833,11 @@ class PDF
      */
     protected function fileExists($file)
     {
-        if (isset($this->fileContentCache[$file]) || false !== $this->getImageBuffer($file)) {
+        if (isset($this->fileContentCache[$file]) or $this->getImageBuffer($file)) {
             return true;
         }
 
-        return StaticMethods::file_exists($file);
+        return @file_exists($file);
     }
 
 }

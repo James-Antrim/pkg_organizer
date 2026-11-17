@@ -1052,13 +1052,13 @@ trait Fonts
         // true when the font style variation is missing
         $missing_style = false;
         // search and include font file
-        if (empty($fontfile) or (!@StaticMethods::file_exists($fontfile))) {
+        if (empty($fontfile) or !@file_exists($fontfile)) {
             // build a standard filenames for specified font
             $tmp_fontfile = str_replace(' ', '', $family) . strtolower($style) . '.php';
             $fontfile     = self::FONT_PATH . $tmp_fontfile;
         }
         // include font file
-        if (!empty($fontfile) and (@StaticMethods::file_exists($fontfile))) {
+        if (!empty($fontfile) and (@file_exists($fontfile))) {
             $type         = null;
             $name         = null;
             $desc         = null;

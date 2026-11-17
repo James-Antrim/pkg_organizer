@@ -109,8 +109,8 @@ trait Images
             return false;
         }
 
-        $width  = StaticMethods::_freadint($file);
-        $height = StaticMethods::_freadint($file);
+        $width  = $this->readLong($file);
+        $height = $this->readLong($file);
 
         $pitsPerPixel = ord(fread($file, 1));
         $schemeNumber = ord(fread($file, 1));
@@ -142,7 +142,7 @@ trait Images
         $palette      = '';
         $transparency = '';
 
-        $integer = StaticMethods::_freadint($file);
+        $integer = $this->readLong($file);
         do {
             $type = fread($file, 4);
 
@@ -161,7 +161,7 @@ trait Images
                     }
 
                     // ICC Color Profile
-                    $icc = StaticMethods::rfread($file, ($integer - $length - 2));
+                    $icc = $this->readFile($file, ($integer - $length - 2));
                     $icc = gzuncompress($icc);
 
                     fread($file, 4);
@@ -169,7 +169,7 @@ trait Images
 
                 // Image data block
                 case 'IDAT':
-                    $data .= StaticMethods::rfread($file, $integer);
+                    $data .= $this->readFile($file, $integer);
                     fread($file, 4);
                     break;
 
@@ -178,13 +178,13 @@ trait Images
 
                 // Palette
                 case 'PLTE':
-                    $palette = StaticMethods::rfread($file, $integer);
+                    $palette = $this->readFile($file, $integer);
                     fread($file, 4);
                     break;
 
                 // Transparency
                 case 'tRNS':
-                    $t = StaticMethods::rfread($file, $integer);
+                    $t = $this->readFile($file, $integer);
                     switch ($schemeNumber) {
                         // DeviceGray
                         case 0:
@@ -207,11 +207,11 @@ trait Images
                     fread($file, 4);
                     break;
                 default:
-                    StaticMethods::rfread($file, $integer + 4);
+                    $this->readFile($file, $integer + 4);
                     break;
             }
 
-            $integer = StaticMethods::_freadint($file);
+            $integer = $this->readLong($file);
         } while ($integer);
 
         fclose($file);
@@ -262,7 +262,7 @@ trait Images
     public function parseJPEG(string $filePath): array|false
     {
         // File not found / invalid image file / not a jpeg
-        if (!StaticMethods::file_exists($filePath) or !$metadata = getimagesize($filePath) or $metadata[2] !== 2) {
+        if (!@file_exists($filePath) or !$metadata = getimagesize($filePath) or $metadata[2] !== 2) {
             return false;
         }
 
@@ -462,7 +462,7 @@ trait Images
             // copy image to cache
             $original_file = $file;
             $file          = StaticMethods::getObjFilename('img', $this->fileID);
-            $fp            = StaticMethods::fopenLocal($file, 'w');
+            $fp            = $this->openLocal($file, 'w');
             if (!$fp) {
                 $this->Error('Unable to write file: ' . $file);
             }
@@ -2556,7 +2556,7 @@ trait Images
             $tm = [1, 0, 0, 1, 0, 0];
         }
         if (isset($attribs['transform']) and !empty($attribs['transform'])) {
-            $tm = StaticMethods::getTransformationMatrixProduct($tm, StaticMethods::getSVGTransformMatrix($attribs['transform']));
+            $tm = $this->getTransformationMatrixProduct($tm, $this->getSVGTransformMatrix($attribs['transform']));
         }
         $svgstyle['transfmatrix'] = $tm;
         $invisible                = false;
@@ -2600,7 +2600,7 @@ trait Images
                 $svgW = (isset($attribs['width']) ? $attribs['width'] : 0);
                 $svgH = (isset($attribs['height']) ? $attribs['height'] : 0);
                 // set x, y position using transform matrix
-                $tm = StaticMethods::getTransformationMatrixProduct($tm, [1, 0, 0, 1, $svgX, $svgY]);
+                $tm = $this->getTransformationMatrixProduct($tm, [1, 0, 0, 1, $svgX, $svgY]);
                 $this->SVGTransform($tm);
                 // set clipping for width and height
                 $x = 0;
@@ -2660,7 +2660,7 @@ trait Images
                             $hr = $wr;
                         }
                         $newtm = array($wr, 0, 0, $hr, (($wr * ($ax - $vx)) - $svgX), (($hr * ($ay - $vy)) - $svgY));
-                        $tm    = StaticMethods::getTransformationMatrixProduct($tm, $newtm);
+                        $tm    = $this->getTransformationMatrixProduct($tm, $newtm);
                         $this->SVGTransform($tm);
                     }
                 }
@@ -2676,7 +2676,7 @@ trait Images
                 $y  = (isset($attribs['y']) ? $attribs['y'] : 0);
                 $w  = 1;//(isset($attribs['width'])?$attribs['width']:1);
                 $h  = 1;//(isset($attribs['height'])?$attribs['height']:1);
-                $tm = StaticMethods::getTransformationMatrixProduct($tm, [$w, 0, 0, $h, $x, $y]);
+                $tm = $this->getTransformationMatrixProduct($tm, [$w, 0, 0, $h, $x, $y]);
                 $this->SVGTransform($tm);
                 $this->setSVGStyles($svgstyle, $prev_svgstyle);
                 break;
@@ -2712,7 +2712,7 @@ trait Images
                 $x2 = (isset($attribs['x2']) ? $attribs['x2'] : '100');
                 $y2 = (isset($attribs['y2']) ? $attribs['y2'] : '0');
                 if (isset($attribs['gradientTransform'])) {
-                    $this->svggradients[$this->svggradientid]['gradientTransform'] = StaticMethods::getSVGTransformMatrix($attribs['gradientTransform']);
+                    $this->svggradients[$this->svggradientid]['gradientTransform'] = $this->getSVGTransformMatrix($attribs['gradientTransform']);
                 }
                 $this->svggradients[$this->svggradientid]['coords'] = [$x1, $y1, $x2, $y2];
                 if (isset($attribs['xlink:href']) and !empty($attribs['xlink:href'])) {
@@ -2754,7 +2754,7 @@ trait Images
                 $fy = (isset($attribs['fy']) ? $attribs['fy'] : $cy);
                 $r  = (isset($attribs['r']) ? $attribs['r'] : 0.5);
                 if (isset($attribs['gradientTransform'])) {
-                    $this->svggradients[$this->svggradientid]['gradientTransform'] = StaticMethods::getSVGTransformMatrix($attribs['gradientTransform']);
+                    $this->svggradients[$this->svggradientid]['gradientTransform'] = $this->getSVGTransformMatrix($attribs['gradientTransform']);
                 }
                 $this->svggradients[$this->svggradientid]['coords'] = [$cx, $cy, $fx, $fy, $r];
                 if (isset($attribs['xlink:href']) and !empty($attribs['xlink:href'])) {
@@ -2789,11 +2789,11 @@ trait Images
                 if (isset($attribs['d'])) {
                     $d = trim($attribs['d']);
                     if (!empty($d)) {
-                        $x  = (isset($attribs['x']) ? $attribs['x'] : 0);
-                        $y  = (isset($attribs['y']) ? $attribs['y'] : 0);
-                        $w  = (isset($attribs['width']) ? $attribs['width'] : 1);
-                        $h  = (isset($attribs['height']) ? $attribs['height'] : 1);
-                        $tm = StaticMethods::getTransformationMatrixProduct($tm, [$w, 0, 0, $h, $x, $y]);
+                        $x  = ($attribs['x'] ?? 0);
+                        $y  = ($attribs['y'] ?? 0);
+                        $w  = ($attribs['width'] ?? 1);
+                        $h  = ($attribs['height'] ?? 1);
+                        $tm = $this->getTransformationMatrixProduct($tm, [$w, 0, 0, $h, $x, $y]);
                         if ($clipping) {
                             $this->SVGTransform($tm);
                             $this->SVGPath($d, 'CNZ');
@@ -3305,5 +3305,127 @@ trait Images
             return $parts[(sizeof($parts) - 1)];
         }
         return $name;
+    }
+
+    /**
+     * Get the tranformation matrix from SVG transform attribute
+     * @param string $attribute transformation
+     * @return array of transformations
+     * @author Nicola Asuni
+     */
+    public static function getSVGTransformMatrix($attribute)
+    {
+        // identity matrix
+        $tm        = [1, 0, 0, 1, 0, 0];
+        $transform = [];
+        if (preg_match_all('/(matrix|translate|scale|rotate|skewX|skewY)[\s]*\(([^\)]+)\)/si', $attribute, $transform, PREG_SET_ORDER) > 0) {
+            foreach ($transform as $key => $data) {
+                if (!empty($data[2])) {
+                    $a    = 1;
+                    $b    = 0;
+                    $c    = 0;
+                    $d    = 1;
+                    $e    = 0;
+                    $f    = 0;
+                    $regs = [];
+                    switch ($data[1]) {
+                        case 'matrix':
+                        {
+                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $a = $regs[1];
+                                $b = $regs[2];
+                                $c = $regs[3];
+                                $d = $regs[4];
+                                $e = $regs[5];
+                                $f = $regs[6];
+                            }
+                            break;
+                        }
+                        case 'translate':
+                        {
+                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $e = $regs[1];
+                                $f = $regs[2];
+                            }
+                            elseif (preg_match('/([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $e = $regs[1];
+                            }
+                            break;
+                        }
+                        case 'scale':
+                        {
+                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $a = $regs[1];
+                                $d = $regs[2];
+                            }
+                            elseif (preg_match('/([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $a = $regs[1];
+                                $d = $a;
+                            }
+                            break;
+                        }
+                        case 'rotate':
+                        {
+                            if (preg_match('/([0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $ang = deg2rad($regs[1]);
+                                $x   = $regs[2];
+                                $y   = $regs[3];
+                                $a   = cos($ang);
+                                $b   = sin($ang);
+                                $c   = -$b;
+                                $d   = $a;
+                                $e   = ($x * (1 - $a)) - ($y * $c);
+                                $f   = ($y * (1 - $d)) - ($x * $b);
+                            }
+                            elseif (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
+                                $ang = deg2rad($regs[1]);
+                                $a   = cos($ang);
+                                $b   = sin($ang);
+                                $c   = -$b;
+                                $d   = $a;
+                                $e   = 0;
+                                $f   = 0;
+                            }
+                            break;
+                        }
+                        case 'skewX':
+                        {
+                            if (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
+                                $c = tan(deg2rad($regs[1]));
+                            }
+                            break;
+                        }
+                        case 'skewY':
+                        {
+                            if (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
+                                $b = tan(deg2rad($regs[1]));
+                            }
+                            break;
+                        }
+                    }
+                    $tm = self::getTransformationMatrixProduct($tm, [$a, $b, $c, $d, $e, $f]);
+                }
+            }
+        }
+        return $tm;
+    }
+
+    /**
+     * Get the product of two SVG tranformation matrices
+     * @param array $ta first SVG tranformation matrix
+     * @param array $tb second SVG tranformation matrix
+     * @return array transformation array
+     * @author Nicola Asuni
+     */
+    public function getTransformationMatrixProduct($ta, $tb)
+    {
+        $tm    = [];
+        $tm[0] = ($ta[0] * $tb[0]) + ($ta[2] * $tb[1]);
+        $tm[1] = ($ta[1] * $tb[0]) + ($ta[3] * $tb[1]);
+        $tm[2] = ($ta[0] * $tb[2]) + ($ta[2] * $tb[3]);
+        $tm[3] = ($ta[1] * $tb[2]) + ($ta[3] * $tb[3]);
+        $tm[4] = ($ta[0] * $tb[4]) + ($ta[2] * $tb[5]) + $ta[4];
+        $tm[5] = ($ta[1] * $tb[4]) + ($ta[3] * $tb[5]) + $ta[5];
+        return $tm;
     }
 }

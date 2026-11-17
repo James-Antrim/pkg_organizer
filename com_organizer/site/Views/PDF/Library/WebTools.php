@@ -296,13 +296,13 @@ trait WebTools
             case 'i':
             case 'lower-roman':
             {
-                $textitem = strtolower(StaticMethods::intToRoman($this->listcount[$this->listnum]));
+                $textitem = strtolower($this->intToRoman($this->listcount[$this->listnum]));
                 break;
             }
             case 'I':
             case 'upper-roman':
             {
-                $textitem = StaticMethods::intToRoman($this->listcount[$this->listnum]);
+                $textitem = $this->intToRoman($this->listcount[$this->listnum]);
                 break;
             }
             case 'a':
@@ -919,15 +919,15 @@ trait WebTools
                         $one_space_width = $this->GetStringWidth(chr(32));
                         $no              = 0; // number of spaces on a line contained on a single block
                         // remove right space if exist
-                        $pos1 = StaticMethods::revstrpos($pmid, ')]');
+                        $pos1 = $this->lastStringPosition($pmid, ')]');
                         if ($pos1 > 0) {
                             $pos1 = intval($pos1);
                             if ($this->isUnicodeFont()) {
-                                $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
+                                $pos2     = intval($this->lastStringPosition($pmid, chr(0) . chr(32) . ')]')) + 2;
                                 $spacelen = 2;
                             }
                             else {
-                                $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
+                                $pos2     = intval($this->lastStringPosition($pmid, chr(32) . ')]')) + 1;
                                 $spacelen = 1;
                             }
                             if ($pos1 == $pos2) {
@@ -1804,15 +1804,15 @@ trait WebTools
                 $one_space_width = $this->GetStringWidth(chr(32));
                 $no              = 0; // number of spaces on a line contained on a single block
                 // remove right space if exist
-                $pos1 = StaticMethods::revstrpos($pmid, ')]');
+                $pos1 = $this->lastStringPosition($pmid, ')]');
                 if ($pos1 > 0) {
                     $pos1 = intval($pos1);
                     if ($this->isUnicodeFont()) {
-                        $pos2     = intval(StaticMethods::revstrpos($pmid, chr(0) . chr(32) . ')]')) + 2;
+                        $pos2     = intval($this->lastStringPosition($pmid, chr(0) . chr(32) . ')]')) + 2;
                         $spacelen = 2;
                     }
                     else {
-                        $pos2     = intval(StaticMethods::revstrpos($pmid, chr(32) . ')]')) + 1;
+                        $pos2     = intval($this->lastStringPosition($pmid, chr(32) . ')]')) + 1;
                         $spacelen = 1;
                     }
                     if ($pos1 == $pos2) {
