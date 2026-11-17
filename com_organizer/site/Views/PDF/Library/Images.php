@@ -1762,7 +1762,7 @@ trait Images
      */
     protected function SVGTransform($tm)
     {
-        $this->Transform($this->convertSVGtMatrix($tm));
+        $this->transform($this->convertSVGtMatrix($tm));
     }
 
     /**
@@ -2594,7 +2594,7 @@ trait Images
                 }
                 // inner SVG
                 array_push($this->svgstyles, $svgstyle);
-                $this->StartTransform();
+                $this->startTransformation();
                 $svgX = (isset($attribs['x']) ? $attribs['x'] : 0);
                 $svgY = (isset($attribs['y']) ? $attribs['y'] : 0);
                 $svgW = (isset($attribs['width']) ? $attribs['width'] : 0);
@@ -2671,7 +2671,7 @@ trait Images
             {
                 // group together related graphics elements
                 array_push($this->svgstyles, $svgstyle);
-                $this->StartTransform();
+                $this->startTransformation();
                 $x  = (isset($attribs['x']) ? $attribs['x'] : 0);
                 $y  = (isset($attribs['y']) ? $attribs['y'] : 0);
                 $w  = 1;//(isset($attribs['width'])?$attribs['width']:1);
@@ -2799,13 +2799,13 @@ trait Images
                             $this->SVGPath($d, 'CNZ');
                         }
                         else {
-                            $this->StartTransform();
+                            $this->startTransformation();
                             $this->SVGTransform($tm);
                             $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'SVGPath', [$d, 'CNZ']);
                             if (!empty($obstyle)) {
                                 $this->SVGPath($d, $obstyle);
                             }
-                            $this->StopTransform();
+                            $this->endTransformation();
                         }
                     }
                 }
@@ -2828,13 +2828,13 @@ trait Images
                     $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', 'CNZ', [], []);
                 }
                 else {
-                    $this->StartTransform();
+                    $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'RoundedRectXY', [$x, $y, $w, $h, $rx, $ry, '1111', 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', $obstyle, [], []);
                     }
-                    $this->StopTransform();
+                    $this->endTransformation();
                 }
                 break;
             }
@@ -2855,13 +2855,13 @@ trait Images
                     $this->Circle($cx, $cy, $r, 0, 360, 'CNZ', [], [], 8);
                 }
                 else {
-                    $this->StartTransform();
+                    $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Circle', [$cx, $cy, $r, 0, 360, 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->Circle($cx, $cy, $r, 0, 360, $obstyle, [], [], 8);
                     }
-                    $this->StopTransform();
+                    $this->endTransformation();
                 }
                 break;
             }
@@ -2883,13 +2883,13 @@ trait Images
                     $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ', [], [], 8);
                 }
                 else {
-                    $this->StartTransform();
+                    $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Ellipse', [$cx, $cy, $rx, $ry, 0, 0, 360, 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->Ellipse($cx, $cy, $rx, $ry, 0, 0, 360, $obstyle, [], [], 8);
                     }
-                    $this->StopTransform();
+                    $this->endTransformation();
                 }
                 break;
             }
@@ -2907,11 +2907,11 @@ trait Images
                 $w  = abs($x2 - $x1);
                 $h  = abs($y2 - $y1);
                 if (!$clipping) {
-                    $this->StartTransform();
+                    $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Line', [$x1, $y1, $x2, $y2]);
                     $this->Line($x1, $y1, $x2, $y2);
-                    $this->StopTransform();
+                    $this->endTransformation();
                 }
                 break;
             }
@@ -2951,13 +2951,13 @@ trait Images
                 $w = ($xmax - $xmin);
                 $h = ($ymax - $ymin);
                 if ($name == 'polyline') {
-                    $this->StartTransform();
+                    $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'PolyLine', [$p, 'CNZ']);
                     if (!empty($obstyle)) {
                         $this->PolyLine($p, $obstyle, [], []);
                     }
-                    $this->StopTransform();
+                    $this->endTransformation();
                 }
                 else { // polygon
                     if ($clipping) {
@@ -2965,13 +2965,13 @@ trait Images
                         $this->Polygon($p, 'CNZ', [], [], true);
                     }
                     else {
-                        $this->StartTransform();
+                        $this->startTransformation();
                         $this->SVGTransform($tm);
                         $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'Polygon', [$p, 'CNZ']);
                         if (!empty($obstyle)) {
                             $this->Polygon($p, $obstyle, [], [], true);
                         }
-                        $this->StopTransform();
+                        $this->endTransformation();
                     }
                 }
                 break;
@@ -2991,7 +2991,7 @@ trait Images
                 $h   = (isset($attribs['height']) ? $this->fontSizeToUnits($attribs['height'], 0) : 0);
                 $img = $attribs['xlink:href'];
                 if (!$clipping) {
-                    $this->StartTransform();
+                    $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h);
                     if (preg_match('/^data:image\/[^;]+;base64,/', $img, $m) > 0) {
@@ -3059,7 +3059,7 @@ trait Images
                     else {
                         $this->Image($img, $x, $y, $w, $h);
                     }
-                    $this->StopTransform();
+                    $this->endTransformation();
                 }
                 break;
             }
@@ -3115,7 +3115,7 @@ trait Images
                 else {
                     $this->svgtextmode['stroke'] = false;
                 }
-                $this->StartTransform();
+                $this->startTransformation();
                 $this->SVGTransform($tm);
                 $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, 1, 1);
                 $this->x = $x;
@@ -3228,7 +3228,7 @@ trait Images
             {
                 // ungroup: remove last style from array
                 array_pop($this->svgstyles);
-                $this->StopTransform();
+                $this->endTransformation();
                 break;
             }
             case 'text':
@@ -3270,7 +3270,7 @@ trait Images
                 $this->textrendermode  = $textrendermode;
                 $this->textstrokewidth = $textstrokewidth;
                 $this->svgtext         = '';
-                $this->StopTransform();
+                $this->endTransformation();
                 if (!$this->svgdefsmode) {
                     array_pop($this->svgstyles);
                 }

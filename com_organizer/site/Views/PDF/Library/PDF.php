@@ -23,6 +23,7 @@ class PDF
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
     use Basics;
+    use Bloatware;
     use Cells;
     use Colors;
     use Constants;
@@ -30,7 +31,6 @@ class PDF
     use Fonts;
     use Images;
     use Pages;
-    use Transformations;
     use WebTools;
 
     protected array $annotationIDs = [];
@@ -53,11 +53,16 @@ class PDF
     protected bool $inXObject = false;
     protected string $lastEncryptedKey = '';
     protected string $lastComputedKey = '';
+    /** Transformation matrix */
+    protected array $matrix = [];
+    protected int $matrixKey = 0;
     protected bool $newLine = true;
     protected int $objectNumber = 2;
     protected bool $overline = false;
     protected bool $signable = false;
     protected int $state = self::INITIAL;
+    /** Stores positions of graphics transformation blocks in the page buffer, keys are the page numbers */
+    protected array $transpositions = [];
     protected bool $underline = false;
     /** Additional document-wide usage rights for the document */
     protected array $userRights = [
@@ -80,7 +85,7 @@ class PDF
     {
         if ($this->state === self::READY) {
             if ($this->inXObject) {
-                $this->xObjects[$this->xObjectID]['outdata'] .= $string . "\n";
+                $this->xObjects[$this->xObjectID]['content'] .= $string . "\n";
                 return;
             }
 
@@ -121,12 +126,91 @@ class PDF
     }
 
     /**
+     * Ends a 2D transformation, restoring previous graphic state. This function must be called after mirroring, rotation, scaling, skewing and
+     * translation transformations. Use startTransformation() before the transformations to save normal behavior before the transformation.
+     * @see   startTransformation()
+     */
+    public function endTransformation(): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->_outRestoreGraphicsState();
+
+        if (isset($this->matrix[$this->matrixKey])) {
+            array_pop($this->matrix[$this->matrixKey]);
+            --$this->matrixKey;
+        }
+
+        if ($this->inXObject) {
+            array_pop($this->xObjects[$this->xObjectID]['transpositions']);
+        }
+        else {
+            array_pop($this->transpositions[$this->page]);
+        }
+    }
+
+    /**
      * Returns "THM Organizer 5.0.0" in Unicode.
      * @return string
      */
     public function producer(): string
     {
         return "\x54\x48\x4D\x20\x4F\x72\x67\x61\x6E\x69\x7A\x65\x72\x20\x76\x35\x2E\x30\x2E\x30";
+    }
+
+    /**
+     * Starts a 2D transformation saving the current graphic state. This function must be called before mirroring, rotation, scaling, skewing and
+     * translation transformations. Use endTransformation() afterwords to restore normal behavior.
+     * @see endTransformation()
+     */
+    public function startTransformation(): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->_outSaveGraphicsState();
+
+        if ($this->inXObject) {
+            $this->xObjects[$this->xObjectID]['transpositions'][] = strlen($this->xObjects[$this->xObjectID]['content']);
+        }
+        else {
+            $this->transpositions[$this->page][] = $this->pageLengths[$this->page];
+        }
+
+        ++$this->matrixKey;
+        $this->matrix[$this->matrixKey] = [];
+    }
+
+    /**
+     * Apply graphic transformations.
+     * @param array $matrix transformation matrix
+     * @see   startTransformation(), endTransformation()
+     */
+    protected function transform(array $matrix): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->append(sprintf('%F %F %F %F %F %F cm', $matrix[0], $matrix[1], $matrix[2], $matrix[3], $matrix[4], $matrix[5]));
+        $this->matrix[$this->matrixKey][] = ['a' => $matrix[0], 'b' => $matrix[1], 'c' => $matrix[2], 'd' => $matrix[3], 'e' => $matrix[4], 'f' => $matrix[5]];
+        // update transformation mark
+        if ($this->inXObject) {
+            if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
+                $key                                                      = key($this->xObjects[$this->xObjectID]['transpositions']);
+                $this->xObjects[$this->xObjectID]['transpositions'][$key] = strlen($this->xObjects[$this->xObjectID]['content']);
+            }
+            return;
+        }
+
+        if (end($this->transpositions[$this->page]) !== false) {
+            $key = key($this->transpositions[$this->page]);
+
+            $this->transpositions[$this->page][$key] = $this->pageLengths[$this->page];
+        }
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
@@ -150,7 +234,7 @@ class PDF
         $this->force_srgb = false;
         // some checks
         $this->_dochecks();
-        $this->transfmrk[0]          = [];
+        $this->transpositions[0]     = [];
         $this->inFooter              = false;
         $this->lastPrintedCellHeight = 0;
         $this->pdflayers             = [];
@@ -700,16 +784,6 @@ class PDF
     protected $epsmarker = 'x#!#EPS#!#x';
 
     /**
-     * Array of transformation matrix.
-     */
-    protected $transfmatrix = [];
-
-    /**
-     * Current key for transformation matrix.
-     */
-    protected $transfmatrix_key = 0;
-
-    /**
      * Booklet mode for double-sided pages.
      */
     protected $booklet = false;
@@ -738,12 +812,6 @@ class PDF
      * bool flag to indicate if we are inside a PRE tag.
      */
     protected $premode = false;
-
-    /**
-     * Array used to store positions of graphics transformation blocks inside the page buffer.
-     * keys are the page numbers
-     */
-    protected $transfmrk = [];
 
     /**
      * Counts the number of pages.
@@ -2285,11 +2353,11 @@ class PDF
         // check page for no-write regions and adapt page margins if necessary
         list($x, $y) = $this->checkPageRegions($h, $x, $y);
         // recalculate coordinates to account for graphic transformations
-        if (isset($this->transfmatrix) and !empty($this->transfmatrix)) {
-            for ($i = $this->transfmatrix_key; $i > 0; --$i) {
-                $maxid = count($this->transfmatrix[$i]) - 1;
+        if (isset($this->matrix) and !empty($this->matrix)) {
+            for ($i = $this->matrixKey; $i > 0; --$i) {
+                $maxid = count($this->matrix[$i]) - 1;
                 for ($j = $maxid; $j >= 0; --$j) {
-                    $ctm = $this->transfmatrix[$i][$j];
+                    $ctm = $this->matrix[$i][$j];
                     if (isset($ctm['a'])) {
                         $x = $x * self::FACTOR;
                         $y = ($this->height - $y) * self::FACTOR;
@@ -3418,25 +3486,25 @@ class PDF
                 // draw border and fill
                 if ($this->inXObject) {
                     // we are inside an XObject template
-                    if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
-                        $pagemarkkey                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
-                        $pagemark                                                    = $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey];
-                        $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey] += $offsetlen;
+                    if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
+                        $pagemarkkey                                                      = key($this->xObjects[$this->xObjectID]['transpositions']);
+                        $pagemark                                                         = $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey];
+                        $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey] += $offsetlen;
                     }
                     else {
                         $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
                         $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                     }
-                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['content'];
                     $pstart                                      = substr($pagebuff, 0, $pagemark);
                     $pend                                        = substr($pagebuff, $pagemark);
-                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
+                    $this->xObjects[$this->xObjectID]['content'] = $pstart . $ccode . $pend;
                 }
                 else {
-                    if (end($this->transfmrk[$this->page]) !== false) {
-                        $pagemarkkey                                = key($this->transfmrk[$this->page]);
-                        $pagemark                                   = $this->transfmrk[$this->page][$pagemarkkey];
-                        $this->transfmrk[$this->page][$pagemarkkey] += $offsetlen;
+                    if (end($this->transpositions[$this->page]) !== false) {
+                        $pagemarkkey                                     = key($this->transpositions[$this->page]);
+                        $pagemark                                        = $this->transpositions[$this->page][$pagemarkkey];
+                        $this->transpositions[$this->page][$pagemarkkey] += $offsetlen;
                     }
                     elseif ($this->inFooter) {
                         $pagemark                     = $this->footerpos[$this->page];
@@ -5475,8 +5543,8 @@ class PDF
     protected function _putxobjects()
     {
         foreach ($this->xObjects as $key => $data) {
-            if (isset($data['outdata'])) {
-                $stream = str_replace($this->epsmarker, '', trim($data['outdata']));
+            if (isset($data['content'])) {
+                $stream = str_replace($this->epsmarker, '', trim($data['content']));
                 $out    = $this->_getobj($data['n']) . "\n";
                 $out    .= '<<';
                 $out    .= ' /Type /XObject';
@@ -6123,8 +6191,8 @@ class PDF
         $this->pageObjects[$this->page] = [];
         $this->pageBuffer($this->page, '');
         // initialize array for graphics tranformation positions inside a page buffer
-        $this->transfmrk[$this->page] = [];
-        $this->state                  = self::READY;
+        $this->transpositions[$this->page] = [];
+        $this->state                       = self::READY;
         if (empty($orientation)) {
             if (isset($this->currentOrientation)) {
                 $orientation = $this->currentOrientation;
@@ -7412,7 +7480,7 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, $align, false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->objectNumber;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
@@ -7616,7 +7684,7 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->objectNumber;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
@@ -7700,7 +7768,7 @@ class PDF
         $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->objectNumber;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // merge options
@@ -7849,7 +7917,7 @@ class PDF
         $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
         --$this->objectNumber;
-        $popt['ap']['n'] .= $this->xObjects[$tmpid]['outdata'];
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
         unset($this->xObjects[$tmpid]);
         $popt['ap']['n'] .= 'Q EMC';
         // set additional default options
@@ -10199,24 +10267,24 @@ class PDF
                 // draw border and fill
                 if ($this->inXObject) {
                     // we are inside an XObject template
-                    if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
-                        $pagemarkkey                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
-                        $pagemark                                                    = $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey];
-                        $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey] += $offsetlen;
+                    if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
+                        $pagemarkkey                                                      = key($this->xObjects[$this->xObjectID]['transpositions']);
+                        $pagemark                                                         = $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey];
+                        $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey] += $offsetlen;
                     }
                     else {
                         $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
                         $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                     }
-                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['content'];
                     $pstart                                      = substr($pagebuff, 0, $pagemark);
                     $pend                                        = substr($pagebuff, $pagemark);
-                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
+                    $this->xObjects[$this->xObjectID]['content'] = $pstart . $ccode . $pend;
                 }
                 else {
-                    if (end($this->transfmrk[$this->page]) !== false) {
-                        $pagemarkkey = key($this->transfmrk[$this->page]);
-                        $pagemark    = $this->transfmrk[$this->page][$pagemarkkey];
+                    if (end($this->transpositions[$this->page]) !== false) {
+                        $pagemarkkey = key($this->transpositions[$this->page]);
+                        $pagemark    = $this->transpositions[$this->page][$pagemarkkey];
                     }
                     elseif ($this->inFooter) {
                         $pagemark = $this->footerpos[$this->page];
@@ -10388,8 +10456,8 @@ class PDF
         if (isset($this->footerLengths[$frompage])) {
             $tmpfooterlen = $this->footerLengths[$frompage];
         }
-        if (isset($this->transfmrk[$frompage])) {
-            $tmptransfmrk = $this->transfmrk[$frompage];
+        if (isset($this->transpositions[$frompage])) {
+            $transpositions = $this->transpositions[$frompage];
         }
         if (isset($this->pageAnnotations[$frompage])) {
             $tmpannots = $this->pageAnnotations[$frompage];
@@ -10430,11 +10498,11 @@ class PDF
             elseif (isset($this->footerLengths[$i])) {
                 unset($this->footerLengths[$i]);
             }
-            if (isset($this->transfmrk[$j])) {
-                $this->transfmrk[$i] = $this->transfmrk[$j];
+            if (isset($this->transpositions[$j])) {
+                $this->transpositions[$i] = $this->transpositions[$j];
             }
-            elseif (isset($this->transfmrk[$i])) {
-                unset($this->transfmrk[$i]);
+            elseif (isset($this->transpositions[$i])) {
+                unset($this->transpositions[$i]);
             }
             if (isset($this->pageAnnotations[$j])) {
                 $this->pageAnnotations[$i] = $this->pageAnnotations[$j];
@@ -10469,11 +10537,11 @@ class PDF
         elseif (isset($this->footerLengths[$topage])) {
             unset($this->footerLengths[$topage]);
         }
-        if (isset($tmptransfmrk)) {
-            $this->transfmrk[$topage] = $tmptransfmrk;
+        if (isset($transpositions)) {
+            $this->transpositions[$topage] = $transpositions;
         }
-        elseif (isset($this->transfmrk[$topage])) {
-            unset($this->transfmrk[$topage]);
+        elseif (isset($this->transpositions[$topage])) {
+            unset($this->transpositions[$topage]);
         }
         if (isset($tmpannots)) {
             $this->pageAnnotations[$topage] = $tmpannots;
@@ -10572,8 +10640,8 @@ class PDF
         if (isset($this->footerLengths[$page])) {
             unset($this->footerLengths[$page]);
         }
-        if (isset($this->transfmrk[$page])) {
-            unset($this->transfmrk[$page]);
+        if (isset($this->transpositions[$page])) {
+            unset($this->transpositions[$page]);
         }
         if (isset($this->pageAnnotations[$page])) {
             unset($this->pageAnnotations[$page]);
@@ -10613,11 +10681,11 @@ class PDF
                 elseif (isset($this->footerLengths[$i])) {
                     unset($this->footerLengths[$i]);
                 }
-                if (isset($this->transfmrk[$j])) {
-                    $this->transfmrk[$i] = $this->transfmrk[$j];
+                if (isset($this->transpositions[$j])) {
+                    $this->transpositions[$i] = $this->transpositions[$j];
                 }
-                elseif (isset($this->transfmrk[$i])) {
-                    unset($this->transfmrk[$i]);
+                elseif (isset($this->transpositions[$i])) {
+                    unset($this->transpositions[$i]);
                 }
                 if (isset($this->pageAnnotations[$j])) {
                     $this->pageAnnotations[$i] = $this->pageAnnotations[$j];
@@ -10658,8 +10726,8 @@ class PDF
             if (isset($this->footerLengths[$this->numpages])) {
                 unset($this->footerLengths[$this->numpages]);
             }
-            if (isset($this->transfmrk[$this->numpages])) {
-                unset($this->transfmrk[$this->numpages]);
+            if (isset($this->transpositions[$this->numpages])) {
+                unset($this->transpositions[$this->numpages]);
             }
             if (isset($this->pageAnnotations[$this->numpages])) {
                 unset($this->pageAnnotations[$this->numpages]);
@@ -10775,8 +10843,8 @@ class PDF
         if (isset($this->footerLengths[$page])) {
             $this->footerLengths[$this->page] = $this->footerLengths[$page];
         }
-        if (isset($this->transfmrk[$page])) {
-            $this->transfmrk[$this->page] = $this->transfmrk[$page];
+        if (isset($this->transpositions[$page])) {
+            $this->transpositions[$this->page] = $this->transpositions[$page];
         }
         if (isset($this->pageAnnotations[$page])) {
             $this->pageAnnotations[$this->page] = $this->pageAnnotations[$page];
@@ -11542,16 +11610,16 @@ class PDF
         // store current graphic state
         $this->xObjects[$this->xObjectID]['gvars'] = $this->graphicsConfiguration();
         // initialize data
-        $this->xObjects[$this->xObjectID]['intmrk']      = 0;
-        $this->xObjects[$this->xObjectID]['transfmrk']   = [];
-        $this->xObjects[$this->xObjectID]['outdata']     = '';
-        $this->xObjects[$this->xObjectID]['xobjects']    = [];
-        $this->xObjects[$this->xObjectID]['images']      = [];
-        $this->xObjects[$this->xObjectID]['fonts']       = [];
-        $this->xObjects[$this->xObjectID]['annotations'] = [];
-        $this->xObjects[$this->xObjectID]['extgstates']  = [];
-        $this->xObjects[$this->xObjectID]['gradients']   = [];
-        $this->xObjects[$this->xObjectID]['spot_colors'] = [];
+        $this->xObjects[$this->xObjectID]['intmrk']         = 0;
+        $this->xObjects[$this->xObjectID]['transpositions'] = [];
+        $this->xObjects[$this->xObjectID]['content']        = '';
+        $this->xObjects[$this->xObjectID]['xobjects']       = [];
+        $this->xObjects[$this->xObjectID]['images']         = [];
+        $this->xObjects[$this->xObjectID]['fonts']          = [];
+        $this->xObjects[$this->xObjectID]['annotations']    = [];
+        $this->xObjects[$this->xObjectID]['extgstates']     = [];
+        $this->xObjects[$this->xObjectID]['gradients']      = [];
+        $this->xObjects[$this->xObjectID]['spot_colors']    = [];
         // set new environment
         $this->num_columns    = 1;
         $this->current_column = 0;
@@ -11684,7 +11752,7 @@ class PDF
         }
         $rb_x = $xt + $w;
         // print XObject Template + Transformation matrix
-        $this->StartTransform();
+        $this->startTransformation();
         // translate and scale
         $sx    = ($w / $ow);
         $sy    = ($h / $oh);
@@ -11695,10 +11763,10 @@ class PDF
         $tm[3] = $sy;
         $tm[4] = $xt * self::FACTOR;
         $tm[5] = ($this->height - $h - $y) * self::FACTOR;
-        $this->Transform($tm);
+        $this->transform($tm);
         // set object
         $this->append('/' . $id . ' Do');
-        $this->StopTransform();
+        $this->endTransformation();
         // add annotations
         if (!empty($this->xObjects[$id]['annotations'])) {
             foreach ($this->xObjects[$id]['annotations'] as $annot) {

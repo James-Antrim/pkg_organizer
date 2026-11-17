@@ -201,4 +201,250 @@ trait Bloatware
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FONTS-UNPROCESSED
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TRANSFORMATIONS-PROCESSED
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TRANSFORMATIONS-UNPROCESSED
+
+    /**
+     * Horizontal Mirroring.
+     * @param float|null $x abscissa of the point. Default is current x position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorH($x = null)
+    {
+        $this->Scale(-100, 100, $x);
+    }
+
+    /**
+     * Verical Mirroring.
+     * @param float|null $y ordinate of the point. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorV($y = null)
+    {
+        $this->Scale(100, -100, null, $y);
+    }
+
+    /**
+     * Point reflection mirroring.
+     * @param float|null $x abscissa of the point. Default is current x position
+     * @param float|null $y ordinate of the point. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorP($x = null, $y = null)
+    {
+        $this->Scale(-100, -100, $x, $y);
+    }
+
+    /**
+     * Reflection against a straight line through point (x, y) with the gradient angle (angle).
+     * @param float      $angle gradient angle of the straight line. Default is 0 (horizontal line).
+     * @param float|null $x     abscissa of the point. Default is current x position
+     * @param float|null $y     ordinate of the point. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorL($angle = 0, $x = null, $y = null)
+    {
+        $this->Scale(-100, 100, $x, $y);
+        $this->Rotate(-2 * ($angle - 90), $x, $y);
+    }
+
+    /**
+     * Rotate object.
+     * @param float      $angle angle in degrees for counter-clockwise rotation
+     * @param float|null $x     abscissa of the rotation center. Default is current x position
+     * @param float|null $y     ordinate of the rotation center. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Rotate($angle, $x = null, $y = null)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        $y = ($this->height - $y) * self::FACTOR;
+        $x *= self::FACTOR;
+        //calculate elements of transformation matrix
+        $tm    = [];
+        $tm[0] = cos(deg2rad($angle));
+        $tm[1] = sin(deg2rad($angle));
+        $tm[2] = -$tm[1];
+        $tm[3] = $tm[0];
+        $tm[4] = $x + ($tm[1] * $y) - ($tm[0] * $x);
+        $tm[5] = $y - ($tm[0] * $y) - ($tm[1] * $x);
+        //rotate the coordinate system around ($x,$y)
+        $this->transform($tm);
+    }
+
+    /**
+     * Vertical and horizontal non-proportional Scaling.
+     * @param float      $s_x scaling factor for width as percent. 0 is not allowed.
+     * @param float      $s_y scaling factor for height as percent. 0 is not allowed.
+     * @param float|null $x   abscissa of the scaling center. Default is current x position
+     * @param float|null $y   ordinate of the scaling center. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Scale($s_x, $s_y, $x = null, $y = null)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        if (($s_x == 0) or ($s_y == 0)) {
+            $this->Error('Please do not use values equal to zero for scaling');
+        }
+        $y = ($this->height - $y) * self::FACTOR;
+        $x *= self::FACTOR;
+        //calculate elements of transformation matrix
+        $s_x   /= 100;
+        $s_y   /= 100;
+        $tm    = [];
+        $tm[0] = $s_x;
+        $tm[1] = 0;
+        $tm[2] = 0;
+        $tm[3] = $s_y;
+        $tm[4] = $x * (1 - $s_x);
+        $tm[5] = $y * (1 - $s_y);
+        //scale the coordinate system
+        $this->transform($tm);
+    }
+
+    /**
+     * Horizontal Scaling.
+     * @param float $s_x scaling factor for width as percent. 0 is not allowed.
+     * @param int   $x   abscissa of the scaling center. Default is current x position
+     * @param int   $y   ordinate of the scaling center. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function ScaleX($s_x, $x = '', $y = '')
+    {
+        $this->Scale($s_x, 100, $x, $y);
+    }
+
+    /**
+     * Vertical and horizontal proportional Scaling.
+     * @param float $s scaling factor for width and height as percent. 0 is not allowed.
+     * @param int   $x abscissa of the scaling center. Default is current x position
+     * @param int   $y ordinate of the scaling center. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function ScaleXY($s, $x = '', $y = '')
+    {
+        $this->Scale($s, $s, $x, $y);
+    }
+
+    /**
+     * Vertical Scaling.
+     * @param float $s_y scaling factor for height as percent. 0 is not allowed.
+     * @param int   $x   abscissa of the scaling center. Default is current x position
+     * @param int   $y   ordinate of the scaling center. Default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function ScaleY($s_y, $x = '', $y = '')
+    {
+        $this->Scale(100, $s_y, $x, $y);
+    }
+
+    /**
+     * Skew.
+     * @param float      $angle_x angle in degrees between -90 (skew to the left) and 90 (skew to the right)
+     * @param float      $angle_y angle in degrees between -90 (skew to the bottom) and 90 (skew to the top)
+     * @param float|null $x       abscissa of the skewing center. default is current x position
+     * @param float|null $y       ordinate of the skewing center. default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Skew($angle_x, $angle_y, $x = null, $y = null)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        if (($angle_x <= -90) or ($angle_x >= 90) or ($angle_y <= -90) or ($angle_y >= 90)) {
+            $this->Error('Please use values between -90 and +90 degrees for Skewing.');
+        }
+        $x *= self::FACTOR;
+        $y = ($this->height - $y) * self::FACTOR;
+        //calculate elements of transformation matrix
+        $tm    = [];
+        $tm[0] = 1;
+        $tm[1] = tan(deg2rad($angle_y));
+        $tm[2] = tan(deg2rad($angle_x));
+        $tm[3] = 1;
+        $tm[4] = -$tm[2] * $y;
+        $tm[5] = -$tm[1] * $x;
+        //skew the coordinate system
+        $this->transform($tm);
+    }
+
+    /**
+     * Skew horizontally.
+     * @param float      $angle_x angle in degrees between -90 (skew to the left) and 90 (skew to the right)
+     * @param float|null $x       abscissa of the skewing center. default is current x position
+     * @param float|null $y       ordinate of the skewing center. default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function SkewX($angle_x, $x = null, $y = null)
+    {
+        $this->Skew($angle_x, 0, $x, $y);
+    }
+
+    /**
+     * Skew vertically.
+     * @param float      $angle_y angle in degrees between -90 (skew to the bottom) and 90 (skew to the top)
+     * @param float|null $x       abscissa of the skewing center. default is current x position
+     * @param float|null $y       ordinate of the skewing center. default is current y position
+     * @see   StartTransform(), StopTransform()
+     */
+    public function SkewY($angle_y, $x = null, $y = null)
+    {
+        $this->Skew(0, $angle_y, $x, $y);
+    }
+
+    /**
+     * Translate graphic object horizontally and vertically.
+     * @param int $t_x movement to the right
+     * @param int $t_y movement to the bottom
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Translate($t_x, $t_y)
+    {
+        //calculate elements of transformation matrix
+        $tm    = [];
+        $tm[0] = 1;
+        $tm[1] = 0;
+        $tm[2] = 0;
+        $tm[3] = 1;
+        $tm[4] = $t_x * self::FACTOR;
+        $tm[5] = -$t_y * self::FACTOR;
+        //translate the coordinate system
+        $this->transform($tm);
+    }
+
+    /**
+     * Translate graphic object horizontally.
+     * @param int $t_x movement to the right
+     * @see   StartTransform(), StopTransform()
+     */
+    public function TranslateX($t_x)
+    {
+        $this->Translate($t_x, 0);
+    }
+
+    /**
+     * Translate graphic object vertically.
+     * @param int $t_y movement to the bottom
+     * @see   StartTransform(), StopTransform()
+     */
+    public function TranslateY($t_y)
+    {
+        $this->Translate(0, $t_y);
+    }
 }

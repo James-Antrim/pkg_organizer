@@ -457,7 +457,7 @@ trait WebTools
         }
         if ($this->inXObject) {
             // we are inside an XObject template
-            $startlinepos = strlen($this->xObjects[$this->xObjectID]['outdata']);
+            $startlinepos = strlen($this->xObjects[$this->xObjectID]['content']);
         }
         elseif (!$this->inFooter) {
             if (isset($this->footerLengths[$this->page])) {
@@ -866,7 +866,7 @@ trait WebTools
                     $linew = abs($this->endlinex - $startlinex);
                     if ($this->inXObject) {
                         // we are inside an XObject template
-                        $pstart = substr($this->xObjects[$this->xObjectID]['outdata'], 0, $startlinepos);
+                        $pstart = substr($this->xObjects[$this->xObjectID]['content'], 0, $startlinepos);
                         if (isset($opentagpos)) {
                             $midpos = $opentagpos;
                         }
@@ -874,11 +874,11 @@ trait WebTools
                             $midpos = 0;
                         }
                         if ($midpos > 0) {
-                            $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos, ($midpos - $startlinepos));
-                            $pend = substr($this->xObjects[$this->xObjectID]['outdata'], $midpos);
+                            $pmid = substr($this->xObjects[$this->xObjectID]['content'], $startlinepos, ($midpos - $startlinepos));
+                            $pend = substr($this->xObjects[$this->xObjectID]['content'], $midpos);
                         }
                         else {
-                            $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos);
+                            $pmid = substr($this->xObjects[$this->xObjectID]['content'], $startlinepos);
                             $pend = '';
                         }
                     }
@@ -1166,7 +1166,7 @@ trait WebTools
                                     }
                                     if ($this->inXObject) {
                                         // we are inside an XObject template
-                                        $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\n" . $pend;
+                                        $this->xObjects[$this->xObjectID]['content'] = $pstart . "\n" . $pmid . "\n" . $pend;
                                     }
                                     else {
                                         $this->pageBuffer($startlinepage, $pstart . "\n" . $pmid . "\n" . $pend);
@@ -1183,7 +1183,7 @@ trait WebTools
                                     $pmid = preg_replace("/\[\(/x", $rs . ' [(', $pmid);
                                     if ($this->inXObject) {
                                         // we are inside an XObject template
-                                        $this->xObjects[$this->xObjectID]['outdata'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
+                                        $this->xObjects[$this->xObjectID]['content'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
                                     }
                                     else {
                                         $this->pageBuffer($startlinepage, $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend);
@@ -1200,7 +1200,7 @@ trait WebTools
                         $endlinepos = strlen($pstart);
                         if ($this->inXObject) {
                             // we are inside an XObject template
-                            $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $pend;
+                            $this->xObjects[$this->xObjectID]['content'] = $pstart . $pend;
                             foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
                                 if ($pak >= $pask) {
                                     $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += $t_x;
@@ -1244,7 +1244,7 @@ trait WebTools
                 else {
                     if ($this->inXObject) {
                         // we are inside an XObject template
-                        $startlinepos = strlen($this->xObjects[$this->xObjectID]['outdata']);
+                        $startlinepos = strlen($this->xObjects[$this->xObjectID]['content']);
                     }
                     elseif (!$this->inFooter) {
                         if (isset($this->footerLengths[$this->page])) {
@@ -1552,7 +1552,7 @@ trait WebTools
                         if (!isset($opentagpos)) {
                             if ($this->inXObject) {
                                 // we are inside an XObject template
-                                $opentagpos = strlen($this->xObjects[$this->xObjectID]['outdata']);
+                                $opentagpos = strlen($this->xObjects[$this->xObjectID]['content']);
                             }
                             elseif (!$this->inFooter) {
                                 if (isset($this->footerLengths[$this->page])) {
@@ -1751,7 +1751,7 @@ trait WebTools
             $linew = abs($this->endlinex - $startlinex);
             if ($this->inXObject) {
                 // we are inside an XObject template
-                $pstart = substr($this->xObjects[$this->xObjectID]['outdata'], 0, $startlinepos);
+                $pstart = substr($this->xObjects[$this->xObjectID]['content'], 0, $startlinepos);
                 if (isset($opentagpos)) {
                     $midpos = $opentagpos;
                 }
@@ -1759,11 +1759,11 @@ trait WebTools
                     $midpos = 0;
                 }
                 if ($midpos > 0) {
-                    $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos, ($midpos - $startlinepos));
-                    $pend = substr($this->xObjects[$this->xObjectID]['outdata'], $midpos);
+                    $pmid = substr($this->xObjects[$this->xObjectID]['content'], $startlinepos, ($midpos - $startlinepos));
+                    $pend = substr($this->xObjects[$this->xObjectID]['content'], $midpos);
                 }
                 else {
-                    $pmid = substr($this->xObjects[$this->xObjectID]['outdata'], $startlinepos);
+                    $pmid = substr($this->xObjects[$this->xObjectID]['content'], $startlinepos);
                     $pend = '';
                 }
             }
@@ -1836,7 +1836,7 @@ trait WebTools
                 $endlinepos = strlen($pstart);
                 if ($this->inXObject) {
                     // we are inside an XObject template
-                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $pend;
+                    $this->xObjects[$this->xObjectID]['content'] = $pstart . $pend;
                     foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
                         if ($pak >= $pask) {
                             $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += $t_x;
@@ -3011,25 +3011,25 @@ trait WebTools
                                 // draw border and fill
                                 if ($this->inXObject) {
                                     // we are inside an XObject template
-                                    if (end($this->xObjects[$this->xObjectID]['transfmrk']) !== false) {
-                                        $pagemarkkey                                                 = key($this->xObjects[$this->xObjectID]['transfmrk']);
-                                        $pagemark                                                    = $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey];
-                                        $this->xObjects[$this->xObjectID]['transfmrk'][$pagemarkkey] += $offsetlen;
+                                    if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
+                                        $pagemarkkey                                                      = key($this->xObjects[$this->xObjectID]['transpositions']);
+                                        $pagemark                                                         = $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey];
+                                        $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey] += $offsetlen;
                                     }
                                     else {
                                         $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
                                         $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
                                     }
-                                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['outdata'];
+                                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['content'];
                                     $pstart                                      = substr($pagebuff, 0, $pagemark);
                                     $pend                                        = substr($pagebuff, $pagemark);
-                                    $this->xObjects[$this->xObjectID]['outdata'] = $pstart . $ccode . $pend;
+                                    $this->xObjects[$this->xObjectID]['content'] = $pstart . $ccode . $pend;
                                 }
                                 else {
                                     // draw border and fill
-                                    if (end($this->transfmrk[$this->page]) !== false) {
-                                        $pagemarkkey = key($this->transfmrk[$this->page]);
-                                        $pagemark    = $this->transfmrk[$this->page][$pagemarkkey];
+                                    if (end($this->transpositions[$this->page]) !== false) {
+                                        $pagemarkkey = key($this->transpositions[$this->page]);
+                                        $pagemark    = $this->transpositions[$this->page][$pagemarkkey];
                                     }
                                     elseif ($this->inFooter) {
                                         $pagemark = $this->footerpos[$this->page];
