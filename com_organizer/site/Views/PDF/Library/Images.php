@@ -1842,7 +1842,7 @@ trait Images
                 $gradient = $newgradient;
             }
             //save current Graphic State
-            $this->_outSaveGraphicsState();
+            $this->appendSaveGraphicsState();
             //set clipping area
             if (!empty($clip_function) and method_exists($this, $clip_function)) {
                 $bbox = call_user_func_array([$this, $clip_function], $clip_params);

@@ -121,7 +121,7 @@ trait Headers
         $newLine    = $this->newLine;
         $template   = $this->headerTemplate;
 
-        $this->_outSaveGraphicsState();
+        $this->appendSaveGraphicsState();
 
         $this->rightMargin = $this->originalRightMargin;
         $this->leftMargin  = $this->originalLeftMargin;
@@ -198,7 +198,7 @@ trait Headers
         }
 
         $this->setXY($this->originalLeftMargin, $this->topMargin);
-        $this->_outRestoreGraphicsState();
+        $this->appendRestoreGraphicsState();
         $this->lastPrintedCellHeight = $lastHeight;
         $this->headerTemplate        = $template;
         $this->headerTemplateMargins = $margins;

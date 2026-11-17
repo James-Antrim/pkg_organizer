@@ -778,6 +778,8 @@ trait Constants
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PRINTING
 
     public const BYTE_RANGE_STRING = '/ByteRange[0 ********** ********** **********]';
+    public const DOWNLOAD = 'D', INLINE = 'I';
+    public const DESTINATIONS = [self::DOWNLOAD, self::INLINE];
     /** DPI (Dot Per Inch) document resolution */
     public const DPI = 72;
     public const PAGE_GROUP_NUMBER_ALIAS = '{:png:}', PAGE_NUMBER_ALIAS = '{:pnp:}', PAGES_IN_GROUP_ALIAS = '{:ptg:}', TOTAL_PAGES_ALIAS = '{:ptp:}';

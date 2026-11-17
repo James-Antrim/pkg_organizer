@@ -112,6 +112,18 @@ class PDF
         }
     }
 
+    /** Outputs the "restore graphics state" operator 'Q' */
+    protected function appendRestoreGraphicsState(): void
+    {
+        $this->append('Q');
+    }
+
+    /** Outputs the "save graphics state" operator 'q' */
+    protected function appendSaveGraphicsState(): void
+    {
+        $this->append('q');
+    }
+
     /**
      * Getter / setter for the buffer
      * @param string $content
@@ -138,7 +150,7 @@ class PDF
             return;
         }
 
-        $this->_outRestoreGraphicsState();
+        $this->appendRestoreGraphicsState();
 
         if (isset($this->matrix[$this->matrixKey])) {
             array_pop($this->matrix[$this->matrixKey]);
@@ -173,7 +185,7 @@ class PDF
             return;
         }
 
-        $this->_outSaveGraphicsState();
+        $this->appendSaveGraphicsState();
 
         if ($this->inXObject) {
             $this->xObjects[$this->xObjectID]['transpositions'][] = strlen($this->xObjects[$this->xObjectID]['content']);
@@ -1467,14 +1479,14 @@ class PDF
             $this->x          = 0;
             $this->y          = $this->height - (1 / self::FACTOR);
             $this->leftMargin = 0;
-            $this->_outSaveGraphicsState();
+            $this->appendSaveGraphicsState();
             $font = self::DEFAULT_FONT;
             $this->setCurrentFont($font, '', 1);
             $this->setTextRenderingMode(0, false, false);
             $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
             $lnk = "\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67";
             $this->Cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
-            $this->_outRestoreGraphicsState();
+            $this->appendRestoreGraphicsState();
             // restore graphic settings
             $this->graphicsConfiguration($gvars);
         }
@@ -1839,7 +1851,7 @@ class PDF
             $temp_thead           = $this->headerTemplate;
             $temp_theadMargins    = $this->headerTemplateMargins;
             $lasth                = $this->lastPrintedCellHeight;
-            $this->_outSaveGraphicsState();
+            $this->appendSaveGraphicsState();
             $this->rightMargin = $this->originalRightMargin;
             $this->leftMargin  = $this->originalLeftMargin;
             $this->cellPadding(0);
@@ -1850,7 +1862,7 @@ class PDF
             $this->Footer();
             //restore position
             $this->setXY($this->originalLeftMargin, $this->topMargin);
-            $this->_outRestoreGraphicsState();
+            $this->appendRestoreGraphicsState();
             $this->lastPrintedCellHeight = $lasth;
             $this->headerTemplate        = $temp_thead;
             $this->headerTemplateMargins = $temp_theadMargins;
@@ -7871,7 +7883,7 @@ class PDF
         //paint the gradient
         $this->append('/Sh' . $n . ' sh');
         //restore previous Graphic State
-        $this->_outRestoreGraphicsState();
+        $this->appendRestoreGraphicsState();
         if ($this->inXObject) {
             // we are inside an XObject template
             $this->xObjects[$this->xObjectID]['gradients'][$n] = $this->gradients[$n];
@@ -8015,7 +8027,7 @@ class PDF
         //paint the gradient
         $this->append('/Sh' . $n . ' sh');
         //restore previous Graphic State
-        $this->_outRestoreGraphicsState();
+        $this->appendRestoreGraphicsState();
         if ($this->inXObject) {
             // we are inside an XObject template
             $this->xObjects[$this->xObjectID]['gradients'][$n] = $this->gradients[$n];
@@ -9251,22 +9263,6 @@ class PDF
     public function setOpenCell($isopen)
     {
         $this->opencell = $isopen;
-    }
-
-    /**
-     * Outputs the "save graphics state" operator 'q'
-     */
-    protected function _outSaveGraphicsState()
-    {
-        $this->append('q');
-    }
-
-    /**
-     * Outputs the "restore graphics state" operator 'Q'
-     */
-    protected function _outRestoreGraphicsState()
-    {
-        $this->append('Q');
     }
 
     /**

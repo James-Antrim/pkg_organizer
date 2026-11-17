@@ -42,8 +42,6 @@ abstract class BaseView extends PDF implements ViewInterface
         TOP = 'T',
         VERTICAL = 'LR';
 
-    // Destinations
-    public const DOWNLOAD = 'D', INLINE = 'I';
 
     // Font Families
     public const COURIER = 'courier', CURRENT_FAMILY = '', HELVETICA = 'helvetica', TIMES = 'times';
