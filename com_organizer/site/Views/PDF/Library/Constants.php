@@ -38,6 +38,7 @@ trait Constants
      * POINT => pt (1/72 of inch / ~ 0.35 mm) Common unit in typography; font sizes are expressed in that unit.
      */
     public const UNITS = [self::CENTIMETER, self::INCH, self::MILLIMETER, self::POINT];
+    public const ONE_INCH = 28.35;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
 

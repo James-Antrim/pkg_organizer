@@ -72,7 +72,7 @@ trait WebTools
             foreach ($dom as $key => $value) {
                 if ($value['value'] == '#TOC_PAGE_NUMBER#') {
                     $this->setCurrentFont($dom[($key - 1)]['fontname']);
-                    $templates['F' . $level] = $this->isUnicodeFont();
+                    $templates['F' . $level] = false;
                 }
             }
         }
@@ -921,15 +921,9 @@ trait WebTools
                         // remove right space if exist
                         $pos1 = $this->lastStringPosition($pmid, ')]');
                         if ($pos1 > 0) {
-                            $pos1 = intval($pos1);
-                            if ($this->isUnicodeFont()) {
-                                $pos2     = intval($this->lastStringPosition($pmid, chr(0) . chr(32) . ')]')) + 2;
-                                $spacelen = 2;
-                            }
-                            else {
-                                $pos2     = intval($this->lastStringPosition($pmid, chr(32) . ')]')) + 1;
-                                $spacelen = 1;
-                            }
+                            $pos1     = intval($pos1);
+                            $pos2     = intval($this->lastStringPosition($pmid, chr(32) . ')]')) + 1;
+                            $spacelen = 1;
                             if ($pos1 == $pos2) {
                                 $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
                                 $linew -= $one_space_width;
@@ -1139,57 +1133,21 @@ trait WebTools
                                 } // end of while
                                 // remove markers
                                 $pmid = str_replace('x*#!#*x', '', $pmid);
-                                if ($this->isUnicodeFont()) {
-                                    // multibyte characters
-                                    $spacew = $spacewidthu;
-                                    if ($this->fontStretching != 100) {
-                                        // word spacing is affected by stretching
-                                        $spacew /= ($this->fontStretching / 100);
-                                    }
-                                    // escape special characters
-                                    $pos  = 0;
-                                    $pmid = preg_replace('/[\\\][\(]/x', '\\#!#OP#!#', $pmid);
-                                    $pmid = preg_replace('/[\\\][\)]/x', '\\#!#CP#!#', $pmid);
-                                    if (preg_match_all('/\[\(([^\)]*)\)\]/x', $pmid, $pamatch) > 0) {
-                                        foreach ($pamatch[0] as $pk => $pmatch) {
-                                            $replace = $pamatch[1][$pk];
-                                            $replace = str_replace('#!#OP#!#', '(', $replace);
-                                            $replace = str_replace('#!#CP#!#', ')', $replace);
-                                            $newpmid = '[(' . str_replace(chr(0) . chr(32), ') ' . sprintf('%F', $spacew) . ' (', $replace) . ')]';
-                                            $pos     = strpos($pmid, $pmatch, $pos);
-                                            if ($pos !== false) {
-                                                $pmid = substr_replace($pmid, $newpmid, $pos, strlen($pmatch));
-                                            }
-                                            ++$pos;
-                                        }
-                                        unset($pamatch);
-                                    }
-                                    if ($this->inXObject) {
-                                        // we are inside an XObject template
-                                        $this->xObjects[$this->xObjectID]['content'] = $pstart . "\n" . $pmid . "\n" . $pend;
-                                    }
-                                    else {
-                                        $this->pageBuffer($startlinepage, $pstart . "\n" . $pmid . "\n" . $pend);
-                                    }
-                                    $endlinepos = strlen($pstart . "\n" . $pmid . "\n");
+                                // non-unicode (single-byte characters)
+                                if ($this->fontStretching != 100) {
+                                    // word spacing (Tw) is affected by stretching
+                                    $spacewidth /= ($this->fontStretching / 100);
+                                }
+                                $rs   = sprintf('%F Tw', $spacewidth);
+                                $pmid = preg_replace("/\[\(/x", $rs . ' [(', $pmid);
+                                if ($this->inXObject) {
+                                    // we are inside an XObject template
+                                    $this->xObjects[$this->xObjectID]['content'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
                                 }
                                 else {
-                                    // non-unicode (single-byte characters)
-                                    if ($this->fontStretching != 100) {
-                                        // word spacing (Tw) is affected by stretching
-                                        $spacewidth /= ($this->fontStretching / 100);
-                                    }
-                                    $rs   = sprintf('%F Tw', $spacewidth);
-                                    $pmid = preg_replace("/\[\(/x", $rs . ' [(', $pmid);
-                                    if ($this->inXObject) {
-                                        // we are inside an XObject template
-                                        $this->xObjects[$this->xObjectID]['content'] = $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend;
-                                    }
-                                    else {
-                                        $this->pageBuffer($startlinepage, $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend);
-                                    }
-                                    $endlinepos = strlen($pstart . "\n" . $pmid . "\nBT 0 Tw ET\n");
+                                    $this->pageBuffer($startlinepage, $pstart . "\n" . $pmid . "\nBT 0 Tw ET\n" . $pend);
                                 }
+                                $endlinepos = strlen($pstart . "\n" . $pmid . "\nBT 0 Tw ET\n");
                             }
                         } // end of J
                     } // end if $startlinex
@@ -1617,7 +1575,7 @@ trait WebTools
                 else {
                     $firstblock = false;
                     // replace empty multiple spaces string with a single space
-                    $dom[$key]['value'] = preg_replace('/^' . $this->re_space['p'] . '+$/' . $this->re_space['m'], chr(32), $dom[$key]['value']);
+                    $dom[$key]['value'] = preg_replace('/^' . $this->spaceRE['p'] . '+$/' . $this->spaceRE['m'], chr(32), $dom[$key]['value']);
                 }
                 $strrest = '';
                 $this->x += $this->textindent;
@@ -1658,7 +1616,7 @@ trait WebTools
                                     $same_textdir  = ($dom[$nkey]['dir'] == $dom[$key]['dir']);
                                 }
                                 else {
-                                    $nextstr = preg_split('/' . $this->re_space['p'] . '+/' . $this->re_space['m'], $dom[$nkey]['value']);
+                                    $nextstr = preg_split('/' . $this->spaceRE['p'] . '+/' . $this->spaceRE['m'], $dom[$nkey]['value']);
                                     if (isset($nextstr[0]) and $same_textdir) {
                                         $wadj += $this->GetStringWidth($nextstr[0], $tmp_fontname, $tmp_fontstyle, $tmp_fontsize);
                                         if (isset($nextstr[1])) {
@@ -1671,7 +1629,7 @@ trait WebTools
                         }
                         if (($wadj > 0) and (($strlinelen + $wadj) >= $cwa)) {
                             $wadj    = 0;
-                            $nextstr = preg_split('/' . $this->re_space['p'] . '/' . $this->re_space['m'], $dom[$key]['value']);
+                            $nextstr = preg_split('/' . $this->spaceRE['p'] . '/' . $this->spaceRE['m'], $dom[$key]['value']);
                             $numblks = count($nextstr);
                             if ($numblks > 1) {
                                 // try to split on blank spaces
@@ -1806,15 +1764,9 @@ trait WebTools
                 // remove right space if exist
                 $pos1 = $this->lastStringPosition($pmid, ')]');
                 if ($pos1 > 0) {
-                    $pos1 = intval($pos1);
-                    if ($this->isUnicodeFont()) {
-                        $pos2     = intval($this->lastStringPosition($pmid, chr(0) . chr(32) . ')]')) + 2;
-                        $spacelen = 2;
-                    }
-                    else {
-                        $pos2     = intval($this->lastStringPosition($pmid, chr(32) . ')]')) + 1;
-                        $spacelen = 1;
-                    }
+                    $pos1     = intval($pos1);
+                    $pos2     = intval($this->lastStringPosition($pmid, chr(32) . ')]')) + 1;
+                    $spacelen = 1;
                     if ($pos1 == $pos2) {
                         $pmid  = substr($pmid, 0, ($pos1 - $spacelen)) . substr($pmid, $pos1);
                         $linew -= $one_space_width;
@@ -3299,9 +3251,9 @@ trait WebTools
                 // preserve newlines on <pre> tag
                 $html_b = preg_replace("'<xre([^\>]*)>(.*?)\n(.*?)</pre>'si", "<xre\\1>\\2<br />\\3</pre>", $html_b);
             }
-            while (preg_match("'<xre([^\>]*)>(.*?)" . $this->re_space['p'] . "(.*?)</pre>'" . $this->re_space['m'], $html_b)) {
+            while (preg_match("'<xre([^\>]*)>(.*?)" . $this->spaceRE['p'] . "(.*?)</pre>'" . $this->spaceRE['m'], $html_b)) {
                 // preserve spaces on <pre> tag
-                $html_b = preg_replace("'<xre([^\>]*)>(.*?)" . $this->re_space['p'] . "(.*?)</pre>'" . $this->re_space['m'], "<xre\\1>\\2&nbsp;\\3</pre>", $html_b);
+                $html_b = preg_replace("'<xre([^\>]*)>(.*?)" . $this->spaceRE['p'] . "(.*?)</pre>'" . $this->spaceRE['m'], "<xre\\1>\\2&nbsp;\\3</pre>", $html_b);
             }
             $html   = $html_a . $html_b . substr($html, $pos + 6);
             $offset = strlen($html_a . $html_b);
@@ -3340,24 +3292,24 @@ trait WebTools
         $html = str_replace('<TBR>', "\n", $html);
         // remove extra spaces from code
         $html = preg_replace('/[\s]+<\/(table|tr|ul|ol|dl)>/', '</\\1>', $html);
-        $html = preg_replace('/' . $this->re_space['p'] . '+<\/(td|th|li|dt|dd)>/' . $this->re_space['m'], '</\\1>', $html);
+        $html = preg_replace('/' . $this->spaceRE['p'] . '+<\/(td|th|li|dt|dd)>/' . $this->spaceRE['m'], '</\\1>', $html);
         $html = preg_replace('/[\s]+<(tr|td|th|li|dt|dd)/', '<\\1', $html);
-        $html = preg_replace('/' . $this->re_space['p'] . '+<(ul|ol|dl|br)/' . $this->re_space['m'], '<\\1', $html);
+        $html = preg_replace('/' . $this->spaceRE['p'] . '+<(ul|ol|dl|br)/' . $this->spaceRE['m'], '<\\1', $html);
         $html = preg_replace('/<\/(table|tr|td|th|blockquote|dd|dt|dl|div|dt|h1|h2|h3|h4|h5|h6|hr|li|ol|ul|p)>[\s]+</', '</\\1><', $html);
         $html = preg_replace('/<\/(td|th)>/', '<marker style="font-size:0"/></\\1>', $html);
         $html = preg_replace('/<\/table>([\s]*)<marker style="font-size:0"\/>/', '</table>', $html);
-        $html = preg_replace('/' . $this->re_space['p'] . '+<img/' . $this->re_space['m'], chr(32) . '<img', $html);
+        $html = preg_replace('/' . $this->spaceRE['p'] . '+<img/' . $this->spaceRE['m'], chr(32) . '<img', $html);
         $html = preg_replace('/<img([^\>]*)>[\s]+([^\<])/xi', '<img\\1>&nbsp;\\2', $html);
         $html = preg_replace('/<img([^\>]*)>/xi', '<img\\1><span><marker style="font-size:0"/></span>', $html);
         $html = preg_replace('/<xre/', '<pre', $html); // restore pre tag
         $html = preg_replace('/<textarea([^\>]*)>([^\<]*)<\/textarea>/xi', '<textarea\\1 value="\\2" />', $html);
         $html = preg_replace('/<li([^\>]*)><\/li>/', '<li\\1>&nbsp;</li>', $html);
-        $html = preg_replace('/<li([^\>]*)>' . $this->re_space['p'] . '*<img/' . $this->re_space['m'], '<li\\1><font size="1">&nbsp;</font><img', $html);
+        $html = preg_replace('/<li([^\>]*)>' . $this->spaceRE['p'] . '*<img/' . $this->spaceRE['m'], '<li\\1><font size="1">&nbsp;</font><img', $html);
         $html = preg_replace('/<([^\>\/]*)>[\s]/', '<\\1>&nbsp;', $html); // preserve some spaces
         $html = preg_replace('/[\s]<\/([^\>]*)>/', '&nbsp;</\\1>', $html); // preserve some spaces
         $html = preg_replace('/<su([bp])/', '<zws/><su\\1', $html); // fix sub/sup alignment
         $html = preg_replace('/<\/su([bp])>/', '</su\\1><zws/>', $html); // fix sub/sup alignment
-        $html = preg_replace('/' . $this->re_space['p'] . '+/' . $this->re_space['m'], chr(32), $html); // replace multiple spaces with a single space
+        $html = preg_replace('/' . $this->spaceRE['p'] . '+/' . $this->spaceRE['m'], chr(32), $html); // replace multiple spaces with a single space
         // trim string
         $html = $this->stringTrim($html);
         // fix br tag after li
@@ -4018,7 +3970,7 @@ trait WebTools
                     if (function_exists('mb_convert_case')) {
                         $ttm = ['capitalize' => MB_CASE_TITLE, 'uppercase' => MB_CASE_UPPER, 'lowercase' => MB_CASE_LOWER];
                         if (isset($ttm[$dom[$dom[$key]['parent']]['text-transform']])) {
-                            $element = mb_convert_case($element, $ttm[$dom[$dom[$key]['parent']]['text-transform']], $this->encoding);
+                            $element = mb_convert_case($element, $ttm[$dom[$dom[$key]['parent']]['text-transform']], 'UTF-8');
                         }
                     }
                     elseif (!$this->isUnicode) {

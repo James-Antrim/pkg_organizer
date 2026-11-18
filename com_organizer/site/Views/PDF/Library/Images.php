@@ -813,7 +813,7 @@ trait Images
      */
     protected function _putimages()
     {
-        $filter = ($this->compress) ? '/Filter /FlateDecode ' : '';
+        $filter = '/Filter /FlateDecode ';
         foreach ($this->imagekeys as $file) {
             $info = $this->getImageBuffer($file);
             // set object for alternate images array
@@ -928,13 +928,13 @@ trait Images
             if ($icc) {
                 // ICC colour profile
                 $this->_newobj();
-                $icc = ($this->compress) ? gzcompress($info['icc']) : $info['icc'];
+                $icc = gzcompress($info['icc']);
                 $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
             }
             elseif ($info['cs'] == 'Indexed') {
                 // colour palette
                 $this->_newobj();
-                $pal = ($this->compress) ? gzcompress($info['pal']) : $info['pal'];
+                $pal = gzcompress($info['pal']);
                 $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
             }
         }

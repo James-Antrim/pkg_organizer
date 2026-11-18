@@ -319,7 +319,7 @@ trait Pages
             $autoPagebreak = $this->autoPageBreak;
         }
         if (is_null($bottomMargin)) {
-            $bottomMargin = $this->bottomMargin ?: 2 * 28.35 / self::FACTOR;
+            $bottomMargin = $this->bottomMargin ?: 2 * self::ONE_INCH / self::FACTOR;
         }
         $this->autoPageBreak($autoPagebreak, $bottomMargin);
 

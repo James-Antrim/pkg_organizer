@@ -37,10 +37,8 @@ class PDF
     protected array $annotationIDs = [];
     protected string $buffer = '';
     protected int $bufferLength = 0;
-
     protected int $creationTimestamp = 0;
-    protected array $defaultGraphicsConfiguration = [];
-    protected string $encoding = 'UTF-8';
+    protected array $graphicsConfiguration = [];
     protected array $encodingDeltas = [];
     /** File ID for document trailer */
     protected string $fileID;
@@ -59,23 +57,51 @@ class PDF
     protected bool $newLine = true;
     protected int $objectNumber = 2;
     protected bool $overline = false;
-    protected bool $signable = false;
+    /** Array of $spacesRE parts. */
+    protected array $spaceRE = ['p' => '(?!\xa0)[\s\p{Z}]', 'm' => 'u'];
+    /** Regular expression used to find blank characters for word-wrapping. */
+    protected string $spacesRE = '/(?!\xa0)[\s\p{Z}]/u';
     protected int $state = self::INITIAL;
     /** Stores positions of graphics transformation blocks in the page buffer, keys are the page numbers */
     protected array $transpositions = [];
     protected bool $underline = false;
-    /** Additional document-wide usage rights for the document */
-    protected array $userRights = [
-        'enabled'   => false,
-        'document'  => '/FullSave',
-        'annots'    => '/Create/Delete/Modify/Copy/Import/Export',
-        'form'      => '/Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate',
-        'signature' => '/Modify',
-        'ef'        => '/Create/Delete/Modify/Import',
-        'formex'    => '',
-    ];
     protected string $xObjectID = '';
     protected array $xObjects = [];
+
+    /**
+     * Constructor.
+     *
+     * @param string $orientation
+     * @param string $unit
+     * @param mixed  $format
+     * @see self::ORIENTATIONS, self::UNITS, self::PAGE_FORMATS, self::PAGE_FORMAT_CONFIGURATION_DESCRIPTION
+     */
+    public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
+    {
+        $margin      = self::ONE_INCH / self::FACTOR;
+        $cellPadding = $margin / 10;
+
+        $this->cellPaddings($cellPadding, 0, $cellPadding, 0);
+        $this->cellMargins(0, 0, 0, 0);
+        $this->displayMode();
+        $this->pageFormat($format, $orientation);
+        $this->populateFonts();
+        $this->setMargins($margin, $margin);
+        $this->setTextShadow();
+
+        $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
+
+        $this->cellLeftMargin        = $this->leftMargin;
+        $this->cellRightMargin       = $this->rightMargin;
+        $this->creationTimestamp     = time();
+        $this->fileID                = md5($this->randomSeed('Organizer' . $orientation . $unit . $format . 'UTF-8'));
+        $this->graphicsConfiguration = $this->graphicsConfiguration();
+        $this->libraryURL            = Uri::base() . '/components/com_organizer/Views/PDF/Library/';
+        $this->lineWidthStyle        = sprintf('%F w', $this->lineWidth * self::FACTOR);
+        $this->modificationTimestamp = $this->creationTimestamp;
+        $this->transpositions[0]     = [];
+
+    }
 
     /**
      * Appends a string to the document.
@@ -265,52 +291,10 @@ class PDF
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-
     /**
-     * This is the class constructor.
-     * It allows to set up the page format, the orientation and the measure unit used in all the methods (except for the font sizes).
-     *
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or Portrait (default)</li><li>L or Landscape</li><li>'' (empty string) for automatic orientation</li></ul>
-     * @param string $unit        User measure unit. Possible values are:<ul><li>pt: point</li><li>mm: millimeter (default)</li><li>cm: centimeter</li><li>in: inch</li></ul><br />A point equals 1/72 of inch, that is to say about 0.35 mm (an inch being 2.54 cm). This is a very common unit in typography; font sizes are expressed in that unit.
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @see getPageSizeFromFormat(), pageFormat()
-     */
-    public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
-    {
-        $this->libraryURL = Uri::base() . '/components/com_organizer/Views/PDF/Library/';
-        // set file ID for trailer
-        $serformat               = (is_array($format) ? json_encode($format) : $format);
-        $this->fileID            = md5($this->randomSeed('Organizer' . $orientation . $unit . $serformat . 'UTF-8'));
-        $this->force_srgb        = false;
-        $this->transpositions[0] = [];
-        $this->pageFormat($format, $orientation);
-
-        // page margins (1 cm)
-        $margin = 28.35 / self::FACTOR;
-        $this->setMargins($margin, $margin);
-        $this->clMargin = $this->leftMargin;
-        $this->crMargin = $this->rightMargin;
-        $cellPadding    = $margin / 10;
-        $this->cellPaddings($cellPadding, 0, $cellPadding, 0);
-        $this->cellMargins(0, 0, 0, 0);
-
-        $this->lineWidthStyle = sprintf('%F w', $this->lineWidth * self::FACTOR);
-        $this->displayMode();
-        $this->setCompression();
-        $this->setPDFVersion();
-        $this->populateFonts();
-        $this->setTextShadow();
-        $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
-        $this->setSpacesRE('/(?!\xa0)[\s\p{Z}]/u');
-        $this->creationTimestamp            = time();
-        $this->modificationTimestamp        = $this->creationTimestamp;
-        $this->defaultGraphicsConfiguration = $this->graphicsConfiguration();
-    }
-
-    /**
-     * Set graphic variables.
-     * @param array $parameters array of graphic variablesto restore
-     * @param bool  $extended   if true restore extended graphic variables
+     * Batch getter / setter for graphics configuration properties. Setting is only enabled when the document is in a READY state.
+     * @param array $parameters array of graphic variables to set
+     * @param bool  $extended   whether to set extended graphic variables
      */
     protected function graphicsConfiguration(array $parameters = [], bool $extended = false): array
     {
@@ -503,11 +487,6 @@ class PDF
     protected $offsets = [];
 
     /**
-     * Compression flag.
-     */
-    protected $compress;
-
-    /**
      * Scale factor (number of points in user unit).
      */
     protected $k;
@@ -522,7 +501,6 @@ class PDF
      */
     protected $y;
 
-
     /**
      * Array of used images.
      */
@@ -532,7 +510,6 @@ class PDF
      * Depth of the svg tag, to keep track if the svg tag is a subtag or the root tag.
      */
     protected $svg_tag_depth = 0;
-
 
     /**
      * Layout display mode.
@@ -584,7 +561,6 @@ class PDF
      * @var float
      */
     protected $footer_margin;
-
 
     /**
      * Language templates.
@@ -826,16 +802,6 @@ class PDF
      * Timestamping data.
      */
     protected array $tsa_data = [];
-
-    /**
-     * Regular expression used to find blank characters (required for word-wrapping).
-     */
-    protected $re_spaces = '/[^\S\xa0]/';
-
-    /**
-     * Array of $re_spaces parts.
-     */
-    protected $re_space = array('p' => '[^\S\xa0]', 'm' => '');
 
     /**
      * Digital signature object ID.
@@ -1104,11 +1070,6 @@ class PDF
     ]);
 
     /**
-     * If true force sRGB color profile for all document.
-     */
-    protected $force_srgb = false;
-
-    /**
      * Custom XMP data.
      */
     protected string $custom_xmp = '';
@@ -1170,43 +1131,6 @@ class PDF
     {
         // cleanup
         $this->_destroy(true);
-    }
-
-    /**
-     * Set regular expression to detect withespaces or word separators.
-     * The pattern delimiter must be the forward-slash character "/".
-     * Some example patterns are:
-     * <pre>
-     * Non-Unicode or missing PCRE unicode support: "/[^\S\xa0]/"
-     * Unicode and PCRE unicode support: "/(?!\xa0)[\s\p{Z}]/u"
-     * Unicode and PCRE unicode support in Chinese mode: "/(?!\xa0)[\s\p{Z}\p{Lo}]/u"
-     * if PCRE unicode support is turned ON ("\P" is the negate class of "\p"):
-     *      \s     : any whitespace character
-     *      \p{Z}  : any separator
-     *      \p{Lo} : Unicode letter or ideograph that does not have lowercase and uppercase variants. Is used to chunk chinese words.
-     *      \xa0   : Unicode Character 'NO-BREAK SPACE' (U+00A0)
-     * </pre>
-     * @param string $re regular expression (leave empty for default).
-     */
-    public function setSpacesRE($re = '/[^\S\xa0]/')
-    {
-        $this->re_spaces = $re;
-        $re_parts        = explode('/', $re);
-        // get pattern parts
-        $this->re_space = [];
-        if (isset($re_parts[1]) and !empty($re_parts[1])) {
-            $this->re_space['p'] = $re_parts[1];
-        }
-        else {
-            $this->re_space['p'] = '[\s]';
-        }
-        // set pattern modifiers
-        if (isset($re_parts[2]) and !empty($re_parts[2])) {
-            $this->re_space['m'] = $re_parts[2];
-        }
-        else {
-            $this->re_space['m'] = '';
-        }
     }
 
     /**
@@ -1377,40 +1301,6 @@ class PDF
     }
 
     /**
-     * Activates or deactivates page compression. When activated, the internal representation of each page is compressed, which leads to a compression ratio of about 2 for the resulting document. Compression is on by default.
-     * Note: the Zlib extension is required for this feature. If not present, compression will be turned off.
-     * @param bool $compress bool indicating if compression must be enabled.
-     */
-    public function setCompression($compress = true)
-    {
-        $this->compress = false;
-        if (function_exists('gzcompress')) {
-            if ($compress) {
-                $this->compress = true;
-            }
-        }
-    }
-
-    /**
-     * Set flag to force sRGB_IEC61966-2.1 black scaled ICC color profile for the whole document.
-     * @param bool $mode If true force sRGB output intent.
-     */
-    public function setSRGBmode($mode = false)
-    {
-        $this->force_srgb = $mode ? true : false;
-    }
-
-    /**
-     * Turn on/off Unicode mode for document information dictionary (meta tags).
-     * This has effect only when unicode mode is set to false.
-     * @param bool $unicode if true set the meta information in Unicode
-     */
-    public function setDocInfoUnicode($unicode = true)
-    {
-        $this->docinfounicode = $unicode ? true : false;
-    }
-
-    /**
      * Defines the title of the document.
      * @param string $title The title.
      * @see   SetAuthor(), SetCreator(), SetKeywords(), SetSubject()
@@ -1469,7 +1359,6 @@ class PDF
     {
         $this->allowLocalFiles = (bool) $allowLocalFiles;
     }
-
 
     /**
      * Throw an exception or print an error message and die if the K_TCPDF_PARSER_THROW_EXCEPTION_ERROR constant is set to true.
@@ -1887,7 +1776,7 @@ class PDF
         $this->footerpos[$this->page] = $this->pageLengths[$this->page];
         $this->append("\n");
         if ($this->print_footer) {
-            $this->graphicsConfiguration($this->defaultGraphicsConfiguration);
+            $this->graphicsConfiguration($this->graphicsConfiguration);
             $this->current_column = 0;
             $this->num_columns    = 1;
             $temp_thead           = $this->headerTemplate;
@@ -2028,7 +1917,7 @@ class PDF
             $this->setCurrentFont($fontname, $fontstyle, $fontsize, '', 'default', false);
         }
         // convert UTF-8 array to Latin1 if required
-        if ($this->isUnicode and (!$this->isUnicodeFont())) {
+        if ($this->isUnicode) {
             $sa = $this->utf8ArrayToLatin1Array($sa);
         }
         $w  = 0; // total width
@@ -2107,104 +1996,7 @@ class PDF
      */
     public function GetNumChars($s)
     {
-        if ($this->isUnicodeFont()) {
-            return count($this->utf8StringToArray($s));
-        }
         return strlen($s);
-    }
-
-    /**
-     * Returns the glyph bounding box of the specified character in the current font in user units.
-     * @param int $char Input character code.
-     * @return false|array [xMin, yMin, xMax, yMax] or false if not defined.
-     */
-    public function getCharBBox($char)
-    {
-        $c = intval($char);
-        if (isset($this->currentFont['cw'][$c])) {
-            // glyph is defined ... use zero width & height for glyphs without outlines
-            $result = [0, 0, 0, 0];
-            if (isset($this->currentFont['cbbox'][$c])) {
-                $result = $this->currentFont['cbbox'][$c];
-            }
-            return array_map([$this, 'getAbsFontMeasure'], $result);
-        }
-        return false;
-    }
-
-    /**
-     * Return true in the character is present in the specified font.
-     * @param mixed  $char  Character to check (integer value or string)
-     * @param string $font  Font name (family name).
-     * @param string $style Font style.
-     * @return bool true if the char is defined, false otherwise.
-     */
-    public function isCharDefined($char, $font = '', $style = '')
-    {
-        if (is_string($char)) {
-            // get character code
-            $char = $this->utf8StringToArray($char);
-            $char = $char[0];
-        }
-        if (StaticMethods::empty_string($font)) {
-            if (StaticMethods::empty_string($style)) {
-                return (isset($this->currentFont['cw'][intval($char)]));
-            }
-            $font = $this->fontFamily;
-        }
-        $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->fontBuffer($fontdata['fontKey']);
-        return (isset($fontinfo['cw'][intval($char)]));
-    }
-
-    /**
-     * Replace missing font characters on selected font with specified substitutions.
-     * @param string $text  Text to process.
-     * @param string $font  Font name (family name).
-     * @param string $style Font style.
-     * @param array  $subs  Array of possible character substitutions. The key is the character to check (integer value) and the value is a single intege value or an array of possible substitutes.
-     * @return string Processed text.
-     */
-    public function replaceMissingChars($text, $font = '', $style = '', $subs = [])
-    {
-        if (empty($subs)) {
-            return $text;
-        }
-        if (StaticMethods::empty_string($font)) {
-            $font = $this->fontFamily;
-        }
-        $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->fontBuffer($fontdata['fontKey']);
-        $uniarr   = $this->utf8StringToArray($text);
-        foreach ($uniarr as $k => $chr) {
-            if (!isset($fontinfo['cw'][$chr])) {
-                // this character is missing on the selected font
-                if (isset($subs[$chr])) {
-                    // we have available substitutions
-                    if (is_array($subs[$chr])) {
-                        foreach ($subs[$chr] as $s) {
-                            if (isset($fontinfo['cw'][$s])) {
-                                $uniarr[$k] = $s;
-                                break;
-                            }
-                        }
-                    }
-                    elseif (isset($fontinfo['cw'][$subs[$chr]])) {
-                        $uniarr[$k] = $subs[$chr];
-                    }
-                }
-            }
-        }
-        return $this->unicodeSliceToString($this->utf8ArrayToUnicodeArray($uniarr, $this->isUnicode));
-    }
-
-    /**
-     * Defines the default monospaced font.
-     * @param string $font Font name.
-     */
-    public function setDefaultMonospacedFont($font)
-    {
-        $this->default_monospaced_font = $font;
     }
 
     /**
@@ -2379,11 +2171,8 @@ class PDF
                     $this->append($out);
                     // embedded file object
                     $filter = '';
-                    if ($this->compress) {
-                        $data   = gzcompress($data);
-                        $filter = ' /Filter /FlateDecode';
-                    }
-
+                    $data   = gzcompress($data);
+                    $filter = ' /Filter /FlateDecode';
                     $stream = $data;
                     $out    = $this->_getobj($filedata['n']) . "\n";
                     $out    .= '<< /Type /EmbeddedFile' . $filter . ' /Length ' . strlen($stream) . ' /Params <</Size ' . $rawsize . '>> >>';
@@ -2464,24 +2253,6 @@ class PDF
     }
 
     /**
-     * Replace a char if is defined on the current font.
-     * @param int $oldchar Integer code (unicode) of the character to replace.
-     * @param int $newchar Integer code (unicode) of the new character.
-     * @return int the replaced char or the old char in case the new char i not defined
-     */
-    protected function replaceChar($oldchar, $newchar)
-    {
-        if ($this->isCharDefined($newchar)) {
-            // add the new char on the subset list
-            $this->currentFont['subsetCharacters'][$newchar] = true;
-            // return the new character
-            return $newchar;
-        }
-        // return the old char
-        return $oldchar;
-    }
-
-    /**
      * This method return the estimated number of lines for print a simple text string using Multicell() method.
      * @param string     $txt         String for calculating his height
      * @param float      $w           Width of cells. If 0, they extend up to the right margin of the page.
@@ -2527,11 +2298,11 @@ class PDF
             $charWidth = $charsWidth[$i];
             if (($c != 160)
                 and (($c == 173)
-                    or preg_match($this->re_spaces, $this->unicodeCharacter($c, $this->isUnicode))
+                    or preg_match($this->spacesRE, $this->unicodeCharacter($c, $this->isUnicode))
                     or (($c == 45)
                         and ($i > 0) and ($i < ($length - 1))
-                        and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($chars[($i - 1)], $this->isUnicode))
-                        and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
+                        and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i - 1)], $this->isUnicode))
+                        and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
                     )
                 )
             ) {
@@ -2763,11 +2534,11 @@ class PDF
                 // \p{Lo} is needed because Chinese characters are packed next to each other without spaces in between.
                 if (($c != 160)
                     and (($c == 173)
-                        or preg_match($this->re_spaces, $this->unicodeCharacter($c, $this->isUnicode))
+                        or preg_match($this->spacesRE, $this->unicodeCharacter($c, $this->isUnicode))
                         or (($c == 45)
                             and ($i < ($nb - 1))
-                            and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($pc, $this->isUnicode))
-                            and @preg_match('/[\p{L}]/' . $this->re_space['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
+                            and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($pc, $this->isUnicode))
+                            and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
                         )
                     )
                 ) {
@@ -2839,7 +2610,7 @@ class PDF
                         $endspace = 0;
                         // check the length of the next string
                         $strrest = $this->unicodeSliceToString($uchars, ($sep + $endspace));
-                        $nextstr = preg_split('/' . $this->re_space['p'] . '/' . $this->re_space['m'], $this->stringTrim($strrest));
+                        $nextstr = preg_split('/' . $this->spaceRE['p'] . '/' . $this->spaceRE['m'], $this->stringTrim($strrest));
                         if (isset($nextstr[0]) and ($this->GetStringWidth($nextstr[0]) > $pw)) {
                             // truncate the word because do not fit on a full page width
                             $tmpstr = $this->unicodeSliceToString($uchars, $j, $i);
@@ -3098,16 +2869,6 @@ class PDF
     }
 
     /**
-     * Returns the absolute X value of current position.
-     * @return float
-     * @see   x(), y()
-     */
-    public function GetAbsX()
-    {
-        return $this->x;
-    }
-
-    /**
      * Defines the abscissa and ordinate of the current position.
      * If the passed values are negative, they are relative respectively to the right and bottom of the page.
      * @param float $x The value of the abscissa.
@@ -3173,61 +2934,6 @@ class PDF
             $dest = $dest ? 'D' : 'F';
         }
         $dest = strtoupper($dest);
-
-        if ($this->signable) {
-            // *** apply digital signature to the document ***
-            // get the document content
-            $pdfdoc = $this->buffer();
-            // remove last newline
-            $pdfdoc = substr($pdfdoc, 0, -1);
-            // remove filler space
-            $byterange_string_len = strlen(self::BYTE_RANGE_STRING);
-            // define the ByteRange
-            $byte_range    = [];
-            $byte_range[0] = 0;
-            $byte_range[1] = strpos($pdfdoc, self::BYTE_RANGE_STRING) + $byterange_string_len + 10;
-            $byte_range[2] = $byte_range[1] + $this->signature_max_length + 2;
-            $byte_range[3] = strlen($pdfdoc) - $byte_range[2];
-            $pdfdoc        = substr($pdfdoc, 0, $byte_range[1]) . substr($pdfdoc, $byte_range[2]);
-            // replace the ByteRange
-            $byterange = sprintf('/ByteRange[0 %u %u %u]', $byte_range[1], $byte_range[2], $byte_range[3]);
-            $byterange .= str_repeat(' ', ($byterange_string_len - strlen($byterange)));
-            $pdfdoc    = str_replace(self::BYTE_RANGE_STRING, $byterange, $pdfdoc);
-            // write the document to a temporary folder
-            $tempdoc = $this->getObjFilename('doc', $this->fileID);
-            $f       = $this->openLocal($tempdoc, 'wb');
-            if (!$f) {
-                $this->Error('Unable to create temporary file: ' . $tempdoc);
-            }
-            $pdfdoc_length = strlen($pdfdoc);
-            fwrite($f, $pdfdoc, $pdfdoc_length);
-            fclose($f);
-            // get digital signature via openssl library
-            $tempsign = $this->getObjFilename('sig', $this->fileID);
-            if (empty($this->signature_data['extracerts'])) {
-                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED);
-            }
-            else {
-                openssl_pkcs7_sign($tempdoc, $tempsign, $this->signature_data['signcert'], [$this->signature_data['privkey'], $this->signature_data['password']], [], PKCS7_BINARY | PKCS7_DETACHED, $this->signature_data['extracerts']);
-            }
-            // read signature
-            $signature = file_get_contents($tempsign);
-            // extract signature
-            $signature = substr($signature, $pdfdoc_length);
-            $signature = substr($signature, (strpos($signature, "%%EOF\n\n------") + 13));
-            $tmparr    = explode("\n\n", $signature);
-            $signature = $tmparr[1];
-            // decode signature
-            $signature = base64_decode(trim($signature));
-            // add TSA timestamp to signature
-            $signature = $this->applyTSA($signature);
-            // convert signature to hex
-            $signature = current(unpack('H*', $signature));
-            $signature = str_pad($signature, $this->signature_max_length, '0');
-            // Add signature to the document
-            $this->buffer       = substr($pdfdoc, 0, $byte_range[1]) . '<' . $signature . '>' . substr($pdfdoc, $byte_range[1]);
-            $this->bufferLength = strlen($this->buffer);
-        }
         switch ($dest) {
             case 'I':
             {
@@ -3493,25 +3199,11 @@ class PDF
     }
 
     /**
-     * Set page boxes to be included on page descriptions.
-     * @param array $boxes Array of page boxes to set on document: ('MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox').
-     */
-    protected function setPageBoxTypes($boxes)
-    {
-        $this->page_boxes = [];
-        foreach ($boxes as $box) {
-            if (in_array($box, self::PAGE_BOXES)) {
-                $this->page_boxes[] = $box;
-            }
-        }
-    }
-
-    /**
      * Output pages (and replace page number aliases).
      */
     protected function _putpages()
     {
-        $filter = ($this->compress) ? '/Filter /FlateDecode ' : '';
+        $filter = '/Filter /FlateDecode ';
         // get internal aliases for page numbers
         $pnalias       = $this->getAllInternalPageNumberAliases();
         $num_pages     = $this->numpages;
@@ -3646,7 +3338,7 @@ class PDF
             $out .= "\n" . 'endobj';
             $this->append($out);
             //Page content
-            $p = ($this->compress) ? gzcompress($temppage) : $temppage;
+            $p = gzcompress($temppage);
             $this->_newobj();
             $this->append('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
         }
@@ -3669,7 +3361,7 @@ class PDF
      */
     protected function _getannotsrefs($n)
     {
-        if (!(isset($this->pageAnnotations[$n]) or ($this->signable and isset($this->signature_data['cert_type'])))) {
+        if (!isset($this->pageAnnotations[$n])) {
             return '';
         }
         $out = ' /Annots [';
@@ -3687,10 +3379,6 @@ class PDF
                     }
                 }
             }
-        }
-        if ($this->signable and ($n == $this->signature_appearance['page']) and isset($this->signature_data['cert_type'])) {
-            // set reference for signature object
-            $out .= ' ' . $this->sig_obj_id . ' 0 R';
         }
         if (!empty($this->empty_signature_appearance)) {
             foreach ($this->empty_signature_appearance as $esa) {
@@ -4423,18 +4111,16 @@ class PDF
         $out                                        .= ' /Type /XObject';
         $out                                        .= ' /Subtype /Form';
         $out                                        .= ' /FormType 1';
-        if ($this->compress) {
-            $stream = gzcompress($stream);
-            $out    .= ' /Filter /FlateDecode';
-        }
-        $rect = sprintf('%F %F', $w, $h);
-        $out  .= ' /BBox [0 0 ' . $rect . ']';
-        $out  .= ' /Matrix [1 0 0 1 0 0]';
-        $out  .= ' /Resources 2 0 R';
-        $out  .= ' /Length ' . strlen($stream);
-        $out  .= ' >>';
-        $out  .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-        $out  .= "\n" . 'endobj';
+        $stream                                     = gzcompress($stream);
+        $out                                        .= ' /Filter /FlateDecode';
+        $rect                                       = sprintf('%F %F', $w, $h);
+        $out                                        .= ' /BBox [0 0 ' . $rect . ']';
+        $out                                        .= ' /Matrix [1 0 0 1 0 0]';
+        $out                                        .= ' /Resources 2 0 R';
+        $out                                        .= ' /Length ' . strlen($stream);
+        $out                                        .= ' >>';
+        $out                                        .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+        $out                                        .= "\n" . 'endobj';
         $this->append($out);
         return $this->objectNumber;
     }
@@ -4454,14 +4140,12 @@ class PDF
                 $out    .= ' /Type /XObject';
                 $out    .= ' /Subtype /Form';
                 $out    .= ' /FormType 1';
-                if ($this->compress) {
-                    $stream = gzcompress($stream);
-                    $out    .= ' /Filter /FlateDecode';
-                }
-                $out .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * self::FACTOR), (-$data['y'] * self::FACTOR), (($data['w'] + $data['x']) * self::FACTOR), (($data['h'] - $data['y']) * self::FACTOR));
-                $out .= ' /Matrix [1 0 0 1 0 0]';
-                $out .= ' /Resources <<';
-                $out .= ' /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
+                $stream = gzcompress($stream);
+                $out    .= ' /Filter /FlateDecode';
+                $out    .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * self::FACTOR), (-$data['y'] * self::FACTOR), (($data['w'] + $data['x']) * self::FACTOR), (($data['h'] - $data['y']) * self::FACTOR));
+                $out    .= ' /Matrix [1 0 0 1 0 0]';
+                $out    .= ' /Resources <<';
+                $out    .= ' /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
                 if (isset($data['extgstates']) and !empty($data['extgstates'])) {
                     $out .= ' /ExtGState <<';
                     foreach ($data['extgstates'] as $k => $extgstate) {
@@ -4855,15 +4539,9 @@ class PDF
             $out .= ' >>';
         }
         // AcroForm
-        if (!empty($this->annotationIDs)
-            or ($this->signable and isset($this->signature_data['cert_type']))
-            or !empty($this->empty_signature_appearance)) {
+        if (!empty($this->annotationIDs) or !empty($this->empty_signature_appearance)) {
             $out     .= ' /AcroForm <<';
             $objrefs = '';
-            if ($this->signable and isset($this->signature_data['cert_type'])) {
-                // set reference for signature object
-                $objrefs .= $this->sig_obj_id . ' 0 R';
-            }
             if (!empty($this->empty_signature_appearance)) {
                 foreach ($this->empty_signature_appearance as $esa) {
                     // set reference for empty signature objects
@@ -4880,15 +4558,6 @@ class PDF
             if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
                 $out .= ' /NeedAppearances false';
             }
-            if ($this->signable and isset($this->signature_data['cert_type'])) {
-                if ($this->signature_data['cert_type'] > 0) {
-                    $out .= ' /SigFlags 3';
-                }
-                else {
-                    $out .= ' /SigFlags 1';
-                }
-            }
-            //$out .= ' /CO ';
             if (isset($this->annotationFonts) and !empty($this->annotationFonts)) {
                 $out .= ' /DR <<';
                 $out .= ' /Font <<';
@@ -4900,16 +4569,6 @@ class PDF
             $font = $this->fontBuffer('helvetica');
             $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g) /Q 0';
             $out  .= ' >>';
-            // signatures
-            if ($this->signable and isset($this->signature_data['cert_type'])
-                and (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A'))) {
-                if ($this->signature_data['cert_type'] > 0) {
-                    $out .= ' /Perms << /DocMDP ' . ($this->sig_obj_id + 1) . ' 0 R >>';
-                }
-                else {
-                    $out .= ' /Perms << /UR3 ' . ($this->sig_obj_id + 1) . ' 0 R >>';
-                }
-            }
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
@@ -5020,25 +4679,6 @@ class PDF
                 $out     .= "\n" . 'endobj';
                 $this->append($out);
             }
-        }
-        // Signature
-        if ($this->signable and isset($this->signature_data['cert_type'])) {
-            // widget annotation for signature
-            $out = $this->_getobj($this->sig_obj_id) . "\n";
-            $out .= '<< /Type /Annot';
-            $out .= ' /Subtype /Widget';
-            $out .= ' /Rect [' . $this->signature_appearance['rect'] . ']';
-            $out .= ' /P ' . $this->pageObjectIDs[($this->signature_appearance['page'])] . ' 0 R'; // link to signature appearance page
-            $out .= ' /F 4';
-            $out .= ' /FT /Sig';
-            $out .= ' /T ' . $this->_textstring($this->signature_appearance['name']);
-            $out .= ' /Ff 0';
-            $out .= ' /V ' . ($this->sig_obj_id + 1) . ' 0 R';
-            $out .= ' >>';
-            $out .= "\n" . 'endobj';
-            $this->append($out);
-            // signature
-            $this->_putsignature();
         }
         // Info
         $objid_info = $this->_putinfo();
@@ -5333,68 +4973,7 @@ class PDF
      */
     public function unhtmlentities($text_to_convert)
     {
-        return @html_entity_decode($text_to_convert, ENT_QUOTES, $this->encoding);
-    }
-
-    /**
-     * Add a Named Destination.
-     * NOTE: destination names are unique, so only last entry will be saved.
-     * @param string     $name Destination name.
-     * @param float      $y    Y position in user units of the destiantion on the selected page (default = -1 = current position; 0 = page start;).
-     * @param int|string $page Target page number (leave empty for current page). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
-     * @param float      $x    X position in user units of the destiantion on the selected page (default = -1 = current position;).
-     * @return string|false Stripped named destination identifier or false in case of error.
-     * @author Christian Deligant, Nicola Asuni
-     */
-    public function setDestination($name, $y = -1, $page = '', $x = -1)
-    {
-        // remove unsupported characters
-        $name = StaticMethods::encodeNameObject($name);
-        if (StaticMethods::empty_string($name)) {
-            return false;
-        }
-        if ($y == -1) {
-            $y = $this->y();
-        }
-        elseif ($y < 0) {
-            $y = 0;
-        }
-        elseif ($y > $this->height) {
-            $y = $this->height;
-        }
-        if ($x == -1) {
-            $x = $this->x();
-        }
-        elseif ($x < 0) {
-            $x = 0;
-        }
-        elseif ($x > $this->width) {
-            $x = $this->width;
-        }
-        $fixed = false;
-        if (!empty($page) and (substr($page, 0, 1) == '*')) {
-            $page = intval(substr($page, 1));
-            // this page number will not be changed when moving/add/deleting pages
-            $fixed = true;
-        }
-        if (empty($page)) {
-            $page = $this->PageNo();
-            if (empty($page)) {
-                return;
-            }
-        }
-        $this->dests[$name] = ['x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed];
-        return $name;
-    }
-
-    /**
-     * Return the Named Destination array.
-     * @return array Named Destination array.
-     * @author Nicola Asuni
-     */
-    public function getDestination()
-    {
-        return $this->dests;
+        return @html_entity_decode($text_to_convert, ENT_QUOTES, 'UTF-8');
     }
 
     /**
@@ -5414,22 +4993,6 @@ class PDF
         $out .= ' >>';
         $out .= "\n" . 'endobj';
         $this->append($out);
-    }
-
-    /**
-     * Adds a bookmark - alias for Bookmark().
-     * @param string     $txt   Bookmark description.
-     * @param int        $level Bookmark level (minimum value is 0).
-     * @param float      $y     Y position in user units of the bookmark on the selected page (default = -1 = current position; 0 = page start;).
-     * @param int|string $page  Target page number (leave empty for current page). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
-     * @param string     $style Font style: B = Bold, I = Italic, BI = Bold + Italic.
-     * @param array      $color RGB color array (values from 0 to 255).
-     * @param float      $x     X position in user units of the bookmark on the selected page (default = -1 = current position;).
-     * @param mixed      $link  URL, or numerical link ID, or named destination (# character followed by the destination name), or embedded file (* character followed by the file name).
-     */
-    public function setBookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = self::BLACK, $x = -1, $link = '')
-    {
-        $this->Bookmark($txt, $level, $y, $page, $style, $color, $x, $link);
     }
 
     /**
@@ -5741,17 +5304,6 @@ class PDF
     }
 
     // --- FORM FIELDS -----------------------------------------------------
-
-
-    /**
-     * Set default properties for form fields.
-     * @param array $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
-     * @author Nicola Asuni
-     */
-    public function setFormDefaultProp($prop = [])
-    {
-        $this->default_form_prop = $prop;
-    }
 
     /**
      * Return the default properties for form fields.
@@ -6407,259 +5959,6 @@ class PDF
     // --- END FORMS FIELDS ------------------------------------------------
 
     /**
-     * Add certification signature (DocMDP or UR3)
-     * You can set only one signature type
-     * @author Nicola Asuni
-     */
-    protected function _putsignature()
-    {
-        if ((!$this->signable) or (!isset($this->signature_data['cert_type']))) {
-            return;
-        }
-        $sigobjid = ($this->sig_obj_id + 1);
-        $out      = $this->_getobj($sigobjid) . "\n";
-        $out      .= '<< /Type /Sig';
-        $out      .= ' /Filter /Adobe.PPKLite';
-        $out      .= ' /SubFilter /adbe.pkcs7.detached';
-        $out      .= ' ' . self::BYTE_RANGE_STRING;
-        $out      .= ' /Contents<' . str_repeat('0', $this->signature_max_length) . '>';
-        if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
-            $out .= ' /Reference ['; // array of signature reference dictionaries
-            $out .= ' << /Type /SigRef';
-            if ($this->signature_data['cert_type'] > 0) {
-                $out .= ' /TransformMethod /DocMDP';
-                $out .= ' /TransformParams <<';
-                $out .= ' /Type /TransformParams';
-                $out .= ' /P ' . $this->signature_data['cert_type'];
-                $out .= ' /V /1.2';
-            }
-            else {
-                $out .= ' /TransformMethod /UR3';
-                $out .= ' /TransformParams <<';
-                $out .= ' /Type /TransformParams';
-                $out .= ' /V /2.2';
-                if (!StaticMethods::empty_string($this->userRights['document'])) {
-                    $out .= ' /Document[' . $this->userRights['document'] . ']';
-                }
-                if (!StaticMethods::empty_string($this->userRights['form'])) {
-                    $out .= ' /Form[' . $this->userRights['form'] . ']';
-                }
-                if (!StaticMethods::empty_string($this->userRights['signature'])) {
-                    $out .= ' /Signature[' . $this->userRights['signature'] . ']';
-                }
-                if (!StaticMethods::empty_string($this->userRights['annots'])) {
-                    $out .= ' /Annots[' . $this->userRights['annots'] . ']';
-                }
-                if (!StaticMethods::empty_string($this->userRights['ef'])) {
-                    $out .= ' /EF[' . $this->userRights['ef'] . ']';
-                }
-                if (!StaticMethods::empty_string($this->userRights['formex'])) {
-                    $out .= ' /FormEX[' . $this->userRights['formex'] . ']';
-                }
-            }
-            $out .= ' >>'; // close TransformParams
-            // optional digest data (values must be calculated and replaced later)
-            //$out .= ' /Data ********** 0 R';
-            //$out .= ' /DigestMethod/MD5';
-            //$out .= ' /DigestLocation[********** 34]';
-            //$out .= ' /DigestValue<********************************>';
-            $out .= ' >>';
-            $out .= ' ]'; // end of reference
-        }
-        if (isset($this->signature_data['info']['Name']) and !StaticMethods::empty_string($this->signature_data['info']['Name'])) {
-            $out .= ' /Name ' . $this->_textstring($this->signature_data['info']['Name']);
-        }
-        if (isset($this->signature_data['info']['Location']) and !StaticMethods::empty_string($this->signature_data['info']['Location'])) {
-            $out .= ' /Location ' . $this->_textstring($this->signature_data['info']['Location']);
-        }
-        if (isset($this->signature_data['info']['Reason']) and !StaticMethods::empty_string($this->signature_data['info']['Reason'])) {
-            $out .= ' /Reason ' . $this->_textstring($this->signature_data['info']['Reason']);
-        }
-        if (isset($this->signature_data['info']['ContactInfo']) and !StaticMethods::empty_string($this->signature_data['info']['ContactInfo'])) {
-            $out .= ' /ContactInfo ' . $this->_textstring($this->signature_data['info']['ContactInfo']);
-        }
-        $out .= ' /M ' . $this->_datestring($this->modificationTimestamp);
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-    }
-
-    /**
-     * Enable document signature (requires the OpenSSL Library).
-     * The digital signature improve document authenticity and integrity and allows o enable extra features on Acrobat Reader.
-     * To create self-signed signature: openssl req -x509 -nodes -days 365000 -newkey rsa:1024 -keyout tcpdf.crt -out tcpdf.crt
-     * To export crt to p12: openssl pkcs12 -export -in tcpdf.crt -out tcpdf.p12
-     * To convert pfx certificate to pem: openssl pkcs12 -in tcpdf.pfx -out tcpdf.crt -nodes
-     * @param mixed  $signing_cert         signing certificate (string or filename prefixed with 'file://')
-     * @param mixed  $private_key          private key (string or filename prefixed with 'file://')
-     * @param string $private_key_password password
-     * @param string $extracerts           specifies the name of a file containing a bunch of extra certificates to include in the signature which can for example be used to help the recipient to verify the certificate that you used.
-     * @param int    $cert_type            The access permissions granted for this document. Valid values shall be: 1 = No changes to the document shall be permitted; any change to the document shall invalidate the signature; 2 = Permitted changes shall be filling in forms, instantiating page templates, and signing; other changes shall invalidate the signature; 3 = Permitted changes shall be the same as for 2, as well as annotation creation, deletion, and modification; other changes shall invalidate the signature.
-     * @param array  $info                 array of option information: Name, Location, Reason, ContactInfo.
-     * @param string $approval             Enable approval signature eg. for PDF incremental update
-     * @author Nicola Asuni
-     */
-    public function setSignature($signing_cert = '', $private_key = '', $private_key_password = '', $extracerts = '', $cert_type = 2, $info = [], $approval = '')
-    {
-        // to create self-signed signature: openssl req -x509 -nodes -days 365000 -newkey rsa:1024 -keyout tcpdf.crt -out tcpdf.crt
-        // to export crt to p12: openssl pkcs12 -export -in tcpdf.crt -out tcpdf.p12
-        // to convert pfx certificate to pem: openssl
-        //     OpenSSL> pkcs12 -in <cert.pfx> -out <cert.crt> -nodes
-        $this->signable = true;
-        ++$this->objectNumber;
-        $this->sig_obj_id = $this->objectNumber; // signature widget
-        ++$this->objectNumber; // signature object ($this->sig_obj_id + 1)
-        $this->signature_data = [];
-        if (strlen($signing_cert) == 0) {
-            $this->Error('Please provide a certificate file and password!');
-        }
-        if (strlen($private_key) == 0) {
-            $private_key = $signing_cert;
-        }
-        $this->signature_data['signcert']   = $signing_cert;
-        $this->signature_data['privkey']    = $private_key;
-        $this->signature_data['password']   = $private_key_password;
-        $this->signature_data['extracerts'] = $extracerts;
-        $this->signature_data['cert_type']  = $cert_type;
-        $this->signature_data['info']       = $info;
-        $this->signature_data['approval']   = $approval;
-    }
-
-    /**
-     * Set the digital signature appearance (a cliccable rectangle area to get signature properties)
-     * @param float  $x    Abscissa of the upper-left corner.
-     * @param float  $y    Ordinate of the upper-left corner.
-     * @param float  $w    Width of the signature area.
-     * @param float  $h    Height of the signature area.
-     * @param int    $page option page number (if < 0 the current page is used).
-     * @param string $name Name of the signature.
-     * @author Nicola Asuni
-     */
-    public function setSignatureAppearance($x = 0, $y = 0, $w = 0, $h = 0, $page = -1, $name = '')
-    {
-        $this->signature_appearance = $this->getSignatureAppearanceArray($x, $y, $w, $h, $page, $name);
-    }
-
-    /**
-     * Add an empty digital signature appearance (a cliccable rectangle area to get signature properties)
-     * @param float  $x    Abscissa of the upper-left corner.
-     * @param float  $y    Ordinate of the upper-left corner.
-     * @param float  $w    Width of the signature area.
-     * @param float  $h    Height of the signature area.
-     * @param int    $page option page number (if < 0 the current page is used).
-     * @param string $name Name of the signature.
-     * @author Nicola Asuni
-     */
-    public function addEmptySignatureAppearance($x = 0, $y = 0, $w = 0, $h = 0, $page = -1, $name = '')
-    {
-        ++$this->objectNumber;
-        $this->empty_signature_appearance[] = ['objid' => $this->objectNumber] + $this->getSignatureAppearanceArray($x, $y, $w, $h, $page, $name);
-    }
-
-    /**
-     * Get the array that defines the signature appearance (page and rectangle coordinates).
-     * @param float  $x    Abscissa of the upper-left corner.
-     * @param float  $y    Ordinate of the upper-left corner.
-     * @param float  $w    Width of the signature area.
-     * @param float  $h    Height of the signature area.
-     * @param int    $page option page number (if < 0 the current page is used).
-     * @param string $name Name of the signature.
-     * @return array Array defining page and rectangle coordinates of signature appearance.
-     * @author Nicola Asuni
-     */
-    protected function getSignatureAppearanceArray($x = 0, $y = 0, $w = 0, $h = 0, $page = -1, $name = '')
-    {
-        $sigapp = [];
-        if (($page < 1) or ($page > $this->numpages)) {
-            $sigapp['page'] = $this->page;
-        }
-        else {
-            $sigapp['page'] = intval($page);
-        }
-        if (empty($name)) {
-            $sigapp['name'] = 'Signature';
-        }
-        else {
-            $sigapp['name'] = $name;
-        }
-        $a              = $x * self::FACTOR;
-        $b              = $this->pageDimensions[($sigapp['page'])]['h'] - (($y + $h) * self::FACTOR);
-        $c              = $w * self::FACTOR;
-        $d              = $h * self::FACTOR;
-        $sigapp['rect'] = sprintf('%F %F %F %F', $a, $b, ($a + $c), ($b + $d));
-        return $sigapp;
-    }
-
-    /**
-     * Enable document timestamping (requires the OpenSSL Library).
-     * The trusted timestamping improve document security that means that no one should be able to change the document once it has been recorded.
-     * Use with digital signature only!
-     * @param string $tsa_host     Time Stamping Authority (TSA) server (prefixed with 'https://')
-     * @param string $tsa_username Specifies the username for TSA authorization (optional) OR specifies the TSA authorization PEM file (see: example_66.php, optional)
-     * @param string $tsa_password Specifies the password for TSA authorization (optional)
-     * @param string $tsa_cert     Specifies the location of TSA certificate for authorization (optional for cURL)
-     * @author Richard Stockinger
-     */
-    public function setTimeStamp($tsa_host = '', $tsa_username = '', $tsa_password = '', $tsa_cert = '')
-    {
-        $this->tsa_data = [];
-        if (!function_exists('curl_init')) {
-            $this->Error('Please enable cURL PHP extension!');
-        }
-        if (strlen($tsa_host) == 0) {
-            $this->Error('Please specify the host of Time Stamping Authority (TSA)!');
-        }
-        $this->tsa_data['tsa_host'] = $tsa_host;
-        if (is_file($tsa_username)) {
-            $this->tsa_data['tsa_auth'] = $tsa_username;
-        }
-        else {
-            $this->tsa_data['tsa_username'] = $tsa_username;
-        }
-        $this->tsa_data['tsa_password'] = $tsa_password;
-        $this->tsa_data['tsa_cert']     = $tsa_cert;
-        $this->tsa_timestamp            = true;
-    }
-
-    /**
-     * NOT YET IMPLEMENTED
-     * Request TSA for a timestamp
-     * @param string $signature Digital signature as binary string
-     * @return string Timestamped digital signature
-     * @author Richard Stockinger
-     */
-    protected function applyTSA($signature)
-    {
-        if (!$this->tsa_timestamp) {
-            return $signature;
-        }
-        //@TODO: implement this feature
-        return $signature;
-    }
-
-    /**
-     * Create a new page group.
-     * NOTE: call this function before calling AddPage()
-     * @param int|null $page starting group page (leave empty for next page).
-     */
-    public function startPageGroup($page = null)
-    {
-        if (empty($page)) {
-            $page = $this->page + 1;
-        }
-        $this->newpagegroup[$page] = sizeof($this->newpagegroup) + 1;
-    }
-
-    /**
-     * Set the starting page number.
-     * @param int $num Starting page number.
-     */
-    public function setStartingPageNumber($num = 1)
-    {
-        $this->starting_page_number = max(0, intval($num));
-    }
-
-    /**
      * Returns the string alias used right align page numbers.
      * If the current font is unicode type, the returned string wil contain an additional open curly brace.
      * @return string
@@ -6678,9 +5977,6 @@ class PDF
         }
         $sdiff = sprintf('%F', $wdiff);
         $alias = self::RIGHT_SHIFT_ALIAS . $sdiff . '}';
-        if ($this->isUnicodeFont()) {
-            $alias = '{' . $alias;
-        }
         return $alias;
     }
 
@@ -6692,9 +5988,6 @@ class PDF
      */
     public function getAliasNbPages()
     {
-        if ($this->isUnicodeFont()) {
-            return '{' . self::TOTAL_PAGES_ALIAS . '}';
-        }
         return self::TOTAL_PAGES_ALIAS;
     }
 
@@ -6706,9 +5999,6 @@ class PDF
      */
     public function getAliasNumPage()
     {
-        if ($this->isUnicodeFont()) {
-            return '{' . self::PAGE_NUMBER_ALIAS . '}';
-        }
         return self::PAGE_NUMBER_ALIAS;
     }
 
@@ -6720,9 +6010,6 @@ class PDF
      */
     public function getPageGroupAlias()
     {
-        if ($this->isUnicodeFont()) {
-            return '{' . self::PAGES_IN_GROUP_ALIAS . '}';
-        }
         return self::PAGES_IN_GROUP_ALIAS;
     }
 
@@ -6734,37 +6021,7 @@ class PDF
      */
     public function getPageNumGroupAlias()
     {
-        if ($this->isUnicodeFont()) {
-            return '{' . self::PAGE_GROUP_NUMBER_ALIAS . '}';
-        }
         return self::PAGE_GROUP_NUMBER_ALIAS;
-    }
-
-    /**
-     * Return the current page in the group.
-     * @return int current page in the group
-     */
-    public function getGroupPageNo()
-    {
-        return $this->pageGroups[$this->currentPageGroup];
-    }
-
-    /**
-     * Returns the current group page number formatted as a string.
-     * @see   PaneNo(), formatPageNumber()
-     */
-    public function getGroupPageNoFormatted()
-    {
-        return StaticMethods::formatPageNumber($this->getGroupPageNo());
-    }
-
-    /**
-     * Returns the current page number formatted as a string.
-     * @see   PaneNo(), formatPageNumber()
-     */
-    public function PageNoFormatted()
-    {
-        return StaticMethods::formatPageNumber($this->PageNo());
     }
 
     /**
@@ -7047,15 +6304,6 @@ class PDF
     public function getCellHeightRatio()
     {
         return $this->cellHeightRatio;
-    }
-
-    /**
-     * Set the PDF version (check PDF reference for valid values).
-     * @param string $version PDF document version.
-     */
-    public function setPDFVersion($version = '1.7')
-    {
-        $this->PDFVersion = $version;
     }
 
     /**
@@ -7641,22 +6889,20 @@ class PDF
                 $this->xObjects['LX' . $oid] = ['n' => $oid];
                 $filter                      = '';
                 $stream                      = 'q /a0 gs /Pattern cs /p' . $idgs . ' scn 0 0 ' . $this->widthPT . ' ' . $this->heightPT . ' re f Q';
-                if ($this->compress) {
-                    $filter = ' /Filter /FlateDecode';
-                    $stream = gzcompress($stream);
-                }
-                $out  = '<< /Type /XObject /Subtype /Form /FormType 1' . $filter;
-                $out  .= ' /Length ' . strlen($stream);
-                $rect = sprintf('%F %F', $this->widthPT, $this->heightPT);
-                $out  .= ' /BBox [0 0 ' . $rect . ']';
-                $out  .= ' /Group << /Type /Group /S /Transparency /CS /DeviceGray >>';
-                $out  .= ' /Resources <<';
-                $out  .= ' /ExtGState << /a0 << /ca 1 /CA 1 >> >>';
-                $out  .= ' /Pattern << /p' . $idgs . ' ' . $this->gradients[$idgs]['pattern'] . ' 0 R >>';
-                $out  .= ' >>';
-                $out  .= ' >> ';
-                $out  .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-                $out  .= "\n" . 'endobj';
+                $filter                      = ' /Filter /FlateDecode';
+                $stream                      = gzcompress($stream);
+                $out                         = '<< /Type /XObject /Subtype /Form /FormType 1' . $filter;
+                $out                         .= ' /Length ' . strlen($stream);
+                $rect                        = sprintf('%F %F', $this->widthPT, $this->heightPT);
+                $out                         .= ' /BBox [0 0 ' . $rect . ']';
+                $out                         .= ' /Group << /Type /Group /S /Transparency /CS /DeviceGray >>';
+                $out                         .= ' /Resources <<';
+                $out                         .= ' /ExtGState << /a0 << /ca 1 /CA 1 >> >>';
+                $out                         .= ' /Pattern << /p' . $idgs . ' ' . $this->gradients[$idgs]['pattern'] . ' 0 R >>';
+                $out                         .= ' >>';
+                $out                         .= ' >> ';
+                $out                         .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+                $out                         .= "\n" . 'endobj';
                 $this->append($out);
                 // SMask
                 $this->_newobj();
@@ -8287,11 +7533,7 @@ class PDF
      */
     protected function getSpaceString()
     {
-        $spacestr = chr(32);
-        if ($this->isUnicodeFont()) {
-            $spacestr = chr(0) . chr(32);
-        }
-        return $spacestr;
+        return chr(32);
     }
 
     /**
@@ -9220,9 +8462,6 @@ class PDF
             else {
                 // placemark to be replaced with the correct number
                 $pagenum = '{#' . ($outline['p']) . '}';
-                if ($this->isUnicodeFont()) {
-                    $pagenum = '{' . $pagenum . '}';
-                }
                 $maxpage = max($maxpage, $outline['p']);
             }
             $fw      = ($tw - $this->GetStringWidth($pagenum . $filler));
@@ -9400,30 +8639,6 @@ class PDF
     }
 
     /**
-     * Remove columns and reset page margins.
-     */
-    public function resetColumns()
-    {
-        $this->leftMargin  = $this->originalLeftMargin;
-        $this->rightMargin = $this->originalRightMargin;
-        $this->setEqualColumns();
-    }
-
-    /**
-     * Set columns array.
-     * Each column is represented by an array of arrays with the following keys: (w = width, s = space between columns, y = column top position).
-     * @param array $columns
-     */
-    public function setColumnsArray($columns)
-    {
-        $this->columns           = $columns;
-        $this->num_columns       = count($columns);
-        $this->current_column    = 0;
-        $this->column_start_page = $this->page;
-        $this->selectColumn(0);
-    }
-
-    /**
      * Set position at a given column
      * @param int|null $col column number (from 0 to getNumberOfColumns()-1); empty string = current column.
      */
@@ -9490,24 +8705,6 @@ class PDF
         // account for an html table cell over multiple columns
         $this->leftMargin += $xshift['x'];
         $this->x          += $xshift['x'] + $xshift['p']['L'];
-    }
-
-    /**
-     * Return the current column number
-     * @return int current column number
-     */
-    public function getColumn()
-    {
-        return $this->current_column;
-    }
-
-    /**
-     * Return the current number of columns.
-     * @return int number of columns
-     */
-    public function getNumberOfColumns()
-    {
-        return $this->num_columns;
     }
 
     /**
@@ -9789,7 +8986,7 @@ class PDF
      */
     public function stringLeftTrim($str, $replace = '')
     {
-        return preg_replace('/^' . $this->re_space['p'] . '+/' . $this->re_space['m'], $replace, $str);
+        return preg_replace('/^' . $this->spaceRE['p'] . '+/' . $this->spaceRE['m'], $replace, $str);
     }
 
     /**
@@ -9801,7 +8998,7 @@ class PDF
      */
     public function stringRightTrim($str, $replace = '')
     {
-        return preg_replace('/' . $this->re_space['p'] . '+$/' . $this->re_space['m'], $replace, $str);
+        return preg_replace('/' . $this->spaceRE['p'] . '+$/' . $this->spaceRE['m'], $replace, $str);
     }
 
     /**
@@ -9816,16 +9013,6 @@ class PDF
         $str = $this->stringLeftTrim($str, $replace);
         $str = $this->stringRightTrim($str, $replace);
         return $str;
-    }
-
-    /**
-     * Return true if the current font is unicode type.
-     * @return bool true for unicode font, false otherwise.
-     * @author Nicola Asuni
-     */
-    public function isUnicodeFont()
-    {
-        return (($this->currentFont['type'] == 'TrueTypeUnicode'));
     }
 
     /**
@@ -10088,16 +9275,6 @@ class PDF
     }
 
     /**
-     * Get the amount to increase or decrease the space between characters in a text.
-     * @return int font spacing (tracking) value
-     * @author Nicola Asuni
-     */
-    public function getFontSpacing()
-    {
-        return $this->fontSpacing;
-    }
-
-    /**
      * Return an array of no-write page regions
      * @return array of no-write page regions
      * @author Nicola Asuni
@@ -10149,19 +9326,6 @@ class PDF
     }
 
     /**
-     * Remove a single no-write region.
-     * @param int $key region key
-     * @author Nicola Asuni
-     * @see    setPageRegions(), getPageRegions()
-     */
-    public function removePageRegion($key)
-    {
-        if (isset($this->page_regions[$key])) {
-            unset($this->page_regions[$key]);
-        }
-    }
-
-    /**
      * Check page for no-write regions and adapt current coordinates and page margins if necessary.
      * A no-write region is a portion of the page with a rectangular or trapezium shape that will not be covered when writing text or html code.
      * A region is always aligned on the left or right side of the page ad is defined using a vertical segment.
@@ -10197,7 +9361,7 @@ class PDF
             $this->rightMargin = ($this->width - $this->columns[$this->current_column]['x'] - $this->columns[$this->current_column]['w']);
         }
         else {
-            $this->rightMargin = max($this->crMargin, $this->originalRightMargin);
+            $this->rightMargin = max($this->cellRightMargin, $this->originalRightMargin);
         }
         // adjust coordinates and page margins
         foreach ($this->page_regions as $regid => $regdata) {
@@ -10269,5 +9433,4 @@ class PDF
 
         return @file_exists($file);
     }
-
 }

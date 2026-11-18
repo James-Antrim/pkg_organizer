@@ -15,8 +15,10 @@ namespace THM\Organizer\Views\PDF\Library;
 trait Cells
 {
     protected float $cellHeightRatio = 1.25;
+    protected float $cellLeftMargin = 0;
     protected array $cellMargins = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
     protected array $cellPaddings = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
+    protected float $cellRightMargin = 0;
 
     /**
      * Set the internal Cell margins.
@@ -89,17 +91,6 @@ trait Cells
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
-    /**
-     * Cell left margin (used by regions).
-     */
-    protected $clMargin;
-
-    /**
-     * Cell right margin (used by regions).
-     */
-    protected $crMargin;
 
     /**
      * Adjust the internal Cell padding array to take account of the line width.
@@ -521,31 +512,16 @@ trait Cells
             // Justification
             $spacewidth = 0;
             if (($align == 'J') and ($ns > 0)) {
-                if ($this->isUnicodeFont()) {
-                    // get string width without spaces
-                    $width = $this->GetStringWidth(str_replace(' ', '', $txt));
-                    // calculate average space width
-                    $spacewidth = -1000 * ($w - $width - $this->cellPaddings['L'] - $this->cellPaddings['R']) / ($ns ? $ns : 1) / ($this->fontSize ? $this->fontSize : 1);
-                    if ($this->fontStretching != 100) {
-                        // word spacing is affected by stretching
-                        $spacewidth /= ($this->fontStretching / 100);
-                    }
-                    // set word position to be used with TJ operator
-                    $txt2                  = str_replace(chr(0) . chr(32), ') ' . sprintf('%F', $spacewidth) . ' (', $txt2);
-                    $unicode_justification = true;
+                // get string width
+                $width = $txwidth;
+                // new space width
+                $spacewidth = (($w - $width - $this->cellPaddings['L'] - $this->cellPaddings['R']) / ($ns ? $ns : 1)) * self::FACTOR;
+                if ($this->fontStretching != 100) {
+                    // word spacing (Tw) is affected by stretching
+                    $spacewidth /= ($this->fontStretching / 100);
                 }
-                else {
-                    // get string width
-                    $width = $txwidth;
-                    // new space width
-                    $spacewidth = (($w - $width - $this->cellPaddings['L'] - $this->cellPaddings['R']) / ($ns ? $ns : 1)) * self::FACTOR;
-                    if ($this->fontStretching != 100) {
-                        // word spacing (Tw) is affected by stretching
-                        $spacewidth /= ($this->fontStretching / 100);
-                    }
-                    // set word spacing
-                    $rs .= sprintf('BT %F Tw ET ', $spacewidth);
-                }
+                // set word spacing
+                $rs    .= sprintf('BT %F Tw ET ', $spacewidth);
                 $width = $w - $this->cellPaddings['L'] - $this->cellPaddings['R'];
             }
             // replace carriage return characters
@@ -629,7 +605,7 @@ trait Cells
             }
         }
         // reset word spacing
-        if (!$this->isUnicodeFont() and ($align == 'J')) {
+        if ($align === 'J') {
             $rs .= ' BT 0 Tw ET';
         }
         // reset stretching and spacing
@@ -926,12 +902,12 @@ trait Cells
             $w = ($this->width - $this->x - $this->rightMargin - $mc_margin['R']);
         }
         // store original margin values
-        $lMargin           = $this->leftMargin;
-        $rMargin           = $this->rightMargin;
-        $this->leftMargin  = ($this->x);
-        $this->rightMargin = ($this->width - $this->x - $w);
-        $this->clMargin    = $this->leftMargin;
-        $this->crMargin    = $this->rightMargin;
+        $lMargin               = $this->leftMargin;
+        $rMargin               = $this->rightMargin;
+        $this->leftMargin      = ($this->x);
+        $this->rightMargin     = ($this->width - $this->x - $w);
+        $this->cellLeftMargin  = $this->leftMargin;
+        $this->cellRightMargin = $this->rightMargin;
         if ($autopadding) {
             // add top padding
             $this->y += $mc_padding['T'];
@@ -1216,10 +1192,10 @@ trait Cells
             $this->x($x + $w + $mc_margin['L'] + $mc_margin['R']);
         }
         $this->setContentMark();
-        $this->cellPaddings = $previousPaddings;
-        $this->cellMargins  = $previousMargins;
-        $this->clMargin     = $this->leftMargin;
-        $this->crMargin     = $this->rightMargin;
+        $this->cellPaddings    = $previousPaddings;
+        $this->cellMargins     = $previousMargins;
+        $this->cellLeftMargin  = $this->leftMargin;
+        $this->cellRightMargin = $this->rightMargin;
         return $nl;
     }
 
