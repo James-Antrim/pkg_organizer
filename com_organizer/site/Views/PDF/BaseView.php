@@ -130,7 +130,7 @@ abstract class BaseView extends PDF implements ViewInterface
      */
     public function format(array|string $format): void
     {
-        $this->pageFormat($format, $this->orientation);
+        $this->pageFormat($format, $this->currentOrientation);
     }
 
     /** @inheritDoc */
