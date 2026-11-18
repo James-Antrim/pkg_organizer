@@ -875,7 +875,7 @@ trait Images
             if (isset($info['exurl']) and !empty($info['exurl'])) {
                 // external stream
                 $out .= ' /Length 0';
-                $out .= ' /F << /FS /URL /F ' . $this->_datastring($info['exurl'], $oid) . ' >>';
+                $out .= ' /F << /FS /URL /F ' . $this->_datastring($info['exurl']) . ' >>';
                 if (isset($info['f'])) {
                     $out .= ' /FFilter /' . $info['f'];
                 }
@@ -919,7 +919,7 @@ trait Images
                         $out .= ' /Mask [' . $trns . ']';
                     }
                 }
-                $stream = $this->_getrawstream($info['data']);
+                $stream = $info['data'];
                 $out    .= ' /Length ' . strlen($stream) . ' >>';
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             }
@@ -929,14 +929,12 @@ trait Images
                 // ICC colour profile
                 $this->_newobj();
                 $icc = ($this->compress) ? gzcompress($info['icc']) : $info['icc'];
-                $icc = $this->_getrawstream($icc);
                 $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
             }
             elseif ($info['cs'] == 'Indexed') {
                 // colour palette
                 $this->_newobj();
                 $pal = ($this->compress) ? gzcompress($info['pal']) : $info['pal'];
-                $pal = $this->_getrawstream($pal);
                 $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
             }
         }

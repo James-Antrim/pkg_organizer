@@ -27,7 +27,6 @@ class PDF
     use Cells;
     use Colors;
     use Constants;
-    use Encryption;
     use FileSystem;
     use Geometry;
     use Fonts;
@@ -195,6 +194,20 @@ class PDF
     public function producer(): string
     {
         return "\x54\x48\x4D\x20\x4F\x72\x67\x61\x6E\x69\x7A\x65\x72\x20\x76\x35\x2E\x30\x2E\x30";
+    }
+
+    /**
+     * Returns a string containing random data to be used as a seed for encryption methods.
+     * @param string $seed starting seed value
+     * @return string containing random data
+     * @author Nicola Asuni
+     */
+    public function randomSeed(string $seed = ''): string
+    {
+        $rnd = uniqid(rand() . microtime(true), true);
+        $rnd .= posix_getpid();
+        $rnd .= openssl_random_pseudo_bytes(512);
+        return $rnd . $seed . __FILE__ . serialize($_SERVER) . microtime(true);
     }
 
     /**
@@ -2358,8 +2371,8 @@ class PDF
                     $this->efnames[$filename] = $filedata['f'] . ' 0 R';
                     // embedded file specification object
                     $out = $this->_getobj($filedata['f']) . "\n";
-                    $out .= '<</Type /Filespec /F ' . $this->_datastring($filename, $filedata['f']);
-                    $out .= ' /UF ' . $this->_datastring($filename, $filedata['f']);
+                    $out .= '<</Type /Filespec /F ' . $this->_datastring($filename);
+                    $out .= ' /UF ' . $this->_datastring($filename);
                     $out .= ' /AFRelationship /Source';
                     $out .= ' /EF <</F ' . $filedata['n'] . ' 0 R>> >>';
                     $out .= "\n" . 'endobj';
@@ -2371,7 +2384,7 @@ class PDF
                         $filter = ' /Filter /FlateDecode';
                     }
 
-                    $stream = $this->_getrawstream($data, $filedata['n']);
+                    $stream = $data;
                     $out    = $this->_getobj($filedata['n']) . "\n";
                     $out    .= '<< /Type /EmbeddedFile' . $filter . ' /Length ' . strlen($stream) . ' /Params <</Size ' . $rawsize . '>> >>';
                     $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
@@ -3557,7 +3570,7 @@ class PDF
             $out                     .= ' /Type /Page';
             $out                     .= ' /Parent 1 0 R';
             if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
-                $out .= ' /LastModified ' . $this->_datestring(0, $this->modificationTimestamp);
+                $out .= ' /LastModified ' . $this->_datestring($this->modificationTimestamp);
             }
             $out .= ' /Resources 2 0 R';
             foreach ($this->page_boxes as $box) {
@@ -3635,7 +3648,6 @@ class PDF
             //Page content
             $p = ($this->compress) ? gzcompress($temppage) : $temppage;
             $this->_newobj();
-            $p = $this->_getrawstream($p);
             $this->append('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
         }
         //Pages root
@@ -3722,9 +3734,9 @@ class PDF
                             $annots .= ' /F 4'; // default print for PDF/A
                             $annots .= ' /Ff 49152';
                         }
-                        $annots .= ' /T ' . $this->_datastring($pl['txt'], $radio_button_obj_id);
+                        $annots .= ' /T ' . $this->_datastring($pl['txt']);
                         if (isset($pl['opt']['tu']) and is_string($pl['opt']['tu'])) {
-                            $annots .= ' /TU ' . $this->_datastring($pl['opt']['tu'], $radio_button_obj_id);
+                            $annots .= ' /TU ' . $this->_datastring($pl['opt']['tu']);
                         }
                         $annots .= ' /FT /Btn';
                         $annots .= ' /Kids [';
@@ -3764,11 +3776,11 @@ class PDF
                         $formfield = true;
                     }
                     if ($pl['opt']['subtype'] !== 'Link') {
-                        $annots .= ' /Contents ' . $this->_textstring($pl['txt'], $annot_obj_id);
+                        $annots .= ' /Contents ' . $this->_textstring($pl['txt']);
                     }
                     $annots .= ' /P ' . $this->pageObjectIDs[$n] . ' 0 R';
-                    $annots .= ' /NM ' . $this->_datastring(sprintf('%04u-%04u', $n, $key), $annot_obj_id);
-                    $annots .= ' /M ' . $this->_datestring($annot_obj_id, $this->modificationTimestamp);
+                    $annots .= ' /NM ' . $this->_datastring(sprintf('%04u-%04u', $n, $key));
+                    $annots .= ' /M ' . $this->_datestring($this->modificationTimestamp);
                     if (isset($pl['opt']['f'])) {
                         $fval = 0;
                         if (is_array($pl['opt']['f'])) {
@@ -3931,19 +3943,19 @@ class PDF
                     if (in_array(strtolower($pl['opt']['subtype']), $markups)) {
                         // this is a markup type
                         if (isset($pl['opt']['t']) and is_string($pl['opt']['t'])) {
-                            $annots .= ' /T ' . $this->_textstring($pl['opt']['t'], $annot_obj_id);
+                            $annots .= ' /T ' . $this->_textstring($pl['opt']['t']);
                         }
                         //$annots .= ' /Popup ';
                         if (isset($pl['opt']['ca'])) {
                             $annots .= ' /CA ' . sprintf('%F', floatval($pl['opt']['ca']));
                         }
                         if (isset($pl['opt']['rc'])) {
-                            $annots .= ' /RC ' . $this->_textstring($pl['opt']['rc'], $annot_obj_id);
+                            $annots .= ' /RC ' . $this->_textstring($pl['opt']['rc']);
                         }
-                        $annots .= ' /CreationDate ' . $this->_datestring($annot_obj_id, $this->creationTimestamp);
+                        $annots .= ' /CreationDate ' . $this->_datestring($this->creationTimestamp);
                         //$annots .= ' /IRT ';
                         if (isset($pl['opt']['subj'])) {
-                            $annots .= ' /Subj ' . $this->_textstring($pl['opt']['subj'], $annot_obj_id);
+                            $annots .= ' /Subj ' . $this->_textstring($pl['opt']['subj']);
                         }
                         //$annots .= ' /RT ';
                         //$annots .= ' /IT ';
@@ -4012,7 +4024,7 @@ class PDF
                                     // embedded generic file
                                     $filename = basename(substr($pl['txt'], 1));
                                     $jsa      = 'var D=event.target.doc;var MyData=D.dataObjects;for (var i in MyData) if (MyData[i].path=="' . $filename . '") D.exportDataObject( { cName : MyData[i].name, nLaunch : 2});';
-                                    $annots   .= ' /A << /S /JavaScript /JS ' . $this->_textstring($jsa, $annot_obj_id) . '>>';
+                                    $annots   .= ' /A << /S /JavaScript /JS ' . $this->_textstring($jsa) . '>>';
                                 }
                                 else {
                                     $parsedUrl = parse_url($pl['txt']);
@@ -4024,11 +4036,11 @@ class PDF
                                             $tmp  = explode('=', $parsedUrl['fragment']);
                                             $dest = '(' . ((count($tmp) == 2) ? $tmp[1] : $tmp[0]) . ')';
                                         }
-                                        $annots .= ' /A <</S /GoToR /D ' . $dest . ' /F ' . $this->_datastring($this->unhtmlentities($parsedUrl['path']), $annot_obj_id) . ' /NewWindow true>>';
+                                        $annots .= ' /A <</S /GoToR /D ' . $dest . ' /F ' . $this->_datastring($this->unhtmlentities($parsedUrl['path'])) . ' /NewWindow true>>';
                                     }
                                     else {
                                         // external URI link
-                                        $annots .= ' /A <</S /URI /URI ' . $this->_datastring($this->unhtmlentities($pl['txt']), $annot_obj_id) . '>>';
+                                        $annots .= ' /A <</S /URI /URI ' . $this->_datastring($this->unhtmlentities($pl['txt'])) . '>>';
                                     }
                                 }
                             }
@@ -4059,10 +4071,10 @@ class PDF
                                 $annots .= ' /Q ' . intval($pl['opt']['q']);
                             }
                             if (isset($pl['opt']['rc'])) {
-                                $annots .= ' /RC ' . $this->_textstring($pl['opt']['rc'], $annot_obj_id);
+                                $annots .= ' /RC ' . $this->_textstring($pl['opt']['rc']);
                             }
                             if (isset($pl['opt']['ds'])) {
-                                $annots .= ' /DS ' . $this->_textstring($pl['opt']['ds'], $annot_obj_id);
+                                $annots .= ' /DS ' . $this->_textstring($pl['opt']['ds']);
                             }
                             if (isset($pl['opt']['cl']) and is_array($pl['opt']['cl'])) {
                                 $annots .= ' /CL [';
@@ -4256,13 +4268,13 @@ class PDF
                                 $annots .= ' /Parent ' . $this->radiobutton_groups[$n][$pl['txt']] . ' 0 R';
                             }
                             if (isset($pl['opt']['t']) and is_string($pl['opt']['t'])) {
-                                $annots .= ' /T ' . $this->_datastring($pl['opt']['t'], $annot_obj_id);
+                                $annots .= ' /T ' . $this->_datastring($pl['opt']['t']);
                             }
                             if (isset($pl['opt']['tu']) and is_string($pl['opt']['tu'])) {
-                                $annots .= ' /TU ' . $this->_datastring($pl['opt']['tu'], $annot_obj_id);
+                                $annots .= ' /TU ' . $this->_datastring($pl['opt']['tu']);
                             }
                             if (isset($pl['opt']['tm']) and is_string($pl['opt']['tm'])) {
-                                $annots .= ' /TM ' . $this->_datastring($pl['opt']['tm'], $annot_obj_id);
+                                $annots .= ' /TM ' . $this->_datastring($pl['opt']['tm']);
                             }
                             if (isset($pl['opt']['ff'])) {
                                 if (is_array($pl['opt']['ff'])) {
@@ -4291,7 +4303,7 @@ class PDF
                                     }
                                 }
                                 else {
-                                    $annots .= ' ' . $this->_textstring($pl['opt']['v'], $annot_obj_id);
+                                    $annots .= ' ' . $this->_textstring($pl['opt']['v']);
                                 }
                             }
                             if (isset($pl['opt']['dv'])) {
@@ -4305,7 +4317,7 @@ class PDF
                                     }
                                 }
                                 else {
-                                    $annots .= ' ' . $this->_textstring($pl['opt']['dv'], $annot_obj_id);
+                                    $annots .= ' ' . $this->_textstring($pl['opt']['dv']);
                                 }
                             }
                             if (isset($pl['opt']['rv'])) {
@@ -4319,7 +4331,7 @@ class PDF
                                     }
                                 }
                                 else {
-                                    $annots .= ' ' . $this->_textstring($pl['opt']['rv'], $annot_obj_id);
+                                    $annots .= ' ' . $this->_textstring($pl['opt']['rv']);
                                 }
                             }
                             if (isset($pl['opt']['a']) and !empty($pl['opt']['a'])) {
@@ -4338,10 +4350,10 @@ class PDF
                                 $annots .= ' /Opt [';
                                 foreach ($pl['opt']['opt'] as $copt) {
                                     if (is_array($copt)) {
-                                        $annots .= ' [' . $this->_textstring($copt[0], $annot_obj_id) . ' ' . $this->_textstring($copt[1], $annot_obj_id) . ']';
+                                        $annots .= ' [' . $this->_textstring($copt[0]) . ' ' . $this->_textstring($copt[1]) . ']';
                                     }
                                     else {
-                                        $annots .= ' ' . $this->_textstring($copt, $annot_obj_id);
+                                        $annots .= ' ' . $this->_textstring($copt);
                                     }
                                 }
                                 $annots .= ']';
@@ -4415,15 +4427,14 @@ class PDF
             $stream = gzcompress($stream);
             $out    .= ' /Filter /FlateDecode';
         }
-        $rect   = sprintf('%F %F', $w, $h);
-        $out    .= ' /BBox [0 0 ' . $rect . ']';
-        $out    .= ' /Matrix [1 0 0 1 0 0]';
-        $out    .= ' /Resources 2 0 R';
-        $stream = $this->_getrawstream($stream);
-        $out    .= ' /Length ' . strlen($stream);
-        $out    .= ' >>';
-        $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-        $out    .= "\n" . 'endobj';
+        $rect = sprintf('%F %F', $w, $h);
+        $out  .= ' /BBox [0 0 ' . $rect . ']';
+        $out  .= ' /Matrix [1 0 0 1 0 0]';
+        $out  .= ' /Resources 2 0 R';
+        $out  .= ' /Length ' . strlen($stream);
+        $out  .= ' >>';
+        $out  .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+        $out  .= "\n" . 'endobj';
         $this->append($out);
         return $this->objectNumber;
     }
@@ -4520,11 +4531,10 @@ class PDF
                     }
                     $out .= ' >>';
                 }
-                $stream = $this->_getrawstream($stream, $data['n']);
-                $out    .= ' /Length ' . strlen($stream);
-                $out    .= ' >>';
-                $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-                $out    .= "\n" . 'endobj';
+                $out .= ' /Length ' . strlen($stream);
+                $out .= ' >>';
+                $out .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+                $out .= "\n" . 'endobj';
                 $this->append($out);
             }
         }
@@ -4624,7 +4634,6 @@ class PDF
         $this->_putannotsobjs();
         $this->_putjavascript();
         $this->_putbookmarks();
-        $this->_putencryption();
     }
 
     /**
@@ -4643,32 +4652,32 @@ class PDF
         }
         if (!StaticMethods::empty_string($this->title)) {
             // The document's title.
-            $out .= ' /Title ' . $this->_textstring($this->title, $oid);
+            $out .= ' /Title ' . $this->_textstring($this->title);
         }
         if (!StaticMethods::empty_string($this->author)) {
             // The name of the person who created the document.
-            $out .= ' /Author ' . $this->_textstring($this->author, $oid);
+            $out .= ' /Author ' . $this->_textstring($this->author);
         }
         if (!StaticMethods::empty_string($this->subject)) {
             // The subject of the document.
-            $out .= ' /Subject ' . $this->_textstring($this->subject, $oid);
+            $out .= ' /Subject ' . $this->_textstring($this->subject);
         }
         if (!StaticMethods::empty_string($this->keywords)) {
             // Keywords associated with the document.
-            $out .= ' /Keywords ' . $this->_textstring($this->keywords, $oid);
+            $out .= ' /Keywords ' . $this->_textstring($this->keywords);
         }
         if (!StaticMethods::empty_string($this->creator)) {
             // If the document was converted to PDF from another format, the name of the conforming product that created the original document from which it was converted.
-            $out .= ' /Creator ' . $this->_textstring($this->creator, $oid);
+            $out .= ' /Creator ' . $this->_textstring($this->creator);
         }
         // restore previous isunicode value
         $this->isUnicode = $prev_isunicode;
         // default producer
-        $out .= ' /Producer ' . $this->_textstring($this->producer(), $oid);
+        $out .= ' /Producer ' . $this->_textstring($this->producer());
         // The date and time the document was created, in human-readable form
-        $out .= ' /CreationDate ' . $this->_datestring(0, $this->creationTimestamp);
+        $out .= ' /CreationDate ' . $this->_datestring($this->creationTimestamp);
         // The date and time the document was most recently modified, in human-readable form
-        $out .= ' /ModDate ' . $this->_datestring(0, $this->modificationTimestamp);
+        $out .= ' /ModDate ' . $this->_datestring($this->modificationTimestamp);
         // A name object indicating whether the document has been modified to include trapping information
         $out .= ' /Trapped /False';
         $out .= ' >>';
@@ -4687,8 +4696,6 @@ class PDF
         // store current isunicode value
         $prev_isunicode  = $this->isUnicode;
         $this->isUnicode = true;
-        $prev_encrypted  = $this->encrypted;
-        $this->encrypted = false;
         // set XMP data
         $xmp = '<?xpacket begin="' . $this->unicodeCharacter(0xfeff, $this->isUnicode) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n";
         $xmp .= '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.2.1-c043 52.372728, 2009/01/18-15:08:04">' . "\n";
@@ -4752,7 +4759,6 @@ class PDF
         $out = '<< /Type /Metadata /Subtype /XML /Length ' . strlen($xmp) . ' >> stream' . "\n" . $xmp . "\n" . 'endstream' . "\n" . 'endobj';
         // restore previous isunicode value
         $this->isUnicode = $prev_isunicode;
-        $this->encrypted = $prev_encrypted;
         $this->append($out);
         return $oid;
     }
@@ -4813,7 +4819,7 @@ class PDF
         }
         $out .= ' /Metadata ' . $xmpobj . ' 0 R';
         if (isset($this->l['a_meta_language'])) {
-            $out .= ' /Lang ' . $this->_textstring($this->l['a_meta_language'], $oid);
+            $out .= ' /Lang ' . $this->_textstring($this->l['a_meta_language']);
         }
         if (!empty($this->layers)) {
             $lyrobjs      = '';
@@ -4831,8 +4837,8 @@ class PDF
             }
             $out .= ' /OCProperties << /OCGs [' . $lyrobjs . ']';
             $out .= ' /D <<';
-            $out .= ' /Name ' . $this->_textstring('Layers', $oid);
-            $out .= ' /Creator ' . $this->_textstring('TCPDF', $oid);
+            $out .= ' /Name ' . $this->_textstring('Layers');
+            $out .= ' /Creator ' . $this->_textstring('TCPDF');
             $out .= ' /BaseState /ON';
             $out .= ' /OFF [' . $lyrobjs_off . ']';
             $out .= ' /Locked [' . $lyrobjs_lock . ']';
@@ -5008,7 +5014,7 @@ class PDF
                 $out     .= ' /F 4';
                 $out     .= ' /FT /Sig';
                 $signame = $esa['name'] . sprintf(' [%03d]', ($key + 1));
-                $out     .= ' /T ' . $this->_textstring($signame, $esa['objid']);
+                $out     .= ' /T ' . $this->_textstring($signame);
                 $out     .= ' /Ff 0';
                 $out     .= ' >>';
                 $out     .= "\n" . 'endobj';
@@ -5025,7 +5031,7 @@ class PDF
             $out .= ' /P ' . $this->pageObjectIDs[($this->signature_appearance['page'])] . ' 0 R'; // link to signature appearance page
             $out .= ' /F 4';
             $out .= ' /FT /Sig';
-            $out .= ' /T ' . $this->_textstring($this->signature_appearance['name'], $this->sig_obj_id);
+            $out .= ' /T ' . $this->_textstring($this->signature_appearance['name']);
             $out .= ' /Ff 0';
             $out .= ' /V ' . ($this->sig_obj_id + 1) . ' 0 R';
             $out .= ' >>';
@@ -5060,9 +5066,6 @@ class PDF
         $out .= ' /Size ' . ($this->objectNumber + 1);
         $out .= ' /Root ' . $objid_catalog . ' 0 R';
         $out .= ' /Info ' . $objid_info . ' 0 R';
-        if ($this->encrypted) {
-            $out .= ' /Encrypt ' . $this->encryptionSettings['objid'] . ' 0 R';
-        }
         $out .= ' /ID [ <' . $this->fileID . '> <' . $this->fileID . '> ]';
         $out .= ' >>';
         $this->append($out);
@@ -5229,15 +5232,10 @@ class PDF
     /**
      * Format a data string for meta information
      * @param string $s data string to escape.
-     * @param int    $n object ID
      * @return string escaped string.
      */
-    protected function _datastring($s, $n = 0)
+    protected function _datastring($s)
     {
-        if ($n == 0) {
-            $n = $this->objectNumber;
-        }
-        $s = $this->encryptData($n, $s);
         return '(' . StaticMethods::_escape($s) . ')';
     }
 
@@ -5247,42 +5245,24 @@ class PDF
      * @param int $timestamp Timestamp to convert.
      * @return string escaped date string.
      */
-    protected function _datestring($n = 0, $timestamp = 0)
+    protected function _datestring(int $timestamp)
     {
-        if ((empty($timestamp)) or ($timestamp < 0)) {
-            $timestamp = $this->creationTimestamp;
-        }
-        return $this->_datastring('D:' . StaticMethods::getFormattedDate($timestamp), $n);
+        $timestamp = $timestamp < 0 ? $this->creationTimestamp : $timestamp;
+        return $this->_datastring('D:' . StaticMethods::getFormattedDate($timestamp));
     }
 
     /**
      * Format a text string for meta information
      * @param string $s string to escape.
-     * @param int    $n object ID
      * @return string escaped string.
      */
-    protected function _textstring($s, $n = 0)
+    protected function _textstring($s)
     {
         if ($this->isUnicode) {
             //Convert string to UTF-16BE
             $s = $this->utf8ToUTF16BE($s, true);
         }
-        return $this->_datastring($s, $n);
-    }
-
-    /**
-     * get raw output stream.
-     * @param string $s string to output.
-     * @param int    $n object reference for encryption mode
-     * @author Nicola Asuni
-     */
-    protected function _getrawstream($s, $n = 0)
-    {
-        if ($n <= 0) {
-            // default to current object
-            $n = $this->objectNumber;
-        }
-        return $this->encryptData($n, $s);
+        return $this->_datastring($s);
     }
 
     /**
@@ -5568,15 +5548,14 @@ class PDF
         //Outline items
         $n      = $this->objectNumber + 1;
         $nltags = '/<br[\s]?\/>|<\/(blockquote|dd|dl|div|dt|h1|h2|h3|h4|h5|h6|hr|li|ol|p|pre|ul|tcpdf|table|tr|td)>/si';
-        foreach ($this->outlines as $i => $o) {
-            $oid = $this->_newobj();
+        foreach ($this->outlines as $o) {
             // covert HTML title to string
             $title = preg_replace($nltags, "\n", $o['t']);
             $title = preg_replace("/[\r]+/si", '', $title);
             $title = preg_replace("/[\n]+/si", "\n", $title);
             $title = strip_tags($title);
             $title = $this->stringTrim($title);
-            $out   = '<</Title ' . $this->_textstring($title, $oid);
+            $out   = '<</Title ' . $this->_textstring($title);
             $out   .= ' /Parent ' . ($n + $o['parent']) . ' 0 R';
             if (isset($o['prev'])) {
                 $out .= ' /Prev ' . ($n + $o['prev']) . ' 0 R';
@@ -5606,11 +5585,11 @@ class PDF
                         // embedded generic file
                         $filename = basename(substr($o['u'], 1));
                         $jsa      = 'var D=event.target.doc;var MyData=D.dataObjects;for (var i in MyData) if (MyData[i].path=="' . $filename . '") D.exportDataObject( { cName : MyData[i].name, nLaunch : 2});';
-                        $out      .= ' /A <</S /JavaScript /JS ' . $this->_textstring($jsa, $oid) . '>>';
+                        $out      .= ' /A <</S /JavaScript /JS ' . $this->_textstring($jsa) . '>>';
                     }
                     else {
                         // external URI link
-                        $out .= ' /A <</S /URI /URI ' . $this->_datastring($this->unhtmlentities($o['u']), $oid) . '>>';
+                        $out .= ' /A <</S /URI /URI ' . $this->_datastring($this->unhtmlentities($o['u'])) . '>>';
                     }
                 }
                 elseif (isset($this->links[$o['u']])) {
@@ -5693,9 +5672,6 @@ class PDF
             return;
         }
         if (strpos($this->javascript, 'this.addField') > 0) {
-            if (!$this->userRights['enabled']) {
-                //$this->setUserRights();
-            }
             // the following two lines are used to avoid form fields duplication after saving
             // The addField method only works when releasing user rights (UR3)
             $jsa              = sprintf("ftcpdfdocsaved=this.addField('%s','%s',%d,[%F,%F,%F,%F]);", 'tcpdfdocsaved', 'text', 0, 0, 1, 0, 1);
@@ -5719,7 +5695,7 @@ class PDF
         if (!empty($this->javascript)) {
             $obj_id = $this->_newobj();
             $out    = '<< /S /JavaScript';
-            $out    .= ' /JS ' . $this->_textstring($this->javascript, $obj_id);
+            $out    .= ' /JS ' . $this->_textstring($this->javascript);
             $out    .= ' >>';
             $out    .= "\n" . 'endobj';
             $this->append($out);
@@ -5727,7 +5703,7 @@ class PDF
         // additional Javascript objects
         if (!empty($this->js_objects)) {
             foreach ($this->js_objects as $key => $val) {
-                $out = $this->_getobj($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js'], $key) . ' >>' . "\n" . 'endobj';
+                $out = $this->_getobj($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js']) . ' >>' . "\n" . 'endobj';
                 $this->append($out);
             }
         }
@@ -6308,9 +6284,9 @@ class PDF
         if (!empty($action) and !is_array($action)) {
             $ann_obj_id = ($this->objectNumber + 2);
         }
-        $popt['mk']['ca'] = $this->_textstring($caption, $ann_obj_id);
-        $popt['mk']['rc'] = $this->_textstring($caption, $ann_obj_id);
-        $popt['mk']['ac'] = $this->_textstring($caption, $ann_obj_id);
+        $popt['mk']['ca'] = $this->_textstring($caption);
+        $popt['mk']['rc'] = $this->_textstring($caption);
+        $popt['mk']['ac'] = $this->_textstring($caption);
         // merge options
         $opt = array_merge($popt, $opt);
         // set remaining annotation data
@@ -6328,12 +6304,12 @@ class PDF
                         $opt['aa'] .= ' /S /' . $val;
                     }
                     elseif (($key == 'F') and (!empty($val))) {
-                        $opt['aa'] .= ' /F ' . $this->_datastring($val, $ann_obj_id);
+                        $opt['aa'] .= ' /F ' . $this->_datastring($val);
                     }
                     elseif (($key == 'Fields') and is_array($val) and !empty($val)) {
                         $opt['aa'] .= ' /Fields [';
                         foreach ($val as $field) {
-                            $opt['aa'] .= ' ' . $this->_textstring($field, $ann_obj_id);
+                            $opt['aa'] .= ' ' . $this->_textstring($field);
                         }
                         $opt['aa'] .= ']';
                     }
@@ -6491,57 +6467,21 @@ class PDF
             $out .= ' ]'; // end of reference
         }
         if (isset($this->signature_data['info']['Name']) and !StaticMethods::empty_string($this->signature_data['info']['Name'])) {
-            $out .= ' /Name ' . $this->_textstring($this->signature_data['info']['Name'], $sigobjid);
+            $out .= ' /Name ' . $this->_textstring($this->signature_data['info']['Name']);
         }
         if (isset($this->signature_data['info']['Location']) and !StaticMethods::empty_string($this->signature_data['info']['Location'])) {
-            $out .= ' /Location ' . $this->_textstring($this->signature_data['info']['Location'], $sigobjid);
+            $out .= ' /Location ' . $this->_textstring($this->signature_data['info']['Location']);
         }
         if (isset($this->signature_data['info']['Reason']) and !StaticMethods::empty_string($this->signature_data['info']['Reason'])) {
-            $out .= ' /Reason ' . $this->_textstring($this->signature_data['info']['Reason'], $sigobjid);
+            $out .= ' /Reason ' . $this->_textstring($this->signature_data['info']['Reason']);
         }
         if (isset($this->signature_data['info']['ContactInfo']) and !StaticMethods::empty_string($this->signature_data['info']['ContactInfo'])) {
-            $out .= ' /ContactInfo ' . $this->_textstring($this->signature_data['info']['ContactInfo'], $sigobjid);
+            $out .= ' /ContactInfo ' . $this->_textstring($this->signature_data['info']['ContactInfo']);
         }
-        $out .= ' /M ' . $this->_datestring($sigobjid, $this->modificationTimestamp);
+        $out .= ' /M ' . $this->_datestring($this->modificationTimestamp);
         $out .= ' >>';
         $out .= "\n" . 'endobj';
         $this->append($out);
-    }
-
-    /**
-     * Set User's Rights for PDF Reader
-     * WARNING: This is experimental and currently do not work.
-     * Check the PDF Reference 8.7.1 Transform Methods,
-     * Table 8.105 Entries in the UR transform parameters dictionary
-     * @param bool   $enable     if true enable user's rights on PDF reader
-     * @param string $document   Names specifying additional document-wide usage rights for the document. The only defined value is "/FullSave", which permits a user to save the document along with modified form and/or annotation data.
-     * @param string $annots     Names specifying additional annotation-related usage rights for the document. Valid names in PDF 1.5 and later are /Create/Delete/Modify/Copy/Import/Export, which permit the user to perform the named operation on annotations.
-     * @param string $form       Names specifying additional form-field-related usage rights for the document. Valid names are: /Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate
-     * @param string $signature  Names specifying additional signature-related usage rights for the document. The only defined value is /Modify, which permits a user to apply a digital signature to an existing signature form field or clear a signed signature form field.
-     * @param string $ef         Names specifying additional usage rights for named embedded files in the document. Valid names are /Create/Delete/Modify/Import, which permit the user to perform the named operation on named embedded files
-     *                           Names specifying additional embedded-files-related usage rights for the document.
-     * @param string $formex     Names specifying additional form-field-related usage rights. The only valid name is BarcodePlaintext, which permits text form field data to be encoded as a plaintext two-dimensional barcode.
-     * @author Nicola Asuni
-     */
-    public function setUserRights(
-        $enable = true,
-        $document = '/FullSave',
-        $annots = '/Create/Delete/Modify/Copy/Import/Export',
-        $form = '/Add/Delete/FillIn/Import/Export/SubmitStandalone/SpawnTemplate',
-        $signature = '/Modify',
-        $ef = '/Create/Delete/Modify/Import',
-        $formex = '')
-    {
-        $this->userRights['enabled']   = $enable;
-        $this->userRights['document']  = $document;
-        $this->userRights['annots']    = $annots;
-        $this->userRights['form']      = $form;
-        $this->userRights['signature'] = $signature;
-        $this->userRights['ef']        = $ef;
-        $this->userRights['formex']    = $formex;
-        if (!$this->signable) {
-            $this->setSignature('', '', '', '', 0, []);
-        }
     }
 
     /**
@@ -6838,7 +6778,7 @@ class PDF
         foreach ($this->layers as $key => $layer) {
             $this->layers[$key]['objid'] = $this->_newobj();
             $out                         = '<< /Type /OCG';
-            $out                         .= ' /Name ' . $this->_textstring($layer['name'], $this->layers[$key]['objid']);
+            $out                         .= ' /Name ' . $this->_textstring($layer['name']);
             $out                         .= ' /Usage <<';
             if (isset($layer['print']) and ($layer['print'] !== NULL)) {
                 $out .= ' /Print <</PrintState /' . ($layer['print'] ? 'ON' : 'OFF') . '>>';
@@ -7662,7 +7602,7 @@ class PDF
                 $out    .= ' /BitsPerComponent 8';
                 $out    .= ' /Decode[0 1 0 1 0 1 0 1 0 1]';
                 $out    .= ' /BitsPerFlag 8';
-                $stream = $this->_getrawstream($grad['stream']);
+                $stream = $grad['stream'];
                 $out    .= ' /Length ' . strlen($stream);
                 $out    .= ' >>';
                 $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
@@ -7705,19 +7645,18 @@ class PDF
                     $filter = ' /Filter /FlateDecode';
                     $stream = gzcompress($stream);
                 }
-                $stream = $this->_getrawstream($stream);
-                $out    = '<< /Type /XObject /Subtype /Form /FormType 1' . $filter;
-                $out    .= ' /Length ' . strlen($stream);
-                $rect   = sprintf('%F %F', $this->widthPT, $this->heightPT);
-                $out    .= ' /BBox [0 0 ' . $rect . ']';
-                $out    .= ' /Group << /Type /Group /S /Transparency /CS /DeviceGray >>';
-                $out    .= ' /Resources <<';
-                $out    .= ' /ExtGState << /a0 << /ca 1 /CA 1 >> >>';
-                $out    .= ' /Pattern << /p' . $idgs . ' ' . $this->gradients[$idgs]['pattern'] . ' 0 R >>';
-                $out    .= ' >>';
-                $out    .= ' >> ';
-                $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-                $out    .= "\n" . 'endobj';
+                $out  = '<< /Type /XObject /Subtype /Form /FormType 1' . $filter;
+                $out  .= ' /Length ' . strlen($stream);
+                $rect = sprintf('%F %F', $this->widthPT, $this->heightPT);
+                $out  .= ' /BBox [0 0 ' . $rect . ']';
+                $out  .= ' /Group << /Type /Group /S /Transparency /CS /DeviceGray >>';
+                $out  .= ' /Resources <<';
+                $out  .= ' /ExtGState << /a0 << /ca 1 /CA 1 >> >>';
+                $out  .= ' /Pattern << /p' . $idgs . ' ' . $this->gradients[$idgs]['pattern'] . ' 0 R >>';
+                $out  .= ' >>';
+                $out  .= ' >> ';
+                $out  .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+                $out  .= "\n" . 'endobj';
                 $this->append($out);
                 // SMask
                 $this->_newobj();

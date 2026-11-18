@@ -853,7 +853,7 @@ trait Fonts
                 }
                 $this->_newobj();
                 $this->fontFiles[$file]['n'] = $this->objectNumber;
-                $stream                      = $this->_getrawstream($font);
+                $stream                      = $font;
                 $out                         = '<< /Length ' . strlen($stream);
                 if ($compressed) {
                     $out .= ' /Filter /FlateDecode';
