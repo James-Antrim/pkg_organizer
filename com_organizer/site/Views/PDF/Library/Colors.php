@@ -51,7 +51,7 @@ trait Colors
     protected function appendSpotColors(): void
     {
         foreach ($this->spotColors as $color => $configuration) {
-            $this->_newobj();
+            $this->appendObject();
             $this->spotColors[$color]['n'] = $this->objectNumber;
 
             $black   = $configuration['K'] / 100;

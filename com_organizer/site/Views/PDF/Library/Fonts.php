@@ -1313,7 +1313,7 @@ trait Fonts
         $nf = $this->objectNumber;
         foreach ($this->encodingDeltas as $diff) {
             //Encodings
-            $this->_newobj();
+            $this->appendObject();
             $this->append('<< /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . '] >>' . "\n" . 'endobj');
         }
         foreach ($this->fontFiles as $file => $info) {
@@ -1353,7 +1353,7 @@ trait Fonts
                         $font = gzcompress($font);
                     }
                 }
-                $this->_newobj();
+                $this->appendObject();
                 $this->fontFiles[$file]['n'] = $this->objectNumber;
                 $stream                      = $font;
                 $out                         = '<< /Length ' . strlen($stream);
@@ -1377,7 +1377,7 @@ trait Fonts
             $name = $font['name'];
             if ($type == 'core') {
                 // standard core font
-                $out = $this->_getobj($this->fontObjectIDs[$k]) . "\n";
+                $out = $this->objectCommand($this->fontObjectIDs[$k]) . "\n";
                 $out .= '<</Type /Font';
                 $out .= ' /Subtype /Type1';
                 $out .= ' /BaseFont /' . $name;
@@ -1395,7 +1395,7 @@ trait Fonts
             }
             elseif (($type == 'Type1') or ($type == 'TrueType')) {
                 // additional Type1 or TrueType font
-                $out = $this->_getobj($this->fontObjectIDs[$k]) . "\n";
+                $out = $this->objectCommand($this->fontObjectIDs[$k]) . "\n";
                 $out .= '<</Type /Font';
                 $out .= ' /Subtype /' . $type;
                 $out .= ' /BaseFont /' . $name;
@@ -1415,7 +1415,7 @@ trait Fonts
                 $out .= "\n" . 'endobj';
                 $this->append($out);
                 // Widths
-                $this->_newobj();
+                $this->appendObject();
                 $s = '[';
                 for ($i = 32; $i < 256; ++$i) {
                     if (isset($font['cw'][$i])) {
@@ -1429,7 +1429,7 @@ trait Fonts
                 $s .= "\n" . 'endobj';
                 $this->append($s);
                 //Descriptor
-                $this->_newobj();
+                $this->appendObject();
                 $s = '<</Type /FontDescriptor /FontName /' . $name;
                 foreach ($font['desc'] as $fdk => $fdv) {
                     if (is_float($fdv)) {

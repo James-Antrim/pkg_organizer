@@ -431,8 +431,8 @@ trait Images
             $info = $this->imageBuffer($file);
             // set object for alternate images array
             $altoid = null;
-            if (isset($info['altimgs']) and !empty($info['altimgs'])) {
-                $altoid = $this->_newobj();
+            if (!empty($info['altimgs'])) {
+                $altoid = $this->appendObject();
                 $out    = '[';
                 foreach ($info['altimgs'] as $altimage) {
                     if (isset($this->xObjects['I' . $altimage[0]]['n'])) {
@@ -452,7 +452,7 @@ trait Images
                 $this->append($out);
             }
             // set image object
-            $oid                              = $this->_newobj();
+            $oid                              = $this->appendObject();
             $this->xObjects['I' . $info['i']] = ['n' => $oid];
             $this->imageSubBuffer($file, 'n', $this->objectNumber);
             $out = '<</Type /XObject';
@@ -540,13 +540,13 @@ trait Images
             $this->append($out);
             if ($icc) {
                 // ICC colour profile
-                $this->_newobj();
+                $this->appendObject();
                 $icc = gzcompress($info['icc']);
                 $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
             }
             elseif ($info['cs'] == 'Indexed') {
                 // colour palette
-                $this->_newobj();
+                $this->appendObject();
                 $pal = gzcompress($info['pal']);
                 $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
             }

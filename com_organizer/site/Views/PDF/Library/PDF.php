@@ -145,6 +145,16 @@ class PDF
         }
     }
 
+    /**
+     * Create a new object id, append it to the document and return it.
+     * @return int
+     */
+    protected function appendObject(): int
+    {
+        $this->append($this->objectCommand());
+        return $this->objectNumber;
+    }
+
     /** Outputs the "restore graphics state" operator 'Q' */
     protected function appendRestoreGraphicsState(): void
     {
@@ -196,6 +206,23 @@ class PDF
         else {
             array_pop($this->transpositions[$this->page]);
         }
+    }
+
+    /**
+     * Creates an object command for the given id. An empty value iterates object id values before returning the command.
+     * @param int|null $objectID Object ID (leave empty to get a new ID).
+     * @return string the starting object string
+     */
+    protected function objectCommand(int $objectID = null): string
+    {
+        if (empty($objectID)) {
+            ++$this->objectNumber;
+            $objectID = $this->objectNumber;
+        }
+
+        $this->offsets[$objectID]         = $this->bufferLength;
+        $this->pageObjects[$this->page][] = $objectID;
+        return $objectID . ' 0 obj';
     }
 
     /**
@@ -2064,7 +2091,7 @@ class PDF
                     // update name tree
                     $this->efnames[$filename] = $filedata['f'] . ' 0 R';
                     // embedded file specification object
-                    $out = $this->_getobj($filedata['f']) . "\n";
+                    $out = $this->objectCommand($filedata['f']) . "\n";
                     $out .= '<</Type /Filespec /F ' . $this->_datastring($filename);
                     $out .= ' /UF ' . $this->_datastring($filename);
                     $out .= ' /AFRelationship /Source';
@@ -2076,7 +2103,7 @@ class PDF
                     $data   = gzcompress($data);
                     $filter = ' /Filter /FlateDecode';
                     $stream = $data;
-                    $out    = $this->_getobj($filedata['n']) . "\n";
+                    $out    = $this->objectCommand($filedata['n']) . "\n";
                     $out    .= '<< /Type /EmbeddedFile' . $filter . ' /Length ' . strlen($stream) . ' /Params <</Size ' . $rawsize . '>> >>';
                     $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
                     $out    .= "\n" . 'endobj';
@@ -3159,7 +3186,7 @@ class PDF
             // replace EPS marker
             $temppage = str_replace($this->epsmarker, '', $temppage);
             //Page
-            $this->pageObjectIDs[$n] = $this->_newobj();
+            $this->pageObjectIDs[$n] = $this->appendObject();
             $out                     = '<<';
             $out                     .= ' /Type /Page';
             $out                     .= ' /Parent 1 0 R';
@@ -3241,11 +3268,11 @@ class PDF
             $this->append($out);
             //Page content
             $p = gzcompress($temppage);
-            $this->_newobj();
+            $this->appendObject();
             $this->append('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
         }
         //Pages root
-        $out = $this->_getobj(1) . "\n";
+        $out = $this->objectCommand(1) . "\n";
         $out .= '<< /Type /Pages /Kids [';
         foreach ($this->pageObjectIDs as $page_obj) {
             $out .= ' ' . $page_obj . ' 0 R';
@@ -3344,7 +3371,7 @@ class PDF
                             $annots .= ' /V /' . $defval;
                         }
                         $annots .= ' >>';
-                        $this->append($this->_getobj($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
+                        $this->append($this->objectCommand($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
                         $this->annotationIDs[] = $radio_button_obj_id;
                         // store object id to be used on Parent entry of Kids
                         $this->radiobutton_groups[$n][$pl['txt']] = $radio_button_obj_id;
@@ -3984,7 +4011,7 @@ class PDF
                     }
                     $annots .= '>>';
                     // create new annotation object
-                    $this->append($this->_getobj($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
+                    $this->append($this->objectCommand($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
                     if ($formfield and !isset($this->radiobutton_groups[$n][$pl['txt']])) {
                         // store reference of form object
                         $this->annotationIDs[] = $annot_obj_id;
@@ -4004,7 +4031,7 @@ class PDF
     protected function _putAPXObject($w = 0, $h = 0, $stream = '')
     {
         $stream                                     = trim($stream);
-        $out                                        = $this->_getobj() . "\n";
+        $out                                        = $this->objectCommand() . "\n";
         $this->xObjects['AX' . $this->objectNumber] = ['n' => $this->objectNumber];
         $out                                        .= '<<';
         $out                                        .= ' /Type /XObject';
@@ -4034,7 +4061,7 @@ class PDF
         foreach ($this->xObjects as $key => $data) {
             if (isset($data['content'])) {
                 $stream = str_replace($this->epsmarker, '', trim($data['content']));
-                $out    = $this->_getobj($data['n']) . "\n";
+                $out    = $this->objectCommand($data['n']) . "\n";
                 $out    .= '<<';
                 $out    .= ' /Type /XObject';
                 $out    .= ' /Subtype /Form';
@@ -4141,7 +4168,7 @@ class PDF
      */
     protected function _putresourcedict()
     {
-        $out = $this->_getobj(2) . "\n";
+        $out = $this->objectCommand(2) . "\n";
         $out .= '<< /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
         $out .= ' /Font <<';
         foreach ($this->fontKeys as $fontKey) {
@@ -4226,7 +4253,7 @@ class PDF
      */
     protected function _putinfo()
     {
-        $oid = $this->_newobj();
+        $oid = $this->appendObject();
         $out = '<<';
         // store current isunicode value
         $prev_isunicode = $this->isUnicode;
@@ -4275,7 +4302,7 @@ class PDF
      */
     protected function _putXMP()
     {
-        $oid = $this->_newobj();
+        $oid = $this->appendObject();
         // store current isunicode value
         $prev_isunicode  = $this->isUnicode;
         $this->isUnicode = true;
@@ -4355,7 +4382,7 @@ class PDF
         // put XMP
         $xmpobj = $this->_putXMP();
         // start catalog
-        $oid = $this->_newobj();
+        $oid = $this->appendObject();
         $out = '<< /Type /Catalog';
         $out .= ' /Version /' . $this->PDFVersion;
         //$out .= ' /Extensions <<>>';
@@ -4564,7 +4591,7 @@ class PDF
         if (!empty($this->empty_signature_appearance)) {
             foreach ($this->empty_signature_appearance as $key => $esa) {
                 // widget annotation for empty signature
-                $out     = $this->_getobj($esa['objid']) . "\n";
+                $out     = $this->objectCommand($esa['objid']) . "\n";
                 $out     .= '<< /Type /Annot';
                 $out     .= ' /Subtype /Widget';
                 $out     .= ' /Rect [' . $esa['rect'] . ']';
@@ -4667,32 +4694,6 @@ class PDF
     {
         $this->setVisibility('all');
         $this->state = self::NEUTRAL;
-    }
-
-    /**
-     * Begin a new object and return the object number.
-     * @return int object number
-     */
-    protected function _newobj()
-    {
-        $this->append($this->_getobj());
-        return $this->objectNumber;
-    }
-
-    /**
-     * Return the starting object string for the selected object ID.
-     * @param int|null $objid Object ID (leave empty to get a new ID).
-     * @return string the starting object string
-     */
-    protected function _getobj($objid = null)
-    {
-        if (empty($objid)) {
-            ++$this->objectNumber;
-            $objid = $this->objectNumber;
-        }
-        $this->offsets[$objid]            = $this->bufferLength;
-        $this->pageObjects[$this->page][] = $objid;
-        return $objid . ' 0 obj';
     }
 
     /**
@@ -4911,7 +4912,7 @@ class PDF
         if (empty($this->dests)) {
             return;
         }
-        $this->n_dests = $this->_newobj();
+        $this->n_dests = $this->appendObject();
         $out           = ' <<';
         foreach ($this->dests as $name => $o) {
             $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->factor), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->factor)));
@@ -5138,7 +5139,7 @@ class PDF
             $this->append($out);
         }
         //Outline root
-        $this->OutlineRoot = $this->_newobj();
+        $this->OutlineRoot = $this->appendObject();
         $this->append('<< /Type /Outlines /First ' . $n . ' 0 R /Last ' . ($n + $lru[0]) . ' 0 R >>' . "\n" . 'endobj');
     }
 
@@ -5199,7 +5200,7 @@ class PDF
         $this->n_js .= ' ] >>';
         // default Javascript object
         if (!empty($this->javascript)) {
-            $obj_id = $this->_newobj();
+            $obj_id = $this->appendObject();
             $out    = '<< /S /JavaScript';
             $out    .= ' /JS ' . $this->_textstring($this->javascript);
             $out    .= ' >>';
@@ -5209,7 +5210,7 @@ class PDF
         // additional Javascript objects
         if (!empty($this->js_objects)) {
             foreach ($this->js_objects as $key => $val) {
-                $out = $this->_getobj($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js']) . ' >>' . "\n" . 'endobj';
+                $out = $this->objectCommand($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js']) . ' >>' . "\n" . 'endobj';
                 $this->append($out);
             }
         }
@@ -6047,7 +6048,7 @@ class PDF
             return;
         }
         foreach ($this->layers as $key => $layer) {
-            $this->layers[$key]['objid'] = $this->_newobj();
+            $this->layers[$key]['objid'] = $this->appendObject();
             $out                         = '<< /Type /OCG';
             $out                         .= ' /Name ' . $this->_textstring($layer['name']);
             $out                         .= ' /Usage <<';
@@ -6183,7 +6184,7 @@ class PDF
     protected function _putextgstates()
     {
         foreach ($this->extgstates as $i => $ext) {
-            $this->extgstates[$i]['n'] = $this->_newobj();
+            $this->extgstates[$i]['n'] = $this->appendObject();
             $out                       = '<< /Type /ExtGState';
             foreach ($ext['parms'] as $k => $v) {
                 if (is_float($v)) {
@@ -6920,7 +6921,7 @@ class PDF
         $idt = count($this->gradients); //index for transparency gradients
         foreach ($this->gradients as $id => $grad) {
             if (($grad['type'] == 2) or ($grad['type'] == 3)) {
-                $fc        = $this->_newobj();
+                $fc        = $this->appendObject();
                 $out       = '<<';
                 $out       .= ' /FunctionType 3';
                 $out       .= ' /Domain [0 1]';
@@ -6944,7 +6945,7 @@ class PDF
                 $out .= "\n" . 'endobj';
                 $this->append($out);
                 for ($i = 1; $i < $num_cols; ++$i) {
-                    $this->_newobj();
+                    $this->appendObject();
                     $out = '<<';
                     $out .= ' /FunctionType 2';
                     $out .= ' /Domain [0 1]';
@@ -6957,7 +6958,7 @@ class PDF
                 }
                 // set transparency functions
                 if ($grad['transparency']) {
-                    $ft        = $this->_newobj();
+                    $ft        = $this->appendObject();
                     $out       = '<<';
                     $out       .= ' /FunctionType 3';
                     $out       .= ' /Domain [0 1]';
@@ -6974,7 +6975,7 @@ class PDF
                     $out .= "\n" . 'endobj';
                     $this->append($out);
                     for ($i = 1; $i < $num_cols; ++$i) {
-                        $this->_newobj();
+                        $this->appendObject();
                         $out = '<<';
                         $out .= ' /FunctionType 2';
                         $out .= ' /Domain [0 1]';
@@ -6988,7 +6989,7 @@ class PDF
                 }
             }
             // set shading object
-            $this->_newobj();
+            $this->appendObject();
             $out = '<< /ShadingType ' . $grad['type'];
             if (isset($grad['colspace'])) {
                 $out .= ' /ColorSpace /' . $grad['colspace'];
@@ -7036,7 +7037,7 @@ class PDF
             }
             $this->gradients[$id]['id'] = $this->objectNumber;
             // set pattern object
-            $this->_newobj();
+            $this->appendObject();
             $out = '<< /Type /Pattern /PatternType 2';
             $out .= ' /Shading ' . $this->gradients[$id]['id'] . ' 0 R';
             $out .= ' >>';
@@ -7047,10 +7048,10 @@ class PDF
             if ($grad['transparency']) {
                 // luminosity pattern
                 $idgs = $id + $idt;
-                $this->_newobj();
+                $this->appendObject();
                 $this->append($shading_transparency);
                 $this->gradients[$idgs]['id'] = $this->objectNumber;
-                $this->_newobj();
+                $this->appendObject();
                 $out = '<< /Type /Pattern /PatternType 2';
                 $out .= ' /Shading ' . $this->gradients[$idgs]['id'] . ' 0 R';
                 $out .= ' >>';
@@ -7058,7 +7059,7 @@ class PDF
                 $this->append($out);
                 $this->gradients[$idgs]['pattern'] = $this->objectNumber;
                 // luminosity XObject
-                $oid                         = $this->_newobj();
+                $oid                         = $this->appendObject();
                 $this->xObjects['LX' . $oid] = ['n' => $oid];
                 $filter                      = '';
                 $stream                      = 'q /a0 gs /Pattern cs /p' . $idgs . ' scn 0 0 ' . $this->widthPT . ' ' . $this->heightPT . ' re f Q';
@@ -7078,11 +7079,11 @@ class PDF
                 $out                         .= "\n" . 'endobj';
                 $this->append($out);
                 // SMask
-                $this->_newobj();
+                $this->appendObject();
                 $out = '<< /Type /Mask /S /Luminosity /G ' . ($this->objectNumber - 1) . ' 0 R >>' . "\n" . 'endobj';
                 $this->append($out);
                 // ExtGState
-                $this->_newobj();
+                $this->appendObject();
                 $out = '<< /Type /ExtGState /SMask ' . ($this->objectNumber - 1) . ' 0 R /AIS false >>' . "\n" . 'endobj';
                 $this->append($out);
                 $this->extgstates[] = ['n' => $this->objectNumber, 'name' => 'TGS' . $id];
