@@ -3265,13 +3265,13 @@ class PDF
                 $out .= ' /LastModified ' . $this->_datestring($this->modificationTimestamp);
             }
             $out .= ' /Resources 2 0 R';
-            foreach ($this->page_boxes as $box) {
+            foreach ($this->pageBoxes as $box) {
                 $out .= ' /' . $box;
                 $out .= sprintf(' [%F %F %F %F]', $this->pageDimensions[$n][$box]['llx'], $this->pageDimensions[$n][$box]['lly'], $this->pageDimensions[$n][$box]['urx'], $this->pageDimensions[$n][$box]['ury']);
             }
             if (isset($this->pageDimensions[$n]['BoxColorInfo']) and !empty($this->pageDimensions[$n]['BoxColorInfo'])) {
                 $out .= ' /BoxColorInfo <<';
-                foreach ($this->page_boxes as $box) {
+                foreach ($this->pageBoxes as $box) {
                     if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box])) {
                         $out .= ' /' . $box . ' <<';
                         if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['C'])) {

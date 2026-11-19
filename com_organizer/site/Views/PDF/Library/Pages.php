@@ -31,6 +31,7 @@ trait Pages
     protected float $rightMargin = 0;
     protected int $page = 0;
     protected array $pageAnnotations = [];
+    protected array $pageBoxes = [self::ART_BOX, self::BLEED_BOX, self::CROP_BOX, self::MEDIA_BOX, self::TRIM_BOX];
     protected array $pageDimensions = [];
     protected array $pageGroups = [];
     protected array $pageLengths = [];
@@ -369,6 +370,21 @@ trait Pages
             return false;
         }
         return $this->autoPageBreak;
+    }
+
+    /**
+     * Set page boxes to be included on page descriptions.
+     * @param array $boxes Array of page boxes to set on document: ('MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox').
+     * @protected
+     */
+    protected function setPageBoxTypes($boxes)
+    {
+        $this->pageBoxes = [];
+        foreach ($boxes as $box) {
+            if (in_array($box, self::PAGE_BOXES)) {
+                $this->pageBoxes[] = $box;
+            }
+        }
     }
 
 }
