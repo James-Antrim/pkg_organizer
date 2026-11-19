@@ -12,7 +12,7 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-/** Character and string manipulation methods. */
+/** Manipulation methods for basic variable types. */
 trait Basics
 {
     /** Static cache used for speed up unicodeOrd performances */
@@ -134,6 +134,40 @@ trait Basics
     {
         $v = unpack('si', substr($string, $offset, 2));
         return $v['i'];
+    }
+
+    /**
+     * Trims the input string
+     * @param string $string
+     * @param string $replace
+     * @return string
+     */
+    public function trim(string $string, string $replace = ''): string
+    {
+        $string = $this->trimLeft($string, $replace);
+        return $this->trimRight($string, $replace);
+    }
+
+    /**
+     * Left trim the input string
+     * @param string $string
+     * @param string $replace
+     * @return string
+     */
+    public function trimLeft(string $string, string $replace = ''): string
+    {
+        return preg_replace('/^' . $this->spaceRE['p'] . '+/' . $this->spaceRE['m'], $replace, $string);
+    }
+
+    /**
+     * Right trim the input string
+     * @param string $string
+     * @param string $replace
+     * @return string
+     */
+    public function trimRight(string $string, string $replace = ''): string
+    {
+        return preg_replace('/' . $this->spaceRE['p'] . '+$/' . $this->spaceRE['m'], $replace, $string);
     }
 
     /**

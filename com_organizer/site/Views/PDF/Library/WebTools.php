@@ -1613,7 +1613,7 @@ trait WebTools
                     if (!$this->premode) {
                         $prelen = strlen($dom[$key]['value']);
                         // left trim except non-breaking space
-                        $dom[$key]['value'] = $this->stringLeftTrim($dom[$key]['value']);
+                        $dom[$key]['value'] = $this->trimLeft($dom[$key]['value']);
                         $postlen            = strlen($dom[$key]['value']);
                         if (($postlen == 0) and ($prelen > 0)) {
                             $dom[$key]['trimmed_space'] = true;
@@ -3356,7 +3356,7 @@ trait WebTools
         $html = preg_replace('/<\/su([bp])>/', '</su\\1><zws/>', $html); // fix sub/sup alignment
         $html = preg_replace('/' . $this->spaceRE['p'] . '+/' . $this->spaceRE['m'], chr(32), $html); // replace multiple spaces with a single space
         // trim string
-        $html = $this->stringTrim($html);
+        $html = $this->trim($html);
         // fix br tag after li
         $html = preg_replace('/<li><br([^\>]*)>/', '<li> <br\\1>', $html);
         // fix first image tag alignment

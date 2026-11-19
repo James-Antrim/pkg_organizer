@@ -2525,7 +2525,7 @@ class PDF
                         $endspace = 0;
                         // check the length of the next string
                         $strrest = $this->unicodeSliceToString($uchars, ($sep + $endspace));
-                        $nextstr = preg_split('/' . $this->spaceRE['p'] . '/' . $this->spaceRE['m'], $this->stringTrim($strrest));
+                        $nextstr = preg_split('/' . $this->spaceRE['p'] . '/' . $this->spaceRE['m'], $this->trim($strrest));
                         if (isset($nextstr[0]) and ($this->GetStringWidth($nextstr[0]) > $pw)) {
                             // truncate the word because do not fit on a full page width
                             $tmpstr = $this->unicodeSliceToString($uchars, $j, $i);
@@ -5002,7 +5002,7 @@ class PDF
             $title = preg_replace("/[\r]+/si", '', $title);
             $title = preg_replace("/[\n]+/si", "\n", $title);
             $title = strip_tags($title);
-            $title = $this->stringTrim($title);
+            $title = $this->trim($title);
             $out   = '<</Title ' . $this->_textstring($title);
             $out   .= ' /Parent ' . ($n + $o['parent']) . ' 0 R';
             if (isset($o['prev'])) {
@@ -8842,44 +8842,6 @@ class PDF
         }
         // convert char array to string and return
         return $this->utf8SliceToString($txtarr, '', '', $this->isUnicode);
-    }
-
-    /**
-     * Left trim the input string
-     * @param string $str     string to trim
-     * @param string $replace string that replace spaces.
-     * @return string left trimmed string
-     * @author Nicola Asuni
-     */
-    public function stringLeftTrim($str, $replace = '')
-    {
-        return preg_replace('/^' . $this->spaceRE['p'] . '+/' . $this->spaceRE['m'], $replace, $str);
-    }
-
-    /**
-     * Right trim the input string
-     * @param string $str     string to trim
-     * @param string $replace string that replace spaces.
-     * @return string right trimmed string
-     * @author Nicola Asuni
-     */
-    public function stringRightTrim($str, $replace = '')
-    {
-        return preg_replace('/' . $this->spaceRE['p'] . '+$/' . $this->spaceRE['m'], $replace, $str);
-    }
-
-    /**
-     * Trim the input string
-     * @param string $str     string to trim
-     * @param string $replace string that replace spaces.
-     * @return string trimmed string
-     * @author Nicola Asuni
-     */
-    public function stringTrim($str, $replace = '')
-    {
-        $str = $this->stringLeftTrim($str, $replace);
-        $str = $this->stringRightTrim($str, $replace);
-        return $str;
     }
 
     /**
