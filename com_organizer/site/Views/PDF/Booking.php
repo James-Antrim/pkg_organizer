@@ -63,7 +63,7 @@ class Booking extends ListView
     {
         if ($this->formState->get('filter.status') === Helper::ALL) {
             //set style for cell border
-            $pageWidth = (0.85 / $this->scaleFactor);
+            $pageWidth = (0.85 / $this->factor);
             $this->lineStyle(['width' => $pageWidth, 'color' => $this->footerLineColor]);
             $this->x($this->originalLeftMargin);
 

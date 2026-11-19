@@ -40,8 +40,10 @@ class PDF
     protected int $creationTimestamp = 0;
     protected array $graphicsConfiguration = [];
     protected array $encodingDeltas = [];
+    protected float $factor = 0;
     /** File ID for document trailer */
     protected string $fileID;
+
     protected array $footerLengths = [];
     protected float $lastPrintedCellHeight = 0;
     protected array $layers = [];
@@ -65,6 +67,7 @@ class PDF
     /** Stores positions of graphics transformation blocks in the page buffer, keys are the page numbers */
     protected array $transpositions = [];
     protected bool $underline = false;
+    protected string $unit = self::MILLIMETER;
     protected string $xObjectID = '';
     protected array $xObjects = [];
 
@@ -78,8 +81,15 @@ class PDF
      */
     public function __construct(string $orientation = self::PORTRAIT, string $unit = self::MILLIMETER, string $format = 'A4')
     {
-        $margin      = self::ONE_INCH / self::FACTOR;
-        $cellPadding = $margin / 10;
+        $this->unit   = in_array($unit, self::UNITS) ? $unit : self::MILLIMETER;
+        $this->factor = match ($this->unit) {
+            self::CENTIMETER => self::DPI / 2.54,
+            self::INCH => self::DPI,
+            self::POINT => 1,
+            default => self::DPI / 25.4,
+        };
+        $margin       = self::POINTS_PER_CM / $this->factor;
+        $cellPadding  = $margin / 10;
 
         $this->cellPaddings($cellPadding, 0, $cellPadding, 0);
         $this->cellMargins(0, 0, 0, 0);
@@ -97,7 +107,7 @@ class PDF
         $this->fileID                = md5($this->randomSeed('Organizer' . $orientation . $unit . $format . 'UTF-8'));
         $this->graphicsConfiguration = $this->graphicsConfiguration();
         $this->libraryURL            = Uri::base() . '/components/com_organizer/Views/PDF/Library/';
-        $this->lineWidthStyle        = sprintf('%F w', $this->lineWidth * self::FACTOR);
+        $this->lineWidthStyle        = sprintf('%F w', $this->lineWidth * $this->factor);
         $this->modificationTimestamp = $this->creationTimestamp;
         $this->transpositions[0]     = [];
 
@@ -1408,7 +1418,7 @@ class PDF
             $this->lastpage(true);
             $this->autoPageBreak(false);
             $this->x          = 0;
-            $this->y          = $this->height - (1 / self::FACTOR);
+            $this->y          = $this->height - (1 / $this->factor);
             $this->leftMargin = 0;
             $this->appendSaveGraphicsState();
             $font = self::DEFAULT_FONT;
@@ -1727,7 +1737,7 @@ class PDF
         $cur_y = $this->y;
         $this->textColorArray($this->footerTextColor);
         //set style for cell border
-        $line_width = (0.85 / self::FACTOR);
+        $line_width = (0.85 / $this->factor);
         $this->lineStyle(['width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor]);
         //print document barcode
         $barcode = $this->getBarcode();
@@ -2085,10 +2095,10 @@ class PDF
                 for ($j = $maxid; $j >= 0; --$j) {
                     $ctm = $this->matrix[$i][$j];
                     if (isset($ctm['a'])) {
-                        $x = $x * self::FACTOR;
-                        $y = ($this->height - $y) * self::FACTOR;
-                        $w = $w * self::FACTOR;
-                        $h = $h * self::FACTOR;
+                        $x = $x * $this->factor;
+                        $y = ($this->height - $y) * $this->factor;
+                        $w = $w * $this->factor;
+                        $h = $h * $this->factor;
                         // top left
                         $xt = $x;
                         $yt = $y;
@@ -2112,10 +2122,10 @@ class PDF
                         // new coordinates (rectangle area)
                         $x = min($x1, $x2, $x3, $x4);
                         $y = max($y1, $y2, $y3, $y4);
-                        $w = (max($x1, $x2, $x3, $x4) - $x) / self::FACTOR;
-                        $h = ($y - min($y1, $y2, $y3, $y4)) / self::FACTOR;
-                        $x = $x / self::FACTOR;
-                        $y = $this->height - ($y / self::FACTOR);
+                        $w = (max($x1, $x2, $x3, $x4) - $x) / $this->factor;
+                        $h = ($y - min($y1, $y2, $y3, $y4)) / $this->factor;
+                        $x = $x / $this->factor;
+                        $y = $this->height - ($y / $this->factor);
                     }
                 }
             }
@@ -3281,7 +3291,7 @@ class PDF
                             $out   .= ' ]';
                         }
                         if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'])) {
-                            $out .= ' /W ' . ($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'] * self::FACTOR);
+                            $out .= ' /W ' . ($this->pageDimensions[$n]['BoxColorInfo'][$box]['W'] * $this->factor);
                         }
                         if (isset($this->pageDimensions[$n]['BoxColorInfo'][$box]['S'])) {
                             $out .= ' /S /' . $this->pageDimensions[$n]['BoxColorInfo'][$box]['S'];
@@ -3290,7 +3300,7 @@ class PDF
                             $dashes = $this->pageDimensions[$n]['BoxColorInfo'][$box]['D'];
                             $out    .= ' /D [';
                             foreach ($dashes as $dash) {
-                                $out .= sprintf(' %F', ($dash * self::FACTOR));
+                                $out .= sprintf(' %F', ($dash * $this->factor));
                             }
                             $out .= ' ]';
                         }
@@ -3449,10 +3459,10 @@ class PDF
                     }
                     $formfield = false;
                     $pl['opt'] = array_change_key_case($pl['opt'], CASE_LOWER);
-                    $a         = $pl['x'] * self::FACTOR;
-                    $b         = $this->pageDimensions[$n]['h'] - (($pl['y'] + $pl['h']) * self::FACTOR);
-                    $c         = $pl['w'] * self::FACTOR;
-                    $d         = $pl['h'] * self::FACTOR;
+                    $a         = $pl['x'] * $this->factor;
+                    $b         = $this->pageDimensions[$n]['h'] - (($pl['y'] + $pl['h']) * $this->factor);
+                    $c         = $pl['w'] * $this->factor;
+                    $d         = $pl['h'] * $this->factor;
                     $rect      = sprintf('%F %F %F %F', $a, $b, $a + $c, $b + $d);
                     // create new annotation object
                     $annots = '<</Type /Annot';
@@ -3736,7 +3746,7 @@ class PDF
                                 // internal link ID
                                 $l = $this->links[$pl['txt']];
                                 if (isset($this->pageObjectIDs[($l['p'])])) {
-                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * self::FACTOR)));
+                                    $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->factor)));
                                 }
                             }
                             $hmodes = ['N', 'I', 'O', 'P'];
@@ -3767,7 +3777,7 @@ class PDF
                             if (isset($pl['opt']['cl']) and is_array($pl['opt']['cl'])) {
                                 $annots .= ' /CL [';
                                 foreach ($pl['opt']['cl'] as $cl) {
-                                    $annots .= sprintf('%F ', $cl * self::FACTOR);
+                                    $annots .= sprintf('%F ', $cl * $this->factor);
                                 }
                                 $annots .= ']';
                             }
@@ -3776,10 +3786,10 @@ class PDF
                                 $annots .= ' /IT /' . $pl['opt']['it'];
                             }
                             if (isset($pl['opt']['rd']) and is_array($pl['opt']['rd'])) {
-                                $l      = $pl['opt']['rd'][0] * self::FACTOR;
-                                $r      = $pl['opt']['rd'][1] * self::FACTOR;
-                                $t      = $pl['opt']['rd'][2] * self::FACTOR;
-                                $b      = $pl['opt']['rd'][3] * self::FACTOR;
+                                $l      = $pl['opt']['rd'][0] * $this->factor;
+                                $r      = $pl['opt']['rd'][1] * $this->factor;
+                                $t      = $pl['opt']['rd'][2] * $this->factor;
+                                $b      = $pl['opt']['rd'][3] * $this->factor;
                                 $annots .= ' /RD [' . sprintf('%F %F %F %F', $l, $r, $t, $b) . ']';
                             }
                             if (isset($pl['opt']['le']) and in_array($pl['opt']['le'], $lineendings)) {
@@ -4142,7 +4152,7 @@ class PDF
                 $out    .= ' /FormType 1';
                 $stream = gzcompress($stream);
                 $out    .= ' /Filter /FlateDecode';
-                $out    .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * self::FACTOR), (-$data['y'] * self::FACTOR), (($data['w'] + $data['x']) * self::FACTOR), (($data['h'] - $data['y']) * self::FACTOR));
+                $out    .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * $this->factor), (-$data['y'] * $this->factor), (($data['w'] + $data['x']) * $this->factor), (($data['h'] - $data['y']) * $this->factor));
                 $out    .= ' /Matrix [1 0 0 1 0 0]';
                 $out    .= ' /Resources <<';
                 $out    .= ' /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
@@ -4817,7 +4827,7 @@ class PDF
     protected function _dounderlinew($x, $y, $w)
     {
         $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
-        return sprintf('%F %F %F %F re f', $x * self::FACTOR, ((($this->height - $y) * self::FACTOR) + $linew), $w * self::FACTOR, $linew);
+        return sprintf('%F %F %F %F re f', $x * $this->factor, ((($this->height - $y) * $this->factor) + $linew), $w * $this->factor, $linew);
     }
 
     /**
@@ -4841,7 +4851,7 @@ class PDF
     protected function _dolinethroughw($x, $y, $w)
     {
         $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
-        return sprintf('%F %F %F %F re f', $x * self::FACTOR, ((($this->height - $y) * self::FACTOR) + $linew + ($this->fontSizePT / 3)), $w * self::FACTOR, $linew);
+        return sprintf('%F %F %F %F re f', $x * $this->factor, ((($this->height - $y) * $this->factor) + $linew + ($this->fontSizePT / 3)), $w * $this->factor, $linew);
     }
 
     /**
@@ -4865,7 +4875,7 @@ class PDF
     protected function _dooverlinew($x, $y, $w)
     {
         $linew = -$this->currentFont['ut'] / 1000 * $this->fontSizePT;
-        return sprintf('%F %F %F %F re f', $x * self::FACTOR, (($this->height - $y + $this->fontAscent) * self::FACTOR) - $linew, $w * self::FACTOR, $linew);
+        return sprintf('%F %F %F %F re f', $x * $this->factor, (($this->height - $y + $this->fontAscent) * $this->factor) - $linew, $w * $this->factor, $linew);
 
     }
 
@@ -4962,7 +4972,7 @@ class PDF
      */
     public function pixelsToUnits($px)
     {
-        return ($px / ($this->imageScale * self::FACTOR));
+        return ($px / ($this->imageScale * $this->factor));
     }
 
     /**
@@ -4988,7 +4998,7 @@ class PDF
         $this->n_dests = $this->_newobj();
         $out           = ' <<';
         foreach ($this->dests as $name => $o) {
-            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * self::FACTOR), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * self::FACTOR)));
+            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->factor), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->factor)));
         }
         $out .= ' >>';
         $out .= "\n" . 'endobj';
@@ -5159,13 +5169,13 @@ class PDF
                     // internal link ID
                     $l = $this->links[$o['u']];
                     if (isset($this->pageObjectIDs[($l['p'])])) {
-                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * self::FACTOR)));
+                        $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->factor)));
                     }
                 }
             }
             elseif (isset($this->pageObjectIDs[($o['p'])])) {
                 // link to a page
-                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * self::FACTOR), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * self::FACTOR)));
+                $out .= ' ' . sprintf('/Dest [%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->factor), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->factor)));
             }
             // set font style
             $style = 0;
@@ -5287,7 +5297,7 @@ class PDF
     {
         // the followind avoid fields duplication after saving the document
         $this->javascript .= "if (getField('tcpdfdocsaved').value != 'saved') {";
-        $k                = self::FACTOR;
+        $k                = $this->factor;
         $this->javascript .= sprintf("f" . $name . "=this.addField('%s','%s',%u,[%F,%F,%F,%F]);", $name, $type, $this->PageNo() - 1, $x * $k, ($this->height - $y) * $k + 1, ($x + $w) * $k, ($this->height - $y - $h) * $k + 1) . "\n";
         $this->javascript .= 'f' . $name . '.textSize=' . $this->fontSizePT . ";\n";
         foreach ($prop as $key => $val) {
@@ -5502,8 +5512,8 @@ class PDF
         // build appearance stream
         $popt['ap']                = [];
         $popt['ap']['n']           = [];
-        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * self::FACTOR);
-        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / self::FACTOR)) * self::FACTOR);
+        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->factor);
+        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
         $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         if (!isset($popt['mk'])) {
@@ -5743,8 +5753,8 @@ class PDF
         // build appearance stream
         $popt['ap']             = [];
         $popt['ap']['n']        = [];
-        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * self::FACTOR);
-        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / self::FACTOR)) * self::FACTOR);
+        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->factor);
+        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
         $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         // merge options
@@ -5815,7 +5825,7 @@ class PDF
         $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
         $tmpid           = $this->startTemplate($w, $h, false);
-        $bw              = (2 / self::FACTOR); // border width
+        $bw              = (2 / $this->factor); // border width
         $border          = array(
             'L' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
             'R' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]],
@@ -6330,7 +6340,7 @@ class PDF
      */
     public function cropMark($x, $y, $w, $h, $type = 'T,R,B,L', $color = [100, 100, 100, 100, 'All'])
     {
-        $this->lineStyle(array('width' => (0.5 / self::FACTOR), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
+        $this->lineStyle(array('width' => (0.5 / $this->factor), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $color));
         $type = strtoupper($type);
         $type = preg_replace('/[^A-Z\-\,]*/', '', $type);
         // split type in single components
@@ -6404,7 +6414,7 @@ class PDF
      */
     public function registrationMark($x, $y, $r, $double = false, $cola = [100, 100, 100, 100, 'All'], $colb = [0, 0, 0, 0, 'None'])
     {
-        $line_style = array('width' => max((0.5 / self::FACTOR), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
+        $line_style = array('width' => max((0.5 / $this->factor), ($r / 30)), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $cola);
         $this->fillColorArray($cola);
         $this->pieSector($x, $y, $r, 90, 180, 'F');
         $this->pieSector($x, $y, $r, 270, 360, 'F');
@@ -6431,7 +6441,7 @@ class PDF
     public function registrationMarkCMYK($x, $y, $r)
     {
         // line width
-        $lw = max((0.5 / self::FACTOR), ($r / 8));
+        $lw = max((0.5 / $this->factor), ($r / 8));
         // internal radius
         $ri = ($r * 0.6);
         // external radius
@@ -6610,9 +6620,9 @@ class PDF
         //save current Graphic State
         $s = 'q';
         //set clipping area
-        $s .= sprintf(' %F %F %F %F re W n', $x * self::FACTOR, ($this->height - $y) * self::FACTOR, $w * self::FACTOR, -$h * self::FACTOR);
+        $s .= sprintf(' %F %F %F %F re W n', $x * $this->factor, ($this->height - $y) * $this->factor, $w * $this->factor, -$h * $this->factor);
         //set up transformation matrix for gradient
-        $s .= sprintf(' %F 0 0 %F %F %F cm', $w * self::FACTOR, $h * self::FACTOR, $x * self::FACTOR, ($this->height - ($y + $h)) * self::FACTOR);
+        $s .= sprintf(' %F 0 0 %F %F %F cm', $w * $this->factor, $h * $this->factor, $x * $this->factor, ($this->height - ($y + $h)) * $this->factor);
         $this->append($s);
     }
 
@@ -7078,7 +7088,7 @@ class PDF
         }
         else {
             if (StaticMethods::empty_string($xres)) {
-                $xres = (0.141 * self::FACTOR); // default bar width = 0.4 mm
+                $xres = (0.141 * $this->factor); // default bar width = 0.4 mm
             }
             if ($xres > $max_xres) {
                 // correct xres to fit on $w
@@ -7114,7 +7124,7 @@ class PDF
                 }
             }
         }
-        $text_height = $this->getCellHeight($fontsize / self::FACTOR);
+        $text_height = $this->getCellHeight($fontsize / $this->factor);
         // height
         if (StaticMethods::empty_string($h) or ($h <= 0)) {
             // set default height
@@ -7124,8 +7134,8 @@ class PDF
         if ($barh <= 0) {
             // try to reduce font or padding to fit barcode on available height
             if ($text_height > $h) {
-                $fontsize    = (($h * self::FACTOR) / (4 * $this->cellHeightRatio));
-                $text_height = $this->getCellHeight($fontsize / self::FACTOR);
+                $fontsize    = (($h * $this->factor) / (4 * $this->cellHeightRatio));
+                $text_height = $this->getCellHeight($fontsize / $this->factor);
                 $this->setCurrentFont($style['font'], '', $fontsize);
             }
             if ($vpadding > 0) {
@@ -7367,8 +7377,8 @@ class PDF
         }
         // set dimensions
         if ((StaticMethods::empty_string($w) or ($w <= 0)) and (StaticMethods::empty_string($h) or ($h <= 0))) {
-            $w = ($cols + $hpad) * ($mw / self::FACTOR);
-            $h = ($rows + $vpad) * ($mh / self::FACTOR);
+            $w = ($cols + $hpad) * ($mw / $this->factor);
+            $h = ($rows + $vpad) * ($mh / $this->factor);
         }
         elseif (($w === '') or ($w <= 0)) {
             $w = $h * $ratioWH;
@@ -9068,8 +9078,8 @@ class PDF
         $this->xObjects[$this->xObjectID]['h'] = $h;
         $this->width                           = $w;
         $this->height                          = $h;
-        $this->widthPT                         = $this->width * self::FACTOR;
-        $this->heightPT                        = $this->height * self::FACTOR;
+        $this->widthPT                         = $this->width * $this->factor;
+        $this->heightPT                        = $this->height * $this->factor;
         $this->formatWidthPT                   = $this->widthPT;
         $this->formatHeightPT                  = $this->heightPT;
         $this->x                               = 0;
@@ -9193,8 +9203,8 @@ class PDF
         $tm[1] = 0;
         $tm[2] = 0;
         $tm[3] = $sy;
-        $tm[4] = $xt * self::FACTOR;
-        $tm[5] = ($this->height - $h - $y) * self::FACTOR;
+        $tm[4] = $xt * $this->factor;
+        $tm[5] = ($this->height - $h - $y) * $this->factor;
         $this->transform($tm);
         // set object
         $this->append('/' . $id . ' Do');
@@ -9203,12 +9213,12 @@ class PDF
         if (!empty($this->xObjects[$id]['annotations'])) {
             foreach ($this->xObjects[$id]['annotations'] as $annot) {
                 // transform original coordinates
-                $coordlt = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * self::FACTOR), (-$annot['y'] * self::FACTOR)));
-                $ax      = ($coordlt[4] / self::FACTOR);
-                $ay      = ($this->height - $h - ($coordlt[5] / self::FACTOR));
-                $coordrb = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * self::FACTOR), ((-$annot['y'] - $annot['h']) * self::FACTOR)));
-                $aw      = ($coordrb[4] / self::FACTOR) - $ax;
-                $ah      = ($this->height - $h - ($coordrb[5] / self::FACTOR)) - $ay;
+                $coordlt = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * $this->factor), (-$annot['y'] * $this->factor)));
+                $ax      = ($coordlt[4] / $this->factor);
+                $ay      = ($this->height - $h - ($coordlt[5] / $this->factor));
+                $coordrb = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * $this->factor), ((-$annot['y'] - $annot['h']) * $this->factor)));
+                $aw      = ($coordrb[4] / $this->factor) - $ax;
+                $ah      = ($this->height - $h - ($coordrb[5] / $this->factor)) - $ay;
                 $this->Annotation($ax, $ay, $aw, $ah, $annot['text'], $annot['opt'], $annot['spaces']);
             }
         }

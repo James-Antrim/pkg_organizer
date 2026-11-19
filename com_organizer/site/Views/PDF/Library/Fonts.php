@@ -140,7 +140,6 @@ trait Fonts
      */
     public function fontSizeToUnits(string $fontSize, float $referenceValue = 1, string $unit = self::PIXEL, bool $points = false): float
     {
-        $k     = $points ? 1 : self::FACTOR;
         $unit  = in_array($unit, self::WEB_UNITS) ? $unit : self::PIXEL;
         $value = 0;
 
@@ -154,6 +153,7 @@ trait Fonts
             }
         }
 
+        $k = $points ? 1 : $this->factor;
         return match ($unit) {
             self::PERCENT => ($value * $referenceValue) / 100,
             self::ELEMENT => $value * $referenceValue,
@@ -163,7 +163,7 @@ trait Fonts
             self::MILLIMETER => ($value / 25.4 * self::DPI) / $k,
             self::PICA => ($value * 12) / $k,
             self::POINT => $value / $k,
-            self::PIXEL => $points ? $this->pixelsToUnits($value) * self::FACTOR : $this->pixelsToUnits($value),
+            self::PIXEL => $points ? $this->pixelsToUnits($value) * $this->factor : $this->pixelsToUnits($value),
             default => 0,
         };
     }
@@ -220,7 +220,7 @@ trait Fonts
     public function fontSize(float|null $size = null, bool $append = true): float
     {
         if (is_float($size)) {
-            $this->fontSize   = $size / self::FACTOR;
+            $this->fontSize   = $size / $this->factor;
             $this->fontSizePT = $size;
 
             // calculate some font metrics
@@ -253,8 +253,8 @@ trait Fonts
                 $descent = $height - $ascent;
             }
 
-            $this->fontAscent  = $ascent / self::FACTOR;
-            $this->fontDescent = $descent / self::FACTOR;
+            $this->fontAscent  = $ascent / $this->factor;
+            $this->fontDescent = $descent / $this->factor;
 
             if ($append and $this->page > 0 and isset($this->currentFont['i']) and $this->state === self::READY) {
                 $this->append(sprintf('BT /F%d %F Tf ET', $this->currentFont['i'], $this->fontSizePT));
@@ -2771,7 +2771,7 @@ trait Fonts
         else {
             $ascent = 1.219 * 0.76 * $size;
         }
-        return ($ascent / self::FACTOR);
+        return ($ascent / $this->factor);
     }
 
     /**
@@ -2832,7 +2832,7 @@ trait Fonts
         else {
             $descent = (1.219 * 0.24 * $size);
         }
-        return ($descent / self::FACTOR);
+        return ($descent / $this->factor);
     }
 
     /**

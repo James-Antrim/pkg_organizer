@@ -190,7 +190,7 @@ trait WebTools
         if ($this->state !== self::READY) {
             return;
         }
-        $size        /= self::FACTOR;
+        $size        /= $this->factor;
         $fill        = '';
         $bgColor     = $this->bgColor;
         $color       = $this->fgColor;
@@ -648,10 +648,10 @@ trait WebTools
                 // vertically align image in line
                 if ((!$this->newLine) and ($dom[$key]['value'] == 'img') and (isset($dom[$key]['height'])) and ($dom[$key]['height'] > 0)) {
                     // get image height
-                    $imgh          = $this->fontSizeToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / self::FACTOR));
+                    $imgh          = $this->fontSizeToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->factor));
                     $autolinebreak = false;
                     if (!empty($dom[$key]['width'])) {
-                        $imgw = $this->fontSizeToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / self::FACTOR));
+                        $imgw = $this->fontSizeToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->factor));
                         if (($imgw <= ($this->width - $this->leftMargin - $this->rightMargin - $this->cellPaddings['L'] - $this->cellPaddings['R'])) and ($this->x + $imgw) > ($this->width - $this->rightMargin - $this->cellPaddings['R'])) {
                             // add automatic line break
                             $autolinebreak = true;
@@ -689,9 +689,9 @@ trait WebTools
                             // add line start to current page
                             $yshift = ($minstartliney - $this->y);
                             if ($fontaligned) {
-                                $yshift += ($curfontsize / self::FACTOR);
+                                $yshift += ($curfontsize / $this->factor);
                             }
-                            $try = sprintf('1 0 0 1 0 %F cm', ($yshift * self::FACTOR));
+                            $try = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->factor));
                             $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                             // shift the annotations and links
                             if (isset($this->pageAnnotations[$this->page])) {
@@ -716,9 +716,9 @@ trait WebTools
                             $startliney    = $this->y;
                             $this->newLine = false;
                         }
-                        $this->y        += ($this->getCellHeight($curfontsize / self::FACTOR) - ($curfontdescent * $this->cellHeightRatio) - $imgh);
+                        $this->y        += ($this->getCellHeight($curfontsize / $this->factor) - ($curfontdescent * $this->cellHeightRatio) - $imgh);
                         $minstartliney  = min($this->y, $minstartliney);
-                        $maxbottomliney = ($startliney + $this->getCellHeight($curfontsize / self::FACTOR));
+                        $maxbottomliney = ($startliney + $this->getCellHeight($curfontsize / $this->factor));
                     }
                 }
                 elseif (isset($dom[$key]['fontname']) or isset($dom[$key]['fontstyle']) or isset($dom[$key]['fontsize']) or isset($dom[$key]['line-height'])) {
@@ -758,7 +758,7 @@ trait WebTools
                                 $tend     = substr($pagebuff, $this->cntmrk[$this->page]);
                                 // add line start to current page
                                 $yshift = ($minstartliney - $this->y);
-                                $try    = sprintf('1 0 0 1 0 %F cm', ($yshift * self::FACTOR));
+                                $try    = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->factor));
                                 $this->pageBuffer($this->page, $tstart . "\nq\n" . $try . "\n" . $linebeg . "\nQ\n" . $tend);
                                 // shift the annotations and links
                                 if (isset($this->pageAnnotations[$this->page])) {
@@ -787,17 +787,17 @@ trait WebTools
                             }
                             if (!$dom[$key]['block']) {
                                 if (!(isset($dom[($key + 1)]) and $dom[($key + 1)]['tag'] and (!$dom[($key + 1)]['opening']) and ($dom[($key + 1)]['value'] != 'li') and $dom[$key]['tag'] and (!$dom[$key]['opening']))) {
-                                    $this->y += (((($curfontsize * $this->cellHeightRatio) - ($fontsize * $dom[$key]['line-height'])) / self::FACTOR) + $curfontascent - $fontascent - $curfontdescent + $fontdescent) / 2;
+                                    $this->y += (((($curfontsize * $this->cellHeightRatio) - ($fontsize * $dom[$key]['line-height'])) / $this->factor) + $curfontascent - $fontascent - $curfontdescent + $fontdescent) / 2;
                                 }
                                 if (($dom[$key]['value'] != 'sup') and ($dom[$key]['value'] != 'sub')) {
                                     $current_line_align_data = [$key, $minstartliney, $maxbottomliney];
                                     if (isset($line_align_data) and (($line_align_data[0] == ($key - 1)) or (($line_align_data[0] == ($key - 2)) and (isset($dom[($key - 1)])) and (preg_match('/^([\s]+)$/', $dom[($key - 1)]['value']) > 0)))) {
                                         $minstartliney  = min($this->y, $line_align_data[1]);
-                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / self::FACTOR)), $line_align_data[2]);
+                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / $this->factor)), $line_align_data[2]);
                                     }
                                     else {
                                         $minstartliney  = min($this->y, $minstartliney);
-                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / self::FACTOR)), $maxbottomliney);
+                                        $maxbottomliney = max(($this->y + $this->getCellHeight($fontsize / $this->factor)), $maxbottomliney);
                                     }
                                     $line_align_data = $current_line_align_data;
                                 }
@@ -962,7 +962,7 @@ trait WebTools
                                     $ns = 1;
                                 }
                                 // calculate additional space to add to each existing space
-                                $spacewidth = ($mdiff / ($ns - $no)) * self::FACTOR;
+                                $spacewidth = ($mdiff / ($ns - $no)) * $this->factor;
                                 if ($this->fontSize <= 0) {
                                     $this->fontSize = 1;
                                 }
@@ -1099,18 +1099,18 @@ trait WebTools
                                         }
                                     }
                                     // shift the annotations and links
-                                    $cxpos = ($currentxpos / self::FACTOR);
+                                    $cxpos = ($currentxpos / $this->factor);
                                     $lmpos = ($this->leftMargin + $this->cellPaddings['L'] + self::EPSILON);
                                     if ($this->inXObject) {
                                         // we are inside an XObject template
                                         foreach ($this->xObjects[$this->xObjectID]['annotations'] as $pak => $pac) {
-                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * self::FACTOR) >= ($currentxpos - self::EPSILON)) and (($pac['x'] * self::FACTOR) <= ($currentxpos + self::EPSILON))) {
+                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->factor) >= ($currentxpos - self::EPSILON)) and (($pac['x'] * $this->factor) <= ($currentxpos + self::EPSILON))) {
                                                 if ($cxpos > $lmpos) {
-                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += ($spacew / self::FACTOR);
-                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / self::FACTOR);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['x'] += ($spacew / $this->factor);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->factor);
                                                 }
                                                 else {
-                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / self::FACTOR);
+                                                    $this->xObjects[$this->xObjectID]['annotations'][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->factor);
                                                 }
                                                 break;
                                             }
@@ -1118,13 +1118,13 @@ trait WebTools
                                     }
                                     elseif (isset($this->pageAnnotations[$this->page])) {
                                         foreach ($this->pageAnnotations[$this->page] as $pak => $pac) {
-                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * self::FACTOR) >= ($currentxpos - self::EPSILON)) and (($pac['x'] * self::FACTOR) <= ($currentxpos + self::EPSILON))) {
+                                            if (($pac['y'] >= $minstartliney) and (($pac['x'] * $this->factor) >= ($currentxpos - self::EPSILON)) and (($pac['x'] * $this->factor) <= ($currentxpos + self::EPSILON))) {
                                                 if ($cxpos > $lmpos) {
-                                                    $this->pageAnnotations[$this->page][$pak]['x'] += ($spacew / self::FACTOR);
-                                                    $this->pageAnnotations[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / self::FACTOR);
+                                                    $this->pageAnnotations[$this->page][$pak]['x'] += ($spacew / $this->factor);
+                                                    $this->pageAnnotations[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->factor);
                                                 }
                                                 else {
-                                                    $this->pageAnnotations[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / self::FACTOR);
+                                                    $this->pageAnnotations[$this->page][$pak]['w'] += (($spacewidth * $pac['numspaces']) / $this->factor);
                                                 }
                                                 break;
                                             }
@@ -1153,7 +1153,7 @@ trait WebTools
                     } // end if $startlinex
                     if (($t_x != 0) or ($yshift < 0)) {
                         // shift the line
-                        $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * self::FACTOR), ($yshift * self::FACTOR));
+                        $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->factor), ($yshift * $this->factor));
                         $pstart     .= "\nq\n" . $trx . "\n" . $pmid . "\nQ\n";
                         $endlinepos = strlen($pstart);
                         if ($this->inXObject) {
@@ -1186,14 +1186,14 @@ trait WebTools
                 $startlinex    = $this->x;
                 $startliney    = $this->y;
                 if ($dom[$dom[$key]['parent']]['value'] == 'sup') {
-                    $startliney -= ((0.3 * $this->fontSizePT) / self::FACTOR);
+                    $startliney -= ((0.3 * $this->fontSizePT) / $this->factor);
                 }
                 elseif ($dom[$dom[$key]['parent']]['value'] == 'sub') {
-                    $startliney -= (($this->fontSizePT / 0.7) / self::FACTOR);
+                    $startliney -= (($this->fontSizePT / 0.7) / $this->factor);
                 }
                 else {
                     $minstartliney  = $startliney;
-                    $maxbottomliney = ($this->y + $this->getCellHeight($fontsize / self::FACTOR));
+                    $maxbottomliney = ($this->y + $this->getCellHeight($fontsize / $this->factor));
                 }
                 $startlinepage = $this->page;
                 if (isset($endlinepos) and (!$pbrk)) {
@@ -1552,9 +1552,9 @@ trait WebTools
                     if (is_numeric($pfontsize) and ($pfontsize > 0) and is_numeric($curfontsize) and ($curfontsize > 0) and ($pfontsize != $curfontsize)) {
                         $pfontascent    = $this->getFontAscent($pfontname, $pfontstyle, $pfontsize);
                         $pfontdescent   = $this->getFontDescent($pfontname, $pfontstyle, $pfontsize);
-                        $this->y        += ($this->getCellHeight(($pfontsize - $curfontsize) / self::FACTOR) + $pfontascent - $curfontascent - $pfontdescent + $curfontdescent) / 2;
+                        $this->y        += ($this->getCellHeight(($pfontsize - $curfontsize) / $this->factor) + $pfontascent - $curfontascent - $pfontdescent + $curfontdescent) / 2;
                         $minstartliney  = min($this->y, $minstartliney);
-                        $maxbottomliney = max(($this->y + $this->getCellHeight($pfontsize / self::FACTOR)), $maxbottomliney);
+                        $maxbottomliney = max(($this->y + $this->getCellHeight($pfontsize / $this->factor)), $maxbottomliney);
                     }
                 }
                 // text
@@ -1783,7 +1783,7 @@ trait WebTools
             } // end if startlinex
             if (($t_x != 0) or ($yshift < 0)) {
                 // shift the line
-                $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * self::FACTOR), ($yshift * self::FACTOR));
+                $trx        = sprintf('1 0 0 1 %F %F cm', ($t_x * $this->factor), ($yshift * $this->factor));
                 $pstart     .= "\nq\n" . $trx . "\n" . $pmid . "\nQ\n";
                 $endlinepos = strlen($pstart);
                 if ($this->inXObject) {
@@ -1856,7 +1856,7 @@ trait WebTools
                 $cur_h = $this->tagvspaces[$tag['value']][0]['h'];
             }
             elseif (isset($tag['fontsize'])) {
-                $cur_h = $this->getCellHeight($tag['fontsize'] / self::FACTOR);
+                $cur_h = $this->getCellHeight($tag['fontsize'] / $this->factor);
             }
             else {
                 $cur_h = $this->getCellHeight($this->fontSize);
@@ -1878,7 +1878,7 @@ trait WebTools
             }
             if (($this->htmlvspace <= 0) and ($on > 0)) {
                 if (isset($parent['fontsize'])) {
-                    $hbz = (($parent['fontsize'] / self::FACTOR) * $this->cellHeightRatio);
+                    $hbz = (($parent['fontsize'] / $this->factor) * $this->cellHeightRatio);
                 }
                 else {
                     $hbz = $this->getCellHeight($this->fontSize);
@@ -1894,7 +1894,7 @@ trait WebTools
                 $pre_h = $this->tagvspaces[$tag['value']][1]['h'];
             }
             elseif (isset($parent['fontsize'])) {
-                $pre_h = $this->getCellHeight($parent['fontsize'] / self::FACTOR);
+                $pre_h = $this->getCellHeight($parent['fontsize'] / $this->factor);
             }
             else {
                 $pre_h = $this->getCellHeight($this->fontSize);
@@ -2135,11 +2135,11 @@ trait WebTools
                 }
                 $iw = '';
                 if (isset($tag['width'])) {
-                    $iw = $this->fontSizeToUnits($tag['width'], ($tag['fontsize'] / self::FACTOR));
+                    $iw = $this->fontSizeToUnits($tag['width'], ($tag['fontsize'] / $this->factor));
                 }
                 $ih = '';
                 if (isset($tag['height'])) {
-                    $ih = $this->fontSizeToUnits($tag['height'], ($tag['fontsize'] / self::FACTOR));
+                    $ih = $this->fontSizeToUnits($tag['height'], ($tag['fontsize'] / $this->factor));
                 }
                 if (($type == 'eps') or ($type == 'ai')) {
                     $this->ImageEps($imgsrc, $xpos, $this->y, $iw, $ih, $imglink, true, $align, '', $border, true);
@@ -2158,12 +2158,12 @@ trait WebTools
                     }
                     case 'M':
                     {
-                        $this->y = (($this->imageRBY + $prevy - ($this->getCellHeight($tag['fontsize'] / self::FACTOR))) / 2);
+                        $this->y = (($this->imageRBY + $prevy - ($this->getCellHeight($tag['fontsize'] / $this->factor))) / 2);
                         break;
                     }
                     case 'B':
                     {
-                        $this->y = $this->imageRBY - ($this->getCellHeight($tag['fontsize'] / self::FACTOR) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cellHeightRatio));
+                        $this->y = $this->imageRBY - ($this->getCellHeight($tag['fontsize'] / $this->factor) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cellHeightRatio));
                         break;
                     }
                 }
@@ -2292,12 +2292,12 @@ trait WebTools
             }
             case 'sup':
             {
-                $this->setXY($this->x(), $this->y() - ((0.7 * $this->fontSizePT) / self::FACTOR));
+                $this->setXY($this->x(), $this->y() - ((0.7 * $this->fontSizePT) / $this->factor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->x(), $this->y() + ((0.3 * $this->fontSizePT) / self::FACTOR));
+                $this->setXY($this->x(), $this->y() + ((0.3 * $this->fontSizePT) / $this->factor));
                 break;
             }
             case 'h1':
@@ -2636,7 +2636,7 @@ trait WebTools
                 $pre_h = $this->tagvspaces[$tag['value']][1]['h'];
             }
             elseif (isset($parent['fontsize'])) {
-                $pre_h = $this->getCellHeight($parent['fontsize'] / self::FACTOR);
+                $pre_h = $this->getCellHeight($parent['fontsize'] / $this->factor);
             }
             else {
                 $pre_h = $this->getCellHeight($this->fontSize);
@@ -3052,12 +3052,12 @@ trait WebTools
             }
             case 'sup':
             {
-                $this->setXY($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / self::FACTOR));
+                $this->setXY($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / $this->factor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / self::FACTOR));
+                $this->setXY($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / $this->factor));
                 break;
             }
             case 'div':
@@ -4025,13 +4025,13 @@ trait WebTools
     protected function getCSSBorderWidth($width)
     {
         if ($width == 'thin') {
-            $width = (2 / self::FACTOR);
+            $width = (2 / $this->factor);
         }
         elseif ($width == 'medium') {
-            $width = (4 / self::FACTOR);
+            $width = (4 / $this->factor);
         }
         elseif ($width == 'thick') {
-            $width = (6 / self::FACTOR);
+            $width = (6 / $this->factor);
         }
         else {
             $width = $this->fontSizeToUnits($width);

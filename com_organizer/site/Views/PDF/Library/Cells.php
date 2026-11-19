@@ -298,7 +298,7 @@ trait Cells
                 $h = $min_cell_height;
             }
         }
-        $k = self::FACTOR;
+        $k = $this->factor;
         // check page for no-write regions and adapt page margins if necessary
         list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
         $x                  = $this->x + $this->cellMargins['L'];
@@ -500,13 +500,13 @@ trait Cells
             }
             if ($this->fontSpacing != 0) {
                 // increase/decrease font spacing
-                $rs .= sprintf('BT %F Tc ET ', ($this->fontSpacing * self::FACTOR));
+                $rs .= sprintf('BT %F Tc ET ', ($this->fontSpacing * $this->factor));
             }
             if ($this->differentColors and ($this->textrendermode < 4)) {
                 $s .= 'q ' . $this->textColor . ' ';
             }
             // rendering mode
-            $s .= sprintf('BT %d Tr %F w ET ', $this->textrendermode, ($this->textstrokewidth * self::FACTOR));
+            $s .= sprintf('BT %d Tr %F w ET ', $this->textrendermode, ($this->textstrokewidth * $this->factor));
             // count number of spaces
             $ns = substr_count($txt, chr(32));
             // Justification
@@ -515,7 +515,7 @@ trait Cells
                 // get string width
                 $width = $txwidth;
                 // new space width
-                $spacewidth = (($w - $width - $this->cellPaddings['L'] - $this->cellPaddings['R']) / ($ns ? $ns : 1)) * self::FACTOR;
+                $spacewidth = (($w - $width - $this->cellPaddings['L'] - $this->cellPaddings['R']) / ($ns ? $ns : 1)) * $this->factor;
                 if ($this->fontStretching != 100) {
                     // word spacing (Tw) is affected by stretching
                     $spacewidth /= ($this->fontStretching / 100);
@@ -649,7 +649,7 @@ trait Cells
             $brd = ['LRTB' => true];
         }
         // calculate coordinates for border
-        $k   = self::FACTOR;
+        $k   = $this->factor;
         $xeL = $x * $k;
         $xeR = ($x + $w) * $k;
         $yeL = (($this->height - ($y + $h)) * $k);
@@ -931,7 +931,7 @@ trait Cells
                     // try to reduce font size to fit text on cell (use a quick search algorithm)
                     $fmin         = 1;
                     $fmax         = $this->fontSizePT;
-                    $diff_epsilon = (1 / self::FACTOR); // one point (min resolution)
+                    $diff_epsilon = (1 / $this->factor); // one point (min resolution)
                     $maxit        = (2 * min(100, max(10, intval($fmax)))); // max number of iterations
                     while ($maxit >= 0) {
                         $fmid = (($fmax + $fmin) / 2);

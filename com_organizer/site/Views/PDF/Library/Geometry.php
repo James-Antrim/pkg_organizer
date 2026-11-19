@@ -194,12 +194,12 @@ trait Geometry
             return;
         }
 
-        $x1Points = $x1 * self::FACTOR;
-        $x2Points = $x2 * self::FACTOR;
-        $x3Points = $x3 * self::FACTOR;
-        $y1Points = ($this->height - $y1) * self::FACTOR;
-        $y2Points = ($this->height - $y2) * self::FACTOR;
-        $y3Points = ($this->height - $y3) * self::FACTOR;
+        $x1Points = $x1 * $this->factor;
+        $x2Points = $x2 * $this->factor;
+        $x3Points = $x3 * $this->factor;
+        $y1Points = ($this->height - $y1) * $this->factor;
+        $y2Points = ($this->height - $y2) * $this->factor;
+        $y3Points = ($this->height - $y3) * $this->factor;
 
         $this->append(sprintf('%F %F %F %F %F %F c', $x1Points, $y1Points, $x2Points, $y2Points, $x3Points, $y3Points));
 
@@ -215,7 +215,7 @@ trait Geometry
     protected function appendLine(float $x, float $y): void
     {
         if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F l', $x * self::FACTOR, ($this->height - $y) * self::FACTOR));
+            $this->append(sprintf('%F %F l', $x * $this->factor, ($this->height - $y) * $this->factor));
         }
     }
 
@@ -234,10 +234,10 @@ trait Geometry
             return;
         }
 
-        $heightPoints = -$height * self::FACTOR;
-        $widthPoints  = $width * self::FACTOR;
-        $xPoints      = $x * self::FACTOR;
-        $yPoints      = ($this->height - $y) * self::FACTOR;
+        $heightPoints = -$height * $this->factor;
+        $widthPoints  = $width * $this->factor;
+        $xPoints      = $x * $this->factor;
+        $yPoints      = ($this->height - $y) * $this->factor;
         $this->append(sprintf('%F %F %F %F re %s', $xPoints, $yPoints, $widthPoints, $heightPoints, $options));
     }
 
@@ -349,7 +349,7 @@ trait Geometry
 
         if (isset($configuration['width'])) {
             $this->lineWidth      = $configuration['width'];
-            $this->lineWidthStyle = sprintf('%F w', ($configuration['width'] * self::FACTOR));
+            $this->lineWidthStyle = sprintf('%F w', ($configuration['width'] * $this->factor));
 
             $style .= $this->lineWidthStyle . ' ';
         }
@@ -417,7 +417,7 @@ trait Geometry
     {
         if (is_float($width)) {
             $this->lineWidth      = $width;
-            $this->lineWidthStyle = sprintf('%F w', ($width * self::FACTOR));
+            $this->lineWidthStyle = sprintf('%F w', ($width * $this->factor));
 
             if ($this->state === self::READY) {
                 $this->append($this->lineWidthStyle);
@@ -499,7 +499,7 @@ trait Geometry
     protected function point(float $x, float $y): void
     {
         if ($this->state === self::READY) {
-            $this->append(sprintf('%F %F m', $x * self::FACTOR, ($this->height - $y) * self::FACTOR));
+            $this->append(sprintf('%F %F m', $x * $this->factor, ($this->height - $y) * $this->factor));
         }
     }
 

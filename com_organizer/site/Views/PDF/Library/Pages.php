@@ -114,7 +114,7 @@ trait Pages
             return;
         }
 
-        $factor = $points ? 1 : self::FACTOR;
+        $factor = $points ? 1 : $this->factor;
 
         $this->pageDimensions[$page][$box]['llx'] = ($llx * $factor);
         $this->pageDimensions[$page][$box]['lly'] = ($lly * $factor);
@@ -173,12 +173,12 @@ trait Pages
             $mediaBox = $format['MediaBox'] ?? false;
             if ($mediaBox) {
                 $this->pageBoxes($this->page, 'MediaBox', $mediaBox['llx'], $mediaBox['lly'], $mediaBox['urx'], $mediaBox['ury'], false);
-                $this->formatWidthPT  = ($mediaBox['urx'] - $mediaBox['llx']) * self::FACTOR;
-                $this->formatHeightPT = ($mediaBox['ury'] - $mediaBox['lly']) * self::FACTOR;
+                $this->formatWidthPT  = ($mediaBox['urx'] - $mediaBox['llx']) * $this->factor;
+                $this->formatHeightPT = ($mediaBox['ury'] - $mediaBox['lly']) * $this->factor;
             }
             else {
                 if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
-                    $dimensions = array(($format[0] * self::FACTOR), ($format[1] * self::FACTOR));
+                    $dimensions = array(($format[0] * $this->factor), ($format[1] * $this->factor));
                 }
                 else {
                     if (!isset($format['format'])) {
@@ -313,14 +313,14 @@ trait Pages
             }
         }
 
-        $this->width  = ($this->widthPT / self::FACTOR);
-        $this->height = ($this->heightPT / self::FACTOR);
+        $this->width  = ($this->widthPT / $this->factor);
+        $this->height = ($this->heightPT / $this->factor);
 
         if (is_null($autoPagebreak)) {
             $autoPagebreak = $this->autoPageBreak;
         }
         if (is_null($bottomMargin)) {
-            $bottomMargin = $this->bottomMargin ?: 2 * self::ONE_INCH / self::FACTOR;
+            $bottomMargin = $this->bottomMargin ?: 2 * self::POINTS_PER_CM / $this->factor;
         }
         $this->autoPageBreak($autoPagebreak, $bottomMargin);
 
