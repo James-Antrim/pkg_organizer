@@ -64,8 +64,6 @@ class PDF
     /** Regular expression used to find blank characters for word-wrapping. */
     protected string $spacesRE = '/(?!\xa0)[\s\p{Z}]/u';
     protected int $state = self::INITIAL;
-    /** Stores positions of graphics transformation blocks in the page buffer, keys are the page numbers */
-    protected array $transpositions = [];
     protected bool $underline = false;
     protected string $unit = self::MILLIMETER;
     protected string $xObjectID = '';
@@ -88,8 +86,9 @@ class PDF
             self::POINT => 1,
             default => self::DPI / 25.4,
         };
-        $margin       = self::POINTS_PER_CM / $this->factor;
-        $cellPadding  = $margin / 10;
+
+        $margin      = self::POINTS_PER_CM / $this->factor;
+        $cellPadding = $margin / 10;
 
         $this->cellPaddings($cellPadding, 0, $cellPadding, 0);
         $this->cellMargins(0, 0, 0, 0);
@@ -268,35 +267,6 @@ class PDF
 
         ++$this->matrixKey;
         $this->matrix[$this->matrixKey] = [];
-    }
-
-    /**
-     * Apply graphic transformations.
-     * @param array $matrix transformation matrix
-     * @see   startTransformation(), endTransformation()
-     */
-    protected function transform(array $matrix): void
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-
-        $this->append(sprintf('%F %F %F %F %F %F cm', $matrix[0], $matrix[1], $matrix[2], $matrix[3], $matrix[4], $matrix[5]));
-        $this->matrix[$this->matrixKey][] = ['a' => $matrix[0], 'b' => $matrix[1], 'c' => $matrix[2], 'd' => $matrix[3], 'e' => $matrix[4], 'f' => $matrix[5]];
-        // update transformation mark
-        if ($this->inXObject) {
-            if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
-                $key                                                      = key($this->xObjects[$this->xObjectID]['transpositions']);
-                $this->xObjects[$this->xObjectID]['transpositions'][$key] = strlen($this->xObjects[$this->xObjectID]['content']);
-            }
-            return;
-        }
-
-        if (end($this->transpositions[$this->page]) !== false) {
-            $key = key($this->transpositions[$this->page]);
-
-            $this->transpositions[$this->page][$key] = $this->pageLengths[$this->page];
-        }
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
@@ -497,11 +467,6 @@ class PDF
     protected $offsets = [];
 
     /**
-     * Scale factor (number of points in user unit).
-     */
-    protected $k;
-
-    /**
      * Current horizontal position in user unit for cell positioning.
      */
     protected $x;
@@ -596,38 +561,6 @@ class PDF
      * Default number of columns for html table.
      */
     protected $default_table_columns = 4;
-
-    // variables for html parser
-
-    /**
-     * HTML PARSER: array to store current link and rendering styles.
-     */
-    protected array $HREF = [];
-
-    /**
-     * HTML PARSER: array of bool values, true in case of ordered list (OL), false otherwise.
-     */
-    protected $listordered = [];
-
-    /**
-     * HTML PARSER: array count list items on nested lists.
-     */
-    protected $listcount = [];
-
-    /**
-     * HTML PARSER: current list nesting level.
-     */
-    protected $listnum = 0;
-
-    /**
-     * HTML PARSER: indent amount for lists.
-     */
-    protected $listindent = 0;
-
-    /**
-     * HTML PARSER: current list indententation level.
-     */
-    protected $listindentlevel = 0;
 
     /**
      * Spacer string for LI tags.
@@ -734,11 +667,6 @@ class PDF
     protected $tagvspaces = [];
 
     /**
-     * HTML PARSER: custom indent amount for lists. Negative value means disabled.
-     */
-    protected $customlistindent = -1;
-
-    /**
      * bool flag to indicate if the border of the cell sides that cross the page should be removed.
      */
     protected $opencell = true;
@@ -757,16 +685,6 @@ class PDF
      * Counts the number of pages.
      */
     protected $numpages = 0;
-
-    /**
-     * Counts the number of pages.
-     */
-    protected $numimages = 0;
-
-    /**
-     * Store the image keys.
-     */
-    protected $imagekeys = [];
 
     /**
      * Store the fage status (true when opened, false when closed).
@@ -828,16 +746,6 @@ class PDF
      * Javascript objects array.
      */
     protected $js_objects = [];
-
-    /**
-     * Current form action (used during XHTML rendering).
-     */
-    protected $form_action = '';
-
-    /**
-     * Current form encryption type (used during XHTML rendering).
-     */
-    protected $form_enctype = 'application/x-www-form-urlencoded';
 
     /**
      * Current method to submit forms.
@@ -1123,13 +1031,6 @@ class PDF
      */
     protected $fileContentCache = [];
 
-    /**
-     * Whether to allow local file path in image html tags, when prefixed with file://
-     *
-     * @var bool
-     */
-    protected $allowLocalFiles = false;
-
     //------------------------------------------------------------
     // METHODS
     //------------------------------------------------------------
@@ -1144,256 +1045,42 @@ class PDF
     }
 
     /**
-     * Set the last cell height.
-     * @param float $h cell height.
-     * @author Nicola Asuni
+     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
+     * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
+     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
+     * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
+     * @see   startPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
      */
-    public function setLastH($h)
+    public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
     {
-        $this->lastPrintedCellHeight = $h;
-    }
-
-    /**
-     * Return the cell height
-     * @param int  $fontsize Font size in internal units
-     * @param bool $padding  If true add cell padding
-     * @return float
-     */
-    public function getCellHeight($fontsize, $padding = true)
-    {
-        $height = ($fontsize * $this->cellHeightRatio);
-        if ($padding && !empty($this->cellPaddings)) {
-            $height += ($this->cellPaddings['T'] + $this->cellPaddings['B']);
+        if ($this->inXObject) {
+            // we are inside an XObject template
+            return;
         }
-        return round($height, 6);
-    }
-
-    /**
-     * Reset the last cell height.
-     */
-    public function resetLastH()
-    {
-        $this->lastPrintedCellHeight = $this->getCellHeight($this->fontSize);
-    }
-
-    /**
-     * Get the last cell height.
-     * @return float last cell height
-     */
-    public function getLastH()
-    {
-        return $this->lastPrintedCellHeight;
-    }
-
-    /**
-     * Returns an array of page dimensions:
-     * <ul><li>$this->pagedim[$this->page]['w'] = page width in points</li><li>$this->pagedim[$this->page]['h'] = height in points</li><li>$this->pagedim[$this->page]['wk'] = page width in user units</li><li>$this->pagedim[$this->page]['hk'] = page height in user units</li><li>$this->pagedim[$this->page]['tm'] = top margin</li><li>$this->pagedim[$this->page]['bm'] = bottom margin</li><li>$this->pagedim[$this->page]['lm'] = left margin</li><li>$this->pagedim[$this->page]['rm'] = right margin</li><li>$this->pagedim[$this->page]['pb'] = auto page break</li><li>$this->pagedim[$this->page]['or'] = page orientation</li><li>$this->pagedim[$this->page]['olm'] = original left margin</li><li>$this->pagedim[$this->page]['orm'] = original right margin</li><li>$this->pagedim[$this->page]['Rotate'] = The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.</li><li>$this->pagedim[$this->page]['PZ'] = The page's preferred zoom (magnification) factor.</li><li>$this->pagedim[$this->page]['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation<ul><li>$this->pagedim[$this->page]['trans']['Dur'] = The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.</li><li>$this->pagedim[$this->page]['trans']['S'] = transition style : Split, Blinds, Box, Wipe, Dissolve, Glitter, R, Fly, Push, Cover, Uncover, Fade</li><li>$this->pagedim[$this->page]['trans']['D'] = The duration of the transition effect, in seconds.</li><li>$this->pagedim[$this->page]['trans']['Dm'] = (Split and Blinds transition styles only) The dimension in which the specified transition effect shall occur: H = Horizontal, V = Vertical. Default value: H.</li><li>$this->pagedim[$this->page]['trans']['M'] = (Split, Box and Fly transition styles only) The direction of motion for the specified transition effect: I = Inward from the edges of the page, O = Outward from the center of the pageDefault value: I.</li><li>$this->pagedim[$this->page]['trans']['Di'] = (Wipe, Glitter, Fly, Cover, Uncover and Push transition styles only) The direction in which the specified transition effect shall moves, expressed in degrees counterclockwise starting from a left-to-right direction. If the value is a number, it shall be one of: 0 = Left to right, 90 = Bottom to top (Wipe only), 180 = Right to left (Wipe only), 270 = Top to bottom, 315 = Top-left to bottom-right (Glitter only). If the value is a name, it shall be None, which is relevant only for the Fly transition when the value of SS is not 1.0. Default value: 0.</li><li>$this->pagedim[$this->page]['trans']['SS'] = (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0. </li><li>$this->pagedim[$this->page]['trans']['B'] = (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li></ul></li><li>$this->pagedim[$this->page]['MediaBox'] : the boundaries of the physical medium on which the page shall be displayed or printed<ul><li>$this->pagedim[$this->page]['MediaBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['CropBox'] : the visible region of default user space<ul><li>$this->pagedim[$this->page]['CropBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['BleedBox'] : the region to which the contents of the page shall be clipped when output in a production environment<ul><li>$this->pagedim[$this->page]['BleedBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['TrimBox'] : the intended dimensions of the finished page after trimming<ul><li>$this->pagedim[$this->page]['TrimBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['ArtBox'] : the extent of the page's meaningful content<ul><li>$this->pagedim[$this->page]['ArtBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['ury'] = upper-right y coordinate in points</li></ul></li></ul>
-     * @param int|null $pagenum page number (empty = current page)
-     * @return array of page dimensions.
-     * @author Nicola Asuni
-     */
-    public function getPageDimensions($pagenum = null)
-    {
-        if (empty($pagenum)) {
-            $pagenum = $this->page;
+        if (empty($this->originalLeftMargin) or $keepmargins) {
+            $this->originalLeftMargin = $this->leftMargin;
         }
-        return $this->pageDimensions[$pagenum];
-    }
-
-    /**
-     * Returns the page width in units.
-     * @param int|null $pagenum page number (empty = current page)
-     * @return int|float page width.
-     * @author Nicola Asuni
-     * @see    getPageDimensions()
-     */
-    public function getPageWidth($pagenum = null)
-    {
-        if (empty($pagenum)) {
-            return $this->width;
-        }
-        return $this->pageDimensions[$pagenum]['w'];
-    }
-
-    /**
-     * Returns the page height in units.
-     * @param int|null $pagenum page number (empty = current page)
-     * @return int|float page height.
-     * @author Nicola Asuni
-     * @see    getPageDimensions()
-     */
-    public function getPageHeight($pagenum = null)
-    {
-        if (empty($pagenum)) {
-            return $this->height;
-        }
-        return $this->pageDimensions[$pagenum]['h'];
-    }
-
-    /**
-     * Returns the page break margin.
-     * @param int|null $pagenum page number (empty = current page)
-     * @return int|float page break margin.
-     * @author Nicola Asuni
-     * @see    getPageDimensions()
-     */
-    public function getBreakMargin($pagenum = null)
-    {
-        if (empty($pagenum)) {
-            return $this->bottomMargin;
-        }
-        return $this->pageDimensions[$pagenum]['bm'];
-    }
-
-    /**
-     * Defines the left, top and right margins.
-     * @param int|float      $left        Left margin.
-     * @param int|float      $top         Top margin.
-     * @param int|float|null $right       Right margin. Default value is the left one.
-     * @param bool           $keepmargins if true overwrites the default page margins
-     * @see   SetLeftMargin(), SetTopMargin(), SetRightMargin(), autoPageBreak()
-     */
-    public function setMargins($left, $top, $right = null, $keepmargins = false)
-    {
-        //Set left, top and right margins
-        $this->leftMargin = $left;
-        $this->topMargin  = $top;
-        if ($right == -1 or $right === null) {
-            $right = $left;
-        }
-        $this->rightMargin = $right;
-        if ($keepmargins) {
-            // overwrite original values
-            $this->originalLeftMargin  = $this->leftMargin;
+        if (empty($this->originalRightMargin) or $keepmargins) {
             $this->originalRightMargin = $this->rightMargin;
         }
+        // terminate previous page
+        $this->endPage();
+        // start new page
+        $this->startPage($orientation, $format, $tocpage);
     }
 
     /**
-     * Defines the left margin. The method can be called before creating the first page. If the current abscissa gets out of page, it is brought back to the margin.
-     * @param int|float $margin The margin.
-     * @see   SetTopMargin(), SetRightMargin(), autoPageBreak(), SetMargins()
+     * Adds a new TOC (Table Of Content) page to the document.
+     * @param string $orientation page orientation.
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
+     * @see   AddPage(), startPage(), endPage(), endTOCPage()
      */
-    public function setLeftMargin($margin)
+    public function addTOCPage($orientation = '', $format = '', $keepmargins = false)
     {
-        //Set left margin
-        $this->leftMargin = $margin;
-        if (($this->page > 0) and ($this->x < $margin)) {
-            $this->x = $margin;
-        }
-    }
-
-    /**
-     * Defines the top margin. The method can be called before creating the first page.
-     * @param int|float $margin The margin.
-     * @see   SetLeftMargin(), SetRightMargin(), autoPageBreak(), SetMargins()
-     */
-    public function setTopMargin($margin)
-    {
-        //Set top margin
-        $this->topMargin = $margin;
-        if (($this->page > 0) and ($this->y < $margin)) {
-            $this->y = $margin;
-        }
-    }
-
-    /**
-     * Defines the right margin. The method can be called before creating the first page.
-     * @param int|float $margin The margin.
-     * @see   SetLeftMargin(), SetTopMargin(), autoPageBreak(), SetMargins()
-     */
-    public function setRightMargin($margin)
-    {
-        $this->rightMargin = $margin;
-        if (($this->page > 0) and ($this->x > ($this->width - $margin))) {
-            $this->x = $this->width - $margin;
-        }
-    }
-
-    /**
-     * Defines the title of the document.
-     * @param string $title The title.
-     * @see   SetAuthor(), SetCreator(), SetKeywords(), SetSubject()
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * Defines the subject of the document.
-     * @param string $subject The subject.
-     * @see   SetAuthor(), SetCreator(), SetKeywords(), SetTitle()
-     */
-    public function setSubject($subject)
-    {
-        $this->subject = $subject;
-    }
-
-    /**
-     * Defines the author of the document.
-     * @param string $author The name of the author.
-     * @see   SetCreator(), SetKeywords(), SetSubject(), SetTitle()
-     */
-    public function setAuthor($author)
-    {
-        $this->author = $author;
-    }
-
-    /**
-     * Associates keywords with the document, generally in the form 'keyword1 keyword2 ...'.
-     * @param string $keywords The list of keywords.
-     * @see   SetAuthor(), SetCreator(), SetSubject(), SetTitle()
-     */
-    public function setKeywords($keywords)
-    {
-        $this->keywords = $keywords;
-    }
-
-    /**
-     * Defines the creator of the document. This is typically the name of the application that generates the PDF.
-     * @param string $creator The name of the creator.
-     * @see   SetAuthor(), SetKeywords(), SetSubject(), SetTitle()
-     */
-    public function setCreator($creator)
-    {
-        $this->creator = $creator;
-    }
-
-    /**
-     * Whether to allow local file path in image html tags, when prefixed with file://
-     *
-     * @param bool $allowLocalFiles true, when local files should be allowed. Otherwise false.
-     */
-    public function setAllowLocalFiles($allowLocalFiles)
-    {
-        $this->allowLocalFiles = (bool) $allowLocalFiles;
-    }
-
-    /**
-     * Throw an exception or print an error message and die if the K_TCPDF_PARSER_THROW_EXCEPTION_ERROR constant is set to true.
-     * @param string $msg The error message
-     */
-    public function Error($msg)
-    {
-        // unset all class variables
-        $this->_destroy(true);
-        die('<strong>PDF Library Error: </strong>' . $msg);
-        // TODO comment in for production
-        /*if (JDEBUG) {
-            Application::error(500, $msg);
-        }*/
-    }
-
-    /**
-     * This method begins the generation of the PDF document.
-     * It is not necessary to call it explicitly because AddPage() does it automatically.
-     * Note: no page is created by this method
-     * @see   AddPage(), Close()
-     */
-    public function Open()
-    {
-        $this->state = self::NEUTRAL;
+        $this->AddPage($orientation, $format, $keepmargins, true);
     }
 
     /**
@@ -1437,6 +1124,263 @@ class PDF
         $this->_enddoc();
         // unset all class variables (except critical ones)
         $this->_destroy(false);
+    }
+
+    /**
+     * Terminate the current page
+     * @param bool $tocpage if true set the tocpage state to false (end the page used to display Table Of Content).
+     * @see   AddPage(), startPage(), addTOCPage(), endTOCPage()
+     */
+    public function endPage($tocpage = false)
+    {
+        // check if page is already closed
+        if (($this->page == 0) or ($this->numpages > $this->page) or (!$this->pageopen[$this->page])) {
+            return;
+        }
+        // print page footer
+        $this->setFooter();
+        // close page
+        $this->_endpage();
+        // mark page as closed
+        $this->pageopen[$this->page] = false;
+        if ($tocpage) {
+            $this->tocpage = false;
+        }
+    }
+
+    /**
+     * Terminate the current TOC (Table Of Content) page
+     * @see   AddPage(), startPage(), endPage(), addTOCPage()
+     */
+    public function endTOCPage()
+    {
+        $this->endPage(true);
+    }
+
+    /**
+     * Throw an exception or print an error message and die if the K_TCPDF_PARSER_THROW_EXCEPTION_ERROR constant is set to true.
+     * @param string $msg The error message
+     */
+    public function Error($msg)
+    {
+        // unset all class variables
+        $this->_destroy(true);
+        die('<strong>PDF Library Error: </strong>' . $msg);
+        // TODO comment in for production
+        /*if (JDEBUG) {
+            Application::error(500, $msg);
+        }*/
+    }
+
+    /**
+     * Returns the page break margin.
+     * @param int|null $pagenum page number (empty = current page)
+     * @return int|float page break margin.
+     * @author Nicola Asuni
+     * @see    getPageDimensions()
+     */
+    public function getBreakMargin($pagenum = null)
+    {
+        if (empty($pagenum)) {
+            return $this->bottomMargin;
+        }
+        return $this->pageDimensions[$pagenum]['bm'];
+    }
+
+    /**
+     * Return the cell height
+     * @param int  $fontsize Font size in internal units
+     * @param bool $padding  If true add cell padding
+     * @return float
+     */
+    public function getCellHeight($fontsize, $padding = true)
+    {
+        $height = ($fontsize * $this->cellHeightRatio);
+        if ($padding && !empty($this->cellPaddings)) {
+            $height += ($this->cellPaddings['T'] + $this->cellPaddings['B']);
+        }
+        return round($height, 6);
+    }
+
+    /**
+     * Get the last cell height.
+     * @return float last cell height
+     */
+    public function getLastH()
+    {
+        return $this->lastPrintedCellHeight;
+    }
+
+    /**
+     * Get the total number of insered pages.
+     * @return int number of pages
+     * @see   setPage(), getPage(), lastpage()
+     */
+    public function getNumPages()
+    {
+        return $this->numpages;
+    }
+
+    /**
+     * Get current document page number.
+     * @return int page number
+     * @see   setPage(), lastpage(), getNumPages()
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * Returns an array of page dimensions:
+     * <ul><li>$this->pagedim[$this->page]['w'] = page width in points</li><li>$this->pagedim[$this->page]['h'] = height in points</li><li>$this->pagedim[$this->page]['wk'] = page width in user units</li><li>$this->pagedim[$this->page]['hk'] = page height in user units</li><li>$this->pagedim[$this->page]['tm'] = top margin</li><li>$this->pagedim[$this->page]['bm'] = bottom margin</li><li>$this->pagedim[$this->page]['lm'] = left margin</li><li>$this->pagedim[$this->page]['rm'] = right margin</li><li>$this->pagedim[$this->page]['pb'] = auto page break</li><li>$this->pagedim[$this->page]['or'] = page orientation</li><li>$this->pagedim[$this->page]['olm'] = original left margin</li><li>$this->pagedim[$this->page]['orm'] = original right margin</li><li>$this->pagedim[$this->page]['Rotate'] = The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.</li><li>$this->pagedim[$this->page]['PZ'] = The page's preferred zoom (magnification) factor.</li><li>$this->pagedim[$this->page]['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation<ul><li>$this->pagedim[$this->page]['trans']['Dur'] = The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.</li><li>$this->pagedim[$this->page]['trans']['S'] = transition style : Split, Blinds, Box, Wipe, Dissolve, Glitter, R, Fly, Push, Cover, Uncover, Fade</li><li>$this->pagedim[$this->page]['trans']['D'] = The duration of the transition effect, in seconds.</li><li>$this->pagedim[$this->page]['trans']['Dm'] = (Split and Blinds transition styles only) The dimension in which the specified transition effect shall occur: H = Horizontal, V = Vertical. Default value: H.</li><li>$this->pagedim[$this->page]['trans']['M'] = (Split, Box and Fly transition styles only) The direction of motion for the specified transition effect: I = Inward from the edges of the page, O = Outward from the center of the pageDefault value: I.</li><li>$this->pagedim[$this->page]['trans']['Di'] = (Wipe, Glitter, Fly, Cover, Uncover and Push transition styles only) The direction in which the specified transition effect shall moves, expressed in degrees counterclockwise starting from a left-to-right direction. If the value is a number, it shall be one of: 0 = Left to right, 90 = Bottom to top (Wipe only), 180 = Right to left (Wipe only), 270 = Top to bottom, 315 = Top-left to bottom-right (Glitter only). If the value is a name, it shall be None, which is relevant only for the Fly transition when the value of SS is not 1.0. Default value: 0.</li><li>$this->pagedim[$this->page]['trans']['SS'] = (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0. </li><li>$this->pagedim[$this->page]['trans']['B'] = (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li></ul></li><li>$this->pagedim[$this->page]['MediaBox'] : the boundaries of the physical medium on which the page shall be displayed or printed<ul><li>$this->pagedim[$this->page]['MediaBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['CropBox'] : the visible region of default user space<ul><li>$this->pagedim[$this->page]['CropBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['BleedBox'] : the region to which the contents of the page shall be clipped when output in a production environment<ul><li>$this->pagedim[$this->page]['BleedBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['TrimBox'] : the intended dimensions of the finished page after trimming<ul><li>$this->pagedim[$this->page]['TrimBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['ArtBox'] : the extent of the page's meaningful content<ul><li>$this->pagedim[$this->page]['ArtBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['ury'] = upper-right y coordinate in points</li></ul></li></ul>
+     * @param int|null $pagenum page number (empty = current page)
+     * @return array of page dimensions.
+     * @author Nicola Asuni
+     */
+    public function getPageDimensions($pagenum = null)
+    {
+        if (empty($pagenum)) {
+            $pagenum = $this->page;
+        }
+        return $this->pageDimensions[$pagenum];
+    }
+
+    /**
+     * Returns the page height in units.
+     * @param int|null $pagenum page number (empty = current page)
+     * @return int|float page height.
+     * @author Nicola Asuni
+     * @see    getPageDimensions()
+     */
+    public function getPageHeight($pagenum = null)
+    {
+        if (empty($pagenum)) {
+            return $this->height;
+        }
+        return $this->pageDimensions[$pagenum]['h'];
+    }
+
+    /**
+     * Returns the page width in units.
+     * @param int|null $pagenum page number (empty = current page)
+     * @return int|float page width.
+     * @author Nicola Asuni
+     * @see    getPageDimensions()
+     */
+    public function getPageWidth($pagenum = null)
+    {
+        if (empty($pagenum)) {
+            return $this->width;
+        }
+        return $this->pageDimensions[$pagenum]['w'];
+    }
+
+    /**
+     * Reset pointer to the last document page.
+     * @param bool $resetmargins if true reset left, right, top margins and Y position.
+     * @see   setPage(), getPage(), getNumPages()
+     */
+    public function lastPage($resetmargins = false)
+    {
+        $this->setPage($this->getNumPages(), $resetmargins);
+    }
+
+    /**
+     * This method begins the generation of the PDF document.
+     * It is not necessary to call it explicitly because AddPage() does it automatically.
+     * Note: no page is created by this method
+     * @see   AddPage(), Close()
+     */
+    public function Open()
+    {
+        $this->state = self::NEUTRAL;
+    }
+
+    /**
+     * Reset the last cell height.
+     */
+    public function resetLastH()
+    {
+        $this->lastPrintedCellHeight = $this->getCellHeight($this->fontSize);
+    }
+
+    /**
+     * Defines the author of the document.
+     * @param string $author The name of the author.
+     * @see   SetCreator(), SetKeywords(), SetSubject(), SetTitle()
+     */
+    public function setAuthor($author)
+    {
+        $this->author = $author;
+    }
+
+    /**
+     * Defines the creator of the document. This is typically the name of the application that generates the PDF.
+     * @param string $creator The name of the creator.
+     * @see   SetAuthor(), SetKeywords(), SetSubject(), SetTitle()
+     */
+    public function setCreator($creator)
+    {
+        $this->creator = $creator;
+    }
+
+    /**
+     * Associates keywords with the document, generally in the form 'keyword1 keyword2 ...'.
+     * @param string $keywords The list of keywords.
+     * @see   SetAuthor(), SetCreator(), SetSubject(), SetTitle()
+     */
+    public function setKeywords($keywords)
+    {
+        $this->keywords = $keywords;
+    }
+
+    /**
+     * Set the last cell height.
+     * @param float $h cell height.
+     * @author Nicola Asuni
+     */
+    public function setLastH($h)
+    {
+        $this->lastPrintedCellHeight = $h;
+    }
+
+    /**
+     * Defines the left margin. The method can be called before creating the first page. If the current abscissa gets out of page, it is brought back to the margin.
+     * @param int|float $margin The margin.
+     * @see   SetTopMargin(), SetRightMargin(), autoPageBreak(), SetMargins()
+     */
+    public function setLeftMargin($margin)
+    {
+        //Set left margin
+        $this->leftMargin = $margin;
+        if (($this->page > 0) and ($this->x < $margin)) {
+            $this->x = $margin;
+        }
+    }
+
+    /**
+     * Defines the left, top and right margins.
+     * @param int|float      $left        Left margin.
+     * @param int|float      $top         Top margin.
+     * @param int|float|null $right       Right margin. Default value is the left one.
+     * @param bool           $keepmargins if true overwrites the default page margins
+     * @see   SetLeftMargin(), SetTopMargin(), SetRightMargin(), autoPageBreak()
+     */
+    public function setMargins($left, $top, $right = null, $keepmargins = false)
+    {
+        //Set left, top and right margins
+        $this->leftMargin = $left;
+        $this->topMargin  = $top;
+        if ($right == -1 or $right === null) {
+            $right = $left;
+        }
+        $this->rightMargin = $right;
+        if ($keepmargins) {
+            // overwrite original values
+            $this->originalLeftMargin  = $this->leftMargin;
+            $this->originalRightMargin = $this->rightMargin;
+        }
     }
 
     /**
@@ -1487,104 +1431,52 @@ class PDF
     }
 
     /**
-     * Reset pointer to the last document page.
-     * @param bool $resetmargins if true reset left, right, top margins and Y position.
-     * @see   setPage(), getPage(), getNumPages()
+     * Defines the right margin. The method can be called before creating the first page.
+     * @param int|float $margin The margin.
+     * @see   SetLeftMargin(), SetTopMargin(), autoPageBreak(), SetMargins()
      */
-    public function lastPage($resetmargins = false)
+    public function setRightMargin($margin)
     {
-        $this->setPage($this->getNumPages(), $resetmargins);
-    }
-
-    /**
-     * Get current document page number.
-     * @return int page number
-     * @see   setPage(), lastpage(), getNumPages()
-     */
-    public function getPage()
-    {
-        return $this->page;
-    }
-
-    /**
-     * Get the total number of insered pages.
-     * @return int number of pages
-     * @see   setPage(), getPage(), lastpage()
-     */
-    public function getNumPages()
-    {
-        return $this->numpages;
-    }
-
-    /**
-     * Adds a new TOC (Table Of Content) page to the document.
-     * @param string $orientation page orientation.
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
-     * @see   AddPage(), startPage(), endPage(), endTOCPage()
-     */
-    public function addTOCPage($orientation = '', $format = '', $keepmargins = false)
-    {
-        $this->AddPage($orientation, $format, $keepmargins, true);
-    }
-
-    /**
-     * Terminate the current TOC (Table Of Content) page
-     * @see   AddPage(), startPage(), endPage(), addTOCPage()
-     */
-    public function endTOCPage()
-    {
-        $this->endPage(true);
-    }
-
-    /**
-     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
-     * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
-     * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
-     * @see   startPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
-     */
-    public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
-    {
-        if ($this->inXObject) {
-            // we are inside an XObject template
-            return;
-        }
-        if (empty($this->originalLeftMargin) or $keepmargins) {
-            $this->originalLeftMargin = $this->leftMargin;
-        }
-        if (empty($this->originalRightMargin) or $keepmargins) {
-            $this->originalRightMargin = $this->rightMargin;
-        }
-        // terminate previous page
-        $this->endPage();
-        // start new page
-        $this->startPage($orientation, $format, $tocpage);
-    }
-
-    /**
-     * Terminate the current page
-     * @param bool $tocpage if true set the tocpage state to false (end the page used to display Table Of Content).
-     * @see   AddPage(), startPage(), addTOCPage(), endTOCPage()
-     */
-    public function endPage($tocpage = false)
-    {
-        // check if page is already closed
-        if (($this->page == 0) or ($this->numpages > $this->page) or (!$this->pageopen[$this->page])) {
-            return;
-        }
-        // print page footer
-        $this->setFooter();
-        // close page
-        $this->_endpage();
-        // mark page as closed
-        $this->pageopen[$this->page] = false;
-        if ($tocpage) {
-            $this->tocpage = false;
+        $this->rightMargin = $margin;
+        if (($this->page > 0) and ($this->x > ($this->width - $margin))) {
+            $this->x = $this->width - $margin;
         }
     }
+
+    /**
+     * Defines the subject of the document.
+     * @param string $subject The subject.
+     * @see   SetAuthor(), SetCreator(), SetKeywords(), SetTitle()
+     */
+    public function setSubject($subject)
+    {
+        $this->subject = $subject;
+    }
+
+    /**
+     * Defines the title of the document.
+     * @param string $title The title.
+     * @see   SetAuthor(), SetCreator(), SetKeywords(), SetSubject()
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * Defines the top margin. The method can be called before creating the first page.
+     * @param int|float $margin The margin.
+     * @see   SetLeftMargin(), SetRightMargin(), autoPageBreak(), SetMargins()
+     */
+    public function setTopMargin($margin)
+    {
+        //Set top margin
+        $this->topMargin = $margin;
+        if (($this->page > 0) and ($this->y < $margin)) {
+            $this->y = $margin;
+        }
+    }
+
 
     /**
      * Starts a new page to the document. The page must be closed using the endPage() function.
@@ -3102,8 +2994,8 @@ class PDF
                 }
                 closedir($handle);
             }
-            if (isset($this->imagekeys)) {
-                foreach ($this->imagekeys as $file) {
+            if (isset($this->imageKeys)) {
+                foreach ($this->imageKeys as $file) {
                     if (strpos($file, self::CACHE_PATH) === 0 && @file_exists($file)) {
                         @unlink($file);
                     }
@@ -4318,7 +4210,7 @@ class PDF
         $this->_putextgstates();
         $this->_putocg();
         $this->_putfonts();
-        $this->_putimages();
+        $this->appendImages();
         $this->appendSpotColors();
         $this->_putshaders();
         $this->_putxobjects();
@@ -4916,53 +4808,15 @@ class PDF
     }
 
     /**
-     * Output anchor link.
-     * @param string     $url        link URL or internal link (i.e.: &lt;a href="#23,4.5"&gt;link to page 23 at 4.5 Y position&lt;/a&gt;)
-     * @param string     $name       link name
-     * @param bool       $fill       Indicates if the cell background must be painted (true) or transparent (false).
-     * @param bool       $firstline  if true prints only the first line and return the remaining string.
-     * @param array|null $color      array of RGB text color
-     * @param string     $style      font style (U, D, B, I)
-     * @param bool       $firstblock if true the string is the starting of a line.
-     * @return int the number of cells used or the remaining text if $firstline = true;
+     * Returns the PDF data.
+     * @public
      */
-    public function addHtmlLink($url, $name, $fill = false, $firstline = false, $color = null, $style = -1, $firstblock = false)
+    public function getPDFData()
     {
-        if (isset($url[1]) and ($url[0] == '#') and is_numeric($url[1])) {
-            // convert url to internal link
-            $lnkdata = explode(',', $url);
-            if (isset($lnkdata[0])) {
-                $page = substr($lnkdata[0], 1);
-                if (isset($lnkdata[1]) and (strlen($lnkdata[1]) > 0)) {
-                    $lnky = floatval($lnkdata[1]);
-                }
-                else {
-                    $lnky = 0;
-                }
-                $url = $this->AddLink();
-                $this->setLink($url, $lnky, $page);
-            }
+        if ($this->state < 3) {
+            $this->Close();
         }
-        // store current settings
-        $prevcolor = $this->fgColor;
-        $prevstyle = $this->fontStyle;
-        if (empty($color)) {
-            $this->textColorArray($this->linkColor);
-        }
-        else {
-            $this->textColorArray($color);
-        }
-        if ($style == -1) {
-            $this->setCurrentFont('', $this->fontStyle . $this->linkStyle);
-        }
-        else {
-            $this->setCurrentFont('', $this->fontStyle . $style);
-        }
-        $ret = $this->Write($this->lastPrintedCellHeight, $name, $url, $fill, '', false, 0, $firstline, $firstblock, 0);
-        // restore settings
-        $this->setCurrentFont('', $prevstyle);
-        $this->textColorArray($prevcolor);
-        return $ret;
+        return $this->buffer;
     }
 
     /**
@@ -4972,7 +4826,7 @@ class PDF
      */
     public function pixelsToUnits($px)
     {
-        return ($px / ($this->imageScale * $this->factor));
+        return ($px / ($this->imageFactor * $this->factor));
     }
 
     /**
@@ -4984,6 +4838,71 @@ class PDF
     public function unhtmlentities($text_to_convert)
     {
         return @html_entity_decode($text_to_convert, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Add a Named Destination.
+     * NOTE: destination names are unique, so only last entry will be saved.
+     * @param string     $name Destination name.
+     * @param float      $y    Y position in user units of the destiantion on the selected page (default = -1 = current position; 0 = page start;).
+     * @param int|string $page Target page number (leave empty for current page). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
+     * @param float      $x    X position in user units of the destiantion on the selected page (default = -1 = current position;).
+     * @return string|false Stripped named destination identifier or false in case of error.
+     * @public
+     * @author Christian Deligant, Nicola Asuni
+     * @since  5.9.097 (2011-06-23)
+     */
+    public function setDestination($name, $y = -1, $page = '', $x = -1)
+    {
+        // remove unsupported characters
+        $name = TCPDF_STATIC::encodeNameObject($name);
+        if (TCPDF_STATIC::empty_string($name)) {
+            return false;
+        }
+        if ($y == -1) {
+            $y = $this->GetY();
+        }
+        elseif ($y < 0) {
+            $y = 0;
+        }
+        elseif ($y > $this->h) {
+            $y = $this->h;
+        }
+        if ($x == -1) {
+            $x = $this->GetX();
+        }
+        elseif ($x < 0) {
+            $x = 0;
+        }
+        elseif ($x > $this->w) {
+            $x = $this->w;
+        }
+        $fixed = false;
+        if (!empty($page) and (substr($page, 0, 1) == '*')) {
+            $page = intval(substr($page, 1));
+            // this page number will not be changed when moving/add/deleting pages
+            $fixed = true;
+        }
+        if (empty($page)) {
+            $page = $this->PageNo();
+            if (empty($page)) {
+                return;
+            }
+        }
+        $this->dests[$name] = array('x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed);
+        return $name;
+    }
+
+    /**
+     * Return the Named Destination array.
+     * @return array Named Destination array.
+     * @public
+     * @author Nicola Asuni
+     * @since  5.9.097 (2011-06-23)
+     */
+    public function getDestination()
+    {
+        return $this->dests;
     }
 
     /**
@@ -5003,6 +4922,23 @@ class PDF
         $out .= ' >>';
         $out .= "\n" . 'endobj';
         $this->append($out);
+    }
+
+    /**
+     * Adds a bookmark - alias for Bookmark().
+     * @param string     $txt   Bookmark description.
+     * @param int        $level Bookmark level (minimum value is 0).
+     * @param float      $y     Y position in user units of the bookmark on the selected page (default = -1 = current position; 0 = page start;).
+     * @param int|string $page  Target page number (leave empty for current page). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
+     * @param string     $style Font style: B = Bold, I = Italic, BI = Bold + Italic.
+     * @param array      $color RGB color array (values from 0 to 255).
+     * @param float      $x     X position in user units of the bookmark on the selected page (default = -1 = current position;).
+     * @param mixed      $link  URL, or numerical link ID, or named destination (# character followed by the destination name), or embedded file (* character followed by the file name).
+     * @public
+     */
+    public function setBookmark($txt, $level = 0, $y = -1, $page = '', $style = '', $color = array(0, 0, 0), $x = -1, $link = '')
+    {
+        $this->Bookmark($txt, $level, $y, $page, $style, $color, $x, $link);
     }
 
     /**
@@ -5314,6 +5250,18 @@ class PDF
     }
 
     // --- FORM FIELDS -----------------------------------------------------
+
+    /**
+     * Set default properties for form fields.
+     * @param array $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @public
+     * @author Nicola Asuni
+     * @since  4.8.000 (2009-09-06)
+     */
+    public function setFormDefaultProp($prop = [])
+    {
+        $this->default_form_prop = $prop;
+    }
 
     /**
      * Return the default properties for form fields.
@@ -5969,6 +5917,32 @@ class PDF
     // --- END FORMS FIELDS ------------------------------------------------
 
     /**
+     * Create a new page group.
+     * NOTE: call this function before calling AddPage()
+     * @param int|null $page starting group page (leave empty for next page).
+     * @public
+     * @since 3.0.000 (2008-03-27)
+     */
+    public function startPageGroup($page = null)
+    {
+        if (empty($page)) {
+            $page = $this->page + 1;
+        }
+        $this->newpagegroup[$page] = sizeof($this->newpagegroup) + 1;
+    }
+
+    /**
+     * Set the starting page number.
+     * @param int $num Starting page number.
+     * @since 5.9.093 (2011-06-16)
+     * @public
+     */
+    public function setStartingPageNumber($num = 1)
+    {
+        $this->starting_page_number = max(0, intval($num));
+    }
+
+    /**
      * Returns the string alias used right align page numbers.
      * If the current font is unicode type, the returned string wil contain an additional open curly brace.
      * @return string
@@ -6032,6 +6006,39 @@ class PDF
     public function getPageNumGroupAlias()
     {
         return self::PAGE_GROUP_NUMBER_ALIAS;
+    }
+
+    /**
+     * Return the current page in the group.
+     * @return int current page in the group
+     * @public
+     * @since 3.0.000 (2008-03-27)
+     */
+    public function getGroupPageNo()
+    {
+        return $this->pagegroups[$this->currpagegroup];
+    }
+
+    /**
+     * Returns the current group page number formatted as a string.
+     * @public
+     * @since 4.3.003 (2008-11-18)
+     * @see   PaneNo(), formatPageNumber()
+     */
+    public function getGroupPageNoFormatted()
+    {
+        return TCPDF_STATIC::formatPageNumber($this->getGroupPageNo());
+    }
+
+    /**
+     * Returns the current page number formatted as a string.
+     * @public
+     * @since 4.2.005 (2008-11-06)
+     * @see   PaneNo(), formatPageNumber()
+     */
+    public function PageNoFormatted()
+    {
+        return TCPDF_STATIC::formatPageNumber($this->PageNo());
     }
 
     /**
@@ -6326,6 +6333,165 @@ class PDF
     public function setViewerPreferences($preferences)
     {
         $this->viewer_preferences = $preferences;
+    }
+
+    /**
+     * Paints color transition registration bars
+     * @param float   $x          abscissa of the top left corner of the rectangle.
+     * @param float   $y          ordinate of the top left corner of the rectangle.
+     * @param float   $w          width of the rectangle.
+     * @param float   $h          height of the rectangle.
+     * @param boolean $transition if true prints tcolor transitions to white.
+     * @param boolean $vertical   if true prints bar vertically.
+     * @param string  $colors     colors to print separated by comma. Valid values are: A,W,R,G,B,C,M,Y,K,RGB,CMYK,ALL,ALLSPOT,<SPOT_COLOR_NAME>. Where: A = grayscale black, W = grayscale white, R = RGB red, G RGB green, B RGB blue, C = CMYK cyan, M = CMYK magenta, Y = CMYK yellow, K = CMYK key/black, RGB = RGB registration color, CMYK = CMYK registration color, ALL = Spot registration color, ALLSPOT = print all defined spot colors, <SPOT_COLOR_NAME> = name of the spot color to print.
+     * @author Nicola Asuni
+     * @since  4.9.000 (2010-03-26)
+     * @public
+     */
+    public function colorRegistrationBar($x, $y, $w, $h, $transition = true, $vertical = false, $colors = 'A,R,G,B,C,M,Y,K')
+    {
+        if (strpos($colors, 'ALLSPOT') !== false) {
+            // expand spot colors
+            $spot_colors = '';
+            foreach ($this->spot_colors as $spot_color_name => $v) {
+                $spot_colors .= ',' . $spot_color_name;
+            }
+            if (!empty($spot_colors)) {
+                $spot_colors = substr($spot_colors, 1);
+                $colors      = str_replace('ALLSPOT', $spot_colors, $colors);
+            }
+            else {
+                $colors = str_replace('ALLSPOT', 'NONE', $colors);
+            }
+        }
+        $bars    = explode(',', $colors);
+        $numbars = count($bars); // number of bars to print
+        if ($numbars <= 0) {
+            return;
+        }
+        // set bar measures
+        if ($vertical) {
+            $coords = array(0, 0, 0, 1);
+            $wb     = $w / $numbars; // bar width
+            $hb     = $h; // bar height
+            $xd     = $wb; // delta x
+            $yd     = 0; // delta y
+        }
+        else {
+            $coords = array(1, 0, 0, 0);
+            $wb     = $w; // bar width
+            $hb     = $h / $numbars; // bar height
+            $xd     = 0; // delta x
+            $yd     = $hb; // delta y
+        }
+        $xb = $x;
+        $yb = $y;
+        foreach ($bars as $col) {
+            switch ($col) {
+                // set transition colors
+                case 'A':
+                { // BLACK (GRAYSCALE)
+                    $col_a = array(255);
+                    $col_b = array(0);
+                    break;
+                }
+                case 'W':
+                { // WHITE (GRAYSCALE)
+                    $col_a = array(0);
+                    $col_b = array(255);
+                    break;
+                }
+                case 'R':
+                { // RED (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(255, 0, 0);
+                    break;
+                }
+                case 'G':
+                { // GREEN (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(0, 255, 0);
+                    break;
+                }
+                case 'B':
+                { // BLUE (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(0, 0, 255);
+                    break;
+                }
+                case 'C':
+                { // CYAN (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(100, 0, 0, 0);
+                    break;
+                }
+                case 'M':
+                { // MAGENTA (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(0, 100, 0, 0);
+                    break;
+                }
+                case 'Y':
+                { // YELLOW (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(0, 0, 100, 0);
+                    break;
+                }
+                case 'K':
+                { // KEY - BLACK (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(0, 0, 0, 100);
+                    break;
+                }
+                case 'RGB':
+                { // BLACK REGISTRATION (RGB)
+                    $col_a = array(255, 255, 255);
+                    $col_b = array(0, 0, 0);
+                    break;
+                }
+                case 'CMYK':
+                { // BLACK REGISTRATION (CMYK)
+                    $col_a = array(0, 0, 0, 0);
+                    $col_b = array(100, 100, 100, 100);
+                    break;
+                }
+                case 'ALL':
+                { // SPOT COLOR REGISTRATION
+                    $col_a = array(0, 0, 0, 0, 'None');
+                    $col_b = array(100, 100, 100, 100, 'All');
+                    break;
+                }
+                case 'NONE':
+                { // SKIP THIS COLOR
+                    $col_a = array(0, 0, 0, 0, 'None');
+                    $col_b = array(0, 0, 0, 0, 'None');
+                    break;
+                }
+                default:
+                { // SPECIFIC SPOT COLOR NAME
+                    $col_a = array(0, 0, 0, 0, 'None');
+                    $col_b = TCPDF_COLORS::getSpotColor($col, $this->spot_colors);
+                    if ($col_b === false) {
+                        // in case of error defaults to the registration color
+                        $col_b = array(100, 100, 100, 100, 'All');
+                    }
+                    break;
+                }
+            }
+            if ($col != 'NONE') {
+                if ($transition) {
+                    // color gradient
+                    $this->LinearGradient($xb, $yb, $wb, $hb, $col_a, $col_b, $coords);
+                }
+                else {
+                    $this->setFillColorArray($col_b);
+                    // colored rectangle
+                    $this->Rect($xb, $yb, $wb, $hb, 'F', []);
+                }
+                $xb += $xd;
+                $yb += $yd;
+            }
+        }
     }
 
     /**
@@ -7583,36 +7749,6 @@ class PDF
     }
 
     /**
-     * Add vertical spaces if needed.
-     * @param string $hbz      Distance between current y and line bottom.
-     * @param string $hb       The height of the break.
-     * @param bool   $cell     if true add the default left padding to each new line (default false).
-     * @param bool   $firsttag set to true when the tag is the first.
-     * @param bool   $lasttag  set to true when the tag is the last.
-     */
-    protected function addHTMLVertSpace($hbz = 0, $hb = 0, $cell = false, $firsttag = false, $lasttag = false)
-    {
-        if ($firsttag) {
-            $this->Ln(0, $cell);
-            $this->htmlvspace = 0;
-            return;
-        }
-        if ($lasttag) {
-            $this->Ln($hbz, $cell);
-            $this->htmlvspace = 0;
-            return;
-        }
-        if ($hb < $this->htmlvspace) {
-            $hd = 0;
-        }
-        else {
-            $hd               = $hb - $this->htmlvspace;
-            $this->htmlvspace = $hb;
-        }
-        $this->Ln(($hbz + $hd), $cell);
-    }
-
-    /**
      * Return the starting coordinates to draw an html border
      * @return array containing top-left border coordinates
      */
@@ -7620,213 +7756,6 @@ class PDF
     {
         $xmax = $this->width - $this->rightMargin;
         return ['page' => $this->page, 'column' => $this->current_column, 'x' => $this->x, 'y' => $this->y, 'xmax' => $xmax];
-    }
-
-    /**
-     * Draw an HTML block border and fill
-     * @param array $tag  array of tag properties.
-     * @param int   $xmax end X coordinate for border.
-     */
-    protected function drawHTMLTagBorder($tag, $xmax)
-    {
-        if (!isset($tag['borderposition'])) {
-            // nothing to draw
-            return;
-        }
-        $prev_x                      = $this->x;
-        $prev_y                      = $this->y;
-        $prev_lasth                  = $this->lastPrintedCellHeight;
-        $border                      = 0;
-        $fill                        = false;
-        $this->lastPrintedCellHeight = 0;
-        if (isset($tag['border']) and !empty($tag['border'])) {
-            // get border style
-            $border = $tag['border'];
-            if (!StaticMethods::empty_string($this->headerTemplate) and (!$this->inthead)) {
-                // border for table header
-                $border = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
-            }
-        }
-        if (isset($tag['bgColor']) and ($tag['bgColor'] !== false)) {
-            // get background color
-            $oldBGColor = $this->bgColor;
-            $this->fillColorArray($tag['bgColor']);
-            $fill = true;
-        }
-        if (!$border and !$fill) {
-            // nothing to draw
-            return;
-        }
-        if (isset($tag['attribute']['cellspacing'])) {
-            $clsp        = $this->fontSizeToUnits($tag['attribute']['cellspacing']);
-            $cellspacing = ['H' => $clsp, 'V' => $clsp];
-        }
-        elseif (isset($tag['border-spacing'])) {
-            $cellspacing = $tag['border-spacing'];
-        }
-        else {
-            $cellspacing = ['H' => 0, 'V' => 0];
-        }
-        if (($tag['value'] != 'table') and (is_array($border)) and (!empty($border))) {
-            // draw the border externally respect the sqare edge.
-            $border['mode'] = 'ext';
-        }
-        if ($xmax <= $tag['borderposition']['x']) {
-            $xmax = $tag['borderposition']['xmax'];
-        }
-        $w = ($xmax - $tag['borderposition']['x']);
-        if ($w <= 0) {
-            return;
-        }
-        $w           += $cellspacing['H'];
-        $startpage   = $tag['borderposition']['page'];
-        $startcolumn = $tag['borderposition']['column'];
-        $x           = $tag['borderposition']['x'];
-        $y           = $tag['borderposition']['y'];
-        $endpage     = $this->page;
-        $starty      = $tag['borderposition']['y'] - $cellspacing['V'];
-        $currentY    = $this->y;
-        $this->x     = $x;
-        // get latest column
-        $endcolumn = $this->current_column;
-        if ($this->num_columns == 0) {
-            $this->num_columns = 1;
-        }
-        // get border modes
-        $border_start  = StaticMethods::getBorderMode($border, $position = 'start', $this->opencell);
-        $border_end    = StaticMethods::getBorderMode($border, $position = 'end', $this->opencell);
-        $border_middle = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
-        // temporary disable page regions
-        $temp_page_regions  = $this->page_regions;
-        $this->page_regions = [];
-        // design borders around HTML cells.
-        for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
-            $ccode = '';
-            $this->setPage($page);
-            if ($this->num_columns < 2) {
-                // single-column mode
-                $this->x = $x;
-                $this->y = $this->topMargin;
-            }
-            // account for margin changes
-            if ($page > $startpage) {
-                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
-                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
-                }
-            }
-            if ($startpage == $endpage) {
-                // single page
-                for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
-                    $this->selectColumn($column);
-                    if ($startcolumn == $endcolumn) { // single column
-                        $cborder = $border;
-                        $h       = ($currentY - $y) + $cellspacing['V'];
-                        $this->y = $starty;
-                    }
-                    elseif ($column == $startcolumn) { // first column
-                        $cborder = $border_start;
-                        $this->y = $starty;
-                        $h       = $this->height - $this->y - $this->bottomMargin;
-                    }
-                    elseif ($column == $endcolumn) { // end column
-                        $cborder = $border_end;
-                        $h       = $currentY - $this->y;
-                    }
-                    else { // middle column
-                        $cborder = $border_middle;
-                        $h       = $this->height - $this->y - $this->bottomMargin;
-                    }
-                    $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
-                } // end for each column
-            }
-            elseif ($page == $startpage) { // first page
-                for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
-                    $this->selectColumn($column);
-                    if ($column == $startcolumn) { // first column
-                        $cborder = $border_start;
-                        $this->y = $starty;
-                        $h       = $this->height - $this->y - $this->bottomMargin;
-                    }
-                    else { // middle column
-                        $cborder = $border_middle;
-                        $h       = $this->height - $this->y - $this->bottomMargin;
-                    }
-                    $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
-                } // end for each column
-            }
-            elseif ($page == $endpage) { // last page
-                for ($column = 0; $column <= $endcolumn; ++$column) { // for each column
-                    $this->selectColumn($column);
-                    if ($column == $endcolumn) {
-                        // end column
-                        $cborder = $border_end;
-                        $h       = $currentY - $this->y;
-                    }
-                    else {
-                        // middle column
-                        $cborder = $border_middle;
-                        $h       = $this->height - $this->y - $this->bottomMargin;
-                    }
-                    $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
-                } // end for each column
-            }
-            else { // middle page
-                for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
-                    $this->selectColumn($column);
-                    $cborder = $border_middle;
-                    $h       = $this->height - $this->y - $this->bottomMargin;
-                    $ccode   .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
-                } // end for each column
-            }
-            if ($cborder or $fill) {
-                $offsetlen = strlen($ccode);
-                // draw border and fill
-                if ($this->inXObject) {
-                    // we are inside an XObject template
-                    if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
-                        $pagemarkkey                                                      = key($this->xObjects[$this->xObjectID]['transpositions']);
-                        $pagemark                                                         = $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey];
-                        $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey] += $offsetlen;
-                    }
-                    else {
-                        $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
-                        $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
-                    }
-                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['content'];
-                    $pstart                                      = substr($pagebuff, 0, $pagemark);
-                    $pend                                        = substr($pagebuff, $pagemark);
-                    $this->xObjects[$this->xObjectID]['content'] = $pstart . $ccode . $pend;
-                }
-                else {
-                    if (end($this->transpositions[$this->page]) !== false) {
-                        $pagemarkkey = key($this->transpositions[$this->page]);
-                        $pagemark    = $this->transpositions[$this->page][$pagemarkkey];
-                    }
-                    elseif ($this->inFooter) {
-                        $pagemark = $this->footerpos[$this->page];
-                    }
-                    else {
-                        $pagemark = $this->intmrk[$this->page];
-                    }
-                    $pagebuff = $this->pageBuffer($this->page);
-                    $pstart   = substr($pagebuff, 0, $pagemark);
-                    $pend     = substr($pagebuff, $pagemark);
-                    $this->pageBuffer($this->page, $pstart . $ccode . $pend);
-                    $this->bordermrk[$this->page] += $offsetlen;
-                    $this->cntmrk[$this->page]    += $offsetlen;
-                }
-            }
-        } // end for each page
-        // restore page regions
-        $this->page_regions = $temp_page_regions;
-        if (isset($oldBGColor)) {
-            // restore background color
-            $this->fillColorArray($oldBGColor);
-        }
-        // restore pointer position
-        $this->x                     = $prev_x;
-        $this->y                     = $prev_y;
-        $this->lastPrintedCellHeight = $prev_lasth;
     }
 
     /**
@@ -9285,6 +9214,18 @@ class PDF
     }
 
     /**
+     * Get the amount to increase or decrease the space between characters in a text.
+     * @return int font spacing (tracking) value
+     * @author Nicola Asuni
+     * @public
+     * @since  5.9.000 (2010-09-29)
+     */
+    public function getFontSpacing()
+    {
+        return $this->font_spacing;
+    }
+
+    /**
      * Return an array of no-write page regions
      * @return array of no-write page regions
      * @author Nicola Asuni
@@ -9332,6 +9273,21 @@ class PDF
             and isset($region['yt']) and isset($region['yb']) and ($region['yt'] >= 0) and ($region['yt'] < $region['yb'])
             and isset($region['side']) and (($region['side'] == 'L') or ($region['side'] == 'R'))) {
             $this->page_regions[] = $region;
+        }
+    }
+
+    /**
+     * Remove a single no-write region.
+     * @param int $key region key
+     * @author Nicola Asuni
+     * @public
+     * @since  5.9.003 (2010-10-13)
+     * @see    setPageRegions(), getPageRegions()
+     */
+    public function removePageRegion($key)
+    {
+        if (isset($this->page_regions[$key])) {
+            unset($this->page_regions[$key]);
         }
     }
 
@@ -9442,5 +9398,743 @@ class PDF
         }
 
         return @file_exists($file);
+    }
+
+    /**
+     * Replace a char if is defined on the current font.
+     * @param int $oldchar Integer code (unicode) of the character to replace.
+     * @param int $newchar Integer code (unicode) of the new character.
+     * @return int the replaced char or the old char in case the new char i not defined
+     * @protected
+     * @since 5.9.167 (2012-06-22)
+     */
+    protected function replaceChar($oldchar, $newchar)
+    {
+        if ($this->isCharDefined($newchar)) {
+            // add the new char on the subset list
+            $this->CurrentFont['subsetchars'][$newchar] = true;
+            // return the new character
+            return $newchar;
+        }
+        // return the old char
+        return $oldchar;
+    }
+
+    /**
+     * Defines the default monospaced font.
+     * @param string $font Font name.
+     * @public
+     * @since 4.5.025
+     */
+    public function setDefaultMonospacedFont($font)
+    {
+        $this->default_monospaced_font = $font;
+    }
+
+    /**
+     * Return true in the character is present in the specified font.
+     * @param mixed  $char  Character to check (integer value or string)
+     * @param string $font  Font name (family name).
+     * @param string $style Font style.
+     * @return bool true if the char is defined, false otherwise.
+     * @public
+     * @since 5.9.153 (2012-03-28)
+     */
+    public function isCharDefined($char, $font = '', $style = '')
+    {
+        if (is_string($char)) {
+            // get character code
+            $char = TCPDF_FONTS::UTF8StringToArray($char, $this->isunicode, $this->CurrentFont);
+            $char = $char[0];
+        }
+        if (TCPDF_STATIC::empty_string($font)) {
+            if (TCPDF_STATIC::empty_string($style)) {
+                return (isset($this->CurrentFont['cw'][intval($char)]));
+            }
+            $font = $this->FontFamily;
+        }
+        $fontdata = $this->AddFont($font, $style);
+        $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
+        return (isset($fontinfo['cw'][intval($char)]));
+    }
+
+    /**
+     * Replace missing font characters on selected font with specified substitutions.
+     * @param string $text  Text to process.
+     * @param string $font  Font name (family name).
+     * @param string $style Font style.
+     * @param array  $subs  Array of possible character substitutions. The key is the character to check (integer value) and the value is a single intege value or an array of possible substitutes.
+     * @return string Processed text.
+     * @public
+     * @since 5.9.153 (2012-03-28)
+     */
+    public function replaceMissingChars($text, $font = '', $style = '', $subs = [])
+    {
+        if (empty($subs)) {
+            return $text;
+        }
+        if (TCPDF_STATIC::empty_string($font)) {
+            $font = $this->FontFamily;
+        }
+        $fontdata = $this->AddFont($font, $style);
+        $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
+        $uniarr   = TCPDF_FONTS::UTF8StringToArray($text, $this->isunicode, $this->CurrentFont);
+        foreach ($uniarr as $k => $chr) {
+            if (!isset($fontinfo['cw'][$chr])) {
+                // this character is missing on the selected font
+                if (isset($subs[$chr])) {
+                    // we have available substitutions
+                    if (is_array($subs[$chr])) {
+                        foreach ($subs[$chr] as $s) {
+                            if (isset($fontinfo['cw'][$s])) {
+                                $uniarr[$k] = $s;
+                                break;
+                            }
+                        }
+                    }
+                    elseif (isset($fontinfo['cw'][$subs[$chr]])) {
+                        $uniarr[$k] = $subs[$chr];
+                    }
+                }
+            }
+        }
+        return TCPDF_FONTS::UniArrSubString(TCPDF_FONTS::UTF8ArrayToUniArray($uniarr, $this->isunicode));
+    }
+
+    /**
+     * Returns the absolute X value of current position.
+     * @return float
+     * @public
+     * @since 1.2
+     * @see   SetX(), GetY(), SetY()
+     */
+    public function GetAbsX()
+    {
+        return $this->x;
+    }
+
+    /**
+     * Return the current column number
+     * @return int current column number
+     * @public
+     * @since 5.5.011 (2010-07-08)
+     */
+    public function getColumn()
+    {
+        return $this->current_column;
+    }
+
+    /**
+     * Remove columns and reset page margins.
+     * @public
+     * @since 5.9.072 (2011-04-26)
+     */
+    public function resetColumns()
+    {
+        $this->lMargin = $this->original_lMargin;
+        $this->rMargin = $this->original_rMargin;
+        $this->setEqualColumns();
+    }
+
+    /**
+     * Set columns array.
+     * Each column is represented by an array of arrays with the following keys: (w = width, s = space between columns, y = column top position).
+     * @param array $columns
+     * @public
+     * @since 4.9.001 (2010-03-28)
+     */
+    public function setColumnsArray($columns)
+    {
+        $this->columns           = $columns;
+        $this->num_columns       = count($columns);
+        $this->current_column    = 0;
+        $this->column_start_page = $this->page;
+        $this->selectColumn(0);
+    }
+
+    /**
+     * Return the current number of columns.
+     * @return int number of columns
+     * @public
+     * @since 5.8.018 (2010-08-25)
+     */
+    public function getNumberOfColumns()
+    {
+        return $this->num_columns;
+    }
+
+    /**
+     * Return normalized font name
+     * @param string $fontfamily property string containing font family names
+     * @return string normalized font name
+     * @author Nicola Asuni
+     * @public
+     * @since  5.8.004 (2010-08-17)
+     */
+    public function getFontFamilyName($fontfamily)
+    {
+        // remove spaces and symbols
+        $fontfamily = preg_replace('/[^a-z0-9_\,]/', '', strtolower($fontfamily));
+        // extract all font names
+        $fontslist = preg_split('/[,]/', $fontfamily);
+        // find first valid font name
+        foreach ($fontslist as $font) {
+            // replace font variations
+            $font = preg_replace('/regular$/', '', $font);
+            $font = preg_replace('/italic$/', 'I', $font);
+            $font = preg_replace('/oblique$/', 'I', $font);
+            $font = preg_replace('/bold([I]?)$/', 'B\\1', $font);
+            // replace common family names and core fonts
+            $pattern       = [];
+            $replacement   = [];
+            $pattern[]     = '/^serif|^cursive|^fantasy|^timesnewroman/';
+            $replacement[] = 'times';
+            $pattern[]     = '/^sansserif/';
+            $replacement[] = 'helvetica';
+            $pattern[]     = '/^monospace/';
+            $replacement[] = 'courier';
+            $font          = preg_replace($pattern, $replacement, $font);
+            if (in_array(strtolower($font), $this->fontlist) or in_array($font, $this->fontkeys)) {
+                return $font;
+            }
+        }
+        // return current font as default
+        return $this->CurrentFont['fontkey'];
+    }
+
+    /**
+     * Set header data.
+     * @param string $ln header image logo
+     * @param int    $lw header image logo width in mm
+     * @param string $ht string to print as title on document header
+     * @param string $hs string to print on document header
+     * @param int[]  $tc RGB array color for text.
+     * @param int[]  $lc RGB array color for line.
+     * @public
+     */
+    public function setHeaderData($ln = '', $lw = 0, $ht = '', $hs = '', $tc = array(0, 0, 0), $lc = array(0, 0, 0))
+    {
+        $this->header_logo       = $ln;
+        $this->header_logo_width = $lw;
+        $this->header_title      = $ht;
+        $this->header_string     = $hs;
+        $this->header_text_color = $tc;
+        $this->header_line_color = $lc;
+    }
+
+    /**
+     * Returns header data:
+     * <ul><li>$ret['logo'] = logo image</li><li>$ret['logo_width'] = width of the image logo in user units</li><li>$ret['title'] = header title</li><li>$ret['string'] = header description string</li></ul>
+     * @return array<string,mixed>
+     * @public
+     * @since 4.0.012 (2008-07-24)
+     */
+    public function getHeaderData()
+    {
+        $ret               = [];
+        $ret['logo']       = $this->header_logo;
+        $ret['logo_width'] = $this->header_logo_width;
+        $ret['title']      = $this->header_title;
+        $ret['string']     = $this->header_string;
+        $ret['text_color'] = $this->header_text_color;
+        $ret['line_color'] = $this->header_line_color;
+        return $ret;
+    }
+
+    /**
+     * Set additional XMP data to be added on the default XMP data just before the end of "x:xmpmeta" tag.
+     * IMPORTANT: This data is added as-is without controls, so you have to validate your data before using this method!
+     * @param string $xmp Custom XMP data.
+     * @since 5.9.128 (2011-10-06)
+     * @public
+     */
+    public function setExtraXMP($xmp)
+    {
+        $this->custom_xmp = $xmp;
+    }
+
+    /**
+     * Set additional XMP data to be added on the default XMP data just before the end of "rdf:RDF" tag.
+     * IMPORTANT: This data is added as-is without controls, so you have to validate your data before using this method!
+     * @param string $xmp Custom XMP RDF data.
+     * @since 6.3.0 (2019-09-19)
+     * @public
+     */
+    public function setExtraXMPRDF($xmp)
+    {
+        $this->custom_xmp_rdf = $xmp;
+    }
+
+    /**
+     * Set the document creation timestamp
+     * @param mixed $time Document creation timestamp in seconds or date-time string.
+     * @public
+     * @since 5.9.152 (2012-03-23)
+     */
+    public function setDocCreationTimestamp($time)
+    {
+        if (is_string($time)) {
+            $time = TCPDF_STATIC::getTimestamp($time);
+        }
+        $this->doc_creation_timestamp = intval($time);
+    }
+
+    /**
+     * Set the document modification timestamp
+     * @param mixed $time Document modification timestamp in seconds or date-time string.
+     * @public
+     * @since 5.9.152 (2012-03-23)
+     */
+    public function setDocModificationTimestamp($time)
+    {
+        if (is_string($time)) {
+            $time = TCPDF_STATIC::getTimestamp($time);
+        }
+        $this->doc_modification_timestamp = intval($time);
+    }
+
+    /**
+     * Returns document creation timestamp in seconds.
+     * @return int Creation timestamp in seconds.
+     * @public
+     * @since 5.9.152 (2012-03-23)
+     */
+    public function getDocCreationTimestamp()
+    {
+        return $this->doc_creation_timestamp;
+    }
+
+    /**
+     * Returns document modification timestamp in seconds.
+     * @return int Modfication timestamp in seconds.
+     * @public
+     * @since 5.9.152 (2012-03-23)
+     */
+    public function getDocModificationTimestamp()
+    {
+        return $this->doc_modification_timestamp;
+    }
+
+    /**
+     * Turn on/off Unicode mode for document information dictionary (meta tags).
+     * This has effect only when unicode mode is set to false.
+     * @param boolean $unicode if true set the meta information in Unicode
+     * @since 5.9.027 (2010-12-01)
+     * @public
+     */
+    public function setDocInfoUnicode($unicode = true)
+    {
+        $this->docinfounicode = $unicode ? true : false;
+    }
+
+    /**
+     * Change the format of the current page
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() documentation or an array of two numbers (width, height) or an array containing the following measures and options:<ul>
+     *                            <li>['format'] = page format name (one of the above);</li>
+     *                            <li>['Rotate'] : The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.</li>
+     *                            <li>['PZ'] : The page's preferred zoom (magnification) factor.</li>
+     *                            <li>['MediaBox'] : the boundaries of the physical medium on which the page shall be displayed or printed:</li>
+     *                            <li>['MediaBox']['llx'] : lower-left x coordinate</li>
+     *                            <li>['MediaBox']['lly'] : lower-left y coordinate</li>
+     *                            <li>['MediaBox']['urx'] : upper-right x coordinate</li>
+     *                            <li>['MediaBox']['ury'] : upper-right y coordinate</li>
+     *                            <li>['CropBox'] : the visible region of default user space:</li>
+     *                            <li>['CropBox']['llx'] : lower-left x coordinate</li>
+     *                            <li>['CropBox']['lly'] : lower-left y coordinate</li>
+     *                            <li>['CropBox']['urx'] : upper-right x coordinate</li>
+     *                            <li>['CropBox']['ury'] : upper-right y coordinate</li>
+     *                            <li>['BleedBox'] : the region to which the contents of the page shall be clipped when output in a production environment:</li>
+     *                            <li>['BleedBox']['llx'] : lower-left x coordinate</li>
+     *                            <li>['BleedBox']['lly'] : lower-left y coordinate</li>
+     *                            <li>['BleedBox']['urx'] : upper-right x coordinate</li>
+     *                            <li>['BleedBox']['ury'] : upper-right y coordinate</li>
+     *                            <li>['TrimBox'] : the intended dimensions of the finished page after trimming:</li>
+     *                            <li>['TrimBox']['llx'] : lower-left x coordinate</li>
+     *                            <li>['TrimBox']['lly'] : lower-left y coordinate</li>
+     *                            <li>['TrimBox']['urx'] : upper-right x coordinate</li>
+     *                            <li>['TrimBox']['ury'] : upper-right y coordinate</li>
+     *                            <li>['ArtBox'] : the extent of the page's meaningful content:</li>
+     *                            <li>['ArtBox']['llx'] : lower-left x coordinate</li>
+     *                            <li>['ArtBox']['lly'] : lower-left y coordinate</li>
+     *                            <li>['ArtBox']['urx'] : upper-right x coordinate</li>
+     *                            <li>['ArtBox']['ury'] : upper-right y coordinate</li>
+     *                            <li>['BoxColorInfo'] :specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for each of the possible page boundaries other than the MediaBox:</li>
+     *                            <li>['BoxColorInfo'][BOXTYPE]['C'] : an array of three numbers in the range 0-255, representing the components in the DeviceRGB colour space.</li>
+     *                            <li>['BoxColorInfo'][BOXTYPE]['W'] : the guideline width in default user units</li>
+     *                            <li>['BoxColorInfo'][BOXTYPE]['S'] : the guideline style: S = Solid; D = Dashed</li>
+     *                            <li>['BoxColorInfo'][BOXTYPE]['D'] : dash array defining a pattern of dashes and gaps to be used in drawing dashed guidelines</li>
+     *                            <li>['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation</li>
+     *                            <li>['trans']['Dur'] : The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.</li>
+     *                            <li>['trans']['S'] : transition style : Split, Blinds, Box, Wipe, Dissolve, Glitter, R, Fly, Push, Cover, Uncover, Fade</li>
+     *                            <li>['trans']['D'] : The duration of the transition effect, in seconds.</li>
+     *                            <li>['trans']['Dm'] : (Split and Blinds transition styles only) The dimension in which the specified transition effect shall occur: H = Horizontal, V = Vertical. Default value: H.</li>
+     *                            <li>['trans']['M'] : (Split, Box and Fly transition styles only) The direction of motion for the specified transition effect: I = Inward from the edges of the page, O = Outward from the center of the pageDefault value: I.</li>
+     *                            <li>['trans']['Di'] : (Wipe, Glitter, Fly, Cover, Uncover and Push transition styles only) The direction in which the specified transition effect shall moves, expressed in degrees counterclockwise starting from a left-to-right direction. If the value is a number, it shall be one of: 0 = Left to right, 90 = Bottom to top (Wipe only), 180 = Right to left (Wipe only), 270 = Top to bottom, 315 = Top-left to bottom-right (Glitter only). If the value is a name, it shall be None, which is relevant only for the Fly transition when the value of SS is not 1.0. Default value: 0.</li>
+     *                            <li>['trans']['SS'] : (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0.</li>
+     *                            <li>['trans']['B'] : (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li>
+     *                            </ul>
+     * @param string $orientation page orientation. Possible values are (case insensitive):<ul>
+     *                            <li>P or Portrait (default)</li>
+     *                            <li>L or Landscape</li>
+     *                            <li>'' (empty string) for automatic orientation</li>
+     *                            </ul>
+     * @protected
+     * @since 3.0.015 (2008-06-06)
+     * @see   getPageSizeFromFormat()
+     */
+    protected function setPageFormat($format, $orientation = 'P')
+    {
+        if (!empty($format) and isset($this->pagedim[$this->page])) {
+            // remove inherited values
+            unset($this->pagedim[$this->page]);
+        }
+        if (is_string($format)) {
+            // get page measures from format name
+            $pf         = TCPDF_STATIC::getPageSizeFromFormat($format);
+            $this->fwPt = $pf[0];
+            $this->fhPt = $pf[1];
+        }
+        else {
+            // the boundaries of the physical medium on which the page shall be displayed or printed
+            if (isset($format['MediaBox'])) {
+                $this->pagedim = TCPDF_STATIC::setPageBoxes($this->page, 'MediaBox', $format['MediaBox']['llx'], $format['MediaBox']['lly'], $format['MediaBox']['urx'], $format['MediaBox']['ury'], false, $this->k, $this->pagedim);
+                $this->fwPt    = (($format['MediaBox']['urx'] - $format['MediaBox']['llx']) * $this->k);
+                $this->fhPt    = (($format['MediaBox']['ury'] - $format['MediaBox']['lly']) * $this->k);
+            }
+            else {
+                if (isset($format[0]) and is_numeric($format[0]) and isset($format[1]) and is_numeric($format[1])) {
+                    $pf = array(($format[0] * $this->k), ($format[1] * $this->k));
+                }
+                else {
+                    if (!isset($format['format'])) {
+                        // default value
+                        $format['format'] = 'A4';
+                    }
+                    $pf = TCPDF_STATIC::getPageSizeFromFormat($format['format']);
+                }
+                $this->fwPt    = $pf[0];
+                $this->fhPt    = $pf[1];
+                $this->pagedim = TCPDF_STATIC::setPageBoxes($this->page, 'MediaBox', 0, 0, $this->fwPt, $this->fhPt, true, $this->k, $this->pagedim);
+            }
+            // the visible region of default user space
+            if (isset($format['CropBox'])) {
+                $this->pagedim = TCPDF_STATIC::setPageBoxes($this->page, 'CropBox', $format['CropBox']['llx'], $format['CropBox']['lly'], $format['CropBox']['urx'], $format['CropBox']['ury'], false, $this->k, $this->pagedim);
+            }
+            // the region to which the contents of the page shall be clipped when output in a production environment
+            if (isset($format['BleedBox'])) {
+                $this->pagedim = TCPDF_STATIC::setPageBoxes($this->page, 'BleedBox', $format['BleedBox']['llx'], $format['BleedBox']['lly'], $format['BleedBox']['urx'], $format['BleedBox']['ury'], false, $this->k, $this->pagedim);
+            }
+            // the intended dimensions of the finished page after trimming
+            if (isset($format['TrimBox'])) {
+                $this->pagedim = TCPDF_STATIC::setPageBoxes($this->page, 'TrimBox', $format['TrimBox']['llx'], $format['TrimBox']['lly'], $format['TrimBox']['urx'], $format['TrimBox']['ury'], false, $this->k, $this->pagedim);
+            }
+            // the page's meaningful content (including potential white space)
+            if (isset($format['ArtBox'])) {
+                $this->pagedim = TCPDF_STATIC::setPageBoxes($this->page, 'ArtBox', $format['ArtBox']['llx'], $format['ArtBox']['lly'], $format['ArtBox']['urx'], $format['ArtBox']['ury'], false, $this->k, $this->pagedim);
+            }
+            // specify the colours and other visual characteristics that should be used in displaying guidelines on the screen for the various page boundaries
+            if (isset($format['BoxColorInfo'])) {
+                $this->pagedim[$this->page]['BoxColorInfo'] = $format['BoxColorInfo'];
+            }
+            if (isset($format['Rotate']) and (($format['Rotate'] % 90) == 0)) {
+                // The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
+                $this->pagedim[$this->page]['Rotate'] = intval($format['Rotate']);
+            }
+            if (isset($format['PZ'])) {
+                // The page's preferred zoom (magnification) factor
+                $this->pagedim[$this->page]['PZ'] = floatval($format['PZ']);
+            }
+            if (isset($format['trans'])) {
+                // The style and duration of the visual transition to use when moving from another page to the given page during a presentation
+                if (isset($format['trans']['Dur'])) {
+                    // The page's display duration
+                    $this->pagedim[$this->page]['trans']['Dur'] = floatval($format['trans']['Dur']);
+                }
+                $stansition_styles = array('Split', 'Blinds', 'Box', 'Wipe', 'Dissolve', 'Glitter', 'R', 'Fly', 'Push', 'Cover', 'Uncover', 'Fade');
+                if (isset($format['trans']['S']) and in_array($format['trans']['S'], $stansition_styles)) {
+                    // The transition style that shall be used when moving to this page from another during a presentation
+                    $this->pagedim[$this->page]['trans']['S'] = $format['trans']['S'];
+                    $valid_effect                             = array('Split', 'Blinds');
+                    $valid_vals                               = array('H', 'V');
+                    if (isset($format['trans']['Dm']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['Dm'], $valid_vals)) {
+                        $this->pagedim[$this->page]['trans']['Dm'] = $format['trans']['Dm'];
+                    }
+                    $valid_effect = array('Split', 'Box', 'Fly');
+                    $valid_vals   = array('I', 'O');
+                    if (isset($format['trans']['M']) and in_array($format['trans']['S'], $valid_effect) and in_array($format['trans']['M'], $valid_vals)) {
+                        $this->pagedim[$this->page]['trans']['M'] = $format['trans']['M'];
+                    }
+                    $valid_effect = array('Wipe', 'Glitter', 'Fly', 'Cover', 'Uncover', 'Push');
+                    if (isset($format['trans']['Di']) and in_array($format['trans']['S'], $valid_effect)) {
+                        if (((($format['trans']['Di'] == 90) or ($format['trans']['Di'] == 180)) and ($format['trans']['S'] == 'Wipe'))
+                            or (($format['trans']['Di'] == 315) and ($format['trans']['S'] == 'Glitter'))
+                            or (($format['trans']['Di'] == 0) or ($format['trans']['Di'] == 270))) {
+                            $this->pagedim[$this->page]['trans']['Di'] = intval($format['trans']['Di']);
+                        }
+                    }
+                    if (isset($format['trans']['SS']) and ($format['trans']['S'] == 'Fly')) {
+                        $this->pagedim[$this->page]['trans']['SS'] = floatval($format['trans']['SS']);
+                    }
+                    if (isset($format['trans']['B']) and ($format['trans']['B'] === true) and ($format['trans']['S'] == 'Fly')) {
+                        $this->pagedim[$this->page]['trans']['B'] = 'true';
+                    }
+                }
+                else {
+                    $this->pagedim[$this->page]['trans']['S'] = 'R';
+                }
+                if (isset($format['trans']['D'])) {
+                    // The duration of the transition effect, in seconds
+                    $this->pagedim[$this->page]['trans']['D'] = floatval($format['trans']['D']);
+                }
+                else {
+                    $this->pagedim[$this->page]['trans']['D'] = 1;
+                }
+            }
+        }
+        $this->setPageOrientation($orientation);
+    }
+
+    /**
+     * Defines the way the document is to be displayed by the viewer.
+     * @param mixed  $zoom   The zoom to use. It can be one of the following string values or a number indicating the zooming factor to use. <ul><li>fullpage: displays the entire page on screen </li><li>fullwidth: uses maximum width of window</li><li>real: uses real size (equivalent to 100% zoom)</li><li>default: uses viewer default mode</li></ul>
+     * @param string $layout The page layout. Possible values are:<ul><li>SinglePage Display one page at a time</li><li>OneColumn Display the pages in one column</li><li>TwoColumnLeft Display the pages in two columns, with odd-numbered pages on the left</li><li>TwoColumnRight Display the pages in two columns, with odd-numbered pages on the right</li><li>TwoPageLeft (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the left</li><li>TwoPageRight (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the right</li></ul>
+     * @param string $mode   A name object specifying how the document should be displayed when opened:<ul><li>UseNone Neither document outline nor thumbnail images visible</li><li>UseOutlines Document outline visible</li><li>UseThumbs Thumbnail images visible</li><li>FullScreen Full-screen mode, with no menu bar, window controls, or any other window visible</li><li>UseOC (PDF 1.5) Optional content group panel visible</li><li>UseAttachments (PDF 1.6) Attachments panel visible</li></ul>
+     * @public
+     * @since 1.2
+     */
+    public function setDisplayMode($zoom, $layout = 'SinglePage', $mode = 'UseNone')
+    {
+        if (($zoom == 'fullpage') or ($zoom == 'fullwidth') or ($zoom == 'real') or ($zoom == 'default') or (!is_string($zoom))) {
+            $this->ZoomMode = $zoom;
+        }
+        else {
+            $this->Error('Incorrect zoom display mode: ' . $zoom);
+        }
+        $this->LayoutMode = TCPDF_STATIC::getPageLayoutMode($layout);
+        $this->PageMode   = TCPDF_STATIC::getPageMode($mode);
+    }
+
+    /**
+     * Activates or deactivates page compression. When activated, the internal representation of each page is compressed, which leads to a compression ratio of about 2 for the resulting document. Compression is on by default.
+     * Note: the Zlib extension is required for this feature. If not present, compression will be turned off.
+     * @param boolean $compress Boolean indicating if compression must be enabled.
+     * @public
+     * @since 1.4
+     */
+    public function setCompression($compress = true)
+    {
+        $this->compress = false;
+        if (function_exists('gzcompress')) {
+            if ($compress) {
+                if (!$this->pdfa_mode) {
+                    $this->compress = true;
+                }
+            }
+        }
+    }
+
+    /**
+     * Return the right-bottom (or left-bottom for RTL) corner X coordinate of last inserted image
+     * @return float
+     * @public
+     */
+    public function getImageRBX()
+    {
+        return $this->img_rb_x;
+    }
+
+    /**
+     * Return the right-bottom (or left-bottom for RTL) corner Y coordinate of last inserted image
+     * @return float
+     * @public
+     */
+    public function getImageRBY()
+    {
+        return $this->img_rb_y;
+    }
+
+    /**
+     * Reset the xobject template used by Header() method.
+     * @public
+     */
+    public function resetHeaderTemplate()
+    {
+        $this->header_xobjid = false;
+    }
+
+    /**
+     * Set a flag to automatically reset the xobject template used by Header() method at each page.
+     * @param boolean $val set to true to reset Header xobject template at each page, false otherwise.
+     * @public
+     */
+    public function setHeaderTemplateAutoreset($val = true)
+    {
+        $this->header_xobj_autoreset = $val ? true : false;
+    }
+
+    /**
+     * This method is used to render the page header.
+     * @protected
+     * @since 4.0.012 (2008-07-24)
+     */
+    protected function setHeader()
+    {
+        if (!$this->print_header or ($this->state != 2)) {
+            return;
+        }
+        $this->InHeader = true;
+        $this->setGraphicVars($this->default_graphic_vars);
+        $temp_thead        = $this->thead;
+        $temp_theadMargins = $this->theadMargins;
+        $lasth             = $this->lasth;
+        $newline           = $this->newline;
+        $this->_outSaveGraphicsState();
+        $this->rMargin = $this->original_rMargin;
+        $this->lMargin = $this->original_lMargin;
+        $this->setCellPadding(0);
+        //set current position
+        if ($this->rtl) {
+            $this->setXY($this->original_rMargin, $this->header_margin);
+        }
+        else {
+            $this->setXY($this->original_lMargin, $this->header_margin);
+        }
+        $this->setFont($this->header_font[0], $this->header_font[1], $this->header_font[2]);
+        $this->Header();
+        //restore position
+        if ($this->rtl) {
+            $this->setXY($this->original_rMargin, $this->tMargin);
+        }
+        else {
+            $this->setXY($this->original_lMargin, $this->tMargin);
+        }
+        $this->_outRestoreGraphicsState();
+        $this->lasth        = $lasth;
+        $this->thead        = $temp_thead;
+        $this->theadMargins = $temp_theadMargins;
+        $this->newline      = $newline;
+        $this->InHeader     = false;
+    }
+
+    /**
+     * Sets the font used to print character strings.
+     * The font can be either a standard one or a font added via the AddFont() method. Standard fonts use Windows encoding cp1252 (Western Europe).
+     * The method can be called before the first page is created and the font is retained from page to page.
+     * If you just wish to change the current font size, it is simpler to call SetFontSize().
+     * Note: for the standard fonts, the font metric files must be accessible. There are three possibilities for this:<ul><li>They are in the current directory (the one where the running script lies)</li><li>They are in one of the directories defined by the include_path parameter</li><li>They are in the directory defined by the K_PATH_FONTS constant</li></ul><br />
+     * @param string     $family   Family font. It can be either a name defined by AddFont() or one of the standard Type1 families (case insensitive):<ul><li>times (Times-Roman)</li><li>timesb (Times-Bold)</li><li>timesi (Times-Italic)</li><li>timesbi (Times-BoldItalic)</li><li>helvetica (Helvetica)</li><li>helveticab (Helvetica-Bold)</li><li>helveticai (Helvetica-Oblique)</li><li>helveticabi (Helvetica-BoldOblique)</li><li>courier (Courier)</li><li>courierb (Courier-Bold)</li><li>courieri (Courier-Oblique)</li><li>courierbi (Courier-BoldOblique)</li><li>symbol (Symbol)</li><li>zapfdingbats (ZapfDingbats)</li></ul> It is also possible to pass an empty string. In that case, the current family is retained.
+     * @param string     $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular. Bold and italic styles do not apply to Symbol and ZapfDingbats basic fonts or other fonts when not defined.
+     * @param float|null $size     Font size in points. The default value is the current size. If no size has been specified since the beginning of the document, the value taken is 12
+     * @param string     $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
+     * @param mixed      $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
+     * @param boolean    $out      if true output the font size command, otherwise only set the font properties.
+     * @author Nicola Asuni
+     * @public
+     * @since  1.0
+     * @see    AddFont(), SetFontSize()
+     */
+    public function setFont($family, $style = '', $size = null, $fontfile = '', $subset = 'default', $out = true)
+    {
+        //Select a font; size given in points
+        if ($size === null) {
+            $size = $this->FontSizePt;
+        }
+        if ($size < 0) {
+            $size = 0;
+        }
+        // try to add font (if not already added)
+        $fontdata         = $this->AddFont($family, $style, $fontfile, $subset);
+        $this->FontFamily = $fontdata['family'];
+        $this->FontStyle  = $fontdata['style'];
+        if (isset($this->CurrentFont['fontkey']) and isset($this->CurrentFont['subsetchars'])) {
+            // save subset chars of the previous font
+            $this->setFontSubBuffer($this->CurrentFont['fontkey'], 'subsetchars', $this->CurrentFont['subsetchars']);
+        }
+        $this->CurrentFont = $this->getFontBuffer($fontdata['fontkey']);
+        $this->setFontSize($size, $out);
+    }
+
+    /**
+     * Returns the bounding box of the current font in user units.
+     * @return array
+     * @public
+     * @since 5.9.152 (2012-03-23)
+     */
+    public function getFontBBox()
+    {
+        $fbbox = [];
+        if (isset($this->CurrentFont['desc']['FontBBox'])) {
+            $tmpbbox = explode(' ', substr($this->CurrentFont['desc']['FontBBox'], 1, -1));
+            $fbbox   = array_map(array($this, 'getAbsFontMeasure'), $tmpbbox);
+        }
+        else {
+            // Find max width
+            if (isset($this->CurrentFont['desc']['MaxWidth'])) {
+                $maxw = $this->getAbsFontMeasure(intval($this->CurrentFont['desc']['MaxWidth']));
+            }
+            else {
+                $maxw = 0;
+                if (isset($this->CurrentFont['desc']['MissingWidth'])) {
+                    $maxw = max($maxw, $this->CurrentFont['desc']['MissingWidth']);
+                }
+                if (isset($this->CurrentFont['desc']['AvgWidth'])) {
+                    $maxw = max($maxw, $this->CurrentFont['desc']['AvgWidth']);
+                }
+                if (isset($this->CurrentFont['dw'])) {
+                    $maxw = max($maxw, $this->CurrentFont['dw']);
+                }
+                foreach ($this->CurrentFont['cw'] as $char => $w) {
+                    $maxw = max($maxw, $w);
+                }
+                if ($maxw == 0) {
+                    $maxw = 600;
+                }
+                $maxw = $this->getAbsFontMeasure($maxw);
+            }
+            $fbbox = array(0, (0 - $this->FontDescent), $maxw, $this->FontAscent);
+        }
+        return $fbbox;
+    }
+
+    /**
+     * Convert a relative font measure into absolute value.
+     * @param int $s Font measure.
+     * @return float Absolute measure.
+     * @since 5.9.186 (2012-09-13)
+     */
+    public function getAbsFontMeasure($s)
+    {
+        return ($s * $this->fontSize / 1000);
+    }
+
+    /**
+     * Returns the glyph bounding box of the specified character in the current font in user units.
+     * @param int $char Input character code.
+     * @return false|array array(xMin, yMin, xMax, yMax) or FALSE if not defined.
+     * @since 5.9.186 (2012-09-13)
+     */
+    public function getCharBBox($char)
+    {
+        $c = intval($char);
+        if (isset($this->CurrentFont['cw'][$c])) {
+            // glyph is defined ... use zero width & height for glyphs without outlines
+            $result = array(0, 0, 0, 0);
+            if (isset($this->CurrentFont['cbbox'][$c])) {
+                $result = $this->CurrentFont['cbbox'][$c];
+            }
+            return array_map(array($this, 'getAbsFontMeasure'), $result);
+        }
+        return false;
+    }
+
+    /**
+     * Returns the current font style.
+     * @return string current font style
+     * @public
+     * @since 4.3.008 (2008-12-05)
+     */
+    public function getFontStyle()
+    {
+        return $this->FontStyle;
     }
 }

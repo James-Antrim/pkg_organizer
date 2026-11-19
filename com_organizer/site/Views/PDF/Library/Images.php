@@ -15,14 +15,85 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Static image methods used by the TCPDF class. */
 trait Images
 {
+
+    /**
+     * Counts the number of pages.
+     */
+    protected int $imageCount = 0;
+
+    /** Adjusting factor to convert pixels to user units. */
+    protected float $imageFactor = 1.25;
+
+    /** Stores the image keys. */
+    protected array $imageKeys = [];
+
     /** The right-bottom corner X coordinate of last inserted image. */
     protected float $imageRBX = 0;
 
     /** The right-bottom corner Y coordinate of last inserted image. */
     protected float $imageRBY = 0;
 
-    /** Adjusting factor to convert pixels to user units. */
-    protected float $imageScale = 1.25;
+    /** Stores positions of graphics transformation blocks in the page buffer, keys are the page numbers */
+    protected array $transpositions = [];
+
+    /**
+     * Set image buffer content.
+     * @param string $image image key
+     * @param array  $data  image data
+     * @return int image index number
+     */
+    protected function imageBuffer(string $image, array $data = []): array
+    {
+        if (($data['i'] = array_search($image, $this->imageKeys)) === false) {
+            $this->imageKeys[$this->imageCount] = $image;
+            $data['i']                          = $this->imageCount;
+            ++$this->imageCount;
+        }
+
+        $this->images[$image] = $data;
+        return $data;
+    }
+
+    /**
+     * Get image buffer content.
+     * @param string $image image key
+     * @return string|false image buffer content or false in case of error
+     */
+    protected function getImageBuffer($image)
+    {
+        if (isset($this->images[$image])) {
+            return $this->images[$image];
+        }
+        return false;
+    }
+
+    /**
+     * Getter / setter for the adjusting factor to convert pixels to user units.
+     * @param float|null $factor
+     * @return float
+     */
+    public function imageFactor(float|null $factor = null): float
+    {
+        if (is_float($factor)) {
+            $this->imageFactor = $factor;
+        }
+
+        return $this->imageFactor;
+    }
+
+    /**
+     * Set image buffer content for a specified sub-key.
+     * @param string $imageKey image key
+     * @param string $subKey   image sub-key
+     */
+    protected function imageSubBuffer(string $imageKey, string $subKey): void
+    {
+        if (!isset($this->images[$imageKey])) {
+            $this->imageBuffer($imageKey);
+        }
+
+        $this->images[$imageKey][$subKey] = $this->objectNumber;
+    }
 
     /**
      * Set the transparency on the given image based on the values of the reference image.
@@ -327,15 +398,46 @@ trait Images
         ];
     }
 
+    /**
+     * Apply graphic transformations.
+     * @param array $matrix transformation matrix
+     * @see   startTransformation(), endTransformation()
+     */
+    protected function transform(array $matrix): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->append(sprintf('%F %F %F %F %F %F cm', $matrix[0], $matrix[1], $matrix[2], $matrix[3], $matrix[4], $matrix[5]));
+        $this->matrix[$this->matrixKey][] = ['a' => $matrix[0], 'b' => $matrix[1], 'c' => $matrix[2], 'd' => $matrix[3], 'e' => $matrix[4], 'f' => $matrix[5]];
+        // update transformation mark
+        if ($this->inXObject) {
+            if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
+                $key = key($this->xObjects[$this->xObjectID]['transpositions']);
+
+                $this->xObjects[$this->xObjectID]['transpositions'][$key] = strlen($this->xObjects[$this->xObjectID]['content']);
+            }
+            return;
+        }
+
+        if (end($this->transpositions[$this->page]) !== false) {
+            $key = key($this->transpositions[$this->page]);
+
+            $this->transpositions[$this->page][$key] = $this->pageLengths[$this->page];
+        }
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
+
     /**
-     * Output images.
+     * Append images to the document.
      */
-    protected function _putimages()
+    protected function appendImages(): void
     {
         $filter = '/Filter /FlateDecode ';
-        foreach ($this->imagekeys as $file) {
+        foreach ($this->imageKeys as $file) {
             $info = $this->getImageBuffer($file);
             // set object for alternate images array
             $altoid = null;
@@ -362,7 +464,7 @@ trait Images
             // set image object
             $oid                              = $this->_newobj();
             $this->xObjects['I' . $info['i']] = ['n' => $oid];
-            $this->setImageSubBuffer($file, 'n', $this->objectNumber);
+            $this->imageSubBuffer($file, 'n', $this->objectNumber);
             $out = '<</Type /XObject';
             $out .= ' /Subtype /Image';
             $out .= ' /Width ' . $info['w'];
@@ -587,19 +689,6 @@ trait Images
     }
 
     /**
-     * Get image buffer content.
-     * @param string $image image key
-     * @return string|false image buffer content or false in case of error
-     */
-    protected function getImageBuffer($image)
-    {
-        if (isset($this->images[$image])) {
-            return $this->images[$image];
-        }
-        return false;
-    }
-
-    /**
      * Get the product of two SVG tranformation matrices
      * @param array $ta first SVG tranformation matrix
      * @param array $tb second SVG tranformation matrix
@@ -816,8 +905,8 @@ trait Images
         if ($imsize === false) {
             if (($w > 0) and ($h > 0)) {
                 // get measures from specified data
-                $pw     = $this->fontSizeToUnits($w, 0, $this->unit, true) * $this->imageScale * $this->factor;
-                $ph     = $this->fontSizeToUnits($h, 0, $this->unit, true) * $this->imageScale * $this->factor;
+                $pw     = $this->fontSizeToUnits($w, 0, $this->unit, true) * $this->imageFactor * $this->factor;
+                $ph     = $this->fontSizeToUnits($h, 0, $this->unit, true) * $this->imageFactor * $this->factor;
                 $imsize = [$pw, $ph];
             }
             else {
@@ -905,7 +994,7 @@ trait Images
         }
         // check if image has been already added on document
         $newimage = true;
-        if (in_array($file, $this->imagekeys)) {
+        if (in_array($file, $this->imageKeys)) {
             $newimage = false;
             // get existing image data
             $info = $this->getImageBuffer($file);
@@ -923,7 +1012,7 @@ trait Images
             // create temp alpha file
             $tempfile_alpha = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_alpha_' . $filehash;
             // check for cached images
-            if (in_array($tempfile_plain, $this->imagekeys)) {
+            if (in_array($tempfile_plain, $this->imageKeys)) {
                 // get existing image data
                 $info = $this->getImageBuffer($tempfile_plain);
                 // check if the newer image is larger
@@ -1023,8 +1112,8 @@ trait Images
                                 }
                                 $tmp = [];
                                 if (!preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $svgtag, $tmp)) {
-                                    $vbw    = ($ow * $this->imageScale * $this->factor);
-                                    $vbh    = ($oh * $this->imageScale * $this->factor);
+                                    $vbw    = ($ow * $this->imageFactor * $this->factor);
+                                    $vbh    = ($oh * $this->imageFactor * $this->factor);
                                     $vbox   = sprintf(' viewBox="0 0 %F %F" ', $vbw, $vbh);
                                     $svgtag = $vbox . $svgtag;
                                 }
@@ -1067,7 +1156,7 @@ trait Images
             // array of alternative images
             $info['altimgs'] = $altimgs;
             // add image to document
-            $info['i'] = $this->setImageBuffer($file, $info);
+            $info['i'] = $this->imageBuffer($file, $info)['i'];
         }
         // set alignment
         $this->imageRBX = $x + $w;
@@ -1941,6 +2030,58 @@ trait Images
     }
 
     /**
+     * Horizontal Mirroring.
+     * @param float|null $x abscissa of the point. Default is current x position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorH($x = null)
+    {
+        $this->Scale(-100, 100, $x);
+    }
+
+    /**
+     * Reflection against a straight line through point (x, y) with the gradient angle (angle).
+     * @param float      $angle gradient angle of the straight line. Default is 0 (horizontal line).
+     * @param float|null $x     abscissa of the point. Default is current x position
+     * @param float|null $y     ordinate of the point. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorL($angle = 0, $x = null, $y = null)
+    {
+        $this->Scale(-100, 100, $x, $y);
+        $this->Rotate(-2 * ($angle - 90), $x, $y);
+    }
+
+    /**
+     * Point reflection mirroring.
+     * @param float|null $x abscissa of the point. Default is current x position
+     * @param float|null $y ordinate of the point. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorP($x = null, $y = null)
+    {
+        $this->Scale(-100, -100, $x, $y);
+    }
+
+    /**
+     * Verical Mirroring.
+     * @param float|null $y ordinate of the point. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function MirrorV($y = null)
+    {
+        $this->Scale(100, -100, null, $y);
+    }
+
+    /**
      * Return the tag name without the namespace
      * @param string $name Tag name
      */
@@ -1951,6 +2092,179 @@ trait Images
             return $parts[(sizeof($parts) - 1)];
         }
         return $name;
+    }
+
+    /**
+     * Rotate object.
+     * @param float      $angle angle in degrees for counter-clockwise rotation
+     * @param float|null $x     abscissa of the rotation center. Default is current x position
+     * @param float|null $y     ordinate of the rotation center. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Rotate($angle, $x = null, $y = null)
+    {
+        if (TCPDF_STATIC::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (TCPDF_STATIC::empty_string($y)) {
+            $y = $this->y;
+        }
+        $y = ($this->h - $y) * $this->k;
+        $x *= $this->k;
+        //calculate elements of transformation matrix
+        $tm    = [];
+        $tm[0] = cos(deg2rad($angle));
+        $tm[1] = sin(deg2rad($angle));
+        $tm[2] = -$tm[1];
+        $tm[3] = $tm[0];
+        $tm[4] = $x + ($tm[1] * $y) - ($tm[0] * $x);
+        $tm[5] = $y - ($tm[0] * $y) - ($tm[1] * $x);
+        //rotate the coordinate system around ($x,$y)
+        $this->transform($tm);
+    }
+
+    /**
+     * Vertical and horizontal non-proportional Scaling.
+     * @param float      $s_x scaling factor for width as percent. 0 is not allowed.
+     * @param float      $s_y scaling factor for height as percent. 0 is not allowed.
+     * @param float|null $x   abscissa of the scaling center. Default is current x position
+     * @param float|null $y   ordinate of the scaling center. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Scale($s_x, $s_y, $x = null, $y = null)
+    {
+        if (TCPDF_STATIC::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (TCPDF_STATIC::empty_string($y)) {
+            $y = $this->y;
+        }
+        if (($s_x == 0) or ($s_y == 0)) {
+            $this->Error('Please do not use values equal to zero for scaling');
+        }
+        $y = ($this->h - $y) * $this->k;
+        $x *= $this->k;
+        //calculate elements of transformation matrix
+        $s_x   /= 100;
+        $s_y   /= 100;
+        $tm    = [];
+        $tm[0] = $s_x;
+        $tm[1] = 0;
+        $tm[2] = 0;
+        $tm[3] = $s_y;
+        $tm[4] = $x * (1 - $s_x);
+        $tm[5] = $y * (1 - $s_y);
+        //scale the coordinate system
+        $this->transform($tm);
+    }
+
+    /**
+     * Horizontal Scaling.
+     * @param float $s_x scaling factor for width as percent. 0 is not allowed.
+     * @param int   $x   abscissa of the scaling center. Default is current x position
+     * @param int   $y   ordinate of the scaling center. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function ScaleX($s_x, $x = '', $y = '')
+    {
+        $this->Scale($s_x, 100, $x, $y);
+    }
+
+    /**
+     * Vertical and horizontal proportional Scaling.
+     * @param float $s scaling factor for width and height as percent. 0 is not allowed.
+     * @param int   $x abscissa of the scaling center. Default is current x position
+     * @param int   $y ordinate of the scaling center. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function ScaleXY($s, $x = '', $y = '')
+    {
+        $this->Scale($s, $s, $x, $y);
+    }
+
+    /**
+     * Vertical Scaling.
+     * @param float $s_y scaling factor for height as percent. 0 is not allowed.
+     * @param int   $x   abscissa of the scaling center. Default is current x position
+     * @param int   $y   ordinate of the scaling center. Default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function ScaleY($s_y, $x = '', $y = '')
+    {
+        $this->Scale(100, $s_y, $x, $y);
+    }
+
+    /**
+     * Skew.
+     * @param float      $angle_x angle in degrees between -90 (skew to the left) and 90 (skew to the right)
+     * @param float      $angle_y angle in degrees between -90 (skew to the bottom) and 90 (skew to the top)
+     * @param float|null $x       abscissa of the skewing center. default is current x position
+     * @param float|null $y       ordinate of the skewing center. default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Skew($angle_x, $angle_y, $x = null, $y = null)
+    {
+        if (TCPDF_STATIC::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (TCPDF_STATIC::empty_string($y)) {
+            $y = $this->y;
+        }
+        if (($angle_x <= -90) or ($angle_x >= 90) or ($angle_y <= -90) or ($angle_y >= 90)) {
+            $this->Error('Please use values between -90 and +90 degrees for Skewing.');
+        }
+        $x *= $this->k;
+        $y = ($this->h - $y) * $this->k;
+        //calculate elements of transformation matrix
+        $tm    = [];
+        $tm[0] = 1;
+        $tm[1] = tan(deg2rad($angle_y));
+        $tm[2] = tan(deg2rad($angle_x));
+        $tm[3] = 1;
+        $tm[4] = -$tm[2] * $y;
+        $tm[5] = -$tm[1] * $x;
+        //skew the coordinate system
+        $this->transform($tm);
+    }
+
+    /**
+     * Skew horizontally.
+     * @param float      $angle_x angle in degrees between -90 (skew to the left) and 90 (skew to the right)
+     * @param float|null $x       abscissa of the skewing center. default is current x position
+     * @param float|null $y       ordinate of the skewing center. default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function SkewX($angle_x, $x = null, $y = null)
+    {
+        $this->Skew($angle_x, 0, $x, $y);
+    }
+
+    /**
+     * Skew vertically.
+     * @param float      $angle_y angle in degrees between -90 (skew to the bottom) and 90 (skew to the top)
+     * @param float|null $x       abscissa of the skewing center. default is current x position
+     * @param float|null $y       ordinate of the skewing center. default is current y position
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function SkewY($angle_y, $x = null, $y = null)
+    {
+        $this->Skew(0, $angle_y, $x, $y);
     }
 
     /**
@@ -1987,37 +2301,6 @@ trait Images
         imagefill($new_image, 0, 0, $tid);
         imagecolortransparent($new_image, $tid);
         return $new_image;
-    }
-
-    /**
-     * Set image buffer content.
-     * @param string $image image key
-     * @param array  $data  image data
-     * @return int image index number
-     */
-    protected function setImageBuffer($image, $data)
-    {
-        if (($data['i'] = array_search($image, $this->imagekeys)) === false) {
-            $this->imagekeys[$this->numimages] = $image;
-            $data['i']                         = $this->numimages;
-            ++$this->numimages;
-        }
-        $this->images[$image] = $data;
-        return $data['i'];
-    }
-
-    /**
-     * Set image buffer content for a specified sub-key.
-     * @param string $image image key
-     * @param string $key   image sub-key
-     * @param array  $data  image data
-     */
-    protected function setImageSubBuffer($image, $key, $data)
-    {
-        if (!isset($this->images[$image])) {
-            $this->setImageBuffer($image, []);
-        }
-        $this->images[$image][$key] = $data;
     }
 
     /**
@@ -2696,14 +2979,14 @@ trait Images
                 $ry = (isset($attribs['ry']) ? $this->fontSizeToUnits($attribs['ry'], 0) : $rx);
                 if ($clipping) {
                     $this->SVGTransform($tm);
-                    $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', 'CNZ', [], []);
+                    $this->roundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', 'CNZ', [], []);
                 }
                 else {
                     $this->startTransformation();
                     $this->SVGTransform($tm);
                     $obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h, 'RoundedRectXY', [$x, $y, $w, $h, $rx, $ry, '1111', 'CNZ']);
                     if (!empty($obstyle)) {
-                        $this->RoundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', $obstyle, [], []);
+                        $this->roundedRectXY($x, $y, $w, $h, $rx, $ry, '1111', $obstyle, [], []);
                     }
                     $this->endTransformation();
                 }
@@ -3046,6 +3329,58 @@ trait Images
                     $this->endSVGElementHandler('child-tag', $child_element['name']);
                 }
             }
+        }
+    }
+
+    /**
+     * Starts a 2D tranformation saving current graphic state.
+     * This function must be called before scaling, mirroring, translation, rotation and skewing.
+     * Use StartTransform() before, and StopTransform() after the transformations to restore the normal behavior.
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function StartTransform()
+    {
+        if ($this->state != 2) {
+            return;
+        }
+        $this->_outSaveGraphicsState();
+        if ($this->inxobj) {
+            // we are inside an XObject template
+            $this->xobjects[$this->xobjid]['transfmrk'][] = strlen($this->xobjects[$this->xobjid]['outdata']);
+        }
+        else {
+            $this->transfmrk[$this->page][] = $this->pagelen[$this->page];
+        }
+        ++$this->transfmatrix_key;
+        $this->transfmatrix[$this->transfmatrix_key] = [];
+    }
+
+    /**
+     * Stops a 2D tranformation restoring previous graphic state.
+     * This function must be called after scaling, mirroring, translation, rotation and skewing.
+     * Use StartTransform() before, and StopTransform() after the transformations to restore the normal behavior.
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function StopTransform()
+    {
+        if ($this->state != 2) {
+            return;
+        }
+        $this->_outRestoreGraphicsState();
+        if (isset($this->transfmatrix[$this->transfmatrix_key])) {
+            array_pop($this->transfmatrix[$this->transfmatrix_key]);
+            --$this->transfmatrix_key;
+        }
+        if ($this->inxobj) {
+            // we are inside an XObject template
+            array_pop($this->xobjects[$this->xobjid]['transfmrk']);
+        }
+        else {
+            array_pop($this->transfmrk[$this->page]);
         }
     }
 
@@ -3449,5 +3784,51 @@ trait Images
     protected function SVGTransform($tm)
     {
         $this->transform($this->convertSVGtMatrix($tm));
+    }
+
+    /**
+     * Translate graphic object horizontally and vertically.
+     * @param int $t_x movement to the right
+     * @param int $t_y movement to the bottom
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function Translate($t_x, $t_y)
+    {
+        //calculate elements of transformation matrix
+        $tm    = [];
+        $tm[0] = 1;
+        $tm[1] = 0;
+        $tm[2] = 0;
+        $tm[3] = 1;
+        $tm[4] = $t_x * $this->k;
+        $tm[5] = -$t_y * $this->k;
+        //translate the coordinate system
+        $this->transform($tm);
+    }
+
+    /**
+     * Translate graphic object horizontally.
+     * @param int $t_x movement to the right (or left for RTL)
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function TranslateX($t_x)
+    {
+        $this->Translate($t_x, 0);
+    }
+
+    /**
+     * Translate graphic object vertically.
+     * @param int $t_y movement to the bottom
+     * @public
+     * @since 2.1.000 (2008-01-07)
+     * @see   StartTransform(), StopTransform()
+     */
+    public function TranslateY($t_y)
+    {
+        $this->Translate(0, $t_y);
     }
 }

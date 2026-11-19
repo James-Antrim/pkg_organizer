@@ -41,6 +41,56 @@ trait WebTools
 
 
     /**
+     * Output anchor link.
+     * @param string     $url        link URL or internal link (i.e.: &lt;a href="#23,4.5"&gt;link to page 23 at 4.5 Y position&lt;/a&gt;)
+     * @param string     $name       link name
+     * @param bool       $fill       Indicates if the cell background must be painted (true) or transparent (false).
+     * @param bool       $firstline  if true prints only the first line and return the remaining string.
+     * @param array|null $color      array of RGB text color
+     * @param string     $style      font style (U, D, B, I)
+     * @param bool       $firstblock if true the string is the starting of a line.
+     * @return int the number of cells used or the remaining text if $firstline = true;
+     */
+    public function addHtmlLink($url, $name, $fill = false, $firstline = false, $color = null, $style = -1, $firstblock = false)
+    {
+        if (isset($url[1]) and ($url[0] == '#') and is_numeric($url[1])) {
+            // convert url to internal link
+            $lnkdata = explode(',', $url);
+            if (isset($lnkdata[0])) {
+                $page = substr($lnkdata[0], 1);
+                if (isset($lnkdata[1]) and (strlen($lnkdata[1]) > 0)) {
+                    $lnky = floatval($lnkdata[1]);
+                }
+                else {
+                    $lnky = 0;
+                }
+                $url = $this->AddLink();
+                $this->setLink($url, $lnky, $page);
+            }
+        }
+        // store current settings
+        $prevcolor = $this->fgColor;
+        $prevstyle = $this->fontStyle;
+        if (empty($color)) {
+            $this->textColorArray($this->linkColor);
+        }
+        else {
+            $this->textColorArray($color);
+        }
+        if ($style == -1) {
+            $this->setCurrentFont('', $this->fontStyle . $this->linkStyle);
+        }
+        else {
+            $this->setCurrentFont('', $this->fontStyle . $style);
+        }
+        $ret = $this->Write($this->lastPrintedCellHeight, $name, $url, $fill, '', false, 0, $firstline, $firstblock, 0);
+        // restore settings
+        $this->setCurrentFont('', $prevstyle);
+        $this->textColorArray($prevcolor);
+        return $ret;
+    }
+
+    /**
      * Output a Table Of Content Index (TOC) using HTML templates.
      * This method must be called after all Bookmarks were set.
      * Before calling this method you have to open the page using the addTOCPage() method.
@@ -2039,11 +2089,6 @@ trait WebTools
                 else if (preg_match('@^data:image/([^;]*);base64,(.*)@', $imgsrc, $reg)) {
                     $imgsrc = '@' . base64_decode($reg[2]);
                     $type   = $reg[1];
-                }
-                elseif ($this->allowLocalFiles && substr($imgsrc, 0, 7) === 'file://') {
-                    // get image type from a local file path
-                    $imgsrc = substr($imgsrc, 7);
-                    $type   = $this->imageType($imgsrc);
                 }
                 else {
                     if (($imgsrc[0] === '/') and !empty($_SERVER['DOCUMENT_ROOT']) and ($_SERVER['DOCUMENT_ROOT'] != '/')) {
@@ -4405,5 +4450,303 @@ trait WebTools
             }
         }
         return $val;
+    }
+
+
+    /**
+     * Set the color and font style for HTML links.
+     * @param array  $color     RGB array of colors
+     * @param string $fontstyle additional font styles to add
+     * @public
+     * @since 4.4.003 (2008-12-09)
+     */
+    public function setHtmlLinksStyle($color = array(0, 0, 255), $fontstyle = 'U')
+    {
+        $this->htmlLinkColorArray = $color;
+        $this->htmlLinkFontStyle  = $fontstyle;
+    }
+
+    // variables for html parser
+
+    /**
+     * HTML PARSER: array to store current link and rendering styles.
+     */
+    protected array $HREF = [];
+
+    /**
+     * HTML PARSER: array of bool values, true in case of ordered list (OL), false otherwise.
+     */
+    protected $listordered = [];
+
+    /**
+     * HTML PARSER: array count list items on nested lists.
+     */
+    protected $listcount = [];
+
+    /**
+     * HTML PARSER: current list nesting level.
+     */
+    protected $listnum = 0;
+
+    /**
+     * HTML PARSER: indent amount for lists.
+     */
+    protected $listindent = 0;
+
+    /**
+     * HTML PARSER: current list indententation level.
+     */
+    protected $listindentlevel = 0;
+
+    /**
+     * HTML PARSER: custom indent amount for lists. Negative value means disabled.
+     */
+    protected $customlistindent = -1;
+
+    /**
+     * Current form action (used during XHTML rendering).
+     */
+    protected $form_action = '';
+
+    /**
+     * Current form encryption type (used during XHTML rendering).
+     */
+    protected $form_enctype = 'application/x-www-form-urlencoded';
+
+    /**
+     * Add vertical spaces if needed.
+     * @param string $hbz      Distance between current y and line bottom.
+     * @param string $hb       The height of the break.
+     * @param bool   $cell     if true add the default left padding to each new line (default false).
+     * @param bool   $firsttag set to true when the tag is the first.
+     * @param bool   $lasttag  set to true when the tag is the last.
+     */
+    protected function addHTMLVertSpace($hbz = 0, $hb = 0, $cell = false, $firsttag = false, $lasttag = false)
+    {
+        if ($firsttag) {
+            $this->Ln(0, $cell);
+            $this->htmlvspace = 0;
+            return;
+        }
+        if ($lasttag) {
+            $this->Ln($hbz, $cell);
+            $this->htmlvspace = 0;
+            return;
+        }
+        if ($hb < $this->htmlvspace) {
+            $hd = 0;
+        }
+        else {
+            $hd               = $hb - $this->htmlvspace;
+            $this->htmlvspace = $hb;
+        }
+        $this->Ln(($hbz + $hd), $cell);
+    }
+
+    /**
+     * Draw an HTML block border and fill
+     * @param array $tag  array of tag properties.
+     * @param int   $xmax end X coordinate for border.
+     */
+    protected function drawHTMLTagBorder($tag, $xmax)
+    {
+        if (!isset($tag['borderposition'])) {
+            // nothing to draw
+            return;
+        }
+        $prev_x                      = $this->x;
+        $prev_y                      = $this->y;
+        $prev_lasth                  = $this->lastPrintedCellHeight;
+        $border                      = 0;
+        $fill                        = false;
+        $this->lastPrintedCellHeight = 0;
+        if (isset($tag['border']) and !empty($tag['border'])) {
+            // get border style
+            $border = $tag['border'];
+            if (!StaticMethods::empty_string($this->headerTemplate) and (!$this->inthead)) {
+                // border for table header
+                $border = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
+            }
+        }
+        if (isset($tag['bgColor']) and ($tag['bgColor'] !== false)) {
+            // get background color
+            $oldBGColor = $this->bgColor;
+            $this->fillColorArray($tag['bgColor']);
+            $fill = true;
+        }
+        if (!$border and !$fill) {
+            // nothing to draw
+            return;
+        }
+        if (isset($tag['attribute']['cellspacing'])) {
+            $clsp        = $this->fontSizeToUnits($tag['attribute']['cellspacing']);
+            $cellspacing = ['H' => $clsp, 'V' => $clsp];
+        }
+        elseif (isset($tag['border-spacing'])) {
+            $cellspacing = $tag['border-spacing'];
+        }
+        else {
+            $cellspacing = ['H' => 0, 'V' => 0];
+        }
+        if (($tag['value'] != 'table') and (is_array($border)) and (!empty($border))) {
+            // draw the border externally respect the sqare edge.
+            $border['mode'] = 'ext';
+        }
+        if ($xmax <= $tag['borderposition']['x']) {
+            $xmax = $tag['borderposition']['xmax'];
+        }
+        $w = ($xmax - $tag['borderposition']['x']);
+        if ($w <= 0) {
+            return;
+        }
+        $w           += $cellspacing['H'];
+        $startpage   = $tag['borderposition']['page'];
+        $startcolumn = $tag['borderposition']['column'];
+        $x           = $tag['borderposition']['x'];
+        $y           = $tag['borderposition']['y'];
+        $endpage     = $this->page;
+        $starty      = $tag['borderposition']['y'] - $cellspacing['V'];
+        $currentY    = $this->y;
+        $this->x     = $x;
+        // get latest column
+        $endcolumn = $this->current_column;
+        if ($this->num_columns == 0) {
+            $this->num_columns = 1;
+        }
+        // get border modes
+        $border_start  = StaticMethods::getBorderMode($border, $position = 'start', $this->opencell);
+        $border_end    = StaticMethods::getBorderMode($border, $position = 'end', $this->opencell);
+        $border_middle = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
+        // temporary disable page regions
+        $temp_page_regions  = $this->page_regions;
+        $this->page_regions = [];
+        // design borders around HTML cells.
+        for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
+            $ccode = '';
+            $this->setPage($page);
+            if ($this->num_columns < 2) {
+                // single-column mode
+                $this->x = $x;
+                $this->y = $this->topMargin;
+            }
+            // account for margin changes
+            if ($page > $startpage) {
+                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
+                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
+                }
+            }
+            if ($startpage == $endpage) {
+                // single page
+                for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
+                    $this->selectColumn($column);
+                    if ($startcolumn == $endcolumn) { // single column
+                        $cborder = $border;
+                        $h       = ($currentY - $y) + $cellspacing['V'];
+                        $this->y = $starty;
+                    }
+                    elseif ($column == $startcolumn) { // first column
+                        $cborder = $border_start;
+                        $this->y = $starty;
+                        $h       = $this->height - $this->y - $this->bottomMargin;
+                    }
+                    elseif ($column == $endcolumn) { // end column
+                        $cborder = $border_end;
+                        $h       = $currentY - $this->y;
+                    }
+                    else { // middle column
+                        $cborder = $border_middle;
+                        $h       = $this->height - $this->y - $this->bottomMargin;
+                    }
+                    $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
+                } // end for each column
+            }
+            elseif ($page == $startpage) { // first page
+                for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
+                    $this->selectColumn($column);
+                    if ($column == $startcolumn) { // first column
+                        $cborder = $border_start;
+                        $this->y = $starty;
+                        $h       = $this->height - $this->y - $this->bottomMargin;
+                    }
+                    else { // middle column
+                        $cborder = $border_middle;
+                        $h       = $this->height - $this->y - $this->bottomMargin;
+                    }
+                    $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
+                } // end for each column
+            }
+            elseif ($page == $endpage) { // last page
+                for ($column = 0; $column <= $endcolumn; ++$column) { // for each column
+                    $this->selectColumn($column);
+                    if ($column == $endcolumn) {
+                        // end column
+                        $cborder = $border_end;
+                        $h       = $currentY - $this->y;
+                    }
+                    else {
+                        // middle column
+                        $cborder = $border_middle;
+                        $h       = $this->height - $this->y - $this->bottomMargin;
+                    }
+                    $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
+                } // end for each column
+            }
+            else { // middle page
+                for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
+                    $this->selectColumn($column);
+                    $cborder = $border_middle;
+                    $h       = $this->height - $this->y - $this->bottomMargin;
+                    $ccode   .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true) . "\n";
+                } // end for each column
+            }
+            if ($cborder or $fill) {
+                $offsetlen = strlen($ccode);
+                // draw border and fill
+                if ($this->inXObject) {
+                    // we are inside an XObject template
+                    if (end($this->xObjects[$this->xObjectID]['transpositions']) !== false) {
+                        $pagemarkkey                                                      = key($this->xObjects[$this->xObjectID]['transpositions']);
+                        $pagemark                                                         = $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey];
+                        $this->xObjects[$this->xObjectID]['transpositions'][$pagemarkkey] += $offsetlen;
+                    }
+                    else {
+                        $pagemark                                   = $this->xObjects[$this->xObjectID]['intmrk'];
+                        $this->xObjects[$this->xObjectID]['intmrk'] += $offsetlen;
+                    }
+                    $pagebuff                                    = $this->xObjects[$this->xObjectID]['content'];
+                    $pstart                                      = substr($pagebuff, 0, $pagemark);
+                    $pend                                        = substr($pagebuff, $pagemark);
+                    $this->xObjects[$this->xObjectID]['content'] = $pstart . $ccode . $pend;
+                }
+                else {
+                    if (end($this->transpositions[$this->page]) !== false) {
+                        $pagemarkkey = key($this->transpositions[$this->page]);
+                        $pagemark    = $this->transpositions[$this->page][$pagemarkkey];
+                    }
+                    elseif ($this->inFooter) {
+                        $pagemark = $this->footerpos[$this->page];
+                    }
+                    else {
+                        $pagemark = $this->intmrk[$this->page];
+                    }
+                    $pagebuff = $this->pageBuffer($this->page);
+                    $pstart   = substr($pagebuff, 0, $pagemark);
+                    $pend     = substr($pagebuff, $pagemark);
+                    $this->pageBuffer($this->page, $pstart . $ccode . $pend);
+                    $this->bordermrk[$this->page] += $offsetlen;
+                    $this->cntmrk[$this->page]    += $offsetlen;
+                }
+            }
+        } // end for each page
+        // restore page regions
+        $this->page_regions = $temp_page_regions;
+        if (isset($oldBGColor)) {
+            // restore background color
+            $this->fillColorArray($oldBGColor);
+        }
+        // restore pointer position
+        $this->x                     = $prev_x;
+        $this->y                     = $prev_y;
+        $this->lastPrintedCellHeight = $prev_lasth;
     }
 }
