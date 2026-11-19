@@ -36,6 +36,139 @@ trait Images
     /** Stores positions of graphics transformation blocks in the page buffer, keys are the page numbers */
     protected array $transpositions = [];
 
+    /** Append images to the document. */
+    protected function appendImages(): void
+    {
+        $filter = '/Filter /FlateDecode ';
+        foreach ($this->imageKeys as $file) {
+            $info = $this->imageBuffer($file);
+            // set object for alternate images array
+            $altObjectID = null;
+
+            if (!empty($info['altImages'])) {
+                $altObjectID = $this->appendObject();
+                $out         = '[';
+                foreach ($info['altImages'] as $altImage) {
+                    if (isset($this->xObjects['I' . $altImage[0]]['n'])) {
+                        $out .= ' << /Image ' . $this->xObjects['I' . $altImage[0]]['n'] . ' 0 R /DefaultForPrinting';
+                        $out .= $altImage[1] === true ? ' true' : ' false';
+                        $out .= ' >>';
+                    }
+                }
+                $out .= ' ]';
+                $out .= "\n" . 'endobj';
+                $this->append($out);
+            }
+
+            // Set image object
+            $objectID = $this->appendObject();
+
+            $this->xObjects['I' . $info['i']] = ['n' => $objectID];
+            $this->imageSubBuffer($file, 'n');
+            $out = '<</Type /XObject /Subtype /Image /Width ' . $info['w'] . ' /Height ' . $info['h'];
+
+            if (array_key_exists('masked', $info)) {
+                $out .= ' /SMask ' . ($this->objectNumber - 1) . ' 0 R';
+            }
+
+            // Set color space
+            $icc = false;
+
+            // ICC Color Space
+            if (!empty($info['icc'])) {
+                $icc = true;
+                $out .= ' /ColorSpace [/ICCBased ' . ($this->objectNumber + 1) . ' 0 R]';
+            }
+            // Indexed Colour Space
+            elseif ($info['cs'] === 'Indexed') {
+                $out .= ' /ColorSpace [/Indexed /DeviceRGB ' . (strlen($info['pal']) / 3) - 1 . ' ' . $this->objectNumber + 1 . ' 0 R]';
+            }
+            // Device Colour Space
+            else {
+                $out .= ' /ColorSpace /' . $info['cs'];
+
+                if ($info['cs'] === 'DeviceCMYK') {
+                    $out .= ' /Decode [1 0 1 0 1 0 1 0]';
+                }
+            }
+
+            $out .= ' /BitsPerComponent ' . $info['bitsPerComponent'];
+
+            // Reference an alternate images dictionary
+            if ($altObjectID > 0) {
+                $out .= ' /Alternates ' . $altObjectID . ' 0 R';
+            }
+
+            // External stream
+            if (isset($info['externalURL']) and !empty($info['externalURL'])) {
+                $out .= ' /Length 0';
+                $out .= ' /F << /FS /URL /F ' . $this->_datastring($info['externalURL']) . ' >>';
+                if (isset($info['filter'])) {
+                    $out .= ' /FFilter /' . $info['filter'];
+                }
+                $out .= ' >>';
+                $out .= ' stream' . "\n" . 'endstream';
+            }
+            else {
+                if (isset($info['filter'])) {
+                    $out .= ' /Filter /' . $info['filter'];
+                }
+                if (isset($info['parameters'])) {
+                    $out .= ' ' . $info['parameters'];
+                }
+                if (isset($info['transparency']) and is_array($info['transparency'])) {
+                    $transparency = '';
+                    $entryCount   = count($info['transparency']);
+                    if ($info['cs'] === 'Indexed') {
+                        $maxValue = (pow(2, $info['bitsPerComponent']) - 1);
+                        for ($index = 0; $index < $entryCount; ++$index) {
+                            // This is not a binary type mask
+                            if (($info['transparency'][$index] != 0) and ($info['transparency'][$index] != $maxValue)) {
+                                $transparency = '';
+                                break;
+                            }
+                            // Store the first fully transparent value
+                            elseif (empty($transparency) and ($info['transparency'][$index] == 0)) {
+                                $transparency .= $index . ' ' . $index . ' ';
+                            }
+                        }
+                    }
+                    // Grayscale or RGB
+                    else {
+                        for ($index = 0; $index < $entryCount; ++$index) {
+                            if ($info['transparency'][$index] == 0) {
+                                $transparency .= $info['transparency'][$index] . ' ' . $info['transparency'][$index] . ' ';
+                            }
+                        }
+                    }
+                    // Colour Key Masking
+                    if (!empty($transparency)) {
+                        $out .= ' /Mask [' . $transparency . ']';
+                    }
+                }
+                $stream = $info['data'];
+                $out    .= ' /Length ' . strlen($stream) . ' >>';
+                $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+            }
+            $out .= "\n" . 'endobj';
+            $this->append($out);
+
+            // ICC colour profile
+            if ($icc) {
+                $this->appendObject();
+                $icc = gzcompress($info['icc']);
+                $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
+            }
+            // Indexed Colour Space
+            elseif ($info['cs'] === 'Indexed') {
+                // colour palette
+                $this->appendObject();
+                $pal = gzcompress($info['pal']);
+                $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
+            }
+        }
+    }
+
     /**
      * Getter / setter image buffer content. Returns the buffer content on success, otherwise false.
      * @param string $key
@@ -173,8 +306,8 @@ trait Images
         $width  = $this->readLong($file);
         $height = $this->readLong($file);
 
-        $pitsPerPixel = ord(fread($file, 1));
-        $schemeNumber = ord(fread($file, 1));
+        $pitsPerComponent = ord(fread($file, 1));
+        $schemeNumber     = ord(fread($file, 1));
 
         $schemes = [0 => 'DeviceGray', 2 => 'DeviceRGB', 3 => 'Indexed'];
         if (array_key_exists($schemeNumber, $schemes)) {
@@ -195,7 +328,7 @@ trait Images
         fread($file, 4);
 
         $channels   = $schemeNumber === 2 ? 3 : 1;
-        $parameters = '/DecodeParms << /Predictor 15 /Colors ' . $channels . ' /BitsPerComponent ' . $pitsPerPixel . ' /Columns ' . $width . ' >>';
+        $parameters = '/DecodeParms << /Predictor 15 /Colors ' . $channels . ' /BitsPerComponent ' . $pitsPerComponent . ' /Columns ' . $width . ' >>';
 
         //Scan chunks looking for palette, transparency and image data
         $data         = '';
@@ -283,17 +416,17 @@ trait Images
         }
 
         return [
-            'bpc'   => $pitsPerPixel,
-            'ch'    => $channels,
-            'cs'    => $scheme,
-            'data'  => $data,
-            'f'     => 'FlateDecode',
-            'h'     => $height,
-            'icc'   => $icc,
-            'pal'   => $palette,
-            'parms' => $parameters,
-            'trns'  => $transparency,
-            'w'     => $width,
+            'bitsPerComponent' => $pitsPerComponent,
+            'ch'               => $channels,
+            'cs'               => $scheme,
+            'data'             => $data,
+            'filter'           => 'FlateDecode',
+            'h'                => $height,
+            'icc'              => $icc,
+            'pal'              => $palette,
+            'parameters'       => $parameters,
+            'transparency'     => $transparency,
+            'w'                => $width,
         ];
     }
 
@@ -327,8 +460,8 @@ trait Images
             return false;
         }
 
-        $bitsPerPixel = isset($metadata['bits']) ? intval($metadata['bits']) : 8;
-        $channels     = isset($metadata['channels']) ? (int) $metadata['channels'] : 3;
+        $bitsPerComponent = isset($metadata['bits']) ? intval($metadata['bits']) : 8;
+        $channels         = isset($metadata['channels']) ? (int) $metadata['channels'] : 3;
 
         switch ($channels) {
             case 1:
@@ -377,14 +510,14 @@ trait Images
         }
 
         return [
-            'bpc'  => $bitsPerPixel,
-            'ch'   => $channels,
-            'cs'   => $scheme,
-            'data' => $file,
-            'f'    => 'DCTDecode',
-            'h'    => $metadata[1],
-            'icc'  => $icc,
-            'w'    => $metadata[0],
+            'bitsPerComponent' => $bitsPerComponent,
+            'ch'               => $channels,
+            'cs'               => $scheme,
+            'data'             => $file,
+            'filter'           => 'DCTDecode',
+            'h'                => $metadata[1],
+            'icc'              => $icc,
+            'w'                => $metadata[0],
         ];
     }
 
@@ -422,136 +555,450 @@ trait Images
 
 
     /**
-     * Append images to the document.
+     * Puts an image in the page.
+     * The upper-left corner must be given.
+     * The dimensions can be specified in different ways:<ul>
+     * <li>explicit width and height (expressed in user unit)</li>
+     * <li>one explicit dimension, the other being calculated automatically in order to keep the original proportions</li>
+     * <li>no explicit dimension, in which case the image is put at 72 dpi</li></ul>
+     * Supported formats are JPEG and PNG images whitout GD library and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;
+     * The format can be specified explicitly or inferred from the file extension.<br />
+     * It is possible to put a link on the image.<br />
+     * Remark: if an image is used several times, only one copy will be embedded in the file.<br />
+     * @param string     $file      Name of the file containing the image or a '@' character followed by the image data string. To link an image without embedding it on the document, set an asterisk character before the URL (i.e.: '*http://www.example.com/image.jpg').
+     * @param float|null $x         Abscissa of the upper-left corner.
+     * @param float|null $y         Ordinate of the upper-left corner.
+     * @param float      $width     Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param float      $height    Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param string     $type      Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
+     * @param mixed      $link      URL or identifier returned by AddLink().
+     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @param mixed      $resize    If true resize (reduce) the image to fit $w and $h (requires GD or ImageMagick library); if false do not resize; if 2 force resize in all cases (upscaling and downscaling).
+     * @param int        $dpi       dot-per-inch resolution used on resize
+     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
+     * @param bool       $ismask    true if this image is a mask, false otherwise
+     * @param mixed      $imgmask   image object returned by this function or false
+     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
+     * @param mixed      $fitbox    If not false scale image dimensions proportionally to fit within the ($w, $h) box. $fitbox can be true or a 2 characters string indicating the image alignment inside the box. The first character indicate the horizontal alignment (L = left, C = center, R = right) the second character indicate the vertical algnment (T = top, M = middle, B = bottom).
+     * @param bool       $hidden    If true do not display the image.
+     * @param bool       $fitonpage If true the image is resized to not exceed page dimensions.
+     * @param bool       $alt       If true the image will be added as alternative and not directly printed (the ID of the image will be returned).
+     * @param array      $altimgs   Array of alternate images IDs. Each alternative image must be an array with two values: an integer representing the image ID (the value returned by the Image method) and a bool value to indicate if the image is the default for printing.
+     * @return mixed|false image information
      */
-    protected function appendImages(): void
+    public function image(
+        string     $file,
+        float|null $x = null,
+        float|null $y = null,
+        float      $width = 0,
+        float      $height = 0,
+        string     $type = '',
+        string     $link = '',
+        string     $align = '',
+        bool       $resize = false,
+        int        $dpi = 300,
+        string     $palign = '',
+        bool       $ismask = false,
+        mixed      $imgmask = false,
+        mixed      $border = 0,
+        mixed      $fitbox = false,
+        bool       $hidden = false,
+        bool       $fitonpage = false,
+        bool       $alt = false,
+        array      $altimgs = []
+    )
     {
-        $filter = '/Filter /FlateDecode ';
-        foreach ($this->imageKeys as $file) {
-            $info = $this->imageBuffer($file);
-            // set object for alternate images array
-            $altoid = null;
-            if (!empty($info['altimgs'])) {
-                $altoid = $this->appendObject();
-                $out    = '[';
-                foreach ($info['altimgs'] as $altimage) {
-                    if (isset($this->xObjects['I' . $altimage[0]]['n'])) {
-                        $out .= ' << /Image ' . $this->xObjects['I' . $altimage[0]]['n'] . ' 0 R';
-                        $out .= ' /DefaultForPrinting';
-                        if ($altimage[1] === true) {
-                            $out .= ' true';
-                        }
-                        else {
-                            $out .= ' false';
-                        }
-                        $out .= ' >>';
+        if ($this->state !== self::READY) {
+            return false;
+        }
+        if (is_null($x)) {
+            $x = $this->x;
+        }
+        if (is_null($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($height, $x, $y);
+        $externalURL = ''; // external streams
+        $imsize      = false;
+
+        // Make sure the file variable is not empty or null because accessing $file[0] later
+        // results in error when running PHP 7.4
+        if (empty($file)) {
+            return false;
+        }
+        // check if we are passing an image as file or string
+        if ($file[0] === '@') {
+            // image from string
+            $imgdata = substr($file, 1);
+        }
+        else { // image file
+            if ($file[0] === '*') {
+                // image as external stream
+                $file        = substr($file, 1);
+                $externalURL = $file;
+            }
+            // check if file exist and it is valid
+            if (!@$this->fileExists($file)) {
+                return false;
+            }
+            if ($info = $this->imageBuffer($file)) {
+                $imsize = [$info['w'], $info['h']];
+            }
+            elseif (($imsize = @getimagesize($file)) === false && strpos($file, '__organizer_' . $this->fileID . '_img') === false) {
+                $imgdata = $this->getCachedFileContents($file);
+            }
+        }
+        if (!empty($imgdata)) {
+            // copy image to cache
+            $original_file = $file;
+            $file          = $this->getObjFilename('img', $this->fileID);
+            $fp            = $this->openLocal($file, 'w');
+            if (!$fp) {
+                $this->Error('Unable to write file: ' . $file);
+            }
+            fwrite($fp, $imgdata);
+            fclose($fp);
+            unset($imgdata);
+            $imsize = @getimagesize($file);
+            if ($imsize === false) {
+                unlink($file);
+                $file = $original_file;
+            }
+        }
+        if ($imsize === false) {
+            if (($width > 0) and ($height > 0)) {
+                // get measures from specified data
+                $pw     = $this->fontSizeToUnits($width, 0, $this->unit, true) * $this->imageFactor * $this->factor;
+                $ph     = $this->fontSizeToUnits($height, 0, $this->unit, true) * $this->imageFactor * $this->factor;
+                $imsize = [$pw, $ph];
+            }
+            else {
+                $this->Error('[Image] Unable to get the size of the image: ' . $file);
+            }
+        }
+        // file hash
+        $filehash = md5($file);
+        // get original image width and height in pixels
+        list($pixw, $pixh) = $imsize;
+        // calculate image width and height on document
+        if (($width <= 0) and ($height <= 0)) {
+            // convert image size to document unit
+            $width  = $this->pixelsToUnits($pixw);
+            $height = $this->pixelsToUnits($pixh);
+        }
+        elseif ($width <= 0) {
+            $width = $height * $pixw / $pixh;
+        }
+        elseif ($height <= 0) {
+            $height = $width * $pixh / $pixw;
+        }
+        elseif (($fitbox !== false) and ($width > 0) and ($height > 0)) {
+            if (strlen($fitbox) !== 2) {
+                // set default alignment
+                $fitbox = '--';
+            }
+            // scale image dimensions proportionally to fit within the ($w, $h) box
+            if ((($width * $pixh) / ($height * $pixw)) < 1) {
+                // store current height
+                $oldh = $height;
+                // calculate new height
+                $height = $width * $pixh / $pixw;
+                // height difference
+                $hdiff = ($oldh - $height);
+                // vertical alignment
+                switch (strtoupper($fitbox[1])) {
+                    case 'T':
+                    {
+                        break;
+                    }
+                    case 'M':
+                    {
+                        $y += ($hdiff / 2);
+                        break;
+                    }
+                    case 'B':
+                    {
+                        $y += $hdiff;
+                        break;
                     }
                 }
-                $out .= ' ]';
-                $out .= "\n" . 'endobj';
-                $this->append($out);
-            }
-            // set image object
-            $oid                              = $this->appendObject();
-            $this->xObjects['I' . $info['i']] = ['n' => $oid];
-            $this->imageSubBuffer($file, 'n', $this->objectNumber);
-            $out = '<</Type /XObject';
-            $out .= ' /Subtype /Image';
-            $out .= ' /Width ' . $info['w'];
-            $out .= ' /Height ' . $info['h'];
-            if (array_key_exists('masked', $info)) {
-                $out .= ' /SMask ' . ($this->objectNumber - 1) . ' 0 R';
-            }
-            // set color space
-            $icc = false;
-            if (isset($info['icc']) and ($info['icc'] !== false)) {
-                // ICC Colour Space
-                $icc = true;
-                $out .= ' /ColorSpace [/ICCBased ' . ($this->objectNumber + 1) . ' 0 R]';
-            }
-            elseif ($info['cs'] == 'Indexed') {
-                // Indexed Colour Space
-                $out .= ' /ColorSpace [/Indexed /DeviceRGB ' . ((strlen($info['pal']) / 3) - 1) . ' ' . ($this->objectNumber + 1) . ' 0 R]';
             }
             else {
-                // Device Colour Space
-                $out .= ' /ColorSpace /' . $info['cs'];
-            }
-            if ($info['cs'] == 'DeviceCMYK') {
-                $out .= ' /Decode [1 0 1 0 1 0 1 0]';
-            }
-            $out .= ' /BitsPerComponent ' . $info['bpc'];
-            if ($altoid > 0) {
-                // reference to alternate images dictionary
-                $out .= ' /Alternates ' . $altoid . ' 0 R';
-            }
-            if (isset($info['exurl']) and !empty($info['exurl'])) {
-                // external stream
-                $out .= ' /Length 0';
-                $out .= ' /F << /FS /URL /F ' . $this->_datastring($info['exurl']) . ' >>';
-                if (isset($info['f'])) {
-                    $out .= ' /FFilter /' . $info['f'];
+                // store current width
+                $oldw = $width;
+                // calculate new width
+                $width = $height * $pixw / $pixh;
+                // width difference
+                $wdiff = ($oldw - $width);
+                // horizontal alignment
+                switch (strtoupper($fitbox[0])) {
+                    case 'C':
+                        $x += ($wdiff / 2);
+                        break;
+                    case 'R':
+                        $x += $wdiff;
+                        break;
                 }
-                $out .= ' >>';
-                $out .= ' stream' . "\n" . 'endstream';
             }
-            else {
-                if (isset($info['f'])) {
-                    $out .= ' /Filter /' . $info['f'];
+        }
+        // fit the image on available space
+        list($width, $height, $x, $y) = $this->fitBlock($width, $height, $x, $y, $fitonpage);
+        // calculate new minimum dimensions in pixels
+        $neww = round($width * $this->factor * $dpi / self::DPI);
+        $newh = round($height * $this->factor * $dpi / self::DPI);
+        // check if resize is necessary (resize is used only to reduce the image)
+        $newsize = ($neww * $newh);
+        $pixsize = ($pixw * $pixh);
+        if (intval($resize) == 2) {
+            $resize = true;
+        }
+        elseif ($newsize >= $pixsize) {
+            $resize = false;
+        }
+        // check if image has been already added on document
+        $newimage = true;
+        if (in_array($file, $this->imageKeys)) {
+            $newimage = false;
+            // get existing image data
+            $info = $this->imageBuffer($file);
+            if (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false) {
+                // check if the newer image is larger
+                $oldsize = ($info['w'] * $info['h']);
+                if ((($oldsize < $newsize) and ($resize)) or (($oldsize < $pixsize) and (!$resize))) {
+                    $newimage = true;
                 }
-                if (isset($info['parms'])) {
-                    $out .= ' ' . $info['parms'];
+            }
+        }
+        elseif (($ismask === false) and ($imgmask === false) and (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false)) {
+            // create temp image file (without alpha channel)
+            $tempfile_plain = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_plain_' . $filehash;
+            // create temp alpha file
+            $tempfile_alpha = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_alpha_' . $filehash;
+            // check for cached images
+            if (in_array($tempfile_plain, $this->imageKeys)) {
+                // get existing image data
+                $info = $this->imageBuffer($tempfile_plain);
+                // check if the newer image is larger
+                $oldsize = ($info['w'] * $info['h']);
+                if ((($oldsize < $newsize) and ($resize)) or (($oldsize < $pixsize) and (!$resize))) {
+                    $newimage = true;
                 }
-                if (isset($info['trns']) and is_array($info['trns'])) {
-                    $trns       = '';
-                    $count_info = count($info['trns']);
-                    if ($info['cs'] == 'Indexed') {
-                        $maxval = (pow(2, $info['bpc']) - 1);
-                        for ($i = 0; $i < $count_info; ++$i) {
-                            if (($info['trns'][$i] != 0) and ($info['trns'][$i] != $maxval)) {
-                                // this is not a binary type mask @TODO: create a SMask
-                                $trns = '';
-                                break;
+                else {
+                    $newimage = false;
+                    // embed mask image
+                    $imgmask = $this->image($tempfile_alpha, $x, $y, $width, $height, 'PNG', '', '', $resize, $dpi, '', true, false);
+                    // embed image, masked with previously embedded mask
+                    return $this->image($tempfile_plain, $x, $y, $width, $height, $type, $link, $align, $resize, $dpi, $palign, false, $imgmask);
+                }
+            }
+        }
+        if ($newimage) {
+            //First use of image, get info
+            $type = strtolower($type);
+            if ($type == '') {
+                $type = $this->imageType($file, $imsize);
+            }
+            elseif ($type == 'jpg') {
+                $type = 'jpeg';
+            }
+            $mtd = 'parse' . $type;
+            // GD image handler function
+            $gdfunction = 'imagecreatefrom' . $type;
+            $info       = false;
+            if ((method_exists('THM\Organizer\Views\PDF\Library\Images', $mtd)) and (!($resize and (function_exists($gdfunction) or extension_loaded('imagick'))))) {
+                // TCPDF image functions
+                $info = $this->$mtd($file);
+                if (($ismask === false) and ($imgmask === false) and (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false)
+                    and ($info === 'alpha' or !empty($info['transparency']))) {
+                    return $this->ImagePngAlpha($file, $x, $y, $pixw, $pixh, $width, $height, 'PNG', $link, $align, $resize, $dpi, $palign, $filehash);
+                }
+            }
+            if (($info === false) and function_exists($gdfunction)) {
+                try {
+                    // GD library
+                    $img = $gdfunction($file);
+                    if ($img !== false) {
+                        if ($resize) {
+                            $imgr = imagecreatetruecolor($neww, $newh);
+                            if (($type == 'gif') or ($type == 'png')) {
+                                $imgr = $this->imageTransparency($imgr, $img);
                             }
-                            elseif (empty($trns) and ($info['trns'][$i] == 0)) {
-                                // store the first fully transparent value
-                                $trns .= $i . ' ' . $i . ' ';
+                            imagecopyresampled($imgr, $img, 0, 0, 0, 0, $neww, $newh, $pixw, $pixh);
+                            $img = $imgr;
+                        }
+                        if (($type == 'gif') or ($type == 'png')) {
+                            $info = $this->png($img, $this->getObjFilename('img', $this->fileID));
+                        }
+                        else {
+                            $info = $this->jpeg($img, $this->jpeg_quality, $this->getObjFilename('img', $this->fileID));
+                        }
+                    }
+                } catch (Exception $e) {
+                    $info = false;
+                }
+            }
+            if (($info === false) and extension_loaded('imagick')) {
+                try {
+                    // ImageMagick library
+                    $img = new Imagick();
+                    if ($type == 'svg') {
+                        if ($file[0] === '@') {
+                            // image from string
+                            $svgimg = substr($file, 1);
+                        }
+                        else {
+                            // get SVG file content
+                            $svgimg = $this->getCachedFileContents($file);
+                        }
+                        if ($svgimg !== false) {
+                            // get width and height
+                            $regs = [];
+                            if (preg_match('/<svg([^\>]*)>/si', $svgimg, $regs)) {
+                                $svgtag = $regs[1];
+                                $tmp    = [];
+                                if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
+                                    $ow     = $this->fontSizeToUnits($tmp[1]);
+                                    $owu    = sprintf('%F', ($ow * $dpi / 72)) . $this->unit;
+                                    $svgtag = preg_replace('/[\s]+width[\s]*=[\s]*"[^"]*"/si', ' width="' . $owu . '"', $svgtag, 1);
+                                }
+                                else {
+                                    $ow = $width;
+                                }
+                                $tmp = [];
+                                if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
+                                    $oh     = $this->fontSizeToUnits($tmp[1]);
+                                    $ohu    = sprintf('%F', ($oh * $dpi / 72)) . $this->unit;
+                                    $svgtag = preg_replace('/[\s]+height[\s]*=[\s]*"[^"]*"/si', ' height="' . $ohu . '"', $svgtag, 1);
+                                }
+                                else {
+                                    $oh = $height;
+                                }
+                                $tmp = [];
+                                if (!preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $svgtag, $tmp)) {
+                                    $vbw    = ($ow * $this->imageFactor * $this->factor);
+                                    $vbh    = ($oh * $this->imageFactor * $this->factor);
+                                    $vbox   = sprintf(' viewBox="0 0 %F %F" ', $vbw, $vbh);
+                                    $svgtag = $vbox . $svgtag;
+                                }
+                                $svgimg = preg_replace('/<svg([^\>]*)>/si', '<svg' . $svgtag . '>', $svgimg, 1);
                             }
+                            $img->readImageBlob($svgimg);
                         }
                     }
                     else {
-                        // grayscale or RGB
-                        for ($i = 0; $i < $count_info; ++$i) {
-                            if ($info['trns'][$i] == 0) {
-                                $trns .= $info['trns'][$i] . ' ' . $info['trns'][$i] . ' ';
-                            }
-                        }
+                        $img->readImage($file);
                     }
-                    // Colour Key Masking
-                    if (!empty($trns)) {
-                        $out .= ' /Mask [' . $trns . ']';
+                    if ($resize) {
+                        $img->resizeImage($neww, $newh, 10, 1, false);
                     }
+                    $img->setCompressionQuality($this->jpeg_quality);
+                    $img->setImageFormat('jpeg');
+                    $tempname = $this->getObjFilename('img', $this->fileID);
+                    $img->writeImage($tempname);
+                    $info = $this->parseJPEG($tempname);
+                    unlink($tempname);
+                    $img->destroy();
+                } catch (Exception $e) {
+                    $info = false;
                 }
-                $stream = $info['data'];
-                $out    .= ' /Length ' . strlen($stream) . ' >>';
-                $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
             }
-            $out .= "\n" . 'endobj';
-            $this->append($out);
-            if ($icc) {
-                // ICC colour profile
-                $this->appendObject();
-                $icc = gzcompress($info['icc']);
-                $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
+            if ($info === false) {
+                // unable to process image
+                return false;
             }
-            elseif ($info['cs'] == 'Indexed') {
-                // colour palette
-                $this->appendObject();
-                $pal = gzcompress($info['pal']);
-                $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
+            if ($ismask) {
+                // force grayscale
+                $info['cs'] = 'DeviceGray';
+            }
+            if ($imgmask !== false) {
+                $info['masked'] = $imgmask;
+            }
+            if (!empty($externalURL)) {
+                $info['externalURL'] = $externalURL;
+            }
+            // array of alternative images
+            $info['altImages'] = $altimgs;
+            // add image to document
+            $info['i'] = $this->imageBuffer($file, $info)['i'];
+        }
+        // set alignment
+        $this->imageRBX = $x + $width;
+        $this->imageRBY = $y + $height;
+
+        // set alignment
+        if ($palign == 'L') {
+            $ximg = $this->leftMargin;
+        }
+        elseif ($palign == 'C') {
+            $ximg = ($this->width + $this->leftMargin - $this->rightMargin - $width) / 2;
+        }
+        elseif ($palign == 'R') {
+            $ximg = $this->width - $this->rightMargin - $width;
+        }
+        else {
+            $ximg = $x;
+        }
+
+        if ($ismask or $hidden) {
+            // image is not displayed
+            return $info['i'];
+        }
+        $xkimg = $ximg * $this->factor;
+        if (!$alt) {
+            // only non-alternative images will be set
+            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($width * $this->factor), ($height * $this->factor), $xkimg, (($this->height - ($y + $height)) * $this->factor), $info['i']));
+        }
+        if (!empty($border)) {
+            $bx      = $this->x;
+            $by      = $this->y;
+            $this->x = $ximg;
+            $this->y = $y;
+            $this->Cell($width, $height, '', $border, 0, '', 0, '', 0, true);
+            $this->x = $bx;
+            $this->y = $by;
+        }
+        if ($link) {
+            $this->Link($ximg, $y, $width, $height, $link, 0);
+        }
+        // set pointer to align the next text/objects
+        switch ($align) {
+            case 'T':
+            {
+                $this->y = $y;
+                $this->x = $this->imageRBX;
+                break;
+            }
+            case 'M':
+            {
+                $this->y = $y + round($height / 2);
+                $this->x = $this->imageRBX;
+                break;
+            }
+            case 'B':
+            {
+                $this->y = $this->imageRBY;
+                $this->x = $this->imageRBX;
+                break;
+            }
+            case 'N':
+            {
+                $this->y($this->imageRBY);
+                break;
+            }
+            default:
+            {
+                break;
             }
         }
+        $this->endlinex = $this->imageRBX;
+        if ($this->inXObject) {
+            // we are inside an XObject template
+            $this->xObjects[$this->xObjectID]['images'][] = $info['i'];
+        }
+        return $info['i'];
     }
+
 
     /**
      * Convert SVG transformation matrix to PDF.
@@ -801,431 +1248,6 @@ trait Images
     }
 
     /**
-     * Puts an image in the page.
-     * The upper-left corner must be given.
-     * The dimensions can be specified in different ways:<ul>
-     * <li>explicit width and height (expressed in user unit)</li>
-     * <li>one explicit dimension, the other being calculated automatically in order to keep the original proportions</li>
-     * <li>no explicit dimension, in which case the image is put at 72 dpi</li></ul>
-     * Supported formats are JPEG and PNG images whitout GD library and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;
-     * The format can be specified explicitly or inferred from the file extension.<br />
-     * It is possible to put a link on the image.<br />
-     * Remark: if an image is used several times, only one copy will be embedded in the file.<br />
-     * @param string     $file      Name of the file containing the image or a '@' character followed by the image data string. To link an image without embedding it on the document, set an asterisk character before the URL (i.e.: '*http://www.example.com/image.jpg').
-     * @param float|null $x         Abscissa of the upper-left corner.
-     * @param float|null $y         Ordinate of the upper-left corner.
-     * @param float      $w         Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param float      $h         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param string     $type      Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
-     * @param mixed      $link      URL or identifier returned by AddLink().
-     * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
-     * @param mixed      $resize    If true resize (reduce) the image to fit $w and $h (requires GD or ImageMagick library); if false do not resize; if 2 force resize in all cases (upscaling and downscaling).
-     * @param int        $dpi       dot-per-inch resolution used on resize
-     * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
-     * @param bool       $ismask    true if this image is a mask, false otherwise
-     * @param mixed      $imgmask   image object returned by this function or false
-     * @param mixed      $border    Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
-     * @param mixed      $fitbox    If not false scale image dimensions proportionally to fit within the ($w, $h) box. $fitbox can be true or a 2 characters string indicating the image alignment inside the box. The first character indicate the horizontal alignment (L = left, C = center, R = right) the second character indicate the vertical algnment (T = top, M = middle, B = bottom).
-     * @param bool       $hidden    If true do not display the image.
-     * @param bool       $fitonpage If true the image is resized to not exceed page dimensions.
-     * @param bool       $alt       If true the image will be added as alternative and not directly printed (the ID of the image will be returned).
-     * @param array      $altimgs   Array of alternate images IDs. Each alternative image must be an array with two values: an integer representing the image ID (the value returned by the Image method) and a bool value to indicate if the image is the default for printing.
-     * @return mixed|false image information
-     */
-    public function Image($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = [])
-    {
-        if ($this->state !== self::READY) {
-            return false;
-        }
-        if (is_null($x)) {
-            $x = $this->x;
-        }
-        if (is_null($y)) {
-            $y = $this->y;
-        }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        $exurl  = ''; // external streams
-        $imsize = false;
-
-        // Make sure the file variable is not empty or null because accessing $file[0] later
-        // results in error when running PHP 7.4
-        if (empty($file)) {
-            return false;
-        }
-        // check if we are passing an image as file or string
-        if ($file[0] === '@') {
-            // image from string
-            $imgdata = substr($file, 1);
-        }
-        else { // image file
-            if ($file[0] === '*') {
-                // image as external stream
-                $file  = substr($file, 1);
-                $exurl = $file;
-            }
-            // check if file exist and it is valid
-            if (!@$this->fileExists($file)) {
-                return false;
-            }
-            if ($info = $this->imageBuffer($file)) {
-                $imsize = [$info['w'], $info['h']];
-            }
-            elseif (($imsize = @getimagesize($file)) === false && strpos($file, '__organizer_' . $this->fileID . '_img') === false) {
-                $imgdata = $this->getCachedFileContents($file);
-            }
-        }
-        if (!empty($imgdata)) {
-            // copy image to cache
-            $original_file = $file;
-            $file          = $this->getObjFilename('img', $this->fileID);
-            $fp            = $this->openLocal($file, 'w');
-            if (!$fp) {
-                $this->Error('Unable to write file: ' . $file);
-            }
-            fwrite($fp, $imgdata);
-            fclose($fp);
-            unset($imgdata);
-            $imsize = @getimagesize($file);
-            if ($imsize === false) {
-                unlink($file);
-                $file = $original_file;
-            }
-        }
-        if ($imsize === false) {
-            if (($w > 0) and ($h > 0)) {
-                // get measures from specified data
-                $pw     = $this->fontSizeToUnits($w, 0, $this->unit, true) * $this->imageFactor * $this->factor;
-                $ph     = $this->fontSizeToUnits($h, 0, $this->unit, true) * $this->imageFactor * $this->factor;
-                $imsize = [$pw, $ph];
-            }
-            else {
-                $this->Error('[Image] Unable to get the size of the image: ' . $file);
-            }
-        }
-        // file hash
-        $filehash = md5($file);
-        // get original image width and height in pixels
-        list($pixw, $pixh) = $imsize;
-        // calculate image width and height on document
-        if (($w <= 0) and ($h <= 0)) {
-            // convert image size to document unit
-            $w = $this->pixelsToUnits($pixw);
-            $h = $this->pixelsToUnits($pixh);
-        }
-        elseif ($w <= 0) {
-            $w = $h * $pixw / $pixh;
-        }
-        elseif ($h <= 0) {
-            $h = $w * $pixh / $pixw;
-        }
-        elseif (($fitbox !== false) and ($w > 0) and ($h > 0)) {
-            if (strlen($fitbox) !== 2) {
-                // set default alignment
-                $fitbox = '--';
-            }
-            // scale image dimensions proportionally to fit within the ($w, $h) box
-            if ((($w * $pixh) / ($h * $pixw)) < 1) {
-                // store current height
-                $oldh = $h;
-                // calculate new height
-                $h = $w * $pixh / $pixw;
-                // height difference
-                $hdiff = ($oldh - $h);
-                // vertical alignment
-                switch (strtoupper($fitbox[1])) {
-                    case 'T':
-                    {
-                        break;
-                    }
-                    case 'M':
-                    {
-                        $y += ($hdiff / 2);
-                        break;
-                    }
-                    case 'B':
-                    {
-                        $y += $hdiff;
-                        break;
-                    }
-                }
-            }
-            else {
-                // store current width
-                $oldw = $w;
-                // calculate new width
-                $w = $h * $pixw / $pixh;
-                // width difference
-                $wdiff = ($oldw - $w);
-                // horizontal alignment
-                switch (strtoupper($fitbox[0])) {
-                    case 'C':
-                        $x += ($wdiff / 2);
-                        break;
-                    case 'R':
-                        $x += $wdiff;
-                        break;
-                }
-            }
-        }
-        // fit the image on available space
-        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
-        // calculate new minimum dimensions in pixels
-        $neww = round($w * $this->factor * $dpi / self::DPI);
-        $newh = round($h * $this->factor * $dpi / self::DPI);
-        // check if resize is necessary (resize is used only to reduce the image)
-        $newsize = ($neww * $newh);
-        $pixsize = ($pixw * $pixh);
-        if (intval($resize) == 2) {
-            $resize = true;
-        }
-        elseif ($newsize >= $pixsize) {
-            $resize = false;
-        }
-        // check if image has been already added on document
-        $newimage = true;
-        if (in_array($file, $this->imageKeys)) {
-            $newimage = false;
-            // get existing image data
-            $info = $this->imageBuffer($file);
-            if (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false) {
-                // check if the newer image is larger
-                $oldsize = ($info['w'] * $info['h']);
-                if ((($oldsize < $newsize) and ($resize)) or (($oldsize < $pixsize) and (!$resize))) {
-                    $newimage = true;
-                }
-            }
-        }
-        elseif (($ismask === false) and ($imgmask === false) and (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false)) {
-            // create temp image file (without alpha channel)
-            $tempfile_plain = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_plain_' . $filehash;
-            // create temp alpha file
-            $tempfile_alpha = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_alpha_' . $filehash;
-            // check for cached images
-            if (in_array($tempfile_plain, $this->imageKeys)) {
-                // get existing image data
-                $info = $this->imageBuffer($tempfile_plain);
-                // check if the newer image is larger
-                $oldsize = ($info['w'] * $info['h']);
-                if ((($oldsize < $newsize) and ($resize)) or (($oldsize < $pixsize) and (!$resize))) {
-                    $newimage = true;
-                }
-                else {
-                    $newimage = false;
-                    // embed mask image
-                    $imgmask = $this->Image($tempfile_alpha, $x, $y, $w, $h, 'PNG', '', '', $resize, $dpi, '', true, false);
-                    // embed image, masked with previously embedded mask
-                    return $this->Image($tempfile_plain, $x, $y, $w, $h, $type, $link, $align, $resize, $dpi, $palign, false, $imgmask);
-                }
-            }
-        }
-        if ($newimage) {
-            //First use of image, get info
-            $type = strtolower($type);
-            if ($type == '') {
-                $type = $this->imageType($file, $imsize);
-            }
-            elseif ($type == 'jpg') {
-                $type = 'jpeg';
-            }
-            $mtd = 'parse' . $type;
-            // GD image handler function
-            $gdfunction = 'imagecreatefrom' . $type;
-            $info       = false;
-            if ((method_exists('THM\Organizer\Views\PDF\Library\Images', $mtd)) and (!($resize and (function_exists($gdfunction) or extension_loaded('imagick'))))) {
-                // TCPDF image functions
-                $info = $this->$mtd($file);
-                if (($ismask === false) and ($imgmask === false) and (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false)
-                    and (($info === 'alpha') or (isset($info['trns']) and !empty($info['trns'])))) {
-                    return $this->ImagePngAlpha($file, $x, $y, $pixw, $pixh, $w, $h, 'PNG', $link, $align, $resize, $dpi, $palign, $filehash);
-                }
-            }
-            if (($info === false) and function_exists($gdfunction)) {
-                try {
-                    // GD library
-                    $img = $gdfunction($file);
-                    if ($img !== false) {
-                        if ($resize) {
-                            $imgr = imagecreatetruecolor($neww, $newh);
-                            if (($type == 'gif') or ($type == 'png')) {
-                                $imgr = $this->imageTransparency($imgr, $img);
-                            }
-                            imagecopyresampled($imgr, $img, 0, 0, 0, 0, $neww, $newh, $pixw, $pixh);
-                            $img = $imgr;
-                        }
-                        if (($type == 'gif') or ($type == 'png')) {
-                            $info = $this->png($img, $this->getObjFilename('img', $this->fileID));
-                        }
-                        else {
-                            $info = $this->jpeg($img, $this->jpeg_quality, $this->getObjFilename('img', $this->fileID));
-                        }
-                    }
-                } catch (Exception $e) {
-                    $info = false;
-                }
-            }
-            if (($info === false) and extension_loaded('imagick')) {
-                try {
-                    // ImageMagick library
-                    $img = new Imagick();
-                    if ($type == 'svg') {
-                        if ($file[0] === '@') {
-                            // image from string
-                            $svgimg = substr($file, 1);
-                        }
-                        else {
-                            // get SVG file content
-                            $svgimg = $this->getCachedFileContents($file);
-                        }
-                        if ($svgimg !== false) {
-                            // get width and height
-                            $regs = [];
-                            if (preg_match('/<svg([^\>]*)>/si', $svgimg, $regs)) {
-                                $svgtag = $regs[1];
-                                $tmp    = [];
-                                if (preg_match('/[\s]+width[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
-                                    $ow     = $this->fontSizeToUnits($tmp[1]);
-                                    $owu    = sprintf('%F', ($ow * $dpi / 72)) . $this->unit;
-                                    $svgtag = preg_replace('/[\s]+width[\s]*=[\s]*"[^"]*"/si', ' width="' . $owu . '"', $svgtag, 1);
-                                }
-                                else {
-                                    $ow = $w;
-                                }
-                                $tmp = [];
-                                if (preg_match('/[\s]+height[\s]*=[\s]*"([^"]*)"/si', $svgtag, $tmp)) {
-                                    $oh     = $this->fontSizeToUnits($tmp[1]);
-                                    $ohu    = sprintf('%F', ($oh * $dpi / 72)) . $this->unit;
-                                    $svgtag = preg_replace('/[\s]+height[\s]*=[\s]*"[^"]*"/si', ' height="' . $ohu . '"', $svgtag, 1);
-                                }
-                                else {
-                                    $oh = $h;
-                                }
-                                $tmp = [];
-                                if (!preg_match('/[\s]+viewBox[\s]*=[\s]*"[\s]*([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]+([0-9\.]+)[\s]*"/si', $svgtag, $tmp)) {
-                                    $vbw    = ($ow * $this->imageFactor * $this->factor);
-                                    $vbh    = ($oh * $this->imageFactor * $this->factor);
-                                    $vbox   = sprintf(' viewBox="0 0 %F %F" ', $vbw, $vbh);
-                                    $svgtag = $vbox . $svgtag;
-                                }
-                                $svgimg = preg_replace('/<svg([^\>]*)>/si', '<svg' . $svgtag . '>', $svgimg, 1);
-                            }
-                            $img->readImageBlob($svgimg);
-                        }
-                    }
-                    else {
-                        $img->readImage($file);
-                    }
-                    if ($resize) {
-                        $img->resizeImage($neww, $newh, 10, 1, false);
-                    }
-                    $img->setCompressionQuality($this->jpeg_quality);
-                    $img->setImageFormat('jpeg');
-                    $tempname = $this->getObjFilename('img', $this->fileID);
-                    $img->writeImage($tempname);
-                    $info = $this->parseJPEG($tempname);
-                    unlink($tempname);
-                    $img->destroy();
-                } catch (Exception $e) {
-                    $info = false;
-                }
-            }
-            if ($info === false) {
-                // unable to process image
-                return false;
-            }
-            if ($ismask) {
-                // force grayscale
-                $info['cs'] = 'DeviceGray';
-            }
-            if ($imgmask !== false) {
-                $info['masked'] = $imgmask;
-            }
-            if (!empty($exurl)) {
-                $info['exurl'] = $exurl;
-            }
-            // array of alternative images
-            $info['altimgs'] = $altimgs;
-            // add image to document
-            $info['i'] = $this->imageBuffer($file, $info)['i'];
-        }
-        // set alignment
-        $this->imageRBX = $x + $w;
-        $this->imageRBY = $y + $h;
-
-        // set alignment
-        if ($palign == 'L') {
-            $ximg = $this->leftMargin;
-        }
-        elseif ($palign == 'C') {
-            $ximg = ($this->width + $this->leftMargin - $this->rightMargin - $w) / 2;
-        }
-        elseif ($palign == 'R') {
-            $ximg = $this->width - $this->rightMargin - $w;
-        }
-        else {
-            $ximg = $x;
-        }
-
-        if ($ismask or $hidden) {
-            // image is not displayed
-            return $info['i'];
-        }
-        $xkimg = $ximg * $this->factor;
-        if (!$alt) {
-            // only non-alternative images will be set
-            $this->append(sprintf('q %F 0 0 %F %F %F cm /I%u Do Q', ($w * $this->factor), ($h * $this->factor), $xkimg, (($this->height - ($y + $h)) * $this->factor), $info['i']));
-        }
-        if (!empty($border)) {
-            $bx      = $this->x;
-            $by      = $this->y;
-            $this->x = $ximg;
-            $this->y = $y;
-            $this->Cell($w, $h, '', $border, 0, '', 0, '', 0, true);
-            $this->x = $bx;
-            $this->y = $by;
-        }
-        if ($link) {
-            $this->Link($ximg, $y, $w, $h, $link, 0);
-        }
-        // set pointer to align the next text/objects
-        switch ($align) {
-            case 'T':
-            {
-                $this->y = $y;
-                $this->x = $this->imageRBX;
-                break;
-            }
-            case 'M':
-            {
-                $this->y = $y + round($h / 2);
-                $this->x = $this->imageRBX;
-                break;
-            }
-            case 'B':
-            {
-                $this->y = $this->imageRBY;
-                $this->x = $this->imageRBX;
-                break;
-            }
-            case 'N':
-            {
-                $this->y($this->imageRBY);
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
-        $this->endlinex = $this->imageRBX;
-        if ($this->inXObject) {
-            // we are inside an XObject template
-            $this->xObjects[$this->xObjectID]['images'][] = $info['i'];
-        }
-        return $info['i'];
-    }
-
-    /**
      * Embed vector-based Adobe Illustrator (AI) or AI-compatible EPS files.
      * NOTE: EPS is not yet fully implemented, use the setRasterizeVectorImages() method to enable/disable rasterization of vector images using ImageMagick library.
      * Only vector drawing is supported, not text or bitmap.
@@ -1251,7 +1273,7 @@ trait Images
         }
         if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
             // convert EPS to raster image using GD or ImageMagick libraries
-            return $this->Image($file, $x, $y, $w, $h, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
+            return $this->image($file, $x, $y, $w, $h, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
         }
         if (empty($x)) {
             $x = $this->x;
@@ -1327,7 +1349,7 @@ trait Images
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
         if ($this->rasterize_vector_images) {
             // convert EPS to raster image using GD or ImageMagick libraries
-            return $this->Image($file, $x, $y, $w, $h, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
+            return $this->image($file, $x, $y, $w, $h, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
         }
         // set scaling factors
         $scale_x = $w / (($x2 - $x1) / $k);
@@ -1584,7 +1606,7 @@ trait Images
      * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param string $filehash File hash used to build unique file names.
      * @author Nicola Asuni
-     * @see    Image()
+     * @see    image()
      */
     protected function ImagePngAlpha($file, $x, $y, $wpx, $hpx, $w, $h, $type, $link, $align, $resize, $dpi, $palign, $filehash = '')
     {
@@ -1672,9 +1694,9 @@ trait Images
             }
         }
         // embed mask image
-        $imgmask = $this->Image($tempfile_alpha, $x, $y, $w, $h, 'PNG', '', '', $resize, $dpi, '', true, false);
+        $imgmask = $this->image($tempfile_alpha, $x, $y, $w, $h, 'PNG', '', '', $resize, $dpi, '', true, false);
         // embed image, masked with previously embedded mask
-        $this->Image($tempfile_plain, $x, $y, $w, $h, $type, $link, $align, $resize, $dpi, $palign, false, $imgmask);
+        $this->image($tempfile_plain, $x, $y, $w, $h, $type, $link, $align, $resize, $dpi, $palign, false, $imgmask);
     }
 
     /**
@@ -1710,7 +1732,7 @@ trait Images
         $this->svgtextmode   = [];
         if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
             // convert SVG to raster image using GD or ImageMagick libraries
-            return $this->Image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
+            return $this->image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
         }
         if ($file[0] === '@') { // image from string
             $this->svgdir = '';
@@ -1818,7 +1840,7 @@ trait Images
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
         if ($this->rasterize_vector_images) {
             // convert SVG to raster image using GD or ImageMagick libraries
-            return $this->Image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
+            return $this->image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
         }
         // set alignment
         $this->imageRBY = $y + $h;
@@ -3201,7 +3223,7 @@ trait Images
                         $this->svgtextmode   = $svgtextmode;
                     }
                     else {
-                        $this->Image($img, $x, $y, $w, $h);
+                        $this->image($img, $x, $y, $w, $h);
                     }
                     $this->endTransformation();
                 }

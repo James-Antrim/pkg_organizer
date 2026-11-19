@@ -556,7 +556,7 @@ trait Geometry
                 $draw = false;
                 if ($op === self::BOLD) {
                     // draw fill
-                    $op = 'f';
+                    $op = self::FILL;
                     $this->point($values[0], $values[1]);
                     for ($i = 2; $i < $valueCount; $i = $i + 2) {
                         $this->appendLine($values[$i], $values[$i + 1]);
@@ -653,8 +653,9 @@ trait Geometry
             // Remove stroke operator from style so that borders won't be drawn implicitly
             else {
                 $strokelessStyles = [
-                    'S' => '', 'D' => '', 's' => '', 'd' => '', 'B' => 'F', 'FD' => 'F', 'DF' => 'F', 'B*' => 'F*', 'F*D' => 'F*', 'DF*' => 'F*',
-                    'b' => 'f', 'fd' => 'f', 'df' => 'f', 'b*' => 'f*', 'f*d' => 'f*', 'df*' => 'f*'
+                    'S'   => self::REGULAR, 'D' => self::REGULAR, 's' => self::REGULAR, 'd' => self::REGULAR, 'B' => 'F', 'FD' => 'F', 'DF' => 'F',
+                    'B*'  => 'F*', 'F*D' => 'F*', 'DF*' => 'F*', 'b' => self::FILL, 'fd' => self::FILL, 'df' => self::FILL, 'b*' => 'f*',
+                    'f*d' => 'f*', 'df*' => 'f*'
                 ];
                 if (isset($strokelessStyles[$style])) {
                     $style = $strokelessStyles[$style];

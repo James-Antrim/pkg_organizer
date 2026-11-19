@@ -1931,7 +1931,7 @@ class PDF
     /**
      * Creates a new internal link and returns its identifier. An internal link is a clickable area which directs to another place within the document.<br />
      * The identifier can then be passed to Cell(), Write(), Image() or Link(). The destination is defined with SetLink().
-     * @see   Cell(), Write(), Image(), Link(), SetLink()
+     * @see   Cell(), Write(), image(), Link(), SetLink()
      */
     public function AddLink()
     {
@@ -1974,7 +1974,7 @@ class PDF
      * @param float $h      Height of the rectangle
      * @param mixed $link   URL or identifier returned by AddLink()
      * @param int   $spaces number of spaces on the text to link
-     * @see   AddLink(), Annotation(), Cell(), Write(), Image()
+     * @see   AddLink(), Annotation(), Cell(), Write(), image()
      */
     public function Link($x, $y, $w, $h, $link, $spaces = 0)
     {
@@ -2066,13 +2066,13 @@ class PDF
         }
         // Add widgets annotation's icons
         if (isset($opt['mk']['i']) and @file_exists($opt['mk']['i'])) {
-            $this->Image($opt['mk']['i'], null, null, 10, 10, '', '', '', false, 300, '', false, false, 0, false, true);
+            $this->image($opt['mk']['i'], null, null, 10, 10, '', '', '', false, 300, '', false, false, 0, false, true);
         }
         if (isset($opt['mk']['ri']) and @file_exists($opt['mk']['ri'])) {
-            $this->Image($opt['mk']['ri'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
+            $this->image($opt['mk']['ri'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
         if (isset($opt['mk']['ix']) and @file_exists($opt['mk']['ix'])) {
-            $this->Image($opt['mk']['ix'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
+            $this->image($opt['mk']['ix'], null, null, 0, 0, '', '', '', false, 300, '', false, false, 0, false, true);
         }
     }
 
@@ -5356,17 +5356,6 @@ class PDF
         $opt['ft']      = 'Tx';
         $opt['t']       = $name;
         // Additional annotation's parameters (check _putannotsobj() method):
-        //$opt['f']
-        //$opt['as']
-        //$opt['bs']
-        //$opt['be']
-        //$opt['c']
-        //$opt['border']
-        //$opt['h']
-        //$opt['mk'];
-        //$opt['mk']['r']
-        //$opt['mk']['bc'];
-        //$opt['mk']['bg'];
         unset($opt['mk']['ca']);
         unset($opt['mk']['rc']);
         unset($opt['mk']['ac']);
@@ -6140,14 +6129,14 @@ class PDF
 
     /**
      * Add transparency parameters to the current extgstate
-     * @param array $parms parameters
+     * @param array $parameters parameters
      * @return int|void the number of extgstates
      */
-    protected function addExtGState($parms)
+    protected function addExtGState($parameters)
     {
         // check if this ExtGState already exist
         foreach ($this->extgstates as $i => $ext) {
-            if ($ext['parms'] == $parms) {
+            if ($ext['parameters'] == $parameters) {
                 if ($this->inXObject) {
                     // we are inside an XObject template
                     $this->xObjects[$this->xObjectID]['extgstates'][$i] = $ext;
@@ -6157,7 +6146,7 @@ class PDF
             }
         }
         $n                    = (count($this->extgstates) + 1);
-        $this->extgstates[$n] = ['parms' => $parms];
+        $this->extgstates[$n] = ['parameters' => $parameters];
         if ($this->inXObject) {
             // we are inside an XObject template
             $this->xObjects[$this->xObjectID]['extgstates'][$n] = $this->extgstates[$n];
@@ -6186,7 +6175,7 @@ class PDF
         foreach ($this->extgstates as $i => $ext) {
             $this->extgstates[$i]['n'] = $this->appendObject();
             $out                       = '<< /Type /ExtGState';
-            foreach ($ext['parms'] as $k => $v) {
+            foreach ($ext['parameters'] as $k => $v) {
                 if (is_float($v)) {
                     $v = sprintf('%F', $v);
                 }

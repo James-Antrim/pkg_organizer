@@ -443,7 +443,7 @@ trait Cells
         }
         if ($fill or ($border == 1)) {
             if ($fill) {
-                $op = ($border == 1) ? 'B' : 'f';
+                $op = ($border == 1) ? self::BOLD : self::FILL;
             }
             else {
                 $op = 'S';

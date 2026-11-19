@@ -322,7 +322,7 @@ trait WebTools
                     }
                     default:
                     {
-                        $this->Image($img[4], $this->x, ($this->y + (($this->lastPrintedCellHeight - $img[3]) / 2)), $img[2], $img[3], $img[1], '', 'T', false, 300, '', false, false, 0, false, false, false);
+                        $this->image($img[4], $this->x, ($this->y + (($this->lastPrintedCellHeight - $img[3]) / 2)), $img[2], $img[3], $img[1], '', 'T', false, 300, '', false, false, 0, false, false, false);
                         break;
                     }
                 }
@@ -2193,7 +2193,7 @@ trait WebTools
                     $this->ImageSVG($imgsrc, $xpos, $this->y, $iw, $ih, $imglink, $align, '', $border, true);
                 }
                 else {
-                    $this->Image($imgsrc, $xpos, $this->y, $iw, $ih, '', $imglink, $align, false, 300, '', false, false, $border, false, false, true);
+                    $this->image($imgsrc, $xpos, $this->y, $iw, $ih, '', $imglink, $align, false, 300, '', false, false, $border, false, false, true);
                 }
                 switch ($align) {
                     case 'T':

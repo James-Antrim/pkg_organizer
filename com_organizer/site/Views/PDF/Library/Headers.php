@@ -154,7 +154,7 @@ trait Headers
                     $this->ImageSVG(self::IMAGE_PATH . $configuration['logo'], null, null, $configuration['logoWidth']);
                 }
                 else {
-                    $this->Image(self::IMAGE_PATH . $configuration['logo'], null, null, $configuration['logoWidth']);
+                    $this->image(self::IMAGE_PATH . $configuration['logo'], null, null, $configuration['logoWidth']);
                 }
 
                 $imageY = $this->imageRBY;
