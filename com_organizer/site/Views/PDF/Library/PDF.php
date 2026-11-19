@@ -1003,7 +1003,7 @@ class PDF
     /**
      * Array of SVG properties.
      */
-    protected $svgstyles = array([
+    protected $svgstyles = [
         'alignment-baseline'           => 'auto',
         'baseline-shift'               => 'baseline',
         'clip'                         => 'auto',
@@ -1067,7 +1067,7 @@ class PDF
         'writing-mode'                 => 'lr-tb',
         'text-color'                   => 'black',
         'transfmatrix'                 => [1, 0, 0, 1, 0, 0]
-    ]);
+    ];
 
     /**
      * Custom XMP data.
