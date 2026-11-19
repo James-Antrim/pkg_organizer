@@ -107,7 +107,7 @@ abstract class BaseView extends PDF implements ViewInterface
                                int    $size = self::CURRENT_SIZE,
                                string $family = self::CURRENT_FAMILY): void
     {
-        $this->setCurrentFont($family, $style, $size);
+        $this->font($family, $style, $size);
     }
 
     /** @inheritDoc */
@@ -215,7 +215,7 @@ abstract class BaseView extends PDF implements ViewInterface
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
-     * @see   Cell(), drawColor(),fillColor(), setCurrentFont(), textColor(), lineWidth(), autoPageBreak(), Write()
+     * @see   Cell(), drawColor(),fillColor(), font(), textColor(), lineWidth(), autoPageBreak(), Write()
      */
     public function renderMultiCell(
         int    $width,

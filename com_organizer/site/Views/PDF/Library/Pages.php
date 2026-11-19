@@ -12,6 +12,8 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
+use THM\Organizer\Views\PDF\Library\Pages\Headers;
+
 trait Pages
 {
     use Headers;

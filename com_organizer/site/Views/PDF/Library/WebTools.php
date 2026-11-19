@@ -78,14 +78,14 @@ trait WebTools
             $this->textColorArray($color);
         }
         if ($style == -1) {
-            $this->setCurrentFont('', $this->fontStyle . $this->linkStyle);
+            $this->font('', $this->fontStyle . $this->linkStyle);
         }
         else {
-            $this->setCurrentFont('', $this->fontStyle . $style);
+            $this->font('', $this->fontStyle . $style);
         }
         $ret = $this->Write($this->lastPrintedCellHeight, $name, $url, $fill, '', false, 0, $firstline, $firstblock, 0);
         // restore settings
-        $this->setCurrentFont('', $prevstyle);
+        $this->font('', $prevstyle);
         $this->textColorArray($prevcolor);
         return $ret;
     }
@@ -121,12 +121,12 @@ trait WebTools
             $dom = $this->getHtmlDomArray($html);
             foreach ($dom as $key => $value) {
                 if ($value['value'] == '#TOC_PAGE_NUMBER#') {
-                    $this->setCurrentFont($dom[($key - 1)]['fontname']);
+                    $this->font($dom[($key - 1)]['fontname']);
                     $templates['F' . $level] = false;
                 }
             }
         }
-        $this->setCurrentFont($current_font);
+        $this->font($current_font);
         $maxpage = 0; //used for pages on attached documents
         foreach ($this->outlines as $key => $outline) {
             // get HTML template
@@ -855,7 +855,7 @@ trait WebTools
                             $this->cellHeightRatio = $dom[$key]['line-height'];
                             $fontaligned           = true;
                         }
-                        $this->setCurrentFont($fontname, $fontstyle, $fontsize);
+                        $this->font($fontname, $fontstyle, $fontsize);
                         // reset row height
                         $this->resetLastH();
                         $curfontname    = $fontname;
@@ -1278,7 +1278,7 @@ trait WebTools
                 if (!($dom[$key]['tag'] and !$dom[$key]['opening'] and ($dom[$key]['value'] == 'table')
                     and (isset($this->emptypagemrk[$this->page]))
                     and ($this->emptypagemrk[$this->page] == $this->pageLengths[$this->page]))) {
-                    $this->setCurrentFont($fontname, $fontstyle, $fontsize);
+                    $this->font($fontname, $fontstyle, $fontsize);
                     if ($wfill) {
                         $this->fillColorArray($this->bgColor);
                     }
@@ -1590,14 +1590,14 @@ trait WebTools
             elseif (strlen($dom[$key]['value']) > 0) {
                 // print list-item
                 if (!StaticMethods::empty_string($this->lispacer) and ($this->lispacer != '^')) {
-                    $this->setCurrentFont($pfontname, $pfontstyle, $pfontsize);
+                    $this->font($pfontname, $pfontstyle, $pfontsize);
                     $this->resetLastH();
                     $minstartliney  = $this->y;
                     $maxbottomliney = ($startliney + $this->getCellHeight($this->fontSize));
                     if (is_numeric($pfontsize) and ($pfontsize > 0)) {
                         $this->putHtmlListBullet($this->listnum, $this->lispacer, $pfontsize);
                     }
-                    $this->setCurrentFont($curfontname, $curfontstyle, $curfontsize);
+                    $this->font($curfontname, $curfontstyle, $curfontsize);
                     $this->resetLastH();
                     if (is_numeric($pfontsize) and ($pfontsize > 0) and is_numeric($curfontsize) and ($curfontsize > 0) and ($pfontsize != $curfontsize)) {
                         $pfontascent    = $this->getFontAscent($pfontname, $pfontstyle, $pfontsize);
@@ -2337,12 +2337,12 @@ trait WebTools
             }
             case 'sup':
             {
-                $this->setXY($this->x(), $this->y() - ((0.7 * $this->fontSizePT) / $this->factor));
+                $this->xy($this->x(), $this->y() - ((0.7 * $this->fontSizePT) / $this->factor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->x(), $this->y() + ((0.3 * $this->fontSizePT) / $this->factor));
+                $this->xy($this->x(), $this->y() + ((0.3 * $this->fontSizePT) / $this->factor));
                 break;
             }
             case 'h1':
@@ -3097,12 +3097,12 @@ trait WebTools
             }
             case 'sup':
             {
-                $this->setXY($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / $this->factor));
+                $this->xy($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / $this->factor));
                 break;
             }
             case 'sub':
             {
-                $this->setXY($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / $this->factor));
+                $this->xy($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / $this->factor));
                 break;
             }
             case 'div':

@@ -10,7 +10,7 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library;
+namespace THM\Organizer\Views\PDF\Library\Pages;
 
 trait Headers
 {
@@ -128,8 +128,8 @@ trait Headers
 
         $this->cellPadding(0);
 
-        $this->setXY($this->originalLeftMargin, $this->headerMargin);
-        $this->setCurrentFont($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
+        $this->xy($this->originalLeftMargin, $this->headerMargin);
+        $this->font($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
 
         if (!$this->headerXObjectID) {
             // start a new XObject Template
@@ -168,12 +168,12 @@ trait Headers
             $this->textColorArray($this->headerTextColor);
 
             // Title
-            $this->setCurrentFont($font[0], 'B', $font[2] + 1);
+            $this->font($font[0], 'B', $font[2] + 1);
             $this->x($header_x);
             $this->Cell($cw, $cellHeight, $configuration['title'], 0, 1, '', 0);
 
             // Subtitle
-            $this->setCurrentFont($font[0], $font[1], $font[2]);
+            $this->font($font[0], $font[1], $font[2]);
             $this->x($header_x);
             $this->MultiCell($cw, $cellHeight, $configuration['subtitle'], 0, '', 0, 1, '', '');
 
@@ -197,7 +197,7 @@ trait Headers
             $this->headerXObjectID = '';
         }
 
-        $this->setXY($this->originalLeftMargin, $this->topMargin);
+        $this->xy($this->originalLeftMargin, $this->topMargin);
         $this->appendRestoreGraphicsState();
         $this->lastPrintedCellHeight = $lastHeight;
         $this->headerTemplate        = $template;

@@ -70,6 +70,36 @@ trait Fonts
     protected bool $isUnicode = true;
 
     /**
+     * Sets the current font used to print character strings.
+     * @param string     $family
+     * @param string     $style
+     * @param float|null $size   points, default current
+     * @param string     $file
+     * @param mixed      $subset if true embed only a subset of the font (stores only the information related to the used characters); if false embed full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
+     * @param bool       $append appends the command to the document, defaults to true
+     * @see    self::CORE_FONTS, AddFont(), self::FONT_STYLES, fontSize()
+     */
+    public function font(string $family, string $style = self::REGULAR, float|null $size = null, string $file = '', bool|string $subset = 'default', bool $append = true): void
+    {
+        $size = $size === null ? $this->fontSizePT : $size;
+        $size = max($size, 0);
+
+        // try to add font (if not already added)
+        $font = $this->AddFont($family, $style, $file, $subset);
+
+        $this->fontFamily = $font['family'];
+        $this->fontStyle  = $font['style'];
+
+        if (isset($this->currentFont['fontKey']) and isset($this->currentFont['subsetCharacters'])) {
+            // save subset chars of the previous font
+            $this->fontSubBuffer($this->currentFont['fontKey'], 'subsetCharacters', $this->currentFont['subsetCharacters']);
+        }
+
+        $this->currentFont = $this->fontBuffer($font['fontKey']);
+        $this->fontSize($size, $append);
+    }
+
+    /**
      * Getter / setter for font buffer content
      * @param string     $font font key
      * @param array|null $data font data
@@ -293,36 +323,6 @@ trait Fonts
             }
             closedir($fonts);
         }
-    }
-
-    /**
-     * Sets the current font used to print character strings.
-     * @param string     $family
-     * @param string     $style
-     * @param float|null $size   points, default current
-     * @param string     $file
-     * @param mixed      $subset if true embed only a subset of the font (stores only the information related to the used characters); if false embed full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
-     * @param bool       $append appends the command to the document, defaults to true
-     * @see    self::CORE_FONTS, AddFont(), self::FONT_STYLES, fontSize()
-     */
-    public function setCurrentFont(string $family, string $style = self::REGULAR, float|null $size = null, string $file = '', bool|string $subset = 'default', bool $append = true): void
-    {
-        $size = $size === null ? $this->fontSizePT : $size;
-        $size = max($size, 0);
-
-        // try to add font (if not already added)
-        $font = $this->AddFont($family, $style, $file, $subset);
-
-        $this->fontFamily = $font['family'];
-        $this->fontStyle  = $font['style'];
-
-        if (isset($this->currentFont['fontKey']) and isset($this->currentFont['subsetCharacters'])) {
-            // save subset chars of the previous font
-            $this->fontSubBuffer($this->currentFont['fontKey'], 'subsetCharacters', $this->currentFont['subsetCharacters']);
-        }
-
-        $this->currentFont = $this->fontBuffer($font['fontKey']);
-        $this->fontSize($size, $append);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
@@ -2486,7 +2486,7 @@ trait Fonts
      * @param string $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
      * @param mixed  $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
      * @return array|false array containing the font data, or false in case of error.
-     * @see   setCurrentFont(), setFontSubsetting()
+     * @see   font(), setFontSubsetting()
      */
     public function AddFont($family, $style = '', $fontfile = '', $subset = 'default')
     {

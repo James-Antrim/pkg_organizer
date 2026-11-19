@@ -68,13 +68,13 @@ class Booking extends ListView
             $this->x($this->originalLeftMargin);
 
             $pageFont = $this->getFontFamily();
-            $this->setCurrentFont('zapfdingbats');
+            $this->font('zapfdingbats');
             $this->renderCell(3, 0, $this->unicodeCharacter(51), self::LEFT, self::TOP);
-            $this->setCurrentFont($pageFont);
+            $this->font($pageFont);
             $this->renderCell(25, 0, Text::_('CHECKED_IN'), self::LEFT, self::TOP);
-            $this->setCurrentFont('zapfdingbats');
+            $this->font('zapfdingbats');
             $this->renderCell(3, 0, $this->unicodeCharacter(46), self::LEFT, self::TOP);
-            $this->setCurrentFont($pageFont);
+            $this->font($pageFont);
             $this->renderCell(25, 0, Text::_('REGISTERED'), self::LEFT, self::TOP);
 
             $pnText = $this->pageNumberAlias() . ' / ' . $this->totalPagesAlias();

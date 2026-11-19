@@ -66,8 +66,11 @@ class PDF
     protected int $state = self::INITIAL;
     protected bool $underline = false;
     protected string $unit = self::MILLIMETER;
+    protected float $x = 0;
     protected string $xObjectID = '';
     protected array $xObjects = [];
+    protected float $y = 0;
+
 
     /**
      * Constructor.
@@ -98,7 +101,7 @@ class PDF
         $this->setMargins($margin, $margin);
         $this->setTextShadow();
 
-        $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
+        $this->font($this->fontFamily, $this->fontStyle, $this->fontSizePT);
 
         $this->cellLeftMargin        = $this->leftMargin;
         $this->cellRightMargin       = $this->rightMargin;
@@ -296,6 +299,56 @@ class PDF
         $this->matrix[$this->matrixKey] = [];
     }
 
+    /**
+     * Defines the abscissa of the current position. If the passed value is negative, it is set relative to the right of the page.
+     * @param float|null $x abscissa value in user units
+     * @see   y(), xy()
+     */
+    public function x(float|null $x = null): float
+    {
+        if (is_float($x)) {
+            $this->x = $x >= 0 ? $x : $this->width + $x;
+            $this->x = max($this->x, 0);
+            $this->x = min($this->x, $this->width);
+        }
+
+        return $this->x;
+    }
+
+    /**
+     * Defines the abscissa and ordinate of the current position.
+     * If the passed values are negative, they are relative respectively to the right and bottom of the page.
+     * @param float $x abscissa value in user units
+     * @param float $y ordinate value in user units
+     * @see   x(), y()
+     */
+    public function xy(float $x, float $y): array
+    {
+        $this->y($y, false);
+        $this->x($x);
+
+        return [$this->x, $this->y];
+    }
+
+    /**
+     * Moves the current abscissa back to the left margin and sets the ordinate. If the passed value is negative, it is relative to the bottom of the page.
+     * @param float|null $y      ordinate value in user units
+     * @param bool       $resetX whether to reset the abscissa
+     * @return float
+     * @see   x(), xy()
+     */
+    public function y(float|null $y = null, bool $resetX = true): float
+    {
+        if (is_float($y)) {
+            $this->x = $resetX ? $this->leftMargin : $this->x;
+            $this->y = $y >= 0 ? $y : $this->height + $y;
+            $this->y = max($this->y, 0);
+            $this->y = min($this->y, $this->height);
+        }
+
+        return $this->y;
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
     /**
@@ -359,7 +412,7 @@ class PDF
             }
             $this->append('' . $this->lineWidthStyle . ' ' . $this->lineCapStyle . ' ' . $this->lineJoinStyle . ' ' . $this->lineDashStyle . ' ' . $this->drawColor . ' ' . $this->fillColor . '');
             if ($this->fontFamily) {
-                $this->setCurrentFont($this->fontFamily, $this->fontStyle, $this->fontSizePT);
+                $this->font($this->fontFamily, $this->fontStyle, $this->fontSizePT);
             }
         }
 
@@ -416,63 +469,6 @@ class PDF
         ];
     }
 
-    /**
-     * Defines the abscissa of the current position.
-     * If the passed value is negative, it is relative to the right of the page.
-     * @param float|null $x The value of the abscissa in user units.
-     * @see   y(), SetXY()
-     */
-    public function x(float|null $x = null)
-    {
-        if (is_float($x)) {
-            if ($x >= 0) {
-                $this->x = $x;
-            }
-            else {
-                $this->x = $this->width + $x;
-            }
-            if ($this->x < 0) {
-                $this->x = 0;
-            }
-            if ($this->x > $this->width) {
-                $this->x = $this->width;
-            }
-        }
-
-        return $this->x;
-    }
-
-    /**
-     * Moves the current abscissa back to the left margin and sets the ordinate.
-     * If the passed value is negative, it is relative to the bottom of the page.
-     * @param float|null $y      The value of the ordinate in user units.
-     * @param bool       $resetx if true (default) reset the X position.
-     * @return float
-     * @see   x(), SetXY()
-     */
-    public function y(float|null $y = null, bool $resetx = true): float
-    {
-        if (is_float($y)) {
-            if ($resetx) {
-                //reset x
-                $this->x = $this->leftMargin;
-            }
-            if ($y >= 0) {
-                $this->y = $y;
-            }
-            else {
-                $this->y = $this->height + $y;
-            }
-            if ($this->y < 0) {
-                $this->y = 0;
-            }
-            if ($this->y > $this->height) {
-                $this->y = $this->height;
-            }
-        }
-
-        return $this->y;
-    }
 
     /**
      * Returns a temporary filename for caching object on filesystem.
@@ -489,19 +485,70 @@ class PDF
 
 
     /**
+     * True when we are printing the thead section on a new page.
+     */
+    protected bool $inthead = false;
+
+    /**
+     * This method is used to render the table header on new page (if any).
+     */
+    protected function setTableHeader()
+    {
+        if ($this->num_columns > 1) {
+            // multi column mode
+            return;
+        }
+        if (isset($this->headerTemplateMargins['top'])) {
+            // restore the original top-margin
+            $this->topMargin                         = $this->headerTemplateMargins['top'];
+            $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
+            $this->y                                 = $this->topMargin;
+        }
+        if ($this->headerTemplate and (!$this->inthead)) {
+            // set margins
+            $prev_lMargin       = $this->leftMargin;
+            $prev_rMargin       = $this->rightMargin;
+            $previousPaddings   = $this->cellPaddings;
+            $this->leftMargin   = $this->headerTemplateMargins['lmargin'] + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['olm']);
+            $this->rightMargin  = $this->headerTemplateMargins['rmargin'] + ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['orm']);
+            $this->cellPaddings = $this->headerTemplateMargins['cellPaddings'];
+            $this->x            = $this->leftMargin;
+            // account for special "cell" mode
+            if ($this->headerTemplateMargins['cell']) {
+                $this->x += $this->cellPaddings['L'];
+            }
+            $gvars = $this->graphicsConfiguration();
+            if (!empty($this->headerTemplateMargins['gvars'])) {
+                // set the correct graphic style
+                $this->graphicsConfiguration($this->headerTemplateMargins['gvars']);
+                $this->rightMargin = $gvars['rMargin'];
+                $this->leftMargin  = $gvars['lMargin'];
+            }
+            // print table header
+            $this->writeHTML($this->headerTemplate, false, false, false, false, '');
+            $this->graphicsConfiguration($gvars);
+            // set new top margin to skip the table headers
+            if (!isset($this->headerTemplateMargins['top'])) {
+                $this->headerTemplateMargins['top'] = $this->topMargin;
+            }
+            // store end of header position
+            if (!isset($this->columns[0]['th'])) {
+                $this->columns[0]['th'] = [];
+            }
+            $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
+            $this->topMargin                                   = $this->y;
+            $this->pageDimensions[$this->page]['tm']           = $this->topMargin;
+            $this->lastPrintedCellHeight                       = 0;
+            $this->leftMargin                                  = $prev_lMargin;
+            $this->rightMargin                                 = $prev_rMargin;
+            $this->cellPaddings                                = $previousPaddings;
+        }
+    }
+
+    /**
      * Array of object offsets.
      */
     protected $offsets = [];
-
-    /**
-     * Current horizontal position in user unit for cell positioning.
-     */
-    protected $x;
-
-    /**
-     * Current vertical position in user unit for cell positioning.
-     */
-    protected $y;
 
     /**
      * Array of used images.
@@ -803,11 +850,6 @@ class PDF
      * Store Y position when startTransaction() is called.
      */
     protected $start_transaction_y = 0;
-
-    /**
-     * True when we are printing the thead section on a new page.
-     */
-    protected $inthead = false;
 
     /**
      * Array of column measures (width, space, starting Y position).
@@ -1136,7 +1178,7 @@ class PDF
             $this->leftMargin = 0;
             $this->appendSaveGraphicsState();
             $font = self::DEFAULT_FONT;
-            $this->setCurrentFont($font, '', 1);
+            $this->font($font, '', 1);
             $this->setTextRenderingMode(0, false, false);
             $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
             $lnk = "\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67";
@@ -1717,11 +1759,11 @@ class PDF
             $this->cellPadding(0);
             //set current position
             $footer_y = $this->height - $this->footer_margin;
-            $this->setXY($this->originalLeftMargin, $footer_y);
-            $this->setCurrentFont($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
+            $this->xy($this->originalLeftMargin, $footer_y);
+            $this->font($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
             $this->Footer();
             //restore position
-            $this->setXY($this->originalLeftMargin, $this->topMargin);
+            $this->xy($this->originalLeftMargin, $this->topMargin);
             $this->appendRestoreGraphicsState();
             $this->lastPrintedCellHeight = $lasth;
             $this->headerTemplate        = $temp_thead;
@@ -1743,62 +1785,6 @@ class PDF
     protected function inPageBody()
     {
         return (($this->inHeader === false) and ($this->inFooter === false));
-    }
-
-    /**
-     * This method is used to render the table header on new page (if any).
-     */
-    protected function setTableHeader()
-    {
-        if ($this->num_columns > 1) {
-            // multi column mode
-            return;
-        }
-        if (isset($this->headerTemplateMargins['top'])) {
-            // restore the original top-margin
-            $this->topMargin                         = $this->headerTemplateMargins['top'];
-            $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
-            $this->y                                 = $this->topMargin;
-        }
-        if (!StaticMethods::empty_string($this->headerTemplate) and (!$this->inthead)) {
-            // set margins
-            $prev_lMargin       = $this->leftMargin;
-            $prev_rMargin       = $this->rightMargin;
-            $previousPaddings   = $this->cellPaddings;
-            $this->leftMargin   = $this->headerTemplateMargins['lmargin'] + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['olm']);
-            $this->rightMargin  = $this->headerTemplateMargins['rmargin'] + ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['orm']);
-            $this->cellPaddings = $this->headerTemplateMargins['cellPaddings'];
-            $this->x            = $this->leftMargin;
-            // account for special "cell" mode
-            if ($this->headerTemplateMargins['cell']) {
-                $this->x += $this->cellPaddings['L'];
-            }
-            $gvars = $this->graphicsConfiguration();
-            if (!empty($this->headerTemplateMargins['gvars'])) {
-                // set the correct graphic style
-                $this->graphicsConfiguration($this->headerTemplateMargins['gvars']);
-                $this->rightMargin = $gvars['rMargin'];
-                $this->leftMargin  = $gvars['lMargin'];
-            }
-            // print table header
-            $this->writeHTML($this->headerTemplate, false, false, false, false, '');
-            $this->graphicsConfiguration($gvars);
-            // set new top margin to skip the table headers
-            if (!isset($this->headerTemplateMargins['top'])) {
-                $this->headerTemplateMargins['top'] = $this->topMargin;
-            }
-            // store end of header position
-            if (!isset($this->columns[0]['th'])) {
-                $this->columns[0]['th'] = [];
-            }
-            $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
-            $this->topMargin                                   = $this->y;
-            $this->pageDimensions[$this->page]['tm']           = $this->topMargin;
-            $this->lastPrintedCellHeight                       = 0;
-            $this->leftMargin                                  = $prev_lMargin;
-            $this->rightMargin                                 = $prev_rMargin;
-            $this->cellPaddings                                = $previousPaddings;
-        }
     }
 
     /**
@@ -1843,7 +1829,7 @@ class PDF
             $previousFont   = $this->fontFamily;
             $previousStyle  = $this->fontStyle;
             $previousSizePT = $this->fontSizePT;
-            $this->setCurrentFont($fontname, $fontstyle, $fontsize, '', 'default', false);
+            $this->font($fontname, $fontstyle, $fontsize, '', 'default', false);
         }
         // convert UTF-8 array to Latin1 if required
         if ($this->isUnicode) {
@@ -1859,7 +1845,7 @@ class PDF
         }
         // restore previous values
         if (!StaticMethods::empty_string($fontname)) {
-            $this->setCurrentFont($previousFont, $previousStyle, $previousSizePT, '', 'default', false);
+            $this->font($previousFont, $previousStyle, $previousSizePT, '', 'default', false);
         }
         if ($getarray) {
             return $wa;
@@ -2138,7 +2124,7 @@ class PDF
         $textrendermode  = $this->textrendermode;
         $textstrokewidth = $this->textstrokewidth;
         $this->setTextRenderingMode($fstroke, $ffill, $fclip);
-        $this->setXY($x, $y);
+        $this->xy($x, $y);
         $this->Cell(0, 0, $txt, $border, $ln, $align, $fill, $link, $stretch, $ignore_min_height, $calign, $valign);
         // restore previous rendering mode
         $this->textrendermode  = $textrendermode;
@@ -2795,51 +2781,6 @@ class PDF
         }
         $this->y       += $h;
         $this->newLine = true;
-    }
-
-    /**
-     * Defines the abscissa and ordinate of the current position.
-     * If the passed values are negative, they are relative respectively to the right and bottom of the page.
-     * @param float $x The value of the abscissa.
-     * @param float $y The value of the ordinate.
-     * @see   x(), y()
-     */
-    public function setXY($x, $y)
-    {
-        $this->y($y, false);
-        $this->x($x);
-    }
-
-    /**
-     * Set the absolute X coordinate of the current pointer.
-     * @param float $x The value of the abscissa in user units.
-     * @see   setAbsX(), setAbsY(), SetAbsXY()
-     */
-    public function setAbsX($x)
-    {
-        $this->x = floatval($x);
-    }
-
-    /**
-     * Set the absolute Y coordinate of the current pointer.
-     * @param float $y (float) The value of the ordinate in user units.
-     * @see   setAbsX(), setAbsY(), SetAbsXY()
-     */
-    public function setAbsY($y)
-    {
-        $this->y = floatval($y);
-    }
-
-    /**
-     * Set the absolute X and Y coordinates of the current pointer.
-     * @param float $x The value of the abscissa in user units.
-     * @param float $y (float) The value of the ordinate in user units.
-     * @see   setAbsX(), setAbsY(), SetAbsXY()
-     */
-    public function setAbsXY($x, $y)
-    {
-        $this->setAbsX($x);
-        $this->setAbsY($y);
     }
 
     /**
@@ -7188,7 +7129,7 @@ class PDF
             if (isset($style['fontsize'])) {
                 $fontsize = $style['fontsize'];
             }
-            $this->setCurrentFont($style['font'], '', $fontsize);
+            $this->font($style['font'], '', $fontsize);
         }
         if (!isset($style['stretchtext'])) {
             $style['stretchtext'] = 4;
@@ -7289,7 +7230,7 @@ class PDF
             if ($text_height > $h) {
                 $fontsize    = (($h * $this->factor) / (4 * $this->cellHeightRatio));
                 $text_height = $this->getCellHeight($fontsize / $this->factor);
-                $this->setCurrentFont($style['font'], '', $fontsize);
+                $this->font($style['font'], '', $fontsize);
             }
             if ($vpadding > 0) {
                 $vpadding = (($h - $text_height) / 4);
@@ -8338,7 +8279,7 @@ class PDF
                 $page = 1;
             }
         }
-        $this->setCurrentFont($numbersfont, $fontstyle, $fontsize);
+        $this->font($numbersfont, $fontstyle, $fontsize);
         $numwidth = $this->GetStringWidth('00000');
         $maxpage  = 0; //used for pages on attached documents
         foreach ($this->outlines as $key => $outline) {
@@ -8349,10 +8290,10 @@ class PDF
             $aligntext = 'L';
             $alignnum  = 'R';
             if ($outline['l'] == 0) {
-                $this->setCurrentFont($fontfamily, $outline['s'] . 'B', $fontsize);
+                $this->font($fontfamily, $outline['s'] . 'B', $fontsize);
             }
             else {
-                $this->setCurrentFont($fontfamily, $outline['s'], $fontsize - $outline['l']);
+                $this->font($fontfamily, $outline['s'], $fontsize - $outline['l']);
             }
             $this->textColorArray($outline['c']);
             // check for page break
@@ -8381,7 +8322,7 @@ class PDF
             $txt = $outline['t'] . ' ';
             $this->Write(0, $txt, $link, false, $aligntext, false, 0, false, false, 0, $numwidth, '');
             $tw = $this->width - $this->rightMargin - $this->x;
-            $this->setCurrentFont($numbersfont, $fontstyle, $fontsize);
+            $this->font($numbersfont, $fontstyle, $fontsize);
             if (StaticMethods::empty_string($page)) {
                 $pagenum = $outline['p'];
             }
@@ -9489,18 +9430,6 @@ class PDF
     }
 
     /**
-     * Returns the absolute X value of current position.
-     * @return float
-     * @public
-     * @since 1.2
-     * @see   SetX(), GetY(), SetY()
-     */
-    public function GetAbsX()
-    {
-        return $this->x;
-    }
-
-    /**
      * Return the current column number
      * @return int current column number
      * @public
@@ -9587,45 +9516,6 @@ class PDF
         }
         // return current font as default
         return $this->CurrentFont['fontkey'];
-    }
-
-    /**
-     * Set header data.
-     * @param string $ln header image logo
-     * @param int    $lw header image logo width in mm
-     * @param string $ht string to print as title on document header
-     * @param string $hs string to print on document header
-     * @param int[]  $tc RGB array color for text.
-     * @param int[]  $lc RGB array color for line.
-     * @public
-     */
-    public function setHeaderData($ln = '', $lw = 0, $ht = '', $hs = '', $tc = array(0, 0, 0), $lc = array(0, 0, 0))
-    {
-        $this->header_logo       = $ln;
-        $this->header_logo_width = $lw;
-        $this->header_title      = $ht;
-        $this->header_string     = $hs;
-        $this->header_text_color = $tc;
-        $this->header_line_color = $lc;
-    }
-
-    /**
-     * Returns header data:
-     * <ul><li>$ret['logo'] = logo image</li><li>$ret['logo_width'] = width of the image logo in user units</li><li>$ret['title'] = header title</li><li>$ret['string'] = header description string</li></ul>
-     * @return array<string,mixed>
-     * @public
-     * @since 4.0.012 (2008-07-24)
-     */
-    public function getHeaderData()
-    {
-        $ret               = [];
-        $ret['logo']       = $this->header_logo;
-        $ret['logo_width'] = $this->header_logo_width;
-        $ret['title']      = $this->header_title;
-        $ret['string']     = $this->header_string;
-        $ret['text_color'] = $this->header_text_color;
-        $ret['line_color'] = $this->header_line_color;
-        return $ret;
     }
 
     /**
@@ -9938,69 +9828,6 @@ class PDF
     public function getImageRBY()
     {
         return $this->img_rb_y;
-    }
-
-    /**
-     * Reset the xobject template used by Header() method.
-     * @public
-     */
-    public function resetHeaderTemplate()
-    {
-        $this->header_xobjid = false;
-    }
-
-    /**
-     * Set a flag to automatically reset the xobject template used by Header() method at each page.
-     * @param boolean $val set to true to reset Header xobject template at each page, false otherwise.
-     * @public
-     */
-    public function setHeaderTemplateAutoreset($val = true)
-    {
-        $this->header_xobj_autoreset = $val ? true : false;
-    }
-
-    /**
-     * This method is used to render the page header.
-     * @protected
-     * @since 4.0.012 (2008-07-24)
-     */
-    protected function setHeader()
-    {
-        if (!$this->print_header or ($this->state != 2)) {
-            return;
-        }
-        $this->InHeader = true;
-        $this->setGraphicVars($this->default_graphic_vars);
-        $temp_thead        = $this->thead;
-        $temp_theadMargins = $this->theadMargins;
-        $lasth             = $this->lasth;
-        $newline           = $this->newline;
-        $this->_outSaveGraphicsState();
-        $this->rMargin = $this->original_rMargin;
-        $this->lMargin = $this->original_lMargin;
-        $this->setCellPadding(0);
-        //set current position
-        if ($this->rtl) {
-            $this->setXY($this->original_rMargin, $this->header_margin);
-        }
-        else {
-            $this->setXY($this->original_lMargin, $this->header_margin);
-        }
-        $this->setFont($this->header_font[0], $this->header_font[1], $this->header_font[2]);
-        $this->Header();
-        //restore position
-        if ($this->rtl) {
-            $this->setXY($this->original_rMargin, $this->tMargin);
-        }
-        else {
-            $this->setXY($this->original_lMargin, $this->tMargin);
-        }
-        $this->_outRestoreGraphicsState();
-        $this->lasth        = $lasth;
-        $this->thead        = $temp_thead;
-        $this->theadMargins = $temp_theadMargins;
-        $this->newline      = $newline;
-        $this->InHeader     = false;
     }
 
     /**

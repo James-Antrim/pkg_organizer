@@ -87,9 +87,9 @@ abstract class ListLayout extends BaseLayout
             if ($header >= '0' and $header < '256') {
                 $font   = $view->getFontFamily();
                 $header = (int) $header;
-                $view->setCurrentFont('zapfdingbats');
+                $view->font('zapfdingbats');
                 $view->renderCell($this->widths[$column], 7, $view->unicodeCharacter($header), $view::CENTER, $border, 1);
-                $view->setCurrentFont($font);
+                $view->font($font);
             }
             else {
                 $view->renderCell($this->widths[$column], 7, $header, $view::CENTER, $border, 1);
