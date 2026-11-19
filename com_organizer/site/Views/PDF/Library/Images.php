@@ -329,14 +329,261 @@ trait Images
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
+    /**
+     * Output images.
+     */
+    protected function _putimages()
+    {
+        $filter = '/Filter /FlateDecode ';
+        foreach ($this->imagekeys as $file) {
+            $info = $this->getImageBuffer($file);
+            // set object for alternate images array
+            $altoid = null;
+            if (isset($info['altimgs']) and !empty($info['altimgs'])) {
+                $altoid = $this->_newobj();
+                $out    = '[';
+                foreach ($info['altimgs'] as $altimage) {
+                    if (isset($this->xObjects['I' . $altimage[0]]['n'])) {
+                        $out .= ' << /Image ' . $this->xObjects['I' . $altimage[0]]['n'] . ' 0 R';
+                        $out .= ' /DefaultForPrinting';
+                        if ($altimage[1] === true) {
+                            $out .= ' true';
+                        }
+                        else {
+                            $out .= ' false';
+                        }
+                        $out .= ' >>';
+                    }
+                }
+                $out .= ' ]';
+                $out .= "\n" . 'endobj';
+                $this->append($out);
+            }
+            // set image object
+            $oid                              = $this->_newobj();
+            $this->xObjects['I' . $info['i']] = ['n' => $oid];
+            $this->setImageSubBuffer($file, 'n', $this->objectNumber);
+            $out = '<</Type /XObject';
+            $out .= ' /Subtype /Image';
+            $out .= ' /Width ' . $info['w'];
+            $out .= ' /Height ' . $info['h'];
+            if (array_key_exists('masked', $info)) {
+                $out .= ' /SMask ' . ($this->objectNumber - 1) . ' 0 R';
+            }
+            // set color space
+            $icc = false;
+            if (isset($info['icc']) and ($info['icc'] !== false)) {
+                // ICC Colour Space
+                $icc = true;
+                $out .= ' /ColorSpace [/ICCBased ' . ($this->objectNumber + 1) . ' 0 R]';
+            }
+            elseif ($info['cs'] == 'Indexed') {
+                // Indexed Colour Space
+                $out .= ' /ColorSpace [/Indexed /DeviceRGB ' . ((strlen($info['pal']) / 3) - 1) . ' ' . ($this->objectNumber + 1) . ' 0 R]';
+            }
+            else {
+                // Device Colour Space
+                $out .= ' /ColorSpace /' . $info['cs'];
+            }
+            if ($info['cs'] == 'DeviceCMYK') {
+                $out .= ' /Decode [1 0 1 0 1 0 1 0]';
+            }
+            $out .= ' /BitsPerComponent ' . $info['bpc'];
+            if ($altoid > 0) {
+                // reference to alternate images dictionary
+                $out .= ' /Alternates ' . $altoid . ' 0 R';
+            }
+            if (isset($info['exurl']) and !empty($info['exurl'])) {
+                // external stream
+                $out .= ' /Length 0';
+                $out .= ' /F << /FS /URL /F ' . $this->_datastring($info['exurl']) . ' >>';
+                if (isset($info['f'])) {
+                    $out .= ' /FFilter /' . $info['f'];
+                }
+                $out .= ' >>';
+                $out .= ' stream' . "\n" . 'endstream';
+            }
+            else {
+                if (isset($info['f'])) {
+                    $out .= ' /Filter /' . $info['f'];
+                }
+                if (isset($info['parms'])) {
+                    $out .= ' ' . $info['parms'];
+                }
+                if (isset($info['trns']) and is_array($info['trns'])) {
+                    $trns       = '';
+                    $count_info = count($info['trns']);
+                    if ($info['cs'] == 'Indexed') {
+                        $maxval = (pow(2, $info['bpc']) - 1);
+                        for ($i = 0; $i < $count_info; ++$i) {
+                            if (($info['trns'][$i] != 0) and ($info['trns'][$i] != $maxval)) {
+                                // this is not a binary type mask @TODO: create a SMask
+                                $trns = '';
+                                break;
+                            }
+                            elseif (empty($trns) and ($info['trns'][$i] == 0)) {
+                                // store the first fully transparent value
+                                $trns .= $i . ' ' . $i . ' ';
+                            }
+                        }
+                    }
+                    else {
+                        // grayscale or RGB
+                        for ($i = 0; $i < $count_info; ++$i) {
+                            if ($info['trns'][$i] == 0) {
+                                $trns .= $info['trns'][$i] . ' ' . $info['trns'][$i] . ' ';
+                            }
+                        }
+                    }
+                    // Colour Key Masking
+                    if (!empty($trns)) {
+                        $out .= ' /Mask [' . $trns . ']';
+                    }
+                }
+                $stream = $info['data'];
+                $out    .= ' /Length ' . strlen($stream) . ' >>';
+                $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
+            }
+            $out .= "\n" . 'endobj';
+            $this->append($out);
+            if ($icc) {
+                // ICC colour profile
+                $this->_newobj();
+                $icc = gzcompress($info['icc']);
+                $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
+            }
+            elseif ($info['cs'] == 'Indexed') {
+                // colour palette
+                $this->_newobj();
+                $pal = gzcompress($info['pal']);
+                $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
+            }
+        }
+    }
 
     /**
-     * Enable/disable rasterization of vector images using ImageMagick library.
-     * @param bool $mode if true enable rasterization, false otherwise.
+     * Convert SVG transformation matrix to PDF.
+     * @param array $tm original SVG transformation matrix
+     * @return array transformation matrix
      */
-    public function setRasterizeVectorImages($mode)
+    protected function convertSVGtMatrix($tm)
     {
-        $this->rasterize_vector_images = $mode;
+        $a = $tm[0];
+        $b = -$tm[1];
+        $c = -$tm[2];
+        $d = $tm[3];
+        $e = $this->fontSizeToUnits($tm[4]) * self::FACTOR;
+        $f = -$this->fontSizeToUnits($tm[5]) * self::FACTOR;
+        $x = 0;
+        $y = $this->height * self::FACTOR;
+        $e = ($x * (1 - $a)) - ($y * $c) + $e;
+        $f = ($y * (1 - $d)) - ($x * $b) + $f;
+        return [$a, $b, $c, $d, $e, $f];
+    }
+
+    /**
+     * Sets the closing SVG element handler function for the XML parser.
+     * @param resource|string $parser The first parameter, parser, is a reference to the XML parser calling the handler.
+     * @param string          $name   The second parameter, name, contains the name of the element for which this handler is called. If case-folding is in effect for this parser, the element name will be in uppercase letters.
+     * @author Nicola Asuni
+     */
+    protected function endSVGElementHandler($parser, $name)
+    {
+        $name = $this->removeTagNamespace($name);
+        if ($this->svgdefsmode and !in_array($name, ['defs', 'clipPath', 'linearGradient', 'radialGradient', 'stop'])) {
+            ;
+            if (end($this->svgdefs) !== false) {
+                $last_svgdefs_id = key($this->svgdefs);
+                if (isset($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'])) {
+                    foreach ($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'] as $child_element) {
+                        if (isset($child_element['attribs']['id']) and ($child_element['name'] == $name)) {
+                            $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$child_element['attribs']['id'] . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => true, 'content' => $this->svgtext]];
+                            return;
+                        }
+                    }
+                    if ($this->svgdefs[$last_svgdefs_id]['name'] == $name) {
+                        $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$last_svgdefs_id . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => true, 'content' => $this->svgtext]];
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+        switch ($name) {
+            case 'defs':
+            {
+                $this->svgdefsmode = false;
+                break;
+            }
+            // clipPath
+            case 'clipPath':
+            {
+                $this->svgclipmode = false;
+                break;
+            }
+            case 'svg':
+            {
+                if (--$this->svg_tag_depth <= 0) {
+                    break;
+                }
+            }
+            case 'g':
+            {
+                // ungroup: remove last style from array
+                array_pop($this->svgstyles);
+                $this->endTransformation();
+                break;
+            }
+            case 'text':
+            case 'tspan':
+            {
+                if ($this->svgtextmode['invisible']) {
+                    // This implementation must be fixed to following the rule:
+                    // If the 'visibility' property is set to hidden on a 'tspan', 'tref' or 'altGlyph' element, then the text is invisible but still takes up space in text layout calculations.
+                    break;
+                }
+                // print text
+                $text = $this->svgtext;
+                //$text = $this->stringTrim($text);
+                $textlen = $this->GetStringWidth($text);
+                if ($this->svgtextmode['text-anchor'] != 'start') {
+                    if ($this->svgtextmode['text-anchor'] == 'end') {
+                        $this->x -= $textlen;
+                    }
+                    elseif ($this->svgtextmode['text-anchor'] == 'middle') {
+                        $this->x -= ($textlen / 2);
+                    }
+                }
+                $textrendermode  = $this->textrendermode;
+                $textstrokewidth = $this->textstrokewidth;
+                $this->setTextRenderingMode($this->svgtextmode['stroke'], true, false);
+                if ($name == 'text') {
+                    // store current coordinates
+                    $tmpx = $this->x;
+                    $tmpy = $this->y;
+                }
+                // print the text
+                $this->Cell($textlen, 0, $text, 0, 0, '', false, '', 0, false, 'L', 'T');
+                if ($name == 'text') {
+                    // restore coordinates
+                    $this->x = $tmpx;
+                    $this->y = $tmpy;
+                }
+                // restore previous rendering mode
+                $this->textrendermode  = $textrendermode;
+                $this->textstrokewidth = $textstrokewidth;
+                $this->svgtext         = '';
+                $this->endTransformation();
+                if (!$this->svgdefsmode) {
+                    array_pop($this->svgstyles);
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
     }
 
     /**
@@ -353,34 +600,125 @@ trait Images
     }
 
     /**
-     * Set image buffer content.
-     * @param string $image image key
-     * @param array  $data  image data
-     * @return int image index number
+     * Get the product of two SVG tranformation matrices
+     * @param array $ta first SVG tranformation matrix
+     * @param array $tb second SVG tranformation matrix
+     * @return array transformation array
+     * @author Nicola Asuni
      */
-    protected function setImageBuffer($image, $data)
+    public function getTransformationMatrixProduct($ta, $tb)
     {
-        if (($data['i'] = array_search($image, $this->imagekeys)) === false) {
-            $this->imagekeys[$this->numimages] = $image;
-            $data['i']                         = $this->numimages;
-            ++$this->numimages;
-        }
-        $this->images[$image] = $data;
-        return $data['i'];
+        $tm    = [];
+        $tm[0] = ($ta[0] * $tb[0]) + ($ta[2] * $tb[1]);
+        $tm[1] = ($ta[1] * $tb[0]) + ($ta[3] * $tb[1]);
+        $tm[2] = ($ta[0] * $tb[2]) + ($ta[2] * $tb[3]);
+        $tm[3] = ($ta[1] * $tb[2]) + ($ta[3] * $tb[3]);
+        $tm[4] = ($ta[0] * $tb[4]) + ($ta[2] * $tb[5]) + $ta[4];
+        $tm[5] = ($ta[1] * $tb[4]) + ($ta[3] * $tb[5]) + $ta[5];
+        return $tm;
     }
 
     /**
-     * Set image buffer content for a specified sub-key.
-     * @param string $image image key
-     * @param string $key   image sub-key
-     * @param array  $data  image data
+     * Get the tranformation matrix from SVG transform attribute
+     * @param string $attribute transformation
+     * @return array of transformations
+     * @author Nicola Asuni
      */
-    protected function setImageSubBuffer($image, $key, $data)
+    public function getSVGTransformMatrix($attribute)
     {
-        if (!isset($this->images[$image])) {
-            $this->setImageBuffer($image, []);
+        // identity matrix
+        $tm        = [1, 0, 0, 1, 0, 0];
+        $transform = [];
+        if (preg_match_all('/(matrix|translate|scale|rotate|skewX|skewY)[\s]*\(([^\)]+)\)/si', $attribute, $transform, PREG_SET_ORDER) > 0) {
+            foreach ($transform as $key => $data) {
+                if (!empty($data[2])) {
+                    $a    = 1;
+                    $b    = 0;
+                    $c    = 0;
+                    $d    = 1;
+                    $e    = 0;
+                    $f    = 0;
+                    $regs = [];
+                    switch ($data[1]) {
+                        case 'matrix':
+                        {
+                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $a = $regs[1];
+                                $b = $regs[2];
+                                $c = $regs[3];
+                                $d = $regs[4];
+                                $e = $regs[5];
+                                $f = $regs[6];
+                            }
+                            break;
+                        }
+                        case 'translate':
+                        {
+                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $e = $regs[1];
+                                $f = $regs[2];
+                            }
+                            elseif (preg_match('/([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $e = $regs[1];
+                            }
+                            break;
+                        }
+                        case 'scale':
+                        {
+                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $a = $regs[1];
+                                $d = $regs[2];
+                            }
+                            elseif (preg_match('/([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $a = $regs[1];
+                                $d = $a;
+                            }
+                            break;
+                        }
+                        case 'rotate':
+                        {
+                            if (preg_match('/([0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
+                                $ang = deg2rad($regs[1]);
+                                $x   = $regs[2];
+                                $y   = $regs[3];
+                                $a   = cos($ang);
+                                $b   = sin($ang);
+                                $c   = -$b;
+                                $d   = $a;
+                                $e   = ($x * (1 - $a)) - ($y * $c);
+                                $f   = ($y * (1 - $d)) - ($x * $b);
+                            }
+                            elseif (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
+                                $ang = deg2rad($regs[1]);
+                                $a   = cos($ang);
+                                $b   = sin($ang);
+                                $c   = -$b;
+                                $d   = $a;
+                                $e   = 0;
+                                $f   = 0;
+                            }
+                            break;
+                        }
+                        case 'skewX':
+                        {
+                            if (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
+                                $c = tan(deg2rad($regs[1]));
+                            }
+                            break;
+                        }
+                        case 'skewY':
+                        {
+                            if (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
+                                $b = tan(deg2rad($regs[1]));
+                            }
+                            break;
+                        }
+                    }
+                    $tm = self::getTransformationMatrixProduct($tm, [$a, $b, $c, $d, $e, $f]);
+                }
+            }
         }
-        $this->images[$image][$key] = $data;
+        return $tm;
     }
 
     /**
@@ -809,248 +1147,6 @@ trait Images
     }
 
     /**
-     * Output images.
-     */
-    protected function _putimages()
-    {
-        $filter = '/Filter /FlateDecode ';
-        foreach ($this->imagekeys as $file) {
-            $info = $this->getImageBuffer($file);
-            // set object for alternate images array
-            $altoid = null;
-            if (isset($info['altimgs']) and !empty($info['altimgs'])) {
-                $altoid = $this->_newobj();
-                $out    = '[';
-                foreach ($info['altimgs'] as $altimage) {
-                    if (isset($this->xObjects['I' . $altimage[0]]['n'])) {
-                        $out .= ' << /Image ' . $this->xObjects['I' . $altimage[0]]['n'] . ' 0 R';
-                        $out .= ' /DefaultForPrinting';
-                        if ($altimage[1] === true) {
-                            $out .= ' true';
-                        }
-                        else {
-                            $out .= ' false';
-                        }
-                        $out .= ' >>';
-                    }
-                }
-                $out .= ' ]';
-                $out .= "\n" . 'endobj';
-                $this->append($out);
-            }
-            // set image object
-            $oid                              = $this->_newobj();
-            $this->xObjects['I' . $info['i']] = ['n' => $oid];
-            $this->setImageSubBuffer($file, 'n', $this->objectNumber);
-            $out = '<</Type /XObject';
-            $out .= ' /Subtype /Image';
-            $out .= ' /Width ' . $info['w'];
-            $out .= ' /Height ' . $info['h'];
-            if (array_key_exists('masked', $info)) {
-                $out .= ' /SMask ' . ($this->objectNumber - 1) . ' 0 R';
-            }
-            // set color space
-            $icc = false;
-            if (isset($info['icc']) and ($info['icc'] !== false)) {
-                // ICC Colour Space
-                $icc = true;
-                $out .= ' /ColorSpace [/ICCBased ' . ($this->objectNumber + 1) . ' 0 R]';
-            }
-            elseif ($info['cs'] == 'Indexed') {
-                // Indexed Colour Space
-                $out .= ' /ColorSpace [/Indexed /DeviceRGB ' . ((strlen($info['pal']) / 3) - 1) . ' ' . ($this->objectNumber + 1) . ' 0 R]';
-            }
-            else {
-                // Device Colour Space
-                $out .= ' /ColorSpace /' . $info['cs'];
-            }
-            if ($info['cs'] == 'DeviceCMYK') {
-                $out .= ' /Decode [1 0 1 0 1 0 1 0]';
-            }
-            $out .= ' /BitsPerComponent ' . $info['bpc'];
-            if ($altoid > 0) {
-                // reference to alternate images dictionary
-                $out .= ' /Alternates ' . $altoid . ' 0 R';
-            }
-            if (isset($info['exurl']) and !empty($info['exurl'])) {
-                // external stream
-                $out .= ' /Length 0';
-                $out .= ' /F << /FS /URL /F ' . $this->_datastring($info['exurl']) . ' >>';
-                if (isset($info['f'])) {
-                    $out .= ' /FFilter /' . $info['f'];
-                }
-                $out .= ' >>';
-                $out .= ' stream' . "\n" . 'endstream';
-            }
-            else {
-                if (isset($info['f'])) {
-                    $out .= ' /Filter /' . $info['f'];
-                }
-                if (isset($info['parms'])) {
-                    $out .= ' ' . $info['parms'];
-                }
-                if (isset($info['trns']) and is_array($info['trns'])) {
-                    $trns       = '';
-                    $count_info = count($info['trns']);
-                    if ($info['cs'] == 'Indexed') {
-                        $maxval = (pow(2, $info['bpc']) - 1);
-                        for ($i = 0; $i < $count_info; ++$i) {
-                            if (($info['trns'][$i] != 0) and ($info['trns'][$i] != $maxval)) {
-                                // this is not a binary type mask @TODO: create a SMask
-                                $trns = '';
-                                break;
-                            }
-                            elseif (empty($trns) and ($info['trns'][$i] == 0)) {
-                                // store the first fully transparent value
-                                $trns .= $i . ' ' . $i . ' ';
-                            }
-                        }
-                    }
-                    else {
-                        // grayscale or RGB
-                        for ($i = 0; $i < $count_info; ++$i) {
-                            if ($info['trns'][$i] == 0) {
-                                $trns .= $info['trns'][$i] . ' ' . $info['trns'][$i] . ' ';
-                            }
-                        }
-                    }
-                    // Colour Key Masking
-                    if (!empty($trns)) {
-                        $out .= ' /Mask [' . $trns . ']';
-                    }
-                }
-                $stream = $info['data'];
-                $out    .= ' /Length ' . strlen($stream) . ' >>';
-                $out    .= ' stream' . "\n" . $stream . "\n" . 'endstream';
-            }
-            $out .= "\n" . 'endobj';
-            $this->append($out);
-            if ($icc) {
-                // ICC colour profile
-                $this->_newobj();
-                $icc = gzcompress($info['icc']);
-                $this->append('<</N ' . $info['ch'] . ' /Alternate /' . $info['cs'] . ' ' . $filter . '/Length ' . strlen($icc) . '>> stream' . "\n" . $icc . "\n" . 'endstream' . "\n" . 'endobj');
-            }
-            elseif ($info['cs'] == 'Indexed') {
-                // colour palette
-                $this->_newobj();
-                $pal = gzcompress($info['pal']);
-                $this->append('<<' . $filter . '/Length ' . strlen($pal) . '>> stream' . "\n" . $pal . "\n" . 'endstream' . "\n" . 'endobj');
-            }
-        }
-    }
-
-    /**
-     * Extract info from a PNG image with alpha channel using the Imagick or GD library.
-     * @param string $file     Name of the file containing the image.
-     * @param float  $x        Abscissa of the upper-left corner.
-     * @param float  $y        Ordinate of the upper-left corner.
-     * @param float  $wpx      Original width of the image in pixels.
-     * @param float  $hpx      original height of the image in pixels.
-     * @param float  $w        Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param float  $h        Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param string $type     Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
-     * @param mixed  $link     URL or identifier returned by AddLink().
-     * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
-     * @param bool   $resize   If true resize (reduce) the image to fit $w and $h (requires GD library).
-     * @param int    $dpi      dot-per-inch resolution used on resize
-     * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
-     * @param string $filehash File hash used to build unique file names.
-     * @author Nicola Asuni
-     * @see    Image()
-     */
-    protected function ImagePngAlpha($file, $x, $y, $wpx, $hpx, $w, $h, $type, $link, $align, $resize, $dpi, $palign, $filehash = '')
-    {
-        // create temp images
-        if (empty($filehash)) {
-            $filehash = md5($file);
-        }
-        // create temp image file (without alpha channel)
-        $tempfile_plain = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_plain_' . $filehash;
-        // create temp alpha file
-        $tempfile_alpha = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_alpha_' . $filehash;
-        $parsed         = false;
-        $parse_error    = '';
-        // ImageMagick extension
-        if (($parsed === false) and extension_loaded('imagick')) {
-            try {
-                // ImageMagick library
-                $img = new Imagick();
-                $img->readImage($file);
-                // clone image object
-                $imga = StaticMethods::objclone($img);
-                // extract alpha channel
-                if (method_exists($img, 'setImageAlphaChannel') and defined('Imagick::ALPHACHANNEL_EXTRACT')) {
-                    $img->setImageAlphaChannel(Imagick::ALPHACHANNEL_EXTRACT);
-                }
-                else {
-                    $img->separateImageChannel(8); // 8 = (imagick::CHANNEL_ALPHA | imagick::CHANNEL_OPACITY | imagick::CHANNEL_MATTE);
-                    $img->negateImage(true);
-                }
-                $img->setImageFormat('png');
-                $img->writeImage($tempfile_alpha);
-                // remove alpha channel
-                if (method_exists($imga, 'setImageMatte')) {
-                    $imga->setImageMatte(false);
-                }
-                else {
-                    $imga->separateImageChannel(39); // 39 = (imagick::CHANNEL_ALL & ~(imagick::CHANNEL_ALPHA | imagick::CHANNEL_OPACITY | imagick::CHANNEL_MATTE));
-                }
-                $imga->setImageFormat('png');
-                $imga->writeImage($tempfile_plain);
-                $parsed = true;
-            } catch (Exception $e) {
-                // Imagemagick fails, try with GD
-                $parse_error = 'Imagick library error: ' . $e->getMessage();
-            }
-        }
-        // GD extension
-        if (($parsed === false) and function_exists('imagecreatefrompng')) {
-            try {
-                // generate images
-                $img      = imagecreatefrompng($file);
-                $imgalpha = imagecreate($wpx, $hpx);
-                // generate gray scale palette (0 -> 255)
-                for ($c = 0; $c < 256; ++$c) {
-                    ImageColorAllocate($imgalpha, $c, $c, $c);
-                }
-                // extract alpha channel
-                for ($xpx = 0; $xpx < $wpx; ++$xpx) {
-                    for ($ypx = 0; $ypx < $hpx; ++$ypx) {
-                        $color = imagecolorat($img, $xpx, $ypx);
-                        // get and correct gamma color
-                        $alpha = $this->getGDgamma($img, $color);
-                        imagesetpixel($imgalpha, (int) $xpx, (int) $ypx, (int) $alpha);
-                    }
-                }
-                imagepng($imgalpha, $tempfile_alpha);
-                imagedestroy($imgalpha);
-                // extract image without alpha channel
-                $imgplain = imagecreatetruecolor($wpx, $hpx);
-                imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
-                imagepng($imgplain, $tempfile_plain);
-                imagedestroy($imgplain);
-                $parsed = true;
-            } catch (Exception $e) {
-                // GD fails
-                $parse_error = 'GD library error: ' . $e->getMessage();
-            }
-        }
-        if ($parsed === false) {
-            if (empty($parse_error)) {
-                $this->Error('TCPDF requires the Imagick or GD extension to handle PNG images with alpha channel.');
-            }
-            else {
-                $this->Error($parse_error);
-            }
-        }
-        // embed mask image
-        $imgmask = $this->Image($tempfile_alpha, $x, $y, $w, $h, 'PNG', '', '', $resize, $dpi, '', true, false);
-        // embed image, masked with previously embedded mask
-        $this->Image($tempfile_plain, $x, $y, $w, $h, $type, $link, $align, $resize, $dpi, $palign, false, $imgmask);
-    }
-
-    /**
      * Embed vector-based Adobe Illustrator (AI) or AI-compatible EPS files.
      * NOTE: EPS is not yet fully implemented, use the setRasterizeVectorImages() method to enable/disable rasterization of vector images using ImageMagick library.
      * Only vector drawing is supported, not text or bitmap.
@@ -1390,6 +1486,116 @@ trait Images
             }
         }
         $this->endlinex = $this->imageRBX;
+    }
+
+    /**
+     * Extract info from a PNG image with alpha channel using the Imagick or GD library.
+     * @param string $file     Name of the file containing the image.
+     * @param float  $x        Abscissa of the upper-left corner.
+     * @param float  $y        Ordinate of the upper-left corner.
+     * @param float  $wpx      Original width of the image in pixels.
+     * @param float  $hpx      original height of the image in pixels.
+     * @param float  $w        Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param float  $h        Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param string $type     Image format. Possible values are (case insensitive): JPEG and PNG (whitout GD library) and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;. If not specified, the type is inferred from the file extension.
+     * @param mixed  $link     URL or identifier returned by AddLink().
+     * @param string $align    Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @param bool   $resize   If true resize (reduce) the image to fit $w and $h (requires GD library).
+     * @param int    $dpi      dot-per-inch resolution used on resize
+     * @param string $palign   Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
+     * @param string $filehash File hash used to build unique file names.
+     * @author Nicola Asuni
+     * @see    Image()
+     */
+    protected function ImagePngAlpha($file, $x, $y, $wpx, $hpx, $w, $h, $type, $link, $align, $resize, $dpi, $palign, $filehash = '')
+    {
+        // create temp images
+        if (empty($filehash)) {
+            $filehash = md5($file);
+        }
+        // create temp image file (without alpha channel)
+        $tempfile_plain = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_plain_' . $filehash;
+        // create temp alpha file
+        $tempfile_alpha = self::CACHE_PATH . '__organizer_' . $this->fileID . '_imgmask_alpha_' . $filehash;
+        $parsed         = false;
+        $parse_error    = '';
+        // ImageMagick extension
+        if (($parsed === false) and extension_loaded('imagick')) {
+            try {
+                // ImageMagick library
+                $img = new Imagick();
+                $img->readImage($file);
+                // clone image object
+                $imga = StaticMethods::objclone($img);
+                // extract alpha channel
+                if (method_exists($img, 'setImageAlphaChannel') and defined('Imagick::ALPHACHANNEL_EXTRACT')) {
+                    $img->setImageAlphaChannel(Imagick::ALPHACHANNEL_EXTRACT);
+                }
+                else {
+                    $img->separateImageChannel(8); // 8 = (imagick::CHANNEL_ALPHA | imagick::CHANNEL_OPACITY | imagick::CHANNEL_MATTE);
+                    $img->negateImage(true);
+                }
+                $img->setImageFormat('png');
+                $img->writeImage($tempfile_alpha);
+                // remove alpha channel
+                if (method_exists($imga, 'setImageMatte')) {
+                    $imga->setImageMatte(false);
+                }
+                else {
+                    $imga->separateImageChannel(39); // 39 = (imagick::CHANNEL_ALL & ~(imagick::CHANNEL_ALPHA | imagick::CHANNEL_OPACITY | imagick::CHANNEL_MATTE));
+                }
+                $imga->setImageFormat('png');
+                $imga->writeImage($tempfile_plain);
+                $parsed = true;
+            } catch (Exception $e) {
+                // Imagemagick fails, try with GD
+                $parse_error = 'Imagick library error: ' . $e->getMessage();
+            }
+        }
+        // GD extension
+        if (($parsed === false) and function_exists('imagecreatefrompng')) {
+            try {
+                // generate images
+                $img      = imagecreatefrompng($file);
+                $imgalpha = imagecreate($wpx, $hpx);
+                // generate gray scale palette (0 -> 255)
+                for ($c = 0; $c < 256; ++$c) {
+                    ImageColorAllocate($imgalpha, $c, $c, $c);
+                }
+                // extract alpha channel
+                for ($xpx = 0; $xpx < $wpx; ++$xpx) {
+                    for ($ypx = 0; $ypx < $hpx; ++$ypx) {
+                        $color = imagecolorat($img, $xpx, $ypx);
+                        // get and correct gamma color
+                        $alpha = $this->getGDgamma($img, $color);
+                        imagesetpixel($imgalpha, (int) $xpx, (int) $ypx, (int) $alpha);
+                    }
+                }
+                imagepng($imgalpha, $tempfile_alpha);
+                imagedestroy($imgalpha);
+                // extract image without alpha channel
+                $imgplain = imagecreatetruecolor($wpx, $hpx);
+                imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
+                imagepng($imgplain, $tempfile_plain);
+                imagedestroy($imgplain);
+                $parsed = true;
+            } catch (Exception $e) {
+                // GD fails
+                $parse_error = 'GD library error: ' . $e->getMessage();
+            }
+        }
+        if ($parsed === false) {
+            if (empty($parse_error)) {
+                $this->Error('TCPDF requires the Imagick or GD extension to handle PNG images with alpha channel.');
+            }
+            else {
+                $this->Error($parse_error);
+            }
+        }
+        // embed mask image
+        $imgmask = $this->Image($tempfile_alpha, $x, $y, $w, $h, 'PNG', '', '', $resize, $dpi, '', true, false);
+        // embed image, masked with previously embedded mask
+        $this->Image($tempfile_plain, $x, $y, $w, $h, $type, $link, $align, $resize, $dpi, $palign, false, $imgmask);
     }
 
     /**
@@ -1735,32 +1941,92 @@ trait Images
     }
 
     /**
-     * Convert SVG transformation matrix to PDF.
-     * @param array $tm original SVG transformation matrix
-     * @return array transformation matrix
+     * Return the tag name without the namespace
+     * @param string $name Tag name
      */
-    protected function convertSVGtMatrix($tm)
+    protected function removeTagNamespace($name)
     {
-        $a = $tm[0];
-        $b = -$tm[1];
-        $c = -$tm[2];
-        $d = $tm[3];
-        $e = $this->fontSizeToUnits($tm[4]) * self::FACTOR;
-        $f = -$this->fontSizeToUnits($tm[5]) * self::FACTOR;
-        $x = 0;
-        $y = $this->height * self::FACTOR;
-        $e = ($x * (1 - $a)) - ($y * $c) + $e;
-        $f = ($y * (1 - $d)) - ($x * $b) + $f;
-        return [$a, $b, $c, $d, $e, $f];
+        if (strpos($name, ':') !== false) {
+            $parts = explode(':', $name);
+            return $parts[(sizeof($parts) - 1)];
+        }
+        return $name;
     }
 
     /**
-     * Apply SVG graphic transformation matrix.
-     * @param array $tm original SVG transformation matrix
+     * Sets the character data handler function for the XML parser.
+     * @param resource $parser The first parameter, parser, is a reference to the XML parser calling the handler.
+     * @param string   $data   The second parameter, data, contains the character data as a string.
+     * @author Nicola Asuni
      */
-    protected function SVGTransform($tm)
+    protected function segSVGContentHandler($parser, $data)
     {
-        $this->transform($this->convertSVGtMatrix($tm));
+        $this->svgtext .= $data;
+    }
+
+    /**
+     * Set the transparency for the given GD image.
+     * @param resource $new_image GD image object
+     * @param resource $image     GD image object.
+     * @return resource GD image object $new_image
+     * @since  4.9.016 (2010-04-20)
+     * @public static
+     */
+    public static function setGDImageTransparency($new_image, $image)
+    {
+        // default transparency color (white)
+        $tcol = array('red' => 255, 'green' => 255, 'blue' => 255);
+        // transparency index
+        $tid        = imagecolortransparent($image);
+        $palletsize = imagecolorstotal($image);
+        if (($tid >= 0) and ($tid < $palletsize)) {
+            // get the colors for the transparency index
+            $tcol = imagecolorsforindex($image, $tid);
+        }
+        $tid = imagecolorallocate($new_image, $tcol['red'], $tcol['green'], $tcol['blue']);
+        imagefill($new_image, 0, 0, $tid);
+        imagecolortransparent($new_image, $tid);
+        return $new_image;
+    }
+
+    /**
+     * Set image buffer content.
+     * @param string $image image key
+     * @param array  $data  image data
+     * @return int image index number
+     */
+    protected function setImageBuffer($image, $data)
+    {
+        if (($data['i'] = array_search($image, $this->imagekeys)) === false) {
+            $this->imagekeys[$this->numimages] = $image;
+            $data['i']                         = $this->numimages;
+            ++$this->numimages;
+        }
+        $this->images[$image] = $data;
+        return $data['i'];
+    }
+
+    /**
+     * Set image buffer content for a specified sub-key.
+     * @param string $image image key
+     * @param string $key   image sub-key
+     * @param array  $data  image data
+     */
+    protected function setImageSubBuffer($image, $key, $data)
+    {
+        if (!isset($this->images[$image])) {
+            $this->setImageBuffer($image, []);
+        }
+        $this->images[$image][$key] = $data;
+    }
+
+    /**
+     * Enable/disable rasterization of vector images using ImageMagick library.
+     * @param bool $mode if true enable rasterization, false otherwise.
+     */
+    public function setRasterizeVectorImages($mode)
+    {
+        $this->rasterize_vector_images = $mode;
     }
 
     /**
@@ -2076,399 +2342,6 @@ trait Images
         $this->setFontStretching($fontStretch);
         $this->setFontSpacing($fontSpacing);
         return $objstyle;
-    }
-
-    /**
-     * Draws an SVG path
-     * @param string $d     attribute d of the path SVG element
-     * @param string $style Style of rendering. Possible values are:
-     *                      <ul>
-     *                      <li>D or empty string: Draw (default).</li>
-     *                      <li>F: Fill.</li>
-     *                      <li>F*: Fill using the even-odd rule to determine which regions lie inside the clipping path.</li>
-     *                      <li>DF or FD: Draw and fill.</li>
-     *                      <li>DF* or FD*: Draw and fill using the even-odd rule to determine which regions lie inside the clipping path.</li>
-     *                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
-     *                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
-     *                      </ul>
-     * @return array of container box measures (x, y, w, h)
-     * @author Nicola Asuni
-     */
-    protected function SVGPath($d, $style = '')
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        // set fill/stroke style
-        $op = $this->pathPaintingOperators($style, '');
-        if (empty($op)) {
-            return;
-        }
-        $paths = [];
-        $d     = preg_replace('/([0-9ACHLMQSTVZ])([\-\+])/si', '\\1 \\2', $d);
-        $d     = preg_replace('/(\.[0-9]+)(\.)/s', '\\1 \\2', $d);
-        preg_match_all('/([ACHLMQSTVZ])[\s]*([^ACHLMQSTVZ\"]*)/si', $d, $paths, PREG_SET_ORDER);
-        $x        = 0;
-        $y        = 0;
-        $x1       = 0;
-        $y1       = 0;
-        $x2       = 0;
-        $y2       = 0;
-        $xmin     = 2147483647;
-        $xmax     = 0;
-        $ymin     = 2147483647;
-        $ymax     = 0;
-        $xinitial = 0;
-        $yinitial = 0;
-        $relcoord = false;
-        $minlen   = (0.01 / self::FACTOR); // minimum acceptable length (3 point)
-        $firstcmd = true; // used to print first point
-        // draw curve pieces
-        foreach ($paths as $key => $val) {
-            // get curve type
-            $cmd = trim($val[1]);
-            if (strtolower($cmd) == $cmd) {
-                // use relative coordinated instead of absolute
-                $relcoord = true;
-                $xoffset  = $x;
-                $yoffset  = $y;
-            }
-            else {
-                $relcoord = false;
-                $xoffset  = 0;
-                $yoffset  = 0;
-            }
-            $params = [];
-            if (isset($val[2])) {
-                // get curve parameters
-                $rawparams = preg_split('/([\,\s]+)/si', trim($val[2]));
-                $params    = [];
-                foreach ($rawparams as $ck => $cp) {
-                    $params[$ck] = $this->fontSizeToUnits($cp, 0);
-                    if (abs($params[$ck]) < $minlen) {
-                        // approximate little values to zero
-                        $params[$ck] = 0;
-                    }
-                }
-            }
-            // store current origin point
-            $x0 = $x;
-            $y0 = $y;
-            switch (strtoupper($cmd)) {
-                case 'M':
-                { // moveto
-                    foreach ($params as $ck => $cp) {
-                        if (($ck % 2) == 0) {
-                            $x = $cp + $xoffset;
-                        }
-                        else {
-                            $y = $cp + $yoffset;
-                            if ($firstcmd or (abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                                if ($ck == 1) {
-                                    $this->point($x, $y);
-                                    $firstcmd = false;
-                                    $xinitial = $x;
-                                    $yinitial = $y;
-                                }
-                                else {
-                                    $this->appendLine($x, $y);
-                                }
-                                $x0 = $x;
-                                $y0 = $y;
-                            }
-                            $xmin = min($xmin, $x);
-                            $ymin = min($ymin, $y);
-                            $xmax = max($xmax, $x);
-                            $ymax = max($ymax, $y);
-                            if ($relcoord) {
-                                $xoffset = $x;
-                                $yoffset = $y;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'L':
-                { // lineto
-                    foreach ($params as $ck => $cp) {
-                        if (($ck % 2) == 0) {
-                            $x = $cp + $xoffset;
-                        }
-                        else {
-                            $y = $cp + $yoffset;
-                            if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                                $this->appendLine($x, $y);
-                                $x0 = $x;
-                                $y0 = $y;
-                            }
-                            $xmin = min($xmin, $x);
-                            $ymin = min($ymin, $y);
-                            $xmax = max($xmax, $x);
-                            $ymax = max($ymax, $y);
-                            if ($relcoord) {
-                                $xoffset = $x;
-                                $yoffset = $y;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'H':
-                { // horizontal lineto
-                    foreach ($params as $ck => $cp) {
-                        $x = $cp + $xoffset;
-                        if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                            $this->appendLine($x, $y);
-                            $x0 = $x;
-                            $y0 = $y;
-                        }
-                        $xmin = min($xmin, $x);
-                        $xmax = max($xmax, $x);
-                        if ($relcoord) {
-                            $xoffset = $x;
-                        }
-                    }
-                    break;
-                }
-                case 'V':
-                { // vertical lineto
-                    foreach ($params as $ck => $cp) {
-                        $y = $cp + $yoffset;
-                        if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
-                            $this->appendLine($x, $y);
-                            $x0 = $x;
-                            $y0 = $y;
-                        }
-                        $ymin = min($ymin, $y);
-                        $ymax = max($ymax, $y);
-                        if ($relcoord) {
-                            $yoffset = $y;
-                        }
-                    }
-                    break;
-                }
-                case 'C':
-                { // curveto
-                    foreach ($params as $ck => $cp) {
-                        $params[$ck] = $cp;
-                        if ((($ck + 1) % 6) == 0) {
-                            $x1 = $params[($ck - 5)] + $xoffset;
-                            $y1 = $params[($ck - 4)] + $yoffset;
-                            $x2 = $params[($ck - 3)] + $xoffset;
-                            $y2 = $params[($ck - 2)] + $yoffset;
-                            $x  = $params[($ck - 1)] + $xoffset;
-                            $y  = $params[($ck)] + $yoffset;
-                            $this->appendCurve($x1, $y1, $x2, $y2, $x, $y);
-                            $xmin = min($xmin, $x, $x1, $x2);
-                            $ymin = min($ymin, $y, $y1, $y2);
-                            $xmax = max($xmax, $x, $x1, $x2);
-                            $ymax = max($ymax, $y, $y1, $y2);
-                            if ($relcoord) {
-                                $xoffset = $x;
-                                $yoffset = $y;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'S':
-                { // shorthand/smooth curveto
-                    foreach ($params as $ck => $cp) {
-                        $params[$ck] = $cp;
-                        if ((($ck + 1) % 4) == 0) {
-                            if (($key > 0) and ((strtoupper($paths[($key - 1)][1]) == 'C') or (strtoupper($paths[($key - 1)][1]) == 'S'))) {
-                                $x1 = (2 * $x) - $x2;
-                                $y1 = (2 * $y) - $y2;
-                            }
-                            else {
-                                $x1 = $x;
-                                $y1 = $y;
-                            }
-                            $x2 = $params[($ck - 3)] + $xoffset;
-                            $y2 = $params[($ck - 2)] + $yoffset;
-                            $x  = $params[($ck - 1)] + $xoffset;
-                            $y  = $params[($ck)] + $yoffset;
-                            $this->appendCurve($x1, $y1, $x2, $y2, $x, $y);
-                            $xmin = min($xmin, $x, $x1, $x2);
-                            $ymin = min($ymin, $y, $y1, $y2);
-                            $xmax = max($xmax, $x, $x1, $x2);
-                            $ymax = max($ymax, $y, $y1, $y2);
-                            if ($relcoord) {
-                                $xoffset = $x;
-                                $yoffset = $y;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'Q':
-                { // quadratic Bezier curveto
-                    foreach ($params as $ck => $cp) {
-                        $params[$ck] = $cp;
-                        if ((($ck + 1) % 4) == 0) {
-                            // convert quadratic points to cubic points
-                            $x1 = $params[($ck - 3)] + $xoffset;
-                            $y1 = $params[($ck - 2)] + $yoffset;
-                            $xa = ($x + (2 * $x1)) / 3;
-                            $ya = ($y + (2 * $y1)) / 3;
-                            $x  = $params[($ck - 1)] + $xoffset;
-                            $y  = $params[($ck)] + $yoffset;
-                            $xb = ($x + (2 * $x1)) / 3;
-                            $yb = ($y + (2 * $y1)) / 3;
-                            $this->appendCurve($xa, $ya, $xb, $yb, $x, $y);
-                            $xmin = min($xmin, $x, $xa, $xb);
-                            $ymin = min($ymin, $y, $ya, $yb);
-                            $xmax = max($xmax, $x, $xa, $xb);
-                            $ymax = max($ymax, $y, $ya, $yb);
-                            if ($relcoord) {
-                                $xoffset = $x;
-                                $yoffset = $y;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'T':
-                { // shorthand/smooth quadratic Bezier curveto
-                    foreach ($params as $ck => $cp) {
-                        $params[$ck] = $cp;
-                        if (($ck % 2) != 0) {
-                            if (($key > 0) and ((strtoupper($paths[($key - 1)][1]) == 'Q') or (strtoupper($paths[($key - 1)][1]) == 'T'))) {
-                                $x1 = (2 * $x) - $x1;
-                                $y1 = (2 * $y) - $y1;
-                            }
-                            else {
-                                $x1 = $x;
-                                $y1 = $y;
-                            }
-                            // convert quadratic points to cubic points
-                            $xa = ($x + (2 * $x1)) / 3;
-                            $ya = ($y + (2 * $y1)) / 3;
-                            $x  = $params[($ck - 1)] + $xoffset;
-                            $y  = $params[($ck)] + $yoffset;
-                            $xb = ($x + (2 * $x1)) / 3;
-                            $yb = ($y + (2 * $y1)) / 3;
-                            $this->appendCurve($xa, $ya, $xb, $yb, $x, $y);
-                            $xmin = min($xmin, $x, $xa, $xb);
-                            $ymin = min($ymin, $y, $ya, $yb);
-                            $xmax = max($xmax, $x, $xa, $xb);
-                            $ymax = max($ymax, $y, $ya, $yb);
-                            if ($relcoord) {
-                                $xoffset = $x;
-                                $yoffset = $y;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'A':
-                { // elliptical arc
-                    foreach ($params as $ck => $cp) {
-                        $params[$ck] = $cp;
-                        if ((($ck + 1) % 7) == 0) {
-                            $x0    = $x;
-                            $y0    = $y;
-                            $rx    = max(abs($params[($ck - 6)]), .000000001);
-                            $ry    = max(abs($params[($ck - 5)]), .000000001);
-                            $ang   = -$rawparams[($ck - 4)];
-                            $angle = deg2rad($ang);
-                            $fa    = $rawparams[($ck - 3)]; // large-arc-flag
-                            $fs    = $rawparams[($ck - 2)]; // sweep-flag
-                            $x     = $params[($ck - 1)] + $xoffset;
-                            $y     = $params[$ck] + $yoffset;
-                            if ((abs($x0 - $x) < $minlen) and (abs($y0 - $y) < $minlen)) {
-                                // endpoints are almost identical
-                                $xmin = min($xmin, $x);
-                                $ymin = min($ymin, $y);
-                                $xmax = max($xmax, $x);
-                                $ymax = max($ymax, $y);
-                            }
-                            else {
-                                $cos_ang = cos($angle);
-                                $sin_ang = sin($angle);
-                                $a       = (($x0 - $x) / 2);
-                                $b       = (($y0 - $y) / 2);
-                                $xa      = ($a * $cos_ang) - ($b * $sin_ang);
-                                $ya      = ($a * $sin_ang) + ($b * $cos_ang);
-                                $rx2     = $rx * $rx;
-                                $ry2     = $ry * $ry;
-                                $xa2     = $xa * $xa;
-                                $ya2     = $ya * $ya;
-                                $delta   = ($xa2 / $rx2) + ($ya2 / $ry2);
-                                if ($delta > 1) {
-                                    $rx  *= sqrt($delta);
-                                    $ry  *= sqrt($delta);
-                                    $rx2 = $rx * $rx;
-                                    $ry2 = $ry * $ry;
-                                }
-                                $numerator = (($rx2 * $ry2) - ($rx2 * $ya2) - ($ry2 * $xa2));
-                                if ($numerator < 0) {
-                                    $root = 0;
-                                }
-                                else {
-                                    $root = sqrt($numerator / (($rx2 * $ya2) + ($ry2 * $xa2)));
-                                }
-                                if ($fa == $fs) {
-                                    $root *= -1;
-                                }
-                                $cax = $root * (($rx * $ya) / $ry);
-                                $cay = -$root * (($ry * $xa) / $rx);
-                                // coordinates of ellipse center
-                                $cx = ($cax * $cos_ang) - ($cay * $sin_ang) + (($x0 + $x) / 2);
-                                $cy = ($cax * $sin_ang) + ($cay * $cos_ang) + (($y0 + $y) / 2);
-                                // get angles
-                                $angs = $this->vectorAngle(1, 0, (($xa - $cax) / $rx), (($cay - $ya) / $ry));
-                                $dang = $this->vectorAngle((($xa - $cax) / $rx), (($ya - $cay) / $ry), ((-$xa - $cax) / $rx), ((-$ya - $cay) / $ry));
-                                if (($fs == 0) and ($dang > 0)) {
-                                    $dang -= (2 * M_PI);
-                                }
-                                elseif (($fs == 1) and ($dang < 0)) {
-                                    $dang += (2 * M_PI);
-                                }
-                                $angf = $angs - $dang;
-                                if ((($fs == 0) and ($angs > $angf)) or (($fs == 1) and ($angs < $angf))) {
-                                    // reverse angles
-                                    $tmp  = $angs;
-                                    $angs = $angf;
-                                    $angf = $tmp;
-                                }
-                                $angs = round(rad2deg($angs), 6);
-                                $angf = round(rad2deg($angf), 6);
-                                // covent angles to positive values
-                                if (($angs < 0) and ($angf < 0)) {
-                                    $angs += 360;
-                                    $angf += 360;
-                                }
-                                $pie = false;
-                                if (($key == 0) and (isset($paths[($key + 1)][1])) and (trim($paths[($key + 1)][1]) == 'z')) {
-                                    $pie = true;
-                                }
-                                list($axmin, $aymin, $axmax, $aymax) = $this->appendArc($cx, $cy, $rx, $ry, $ang, $angs, $angf, $pie, 2, false, ($fs == 0), true);
-                                $xmin = min($xmin, $x, $axmin);
-                                $ymin = min($ymin, $y, $aymin);
-                                $xmax = max($xmax, $x, $axmax);
-                                $ymax = max($ymax, $y, $aymax);
-                            }
-                            if ($relcoord) {
-                                $xoffset = $x;
-                                $yoffset = $y;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'Z':
-                {
-                    $this->append('h');
-                    $x = $x0 = $xinitial;
-                    $y = $y0 = $yinitial;
-                    break;
-                }
-            }
-            $firstcmd = false;
-        } // end foreach
-        $this->append($op);
-        return array($xmin, $ymin, ($xmax - $xmin), ($ymax - $ymin));
     }
 
     /**
@@ -3177,253 +3050,404 @@ trait Images
     }
 
     /**
-     * Sets the closing SVG element handler function for the XML parser.
-     * @param resource|string $parser The first parameter, parser, is a reference to the XML parser calling the handler.
-     * @param string          $name   The second parameter, name, contains the name of the element for which this handler is called. If case-folding is in effect for this parser, the element name will be in uppercase letters.
+     * Draws an SVG path
+     * @param string $d     attribute d of the path SVG element
+     * @param string $style Style of rendering. Possible values are:
+     *                      <ul>
+     *                      <li>D or empty string: Draw (default).</li>
+     *                      <li>F: Fill.</li>
+     *                      <li>F*: Fill using the even-odd rule to determine which regions lie inside the clipping path.</li>
+     *                      <li>DF or FD: Draw and fill.</li>
+     *                      <li>DF* or FD*: Draw and fill using the even-odd rule to determine which regions lie inside the clipping path.</li>
+     *                      <li>CNZ: Clipping mode (using the even-odd rule to determine which regions lie inside the clipping path).</li>
+     *                      <li>CEO: Clipping mode (using the nonzero winding number rule to determine which regions lie inside the clipping path).</li>
+     *                      </ul>
+     * @return array of container box measures (x, y, w, h)
      * @author Nicola Asuni
      */
-    protected function endSVGElementHandler($parser, $name)
+    protected function SVGPath($d, $style = '')
     {
-        $name = $this->removeTagNamespace($name);
-        if ($this->svgdefsmode and !in_array($name, ['defs', 'clipPath', 'linearGradient', 'radialGradient', 'stop'])) {
-            ;
-            if (end($this->svgdefs) !== false) {
-                $last_svgdefs_id = key($this->svgdefs);
-                if (isset($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'])) {
-                    foreach ($this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'] as $child_element) {
-                        if (isset($child_element['attribs']['id']) and ($child_element['name'] == $name)) {
-                            $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$child_element['attribs']['id'] . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => true, 'content' => $this->svgtext]];
-                            return;
-                        }
-                    }
-                    if ($this->svgdefs[$last_svgdefs_id]['name'] == $name) {
-                        $this->svgdefs[$last_svgdefs_id]['attribs']['child_elements'][$last_svgdefs_id . '_CLOSE'] = ['name' => $name, 'attribs' => ['closing_tag' => true, 'content' => $this->svgtext]];
-                        return;
-                    }
-                }
-            }
+        if ($this->state !== self::READY) {
             return;
         }
-        switch ($name) {
-            case 'defs':
-            {
-                $this->svgdefsmode = false;
-                break;
+        // set fill/stroke style
+        $op = $this->pathPaintingOperators($style, '');
+        if (empty($op)) {
+            return;
+        }
+        $paths = [];
+        $d     = preg_replace('/([0-9ACHLMQSTVZ])([\-\+])/si', '\\1 \\2', $d);
+        $d     = preg_replace('/(\.[0-9]+)(\.)/s', '\\1 \\2', $d);
+        preg_match_all('/([ACHLMQSTVZ])[\s]*([^ACHLMQSTVZ\"]*)/si', $d, $paths, PREG_SET_ORDER);
+        $x        = 0;
+        $y        = 0;
+        $x1       = 0;
+        $y1       = 0;
+        $x2       = 0;
+        $y2       = 0;
+        $xmin     = 2147483647;
+        $xmax     = 0;
+        $ymin     = 2147483647;
+        $ymax     = 0;
+        $xinitial = 0;
+        $yinitial = 0;
+        $relcoord = false;
+        $minlen   = (0.01 / self::FACTOR); // minimum acceptable length (3 point)
+        $firstcmd = true; // used to print first point
+        // draw curve pieces
+        foreach ($paths as $key => $val) {
+            // get curve type
+            $cmd = trim($val[1]);
+            if (strtolower($cmd) == $cmd) {
+                // use relative coordinated instead of absolute
+                $relcoord = true;
+                $xoffset  = $x;
+                $yoffset  = $y;
             }
-            // clipPath
-            case 'clipPath':
-            {
-                $this->svgclipmode = false;
-                break;
+            else {
+                $relcoord = false;
+                $xoffset  = 0;
+                $yoffset  = 0;
             }
-            case 'svg':
-            {
-                if (--$this->svg_tag_depth <= 0) {
+            $params = [];
+            if (isset($val[2])) {
+                // get curve parameters
+                $rawparams = preg_split('/([\,\s]+)/si', trim($val[2]));
+                $params    = [];
+                foreach ($rawparams as $ck => $cp) {
+                    $params[$ck] = $this->fontSizeToUnits($cp, 0);
+                    if (abs($params[$ck]) < $minlen) {
+                        // approximate little values to zero
+                        $params[$ck] = 0;
+                    }
+                }
+            }
+            // store current origin point
+            $x0 = $x;
+            $y0 = $y;
+            switch (strtoupper($cmd)) {
+                case 'M':
+                { // moveto
+                    foreach ($params as $ck => $cp) {
+                        if (($ck % 2) == 0) {
+                            $x = $cp + $xoffset;
+                        }
+                        else {
+                            $y = $cp + $yoffset;
+                            if ($firstcmd or (abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
+                                if ($ck == 1) {
+                                    $this->point($x, $y);
+                                    $firstcmd = false;
+                                    $xinitial = $x;
+                                    $yinitial = $y;
+                                }
+                                else {
+                                    $this->appendLine($x, $y);
+                                }
+                                $x0 = $x;
+                                $y0 = $y;
+                            }
+                            $xmin = min($xmin, $x);
+                            $ymin = min($ymin, $y);
+                            $xmax = max($xmax, $x);
+                            $ymax = max($ymax, $y);
+                            if ($relcoord) {
+                                $xoffset = $x;
+                                $yoffset = $y;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'L':
+                { // lineto
+                    foreach ($params as $ck => $cp) {
+                        if (($ck % 2) == 0) {
+                            $x = $cp + $xoffset;
+                        }
+                        else {
+                            $y = $cp + $yoffset;
+                            if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
+                                $this->appendLine($x, $y);
+                                $x0 = $x;
+                                $y0 = $y;
+                            }
+                            $xmin = min($xmin, $x);
+                            $ymin = min($ymin, $y);
+                            $xmax = max($xmax, $x);
+                            $ymax = max($ymax, $y);
+                            if ($relcoord) {
+                                $xoffset = $x;
+                                $yoffset = $y;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'H':
+                { // horizontal lineto
+                    foreach ($params as $ck => $cp) {
+                        $x = $cp + $xoffset;
+                        if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
+                            $this->appendLine($x, $y);
+                            $x0 = $x;
+                            $y0 = $y;
+                        }
+                        $xmin = min($xmin, $x);
+                        $xmax = max($xmax, $x);
+                        if ($relcoord) {
+                            $xoffset = $x;
+                        }
+                    }
+                    break;
+                }
+                case 'V':
+                { // vertical lineto
+                    foreach ($params as $ck => $cp) {
+                        $y = $cp + $yoffset;
+                        if ((abs($x0 - $x) >= $minlen) or (abs($y0 - $y) >= $minlen)) {
+                            $this->appendLine($x, $y);
+                            $x0 = $x;
+                            $y0 = $y;
+                        }
+                        $ymin = min($ymin, $y);
+                        $ymax = max($ymax, $y);
+                        if ($relcoord) {
+                            $yoffset = $y;
+                        }
+                    }
+                    break;
+                }
+                case 'C':
+                { // curveto
+                    foreach ($params as $ck => $cp) {
+                        $params[$ck] = $cp;
+                        if ((($ck + 1) % 6) == 0) {
+                            $x1 = $params[($ck - 5)] + $xoffset;
+                            $y1 = $params[($ck - 4)] + $yoffset;
+                            $x2 = $params[($ck - 3)] + $xoffset;
+                            $y2 = $params[($ck - 2)] + $yoffset;
+                            $x  = $params[($ck - 1)] + $xoffset;
+                            $y  = $params[($ck)] + $yoffset;
+                            $this->appendCurve($x1, $y1, $x2, $y2, $x, $y);
+                            $xmin = min($xmin, $x, $x1, $x2);
+                            $ymin = min($ymin, $y, $y1, $y2);
+                            $xmax = max($xmax, $x, $x1, $x2);
+                            $ymax = max($ymax, $y, $y1, $y2);
+                            if ($relcoord) {
+                                $xoffset = $x;
+                                $yoffset = $y;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'S':
+                { // shorthand/smooth curveto
+                    foreach ($params as $ck => $cp) {
+                        $params[$ck] = $cp;
+                        if ((($ck + 1) % 4) == 0) {
+                            if (($key > 0) and ((strtoupper($paths[($key - 1)][1]) == 'C') or (strtoupper($paths[($key - 1)][1]) == 'S'))) {
+                                $x1 = (2 * $x) - $x2;
+                                $y1 = (2 * $y) - $y2;
+                            }
+                            else {
+                                $x1 = $x;
+                                $y1 = $y;
+                            }
+                            $x2 = $params[($ck - 3)] + $xoffset;
+                            $y2 = $params[($ck - 2)] + $yoffset;
+                            $x  = $params[($ck - 1)] + $xoffset;
+                            $y  = $params[($ck)] + $yoffset;
+                            $this->appendCurve($x1, $y1, $x2, $y2, $x, $y);
+                            $xmin = min($xmin, $x, $x1, $x2);
+                            $ymin = min($ymin, $y, $y1, $y2);
+                            $xmax = max($xmax, $x, $x1, $x2);
+                            $ymax = max($ymax, $y, $y1, $y2);
+                            if ($relcoord) {
+                                $xoffset = $x;
+                                $yoffset = $y;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'Q':
+                { // quadratic Bezier curveto
+                    foreach ($params as $ck => $cp) {
+                        $params[$ck] = $cp;
+                        if ((($ck + 1) % 4) == 0) {
+                            // convert quadratic points to cubic points
+                            $x1 = $params[($ck - 3)] + $xoffset;
+                            $y1 = $params[($ck - 2)] + $yoffset;
+                            $xa = ($x + (2 * $x1)) / 3;
+                            $ya = ($y + (2 * $y1)) / 3;
+                            $x  = $params[($ck - 1)] + $xoffset;
+                            $y  = $params[($ck)] + $yoffset;
+                            $xb = ($x + (2 * $x1)) / 3;
+                            $yb = ($y + (2 * $y1)) / 3;
+                            $this->appendCurve($xa, $ya, $xb, $yb, $x, $y);
+                            $xmin = min($xmin, $x, $xa, $xb);
+                            $ymin = min($ymin, $y, $ya, $yb);
+                            $xmax = max($xmax, $x, $xa, $xb);
+                            $ymax = max($ymax, $y, $ya, $yb);
+                            if ($relcoord) {
+                                $xoffset = $x;
+                                $yoffset = $y;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'T':
+                { // shorthand/smooth quadratic Bezier curveto
+                    foreach ($params as $ck => $cp) {
+                        $params[$ck] = $cp;
+                        if (($ck % 2) != 0) {
+                            if (($key > 0) and ((strtoupper($paths[($key - 1)][1]) == 'Q') or (strtoupper($paths[($key - 1)][1]) == 'T'))) {
+                                $x1 = (2 * $x) - $x1;
+                                $y1 = (2 * $y) - $y1;
+                            }
+                            else {
+                                $x1 = $x;
+                                $y1 = $y;
+                            }
+                            // convert quadratic points to cubic points
+                            $xa = ($x + (2 * $x1)) / 3;
+                            $ya = ($y + (2 * $y1)) / 3;
+                            $x  = $params[($ck - 1)] + $xoffset;
+                            $y  = $params[($ck)] + $yoffset;
+                            $xb = ($x + (2 * $x1)) / 3;
+                            $yb = ($y + (2 * $y1)) / 3;
+                            $this->appendCurve($xa, $ya, $xb, $yb, $x, $y);
+                            $xmin = min($xmin, $x, $xa, $xb);
+                            $ymin = min($ymin, $y, $ya, $yb);
+                            $xmax = max($xmax, $x, $xa, $xb);
+                            $ymax = max($ymax, $y, $ya, $yb);
+                            if ($relcoord) {
+                                $xoffset = $x;
+                                $yoffset = $y;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'A':
+                { // elliptical arc
+                    foreach ($params as $ck => $cp) {
+                        $params[$ck] = $cp;
+                        if ((($ck + 1) % 7) == 0) {
+                            $x0    = $x;
+                            $y0    = $y;
+                            $rx    = max(abs($params[($ck - 6)]), .000000001);
+                            $ry    = max(abs($params[($ck - 5)]), .000000001);
+                            $ang   = -$rawparams[($ck - 4)];
+                            $angle = deg2rad($ang);
+                            $fa    = $rawparams[($ck - 3)]; // large-arc-flag
+                            $fs    = $rawparams[($ck - 2)]; // sweep-flag
+                            $x     = $params[($ck - 1)] + $xoffset;
+                            $y     = $params[$ck] + $yoffset;
+                            if ((abs($x0 - $x) < $minlen) and (abs($y0 - $y) < $minlen)) {
+                                // endpoints are almost identical
+                                $xmin = min($xmin, $x);
+                                $ymin = min($ymin, $y);
+                                $xmax = max($xmax, $x);
+                                $ymax = max($ymax, $y);
+                            }
+                            else {
+                                $cos_ang = cos($angle);
+                                $sin_ang = sin($angle);
+                                $a       = (($x0 - $x) / 2);
+                                $b       = (($y0 - $y) / 2);
+                                $xa      = ($a * $cos_ang) - ($b * $sin_ang);
+                                $ya      = ($a * $sin_ang) + ($b * $cos_ang);
+                                $rx2     = $rx * $rx;
+                                $ry2     = $ry * $ry;
+                                $xa2     = $xa * $xa;
+                                $ya2     = $ya * $ya;
+                                $delta   = ($xa2 / $rx2) + ($ya2 / $ry2);
+                                if ($delta > 1) {
+                                    $rx  *= sqrt($delta);
+                                    $ry  *= sqrt($delta);
+                                    $rx2 = $rx * $rx;
+                                    $ry2 = $ry * $ry;
+                                }
+                                $numerator = (($rx2 * $ry2) - ($rx2 * $ya2) - ($ry2 * $xa2));
+                                if ($numerator < 0) {
+                                    $root = 0;
+                                }
+                                else {
+                                    $root = sqrt($numerator / (($rx2 * $ya2) + ($ry2 * $xa2)));
+                                }
+                                if ($fa == $fs) {
+                                    $root *= -1;
+                                }
+                                $cax = $root * (($rx * $ya) / $ry);
+                                $cay = -$root * (($ry * $xa) / $rx);
+                                // coordinates of ellipse center
+                                $cx = ($cax * $cos_ang) - ($cay * $sin_ang) + (($x0 + $x) / 2);
+                                $cy = ($cax * $sin_ang) + ($cay * $cos_ang) + (($y0 + $y) / 2);
+                                // get angles
+                                $angs = $this->vectorAngle(1, 0, (($xa - $cax) / $rx), (($cay - $ya) / $ry));
+                                $dang = $this->vectorAngle((($xa - $cax) / $rx), (($ya - $cay) / $ry), ((-$xa - $cax) / $rx), ((-$ya - $cay) / $ry));
+                                if (($fs == 0) and ($dang > 0)) {
+                                    $dang -= (2 * M_PI);
+                                }
+                                elseif (($fs == 1) and ($dang < 0)) {
+                                    $dang += (2 * M_PI);
+                                }
+                                $angf = $angs - $dang;
+                                if ((($fs == 0) and ($angs > $angf)) or (($fs == 1) and ($angs < $angf))) {
+                                    // reverse angles
+                                    $tmp  = $angs;
+                                    $angs = $angf;
+                                    $angf = $tmp;
+                                }
+                                $angs = round(rad2deg($angs), 6);
+                                $angf = round(rad2deg($angf), 6);
+                                // covent angles to positive values
+                                if (($angs < 0) and ($angf < 0)) {
+                                    $angs += 360;
+                                    $angf += 360;
+                                }
+                                $pie = false;
+                                if (($key == 0) and (isset($paths[($key + 1)][1])) and (trim($paths[($key + 1)][1]) == 'z')) {
+                                    $pie = true;
+                                }
+                                list($axmin, $aymin, $axmax, $aymax) = $this->appendArc($cx, $cy, $rx, $ry, $ang, $angs, $angf, $pie, 2, false, ($fs == 0), true);
+                                $xmin = min($xmin, $x, $axmin);
+                                $ymin = min($ymin, $y, $aymin);
+                                $xmax = max($xmax, $x, $axmax);
+                                $ymax = max($ymax, $y, $aymax);
+                            }
+                            if ($relcoord) {
+                                $xoffset = $x;
+                                $yoffset = $y;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'Z':
+                {
+                    $this->append('h');
+                    $x = $x0 = $xinitial;
+                    $y = $y0 = $yinitial;
                     break;
                 }
             }
-            case 'g':
-            {
-                // ungroup: remove last style from array
-                array_pop($this->svgstyles);
-                $this->endTransformation();
-                break;
-            }
-            case 'text':
-            case 'tspan':
-            {
-                if ($this->svgtextmode['invisible']) {
-                    // This implementation must be fixed to following the rule:
-                    // If the 'visibility' property is set to hidden on a 'tspan', 'tref' or 'altGlyph' element, then the text is invisible but still takes up space in text layout calculations.
-                    break;
-                }
-                // print text
-                $text = $this->svgtext;
-                //$text = $this->stringTrim($text);
-                $textlen = $this->GetStringWidth($text);
-                if ($this->svgtextmode['text-anchor'] != 'start') {
-                    if ($this->svgtextmode['text-anchor'] == 'end') {
-                        $this->x -= $textlen;
-                    }
-                    elseif ($this->svgtextmode['text-anchor'] == 'middle') {
-                        $this->x -= ($textlen / 2);
-                    }
-                }
-                $textrendermode  = $this->textrendermode;
-                $textstrokewidth = $this->textstrokewidth;
-                $this->setTextRenderingMode($this->svgtextmode['stroke'], true, false);
-                if ($name == 'text') {
-                    // store current coordinates
-                    $tmpx = $this->x;
-                    $tmpy = $this->y;
-                }
-                // print the text
-                $this->Cell($textlen, 0, $text, 0, 0, '', false, '', 0, false, 'L', 'T');
-                if ($name == 'text') {
-                    // restore coordinates
-                    $this->x = $tmpx;
-                    $this->y = $tmpy;
-                }
-                // restore previous rendering mode
-                $this->textrendermode  = $textrendermode;
-                $this->textstrokewidth = $textstrokewidth;
-                $this->svgtext         = '';
-                $this->endTransformation();
-                if (!$this->svgdefsmode) {
-                    array_pop($this->svgstyles);
-                }
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
+            $firstcmd = false;
+        } // end foreach
+        $this->append($op);
+        return array($xmin, $ymin, ($xmax - $xmin), ($ymax - $ymin));
     }
 
     /**
-     * Sets the character data handler function for the XML parser.
-     * @param resource $parser The first parameter, parser, is a reference to the XML parser calling the handler.
-     * @param string   $data   The second parameter, data, contains the character data as a string.
-     * @author Nicola Asuni
+     * Apply SVG graphic transformation matrix.
+     * @param array $tm original SVG transformation matrix
      */
-    protected function segSVGContentHandler($parser, $data)
+    protected function SVGTransform($tm)
     {
-        $this->svgtext .= $data;
-    }
-
-    /**
-     * Return the tag name without the namespace
-     * @param string $name Tag name
-     */
-    protected function removeTagNamespace($name)
-    {
-        if (strpos($name, ':') !== false) {
-            $parts = explode(':', $name);
-            return $parts[(sizeof($parts) - 1)];
-        }
-        return $name;
-    }
-
-    /**
-     * Get the tranformation matrix from SVG transform attribute
-     * @param string $attribute transformation
-     * @return array of transformations
-     * @author Nicola Asuni
-     */
-    public static function getSVGTransformMatrix($attribute)
-    {
-        // identity matrix
-        $tm        = [1, 0, 0, 1, 0, 0];
-        $transform = [];
-        if (preg_match_all('/(matrix|translate|scale|rotate|skewX|skewY)[\s]*\(([^\)]+)\)/si', $attribute, $transform, PREG_SET_ORDER) > 0) {
-            foreach ($transform as $key => $data) {
-                if (!empty($data[2])) {
-                    $a    = 1;
-                    $b    = 0;
-                    $c    = 0;
-                    $d    = 1;
-                    $e    = 0;
-                    $f    = 0;
-                    $regs = [];
-                    switch ($data[1]) {
-                        case 'matrix':
-                        {
-                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
-                                $a = $regs[1];
-                                $b = $regs[2];
-                                $c = $regs[3];
-                                $d = $regs[4];
-                                $e = $regs[5];
-                                $f = $regs[6];
-                            }
-                            break;
-                        }
-                        case 'translate':
-                        {
-                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
-                                $e = $regs[1];
-                                $f = $regs[2];
-                            }
-                            elseif (preg_match('/([a-z0-9\-\.]+)/si', $data[2], $regs)) {
-                                $e = $regs[1];
-                            }
-                            break;
-                        }
-                        case 'scale':
-                        {
-                            if (preg_match('/([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
-                                $a = $regs[1];
-                                $d = $regs[2];
-                            }
-                            elseif (preg_match('/([a-z0-9\-\.]+)/si', $data[2], $regs)) {
-                                $a = $regs[1];
-                                $d = $a;
-                            }
-                            break;
-                        }
-                        case 'rotate':
-                        {
-                            if (preg_match('/([0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)[\,\s]+([a-z0-9\-\.]+)/si', $data[2], $regs)) {
-                                $ang = deg2rad($regs[1]);
-                                $x   = $regs[2];
-                                $y   = $regs[3];
-                                $a   = cos($ang);
-                                $b   = sin($ang);
-                                $c   = -$b;
-                                $d   = $a;
-                                $e   = ($x * (1 - $a)) - ($y * $c);
-                                $f   = ($y * (1 - $d)) - ($x * $b);
-                            }
-                            elseif (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
-                                $ang = deg2rad($regs[1]);
-                                $a   = cos($ang);
-                                $b   = sin($ang);
-                                $c   = -$b;
-                                $d   = $a;
-                                $e   = 0;
-                                $f   = 0;
-                            }
-                            break;
-                        }
-                        case 'skewX':
-                        {
-                            if (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
-                                $c = tan(deg2rad($regs[1]));
-                            }
-                            break;
-                        }
-                        case 'skewY':
-                        {
-                            if (preg_match('/([0-9\-\.]+)/si', $data[2], $regs)) {
-                                $b = tan(deg2rad($regs[1]));
-                            }
-                            break;
-                        }
-                    }
-                    $tm = self::getTransformationMatrixProduct($tm, [$a, $b, $c, $d, $e, $f]);
-                }
-            }
-        }
-        return $tm;
-    }
-
-    /**
-     * Get the product of two SVG tranformation matrices
-     * @param array $ta first SVG tranformation matrix
-     * @param array $tb second SVG tranformation matrix
-     * @return array transformation array
-     * @author Nicola Asuni
-     */
-    public function getTransformationMatrixProduct($ta, $tb)
-    {
-        $tm    = [];
-        $tm[0] = ($ta[0] * $tb[0]) + ($ta[2] * $tb[1]);
-        $tm[1] = ($ta[1] * $tb[0]) + ($ta[3] * $tb[1]);
-        $tm[2] = ($ta[0] * $tb[2]) + ($ta[2] * $tb[3]);
-        $tm[3] = ($ta[1] * $tb[2]) + ($ta[3] * $tb[3]);
-        $tm[4] = ($ta[0] * $tb[4]) + ($ta[2] * $tb[5]) + $ta[4];
-        $tm[5] = ($ta[1] * $tb[4]) + ($ta[3] * $tb[5]) + $ta[5];
-        return $tm;
+        $this->transform($this->convertSVGtMatrix($tm));
     }
 }

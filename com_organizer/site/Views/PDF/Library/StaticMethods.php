@@ -23,130 +23,6 @@ class StaticMethods
 
 
     /**
-     * Check if the URL exist.
-     * @param string $url URL to check.
-     * @return boolean true if the URl exist, false otherwise.
-     */
-    public static function isValidURL($url)
-    {
-        $headers = @get_headers($url);
-        if ($headers === false) {
-            return false;
-        }
-        return (strpos($headers[0], '200') !== false);
-    }
-
-    /**
-     * Removes SHY characters from text.
-     * Unicode Data:<ul>
-     * <li>Name : SOFT HYPHEN, commonly abbreviated as SHY</li>
-     * <li>HTML Entity (decimal): "&amp;#173;"</li>
-     * <li>HTML Entity (hex): "&amp;#xad;"</li>
-     * <li>HTML Entity (named): "&amp;shy;"</li>
-     * <li>How to type in Microsoft Windows: [Alt +00AD] or [Alt 0173]</li>
-     * <li>UTF-8 (hex): 0xC2 0xAD (c2ad)</li>
-     * <li>UTF-8 character: chr(194).chr(173)</li>
-     * </ul>
-     * @param string  $txt     input string
-     * @param boolean $unicode True if we are in unicode mode, false otherwise.
-     * @return string without SHY characters.
-     */
-    public static function removeSHY($txt = '', $unicode = true)
-    {
-        $txt = preg_replace('/([\\xc2]{1}[\\xad]{1})/', '', $txt);
-        if (!$unicode) {
-            $txt = preg_replace('/([\\xad]{1})/', '', $txt);
-        }
-        return $txt;
-    }
-
-    /**
-     * Get the border mode accounting for multicell position (opens bottom side of multicell crossing pages)
-     * @param string|array|int $brd      Indicates if borders must be drawn around the cell block. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul>or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK]]
-     * @param string           $position multicell position: 'start', 'middle', 'end'
-     * @param boolean          $opencell True when the cell is left open at the page bottom, false otherwise.
-     * @return array border mode array
-     */
-    public static function getBorderMode($brd, $position = 'start', $opencell = true)
-    {
-        if ((!$opencell) or empty($brd)) {
-            return $brd;
-        }
-        if ($brd == 1) {
-            $brd = 'LTRB';
-        }
-        if (is_string($brd)) {
-            // convert string to array
-            $slen   = strlen($brd);
-            $newbrd = [];
-            for ($i = 0; $i < $slen; ++$i) {
-                $newbrd[$brd[$i]] = ['cap' => 'square', 'join' => 'miter'];
-            }
-            $brd = $newbrd;
-        }
-        foreach ($brd as $border => $style) {
-            switch ($position) {
-                case 'start':
-                {
-                    if (strpos($border, 'B') !== false) {
-                        // remove bottom line
-                        $newkey = str_replace('B', '', $border);
-                        if (strlen($newkey) > 0) {
-                            $brd[$newkey] = $style;
-                        }
-                        unset($brd[$border]);
-                    }
-                    break;
-                }
-                case 'middle':
-                {
-                    if (strpos($border, 'B') !== false) {
-                        // remove bottom line
-                        $newkey = str_replace('B', '', $border);
-                        if (strlen($newkey) > 0) {
-                            $brd[$newkey] = $style;
-                        }
-                        unset($brd[$border]);
-                        $border = $newkey;
-                    }
-                    if (strpos($border, 'T') !== false) {
-                        // remove bottom line
-                        $newkey = str_replace('T', '', $border);
-                        if (strlen($newkey) > 0) {
-                            $brd[$newkey] = $style;
-                        }
-                        unset($brd[$border]);
-                    }
-                    break;
-                }
-                case 'end':
-                {
-                    if (strpos($border, 'T') !== false) {
-                        // remove bottom line
-                        $newkey = str_replace('T', '', $border);
-                        if (strlen($newkey) > 0) {
-                            $brd[$newkey] = $style;
-                        }
-                        unset($brd[$border]);
-                    }
-                    break;
-                }
-            }
-        }
-        return $brd;
-    }
-
-    /**
-     * Determine whether a string is empty.
-     * @param string $str string to be checked
-     * @return bool true if string is empty
-     */
-    public static function empty_string($str)
-    {
-        return (is_null($str) or (is_string($str) and (strlen($str) == 0)));
-    }
-
-    /**
      * Add "\" before "\", "(" and ")"
      * @param string $s string to escape.
      * @return string escaped string.
@@ -167,121 +43,6 @@ class StaticMethods
         $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
         $str          = strtr($str === null ? '' : $str, $replaceTable);
         return $str;
-    }
-
-    /**
-     * Creates a copy of a class object
-     * @param object $object class object to be cloned
-     * @return object cloned object
-     */
-    public static function objclone($object)
-    {
-        if (($object instanceof Imagick) and (version_compare(phpversion('imagick'), '3.0.1') !== 1)) {
-            // on the versions after 3.0.1 the clone() method was deprecated in favour of clone keyword
-            return @$object->clone();
-        }
-        return @clone($object);
-    }
-
-    /**
-     * Output input data and compress it if possible.
-     * @param string $data   Data to output.
-     * @param int    $length Data length in bytes.
-     */
-    public static function sendOutputData($data, $length)
-    {
-        if (!isset($_SERVER['HTTP_ACCEPT_ENCODING']) or empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-            // the content length may vary if the server is using compression
-            header('Content-Length: ' . $length);
-        }
-        echo $data;
-    }
-
-    /**
-     * Replace page number aliases with number.
-     * @param string $page    Page content.
-     * @param array  $replace Array of replacements (array keys are replacement strings, values are alias arrays).
-     * @param int    $diff    If passed, this will be set to the total char number difference between alias and replacements.
-     * @return array replaced page content and updated $diff parameter as array.
-     */
-    public static function replacePageNumAliases($page, $replace, $diff = 0)
-    {
-        foreach ($replace as $rep) {
-            foreach ($rep[3] as $a) {
-                if (strpos($page, $a) !== false) {
-                    $page = str_replace($a, $rep[0], $page);
-                    $diff += ($rep[2] - $rep[1]);
-                }
-            }
-        }
-        return [$page, $diff];
-    }
-
-    /**
-     * Returns timestamp in seconds from formatted date-time.
-     * @param string $date Formatted date-time.
-     * @return int seconds.
-     */
-    public static function getTimestamp($date)
-    {
-        if (($date[0] == 'D') and ($date[1] == ':')) {
-            // remove date prefix if present
-            $date = substr($date, 2);
-        }
-        return strtotime($date);
-    }
-
-    /**
-     * Returns a formatted date-time.
-     * @param int $time Time in seconds.
-     * @return string escaped date string.
-     */
-    public static function getFormattedDate($time)
-    {
-        return substr_replace(date('YmdHisO', intval($time)), '\'', (0 - 2), 0) . '\'';
-    }
-
-    /**
-     * Convert hexadecimal string to string
-     * @param string $bs byte-string to convert
-     * @return string
-     * @author Nicola Asuni
-     */
-    public static function convertHexStringToString($bs)
-    {
-        $string   = ''; // string to be returned
-        $bslength = strlen($bs);
-        if (($bslength % 2) != 0) {
-            // padding
-            $bs .= '0';
-            ++$bslength;
-        }
-        for ($i = 0; $i < $bslength; $i += 2) {
-            $string .= chr(hexdec($bs[$i] . $bs[($i + 1)]));
-        }
-        return $string;
-    }
-
-    /**
-     * Encode a name object.
-     * @param string $name Name object to encode.
-     * @return string Encoded name object.
-     * @author Nicola Asuni
-     */
-    public static function encodeNameObject($name)
-    {
-        $escname = '';
-        $length  = strlen($name);
-        for ($i = 0; $i < $length; ++$i) {
-            $chr = $name[$i];
-            if (preg_match('/[0-9a-zA-Z#_=-]/', $chr) == 1) {
-                $escname .= $chr;
-            }
-            else {
-                $escname .= sprintf('#%02X', ord($chr));
-            }
-        }
-        return $escname;
     }
 
     /**
@@ -684,26 +445,234 @@ class StaticMethods
     }
 
     /**
-     * Format the page numbers.
-     * This method can be overridden for custom formats.
-     * @param int $num page number
-     * @return string
+     * Get the border mode accounting for multicell position (opens bottom side of multicell crossing pages)
+     * @param string|array|int $brd      Indicates if borders must be drawn around the cell block. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul>or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group: ['LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK]]
+     * @param string           $position multicell position: 'start', 'middle', 'end'
+     * @param boolean          $opencell True when the cell is left open at the page bottom, false otherwise.
+     * @return array border mode array
      */
-    public static function formatPageNumber($num)
+    public static function getBorderMode($brd, $position = 'start', $opencell = true)
     {
-        return number_format((float) $num, 0, '', '.');
+        if ((!$opencell) or empty($brd)) {
+            return $brd;
+        }
+        if ($brd == 1) {
+            $brd = 'LTRB';
+        }
+        if (is_string($brd)) {
+            // convert string to array
+            $slen   = strlen($brd);
+            $newbrd = [];
+            for ($i = 0; $i < $slen; ++$i) {
+                $newbrd[$brd[$i]] = ['cap' => 'square', 'join' => 'miter'];
+            }
+            $brd = $newbrd;
+        }
+        foreach ($brd as $border => $style) {
+            switch ($position) {
+                case 'start':
+                {
+                    if (strpos($border, 'B') !== false) {
+                        // remove bottom line
+                        $newkey = str_replace('B', '', $border);
+                        if (strlen($newkey) > 0) {
+                            $brd[$newkey] = $style;
+                        }
+                        unset($brd[$border]);
+                    }
+                    break;
+                }
+                case 'middle':
+                {
+                    if (strpos($border, 'B') !== false) {
+                        // remove bottom line
+                        $newkey = str_replace('B', '', $border);
+                        if (strlen($newkey) > 0) {
+                            $brd[$newkey] = $style;
+                        }
+                        unset($brd[$border]);
+                        $border = $newkey;
+                    }
+                    if (strpos($border, 'T') !== false) {
+                        // remove bottom line
+                        $newkey = str_replace('T', '', $border);
+                        if (strlen($newkey) > 0) {
+                            $brd[$newkey] = $style;
+                        }
+                        unset($brd[$border]);
+                    }
+                    break;
+                }
+                case 'end':
+                {
+                    if (strpos($border, 'T') !== false) {
+                        // remove bottom line
+                        $newkey = str_replace('T', '', $border);
+                        if (strlen($newkey) > 0) {
+                            $brd[$newkey] = $style;
+                        }
+                        unset($brd[$border]);
+                    }
+                    break;
+                }
+            }
+        }
+        return $brd;
     }
 
     /**
-     * Format the page numbers on the Table Of Content.
-     * This method can be overridden for custom formats.
-     * @param int $num page number
-     * @return string
-     * @see    addTOC(), addHTMLTOC()
+     * Returns the styles array that apply for the selected HTML tag.
+     * @param array $dom array of HTML tags and properties
+     * @param int   $key key of the current HTML tag
+     * @param array $css array of CSS properties
+     * @return array containing CSS properties
      */
-    public static function formatTOCPageNumber($num)
+    public static function getCSSdataArray($dom, $key, $css)
     {
-        return number_format((float) $num, 0, '', '.');
+        $cssarray = []; // style to be returned
+        // get parent CSS selectors
+        $selectors = [];
+        if (isset($dom[($dom[$key]['parent'])]['csssel'])) {
+            $selectors = $dom[($dom[$key]['parent'])]['csssel'];
+        }
+        // get all styles that apply
+        foreach ($css as $selector => $style) {
+            $pos = strpos($selector, ' ');
+            // get specificity
+            $specificity = substr($selector, 0, $pos);
+            // remove specificity
+            $selector = substr($selector, $pos);
+            // check if this selector apply to current tag
+            if (self::isValidCSSSelectorForTag($dom, $key, $selector)) {
+                if (!in_array($selector, $selectors)) {
+                    // add style if not already added on parent selector
+                    $cssarray[]  = ['k' => $selector, 's' => $specificity, 'c' => $style];
+                    $selectors[] = $selector;
+                }
+            }
+        }
+        if (isset($dom[$key]['attribute']['style'])) {
+            // attach inline style (latest properties have high priority)
+            $cssarray[] = ['k' => '', 's' => '1000', 'c' => $dom[$key]['attribute']['style']];
+        }
+        // order the css array to account for specificity
+        $cssordered = [];
+        foreach ($cssarray as $key => $val) {
+            $skey                                = sprintf('%04d', $key);
+            $cssordered[$val['s'] . '_' . $skey] = $val;
+        }
+        // sort selectors alphabetically to account for specificity
+        ksort($cssordered, SORT_STRING);
+        return [$selectors, $cssordered];
+    }
+
+    /**
+     * Returns a formatted date-time.
+     * @param int $time Time in seconds.
+     * @return string escaped date string.
+     */
+    public static function getFormattedDate($time)
+    {
+        return substr_replace(date('YmdHisO', intval($time)), '\'', (0 - 2), 0) . '\'';
+    }
+
+    /**
+     * Compact CSS data array into single string.
+     * @param array $css array of CSS properties
+     * @return string containing merged CSS properties
+     */
+    public static function getTagStyleFromCSSarray($css)
+    {
+        $tagstyle = ''; // value to be returned
+        foreach ($css as $style) {
+            // split single css commands
+            $csscmds = explode(';', $style['c']);
+            foreach ($csscmds as $cmd) {
+                if (!empty($cmd)) {
+                    $pos = strpos($cmd, ':');
+                    if ($pos !== false) {
+                        $cmd = substr($cmd, 0, ($pos + 1));
+                        if (strpos($tagstyle, $cmd) !== false) {
+                            // remove duplicate commands (last commands have high priority)
+                            $tagstyle = preg_replace('/' . $cmd . '[^;]+/i', '', $tagstyle);
+                        }
+                    }
+                }
+            }
+            $tagstyle .= ';' . $style['c'];
+        }
+        // remove multiple semicolons
+        $tagstyle = preg_replace('/[;]+/', ';', $tagstyle);
+        return $tagstyle;
+    }
+
+    /**
+     * Returns timestamp in seconds from formatted date-time.
+     * @param string $date Formatted date-time.
+     * @return int seconds.
+     */
+    public static function getTimestamp($date)
+    {
+        if (($date[0] == 'D') and ($date[1] == ':')) {
+            // remove date prefix if present
+            $date = substr($date, 2);
+        }
+        return strtotime($date);
+    }
+
+    /**
+     * Determine whether a string is empty.
+     * @param string $str string to be checked
+     * @return bool true if string is empty
+     */
+    public static function empty_string($str)
+    {
+        return (is_null($str) or (is_string($str) and (strlen($str) == 0)));
+    }
+
+    /**
+     * Encode a name object.
+     * @param string $name Name object to encode.
+     * @return string Encoded name object.
+     * @author Nicola Asuni
+     */
+    public static function encodeNameObject($name)
+    {
+        $escname = '';
+        $length  = strlen($name);
+        for ($i = 0; $i < $length; ++$i) {
+            $chr = $name[$i];
+            if (preg_match('/[0-9a-zA-Z#_=-]/', $chr) == 1) {
+                $escname .= $chr;
+            }
+            else {
+                $escname .= sprintf('#%02X', ord($chr));
+            }
+        }
+        return $escname;
+    }
+
+    /**
+     * Encode query params in URL
+     *
+     * @param string $url
+     * @return string
+     * @since  6.3.3 (2019-11-01)
+     * @public static
+     */
+    public static function encodeUrlQuery($url)
+    {
+        $urlData = parse_url($url);
+        if (isset($urlData['query']) && $urlData['query']) {
+            $urlQueryData = [];
+            parse_str(urldecode($urlData['query']), $urlQueryData);
+            $port       = isset($urlData['port']) ? ':' . $urlData['port'] : '';
+            $updatedUrl = $urlData['scheme'] . '://' . $urlData['host'] . $port . $urlData['path'] . '?' . http_build_query($urlQueryData);
+        }
+        else {
+            $updatedUrl = $url;
+        }
+        return $updatedUrl;
     }
 
     /**
@@ -864,6 +833,63 @@ class StaticMethods
         }
         // return the cleaned XHTML code + CSS
         return $css . $html;
+    }
+
+    /**
+     * Format the page numbers.
+     * This method can be overridden for custom formats.
+     * @param int $num page number
+     * @return string
+     */
+    public static function formatPageNumber($num)
+    {
+        return number_format((float) $num, 0, '', '.');
+    }
+
+    /**
+     * Format the page numbers on the Table Of Content.
+     * This method can be overridden for custom formats.
+     * @param int $num page number
+     * @return string
+     * @see    addTOC(), addHTMLTOC()
+     */
+    public static function formatTOCPageNumber($num)
+    {
+        return number_format((float) $num, 0, '', '.');
+    }
+
+    /**
+     * Returns an array of hyphenation patterns.
+     * @param string $file TEX file containing hypenation patterns. TEX patterns can be downloaded from http://www.ctan.org/tex-archive/language/hyph-utf8/tex/generic/hyph-utf8/patterns/
+     * @return array of hyphenation patterns
+     * @author Nicola Asuni
+     * @since  4.9.012 (2010-04-12)
+     * @public static
+     */
+    public static function getHyphenPatternsFromTEX($file)
+    {
+        // TEX patterns are available at:
+        // http://www.ctan.org/tex-archive/language/hyph-utf8/tex/generic/hyph-utf8/patterns/
+        $data     = file_get_contents($file);
+        $patterns = [];
+        // remove comments
+        $data = preg_replace('/\%[^\n]*/', '', $data);
+        // extract the patterns part
+        preg_match('/\\\\patterns\{([^\}]*)\}/i', $data, $matches);
+        $data = trim(substr($matches[0], 10, -1));
+        // extract each pattern
+        $patterns_array = preg_split('/[\s]+/', $data);
+        // create new language array of patterns
+        $patterns = [];
+        foreach ($patterns_array as $val) {
+            if (!TCPDF_STATIC::empty_string($val)) {
+                $val            = trim($val);
+                $val            = str_replace('\'', '\\\'', $val);
+                $key            = preg_replace('/[0-9]+/', '', $val);
+                $patterns[$key] = $val;
+            }
+        }
+        return $patterns;
     }
 
     /**
@@ -1045,78 +1071,121 @@ class StaticMethods
     }
 
     /**
-     * Returns the styles array that apply for the selected HTML tag.
-     * @param array $dom array of HTML tags and properties
-     * @param int   $key key of the current HTML tag
-     * @param array $css array of CSS properties
-     * @return array containing CSS properties
+     * Check if the URL exist.
+     * @param string $url URL to check.
+     * @return boolean true if the URl exist, false otherwise.
      */
-    public static function getCSSdataArray($dom, $key, $css)
+    public static function isValidURL($url)
     {
-        $cssarray = []; // style to be returned
-        // get parent CSS selectors
-        $selectors = [];
-        if (isset($dom[($dom[$key]['parent'])]['csssel'])) {
-            $selectors = $dom[($dom[$key]['parent'])]['csssel'];
+        $headers = @get_headers($url);
+        if ($headers === false) {
+            return false;
         }
-        // get all styles that apply
-        foreach ($css as $selector => $style) {
-            $pos = strpos($selector, ' ');
-            // get specificity
-            $specificity = substr($selector, 0, $pos);
-            // remove specificity
-            $selector = substr($selector, $pos);
-            // check if this selector apply to current tag
-            if (self::isValidCSSSelectorForTag($dom, $key, $selector)) {
-                if (!in_array($selector, $selectors)) {
-                    // add style if not already added on parent selector
-                    $cssarray[]  = ['k' => $selector, 's' => $specificity, 'c' => $style];
-                    $selectors[] = $selector;
-                }
-            }
-        }
-        if (isset($dom[$key]['attribute']['style'])) {
-            // attach inline style (latest properties have high priority)
-            $cssarray[] = ['k' => '', 's' => '1000', 'c' => $dom[$key]['attribute']['style']];
-        }
-        // order the css array to account for specificity
-        $cssordered = [];
-        foreach ($cssarray as $key => $val) {
-            $skey                                = sprintf('%04d', $key);
-            $cssordered[$val['s'] . '_' . $skey] = $val;
-        }
-        // sort selectors alphabetically to account for specificity
-        ksort($cssordered, SORT_STRING);
-        return [$selectors, $cssordered];
+        return (strpos($headers[0], '200') !== false);
     }
 
     /**
-     * Compact CSS data array into single string.
-     * @param array $css array of CSS properties
-     * @return string containing merged CSS properties
+     * Creates a copy of a class object
+     * @param object $object class object to be cloned
+     * @return object cloned object
      */
-    public static function getTagStyleFromCSSarray($css)
+    public static function objclone($object)
     {
-        $tagstyle = ''; // value to be returned
-        foreach ($css as $style) {
-            // split single css commands
-            $csscmds = explode(';', $style['c']);
-            foreach ($csscmds as $cmd) {
-                if (!empty($cmd)) {
-                    $pos = strpos($cmd, ':');
-                    if ($pos !== false) {
-                        $cmd = substr($cmd, 0, ($pos + 1));
-                        if (strpos($tagstyle, $cmd) !== false) {
-                            // remove duplicate commands (last commands have high priority)
-                            $tagstyle = preg_replace('/' . $cmd . '[^;]+/i', '', $tagstyle);
-                        }
-                    }
+        if (($object instanceof Imagick) and (version_compare(phpversion('imagick'), '3.0.1') !== 1)) {
+            // on the versions after 3.0.1 the clone() method was deprecated in favour of clone keyword
+            return @$object->clone();
+        }
+        return @clone($object);
+    }
+
+    /**
+     * Removes SHY characters from text.
+     * Unicode Data:<ul>
+     * <li>Name : SOFT HYPHEN, commonly abbreviated as SHY</li>
+     * <li>HTML Entity (decimal): "&amp;#173;"</li>
+     * <li>HTML Entity (hex): "&amp;#xad;"</li>
+     * <li>HTML Entity (named): "&amp;shy;"</li>
+     * <li>How to type in Microsoft Windows: [Alt +00AD] or [Alt 0173]</li>
+     * <li>UTF-8 (hex): 0xC2 0xAD (c2ad)</li>
+     * <li>UTF-8 character: chr(194).chr(173)</li>
+     * </ul>
+     * @param string  $txt     input string
+     * @param boolean $unicode True if we are in unicode mode, false otherwise.
+     * @return string without SHY characters.
+     */
+    public static function removeSHY($txt = '', $unicode = true)
+    {
+        $txt = preg_replace('/([\\xc2]{1}[\\xad]{1})/', '', $txt);
+        if (!$unicode) {
+            $txt = preg_replace('/([\\xad]{1})/', '', $txt);
+        }
+        return $txt;
+    }
+
+    /**
+     * Replace page number aliases with number.
+     * @param string $page    Page content.
+     * @param array  $replace Array of replacements (array keys are replacement strings, values are alias arrays).
+     * @param int    $diff    If passed, this will be set to the total char number difference between alias and replacements.
+     * @return array replaced page content and updated $diff parameter as array.
+     */
+    public static function replacePageNumAliases($page, $replace, $diff = 0)
+    {
+        foreach ($replace as $rep) {
+            foreach ($rep[3] as $a) {
+                if (strpos($page, $a) !== false) {
+                    $page = str_replace($a, $rep[0], $page);
+                    $diff += ($rep[2] - $rep[1]);
                 }
             }
-            $tagstyle .= ';' . $style['c'];
         }
-        // remove multiple semicolons
-        $tagstyle = preg_replace('/[;]+/', ';', $tagstyle);
-        return $tagstyle;
+        return [$page, $diff];
+    }
+
+    /**
+     * Output input data and compress it if possible.
+     * @param string $data   Data to output.
+     * @param int    $length Data length in bytes.
+     */
+    public static function sendOutputData($data, $length)
+    {
+        if (!isset($_SERVER['HTTP_ACCEPT_ENCODING']) or empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+            // the content length may vary if the server is using compression
+            header('Content-Length: ' . $length);
+        }
+        echo $data;
+    }
+
+    /**
+     * Check if the URL exist.
+     * @param string $url URL to check.
+     * @return bool Returns TRUE if the URL exists; FALSE otherwise.
+     * @public static
+     * @since  6.2.25
+     */
+    public static function url_exists($url)
+    {
+        $crs = curl_init();
+        // encode query params in URL to get right response form the server
+        $url = self::encodeUrlQuery($url);
+        curl_setopt($crs, CURLOPT_URL, $url);
+        curl_setopt($crs, CURLOPT_NOBODY, true);
+        curl_setopt($crs, CURLOPT_FAILONERROR, true);
+        if ((ini_get('open_basedir') == '') && (!ini_get('safe_mode'))) {
+            curl_setopt($crs, CURLOPT_FOLLOWLOCATION, true);
+        }
+        curl_setopt($crs, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($crs, CURLOPT_TIMEOUT, 30);
+        curl_setopt($crs, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($crs, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($crs, CURLOPT_USERAGENT, 'tc-lib-file');
+        curl_setopt($crs, CURLOPT_MAXREDIRS, 5);
+        if (defined('CURLOPT_PROTOCOLS')) {
+            curl_setopt($crs, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS | CURLPROTO_HTTP | CURLPROTO_FTP | CURLPROTO_FTPS);
+        }
+        curl_exec($crs);
+        $code = curl_getinfo($crs, CURLINFO_HTTP_CODE);
+        curl_close($crs);
+        return ($code == 200);
     }
 }
