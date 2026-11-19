@@ -37,34 +37,24 @@ trait Images
     protected array $transpositions = [];
 
     /**
-     * Set image buffer content.
-     * @param string $image image key
-     * @param array  $data  image data
-     * @return int image index number
+     * Getter / setter image buffer content. Returns the buffer content on success, otherwise false.
+     * @param string $key
+     * @param array  $content
+     * @return array
      */
-    protected function imageBuffer(string $image, array $data = []): array
+    protected function imageBuffer(string $key, array $content = []): array
     {
-        if (($data['i'] = array_search($image, $this->imageKeys)) === false) {
-            $this->imageKeys[$this->imageCount] = $image;
-            $data['i']                          = $this->imageCount;
-            ++$this->imageCount;
+        if ($content) {
+            if (($content['i'] = array_search($key, $this->imageKeys)) === false) {
+                $this->imageKeys[$this->imageCount] = $key;
+                $content['i']                       = $this->imageCount;
+                ++$this->imageCount;
+            }
+
+            $this->images[$key] = $content;
         }
 
-        $this->images[$image] = $data;
-        return $data;
-    }
-
-    /**
-     * Get image buffer content.
-     * @param string $image image key
-     * @return string|false image buffer content or false in case of error
-     */
-    protected function getImageBuffer($image)
-    {
-        if (isset($this->images[$image])) {
-            return $this->images[$image];
-        }
-        return false;
+        return $this->images[$key] ?? [];
     }
 
     /**
@@ -438,7 +428,7 @@ trait Images
     {
         $filter = '/Filter /FlateDecode ';
         foreach ($this->imageKeys as $file) {
-            $info = $this->getImageBuffer($file);
+            $info = $this->imageBuffer($file);
             // set object for alternate images array
             $altoid = null;
             if (isset($info['altimgs']) and !empty($info['altimgs'])) {
@@ -878,7 +868,7 @@ trait Images
             if (!@$this->fileExists($file)) {
                 return false;
             }
-            if (false !== $info = $this->getImageBuffer($file)) {
+            if ($info = $this->imageBuffer($file)) {
                 $imsize = [$info['w'], $info['h']];
             }
             elseif (($imsize = @getimagesize($file)) === false && strpos($file, '__organizer_' . $this->fileID . '_img') === false) {
@@ -997,7 +987,7 @@ trait Images
         if (in_array($file, $this->imageKeys)) {
             $newimage = false;
             // get existing image data
-            $info = $this->getImageBuffer($file);
+            $info = $this->imageBuffer($file);
             if (strpos($file, '__organizer_' . $this->fileID . '_imgmask_') === false) {
                 // check if the newer image is larger
                 $oldsize = ($info['w'] * $info['h']);
@@ -1014,7 +1004,7 @@ trait Images
             // check for cached images
             if (in_array($tempfile_plain, $this->imageKeys)) {
                 // get existing image data
-                $info = $this->getImageBuffer($tempfile_plain);
+                $info = $this->imageBuffer($tempfile_plain);
                 // check if the newer image is larger
                 $oldsize = ($info['w'] * $info['h']);
                 if ((($oldsize < $newsize) and ($resize)) or (($oldsize < $pixsize) and (!$resize))) {

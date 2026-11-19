@@ -3812,20 +3812,17 @@ class PDF
                                     $annots .= ' /AC ' . $pl['opt']['mk']['ac'];
                                 }
                                 if (isset($pl['opt']['mk']['i'])) {
-                                    $info = $this->getImageBuffer($pl['opt']['mk']['i']);
-                                    if ($info !== false) {
+                                    if ($info = $this->imageBuffer($pl['opt']['mk']['i'])) {
                                         $annots .= ' /I ' . $info['n'] . ' 0 R';
                                     }
                                 }
                                 if (isset($pl['opt']['mk']['ri'])) {
-                                    $info = $this->getImageBuffer($pl['opt']['mk']['ri']);
-                                    if ($info !== false) {
+                                    if ($info = $this->imageBuffer($pl['opt']['mk']['ri'])) {
                                         $annots .= ' /RI ' . $info['n'] . ' 0 R';
                                     }
                                 }
                                 if (isset($pl['opt']['mk']['ix'])) {
-                                    $info = $this->getImageBuffer($pl['opt']['mk']['ix']);
-                                    if ($info !== false) {
+                                    if ($info = $this->imageBuffer($pl['opt']['mk']['ix'])) {
                                         $annots .= ' /IX ' . $info['n'] . ' 0 R';
                                     }
                                 }
@@ -9393,7 +9390,7 @@ class PDF
      */
     protected function fileExists($file)
     {
-        if (isset($this->fileContentCache[$file]) or $this->getImageBuffer($file)) {
+        if (isset($this->fileContentCache[$file]) or $this->imageBuffer($file)) {
             return true;
         }
 
