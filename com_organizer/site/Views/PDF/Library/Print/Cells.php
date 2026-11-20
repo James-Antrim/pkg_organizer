@@ -885,7 +885,7 @@ trait Cells
         // get current page number
         $startpage = $this->page;
         // get current column
-        $startcolumn = $this->current_column;
+        $startcolumn = $this->currentColumn;
         if (!StaticMethods::empty_string($x)) {
             $this->x($x);
         }
@@ -996,7 +996,7 @@ trait Cells
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $this->checkPageBreak($this->breakTrigger + 1);
                 }
-                if ($this->num_columns > 1) {
+                if ($this->columnCount > 1) {
                     $tmpresth -= ($this->height - $this->y - $this->bottomMargin);
                 }
                 else {
@@ -1008,9 +1008,9 @@ trait Cells
             $endpage  = $this->page;
         }
         // get latest column
-        $endcolumn = $this->current_column;
-        if ($this->num_columns == 0) {
-            $this->num_columns = 1;
+        $endcolumn = $this->currentColumn;
+        if ($this->columnCount == 0) {
+            $this->columnCount = 1;
         }
         // disable page regions check
         $check_page_regions       = $this->check_page_regions;
@@ -1023,7 +1023,7 @@ trait Cells
         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
             $ccode = '';
             $this->setPage($page);
-            if ($this->num_columns < 2) {
+            if ($this->columnCount < 2) {
                 // single-column mode
                 $this->x($x);
                 $this->y = $this->topMargin;
@@ -1037,7 +1037,7 @@ trait Cells
             if ($startpage == $endpage) {
                 // single page
                 for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
-                    if ($column != $this->current_column) {
+                    if ($column != $this->currentColumn) {
                         $this->selectColumn($column);
                     }
                     $this->x += $mc_margin['L'];
@@ -1067,8 +1067,8 @@ trait Cells
                 } // end for each column
             }
             elseif ($page == $startpage) { // first page
-                for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
-                    if ($column != $this->current_column) {
+                for ($column = $startcolumn; $column < $this->columnCount; ++$column) { // for each column
+                    if ($column != $this->currentColumn) {
                         $this->selectColumn($column);
                     }
                     $this->x += $mc_margin['L'];
@@ -1087,7 +1087,7 @@ trait Cells
             }
             elseif ($page == $endpage) { // last page
                 for ($column = 0; $column <= $endcolumn; ++$column) { // for each column
-                    if ($column != $this->current_column) {
+                    if ($column != $this->currentColumn) {
                         $this->selectColumn($column);
                     }
                     $this->x += $mc_margin['L'];
@@ -1109,7 +1109,7 @@ trait Cells
                 } // end for each column
             }
             else { // middle page
-                for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
+                for ($column = 0; $column < $this->columnCount; ++$column) { // for each column
                     $this->selectColumn($column);
                     $this->x += $mc_margin['L'];
                     $cborder = $border_middle;
@@ -1163,7 +1163,7 @@ trait Cells
         // Get end-of-cell Y position
         $currentY = $this->y();
         // restore previous values
-        if ($this->num_columns > 1) {
+        if ($this->columnCount > 1) {
             $this->selectColumn();
         }
         else {

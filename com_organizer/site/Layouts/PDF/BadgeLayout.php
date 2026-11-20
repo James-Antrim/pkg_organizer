@@ -171,7 +171,7 @@ abstract class BadgeLayout extends BaseLayout
 
         $view->renderCell(80, 5, $dates, $view::CENTER);
         $halfTitleOffset = $titleOffset / 2;
-        $view->Ln();
+        $view->lineBreak();
         $view->changeFont($view::BOLD, 20);
         $view->reposition($left, $yOffset + $halfTitleOffset + 47);
         $view->renderCell(80, 5, Text::_('ORGANIZER_BADGE'), $view::CENTER);
@@ -180,14 +180,14 @@ abstract class BadgeLayout extends BaseLayout
         $view->changeFont($view::REGULAR, 10);
 
         $yOffset += 63;
-        $view->Ln();
+        $view->lineBreak();
         $view->reposition($left, $yOffset);
         $view->renderCell(20, 5, Text::_('ORGANIZER_NAME') . ': ');
         $view->changeFont($view::BOLD);
         $surname = $participant->surname ?: '';
         $view->renderCell(65, 5, $surname);
 
-        $view->Ln();
+        $view->lineBreak();
         $yOffset += 5;
         $view->reposition($left, $yOffset);
         $view->renderCell(20, 5, '');
@@ -195,7 +195,7 @@ abstract class BadgeLayout extends BaseLayout
         $view->renderCell(65, 5, $forename);
 
 
-        $view->Ln();
+        $view->lineBreak();
         $yOffset += 5;
         $view->changeFont();
         $view->reposition($left, $yOffset);
@@ -203,7 +203,7 @@ abstract class BadgeLayout extends BaseLayout
         $address1 = $participant->address ?: '';
         $view->renderCell(65, 5, $address1);
 
-        $view->Ln();
+        $view->lineBreak();
         $yOffset += 5;
         $view->reposition($left, $yOffset);
         $view->renderCell(20, 5, Text::_('ORGANIZER_RESIDENCE') . ': ');

@@ -58,7 +58,7 @@ abstract class ListLayout extends BaseLayout
     protected function line(): void
     {
         $view = $this->view;
-        $view->Ln();
+        $view->lineBreak();
 
         if ($view->y() > 275) {
             $this->page();
@@ -96,7 +96,7 @@ abstract class ListLayout extends BaseLayout
             }
         }
 
-        $view->Ln();
+        $view->lineBreak();
 
         // reset styles
         $view->fillColor(255);

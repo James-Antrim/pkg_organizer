@@ -16,12 +16,30 @@ trait Columns
 {
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
+    protected int $columnCount = 1;
+    protected array $columns = [];
+    protected int $currentColumn = 0;
+
 #endregion
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 #endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
+    /**
+     * Starting page for columns.
+     */
+    protected $column_start_page = 0;
+
+    /**
+     * Maximum page and column selected.
+     */
+    protected $maxselcol = ['page' => 0, 'column' => 0];
+
+    /**
+     * Array of: X difference between table cell x start and starting page margin, cellspacing, cellpadding.
+     */
+    protected $colxshift = ['x' => 0, 's' => ['H' => 0, 'V' => 0], 'p' => ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0]];
 #endregion
 
 }

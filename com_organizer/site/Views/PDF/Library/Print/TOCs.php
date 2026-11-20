@@ -61,7 +61,7 @@ trait TOCs
         $current_page    = $this->page;
         $page_fill_start = false;
         $page_fill_end   = false;
-        $current_column  = $this->current_column;
+        $currentColumn   = $this->currentColumn;
         if (StaticMethods::empty_string($numbersfont)) {
             $numbersfont = $this->default_monospaced_font;
         }
@@ -97,18 +97,18 @@ trait TOCs
             // check for page break
             $this->checkPageBreak(2 * $this->getCellHeight($this->fontSize));
             // set margins and X position
-            if (($this->page == $current_page) and ($this->current_column == $current_column)) {
+            if (($this->page == $current_page) and ($this->currentColumn == $currentColumn)) {
                 $this->leftMargin  = $lmargin;
                 $this->rightMargin = $rmargin;
             }
             else {
-                if ($this->current_column != $current_column) {
-                    $x_start = $this->columns[$this->current_column]['x'];
+                if ($this->currentColumn != $currentColumn) {
+                    $x_start = $this->columns[$this->currentColumn]['x'];
                 }
-                $lmargin        = $this->leftMargin;
-                $rmargin        = $this->rightMargin;
-                $current_page   = $this->page;
-                $current_column = $this->current_column;
+                $lmargin       = $this->leftMargin;
+                $rmargin       = $this->rightMargin;
+                $current_page  = $this->page;
+                $currentColumn = $this->currentColumn;
             }
             $this->x($x_start);
             $indent           = ($spacer * $outline['l']);

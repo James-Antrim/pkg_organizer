@@ -367,7 +367,7 @@ abstract class GridLayout extends BaseLayout
             $currentDT = strtotime("+1 day", $currentDT);
         }
 
-        $view->Ln();
+        $view->lineBreak();
     }
 
     /**
@@ -403,7 +403,7 @@ abstract class GridLayout extends BaseLayout
             $currentDT = strtotime("+1 day", $currentDT);
         }
 
-        $view->Ln();
+        $view->lineBreak();
         $view->font('helvetica', '', $this::FONT_SIZE);
     }
 
@@ -753,7 +753,7 @@ abstract class GridLayout extends BaseLayout
         $yPos         = $view->y();
 
         if (($yPos + $rowHeight + $bottomMargin) > $pageHeight) {
-            $view->Ln();
+            $view->lineBreak();
             $this->gridPage($monDate, $saturDate);
 
             return true;
@@ -965,7 +965,7 @@ abstract class GridLayout extends BaseLayout
                 $currentDT = strtotime("+1 day", $currentDT);
             }
 
-            $view->Ln();
+            $view->lineBreak();
         }
     }
 

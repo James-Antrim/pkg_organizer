@@ -349,6 +349,11 @@ trait Pages
 
 
     /**
+     * Store the fage status (true when opened, false when closed).
+     */
+    protected $pageopen = [];
+
+    /**
      * Initialize a new page.
      * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
@@ -567,11 +572,11 @@ trait Pages
      */
     public function AcceptPageBreak()
     {
-        if ($this->num_columns > 1) {
+        if ($this->columnCount > 1) {
             // multi column mode
-            if ($this->current_column < ($this->num_columns - 1)) {
+            if ($this->currentColumn < ($this->columnCount - 1)) {
                 // go to next column
-                $this->selectColumn($this->current_column + 1);
+                $this->selectColumn($this->currentColumn + 1);
             }
             elseif ($this->autoPageBreak) {
                 // add a new page

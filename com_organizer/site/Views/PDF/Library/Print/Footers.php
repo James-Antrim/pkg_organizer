@@ -24,6 +24,23 @@ trait Footers
 
 
     /**
+     * Minimum distance between footer and bottom page margin.
+     * @var float
+     */
+    protected $footer_margin;
+
+    /**
+     * bool flag to print/hide page footer.
+     */
+    protected $print_footer = true;
+
+    /**
+     * Array used to store footer positions of each page.
+     */
+    protected $footerpos = [];
+
+
+    /**
      * Returns footer margin in user units.
      * @return float
      */
@@ -76,7 +93,7 @@ trait Footers
         //print document barcode
         $barcode = $this->getBarcode();
         if (!empty($barcode)) {
-            $this->Ln($line_width);
+            $this->lineBreak($line_width);
             $barcode_width = round(($this->width - $this->originalLeftMargin - $this->originalRightMargin) / 3);
             $style         = [
                 'align'        => 'L',
@@ -121,11 +138,11 @@ trait Footers
         $this->append("\n");
         if ($this->print_footer) {
             $this->graphicsConfiguration($this->graphicsConfiguration);
-            $this->current_column = 0;
-            $this->num_columns    = 1;
-            $temp_thead           = $this->headerTemplate;
-            $temp_theadMargins    = $this->headerTemplateMargins;
-            $lasth                = $this->lastPrintedCellHeight;
+            $this->currentColumn = 0;
+            $this->columnCount   = 1;
+            $temp_thead          = $this->headerTemplate;
+            $temp_theadMargins   = $this->headerTemplateMargins;
+            $lasth               = $this->lastPrintedCellHeight;
             $this->appendSaveGraphicsState();
             $this->rightMargin = $this->originalRightMargin;
             $this->leftMargin  = $this->originalLeftMargin;
@@ -144,8 +161,8 @@ trait Footers
         }
         // restore graphic settings
         $this->graphicsConfiguration($gvars);
-        $this->current_column = $gvars['current_column'];
-        $this->num_columns    = $gvars['num_columns'];
+        $this->currentColumn = $gvars['currentColumn'];
+        $this->columnCount   = $gvars['columnCount'];
         // calculate footer length
         $this->footerLengths[$this->page] = $this->pageLengths[$this->page] - $this->footerpos[$this->page] + 1;
         $this->inFooter                   = false;

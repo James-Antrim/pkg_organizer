@@ -2023,7 +2023,7 @@ trait Images
                 $this->x              = $gvars['x'];
                 $this->y              = $gvars['y'];
                 $this->page           = $gvars['page'];
-                $this->current_column = $gvars['current_column'];
+                $this->currentColumn  = $gvars['currentColumn'];
                 $this->topMargin      = $gvars['tMargin'];
                 $this->bottomMargin   = $gvars['bMargin'];
                 $this->width          = $gvars['w'];

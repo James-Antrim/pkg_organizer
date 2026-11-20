@@ -44,6 +44,16 @@ trait WebTools
 
 
     /**
+     * Javascript objects array.
+     */
+    protected $js_objects = [];
+
+    /**
+     * Javascript counter.
+     */
+    protected $n_js;
+
+    /**
      * Output anchor link.
      * @param string     $url        link URL or internal link (i.e.: &lt;a href="#23,4.5"&gt;link to page 23 at 4.5 Y position&lt;/a&gt;)
      * @param string     $name       link name
@@ -678,7 +688,7 @@ trait WebTools
                             $tmp_cellspacing = 0;
                         }
                         $dom[$dom[$key]['parent']]['borderposition']['page']   = $this->page;
-                        $dom[$dom[$key]['parent']]['borderposition']['column'] = $this->current_column;
+                        $dom[$dom[$key]['parent']]['borderposition']['column'] = $this->currentColumn;
                         $dom[$dom[$key]['parent']]['borderposition']['y']      = $this->y + $tmp_cellspacing;
                         $xoffset                                               = ($this->x - $dom[$dom[$key]['parent']]['borderposition']['x']);
                         $dom[$dom[$key]['parent']]['borderposition']['x']      += $xoffset;
@@ -708,7 +718,7 @@ trait WebTools
                         if (($imgw <= ($this->width - $this->leftMargin - $this->rightMargin - $this->cellPaddings['L'] - $this->cellPaddings['R'])) and ($this->x + $imgw) > ($this->width - $this->rightMargin - $this->cellPaddings['R'])) {
                             // add automatic line break
                             $autolinebreak = true;
-                            $this->Ln('', $cell);
+                            $this->lineBreak('', $cell);
                             if ((!$dom[($key - 1)]['tag']) and ($dom[($key - 1)]['value'] == ' ')) {
                                 // go back to evaluate this line break
                                 --$key;
@@ -1390,9 +1400,9 @@ trait WebTools
                             $this->setPage($dom[$trid]['startpage']);
                         }
                         if (!isset($dom[$trid]['startcolumn'])) {
-                            $dom[$trid]['startcolumn'] = $this->current_column;
+                            $dom[$trid]['startcolumn'] = $this->currentColumn;
                         }
-                        elseif ($this->current_column != $dom[$trid]['startcolumn']) {
+                        elseif ($this->currentColumn != $dom[$trid]['startcolumn']) {
                             $tmpx = $this->x;
                             $this->selectColumn($dom[$trid]['startcolumn']);
                             $this->x = $tmpx;
@@ -1435,7 +1445,7 @@ trait WebTools
                                 if (($trwsp['rowspan'] > 0)
                                     and ($rsstartx > ($this->x - $cellspacing['H'] - $currentPaddings['L'] - self::EPSILON))
                                     and ($rsstartx < ($this->x + $cellspacing['H'] + $currentPaddings['R'] + self::EPSILON))
-                                    and (($trwsp['starty'] < ($this->y - self::EPSILON)) or ($trwsp['startpage'] < $this->page) or ($trwsp['startcolumn'] < $this->current_column))) {
+                                    and (($trwsp['starty'] < ($this->y - self::EPSILON)) or ($trwsp['startpage'] < $this->page) or ($trwsp['startcolumn'] < $this->currentColumn))) {
                                     // set the starting X position of the current cell
                                     $this->x = $rsendx + $cellspacingx;
                                     // increment column indicator
@@ -1477,7 +1487,7 @@ trait WebTools
                         $colid += $colspan;
                         // add rowspan information to table element
                         if ($rowspan > 1) {
-                            $trsid = array_push($dom[$table_el]['rowspans'], ['trid' => $trid, 'rowspan' => $rowspan, 'mrowspan' => $rowspan, 'colspan' => $colspan, 'startpage' => $this->page, 'startcolumn' => $this->current_column, 'startx' => $this->x, 'starty' => $this->y]);
+                            $trsid = array_push($dom[$table_el]['rowspans'], ['trid' => $trid, 'rowspan' => $rowspan, 'mrowspan' => $rowspan, 'colspan' => $colspan, 'startpage' => $this->page, 'startcolumn' => $this->currentColumn, 'startx' => $this->x, 'starty' => $this->y]);
                         }
                         $cellid = array_push($dom[$trid]['cellpos'], ['startx' => $this->x]);
                         if ($rowspan > 1) {
@@ -1506,10 +1516,10 @@ trait WebTools
                         // update the end of row position
                         if ($rowspan <= 1) {
                             if (isset($dom[$trid]['endy'])) {
-                                if (($this->page == $dom[$trid]['endpage']) and ($this->current_column == $dom[$trid]['endcolumn'])) {
+                                if (($this->page == $dom[$trid]['endpage']) and ($this->currentColumn == $dom[$trid]['endcolumn'])) {
                                     $dom[$trid]['endy'] = max($this->y, $dom[$trid]['endy']);
                                 }
-                                elseif (($this->page > $dom[$trid]['endpage']) or ($this->current_column > $dom[$trid]['endcolumn'])) {
+                                elseif (($this->page > $dom[$trid]['endpage']) or ($this->currentColumn > $dom[$trid]['endcolumn'])) {
                                     $dom[$trid]['endy'] = $this->y;
                                 }
                             }
@@ -1523,10 +1533,10 @@ trait WebTools
                                 $dom[$trid]['endpage'] = $this->page;
                             }
                             if (isset($dom[$trid]['endcolumn'])) {
-                                $dom[$trid]['endcolumn'] = max($this->current_column, $dom[$trid]['endcolumn']);
+                                $dom[$trid]['endcolumn'] = max($this->currentColumn, $dom[$trid]['endcolumn']);
                             }
                             else {
-                                $dom[$trid]['endcolumn'] = $this->current_column;
+                                $dom[$trid]['endcolumn'] = $this->currentColumn;
                             }
                         }
                         else {
@@ -1534,7 +1544,7 @@ trait WebTools
                             $dom[$table_el]['rowspans'][($trsid - 1)]['endx']      = $this->x;
                             $dom[$table_el]['rowspans'][($trsid - 1)]['endy']      = $this->y;
                             $dom[$table_el]['rowspans'][($trsid - 1)]['endpage']   = $this->page;
-                            $dom[$table_el]['rowspans'][($trsid - 1)]['endcolumn'] = $this->current_column;
+                            $dom[$table_el]['rowspans'][($trsid - 1)]['endcolumn'] = $this->currentColumn;
                         }
                         if (isset($dom[$table_el]['rowspans'])) {
                             // update endy and endpage on rowspanned cells
@@ -1867,7 +1877,7 @@ trait WebTools
         }
         // restore previous values
         $this->graphicsConfiguration($gvars);
-        if ($this->num_columns > 1) {
+        if ($this->columnCount > 1) {
             $this->selectColumn();
         }
         elseif ($this->page > $prevPage) {
@@ -1881,7 +1891,7 @@ trait WebTools
         $this->listcount       = $prev_listcount;
         $this->lispacer        = $prev_lispacer;
         if ($ln and (!($cell and ($dom[$key - 1]['value'] == 'table')))) {
-            $this->Ln($this->lastPrintedCellHeight);
+            $this->lineBreak($this->lastPrintedCellHeight);
             if (($this->y < $maxbottomliney) and ($startlinepage == $this->page)) {
                 $this->y = $maxbottomliney;
             }
@@ -2725,8 +2735,8 @@ trait WebTools
                     $parent['endpage']                      = $this->page;
                 }
                 if (!isset($parent['endcolumn'])) {
-                    $dom[($dom[$key]['parent'])]['endcolumn'] = $this->current_column;
-                    $parent['endcolumn']                      = $this->current_column;
+                    $dom[($dom[$key]['parent'])]['endcolumn'] = $this->currentColumn;
+                    $parent['endcolumn']                      = $this->currentColumn;
                 }
                 // update row-spanned cells
                 if (isset($dom[$table_el]['rowspans'])) {
@@ -2765,10 +2775,10 @@ trait WebTools
                 }
                 $prev_page = $this->page;
                 $this->setPage($dom[($dom[$key]['parent'])]['endpage']);
-                if ($this->num_columns > 1) {
+                if ($this->columnCount > 1) {
                     if (($prev_page < $this->page)
-                        and ((($this->current_column == 0) and ($dom[($dom[$key]['parent'])]['endcolumn'] == ($this->num_columns - 1)))
-                            or ($this->current_column == $dom[($dom[$key]['parent'])]['endcolumn']))) {
+                        and ((($this->currentColumn == 0) and ($dom[($dom[$key]['parent'])]['endcolumn'] == ($this->columnCount - 1)))
+                            or ($this->currentColumn == $dom[($dom[$key]['parent'])]['endcolumn']))) {
                         // page jump
                         $this->selectColumn(0);
                         $dom[($dom[$key]['parent'])]['endcolumn'] = 0;
@@ -2788,8 +2798,8 @@ trait WebTools
                 elseif (isset($dom[$table_el]['border-spacing'])) {
                     $this->y += $dom[$table_el]['border-spacing']['V'];
                 }
-                $this->Ln(0, $cell);
-                if ($this->current_column == $parent['startcolumn']) {
+                $this->lineBreak(0, $cell);
+                if ($this->currentColumn == $parent['startcolumn']) {
                     $this->x = $parent['startx'];
                 }
                 // account for booklet mode
@@ -2872,8 +2882,8 @@ trait WebTools
                             $startcolumn = $parent['startcolumn'];
                             $endcolumn   = $parent['endcolumn'];
                         }
-                        if ($this->num_columns == 0) {
-                            $this->num_columns = 1;
+                        if ($this->columnCount == 0) {
+                            $this->columnCount = 1;
                         }
                         if (isset($cellpos['border'])) {
                             $border = $cellpos['border'];
@@ -2897,7 +2907,7 @@ trait WebTools
                         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
                             $ccode = '';
                             $this->setPage($page);
-                            if ($this->num_columns < 2) {
+                            if ($this->columnCount < 2) {
                                 // single-column mode
                                 $this->x = $x;
                                 $this->y = $this->topMargin;
@@ -2948,7 +2958,7 @@ trait WebTools
                             elseif ($page == $startpage) { // first page
                                 $deltacol = 0;
                                 $deltath  = 0;
-                                for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
+                                for ($column = $startcolumn; $column < $this->columnCount; ++$column) { // for each column
                                     $this->selectColumn($column);
                                     if ($column == $startcolumn) { // first column
                                         $cborder  = $border_start;
@@ -2995,7 +3005,7 @@ trait WebTools
                             else { // middle page
                                 $deltacol = 0;
                                 $deltath  = 0;
-                                for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
+                                for ($column = 0; $column < $this->columnCount; ++$column) { // for each column
                                     $this->selectColumn($column);
                                     $cborder = $border_middle;
                                     if (isset($this->columns[$column]['th']['\'' . $page . '\''])) {
@@ -3053,7 +3063,7 @@ trait WebTools
                     elseif (isset($table_el['border-spacing'])) {
                         $this->y += $table_el['border-spacing']['V'];
                     }
-                    $this->Ln(0, $cell);
+                    $this->lineBreak(0, $cell);
                     $this->x = $parent['startx'];
                     if ($endpage > $startpage) {
                         if ($this->pageDimensions[$endpage]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
@@ -4527,12 +4537,12 @@ trait WebTools
     protected function addHTMLVertSpace($hbz = 0, $hb = 0, $cell = false, $firsttag = false, $lasttag = false)
     {
         if ($firsttag) {
-            $this->Ln(0, $cell);
+            $this->lineBreak(0, $cell);
             $this->htmlvspace = 0;
             return;
         }
         if ($lasttag) {
-            $this->Ln($hbz, $cell);
+            $this->lineBreak($hbz, $cell);
             $this->htmlvspace = 0;
             return;
         }
@@ -4543,7 +4553,7 @@ trait WebTools
             $hd               = $hb - $this->htmlvspace;
             $this->htmlvspace = $hb;
         }
-        $this->Ln(($hbz + $hd), $cell);
+        $this->lineBreak(($hbz + $hd), $cell);
     }
 
     /**
@@ -4612,9 +4622,9 @@ trait WebTools
         $currentY    = $this->y;
         $this->x     = $x;
         // get latest column
-        $endcolumn = $this->current_column;
-        if ($this->num_columns == 0) {
-            $this->num_columns = 1;
+        $endcolumn = $this->currentColumn;
+        if ($this->columnCount == 0) {
+            $this->columnCount = 1;
         }
         // get border modes
         $border_start  = StaticMethods::getBorderMode($border, $position = 'start', $this->opencell);
@@ -4627,7 +4637,7 @@ trait WebTools
         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
             $ccode = '';
             $this->setPage($page);
-            if ($this->num_columns < 2) {
+            if ($this->columnCount < 2) {
                 // single-column mode
                 $this->x = $x;
                 $this->y = $this->topMargin;
@@ -4664,7 +4674,7 @@ trait WebTools
                 } // end for each column
             }
             elseif ($page == $startpage) { // first page
-                for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
+                for ($column = $startcolumn; $column < $this->columnCount; ++$column) { // for each column
                     $this->selectColumn($column);
                     if ($column == $startcolumn) { // first column
                         $cborder = $border_start;
@@ -4695,7 +4705,7 @@ trait WebTools
                 } // end for each column
             }
             else { // middle page
-                for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
+                for ($column = 0; $column < $this->columnCount; ++$column) { // for each column
                     $this->selectColumn($column);
                     $cborder = $border_middle;
                     $h       = $this->height - $this->y - $this->bottomMargin;

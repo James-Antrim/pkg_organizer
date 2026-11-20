@@ -390,13 +390,13 @@ class PDF
             if ($extended) {
                 $this->autoPageBreak         = $parameters['autoPageBreak'];
                 $this->bottomMargin          = $parameters['bMargin'];
-                $this->current_column        = $parameters['current_column'];
+                $this->columnCount           = $parameters['columnCount'];
+                $this->currentColumn         = $parameters['currentColumn'];
                 $this->formatHeightPT        = $parameters['fhPt'];
                 $this->formatWidthPT         = $parameters['fwPt'];
                 $this->height                = $parameters['h'];
                 $this->heightPT              = $parameters['hPt'];
                 $this->lastPrintedCellHeight = $parameters['lasth'];
-                $this->num_columns           = $parameters['num_columns'];
                 $this->page                  = $parameters['page'];
                 $this->breakTrigger          = $parameters['PageBreakTrigger'];
                 $this->topMargin             = $parameters['tMargin'];
@@ -447,13 +447,13 @@ class PDF
             // Extended
             'autoPageBreak'    => $this->autoPageBreak,
             'bMargin'          => $this->bottomMargin,
-            'current_column'   => $this->current_column,
+            'columnCount'      => $this->columnCount,
+            'currentColumn'    => $this->currentColumn,
             'fhPt'             => $this->formatHeightPT,
             'fwPt'             => $this->formatWidthPT,
             'h'                => $this->height,
             'hPt'              => $this->heightPT,
             'lasth'            => $this->lastPrintedCellHeight,
-            'num_columns'      => $this->num_columns,
             'page'             => $this->page,
             'PageBreakTrigger' => $this->breakTrigger,
             'tMargin'          => $this->topMargin,
@@ -490,7 +490,7 @@ class PDF
      */
     protected function setTableHeader()
     {
-        if ($this->num_columns > 1) {
+        if ($this->columnCount > 1) {
             // multi column mode
             return;
         }
@@ -602,12 +602,6 @@ class PDF
     protected $PDFVersion = '1.7';
 
     /**
-     * Minimum distance between footer and bottom page margin.
-     * @var float
-     */
-    protected $footer_margin;
-
-    /**
      * Language templates.
      */
     protected $l;
@@ -616,11 +610,6 @@ class PDF
      * Barcode to print on page footer (only if set).
      */
     protected $barcode = false;
-
-    /**
-     * bool flag to print/hide page footer.
-     */
-    protected $print_footer = true;
 
     /**
      * Text shadow data array.
@@ -650,11 +639,6 @@ class PDF
     protected $OutlineRoot;
 
     // --- javascript and form ---
-
-    /**
-     * Javascript counter.
-     */
-    protected $n_js;
 
     /**
      * Array of page numbers were a new page group was started (the page numbers are the keys of the array).
@@ -695,12 +679,6 @@ class PDF
      * Array used to store content positions inside the pages buffer (keys are the page numbers).
      */
     protected $cntmrk = [];
-
-    /**
-     * Array used to store footer positions of each page.
-     */
-    protected $footerpos = [];
-
     /**
      * End position of the latest inserted line.
      */
@@ -757,11 +735,6 @@ class PDF
     protected $numpages = 0;
 
     /**
-     * Store the fage status (true when opened, false when closed).
-     */
-    protected $pageopen = [];
-
-    /**
      * Cloned copy of the current class object.
      */
     protected $objcopy;
@@ -792,30 +765,14 @@ class PDF
     protected array $empty_signature_appearance = [];
 
     /**
-     * bool flag to enable document timestamping with TSA.
-     */
-    protected bool $tsa_timestamp = false;
-
-    /**
-     * Timestamping data.
-     */
-    protected array $tsa_data = [];
-
-    /**
      * Digital signature object ID.
      */
     protected $sig_obj_id = 0;
-
 
     /**
      * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
      */
     protected array $default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => self::GRAY];
-
-    /**
-     * Javascript objects array.
-     */
-    protected $js_objects = [];
 
     /**
      * Current method to submit forms.
@@ -846,36 +803,6 @@ class PDF
      * Store Y position when startTransaction() is called.
      */
     protected $start_transaction_y = 0;
-
-    /**
-     * Array of column measures (width, space, starting Y position).
-     */
-    protected $columns = [];
-
-    /**
-     * Number of colums.
-     */
-    protected $num_columns = 1;
-
-    /**
-     * Current column number.
-     */
-    protected $current_column = 0;
-
-    /**
-     * Starting page for columns.
-     */
-    protected $column_start_page = 0;
-
-    /**
-     * Maximum page and column selected.
-     */
-    protected $maxselcol = ['page' => 0, 'column' => 0];
-
-    /**
-     * Array of: X difference between table cell x start and starting page margin, cellspacing, cellpadding.
-     */
-    protected $colxshift = ['x' => 0, 's' => ['H' => 0, 'V' => 0], 'p' => ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0]];
 
     /**
      * Text rendering mode: 0 = Fill text; 1 = Stroke text; 2 = Fill, then stroke text; 3 = Neither fill nor stroke text (invisible); 4 = Fill text and add to path for clipping; 5 = Stroke text and add to path for clipping; 6 = Fill, then stroke text and add to path for clipping; 7 = Add text to path for clipping.
@@ -2321,33 +2248,6 @@ class PDF
             }
         }
         return $this->gdgammacache['#' . $c];
-    }
-
-    /**
-     * Performs a line break.
-     * The current abscissa goes back to the left margin and the ordinate increases by the amount passed in parameter.
-     * @param float|null $h    The height of the break. By default, the value equals the height of the last printed cell.
-     * @param bool       $cell if true add the current left padding to the X coordinate
-     * @see   Cell()
-     */
-    public function Ln($h = null, $cell = false)
-    {
-        if (($this->num_columns > 1) and ($this->y == $this->columns[$this->current_column]['y']) and isset($this->columns[$this->current_column]['x']) and ($this->x == $this->columns[$this->current_column]['x'])) {
-            // revove vertical space from the top of the column
-            return;
-        }
-        if ($cell) {
-            $cellpadding = $this->cellPaddings['L'];
-        }
-        else {
-            $cellpadding = 0;
-        }
-        $this->x = $this->leftMargin + $cellpadding;
-        if (StaticMethods::empty_string($h)) {
-            $h = $this->lastPrintedCellHeight;
-        }
-        $this->y       += $h;
-        $this->newLine = true;
     }
 
     /**
@@ -6033,7 +5933,7 @@ class PDF
     protected function getBorderStartPosition()
     {
         $xmax = $this->width - $this->rightMargin;
-        return ['page' => $this->page, 'column' => $this->current_column, 'x' => $this->x, 'y' => $this->y, 'xmax' => $xmax];
+        return ['page' => $this->page, 'column' => $this->currentColumn, 'x' => $this->x, 'y' => $this->y, 'xmax' => $xmax];
     }
 
     /**
@@ -6669,8 +6569,8 @@ class PDF
                 $this->columns[$i] = ['w' => $width, 's' => $space, 'y' => $y];
             }
         }
-        $this->num_columns       = $numcols;
-        $this->current_column    = 0;
+        $this->columnCount       = $numcols;
+        $this->currentColumn     = 0;
         $this->column_start_page = $this->page;
         $this->selectColumn(0);
     }
@@ -6682,15 +6582,15 @@ class PDF
     public function selectColumn($col = null)
     {
         if (StaticMethods::empty_string($col)) {
-            $col = $this->current_column;
+            $col = $this->currentColumn;
         }
-        elseif ($col >= $this->num_columns) {
+        elseif ($col >= $this->columnCount) {
             $col = 0;
         }
         $xshift       = ['x' => 0, 's' => ['H' => 0, 'V' => 0], 'p' => ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0]];
         $enable_thead = false;
-        if ($this->num_columns > 1) {
-            if ($col != $this->current_column) {
+        if ($this->columnCount > 1) {
+            if ($col != $this->currentColumn) {
                 // move Y pointer at the top of the column
                 if ($this->column_start_page == $this->page) {
                     $this->y = $this->columns[$col]['y'];
@@ -6719,7 +6619,7 @@ class PDF
             $this->x                  = $x + $listindent;
             $this->columns[$col]['x'] = $x;
         }
-        $this->current_column = $col;
+        $this->currentColumn = $col;
         // fix for HTML mode
         $this->newLine = true;
         // print HTML table header (if any)
@@ -7052,8 +6952,8 @@ class PDF
         $this->xObjects[$this->xObjectID]['gradients']      = [];
         $this->xObjects[$this->xObjectID]['spot_colors']    = [];
         // set new environment
-        $this->num_columns    = 1;
-        $this->current_column = 0;
+        $this->columnCount   = 1;
+        $this->currentColumn = 0;
         $this->autoPageBreak(false);
         if (($w === '') or ($w <= 0)) {
             $w = $this->width - $this->leftMargin - $this->rightMargin;
@@ -7383,8 +7283,8 @@ class PDF
             $x = $this->x;
             $y = $this->y;
         }
-        if ($this->num_columns > 1) {
-            $this->rightMargin = ($this->width - $this->columns[$this->current_column]['x'] - $this->columns[$this->current_column]['w']);
+        if ($this->columnCount > 1) {
+            $this->rightMargin = ($this->width - $this->columns[$this->currentColumn]['x'] - $this->columns[$this->currentColumn]['w']);
         }
         else {
             $this->rightMargin = max($this->cellRightMargin, $this->originalRightMargin);
@@ -7569,7 +7469,7 @@ class PDF
      */
     public function getColumn()
     {
-        return $this->current_column;
+        return $this->currentColumn;
     }
 
     /**
@@ -7594,8 +7494,8 @@ class PDF
     public function setColumnsArray($columns)
     {
         $this->columns           = $columns;
-        $this->num_columns       = count($columns);
-        $this->current_column    = 0;
+        $this->columnCount       = count($columns);
+        $this->currentColumn     = 0;
         $this->column_start_page = $this->page;
         $this->selectColumn(0);
     }
@@ -7608,7 +7508,7 @@ class PDF
      */
     public function getNumberOfColumns()
     {
-        return $this->num_columns;
+        return $this->columnCount;
     }
 
     /**
