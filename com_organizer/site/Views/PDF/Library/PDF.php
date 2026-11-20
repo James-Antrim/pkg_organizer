@@ -186,6 +186,23 @@ class PDF
     }
 
     /**
+     * Encode a name for appending to the document
+     * @param string $text
+     * @return string
+     */
+    public function encodeText(string $text): string
+    {
+        $return = '';
+
+        for ($index = 0; $index < strlen($text); ++$index) {
+            $character = $text[$index];
+            $return    .= preg_match('/[0-9a-zA-Z#_=-]/', $character) === 1 ? $character : sprintf('#%02X', ord($character));
+        }
+
+        return $return;
+    }
+
+    /**
      * Ends a 2D transformation, restoring previous graphic state. This function must be called after mirroring, rotation, scaling, skewing and
      * translation transformations. Use startTransformation() before the transformations to save normal behavior before the transformation.
      * @see   startTransformation()
@@ -226,6 +243,20 @@ class PDF
         $this->offsets[$objectID]         = $this->bufferLength;
         $this->pageObjects[$this->page][] = $objectID;
         return $objectID . ' 0 obj';
+    }
+
+    /**
+     * Output data and compress it if possible.
+     * @param string $output
+     * @param int    $length (bytes)
+     */
+    public function outputData(string $output, int $length): void
+    {
+        if (empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+            // the content length may vary if the server is using compression
+            header('Content-Length: ' . $length);
+        }
+        echo $output;
     }
 
     /**
@@ -617,11 +648,6 @@ class PDF
      * Array of used images.
      */
     protected $images = [];
-
-    /**
-     * Layout display mode.
-     */
-    protected $LayoutMode;
 
     /**
      * If true set the document information dictionary in Unicode.
@@ -1288,7 +1314,7 @@ class PDF
         }
         $this->pageAnnotations[$page][] = ['n' => ++$this->objectNumber, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
         if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!StaticMethods::empty_string($opt['FS']))
-            and (@file_exists($opt['FS']) or StaticMethods::isValidURL($opt['FS']))
+            and (@file_exists($opt['FS']) or $this->validURL($opt['FS']))
             and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
             $this->embeddedfiles[basename($opt['FS'])] = ['f' => ++$this->objectNumber, 'n' => ++$this->objectNumber, 'file' => $opt['FS']];
         }
@@ -2039,7 +2065,7 @@ class PDF
                     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
                     header('Content-Disposition: inline; filename="' . rawurlencode(basename($name)) . '"; ' .
                         'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
-                    StaticMethods::sendOutputData($this->buffer(), $this->bufferLength);
+                    $this->outputData($this->buffer(), $this->bufferLength);
                 }
                 else {
                     echo $this->buffer();
@@ -2075,7 +2101,7 @@ class PDF
                 header('Content-Disposition: attachment; filename="' . rawurlencode(basename($name)) . '"; ' .
                     'filename*=UTF-8\'\'' . rawurlencode(basename($name)));
                 header('Content-Transfer-Encoding: binary');
-                StaticMethods::sendOutputData($this->buffer(), $this->bufferLength);
+                $this->outputData($this->buffer(), $this->bufferLength);
                 break;
             }
             case 'F':
@@ -2098,7 +2124,7 @@ class PDF
                     header('Expires: Sat, 26 Jul 1997 05:00:00 GMT'); // Date in the past
                     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
                     header('Content-Disposition: inline; filename="' . basename($name) . '"');
-                    StaticMethods::sendOutputData(file_get_contents($name), filesize($name));
+                    $this->outputData(file_get_contents($name), filesize($name));
                 }
                 elseif ($dest == 'FD') {
                     // send headers to browser
@@ -2126,7 +2152,7 @@ class PDF
                     // use the Content-Disposition header to supply a recommended filename
                     header('Content-Disposition: attachment; filename="' . basename($name) . '"');
                     header('Content-Transfer-Encoding: binary');
-                    StaticMethods::sendOutputData(file_get_contents($name), filesize($name));
+                    $this->outputData(file_get_contents($name), filesize($name));
                 }
                 break;
             }
@@ -2568,7 +2594,7 @@ class PDF
                             if (is_string($pl['txt']) && !empty($pl['txt'])) {
                                 if ($pl['txt'][0] === '#') {
                                     // internal destination
-                                    $annots .= ' /A <</S /GoTo /D /' . StaticMethods::encodeNameObject(substr($pl['txt'], 1)) . '>>';
+                                    $annots .= ' /A <</S /GoTo /D /' . $this->encodeText(substr($pl['txt'], 1)) . '>>';
                                 }
                                 elseif ($pl['txt'][0] === '%') {
                                     // embedded PDF file
@@ -3330,8 +3356,8 @@ class PDF
             $out .= ' /Dests ' . ($this->n_dests) . ' 0 R';
         }
         $out .= $this->_putviewerpreferences();
-        if (isset($this->LayoutMode) and (!StaticMethods::empty_string($this->LayoutMode))) {
-            $out .= ' /PageLayout /' . $this->LayoutMode;
+        if (isset($this->layoutMode) and (!StaticMethods::empty_string($this->layoutMode))) {
+            $out .= ' /PageLayout /' . $this->layoutMode;
         }
         if (isset($this->pageMode) and (!StaticMethods::empty_string($this->pageMode))) {
             $out .= ' /PageMode /' . $this->pageMode;
@@ -5557,7 +5583,7 @@ class PDF
         $this->start_transaction_page = $this->page;
         $this->start_transaction_y    = $this->y;
         // clone current object
-        $this->clone = StaticMethods::objclone($this);
+        $this->clone = @clone($this);
     }
 
     /**
@@ -6861,26 +6887,6 @@ class PDF
             }
         }
         $this->setPageOrientation($orientation);
-    }
-
-    /**
-     * Defines the way the document is to be displayed by the viewer.
-     * @param mixed  $zoom   The zoom to use. It can be one of the following string values or a number indicating the zooming factor to use. <ul><li>fullpage: displays the entire page on screen </li><li>fullwidth: uses maximum width of window</li><li>real: uses real size (equivalent to 100% zoom)</li><li>default: uses viewer default mode</li></ul>
-     * @param string $layout The page layout. Possible values are:<ul><li>SinglePage Display one page at a time</li><li>OneColumn Display the pages in one column</li><li>TwoColumnLeft Display the pages in two columns, with odd-numbered pages on the left</li><li>TwoColumnRight Display the pages in two columns, with odd-numbered pages on the right</li><li>TwoPageLeft (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the left</li><li>TwoPageRight (PDF 1.5) Display the pages two at a time, with odd-numbered pages on the right</li></ul>
-     * @param string $mode   A name object specifying how the document should be displayed when opened:<ul><li>UseNone Neither document outline nor thumbnail images visible</li><li>UseOutlines Document outline visible</li><li>UseThumbs Thumbnail images visible</li><li>FullScreen Full-screen mode, with no menu bar, window controls, or any other window visible</li><li>UseOC (PDF 1.5) Optional content group panel visible</li><li>UseAttachments (PDF 1.6) Attachments panel visible</li></ul>
-     * @public
-     * @since 1.2
-     */
-    public function setDisplayMode($zoom, $layout = 'SinglePage', $mode = 'UseNone')
-    {
-        if (($zoom == 'fullpage') or ($zoom == 'fullwidth') or ($zoom == 'real') or ($zoom == 'default') or (!is_string($zoom))) {
-            $this->ZoomMode = $zoom;
-        }
-        else {
-            $this->Error('Incorrect zoom display mode: ' . $zoom);
-        }
-        $this->LayoutMode = TCPDF_STATIC::getPageLayoutMode($layout);
-        $this->PageMode   = TCPDF_STATIC::getPageMode($mode);
     }
 
     /**

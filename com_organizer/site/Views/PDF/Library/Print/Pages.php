@@ -27,6 +27,7 @@ trait Pages
     protected float $formatWidthPT = 0;
     protected float $height = 0;
     protected float $heightPT = 0;
+    protected string $layoutMode = self::SINGLE_PAGE;
     protected float $leftMargin = 0;
     protected float $originalLeftMargin = 0;
     protected float $originalRightMargin = 0;
@@ -87,7 +88,7 @@ trait Pages
      */
     public function layoutMode(string $layout = self::SINGLE_PAGE): void
     {
-        $this->LayoutMode = match ($layout) {
+        $this->layoutMode = match ($layout) {
             self::ONE_COLUMN => self::ONE_COLUMN,
             self::TWO_COLUMN_LEFT => self::TWO_COLUMN_LEFT,
             self::TWO_COLUMN_RIGHT => self::TWO_COLUMN_RIGHT,

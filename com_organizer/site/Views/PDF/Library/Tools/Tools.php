@@ -182,6 +182,16 @@ trait Tools
     }
 
     /**
+     * Removes soft-hyphen (commonly abbreviated as SHY) characters from text.
+     * @param string $text
+     * @return string
+     */
+    public function removeSHY(string $text = ''): string
+    {
+        return preg_replace('/([\\xc2]{1}[\\xad]{1})/', '', $text);
+    }
+
+    /**
      * Gets a 32-bit signed fixed-point number from string.
      * @param string $string
      * @param int    $offset

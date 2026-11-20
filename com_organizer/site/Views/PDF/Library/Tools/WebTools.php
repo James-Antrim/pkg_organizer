@@ -130,6 +130,36 @@ trait WebTools
     }
 
     /**
+     * Compact CSS data array into single string.
+     * @param array $css CSS properties
+     * @return string
+     */
+    public function cssArrayToString(array $css): string
+    {
+        $return = '';
+        foreach ($css as $style) {
+            // split single css commands
+            $assignments = explode(';', $style['c']);
+            foreach ($assignments as $assignment) {
+                if ($assignment) {
+                    $position = strpos($assignment, ':');
+                    if ($position !== false) {
+                        $assignment = substr($assignment, 0, ($position + 1));
+                        if (str_contains($return, $assignment)) {
+                            // remove duplicate commands (last commands have high priority)
+                            $return = preg_replace('/' . $assignment . '[^;]+/i', '', $return);
+                        }
+                    }
+                }
+            }
+            $return .= ';' . $style['c'];
+        }
+
+        // remove multiple semicolons
+        return preg_replace('/[;]+/', ';', $return);
+    }
+
+    /**
      * Getter / setter for default form field properties.
      * @param array $properties
      * @return array
@@ -141,6 +171,105 @@ trait WebTools
         }
 
         return $this->defaultFormProperties;
+    }
+
+    /**
+     * Extracts the CSS properties from a CSS string.
+     * @param string $css string containing CSS definitions.
+     * @return array An array where the keys are the CSS selectors and the values are the CSS properties.
+     */
+    public static function extractCSSProperties(string $css): array
+    {
+        if (empty($css)) {
+            return [];
+        }
+
+        // remove comments
+        $css = preg_replace('/\/\*[^*]*\*\//', '', $css);
+        // remove newlines and multiple spaces
+        $css = preg_replace('/\s+/', ' ', $css);
+        // remove some spaces
+        $css = preg_replace('/\s*([;:{}])\s*/', '\\1', $css);
+        // remove empty blocks
+        $css = preg_replace('/([^}{]+)\{}/', '', $css);
+        // replace media type parenthesis
+        $css = preg_replace('/@media\s+([^{]*)\{/i', '@media \\1§', $css);
+        $css = preg_replace('/}}/', '}§', $css);
+        $css = trim($css);
+
+        // find media blocks (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
+        $blocks  = [];
+        $matches = [];
+        if (preg_match_all('/@media[\s]+([^§]*)§([^§]*)§/i', $css, $matches) > 0) {
+            foreach ($matches[1] as $key => $type) {
+                $blocks[$type] = $matches[2][$key];
+            }
+            // remove media blocks
+            $css = preg_replace('/@media\s+([^§]*)§([^§]*)§/i', '', $css);
+        }
+
+        // keep 'all' and 'print' media, other media types are discarded
+        if (!empty($blocks['all'])) {
+            $css .= $blocks['all'];
+        }
+        if (!empty($blocks['print'])) {
+            $css .= $blocks['print'];
+        }
+
+        // reset css blocks array
+        $blocks  = [];
+        $matches = [];
+
+        // remove last parenthesis
+        if (str_ends_with($css, '}')) {
+            $css = substr($css, 0, -1);
+        }
+
+        // explode css data string into array
+        $matches = explode('}', $css);
+        foreach ($matches as $key => $block) {
+            // index 0 contains the CSS selector, index 1 contains CSS properties
+            $blocks[$key] = explode('{', $block);
+
+            // remove empty definitions
+            if (empty($blocks[$key][1])) {
+                unset($blocks[$key]);
+            }
+        }
+
+        // split groups of selectors (comma-separated list of selectors)
+        foreach ($blocks as $key => $block) {
+            if (strpos($block[0], ',') > 0) {
+                $selectors = explode(',', $block[0]);
+                foreach ($selectors as $selector) {
+                    $blocks[] = array(0 => trim($selector), 1 => $block[1]);
+                }
+                unset($blocks[$key]);
+            }
+        }
+
+        // covert array to selector => properties
+        $css = [];
+        foreach ($blocks as $block) {
+            $selector = $block[0];
+
+            // calculate selector's specificity
+            $matches     = [];
+            $a           = 0; // the declaration is not from is a 'style' attribute
+            $ids         = intval(preg_match_all('/#/', $selector, $matches)); // number of ID attributes
+            $attributes  = intval(preg_match_all('/[\[.]/', $selector, $matches)); // number of other attributes
+            $attributes  += intval(preg_match_all('/[:]link|visited|hover|active|focus|target|lang|enabled|disabled|checked|indeterminate|root|nth|first|last|only|empty|contains|not/i', $selector, $matches)); // number of pseudo-classes
+            $elements    = intval(preg_match_all('/[>+~\s][a-zA-Z0-9]+/', ' ' . $selector, $matches)); // number of element names
+            $elements    += intval(preg_match_all('/::/', $selector, $matches)); // number of pseudo-elements
+            $specificity = $a . $ids . $attributes . $elements;
+
+            // add specificity to the beginning of the selector
+            $css[$specificity . ' ' . $selector] = $block[1];
+        }
+        // sort selectors alphabetically to account for specificity
+        ksort($css, SORT_STRING);
+
+        return $css;
     }
 
     /**
@@ -480,6 +609,22 @@ trait WebTools
     {
         $this->linkColor = $color;
         $this->linkStyle = $fontStyle;
+    }
+
+    /**
+     * Check if the URL exist.
+     * @param string $url URL to check.
+     * @return boolean true if the URl exist, false otherwise.
+     */
+    public function validURL(string $url): bool
+    {
+        $headers = @get_headers($url);
+
+        if ($headers === false) {
+            return false;
+        }
+
+        return str_contains($headers[0], '200');
     }
 
 #endregion
@@ -3709,7 +3854,7 @@ trait WebTools
                             // read CSS data file
                             $cssdata = $this->getCachedFileContents(trim($type[1]));
                             if (($cssdata !== false) and (strlen($cssdata) > 0)) {
-                                $css = array_merge($css, StaticMethods::extractCSSproperties($cssdata));
+                                $css = array_merge($css, $this->extractCSSproperties($cssdata));
                             }
                         }
                     }
@@ -3726,7 +3871,7 @@ trait WebTools
                 // (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
                 if (empty($type) or (isset($type[1]) and (($type[1] == 'all') or ($type[1] == 'print')))) {
                     $cssdata = $matches[2][$key];
-                    $css     = array_merge($css, StaticMethods::extractCSSproperties($cssdata));
+                    $css     = array_merge($css, $this->extractCSSproperties($cssdata));
                 }
             }
         }
@@ -3999,7 +4144,7 @@ trait WebTools
                     if (!empty($css)) {
                         // merge CSS style to current style
                         list($dom[$key]['csssel'], $dom[$key]['cssdata']) = StaticMethods::getCSSdataArray($dom, $key, $css);
-                        $dom[$key]['attribute']['style'] = StaticMethods::getTagStyleFromCSSarray($dom[$key]['cssdata']);
+                        $dom[$key]['attribute']['style'] = $this->cssArrayToString($dom[$key]['cssdata']);
                     }
                     // split style attributes
                     if (isset($dom[$key]['attribute']['style']) and !empty($dom[$key]['attribute']['style'])) {

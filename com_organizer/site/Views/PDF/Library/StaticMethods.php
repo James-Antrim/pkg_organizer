@@ -138,36 +138,6 @@ class StaticMethods
     }
 
     /**
-     * Compact CSS data array into single string.
-     * @param array $css array of CSS properties
-     * @return string containing merged CSS properties
-     */
-    public static function getTagStyleFromCSSarray($css)
-    {
-        $tagstyle = ''; // value to be returned
-        foreach ($css as $style) {
-            // split single css commands
-            $csscmds = explode(';', $style['c']);
-            foreach ($csscmds as $cmd) {
-                if (!empty($cmd)) {
-                    $pos = strpos($cmd, ':');
-                    if ($pos !== false) {
-                        $cmd = substr($cmd, 0, ($pos + 1));
-                        if (strpos($tagstyle, $cmd) !== false) {
-                            // remove duplicate commands (last commands have high priority)
-                            $tagstyle = preg_replace('/' . $cmd . '[^;]+/i', '', $tagstyle);
-                        }
-                    }
-                }
-            }
-            $tagstyle .= ';' . $style['c'];
-        }
-        // remove multiple semicolons
-        $tagstyle = preg_replace('/[;]+/', ';', $tagstyle);
-        return $tagstyle;
-    }
-
-    /**
      * Returns timestamp in seconds from formatted date-time.
      * @param string $date Formatted date-time.
      * @return int seconds.
@@ -192,28 +162,6 @@ class StaticMethods
     }
 
     /**
-     * Encode a name object.
-     * @param string $name Name object to encode.
-     * @return string Encoded name object.
-     * @author Nicola Asuni
-     */
-    public static function encodeNameObject($name)
-    {
-        $escname = '';
-        $length  = strlen($name);
-        for ($i = 0; $i < $length; ++$i) {
-            $chr = $name[$i];
-            if (preg_match('/[0-9a-zA-Z#_=-]/', $chr) == 1) {
-                $escname .= $chr;
-            }
-            else {
-                $escname .= sprintf('#%02X', ord($chr));
-            }
-        }
-        return $escname;
-    }
-
-    /**
      * Encode query params in URL
      *
      * @param string $url
@@ -234,96 +182,6 @@ class StaticMethods
             $updatedUrl = $url;
         }
         return $updatedUrl;
-    }
-
-    /**
-     * Extracts the CSS properties from a CSS string.
-     * @param string $cssdata string containing CSS definitions.
-     * @return array An array where the keys are the CSS selectors and the values are the CSS properties.
-     * @author Nicola Asuni
-     */
-    public static function extractCSSproperties($cssdata)
-    {
-        if (empty($cssdata)) {
-            return [];
-        }
-        // remove comments
-        $cssdata = preg_replace('/\/\*[^\*]*\*\//', '', $cssdata);
-        // remove newlines and multiple spaces
-        $cssdata = preg_replace('/[\s]+/', ' ', $cssdata);
-        // remove some spaces
-        $cssdata = preg_replace('/[\s]*([;:\{\}]{1})[\s]*/', '\\1', $cssdata);
-        // remove empty blocks
-        $cssdata = preg_replace('/([^\}\{]+)\{\}/', '', $cssdata);
-        // replace media type parenthesis
-        $cssdata = preg_replace('/@media[\s]+([^\{]*)\{/i', '@media \\1§', $cssdata);
-        $cssdata = preg_replace('/\}\}/si', '}§', $cssdata);
-        // trim string
-        $cssdata = trim($cssdata);
-        // find media blocks (all, braille, embossed, handheld, print, projection, screen, speech, tty, tv)
-        $cssblocks = [];
-        $matches   = [];
-        if (preg_match_all('/@media[\s]+([^\§]*)§([^§]*)§/i', $cssdata, $matches) > 0) {
-            foreach ($matches[1] as $key => $type) {
-                $cssblocks[$type] = $matches[2][$key];
-            }
-            // remove media blocks
-            $cssdata = preg_replace('/@media[\s]+([^\§]*)§([^§]*)§/i', '', $cssdata);
-        }
-        // keep 'all' and 'print' media, other media types are discarded
-        if (isset($cssblocks['all']) and !empty($cssblocks['all'])) {
-            $cssdata .= $cssblocks['all'];
-        }
-        if (isset($cssblocks['print']) and !empty($cssblocks['print'])) {
-            $cssdata .= $cssblocks['print'];
-        }
-        // reset css blocks array
-        $cssblocks = [];
-        $matches   = [];
-        // explode css data string into array
-        if (substr($cssdata, -1) == '}') {
-            // remove last parethesis
-            $cssdata = substr($cssdata, 0, -1);
-        }
-        $matches = explode('}', $cssdata);
-        foreach ($matches as $key => $block) {
-            // index 0 contains the CSS selector, index 1 contains CSS properties
-            $cssblocks[$key] = explode('{', $block);
-            if (!isset($cssblocks[$key][1])) {
-                // remove empty definitions
-                unset($cssblocks[$key]);
-            }
-        }
-        // split groups of selectors (comma-separated list of selectors)
-        foreach ($cssblocks as $key => $block) {
-            if (strpos($block[0], ',') > 0) {
-                $selectors = explode(',', $block[0]);
-                foreach ($selectors as $sel) {
-                    $cssblocks[] = array(0 => trim($sel), 1 => $block[1]);
-                }
-                unset($cssblocks[$key]);
-            }
-        }
-        // covert array to selector => properties
-        $cssdata = [];
-        foreach ($cssblocks as $block) {
-            $selector = $block[0];
-            // calculate selector's specificity
-            $matches     = [];
-            $a           = 0; // the declaration is not from is a 'style' attribute
-            $b           = intval(preg_match_all('/[\#]/', $selector, $matches)); // number of ID attributes
-            $c           = intval(preg_match_all('/[\[\.]/', $selector, $matches)); // number of other attributes
-            $c           += intval(preg_match_all('/[\:]link|visited|hover|active|focus|target|lang|enabled|disabled|checked|indeterminate|root|nth|first|last|only|empty|contains|not/i', $selector, $matches)); // number of pseudo-classes
-            $d           = intval(preg_match_all('/[\>\+\~\s]{1}[a-zA-Z0-9]+/', ' ' . $selector, $matches)); // number of element names
-            $d           += intval(preg_match_all('/[\:][\:]/', $selector, $matches)); // number of pseudo-elements
-            $specificity = $a . $b . $c . $d;
-            // add specificity to the beginning of the selector
-            $cssdata[$specificity . ' ' . $selector] = $block[1];
-        }
-        // sort selectors alphabetically to account for specificity
-        ksort($cssdata, SORT_STRING);
-        // return array
-        return $cssdata;
     }
 
     /**
@@ -632,58 +490,6 @@ class StaticMethods
     }
 
     /**
-     * Check if the URL exist.
-     * @param string $url URL to check.
-     * @return boolean true if the URl exist, false otherwise.
-     */
-    public static function isValidURL($url)
-    {
-        $headers = @get_headers($url);
-        if ($headers === false) {
-            return false;
-        }
-        return (strpos($headers[0], '200') !== false);
-    }
-
-    /**
-     * Creates a copy of a class object
-     * @param object $object class object to be cloned
-     * @return object cloned object
-     */
-    public static function objclone($object)
-    {
-        if (($object instanceof Imagick) and (version_compare(phpversion('imagick'), '3.0.1') !== 1)) {
-            // on the versions after 3.0.1 the clone() method was deprecated in favour of clone keyword
-            return @$object->clone();
-        }
-        return @clone($object);
-    }
-
-    /**
-     * Removes SHY characters from text.
-     * Unicode Data:<ul>
-     * <li>Name : SOFT HYPHEN, commonly abbreviated as SHY</li>
-     * <li>HTML Entity (decimal): "&amp;#173;"</li>
-     * <li>HTML Entity (hex): "&amp;#xad;"</li>
-     * <li>HTML Entity (named): "&amp;shy;"</li>
-     * <li>How to type in Microsoft Windows: [Alt +00AD] or [Alt 0173]</li>
-     * <li>UTF-8 (hex): 0xC2 0xAD (c2ad)</li>
-     * <li>UTF-8 character: chr(194).chr(173)</li>
-     * </ul>
-     * @param string  $txt     input string
-     * @param boolean $unicode True if we are in unicode mode, false otherwise.
-     * @return string without SHY characters.
-     */
-    public static function removeSHY($txt = '', $unicode = true)
-    {
-        $txt = preg_replace('/([\\xc2]{1}[\\xad]{1})/', '', $txt);
-        if (!$unicode) {
-            $txt = preg_replace('/([\\xad]{1})/', '', $txt);
-        }
-        return $txt;
-    }
-
-    /**
      * Replace page number aliases with number.
      * @param string $page    Page content.
      * @param array  $replace Array of replacements (array keys are replacement strings, values are alias arrays).
@@ -704,17 +510,17 @@ class StaticMethods
     }
 
     /**
-     * Output input data and compress it if possible.
-     * @param string $data   Data to output.
-     * @param int    $length Data length in bytes.
+     * Output data and compress it if possible.
+     * @param string $output
+     * @param int    $length (bytes)
      */
-    public static function sendOutputData($data, $length)
+    public static function outputData(string $output, int $length): void
     {
-        if (!isset($_SERVER['HTTP_ACCEPT_ENCODING']) or empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+        if (empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
             // the content length may vary if the server is using compression
             header('Content-Length: ' . $length);
         }
-        echo $data;
+        echo $output;
     }
 
     /**

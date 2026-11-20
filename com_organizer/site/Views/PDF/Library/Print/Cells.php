@@ -318,7 +318,7 @@ trait Cells
         $txt              = str_replace($this->unicodeCharacter(160), ' ', $txt);
         $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
-        $txt              = StaticMethods::removeSHY($txt);
+        $txt              = $this->removeSHY($txt);
         $rs               = ''; //string to be returned
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
