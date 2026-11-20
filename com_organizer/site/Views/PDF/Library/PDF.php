@@ -722,16 +722,6 @@ class PDF
     protected $cache_file_length = [];
 
     /**
-     * Data for digital signature appearance.
-     */
-    protected array $signature_appearance = ['page' => 1, 'rect' => '0 0 0 0', 'name' => 'Signature'];
-
-    /**
-     * Array of empty digital signature appearances.
-     */
-    protected array $empty_signature_appearance = [];
-
-    /**
      * Digital signature object ID.
      */
     protected $sig_obj_id = 0;
@@ -2307,14 +2297,6 @@ class PDF
                 }
             }
         }
-        if (!empty($this->empty_signature_appearance)) {
-            foreach ($this->empty_signature_appearance as $esa) {
-                if ($esa['page'] == $n) {
-                    // set reference for empty signature objects
-                    $out .= ' ' . $esa['objid'] . ' 0 R';
-                }
-            }
-        }
         $out .= ' ]';
         return $out;
     }
@@ -3460,15 +3442,9 @@ class PDF
             $out .= ' >>';
         }
         // AcroForm
-        if (!empty($this->annotationIDs) or !empty($this->empty_signature_appearance)) {
+        if (!empty($this->annotationIDs)) {
             $out     .= ' /AcroForm <<';
             $objrefs = '';
-            if (!empty($this->empty_signature_appearance)) {
-                foreach ($this->empty_signature_appearance as $esa) {
-                    // set reference for empty signature objects
-                    $objrefs .= ' ' . $esa['objid'] . ' 0 R';
-                }
-            }
             if (!empty($this->annotationIDs)) {
                 foreach ($this->annotationIDs as $objid) {
                     $objrefs .= ' ' . $objid . ' 0 R';
@@ -3580,25 +3556,6 @@ class PDF
         $this->append('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
         $this->_putpages();
         $this->_putresources();
-        // empty signature fields
-        if (!empty($this->empty_signature_appearance)) {
-            foreach ($this->empty_signature_appearance as $key => $esa) {
-                // widget annotation for empty signature
-                $out     = $this->objectCommand($esa['objid']) . "\n";
-                $out     .= '<< /Type /Annot';
-                $out     .= ' /Subtype /Widget';
-                $out     .= ' /Rect [' . $esa['rect'] . ']';
-                $out     .= ' /P ' . $this->pageObjectIDs[($esa['page'])] . ' 0 R'; // link to signature appearance page
-                $out     .= ' /F 4';
-                $out     .= ' /FT /Sig';
-                $signame = $esa['name'] . sprintf(' [%03d]', ($key + 1));
-                $out     .= ' /T ' . $this->_textstring($signame);
-                $out     .= ' /Ff 0';
-                $out     .= ' >>';
-                $out     .= "\n" . 'endobj';
-                $this->append($out);
-            }
-        }
         // Info
         $objid_info = $this->_putinfo();
         // Catalog
