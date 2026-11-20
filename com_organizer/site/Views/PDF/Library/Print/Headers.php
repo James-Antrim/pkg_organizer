@@ -10,7 +10,7 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library\Pages;
+namespace THM\Organizer\Views\PDF\Library\Print;
 
 trait Headers
 {

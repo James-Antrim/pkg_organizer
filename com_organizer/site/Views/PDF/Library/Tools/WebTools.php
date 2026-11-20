@@ -10,10 +10,13 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library;
+namespace THM\Organizer\Views\PDF\Library\Tools;
+
+use THM\Organizer\Views\PDF\Library\StaticMethods;
 
 trait WebTools
 {
+#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
     /** @var int[] RGB */
     protected array $linkColor = self::BLUE;
 
@@ -33,11 +36,11 @@ trait WebTools
         $this->linkStyle = $fontStyle;
     }
 
+#endregion
+#region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
+#endregion
+#region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
 
     /**
@@ -4749,4 +4752,760 @@ trait WebTools
         $this->y                     = $prev_y;
         $this->lastPrintedCellHeight = $prev_lasth;
     }
+
+    /**
+     * Adds a javascript
+     * @param string $script Javascript code
+     * @author Johannes G\FCntert, Nicola Asuni
+     */
+    public function IncludeJS($script)
+    {
+        $this->javascript .= $script;
+    }
+
+    /**
+     * Adds a javascript object and return object ID
+     * @param string $script Javascript code
+     * @param bool   $onload if true executes this object when opening the document
+     * @return int internal object ID
+     * @author Nicola Asuni
+     */
+    public function addJavascriptObject($script, $onload = false)
+    {
+        ++$this->objectNumber;
+        $this->js_objects[$this->objectNumber] = ['n' => $this->objectNumber, 'js' => $script, 'onload' => $onload];
+        return $this->objectNumber;
+    }
+
+    /**
+     * Create a javascript PDF string.
+     * @author Johannes G\FCntert, Nicola Asuni
+     */
+    protected function _putjavascript()
+    {
+        if (empty($this->javascript) and empty($this->js_objects)) {
+            return;
+        }
+        if (strpos($this->javascript, 'this.addField') > 0) {
+            // the following two lines are used to avoid form fields duplication after saving
+            // The addField method only works when releasing user rights (UR3)
+            $jsa              = sprintf("ftcpdfdocsaved=this.addField('%s','%s',%d,[%F,%F,%F,%F]);", 'tcpdfdocsaved', 'text', 0, 0, 1, 0, 1);
+            $jsb              = "getField('tcpdfdocsaved').value='saved';";
+            $this->javascript = $jsa . "\n" . $this->javascript . "\n" . $jsb;
+        }
+        // name tree for javascript
+        $this->n_js = '<< /Names [';
+        if (!empty($this->javascript)) {
+            $this->n_js .= ' (EmbeddedJS) ' . ($this->objectNumber + 1) . ' 0 R';
+        }
+        if (!empty($this->js_objects)) {
+            foreach ($this->js_objects as $key => $val) {
+                if ($val['onload']) {
+                    $this->n_js .= ' (JS' . $key . ') ' . $key . ' 0 R';
+                }
+            }
+        }
+        $this->n_js .= ' ] >>';
+        // default Javascript object
+        if (!empty($this->javascript)) {
+            $obj_id = $this->appendObject();
+            $out    = '<< /S /JavaScript';
+            $out    .= ' /JS ' . $this->_textstring($this->javascript);
+            $out    .= ' >>';
+            $out    .= "\n" . 'endobj';
+            $this->append($out);
+        }
+        // additional Javascript objects
+        if (!empty($this->js_objects)) {
+            foreach ($this->js_objects as $key => $val) {
+                $out = $this->objectCommand($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js']) . ' >>' . "\n" . 'endobj';
+                $this->append($out);
+            }
+        }
+    }
+
+    /**
+     * Adds a javascript form field.
+     * @param string $type field type
+     * @param string $name field name
+     * @param int    $x    horizontal position
+     * @param int    $y    vertical position
+     * @param int    $w    width
+     * @param int    $h    height
+     * @param array  $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @author Denis Van Nuffelen, Nicola Asuni
+     */
+    protected function _addfield($type, $name, $x, $y, $w, $h, $prop)
+    {
+        // the followind avoid fields duplication after saving the document
+        $this->javascript .= "if (getField('tcpdfdocsaved').value != 'saved') {";
+        $k                = $this->factor;
+        $this->javascript .= sprintf("f" . $name . "=this.addField('%s','%s',%u,[%F,%F,%F,%F]);", $name, $type, $this->PageNo() - 1, $x * $k, ($this->height - $y) * $k + 1, ($x + $w) * $k, ($this->height - $y - $h) * $k + 1) . "\n";
+        $this->javascript .= 'f' . $name . '.textSize=' . $this->fontSizePT . ";\n";
+        foreach ($prop as $key => $val) {
+            if (strcmp(substr($key, -5), 'Color') == 0) {
+                $val = $this->colorToJavascript($val);
+            }
+            else {
+                $val = "'" . $val . "'";
+            }
+            $this->javascript .= 'f' . $name . '.' . $key . '=' . $val . ";\n";
+        }
+        $this->x          += $w;
+        $this->javascript .= '}';
+    }
+
+    /**
+     * Set default properties for form fields.
+     * @param array $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @public
+     * @author Nicola Asuni
+     * @since  4.8.000 (2009-09-06)
+     */
+    public function setFormDefaultProp($prop = [])
+    {
+        $this->default_form_prop = $prop;
+    }
+
+    /**
+     * Return the default properties for form fields.
+     * @return array $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @author Nicola Asuni
+     */
+    public function getFormDefaultProp()
+    {
+        return $this->default_form_prop;
+    }
+
+    /**
+     * Creates a text field
+     * @param string     $name field name
+     * @param float      $w    Width of the rectangle
+     * @param float      $h    Height of the rectangle
+     * @param array      $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array      $opt  annotation parameters. Possible values are described on official PDF32000_2008 reference.
+     * @param float|null $x    Abscissa of the upper-left corner of the rectangle
+     * @param float|null $y    Ordinate of the upper-left corner of the rectangle
+     * @param bool       $js   if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @author Nicola Asuni
+     */
+    public function TextField($name, $w, $h, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+        if ($js) {
+            $this->_addfield('text', $name, $x, $y, $w, $h, $prop);
+            return;
+        }
+        // get default style
+        $prop = array_merge($this->getFormDefaultProp(), $prop);
+        // get annotation data
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
+        // set default appearance stream
+        $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
+        $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
+        $popt['da']                                           = $fontstyle;
+        // build appearance stream
+        $popt['ap']      = [];
+        $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
+        $text            = '';
+        if (isset($prop['value']) and !empty($prop['value'])) {
+            $text = $prop['value'];
+        }
+        elseif (isset($opt['v']) and !empty($opt['v'])) {
+            $text = $opt['v'];
+        }
+        $tmpid = $this->startTemplate($w, $h, false);
+        $align = '';
+        if (isset($popt['q'])) {
+            switch ($popt['q']) {
+                case 0:
+                {
+                    $align = 'L';
+                    break;
+                }
+                case 1:
+                {
+                    $align = 'C';
+                    break;
+                }
+                case 2:
+                {
+                    $align = 'R';
+                    break;
+                }
+                default:
+                {
+                    $align = '';
+                    break;
+                }
+            }
+        }
+        $this->MultiCell($w, $h, $text, 0, $align, false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
+        $this->endTemplate();
+        --$this->objectNumber;
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
+        unset($this->xObjects[$tmpid]);
+        $popt['ap']['n'] .= 'Q EMC';
+        // merge options
+        $opt = array_merge($popt, $opt);
+        // remove some conflicting options
+        unset($opt['bs']);
+        // set remaining annotation data
+        $opt['Subtype'] = 'Widget';
+        $opt['ft']      = 'Tx';
+        $opt['t']       = $name;
+        // Additional annotation's parameters (check _putannotsobj() method):
+        unset($opt['mk']['ca']);
+        unset($opt['mk']['rc']);
+        unset($opt['mk']['ac']);
+        unset($opt['mk']['i']);
+        unset($opt['mk']['ri']);
+        unset($opt['mk']['ix']);
+        unset($opt['mk']['if']);
+        //$opt['mk']['if']['sw'];
+        //$opt['mk']['if']['s'];
+        //$opt['mk']['if']['a'];
+        //$opt['mk']['if']['fb'];
+        unset($opt['mk']['tp']);
+        //$opt['tu']
+        //$opt['tm']
+        //$opt['ff']
+        //$opt['v']
+        //$opt['dv']
+        //$opt['a']
+        //$opt['aa']
+        //$opt['q']
+        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->x += $w;
+    }
+
+    /**
+     * Creates a RadioButton field.
+     * @param string     $name    Field name.
+     * @param int        $w       Width of the radio button.
+     * @param array      $prop    Javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array      $opt     Annotation parameters. Possible values are described on official PDF32000_2008 reference.
+     * @param string     $onvalue Value to be returned if selected.
+     * @param bool       $checked Define the initial state.
+     * @param float|null $x       Abscissa of the upper-left corner of the rectangle
+     * @param float|null $y       Ordinate of the upper-left corner of the rectangle
+     * @param bool       $js      If true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @author Nicola Asuni
+     */
+    public function RadioButton($name, $w, $prop = [], $opt = [], $onvalue = 'On', $checked = false, $x = null, $y = null, $js = false)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($w, $x, $y);
+        if ($js) {
+            $this->_addfield('radiobutton', $name, $x, $y, $w, $w, $prop);
+            return;
+        }
+        if (StaticMethods::empty_string($onvalue)) {
+            $onvalue = 'On';
+        }
+        if ($checked) {
+            $defval = $onvalue;
+        }
+        else {
+            $defval = 'Off';
+        }
+        // set font
+        $font = 'zapfdingbats';
+        $this->AddFont($font);
+        $tmpfont = $this->fontBuffer($font);
+        // set data for parent group
+        if (!isset($this->radiobutton_groups[$this->page])) {
+            $this->radiobutton_groups[$this->page] = [];
+        }
+        if (!isset($this->radiobutton_groups[$this->page][$name])) {
+            $this->radiobutton_groups[$this->page][$name] = [];
+            ++$this->objectNumber;
+            $this->radiobutton_groups[$this->page][$name]['n'] = $this->objectNumber;
+            $this->radio_groups[]                              = $this->objectNumber;
+        }
+        $kid = ($this->objectNumber + 1);
+        // save object ID to be added on Kids entry on parent object
+        $this->radiobutton_groups[$this->page][$name][] = ['kid' => $kid, 'def' => $defval];
+        // get default style
+        $prop                  = array_merge($this->getFormDefaultProp(), $prop);
+        $prop['NoToggleToOff'] = 'true';
+        $prop['Radio']         = 'true';
+        $prop['borderStyle']   = 'inset';
+        // get annotation data
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
+        // set additional default options
+        $this->annotationFonts[$tmpfont['fontKey']] = $tmpfont['i'];
+        $fontstyle                                  = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->fontSizePT, $this->textColor);
+        $popt['da']                                 = $fontstyle;
+        // build appearance stream
+        $popt['ap']                = [];
+        $popt['ap']['n']           = [];
+        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->factor);
+        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
+        $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
+        $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
+        if (!isset($popt['mk'])) {
+            $popt['mk'] = [];
+        }
+        $popt['mk']['ca'] = '(l)';
+        // merge options
+        $opt = array_merge($popt, $opt);
+        // set remaining annotation data
+        $opt['Subtype'] = 'Widget';
+        $opt['ft']      = 'Btn';
+        if ($checked) {
+            $opt['v']  = ['/' . $onvalue];
+            $opt['as'] = $onvalue;
+        }
+        else {
+            $opt['as'] = 'Off';
+        }
+        // store readonly flag
+        if (!isset($this->radiobutton_groups[$this->page][$name]['#readonly#'])) {
+            $this->radiobutton_groups[$this->page][$name]['#readonly#'] = false;
+        }
+        $this->radiobutton_groups[$this->page][$name]['#readonly#'] |= ($opt['f'] & 64);
+        $this->Annotation($x, $y, $w, $w, $name, $opt, 0);
+        $this->x += $w;
+    }
+
+    /**
+     * Creates a List-box field
+     * @param string     $name   field name
+     * @param int        $w      width
+     * @param int        $h      height
+     * @param array      $values array containing the list of values.
+     * @param array      $prop   javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array      $opt    annotation parameters. Possible values are described on official PDF32000_2008 reference.
+     * @param float|null $x      Abscissa of the upper-left corner of the rectangle
+     * @param float|null $y      Ordinate of the upper-left corner of the rectangle
+     * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @author Nicola Asuni
+     */
+    public function ListBox($name, $w, $h, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+        if ($js) {
+            $this->_addfield('listbox', $name, $x, $y, $w, $h, $prop);
+            $s = '';
+            foreach ($values as $value) {
+                if (is_array($value)) {
+                    $s .= ',[\'' . addslashes($value[1]) . '\',\'' . addslashes($value[0]) . '\']';
+                }
+                else {
+                    $s .= ',[\'' . addslashes($value) . '\',\'' . addslashes($value) . '\']';
+                }
+            }
+            $this->javascript .= 'f' . $name . '.setItems(' . substr($s, 1) . ');' . "\n";
+            return;
+        }
+        // get default style
+        $prop = array_merge($this->getFormDefaultProp(), $prop);
+        // get annotation data
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
+        // set additional default values
+        $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
+        $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
+        $popt['da']                                           = $fontstyle;
+        // build appearance stream
+        $popt['ap']      = [];
+        $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
+        $text            = '';
+        foreach ($values as $item) {
+            if (is_array($item)) {
+                $text .= $item[1] . "\n";
+            }
+            else {
+                $text .= $item . "\n";
+            }
+        }
+        $tmpid = $this->startTemplate($w, $h, false);
+        $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
+        $this->endTemplate();
+        --$this->objectNumber;
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
+        unset($this->xObjects[$tmpid]);
+        $popt['ap']['n'] .= 'Q EMC';
+        // merge options
+        $opt = array_merge($popt, $opt);
+        // set remaining annotation data
+        $opt['Subtype'] = 'Widget';
+        $opt['ft']      = 'Ch';
+        $opt['t']       = $name;
+        $opt['opt']     = $values;
+        unset($opt['mk']['ca']);
+        unset($opt['mk']['rc']);
+        unset($opt['mk']['ac']);
+        unset($opt['mk']['i']);
+        unset($opt['mk']['ri']);
+        unset($opt['mk']['ix']);
+        unset($opt['mk']['if']);
+        unset($opt['mk']['tp']);
+        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->x += $w;
+    }
+
+    /**
+     * Creates a Combo-box field
+     * @param string     $name   field name
+     * @param int        $w      width
+     * @param int        $h      height
+     * @param array      $values array containing the list of values.
+     * @param array      $prop   javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array      $opt    annotation parameters. Possible values are described on official PDF32000_2008 reference.
+     * @param float|null $x      Abscissa of the upper-left corner of the rectangle
+     * @param float|null $y      Ordinate of the upper-left corner of the rectangle
+     * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @author Nicola Asuni
+     */
+    public function ComboBox($name, $w, $h, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+        if ($js) {
+            $this->_addfield('combobox', $name, $x, $y, $w, $h, $prop);
+            $s = '';
+            foreach ($values as $value) {
+                if (is_array($value)) {
+                    $s .= ',[\'' . addslashes($value[1]) . '\',\'' . addslashes($value[0]) . '\']';
+                }
+                else {
+                    $s .= ',[\'' . addslashes($value) . '\',\'' . addslashes($value) . '\']';
+                }
+            }
+            $this->javascript .= 'f' . $name . '.setItems(' . substr($s, 1) . ');' . "\n";
+            return;
+        }
+        // get default style
+        $prop          = array_merge($this->getFormDefaultProp(), $prop);
+        $prop['Combo'] = true;
+        // get annotation data
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
+        // set additional default options
+        $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
+        $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
+        $popt['da']                                           = $fontstyle;
+        // build appearance stream
+        $popt['ap']      = [];
+        $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
+        $text            = '';
+        foreach ($values as $item) {
+            if (is_array($item)) {
+                $text .= $item[1] . "\n";
+            }
+            else {
+                $text .= $item . "\n";
+            }
+        }
+        $tmpid = $this->startTemplate($w, $h, false);
+        $this->MultiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
+        $this->endTemplate();
+        --$this->objectNumber;
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
+        unset($this->xObjects[$tmpid]);
+        $popt['ap']['n'] .= 'Q EMC';
+        // merge options
+        $opt = array_merge($popt, $opt);
+        // set remaining annotation data
+        $opt['Subtype'] = 'Widget';
+        $opt['ft']      = 'Ch';
+        $opt['t']       = $name;
+        $opt['opt']     = $values;
+        unset($opt['mk']['ca']);
+        unset($opt['mk']['rc']);
+        unset($opt['mk']['ac']);
+        unset($opt['mk']['i']);
+        unset($opt['mk']['ri']);
+        unset($opt['mk']['ix']);
+        unset($opt['mk']['if']);
+        unset($opt['mk']['tp']);
+        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->x += $w;
+    }
+
+    /**
+     * Creates a CheckBox field
+     * @param string     $name    field name
+     * @param int        $w       width
+     * @param bool       $checked define the initial state.
+     * @param array      $prop    javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array      $opt     annotation parameters. Possible values are described on official PDF32000_2008 reference.
+     * @param string     $onvalue value to be returned if selected.
+     * @param float|null $x       Abscissa of the upper-left corner of the rectangle
+     * @param float|null $y       Ordinate of the upper-left corner of the rectangle
+     * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @author Nicola Asuni
+     */
+    public function CheckBox($name, $w, $checked = false, $prop = [], $opt = [], $onvalue = 'Yes', $x = null, $y = null, $js = false)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($w, $x, $y);
+        if ($js) {
+            $this->_addfield('checkbox', $name, $x, $y, $w, $w, $prop);
+            return;
+        }
+        if (!isset($prop['value'])) {
+            $prop['value'] = ['Yes'];
+        }
+        // get default style
+        $prop                = array_merge($this->getFormDefaultProp(), $prop);
+        $prop['borderStyle'] = 'inset';
+        // get annotation data
+        $popt = StaticMethods::getAnnotOptFromJSProp($prop);
+        // set additional default options
+        $font = 'zapfdingbats';
+        $this->AddFont($font);
+        $tmpfont                                    = $this->fontBuffer($font);
+        $this->annotationFonts[$tmpfont['fontKey']] = $tmpfont['i'];
+        $fontstyle                                  = sprintf('/F%d %F Tf %s', $tmpfont['i'], $this->fontSizePT, $this->textColor);
+        $popt['da']                                 = $fontstyle;
+        // build appearance stream
+        $popt['ap']             = [];
+        $popt['ap']['n']        = [];
+        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->factor);
+        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
+        $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
+        $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
+        // merge options
+        $opt = array_merge($popt, $opt);
+        // set remaining annotation data
+        $opt['Subtype'] = 'Widget';
+        $opt['ft']      = 'Btn';
+        $opt['t']       = $name;
+        if (StaticMethods::empty_string($onvalue)) {
+            $onvalue = 'Yes';
+        }
+        $opt['opt'] = [$onvalue];
+        if ($checked) {
+            $opt['v']  = ['/Yes'];
+            $opt['as'] = 'Yes';
+        }
+        else {
+            $opt['v']  = ['/Off'];
+            $opt['as'] = 'Off';
+        }
+        $this->Annotation($x, $y, $w, $w, $name, $opt, 0);
+        $this->x += $w;
+    }
+
+    /**
+     * Creates a button field
+     * @param string     $name    field name
+     * @param int        $w       width
+     * @param int        $h       height
+     * @param string     $caption caption.
+     * @param mixed      $action  action triggered by pressing the button. Use a string to specify a javascript action. Use an array to specify a form action options as on section 12.7.5 of PDF32000_2008.
+     * @param array      $prop    javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array      $opt     annotation parameters. Possible values are described on official PDF32000_2008 reference.
+     * @param float|null $x       Abscissa of the upper-left corner of the rectangle
+     * @param float|null $y       Ordinate of the upper-left corner of the rectangle
+     * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @author Nicola Asuni
+     */
+    public function Button($name, $w, $h, $caption, $action, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    {
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+        if ($js) {
+            $this->_addfield('button', $name, $this->x, $this->y, $w, $h, $prop);
+            $this->javascript .= 'f' . $name . ".buttonSetCaption('" . addslashes($caption) . "');\n";
+            $this->javascript .= 'f' . $name . ".setAction('MouseUp','" . addslashes($action) . "');\n";
+            $this->javascript .= 'f' . $name . ".highlight='push';\n";
+            $this->javascript .= 'f' . $name . ".print=false;\n";
+            return;
+        }
+        // get default style
+        $prop               = array_merge($this->getFormDefaultProp(), $prop);
+        $prop['Pushbutton'] = 'true';
+        $prop['highlight']  = 'push';
+        $prop['display']    = 'display.noPrint';
+        // get annotation data
+        $popt                                                 = StaticMethods::getAnnotOptFromJSProp($prop);
+        $this->annotationFonts[$this->currentFont['fontKey']] = $this->currentFont['i'];
+        $fontstyle                                            = sprintf('/F%d %F Tf %s', $this->currentFont['i'], $this->fontSizePT, $this->textColor);
+        $popt['da']                                           = $fontstyle;
+        // build appearance stream
+        $popt['ap']      = [];
+        $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
+        $tmpid           = $this->startTemplate($w, $h, false);
+        $bw              = (2 / $this->factor); // border width
+        $border          = array(
+            'L' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
+            'R' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]],
+            'T' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
+            'B' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]]);
+        $this->fillColor(204);
+        $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
+        $this->endTemplate();
+        --$this->objectNumber;
+        $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
+        unset($this->xObjects[$tmpid]);
+        $popt['ap']['n'] .= 'Q EMC';
+        // set additional default options
+        if (!isset($popt['mk'])) {
+            $popt['mk'] = [];
+        }
+        $ann_obj_id = ($this->objectNumber + 1);
+        if (!empty($action) and !is_array($action)) {
+            $ann_obj_id = ($this->objectNumber + 2);
+        }
+        $popt['mk']['ca'] = $this->_textstring($caption);
+        $popt['mk']['rc'] = $this->_textstring($caption);
+        $popt['mk']['ac'] = $this->_textstring($caption);
+        // merge options
+        $opt = array_merge($popt, $opt);
+        // set remaining annotation data
+        $opt['Subtype'] = 'Widget';
+        $opt['ft']      = 'Btn';
+        $opt['t']       = $caption;
+        $opt['v']       = $name;
+        if (!empty($action)) {
+            if (is_array($action)) {
+                // form action options as on section 12.7.5 of PDF32000_2008.
+                $opt['aa'] = '/D <<';
+                $bmode     = ['SubmitForm', 'ResetForm', 'ImportData'];
+                foreach ($action as $key => $val) {
+                    if (($key == 'S') and in_array($val, $bmode)) {
+                        $opt['aa'] .= ' /S /' . $val;
+                    }
+                    elseif (($key == 'F') and (!empty($val))) {
+                        $opt['aa'] .= ' /F ' . $this->_datastring($val);
+                    }
+                    elseif (($key == 'Fields') and is_array($val) and !empty($val)) {
+                        $opt['aa'] .= ' /Fields [';
+                        foreach ($val as $field) {
+                            $opt['aa'] .= ' ' . $this->_textstring($field);
+                        }
+                        $opt['aa'] .= ']';
+                    }
+                    elseif (($key == 'Flags')) {
+                        $ff = 0;
+                        if (is_array($val)) {
+                            foreach ($val as $flag) {
+                                switch ($flag) {
+                                    case 'Include/Exclude':
+                                    {
+                                        $ff += 1 << 0;
+                                        break;
+                                    }
+                                    case 'IncludeNoValueFields':
+                                    {
+                                        $ff += 1 << 1;
+                                        break;
+                                    }
+                                    case 'ExportFormat':
+                                    {
+                                        $ff += 1 << 2;
+                                        break;
+                                    }
+                                    case 'GetMethod':
+                                    {
+                                        $ff += 1 << 3;
+                                        break;
+                                    }
+                                    case 'SubmitCoordinates':
+                                    {
+                                        $ff += 1 << 4;
+                                        break;
+                                    }
+                                    case 'XFDF':
+                                    {
+                                        $ff += 1 << 5;
+                                        break;
+                                    }
+                                    case 'IncludeAppendSaves':
+                                    {
+                                        $ff += 1 << 6;
+                                        break;
+                                    }
+                                    case 'IncludeAnnotations':
+                                    {
+                                        $ff += 1 << 7;
+                                        break;
+                                    }
+                                    case 'SubmitPDF':
+                                    {
+                                        $ff += 1 << 8;
+                                        break;
+                                    }
+                                    case 'CanonicalFormat':
+                                    {
+                                        $ff += 1 << 9;
+                                        break;
+                                    }
+                                    case 'ExclNonUserAnnots':
+                                    {
+                                        $ff += 1 << 10;
+                                        break;
+                                    }
+                                    case 'ExclFKey':
+                                    {
+                                        $ff += 1 << 11;
+                                        break;
+                                    }
+                                    case 'EmbedForm':
+                                    {
+                                        $ff += 1 << 13;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            $ff = intval($val);
+                        }
+                        $opt['aa'] .= ' /Flags ' . $ff;
+                    }
+                }
+                $opt['aa'] .= ' >>';
+            }
+            else {
+                // Javascript action or raw action command
+                $js_obj_id = $this->addJavascriptObject($action);
+                $opt['aa'] = '/D ' . $js_obj_id . ' 0 R';
+            }
+        }
+        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->x += $w;
+    }
+
+#endregion
 }

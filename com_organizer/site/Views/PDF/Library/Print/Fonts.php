@@ -10,11 +10,12 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library;
+namespace THM\Organizer\Views\PDF\Library\Print;
 
 /** Unicode data and font methods. */
 trait Fonts
 {
+
     /** List of fonts used on form fields (fontname => fontKey) */
     protected array $annotationFonts = [];
 

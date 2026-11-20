@@ -10,7 +10,7 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library;
+namespace THM\Organizer\Views\PDF\Library\Tools;
 
 /**
  * Trait extracts immutable values and descriptive texts used by other classes.

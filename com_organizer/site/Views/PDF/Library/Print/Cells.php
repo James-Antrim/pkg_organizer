@@ -10,7 +10,9 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library;
+namespace THM\Organizer\Views\PDF\Library\Print;
+
+use THM\Organizer\Views\PDF\Library\StaticMethods;
 
 trait Cells
 {

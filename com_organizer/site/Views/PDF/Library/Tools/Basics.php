@@ -10,7 +10,7 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library;
+namespace THM\Organizer\Views\PDF\Library\Tools;
 
 /** Manipulation methods for basic variable types. */
 trait Basics
