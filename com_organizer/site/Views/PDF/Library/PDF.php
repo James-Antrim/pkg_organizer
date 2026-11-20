@@ -2170,12 +2170,12 @@ class PDF
         // build array of Unicode + ASCII variants (the order is important)
         $alias        = ['u' => [], 'a' => []];
         $u            = '{' . $a . '}';
-        $alias['u'][] = StaticMethods::_escape($u);
-        $alias['u'][] = StaticMethods::_escape($this->utf8ToLatin1($u));
-        $alias['u'][] = StaticMethods::_escape($this->utf8ToUTF16BE($u));
-        $alias['a'][] = StaticMethods::_escape($this->utf8ToLatin1($a));
-        $alias['a'][] = StaticMethods::_escape($this->utf8ToUTF16BE($a));
-        $alias['a'][] = StaticMethods::_escape($a);
+        $alias['u'][] = $this->escape($u);
+        $alias['u'][] = $this->escape($this->utf8ToLatin1($u));
+        $alias['u'][] = $this->escape($this->utf8ToUTF16BE($u));
+        $alias['a'][] = $this->escape($this->utf8ToLatin1($a));
+        $alias['a'][] = $this->escape($this->utf8ToUTF16BE($a));
+        $alias['a'][] = $this->escape($a);
         return $alias;
     }
 
@@ -3247,22 +3247,22 @@ class PDF
         $xmp .= "\t\t\t" . '<dc:format>application/pdf</dc:format>' . "\n";
         $xmp .= "\t\t\t" . '<dc:title>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . StaticMethods::_escapeXML($this->title) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . $this->escapeXML($this->title) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
         $xmp .= "\t\t\t" . '</dc:title>' . "\n";
         $xmp .= "\t\t\t" . '<dc:creator>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Seq>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . StaticMethods::_escapeXML($this->author) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . $this->escapeXML($this->author) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Seq>' . "\n";
         $xmp .= "\t\t\t" . '</dc:creator>' . "\n";
         $xmp .= "\t\t\t" . '<dc:description>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . StaticMethods::_escapeXML($this->subject) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . $this->escapeXML($this->subject) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
         $xmp .= "\t\t\t" . '</dc:description>' . "\n";
         $xmp .= "\t\t\t" . '<dc:subject>' . "\n";
         $xmp .= "\t\t\t\t" . '<rdf:Bag>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . StaticMethods::_escapeXML($this->keywords) . '</rdf:li>' . "\n";
+        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . $this->escapeXML($this->keywords) . '</rdf:li>' . "\n";
         $xmp .= "\t\t\t\t" . '</rdf:Bag>' . "\n";
         $xmp .= "\t\t\t" . '</dc:subject>' . "\n";
         $xmp .= "\t\t" . '</rdf:Description>' . "\n";
@@ -3271,13 +3271,13 @@ class PDF
         $doccreationdate = substr($dcdate, 0, 4) . '-' . substr($dcdate, 4, 2) . '-' . substr($dcdate, 6, 2);
         $doccreationdate .= 'T' . substr($dcdate, 8, 2) . ':' . substr($dcdate, 10, 2) . ':' . substr($dcdate, 12, 2);
         $doccreationdate .= substr($dcdate, 14, 3) . ':' . substr($dcdate, 18, 2);
-        $doccreationdate = StaticMethods::_escapeXML($doccreationdate);
+        $doccreationdate = $this->escapeXML($doccreationdate);
         // convert doc modification date format
         $dmdate     = StaticMethods::getFormattedDate($this->modificationTimestamp);
         $docmoddate = substr($dmdate, 0, 4) . '-' . substr($dmdate, 4, 2) . '-' . substr($dmdate, 6, 2);
         $docmoddate .= 'T' . substr($dmdate, 8, 2) . ':' . substr($dmdate, 10, 2) . ':' . substr($dmdate, 12, 2);
         $docmoddate .= substr($dmdate, 14, 3) . ':' . substr($dmdate, 18, 2);
-        $docmoddate = StaticMethods::_escapeXML($docmoddate);
+        $docmoddate = $this->escapeXML($docmoddate);
         $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">' . "\n";
         $xmp        .= "\t\t\t" . '<xmp:CreateDate>' . $doccreationdate . '</xmp:CreateDate>' . "\n";
         $xmp        .= "\t\t\t" . '<xmp:CreatorTool>' . $this->creator . '</xmp:CreatorTool>' . "\n";
@@ -3285,8 +3285,8 @@ class PDF
         $xmp        .= "\t\t\t" . '<xmp:MetadataDate>' . $doccreationdate . '</xmp:MetadataDate>' . "\n";
         $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
         $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">' . "\n";
-        $xmp        .= "\t\t\t" . '<pdf:Keywords>' . StaticMethods::_escapeXML($this->keywords) . '</pdf:Keywords>' . "\n";
-        $xmp        .= "\t\t\t" . '<pdf:Producer>' . StaticMethods::_escapeXML($this->producer()) . '</pdf:Producer>' . "\n";
+        $xmp        .= "\t\t\t" . '<pdf:Keywords>' . $this->escapeXML($this->keywords) . '</pdf:Keywords>' . "\n";
+        $xmp        .= "\t\t\t" . '<pdf:Producer>' . $this->escapeXML($this->producer()) . '</pdf:Producer>' . "\n";
         $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
         $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/">' . "\n";
         $uuid       = 'uuid:' . substr($this->fileID, 0, 8) . '-' . substr($this->fileID, 8, 4) . '-' . substr($this->fileID, 12, 4) . '-' . substr($this->fileID, 16, 4) . '-' . substr($this->fileID, 20, 12);
@@ -3622,7 +3622,7 @@ class PDF
      */
     protected function _datastring($s)
     {
-        return '(' . StaticMethods::_escape($s) . ')';
+        return '(' . $this->escape($s) . ')';
     }
 
     /**

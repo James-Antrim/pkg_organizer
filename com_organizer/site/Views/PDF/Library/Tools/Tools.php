@@ -38,6 +38,28 @@ trait Tools
     }
 
     /**
+     * Add "\" before "\", "(" and ")"
+     * @param string $string string to escape.
+     * @return string escaped string.
+     */
+    public function escape(string $string): string
+    {
+        // the chr(13) substitution fixes the Bugs item #1421290.
+        return strtr($string, [')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r']);
+    }
+
+    /**
+     * Escape special characters (&lt; &gt; &amp;) for XML output.
+     * @param string $str Input string to convert.
+     * @return string converted string
+     */
+    public function escapeXML(string $string): string
+    {
+        $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
+        return strtr($string === null ? '' : $string, $replaceTable);
+    }
+
+    /**
      * Returns the Roman representation of an integer number
      * @param int $number number to convert
      * @return string roman representation of the specified number

@@ -491,7 +491,7 @@ trait Cells
                 $unicode = $this->utf8StringToArray($txt); // array of UTF-8 unicode values
                 $txt2    = $this->utf8ArrayToUTF16BEString($unicode);
             }
-            $txt2 = StaticMethods::_escape($txt2);
+            $txt2 = $this->escape($txt2);
             // get current text width (considering general font stretching and spacing)
             $txwidth = $this->GetStringWidth($txt);
             $width   = $txwidth;
@@ -597,7 +597,7 @@ trait Cells
                     else {
                         // character to print
                         $topchr = $this->utf8ArrayToUTF16BEString($uniarr);
-                        $topchr = StaticMethods::_escape($topchr);
+                        $topchr = $this->escape($topchr);
                         $s      .= sprintf(' BT %F %F Td [(%s)] TJ ET', ($xdk + ($xshift * $k)), $ty, $topchr);
                     }
                 }

@@ -15,36 +15,6 @@ namespace THM\Organizer\Views\PDF\Library;
 /** Static methods used by the PDF class. */
 class StaticMethods
 {
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
-    /**
-     * Add "\" before "\", "(" and ")"
-     * @param string $s string to escape.
-     * @return string escaped string.
-     */
-    public static function _escape($s)
-    {
-        // the chr(13) substitution fixes the Bugs item #1421290.
-        return strtr($s, [')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r']);
-    }
-
-    /**
-     * Escape some special characters (&lt; &gt; &amp;) for XML output.
-     * @param string $str Input string to convert.
-     * @return string converted string
-     */
-    public static function _escapeXML($str)
-    {
-        $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
-        $str          = strtr($str === null ? '' : $str, $replaceTable);
-        return $str;
-    }
-
     /**
      * Convert JavaScript form fields properties array to Annotation Properties array.
      * @param array $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
