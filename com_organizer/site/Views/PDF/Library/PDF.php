@@ -763,11 +763,6 @@ class PDF
     protected $sig_obj_id = 0;
 
     /**
-     * Deafult Javascript field properties. Possible values are described on official Javascript for Acrobat API reference. Annotation options can be directly specified using the 'aopt' entry.
-     */
-    protected array $default_form_prop = ['lineWidth' => 1, 'borderStyle' => 'solid', 'fillColor' => self::WHITE, 'strokeColor' => self::GRAY];
-
-    /**
      * Current method to submit forms.
      */
     protected $form_mode = 'post';
