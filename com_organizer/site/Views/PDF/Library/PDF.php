@@ -5472,7 +5472,7 @@ class PDF
             'top'            => $this->topMargin,
             'bottom'         => $this->bottomMargin,
             'header'         => $this->headerMargin,
-            'footer'         => $this->footer_margin,
+            'footer'         => $this->footerMargin,
             'cell'           => $this->cellPaddings,
             'padding_left'   => $this->cellPaddings['L'],
             'padding_top'    => $this->cellPaddings['T'],

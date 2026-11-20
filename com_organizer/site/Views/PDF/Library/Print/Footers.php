@@ -18,6 +18,10 @@ trait Footers
 
     protected bool $inFooter = false;
     protected string $footerBarcode = '';
+    protected array $footerLineColor = self::WHITE;
+    /** Minimum distance between footer and page bottom margin. */
+    protected float $footerMargin = 0;
+    protected array $footerTextColor = self::BLACK;
     protected array $footerPositions = [];
     protected bool $printFooter = true;
 
@@ -47,7 +51,7 @@ trait Footers
             $this->leftMargin  = $this->originalLeftMargin;
             $this->cellPadding(0);
             //set current position
-            $footerY = $this->height - $this->footer_margin;
+            $footerY = $this->height - $this->footerMargin;
             $this->xy($this->originalLeftMargin, $footerY);
             $this->font($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
             $this->renderFooter();
@@ -80,6 +84,31 @@ trait Footers
     }
 
     /**
+     * Set footer data.
+     * @param int[] $text RGB array color for text.
+     * @param int[] $line RGB array color for line.
+     */
+    public function footerColors(array $text = self::BLACK, array $line = self::WHITE): void
+    {
+        $this->footerTextColor = $text;
+        $this->footerLineColor = $line;
+    }
+
+    /**
+     * Set footer margin.
+     * (minimum distance between footer and bottom page margin)
+     * @param float|null $margin distance in user units
+     */
+    public function footerMargin(float|null $margin = 10): float
+    {
+        if (is_float($margin)) {
+            $this->footerMargin = $margin;
+        }
+
+        return $this->footerMargin;
+    }
+
+    /**
      * This method is used to render the page footer.
      * It is automatically called by AddPage() and could be overwritten in your own inherited class.
      */
@@ -106,7 +135,7 @@ trait Footers
                 'stretch'     => false,
                 'text'        => false
             ];
-            $this->write1DBarcode($barcode, 'C128', '', $currentY + $lineWidth, '', (($this->footer_margin / 3) - $lineWidth), 0.3, $style, '');
+            $this->write1DBarcode($barcode, 'C128', '', $currentY + $lineWidth, '', ($this->footerMargin / 3) - $lineWidth, 0.3, $style, '');
         }
 
         $this->y($currentY);
@@ -119,46 +148,10 @@ trait Footers
 #endregion
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
 #endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-
-    /**
-     * Minimum distance between footer and bottom page margin.
-     * @var float
-     */
-    protected $footer_margin;
-
-
-    /**
-     * Returns footer margin in user units.
-     * @return float
-     */
-    public function getFooterMargin()
-    {
-        return $this->footer_margin;
-    }
-
-    /**
-     * Set footer data.
-     * @param int[] $tc RGB array color for text.
-     * @param int[] $lc RGB array color for line.
-     */
-    public function setFooterData($tc = self::BLACK, $lc = self::BLACK)
-    {
-        $this->footerTextColor = $tc;
-        $this->footerLineColor = $lc;
-    }
-
-    /**
-     * Set footer margin.
-     * (minimum distance between footer and bottom page margin)
-     * @param float $fm distance in user units
-     */
-    public function setFooterMargin($fm = 10)
-    {
-        $this->footer_margin = $fm;
-    }
 
     /**
      * Set a flag to print page footer.

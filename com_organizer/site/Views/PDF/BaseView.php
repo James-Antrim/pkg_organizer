@@ -135,7 +135,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param int $header the header margin
      * @param int $footer the footer margin
      *
-     * @see   autoPageBreak(), SetFooterMargin(), headerMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
+     * @see   autoPageBreak(), footerMargin(), headerMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
      */
     public function margins(int $left = 15,
                             int $top = 27,
@@ -145,7 +145,7 @@ abstract class BaseView extends PDF implements ViewInterface
                             int $footer = 10): void
     {
         $this->autoPageBreak(true, $bottom);
-        $this->setFooterMargin($footer);
+        $this->footerMargin($footer);
         $this->headerMargin($header);
         $this->SetMargins($left, $top, $right);
     }

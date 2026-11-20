@@ -30,12 +30,6 @@ trait Colors
     /** Commands for filling color. */
     protected string $fillColor = '0 g';
 
-    /** @var int[] RGB */
-    protected array $footerLineColor = self::BLACK;
-
-    /** @var int[] RGB */
-    protected array $footerTextColor = self::BLACK;
-
     protected array $gradients = [];
 
     /** @var array User defined [CMYK + name + objectNumber] color configurations. */

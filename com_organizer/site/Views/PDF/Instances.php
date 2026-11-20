@@ -62,9 +62,6 @@ class Instances extends ListView
     /** @inheritDoc */
     public function setOverhead(): void
     {
-        // Header data is set per page.
-        $this->setFooterData(self::BLACK, self::WHITE);
-
         parent::header();
     }
 }

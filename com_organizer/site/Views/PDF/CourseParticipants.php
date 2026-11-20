@@ -61,7 +61,6 @@ class CourseParticipants extends ListView
         $subHeader = $this->campus ? "$this->campus $dates" : $dates;
 
         $this->headerConfig('pdf_logo.png', 55, $this->course, $subHeader);
-        $this->setFooterData(self::BLACK, self::WHITE);
 
         parent::header();
     }
