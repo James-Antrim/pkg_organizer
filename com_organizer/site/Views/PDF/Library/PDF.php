@@ -31,6 +31,7 @@ class PDF
     protected array $annotationIDs = [];
     protected string $buffer = '';
     protected int $bufferLength = 0;
+    protected object|null $clone = null;
     protected int $creationTimestamp = 0;
     protected array $graphicsConfiguration = [];
     protected array $encodingDeltas = [];
@@ -60,6 +61,8 @@ class PDF
     protected int $state = self::INITIAL;
     protected bool $underline = false;
     protected string $unit = self::MILLIMETER;
+    /** Preserves the ids of files who have had all properties unset. */
+    protected static array $unsetFileIDs = [];
     protected float $x = 0;
     protected string $xObjectID = '';
     protected array $xObjects = [];
@@ -67,7 +70,7 @@ class PDF
 
 
     /**
-     * Constructor.
+     * Constructor
      *
      * @param string $orientation
      * @param string $unit
@@ -107,6 +110,12 @@ class PDF
         $this->modificationTimestamp = $this->creationTimestamp;
         $this->transpositions[0]     = [];
 
+    }
+
+    /** Destructor */
+    public function __destruct()
+    {
+        $this->unsetProperties(true);
     }
 
     /**
@@ -270,27 +279,43 @@ class PDF
     }
 
     /**
-     * Starts a 2D transformation saving the current graphic state. This function must be called before mirroring, rotation, scaling, skewing and
-     * translation transformations. Use endTransformation() afterwords to restore normal behavior.
-     * @see endTransformation()
+     * Unset properties.
+     * @param bool $all          if true destroys all class variables, otherwise preserves critical variables.
+     * @param bool $preserveCopy if true preserves the clone property
      */
-    public function startTransformation(): void
+    public function unsetProperties(bool $all = false, bool $preserveCopy = false): void
     {
-        if ($this->state !== self::READY) {
-            return;
+        if (isset(self::$unsetFileIDs[$this->fileID])) {
+            $all = false;
         }
 
-        $this->appendSaveGraphicsState();
-
-        if ($this->inXObject) {
-            $this->xObjects[$this->xObjectID]['transpositions'][] = strlen($this->xObjects[$this->xObjectID]['content']);
+        if ($all and !$preserveCopy and isset($this->fileID)) {
+            self::$unsetFileIDs[$this->fileID] = true;
+            // remove all temporary files
+            if ($handle = @opendir(self::CACHE_PATH)) {
+                while (false !== ($file_name = readdir($handle))) {
+                    if (str_starts_with($file_name, '__organizer_' . $this->fileID . '_')) {
+                        unlink(self::CACHE_PATH . $file_name);
+                    }
+                }
+                closedir($handle);
+            }
+            foreach ($this->imageKeys as $file) {
+                if (str_starts_with($file, self::CACHE_PATH) && @file_exists($file)) {
+                    @unlink($file);
+                }
+            }
         }
-        else {
-            $this->transpositions[$this->page][] = $this->pageLengths[$this->page];
-        }
 
-        ++$this->matrixKey;
-        $this->matrix[$this->matrixKey] = [];
+        $preserve = ['buffer', 'bufferLength', 'fileID', 'imageKeys', 'state'];
+
+        foreach (array_keys(get_object_vars($this)) as $property) {
+            if ($all or !in_array($property, $preserve)) {
+                if ((!$preserveCopy or ($property != 'clone')) and ($property != 'fileID') and isset($this->$property)) {
+                    unset($this->$property);
+                }
+            }
+        }
     }
 
     /**
@@ -345,6 +370,7 @@ class PDF
 
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
+
 
     /**
      * Batch getter / setter for graphics configuration properties. Setting is only enabled when the document is in a READY state.
@@ -631,11 +657,6 @@ class PDF
     protected array $extgstates = [];
 
     /**
-     * Set the default JPEG compression quality (1-100).
-     */
-    protected int $jpeg_quality = 75;
-
-    /**
      * PDF viewer preferences.
      */
     protected $viewer_preferences;
@@ -651,14 +672,10 @@ class PDF
     protected $bordermrk = [];
 
     /**
-     * Array used to store page positions to track empty pages (keys are the page numbers).
-     */
-    protected $emptypagemrk = [];
-
-    /**
      * Array used to store content positions inside the pages buffer (keys are the page numbers).
      */
     protected $cntmrk = [];
+
     /**
      * End position of the latest inserted line.
      */
@@ -695,44 +712,14 @@ class PDF
     protected $tagvspaces = [];
 
     /**
-     * bool flag to indicate if the border of the cell sides that cross the page should be removed.
-     */
-    protected $opencell = true;
-
-    /**
-     * Array of files to embedd.
-     */
-    protected $embeddedfiles = [];
-
-    /**
      * bool flag to indicate if we are inside a PRE tag.
      */
     protected $premode = false;
 
     /**
-     * Counts the number of pages.
-     */
-    protected $numpages = 0;
-
-    /**
-     * Cloned copy of the current class object.
-     */
-    protected $objcopy;
-
-    /**
      * Array used to store the lengths of cache files.
      */
     protected $cache_file_length = [];
-
-    /**
-     * Digital signature data.
-     */
-    protected $signature_data = [];
-
-    /**
-     * Digital signature max length.
-     */
-    protected $signature_max_length = 11742;
 
     /**
      * Data for digital signature appearance.
@@ -770,11 +757,6 @@ class PDF
     protected $radio_groups = [];
 
     /**
-     * Text indentation value (used for text-indent CSS attribute).
-     */
-    protected $textindent = 0;
-
-    /**
      * Store page number when startTransaction() is called.
      */
     protected $start_transaction_page = 0;
@@ -783,37 +765,6 @@ class PDF
      * Store Y position when startTransaction() is called.
      */
     protected $start_transaction_y = 0;
-
-    /**
-     * Text rendering mode: 0 = Fill text; 1 = Stroke text; 2 = Fill, then stroke text; 3 = Neither fill nor stroke text (invisible); 4 = Fill text and add to path for clipping; 5 = Stroke text and add to path for clipping; 6 = Fill, then stroke text and add to path for clipping; 7 = Add text to path for clipping.
-     */
-    protected $textrendermode = 0;
-
-    /**
-     * Text stroke width in doc units.
-     */
-    protected $textstrokewidth = 0;
-
-    /**
-     * Default unit of measure for document.
-     */
-    protected $pdfunit = 'mm';
-
-    /**
-     * bool flag: if true convert vector images (SVG, EPS) to raster image using GD or ImageMagick library.
-     */
-    protected $rasterize_vector_images = false;
-
-    /**
-     * Array of no-write regions.
-     * ('page' => page number or empy for current page, 'xt' => X top, 'yt' => Y top, 'xb' => X bottom, 'yb' => Y bottom, 'side' => page side 'L' = left or 'R' = right)
-     */
-    protected $page_regions = [];
-
-    /**
-     * bool value true when page region check is active.
-     */
-    protected $check_page_regions = true;
 
     /**
      * A dictionary of names and corresponding destinations (Dests key on document Catalog).
@@ -829,130 +780,6 @@ class PDF
      * Embedded Files Names
      */
     protected $efnames = [];
-
-    /**
-     * Directory used for the last SVG image.
-     */
-    protected $svgdir = '';
-
-    /**
-     * Array of SVG gradients.
-     */
-    protected $svggradients = [];
-
-    /**
-     * ID of last SVG gradient.
-     */
-    protected $svggradientid = 0;
-
-    /**
-     * bool value true when in SVG defs group.
-     */
-    protected $svgdefsmode = false;
-
-    /**
-     * Array of SVG defs.
-     */
-    protected $svgdefs = [];
-
-    /**
-     * bool value true when in SVG clipPath tag.
-     */
-    protected $svgclipmode = false;
-
-    /**
-     * Array of SVG clipPath commands.
-     */
-    protected $svgclippaths = [];
-
-    /**
-     * Array of SVG clipPath tranformation matrix.
-     */
-    protected $svgcliptm = [];
-
-    /**
-     * ID of last SVG clipPath.
-     */
-    protected $svgclipid = 0;
-
-    /**
-     * SVG text.
-     */
-    protected $svgtext = '';
-
-    /**
-     * SVG text properties.
-     */
-    protected $svgtextmode = [];
-
-    /**
-     * Array of SVG properties.
-     */
-    protected $svgstyles = [
-        'alignment-baseline'           => 'auto',
-        'baseline-shift'               => 'baseline',
-        'clip'                         => 'auto',
-        'clip-path'                    => 'none',
-        'clip-rule'                    => 'nonzero',
-        'color'                        => 'black',
-        'color-interpolation'          => 'sRGB',
-        'color-interpolation-filters'  => 'linearRGB',
-        'color-profile'                => 'auto',
-        'color-rendering'              => 'auto',
-        'cursor'                       => 'auto',
-        'direction'                    => 'ltr',
-        'display'                      => 'inline',
-        'dominant-baseline'            => 'auto',
-        'enable-background'            => 'accumulate',
-        'fill'                         => 'black',
-        'fill-opacity'                 => 1,
-        'fill-rule'                    => 'nonzero',
-        'filter'                       => 'none',
-        'flood-color'                  => 'black',
-        'flood-opacity'                => 1,
-        'font'                         => '',
-        'font-family'                  => 'helvetica',
-        'font-size'                    => 'medium',
-        'font-size-adjust'             => 'none',
-        'font-stretch'                 => 'normal',
-        'font-style'                   => 'normal',
-        'font-variant'                 => 'normal',
-        'font-weight'                  => 'normal',
-        'glyph-orientation-horizontal' => '0deg',
-        'glyph-orientation-vertical'   => 'auto',
-        'image-rendering'              => 'auto',
-        'kerning'                      => 'auto',
-        'letter-spacing'               => 'normal',
-        'lighting-color'               => 'white',
-        'marker'                       => '',
-        'marker-end'                   => 'none',
-        'marker-mid'                   => 'none',
-        'marker-start'                 => 'none',
-        'mask'                         => 'none',
-        'opacity'                      => 1,
-        'overflow'                     => 'auto',
-        'pointer-events'               => 'visiblePainted',
-        'shape-rendering'              => 'auto',
-        'stop-color'                   => 'black',
-        'stop-opacity'                 => 1,
-        'stroke'                       => 'none',
-        'stroke-dasharray'             => 'none',
-        'stroke-dashoffset'            => 0,
-        'stroke-linecap'               => 'butt',
-        'stroke-linejoin'              => 'miter',
-        'stroke-miterlimit'            => 4,
-        'stroke-opacity'               => 1,
-        'stroke-width'                 => 1,
-        'text-anchor'                  => 'start',
-        'text-decoration'              => 'none',
-        'text-rendering'               => 'auto',
-        'unicode-bidi'                 => 'normal',
-        'visibility'                   => 'visible',
-        'word-spacing'                 => 'normal',
-        'writing-mode'                 => 'lr-tb',
-        'text-color'                   => 'black',
-        'transfmatrix'                 => [1, 0, 0, 1, 0, 0]
-    ];
 
     /**
      * Custom XMP data.
@@ -1002,15 +829,6 @@ class PDF
     // METHODS
     //------------------------------------------------------------
 
-    /**
-     * Default destructor.
-     */
-    public function __destruct()
-    {
-        // cleanup
-        $this->_destroy(true);
-    }
-
 
     /**
      * Terminates the PDF document.
@@ -1052,7 +870,7 @@ class PDF
         // close document
         $this->_enddoc();
         // unset all class variables (except critical ones)
-        $this->_destroy(false);
+        $this->unsetProperties(false);
     }
 
     /**
@@ -1062,7 +880,7 @@ class PDF
     public function Error($msg)
     {
         // unset all class variables
-        $this->_destroy(true);
+        $this->unsetProperties(true);
         die('<strong>PDF Library Error: </strong>' . $msg);
         // TODO comment in for production
         /*if (JDEBUG) {
@@ -2386,59 +2204,6 @@ class PDF
         return '';
     }
 
-    protected static $cleaned_ids = [];
-
-    /**
-     * Unset all class variables except the following critical variables.
-     * @param bool $destroyall       if true destroys all class variables, otherwise preserves critical variables.
-     * @param bool $preserve_objcopy if true preserves the objcopy variable
-     */
-    public function _destroy($destroyall = false, $preserve_objcopy = false)
-    {
-        if (isset(self::$cleaned_ids[$this->fileID])) {
-            $destroyall = false;
-        }
-        if ($destroyall and !$preserve_objcopy && isset($this->fileID)) {
-            self::$cleaned_ids[$this->fileID] = true;
-            // remove all temporary files
-            if ($handle = @opendir(self::CACHE_PATH)) {
-                while (false !== ($file_name = readdir($handle))) {
-                    if (strpos($file_name, '__organizer_' . $this->fileID . '_') === 0) {
-                        unlink(self::CACHE_PATH . $file_name);
-                    }
-                }
-                closedir($handle);
-            }
-            if (isset($this->imageKeys)) {
-                foreach ($this->imageKeys as $file) {
-                    if (strpos($file, self::CACHE_PATH) === 0 && @file_exists($file)) {
-                        @unlink($file);
-                    }
-                }
-            }
-        }
-        $preserve = [
-            'buffer',
-            'bufferLength',
-            'cached_files',
-            'fileID',
-            'imagekeys',
-            'signable',
-            'signature_data',
-            'signature_max_length',
-            'state',
-            'tsa_data',
-            'tsa_timestamp'
-        ];
-        foreach (array_keys(get_object_vars($this)) as $val) {
-            if ($destroyall or !in_array($val, $preserve)) {
-                if ((!$preserve_objcopy or ($val != 'objcopy')) and ($val != 'fileID') and isset($this->$val)) {
-                    unset($this->$val);
-                }
-            }
-        }
-    }
-
     /**
      * Return an array containing variations for the basic page number alias.
      * @param string $a Base alias.
@@ -3711,9 +3476,7 @@ class PDF
             }
             $out .= ' /Fields [' . $objrefs . ']';
             // It's better to turn off this value and set the appearance stream for each annotation (/AP) to avoid conflicts with signature fields.
-            if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
-                $out .= ' /NeedAppearances false';
-            }
+            $out .= ' /NeedAppearances false';
             if (isset($this->annotationFonts) and !empty($this->annotationFonts)) {
                 $out .= ' /DR <<';
                 $out .= ' /Font <<';
@@ -6466,7 +6229,7 @@ class PDF
      */
     public function startTransaction()
     {
-        if (isset($this->objcopy)) {
+        if (isset($this->clone)) {
             // remove previous copy
             $this->commitTransaction();
         }
@@ -6474,7 +6237,7 @@ class PDF
         $this->start_transaction_page = $this->page;
         $this->start_transaction_y    = $this->y;
         // clone current object
-        $this->objcopy = StaticMethods::objclone($this);
+        $this->clone = StaticMethods::objclone($this);
     }
 
     /**
@@ -6482,10 +6245,10 @@ class PDF
      */
     public function commitTransaction()
     {
-        if (isset($this->objcopy)) {
-            $this->objcopy->_destroy(true, true);
-            $this->objcopy->fileID = NULL;
-            unset($this->objcopy);
+        if (isset($this->clone)) {
+            $this->clone->_destroy(true, true);
+            $this->clone->fileID = NULL;
+            unset($this->clone);
         }
     }
 
@@ -6496,21 +6259,21 @@ class PDF
      */
     public function rollbackTransaction($self = false)
     {
-        if (isset($this->objcopy)) {
-            $objcopy = $this->objcopy;
-            $this->_destroy(true, true);
+        if (isset($this->clone)) {
+            $clone = $this->clone;
+            $this->unsetProperties(true, true);
             if ($self) {
-                $objvars = get_object_vars($objcopy);
+                $objvars = get_object_vars($clone);
                 foreach ($objvars as $key => $value) {
                     $this->$key = $value;
                 }
-                $objcopy->_destroy(true, true);
-                $objcopy->fileID = NULL;
-                unset($objcopy);
+                $clone->_destroy(true, true);
+                $clone->fileID = NULL;
+                unset($clone);
                 return $this;
             }
             $this->fileID = NULL;
-            return $objcopy;
+            return $clone;
         }
         return $this;
     }

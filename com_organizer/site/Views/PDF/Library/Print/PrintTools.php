@@ -56,5 +56,21 @@ trait PrintTools
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
+
+    /**
+     * Text indentation value (used for text-indent CSS attribute).
+     */
+    protected $textindent = 0;
+
+    /**
+     * Text rendering mode: 0 = Fill text; 1 = Stroke text; 2 = Fill, then stroke text; 3 = Neither fill nor stroke text (invisible); 4 = Fill text and add to path for clipping; 5 = Stroke text and add to path for clipping; 6 = Fill, then stroke text and add to path for clipping; 7 = Add text to path for clipping.
+     */
+    protected $textrendermode = 0;
+
+    /**
+     * Text stroke width in doc units.
+     */
+    protected $textstrokewidth = 0;
+
 #endregion
 }

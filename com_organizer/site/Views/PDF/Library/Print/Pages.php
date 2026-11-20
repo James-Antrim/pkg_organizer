@@ -349,9 +349,30 @@ trait Pages
 
 
     /**
+     * bool value true when page region check is active.
+     */
+    protected $check_page_regions = true;
+
+    /**
+     * Array used to store page positions to track empty pages (keys are the page numbers).
+     */
+    protected $emptypagemrk = [];
+
+    /**
+     * Counts the number of pages.
+     */
+    protected $numpages = 0;
+
+    /**
      * Store the fage status (true when opened, false when closed).
      */
     protected $pageopen = [];
+
+    /**
+     * Array of no-write regions.
+     * ('page' => page number or empy for current page, 'xt' => X top, 'yt' => Y top, 'xb' => X bottom, 'yb' => Y bottom, 'side' => page side 'L' = left or 'R' = right)
+     */
+    protected $page_regions = [];
 
     /**
      * Starting page number.
@@ -476,10 +497,8 @@ trait Pages
             $out                     = '<<';
             $out                     .= ' /Type /Page';
             $out                     .= ' /Parent 1 0 R';
-            if (empty($this->signature_data['approval']) or ($this->signature_data['approval'] != 'A')) {
-                $out .= ' /LastModified ' . $this->_datestring($this->modificationTimestamp);
-            }
-            $out .= ' /Resources 2 0 R';
+            $out                     .= ' /LastModified ' . $this->_datestring($this->modificationTimestamp);
+            $out                     .= ' /Resources 2 0 R';
             foreach ($this->pageBoxes as $box) {
                 $out .= ' /' . $box;
                 $out .= sprintf(' [%F %F %F %F]', $this->pageDimensions[$n][$box]['llx'], $this->pageDimensions[$n][$box]['lly'], $this->pageDimensions[$n][$box]['urx'], $this->pageDimensions[$n][$box]['ury']);

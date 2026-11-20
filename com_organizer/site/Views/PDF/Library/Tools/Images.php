@@ -523,6 +523,30 @@ trait Images
     }
 
     /**
+     * Starts a 2D transformation saving the current graphic state. This function must be called before mirroring, rotation, scaling, skewing and
+     * translation transformations. Use endTransformation() afterwords to restore normal behavior.
+     * @see endTransformation()
+     */
+    public function startTransformation(): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->appendSaveGraphicsState();
+
+        if ($this->inXObject) {
+            $this->xObjects[$this->xObjectID]['transpositions'][] = strlen($this->xObjects[$this->xObjectID]['content']);
+        }
+        else {
+            $this->transpositions[$this->page][] = $this->pageLengths[$this->page];
+        }
+
+        ++$this->matrixKey;
+        $this->matrix[$this->matrixKey] = [];
+    }
+
+    /**
      * Apply graphic transformations.
      * @param array $matrix transformation matrix
      * @see   startTransformation(), endTransformation()
@@ -560,9 +584,143 @@ trait Images
 
 
     /**
+     * Set the default JPEG compression quality (1-100).
+     */
+    protected int $jpeg_quality = 75;
+
+    /**
+     * bool flag: if true convert vector images (SVG, EPS) to raster image using GD or ImageMagick library.
+     */
+    protected $rasterize_vector_images = false;
+
+    /**
      * Depth of the svg tag, to keep track if the svg tag is a subtag or the root tag.
      */
     protected $svg_tag_depth = 0;
+
+    /**
+     * ID of last SVG clipPath.
+     */
+    protected $svgclipid = 0;
+
+    /**
+     * bool value true when in SVG clipPath tag.
+     */
+    protected $svgclipmode = false;
+
+    /**
+     * Array of SVG clipPath commands.
+     */
+    protected $svgclippaths = [];
+
+    /**
+     * Array of SVG clipPath tranformation matrix.
+     */
+    protected $svgcliptm = [];
+
+    /**
+     * Array of SVG defs.
+     */
+    protected $svgdefs = [];
+
+    /**
+     * bool value true when in SVG defs group.
+     */
+    protected $svgdefsmode = false;
+
+    /**
+     * Directory used for the last SVG image.
+     */
+    protected $svgdir = '';
+
+    /**
+     * ID of last SVG gradient.
+     */
+    protected $svggradientid = 0;
+
+    /**
+     * Array of SVG gradients.
+     */
+    protected $svggradients = [];
+
+    /**
+     * SVG text.
+     */
+    protected $svgtext = '';
+
+    /**
+     * SVG text properties.
+     */
+    protected $svgtextmode = [];
+
+    /**
+     * Array of SVG properties.
+     */
+    protected $svgstyles = [
+        'alignment-baseline'           => 'auto',
+        'baseline-shift'               => 'baseline',
+        'clip'                         => 'auto',
+        'clip-path'                    => 'none',
+        'clip-rule'                    => 'nonzero',
+        'color'                        => 'black',
+        'color-interpolation'          => 'sRGB',
+        'color-interpolation-filters'  => 'linearRGB',
+        'color-profile'                => 'auto',
+        'color-rendering'              => 'auto',
+        'cursor'                       => 'auto',
+        'direction'                    => 'ltr',
+        'display'                      => 'inline',
+        'dominant-baseline'            => 'auto',
+        'enable-background'            => 'accumulate',
+        'fill'                         => 'black',
+        'fill-opacity'                 => 1,
+        'fill-rule'                    => 'nonzero',
+        'filter'                       => 'none',
+        'flood-color'                  => 'black',
+        'flood-opacity'                => 1,
+        'font'                         => '',
+        'font-family'                  => 'helvetica',
+        'font-size'                    => 'medium',
+        'font-size-adjust'             => 'none',
+        'font-stretch'                 => 'normal',
+        'font-style'                   => 'normal',
+        'font-variant'                 => 'normal',
+        'font-weight'                  => 'normal',
+        'glyph-orientation-horizontal' => '0deg',
+        'glyph-orientation-vertical'   => 'auto',
+        'image-rendering'              => 'auto',
+        'kerning'                      => 'auto',
+        'letter-spacing'               => 'normal',
+        'lighting-color'               => 'white',
+        'marker'                       => '',
+        'marker-end'                   => 'none',
+        'marker-mid'                   => 'none',
+        'marker-start'                 => 'none',
+        'mask'                         => 'none',
+        'opacity'                      => 1,
+        'overflow'                     => 'auto',
+        'pointer-events'               => 'visiblePainted',
+        'shape-rendering'              => 'auto',
+        'stop-color'                   => 'black',
+        'stop-opacity'                 => 1,
+        'stroke'                       => 'none',
+        'stroke-dasharray'             => 'none',
+        'stroke-dashoffset'            => 0,
+        'stroke-linecap'               => 'butt',
+        'stroke-linejoin'              => 'miter',
+        'stroke-miterlimit'            => 4,
+        'stroke-opacity'               => 1,
+        'stroke-width'                 => 1,
+        'text-anchor'                  => 'start',
+        'text-decoration'              => 'none',
+        'text-rendering'               => 'auto',
+        'unicode-bidi'                 => 'normal',
+        'visibility'                   => 'visible',
+        'word-spacing'                 => 'normal',
+        'writing-mode'                 => 'lr-tb',
+        'text-color'                   => 'black',
+        'transfmatrix'                 => [1, 0, 0, 1, 0, 0]
+    ];
 
     /**
      * Puts an image in the page.
