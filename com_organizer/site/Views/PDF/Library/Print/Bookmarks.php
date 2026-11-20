@@ -190,9 +190,9 @@ trait Bookmarks
                         $out .= ' /A <</S /URI /URI ' . $this->metadataDataString($this->unhtmlentities($o['u'])) . '>>';
                     }
                 }
-                elseif (isset($this->links[$o['u']])) {
+                elseif (isset($this->internalLinks[$o['u']])) {
                     // internal link ID
-                    $l = $this->links[$o['u']];
+                    $l = $this->internalLinks[$o['u']];
                     if (isset($this->pageObjectIDs[($l['p'])])) {
                         $out .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->factor)));
                     }

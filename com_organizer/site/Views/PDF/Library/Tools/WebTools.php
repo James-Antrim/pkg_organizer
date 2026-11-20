@@ -668,8 +668,7 @@ trait WebTools
                 else {
                     $lnky = 0;
                 }
-                $url = $this->AddLink();
-                $this->setLink($url, $lnky, $page);
+                $url = $this->link($page, $lnky);
             }
         }
         // store current settings
@@ -687,7 +686,7 @@ trait WebTools
         else {
             $this->font('', $this->fontStyle . $style);
         }
-        $ret = $this->Write($this->lastPrintedCellHeight, $name, $url, $fill, '', false, 0, $firstline, $firstblock, 0);
+        $ret = $this->write($this->lastPrintedCellHeight, $name, $url, $fill, '', false, 0, $firstline, $firstblock, 0);
         // restore settings
         $this->font('', $prevstyle);
         $this->textColorArray($prevcolor);
@@ -1021,7 +1020,7 @@ trait WebTools
             $textitem = $textitem . '.';
             $lspace   += $this->GetStringWidth($textitem);
             $this->x  -= $lspace;
-            $this->Write($this->lastPrintedCellHeight, $textitem, '', false, '', false, 0, false);
+            $this->write($this->lastPrintedCellHeight, $textitem, '', false, '', false, 0, false);
         }
         $this->x        = $tmpx;
         $this->lispacer = '^';
@@ -2295,7 +2294,7 @@ trait WebTools
                             }
                         }
                         // ****** write only until the end of the line and get the rest ******
-                        $strrest = $this->Write($this->lastPrintedCellHeight, $dom[$key]['value'], '', $wfill, '', false, 0, true, $firstblock, 0, $wadj);
+                        $strrest = $this->write($this->lastPrintedCellHeight, $dom[$key]['value'], '', $wfill, '', false, 0, true, $firstblock, 0, $wadj);
                         // restore default direction
                     }
                 }
@@ -2772,8 +2771,7 @@ trait WebTools
                             else {
                                 $lnky = 0;
                             }
-                            $imglink = $this->AddLink();
-                            $this->setLink($imglink, $lnky, $page);
+                            $imglink = $this->link($page, $lnky);
                         }
                     }
                 }

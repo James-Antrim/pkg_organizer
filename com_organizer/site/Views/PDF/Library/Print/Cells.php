@@ -615,7 +615,7 @@ trait Cells
                 $s .= ' Q';
             }
             if ($link) {
-                $this->Link($xdx, $yt, $width, ($this->fontAscent + $this->fontDescent), $link, $ns);
+                $this->annotateLink($xdx, $yt, $width, ($this->fontAscent + $this->fontDescent), $link, $ns);
             }
         }
         // output cell
@@ -999,7 +999,7 @@ trait Cells
                     }
                 }
             }
-            $nl = $this->Write($this->lastPrintedCellHeight, $txt, '', 0, $align, true, $stretch, false, true, $maxh, 0, $mc_margin);
+            $nl = $this->write($this->lastPrintedCellHeight, $txt, '', 0, $align, true, $stretch, false, true, $maxh, 0, $mc_margin);
             if ($fitcell) {
                 // restore font size
                 $this->fontSize($previousFontSizePT);

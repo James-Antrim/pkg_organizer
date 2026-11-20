@@ -166,7 +166,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param mixed  $link       URL or identifier returned by addLink().
      *
      * @return void renders the cell
-     * @see   addLink(), cell()
+     * @see   link(), cell()
      */
     public function renderCell(
         int    $width,
@@ -200,7 +200,7 @@ abstract class BaseView extends PDF implements ViewInterface
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
-     * @see   cell(), drawColor(),fillColor(), font(), textColor(), lineWidth(), autoPageBreak(), Write()
+     * @see   cell(), drawColor(),fillColor(), font(), textColor(), lineWidth(), autoPageBreak(), write()
      */
     public function renderMultiCell(
         int    $width,

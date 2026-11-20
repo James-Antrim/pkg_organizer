@@ -114,11 +114,10 @@ trait TOCs
             $indent           = ($spacer * $outline['l']);
             $this->x          += $indent;
             $this->leftMargin = $this->x;
-            $link             = $this->AddLink();
-            $this->setLink($link, $outline['y'], $outline['p']);
+            $link             = $this->link($outline['p'], $outline['y']);
             // write the text
             $txt = $outline['t'] . ' ';
-            $this->Write(0, $txt, $link, false, $aligntext, false, 0, false, false, 0, $numwidth, '');
+            $this->write(0, $txt, $link, false, $aligntext, false, 0, false, false, 0, $numwidth, '');
             $tw = $this->width - $this->rightMargin - $this->x;
             $this->font($numbersfont, $fontstyle, $fontsize);
             if (StaticMethods::empty_string($page)) {

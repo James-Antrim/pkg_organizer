@@ -1127,7 +1127,7 @@ trait Images
             $this->y = $by;
         }
         if ($link) {
-            $this->Link($ximg, $y, $width, $height, $link, 0);
+            $this->annotateLink($ximg, $y, $width, $height, $link, 0);
         }
         // set pointer to align the next text/objects
         switch ($align) {
@@ -1722,7 +1722,7 @@ trait Images
             $this->y = $by;
         }
         if ($link) {
-            $this->Link($ximg, $y, $w, $h, $link, 0);
+            $this->annotateLink($ximg, $y, $w, $h, $link, 0);
         }
         // set pointer to align the next text/objects
         switch ($align) {
@@ -2158,7 +2158,7 @@ trait Images
             $this->y = $by;
         }
         if ($link) {
-            $this->Link($ximg, $y, $w, $h, $link, 0);
+            $this->annotateLink($ximg, $y, $w, $h, $link, 0);
         }
         // set pointer to align the next text/objects
         switch ($align) {

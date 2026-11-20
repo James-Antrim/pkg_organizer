@@ -706,10 +706,10 @@ trait Pages
             }
         }
         // copy links
-        $tmplinks = $this->links;
+        $tmplinks = $this->internalLinks;
         foreach ($tmplinks as $key => $link) {
             if ($link['p'] == $page) {
-                $this->links[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
+                $this->internalLinks[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
             }
         }
         // return to last page
@@ -878,14 +878,14 @@ trait Pages
             }
         }
         // adjust links
-        $tmplinks = $this->links;
+        $tmplinks = $this->internalLinks;
         foreach ($tmplinks as $key => $link) {
             if (!$link['f']) {
                 if ($link['p'] > $page) {
-                    $this->links[$key]['p'] = $link['p'] - 1;
+                    $this->internalLinks[$key]['p'] = $link['p'] - 1;
                 }
                 elseif ($link['p'] == $page) {
-                    unset($this->links[$key]);
+                    unset($this->internalLinks[$key]);
                 }
             }
         }
@@ -1147,14 +1147,14 @@ trait Pages
             }
         }
         // adjust links
-        $tmplinks = $this->links;
+        $tmplinks = $this->internalLinks;
         foreach ($tmplinks as $key => $link) {
             if (!$link['f']) {
                 if (($link['p'] >= $topage) and ($link['p'] < $frompage)) {
-                    $this->links[$key]['p'] = ($link['p'] + 1);
+                    $this->internalLinks[$key]['p'] = ($link['p'] + 1);
                 }
                 elseif ($link['p'] == $frompage) {
-                    $this->links[$key]['p'] = $topage;
+                    $this->internalLinks[$key]['p'] = $topage;
                 }
             }
         }
@@ -1311,10 +1311,10 @@ trait Pages
                 }
             }
             // adjust links
-            $tmplinks = $this->links;
+            $tmplinks = $this->internalLinks;
             foreach ($tmplinks as $key => $link) {
                 if (!$link['f'] and ($link['p'] > $this->pageCount)) {
-                    $this->links[$key]['p'] = ($link['p'] + 1);
+                    $this->internalLinks[$key]['p'] = ($link['p'] + 1);
                 }
             }
         }

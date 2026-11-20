@@ -38,11 +38,11 @@ class PDF
     protected float $factor = 0;
     /** File ID for document trailer */
     protected string $fileID;
+    protected array $internalLinks = [];
     protected float $lastPrintedCellHeight = 0;
     protected array $layers = [];
     protected string $libraryURL = '';
     protected bool $lineThrough = false;
-    protected array $links = [];
     protected bool $inXObject = false;
     /** Transformation matrix */
     protected array $matrix = [];
@@ -226,6 +226,42 @@ class PDF
         else {
             array_pop($this->transpositions[$this->page]);
         }
+    }
+
+    /**
+     * Creates a new internal link and returns its identifier.
+     * @param int|string|null $pageNumber a string prefixed with '*' fill fix the link when adding/deleting/moving pages
+     * @param float           $y          ordinate of target position, -1 indicates the current position
+     * @return int
+     * @see   cell(), write(), image(), annotateLink()
+     */
+    public function link(int|string|null $pageNumber = null, float $y = 0): int
+    {
+        $fixed  = false;
+        $linkID = count($this->internalLinks) + 1;
+
+        if ($pageNumber) {
+            if (is_string($pageNumber)) {
+                $offset = 0;
+                if (str_starts_with($pageNumber, '*')) {
+                    $fixed  = true;
+                    $offset = 1;
+                }
+                $pageNumber = (int) substr($pageNumber, $offset);
+            }
+
+            $pageNumber = $pageNumber < 0 ? $this->page : $pageNumber;
+
+            if ($y === -1.0) {
+                $y = $this->y;
+            }
+        }
+        else {
+            $pageNumber = 0;
+        }
+
+        $this->internalLinks[$linkID] = ['p' => $pageNumber, 'y' => $y, 'f' => $fixed];
+        return $linkID;
     }
 
     /**
@@ -1183,43 +1219,6 @@ class PDF
     }
 
     /**
-     * Creates a new internal link and returns its identifier. An internal link is a clickable area which directs to another place within the document.<br />
-     * The identifier can then be passed to Cell(), Write(), Image() or Link(). The destination is defined with SetLink().
-     * @see   cell(), Write(), image(), Link(), SetLink()
-     */
-    public function AddLink()
-    {
-        // create a new internal link
-        $n               = count($this->links) + 1;
-        $this->links[$n] = ['p' => 0, 'y' => 0, 'f' => false];
-        return $n;
-    }
-
-    /**
-     * Defines the page and position a link points to.
-     * @param int        $link The link identifier returned by AddLink()
-     * @param float      $y    Ordinate of target position; -1 indicates the current position. The default value is 0 (top of page)
-     * @param int|string $page Number of target page; -1 indicates the current page (default value). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
-     * @see   AddLink()
-     */
-    public function setLink($link, $y = 0, $page = -1)
-    {
-        $fixed = false;
-        if (!empty($page) and (substr($page, 0, 1) == '*')) {
-            $page = intval(substr($page, 1));
-            // this page number will not be changed when moving/add/deleting pages
-            $fixed = true;
-        }
-        if ($page < 0) {
-            $page = $this->page;
-        }
-        if ($y == -1) {
-            $y = $this->y;
-        }
-        $this->links[$link] = ['p' => $page, 'y' => $y, 'f' => $fixed];
-    }
-
-    /**
      * Puts a link on a rectangular area of the page.
      * Text or image links are generally put via Cell(), Write() or Image(), but this method can be useful for instance to define a clickable area inside an image.
      * @param float $x      Abscissa of the upper-left corner of the rectangle
@@ -1228,9 +1227,9 @@ class PDF
      * @param float $h      Height of the rectangle
      * @param mixed $link   URL or identifier returned by AddLink()
      * @param int   $spaces number of spaces on the text to link
-     * @see   AddLink(), Annotation(), cell(), Write(), image()
+     * @see   link(), Annotation(), cell(), write(), image()
      */
-    public function Link($x, $y, $w, $h, $link, $spaces = 0)
+    public function annotateLink($x, $y, $w, $h, $link, $spaces = 0)
     {
         $this->Annotation($x, $y, $w, $h, $link, ['Subtype' => 'Link'], $spaces);
     }
@@ -1385,7 +1384,7 @@ class PDF
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   cell(), Write(), multiCell(), WriteHTML(), WriteHTMLCell()
+     * @see   cell(), write(), multiCell(), WriteHTML(), WriteHTMLCell()
      */
     public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
@@ -1596,7 +1595,7 @@ class PDF
      * @param array|null $margin     margin array of the parent container
      * @return mixed Return the number of cells or the remaining string if $firstline = true.
      */
-    public function Write($h, $txt, $link = '', $fill = false, $align = '', $ln = false, $stretch = 0, $firstline = false, $firstblock = false, $maxh = 0, $wadj = 0, $margin = null)
+    public function write($h, $txt, $link = '', $fill = false, $align = '', $ln = false, $stretch = 0, $firstline = false, $firstblock = false, $maxh = 0, $wadj = 0, $margin = null)
     {
         // check page for no-write regions and adapt page margins if necessary
         list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
@@ -2625,9 +2624,9 @@ class PDF
                                     }
                                 }
                             }
-                            elseif (isset($this->links[$pl['txt']])) {
+                            elseif (isset($this->internalLinks[$pl['txt']])) {
                                 // internal link ID
-                                $l = $this->links[$pl['txt']];
+                                $l = $this->internalLinks[$pl['txt']];
                                 if (isset($this->pageObjectIDs[($l['p'])])) {
                                     $annots .= sprintf(' /Dest [%u 0 R /XYZ 0 %F null]', $this->pageObjectIDs[($l['p'])], ($this->pageDimensions[$l['p']]['h'] - ($l['y'] * $this->factor)));
                                 }
