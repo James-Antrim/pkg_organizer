@@ -35,7 +35,7 @@ class Badge extends BadgeLayout
 
         $yOffset = 0;
 
-        $this->view->AddPage();
+        $this->view->addPage();
         $xOffset = 10;
         $this->front($participant, $xOffset, $yOffset);
         $xOffset += 92;

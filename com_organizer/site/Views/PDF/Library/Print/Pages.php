@@ -34,6 +34,7 @@ trait Pages
     protected int $page = 0;
     protected array $pageAnnotations = [];
     protected array $pageBoxes = [self::ART_BOX, self::BLEED_BOX, self::CROP_BOX, self::MEDIA_BOX, self::TRIM_BOX];
+    protected int $pageCount = 0;
     protected array $pageDimensions = [];
     protected array $pageGroups = [];
     protected array $pageLengths = [];
@@ -41,6 +42,8 @@ trait Pages
     protected array $pageObjectIDs = [];
     protected array $pageObjects = [];
     protected array $pages = [];
+    /** page number => open (true) / closed (false) */
+    protected array $pageStatus = [];
     protected string $pageZoom = self::FULL_WIDTH;
     protected float $topMargin = 0;
     protected float $width = 0;
@@ -344,6 +347,57 @@ trait Pages
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /**
+     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
+     * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
+     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
+     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
+     * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
+     * @see   startPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
+     */
+    public function addPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
+    {
+        if ($this->inXObject) {
+            // we are inside an XObject template
+            return;
+        }
+        if (empty($this->originalLeftMargin) or $keepmargins) {
+            $this->originalLeftMargin = $this->leftMargin;
+        }
+        if (empty($this->originalRightMargin) or $keepmargins) {
+            $this->originalRightMargin = $this->rightMargin;
+        }
+        // terminate previous page
+        $this->closePage();
+        // start new page
+        $this->startPage($orientation, $format, $tocpage);
+    }
+
+
+    /**
+     * Close the current page.
+     * @param bool $toc if true set the tocpage state to false (end the page used to display Table Of Content).
+     * @see   addPage(), startPage(), addTOCPage(), endTOCPage()
+     */
+    public function closePage(bool $toc = false): void
+    {
+        // Already closed
+        if ($this->page === 0 or $this->pageCount > $this->page or !$this->pageStatus[$this->page]) {
+            return;
+        }
+
+        $this->footer();
+        $this->setVisibility('all');
+        $this->state = self::NEUTRAL;
+        // mark page as closed
+        $this->pageStatus[$this->page] = false;
+        if ($toc) {
+            $this->tocpage = false;
+        }
+    }
+
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
@@ -357,16 +411,6 @@ trait Pages
      * Array used to store page positions to track empty pages (keys are the page numbers).
      */
     protected $emptypagemrk = [];
-
-    /**
-     * Counts the number of pages.
-     */
-    protected $numpages = 0;
-
-    /**
-     * Store the fage status (true when opened, false when closed).
-     */
-    protected $pageopen = [];
 
     /**
      * Array of no-write regions.
@@ -426,15 +470,6 @@ trait Pages
     }
 
     /**
-     * Mark end of page.
-     */
-    protected function _endpage()
-    {
-        $this->setVisibility('all');
-        $this->state = self::NEUTRAL;
-    }
-
-    /**
      * Output pages (and replace page number aliases).
      */
     protected function _putpages()
@@ -442,7 +477,7 @@ trait Pages
         $filter = '/Filter /FlateDecode ';
         // get internal aliases for page numbers
         $pnalias       = $this->getAllInternalPageNumberAliases();
-        $num_pages     = $this->numpages;
+        $num_pages     = $this->pageCount;
         $ptpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $num_pages - 1));
         $ptpu          = $this->utf8ToUTF16BE($ptpa);
         $ptp_num_chars = $this->GetNumChars($ptpa);
@@ -604,7 +639,7 @@ trait Pages
             }
             elseif ($this->autoPageBreak) {
                 // add a new page
-                $this->AddPage();
+                $this->addPage();
                 // set first column
                 $this->selectColumn(0);
             }
@@ -630,62 +665,13 @@ trait Pages
     }
 
     /**
-     * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
-     * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $keepmargins if true overwrites the default page margins with the current margins
-     * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
-     * @see   startPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
-     */
-    public function AddPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
-    {
-        if ($this->inXObject) {
-            // we are inside an XObject template
-            return;
-        }
-        if (empty($this->originalLeftMargin) or $keepmargins) {
-            $this->originalLeftMargin = $this->leftMargin;
-        }
-        if (empty($this->originalRightMargin) or $keepmargins) {
-            $this->originalRightMargin = $this->rightMargin;
-        }
-        // terminate previous page
-        $this->endPage();
-        // start new page
-        $this->startPage($orientation, $format, $tocpage);
-    }
-
-    /**
-     * Terminate the current page
-     * @param bool $tocpage if true set the tocpage state to false (end the page used to display Table Of Content).
-     * @see   AddPage(), startPage(), addTOCPage(), endTOCPage()
-     */
-    public function endPage($tocpage = false)
-    {
-        // check if page is already closed
-        if (($this->page == 0) or ($this->numpages > $this->page) or (!$this->pageopen[$this->page])) {
-            return;
-        }
-        // print page footer
-        $this->setFooter();
-        // close page
-        $this->_endpage();
-        // mark page as closed
-        $this->pageopen[$this->page] = false;
-        if ($tocpage) {
-            $this->tocpage = false;
-        }
-    }
-
-    /**
      * Get the total number of insered pages.
      * @return int number of pages
      * @see   setPage(), getPage(), lastpage()
      */
     public function getNumPages()
     {
-        return $this->numpages;
+        return $this->pageCount;
     }
 
     /**
@@ -783,7 +769,7 @@ trait Pages
         if (($pnum == $this->page) and ($this->state === self::READY)) {
             return;
         }
-        if (($pnum > 0) and ($pnum <= $this->numpages)) {
+        if (($pnum > 0) and ($pnum <= $this->pageCount)) {
             $this->state = self::READY;
             // save current graphic settings
             $oldpage                   = $this->page;
@@ -849,7 +835,7 @@ trait Pages
      * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool   $tocpage     if true the page is designated to contain the Table-Of-Content.
-     * @see   AddPage(), endPage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
+     * @see   addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
      */
     public function startPage($orientation = '', $format = '', $tocpage = false)
     {
@@ -862,26 +848,26 @@ trait Pages
             // adjust outlines
             $tmpoutlines = $this->outlines;
             foreach ($tmpoutlines as $key => $outline) {
-                if (!$outline['f'] and ($outline['p'] > $this->numpages)) {
+                if (!$outline['f'] and ($outline['p'] > $this->pageCount)) {
                     $this->outlines[$key]['p'] = ($outline['p'] + 1);
                 }
             }
             // adjust dests
             $tmpdests = $this->dests;
             foreach ($tmpdests as $key => $dest) {
-                if (!$dest['f'] and ($dest['p'] > $this->numpages)) {
+                if (!$dest['f'] and ($dest['p'] > $this->pageCount)) {
                     $this->dests[$key]['p'] = ($dest['p'] + 1);
                 }
             }
             // adjust links
             $tmplinks = $this->links;
             foreach ($tmplinks as $key => $link) {
-                if (!$link['f'] and ($link['p'] > $this->numpages)) {
+                if (!$link['f'] and ($link['p'] > $this->pageCount)) {
                     $this->links[$key]['p'] = ($link['p'] + 1);
                 }
             }
         }
-        if ($this->numpages > $this->page) {
+        if ($this->pageCount > $this->page) {
             // this page has been already added
             $this->setPage($this->page + 1);
             $this->y($this->topMargin);
@@ -891,22 +877,22 @@ trait Pages
         if ($this->state === self::INITIAL) {
             $this->Open();
         }
-        ++$this->numpages;
+        ++$this->pageCount;
         $this->swapMargins($this->booklet);
         // save current graphic settings
-        $gvars = $this->graphicsConfiguration();
+        $gvars = $this->graphicsSettings();
         // start new page
         $this->_beginpage($orientation, $format);
         // mark page as open
-        $this->pageopen[$this->page] = true;
+        $this->pageStatus[$this->page] = true;
         // restore graphic settings
-        $this->graphicsConfiguration($gvars);
+        $this->graphicsSettings($gvars);
         // mark this point
         $this->setPageMark();
         // print page header
         $this->header();
         // restore graphic settings
-        $this->graphicsConfiguration($gvars);
+        $this->graphicsSettings($gvars);
         // mark this point
         $this->setPageMark();
         // print table header (if any)

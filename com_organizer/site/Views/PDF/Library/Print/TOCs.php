@@ -82,7 +82,7 @@ trait TOCs
         $maxpage  = 0; //used for pages on attached documents
         foreach ($this->outlines as $key => $outline) {
             // check for extra pages (used for attachments)
-            if (($this->page > $page_first) and ($outline['p'] >= $this->numpages)) {
+            if (($this->page > $page_first) and ($outline['p'] >= $this->pageCount)) {
                 $outline['p'] += ($this->page - $page_first);
             }
             $aligntext = 'L';
@@ -178,7 +178,7 @@ trait TOCs
                     // get page number aliases
                     $pnalias = $this->getInternalPageNumberAliases($a);
                     // calculate replacement number
-                    if (($n >= $page) and ($n <= $this->numpages)) {
+                    if (($n >= $page) and ($n <= $this->pageCount)) {
                         $np = $n + $numpages;
                     }
                     else {
@@ -221,7 +221,7 @@ trait TOCs
      */
     public function addTOCPage($orientation = '', $format = '', $keepmargins = false)
     {
-        $this->AddPage($orientation, $format, $keepmargins, true);
+        $this->addPage($orientation, $format, $keepmargins, true);
     }
 
     /**
@@ -230,7 +230,7 @@ trait TOCs
      */
     public function endTOCPage()
     {
-        $this->endPage(true);
+        $this->closePage(true);
     }
 
 #endregion

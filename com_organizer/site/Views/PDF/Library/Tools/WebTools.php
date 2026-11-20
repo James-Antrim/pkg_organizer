@@ -54,6 +54,16 @@ trait WebTools
     protected $n_js;
 
     /**
+     * List of radio buttons parent objects.
+     */
+    protected $radiobutton_groups = [];
+
+    /**
+     * List of radio group objects IDs.
+     */
+    protected $radio_groups = [];
+
+    /**
      * Output anchor link.
      * @param string     $url        link URL or internal link (i.e.: &lt;a href="#23,4.5"&gt;link to page 23 at 4.5 Y position&lt;/a&gt;)
      * @param string     $name       link name
@@ -480,7 +490,7 @@ trait WebTools
      */
     public function writeHTML($html, $ln = true, $fill = false, $reseth = false, $cell = false, $align = '')
     {
-        $gvars = $this->graphicsConfiguration();
+        $gvars = $this->graphicsSettings();
         // store current values
         $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
@@ -524,12 +534,12 @@ trait WebTools
         }
         elseif (!$this->inFooter) {
             if (isset($this->footerLengths[$this->page])) {
-                $this->footerpos[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
+                $this->footerPositions[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
             }
             else {
-                $this->footerpos[$this->page] = $this->pageLengths[$this->page];
+                $this->footerPositions[$this->page] = $this->pageLengths[$this->page];
             }
-            $startlinepos = $this->footerpos[$this->page];
+            $startlinepos = $this->footerPositions[$this->page];
         }
         else {
             // we are inside the footer
@@ -948,15 +958,15 @@ trait WebTools
                     else {
                         $pstart = substr($this->pageBuffer($startlinepage), 0, $startlinepos);
                         if (isset($opentagpos) and isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                            $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
-                            $midpos                          = min($opentagpos, $this->footerpos[$startlinepage]);
+                            $this->footerPositions[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
+                            $midpos                                = min($opentagpos, $this->footerPositions[$startlinepage]);
                         }
                         elseif (isset($opentagpos)) {
                             $midpos = $opentagpos;
                         }
                         elseif (isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                            $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
-                            $midpos                          = $this->footerpos[$startlinepage];
+                            $this->footerPositions[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
+                            $midpos                                = $this->footerPositions[$startlinepage];
                         }
                         else {
                             $midpos = 0;
@@ -1269,12 +1279,12 @@ trait WebTools
                     }
                     elseif (!$this->inFooter) {
                         if (isset($this->footerLengths[$this->page])) {
-                            $this->footerpos[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
+                            $this->footerPositions[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
                         }
                         else {
-                            $this->footerpos[$this->page] = $this->pageLengths[$this->page];
+                            $this->footerPositions[$this->page] = $this->pageLengths[$this->page];
                         }
-                        $startlinepos = $this->footerpos[$this->page];
+                        $startlinepos = $this->footerPositions[$this->page];
                     }
                     else {
                         $startlinepos = $this->pageLengths[$this->page];
@@ -1577,25 +1587,25 @@ trait WebTools
                             }
                             elseif (!$this->inFooter) {
                                 if (isset($this->footerLengths[$this->page])) {
-                                    $this->footerpos[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
+                                    $this->footerPositions[$this->page] = $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
                                 }
                                 else {
-                                    $this->footerpos[$this->page] = $this->pageLengths[$this->page];
+                                    $this->footerPositions[$this->page] = $this->pageLengths[$this->page];
                                 }
-                                $opentagpos = $this->footerpos[$this->page];
+                                $opentagpos = $this->footerPositions[$this->page];
                             }
                         }
                         $dom = $this->openHTMLTagHandler($dom, $key, $cell);
                     }
                 }
                 else { // closing tag
-                    $prev_numpages = $this->numpages;
+                    $prev_numpages = $this->pageCount;
                     $old_bordermrk = $this->bordermrk[$this->page];
                     $dom           = $this->closeHTMLTagHandler($dom, $key, $cell, $maxbottomliney);
                     if ($this->bordermrk[$this->page] > $old_bordermrk) {
                         $startlinepos += ($this->bordermrk[$this->page] - $old_bordermrk);
                     }
-                    if ($prev_numpages > $this->numpages) {
+                    if ($prev_numpages > $this->pageCount) {
                         $startlinepage = $this->page;
                     }
                 }
@@ -1791,15 +1801,15 @@ trait WebTools
             else {
                 $pstart = substr($this->pageBuffer($startlinepage), 0, $startlinepos);
                 if (isset($opentagpos) and isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                    $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
-                    $midpos                          = min($opentagpos, $this->footerpos[$startlinepage]);
+                    $this->footerPositions[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
+                    $midpos                                = min($opentagpos, $this->footerPositions[$startlinepage]);
                 }
                 elseif (isset($opentagpos)) {
                     $midpos = $opentagpos;
                 }
                 elseif (isset($this->footerLengths[$startlinepage]) and (!$this->inFooter)) {
-                    $this->footerpos[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
-                    $midpos                          = $this->footerpos[$startlinepage];
+                    $this->footerPositions[$startlinepage] = $this->pageLengths[$startlinepage] - $this->footerLengths[$startlinepage];
+                    $midpos                                = $this->footerPositions[$startlinepage];
                 }
                 else {
                     $midpos = 0;
@@ -1876,7 +1886,7 @@ trait WebTools
             }
         }
         // restore previous values
-        $this->graphicsConfiguration($gvars);
+        $this->graphicsSettings($gvars);
         if ($this->columnCount > 1) {
             $this->selectColumn();
         }
@@ -1995,7 +2005,7 @@ trait WebTools
                             $this->headerTemplateMargins['rmargin']      = $this->rightMargin;
                             $this->headerTemplateMargins['page']         = $this->page;
                             $this->headerTemplateMargins['cell']         = $cell;
-                            $this->headerTemplateMargins['gvars']        = $this->graphicsConfiguration();
+                            $this->headerTemplateMargins['gvars']        = $this->graphicsSettings();
                         }
                     }
                 }
@@ -3042,7 +3052,7 @@ trait WebTools
                                         $pagemark    = $this->transpositions[$this->page][$pagemarkkey];
                                     }
                                     elseif ($this->inFooter) {
-                                        $pagemark = $this->footerpos[$this->page];
+                                        $pagemark = $this->footerPositions[$this->page];
                                     }
                                     else {
                                         $pagemark = $this->intmrk[$this->page];
@@ -3075,10 +3085,10 @@ trait WebTools
                     $this->cellPaddings = isset($table_el['oldPaddings']) ? $table_el['oldPaddings'] : null;
                     // reset row height
                     $this->resetLastH();
-                    if (($this->page == ($this->numpages - 1)) and ($this->pageopen[$this->numpages])) {
-                        $plendiff = ($this->pageLengths[$this->numpages] - $this->emptypagemrk[$this->numpages]);
+                    if (($this->page == ($this->pageCount - 1)) and ($this->pageStatus[$this->pageCount])) {
+                        $plendiff = ($this->pageLengths[$this->pageCount] - $this->emptypagemrk[$this->pageCount]);
                         if (($plendiff > 0) and ($plendiff < 60)) {
-                            $pagediff = substr($this->pageBuffer($this->numpages), $this->emptypagemrk[$this->numpages], $plendiff);
+                            $pagediff = substr($this->pageBuffer($this->pageCount), $this->emptypagemrk[$this->pageCount], $plendiff);
                             if (substr($pagediff, 0, 5) == 'BT /F') {
                                 // the difference is only a font setting
                                 $plendiff = 0;
@@ -3086,7 +3096,7 @@ trait WebTools
                         }
                         if ($plendiff == 0) {
                             // remove last blank page
-                            $this->deletePage($this->numpages);
+                            $this->deletePage($this->pageCount);
                         }
                     }
                     if (isset($this->headerTemplateMargins['top'])) {
@@ -4737,7 +4747,7 @@ trait WebTools
                         $pagemark    = $this->transpositions[$this->page][$pagemarkkey];
                     }
                     elseif ($this->inFooter) {
-                        $pagemark = $this->footerpos[$this->page];
+                        $pagemark = $this->footerPositions[$this->page];
                     }
                     else {
                         $pagemark = $this->intmrk[$this->page];

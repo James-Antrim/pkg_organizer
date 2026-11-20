@@ -1153,8 +1153,8 @@ trait Cells
                         $this->transpositions[$this->page][$pagemarkkey] += $offsetlen;
                     }
                     elseif ($this->inFooter) {
-                        $pagemark                     = $this->footerpos[$this->page];
-                        $this->footerpos[$this->page] += $offsetlen;
+                        $pagemark                           = $this->footerPositions[$this->page];
+                        $this->footerPositions[$this->page] += $offsetlen;
                     }
                     else {
                         $pagemark                  = $this->intmrk[$this->page];

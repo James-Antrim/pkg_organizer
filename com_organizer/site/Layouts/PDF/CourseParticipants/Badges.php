@@ -34,7 +34,7 @@ class Badges extends BadgeLayout
         $xOffset          = 10;
         $yOffset          = 0;
 
-        $view->AddPage();
+        $view->addPage();
 
         for ($index = 0; $index < $badgeCount; $index++) {
             $participant = empty($data[$index]) ? $emptyParticipant : $data[$index];
@@ -44,7 +44,7 @@ class Badges extends BadgeLayout
             // End of the sheet
             if ($badgeNumber % 6 == 0) {
 
-                $view->AddPage('L');
+                $view->addPage($view::LANDSCAPE);
 
                 $xOffset = 14;
 
@@ -64,7 +64,7 @@ class Badges extends BadgeLayout
                 $yOffset = 0;
 
                 if ($badgeNumber < $badgeCount) {
-                    $view->AddPage($view::LANDSCAPE);
+                    $view->addPage($view::LANDSCAPE);
                 }
 
             } // End of the first row on a sheet

@@ -16,8 +16,106 @@ trait Footers
 {
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
+    protected bool $inFooter = false;
+    protected array $footerPositions = [];
+    protected bool $printFooter = true;
+
+    /** Provides standard context handling before and after footer rendering */
+    protected function footer(): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->inFooter = true;
+        // Create a copy of the current graphic settings to restore to later
+        $settings = $this->graphicsSettings();
+        // mark this point
+        $this->footerPositions[$this->page] = $this->pageLengths[$this->page];
+        $this->append("\n");
+
+        if ($this->printFooter) {
+            $this->graphicsSettings($this->graphicsSettings);
+            $this->currentColumn   = 0;
+            $this->columnCount     = 1;
+            $headerTemplate        = $this->headerTemplate;
+            $headerTemplateMargins = $this->headerTemplateMargins;
+            $lastHeight            = $this->lastPrintedCellHeight;
+            $this->appendSaveGraphicsState();
+            $this->rightMargin = $this->originalRightMargin;
+            $this->leftMargin  = $this->originalLeftMargin;
+            $this->cellPadding(0);
+            //set current position
+            $footerY = $this->height - $this->footer_margin;
+            $this->xy($this->originalLeftMargin, $footerY);
+            $this->font($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
+            $this->renderFooter();
+            //restore position
+            $this->xy($this->originalLeftMargin, $this->topMargin);
+            $this->appendRestoreGraphicsState();
+            $this->lastPrintedCellHeight = $lastHeight;
+            $this->headerTemplate        = $headerTemplate;
+            $this->headerTemplateMargins = $headerTemplateMargins;
+        }
+
+        // Restore graphic settings
+        $this->graphicsSettings($settings);
+        $this->currentColumn = $settings['currentColumn'];
+        $this->columnCount   = $settings['columnCount'];
+
+        $this->footerLengths[$this->page] = $this->pageLengths[$this->page] - $this->footerPositions[$this->page] + 1;
+
+        $this->inFooter = false;
+    }
+
 #endregion
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
+
+
+    /**
+     * This method is used to render the page footer.
+     * It is automatically called by AddPage() and could be overwritten in your own inherited class.
+     */
+    public function renderFooter(): void
+    {
+        $currentY = $this->y;
+        $this->textColorArray($this->footerTextColor);
+        //set style for cell border
+        $lineWidth = 0.85 / $this->factor;
+        $this->lineStyle(['width' => $lineWidth, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor]);
+
+        //print document barcode
+        $barcode = $this->getBarcode();
+
+        if (!empty($barcode)) {
+            $this->lineBreak($lineWidth);
+            $barcode_width = round(($this->width - $this->originalLeftMargin - $this->originalRightMargin) / 3);
+            $style         = [
+                'align'        => 'L',
+                'bgColor'      => false,
+                'border'       => false,
+                'cellfitalign' => '',
+                'fgColor'      => self::BLACK,
+                'fitwidth'     => true,
+                'padding'      => 0,
+                'position'     => 'L',
+                'stretch'      => false,
+                'text'         => false
+            ];
+            $this->write1DBarcode($barcode, 'C128', '', $currentY + $lineWidth, '', (($this->footer_margin / 3) - $lineWidth), 0.3, $style, '');
+        }
+        $w_page = '';
+        if (empty($this->pageGroups)) {
+            $pagenumtxt = $w_page . $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
+        }
+        else {
+            $pagenumtxt = $w_page . $this->getPageNumGroupAlias() . ' / ' . $this->getPageGroupAlias();
+        }
+        $this->y($currentY);
+        //Print page number
+        $this->x($this->originalLeftMargin);
+        $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
+    }
 
 #endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
@@ -28,16 +126,6 @@ trait Footers
      * @var float
      */
     protected $footer_margin;
-
-    /**
-     * bool flag to print/hide page footer.
-     */
-    protected $print_footer = true;
-
-    /**
-     * Array used to store footer positions of each page.
-     */
-    protected $footerpos = [];
 
 
     /**
@@ -76,96 +164,7 @@ trait Footers
      */
     public function setPrintFooter($val = true)
     {
-        $this->print_footer = $val ? true : false;
-    }
-
-    /**
-     * This method is used to render the page footer.
-     * It is automatically called by AddPage() and could be overwritten in your own inherited class.
-     */
-    public function Footer()
-    {
-        $cur_y = $this->y;
-        $this->textColorArray($this->footerTextColor);
-        //set style for cell border
-        $line_width = (0.85 / $this->factor);
-        $this->lineStyle(['width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor]);
-        //print document barcode
-        $barcode = $this->getBarcode();
-        if (!empty($barcode)) {
-            $this->lineBreak($line_width);
-            $barcode_width = round(($this->width - $this->originalLeftMargin - $this->originalRightMargin) / 3);
-            $style         = [
-                'align'        => 'L',
-                'bgColor'      => false,
-                'border'       => false,
-                'cellfitalign' => '',
-                'fgColor'      => self::BLACK,
-                'fitwidth'     => true,
-                'padding'      => 0,
-                'position'     => 'L',
-                'stretch'      => false,
-                'text'         => false
-            ];
-            $this->write1DBarcode($barcode, 'C128', '', $cur_y + $line_width, '', (($this->footer_margin / 3) - $line_width), 0.3, $style, '');
-        }
-        $w_page = '';
-        if (empty($this->pageGroups)) {
-            $pagenumtxt = $w_page . $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
-        }
-        else {
-            $pagenumtxt = $w_page . $this->getPageNumGroupAlias() . ' / ' . $this->getPageGroupAlias();
-        }
-        $this->y($cur_y);
-        //Print page number
-        $this->x($this->originalLeftMargin);
-        $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
-    }
-
-    /**
-     * This method is used to render the page footer.
-     */
-    protected function setFooter()
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $this->inFooter = true;
-        // save current graphic settings
-        $gvars = $this->graphicsConfiguration();
-        // mark this point
-        $this->footerpos[$this->page] = $this->pageLengths[$this->page];
-        $this->append("\n");
-        if ($this->print_footer) {
-            $this->graphicsConfiguration($this->graphicsConfiguration);
-            $this->currentColumn = 0;
-            $this->columnCount   = 1;
-            $temp_thead          = $this->headerTemplate;
-            $temp_theadMargins   = $this->headerTemplateMargins;
-            $lasth               = $this->lastPrintedCellHeight;
-            $this->appendSaveGraphicsState();
-            $this->rightMargin = $this->originalRightMargin;
-            $this->leftMargin  = $this->originalLeftMargin;
-            $this->cellPadding(0);
-            //set current position
-            $footer_y = $this->height - $this->footer_margin;
-            $this->xy($this->originalLeftMargin, $footer_y);
-            $this->font($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
-            $this->Footer();
-            //restore position
-            $this->xy($this->originalLeftMargin, $this->topMargin);
-            $this->appendRestoreGraphicsState();
-            $this->lastPrintedCellHeight = $lasth;
-            $this->headerTemplate        = $temp_thead;
-            $this->headerTemplateMargins = $temp_theadMargins;
-        }
-        // restore graphic settings
-        $this->graphicsConfiguration($gvars);
-        $this->currentColumn = $gvars['currentColumn'];
-        $this->columnCount   = $gvars['columnCount'];
-        // calculate footer length
-        $this->footerLengths[$this->page] = $this->pageLengths[$this->page] - $this->footerpos[$this->page] + 1;
-        $this->inFooter                   = false;
+        $this->printFooter = $val ? true : false;
     }
 
 #endregion

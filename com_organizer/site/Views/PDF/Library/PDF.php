@@ -33,7 +33,7 @@ class PDF
     protected int $bufferLength = 0;
     protected object|null $clone = null;
     protected int $creationTimestamp = 0;
-    protected array $graphicsConfiguration = [];
+    protected array $graphicsSettings = [];
     protected array $encodingDeltas = [];
     protected float $factor = 0;
     /** File ID for document trailer */
@@ -45,7 +45,6 @@ class PDF
     protected string $libraryURL = '';
     protected bool $lineThrough = false;
     protected array $links = [];
-    protected bool $inFooter = false;
     protected bool $inXObject = false;
     /** Transformation matrix */
     protected array $matrix = [];
@@ -104,7 +103,7 @@ class PDF
         $this->cellRightMargin       = $this->rightMargin;
         $this->creationTimestamp     = time();
         $this->fileID                = md5($this->randomSeed('Organizer' . $orientation . $unit . $format . 'UTF-8'));
-        $this->graphicsConfiguration = $this->graphicsConfiguration();
+        $this->graphicsSettings      = $this->graphicsSettings();
         $this->libraryURL            = Uri::base() . '/components/com_organizer/Views/PDF/Library/';
         $this->lineWidthStyle        = sprintf('%F w', $this->lineWidth * $this->factor);
         $this->modificationTimestamp = $this->creationTimestamp;
@@ -138,7 +137,7 @@ class PDF
 
                 $this->pageBuffer($this->page, $page . $string . "\n" . $footer);
                 // update footer position
-                $this->footerpos[$this->page] += strlen($string . "\n");
+                $this->footerPositions[$this->page] += strlen($string . "\n");
                 return;
             }
 
@@ -373,11 +372,55 @@ class PDF
 
 
     /**
+     * Terminates the PDF document.
+     * It is not necessary to call this method explicitly because Output() does it automatically.
+     * If the document contains no page, AddPage() is called to prevent from getting an invalid document.
+     * @see   Open(), Output()
+     */
+    public function close()
+    {
+        if ($this->state === self::FINAL) {
+            return;
+        }
+
+        if ($this->page === 0) {
+            $this->addPage();
+        }
+        $this->endLayer();
+        if ($this->tcpdflink) {
+            // save current graphic settings
+            $gvars = $this->graphicsSettings();
+            $this->setEqualColumns();
+            $this->lastpage(true);
+            $this->autoPageBreak(false);
+            $this->x          = 0;
+            $this->y          = $this->height - (1 / $this->factor);
+            $this->leftMargin = 0;
+            $this->appendSaveGraphicsState();
+            $font = self::DEFAULT_FONT;
+            $this->font($font, '', 1);
+            $this->setTextRenderingMode(0, false, false);
+            $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
+            $lnk = "\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67";
+            $this->Cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
+            $this->appendRestoreGraphicsState();
+            // restore graphic settings
+            $this->graphicsSettings($gvars);
+        }
+        // close page
+        $this->closePage();
+        // close document
+        $this->_enddoc();
+        // unset all class variables (except critical ones)
+        $this->unsetProperties(false);
+    }
+
+    /**
      * Batch getter / setter for graphics configuration properties. Setting is only enabled when the document is in a READY state.
      * @param array $parameters array of graphic variables to set
      * @param bool  $extended   whether to set extended graphic variables
      */
-    protected function graphicsConfiguration(array $parameters = [], bool $extended = false): array
+    protected function graphicsSettings(array $parameters = [], bool $extended = false): array
     {
         if ($this->state === self::READY and $parameters) {
             $this->alpha           = $parameters['alpha'];
@@ -539,16 +582,16 @@ class PDF
             if ($this->headerTemplateMargins['cell']) {
                 $this->x += $this->cellPaddings['L'];
             }
-            $gvars = $this->graphicsConfiguration();
+            $gvars = $this->graphicsSettings();
             if (!empty($this->headerTemplateMargins['gvars'])) {
                 // set the correct graphic style
-                $this->graphicsConfiguration($this->headerTemplateMargins['gvars']);
+                $this->graphicsSettings($this->headerTemplateMargins['gvars']);
                 $this->rightMargin = $gvars['rMargin'];
                 $this->leftMargin  = $gvars['lMargin'];
             }
             // print table header
             $this->writeHTML($this->headerTemplate, false, false, false, false, '');
-            $this->graphicsConfiguration($gvars);
+            $this->graphicsSettings($gvars);
             // set new top margin to skip the table headers
             if (!isset($this->headerTemplateMargins['top'])) {
                 $this->headerTemplateMargins['top'] = $this->topMargin;
@@ -737,16 +780,6 @@ class PDF
     protected $form_mode = 'post';
 
     /**
-     * List of radio buttons parent objects.
-     */
-    protected $radiobutton_groups = [];
-
-    /**
-     * List of radio group objects IDs.
-     */
-    protected $radio_groups = [];
-
-    /**
      * Store page number when startTransaction() is called.
      */
     protected $start_transaction_page = 0;
@@ -819,50 +852,6 @@ class PDF
     // METHODS
     //------------------------------------------------------------
 
-
-    /**
-     * Terminates the PDF document.
-     * It is not necessary to call this method explicitly because Output() does it automatically.
-     * If the document contains no page, AddPage() is called to prevent from getting an invalid document.
-     * @see   Open(), Output()
-     */
-    public function Close()
-    {
-        if ($this->state === self::FINAL) {
-            return;
-        }
-        if ($this->page == 0) {
-            $this->AddPage();
-        }
-        $this->endLayer();
-        if ($this->tcpdflink) {
-            // save current graphic settings
-            $gvars = $this->graphicsConfiguration();
-            $this->setEqualColumns();
-            $this->lastpage(true);
-            $this->autoPageBreak(false);
-            $this->x          = 0;
-            $this->y          = $this->height - (1 / $this->factor);
-            $this->leftMargin = 0;
-            $this->appendSaveGraphicsState();
-            $font = self::DEFAULT_FONT;
-            $this->font($font, '', 1);
-            $this->setTextRenderingMode(0, false, false);
-            $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
-            $lnk = "\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67";
-            $this->Cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
-            $this->appendRestoreGraphicsState();
-            // restore graphic settings
-            $this->graphicsConfiguration($gvars);
-        }
-        // close page
-        $this->endPage();
-        // close document
-        $this->_enddoc();
-        // unset all class variables (except critical ones)
-        $this->unsetProperties(false);
-    }
-
     /**
      * Throw an exception or print an error message and die if the K_TCPDF_PARSER_THROW_EXCEPTION_ERROR constant is set to true.
      * @param string $msg The error message
@@ -921,7 +910,7 @@ class PDF
      * This method begins the generation of the PDF document.
      * It is not necessary to call it explicitly because AddPage() does it automatically.
      * Note: no page is created by this method
-     * @see   AddPage(), Close()
+     * @see   addPage(), close()
      */
     public function Open()
     {
@@ -1430,7 +1419,7 @@ class PDF
             if ($addpage) {
                 //Automatic page break
                 $x = $this->x;
-                $this->AddPage($this->currentOrientation);
+                $this->addPage($this->currentOrientation);
                 $this->y = $this->topMargin;
                 $oldpage = $this->page - 1;
                 if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
@@ -2045,14 +2034,14 @@ class PDF
      * @param string $name The name of the file when saved
      * @param string $dest Destination where to send the document. It can take one of the following values:<ul><li>I: send the file inline to the browser (default). The plug-in is used if available. The name given by name is used when one selects the "Save as" option on the link generating the PDF.</li><li>D: send to the browser and force a file download with the name given by name.</li><li>F: save to a local server file with the name given by name.</li><li>S: return the document as a string (name is ignored).</li><li>FI: equivalent to F + I option</li><li>FD: equivalent to F + D option</li><li>E: return the document as base64 mime multi-part email attachment (RFC 2045)</li></ul>
      * @return string
-     * @see   Close()
+     * @see   close()
      */
     public function Output($name = 'doc.pdf', $dest = 'I')
     {
         //Output PDF to some destination
         //Finish document if necessary
         if ($this->state < self::FINAL) {
-            $this->Close();
+            $this->close();
         }
         //Normalize parameters
         if (is_bool($dest)) {
@@ -2310,7 +2299,7 @@ class PDF
     protected function _putannotsobjs()
     {
         // reset object counter
-        for ($n = 1; $n <= $this->numpages; ++$n) {
+        for ($n = 1; $n <= $this->pageCount; ++$n) {
             if (isset($this->pageAnnotations[$n])) {
                 // set page annotations
                 foreach ($this->pageAnnotations[$n] as $key => $pl) {
@@ -3707,7 +3696,7 @@ class PDF
     public function getPDFData()
     {
         if ($this->state < 3) {
-            $this->Close();
+            $this->close();
         }
         return $this->buffer;
     }
@@ -5020,7 +5009,7 @@ class PDF
             return;
         }
         // save current graphic settings
-        $gvars = $this->graphicsConfiguration();
+        $gvars = $this->graphicsSettings();
         // create new barcode object
         $barcodeobj = new Barcode1D($code, $type);
         $arrcode    = $barcodeobj->barcode();
@@ -5266,7 +5255,7 @@ class PDF
             $this->cellPaddings = $cellpadding;
         }
         // restore previous settings
-        $this->graphicsConfiguration($gvars);
+        $this->graphicsSettings($gvars);
         // set pointer to align the next text/objects
         switch ($align) {
             case 'T':
@@ -5328,7 +5317,7 @@ class PDF
             return;
         }
         // save current graphic settings
-        $gvars = $this->graphicsConfiguration();
+        $gvars = $this->graphicsSettings();
         // create new barcode object
         $barcodeobj = new Barcode2D($code, $type);
         $arrcode    = $barcodeobj->barcode();
@@ -5491,7 +5480,7 @@ class PDF
             $ystart += $ch;
         }
         // restore previous settings
-        $this->graphicsConfiguration($gvars);
+        $this->graphicsSettings($gvars);
         // set pointer to align the next text/objects
         switch ($align) {
             case 'T':
@@ -5739,12 +5728,12 @@ class PDF
      */
     public function movePage($frompage, $topage)
     {
-        if (($frompage > $this->numpages) or ($frompage <= $topage)) {
+        if (($frompage > $this->pageCount) or ($frompage <= $topage)) {
             return false;
         }
         if ($frompage == $this->page) {
             // close the page before moving it
-            $this->endPage();
+            $this->closePage();
         }
         // move all page-related states
         $tmppage        = $this->pageBuffer($frompage);
@@ -5754,8 +5743,8 @@ class PDF
         $tmpbordermrk   = $this->bordermrk[$frompage];
         $tmpcntmrk      = $this->cntmrk[$frompage];
         $tmppageobjects = $this->pageObjects[$frompage];
-        if (isset($this->footerpos[$frompage])) {
-            $tmpfooterpos = $this->footerpos[$frompage];
+        if (isset($this->footerPositions[$frompage])) {
+            $tmpfooterpos = $this->footerPositions[$frompage];
         }
         if (isset($this->footerLengths[$frompage])) {
             $tmpfooterlen = $this->footerLengths[$frompage];
@@ -5790,11 +5779,11 @@ class PDF
             $this->bordermrk[$i]      = $this->bordermrk[$j];
             $this->cntmrk[$i]         = $this->cntmrk[$j];
             $this->pageObjects[$i]    = $this->pageObjects[$j];
-            if (isset($this->footerpos[$j])) {
-                $this->footerpos[$i] = $this->footerpos[$j];
+            if (isset($this->footerPositions[$j])) {
+                $this->footerPositions[$i] = $this->footerPositions[$j];
             }
-            elseif (isset($this->footerpos[$i])) {
-                unset($this->footerpos[$i]);
+            elseif (isset($this->footerPositions[$i])) {
+                unset($this->footerPositions[$i]);
             }
             if (isset($this->footerLengths[$j])) {
                 $this->footerLengths[$i] = $this->footerLengths[$j];
@@ -5830,10 +5819,10 @@ class PDF
         $this->cntmrk[$topage]         = $tmpcntmrk;
         $this->pageObjects[$topage]    = $tmppageobjects;
         if (isset($tmpfooterpos)) {
-            $this->footerpos[$topage] = $tmpfooterpos;
+            $this->footerPositions[$topage] = $tmpfooterpos;
         }
-        elseif (isset($this->footerpos[$topage])) {
-            unset($this->footerpos[$topage]);
+        elseif (isset($this->footerPositions[$topage])) {
+            unset($this->footerPositions[$topage]);
         }
         if (isset($tmpfooterlen)) {
             $this->footerLengths[$topage] = $tmpfooterlen;
@@ -5922,7 +5911,7 @@ class PDF
      */
     public function deletePage($page)
     {
-        if (($page < 1) or ($page > $this->numpages)) {
+        if (($page < 1) or ($page > $this->pageCount)) {
             return false;
         }
         // delete current page
@@ -5938,8 +5927,8 @@ class PDF
             }
         }
         unset($this->pageObjects[$page]);
-        if (isset($this->footerpos[$page])) {
-            unset($this->footerpos[$page]);
+        if (isset($this->footerPositions[$page])) {
+            unset($this->footerPositions[$page]);
         }
         if (isset($this->footerLengths[$page])) {
             unset($this->footerLengths[$page]);
@@ -5958,12 +5947,12 @@ class PDF
                 }
             }
         }
-        if (isset($this->pageopen[$page])) {
-            unset($this->pageopen[$page]);
+        if (isset($this->pageStatus[$page])) {
+            unset($this->pageStatus[$page]);
         }
-        if ($page < $this->numpages) {
+        if ($page < $this->pageCount) {
             // update remaining pages
-            for ($i = $page; $i < $this->numpages; ++$i) {
+            for ($i = $page; $i < $this->pageCount; ++$i) {
                 $j = $i + 1;
                 // shift pages
                 $this->pageBuffer($i, $this->pageBuffer($j));
@@ -5973,11 +5962,11 @@ class PDF
                 $this->bordermrk[$i]      = $this->bordermrk[$j];
                 $this->cntmrk[$i]         = $this->cntmrk[$j];
                 $this->pageObjects[$i]    = $this->pageObjects[$j];
-                if (isset($this->footerpos[$j])) {
-                    $this->footerpos[$i] = $this->footerpos[$j];
+                if (isset($this->footerPositions[$j])) {
+                    $this->footerPositions[$i] = $this->footerPositions[$j];
                 }
-                elseif (isset($this->footerpos[$i])) {
-                    unset($this->footerpos[$i]);
+                elseif (isset($this->footerPositions[$i])) {
+                    unset($this->footerPositions[$i]);
                 }
                 if (isset($this->footerLengths[$j])) {
                     $this->footerLengths[$i] = $this->footerLengths[$j];
@@ -6004,53 +5993,53 @@ class PDF
                 if ($this->currentPageGroup == $j) {
                     $this->currentPageGroup = $i;
                 }
-                if (isset($this->pageopen[$j])) {
-                    $this->pageopen[$i] = $this->pageopen[$j];
+                if (isset($this->pageStatus[$j])) {
+                    $this->pageStatus[$i] = $this->pageStatus[$j];
                 }
-                elseif (isset($this->pageopen[$i])) {
-                    unset($this->pageopen[$i]);
+                elseif (isset($this->pageStatus[$i])) {
+                    unset($this->pageStatus[$i]);
                 }
             }
             // remove last page
-            unset($this->pages[$this->numpages]);
-            unset($this->pageDimensions[$this->numpages]);
-            unset($this->pageLengths[$this->numpages]);
-            unset($this->intmrk[$this->numpages]);
-            unset($this->bordermrk[$this->numpages]);
-            unset($this->cntmrk[$this->numpages]);
-            foreach ($this->pageObjects[$this->numpages] as $oid) {
+            unset($this->pages[$this->pageCount]);
+            unset($this->pageDimensions[$this->pageCount]);
+            unset($this->pageLengths[$this->pageCount]);
+            unset($this->intmrk[$this->pageCount]);
+            unset($this->bordermrk[$this->pageCount]);
+            unset($this->cntmrk[$this->pageCount]);
+            foreach ($this->pageObjects[$this->pageCount] as $oid) {
                 if (isset($this->offsets[$oid])) {
                     unset($this->offsets[$oid]);
                 }
             }
-            unset($this->pageObjects[$this->numpages]);
-            if (isset($this->footerpos[$this->numpages])) {
-                unset($this->footerpos[$this->numpages]);
+            unset($this->pageObjects[$this->pageCount]);
+            if (isset($this->footerPositions[$this->pageCount])) {
+                unset($this->footerPositions[$this->pageCount]);
             }
-            if (isset($this->footerLengths[$this->numpages])) {
-                unset($this->footerLengths[$this->numpages]);
+            if (isset($this->footerLengths[$this->pageCount])) {
+                unset($this->footerLengths[$this->pageCount]);
             }
-            if (isset($this->transpositions[$this->numpages])) {
-                unset($this->transpositions[$this->numpages]);
+            if (isset($this->transpositions[$this->pageCount])) {
+                unset($this->transpositions[$this->pageCount]);
             }
-            if (isset($this->pageAnnotations[$this->numpages])) {
-                unset($this->pageAnnotations[$this->numpages]);
+            if (isset($this->pageAnnotations[$this->pageCount])) {
+                unset($this->pageAnnotations[$this->pageCount]);
             }
-            if (isset($this->newpagegroup[$this->numpages])) {
-                unset($this->newpagegroup[$this->numpages]);
+            if (isset($this->newpagegroup[$this->pageCount])) {
+                unset($this->newpagegroup[$this->pageCount]);
             }
-            if ($this->currentPageGroup == $this->numpages) {
-                $this->currentPageGroup = ($this->numpages - 1);
+            if ($this->currentPageGroup == $this->pageCount) {
+                $this->currentPageGroup = ($this->pageCount - 1);
             }
-            if (isset($this->pageGroups[$this->numpages])) {
-                unset($this->pageGroups[$this->numpages]);
+            if (isset($this->pageGroups[$this->pageCount])) {
+                unset($this->pageGroups[$this->pageCount]);
             }
-            if (isset($this->pageopen[$this->numpages])) {
-                unset($this->pageopen[$this->numpages]);
+            if (isset($this->pageStatus[$this->pageCount])) {
+                unset($this->pageStatus[$this->pageCount]);
             }
         }
-        --$this->numpages;
-        $this->page = $this->numpages;
+        --$this->pageCount;
+        $this->page = $this->pageCount;
         // adjust outlines
         $tmpoutlines = $this->outlines;
         foreach ($tmpoutlines as $key => $outline) {
@@ -6108,7 +6097,7 @@ class PDF
             unset($pamatch);
         }
         // return to last page
-        if ($this->numpages > 0) {
+        if ($this->pageCount > 0) {
             $this->lastPage(true);
         }
         return true;
@@ -6125,14 +6114,14 @@ class PDF
             // default value
             $page = $this->page;
         }
-        if (($page < 1) or ($page > $this->numpages)) {
+        if (($page < 1) or ($page > $this->pageCount)) {
             return false;
         }
         // close the last page
-        $this->endPage();
+        $this->closePage();
         // copy all page-related states
-        ++$this->numpages;
-        $this->page = $this->numpages;
+        ++$this->pageCount;
+        $this->page = $this->pageCount;
         $this->pageBuffer($this->page, $this->pageBuffer($page));
         $this->pageDimensions[$this->page] = $this->pageDimensions[$page];
         $this->pageLengths[$this->page]    = $this->pageLengths[$page];
@@ -6140,9 +6129,9 @@ class PDF
         $this->bordermrk[$this->page]      = $this->bordermrk[$page];
         $this->cntmrk[$this->page]         = $this->cntmrk[$page];
         $this->pageObjects[$this->page]    = $this->pageObjects[$page];
-        $this->pageopen[$this->page]       = false;
-        if (isset($this->footerpos[$page])) {
-            $this->footerpos[$this->page] = $this->footerpos[$page];
+        $this->pageStatus[$this->page]     = false;
+        if (isset($this->footerPositions[$page])) {
+            $this->footerPositions[$this->page] = $this->footerPositions[$page];
         }
         if (isset($this->footerLengths[$page])) {
             $this->footerLengths[$this->page] = $this->footerLengths[$page];
@@ -6636,7 +6625,7 @@ class PDF
         // object ID
         $this->xObjects[$this->xObjectID] = ['n' => $this->objectNumber];
         // store current graphic state
-        $this->xObjects[$this->xObjectID]['gvars'] = $this->graphicsConfiguration();
+        $this->xObjects[$this->xObjectID]['gvars'] = $this->graphicsSettings();
         // initialize data
         $this->xObjects[$this->xObjectID]['intmrk']         = 0;
         $this->xObjects[$this->xObjectID]['transpositions'] = [];
@@ -6695,7 +6684,7 @@ class PDF
         }
         $this->inXObject = false;
         // restore previous graphic state
-        $this->graphicsConfiguration($this->xObjects[$this->xObjectID]['gvars'], true);
+        $this->graphicsSettings($this->xObjects[$this->xObjectID]['gvars'], true);
         return $this->xObjectID;
     }
 

@@ -59,7 +59,7 @@ class Booking extends ListView
     }
 
     /** @inheritDoc */
-    public function Footer(): void
+    public function footer(): void
     {
         if ($this->formState->get('filter.status') === Helper::ALL) {
             //set style for cell border
@@ -83,7 +83,7 @@ class Booking extends ListView
             return;
         }
 
-        parent::Footer();
+        parent::renderFooter();
     }
 
     /** @inheritDoc */

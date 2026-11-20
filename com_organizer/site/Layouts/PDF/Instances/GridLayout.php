@@ -228,7 +228,7 @@ abstract class GridLayout extends BaseLayout
     private function cellHeight(float $width, string $contents): float
     {
         $view = $this->view;
-        $view->AddPage();
+        $view->addPage();
         $start = $view->y();
         $view->writeHTMLCell($width, 15, $view->x(), $start, $contents, self::INSTANCE_BORDER, 1);
         $height = $view->y() - $start;
@@ -287,7 +287,7 @@ abstract class GridLayout extends BaseLayout
         $view = $this->view;
 
         $view->headerConfig('pdf_logo.png', 55, $view->title, $subTitle);
-        $view->AddPage();
+        $view->addPage();
 
         if ($this->bookmark) {
             $view->Bookmark($this->resourceHeader, 0, -10);

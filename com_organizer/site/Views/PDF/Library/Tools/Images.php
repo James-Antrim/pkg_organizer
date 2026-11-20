@@ -2027,7 +2027,7 @@ trait Images
         }
         $this->imageRBX = $ximg + $w;
         // store current graphic vars
-        $gvars = $this->graphicsConfiguration();
+        $gvars = $this->graphicsSettings();
         // store SVG position and scale factors
         $svgoffset_x = ($ximg - $ox) * $this->factor;
         $svgoffset_y = -($y - $oy) * $this->factor;
@@ -2146,7 +2146,7 @@ trait Images
         // restore previous graphic state
         $this->append($this->epsmarker . 'Q');
         // restore graphic vars
-        $this->graphicsConfiguration($gvars);
+        $this->graphicsSettings($gvars);
         $this->lastPrintedCellHeight = $gvars['lasth'];
         if (!empty($border)) {
             $bx      = $this->x;

@@ -72,7 +72,7 @@ abstract class ListLayout extends BaseLayout
     protected function page(): void
     {
         $view = $this->view;
-        $view->AddPage();
+        $view->addPage();
 
         // create the column headers for the page
         $view->fillColor(210);
