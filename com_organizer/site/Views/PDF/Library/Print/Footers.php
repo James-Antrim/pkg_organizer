@@ -51,11 +51,11 @@ trait Footers
             $this->cellPadding(0);
             //set current position
             $footerY = $this->height - $this->footerMargin;
-            $this->xy($this->originalLeftMargin, $footerY);
+            $this->reposition($this->originalLeftMargin, $footerY);
             $this->font($this->footerFont[0], $this->footerFont[1], $this->footerFont[2]);
             $this->renderFooter();
             //restore position
-            $this->xy($this->originalLeftMargin, $this->topMargin);
+            $this->reposition($this->originalLeftMargin, $this->topMargin);
             $this->appendRestoreGraphicsState();
             $this->lastPrintedCellHeight = $lastHeight;
             $this->headerTemplate        = $headerTemplate;

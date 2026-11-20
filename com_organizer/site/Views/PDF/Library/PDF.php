@@ -385,7 +385,7 @@ class PDF
     /**
      * Defines the abscissa of the current position. If the passed value is negative, it is set relative to the right of the page.
      * @param float|null $x abscissa value in user units
-     * @see   y(), xy()
+     * @see   y(), reposition()
      */
     public function x(float|null $x = null): float
     {
@@ -405,7 +405,7 @@ class PDF
      * @param float $y ordinate value in user units
      * @see   x(), y()
      */
-    public function xy(float $x, float $y): array
+    public function reposition(float $x, float $y): array
     {
         $this->y($y, false);
         $this->x($x);
@@ -418,7 +418,7 @@ class PDF
      * @param float|null $y      ordinate value in user units
      * @param bool       $resetX whether to reset the abscissa
      * @return float
-     * @see   x(), xy()
+     * @see   x(), reposition()
      */
     public function y(float|null $y = null, bool $resetX = true): float
     {
@@ -1391,7 +1391,7 @@ class PDF
         $textrendermode  = $this->textrendermode;
         $textstrokewidth = $this->textstrokewidth;
         $this->setTextRenderingMode($fstroke, $ffill, $fclip);
-        $this->xy($x, $y);
+        $this->reposition($x, $y);
         $this->cell(0, 0, $txt, $border, $ln, $align, $fill, $link, $stretch, $ignore_min_height, $calign, $valign);
         // restore previous rendering mode
         $this->textrendermode  = $textrendermode;

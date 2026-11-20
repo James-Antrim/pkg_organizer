@@ -59,12 +59,12 @@ trait Headers
 
         $this->cellPadding(0);
 
-        $this->xy($this->originalLeftMargin, $this->headerMargin);
+        $this->reposition($this->originalLeftMargin, $this->headerMargin);
         $this->font($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
 
         $this->renderHeader();
 
-        $this->xy($this->originalLeftMargin, $this->topMargin);
+        $this->reposition($this->originalLeftMargin, $this->topMargin);
         $this->appendRestoreGraphicsState();
         $this->lastPrintedCellHeight = $lastHeight;
         $this->headerTemplate        = $template;

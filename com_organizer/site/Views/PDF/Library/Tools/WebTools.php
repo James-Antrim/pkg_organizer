@@ -2939,12 +2939,12 @@ trait WebTools
             }
             case 'sup':
             {
-                $this->xy($this->x(), $this->y() - ((0.7 * $this->fontSizePT) / $this->factor));
+                $this->reposition($this->x(), $this->y() - ((0.7 * $this->fontSizePT) / $this->factor));
                 break;
             }
             case 'sub':
             {
-                $this->xy($this->x(), $this->y() + ((0.3 * $this->fontSizePT) / $this->factor));
+                $this->reposition($this->x(), $this->y() + ((0.3 * $this->fontSizePT) / $this->factor));
                 break;
             }
             case 'h1':
@@ -3699,12 +3699,12 @@ trait WebTools
             }
             case 'sup':
             {
-                $this->xy($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / $this->factor));
+                $this->reposition($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / $this->factor));
                 break;
             }
             case 'sub':
             {
-                $this->xy($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / $this->factor));
+                $this->reposition($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / $this->factor));
                 break;
             }
             case 'div':
