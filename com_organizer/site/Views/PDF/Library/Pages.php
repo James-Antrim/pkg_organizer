@@ -12,7 +12,7 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-use THM\Organizer\Views\PDF\Library\Pages\Headers;
+use THM\Organizer\Views\PDF\Library\Pages\{Columns, Footers, Headers, TOCs};
 
 trait Pages
 {
