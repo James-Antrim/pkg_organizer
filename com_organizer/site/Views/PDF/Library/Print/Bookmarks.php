@@ -153,7 +153,7 @@ trait Bookmarks
             $title = preg_replace("/[\n]+/si", "\n", $title);
             $title = strip_tags($title);
             $title = $this->trim($title);
-            $out   = '<</Title ' . $this->_textstring($title);
+            $out   = '<</Title ' . $this->metadataTextString($title);
             $out   .= ' /Parent ' . ($n + $o['parent']) . ' 0 R';
             if (isset($o['prev'])) {
                 $out .= ' /Prev ' . ($n + $o['prev']) . ' 0 R';
@@ -183,11 +183,11 @@ trait Bookmarks
                         // embedded generic file
                         $filename = basename(substr($o['u'], 1));
                         $jsa      = 'var D=event.target.doc;var MyData=D.dataObjects;for (var i in MyData) if (MyData[i].path=="' . $filename . '") D.exportDataObject( { cName : MyData[i].name, nLaunch : 2});';
-                        $out      .= ' /A <</S /JavaScript /JS ' . $this->_textstring($jsa) . '>>';
+                        $out      .= ' /A <</S /JavaScript /JS ' . $this->metadataTextString($jsa) . '>>';
                     }
                     else {
                         // external URI link
-                        $out .= ' /A <</S /URI /URI ' . $this->_datastring($this->unhtmlentities($o['u'])) . '>>';
+                        $out .= ' /A <</S /URI /URI ' . $this->metadataDataString($this->unhtmlentities($o['u'])) . '>>';
                     }
                 }
                 elseif (isset($this->links[$o['u']])) {

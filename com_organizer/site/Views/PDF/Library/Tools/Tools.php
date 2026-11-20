@@ -50,13 +50,23 @@ trait Tools
 
     /**
      * Escape special characters (&lt; &gt; &amp;) for XML output.
-     * @param string $str Input string to convert.
-     * @return string converted string
+     * @param string $string
+     * @return string
      */
     public function escapeXML(string $string): string
     {
         $replaceTable = ["\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
-        return strtr($string === null ? '' : $string, $replaceTable);
+        return strtr($string, $replaceTable);
+    }
+
+    /**
+     * Returns a formatted datetime string.
+     * @param int $timestamp Time in seconds.
+     * @return string
+     */
+    public function formattedDate(int $timestamp): string
+    {
+        return substr_replace(date('YmdHisO', $timestamp), '\'', (0 - 2), 0) . '\'';
     }
 
     /**
@@ -64,7 +74,7 @@ trait Tools
      * @param int $number number to convert
      * @return string roman representation of the specified number
      */
-    public function intToRoman(int $number)
+    public function intToRoman(int $number): string
     {
         $roman = '';
         if ($number >= 4000) {
@@ -138,6 +148,37 @@ trait Tools
         $needleLength = strlen($needle);
         $position     = strpos(strrev($haystack), strrev($needle));
         return $position === false ? false : $hsLength - $position - $needleLength;
+    }
+
+    /**
+     * Formats a string as a metadata data string.
+     * @param string $string
+     * @return string
+     */
+    protected function metadataDataString(string $string): string
+    {
+        return '(' . $this->escape($string) . ')';
+    }
+
+    /**
+     * Returns a formatted date for meta information
+     * @param int $timestamp
+     * @return string
+     */
+    protected function metadataDateString(int $timestamp): string
+    {
+        $timestamp = $timestamp < 0 ? $this->creationTimestamp : $timestamp;
+        return '(' . $this->escape('D:' . $this->formattedDate($timestamp)) . ')';
+    }
+
+    /**
+     * Formats a string as a metadata text string.
+     * @param string $string
+     * @return string
+     */
+    protected function metadataTextString(string $string): string
+    {
+        return '(' . $this->escape($this->utf8ToUTF16BE($string, true)) . ')';
     }
 
     /**
@@ -408,35 +449,7 @@ trait Tools
     }
 
     /**
-     * Converts array of UTF-8 characters to UTF16-BE string.<br>
-     * Based on: http://www.faqs.org/rfcs/rfc2781.html
-     * <pre>
-     *   Encoding UTF-16:
-     *
-     *   Encoding of a single character from an ISO 10646 character value to
-     *    UTF-16 proceeds as follows. Let U be the character number, no greater
-     *    than 0x10FFFF.
-     *
-     *    1) If U < 0x10000, encode U as a 16-bit unsigned integer and
-     *       terminate.
-     *
-     *    2) Let U' = U - 0x10000. Because U is less than or equal to 0x10FFFF,
-     *       U' must be less than or equal to 0xFFFFF. That is, U' can be
-     *       represented in 20 bits.
-     *
-     *    3) Initialize two 16-bit unsigned integers, W1 and W2, to 0xD800 and
-     *       0xDC00, respectively. These integers each have 10 bits free to
-     *       encode the character value, for a total of 20 bits.
-     *
-     *    4) Assign the 10 high-order bits of the 20-bit U' to the 10 low-order
-     *       bits of W1 and the 10 low-order bits of U' to the 10 low-order
-     *       bits of W2. Terminate.
-     *
-     *    Graphically, steps 2 through 4 look like:
-     *    U' = yyyyyyyyyyxxxxxxxxxx
-     *    W1 = 110110yyyyyyyyyy
-     *    W2 = 110111xxxxxxxxxx
-     * </pre>
+     * Converts array of UTF-8 characters to UTF16-BE string. Based on: http://www.faqs.org/rfcs/rfc2781.html
      * @param array $utf8Values array containing UTF-8 Unicode values
      * @param bool  $setBOM     if true set the Byte Order Mark (BOM = 0xFEFF)
      * @return string
@@ -524,12 +537,4 @@ trait Tools
     {
         return $this->utf8ArrayToUTF16BEString($this->utf8StringToArray($string), $setBOM);
     }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
 }

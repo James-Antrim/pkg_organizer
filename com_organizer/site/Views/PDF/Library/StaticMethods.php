@@ -537,16 +537,6 @@ class StaticMethods
     }
 
     /**
-     * Returns a formatted date-time.
-     * @param int $time Time in seconds.
-     * @return string escaped date string.
-     */
-    public static function getFormattedDate($time)
-    {
-        return substr_replace(date('YmdHisO', intval($time)), '\'', (0 - 2), 0) . '\'';
-    }
-
-    /**
      * Compact CSS data array into single string.
      * @param array $css array of CSS properties
      * @return string containing merged CSS properties

@@ -103,7 +103,7 @@ trait Images
             // External stream
             if (isset($info['externalURL']) and !empty($info['externalURL'])) {
                 $out .= ' /Length 0';
-                $out .= ' /F << /FS /URL /F ' . $this->_datastring($info['externalURL']) . ' >>';
+                $out .= ' /F << /FS /URL /F ' . $this->metadataDataString($info['externalURL']) . ' >>';
                 if (isset($info['filter'])) {
                     $out .= ' /FFilter /' . $info['filter'];
                 }

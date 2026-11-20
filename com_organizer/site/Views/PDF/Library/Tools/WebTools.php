@@ -76,14 +76,14 @@ trait WebTools
         // Default Javascript object
         if (!empty($this->javascript)) {
             $this->appendObject();
-            $script = $this->_textstring($this->javascript);
+            $script = $this->metadataTextString($this->javascript);
             $this->append('<< /S /JavaScript /JS ' . $script . ' >>' . "\n" . 'endobj');
         }
 
         // Additional Javascript objects
         if (!empty($this->javascriptObjects)) {
             foreach ($this->javascriptObjects as $key => $value) {
-                $out = $this->objectCommand($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($value['js']) . ' >>' . "\n" . 'endobj';
+                $out = $this->objectCommand($key) . "\n" . ' << /S /JavaScript /JS ' . $this->metadataTextString($value['js']) . ' >>' . "\n" . 'endobj';
                 $this->append($out);
             }
         }
@@ -5381,9 +5381,9 @@ trait WebTools
         if (!empty($action) and !is_array($action)) {
             $ann_obj_id = ($this->objectNumber + 2);
         }
-        $popt['mk']['ca'] = $this->_textstring($caption);
-        $popt['mk']['rc'] = $this->_textstring($caption);
-        $popt['mk']['ac'] = $this->_textstring($caption);
+        $popt['mk']['ca'] = $this->metadataTextString($caption);
+        $popt['mk']['rc'] = $this->metadataTextString($caption);
+        $popt['mk']['ac'] = $this->metadataTextString($caption);
         // merge options
         $opt = array_merge($popt, $opt);
         // set remaining annotation data
@@ -5401,12 +5401,12 @@ trait WebTools
                         $opt['aa'] .= ' /S /' . $val;
                     }
                     elseif (($key == 'F') and (!empty($val))) {
-                        $opt['aa'] .= ' /F ' . $this->_datastring($val);
+                        $opt['aa'] .= ' /F ' . $this->metadataDataString($val);
                     }
                     elseif (($key == 'Fields') and is_array($val) and !empty($val)) {
                         $opt['aa'] .= ' /Fields [';
                         foreach ($val as $field) {
-                            $opt['aa'] .= ' ' . $this->_textstring($field);
+                            $opt['aa'] .= ' ' . $this->metadataTextString($field);
                         }
                         $opt['aa'] .= ']';
                     }

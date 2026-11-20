@@ -1325,8 +1325,8 @@ class PDF
                     $this->efnames[$filename] = $filedata['f'] . ' 0 R';
                     // embedded file specification object
                     $out = $this->objectCommand($filedata['f']) . "\n";
-                    $out .= '<</Type /Filespec /F ' . $this->_datastring($filename);
-                    $out .= ' /UF ' . $this->_datastring($filename);
+                    $out .= '<</Type /Filespec /F ' . $this->metadataDataString($filename);
+                    $out .= ' /UF ' . $this->metadataDataString($filename);
                     $out .= ' /AFRelationship /Source';
                     $out .= ' /EF <</F ' . $filedata['n'] . ' 0 R>> >>';
                     $out .= "\n" . 'endobj';
@@ -2294,9 +2294,9 @@ class PDF
                             $annots .= ' /F 4'; // default print for PDF/A
                             $annots .= ' /Ff 49152';
                         }
-                        $annots .= ' /T ' . $this->_datastring($pl['txt']);
+                        $annots .= ' /T ' . $this->metadataDataString($pl['txt']);
                         if (isset($pl['opt']['tu']) and is_string($pl['opt']['tu'])) {
-                            $annots .= ' /TU ' . $this->_datastring($pl['opt']['tu']);
+                            $annots .= ' /TU ' . $this->metadataDataString($pl['opt']['tu']);
                         }
                         $annots .= ' /FT /Btn';
                         $annots .= ' /Kids [';
@@ -2336,11 +2336,11 @@ class PDF
                         $formfield = true;
                     }
                     if ($pl['opt']['subtype'] !== 'Link') {
-                        $annots .= ' /Contents ' . $this->_textstring($pl['txt']);
+                        $annots .= ' /Contents ' . $this->metadataTextString($pl['txt']);
                     }
                     $annots .= ' /P ' . $this->pageObjectIDs[$n] . ' 0 R';
-                    $annots .= ' /NM ' . $this->_datastring(sprintf('%04u-%04u', $n, $key));
-                    $annots .= ' /M ' . $this->_datestring($this->modificationTimestamp);
+                    $annots .= ' /NM ' . $this->metadataDataString(sprintf('%04u-%04u', $n, $key));
+                    $annots .= ' /M ' . $this->metadataDateString($this->modificationTimestamp);
                     if (isset($pl['opt']['f'])) {
                         $fval = 0;
                         if (is_array($pl['opt']['f'])) {
@@ -2503,19 +2503,19 @@ class PDF
                     if (in_array(strtolower($pl['opt']['subtype']), $markups)) {
                         // this is a markup type
                         if (isset($pl['opt']['t']) and is_string($pl['opt']['t'])) {
-                            $annots .= ' /T ' . $this->_textstring($pl['opt']['t']);
+                            $annots .= ' /T ' . $this->metadataTextString($pl['opt']['t']);
                         }
                         //$annots .= ' /Popup ';
                         if (isset($pl['opt']['ca'])) {
                             $annots .= ' /CA ' . sprintf('%F', floatval($pl['opt']['ca']));
                         }
                         if (isset($pl['opt']['rc'])) {
-                            $annots .= ' /RC ' . $this->_textstring($pl['opt']['rc']);
+                            $annots .= ' /RC ' . $this->metadataTextString($pl['opt']['rc']);
                         }
-                        $annots .= ' /CreationDate ' . $this->_datestring($this->creationTimestamp);
+                        $annots .= ' /CreationDate ' . $this->metadataDateString($this->creationTimestamp);
                         //$annots .= ' /IRT ';
                         if (isset($pl['opt']['subj'])) {
-                            $annots .= ' /Subj ' . $this->_textstring($pl['opt']['subj']);
+                            $annots .= ' /Subj ' . $this->metadataTextString($pl['opt']['subj']);
                         }
                         //$annots .= ' /RT ';
                         //$annots .= ' /IT ';
@@ -2584,7 +2584,7 @@ class PDF
                                     // embedded generic file
                                     $filename = basename(substr($pl['txt'], 1));
                                     $jsa      = 'var D=event.target.doc;var MyData=D.dataObjects;for (var i in MyData) if (MyData[i].path=="' . $filename . '") D.exportDataObject( { cName : MyData[i].name, nLaunch : 2});';
-                                    $annots   .= ' /A << /S /JavaScript /JS ' . $this->_textstring($jsa) . '>>';
+                                    $annots   .= ' /A << /S /JavaScript /JS ' . $this->metadataTextString($jsa) . '>>';
                                 }
                                 else {
                                     $parsedUrl = parse_url($pl['txt']);
@@ -2596,11 +2596,11 @@ class PDF
                                             $tmp  = explode('=', $parsedUrl['fragment']);
                                             $dest = '(' . ((count($tmp) == 2) ? $tmp[1] : $tmp[0]) . ')';
                                         }
-                                        $annots .= ' /A <</S /GoToR /D ' . $dest . ' /F ' . $this->_datastring($this->unhtmlentities($parsedUrl['path'])) . ' /NewWindow true>>';
+                                        $annots .= ' /A <</S /GoToR /D ' . $dest . ' /F ' . $this->metadataDataString($this->unhtmlentities($parsedUrl['path'])) . ' /NewWindow true>>';
                                     }
                                     else {
                                         // external URI link
-                                        $annots .= ' /A <</S /URI /URI ' . $this->_datastring($this->unhtmlentities($pl['txt'])) . '>>';
+                                        $annots .= ' /A <</S /URI /URI ' . $this->metadataDataString($this->unhtmlentities($pl['txt'])) . '>>';
                                     }
                                 }
                             }
@@ -2631,10 +2631,10 @@ class PDF
                                 $annots .= ' /Q ' . intval($pl['opt']['q']);
                             }
                             if (isset($pl['opt']['rc'])) {
-                                $annots .= ' /RC ' . $this->_textstring($pl['opt']['rc']);
+                                $annots .= ' /RC ' . $this->metadataTextString($pl['opt']['rc']);
                             }
                             if (isset($pl['opt']['ds'])) {
-                                $annots .= ' /DS ' . $this->_textstring($pl['opt']['ds']);
+                                $annots .= ' /DS ' . $this->metadataTextString($pl['opt']['ds']);
                             }
                             if (isset($pl['opt']['cl']) and is_array($pl['opt']['cl'])) {
                                 $annots .= ' /CL [';
@@ -2825,13 +2825,13 @@ class PDF
                                 $annots .= ' /Parent ' . $this->radiobutton_groups[$n][$pl['txt']] . ' 0 R';
                             }
                             if (isset($pl['opt']['t']) and is_string($pl['opt']['t'])) {
-                                $annots .= ' /T ' . $this->_datastring($pl['opt']['t']);
+                                $annots .= ' /T ' . $this->metadataDataString($pl['opt']['t']);
                             }
                             if (isset($pl['opt']['tu']) and is_string($pl['opt']['tu'])) {
-                                $annots .= ' /TU ' . $this->_datastring($pl['opt']['tu']);
+                                $annots .= ' /TU ' . $this->metadataDataString($pl['opt']['tu']);
                             }
                             if (isset($pl['opt']['tm']) and is_string($pl['opt']['tm'])) {
-                                $annots .= ' /TM ' . $this->_datastring($pl['opt']['tm']);
+                                $annots .= ' /TM ' . $this->metadataDataString($pl['opt']['tm']);
                             }
                             if (isset($pl['opt']['ff'])) {
                                 if (is_array($pl['opt']['ff'])) {
@@ -2860,7 +2860,7 @@ class PDF
                                     }
                                 }
                                 else {
-                                    $annots .= ' ' . $this->_textstring($pl['opt']['v']);
+                                    $annots .= ' ' . $this->metadataTextString($pl['opt']['v']);
                                 }
                             }
                             if (isset($pl['opt']['dv'])) {
@@ -2874,7 +2874,7 @@ class PDF
                                     }
                                 }
                                 else {
-                                    $annots .= ' ' . $this->_textstring($pl['opt']['dv']);
+                                    $annots .= ' ' . $this->metadataTextString($pl['opt']['dv']);
                                 }
                             }
                             if (isset($pl['opt']['rv'])) {
@@ -2888,7 +2888,7 @@ class PDF
                                     }
                                 }
                                 else {
-                                    $annots .= ' ' . $this->_textstring($pl['opt']['rv']);
+                                    $annots .= ' ' . $this->metadataTextString($pl['opt']['rv']);
                                 }
                             }
                             if (isset($pl['opt']['a']) and !empty($pl['opt']['a'])) {
@@ -2907,10 +2907,10 @@ class PDF
                                 $annots .= ' /Opt [';
                                 foreach ($pl['opt']['opt'] as $copt) {
                                     if (is_array($copt)) {
-                                        $annots .= ' [' . $this->_textstring($copt[0]) . ' ' . $this->_textstring($copt[1]) . ']';
+                                        $annots .= ' [' . $this->metadataTextString($copt[0]) . ' ' . $this->metadataTextString($copt[1]) . ']';
                                     }
                                     else {
-                                        $annots .= ' ' . $this->_textstring($copt);
+                                        $annots .= ' ' . $this->metadataTextString($copt);
                                     }
                                 }
                                 $annots .= ']';
@@ -3200,30 +3200,30 @@ class PDF
         $out = '<<';
         if (!StaticMethods::empty_string($this->title)) {
             // The document's title.
-            $out .= ' /Title ' . $this->_textstring($this->title);
+            $out .= ' /Title ' . $this->metadataTextString($this->title);
         }
         if (!StaticMethods::empty_string($this->author)) {
             // The name of the person who created the document.
-            $out .= ' /Author ' . $this->_textstring($this->author);
+            $out .= ' /Author ' . $this->metadataTextString($this->author);
         }
         if (!StaticMethods::empty_string($this->subject)) {
             // The subject of the document.
-            $out .= ' /Subject ' . $this->_textstring($this->subject);
+            $out .= ' /Subject ' . $this->metadataTextString($this->subject);
         }
         if (!StaticMethods::empty_string($this->keywords)) {
             // Keywords associated with the document.
-            $out .= ' /Keywords ' . $this->_textstring($this->keywords);
+            $out .= ' /Keywords ' . $this->metadataTextString($this->keywords);
         }
         if (!StaticMethods::empty_string($this->creator)) {
             // If the document was converted to PDF from another format, the name of the conforming product that created the original document from which it was converted.
-            $out .= ' /Creator ' . $this->_textstring($this->creator);
+            $out .= ' /Creator ' . $this->metadataTextString($this->creator);
         }
         // default producer
-        $out .= ' /Producer ' . $this->_textstring($this->producer());
+        $out .= ' /Producer ' . $this->metadataTextString($this->producer());
         // The date and time the document was created, in human-readable form
-        $out .= ' /CreationDate ' . $this->_datestring($this->creationTimestamp);
+        $out .= ' /CreationDate ' . $this->metadataDateString($this->creationTimestamp);
         // The date and time the document was most recently modified, in human-readable form
-        $out .= ' /ModDate ' . $this->_datestring($this->modificationTimestamp);
+        $out .= ' /ModDate ' . $this->metadataDateString($this->modificationTimestamp);
         // A name object indicating whether the document has been modified to include trapping information
         $out .= ' /Trapped /False';
         $out .= ' >>';
@@ -3267,13 +3267,13 @@ class PDF
         $xmp .= "\t\t\t" . '</dc:subject>' . "\n";
         $xmp .= "\t\t" . '</rdf:Description>' . "\n";
         // convert doc creation date format
-        $dcdate          = StaticMethods::getFormattedDate($this->creationTimestamp);
+        $dcdate          = $this->formattedDate($this->creationTimestamp);
         $doccreationdate = substr($dcdate, 0, 4) . '-' . substr($dcdate, 4, 2) . '-' . substr($dcdate, 6, 2);
         $doccreationdate .= 'T' . substr($dcdate, 8, 2) . ':' . substr($dcdate, 10, 2) . ':' . substr($dcdate, 12, 2);
         $doccreationdate .= substr($dcdate, 14, 3) . ':' . substr($dcdate, 18, 2);
         $doccreationdate = $this->escapeXML($doccreationdate);
         // convert doc modification date format
-        $dmdate     = StaticMethods::getFormattedDate($this->modificationTimestamp);
+        $dmdate     = $this->formattedDate($this->modificationTimestamp);
         $docmoddate = substr($dmdate, 0, 4) . '-' . substr($dmdate, 4, 2) . '-' . substr($dmdate, 6, 2);
         $docmoddate .= 'T' . substr($dmdate, 8, 2) . ':' . substr($dmdate, 10, 2) . ':' . substr($dmdate, 12, 2);
         $docmoddate .= substr($dmdate, 14, 3) . ':' . substr($dmdate, 18, 2);
@@ -3326,7 +3326,7 @@ class PDF
         if (!empty($this->efnames)) {
             $out .= ' /EmbeddedFiles <</Names [';
             foreach ($this->efnames as $fn => $fref) {
-                $out .= ' ' . $this->_datastring($fn) . ' ' . $fref;
+                $out .= ' ' . $this->metadataDataString($fn) . ' ' . $fref;
             }
             $out .= ' ]>>';
         }
@@ -3375,8 +3375,8 @@ class PDF
             }
             $out .= ' /OCProperties << /OCGs [' . $lyrobjs . ']';
             $out .= ' /D <<';
-            $out .= ' /Name ' . $this->_textstring('Layers');
-            $out .= ' /Creator ' . $this->_textstring('TCPDF');
+            $out .= ' /Name ' . $this->metadataTextString('Layers');
+            $out .= ' /Creator ' . $this->metadataTextString('TCPDF');
             $out .= ' /BaseState /ON';
             $out .= ' /OFF [' . $lyrobjs_off . ']';
             $out .= ' /Locked [' . $lyrobjs_lock . ']';
@@ -3616,38 +3616,6 @@ class PDF
     }
 
     /**
-     * Format a data string for meta information
-     * @param string $s data string to escape.
-     * @return string escaped string.
-     */
-    protected function _datastring($s)
-    {
-        return '(' . $this->escape($s) . ')';
-    }
-
-    /**
-     * Returns a formatted date for meta information
-     * @param int $n         Object ID.
-     * @param int $timestamp Timestamp to convert.
-     * @return string escaped date string.
-     */
-    protected function _datestring(int $timestamp)
-    {
-        $timestamp = $timestamp < 0 ? $this->creationTimestamp : $timestamp;
-        return $this->_datastring('D:' . StaticMethods::getFormattedDate($timestamp));
-    }
-
-    /**
-     * Format a text string for meta information
-     * @param string $s string to escape.
-     * @return string escaped string.
-     */
-    protected function _textstring($s)
-    {
-        return $this->_datastring($this->utf8ToUTF16BE($s, true));
-    }
-
-    /**
      * Returns the PDF data.
      * @public
      */
@@ -3830,7 +3798,7 @@ class PDF
         foreach ($this->layers as $key => $layer) {
             $this->layers[$key]['objid'] = $this->appendObject();
             $out                         = '<< /Type /OCG';
-            $out                         .= ' /Name ' . $this->_textstring($layer['name']);
+            $out                         .= ' /Name ' . $this->metadataTextString($layer['name']);
             $out                         .= ' /Usage <<';
             if (isset($layer['print']) and ($layer['print'] !== NULL)) {
                 $out .= ' /Print <</PrintState /' . ($layer['print'] ? 'ON' : 'OFF') . '>>';

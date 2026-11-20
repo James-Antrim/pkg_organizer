@@ -532,7 +532,7 @@ trait Pages
             $out                     = '<<';
             $out                     .= ' /Type /Page';
             $out                     .= ' /Parent 1 0 R';
-            $out                     .= ' /LastModified ' . $this->_datestring($this->modificationTimestamp);
+            $out                     .= ' /LastModified ' . $this->metadataDateString($this->modificationTimestamp);
             $out                     .= ' /Resources 2 0 R';
             foreach ($this->pageBoxes as $box) {
                 $out .= ' /' . $box;
