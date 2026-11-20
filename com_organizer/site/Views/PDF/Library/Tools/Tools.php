@@ -178,27 +178,12 @@ trait Tools
     }
 
     /**
-     * Returns the Unicode character specified by ASCII value
+     * Returns the Unicode character specified by the value
      * @param int $value UTF-8 value
      * @return string Returns the specified character.
      */
-    public function unicodeByASCII(int $value): string
+    public static function unicodeCharacter(int $value): string
     {
-        return $this->unicodeCharacter($value, false);
-    }
-
-    /**
-     * Returns the Unicode character specified by the value
-     * @param int  $value     UTF-8 value
-     * @param bool $isUnicode True if we are in Unicode mode, false otherwise.
-     * @return string Returns the specified character.
-     */
-    public static function unicodeCharacter(int $value, bool $isUnicode = true): string
-    {
-        if (!$isUnicode) {
-            return chr($value);
-        }
-
         return match (true) {
             ($value <= 0x7F) => chr($value),
             ($value <= 0x7FF) => chr(0xC0 | $value >> 6) . chr(0x80 | $value & 0x3F),
@@ -393,12 +378,11 @@ trait Tools
     /**
      * Convert an array of UTF8 values to array of Unicode characters.
      * @param array $utf8Values
-     * @param bool  $isUnicode
      * @return array
      */
-    public function utf8ArrayToUnicodeArray(array $utf8Values, bool $isUnicode = true): array
+    public function utf8ArrayToUnicodeArray(array $utf8Values): array
     {
-        return $isUnicode ? array_map([$this, 'unicodeCharacter'], $utf8Values) : array_map([$this, 'unicodeByASCII'], $utf8Values);
+        return array_map([$this, 'unicodeCharacter'], $utf8Values);
     }
 
     /**
@@ -471,15 +455,14 @@ trait Tools
      * @param int[] $utf8Values
      * @param int   $start (inclusive)
      * @param int   $end   (exclusive)
-     * @param bool  $isUnicode
      * @return string
      */
-    public function utf8SliceToString(array $utf8Values, int $start = 0, int $end = 0, bool $isUnicode = true): string
+    public function utf8SliceToString(array $utf8Values, int $start = 0, int $end = 0): string
     {
         $end    = $end > 0 ? $end : count($utf8Values);
         $string = '';
         for ($index = $start; $index < $end; ++$index) {
-            $string .= $this->unicodeCharacter($utf8Values[$index], $isUnicode);
+            $string .= $this->unicodeCharacter($utf8Values[$index]);
         }
         return $string;
     }
@@ -491,14 +474,8 @@ trait Tools
      */
     public function utf8StringToArray(string $string): array
     {
-        if ($this->isUnicode) {
-            $characters = preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
-            $numbers    = array_map([$this, 'unicodeOrd'], $characters);
-        }
-        else {
-            $characters = str_split($string);
-            $numbers    = array_map('ord', $characters);
-        }
+        $characters = preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
+        $numbers    = array_map([$this, 'unicodeOrd'], $characters);
 
         $this->currentFont['subsetCharacters'] = is_array($this->currentFont['subsetCharacters']) ?
             $this->currentFont['subsetCharacters'] + array_fill_keys($numbers, true) : array_merge($this->currentFont['subsetCharacters'], $numbers);
@@ -523,10 +500,6 @@ trait Tools
      */
     public function utf8ToUTF16BE(string $string, bool $setBOM = false): string
     {
-        if (!$this->isUnicode) {
-            return $string;
-        }
-
         return $this->utf8ArrayToUTF16BEString($this->utf8StringToArray($string), $setBOM);
     }
 

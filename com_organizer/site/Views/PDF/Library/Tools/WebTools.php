@@ -434,7 +434,7 @@ trait WebTools
             }
             case 'lower-greek':
             {
-                $textitem = $this->unicodeCharacter((945 + $this->listcount[$this->listnum] - 1), $this->isUnicode);
+                $textitem = $this->unicodeCharacter((945 + $this->listcount[$this->listnum] - 1));
                 break;
             }
             /*
@@ -4079,25 +4079,6 @@ trait WebTools
                         $ttm = ['capitalize' => MB_CASE_TITLE, 'uppercase' => MB_CASE_UPPER, 'lowercase' => MB_CASE_LOWER];
                         if (isset($ttm[$dom[$dom[$key]['parent']]['text-transform']])) {
                             $element = mb_convert_case($element, $ttm[$dom[$dom[$key]['parent']]['text-transform']], 'UTF-8');
-                        }
-                    }
-                    elseif (!$this->isUnicode) {
-                        switch ($dom[$dom[$key]['parent']]['text-transform']) {
-                            case 'capitalize':
-                            {
-                                $element = ucwords(strtolower($element));
-                                break;
-                            }
-                            case 'uppercase':
-                            {
-                                $element = strtoupper($element);
-                                break;
-                            }
-                            case 'lowercase':
-                            {
-                                $element = strtolower($element);
-                                break;
-                            }
                         }
                     }
                     $element = preg_replace("/&NBSP;/i", "&nbsp;", $element);

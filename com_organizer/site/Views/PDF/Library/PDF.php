@@ -1081,9 +1081,7 @@ class PDF
             $this->font($fontname, $fontstyle, $fontsize, '', 'default', false);
         }
         // convert UTF-8 array to Latin1 if required
-        if ($this->isUnicode) {
-            $sa = $this->utf8ArrayToLatin1Array($sa);
-        }
+        $sa = $this->utf8ArrayToLatin1Array($sa);
         $w  = 0; // total width
         $wa = []; // array of characters widths
         foreach ($sa as $ck => $char) {
@@ -1462,11 +1460,11 @@ class PDF
             $charWidth = $charsWidth[$i];
             if (($c != 160)
                 and (($c == 173)
-                    or preg_match($this->spacesRE, $this->unicodeCharacter($c, $this->isUnicode))
+                    or preg_match($this->spacesRE, $this->unicodeCharacter($c))
                     or (($c == 45)
                         and ($i > 0) and ($i < ($length - 1))
-                        and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i - 1)], $this->isUnicode))
-                        and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
+                        and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i - 1)]))
+                        and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i + 1)]))
                     )
                 )
             ) {
@@ -1600,12 +1598,12 @@ class PDF
         array_walk($chrw, [$this, 'getRawCharWidth']);
         $maxchwidth = ((is_array($chrw) || $chrw instanceof Countable) && count($chrw) > 0) ? max($chrw) : 0;
         // get array of chars
-        $uchars = $this->utf8ArrayToUnicodeArray($chars, $this->isUnicode);
+        $uchars = $this->utf8ArrayToUnicodeArray($chars);
         // get the number of characters
         $nb = count($chars);
         // replacement for SHY character (minus symbol)
         $shy_replacement      = 45;
-        $shy_replacement_char = $this->unicodeCharacter($shy_replacement, $this->isUnicode);
+        $shy_replacement_char = $this->unicodeCharacter($shy_replacement);
         // widht for SHY replacement
         $shy_replacement_width = $this->GetCharWidth($shy_replacement);
         // page width
@@ -1698,11 +1696,11 @@ class PDF
                 // \p{Lo} is needed because Chinese characters are packed next to each other without spaces in between.
                 if (($c != 160)
                     and (($c == 173)
-                        or preg_match($this->spacesRE, $this->unicodeCharacter($c, $this->isUnicode))
+                        or preg_match($this->spacesRE, $this->unicodeCharacter($c))
                         or (($c == 45)
                             and ($i < ($nb - 1))
-                            and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($pc, $this->isUnicode))
-                            and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i + 1)], $this->isUnicode))
+                            and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($pc))
+                            and @preg_match('/[\p{L}]/' . $this->spaceRE['m'], $this->unicodeCharacter($chars[($i + 1)]))
                         )
                     )
                 ) {
@@ -2173,12 +2171,10 @@ class PDF
         $alias        = ['u' => [], 'a' => []];
         $u            = '{' . $a . '}';
         $alias['u'][] = StaticMethods::_escape($u);
-        if ($this->isUnicode) {
-            $alias['u'][] = StaticMethods::_escape($this->utf8ToLatin1($u));
-            $alias['u'][] = StaticMethods::_escape($this->utf8ToUTF16BE($u));
-            $alias['a'][] = StaticMethods::_escape($this->utf8ToLatin1($a));
-            $alias['a'][] = StaticMethods::_escape($this->utf8ToUTF16BE($a));
-        }
+        $alias['u'][] = StaticMethods::_escape($this->utf8ToLatin1($u));
+        $alias['u'][] = StaticMethods::_escape($this->utf8ToUTF16BE($u));
+        $alias['a'][] = StaticMethods::_escape($this->utf8ToLatin1($a));
+        $alias['a'][] = StaticMethods::_escape($this->utf8ToUTF16BE($a));
         $alias['a'][] = StaticMethods::_escape($a);
         return $alias;
     }
@@ -3202,11 +3198,6 @@ class PDF
     {
         $oid = $this->appendObject();
         $out = '<<';
-        // store current isunicode value
-        $prev_isunicode = $this->isUnicode;
-        if ($this->docinfounicode) {
-            $this->isUnicode = true;
-        }
         if (!StaticMethods::empty_string($this->title)) {
             // The document's title.
             $out .= ' /Title ' . $this->_textstring($this->title);
@@ -3227,8 +3218,6 @@ class PDF
             // If the document was converted to PDF from another format, the name of the conforming product that created the original document from which it was converted.
             $out .= ' /Creator ' . $this->_textstring($this->creator);
         }
-        // restore previous isunicode value
-        $this->isUnicode = $prev_isunicode;
         // default producer
         $out .= ' /Producer ' . $this->_textstring($this->producer());
         // The date and time the document was created, in human-readable form
@@ -3250,11 +3239,8 @@ class PDF
     protected function _putXMP()
     {
         $oid = $this->appendObject();
-        // store current isunicode value
-        $prev_isunicode  = $this->isUnicode;
-        $this->isUnicode = true;
         // set XMP data
-        $xmp = '<?xpacket begin="' . $this->unicodeCharacter(0xfeff, $this->isUnicode) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n";
+        $xmp = '<?xpacket begin="' . $this->unicodeCharacter(0xfeff) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n";
         $xmp .= '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.2.1-c043 52.372728, 2009/01/18-15:08:04">' . "\n";
         $xmp .= "\t" . '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">' . "\n";
         $xmp .= "\t\t" . '<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">' . "\n";
@@ -3314,8 +3300,6 @@ class PDF
         $xmp .= '</x:xmpmeta>' . "\n";
         $xmp .= '<?xpacket end="w"?>';
         $out = '<< /Type /Metadata /Subtype /XML /Length ' . strlen($xmp) . ' >> stream' . "\n" . $xmp . "\n" . 'endstream' . "\n" . 'endobj';
-        // restore previous isunicode value
-        $this->isUnicode = $prev_isunicode;
         $this->append($out);
         return $oid;
     }
@@ -3660,11 +3644,7 @@ class PDF
      */
     protected function _textstring($s)
     {
-        if ($this->isUnicode) {
-            //Convert string to UTF-16BE
-            $s = $this->utf8ToUTF16BE($s, true);
-        }
-        return $this->_datastring($s);
+        return $this->_datastring($this->utf8ToUTF16BE($s, true));
     }
 
     /**
@@ -5899,7 +5879,7 @@ class PDF
         if ($numchars <= $charmin) {
             return $word;
         }
-        $word_string = $this->utf8SliceToString($word, '', '', $this->isUnicode);
+        $word_string = $this->utf8SliceToString($word, '', '');
         // some words will be returned as-is
         $pattern = '/^([a-zA-Z0-9_\.\-]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/';
         if (preg_match($pattern, $word_string) > 0) {
@@ -5921,7 +5901,7 @@ class PDF
         for ($pos = 0; $pos < $maxpos; ++$pos) {
             $imax = min(($tmpnumchars - $pos), $charmax);
             for ($i = 1; $i <= $imax; ++$i) {
-                $subword = strtolower($this->utf8SliceToString($tmpword, $pos, ($pos + $i), $this->isUnicode));
+                $subword = strtolower($this->utf8SliceToString($tmpword, $pos, ($pos + $i)));
                 if (isset($patterns[$subword])) {
                     $pattern        = $this->utf8StringToArray($patterns[$subword]);
                     $pattern_length = count($pattern);
@@ -6028,7 +6008,7 @@ class PDF
             $txtarr = array_merge($txtarr, $this->hyphenateWord($word, $patterns, $dictionary, $leftmin, $rightmin, $charmin, $charmax));
         }
         // convert char array to string and return
-        return $this->utf8SliceToString($txtarr, '', '', $this->isUnicode);
+        return $this->utf8SliceToString($txtarr, '', '');
     }
 
     /**
@@ -6521,17 +6501,17 @@ class PDF
     {
         if (is_string($char)) {
             // get character code
-            $char = TCPDF_FONTS::UTF8StringToArray($char, $this->isunicode, $this->CurrentFont);
+            $char = $this->utf8StringToArray($char);
             $char = $char[0];
         }
-        if (TCPDF_STATIC::empty_string($font)) {
-            if (TCPDF_STATIC::empty_string($style)) {
+        if (StaticMethods::empty_string($font)) {
+            if (StaticMethods::empty_string($style)) {
                 return (isset($this->CurrentFont['cw'][intval($char)]));
             }
             $font = $this->FontFamily;
         }
         $fontdata = $this->AddFont($font, $style);
-        $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
+        $fontinfo = $this->fontBuffer($fontdata['fontkey']);
         return (isset($fontinfo['cw'][intval($char)]));
     }
 
@@ -6555,7 +6535,7 @@ class PDF
         }
         $fontdata = $this->AddFont($font, $style);
         $fontinfo = $this->getFontBuffer($fontdata['fontkey']);
-        $uniarr   = TCPDF_FONTS::UTF8StringToArray($text, $this->isunicode, $this->CurrentFont);
+        $uniarr   = $this->utf8StringToArray($text);
         foreach ($uniarr as $k => $chr) {
             if (!isset($fontinfo['cw'][$chr])) {
                 // this character is missing on the selected font
@@ -6575,7 +6555,7 @@ class PDF
                 }
             }
         }
-        return TCPDF_FONTS::UniArrSubString(TCPDF_FONTS::UTF8ArrayToUniArray($uniarr, $this->isunicode));
+        return $this->unicodeSliceToString($this->utf8ArrayToUnicodeArray($uniarr));
     }
 
     /**

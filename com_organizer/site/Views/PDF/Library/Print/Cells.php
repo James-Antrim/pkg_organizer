@@ -315,10 +315,10 @@ trait Cells
     {
         // replace 'NO-BREAK SPACE' (U+00A0) character with a simple space
         $txt              = is_null($txt) ? '' : $txt;
-        $txt              = str_replace($this->unicodeCharacter(160, $this->isUnicode), ' ', $txt);
+        $txt              = str_replace($this->unicodeCharacter(160), ' ', $txt);
         $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
-        $txt              = StaticMethods::removeSHY($txt, $this->isUnicode);
+        $txt              = StaticMethods::removeSHY($txt);
         $rs               = ''; //string to be returned
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
@@ -484,14 +484,12 @@ trait Cells
         $s .= $this->getCellBorder($x, $y, $w, $h, $border);
         if ($txt != '') {
             $txt2 = $txt;
-            if ($this->isUnicode) {
-                if (($this->currentFont['type'] == 'core') or ($this->currentFont['type'] == 'TrueType') or ($this->currentFont['type'] == 'Type1')) {
-                    $txt2 = $this->utf8ToLatin1($txt2);
-                }
-                else {
-                    $unicode = $this->utf8StringToArray($txt); // array of UTF-8 unicode values
-                    $txt2    = $this->utf8ArrayToUTF16BEString($unicode);
-                }
+            if (($this->currentFont['type'] == 'core') or ($this->currentFont['type'] == 'TrueType') or ($this->currentFont['type'] == 'Type1')) {
+                $txt2 = $this->utf8ToLatin1($txt2);
+            }
+            else {
+                $unicode = $this->utf8StringToArray($txt); // array of UTF-8 unicode values
+                $txt2    = $this->utf8ArrayToUTF16BEString($unicode);
             }
             $txt2 = StaticMethods::_escape($txt2);
             // get current text width (considering general font stretching and spacing)

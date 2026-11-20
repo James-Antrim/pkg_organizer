@@ -67,9 +67,6 @@ trait Fonts
 
     protected array $headerFont = [self::DEFAULT_FONT, '', 10];
 
-    /** Boolean flag set to true when the input text is Unicode (require Unicode fonts). */
-    protected bool $isUnicode = true;
-
     /**
      * Sets the current font used to print character strings.
      * @param string     $family
@@ -2513,9 +2510,6 @@ trait Fonts
         }
         // normalize family name
         $family = strtolower($family);
-        if ((!$this->isUnicode) and ($family == 'arial')) {
-            $family = 'helvetica';
-        }
         if (($family == 'symbol') or ($family == 'zapfdingbats')) {
             $style = '';
         }
