@@ -3189,7 +3189,7 @@ class PDF
         $this->_putdests();
         $this->_putEmbeddedFiles();
         $this->_putannotsobjs();
-        $this->_putjavascript();
+        $this->appendJavascript();
         $this->_putbookmarks();
     }
 
@@ -3336,8 +3336,8 @@ class PDF
         $out .= ' /Pages 1 0 R';
         //$out .= ' /PageLabels ' //...;
         $out .= ' /Names <<';
-        if (!empty($this->n_js)) {
-            $out .= ' /JavaScript ' . $this->n_js;
+        if (!empty($this->javascriptCounter)) {
+            $out .= ' /JavaScript ' . $this->javascriptCounter;
         }
         if (!empty($this->efnames)) {
             $out .= ' /EmbeddedFiles <</Names [';

@@ -24,6 +24,8 @@ trait WebTools
     protected string $linkStyle = 'U';
 
     protected string $javascript = '';
+    protected string $javascriptCounter = '';
+    protected array $javascriptObjects = [];
 
     /**
      * Set the color and style for HTML links.
@@ -39,19 +41,57 @@ trait WebTools
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /** Create and append a javascript PDF command. */
+    protected function appendJavascript(): void
+    {
+        if (empty($this->javascript) and empty($this->javascriptObjects)) {
+            return;
+        }
+
+        if (strpos($this->javascript, 'this.addField') > 0) {
+            $jsa = "fOrganizerDocSaved=this.addField('organizerDocSaved','texts',0,[0,1,0,1]);";
+            $jsb = "getField('organizerDocSaved').value='saved';";
+
+            $this->javascript = $jsa . "\n" . $this->javascript . "\n" . $jsb;
+        }
+
+        // Name tree for javascript
+        $this->javascriptCounter = '<< /Names [';
+
+        if (!empty($this->javascript)) {
+            $this->javascriptCounter .= ' (EmbeddedJS) ' . $this->objectNumber + 1 . ' 0 R';
+        }
+
+        if (!empty($this->javascriptObjects)) {
+            foreach ($this->javascriptObjects as $key => $value) {
+                if ($value['onload']) {
+                    $this->javascriptCounter .= " (JS$key) $key 0 R'";
+                }
+            }
+        }
+
+        $this->javascriptCounter .= ' ] >>';
+
+        // Default Javascript object
+        if (!empty($this->javascript)) {
+            $this->appendObject();
+            $script = $this->_textstring($this->javascript);
+            $this->append('<< /S /JavaScript /JS ' . $script . ' >>' . "\n" . 'endobj');
+        }
+
+        // Additional Javascript objects
+        if (!empty($this->javascriptObjects)) {
+            foreach ($this->javascriptObjects as $key => $value) {
+                $out = $this->objectCommand($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($value['js']) . ' >>' . "\n" . 'endobj';
+                $this->append($out);
+            }
+        }
+    }
+
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-
-    /**
-     * Javascript objects array.
-     */
-    protected $js_objects = [];
-
-    /**
-     * Javascript counter.
-     */
-    protected $n_js;
 
     /**
      * List of radio buttons parent objects.
@@ -4793,55 +4833,8 @@ trait WebTools
     public function addJavascriptObject($script, $onload = false)
     {
         ++$this->objectNumber;
-        $this->js_objects[$this->objectNumber] = ['n' => $this->objectNumber, 'js' => $script, 'onload' => $onload];
+        $this->javascriptObjects[$this->objectNumber] = ['n' => $this->objectNumber, 'js' => $script, 'onload' => $onload];
         return $this->objectNumber;
-    }
-
-    /**
-     * Create a javascript PDF string.
-     * @author Johannes G\FCntert, Nicola Asuni
-     */
-    protected function _putjavascript()
-    {
-        if (empty($this->javascript) and empty($this->js_objects)) {
-            return;
-        }
-        if (strpos($this->javascript, 'this.addField') > 0) {
-            // the following two lines are used to avoid form fields duplication after saving
-            // The addField method only works when releasing user rights (UR3)
-            $jsa              = sprintf("ftcpdfdocsaved=this.addField('%s','%s',%d,[%F,%F,%F,%F]);", 'tcpdfdocsaved', 'text', 0, 0, 1, 0, 1);
-            $jsb              = "getField('tcpdfdocsaved').value='saved';";
-            $this->javascript = $jsa . "\n" . $this->javascript . "\n" . $jsb;
-        }
-        // name tree for javascript
-        $this->n_js = '<< /Names [';
-        if (!empty($this->javascript)) {
-            $this->n_js .= ' (EmbeddedJS) ' . ($this->objectNumber + 1) . ' 0 R';
-        }
-        if (!empty($this->js_objects)) {
-            foreach ($this->js_objects as $key => $val) {
-                if ($val['onload']) {
-                    $this->n_js .= ' (JS' . $key . ') ' . $key . ' 0 R';
-                }
-            }
-        }
-        $this->n_js .= ' ] >>';
-        // default Javascript object
-        if (!empty($this->javascript)) {
-            $obj_id = $this->appendObject();
-            $out    = '<< /S /JavaScript';
-            $out    .= ' /JS ' . $this->_textstring($this->javascript);
-            $out    .= ' >>';
-            $out    .= "\n" . 'endobj';
-            $this->append($out);
-        }
-        // additional Javascript objects
-        if (!empty($this->js_objects)) {
-            foreach ($this->js_objects as $key => $val) {
-                $out = $this->objectCommand($key) . "\n" . ' << /S /JavaScript /JS ' . $this->_textstring($val['js']) . ' >>' . "\n" . 'endobj';
-                $this->append($out);
-            }
-        }
     }
 
     /**
@@ -4858,7 +4851,7 @@ trait WebTools
     protected function _addfield($type, $name, $x, $y, $w, $h, $prop)
     {
         // the followind avoid fields duplication after saving the document
-        $this->javascript .= "if (getField('tcpdfdocsaved').value != 'saved') {";
+        $this->javascript .= "if (getField('organizerDocSaved').value != 'saved') {";
         $k                = $this->factor;
         $this->javascript .= sprintf("f" . $name . "=this.addField('%s','%s',%u,[%F,%F,%F,%F]);", $name, $type, $this->PageNo() - 1, $x * $k, ($this->height - $y) * $k + 1, ($x + $w) * $k, ($this->height - $y - $h) * $k + 1) . "\n";
         $this->javascript .= 'f' . $name . '.textSize=' . $this->fontSizePT . ";\n";
