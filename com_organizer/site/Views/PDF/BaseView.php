@@ -213,7 +213,7 @@ abstract class BaseView extends PDF implements ViewInterface
         int    $maxHeight = 0
     ): int
     {
-        return $this->MultiCell(
+        return $this->multiCell(
             $width,
             $height,
             $text,

@@ -876,21 +876,6 @@ class PDF
     }
 
     /**
-     * Return the cell height
-     * @param int  $fontsize Font size in internal units
-     * @param bool $padding  If true add cell padding
-     * @return float
-     */
-    public function getCellHeight($fontsize, $padding = true)
-    {
-        $height = ($fontsize * $this->cellHeightRatio);
-        if ($padding && !empty($this->cellPaddings)) {
-            $height += ($this->cellPaddings['T'] + $this->cellPaddings['B']);
-        }
-        return round($height, 6);
-    }
-
-    /**
      * Get the last cell height.
      * @return float last cell height
      */
@@ -915,7 +900,7 @@ class PDF
      */
     public function resetLastH()
     {
-        $this->lastPrintedCellHeight = $this->getCellHeight($this->fontSize);
+        $this->lastPrintedCellHeight = $this->cellHeight($this->fontSize);
     }
 
     /**
@@ -1381,7 +1366,7 @@ class PDF
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
+     * @see   cell(), Write(), multiCell(), WriteHTML(), WriteHTMLCell()
      */
     public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
@@ -1570,7 +1555,7 @@ class PDF
         }
         $this->adjustCellPadding($border);
         $lines                       = $this->getNumLines($txt, $w, $reseth, $autopadding, $cellpadding, $border);
-        $height                      = $this->getCellHeight(($lines * $this->fontSize), $autopadding);
+        $height                      = $this->cellHeight(($lines * $this->fontSize), $autopadding);
         $this->cellPaddings          = $previousPaddings;
         $this->lastPrintedCellHeight = $prev_lasth;
         return $height;
@@ -1637,7 +1622,7 @@ class PDF
             return '';
         }
         // minimum row height
-        $row_height = max($h, $this->getCellHeight($this->fontSize));
+        $row_height = max($h, $this->cellHeight($this->fontSize));
         // max Y
         $maxy       = $this->y + $maxh - max($row_height, $h);
         $start_page = $this->page;
@@ -5085,7 +5070,7 @@ class PDF
                 }
             }
         }
-        $text_height = $this->getCellHeight($fontsize / $this->factor);
+        $text_height = $this->cellHeight($fontsize / $this->factor);
         // height
         if (StaticMethods::empty_string($h) or ($h <= 0)) {
             // set default height
@@ -5096,7 +5081,7 @@ class PDF
             // try to reduce font or padding to fit barcode on available height
             if ($text_height > $h) {
                 $fontsize    = (($h * $this->factor) / (4 * $this->cellHeightRatio));
-                $text_height = $this->getCellHeight($fontsize / $this->factor);
+                $text_height = $this->cellHeight($fontsize / $this->factor);
                 $this->font($style['font'], '', $fontsize);
             }
             if ($vpadding > 0) {
@@ -6407,7 +6392,7 @@ class PDF
             return [$x, $y];
         }
         if (empty($h)) {
-            $h = $this->getCellHeight($this->fontSize);
+            $h = $this->cellHeight($this->fontSize);
         }
         // check for page break
         if ($this->checkPageBreak($h, $y)) {

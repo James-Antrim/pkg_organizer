@@ -32,80 +32,11 @@ trait Headers
      */
     protected bool $headerXObjectAutoreset = false;
     protected bool $inHeader = false;
-
     protected bool $printHeader = true;
 
     /**
-     * String to print on page header after title.
-     */
-
-    /**
-     * Set header data.
-     * @param string $logo      header image logo
-     * @param float  $logoWidth header image logo width in mm
-     * @param string $title     string to print as title on document header
-     * @param string $subtitle  string to print on document header
-     * @param int[]  $textColor RGB array color for text.
-     * @param int[]  $bgColor   RGB array color for line.
-     * @return array
-     */
-    public function headerConfig(string $logo = '', float $logoWidth = 0, string $title = '', string $subtitle = '', array $textColor = self::BLACK, array $bgColor = self::WHITE): array
-    {
-        if ($logo or $title or $subtitle) {
-            $this->headerLogo      = $logo;
-            $this->headerLogoWidth = $logoWidth;
-            $this->headerTitle     = $title;
-            $this->headerSubtitle  = $subtitle;
-            $this->headerTextColor = $textColor;
-            $this->headerLineColor = $bgColor;
-        }
-
-        return [
-            'logo'       => $this->headerLogo,
-            'logoWidth'  => $this->headerLogoWidth,
-            'title'      => $this->headerTitle,
-            'subtitle'   => $this->headerSubtitle,
-            'text_color' => $this->headerTextColor,
-            'line_color' => $this->headerLineColor,
-        ];
-    }
-
-    /**
-     * Set header margin: minimum distance between header and top page margin)
-     * @param float $margin distance in user units
-     * @return float
-     */
-    public function headerMargin(float $margin): float
-    {
-        if ($margin) {
-            $this->headerMargin = $margin;
-        }
-
-        return $this->headerMargin;
-    }
-
-    /**
-     * Sets a flag to automatically reset the xObject template used by the header() method at each page.
-     * @param bool $autoreset
-     */
-    public function headerTemplateAutoreset(bool $autoreset = true): void
-    {
-        $this->headerXObjectAutoreset = $autoreset;
-    }
-
-    /**
-     * Flag whether to print the page header
-     * @param bool $print
-     */
-    public function printHeader(bool $print = true): void
-    {
-        $this->printHeader = $print;
-    }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TODO
-
-    /**
-     * This method is used to render the page header.
+     * Provides standard context handling before and after header rendering.
+     * It is automatically called by AddPage() and could be overwritten in your own inherited class.
      */
     protected function header(): void
     {
@@ -131,54 +62,128 @@ trait Headers
         $this->xy($this->originalLeftMargin, $this->headerMargin);
         $this->font($this->headerFont[0], $this->headerFont[1], $this->headerFont[2]);
 
+        $this->renderHeader();
+
+        $this->xy($this->originalLeftMargin, $this->topMargin);
+        $this->appendRestoreGraphicsState();
+        $this->lastPrintedCellHeight = $lastHeight;
+        $this->headerTemplate        = $template;
+        $this->headerTemplateMargins = $margins;
+        $this->newLine               = $newLine;
+        $this->inHeader              = false;
+    }
+
+    /**
+     * Set header margin: minimum distance between header and top page margin)
+     * @param float $margin distance in user units
+     * @return float
+     */
+    public function headerMargin(float $margin): float
+    {
+        if ($margin) {
+            $this->headerMargin = $margin;
+        }
+
+        return $this->headerMargin;
+    }
+
+    /**
+     * Set header data.
+     * @param string $logo      header image logo
+     * @param float  $logoWidth header image logo width in mm
+     * @param string $title     string to print as title on document header
+     * @param string $subtitle  string to print on document header
+     * @param int[]  $textColor RGB array color for text.
+     * @param int[]  $bgColor   RGB array color for line.
+     * @return array
+     */
+    public function headerSettings(string $logo = '', float $logoWidth = 0, string $title = '', string $subtitle = '', array $textColor = self::BLACK, array $bgColor = self::WHITE): array
+    {
+        if ($logo or $title or $subtitle) {
+            $this->headerLogo      = $logo;
+            $this->headerLogoWidth = $logoWidth;
+            $this->headerTitle     = $title;
+            $this->headerSubtitle  = $subtitle;
+            $this->headerTextColor = $textColor;
+            $this->headerLineColor = $bgColor;
+        }
+
+        return [
+            'lineColor' => $this->headerLineColor,
+            'logo'      => $this->headerLogo,
+            'logoWidth' => $this->headerLogoWidth,
+            'subtitle'  => $this->headerSubtitle,
+            'title'     => $this->headerTitle,
+            'textColor' => $this->headerTextColor,
+        ];
+    }
+
+    /**
+     * Sets a flag to automatically reset the xObject template used by the header() method at each page.
+     * @param bool $autoreset
+     */
+    public function headerTemplateAutoreset(bool $autoreset = true): void
+    {
+        $this->headerXObjectAutoreset = $autoreset;
+    }
+
+    /**
+     * Flag whether to print the page header
+     * @param bool $print
+     */
+    public function printHeader(bool $print = true): void
+    {
+        $this->printHeader = $print;
+    }
+
+    /** This method is used to render the page header. */
+    protected function renderHeader(): void
+    {
         if (!$this->headerXObjectID) {
             // start a new XObject Template
             $this->headerXObjectID = $this->startTemplate($this->width, $this->topMargin);
 
-            $font          = $this->headerFont();
-            $configuration = $this->headerConfig();
+            $font     = $this->headerFont();
+            $settings = $this->headerSettings();
 
             $this->y = $this->headerMargin;
             $this->x = $this->originalLeftMargin;
 
-            if (empty($configuration['logo'])) {
+            if (empty($settings['logo'])) {
                 $imageY = $this->y;
             }
             else {
-                $imageType = $this->imageType(self::IMAGE_PATH . $configuration['logo']);
+                $imageType = $this->imageType(self::IMAGE_PATH . $settings['logo']);
 
-                if ($imageType === 'eps' or $imageType === 'ai') {
-                    $this->ImageEps(self::IMAGE_PATH . $configuration['logo'], null, null, $configuration['logoWidth']);
-                }
-                elseif ($imageType == 'svg') {
-                    $this->ImageSVG(self::IMAGE_PATH . $configuration['logo'], null, null, $configuration['logoWidth']);
+                if ($imageType === 'svg') {
+                    $this->imageSVG(self::IMAGE_PATH . $settings['logo'], null, null, $settings['logoWidth']);
                 }
                 else {
-                    $this->image(self::IMAGE_PATH . $configuration['logo'], null, null, $configuration['logoWidth']);
+                    $this->image(self::IMAGE_PATH . $settings['logo'], null, null, $settings['logoWidth']);
                 }
 
                 $imageY = $this->imageRBY;
             }
 
-            $cellHeight = $this->getCellHeight($font[2] / $this->factor);
+            $cellHeight = $this->cellHeight($font[2] / $this->factor);
 
             // Set starting margin for text data cell
-            $header_x = $this->originalLeftMargin + ($configuration['logoWidth'] * 1.1);
-            $cw       = $this->width - $this->originalLeftMargin - $this->originalRightMargin - ($configuration['logoWidth'] * 1.1);
+            $headerX   = $this->originalLeftMargin + ($settings['logoWidth'] * 1.1);
+            $cellWidth = $this->width - $this->originalLeftMargin - $this->originalRightMargin - ($settings['logoWidth'] * 1.1);
             $this->textColorArray($this->headerTextColor);
 
             // Title
-            $this->font($font[0], 'B', $font[2] + 1);
-            $this->x($header_x);
-            $this->cell($cw, $cellHeight, $configuration['title'], 0, 1, '', 0);
+            $this->font($font[0], self::BOLD, $font[2] + 1);
+            $this->x($headerX);
+            $this->cell($cellWidth, $cellHeight, $settings['title'], 0, 1, '', 0);
 
             // Subtitle
             $this->font($font[0], $font[1], $font[2]);
-            $this->x($header_x);
-            $this->MultiCell($cw, $cellHeight, $configuration['subtitle'], 0, '', 0, 1, '', '');
+            $this->x($headerX);
+            $this->multiCell($cellWidth, $cellHeight, $settings['subtitle'], 0, '', 0, 1, '', '');
 
             // Print an ending header line
-            $this->lineStyle(['width' => 0.85 / $this->factor, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $configuration['line_color']]);
+            $this->lineStyle(['width' => 0.85 / $this->factor, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $settings['lineColor']]);
             $this->y((2.835 / $this->factor) + max($imageY, $this->y));
             $this->x($this->originalLeftMargin);
             $this->cell(($this->width - $this->originalLeftMargin - $this->originalRightMargin), 0, '', 'T', 0, 'C');
@@ -196,13 +201,5 @@ trait Headers
         if ($this->headerXObjectAutoreset) {
             $this->headerXObjectID = '';
         }
-
-        $this->xy($this->originalLeftMargin, $this->topMargin);
-        $this->appendRestoreGraphicsState();
-        $this->lastPrintedCellHeight = $lastHeight;
-        $this->headerTemplate        = $template;
-        $this->headerTemplateMargins = $margins;
-        $this->newLine               = $newLine;
-        $this->inHeader              = false;
     }
 }

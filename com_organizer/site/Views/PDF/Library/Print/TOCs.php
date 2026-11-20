@@ -95,7 +95,7 @@ trait TOCs
             }
             $this->textColorArray($outline['c']);
             // check for page break
-            $this->checkPageBreak(2 * $this->getCellHeight($this->fontSize));
+            $this->checkPageBreak(2 * $this->cellHeight($this->fontSize));
             // set margins and X position
             if (($this->page == $current_page) and ($this->currentColumn == $currentColumn)) {
                 $this->leftMargin  = $lmargin;

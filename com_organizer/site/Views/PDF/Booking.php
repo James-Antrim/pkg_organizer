@@ -126,7 +126,7 @@ class Booking extends ListView
 
         $subTitle = implode("\n", $subTitle);
 
-        $this->headerConfig('pdf_logo.png', 55, $title, $subTitle);
+        $this->headerSettings('pdf_logo.png', 55, $title, $subTitle);
 
         parent::header();
     }

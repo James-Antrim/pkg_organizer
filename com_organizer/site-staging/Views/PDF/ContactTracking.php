@@ -104,7 +104,7 @@ class ContactTracking extends ListView
             }
         }
 
-        $this->headerConfig('pdf_logo.png', 55, $title, implode("\n", $subTitles));
+        $this->headerSettings('pdf_logo.png', 55, $title, implode("\n", $subTitles));
 
         parent::header();
     }

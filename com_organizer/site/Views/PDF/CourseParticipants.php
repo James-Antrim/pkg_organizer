@@ -60,7 +60,7 @@ class CourseParticipants extends ListView
         $dates     = $interval ? "$this->startDate - $this->endDate" : $this->startDate;
         $subHeader = $this->campus ? "$this->campus $dates" : $dates;
 
-        $this->headerConfig('pdf_logo.png', 55, $this->course, $subHeader);
+        $this->headerSettings('pdf_logo.png', 55, $this->course, $subHeader);
 
         parent::header();
     }

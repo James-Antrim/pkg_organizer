@@ -116,10 +116,7 @@ trait Footers
         $this->printFooter = $print;
     }
 
-    /**
-     * This method is used to render the page footer.
-     * It is automatically called by AddPage() and could be overwritten in your own inherited class.
-     */
+    /** Renders the page footer. */
     public function renderFooter(): void
     {
         $currentY = $this->y;

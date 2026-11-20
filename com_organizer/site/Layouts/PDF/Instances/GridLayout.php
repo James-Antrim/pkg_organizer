@@ -286,7 +286,7 @@ abstract class GridLayout extends BaseLayout
         /** @var iView $view */
         $view = $this->view;
 
-        $view->headerConfig('pdf_logo.png', 55, $view->title, $subTitle);
+        $view->headerSettings('pdf_logo.png', 55, $view->title, $subTitle);
         $view->addPage();
 
         if ($this->bookmark) {

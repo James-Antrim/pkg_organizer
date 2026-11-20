@@ -20,9 +20,26 @@ trait Cells
 
     protected float $cellHeightRatio = 1.25;
     protected float $cellLeftMargin = 0;
-    protected array $cellMargins = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
-    protected array $cellPaddings = ['T' => 0, 'R' => 0, 'B' => 0, 'L' => 0];
+    protected array $cellMargins = [self::BOTTOM => 0, self::LEFT => 0, self::RIGHT => 0, self::TOP => 0];
+    protected array $cellPaddings = [self::BOTTOM => 0, self::LEFT => 0, self::RIGHT => 0, self::TOP => 0];
     protected float $cellRightMargin = 0;
+
+    /**
+     * Calculate the cell height
+     * @param float $size    font size in user units
+     * @param bool  $padding whether to pad the cell
+     * @return float
+     */
+    public function cellHeight(float $size, bool $padding = true): float
+    {
+        $height = $size * $this->cellHeightRatio;
+
+        if ($padding and !empty($this->cellPaddings)) {
+            $height += $this->cellPaddings[self::BOTTOM] + $this->cellPaddings[self::TOP];
+        }
+
+        return round($height, 6);
+    }
 
     /**
      * Set the internal Cell margins.
@@ -110,7 +127,7 @@ trait Cells
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   setCurrentFont(), drawColor(), fillColor(), textColor(), lineWidth(), AddLink(), Ln(), MultiCell(), Write(), autoPageBreak()
+     * @see   setCurrentFont(), drawColor(), fillColor(), textColor(), lineWidth(), AddLink(), Ln(), multiCell(), Write(), autoPageBreak()
      */
     public function cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
@@ -118,7 +135,7 @@ trait Cells
         $previousPaddings = $this->cellPaddings;
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
-            $min_cell_height = $this->getCellHeight($this->fontSize);
+            $min_cell_height = $this->cellHeight($this->fontSize);
             if ($h < $min_cell_height) {
                 $h = $min_cell_height;
             }
@@ -305,7 +322,7 @@ trait Cells
         $rs               = ''; //string to be returned
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
-            $min_cell_height = $this->getCellHeight($this->fontSize);
+            $min_cell_height = $this->cellHeight($this->fontSize);
             if ($h < $min_cell_height) {
                 $h = $min_cell_height;
             }
@@ -866,7 +883,7 @@ trait Cells
      * @return int Return the number of cells or 1 for html mode.
      * @see   setCurrentFont(), drawColor(), fillColor(), textColor(), lineWidth(), cell(), Write(), autoPageBreak()
      */
-    public function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = 0, $valign = 'T', $fitcell = false)
+    public function multiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = 0, $valign = 'T', $fitcell = false)
     {
         $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;

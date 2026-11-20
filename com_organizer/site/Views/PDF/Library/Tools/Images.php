@@ -1882,7 +1882,7 @@ trait Images
      * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      * @author Nicola Asuni
      */
-    public function ImageSVG($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
+    public function imageSVG($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
     {
         if ($this->state !== self::READY) {
             return;
@@ -1900,7 +1900,7 @@ trait Images
         $this->svgtextmode   = [];
         if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
             // convert SVG to raster image using GD or ImageMagick libraries
-            return $this->image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
+            return $this->image($file, $x, $y, $w, $h, 'svg', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
         }
         if ($file[0] === '@') { // image from string
             $this->svgdir = '';
@@ -2008,7 +2008,7 @@ trait Images
         list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
         if ($this->rasterize_vector_images) {
             // convert SVG to raster image using GD or ImageMagick libraries
-            return $this->image($file, $x, $y, $w, $h, 'SVG', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
+            return $this->image($file, $x, $y, $w, $h, 'svg', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
         }
         // set alignment
         $this->imageRBY = $y + $h;
@@ -2531,8 +2531,8 @@ trait Images
         $fill_color = $this->htmlToColor($svgstyle['color']);
         $this->fillColorArray($fill_color);
         // text color
-        $text_color = $this->htmlToColor($svgstyle['text-color']);
-        $this->textColorArray($text_color);
+        $textColor = $this->htmlToColor($svgstyle['text-color']);
+        $this->textColorArray($textColor);
         // clip
         if (preg_match('/rect\(([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)[\s]*([a-z0-9\-\.]*)\)/si', $svgstyle['clip'], $regs)) {
             $top    = (isset($regs[1]) ? $this->fontSizeToUnits($regs[1], 0) : 0);
@@ -3377,7 +3377,7 @@ trait Images
                         $svgclipid     = $this->svgclipid;
                         $svgtext       = $this->svgtext;
                         $svgtextmode   = $this->svgtextmode;
-                        $this->ImageSVG($img, $x, $y, $w, $h);
+                        $this->imageSVG($img, $x, $y, $w, $h);
                         // restore SVG vars
                         $this->svggradients  = $svggradients;
                         $this->svggradientid = $svggradientid;
