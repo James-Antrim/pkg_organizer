@@ -5393,7 +5393,7 @@ trait WebTools
             'T' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
             'B' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]]);
         $this->fillColor(204);
-        $this->Cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
+        $this->cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
         --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];

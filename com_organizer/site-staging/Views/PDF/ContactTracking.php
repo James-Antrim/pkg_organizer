@@ -74,8 +74,8 @@ class ContactTracking extends ListView
 
         $this->x($this->originalLeftMargin);
         $text = Text::_('ORGANIZER_COVID_CONTACT');
-        $this->Cell(0, 0, $text, self::TOP, 0, self::CENTER);
-        $this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
+        $this->cell(0, 0, $text, self::TOP, 0, self::CENTER);
+        $this->cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
     }
 
     /** @inheritDoc */

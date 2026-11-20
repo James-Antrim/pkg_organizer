@@ -1122,7 +1122,7 @@ trait Images
             $by      = $this->y;
             $this->x = $ximg;
             $this->y = $y;
-            $this->Cell($width, $height, '', $border, 0, '', 0, '', 0, true);
+            $this->cell($width, $height, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
             $this->y = $by;
         }
@@ -1270,7 +1270,7 @@ trait Images
                     $tmpy = $this->y;
                 }
                 // print the text
-                $this->Cell($textlen, 0, $text, 0, 0, '', false, '', 0, false, 'L', 'T');
+                $this->cell($textlen, 0, $text, 0, 0, '', false, '', 0, false, 'L', 'T');
                 if ($name == 'text') {
                     // restore coordinates
                     $this->x = $tmpx;
@@ -1717,7 +1717,7 @@ trait Images
             $by      = $this->y;
             $this->x = $ximg;
             $this->y = $y;
-            $this->Cell($w, $h, '', $border, 0, '', 0, '', 0, true);
+            $this->cell($w, $h, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
             $this->y = $by;
         }
@@ -2153,7 +2153,7 @@ trait Images
             $by      = $this->y;
             $this->x = $ximg;
             $this->y = $y;
-            $this->Cell($w, $h, '', $border, 0, '', 0, '', 0, true);
+            $this->cell($w, $h, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
             $this->y = $by;
         }

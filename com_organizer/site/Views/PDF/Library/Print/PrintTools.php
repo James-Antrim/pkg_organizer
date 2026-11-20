@@ -29,7 +29,7 @@ trait PrintTools
      * Performs a line break. The current abscissa goes back to the left margin and the ordinate increases by the amount passed in parameter.
      * @param float|null $height The height of the break. By default, the value equals the height of the last printed cell.
      * @param bool       $cell   if true add the current left padding to the X coordinate
-     * @see   Cell()
+     * @see   cell()
      */
     public function lineBreak(float|null $height = null, bool $cell = false): void
     {
@@ -52,6 +52,28 @@ trait PrintTools
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /**
+     * Returns the string alias used right align page numbers.
+     * If the current font is unicode type, the returned string wil contain an additional open curly brace.
+     * @return string
+     */
+    public function getAliasRightShift()
+    {
+        // calculate aproximatively the ratio between widths of aliases and replacements.
+        $ref  = '{' . self::RIGHT_SHIFT_ALIAS . '}{' . self::TOTAL_PAGES_ALIAS . '}{' . self::PAGE_NUMBER_ALIAS . '}';
+        $rep  = str_repeat(' ', $this->GetNumChars($ref));
+        $wrep = $this->GetStringWidth($rep);
+        if ($wrep > 0) {
+            $wdiff = max(1, ($this->GetStringWidth($ref) / $wrep));
+        }
+        else {
+            $wdiff = 1;
+        }
+        $sdiff = sprintf('%F', $wdiff);
+        $alias = self::RIGHT_SHIFT_ALIAS . $sdiff . '}';
+        return $alias;
+    }
 
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED

@@ -250,7 +250,7 @@ abstract class GridLayout extends BaseLayout
         $this->layoutPage($startDate, $endDate);
         $endDate   = Helpers\Dates::formatDate($endDate);
         $startDate = Helpers\Dates::formatDate($startDate);
-        $this->view->Cell('', '', Text::sprintf('ORGANIZER_NO_INSTANCES', $startDate, $endDate));
+        $this->view->cell('', '', Text::sprintf('ORGANIZER_NO_INSTANCES', $startDate, $endDate));
     }
 
     /**

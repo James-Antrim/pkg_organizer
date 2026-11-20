@@ -28,21 +28,6 @@ abstract class BaseView extends PDF implements ViewInterface
     use Modeled;
     use Named;
 
-    // Alignment & Borders
-    public const ALL = 1,
-        BOTTOM = 'B',
-        CENTER = 'C',
-        GINSBERG = 'RB',
-        HORIZONTAL = 'BT',
-        JUSTIFY = 'J',
-        LEFT = 'L',
-        MIDDLE = 'M',
-        NONE = 0,
-        RIGHT = 'R',
-        TOP = 'T',
-        VERTICAL = 'LR';
-
-
     // Font Families
     public const COURIER = 'courier', CURRENT_FAMILY = '', HELVETICA = 'helvetica', TIMES = 'times';
 
@@ -181,7 +166,7 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param mixed  $link       URL or identifier returned by addLink().
      *
      * @return void renders the cell
-     * @see   addLink(), Cell()
+     * @see   addLink(), cell()
      */
     public function renderCell(
         int    $width,
@@ -194,7 +179,7 @@ abstract class BaseView extends PDF implements ViewInterface
         mixed  $link = ''
     ): void
     {
-        $this->Cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
+        $this->cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
     }
 
     /**
@@ -215,7 +200,7 @@ abstract class BaseView extends PDF implements ViewInterface
      *                              row
      *
      * @return int Return the number of cells or 1 for html mode.
-     * @see   Cell(), drawColor(),fillColor(), font(), textColor(), lineWidth(), autoPageBreak(), Write()
+     * @see   cell(), drawColor(),fillColor(), font(), textColor(), lineWidth(), autoPageBreak(), Write()
      */
     public function renderMultiCell(
         int    $width,

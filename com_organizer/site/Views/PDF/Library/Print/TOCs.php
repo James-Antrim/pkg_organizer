@@ -145,7 +145,7 @@ trait TOCs
             }
             $pagenum = $rowfill . $gap . $pagenum;
             // write the number
-            $this->Cell($tw, 0, $pagenum, 0, 1, $alignnum, 0, $link, 0);
+            $this->cell($tw, 0, $pagenum, 0, 1, $alignnum, 0, $link, 0);
         }
         $page_last = $this->getPage();
         $numpages  = ($page_last - $page_first + 1);

@@ -79,10 +79,6 @@ trait Footers
         return $this->footerBarcode;
     }
 
-#endregion
-#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
     /**
      * This method is used to render the page footer.
      * It is automatically called by AddPage() and could be overwritten in your own inherited class.
@@ -99,31 +95,29 @@ trait Footers
         if ($barcode = $this->footerBarcode()) {
             $this->lineBreak($lineWidth);
             $style = [
-                'align'        => 'L',
-                'bgColor'      => false,
-                'border'       => false,
-                'cellfitalign' => '',
-                'fgColor'      => self::BLACK,
-                'fitwidth'     => true,
-                'padding'      => 0,
-                'position'     => 'L',
-                'stretch'      => false,
-                'text'         => false
+                'align'       => 'L',
+                'bgColor'     => false,
+                'border'      => false,
+                'fgColor'     => self::BLACK,
+                'hAlign'      => '',
+                'padding'     => 0,
+                'position'    => 'L',
+                'reduceWidth' => true,
+                'stretch'     => false,
+                'text'        => false
             ];
             $this->write1DBarcode($barcode, 'C128', '', $currentY + $lineWidth, '', (($this->footer_margin / 3) - $lineWidth), 0.3, $style, '');
         }
-        $w_page = '';
-        if (empty($this->pageGroups)) {
-            $pagenumtxt = $w_page . $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
-        }
-        else {
-            $pagenumtxt = $w_page . $this->getPageNumGroupAlias() . ' / ' . $this->getPageGroupAlias();
-        }
+
         $this->y($currentY);
-        //Print page number
         $this->x($this->originalLeftMargin);
-        $this->Cell(0, 0, $this->getAliasRightShift() . $pagenumtxt, 'T', 0, 'R');
+
+        $pageNumberText = empty($this->pageGroups) ? self::PAGE_NUMBER_ALIAS . ' / ' . self::TOTAL_PAGES_ALIAS : self::PAGE_GROUP_NUMBER_ALIAS . ' / ' . self::PAGES_IN_GROUP_ALIAS;
+        $this->cell(0, 0, $this->getAliasRightShift() . $pageNumberText, self::TOP, 0, self::RIGHT);
     }
+
+#endregion
+#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 #endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED

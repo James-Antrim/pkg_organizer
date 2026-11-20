@@ -17,10 +17,24 @@ namespace THM\Organizer\Views\PDF\Library\Tools;
  */
 trait Constants
 {
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GENERAL
+#region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GENERAL
 
     // Used in multiple contexts.
     public const BOLD = 'B', REGULAR = '';
+
+    // Alignment & Borders
+    public const ALL = 1,
+        BOTTOM = 'B',
+        CENTER = 'C',
+        GINSBERG = 'RB',
+        HORIZONTAL = 'BT',
+        JUSTIFY = 'J',
+        LEFT = 'L',
+        MIDDLE = 'M',
+        NONE = 0,
+        RIGHT = 'R',
+        TOP = 'T',
+        VERTICAL = 'LR';
 
     /** Epsilon value used for float calculations. */
     public const EPSILON = 0.005, FACTOR = 2.8346456692913;
@@ -40,7 +54,8 @@ trait Constants
     public const UNITS = [self::CENTIMETER, self::INCH, self::MILLIMETER, self::POINT];
     public const POINTS_PER_CM = 28.35;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
+#endregion
+#region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
 
     public const BLACK = [0, 0, 0], BLUE = [0, 0, 255], GRAY = [128, 128, 128], WHITE = [255, 255, 255];
     private const COLOR_CONTEXTS = ['draw', 'fill', 'text'];
@@ -223,14 +238,16 @@ trait Constants
         'yellowgreen'          => '9acd32'
     ];
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////CONFIGURATION
+#endregion
+#region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////CONFIGURATION
 
     public const CACHE_PATH = JPATH_ROOT . '/tmp/';
     public const FONT_PATH = self::LIBRARY_PATH . 'Fonts/';
     public const IMAGE_PATH = JPATH_ROOT . '/components/com_organizer/images/';
     public const LIBRARY_PATH = JPATH_ROOT . '/components/com_organizer/Views/PDF/Library/';
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DESCRIPTIONS
+#endregion
+#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DESCRIPTIONS
 
     public const LINE_CAP_DESCRIPTIONS = [
         'butt'   => 'flat line ending',
@@ -297,7 +314,8 @@ trait Constants
         self::DEFAULT_ZOOM => 'uses viewer default zoom',
     ];
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ENCODING
+#endregion
+#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ENCODING
 
     public const ENCODING_MAPS = [
         'cp874'       => [0 => '.notdef', 1 => '.notdef', 2 => '.notdef', 3 => '.notdef', 4 => '.notdef', 5 => '.notdef', 6 => '.notdef', 7 => '.notdef', 8 => '.notdef', 9 => '.notdef', 10 => '.notdef', 11 => '.notdef', 12 => '.notdef', 13 => '.notdef', 14 => '.notdef', 15 => '.notdef', 16 => '.notdef', 17 => '.notdef', 18 => '.notdef', 19 => '.notdef', 20 => '.notdef', 21 => '.notdef', 22 => '.notdef', 23 => '.notdef', 24 => '.notdef', 25 => '.notdef', 26 => '.notdef', 27 => '.notdef', 28 => '.notdef', 29 => '.notdef', 30 => '.notdef', 31 => '.notdef', 32 => 'space', 33 => 'exclam', 34 => 'quotedbl', 35 => 'numbersign', 36 => 'dollar', 37 => 'percent', 38 => 'ampersand', 39 => 'quotesingle', 40 => 'parenleft', 41 => 'parenright', 42 => 'asterisk', 43 => 'plus', 44 => 'comma', 45 => 'hyphen', 46 => 'period', 47 => 'slash', 48 => 'zero', 49 => 'one', 50 => 'two', 51 => 'three', 52 => 'four', 53 => 'five', 54 => 'six', 55 => 'seven', 56 => 'eight', 57 => 'nine', 58 => 'colon', 59 => 'semicolon', 60 => 'less', 61 => 'equal', 62 => 'greater', 63 => 'question', 64 => 'at', 65 => 'A', 66 => 'B', 67 => 'C', 68 => 'D', 69 => 'E', 70 => 'F', 71 => 'G', 72 => 'H', 73 => 'I', 74 => 'J', 75 => 'K', 76 => 'L', 77 => 'M', 78 => 'N', 79 => 'O', 80 => 'P', 81 => 'Q', 82 => 'R', 83 => 'S', 84 => 'T', 85 => 'U', 86 => 'V', 87 => 'W', 88 => 'X', 89 => 'Y', 90 => 'Z', 91 => 'bracketleft', 92 => 'backslash', 93 => 'bracketright', 94 => 'asciicircum', 95 => 'underscore', 96 => 'grave', 97 => 'a', 98 => 'b', 99 => 'c', 100 => 'd', 101 => 'e', 102 => 'f', 103 => 'g', 104 => 'h', 105 => 'i', 106 => 'j', 107 => 'k', 108 => 'l', 109 => 'm', 110 => 'n', 111 => 'o', 112 => 'p', 113 => 'q', 114 => 'r', 115 => 's', 116 => 't', 117 => 'u', 118 => 'v', 119 => 'w', 120 => 'x', 121 => 'y', 122 => 'z', 123 => 'braceleft', 124 => 'bar', 125 => 'braceright', 126 => 'asciitilde', 127 => '.notdef', 128 => 'Euro', 129 => '.notdef', 130 => '.notdef', 131 => '.notdef', 132 => '.notdef', 133 => 'ellipsis', 134 => '.notdef', 135 => '.notdef', 136 => '.notdef', 137 => '.notdef', 138 => '.notdef', 139 => '.notdef', 140 => '.notdef', 141 => '.notdef', 142 => '.notdef', 143 => '.notdef', 144 => '.notdef', 145 => 'quoteleft', 146 => 'quoteright', 147 => 'quotedblleft', 148 => 'quotedblright', 149 => 'bullet', 150 => 'endash', 151 => 'emdash', 152 => '.notdef', 153 => '.notdef', 154 => '.notdef', 155 => '.notdef', 156 => '.notdef', 157 => '.notdef', 158 => '.notdef', 159 => '.notdef', 160 => 'space', 161 => 'kokaithai', 162 => 'khokhaithai', 163 => 'khokhuatthai', 164 => 'khokhwaithai', 165 => 'khokhonthai', 166 => 'khorakhangthai', 167 => 'ngonguthai', 168 => 'chochanthai', 169 => 'chochingthai', 170 => 'chochangthai', 171 => 'sosothai', 172 => 'chochoethai', 173 => 'yoyingthai', 174 => 'dochadathai', 175 => 'topatakthai', 176 => 'thothanthai', 177 => 'thonangmonthothai', 178 => 'thophuthaothai', 179 => 'nonenthai', 180 => 'dodekthai', 181 => 'totaothai', 182 => 'thothungthai', 183 => 'thothahanthai', 184 => 'thothongthai', 185 => 'nonuthai', 186 => 'bobaimaithai', 187 => 'poplathai', 188 => 'phophungthai', 189 => 'fofathai', 190 => 'phophanthai', 191 => 'fofanthai', 192 => 'phosamphaothai', 193 => 'momathai', 194 => 'yoyakthai', 195 => 'roruathai', 196 => 'ruthai', 197 => 'lolingthai', 198 => 'luthai', 199 => 'wowaenthai', 200 => 'sosalathai', 201 => 'sorusithai', 202 => 'sosuathai', 203 => 'hohipthai', 204 => 'lochulathai', 205 => 'oangthai', 206 => 'honokhukthai', 207 => 'paiyannoithai', 208 => 'saraathai', 209 => 'maihanakatthai', 210 => 'saraaathai', 211 => 'saraamthai', 212 => 'saraithai', 213 => 'saraiithai', 214 => 'sarauethai', 215 => 'saraueethai', 216 => 'sarauthai', 217 => 'sarauuthai', 218 => 'phinthuthai', 219 => '.notdef', 220 => '.notdef', 221 => '.notdef', 222 => '.notdef', 223 => 'bahtthai', 224 => 'saraethai', 225 => 'saraaethai', 226 => 'saraothai', 227 => 'saraaimaimuanthai', 228 => 'saraaimaimalaithai', 229 => 'lakkhangyaothai', 230 => 'maiyamokthai', 231 => 'maitaikhuthai', 232 => 'maiekthai', 233 => 'maithothai', 234 => 'maitrithai', 235 => 'maichattawathai', 236 => 'thanthakhatthai', 237 => 'nikhahitthai', 238 => 'yamakkanthai', 239 => 'fongmanthai', 240 => 'zerothai', 241 => 'onethai', 242 => 'twothai', 243 => 'threethai', 244 => 'fourthai', 245 => 'fivethai', 246 => 'sixthai', 247 => 'seventhai', 248 => 'eightthai', 249 => 'ninethai', 250 => 'angkhankhuthai', 251 => 'khomutthai', 252 => '.notdef', 253 => '.notdef', 254 => '.notdef', 255 => '.notdef'],
@@ -358,7 +376,8 @@ trait Constants
         382  => 158   # zcaron2
     ];
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FONTS
+#endregion
+#region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////FONTS
 
     public const CORE_FONTS = [
         'courier'      => 'Courier',
@@ -385,10 +404,11 @@ trait Constants
 
     public const SMALL_FONT_RATIO = 2 / 3;
 
+#endregion
+#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GEOMETRY
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GEOMETRY
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IMAGES
+#endregion
+#region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IMAGES
 
 
     public const SVG_PROPERTIES = [
@@ -400,8 +420,8 @@ trait Constants
         'word-spacing', 'writing-mode'
     ];
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PAGES
+#endregion
+#region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PAGES
 
 
     public const LANDSCAPE = 'L', PORTRAIT = 'P';
@@ -770,7 +790,8 @@ trait Constants
     public const FULL_PAGE = 'fullpage', FULL_WIDTH = 'fullwidth', REAL_SIZE = 'real', DEFAULT_ZOOM = 'default';
     public const PAGE_ZOOMS = [self::FULL_PAGE, self::FULL_WIDTH, self::REAL_SIZE, self::DEFAULT_ZOOM];
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PRINTING
+#endregion
+#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PRINTING
 
     public const BYTE_RANGE_STRING = '/ByteRange[0 ********** ********** **********]';
     public const DOWNLOAD = 'D', INLINE = 'I';
@@ -781,7 +802,8 @@ trait Constants
     /** Alias for right shift compensation used to correctly align page numbers on the right. */
     public const RIGHT_SHIFT_ALIAS = '{rsc:';
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////STYLES
+#endregion
+#region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////STYLES
 
 
     // BOLD is dual use with font styles.
@@ -824,363 +846,8 @@ trait Constants
         self::FILL_DRAW, self::FILL_DRAW_CLOSE, self::FILL_DRAW_CLOSE_EO, self::FILL_DRAW_EO,
     ];
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNICODE
-
-    public const LTR_EMBEDDING = 8234, LTR_MARK = 8206, LTR_OVERRIDE = 8237, POP_DIRECTIONAL_FORMAT = 8236, RTL_EMBEDDING = 8235, RTL_MARK = 8207, RTL_OVERRIDE = 8238;
-
-    public const MIRROR_CHARACTERS = [
-        0x0028 => 0x0029,
-        0x0029 => 0x0028,
-        0x003C => 0x003E,
-        0x003E => 0x003C,
-        0x005B => 0x005D,
-        0x005D => 0x005B,
-        0x007B => 0x007D,
-        0x007D => 0x007B,
-        0x00AB => 0x00BB,
-        0x00BB => 0x00AB,
-        0x0F3A => 0x0F3B,
-        0x0F3B => 0x0F3A,
-        0x0F3C => 0x0F3D,
-        0x0F3D => 0x0F3C,
-        0x169B => 0x169C,
-        0x169C => 0x169B,
-        0x2018 => 0x2019,
-        0x2019 => 0x2018,
-        0x201C => 0x201D,
-        0x201D => 0x201C,
-        0x2039 => 0x203A,
-        0x203A => 0x2039,
-        0x2045 => 0x2046,
-        0x2046 => 0x2045,
-        0x207D => 0x207E,
-        0x207E => 0x207D,
-        0x208D => 0x208E,
-        0x208E => 0x208D,
-        0x2208 => 0x220B,
-        0x2209 => 0x220C,
-        0x220A => 0x220D,
-        0x220B => 0x2208,
-        0x220C => 0x2209,
-        0x220D => 0x220A,
-        0x2215 => 0x29F5,
-        0x223C => 0x223D,
-        0x223D => 0x223C,
-        0x2243 => 0x22CD,
-        0x2252 => 0x2253,
-        0x2253 => 0x2252,
-        0x2254 => 0x2255,
-        0x2255 => 0x2254,
-        0x2264 => 0x2265,
-        0x2265 => 0x2264,
-        0x2266 => 0x2267,
-        0x2267 => 0x2266,
-        0x2268 => 0x2269,
-        0x2269 => 0x2268,
-        0x226A => 0x226B,
-        0x226B => 0x226A,
-        0x226E => 0x226F,
-        0x226F => 0x226E,
-        0x2270 => 0x2271,
-        0x2271 => 0x2270,
-        0x2272 => 0x2273,
-        0x2273 => 0x2272,
-        0x2274 => 0x2275,
-        0x2275 => 0x2274,
-        0x2276 => 0x2277,
-        0x2277 => 0x2276,
-        0x2278 => 0x2279,
-        0x2279 => 0x2278,
-        0x227A => 0x227B,
-        0x227B => 0x227A,
-        0x227C => 0x227D,
-        0x227D => 0x227C,
-        0x227E => 0x227F,
-        0x227F => 0x227E,
-        0x2280 => 0x2281,
-        0x2281 => 0x2280,
-        0x2282 => 0x2283,
-        0x2283 => 0x2282,
-        0x2284 => 0x2285,
-        0x2285 => 0x2284,
-        0x2286 => 0x2287,
-        0x2287 => 0x2286,
-        0x2288 => 0x2289,
-        0x2289 => 0x2288,
-        0x228A => 0x228B,
-        0x228B => 0x228A,
-        0x228F => 0x2290,
-        0x2290 => 0x228F,
-        0x2291 => 0x2292,
-        0x2292 => 0x2291,
-        0x2298 => 0x29B8,
-        0x22A2 => 0x22A3,
-        0x22A3 => 0x22A2,
-        0x22A6 => 0x2ADE,
-        0x22A8 => 0x2AE4,
-        0x22A9 => 0x2AE3,
-        0x22AB => 0x2AE5,
-        0x22B0 => 0x22B1,
-        0x22B1 => 0x22B0,
-        0x22B2 => 0x22B3,
-        0x22B3 => 0x22B2,
-        0x22B4 => 0x22B5,
-        0x22B5 => 0x22B4,
-        0x22B6 => 0x22B7,
-        0x22B7 => 0x22B6,
-        0x22C9 => 0x22CA,
-        0x22CA => 0x22C9,
-        0x22CB => 0x22CC,
-        0x22CC => 0x22CB,
-        0x22CD => 0x2243,
-        0x22D0 => 0x22D1,
-        0x22D1 => 0x22D0,
-        0x22D6 => 0x22D7,
-        0x22D7 => 0x22D6,
-        0x22D8 => 0x22D9,
-        0x22D9 => 0x22D8,
-        0x22DA => 0x22DB,
-        0x22DB => 0x22DA,
-        0x22DC => 0x22DD,
-        0x22DD => 0x22DC,
-        0x22DE => 0x22DF,
-        0x22DF => 0x22DE,
-        0x22E0 => 0x22E1,
-        0x22E1 => 0x22E0,
-        0x22E2 => 0x22E3,
-        0x22E3 => 0x22E2,
-        0x22E4 => 0x22E5,
-        0x22E5 => 0x22E4,
-        0x22E6 => 0x22E7,
-        0x22E7 => 0x22E6,
-        0x22E8 => 0x22E9,
-        0x22E9 => 0x22E8,
-        0x22EA => 0x22EB,
-        0x22EB => 0x22EA,
-        0x22EC => 0x22ED,
-        0x22ED => 0x22EC,
-        0x22F0 => 0x22F1,
-        0x22F1 => 0x22F0,
-        0x22F2 => 0x22FA,
-        0x22F3 => 0x22FB,
-        0x22F4 => 0x22FC,
-        0x22F6 => 0x22FD,
-        0x22F7 => 0x22FE,
-        0x22FA => 0x22F2,
-        0x22FB => 0x22F3,
-        0x22FC => 0x22F4,
-        0x22FD => 0x22F6,
-        0x22FE => 0x22F7,
-        0x2308 => 0x2309,
-        0x2309 => 0x2308,
-        0x230A => 0x230B,
-        0x230B => 0x230A,
-        0x2329 => 0x232A,
-        0x232A => 0x2329,
-        0x2768 => 0x2769,
-        0x2769 => 0x2768,
-        0x276A => 0x276B,
-        0x276B => 0x276A,
-        0x276C => 0x276D,
-        0x276D => 0x276C,
-        0x276E => 0x276F,
-        0x276F => 0x276E,
-        0x2770 => 0x2771,
-        0x2771 => 0x2770,
-        0x2772 => 0x2773,
-        0x2773 => 0x2772,
-        0x2774 => 0x2775,
-        0x2775 => 0x2774,
-        0x27C3 => 0x27C4,
-        0x27C4 => 0x27C3,
-        0x27C5 => 0x27C6,
-        0x27C6 => 0x27C5,
-        0x27D5 => 0x27D6,
-        0x27D6 => 0x27D5,
-        0x27DD => 0x27DE,
-        0x27DE => 0x27DD,
-        0x27E2 => 0x27E3,
-        0x27E3 => 0x27E2,
-        0x27E4 => 0x27E5,
-        0x27E5 => 0x27E4,
-        0x27E6 => 0x27E7,
-        0x27E7 => 0x27E6,
-        0x27E8 => 0x27E9,
-        0x27E9 => 0x27E8,
-        0x27EA => 0x27EB,
-        0x27EB => 0x27EA,
-        0x2983 => 0x2984,
-        0x2984 => 0x2983,
-        0x2985 => 0x2986,
-        0x2986 => 0x2985,
-        0x2987 => 0x2988,
-        0x2988 => 0x2987,
-        0x2989 => 0x298A,
-        0x298A => 0x2989,
-        0x298B => 0x298C,
-        0x298C => 0x298B,
-        0x298D => 0x2990,
-        0x298E => 0x298F,
-        0x298F => 0x298E,
-        0x2990 => 0x298D,
-        0x2991 => 0x2992,
-        0x2992 => 0x2991,
-        0x2993 => 0x2994,
-        0x2994 => 0x2993,
-        0x2995 => 0x2996,
-        0x2996 => 0x2995,
-        0x2997 => 0x2998,
-        0x2998 => 0x2997,
-        0x29B8 => 0x2298,
-        0x29C0 => 0x29C1,
-        0x29C1 => 0x29C0,
-        0x29C4 => 0x29C5,
-        0x29C5 => 0x29C4,
-        0x29CF => 0x29D0,
-        0x29D0 => 0x29CF,
-        0x29D1 => 0x29D2,
-        0x29D2 => 0x29D1,
-        0x29D4 => 0x29D5,
-        0x29D5 => 0x29D4,
-        0x29D8 => 0x29D9,
-        0x29D9 => 0x29D8,
-        0x29DA => 0x29DB,
-        0x29DB => 0x29DA,
-        0x29F5 => 0x2215,
-        0x29F8 => 0x29F9,
-        0x29F9 => 0x29F8,
-        0x29FC => 0x29FD,
-        0x29FD => 0x29FC,
-        0x2A2B => 0x2A2C,
-        0x2A2C => 0x2A2B,
-        0x2A2D => 0x2A2E,
-        0x2A2E => 0x2A2D,
-        0x2A34 => 0x2A35,
-        0x2A35 => 0x2A34,
-        0x2A3C => 0x2A3D,
-        0x2A3D => 0x2A3C,
-        0x2A64 => 0x2A65,
-        0x2A65 => 0x2A64,
-        0x2A79 => 0x2A7A,
-        0x2A7A => 0x2A79,
-        0x2A7D => 0x2A7E,
-        0x2A7E => 0x2A7D,
-        0x2A7F => 0x2A80,
-        0x2A80 => 0x2A7F,
-        0x2A81 => 0x2A82,
-        0x2A82 => 0x2A81,
-        0x2A83 => 0x2A84,
-        0x2A84 => 0x2A83,
-        0x2A8B => 0x2A8C,
-        0x2A8C => 0x2A8B,
-        0x2A91 => 0x2A92,
-        0x2A92 => 0x2A91,
-        0x2A93 => 0x2A94,
-        0x2A94 => 0x2A93,
-        0x2A95 => 0x2A96,
-        0x2A96 => 0x2A95,
-        0x2A97 => 0x2A98,
-        0x2A98 => 0x2A97,
-        0x2A99 => 0x2A9A,
-        0x2A9A => 0x2A99,
-        0x2A9B => 0x2A9C,
-        0x2A9C => 0x2A9B,
-        0x2AA1 => 0x2AA2,
-        0x2AA2 => 0x2AA1,
-        0x2AA6 => 0x2AA7,
-        0x2AA7 => 0x2AA6,
-        0x2AA8 => 0x2AA9,
-        0x2AA9 => 0x2AA8,
-        0x2AAA => 0x2AAB,
-        0x2AAB => 0x2AAA,
-        0x2AAC => 0x2AAD,
-        0x2AAD => 0x2AAC,
-        0x2AAF => 0x2AB0,
-        0x2AB0 => 0x2AAF,
-        0x2AB3 => 0x2AB4,
-        0x2AB4 => 0x2AB3,
-        0x2ABB => 0x2ABC,
-        0x2ABC => 0x2ABB,
-        0x2ABD => 0x2ABE,
-        0x2ABE => 0x2ABD,
-        0x2ABF => 0x2AC0,
-        0x2AC0 => 0x2ABF,
-        0x2AC1 => 0x2AC2,
-        0x2AC2 => 0x2AC1,
-        0x2AC3 => 0x2AC4,
-        0x2AC4 => 0x2AC3,
-        0x2AC5 => 0x2AC6,
-        0x2AC6 => 0x2AC5,
-        0x2ACD => 0x2ACE,
-        0x2ACE => 0x2ACD,
-        0x2ACF => 0x2AD0,
-        0x2AD0 => 0x2ACF,
-        0x2AD1 => 0x2AD2,
-        0x2AD2 => 0x2AD1,
-        0x2AD3 => 0x2AD4,
-        0x2AD4 => 0x2AD3,
-        0x2AD5 => 0x2AD6,
-        0x2AD6 => 0x2AD5,
-        0x2ADE => 0x22A6,
-        0x2AE3 => 0x22A9,
-        0x2AE4 => 0x22A8,
-        0x2AE5 => 0x22AB,
-        0x2AEC => 0x2AED,
-        0x2AED => 0x2AEC,
-        0x2AF7 => 0x2AF8,
-        0x2AF8 => 0x2AF7,
-        0x2AF9 => 0x2AFA,
-        0x2AFA => 0x2AF9,
-        0x2E02 => 0x2E03,
-        0x2E03 => 0x2E02,
-        0x2E04 => 0x2E05,
-        0x2E05 => 0x2E04,
-        0x2E09 => 0x2E0A,
-        0x2E0A => 0x2E09,
-        0x2E0C => 0x2E0D,
-        0x2E0D => 0x2E0C,
-        0x2E1C => 0x2E1D,
-        0x2E1D => 0x2E1C,
-        0x3008 => 0x3009,
-        0x3009 => 0x3008,
-        0x300A => 0x300B,
-        0x300B => 0x300A,
-        0x300C => 0x300D,
-        0x300D => 0x300C,
-        0x300E => 0x300F,
-        0x300F => 0x300E,
-        0x3010 => 0x3011,
-        0x3011 => 0x3010,
-        0x3014 => 0x3015,
-        0x3015 => 0x3014,
-        0x3016 => 0x3017,
-        0x3017 => 0x3016,
-        0x3018 => 0x3019,
-        0x3019 => 0x3018,
-        0x301A => 0x301B,
-        0x301B => 0x301A,
-        0x301D => 0x301E,
-        0x301E => 0x301D,
-        0xFE59 => 0xFE5A,
-        0xFE5A => 0xFE59,
-        0xFE5B => 0xFE5C,
-        0xFE5C => 0xFE5B,
-        0xFE5D => 0xFE5E,
-        0xFE5E => 0xFE5D,
-        0xFE64 => 0xFE65,
-        0xFE65 => 0xFE64,
-        0xFF08 => 0xFF09,
-        0xFF09 => 0xFF08,
-        0xFF1C => 0xFF1E,
-        0xFF1E => 0xFF1C,
-        0xFF3B => 0xFF3D,
-        0xFF3D => 0xFF3B,
-        0xFF5B => 0xFF5D,
-        0xFF5D => 0xFF5B,
-        0xFF5F => 0xFF60,
-        0xFF60 => 0xFF5F,
-        0xFF62 => 0xFF63,
-        0xFF63 => 0xFF62];
+#endregion
+#region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNICODE
 
     public const UNICODE_TYPES = [
         0       => 'BN',
@@ -18905,8 +18572,8 @@ trait Constants
         1114109 => 'L'
     ];
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////WEB
+#endregion
+#region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////WEB
 
 
     private const ELEMENT = 'em', PERCENT = '%', PICA = 'pc', PIXEL = 'px', RELATIVE_X = 'ex';
@@ -18919,4 +18586,6 @@ trait Constants
      * @see self::UNITS
      */
     private const WEB_UNITS = [self::CENTIMETER, self::ELEMENT, self::INCH, self::MILLIMETER, self::PERCENT, self::PIXEL, self::POINT, self::RELATIVE_X];
+
+#endregion
 }

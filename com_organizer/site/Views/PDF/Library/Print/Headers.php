@@ -170,7 +170,7 @@ trait Headers
             // Title
             $this->font($font[0], 'B', $font[2] + 1);
             $this->x($header_x);
-            $this->Cell($cw, $cellHeight, $configuration['title'], 0, 1, '', 0);
+            $this->cell($cw, $cellHeight, $configuration['title'], 0, 1, '', 0);
 
             // Subtitle
             $this->font($font[0], $font[1], $font[2]);
@@ -181,7 +181,7 @@ trait Headers
             $this->lineStyle(['width' => 0.85 / $this->factor, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $configuration['line_color']]);
             $this->y((2.835 / $this->factor) + max($imageY, $this->y));
             $this->x($this->originalLeftMargin);
-            $this->Cell(($this->width - $this->originalLeftMargin - $this->originalRightMargin), 0, '', 'T', 0, 'C');
+            $this->cell(($this->width - $this->originalLeftMargin - $this->originalRightMargin), 0, '', 'T', 0, 'C');
             $this->endTemplate();
         }
 

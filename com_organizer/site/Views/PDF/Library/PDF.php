@@ -402,7 +402,7 @@ class PDF
             $this->setTextRenderingMode(0, false, false);
             $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
             $lnk = "\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67";
-            $this->Cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
+            $this->cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
             $this->appendRestoreGraphicsState();
             // restore graphic settings
             $this->graphicsSettings($gvars);
@@ -1183,7 +1183,7 @@ class PDF
     /**
      * Creates a new internal link and returns its identifier. An internal link is a clickable area which directs to another place within the document.<br />
      * The identifier can then be passed to Cell(), Write(), Image() or Link(). The destination is defined with SetLink().
-     * @see   Cell(), Write(), image(), Link(), SetLink()
+     * @see   cell(), Write(), image(), Link(), SetLink()
      */
     public function AddLink()
     {
@@ -1226,7 +1226,7 @@ class PDF
      * @param float $h      Height of the rectangle
      * @param mixed $link   URL or identifier returned by AddLink()
      * @param int   $spaces number of spaces on the text to link
-     * @see   AddLink(), Annotation(), Cell(), Write(), image()
+     * @see   AddLink(), Annotation(), cell(), Write(), image()
      */
     public function Link($x, $y, $w, $h, $link, $spaces = 0)
     {
@@ -1383,7 +1383,7 @@ class PDF
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   Cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
+     * @see   cell(), Write(), MultiCell(), WriteHTML(), WriteHTMLCell()
      */
     public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
@@ -1391,7 +1391,7 @@ class PDF
         $textstrokewidth = $this->textstrokewidth;
         $this->setTextRenderingMode($fstroke, $ffill, $fclip);
         $this->xy($x, $y);
-        $this->Cell(0, 0, $txt, $border, $ln, $align, $fill, $link, $stretch, $ignore_min_height, $calign, $valign);
+        $this->cell(0, 0, $txt, $border, $ln, $align, $fill, $link, $stretch, $ignore_min_height, $calign, $valign);
         // restore previous rendering mode
         $this->textrendermode  = $textrendermode;
         $this->textstrokewidth = $textstrokewidth;
@@ -1683,7 +1683,7 @@ class PDF
                 }
                 // Skip newlines at the beginning of a page or column
                 if (!empty($tmpstr) or ($this->y < ($this->breakTrigger - $row_height))) {
-                    $this->Cell($w, $h, $tmpstr, 0, 1, $talign, $fill, $link, $stretch);
+                    $this->cell($w, $h, $tmpstr, 0, 1, $talign, $fill, $link, $stretch);
                 }
                 unset($tmpstr);
                 if ($firstline) {
@@ -1755,7 +1755,7 @@ class PDF
                         // check if the line was already started
                         if ($this->x >= ($this->leftMargin + $this->cellPaddings['L'] + $margin['L'] + $chrwidth)) {
                             // print a void cell and go to next line
-                            $this->Cell($w, $h, '', 0, 1);
+                            $this->cell($w, $h, '', 0, 1);
                             $linebreak = true;
                             if ($firstline) {
                                 return ($this->unicodeSliceToString($uchars, $j));
@@ -1776,7 +1776,7 @@ class PDF
                                     $this->cellPadding(0);
                                 }
                             }
-                            $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
+                            $this->cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
                                 $this->cellPaddings = $tmpcellpadding;
@@ -1807,7 +1807,7 @@ class PDF
                                     $this->cellPadding(0);
                                 }
                             }
-                            $this->Cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
+                            $this->cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
                                 $this->cellPaddings = $tmpcellpadding;
@@ -1843,7 +1843,7 @@ class PDF
                                 }
                             }
                             // print the line
-                            $this->Cell($w, $h, $shy_char_left . $tmpstr . $shy_char_right, 0, 1, $align, $fill, $link, $stretch);
+                            $this->cell($w, $h, $shy_char_left . $tmpstr . $shy_char_right, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
                                 if ($chars[$sep] == 45) {
@@ -1910,7 +1910,7 @@ class PDF
                     $this->cellPadding(0);
                 }
             }
-            $this->Cell($w, $h, $tmpstr, 0, $ln, $align, $fill, $link, $stretch);
+            $this->cell($w, $h, $tmpstr, 0, $ln, $align, $fill, $link, $stretch);
             unset($tmpstr);
             if ($firstline) {
                 $this->cellPaddings = $tmpcellpadding;
@@ -3824,50 +3824,6 @@ class PDF
     }
 
     /**
-     * Returns the string alias used for the total number of pages.
-     * If the current font is unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the total number of pages in the document.
-     * @return string
-     */
-    public function getAliasNbPages()
-    {
-        return self::TOTAL_PAGES_ALIAS;
-    }
-
-    /**
-     * Returns the string alias used for the page number.
-     * If the current font is unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the page number.
-     * @return string
-     */
-    public function getAliasNumPage()
-    {
-        return self::PAGE_NUMBER_ALIAS;
-    }
-
-    /**
-     * Return the alias for the total number of pages in the current page group.
-     * If the current font is unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the total number of pages in this group.
-     * @return string alias of the current page group
-     */
-    public function getPageGroupAlias()
-    {
-        return self::PAGES_IN_GROUP_ALIAS;
-    }
-
-    /**
-     * Return the alias for the page number on the current page group.
-     * If the current font is unicode type, the returned string is surrounded by additional curly braces.
-     * This alias will be replaced by the page number (relative to the belonging group).
-     * @return string alias of the current page group
-     */
-    public function getPageNumGroupAlias()
-    {
-        return self::PAGE_GROUP_NUMBER_ALIAS;
-    }
-
-    /**
      * Return the current page in the group.
      * @return int current page in the group
      * @public
@@ -4975,8 +4931,8 @@ class PDF
      *                          <li>string $style['position'] horizontal position of the containing barcode cell on the page: L = left margin; C = center; R = right margin.</li>
      *                          <li>string $style['align'] horizontal position of the barcode on the containing rectangle: L = left; C = center; R = right.</li>
      *                          <li>string $style['stretch'] if true stretch the barcode to best fit the available width, otherwise uses $xres resolution for a single bar.</li>
-     *                          <li>string $style['fitwidth'] if true reduce the width to fit the barcode width + padding. When this option is enabled the 'stretch' option is automatically disabled.</li>
-     *                          <li>string $style['cellfitalign'] this option works only when 'fitwidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
+     *                          <li>string $style['reduceWidth'] if true reduce the width to fit the barcode width + padding. When this option is enabled the 'stretch' option is automatically disabled.</li>
+     *                          <li>string $style['hAlign'] this option works only when 'reduceWidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
      * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @author Nicola Asuni
      */
@@ -5005,15 +4961,15 @@ class PDF
             $style['position'] = '';
             $style['stretch']  = true;
         }
-        if (!isset($style['fitwidth'])) {
+        if (!isset($style['reduceWidth'])) {
             if (!isset($style['stretch'])) {
-                $style['fitwidth'] = true;
+                $style['reduceWidth'] = true;
             }
             else {
-                $style['fitwidth'] = false;
+                $style['reduceWidth'] = false;
             }
         }
-        if ($style['fitwidth']) {
+        if ($style['reduceWidth']) {
             // disable stretch
             $style['stretch'] = false;
         }
@@ -5109,11 +5065,11 @@ class PDF
                 }
             }
         }
-        if ($style['fitwidth']) {
+        if ($style['reduceWidth']) {
             $wold = $w;
             $w    = (($arrcode['maxw'] * $xres) + (2 * $hpadding));
-            if (isset($style['cellfitalign'])) {
-                switch ($style['cellfitalign']) {
+            if (isset($style['hAlign'])) {
+                switch ($style['hAlign']) {
                     case 'R':
                     {
                         $x += ($wold - $w);
@@ -5228,7 +5184,7 @@ class PDF
             $this->y     = $y + $vpadding + $barh;
             $cellpadding = $this->cellPaddings;
             $this->cellPadding(0);
-            $this->Cell($txtwidth, 0, $label, 0, 0, 'C', false, '', $style['stretchtext'], false, 'T', 'T');
+            $this->cell($txtwidth, 0, $label, 0, 0, 'C', false, '', $style['stretchtext'], false, 'T', 'T');
             $this->cellPaddings = $cellpadding;
         }
         // restore previous settings
