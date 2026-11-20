@@ -656,11 +656,6 @@ class PDF
     protected $creator = '';
 
     /**
-     * Barcode to print on page footer (only if set).
-     */
-    protected $barcode = false;
-
-    /**
      * Text shadow data array.
      */
     protected $txtshadow = ['enabled' => false, 'depth_w' => 0, 'depth_h' => 0, 'color' => false, 'opacity' => 1, 'blend_mode' => 'Normal'];
@@ -4955,24 +4950,6 @@ class PDF
                 $this->extgstates[] = ['n' => $this->objectNumber, 'name' => 'TGS' . $id];
             }
         }
-    }
-
-    /**
-     * Set document barcode.
-     * @param string $bc barcode
-     */
-    public function setBarcode($bc = '')
-    {
-        $this->barcode = $bc;
-    }
-
-    /**
-     * Get current barcode.
-     * @return string
-     */
-    public function getBarcode()
-    {
-        return $this->barcode;
     }
 
     /**

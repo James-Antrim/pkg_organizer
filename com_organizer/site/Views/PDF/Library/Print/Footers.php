@@ -17,6 +17,7 @@ trait Footers
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
 
     protected bool $inFooter = false;
+    protected string $footerBarcode = '';
     protected array $footerPositions = [];
     protected bool $printFooter = true;
 
@@ -68,6 +69,16 @@ trait Footers
         $this->inFooter = false;
     }
 
+    /**
+     * Getter / setter for footer barcode.
+     * @param string $code barcode
+     */
+    public function footerBarcode(string $code = ''): string
+    {
+        $this->footerBarcode = $code ?: $this->footerBarcode;
+        return $this->footerBarcode;
+    }
+
 #endregion
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
@@ -84,13 +95,10 @@ trait Footers
         $lineWidth = 0.85 / $this->factor;
         $this->lineStyle(['width' => $lineWidth, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $this->footerLineColor]);
 
-        //print document barcode
-        $barcode = $this->getBarcode();
-
-        if (!empty($barcode)) {
+        //Print document barcode
+        if ($barcode = $this->footerBarcode()) {
             $this->lineBreak($lineWidth);
-            $barcode_width = round(($this->width - $this->originalLeftMargin - $this->originalRightMargin) / 3);
-            $style         = [
+            $style = [
                 'align'        => 'L',
                 'bgColor'      => false,
                 'border'       => false,
