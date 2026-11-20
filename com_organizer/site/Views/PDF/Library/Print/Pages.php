@@ -354,6 +354,11 @@ trait Pages
     protected $pageopen = [];
 
     /**
+     * Starting page number.
+     */
+    protected $starting_page_number = 1;
+
+    /**
      * Initialize a new page.
      * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().

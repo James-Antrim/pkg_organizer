@@ -552,11 +552,6 @@ class PDF
     protected $images = [];
 
     /**
-     * Depth of the svg tag, to keep track if the svg tag is a subtag or the root tag.
-     */
-    protected $svg_tag_depth = 0;
-
-    /**
      * Layout display mode.
      */
     protected $LayoutMode;
@@ -590,21 +585,6 @@ class PDF
      * Document creator.
      */
     protected $creator = '';
-
-    /**
-     * Starting page number.
-     */
-    protected $starting_page_number = 1;
-
-    /**
-     * PDF version.
-     */
-    protected $PDFVersion = '1.7';
-
-    /**
-     * Language templates.
-     */
-    protected $l;
 
     /**
      * Barcode to print on page footer (only if set).
@@ -3637,7 +3617,7 @@ class PDF
         // start catalog
         $oid = $this->appendObject();
         $out = '<< /Type /Catalog';
-        $out .= ' /Version /' . $this->PDFVersion;
+        $out .= ' /Version /1.7';
         //$out .= ' /Extensions <<>>';
         $out .= ' /Pages 1 0 R';
         //$out .= ' /PageLabels ' //...;
@@ -3681,9 +3661,6 @@ class PDF
             $out .= sprintf(' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /XYZ null null %F]', ($this->pageZoom / 100));
         }
         $out .= ' /Metadata ' . $xmpobj . ' 0 R';
-        if (isset($this->l['a_meta_language'])) {
-            $out .= ' /Lang ' . $this->_textstring($this->l['a_meta_language']);
-        }
         if (!empty($this->layers)) {
             $lyrobjs      = '';
             $lyrobjs_off  = '';
