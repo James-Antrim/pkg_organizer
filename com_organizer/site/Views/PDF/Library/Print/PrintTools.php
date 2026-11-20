@@ -94,5 +94,40 @@ trait PrintTools
      */
     protected $textstrokewidth = 0;
 
+    /**
+     * Returns an array containing current margins:
+     * <ul>
+     * <li>$ret['left'] = left margin</li>
+     * <li>$ret['right'] = right margin</li>
+     * <li>$ret['top'] = top margin</li>
+     * <li>$ret['bottom'] = bottom margin</li>
+     * <li>$ret['header'] = header margin</li>
+     * <li>$ret['footer'] = footer margin</li>
+     * <li>$ret['cell'] = cell padding array</li>
+     * <li>$ret['padding_left'] = cell left padding</li>
+     * <li>$ret['padding_top'] = cell top padding</li>
+     * <li>$ret['padding_right'] = cell right padding</li>
+     * <li>$ret['padding_bottom'] = cell bottom padding</li>
+     * </ul>
+     * @return array containing all margins measures
+     */
+    public function getMargins()
+    {
+        $ret = [
+            'left'           => $this->leftMargin,
+            'right'          => $this->rightMargin,
+            'top'            => $this->topMargin,
+            'bottom'         => $this->bottomMargin,
+            'header'         => $this->headerMargin,
+            'footer'         => $this->footerMargin,
+            'cell'           => $this->cellPaddings,
+            'padding_left'   => $this->cellPaddings['L'],
+            'padding_top'    => $this->cellPaddings['T'],
+            'padding_right'  => $this->cellPaddings['R'],
+            'padding_bottom' => $this->cellPaddings['B']
+        ];
+        return $ret;
+    }
+
 #endregion
 }

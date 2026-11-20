@@ -238,12 +238,12 @@ abstract class BaseView extends PDF implements ViewInterface
      * @param bool $display whether to display the header and footer
      *
      * @return void
-     * @see SetPrintFooter(), printHeader()
+     * @see printFooter(), printHeader()
      */
     public function showHeaderFooter(bool $display): void
     {
         $this->printHeader($display);
-        $this->setPrintFooter($display);
+        $this->printFooter($display);
     }
 
     /**

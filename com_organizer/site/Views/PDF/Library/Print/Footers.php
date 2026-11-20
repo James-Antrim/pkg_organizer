@@ -14,10 +14,9 @@ namespace THM\Organizer\Views\PDF\Library\Print;
 
 trait Footers
 {
-#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
-
     protected bool $inFooter = false;
     protected string $footerBarcode = '';
+    protected array $footerLengths = [];
     protected array $footerLineColor = self::WHITE;
     /** Minimum distance between footer and page bottom margin. */
     protected float $footerMargin = 0;
@@ -109,6 +108,15 @@ trait Footers
     }
 
     /**
+     * Flag whether to print the page footer
+     * @param bool $print
+     */
+    public function printFooter(bool $print = true): void
+    {
+        $this->printFooter = $print;
+    }
+
+    /**
      * This method is used to render the page footer.
      * It is automatically called by AddPage() and could be overwritten in your own inherited class.
      */
@@ -135,7 +143,7 @@ trait Footers
                 'stretch'     => false,
                 'text'        => false
             ];
-            $this->write1DBarcode($barcode, 'C128', '', $currentY + $lineWidth, '', ($this->footerMargin / 3) - $lineWidth, 0.3, $style, '');
+            $this->write1DBarcode($barcode, 'C128', '', $currentY + $lineWidth, '', ($this->footerMargin / 3) - $lineWidth, 0.3, $style);
         }
 
         $this->y($currentY);
@@ -144,24 +152,4 @@ trait Footers
         $pageNumberText = empty($this->pageGroups) ? self::PAGE_NUMBER_ALIAS . ' / ' . self::TOTAL_PAGES_ALIAS : self::PAGE_GROUP_NUMBER_ALIAS . ' / ' . self::PAGES_IN_GROUP_ALIAS;
         $this->cell(0, 0, $this->getAliasRightShift() . $pageNumberText, self::TOP, 0, self::RIGHT);
     }
-
-#endregion
-#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
-#endregion
-#region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
-    /**
-     * Set a flag to print page footer.
-     * @param bool $val set to true to print the page footer (default), false otherwise.
-     */
-    public function setPrintFooter($val = true)
-    {
-        $this->printFooter = $val ? true : false;
-    }
-
-#endregion
-
 }
