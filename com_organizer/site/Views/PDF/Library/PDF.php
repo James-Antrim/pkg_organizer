@@ -40,6 +40,7 @@ class PDF
     protected string $fileID;
     protected array $internalLinks = [];
     protected float $lastPrintedCellHeight = 0;
+    protected bool $layerOpened = false;
     protected array $layers = [];
     protected string $libraryURL = '';
     protected bool $lineThrough = false;
@@ -256,6 +257,20 @@ class PDF
         }
 
         return $return;
+    }
+
+    /** End the current PDF layer. */
+    public function endLayer(): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        if ($this->layerOpened) {
+            // close existing open marked-content layer
+            $this->append('EMC');
+            $this->layerOpened = false;
+        }
     }
 
     /**
@@ -512,6 +527,53 @@ class PDF
     }
 
     /**
+     * Start a new layer.
+     * @param string    $name  layer name (alphanumeric), empty value creates a name from a template
+     * @param bool|null $print print (true), don't print (false), unset (null)
+     * @param bool      $view  whether to view the layer
+     * @param bool      $lock  whether to lock the layer
+     */
+    public function startLayer(string $name = '', bool|null $print = true, bool $view = true, bool $lock = true): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $layer = sprintf('LYR%03d', (count($this->layers) + 1));
+        $name  = $name ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $name) : $layer;
+
+        $this->layers[]    = ['layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock];
+        $this->layerOpened = true;
+        $this->append('/OC /' . $layer . ' BDC');
+    }
+
+    /**
+     * Adds a layer for a media context. This can be used to put a background image or color that will show on screen but won't print.
+     * @param string $visibility
+     * @see self::VISIBILITIES, startLayer()
+     */
+    public function visibilityLayer(string $visibility = self::VISIBILITY_ALL): void
+    {
+        if ($this->state !== self::READY) {
+            return;
+        }
+
+        $this->endLayer();
+        switch ($visibility) {
+            case self::VISIBILITY_PRINT:
+                $this->startLayer('Print', true, false);
+                break;
+            case self::VISIBILITY_SCREEN:
+            case self::VISIBILITY_VIEW:
+                $this->startLayer('View', false, true);
+                break;
+            default:
+                $this->append('');
+                break;
+        }
+    }
+
+    /**
      * Moves the current abscissa back to the left margin and sets the ordinate. If the passed value is negative, it is relative to the bottom of the page.
      * @param float|null $y      ordinate value in user units
      * @param bool       $resetX whether to reset the abscissa
@@ -551,20 +613,6 @@ class PDF
 
         $this->endLayer();
 
-        if ($this->tcpdflink) {
-            $this->setEqualColumns();
-            $this->turnToLastPage(true);
-            $this->autoPageBreak(false);
-            $this->x          = 0;
-            $this->y          = $this->height - (1 / $this->factor);
-            $this->leftMargin = 0;
-            $font             = self::DEFAULT_FONT;
-            $this->font($font, '', 1);
-            $this->setTextRenderingMode(0, false, false);
-            $msg = "\x50\x6f\x77\x65\x72\x65\x64\x20\x62\x79\x20\x54\x43\x50\x44\x46\x20\x28\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67\x29";
-            $lnk = "\x68\x74\x74\x70\x3a\x2f\x2f\x77\x77\x77\x2e\x74\x63\x70\x64\x66\x2e\x6f\x72\x67";
-            $this->cell(0, 0, $msg, 0, 0, 'L', 0, $lnk, 0, false, 'D', 'B');
-        }
         // close page
         $this->closePage();
         // close document
@@ -872,10 +920,6 @@ class PDF
      */
     protected $endlinex = 0;
 
-    /**
-     * bool flag to indicate if marked-content sequence is open.
-     */
-    protected $openMarkedContent = false;
 
     /**
      * Count the latest inserted vertical spaces on HTML.
@@ -964,11 +1008,6 @@ class PDF
      * Define the page boundaries boxes to be set on document.
      */
     protected $page_boxes = ['MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox'];
-
-    /**
-     * If true print TCPDF meta link.
-     */
-    protected bool $tcpdflink = true;
 
     /**
      * Cache array for computed GD gamma values.
@@ -3823,82 +3862,6 @@ class PDF
             $out .= ' >> >>';
             $out .= "\n" . 'endobj';
             $this->append($out);
-        }
-    }
-
-    /**
-     * Start a new pdf layer.
-     * @param string    $name  Layer name (only a-z letters and numbers). Leave empty for automatic name.
-     * @param bool|null $print Set to true to print this layer, false to not print and NULL to not set this option
-     * @param bool      $view  Set to true to view this layer.
-     * @param bool      $lock  If true lock the layer
-     */
-    public function startLayer($name = '', $print = true, $view = true, $lock = true)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $layer = sprintf('LYR%03d', (count($this->layers) + 1));
-        if (empty($name)) {
-            $name = $layer;
-        }
-        else {
-            $name = preg_replace('/[^a-zA-Z0-9_\-]/', '', $name);
-        }
-        $this->layers[]          = ['layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock];
-        $this->openMarkedContent = true;
-        $this->append('/OC /' . $layer . ' BDC');
-    }
-
-    /**
-     * End the current PDF layer.
-     */
-    public function endLayer()
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        if ($this->openMarkedContent) {
-            // close existing open marked-content layer
-            $this->append('EMC');
-            $this->openMarkedContent = false;
-        }
-    }
-
-    /**
-     * Set the visibility of the successive elements.
-     * This can be useful, for instance, to put a background
-     * image or color that will show on screen but won't print.
-     * @param string $v visibility mode. Legal values are: all, print, screen or view.
-     */
-    public function setVisibility($v)
-    {
-        if ($this->state !== self::READY) {
-            return;
-        }
-        $this->endLayer();
-        switch ($v) {
-            case 'print':
-            {
-                $this->startLayer('Print', true, false);
-                break;
-            }
-            case 'view':
-            case 'screen':
-            {
-                $this->startLayer('View', false, true);
-                break;
-            }
-            case 'all':
-            {
-                $this->append('');
-                break;
-            }
-            default:
-            {
-                $this->Error('Incorrect visibility: ' . $v);
-                break;
-            }
         }
     }
 

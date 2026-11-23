@@ -466,7 +466,7 @@ trait Pages
         }
 
         $this->footer();
-        $this->setVisibility('all');
+        $this->visibilityLayer();
         $this->state = self::NEUTRAL;
         // mark page as closed
         $this->pageStatus[$this->page] = false;

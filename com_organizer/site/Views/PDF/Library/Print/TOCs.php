@@ -12,7 +12,7 @@
 
 namespace THM\Organizer\Views\PDF\Library\Print;
 
-use THM\Organizer\Views\PDF\Library\Constants;
+use THM\Organizer\Views\PDF\Library\Tools\Constants;
 
 trait TOCs
 {

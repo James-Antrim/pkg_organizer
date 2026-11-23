@@ -574,6 +574,9 @@ trait Constants
     /** Alias for right shift compensation used to correctly align page numbers on the right. */
     public const RIGHT_SHIFT_ALIAS = '{rsc:';
 
+    public const VISIBILITY_ALL = 'all', VISIBILITY_PRINT = 'print', VISIBILITY_SCREEN = 'screen', VISIBILITY_VIEW = 'view';
+    public const VISIBILITIES = [self::VISIBILITY_ALL, self::VISIBILITY_PRINT, self::VISIBILITY_SCREEN, self::VISIBILITY_VIEW];
+
 #endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////STYLES
 
