@@ -1469,9 +1469,9 @@ trait WebTools
                     }
                 }
                 // set text rendering mode
-                $textstroke = isset($dom[$key]['stroke']) ? $dom[$key]['stroke'] : $this->textstrokewidth;
-                $textfill   = isset($dom[$key]['fill']) ? $dom[$key]['fill'] : (($this->textrendermode % 2) == 0);
-                $textclip   = isset($dom[$key]['clip']) ? $dom[$key]['clip'] : ($this->textrendermode > 3);
+                $textstroke = $dom[$key]['stroke'] ?? $this->textstrokewidth;
+                $textfill   = $dom[$key]['fill'] ?? (($this->textrendermode % 2) == 0);
+                $textclip   = $dom[$key]['clip'] ?? ($this->textrendermode > 3);
                 $this->setTextRenderingMode($textstroke, $textfill, $textclip);
                 if (isset($dom[$key]['font-stretch']) and ($dom[$key]['font-stretch'] !== false)) {
                     $this->setFontStretching($dom[$key]['font-stretch']);
@@ -1479,7 +1479,7 @@ trait WebTools
                 if (isset($dom[$key]['letter-spacing']) and ($dom[$key]['letter-spacing'] !== false)) {
                     $this->setFontSpacing($dom[$key]['letter-spacing']);
                 }
-                if (($plalign == 'J') and $dom[$key]['block']) {
+                if ($plalign === self::JUSTIFY and $dom[$key]['block']) {
                     $plalign = '';
                 }
                 // get current position on page buffer
@@ -1560,7 +1560,7 @@ trait WebTools
                             $pend = '';
                         }
                     }
-                    if (((($plalign == 'C' or $plalign == 'J' or $plalign == 'R')))) {
+                    if ($plalign === self::CENTER or $plalign === self::JUSTIFY or $plalign === self::RIGHT) {
                         // calculate shifting amount
                         $tw = $w;
                         if ($this->leftMargin != $prevlMargin) {
@@ -1583,14 +1583,14 @@ trait WebTools
                             }
                         }
                         $mdiff = ($tw - $linew);
-                        if ($plalign == 'C') {
+                        if ($plalign === self::CENTER) {
                             $t_x = ($mdiff / 2);
                         }
-                        elseif ($plalign == 'R') {
+                        elseif ($plalign === self::RIGHT) {
                             // right alignment on LTR document
                             $t_x = $mdiff;
                         }
-                        elseif (($plalign == 'J') and ($plalign == $lalign)) {
+                        elseif ($plalign == self::JUSTIFY and $plalign === $lalign) {
                             // Justification
                             $ns       = 0; // number of spaces
                             $pmidtemp = $pmid;
@@ -4475,7 +4475,7 @@ trait WebTools
                     }
                     // force natural alignment for lists
                     if ((($dom[$key]['value'] == 'ul') or ($dom[$key]['value'] == 'ol') or ($dom[$key]['value'] == 'dl'))
-                        and (!isset($dom[$key]['align']) or empty($dom[$key]['align']) or ($dom[$key]['align'] != 'J'))) {
+                        and (!isset($dom[$key]['align']) or empty($dom[$key]['align']) or ($dom[$key]['align'] != self::JUSTIFY))) {
                         $dom[$key]['align'] = 'L';
                     }
                     if (($dom[$key]['value'] == 'small') or ($dom[$key]['value'] == 'sup') or ($dom[$key]['value'] == 'sub')) {

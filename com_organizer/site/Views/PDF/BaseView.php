@@ -17,7 +17,7 @@ use THM\Organizer\Adapters\{Application, Input, User};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\BaseLayout;
 use THM\Organizer\Views\{Modeled, Named};
-use THM\Organizer\Views\PDF\Library\{PDF, StaticMethods};
+use THM\Organizer\Views\PDF\Library\PDF;
 
 /**
  * Base class for a Joomla View
@@ -28,16 +28,12 @@ abstract class BaseView extends PDF implements ViewInterface
     use Modeled;
     use Named;
 
-    // Font Families
-    public const COURIER = 'courier', CURRENT_FAMILY = '', HELVETICA = 'helvetica', TIMES = 'times';
-
     /**
      * @see fontSizeInPoints
      */
     public const CURRENT_SIZE = 12;
 
     public array $border = ['width' => '.1', 'color' => 220];
-    public array $dataFont = ['helvetica', '', 8];
     protected string $destination = self::DOWNLOAD;
     protected string $filename;
     protected BaseLayout $layout;

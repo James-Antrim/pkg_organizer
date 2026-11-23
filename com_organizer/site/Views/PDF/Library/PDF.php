@@ -1684,8 +1684,8 @@ class PDF
             $c = $chars[$i];
             if ($c == 10) { // 10 = "\n" = new line
                 //Explicit line break
-                if ($align == 'J') {
-                    $talign = 'L';
+                if ($align == self::JUSTIFY) {
+                    $talign = self::LEFT;
                 }
                 else {
                     $talign = $align;
@@ -1907,9 +1907,9 @@ class PDF
         // print last substring (if any)
         if ($l > 0) {
             switch ($align) {
-                case 'J':
-                case 'C':
-                case 'R':
+                case self::JUSTIFY:
+                case self::CENTER:
+                case self::RIGHT:
                 {
                     break;
                 }
@@ -3387,17 +3387,14 @@ class PDF
             $out .= ' /PageMode /UseOutlines';
         }
         //$out .= ' /Threads []';
-        if ($this->pageZoom == 'fullpage') {
+        if ($this->pageZoom === self::FULL_PAGE) {
             $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /Fit]';
         }
-        elseif ($this->pageZoom == 'fullwidth') {
+        elseif ($this->pageZoom === self::FULL_WIDTH) {
             $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /FitH null]';
         }
-        elseif ($this->pageZoom == 'real') {
+        elseif ($this->pageZoom === self::REAL_SIZE) {
             $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /XYZ null null 1]';
-        }
-        elseif (!is_string($this->pageZoom)) {
-            $out .= sprintf(' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /XYZ null null %F]', ($this->pageZoom / 100));
         }
         $out .= ' /Metadata ' . $xmpobj . ' 0 R';
         if (!empty($this->layers)) {

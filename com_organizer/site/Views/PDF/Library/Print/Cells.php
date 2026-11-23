@@ -538,7 +538,7 @@ trait Cells
             $ns = substr_count($txt, chr(32));
             // Justification
             $spacewidth = 0;
-            if (($align == 'J') and ($ns > 0)) {
+            if (($align == self::JUSTIFY) and ($ns > 0)) {
                 // get string width
                 $width = $txwidth;
                 // new space width
@@ -553,31 +553,13 @@ trait Cells
             }
             // replace carriage return characters
             $txt2 = str_replace("\r", ' ', $txt2);
-            switch ($align) {
-                case 'C':
-                {
-                    $dx = ($w - $width) / 2;
-                    break;
-                }
-                case 'R':
-                {
-                    $dx = $w - $width - $this->cellPaddings['R'];
-                    break;
-                }
-                case 'L':
-                {
-                    $dx = $this->cellPaddings['L'];
-                    break;
-                }
-                case 'J':
-                default:
-                {
-                    $dx = $this->cellPaddings['L'];
-                    break;
-                }
-            }
-            $xdx = $x + $dx;
-            $xdk = $xdx * $k;
+            $dx   = match ($align) {
+                self::CENTER => ($w - $width) / 2,
+                self::RIGHT => $w - $width - $this->cellPaddings['R'],
+                default => $this->cellPaddings['L'],
+            };
+            $xdx  = $x + $dx;
+            $xdk  = $xdx * $k;
             // print text
             $s .= sprintf('BT %F %F Td [(%s)] TJ ET', $xdk, (($this->height - $basefonty) * $k), $txt2);
             if (isset($uniblock)) { // @phpstan-ignore-line
@@ -632,7 +614,7 @@ trait Cells
             }
         }
         // reset word spacing
-        if ($align === 'J') {
+        if ($align === self::JUSTIFY) {
             $rs .= ' BT 0 Tw ET';
         }
         // reset stretching and spacing
