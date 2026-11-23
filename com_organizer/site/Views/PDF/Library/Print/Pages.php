@@ -995,14 +995,14 @@ trait Pages
             }
         }
         // adjust dests
-        $tmpdests = $this->dests;
+        $tmpdests = $this->namedDestinationsMap;
         foreach ($tmpdests as $key => $dest) {
             if (!$dest['f']) {
                 if ($dest['p'] > $page) {
-                    $this->dests[$key]['p'] = $dest['p'] - 1;
+                    $this->namedDestinationsMap[$key]['p'] = $dest['p'] - 1;
                 }
                 elseif ($dest['p'] == $page) {
-                    unset($this->dests[$key]);
+                    unset($this->namedDestinationsMap[$key]);
                 }
             }
         }
@@ -1219,14 +1219,14 @@ trait Pages
             }
         }
         // adjust dests
-        $tmpdests = $this->dests;
+        $tmpdests = $this->namedDestinationsMap;
         foreach ($tmpdests as $key => $dest) {
             if (!$dest['f']) {
                 if (($dest['p'] >= $topage) and ($dest['p'] < $frompage)) {
-                    $this->dests[$key]['p'] = ($dest['p'] + 1);
+                    $this->namedDestinationsMap[$key]['p'] = ($dest['p'] + 1);
                 }
                 elseif ($dest['p'] == $frompage) {
-                    $this->dests[$key]['p'] = $topage;
+                    $this->namedDestinationsMap[$key]['p'] = $topage;
                 }
             }
         }
@@ -1331,10 +1331,10 @@ trait Pages
                 }
             }
             // adjust dests
-            $tmpdests = $this->dests;
+            $tmpdests = $this->namedDestinationsMap;
             foreach ($tmpdests as $key => $dest) {
                 if (!$dest['f'] and ($dest['p'] > $this->pageCount)) {
-                    $this->dests[$key]['p'] = ($dest['p'] + 1);
+                    $this->namedDestinationsMap[$key]['p'] = ($dest['p'] + 1);
                 }
             }
             // adjust links

@@ -48,6 +48,9 @@ class PDF
     protected array $matrix = [];
     protected int $matrixKey = 0;
     protected int $modificationTimestamp = 0;
+    protected string $namedDestinationID = '';
+    /** A dictionary of names and corresponding destinations (Dests key on document Catalog). */
+    protected array $namedDestinationsMap = [];
     protected bool $newLine = true;
     protected int $objectNumber = 2;
     protected bool $overline = false;
@@ -175,6 +178,33 @@ class PDF
     }
 
     /**
+     * Append named Destinations.
+     * @author Johannes G\FCntert, Nicola Asuni
+     */
+    protected function appendNamedDestinations(): void
+    {
+        if (empty($this->namedDestinationsMap)) {
+            return;
+        }
+
+        $this->namedDestinationID = $this->appendObject();
+
+        $out = ' <<';
+
+        foreach ($this->namedDestinationsMap as $name => $destination) {
+            $page    = $destination['p'];
+            $pageOID = $this->pageObjectIDs[$page];
+            $x       = $destination['x'] * $this->factor;
+            $y       = $this->pageDimensions[$page]['h'] - ($destination['y'] * $this->factor);
+            $out     .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $pageOID, $x, $y);
+        }
+
+        $out .= ' >>';
+        $out .= "\n" . 'endobj';
+        $this->append($out);
+    }
+
+    /**
      * Create a new object id, append it to the document and return it.
      * @return int
      */
@@ -288,6 +318,48 @@ class PDF
 
         $this->internalLinks[$linkID] = ['p' => $pageNumber, 'y' => $y, 'f' => $fixed];
         return $linkID;
+    }
+
+    /**
+     * Add a unique named destination and return its id. Destination names are unique, only the last entry will be saved.
+     * @param string $name Destination name.
+     * @param int    $page
+     * @param float  $x
+     * @param float  $y
+     * @param bool   $fixed
+     * @return string
+     */
+    public function namedDestination(string $name, int $page = 0, float $x = 0, float $y = 0, bool $fixed = false): string
+    {
+        if (!$name = $this->encodeText($name) or !$page = $page ?: $this->page) {
+            return '';
+        }
+
+        if ($y < 0) {
+            $y = 0;
+        }
+        elseif ($y > $this->height) {
+            $y = $this->height;
+        }
+
+        if ($x < 0) {
+            $x = 0;
+        }
+        elseif ($x > $this->width) {
+            $x = $this->width;
+        }
+
+        $this->namedDestinationsMap[$name] = ['x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed];
+        return $name;
+    }
+
+    /**
+     * Retrieves the named destination array.
+     * @return array
+     */
+    public function namedDestinations(): array
+    {
+        return $this->namedDestinationsMap;
     }
 
     /**
@@ -859,16 +931,6 @@ class PDF
      * Store Y position when startTransaction() is called.
      */
     protected $start_transaction_y = 0;
-
-    /**
-     * A dictionary of names and corresponding destinations (Dests key on document Catalog).
-     */
-    protected $dests = [];
-
-    /**
-     * Object ID for Named Destinations
-     */
-    protected $n_dests;
 
     /**
      * Embedded Files Names
@@ -3223,7 +3285,7 @@ class PDF
         $this->_putshaders();
         $this->_putxobjects();
         $this->_putresourcedict();
-        $this->_putdests();
+        $this->appendNamedDestinations();
         $this->_putEmbeddedFiles();
         $this->_putannotsobjs();
         $this->appendJavascript();
@@ -3372,8 +3434,8 @@ class PDF
             $out .= ' ]>>';
         }
         $out .= ' >>';
-        if (!empty($this->dests)) {
-            $out .= ' /Dests ' . ($this->n_dests) . ' 0 R';
+        if (!empty($this->namedDestinationsMap)) {
+            $out .= ' /Dests ' . ($this->namedDestinationID) . ' 0 R';
         }
         $out .= $this->_putviewerpreferences();
         if (isset($this->layoutMode) and (!StaticMethods::empty_string($this->layoutMode))) {
@@ -3684,90 +3746,6 @@ class PDF
     public function unhtmlentities($text_to_convert)
     {
         return @html_entity_decode($text_to_convert, ENT_QUOTES, 'UTF-8');
-    }
-
-    /**
-     * Add a Named Destination.
-     * NOTE: destination names are unique, so only last entry will be saved.
-     * @param string     $name Destination name.
-     * @param float      $y    Y position in user units of the destiantion on the selected page (default = -1 = current position; 0 = page start;).
-     * @param int|string $page Target page number (leave empty for current page). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
-     * @param float      $x    X position in user units of the destiantion on the selected page (default = -1 = current position;).
-     * @return string|false Stripped named destination identifier or false in case of error.
-     * @public
-     * @author Christian Deligant, Nicola Asuni
-     * @since  5.9.097 (2011-06-23)
-     */
-    public function setDestination($name, $y = -1, $page = '', $x = -1)
-    {
-        // remove unsupported characters
-        $name = TCPDF_STATIC::encodeNameObject($name);
-        if (TCPDF_STATIC::empty_string($name)) {
-            return false;
-        }
-        if ($y == -1) {
-            $y = $this->GetY();
-        }
-        elseif ($y < 0) {
-            $y = 0;
-        }
-        elseif ($y > $this->h) {
-            $y = $this->h;
-        }
-        if ($x == -1) {
-            $x = $this->GetX();
-        }
-        elseif ($x < 0) {
-            $x = 0;
-        }
-        elseif ($x > $this->w) {
-            $x = $this->w;
-        }
-        $fixed = false;
-        if (!empty($page) and (substr($page, 0, 1) == '*')) {
-            $page = intval(substr($page, 1));
-            // this page number will not be changed when moving/add/deleting pages
-            $fixed = true;
-        }
-        if (empty($page)) {
-            $page = $this->page;
-            if (empty($page)) {
-                return;
-            }
-        }
-        $this->dests[$name] = array('x' => $x, 'y' => $y, 'p' => $page, 'f' => $fixed);
-        return $name;
-    }
-
-    /**
-     * Return the Named Destination array.
-     * @return array Named Destination array.
-     * @public
-     * @author Nicola Asuni
-     * @since  5.9.097 (2011-06-23)
-     */
-    public function getDestination()
-    {
-        return $this->dests;
-    }
-
-    /**
-     * Insert Named Destinations.
-     * @author Johannes G\FCntert, Nicola Asuni
-     */
-    protected function _putdests()
-    {
-        if (empty($this->dests)) {
-            return;
-        }
-        $this->n_dests = $this->appendObject();
-        $out           = ' <<';
-        foreach ($this->dests as $name => $o) {
-            $out .= ' /' . $name . ' ' . sprintf('[%u 0 R /XYZ %F %F null]', $this->pageObjectIDs[($o['p'])], ($o['x'] * $this->factor), ($this->pageDimensions[$o['p']]['h'] - ($o['y'] * $this->factor)));
-        }
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
     }
 
     /**
