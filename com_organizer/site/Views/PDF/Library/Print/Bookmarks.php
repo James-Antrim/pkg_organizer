@@ -82,7 +82,7 @@ trait Bookmarks
             $fixed = true;
         }
         if (empty($page)) {
-            $page = $this->PageNo();
+            $page = $this->page;
             if (empty($page)) {
                 return;
             }

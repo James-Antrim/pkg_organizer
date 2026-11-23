@@ -46,7 +46,7 @@ trait WebTools
      */
     protected function addJavascriptField(string $type, string $name, int $x, int $y, int $width, int $height, array $properties): void
     {
-        $pageNumber   = $this->PageNo() - 1;
+        $pageNumber   = $this->page - 1;
         $scaledHeight = ($this->height - $y - $height) * $this->factor + 1;
         $scaledWidth  = ($x + $width) * $this->factor;
         $scaledX      = $x * $this->factor;
@@ -715,7 +715,7 @@ trait WebTools
         // set new style for link
         $this->linkColor = [];
         $this->linkStyle = '';
-        $page_first      = $this->getPage();
+        $firstPage       = $this->page();
         $page_fill_start = false;
         $page_fill_end   = false;
         // get the font type used for numbers in each template
@@ -757,29 +757,29 @@ trait WebTools
         $this->linkColor = $previousLinkColor;
         $this->linkStyle = $previousLinkStyle;
         // move TOC page and replace numbers
-        $page_last = $this->getPage();
-        $numpages  = ($page_last - $page_first + 1);
+        $lastPage = $this->page();
+        $numpages = ($lastPage - $firstPage + 1);
         // account for booklet mode
         if ($this->booklet) {
             // check if a blank page is required before TOC
-            $page_fill_start = ((($page_first % 2) == 0) xor (($page % 2) == 0));
+            $page_fill_start = ((($firstPage % 2) == 0) xor (($page % 2) == 0));
             $page_fill_end   = (!((($numpages % 2) == 0) xor ($page_fill_start)));
             if ($page_fill_start) {
                 // add a page at the end (to be moved before TOC)
                 $this->addPage();
-                ++$page_last;
+                ++$lastPage;
                 ++$numpages;
             }
             if ($page_fill_end) {
                 // add a page at the end
                 $this->addPage();
-                ++$page_last;
+                ++$lastPage;
                 ++$numpages;
             }
         }
-        $maxpage = max($maxpage, $page_last);
+        $maxpage = max($maxpage, $lastPage);
         if (!StaticMethods::empty_string($page)) {
-            for ($p = $page_first; $p <= $page_last; ++$p) {
+            for ($p = $firstPage; $p <= $lastPage; ++$p) {
                 // get page data
                 $temppage = $this->pageBuffer($p);
                 for ($n = 1; $n <= $maxpage; ++$n) {
@@ -822,12 +822,12 @@ trait WebTools
                 $this->pageBuffer($p, $temppage);
             }
             // move pages
-            $this->Bookmark($toc_name, 0, 0, $page_first, $style, $color);
+            $this->Bookmark($toc_name, 0, 0, $firstPage, $style, $color);
             if ($page_fill_start) {
-                $this->movePage($page_last, $page_first);
+                $this->movePage($lastPage, $firstPage);
             }
             for ($i = 0; $i < $numpages; ++$i) {
-                $this->movePage($page_last, $page);
+                $this->movePage($lastPage, $page);
             }
         }
     }
@@ -1987,7 +1987,7 @@ trait WebTools
                             $dom[$trid]['startpage'] = $this->page;
                         }
                         else {
-                            $this->setPage($dom[$trid]['startpage']);
+                            $this->turnToPage($dom[$trid]['startpage']);
                         }
                         if (!isset($dom[$trid]['startcolumn'])) {
                             $dom[$trid]['startcolumn'] = $this->currentColumn;
@@ -3363,7 +3363,7 @@ trait WebTools
                     }
                 }
                 $prev_page = $this->page;
-                $this->setPage($dom[($dom[$key]['parent'])]['endpage']);
+                $this->turnToPage($dom[($dom[$key]['parent'])]['endpage']);
                 if ($this->columnCount > 1) {
                     if (($prev_page < $this->page)
                         and ((($this->currentColumn == 0) and ($dom[($dom[$key]['parent'])]['endcolumn'] == ($this->columnCount - 1)))
@@ -3495,7 +3495,7 @@ trait WebTools
                         // design borders around HTML cells.
                         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
                             $ccode = '';
-                            $this->setPage($page);
+                            $this->turnToPage($page);
                             if ($this->columnCount < 2) {
                                 // single-column mode
                                 $this->x = $x;
@@ -5206,7 +5206,7 @@ trait WebTools
         // design borders around HTML cells.
         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
             $ccode = '';
-            $this->setPage($page);
+            $this->turnToPage($page);
             if ($this->columnCount < 2) {
                 // single-column mode
                 $this->x = $x;

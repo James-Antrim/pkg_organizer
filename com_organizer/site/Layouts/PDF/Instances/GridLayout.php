@@ -232,7 +232,7 @@ abstract class GridLayout extends BaseLayout
         $start = $view->y();
         $view->writeHTMLCell($width, 15, $view->x(), $start, $contents, self::INSTANCE_BORDER, 1);
         $height = $view->y() - $start;
-        $view->deletePage($view->getPage());
+        $view->deletePage($view->page());
 
         return $height;
     }

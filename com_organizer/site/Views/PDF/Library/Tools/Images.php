@@ -2525,7 +2525,7 @@ trait Images
         }
         // opacity
         if ($svgstyle['opacity'] != 1) {
-            $this->setAlpha($svgstyle['opacity'], 'Normal', $svgstyle['opacity'], false);
+            $this->alpha($svgstyle['opacity'], 'Normal', $svgstyle['opacity']);
         }
         // color
         $fill_color = $this->htmlToColor($svgstyle['color']);
@@ -2656,13 +2656,13 @@ trait Images
             }
             $this->append(sprintf('%F 0 0 %F %F %F cm', ($w * $this->factor), ($h * $this->factor), ($x * $this->factor), ($cy * $this->factor)));
             if (count($gradient['stops']) > 1) {
-                $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops'], [], false);
+                $this->Gradient($gradient['type'], $gradient['coords'], $gradient['stops']);
             }
         }
         elseif ($svgstyle['fill'] != 'none') {
             $fill_color = $this->htmlToColor($svgstyle['fill']);
             if ($svgstyle['fill-opacity'] != 1) {
-                $this->setAlpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity'], false);
+                $this->alpha($this->alpha['CA'], 'Normal', $svgstyle['fill-opacity']);
             }
             $this->fillColorArray($fill_color);
             if ($svgstyle['fill-rule'] == 'evenodd') {
@@ -2675,10 +2675,10 @@ trait Images
         // stroke
         if ($svgstyle['stroke'] != 'none') {
             if ($svgstyle['stroke-opacity'] != 1) {
-                $this->setAlpha($svgstyle['stroke-opacity'], 'Normal', $this->alpha['ca'], false);
+                $this->alpha($svgstyle['stroke-opacity'], 'Normal', $this->alpha['ca']);
             }
             elseif (preg_match('/rgba\(\d+%?,\s*\d+%?,\s*\d+%?,\s*(\d+(?:\.\d+)?)\)/i', $svgstyle['stroke'], $rgba_matches)) {
-                $this->setAlpha($rgba_matches[1], 'Normal', $this->alpha['ca'], false);
+                $this->alpha($rgba_matches[1], 'Normal', $this->alpha['ca']);
             }
             $stroke_style = array(
                 'color' => $this->htmlToColor($svgstyle['stroke']),

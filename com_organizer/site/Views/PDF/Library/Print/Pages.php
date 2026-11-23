@@ -12,6 +12,7 @@
 
 namespace THM\Organizer\Views\PDF\Library\Print;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Views\PDF\Library\StaticMethods;
 
 trait Pages
@@ -99,6 +100,15 @@ trait Pages
     }
 
     /**
+     * Current document page number.
+     * @return int
+     */
+    public function page(): int
+    {
+        return $this->page;
+    }
+
+    /**
      * Set page boundaries.
      * @param int    $page   page number
      * @param string $box
@@ -144,6 +154,15 @@ trait Pages
         }
 
         return $this->pages[$pageNumber] ?? '';
+    }
+
+    /**
+     * Get the total number of inserted pages.
+     * @return int
+     */
+    public function pageCount(): int
+    {
+        return $this->pageCount;
     }
 
     /**
@@ -345,6 +364,63 @@ trait Pages
         $page['wk']  = $this->width;
     }
 
+    /**
+     * Move pointer at the last document page and update page dimensions.
+     * @param bool $resetMargins whether to reset left, right, top margins and y position
+     */
+    public function turnToLastPage(bool $resetMargins = false): void
+    {
+        $this->turnToPage($this->pageCount, $resetMargins);
+    }
+
+    /**
+     * Move pointer at the specified document page and update page dimensions.
+     * @param int  $page
+     * @param bool $resetMargins whether to reset left, right, top margins and y position
+     */
+    public function turnToPage(int $page, bool $resetMargins = false): void
+    {
+        if ($page === $this->page and $this->state === self::READY) {
+            return;
+        }
+
+        if ($page < 0 or $page > $this->pageCount) {
+            Application::message("Requested page $page has not been initiated.", Application::ERROR);
+            return;
+        }
+
+        $this->state  = self::READY;
+        $previousPage = $this->page;
+        $this->page   = $page;
+
+        // Load stored graphic settings
+        $dimensions                = $this->pageDimensions[$this->page];
+        $this->widthPT             = $dimensions['w'];
+        $this->heightPT            = $dimensions['h'];
+        $this->width               = $dimensions['wk'];
+        $this->height              = $dimensions['hk'];
+        $this->topMargin           = $dimensions['tm'];
+        $this->bottomMargin        = $dimensions['bm'];
+        $this->originalLeftMargin  = $dimensions['olm'];
+        $this->originalRightMargin = $dimensions['orm'];
+        $this->autoPageBreak       = $dimensions['pb'];
+        $this->currentOrientation  = $dimensions['or'];
+        $this->autoPageBreak($this->autoPageBreak, $this->bottomMargin);
+
+        // restore graphic settings
+        if ($resetMargins) {
+            $this->leftMargin  = $dimensions['olm'];
+            $this->rightMargin = $dimensions['orm'];
+            $this->y($this->topMargin);
+        }
+        elseif ($dimensions['olm'] !== $this->pageDimensions[$previousPage]['olm']) {
+            $delta = $dimensions['olm'] - $dimensions['orm'];
+
+            $this->leftMargin  += $delta;
+            $this->rightMargin -= $delta;
+        }
+    }
+
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
@@ -352,13 +428,13 @@ trait Pages
     /**
      * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
      * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
+     * @param string $orientation
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool   $keepmargins if true overwrites the default page margins with the current margins
      * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
-     * @see   startPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
+     * @see   self::ORIENTATIONS, startPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
      */
-    public function addPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false)
+    public function addPage(string $orientation = '', $format = '', $keepmargins = false, $tocpage = false)
     {
         if ($this->inXObject) {
             // we are inside an XObject template
@@ -399,6 +475,61 @@ trait Pages
         }
     }
 
+    /**
+     * Returns an array of page dimensions:
+     * $this->pagedim[$this->page]['w'] = page width in points
+     * $this->pagedim[$this->page]['h'] = height in points
+     * $this->pagedim[$this->page]['wk'] = page width in user units
+     * $this->pagedim[$this->page]['hk'] = page height in user units
+     * $this->pagedim[$this->page]['tm'] = top margin
+     * $this->pagedim[$this->page]['bm'] = bottom margin
+     * $this->pagedim[$this->page]['lm'] = left margin
+     * $this->pagedim[$this->page]['rm'] = right margin
+     * $this->pagedim[$this->page]['pb'] = auto page break
+     * $this->pagedim[$this->page]['or'] = page orientation
+     * $this->pagedim[$this->page]['olm'] = original left margin
+     * $this->pagedim[$this->page]['orm'] = original right margin
+     * $this->pagedim[$this->page]['Rotate'] = The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
+     * $this->pagedim[$this->page]['PZ'] = The page's preferred zoom (magnification) factor.
+     * $this->pagedim[$this->page]['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation<ul><li>$this->pagedim[$this->page]['trans']['Dur'] = The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.
+     * $this->pagedim[$this->page]['trans']['S'] = transition style : Split, Blinds, Box, Wipe, Dissolve, Glitter, R, Fly, Push, Cover, Uncover, Fade
+     * $this->pagedim[$this->page]['trans']['D'] = The duration of the transition effect, in seconds.
+     * $this->pagedim[$this->page]['trans']['Dm'] = (Split and Blinds transition styles only) The dimension in which the specified transition effect shall occur: H = Horizontal, V = Vertical. Default value: H.
+     * $this->pagedim[$this->page]['trans']['M'] = (Split, Box and Fly transition styles only) The direction of motion for the specified transition effect: I = Inward from the edges of the page, O = Outward from the center of the pageDefault value: I.
+     * $this->pagedim[$this->page]['trans']['Di'] = (Wipe, Glitter, Fly, Cover, Uncover and Push transition styles only) The direction in which the specified transition effect shall moves, expressed in degrees counterclockwise starting from a left-to-right direction. If the value is a number, it shall be one of: 0 = Left to right, 90 = Bottom to top (Wipe only), 180 = Right to left (Wipe only), 270 = Top to bottom, 315 = Top-left to bottom-right (Glitter only). If the value is a name, it shall be None, which is relevant only for the Fly transition when the value of SS is not 1.0. Default value: 0.
+     * $this->pagedim[$this->page]['trans']['SS'] = (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0.
+     * $this->pagedim[$this->page]['trans']['B'] = (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li></ul>
+     * $this->pagedim[$this->page]['MediaBox'] : the boundaries of the physical medium on which the page shall be displayed or printed<ul><li>$this->pagedim[$this->page]['MediaBox']['llx'] = lower-left x coordinate in points
+     * $this->pagedim[$this->page]['MediaBox']['lly'] = lower-left y coordinate in points
+     * $this->pagedim[$this->page]['MediaBox']['urx'] = upper-right x coordinate in points
+     * $this->pagedim[$this->page]['MediaBox']['ury'] = upper-right y coordinate in points</li></ul>
+     * $this->pagedim[$this->page]['CropBox'] : the visible region of default user space<ul><li>$this->pagedim[$this->page]['CropBox']['llx'] = lower-left x coordinate in points
+     * $this->pagedim[$this->page]['CropBox']['lly'] = lower-left y coordinate in points
+     * $this->pagedim[$this->page]['CropBox']['urx'] = upper-right x coordinate in points
+     * $this->pagedim[$this->page]['CropBox']['ury'] = upper-right y coordinate in points</li></ul>
+     * $this->pagedim[$this->page]['BleedBox'] : the region to which the contents of the page shall be clipped when output in a production environment<ul><li>$this->pagedim[$this->page]['BleedBox']['llx'] = lower-left x coordinate in points
+     * $this->pagedim[$this->page]['BleedBox']['lly'] = lower-left y coordinate in points
+     * $this->pagedim[$this->page]['BleedBox']['urx'] = upper-right x coordinate in points
+     * $this->pagedim[$this->page]['BleedBox']['ury'] = upper-right y coordinate in points</li></ul>
+     * $this->pagedim[$this->page]['TrimBox'] : the intended dimensions of the finished page after trimming<ul><li>$this->pagedim[$this->page]['TrimBox']['llx'] = lower-left x coordinate in points
+     * $this->pagedim[$this->page]['TrimBox']['lly'] = lower-left y coordinate in points
+     * $this->pagedim[$this->page]['TrimBox']['urx'] = upper-right x coordinate in points
+     * $this->pagedim[$this->page]['TrimBox']['ury'] = upper-right y coordinate in points</li></ul>
+     * $this->pagedim[$this->page]['ArtBox'] : the extent of the page's meaningful content<ul><li>$this->pagedim[$this->page]['ArtBox']['llx'] = lower-left x coordinate in points
+     * $this->pagedim[$this->page]['ArtBox']['lly'] = lower-left y coordinate in points
+     * $this->pagedim[$this->page]['ArtBox']['urx'] = upper-right x coordinate in points
+     * $this->pagedim[$this->page]['ArtBox']['ury'] = upper-right y coordinate in points</li></ul></li></ul>
+     * @param int $page
+     * @return array
+     */
+    public function getPageDimensions(int $page = 0)
+    {
+        if (empty($page)) {
+            $page = $this->page;
+        }
+        return $this->pageDimensions[$page];
+    }
+
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
@@ -426,11 +557,11 @@ trait Pages
 
     /**
      * Initialize a new page.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @see getPageSizeFromFormat(), pageFormat()
+     * @param string $orientation
+     * @param mixed  $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @see self::ORIENTATIONS, getPageSizeFromFormat(), pageFormat()
      */
-    protected function _beginpage($orientation = '', $format = '')
+    protected function _beginpage(string $orientation = '', $format = '')
     {
         ++$this->page;
         $this->pageObjects[$this->page] = [];
@@ -443,12 +574,10 @@ trait Pages
                 $orientation = $this->currentOrientation;
             }
             elseif ($this->formatWidthPT > $this->formatHeightPT) {
-                // landscape
-                $orientation = 'L';
+                $orientation = self::LANDSCAPE;
             }
             else {
-                // portrait
-                $orientation = 'P';
+                $orientation = self::PORTRAIT;
             }
         }
         if (empty($format)) {
@@ -713,7 +842,7 @@ trait Pages
             }
         }
         // return to last page
-        $this->lastPage(true);
+        $this->turnToLastPage(true);
         return true;
     }
 
@@ -911,44 +1040,9 @@ trait Pages
         }
         // return to last page
         if ($this->pageCount > 0) {
-            $this->lastPage(true);
+            $this->turnToLastPage(true);
         }
         return true;
-    }
-
-    /**
-     * Get the total number of insered pages.
-     * @return int number of pages
-     * @see   setPage(), getPage(), lastpage()
-     */
-    public function getNumPages()
-    {
-        return $this->pageCount;
-    }
-
-    /**
-     * Get current document page number.
-     * @return int page number
-     * @see   setPage(), lastpage(), getNumPages()
-     */
-    public function getPage()
-    {
-        return $this->page;
-    }
-
-    /**
-     * Returns an array of page dimensions:
-     * <ul><li>$this->pagedim[$this->page]['w'] = page width in points</li><li>$this->pagedim[$this->page]['h'] = height in points</li><li>$this->pagedim[$this->page]['wk'] = page width in user units</li><li>$this->pagedim[$this->page]['hk'] = page height in user units</li><li>$this->pagedim[$this->page]['tm'] = top margin</li><li>$this->pagedim[$this->page]['bm'] = bottom margin</li><li>$this->pagedim[$this->page]['lm'] = left margin</li><li>$this->pagedim[$this->page]['rm'] = right margin</li><li>$this->pagedim[$this->page]['pb'] = auto page break</li><li>$this->pagedim[$this->page]['or'] = page orientation</li><li>$this->pagedim[$this->page]['olm'] = original left margin</li><li>$this->pagedim[$this->page]['orm'] = original right margin</li><li>$this->pagedim[$this->page]['Rotate'] = The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.</li><li>$this->pagedim[$this->page]['PZ'] = The page's preferred zoom (magnification) factor.</li><li>$this->pagedim[$this->page]['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation<ul><li>$this->pagedim[$this->page]['trans']['Dur'] = The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.</li><li>$this->pagedim[$this->page]['trans']['S'] = transition style : Split, Blinds, Box, Wipe, Dissolve, Glitter, R, Fly, Push, Cover, Uncover, Fade</li><li>$this->pagedim[$this->page]['trans']['D'] = The duration of the transition effect, in seconds.</li><li>$this->pagedim[$this->page]['trans']['Dm'] = (Split and Blinds transition styles only) The dimension in which the specified transition effect shall occur: H = Horizontal, V = Vertical. Default value: H.</li><li>$this->pagedim[$this->page]['trans']['M'] = (Split, Box and Fly transition styles only) The direction of motion for the specified transition effect: I = Inward from the edges of the page, O = Outward from the center of the pageDefault value: I.</li><li>$this->pagedim[$this->page]['trans']['Di'] = (Wipe, Glitter, Fly, Cover, Uncover and Push transition styles only) The direction in which the specified transition effect shall moves, expressed in degrees counterclockwise starting from a left-to-right direction. If the value is a number, it shall be one of: 0 = Left to right, 90 = Bottom to top (Wipe only), 180 = Right to left (Wipe only), 270 = Top to bottom, 315 = Top-left to bottom-right (Glitter only). If the value is a name, it shall be None, which is relevant only for the Fly transition when the value of SS is not 1.0. Default value: 0.</li><li>$this->pagedim[$this->page]['trans']['SS'] = (Fly transition style only) The starting or ending scale at which the changes shall be drawn. If M specifies an inward transition, the scale of the changes drawn shall progress from SS to 1.0 over the course of the transition. If M specifies an outward transition, the scale of the changes drawn shall progress from 1.0 to SS over the course of the transition. Default: 1.0. </li><li>$this->pagedim[$this->page]['trans']['B'] = (Fly transition style only) If true, the area that shall be flown in is rectangular and opaque. Default: false.</li></ul></li><li>$this->pagedim[$this->page]['MediaBox'] : the boundaries of the physical medium on which the page shall be displayed or printed<ul><li>$this->pagedim[$this->page]['MediaBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['MediaBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['CropBox'] : the visible region of default user space<ul><li>$this->pagedim[$this->page]['CropBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['CropBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['BleedBox'] : the region to which the contents of the page shall be clipped when output in a production environment<ul><li>$this->pagedim[$this->page]['BleedBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['BleedBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['TrimBox'] : the intended dimensions of the finished page after trimming<ul><li>$this->pagedim[$this->page]['TrimBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['TrimBox']['ury'] = upper-right y coordinate in points</li></ul></li><li>$this->pagedim[$this->page]['ArtBox'] : the extent of the page's meaningful content<ul><li>$this->pagedim[$this->page]['ArtBox']['llx'] = lower-left x coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['lly'] = lower-left y coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['urx'] = upper-right x coordinate in points</li><li>$this->pagedim[$this->page]['ArtBox']['ury'] = upper-right y coordinate in points</li></ul></li></ul>
-     * @param int|null $pagenum page number (empty = current page)
-     * @return array of page dimensions.
-     * @author Nicola Asuni
-     */
-    public function getPageDimensions($pagenum = null)
-    {
-        if (empty($pagenum)) {
-            $pagenum = $this->page;
-        }
-        return $this->pageDimensions[$pagenum];
     }
 
     /**
@@ -988,16 +1082,6 @@ trait Pages
     protected function inPageBody()
     {
         return (($this->inHeader === false) and ($this->inFooter === false));
-    }
-
-    /**
-     * Reset pointer to the last document page.
-     * @param bool $resetmargins if true reset left, right, top margins and Y position.
-     * @see   setPage(), getPage(), getNumPages()
-     */
-    public function lastPage($resetmargins = false)
-    {
-        $this->setPage($this->getNumPages(), $resetmargins);
     }
 
     /**
@@ -1180,65 +1264,8 @@ trait Pages
             unset($pamatch);
         }
         // return to last page
-        $this->lastPage(true);
+        $this->turnToLastPage(true);
         return true;
-    }
-
-    /**
-     * Returns the current page number.
-     * @return int page number
-     * @see   getAliasNbPages()
-     */
-    public function PageNo()
-    {
-        return $this->page;
-    }
-
-    /**
-     * Move pointer at the specified document page and update page dimensions.
-     * @param int  $pnum         page number (1 ... numpages)
-     * @param bool $resetmargins if true reset left, right, top margins and Y position.
-     * @see   getPage(), lastpage(), getNumPages()
-     */
-    public function setPage($pnum, $resetmargins = false)
-    {
-        if (($pnum == $this->page) and ($this->state === self::READY)) {
-            return;
-        }
-        if (($pnum > 0) and ($pnum <= $this->pageCount)) {
-            $this->state = self::READY;
-            // save current graphic settings
-            $oldpage                   = $this->page;
-            $this->page                = $pnum;
-            $this->widthPT             = $this->pageDimensions[$this->page]['w'];
-            $this->heightPT            = $this->pageDimensions[$this->page]['h'];
-            $this->width               = $this->pageDimensions[$this->page]['wk'];
-            $this->height              = $this->pageDimensions[$this->page]['hk'];
-            $this->topMargin           = $this->pageDimensions[$this->page]['tm'];
-            $this->bottomMargin        = $this->pageDimensions[$this->page]['bm'];
-            $this->originalLeftMargin  = $this->pageDimensions[$this->page]['olm'];
-            $this->originalRightMargin = $this->pageDimensions[$this->page]['orm'];
-            $this->autoPageBreak       = $this->pageDimensions[$this->page]['pb'];
-            $this->currentOrientation  = $this->pageDimensions[$this->page]['or'];
-            $this->autoPageBreak($this->autoPageBreak, $this->bottomMargin);
-            // restore graphic settings
-            if ($resetmargins) {
-                $this->leftMargin  = $this->pageDimensions[$this->page]['olm'];
-                $this->rightMargin = $this->pageDimensions[$this->page]['orm'];
-                $this->y($this->topMargin);
-            }
-            else {
-                // account for booklet mode
-                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
-                    $deltam            = $this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->page]['orm'];
-                    $this->leftMargin  += $deltam;
-                    $this->rightMargin -= $deltam;
-                }
-            }
-        }
-        else {
-            $this->Error('Wrong page number on setPage() function: ' . $pnum);
-        }
     }
 
     /**
@@ -1283,12 +1310,12 @@ trait Pages
     /**
      * Starts a new page to the document. The page must be closed using the endPage() function.
      * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
-     * @param string $orientation page orientation. Possible values are (case insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
-     * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $tocpage     if true the page is designated to contain the Table-Of-Content.
-     * @see   addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
+     * @param string $orientation
+     * @param mixed  $format  The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool   $tocpage if true the page is designated to contain the Table-Of-Content.
+     * @see   self::ORIENTATIONS, addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
      */
-    public function startPage($orientation = '', $format = '', $tocpage = false)
+    public function startPage(string $orientation = '', $format = '', $tocpage = false)
     {
         if ($tocpage) {
             $this->tocpage = true;
@@ -1320,7 +1347,7 @@ trait Pages
         }
         if ($this->pageCount > $this->page) {
             // this page has been already added
-            $this->setPage($this->page + 1);
+            $this->turnToPage($this->page + 1);
             $this->y($this->topMargin);
             return;
         }

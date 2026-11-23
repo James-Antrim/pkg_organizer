@@ -57,6 +57,12 @@ trait Constants
 #endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////COLORS
 
+
+    public const COLOR = 'Color', COLOR_BURN = 'ColorBurn', COLOR_DODGE = 'ColorDodge', DARKEN = 'Darken', DIFFERENCE = 'Difference',
+        EXCLUSION = 'Exclusion', HARD_LIGHT = 'HardLight', HUE = 'Hue', LIGHTEN = 'Lighten', LUMINOSITY = 'Luminosity', MULTIPLY = 'Multiply',
+        NORMAL = 'Normal', OVERLAY = 'Overlay', SATURATION = 'Saturation', SCREEN = 'Screen', SOFT_LIGHT = 'SoftLight';
+    public const BLEND_MODES = [self::COLOR, self::COLOR_BURN, self::COLOR_DODGE, self::DARKEN, self::DIFFERENCE, self::EXCLUSION, self::HARD_LIGHT, self::HUE, self::LIGHTEN, self::LUMINOSITY, self::MULTIPLY, self::NORMAL, self::OVERLAY, self::SATURATION, self::SCREEN, self::SOFT_LIGHT];
+
     public const BLACK = [0, 0, 0], BLUE = [0, 0, 255], GRAY = [128, 128, 128], WHITE = [255, 255, 255];
     private const COLOR_CONTEXTS = ['draw', 'fill', 'text'];
 

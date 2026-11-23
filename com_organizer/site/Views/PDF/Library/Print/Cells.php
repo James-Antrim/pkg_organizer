@@ -157,7 +157,7 @@ trait Cells
             $this->textColorArray($this->txtshadow['color']);
             $this->drawColorArray($this->txtshadow['color']);
             if ($this->txtshadow['opacity'] != $alpha['CA']) {
-                $this->setAlpha($this->txtshadow['opacity'], $this->txtshadow['blend_mode']);
+                $this->alpha($this->txtshadow['opacity'], $this->txtshadow['blend_mode']);
             }
             if ($this->state === self::READY) {
                 $this->append($this->getCellCode($w, $h, $txt, $border, $ln, $align, $fill, $link, $stretch, true, $calign, $valign));
@@ -169,7 +169,7 @@ trait Cells
             $this->textColorArray($fc);
             $this->drawColorArray($sc);
             if ($this->txtshadow['opacity'] != $alpha['CA']) {
-                $this->setAlpha($alpha['CA'], $alpha['BM'], $alpha['ca'], $alpha['AIS']);
+                $this->alpha($alpha['CA'], $alpha['BM'], $alpha['ca'], $alpha['AIS']);
             }
         }
         if ($this->state === self::READY) {
@@ -1047,7 +1047,7 @@ trait Cells
         // design borders around HTML cells.
         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
             $ccode = '';
-            $this->setPage($page);
+            $this->turnToPage($page);
             if ($this->columnCount < 2) {
                 // single-column mode
                 $this->x($x);
@@ -1214,7 +1214,7 @@ trait Cells
         }
         else {
             // go left or right by case
-            $this->setPage($startpage);
+            $this->turnToPage($startpage);
             $this->y = $y;
             $this->x($x + $w + $mc_margin['L'] + $mc_margin['R']);
         }

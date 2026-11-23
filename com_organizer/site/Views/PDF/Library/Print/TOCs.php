@@ -57,7 +57,7 @@ trait TOCs
         $lmargin         = $this->leftMargin;
         $rmargin         = $this->rightMargin;
         $x_start         = $this->x();
-        $page_first      = $this->page;
+        $firstPage       = $this->page;
         $current_page    = $this->page;
         $page_fill_start = false;
         $page_fill_end   = false;
@@ -82,8 +82,8 @@ trait TOCs
         $maxpage  = 0; //used for pages on attached documents
         foreach ($this->outlines as $key => $outline) {
             // check for extra pages (used for attachments)
-            if (($this->page > $page_first) and ($outline['p'] >= $this->pageCount)) {
-                $outline['p'] += ($this->page - $page_first);
+            if (($this->page > $firstPage) and ($outline['p'] >= $this->pageCount)) {
+                $outline['p'] += ($this->page - $firstPage);
             }
             $aligntext = 'L';
             $alignnum  = 'R';
@@ -146,29 +146,29 @@ trait TOCs
             // write the number
             $this->cell($tw, 0, $pagenum, 0, 1, $alignnum, 0, $link, 0);
         }
-        $page_last = $this->getPage();
-        $numpages  = ($page_last - $page_first + 1);
+        $lastPage = $this->page();
+        $numpages = ($lastPage - $firstPage + 1);
         // account for booklet mode
         if ($this->booklet) {
             // check if a blank page is required before TOC
-            $page_fill_start = ((($page_first % 2) == 0) xor (($page % 2) == 0));
+            $page_fill_start = ((($firstPage % 2) == 0) xor (($page % 2) == 0));
             $page_fill_end   = (!((($numpages % 2) == 0) xor ($page_fill_start)));
             if ($page_fill_start) {
                 // add a page at the end (to be moved before TOC)
                 $this->addPage();
-                ++$page_last;
+                ++$lastPage;
                 ++$numpages;
             }
             if ($page_fill_end) {
                 // add a page at the end
                 $this->addPage();
-                ++$page_last;
+                ++$lastPage;
                 ++$numpages;
             }
         }
-        $maxpage = max($maxpage, $page_last);
+        $maxpage = max($maxpage, $lastPage);
         if (!StaticMethods::empty_string($page)) {
-            for ($p = $page_first; $p <= $page_last; ++$p) {
+            for ($p = $firstPage; $p <= $lastPage; ++$p) {
                 // get page data
                 $temppage = $this->pageBuffer($p);
                 for ($n = 1; $n <= $maxpage; ++$n) {
@@ -201,22 +201,22 @@ trait TOCs
                 $this->pageBuffer($p, $temppage);
             }
             // move pages
-            $this->Bookmark($toc_name, 0, 0, $page_first, $style, $color);
+            $this->Bookmark($toc_name, 0, 0, $firstPage, $style, $color);
             if ($page_fill_start) {
-                $this->movePage($page_last, $page_first);
+                $this->movePage($lastPage, $firstPage);
             }
             for ($i = 0; $i < $numpages; ++$i) {
-                $this->movePage($page_last, $page);
+                $this->movePage($lastPage, $page);
             }
         }
     }
 
     /**
      * Adds a new TOC (Table Of Content) page to the document.
-     * @param string $orientation page orientation.
+     * @param string $orientation
      * @param mixed  $format      The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
      * @param bool   $keepmargins if true overwrites the default page margins with the current margins
-     * @see   AddPage(), startPage(), endPage(), endTOCPage()
+     * @see   self::ORIENTATIONS, AddPage(), startPage(), endPage(), endTOCPage()
      */
     public function addTOCPage($orientation = '', $format = '', $keepmargins = false)
     {
