@@ -453,9 +453,9 @@ trait Constants
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PAGES
 
-
+    public const CURRENT = '';
     public const LANDSCAPE = 'L', PORTRAIT = 'P';
-    public const ORIENTATIONS = [self::LANDSCAPE, self::PORTRAIT];
+    public const ORIENTATIONS = [self::CURRENT, self::LANDSCAPE, self::PORTRAIT];
     public const ART_BOX = 'ArtBox', BLEED_BOX = 'BleedBox', CROP_BOX = 'CropBox', MEDIA_BOX = 'MediaBox', TRIM_BOX = 'TrimBox';
     public const PAGE_BOXES = [self::ART_BOX, self::BLEED_BOX, self::CROP_BOX, self::MEDIA_BOX, self::TRIM_BOX];
     /**
@@ -565,12 +565,6 @@ trait Constants
         'F4'                   => [595.276, 935.433], // = (  210 x 330  ) mm  = (  8.27 x 12.99 ) in
         'SO_B5_EXTRA'          => [572.598, 782.362], // = (  202 x 276  ) mm  = (  7.95 x 10.87 ) in
         'A5_EXTRA'             => [490.394, 666.142], // = (  173 x 235  ) mm  = (  6.81 x 9.25  ) in
-        // ANSI Series
-        'ANSI_E'               => [2448.000, 3168.000], // = (  864 x 1118 ) mm  = ( 34.00 x 44.00 ) in
-        'ANSI_D'               => [1584.000, 2448.000], // = (  559 x 864  ) mm  = ( 22.00 x 34.00 ) in
-        'ANSI_C'               => [1224.000, 1584.000], // = (  432 x 559  ) mm  = ( 17.00 x 22.00 ) in
-        'ANSI_B'               => [792.000, 1224.000], // = (  279 x 432  ) mm  = ( 11.00 x 17.00 ) in
-        'ANSI_A'               => [612.000, 792.000], // = (  216 x 279  ) mm  = (  8.50 x 11.00 ) in
         // Common Newspaper Sizes
         'NEWSPAPER_BROADSHEET' => [2125.984, 1700.787], // = (  750 x 600  ) mm  = ( 29.53 x 23.62 ) in
         'NEWSPAPER_BERLINER'   => [1332.283, 892.913], // = (  470 x 315  ) mm  = ( 18.50 x 12.40 ) in

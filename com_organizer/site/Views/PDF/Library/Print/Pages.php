@@ -41,6 +41,8 @@ trait Pages
     protected int $pageCount = 0;
     protected array $pageDimensions = [];
     protected array $pageGroups = [];
+    /** Array of page numbers where a new page group was started (the page numbers are the keys of the array). */
+    protected array $pageGroupStarts = [];
     protected array $pageLengths = [];
     protected string $pageMode = self::USE_NONE;
     protected array $pageObjectIDs = [];
@@ -85,6 +87,28 @@ trait Pages
     }
 
     /**
+     * Close the current page.
+     * @param bool $toc if true set the tocpage state to false (end the page used to display Table Of Content).
+     * @see   addPage(), startPage(), addTOCPage(), endTOCPage()
+     */
+    public function closePage(bool $toc = false): void
+    {
+        // Already closed
+        if ($this->page === 0 or $this->pageCount > $this->page or !$this->pageStatus[$this->page]) {
+            return;
+        }
+
+        $this->footer();
+        $this->visibilityLayer();
+        $this->state = self::NEUTRAL;
+
+        $this->pageStatus[$this->page] = false;
+        if ($toc) {
+            $this->tocpage = false;
+        }
+    }
+
+    /**
      * Defines the way the document is to be displayed by the viewer.
      * @param string $zoom
      * @param string $layout
@@ -96,6 +120,54 @@ trait Pages
         $this->pageZoom = in_array($zoom, self::PAGE_ZOOMS) ? $zoom : self::FULL_WIDTH;
         $this->layoutMode($layout);
         $this->pageMode($mode);
+    }
+
+    /**
+     * Initialize a new page.
+     * @param string       $orientation
+     * @param array|string $format
+     * @see self::ORIENTATIONS, self::PAGE_FORMATS, self::PAGE_FORMAT_CONFIGURATION_DESCRIPTION
+     */
+    protected function initializePage(string $orientation = self::CURRENT, array|string $format = self::CURRENT): void
+    {
+        ++$this->page;
+        $this->pageObjects[$this->page] = [];
+        $this->pageBuffer($this->page, '');
+        $this->transpositions[$this->page] = [];
+
+        $this->state = self::READY;
+
+        if ($orientation === self::CURRENT) {
+            if (isset($this->currentOrientation)) {
+                $orientation = $this->currentOrientation;
+            }
+            elseif ($this->formatWidthPT > $this->formatHeightPT) {
+                $orientation = self::LANDSCAPE;
+            }
+            else {
+                $orientation = self::PORTRAIT;
+            }
+        }
+
+        if ($format) {
+            $this->pageFormat($format, $orientation);
+        }
+        else {
+            $this->pageDimensions[$this->page] = $this->pageDimensions[($this->page - 1)];
+            $this->pageOrientation($orientation);
+        }
+
+        $this->x = $this->leftMargin;
+        $this->y = $this->topMargin;
+
+        if (isset($this->pageGroupStarts[$this->page])) {
+            // start a new group
+            $this->currentPageGroup                    = $this->pageGroupStarts[$this->page];
+            $this->pageGroups[$this->currentPageGroup] = 1;
+        }
+        elseif (isset($this->currentPageGroup) and ($this->currentPageGroup > 0)) {
+            ++$this->pageGroups[$this->currentPageGroup];
+        }
     }
 
     /**
@@ -193,14 +265,14 @@ trait Pages
 
     /**
      * Getter / setter for the page buffer
-     * @param int    $pageNumber
-     * @param string $content
-     * @param bool   $append true => append, false => replace
+     * @param int         $pageNumber
+     * @param string|null $content
+     * @param bool        $append true => append, false => replace
      * @return string
      */
-    protected function pageBuffer(int $pageNumber, string $content = '', bool $append = false): string
+    protected function pageBuffer(int $pageNumber, string|null $content = null, bool $append = false): string
     {
-        if ($content) {
+        if (!is_null($content)) {
             $existing                       = $this->pages[$pageNumber] ?? '';
             $this->pages[$pageNumber]       = $append ? $existing . $content : $content;
             $this->pageLengths[$pageNumber] = strlen($this->pages[$pageNumber]);
@@ -554,6 +626,23 @@ trait Pages
     }
 
     /**
+     * Swap the left and right margins.
+     */
+    protected function swapMargins(): void
+    {
+        $olmBuffer = $this->originalLeftMargin;
+        $ormBuffer = $this->originalRightMargin;
+
+        $this->originalLeftMargin  = $ormBuffer;
+        $this->originalRightMargin = $olmBuffer;
+
+        $marginDelta = $this->originalLeftMargin - $this->originalRightMargin;
+
+        $this->leftMargin  += $marginDelta;
+        $this->rightMargin -= $marginDelta;
+    }
+
+    /**
      * Move pointer at the last document page and update page dimensions.
      * @param bool $resetMargins whether to reset left, right, top margins and y position
      */
@@ -615,6 +704,79 @@ trait Pages
 
 
     /**
+     * Starts a new page to the document. The page must be closed using the endPage() function.
+     * @param string       $orientation
+     * @param array|string $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool         $toc    if true the page is designated to contain the Table-Of-Content.
+     * @see   self::ORIENTATIONS, addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
+     */
+    public function startPage(string $orientation = self::CURRENT, array|string $format = '', bool $toc = false)
+    {
+        // Move page numbers of documents to be attached
+        if ($toc) {
+            $this->tocpage = true;
+            // Move references to non-existent pages for page attachments
+            // Adjust outlines
+            foreach ($this->outlines as $key => &$outline) {
+                if (!$outline['f'] and ($outline['p'] > $this->pageCount)) {
+                    $outline['p'] += 1;
+                }
+            }
+            // Adjust named destinations
+            foreach ($this->namedDestinationsMap as $key => &$destination) {
+                if (!$destination['f'] and ($destination['p'] > $this->pageCount)) {
+                    $destination['p'] += 1;
+                }
+            }
+            // Adjust links
+            foreach ($this->internalLinks as &$link) {
+                if (!$link['f'] and ($link['p'] > $this->pageCount)) {
+                    $link['p'] += 1;
+                }
+            }
+        }
+
+        // Already existent
+        if ($this->pageCount > $this->page) {
+            $this->turnToPage($this->page + 1);
+            $this->y($this->topMargin);
+            return;
+        }
+
+        // Start a new page
+        if ($this->state === self::INITIAL) {
+            $this->state = self::NEUTRAL;
+        }
+
+        ++$this->pageCount;
+
+        if ($this->booklet) {
+            $this->swapMargins();
+        }
+
+        // save current graphic settings
+        $settings = $this->graphicsSettings();
+        // start new page
+        $this->initializePage($orientation, $format);
+        // mark page as open
+        $this->pageStatus[$this->page] = true;
+        // restore graphic settings
+        $this->graphicsSettings($settings);
+        // mark this point
+        $this->setPageMark();
+        // print page header
+        $this->header();
+        // restore graphic settings
+        $this->graphicsSettings($settings);
+        // mark this point
+        $this->setPageMark();
+        // print table header (if any)
+        $this->renderTableHeader();
+        // set mark for empty page check
+        $this->emptypagemrk[$this->page] = $this->pageLengths[$this->page];
+    }
+
+    /**
      * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
      * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
      * @param string $orientation
@@ -623,7 +785,7 @@ trait Pages
      * @param bool   $tocpage     if true set the tocpage state to true (the added page will be used to display Table Of Content).
      * @see   self::ORIENTATIONS, startPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
      */
-    public function addPage(string $orientation = '', $format = '', $keepmargins = false, $tocpage = false)
+    public function addPage(string $orientation = self::CURRENT, $format = '', $keepmargins = false, $tocpage = false)
     {
         if ($this->inXObject) {
             // we are inside an XObject template
@@ -641,28 +803,6 @@ trait Pages
         $this->startPage($orientation, $format, $tocpage);
     }
 
-
-    /**
-     * Close the current page.
-     * @param bool $toc if true set the tocpage state to false (end the page used to display Table Of Content).
-     * @see   addPage(), startPage(), addTOCPage(), endTOCPage()
-     */
-    public function closePage(bool $toc = false): void
-    {
-        // Already closed
-        if ($this->page === 0 or $this->pageCount > $this->page or !$this->pageStatus[$this->page]) {
-            return;
-        }
-
-        $this->footer();
-        $this->visibilityLayer();
-        $this->state = self::NEUTRAL;
-        // mark page as closed
-        $this->pageStatus[$this->page] = false;
-        if ($toc) {
-            $this->tocpage = false;
-        }
-    }
 
     /**
      * Returns an array of page dimensions:
@@ -734,50 +874,6 @@ trait Pages
     protected $starting_page_number = 1;
 
     /**
-     * Initialize a new page.
-     * @param string $orientation
-     * @param mixed  $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @see self::ORIENTATIONS, getPageSizeFromFormat(), pageFormat()
-     */
-    protected function _beginpage(string $orientation = '', $format = '')
-    {
-        ++$this->page;
-        $this->pageObjects[$this->page] = [];
-        $this->pageBuffer($this->page, '');
-        // initialize array for graphics tranformation positions inside a page buffer
-        $this->transpositions[$this->page] = [];
-        $this->state                       = self::READY;
-        if (empty($orientation)) {
-            if (isset($this->currentOrientation)) {
-                $orientation = $this->currentOrientation;
-            }
-            elseif ($this->formatWidthPT > $this->formatHeightPT) {
-                $orientation = self::LANDSCAPE;
-            }
-            else {
-                $orientation = self::PORTRAIT;
-            }
-        }
-        if (empty($format)) {
-            $this->pageDimensions[$this->page] = $this->pageDimensions[($this->page - 1)];
-            $this->pageOrientation($orientation);
-        }
-        else {
-            $this->pageFormat($format, $orientation);
-        }
-        $this->x = $this->leftMargin;
-        $this->y = $this->topMargin;
-        if (isset($this->newpagegroup[$this->page])) {
-            // start a new group
-            $this->currentPageGroup                    = $this->newpagegroup[$this->page];
-            $this->pageGroups[$this->currentPageGroup] = 1;
-        }
-        elseif (isset($this->currentPageGroup) and ($this->currentPageGroup > 0)) {
-            ++$this->pageGroups[$this->currentPageGroup];
-        }
-    }
-
-    /**
      * Output pages (and replace page number aliases).
      */
     protected function _putpages()
@@ -805,7 +901,7 @@ trait Pages
             $pdiff         = 0; // difference used for right shift alignment of page numbers
             $gdiff         = 0; // difference used for right shift alignment of page group numbers
             if (!empty($this->pageGroups)) {
-                if (isset($this->newpagegroup[$n])) {
+                if (isset($this->pageGroupStarts[$n])) {
                     $pagegroupnum = 0;
                     ++$groupnum;
                     $ptga          = StaticMethods::formatPageNumber($this->pageGroups[$groupnum]);
@@ -996,10 +1092,10 @@ trait Pages
         if (isset($this->pageAnnotations[$page])) {
             $this->pageAnnotations[$this->page] = $this->pageAnnotations[$page];
         }
-        if (isset($this->newpagegroup[$page])) {
+        if (isset($this->pageGroupStarts[$page])) {
             // start a new group
-            $this->newpagegroup[$this->page]           = sizeof($this->newpagegroup) + 1;
-            $this->currentPageGroup                    = $this->newpagegroup[$this->page];
+            $this->pageGroupStarts[$this->page]        = sizeof($this->pageGroupStarts) + 1;
+            $this->currentPageGroup                    = $this->pageGroupStarts[$this->page];
             $this->pageGroups[$this->currentPageGroup] = 1;
         }
         elseif (isset($this->currentPageGroup) and ($this->currentPageGroup > 0)) {
@@ -1059,10 +1155,10 @@ trait Pages
         if (isset($this->pageAnnotations[$page])) {
             unset($this->pageAnnotations[$page]);
         }
-        if (isset($this->newpagegroup) and !empty($this->newpagegroup)) {
+        if (isset($this->pageGroupStarts) and !empty($this->pageGroupStarts)) {
             for ($i = $page; $i > 0; --$i) {
-                if (isset($this->newpagegroup[$i]) and (($i + $this->pageGroups[$this->newpagegroup[$i]]) > $page)) {
-                    --$this->pageGroups[$this->newpagegroup[$i]];
+                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $page)) {
+                    --$this->pageGroups[$this->pageGroupStarts[$i]];
                     break;
                 }
             }
@@ -1106,9 +1202,9 @@ trait Pages
                 elseif (isset($this->pageAnnotations[$i])) {
                     unset($this->pageAnnotations[$i]);
                 }
-                if (isset($this->newpagegroup[$j])) {
-                    $this->newpagegroup[$i] = $this->newpagegroup[$j];
-                    unset($this->newpagegroup[$j]);
+                if (isset($this->pageGroupStarts[$j])) {
+                    $this->pageGroupStarts[$i] = $this->pageGroupStarts[$j];
+                    unset($this->pageGroupStarts[$j]);
                 }
                 if ($this->currentPageGroup == $j) {
                     $this->currentPageGroup = $i;
@@ -1145,8 +1241,8 @@ trait Pages
             if (isset($this->pageAnnotations[$this->pageCount])) {
                 unset($this->pageAnnotations[$this->pageCount]);
             }
-            if (isset($this->newpagegroup[$this->pageCount])) {
-                unset($this->newpagegroup[$this->pageCount]);
+            if (isset($this->pageGroupStarts[$this->pageCount])) {
+                unset($this->pageGroupStarts[$this->pageCount]);
             }
             if ($this->currentPageGroup == $this->pageCount) {
                 $this->currentPageGroup = ($this->pageCount - 1);
@@ -1288,16 +1384,16 @@ trait Pages
         if (isset($this->pageAnnotations[$frompage])) {
             $tmpannots = $this->pageAnnotations[$frompage];
         }
-        if (isset($this->newpagegroup) and !empty($this->newpagegroup)) {
+        if (isset($this->pageGroupStarts) and !empty($this->pageGroupStarts)) {
             for ($i = $frompage; $i > $topage; --$i) {
-                if (isset($this->newpagegroup[$i]) and (($i + $this->pageGroups[$this->newpagegroup[$i]]) > $frompage)) {
-                    --$this->pageGroups[$this->newpagegroup[$i]];
+                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $frompage)) {
+                    --$this->pageGroups[$this->pageGroupStarts[$i]];
                     break;
                 }
             }
             for ($i = $topage; $i > 0; --$i) {
-                if (isset($this->newpagegroup[$i]) and (($i + $this->pageGroups[$this->newpagegroup[$i]]) > $topage)) {
-                    ++$this->pageGroups[$this->newpagegroup[$i]];
+                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $topage)) {
+                    ++$this->pageGroups[$this->pageGroupStarts[$i]];
                     break;
                 }
             }
@@ -1336,9 +1432,9 @@ trait Pages
             elseif (isset($this->pageAnnotations[$i])) {
                 unset($this->pageAnnotations[$i]);
             }
-            if (isset($this->newpagegroup[$j])) {
-                $this->newpagegroup[$i] = $this->newpagegroup[$j];
-                unset($this->newpagegroup[$j]);
+            if (isset($this->pageGroupStarts[$j])) {
+                $this->pageGroupStarts[$i] = $this->pageGroupStarts[$j];
+                unset($this->pageGroupStarts[$j]);
             }
             if ($this->currentPageGroup == $j) {
                 $this->currentPageGroup = $i;
@@ -1476,78 +1572,6 @@ trait Pages
         $this->starting_page_number = max(0, intval($num));
     }
 
-    /**
-     * Starts a new page to the document. The page must be closed using the endPage() function.
-     * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
-     * @param string $orientation
-     * @param mixed  $format  The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool   $tocpage if true the page is designated to contain the Table-Of-Content.
-     * @see   self::ORIENTATIONS, addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
-     */
-    public function startPage(string $orientation = '', $format = '', $tocpage = false)
-    {
-        if ($tocpage) {
-            $this->tocpage = true;
-        }
-        // move page numbers of documents to be attached
-        if ($this->tocpage) {
-            // move reference to unexistent pages (used for page attachments)
-            // adjust outlines
-            $tmpoutlines = $this->outlines;
-            foreach ($tmpoutlines as $key => $outline) {
-                if (!$outline['f'] and ($outline['p'] > $this->pageCount)) {
-                    $this->outlines[$key]['p'] = ($outline['p'] + 1);
-                }
-            }
-            // adjust dests
-            $tmpdests = $this->namedDestinationsMap;
-            foreach ($tmpdests as $key => $dest) {
-                if (!$dest['f'] and ($dest['p'] > $this->pageCount)) {
-                    $this->namedDestinationsMap[$key]['p'] = ($dest['p'] + 1);
-                }
-            }
-            // adjust links
-            $tmplinks = $this->internalLinks;
-            foreach ($tmplinks as $key => $link) {
-                if (!$link['f'] and ($link['p'] > $this->pageCount)) {
-                    $this->internalLinks[$key]['p'] = ($link['p'] + 1);
-                }
-            }
-        }
-        if ($this->pageCount > $this->page) {
-            // this page has been already added
-            $this->turnToPage($this->page + 1);
-            $this->y($this->topMargin);
-            return;
-        }
-        // start a new page
-        if ($this->state === self::INITIAL) {
-            $this->Open();
-        }
-        ++$this->pageCount;
-        $this->swapMargins($this->booklet);
-        // save current graphic settings
-        $gvars = $this->graphicsSettings();
-        // start new page
-        $this->_beginpage($orientation, $format);
-        // mark page as open
-        $this->pageStatus[$this->page] = true;
-        // restore graphic settings
-        $this->graphicsSettings($gvars);
-        // mark this point
-        $this->setPageMark();
-        // print page header
-        $this->header();
-        // restore graphic settings
-        $this->graphicsSettings($gvars);
-        // mark this point
-        $this->setPageMark();
-        // print table header (if any)
-        $this->renderTableHeader();
-        // set mark for empty page check
-        $this->emptypagemrk[$this->page] = $this->pageLengths[$this->page];
-    }
-
 
     /**
      * Create a new page group.
@@ -1561,7 +1585,7 @@ trait Pages
         if (empty($page)) {
             $page = $this->page + 1;
         }
-        $this->newpagegroup[$page] = sizeof($this->newpagegroup) + 1;
+        $this->pageGroupStarts[$page] = sizeof($this->pageGroupStarts) + 1;
     }
 
 #endregion

@@ -218,7 +218,7 @@ trait TOCs
      * @param bool   $keepmargins if true overwrites the default page margins with the current margins
      * @see   self::ORIENTATIONS, AddPage(), startPage(), endPage(), endTOCPage()
      */
-    public function addTOCPage($orientation = '', $format = '', $keepmargins = false)
+    public function addTOCPage($orientation = self::CURRENT, $format = '', $keepmargins = false)
     {
         $this->addPage($orientation, $format, $keepmargins, true);
     }

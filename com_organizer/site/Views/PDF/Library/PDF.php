@@ -1065,7 +1065,7 @@ class PDF
      * Terminates the PDF document.
      * It is not necessary to call this method explicitly because Output() does it automatically.
      * If the document contains no page, AddPage() is called to prevent from getting an invalid document.
-     * @see   Open(), Output()
+     * @see   Output()
      */
     public function close()
     {
@@ -1261,11 +1261,6 @@ class PDF
     // --- javascript and form ---
 
     /**
-     * Array of page numbers were a new page group was started (the page numbers are the keys of the array).
-     */
-    protected $newpagegroup = [];
-
-    /**
      * Array of transparency objects and parameters.
      */
     protected array $extgstates = [];
@@ -1430,17 +1425,6 @@ class PDF
     public function getLastH()
     {
         return $this->lastPrintedCellHeight;
-    }
-
-    /**
-     * This method begins the generation of the PDF document.
-     * It is not necessary to call it explicitly because AddPage() does it automatically.
-     * Note: no page is created by this method
-     * @see   addPage(), close()
-     */
-    public function Open()
-    {
-        $this->state = self::NEUTRAL;
     }
 
     /**
@@ -5288,23 +5272,6 @@ class PDF
         }
         if ($outer >= 0) {
             $this->rightMargin = $outer;
-        }
-    }
-
-    /**
-     * Swap the left and right margins.
-     * @param bool $reverse if true swap left and right margins.
-     */
-    protected function swapMargins($reverse = true)
-    {
-        if ($reverse) {
-            // swap left and right margins
-            $mtemp                     = $this->originalLeftMargin;
-            $this->originalLeftMargin  = $this->originalRightMargin;
-            $this->originalRightMargin = $mtemp;
-            $deltam                    = $this->originalLeftMargin - $this->originalRightMargin;
-            $this->leftMargin          += $deltam;
-            $this->rightMargin         -= $deltam;
         }
     }
 
