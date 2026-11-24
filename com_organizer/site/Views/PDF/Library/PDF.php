@@ -279,6 +279,21 @@ class PDF
     }
 
     /**
+     * Getter / setter for the buffer
+     * @param string $content
+     * @return string
+     */
+    protected function buffer(string $content = ''): string
+    {
+        if ($content) {
+            $this->buffer       .= $content;
+            $this->bufferLength += strlen($content);
+        }
+
+        return $this->buffer;
+    }
+
+    /**
      * Calculates the widths of the given characters and returns the value as a sum or an array.
      * @param array  $characters
      * @param bool   $asArray
@@ -316,18 +331,20 @@ class PDF
     }
 
     /**
-     * Getter / setter for the buffer
-     * @param string $content
-     * @return string
+     * Getter / setter for the document creation timestamp
+     * @param int|string|null $timestamp
+     * @return int
      */
-    protected function buffer(string $content = ''): string
+    public function creationTimestamp(int|string|null $timestamp): int
     {
-        if ($content) {
-            $this->buffer       .= $content;
-            $this->bufferLength += strlen($content);
+        if (is_string($timestamp)) {
+            $this->creationTimestamp = strtotime($timestamp);
+        }
+        elseif (is_int($timestamp)) {
+            $this->creationTimestamp = $timestamp;
         }
 
-        return $this->buffer;
+        return $this->creationTimestamp;
     }
 
     /**
@@ -430,6 +447,23 @@ class PDF
 
         $this->internalLinks[$linkID] = ['p' => $pageNumber, 'y' => $y, 'f' => $fixed];
         return $linkID;
+    }
+
+    /**
+     * Getter / setter for the document modification timestamp
+     * @param int|string|null $timestamp
+     * @return int
+     */
+    public function modificationTimestamp(int|string|null $timestamp): int
+    {
+        if (is_string($timestamp)) {
+            $this->modificationTimestamp = strtotime($timestamp);
+        }
+        elseif (is_int($timestamp)) {
+            $this->modificationTimestamp = $timestamp;
+        }
+
+        return $this->modificationTimestamp;
     }
 
     /**
@@ -728,56 +762,6 @@ class PDF
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-
-    /**
-     * Set the document creation timestamp
-     * @param mixed $time Document creation timestamp in seconds or date-time string.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function setDocCreationTimestamp($time)
-    {
-        if (is_string($time)) {
-            $time = TCPDF_STATIC::getTimestamp($time);
-        }
-        $this->doc_creation_timestamp = intval($time);
-    }
-
-    /**
-     * Set the document modification timestamp
-     * @param mixed $time Document modification timestamp in seconds or date-time string.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function setDocModificationTimestamp($time)
-    {
-        if (is_string($time)) {
-            $time = TCPDF_STATIC::getTimestamp($time);
-        }
-        $this->doc_modification_timestamp = intval($time);
-    }
-
-    /**
-     * Returns document creation timestamp in seconds.
-     * @return int Creation timestamp in seconds.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function getDocCreationTimestamp()
-    {
-        return $this->doc_creation_timestamp;
-    }
-
-    /**
-     * Returns document modification timestamp in seconds.
-     * @return int Modfication timestamp in seconds.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function getDocModificationTimestamp()
-    {
-        return $this->doc_modification_timestamp;
-    }
 
     /**
      * Print a Linear Barcode.
