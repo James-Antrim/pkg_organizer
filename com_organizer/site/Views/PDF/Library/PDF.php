@@ -31,9 +31,12 @@ class PDF
 
     protected array $annotationIDs = [];
     protected string $author = '';
+    protected array $borderMarks = [];
     protected string $buffer = '';
     protected int $bufferLength = 0;
     protected object|null $clone = null;
+    /** Array used to store content positions inside the pages buffer (keys are the page numbers). */
+    protected array $contentMarks = [];
     protected int $creationTimestamp = 0;
     protected string $creator = 'THM Organizer';
     protected array $graphicsSettings = [];
@@ -43,6 +46,7 @@ class PDF
     /** File ID for document trailer */
     protected string $fileID;
     protected array $internalLinks = [];
+    protected array $internalMarks = [];
     protected string $keywords = '';
     protected float $lastPrintedCellHeight = 0;
     protected bool $layerOpened = false;
@@ -328,6 +332,17 @@ class PDF
         }
 
         return $asArray ? $widths : $sum;
+    }
+
+    /**
+     * Set start-writing mark on selected page.
+     * Borders and fills are always created after content and inserted on the position marked by this method.
+     * @param int $page page number (default is the current page)
+     */
+    protected function contentMark(): void
+    {
+        $this->contentMarks[$this->page] = empty($this->footerLengths[$this->page]) ?
+            $this->pageLengths[$this->page] : $this->pageLengths[$this->page] - $this->footerLengths[$this->page];
     }
 
     /**
@@ -1271,21 +1286,6 @@ class PDF
     protected $viewer_preferences;
 
     /**
-     * Array used to store positions inside the pages buffer (keys are the page numbers).
-     */
-    protected $intmrk = [];
-
-    /**
-     * Array used to store positions inside the pages buffer (keys are the page numbers).
-     */
-    protected $bordermrk = [];
-
-    /**
-     * Array used to store content positions inside the pages buffer (keys are the page numbers).
-     */
-    protected $cntmrk = [];
-
-    /**
      * End position of the latest inserted line.
      */
     protected $endlinex = 0;
@@ -1507,24 +1507,6 @@ class PDF
         $this->topMargin = $margin;
         if (($this->page > 0) and ($this->y < $margin)) {
             $this->y = $margin;
-        }
-    }
-
-    /**
-     * Set start-writing mark on selected page.
-     * Borders and fills are always created after content and inserted on the position marked by this method.
-     * @param int $page page number (default is the current page)
-     */
-    protected function setContentMark($page = 0)
-    {
-        if ($page <= 0) {
-            $page = $this->page;
-        }
-        if (isset($this->footerLengths[$page])) {
-            $this->cntmrk[$page] = $this->pageLengths[$page] - $this->footerLengths[$page];
-        }
-        else {
-            $this->cntmrk[$page] = $this->pageLengths[$page];
         }
     }
 

@@ -1155,8 +1155,8 @@ trait Cells
                         $this->footerPositions[$this->page] += $offsetlen;
                     }
                     else {
-                        $pagemark                  = $this->intmrk[$this->page];
-                        $this->intmrk[$this->page] += $offsetlen;
+                        $pagemark                         = $this->internalMarks[$this->page];
+                        $this->internalMarks[$this->page] += $offsetlen;
                     }
                     $pagebuff = $this->pageBuffer($this->page);
                     $pstart   = substr($pagebuff, 0, $pagemark);
@@ -1200,7 +1200,7 @@ trait Cells
             $this->y = $y;
             $this->x($x + $w + $mc_margin['L'] + $mc_margin['R']);
         }
-        $this->setContentMark();
+        $this->contentMark();
         $this->cellPaddings    = $previousPaddings;
         $this->cellMargins     = $previousMargins;
         $this->cellLeftMargin  = $this->leftMargin;

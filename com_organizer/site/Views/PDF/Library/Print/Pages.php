@@ -25,6 +25,7 @@ trait Pages
     protected bool $checkRegions = true;
     protected string $currentOrientation = self::PORTRAIT;
     protected int $currentPageGroup = 0;
+    protected array $emptyPageMarks = [];
     protected float $formatHeightPT = 0;
     protected float $formatWidthPT = 0;
     protected float $height = 0;
@@ -381,6 +382,21 @@ trait Pages
     }
 
     /**
+     * Set start-writing mark on current page stream used to put borders and fills.
+     * Borders and fills are always created after content and inserted on the position marked by this method.
+     * This function must be called after calling Image() function for a background image.
+     * Background images must be always inserted before calling Multicell() or WriteHTMLCell() or WriteHTML() functions.
+     */
+    public function pageMark(): void
+    {
+        $position = $this->pageLengths[$this->page];
+
+        $this->internalMarks[$this->page] = $position;
+        $this->borderMarks[$this->page]   = $position;
+        $this->contentMark();
+    }
+
+    /**
      * Sets the canonical page layout mode, specifying how the document should be displayed when opened.
      * @param string $mode
      * @see self::PAGE_MODE_DESCRIPTIONS
@@ -626,6 +642,79 @@ trait Pages
     }
 
     /**
+     * Starts a new page to the document. The page must be closed using the endPage() function.
+     * @param string       $orientation
+     * @param array|string $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
+     * @param bool         $toc    if true the page is designated to contain the Table-Of-Content.
+     * @see   self::ORIENTATIONS, addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
+     */
+    public function startPage(string $orientation = self::CURRENT, array|string $format = '', bool $toc = false): void
+    {
+        // Move page numbers of documents to be attached
+        if ($toc) {
+            $this->tocpage = true;
+            // Move references to non-existent pages for page attachments
+            // Adjust outlines
+            foreach ($this->outlines as $key => &$outline) {
+                if (!$outline['f'] and ($outline['p'] > $this->pageCount)) {
+                    $outline['p'] += 1;
+                }
+            }
+            // Adjust named destinations
+            foreach ($this->namedDestinationsMap as $key => &$destination) {
+                if (!$destination['f'] and ($destination['p'] > $this->pageCount)) {
+                    $destination['p'] += 1;
+                }
+            }
+            // Adjust links
+            foreach ($this->internalLinks as &$link) {
+                if (!$link['f'] and ($link['p'] > $this->pageCount)) {
+                    $link['p'] += 1;
+                }
+            }
+        }
+
+        // Already existent
+        if ($this->pageCount > $this->page) {
+            $this->turnToPage($this->page + 1);
+            $this->y($this->topMargin);
+            return;
+        }
+
+        // Start a new page
+        if ($this->state === self::INITIAL) {
+            $this->state = self::NEUTRAL;
+        }
+
+        ++$this->pageCount;
+
+        if ($this->booklet) {
+            $this->swapMargins();
+        }
+
+        // save current graphic settings
+        $settings = $this->graphicsSettings();
+        // start new page
+        $this->initializePage($orientation, $format);
+        // mark page as open
+        $this->pageStatus[$this->page] = true;
+        // restore graphic settings
+        $this->graphicsSettings($settings);
+        // mark this point
+        $this->pageMark();
+        // print page header
+        $this->header();
+        // restore graphic settings
+        $this->graphicsSettings($settings);
+        // mark this point
+        $this->pageMark();
+        // print table header (if any)
+        $this->renderTableHeader();
+        // set mark for empty page check
+        $this->emptyPageMarks[$this->page] = $this->pageLengths[$this->page];
+    }
+
+    /**
      * Swap the left and right margins.
      */
     protected function swapMargins(): void
@@ -702,79 +791,6 @@ trait Pages
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-
-    /**
-     * Starts a new page to the document. The page must be closed using the endPage() function.
-     * @param string       $orientation
-     * @param array|string $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool         $toc    if true the page is designated to contain the Table-Of-Content.
-     * @see   self::ORIENTATIONS, addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
-     */
-    public function startPage(string $orientation = self::CURRENT, array|string $format = '', bool $toc = false)
-    {
-        // Move page numbers of documents to be attached
-        if ($toc) {
-            $this->tocpage = true;
-            // Move references to non-existent pages for page attachments
-            // Adjust outlines
-            foreach ($this->outlines as $key => &$outline) {
-                if (!$outline['f'] and ($outline['p'] > $this->pageCount)) {
-                    $outline['p'] += 1;
-                }
-            }
-            // Adjust named destinations
-            foreach ($this->namedDestinationsMap as $key => &$destination) {
-                if (!$destination['f'] and ($destination['p'] > $this->pageCount)) {
-                    $destination['p'] += 1;
-                }
-            }
-            // Adjust links
-            foreach ($this->internalLinks as &$link) {
-                if (!$link['f'] and ($link['p'] > $this->pageCount)) {
-                    $link['p'] += 1;
-                }
-            }
-        }
-
-        // Already existent
-        if ($this->pageCount > $this->page) {
-            $this->turnToPage($this->page + 1);
-            $this->y($this->topMargin);
-            return;
-        }
-
-        // Start a new page
-        if ($this->state === self::INITIAL) {
-            $this->state = self::NEUTRAL;
-        }
-
-        ++$this->pageCount;
-
-        if ($this->booklet) {
-            $this->swapMargins();
-        }
-
-        // save current graphic settings
-        $settings = $this->graphicsSettings();
-        // start new page
-        $this->initializePage($orientation, $format);
-        // mark page as open
-        $this->pageStatus[$this->page] = true;
-        // restore graphic settings
-        $this->graphicsSettings($settings);
-        // mark this point
-        $this->setPageMark();
-        // print page header
-        $this->header();
-        // restore graphic settings
-        $this->graphicsSettings($settings);
-        // mark this point
-        $this->setPageMark();
-        // print table header (if any)
-        $this->renderTableHeader();
-        // set mark for empty page check
-        $this->emptypagemrk[$this->page] = $this->pageLengths[$this->page];
-    }
 
     /**
      * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
@@ -861,12 +877,6 @@ trait Pages
 
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
-    /**
-     * Array used to store page positions to track empty pages (keys are the page numbers).
-     */
-    protected $emptypagemrk = [];
 
     /**
      * Starting page number.
@@ -1075,9 +1085,9 @@ trait Pages
         $this->pageBuffer($this->page, $this->pageBuffer($page));
         $this->pageDimensions[$this->page] = $this->pageDimensions[$page];
         $this->pageLengths[$this->page]    = $this->pageLengths[$page];
-        $this->intmrk[$this->page]         = $this->intmrk[$page];
-        $this->bordermrk[$this->page]      = $this->bordermrk[$page];
-        $this->cntmrk[$this->page]         = $this->cntmrk[$page];
+        $this->internalMarks[$this->page]  = $this->internalMarks[$page];
+        $this->borderMarks[$this->page]    = $this->borderMarks[$page];
+        $this->contentMarks[$this->page]   = $this->contentMarks[$page];
         $this->pageObjects[$this->page]    = $this->pageObjects[$page];
         $this->pageStatus[$this->page]     = false;
         if (isset($this->footerPositions[$page])) {
@@ -1134,9 +1144,9 @@ trait Pages
         unset($this->pages[$page]);
         unset($this->pageDimensions[$page]);
         unset($this->pageLengths[$page]);
-        unset($this->intmrk[$page]);
-        unset($this->bordermrk[$page]);
-        unset($this->cntmrk[$page]);
+        unset($this->internalMarks[$page]);
+        unset($this->borderMarks[$page]);
+        unset($this->contentMarks[$page]);
         foreach ($this->pageObjects[$page] as $oid) {
             if (isset($this->objectOffsets[$oid])) {
                 unset($this->objectOffsets[$oid]);
@@ -1174,9 +1184,9 @@ trait Pages
                 $this->pageBuffer($i, $this->pageBuffer($j));
                 $this->pageDimensions[$i] = $this->pageDimensions[$j];
                 $this->pageLengths[$i]    = $this->pageLengths[$j];
-                $this->intmrk[$i]         = $this->intmrk[$j];
-                $this->bordermrk[$i]      = $this->bordermrk[$j];
-                $this->cntmrk[$i]         = $this->cntmrk[$j];
+                $this->internalMarks[$i]  = $this->internalMarks[$j];
+                $this->borderMarks[$i]    = $this->borderMarks[$j];
+                $this->contentMarks[$i]   = $this->contentMarks[$j];
                 $this->pageObjects[$i]    = $this->pageObjects[$j];
                 if (isset($this->footerPositions[$j])) {
                     $this->footerPositions[$i] = $this->footerPositions[$j];
@@ -1220,9 +1230,9 @@ trait Pages
             unset($this->pages[$this->pageCount]);
             unset($this->pageDimensions[$this->pageCount]);
             unset($this->pageLengths[$this->pageCount]);
-            unset($this->intmrk[$this->pageCount]);
-            unset($this->bordermrk[$this->pageCount]);
-            unset($this->cntmrk[$this->pageCount]);
+            unset($this->internalMarks[$this->pageCount]);
+            unset($this->borderMarks[$this->pageCount]);
+            unset($this->contentMarks[$this->pageCount]);
             foreach ($this->pageObjects[$this->pageCount] as $oid) {
                 if (isset($this->objectOffsets[$oid])) {
                     unset($this->objectOffsets[$oid]);
@@ -1368,9 +1378,9 @@ trait Pages
         $tmppage        = $this->pageBuffer($frompage);
         $tmppagedim     = $this->pageDimensions[$frompage];
         $tmppagelen     = $this->pageLengths[$frompage];
-        $tmpintmrk      = $this->intmrk[$frompage];
-        $tmpbordermrk   = $this->bordermrk[$frompage];
-        $tmpcntmrk      = $this->cntmrk[$frompage];
+        $tmpintmrk      = $this->internalMarks[$frompage];
+        $tmpbordermrk   = $this->borderMarks[$frompage];
+        $tmpcntmrk      = $this->contentMarks[$frompage];
         $tmppageobjects = $this->pageObjects[$frompage];
         if (isset($this->footerPositions[$frompage])) {
             $tmpfooterpos = $this->footerPositions[$frompage];
@@ -1404,9 +1414,9 @@ trait Pages
             $this->pageBuffer($i, $this->pageBuffer($j));
             $this->pageDimensions[$i] = $this->pageDimensions[$j];
             $this->pageLengths[$i]    = $this->pageLengths[$j];
-            $this->intmrk[$i]         = $this->intmrk[$j];
-            $this->bordermrk[$i]      = $this->bordermrk[$j];
-            $this->cntmrk[$i]         = $this->cntmrk[$j];
+            $this->internalMarks[$i]  = $this->internalMarks[$j];
+            $this->borderMarks[$i]    = $this->borderMarks[$j];
+            $this->contentMarks[$i]   = $this->contentMarks[$j];
             $this->pageObjects[$i]    = $this->pageObjects[$j];
             if (isset($this->footerPositions[$j])) {
                 $this->footerPositions[$i] = $this->footerPositions[$j];
@@ -1443,9 +1453,9 @@ trait Pages
         $this->pageBuffer($topage, $tmppage);
         $this->pageDimensions[$topage] = $tmppagedim;
         $this->pageLengths[$topage]    = $tmppagelen;
-        $this->intmrk[$topage]         = $tmpintmrk;
-        $this->bordermrk[$topage]      = $tmpbordermrk;
-        $this->cntmrk[$topage]         = $tmpcntmrk;
+        $this->internalMarks[$topage]  = $tmpintmrk;
+        $this->borderMarks[$topage]    = $tmpbordermrk;
+        $this->contentMarks[$topage]   = $tmpcntmrk;
         $this->pageObjects[$topage]    = $tmppageobjects;
         if (isset($tmpfooterpos)) {
             $this->footerPositions[$topage] = $tmpfooterpos;
@@ -1546,19 +1556,6 @@ trait Pages
                 $this->pageBoxes[] = $box;
             }
         }
-    }
-
-    /**
-     * Set start-writing mark on current page stream used to put borders and fills.
-     * Borders and fills are always created after content and inserted on the position marked by this method.
-     * This function must be called after calling Image() function for a background image.
-     * Background images must be always inserted before calling Multicell() or WriteHTMLCell() or WriteHTML() functions.
-     */
-    public function setPageMark()
-    {
-        $this->intmrk[$this->page]    = $this->pageLengths[$this->page];
-        $this->bordermrk[$this->page] = $this->intmrk[$this->page];
-        $this->setContentMark();
     }
 
     /**

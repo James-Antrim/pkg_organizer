@@ -1337,8 +1337,8 @@ trait WebTools
                             // remove line from previous page
                             $this->pageBuffer($startlinepage, $tstart . '' . $tend);
                             $pagebuff = $this->pageBuffer($this->page);
-                            $tstart   = substr($pagebuff, 0, $this->cntmrk[$this->page]);
-                            $tend     = substr($pagebuff, $this->cntmrk[$this->page]);
+                            $tstart   = substr($pagebuff, 0, $this->contentMarks[$this->page]);
+                            $tend     = substr($pagebuff, $this->contentMarks[$this->page]);
                             // add line start to current page
                             $yshift = ($minstartliney - $this->y);
                             if ($fontaligned) {
@@ -1364,7 +1364,7 @@ trait WebTools
                                 }
                             }
                             $pask          = $next_pask;
-                            $startlinepos  = $this->cntmrk[$this->page];
+                            $startlinepos  = $this->contentMarks[$this->page];
                             $startlinepage = $this->page;
                             $startliney    = $this->y;
                             $this->newLine = false;
@@ -1407,8 +1407,8 @@ trait WebTools
                                 // remove line start from previous page
                                 $this->pageBuffer($startlinepage, $tstart . '' . $tend);
                                 $pagebuff = $this->pageBuffer($this->page);
-                                $tstart   = substr($pagebuff, 0, $this->cntmrk[$this->page]);
-                                $tend     = substr($pagebuff, $this->cntmrk[$this->page]);
+                                $tstart   = substr($pagebuff, 0, $this->contentMarks[$this->page]);
+                                $tend     = substr($pagebuff, $this->contentMarks[$this->page]);
                                 // add line start to current page
                                 $yshift = ($minstartliney - $this->y);
                                 $try    = sprintf('1 0 0 1 0 %F cm', ($yshift * $this->factor));
@@ -1431,7 +1431,7 @@ trait WebTools
                                     }
                                 }
                                 $pask          = $next_pask;
-                                $startlinepos  = $this->cntmrk[$this->page];
+                                $startlinepos  = $this->contentMarks[$this->page];
                                 $startlinepage = $this->page;
                                 $startliney    = $this->y;
                             }
@@ -1879,8 +1879,8 @@ trait WebTools
                     $pask = 0;
                 }
                 if (!($dom[$key]['tag'] and !$dom[$key]['opening'] and ($dom[$key]['value'] == 'table')
-                    and (isset($this->emptypagemrk[$this->page]))
-                    and ($this->emptypagemrk[$this->page] == $this->pageLengths[$this->page]))) {
+                    and (isset($this->emptyPageMarks[$this->page]))
+                    and ($this->emptyPageMarks[$this->page] == $this->pageLengths[$this->page]))) {
                     $this->font($fontname, $fontstyle, $fontsize);
                     if ($wfill) {
                         $this->fillColorArray($this->bgColor);
@@ -2180,10 +2180,10 @@ trait WebTools
                 }
                 else { // closing tag
                     $prev_numpages = $this->pageCount;
-                    $old_bordermrk = $this->bordermrk[$this->page];
+                    $old_bordermrk = $this->borderMarks[$this->page];
                     $dom           = $this->closeHTMLTagHandler($dom, $key, $cell, $maxbottomliney);
-                    if ($this->bordermrk[$this->page] > $old_bordermrk) {
-                        $startlinepos += ($this->bordermrk[$this->page] - $old_bordermrk);
+                    if ($this->borderMarks[$this->page] > $old_bordermrk) {
+                        $startlinepos += ($this->borderMarks[$this->page] - $old_bordermrk);
                     }
                     if ($prev_numpages > $this->pageCount) {
                         $startlinepage = $this->page;
@@ -3634,7 +3634,7 @@ trait WebTools
                                         $pagemark = $this->footerPositions[$this->page];
                                     }
                                     else {
-                                        $pagemark = $this->intmrk[$this->page];
+                                        $pagemark = $this->internalMarks[$this->page];
                                     }
                                     $pagebuff = $this->pageBuffer($this->page);
                                     $pstart   = substr($pagebuff, 0, $pagemark);
@@ -3665,9 +3665,9 @@ trait WebTools
                     // reset row height
                     $this->resetLastH();
                     if (($this->page == ($this->pageCount - 1)) and ($this->pageStatus[$this->pageCount])) {
-                        $plendiff = ($this->pageLengths[$this->pageCount] - $this->emptypagemrk[$this->pageCount]);
+                        $plendiff = ($this->pageLengths[$this->pageCount] - $this->emptyPageMarks[$this->pageCount]);
                         if (($plendiff > 0) and ($plendiff < 60)) {
-                            $pagediff = substr($this->pageBuffer($this->pageCount), $this->emptypagemrk[$this->pageCount], $plendiff);
+                            $pagediff = substr($this->pageBuffer($this->pageCount), $this->emptyPageMarks[$this->pageCount], $plendiff);
                             if (substr($pagediff, 0, 5) == 'BT /F') {
                                 // the difference is only a font setting
                                 $plendiff = 0;
@@ -5310,14 +5310,14 @@ trait WebTools
                         $pagemark = $this->footerPositions[$this->page];
                     }
                     else {
-                        $pagemark = $this->intmrk[$this->page];
+                        $pagemark = $this->internalMarks[$this->page];
                     }
                     $pagebuff = $this->pageBuffer($this->page);
                     $pstart   = substr($pagebuff, 0, $pagemark);
                     $pend     = substr($pagebuff, $pagemark);
                     $this->pageBuffer($this->page, $pstart . $ccode . $pend);
-                    $this->bordermrk[$this->page] += $offsetlen;
-                    $this->cntmrk[$this->page]    += $offsetlen;
+                    $this->borderMarks[$this->page]  += $offsetlen;
+                    $this->contentMarks[$this->page] += $offsetlen;
                 }
             }
         } // end for each page
