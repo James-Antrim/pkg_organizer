@@ -21,11 +21,6 @@ class Instances extends ListView
 {
     public array $conditions;
 
-    /**
-     * @var string
-     */
-    public $title;
-
     /** @inheritDoc */
     public function __construct($orientation = self::PORTRAIT, $unit = self::MILLIMETER, $format = 'A4')
     {

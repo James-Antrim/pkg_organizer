@@ -51,9 +51,8 @@ abstract class BaseView extends PDF implements ViewInterface
         $this->authorize();
 
         parent::__construct($orientation, $unit, $format);
-        $this->SetAuthor(User::name());
+        $this->author(User::name());
         $this->cellPaddings(1, 1.5, 1, 1.5);
-        $this->SetCreator('THM Organizer');
 
         $name   = $this->getName();
         $layout = Input::cmd('layout', $name);
@@ -240,16 +239,6 @@ abstract class BaseView extends PDF implements ViewInterface
     {
         $this->printHeader($display);
         $this->printFooter($display);
-    }
-
-    /**
-     * Gets the title used within the document.
-     *
-     * @return string
-     */
-    public function title(): string
-    {
-        return $this->title;
     }
 
     /**

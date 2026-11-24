@@ -30,16 +30,19 @@ class PDF
     use Tools;
 
     protected array $annotationIDs = [];
+    protected string $author = '';
     protected string $buffer = '';
     protected int $bufferLength = 0;
     protected object|null $clone = null;
     protected int $creationTimestamp = 0;
+    protected string $creator = 'THM Organizer';
     protected array $graphicsSettings = [];
     protected array $encodingDeltas = [];
     protected float $factor = 0;
     /** File ID for document trailer */
     protected string $fileID;
     protected array $internalLinks = [];
+    protected string $keywords = '';
     protected float $lastPrintedCellHeight = 0;
     protected bool $layerOpened = false;
     protected array $layers = [];
@@ -61,6 +64,8 @@ class PDF
     /** Regular expression used to find blank characters for word-wrapping. */
     protected string $spacesRE = '/(?!\xa0)[\s\p{Z}]/u';
     protected int $state = self::INITIAL;
+    protected string $subject = '';
+    protected string $title = '';
     protected bool $underline = false;
     protected string $unit = self::MILLIMETER;
     /** Preserves the ids of files who have had all properties unset. */
@@ -229,6 +234,15 @@ class PDF
     }
 
     /**
+     * Defines the author of the document.
+     * @param string $author
+     */
+    public function author(string $author): void
+    {
+        $this->author = $author;
+    }
+
+    /**
      * Calculates the widths of the given characters and returns the value as a sum or an array.
      * @param array  $characters
      * @param bool   $asArray
@@ -335,6 +349,15 @@ class PDF
         else {
             array_pop($this->transpositions[$this->page]);
         }
+    }
+
+    /**
+     * Associates keywords with the document, generally in the form 'keyword1 keyword2 ...'.
+     * @param array|string $keywords The list of keywords.
+     */
+    public function keywords(array|string $keywords): void
+    {
+        $this->keywords = is_array($keywords) ? implode(' ', $keywords) : $keywords;
     }
 
     /**
@@ -494,6 +517,29 @@ class PDF
     }
 
     /**
+     * Defines the subject of the document.
+     * @param string $subject The subject.
+     */
+    public function subject(string $subject): void
+    {
+        $this->subject = $subject;
+    }
+
+    /**
+     * Getter / setter for the title of the document.
+     * @param string|null $title
+     * @return string
+     */
+    public function title(string|null $title = null): string
+    {
+        if ($title) {
+            $this->title = $title;
+        }
+
+        return $this->title;
+    }
+
+    /**
      * Unset properties.
      * @param bool $all          if true destroys all class variables, otherwise preserves critical variables.
      * @param bool $preserveCopy if true preserves the clone property
@@ -645,6 +691,7 @@ class PDF
 
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
+
 
     /**
      * Terminates the PDF document.
@@ -883,31 +930,6 @@ class PDF
     protected $docinfounicode = true;
 
     /**
-     * Document title.
-     */
-    protected $title = '';
-
-    /**
-     * Document subject.
-     */
-    protected $subject = '';
-
-    /**
-     * Document author.
-     */
-    protected $author = '';
-
-    /**
-     * Document keywords.
-     */
-    protected $keywords = '';
-
-    /**
-     * Document creator.
-     */
-    protected $creator = '';
-
-    /**
      * Text shadow data array.
      */
     protected $txtshadow = ['enabled' => false, 'depth_w' => 0, 'depth_h' => 0, 'color' => false, 'opacity' => 1, 'blend_mode' => 'Normal'];
@@ -1134,36 +1156,6 @@ class PDF
     }
 
     /**
-     * Defines the author of the document.
-     * @param string $author The name of the author.
-     * @see   SetCreator(), SetKeywords(), SetSubject(), SetTitle()
-     */
-    public function setAuthor($author)
-    {
-        $this->author = $author;
-    }
-
-    /**
-     * Defines the creator of the document. This is typically the name of the application that generates the PDF.
-     * @param string $creator The name of the creator.
-     * @see   SetAuthor(), SetKeywords(), SetSubject(), SetTitle()
-     */
-    public function setCreator($creator)
-    {
-        $this->creator = $creator;
-    }
-
-    /**
-     * Associates keywords with the document, generally in the form 'keyword1 keyword2 ...'.
-     * @param string $keywords The list of keywords.
-     * @see   SetAuthor(), SetCreator(), SetSubject(), SetTitle()
-     */
-    public function setKeywords($keywords)
-    {
-        $this->keywords = $keywords;
-    }
-
-    /**
      * Set the last cell height.
      * @param float $h cell height.
      * @author Nicola Asuni
@@ -1222,26 +1214,6 @@ class PDF
         if (($this->page > 0) and ($this->x > ($this->width - $margin))) {
             $this->x = $this->width - $margin;
         }
-    }
-
-    /**
-     * Defines the subject of the document.
-     * @param string $subject The subject.
-     * @see   SetAuthor(), SetCreator(), SetKeywords(), SetTitle()
-     */
-    public function setSubject($subject)
-    {
-        $this->subject = $subject;
-    }
-
-    /**
-     * Defines the title of the document.
-     * @param string $title The title.
-     * @see   SetAuthor(), SetCreator(), SetKeywords(), SetSubject()
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
     }
 
     /**
