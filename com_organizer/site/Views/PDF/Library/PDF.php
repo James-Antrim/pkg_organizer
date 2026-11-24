@@ -728,6 +728,320 @@ class PDF
 
 
     /**
+     * Print a Linear Barcode.
+     * @param string     $code  code to print
+     * @param string     $type  type of barcode (see tcpdf_barcodes_1d.php for supported formats).
+     * @param float|null $x     x position in user units (null = current x position)
+     * @param float|null $y     y position in user units (null = current y position)
+     * @param float|null $w     width in user units (null = remaining page width)
+     * @param float|null $h     height in user units (null = remaining page height)
+     * @param float|null $xres  width of the smallest bar in user units (null = default value = 0.4mm)
+     * @param array      $style array of options:<ul>
+     *                          <li>bool $style['border'] if true prints a border</li>
+     *                          <li>int $style['padding'] padding to leave around the barcode in user units (set to 'auto' for automatic padding)</li>
+     *                          <li>int $style['hPadding'] horizontal padding in user units (set to 'auto' for automatic padding)</li>
+     *                          <li>int $style['vPadding'] vertical padding in user units (set to 'auto' for automatic padding)</li>
+     *                          <li>array $style['fgColor'] color array for bars and text</li>
+     *                          <li>mixed $style['bgColor'] color array for background (set to false for transparent)</li>
+     *                          <li>bool $style['text'] if true prints text below the barcode</li>
+     *                          <li>string $style['label'] override default label</li>
+     *                          <li>string $style['font'] font name for text</li><li>int $style['fontsize'] font size for text</li>
+     *                          <li>int $style['stretchText']: 0 = disabled; 1 = horizontal scaling only if necessary; 2 = forced horizontal scaling; 3 = character spacing only if necessary; 4 = forced character spacing.</li>
+     *                          <li>string $style['position'] horizontal position of the containing barcode cell on the page: L = left margin; C = center; R = right margin.</li>
+     *                          <li>string $style['align'] horizontal position of the barcode on the containing rectangle: L = left; C = center; R = right.</li>
+     *                          <li>string $style['stretch'] if true stretch the barcode to best fit the available width, otherwise uses $xres resolution for a single bar.</li>
+     *                          <li>string $style['reduceWidth'] if true reduce the width to fit the barcode width + padding. When this option is enabled the 'stretch' option is automatically disabled.</li>
+     *                          <li>string $style['hAlign'] this option works only when 'reduceWidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
+     * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @author Nicola Asuni
+     */
+    public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
+    {
+        if (StaticMethods::empty_string(trim($code))) {
+            return;
+        }
+        // save current graphic settings
+        $gvars = $this->graphicsSettings();
+        // create new barcode object
+        $barcodeobj = new Barcode1D($code, $type);
+        $arrcode    = $barcodeobj->barcode();
+        if (empty($arrcode) or ($arrcode['maxw'] <= 0)) {
+            $this->Error('Error in 1D barcode string');
+        }
+        if ($arrcode['maxh'] <= 0) {
+            $arrcode['maxh'] = 1;
+        }
+        // set default values
+        if (!isset($style['position'])) {
+            $style['position'] = '';
+        }
+        elseif ($style['position'] == 'S') {
+            // keep this for backward compatibility
+            $style['position'] = '';
+            $style['stretch']  = true;
+        }
+        if (!isset($style['reduceWidth'])) {
+            if (!isset($style['stretch'])) {
+                $style['reduceWidth'] = true;
+            }
+            else {
+                $style['reduceWidth'] = false;
+            }
+        }
+        if ($style['reduceWidth']) {
+            // disable stretch
+            $style['stretch'] = false;
+        }
+        if (!isset($style['stretch'])) {
+            if (($w === '') or ($w <= 0)) {
+                $style['stretch'] = false;
+            }
+            else {
+                $style['stretch'] = true;
+            }
+        }
+        if (!isset($style['fgColor'])) {
+            $style['fgColor'] = self::BLACK;
+        }
+        if (!isset($style['bgColor'])) {
+            $style['bgColor'] = false; // default transparent
+        }
+        if (!isset($style['border'])) {
+            $style['border'] = false;
+        }
+        $fontsize = 0;
+        if (!isset($style['text'])) {
+            $style['text'] = false;
+        }
+        if ($style['text'] and isset($style['font'])) {
+            if (isset($style['fontsize'])) {
+                $fontsize = $style['fontsize'];
+            }
+            $this->font($style['font'], '', $fontsize);
+        }
+        if (!isset($style['stretchText'])) {
+            $style['stretchText'] = 4;
+        }
+        if (StaticMethods::empty_string($x)) {
+            $x = $this->x;
+        }
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        // check page for no-write regions and adapt page margins if necessary
+        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+        if (StaticMethods::empty_string($w) or ($w <= 0)) {
+            $w = $this->width - $this->rightMargin - $x;
+        }
+        // padding
+        if (!isset($style['padding'])) {
+            $padding = 0;
+        }
+        elseif ($style['padding'] === 'auto') {
+            $padding = 10 * ($w / ($arrcode['maxw'] + 20));
+        }
+        else {
+            $padding = floatval($style['padding']);
+        }
+        // horizontal padding
+        if (!isset($style['hPadding'])) {
+            $hPadding = $padding;
+        }
+        elseif ($style['hPadding'] === 'auto') {
+            $hPadding = 10 * ($w / ($arrcode['maxw'] + 20));
+        }
+        else {
+            $hPadding = floatval($style['hPadding']);
+        }
+        // vertical padding
+        if (!isset($style['vPadding'])) {
+            $vPadding = $padding;
+        }
+        elseif ($style['vPadding'] === 'auto') {
+            $vPadding = ($hPadding / 2);
+        }
+        else {
+            $vPadding = floatval($style['vPadding']);
+        }
+        // calculate xres (single bar width)
+        $max_xres = ($w - (2 * $hPadding)) / $arrcode['maxw'];
+        if ($style['stretch']) {
+            $xres = $max_xres;
+        }
+        else {
+            if (StaticMethods::empty_string($xres)) {
+                $xres = (0.141 * $this->factor); // default bar width = 0.4 mm
+            }
+            if ($xres > $max_xres) {
+                // correct xres to fit on $w
+                $xres = $max_xres;
+            }
+            if ((isset($style['padding']) and ($style['padding'] === 'auto'))
+                or (isset($style['hPadding']) and ($style['hPadding'] === 'auto'))) {
+                $hPadding = 10 * $xres;
+                if (isset($style['vPadding']) and ($style['vPadding'] === 'auto')) {
+                    $vPadding = ($hPadding / 2);
+                }
+            }
+        }
+        if ($style['reduceWidth']) {
+            $wold = $w;
+            $w    = (($arrcode['maxw'] * $xres) + (2 * $hPadding));
+            if (isset($style['hAlign'])) {
+                switch ($style['hAlign']) {
+                    case 'R':
+                    {
+                        $x += ($wold - $w);
+                        break;
+                    }
+                    case 'C':
+                    {
+                        $x += (($wold - $w) / 2);
+                        break;
+                    }
+                    default :
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+        $text_height = $this->cellHeight($fontsize / $this->factor);
+        // height
+        if (StaticMethods::empty_string($h) or ($h <= 0)) {
+            // set default height
+            $h = (($arrcode['maxw'] * $xres) / 3) + (2 * $vPadding) + $text_height;
+        }
+        $barh = $h - $text_height - (2 * $vPadding);
+        if ($barh <= 0) {
+            // try to reduce font or padding to fit barcode on available height
+            if ($text_height > $h) {
+                $fontsize    = (($h * $this->factor) / (4 * $this->cellHeightRatio));
+                $text_height = $this->cellHeight($fontsize / $this->factor);
+                $this->font($style['font'], '', $fontsize);
+            }
+            if ($vPadding > 0) {
+                $vPadding = (($h - $text_height) / 4);
+            }
+            $barh = $h - $text_height - (2 * $vPadding);
+        }
+        // fit the barcode on available space
+        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, false);
+        // set alignment
+        $this->imageRBY = $y + $h;
+        // set alignment
+        if ($style['position'] == 'L') {
+            $xpos = $this->leftMargin;
+        }
+        elseif ($style['position'] == 'C') {
+            $xpos = ($this->width + $this->leftMargin - $this->rightMargin - $w) / 2;
+        }
+        elseif ($style['position'] == 'R') {
+            $xpos = $this->width - $this->rightMargin - $w;
+        }
+        else {
+            $xpos = $x;
+        }
+        $this->imageRBX = $xpos + $w;
+        $xpos_rect      = $xpos;
+        if (!isset($style['align'])) {
+            $style['align'] = 'C';
+        }
+        switch ($style['align']) {
+            case 'L':
+            {
+                $xpos = $xpos_rect + $hPadding;
+                break;
+            }
+            case 'R':
+            {
+                $xpos = $xpos_rect + ($w - ($arrcode['maxw'] * $xres)) - $hPadding;
+                break;
+            }
+            case 'C':
+            default :
+            {
+                $xpos = $xpos_rect + (($w - ($arrcode['maxw'] * $xres)) / 2);
+                break;
+            }
+        }
+        $xpos_text = $xpos;
+        // print background color
+        if ($style['bgColor']) {
+            $this->rectangle($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
+        }
+        elseif ($style['border']) {
+            $this->rectangle($xpos_rect, $y, $w, $h, 'D');
+        }
+        // set foreground color
+        $this->drawColorArray($style['fgColor']);
+        $this->textColorArray($style['fgColor']);
+        // print bars
+        foreach ($arrcode['bcode'] as $k => $v) {
+            $bw = ($v['w'] * $xres);
+            if ($v['t']) {
+                // draw a vertical bar
+                $ypos = $y + $vPadding + ($v['p'] * $barh / $arrcode['maxh']);
+                $this->rectangle($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', [], $style['fgColor']);
+            }
+            $xpos += $bw;
+        }
+        // print text
+        if ($style['text']) {
+            if (isset($style['label']) and !StaticMethods::empty_string($style['label'])) {
+                $label = $style['label'];
+            }
+            else {
+                $label = $code;
+            }
+            $txtwidth = ($arrcode['maxw'] * $xres);
+            if ($this->stringWidth($label) > $txtwidth) {
+                $style['stretchText'] = 2;
+            }
+            // print text
+            $this->x     = $xpos_text;
+            $this->y     = $y + $vPadding + $barh;
+            $cellpadding = $this->cellPaddings;
+            $this->cellPadding(0);
+            $this->cell($txtwidth, 0, $label, 0, 0, 'C', false, '', $style['stretchText'], false, 'T', 'T');
+            $this->cellPaddings = $cellpadding;
+        }
+        // restore previous settings
+        $this->graphicsSettings($gvars);
+        // set pointer to align the next text/objects
+        switch ($align) {
+            case 'T':
+            {
+                $this->y = $y;
+                $this->x = $this->imageRBX;
+                break;
+            }
+            case 'M':
+            {
+                $this->y = $y + round($h / 2);
+                $this->x = $this->imageRBX;
+                break;
+            }
+            case 'B':
+            {
+                $this->y = $this->imageRBY;
+                $this->x = $this->imageRBX;
+                break;
+            }
+            case 'N':
+            {
+                $this->y($this->imageRBY);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+        $this->endlinex = $this->imageRBX;
+    }
+
+    /**
      * Terminates the PDF document.
      * It is not necessary to call this method explicitly because Output() does it automatically.
      * If the document contains no page, AddPage() is called to prevent from getting an invalid document.
@@ -4739,320 +5053,6 @@ class PDF
     }
 
     /**
-     * Print a Linear Barcode.
-     * @param string     $code  code to print
-     * @param string     $type  type of barcode (see tcpdf_barcodes_1d.php for supported formats).
-     * @param float|null $x     x position in user units (null = current x position)
-     * @param float|null $y     y position in user units (null = current y position)
-     * @param float|null $w     width in user units (null = remaining page width)
-     * @param float|null $h     height in user units (null = remaining page height)
-     * @param float|null $xres  width of the smallest bar in user units (null = default value = 0.4mm)
-     * @param array      $style array of options:<ul>
-     *                          <li>bool $style['border'] if true prints a border</li>
-     *                          <li>int $style['padding'] padding to leave around the barcode in user units (set to 'auto' for automatic padding)</li>
-     *                          <li>int $style['hpadding'] horizontal padding in user units (set to 'auto' for automatic padding)</li>
-     *                          <li>int $style['vpadding'] vertical padding in user units (set to 'auto' for automatic padding)</li>
-     *                          <li>array $style['fgColor'] color array for bars and text</li>
-     *                          <li>mixed $style['bgColor'] color array for background (set to false for transparent)</li>
-     *                          <li>bool $style['text'] if true prints text below the barcode</li>
-     *                          <li>string $style['label'] override default label</li>
-     *                          <li>string $style['font'] font name for text</li><li>int $style['fontsize'] font size for text</li>
-     *                          <li>int $style['stretchtext']: 0 = disabled; 1 = horizontal scaling only if necessary; 2 = forced horizontal scaling; 3 = character spacing only if necessary; 4 = forced character spacing.</li>
-     *                          <li>string $style['position'] horizontal position of the containing barcode cell on the page: L = left margin; C = center; R = right margin.</li>
-     *                          <li>string $style['align'] horizontal position of the barcode on the containing rectangle: L = left; C = center; R = right.</li>
-     *                          <li>string $style['stretch'] if true stretch the barcode to best fit the available width, otherwise uses $xres resolution for a single bar.</li>
-     *                          <li>string $style['reduceWidth'] if true reduce the width to fit the barcode width + padding. When this option is enabled the 'stretch' option is automatically disabled.</li>
-     *                          <li>string $style['hAlign'] this option works only when 'reduceWidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
-     * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
-     * @author Nicola Asuni
-     */
-    public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
-    {
-        if (StaticMethods::empty_string(trim($code))) {
-            return;
-        }
-        // save current graphic settings
-        $gvars = $this->graphicsSettings();
-        // create new barcode object
-        $barcodeobj = new Barcode1D($code, $type);
-        $arrcode    = $barcodeobj->barcode();
-        if (empty($arrcode) or ($arrcode['maxw'] <= 0)) {
-            $this->Error('Error in 1D barcode string');
-        }
-        if ($arrcode['maxh'] <= 0) {
-            $arrcode['maxh'] = 1;
-        }
-        // set default values
-        if (!isset($style['position'])) {
-            $style['position'] = '';
-        }
-        elseif ($style['position'] == 'S') {
-            // keep this for backward compatibility
-            $style['position'] = '';
-            $style['stretch']  = true;
-        }
-        if (!isset($style['reduceWidth'])) {
-            if (!isset($style['stretch'])) {
-                $style['reduceWidth'] = true;
-            }
-            else {
-                $style['reduceWidth'] = false;
-            }
-        }
-        if ($style['reduceWidth']) {
-            // disable stretch
-            $style['stretch'] = false;
-        }
-        if (!isset($style['stretch'])) {
-            if (($w === '') or ($w <= 0)) {
-                $style['stretch'] = false;
-            }
-            else {
-                $style['stretch'] = true;
-            }
-        }
-        if (!isset($style['fgColor'])) {
-            $style['fgColor'] = self::BLACK;
-        }
-        if (!isset($style['bgColor'])) {
-            $style['bgColor'] = false; // default transparent
-        }
-        if (!isset($style['border'])) {
-            $style['border'] = false;
-        }
-        $fontsize = 0;
-        if (!isset($style['text'])) {
-            $style['text'] = false;
-        }
-        if ($style['text'] and isset($style['font'])) {
-            if (isset($style['fontsize'])) {
-                $fontsize = $style['fontsize'];
-            }
-            $this->font($style['font'], '', $fontsize);
-        }
-        if (!isset($style['stretchtext'])) {
-            $style['stretchtext'] = 4;
-        }
-        if (StaticMethods::empty_string($x)) {
-            $x = $this->x;
-        }
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
-        }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        if (StaticMethods::empty_string($w) or ($w <= 0)) {
-            $w = $this->width - $this->rightMargin - $x;
-        }
-        // padding
-        if (!isset($style['padding'])) {
-            $padding = 0;
-        }
-        elseif ($style['padding'] === 'auto') {
-            $padding = 10 * ($w / ($arrcode['maxw'] + 20));
-        }
-        else {
-            $padding = floatval($style['padding']);
-        }
-        // horizontal padding
-        if (!isset($style['hpadding'])) {
-            $hpadding = $padding;
-        }
-        elseif ($style['hpadding'] === 'auto') {
-            $hpadding = 10 * ($w / ($arrcode['maxw'] + 20));
-        }
-        else {
-            $hpadding = floatval($style['hpadding']);
-        }
-        // vertical padding
-        if (!isset($style['vpadding'])) {
-            $vpadding = $padding;
-        }
-        elseif ($style['vpadding'] === 'auto') {
-            $vpadding = ($hpadding / 2);
-        }
-        else {
-            $vpadding = floatval($style['vpadding']);
-        }
-        // calculate xres (single bar width)
-        $max_xres = ($w - (2 * $hpadding)) / $arrcode['maxw'];
-        if ($style['stretch']) {
-            $xres = $max_xres;
-        }
-        else {
-            if (StaticMethods::empty_string($xres)) {
-                $xres = (0.141 * $this->factor); // default bar width = 0.4 mm
-            }
-            if ($xres > $max_xres) {
-                // correct xres to fit on $w
-                $xres = $max_xres;
-            }
-            if ((isset($style['padding']) and ($style['padding'] === 'auto'))
-                or (isset($style['hpadding']) and ($style['hpadding'] === 'auto'))) {
-                $hpadding = 10 * $xres;
-                if (isset($style['vpadding']) and ($style['vpadding'] === 'auto')) {
-                    $vpadding = ($hpadding / 2);
-                }
-            }
-        }
-        if ($style['reduceWidth']) {
-            $wold = $w;
-            $w    = (($arrcode['maxw'] * $xres) + (2 * $hpadding));
-            if (isset($style['hAlign'])) {
-                switch ($style['hAlign']) {
-                    case 'R':
-                    {
-                        $x += ($wold - $w);
-                        break;
-                    }
-                    case 'C':
-                    {
-                        $x += (($wold - $w) / 2);
-                        break;
-                    }
-                    default :
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-        $text_height = $this->cellHeight($fontsize / $this->factor);
-        // height
-        if (StaticMethods::empty_string($h) or ($h <= 0)) {
-            // set default height
-            $h = (($arrcode['maxw'] * $xres) / 3) + (2 * $vpadding) + $text_height;
-        }
-        $barh = $h - $text_height - (2 * $vpadding);
-        if ($barh <= 0) {
-            // try to reduce font or padding to fit barcode on available height
-            if ($text_height > $h) {
-                $fontsize    = (($h * $this->factor) / (4 * $this->cellHeightRatio));
-                $text_height = $this->cellHeight($fontsize / $this->factor);
-                $this->font($style['font'], '', $fontsize);
-            }
-            if ($vpadding > 0) {
-                $vpadding = (($h - $text_height) / 4);
-            }
-            $barh = $h - $text_height - (2 * $vpadding);
-        }
-        // fit the barcode on available space
-        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, false);
-        // set alignment
-        $this->imageRBY = $y + $h;
-        // set alignment
-        if ($style['position'] == 'L') {
-            $xpos = $this->leftMargin;
-        }
-        elseif ($style['position'] == 'C') {
-            $xpos = ($this->width + $this->leftMargin - $this->rightMargin - $w) / 2;
-        }
-        elseif ($style['position'] == 'R') {
-            $xpos = $this->width - $this->rightMargin - $w;
-        }
-        else {
-            $xpos = $x;
-        }
-        $this->imageRBX = $xpos + $w;
-        $xpos_rect      = $xpos;
-        if (!isset($style['align'])) {
-            $style['align'] = 'C';
-        }
-        switch ($style['align']) {
-            case 'L':
-            {
-                $xpos = $xpos_rect + $hpadding;
-                break;
-            }
-            case 'R':
-            {
-                $xpos = $xpos_rect + ($w - ($arrcode['maxw'] * $xres)) - $hpadding;
-                break;
-            }
-            case 'C':
-            default :
-            {
-                $xpos = $xpos_rect + (($w - ($arrcode['maxw'] * $xres)) / 2);
-                break;
-            }
-        }
-        $xpos_text = $xpos;
-        // print background color
-        if ($style['bgColor']) {
-            $this->rectangle($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
-        }
-        elseif ($style['border']) {
-            $this->rectangle($xpos_rect, $y, $w, $h, 'D');
-        }
-        // set foreground color
-        $this->drawColorArray($style['fgColor']);
-        $this->textColorArray($style['fgColor']);
-        // print bars
-        foreach ($arrcode['bcode'] as $k => $v) {
-            $bw = ($v['w'] * $xres);
-            if ($v['t']) {
-                // draw a vertical bar
-                $ypos = $y + $vpadding + ($v['p'] * $barh / $arrcode['maxh']);
-                $this->rectangle($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', [], $style['fgColor']);
-            }
-            $xpos += $bw;
-        }
-        // print text
-        if ($style['text']) {
-            if (isset($style['label']) and !StaticMethods::empty_string($style['label'])) {
-                $label = $style['label'];
-            }
-            else {
-                $label = $code;
-            }
-            $txtwidth = ($arrcode['maxw'] * $xres);
-            if ($this->stringWidth($label) > $txtwidth) {
-                $style['stretchtext'] = 2;
-            }
-            // print text
-            $this->x     = $xpos_text;
-            $this->y     = $y + $vpadding + $barh;
-            $cellpadding = $this->cellPaddings;
-            $this->cellPadding(0);
-            $this->cell($txtwidth, 0, $label, 0, 0, 'C', false, '', $style['stretchtext'], false, 'T', 'T');
-            $this->cellPaddings = $cellpadding;
-        }
-        // restore previous settings
-        $this->graphicsSettings($gvars);
-        // set pointer to align the next text/objects
-        switch ($align) {
-            case 'T':
-            {
-                $this->y = $y;
-                $this->x = $this->imageRBX;
-                break;
-            }
-            case 'M':
-            {
-                $this->y = $y + round($h / 2);
-                $this->x = $this->imageRBX;
-                break;
-            }
-            case 'B':
-            {
-                $this->y = $this->imageRBY;
-                $this->x = $this->imageRBX;
-                break;
-            }
-            case 'N':
-            {
-                $this->y($this->imageRBY);
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
-        $this->endlinex = $this->imageRBX;
-    }
-
-    /**
      * Print 2D Barcode.
      * @param string     $code    code to print
      * @param string     $type    type of barcode (see tcpdf_barcodes_2d.php for supported formats).
@@ -5063,8 +5063,8 @@ class PDF
      * @param array      $style   array of options:<ul>
      *                            <li>bool $style['border'] if true prints a border around the barcode</li>
      *                            <li>int $style['padding'] padding to leave around the barcode in barcode units (set to 'auto' for automatic padding)</li>
-     *                            <li>int $style['hpadding'] horizontal padding in barcode units (set to 'auto' for automatic padding)</li>
-     *                            <li>int $style['vpadding'] vertical padding in barcode units (set to 'auto' for automatic padding)</li>
+     *                            <li>int $style['hPadding'] horizontal padding in barcode units (set to 'auto' for automatic padding)</li>
+     *                            <li>int $style['vPadding'] vertical padding in barcode units (set to 'auto' for automatic padding)</li>
      *                            <li>int $style['module_width'] width of a single module in points</li>
      *                            <li>int $style['module_height'] height of a single module in points</li>
      *                            <li>array $style['fgColor'] color array for bars and text</li>
@@ -5107,20 +5107,20 @@ class PDF
         elseif ($style['padding'] === 'auto') {
             $style['padding'] = 4;
         }
-        if (!isset($style['hpadding'])) {
-            $style['hpadding'] = $style['padding'];
+        if (!isset($style['hPadding'])) {
+            $style['hPadding'] = $style['padding'];
         }
-        elseif ($style['hpadding'] === 'auto') {
-            $style['hpadding'] = 4;
+        elseif ($style['hPadding'] === 'auto') {
+            $style['hPadding'] = 4;
         }
-        if (!isset($style['vpadding'])) {
-            $style['vpadding'] = $style['padding'];
+        if (!isset($style['vPadding'])) {
+            $style['vPadding'] = $style['padding'];
         }
-        elseif ($style['vpadding'] === 'auto') {
-            $style['vpadding'] = 4;
+        elseif ($style['vPadding'] === 'auto') {
+            $style['vPadding'] = 4;
         }
-        $hpad = (2 * $style['hpadding']);
-        $vpad = (2 * $style['vpadding']);
+        $hpad = (2 * $style['hPadding']);
+        $vpad = (2 * $style['vPadding']);
         // cell (module) dimension
         if (!isset($style['module_width'])) {
             $style['module_width'] = 1; // width of a single module in points
@@ -5190,13 +5190,13 @@ class PDF
                 // correct horizontal distortion
                 $cw                = $ch * $mw / $mh;
                 $bw                = $cw * $cols;
-                $style['hpadding'] = ($w - $bw) / (2 * $cw);
+                $style['hPadding'] = ($w - $bw) / (2 * $cw);
             }
             else {
                 // correct vertical distortion
                 $ch                = $cw * $mh / $mw;
                 $bh                = $ch * $rows;
-                $style['vpadding'] = ($h - $bh) / (2 * $ch);
+                $style['vPadding'] = ($h - $bh) / (2 * $ch);
             }
         }
         // fit the barcode on available space
@@ -5217,8 +5217,8 @@ class PDF
             $xpos = $x;
         }
         $this->imageRBX = $xpos + $w;
-        $xstart         = $xpos + ($style['hpadding'] * $cw);
-        $ystart         = $y + ($style['vpadding'] * $ch);
+        $xstart         = $xpos + ($style['hPadding'] * $cw);
+        $ystart         = $y + ($style['vPadding'] * $ch);
         // print background color
         if ($style['bgColor']) {
             $this->rectangle($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
