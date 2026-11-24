@@ -206,6 +206,24 @@ trait Images
     }
 
     /**
+     * Return the right-bottom corner X coordinate of last inserted image.
+     * @return float
+     */
+    public function imageRBX(): float
+    {
+        return $this->imageRBX;
+    }
+
+    /**
+     * Return the right-bottom corner Y coordinate of last inserted image.
+     * @return float
+     */
+    public function imageRBY(): float
+    {
+        return $this->imageRBY;
+    }
+
+    /**
      * Set image buffer content for a specified sub-key.
      * @param string $imageKey image key
      * @param string $subKey   image sub-key

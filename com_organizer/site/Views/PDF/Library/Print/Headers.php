@@ -32,6 +32,7 @@ trait Headers
      */
     protected bool $headerXObjectAutoreset = false;
     protected bool $inHeader = false;
+    protected bool $inHeaderTemplate = false;
     protected bool $printHeader = true;
 
     /**

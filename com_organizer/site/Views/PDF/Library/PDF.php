@@ -37,6 +37,7 @@ class PDF
     protected int $creationTimestamp = 0;
     protected string $creator = 'THM Organizer';
     protected array $graphicsSettings = [];
+    protected array $embeddedFileNames = [];
     protected array $encodingDeltas = [];
     protected float $factor = 0;
     /** File ID for document trailer */
@@ -58,6 +59,7 @@ class PDF
     protected array $namedDestinationsMap = [];
     protected bool $newLine = true;
     protected int $objectNumber = 2;
+    protected array $objectOffsets = [];
     protected bool $overline = false;
     /** Array of $spacesRE parts. */
     protected array $spaceRE = ['p' => '(?!\xa0)[\s\p{Z}]', 'm' => 'u'];
@@ -484,7 +486,7 @@ class PDF
             $objectID = $this->objectNumber;
         }
 
-        $this->offsets[$objectID]         = $this->bufferLength;
+        $this->objectOffsets[$objectID]   = $this->bufferLength;
         $this->pageObjects[$this->page][] = $objectID;
         return $objectID . ' 0 obj';
     }
@@ -728,113 +730,53 @@ class PDF
 
 
     /**
-     * Add page if needed.
-     * @param float      $h       Cell height. Default value: 0.
-     * @param float|null $y       starting y position, leave empty for current position.
-     * @param bool       $addpage if true add a page, otherwise only return the true/false state
-     * @return bool true in case of page break, false otherwise.
+     * Set the document creation timestamp
+     * @param mixed $time Document creation timestamp in seconds or date-time string.
+     * @public
+     * @since 5.9.152 (2012-03-23)
      */
-    protected function checkPageBreak($h = 0, $y = null, $addpage = true)
+    public function setDocCreationTimestamp($time)
     {
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
+        if (is_string($time)) {
+            $time = TCPDF_STATIC::getTimestamp($time);
         }
-        $current_page = $this->page;
-        if ((($y + $h) > $this->breakTrigger) and ($this->inPageBody()) and ($this->acceptPageBreak())) {
-            if ($addpage) {
-                //Automatic page break
-                $x = $this->x;
-                $this->addPage($this->currentOrientation);
-                $this->y = $this->topMargin;
-                $oldpage = $this->page - 1;
-                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
-                    $this->x = $x + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$oldpage]['olm']);
-                }
-                else {
-                    $this->x = $x;
-                }
-            }
-            return true;
-        }
-        if ($current_page != $this->page) {
-            // account for columns mode
-            return true;
-        }
-        return false;
+        $this->doc_creation_timestamp = intval($time);
     }
 
     /**
-     * Check page for no-write regions and adapt current coordinates and page margins if necessary.
-     * A no-write region is a portion of the page with a rectangular or trapezium shape that will not be covered when writing text or html code.
-     * A region is always aligned on the left or right side of the page ad is defined using a vertical segment.
-     * @param float $height height of the text/image/object to print in user units
-     * @param float $x      current X coordinate in user units
-     * @param float $y      current Y coordinate in user units
-     * @return float[] [$x, $y]
-     * @author Nicola Asuni
+     * Set the document modification timestamp
+     * @param mixed $time Document modification timestamp in seconds or date-time string.
+     * @public
+     * @since 5.9.152 (2012-03-23)
      */
-    protected function checkPageRegions(float $height, float $x, float $y)
+    public function setDocModificationTimestamp($time)
     {
-        if (!$this->checkRegions or empty($this->pageRegions)) {
-            // no page regions defined
-            return [$x, $y];
+        if (is_string($time)) {
+            $time = TCPDF_STATIC::getTimestamp($time);
         }
+        $this->doc_modification_timestamp = intval($time);
+    }
 
-        $height = $height ?: $this->cellHeight($this->fontSize);
-        // check for page break
-        if ($this->checkPageBreak($height, $y)) {
-            // the content will be printed on a new page
-            $x = $this->x;
-            $y = $this->y;
-        }
-        if ($this->columnCount > 1) {
-            $this->rightMargin = ($this->width - $this->columns[$this->currentColumn]['x'] - $this->columns[$this->currentColumn]['w']);
-        }
-        else {
-            $this->rightMargin = max($this->cellRightMargin, $this->originalRightMargin);
-        }
-        // adjust coordinates and page margins
-        foreach ($this->pageRegions as $regid => $regdata) {
-            if ($regdata['page'] == $this->page) {
-                // check region boundaries
-                if (($y > ($regdata['yt'] - $height)) and ($y <= $regdata['yb'])) {
-                    // Y is inside the region
-                    $minv = ($regdata['xb'] - $regdata['xt']) / ($regdata['yb'] - $regdata['yt']); // inverse of angular coefficient
-                    $yt   = max($y, $regdata['yt']);
-                    $yb   = min(($yt + $height), $regdata['yb']);
-                    $xt   = (($yt - $regdata['yt']) * $minv) + $regdata['xt'];
-                    $xb   = (($yb - $regdata['yt']) * $minv) + $regdata['xt'];
-                    if ($regdata['side'] == 'L') { // left side
-                        $new_margin = max($xt, $xb);
-                        if ($this->leftMargin < $new_margin) {
-                            if ($x < $new_margin) {
-                                // adjust x position
-                                $x = $new_margin;
-                                if ($new_margin > ($this->width - $this->rightMargin)) {
-                                    // adjust y position
-                                    $y = $regdata['yb'] - $height;
-                                }
-                            }
-                        }
-                    }
-                    elseif ($regdata['side'] == 'R') { // right side
-                        $new_margin = min($xt, $xb);
-                        if (($this->width - $this->rightMargin) > $new_margin) {
-                            $this->rightMargin = max(0, ($this->width - $new_margin));
-                            if ($x > $new_margin) {
-                                // adjust x position
-                                $x = $new_margin;
-                                if ($new_margin > $this->leftMargin) {
-                                    // adjust y position
-                                    $y = $regdata['yb'] - $height;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return [$x, $y];
+    /**
+     * Returns document creation timestamp in seconds.
+     * @return int Creation timestamp in seconds.
+     * @public
+     * @since 5.9.152 (2012-03-23)
+     */
+    public function getDocCreationTimestamp()
+    {
+        return $this->doc_creation_timestamp;
+    }
+
+    /**
+     * Returns document modification timestamp in seconds.
+     * @return int Modfication timestamp in seconds.
+     * @public
+     * @since 5.9.152 (2012-03-23)
+     */
+    public function getDocModificationTimestamp()
+    {
+        return $this->doc_modification_timestamp;
     }
 
     /**
@@ -1294,12 +1236,6 @@ class PDF
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-
-    /**
-     * True when we are printing the thead section on a new page.
-     */
-    protected bool $inthead = false;
-
     /**
      * This method is used to render the table header on new page (if any).
      */
@@ -1315,7 +1251,7 @@ class PDF
             $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
             $this->y                                 = $this->topMargin;
         }
-        if ($this->headerTemplate and (!$this->inthead)) {
+        if ($this->headerTemplate and (!$this->inHeaderTemplate)) {
             // set margins
             $prev_lMargin       = $this->leftMargin;
             $prev_rMargin       = $this->rightMargin;
@@ -1356,10 +1292,6 @@ class PDF
         }
     }
 
-    /**
-     * Array of object offsets.
-     */
-    protected $offsets = [];
 
     /**
      * Array of used images.
@@ -1472,11 +1404,6 @@ class PDF
     protected $cache_file_length = [];
 
     /**
-     * Digital signature object ID.
-     */
-    protected $sig_obj_id = 0;
-
-    /**
      * Current method to submit forms.
      */
     protected $form_mode = 'post';
@@ -1494,7 +1421,6 @@ class PDF
     /**
      * Embedded Files Names
      */
-    protected $efnames = [];
 
     /**
      * Custom XMP data.
@@ -1875,7 +1801,7 @@ class PDF
                 $rawsize = strlen($data);
                 if ($rawsize > 0) {
                     // update name tree
-                    $this->efnames[$filename] = $filedata['f'] . ' 0 R';
+                    $this->embeddedFileNames[$filename] = $filedata['f'] . ' 0 R';
                     // embedded file specification object
                     $out = $this->objectCommand($filedata['f']) . "\n";
                     $out .= '<</Type /Filespec /F ' . $this->metadataDataString($filename);
@@ -3798,9 +3724,9 @@ class PDF
         if (!empty($this->javascriptCounter)) {
             $out .= ' /JavaScript ' . $this->javascriptCounter;
         }
-        if (!empty($this->efnames)) {
+        if (!empty($this->embeddedFileNames)) {
             $out .= ' /EmbeddedFiles <</Names [';
-            foreach ($this->efnames as $fn => $fref) {
+            foreach ($this->embeddedFileNames as $fn => $fref) {
                 $out .= ' ' . $this->metadataDataString($fn) . ' ' . $fref;
             }
             $out .= ' ]>>';
@@ -3991,12 +3917,12 @@ class PDF
         $this->append('0000000000 65535 f ');
         $freegen = ($this->objectNumber + 2);
         for ($i = 1; $i <= $this->objectNumber; ++$i) {
-            if (!isset($this->offsets[$i]) and ($i > 1)) {
+            if (!isset($this->objectOffsets[$i]) and ($i > 1)) {
                 $this->append(sprintf('0000000000 %05d f ', $freegen));
                 ++$freegen;
             }
             else {
-                $this->append(sprintf('%010d 00000 n ', $this->offsets[$i]));
+                $this->append(sprintf('%010d 00000 n ', $this->objectOffsets[$i]));
             }
         }
         // TRAILER
@@ -5590,75 +5516,6 @@ class PDF
     }
 
     /**
-     * Set position at a given column
-     * @param int|null $col column number (from 0 to getNumberOfColumns()-1); empty string = current column.
-     */
-    public function selectColumn($col = null)
-    {
-        if (StaticMethods::empty_string($col)) {
-            $col = $this->currentColumn;
-        }
-        elseif ($col >= $this->columnCount) {
-            $col = 0;
-        }
-        $xshift       = ['x' => 0, 's' => ['H' => 0, 'V' => 0], 'p' => ['L' => 0, 'T' => 0, 'R' => 0, 'B' => 0]];
-        $enable_thead = false;
-        if ($this->columnCount > 1) {
-            if ($col != $this->currentColumn) {
-                // move Y pointer at the top of the column
-                if ($this->column_start_page == $this->page) {
-                    $this->y = $this->columns[$col]['y'];
-                }
-                else {
-                    $this->y = $this->topMargin;
-                }
-                // Avoid to write table headers more than once
-                if (($this->page > $this->maxselcol['page']) or (($this->page == $this->maxselcol['page']) and ($col > $this->maxselcol['column']))) {
-                    $enable_thead              = true;
-                    $this->maxselcol['page']   = $this->page;
-                    $this->maxselcol['column'] = $col;
-                }
-            }
-            $xshift = $this->colxshift;
-            // set X position of the current column by case
-            $listindent = ($this->listindentlevel * $this->listindent);
-            // calculate column X position
-            $colpos = 0;
-            for ($i = 0; $i < $col; ++$i) {
-                $colpos += ($this->columns[$i]['w'] + $this->columns[$i]['s']);
-            }
-            $x                        = $this->originalLeftMargin + $colpos;
-            $this->leftMargin         = ($x + $listindent);
-            $this->rightMargin        = ($this->width - $x - $this->columns[$col]['w']);
-            $this->x                  = $x + $listindent;
-            $this->columns[$col]['x'] = $x;
-        }
-        $this->currentColumn = $col;
-        // fix for HTML mode
-        $this->newLine = true;
-        // print HTML table header (if any)
-        if ((!StaticMethods::empty_string($this->headerTemplate)) and (!$this->inthead)) {
-            if ($enable_thead) {
-                // print table header
-                $this->writeHTML($this->headerTemplate, false, false, false, false, '');
-                $this->y += $xshift['s']['V'];
-                // store end of header position
-                if (!isset($this->columns[$col]['th'])) {
-                    $this->columns[$col]['th'] = [];
-                }
-                $this->columns[$col]['th']['\'' . $this->page . '\''] = $this->y;
-                $this->lastPrintedCellHeight                          = 0;
-            }
-            elseif (isset($this->columns[$col]['th']['\'' . $this->page . '\''])) {
-                $this->y = $this->columns[$col]['th']['\'' . $this->page . '\''];
-            }
-        }
-        // account for an html table cell over multiple columns
-        $this->leftMargin += $xshift['x'];
-        $this->x          += $xshift['x'] + $xshift['p']['L'];
-    }
-
-    /**
      * Set Text rendering mode.
      * @param int  $stroke outline size in user units (0 = disable).
      * @param bool $fill   if true fills the text (default).
@@ -6507,56 +6364,6 @@ class PDF
     }
 
     /**
-     * Set the document creation timestamp
-     * @param mixed $time Document creation timestamp in seconds or date-time string.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function setDocCreationTimestamp($time)
-    {
-        if (is_string($time)) {
-            $time = TCPDF_STATIC::getTimestamp($time);
-        }
-        $this->doc_creation_timestamp = intval($time);
-    }
-
-    /**
-     * Set the document modification timestamp
-     * @param mixed $time Document modification timestamp in seconds or date-time string.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function setDocModificationTimestamp($time)
-    {
-        if (is_string($time)) {
-            $time = TCPDF_STATIC::getTimestamp($time);
-        }
-        $this->doc_modification_timestamp = intval($time);
-    }
-
-    /**
-     * Returns document creation timestamp in seconds.
-     * @return int Creation timestamp in seconds.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function getDocCreationTimestamp()
-    {
-        return $this->doc_creation_timestamp;
-    }
-
-    /**
-     * Returns document modification timestamp in seconds.
-     * @return int Modfication timestamp in seconds.
-     * @public
-     * @since 5.9.152 (2012-03-23)
-     */
-    public function getDocModificationTimestamp()
-    {
-        return $this->doc_modification_timestamp;
-    }
-
-    /**
      * Turn on/off Unicode mode for document information dictionary (meta tags).
      * This has effect only when unicode mode is set to false.
      * @param boolean $unicode if true set the meta information in Unicode
@@ -6585,64 +6392,6 @@ class PDF
                 }
             }
         }
-    }
-
-    /**
-     * Return the right-bottom (or left-bottom for RTL) corner X coordinate of last inserted image
-     * @return float
-     * @public
-     */
-    public function getImageRBX()
-    {
-        return $this->img_rb_x;
-    }
-
-    /**
-     * Return the right-bottom (or left-bottom for RTL) corner Y coordinate of last inserted image
-     * @return float
-     * @public
-     */
-    public function getImageRBY()
-    {
-        return $this->img_rb_y;
-    }
-
-    /**
-     * Sets the font used to print character strings.
-     * The font can be either a standard one or a font added via the AddFont() method. Standard fonts use Windows encoding cp1252 (Western Europe).
-     * The method can be called before the first page is created and the font is retained from page to page.
-     * If you just wish to change the current font size, it is simpler to call SetFontSize().
-     * Note: for the standard fonts, the font metric files must be accessible. There are three possibilities for this:<ul><li>They are in the current directory (the one where the running script lies)</li><li>They are in one of the directories defined by the include_path parameter</li><li>They are in the directory defined by the K_PATH_FONTS constant</li></ul><br />
-     * @param string     $family   Family font. It can be either a name defined by AddFont() or one of the standard Type1 families (case insensitive):<ul><li>times (Times-Roman)</li><li>timesb (Times-Bold)</li><li>timesi (Times-Italic)</li><li>timesbi (Times-BoldItalic)</li><li>helvetica (Helvetica)</li><li>helveticab (Helvetica-Bold)</li><li>helveticai (Helvetica-Oblique)</li><li>helveticabi (Helvetica-BoldOblique)</li><li>courier (Courier)</li><li>courierb (Courier-Bold)</li><li>courieri (Courier-Oblique)</li><li>courierbi (Courier-BoldOblique)</li><li>symbol (Symbol)</li><li>zapfdingbats (ZapfDingbats)</li></ul> It is also possible to pass an empty string. In that case, the current family is retained.
-     * @param string     $style    Font style. Possible values are (case insensitive):<ul><li>empty string: regular</li><li>B: bold</li><li>I: italic</li><li>U: underline</li><li>D: line through</li><li>O: overline</li></ul> or any combination. The default value is regular. Bold and italic styles do not apply to Symbol and ZapfDingbats basic fonts or other fonts when not defined.
-     * @param float|null $size     Font size in points. The default value is the current size. If no size has been specified since the beginning of the document, the value taken is 12
-     * @param string     $fontfile The font definition file. By default, the name is built from the family and style, in lower case with no spaces.
-     * @param mixed      $subset   if true embedd only a subset of the font (stores only the information related to the used characters); if false embedd full font; if 'default' uses the default value set using setFontSubsetting(). This option is valid only for TrueTypeUnicode fonts. If you want to enable users to change the document, set this parameter to false. If you subset the font, the person who receives your PDF would need to have your same font in order to make changes to your PDF. The file size of the PDF would also be smaller because you are embedding only part of a font.
-     * @param boolean    $out      if true output the font size command, otherwise only set the font properties.
-     * @author Nicola Asuni
-     * @public
-     * @since  1.0
-     * @see    AddFont(), SetFontSize()
-     */
-    public function setFont($family, $style = '', $size = null, $fontfile = '', $subset = 'default', $out = true)
-    {
-        //Select a font; size given in points
-        if ($size === null) {
-            $size = $this->FontSizePt;
-        }
-        if ($size < 0) {
-            $size = 0;
-        }
-        // try to add font (if not already added)
-        $fontdata         = $this->AddFont($family, $style, $fontfile, $subset);
-        $this->FontFamily = $fontdata['family'];
-        $this->FontStyle  = $fontdata['style'];
-        if (isset($this->CurrentFont['fontkey']) and isset($this->CurrentFont['subsetchars'])) {
-            // save subset chars of the previous font
-            $this->setFontSubBuffer($this->CurrentFont['fontkey'], 'subsetchars', $this->CurrentFont['subsetchars']);
-        }
-        $this->CurrentFont = $this->getFontBuffer($fontdata['fontkey']);
-        $this->setFontSize($size, $out);
     }
 
     /**
@@ -6716,17 +6465,6 @@ class PDF
             return array_map(array($this, 'getAbsFontMeasure'), $result);
         }
         return false;
-    }
-
-    /**
-     * Returns the current font style.
-     * @return string current font style
-     * @public
-     * @since 4.3.008 (2008-12-05)
-     */
-    public function getFontStyle()
-    {
-        return $this->FontStyle;
     }
 
 #endregion

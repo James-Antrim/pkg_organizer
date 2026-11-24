@@ -448,6 +448,116 @@ trait Pages
 
 
     /**
+     * Add page if needed.
+     * @param float      $h       Cell height. Default value: 0.
+     * @param float|null $y       starting y position, leave empty for current position.
+     * @param bool       $addpage if true add a page, otherwise only return the true/false state
+     * @return bool true in case of page break, false otherwise.
+     */
+    protected function checkPageBreak($h = 0, $y = null, $addpage = true)
+    {
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        $current_page = $this->page;
+        if ((($y + $h) > $this->breakTrigger) and ($this->inPageBody()) and ($this->acceptPageBreak())) {
+            if ($addpage) {
+                //Automatic page break
+                $x = $this->x;
+                $this->addPage($this->currentOrientation);
+                $this->y = $this->topMargin;
+                $oldpage = $this->page - 1;
+                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
+                    $this->x = $x + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$oldpage]['olm']);
+                }
+                else {
+                    $this->x = $x;
+                }
+            }
+            return true;
+        }
+        if ($current_page != $this->page) {
+            // account for columns mode
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check page for no-write regions and adapt current coordinates and page margins if necessary.
+     * A no-write region is a portion of the page with a rectangular or trapezium shape that will not be covered when writing text or html code.
+     * A region is always aligned on the left or right side of the page ad is defined using a vertical segment.
+     * @param float $height height of the text/image/object to print in user units
+     * @param float $x      current X coordinate in user units
+     * @param float $y      current Y coordinate in user units
+     * @return float[] [$x, $y]
+     * @author Nicola Asuni
+     */
+    protected function checkPageRegions(float $height, float $x, float $y)
+    {
+        if (!$this->checkRegions or empty($this->pageRegions)) {
+            // no page regions defined
+            return [$x, $y];
+        }
+
+        $height = $height ?: $this->cellHeight($this->fontSize);
+        // check for page break
+        if ($this->checkPageBreak($height, $y)) {
+            // the content will be printed on a new page
+            $x = $this->x;
+            $y = $this->y;
+        }
+        if ($this->columnCount > 1) {
+            $this->rightMargin = ($this->width - $this->columns[$this->currentColumn]['x'] - $this->columns[$this->currentColumn]['w']);
+        }
+        else {
+            $this->rightMargin = max($this->cellRightMargin, $this->originalRightMargin);
+        }
+        // adjust coordinates and page margins
+        foreach ($this->pageRegions as $regid => $regdata) {
+            if ($regdata['page'] == $this->page) {
+                // check region boundaries
+                if (($y > ($regdata['yt'] - $height)) and ($y <= $regdata['yb'])) {
+                    // Y is inside the region
+                    $minv = ($regdata['xb'] - $regdata['xt']) / ($regdata['yb'] - $regdata['yt']); // inverse of angular coefficient
+                    $yt   = max($y, $regdata['yt']);
+                    $yb   = min(($yt + $height), $regdata['yb']);
+                    $xt   = (($yt - $regdata['yt']) * $minv) + $regdata['xt'];
+                    $xb   = (($yb - $regdata['yt']) * $minv) + $regdata['xt'];
+                    if ($regdata['side'] == 'L') { // left side
+                        $new_margin = max($xt, $xb);
+                        if ($this->leftMargin < $new_margin) {
+                            if ($x < $new_margin) {
+                                // adjust x position
+                                $x = $new_margin;
+                                if ($new_margin > ($this->width - $this->rightMargin)) {
+                                    // adjust y position
+                                    $y = $regdata['yb'] - $height;
+                                }
+                            }
+                        }
+                    }
+                    elseif ($regdata['side'] == 'R') { // right side
+                        $new_margin = min($xt, $xb);
+                        if (($this->width - $this->rightMargin) > $new_margin) {
+                            $this->rightMargin = max(0, ($this->width - $new_margin));
+                            if ($x > $new_margin) {
+                                // adjust x position
+                                $x = $new_margin;
+                                if ($new_margin > $this->leftMargin) {
+                                    // adjust y position
+                                    $y = $regdata['yb'] - $height;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return [$x, $y];
+    }
+
+    /**
      * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
      * The origin of the coordinate system is at the top-left corner and increasing ordinates go downwards.
      * @param string $orientation
@@ -875,8 +985,8 @@ trait Pages
         unset($this->bordermrk[$page]);
         unset($this->cntmrk[$page]);
         foreach ($this->pageObjects[$page] as $oid) {
-            if (isset($this->offsets[$oid])) {
-                unset($this->offsets[$oid]);
+            if (isset($this->objectOffsets[$oid])) {
+                unset($this->objectOffsets[$oid]);
             }
         }
         unset($this->pageObjects[$page]);
@@ -961,8 +1071,8 @@ trait Pages
             unset($this->bordermrk[$this->pageCount]);
             unset($this->cntmrk[$this->pageCount]);
             foreach ($this->pageObjects[$this->pageCount] as $oid) {
-                if (isset($this->offsets[$oid])) {
-                    unset($this->offsets[$oid]);
+                if (isset($this->objectOffsets[$oid])) {
+                    unset($this->objectOffsets[$oid]);
                 }
             }
             unset($this->pageObjects[$this->pageCount]);

@@ -1242,7 +1242,7 @@ trait WebTools
             // print THEAD block
             if (($dom[$key]['value'] == 'tr') and isset($dom[$key]['thead']) and $dom[$key]['thead']) {
                 if (isset($dom[$key]['parent']) and isset($dom[$dom[$key]['parent']]['thead']) and !StaticMethods::empty_string($dom[$dom[$key]['parent']]['thead'])) {
-                    $this->inthead = true;
+                    $this->inHeaderTemplate = true;
                     // print table header (thead)
                     $this->writeHTML($this->headerTemplate, false, false, false, false, '');
                     // check if we are on a new page or on a new column
@@ -1920,7 +1920,7 @@ trait WebTools
                             $table_width = $wtmp;
                         }
                         $table_width -= (2 * $cellspacing['H']);
-                        if (!$this->inthead) {
+                        if (!$this->inHeaderTemplate) {
                             $this->y += $cellspacing['V'];
                         }
                         $cellspacingx = $cellspacing['H'];
@@ -2337,7 +2337,7 @@ trait WebTools
                         $$vkey = $vval;
                     }
                     if (!empty($dom[$key]['thead'])) {
-                        $this->inthead = true;
+                        $this->inHeaderTemplate = true;
                     }
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $pre_y = $this->y;
@@ -2606,7 +2606,7 @@ trait WebTools
                 }
                 $prev_y = $this->y;
                 if ($this->checkPageBreak(((2 * $cp) + (2 * $cs) + $this->lastPrintedCellHeight), '', false) or ($this->y < $prev_y)) {
-                    $this->inthead = true;
+                    $this->inHeaderTemplate = true;
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $this->checkPageBreak($this->breakTrigger + 1);
                 }
@@ -3401,8 +3401,8 @@ trait WebTools
             }
             case 'tablehead':
                 // closing tag used for the thead part
-                $in_table_head = true;
-                $this->inthead = false;
+                $in_table_head          = true;
+                $this->inHeaderTemplate = false;
             case 'table':
             {
                 $table_el = $parent;
@@ -5146,7 +5146,7 @@ trait WebTools
         if (isset($tag['border']) and !empty($tag['border'])) {
             // get border style
             $border = $tag['border'];
-            if (!StaticMethods::empty_string($this->headerTemplate) and (!$this->inthead)) {
+            if (!StaticMethods::empty_string($this->headerTemplate) and (!$this->inHeaderTemplate)) {
                 // border for table header
                 $border = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
             }
