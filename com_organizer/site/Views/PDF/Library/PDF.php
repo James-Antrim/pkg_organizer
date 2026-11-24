@@ -229,6 +229,43 @@ class PDF
     }
 
     /**
+     * Calculates the widths of the given characters and returns the value as a sum or an array.
+     * @param array  $characters
+     * @param bool   $asArray
+     * @param string $font
+     * @param string $fontStyle
+     * @param float  $fontSize Font size in points. The default value is the current size.
+     * @return float[]|float
+     */
+    public function characterWidths(array $characters, bool $asArray = false, string $font = '', string $fontStyle = '', float $fontSize = 0): array|float
+    {
+        // Cache current values if calculations are to be made on a different font.
+        if ($font) {
+            $currentFont   = $this->fontFamily;
+            $currentStyle  = $this->fontStyle;
+            $currentSizePT = $this->fontSizePT;
+            $this->font($font, $fontStyle, $fontSize, '', 'default', false);
+        }
+
+        $characters = $this->utf8ArrayToLatin1Array($characters);
+
+        $sum    = 0;
+        $widths = [];
+        foreach ($characters as $ck => $char) {
+            $width    = $this->GetCharWidth($char, isset($characters[($ck + 1)]));
+            $widths[] = $width;
+            $sum      += $width;
+        }
+
+        // Restore previous font
+        if ($font) {
+            $this->font($currentFont, $currentStyle, $currentSizePT, '', 'default', false);
+        }
+
+        return $asArray ? $widths : $sum;
+    }
+
+    /**
      * Getter / setter for the buffer
      * @param string $content
      * @return string
@@ -546,6 +583,19 @@ class PDF
         $this->layers[]    = ['layer' => $layer, 'name' => $name, 'print' => $print, 'view' => $view, 'lock' => $lock];
         $this->layerOpened = true;
         $this->append('/OC /' . $layer . ' BDC');
+    }
+
+    /**
+     * Returns the length of a string in user unit. A font must be selected.<br>
+     * @param string $string   The string whose length is to be computed
+     * @param string $font
+     * @param string $fontStyle
+     * @param float  $fontSize Font size in points. The default value is the current size.
+     * @return float total string length or array of characted widths
+     */
+    public function stringWidth(string $string, string $font = '', string $fontStyle = '', float $fontSize = 0): float
+    {
+        return $this->characterWidths($this->utf8StringToArray($string), false, $font, $fontStyle, $fontSize);
     }
 
     /**
@@ -1227,60 +1277,6 @@ class PDF
     }
 
     /**
-     * Returns the length of a string in user unit. A font must be selected.<br>
-     * @param string $s        The string whose length is to be computed
-     * @param string $font
-     * @param string $fontstyle
-     * @param float  $fontsize Font size in points. The default value is the current size.
-     * @param bool   $getarray if true returns an array of characters widths, if false returns the total length.
-     * @return float[]|float total string length or array of characted widths
-     * @see self::CORE_FONTS, AddFont(), self::FONT_STYLES
-     */
-    public function GetStringWidth($s, $font = '', $fontstyle = '', $fontsize = 0, $getarray = false)
-    {
-        return $this->GetArrStringWidth($this->utf8StringToArray($s), $font, $fontstyle, $fontsize, $getarray);
-    }
-
-    /**
-     * Returns the string length of an array of chars in user unit or an array of characters widths. A font must be selected.<br>
-     * @param array  $sa       The array of chars whose total length is to be computed
-     * @param string $fontname
-     * @param string $fontstyle
-     * @param float  $fontsize Font size in points. The default value is the current size.
-     * @param bool   $getarray if true returns an array of characters widths, if false returns the total length.
-     * @return float[]|float total string length or array of characted widths
-     * @see self::CORE_FONTS, AddFont(), self::FONT_STYLES
-     */
-    public function GetArrStringWidth($sa, $fontname = '', $fontstyle = '', $fontsize = 0, $getarray = false)
-    {
-        // store current values
-        if (!StaticMethods::empty_string($fontname)) {
-            $previousFont   = $this->fontFamily;
-            $previousStyle  = $this->fontStyle;
-            $previousSizePT = $this->fontSizePT;
-            $this->font($fontname, $fontstyle, $fontsize, '', 'default', false);
-        }
-        // convert UTF-8 array to Latin1 if required
-        $sa = $this->utf8ArrayToLatin1Array($sa);
-        $w  = 0; // total width
-        $wa = []; // array of characters widths
-        foreach ($sa as $ck => $char) {
-            // character width
-            $cw   = $this->GetCharWidth($char, isset($sa[($ck + 1)]));
-            $wa[] = $cw;
-            $w    += $cw;
-        }
-        // restore previous values
-        if (!StaticMethods::empty_string($fontname)) {
-            $this->font($previousFont, $previousStyle, $previousSizePT, '', 'default', false);
-        }
-        if ($getarray) {
-            return $wa;
-        }
-        return $w;
-    }
-
-    /**
      * Returns the length of the char in user unit for the current font considering current stretching and spacing (tracking).
      * @param int  $char    The char code whose length is to be returned
      * @param bool $notlast If false ignore the font-spacing.
@@ -1595,7 +1591,7 @@ class PDF
         $lines         = 1;
         $sum           = 0;
         $chars         = $this->utf8StringToArray($txt);
-        $charsWidth    = $this->GetArrStringWidth($chars, '', '', 0, true);
+        $charsWidth    = $this->characterWidths($chars, true);
         $length        = count($chars);
         $lastSeparator = -1;
         for ($i = 0; $i < $length; ++$i) {
@@ -1737,7 +1733,7 @@ class PDF
         // get array of unicode values
         $chars = $this->utf8StringToArray($s);
         // calculate maximum width for a single character on string
-        $chrw = $this->GetArrStringWidth($chars, '', '', 0, true);
+        $chrw = $this->characterWidths($chars, true);
         array_walk($chrw, [$this, 'getRawCharWidth']);
         $maxchwidth = ((is_array($chrw) || $chrw instanceof Countable) && count($chrw) > 0) ? max($chrw) : 0;
         // get array of chars
@@ -1796,7 +1792,7 @@ class PDF
                 if ($firstline) {
                     $startx = $this->x;
                     $tmparr = array_slice($chars, $j, ($i - $j));
-                    $linew  = $this->GetArrStringWidth($tmparr);
+                    $linew  = $this->characterWidths($tmparr);
                     unset($tmparr);
                     $this->endlinex = $startx + $linew;
                     $w              = $linew;
@@ -1891,7 +1887,7 @@ class PDF
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
-                                $linew  = $this->GetArrStringWidth($tmparr);
+                                $linew  = $this->characterWidths($tmparr);
                                 unset($tmparr);
                                 $this->endlinex = $startx + $linew;
                                 $w              = $linew;
@@ -1916,13 +1912,13 @@ class PDF
                         // check the length of the next string
                         $strrest = $this->unicodeSliceToString($uchars, ($sep + $endspace));
                         $nextstr = preg_split('/' . $this->spaceRE['p'] . '/' . $this->spaceRE['m'], $this->trim($strrest));
-                        if (isset($nextstr[0]) and ($this->GetStringWidth($nextstr[0]) > $pw)) {
+                        if (isset($nextstr[0]) and ($this->stringWidth($nextstr[0]) > $pw)) {
                             // truncate the word because do not fit on a full page width
                             $tmpstr = $this->unicodeSliceToString($uchars, $j, $i);
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, ($i - $j));
-                                $linew  = $this->GetArrStringWidth($tmparr);
+                                $linew  = $this->characterWidths($tmparr);
                                 unset($tmparr);
                                 $this->endlinex = ($startx + $linew);
                                 $w              = $linew;
@@ -1957,7 +1953,7 @@ class PDF
                             if ($firstline) {
                                 $startx = $this->x;
                                 $tmparr = array_slice($chars, $j, (($sep + $endspace) - $j));
-                                $linew  = $this->GetArrStringWidth($tmparr);
+                                $linew  = $this->characterWidths($tmparr);
                                 unset($tmparr);
                                 $this->endlinex = $startx + $linew + $shy_width;
                                 $w              = $linew;
@@ -2025,7 +2021,7 @@ class PDF
             if ($firstline) {
                 $startx = $this->x;
                 $tmparr = array_slice($chars, $j, ($nb - $j));
-                $linew  = $this->GetArrStringWidth($tmparr);
+                $linew  = $this->characterWidths($tmparr);
                 unset($tmparr);
                 $this->endlinex = $startx + $linew;
                 $w              = $linew;
@@ -3690,7 +3686,7 @@ class PDF
      */
     protected function _dounderline($x, $y, $txt)
     {
-        $w = $this->GetStringWidth($txt);
+        $w = $this->stringWidth($txt);
         return $this->_dounderlinew($x, $y, $w);
     }
 
@@ -3714,7 +3710,7 @@ class PDF
      */
     protected function _dolinethrough($x, $y, $txt)
     {
-        $w = $this->GetStringWidth($txt);
+        $w = $this->stringWidth($txt);
         return $this->_dolinethroughw($x, $y, $w);
     }
 
@@ -3738,7 +3734,7 @@ class PDF
      */
     protected function _dooverline($x, $y, $txt)
     {
-        $w = $this->GetStringWidth($txt);
+        $w = $this->stringWidth($txt);
         return $this->_dooverlinew($x, $y, $w);
     }
 
@@ -3798,9 +3794,9 @@ class PDF
         // calculate aproximatively the ratio between widths of aliases and replacements.
         $ref  = '{' . self::RIGHT_SHIFT_ALIAS . '}{' . self::TOTAL_PAGES_ALIAS . '}{' . self::PAGE_NUMBER_ALIAS . '}';
         $rep  = str_repeat(' ', $this->GetNumChars($ref));
-        $wrep = $this->GetStringWidth($rep);
+        $wrep = $this->stringWidth($rep);
         if ($wrep > 0) {
-            $wdiff = max(1, ($this->GetStringWidth($ref) / $wrep));
+            $wdiff = max(1, ($this->stringWidth($ref) / $wrep));
         }
         else {
             $wdiff = 1;
@@ -5047,7 +5043,7 @@ class PDF
                 $label = $code;
             }
             $txtwidth = ($arrcode['maxw'] * $xres);
-            if ($this->GetStringWidth($label) > $txtwidth) {
+            if ($this->stringWidth($label) > $txtwidth) {
                 $style['stretchtext'] = 2;
             }
             // print text

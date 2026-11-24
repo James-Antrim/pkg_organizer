@@ -493,7 +493,7 @@ trait Cells
             }
             $txt2 = $this->escape($txt2);
             // get current text width (considering general font stretching and spacing)
-            $txwidth = $this->GetStringWidth($txt);
+            $txwidth = $this->stringWidth($txt);
             $width   = $txwidth;
             // check for stretch mode
             if ($stretch > 0) {
@@ -574,7 +574,7 @@ trait Cells
                             // justification shift
                             $xshift += (count(array_keys($uniarr, 32)) * $spw);
                         }
-                        $xshift += $this->GetArrStringWidth($uniarr); // + shift justification
+                        $xshift += $this->characterWidths($uniarr); // + shift justification
                     }
                     else {
                         // character to print

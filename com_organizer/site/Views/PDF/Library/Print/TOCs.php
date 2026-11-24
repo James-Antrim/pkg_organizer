@@ -53,7 +53,7 @@ trait TOCs
         $fontfamily      = $this->fontFamily;
         $fontstyle       = $this->fontStyle;
         $w               = $this->width - $this->leftMargin - $this->rightMargin;
-        $spacer          = $this->GetStringWidth(chr(32)) * 4;
+        $spacer          = $this->stringWidth(chr(32)) * 4;
         $lmargin         = $this->leftMargin;
         $rmargin         = $this->rightMargin;
         $x_start         = $this->x();
@@ -78,7 +78,7 @@ trait TOCs
             }
         }
         $this->font($numbersfont, $fontstyle, $fontsize);
-        $numwidth = $this->GetStringWidth('00000');
+        $numwidth = $this->stringWidth('00000');
         $maxpage  = 0; //used for pages on attached documents
         foreach ($this->outlines as $key => $outline) {
             // check for extra pages (used for attachments)
@@ -128,8 +128,8 @@ trait TOCs
                 $pagenum = '{#' . ($outline['p']) . '}';
                 $maxpage = max($maxpage, $outline['p']);
             }
-            $fw      = ($tw - $this->GetStringWidth($pagenum . $filler));
-            $wfiller = $this->GetStringWidth($filler);
+            $fw      = ($tw - $this->stringWidth($pagenum . $filler));
+            $wfiller = $this->stringWidth($filler);
             if ($wfiller > 0) {
                 $numfills = floor($fw / $wfiller);
             }

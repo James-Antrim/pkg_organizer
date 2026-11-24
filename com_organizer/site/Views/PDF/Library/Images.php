@@ -1252,7 +1252,7 @@ trait Images
                 // print text
                 $text = $this->svgtext;
                 //$text = $this->stringTrim($text);
-                $textlen = $this->GetStringWidth($text);
+                $textlen = $this->stringWidth($text);
                 if ($this->svgtextmode['text-anchor'] != 'start') {
                     if ($this->svgtextmode['text-anchor'] == 'end') {
                         $this->x -= $textlen;

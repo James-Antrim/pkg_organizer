@@ -851,7 +851,7 @@ trait WebTools
         $width       = 0;
         $textitem    = '';
         $tmpx        = $this->x;
-        $lspace      = $this->GetStringWidth('  ');
+        $lspace      = $this->stringWidth('  ');
         if ($listtype == '^') {
             // special symbol used for avoid justification of rect bullet
             $this->lispacer = '';
@@ -1018,7 +1018,7 @@ trait WebTools
             }
             // print ordered item
             $textitem = $textitem . '.';
-            $lspace   += $this->GetStringWidth($textitem);
+            $lspace   += $this->stringWidth($textitem);
             $this->x  -= $lspace;
             $this->write($this->lastPrintedCellHeight, $textitem, '', false, '', false, 0, false);
         }
@@ -1137,7 +1137,7 @@ trait WebTools
             $this->listindent = $this->customlistindent;
         }
         else {
-            $this->listindent = $this->GetStringWidth('000000');
+            $this->listindent = $this->stringWidth('000000');
         }
         $this->listindentlevel = 0;
         // save previous states
@@ -1569,7 +1569,7 @@ trait WebTools
                         if ($this->rightMargin != $prevrMargin) {
                             $tw += ($prevrMargin - $this->rightMargin);
                         }
-                        $one_space_width = $this->GetStringWidth(chr(32));
+                        $one_space_width = $this->stringWidth(chr(32));
                         $no              = 0; // number of spaces on a line contained on a single block
                         // remove right space if exist
                         $pos1 = $this->lastStringPosition($pmid, ')]');
@@ -2233,7 +2233,7 @@ trait WebTools
                 $strrest = '';
                 $this->x += $this->textindent;
                 if (!isset($dom[$key]['trimmed_space']) or !$dom[$key]['trimmed_space']) {
-                    $strlinelen = $this->GetStringWidth($dom[$key]['value']);
+                    $strlinelen = $this->stringWidth($dom[$key]['value']);
                     if (!empty($this->HREF) and (isset($this->HREF['url']))) {
                         // HTML <a> Link
                         $hrefcolor = '';
@@ -2271,7 +2271,7 @@ trait WebTools
                                 else {
                                     $nextstr = preg_split('/' . $this->spaceRE['p'] . '+/' . $this->spaceRE['m'], $dom[$nkey]['value']);
                                     if (isset($nextstr[0]) and $same_textdir) {
-                                        $wadj += $this->GetStringWidth($nextstr[0], $tmp_fontname, $tmp_fontstyle, $tmp_fontsize);
+                                        $wadj += $this->stringWidth($nextstr[0], $tmp_fontname, $tmp_fontstyle, $tmp_fontsize);
                                         if (isset($nextstr[1])) {
                                             $write_block = false;
                                         }
@@ -2286,11 +2286,11 @@ trait WebTools
                             $numblks = count($nextstr);
                             if ($numblks > 1) {
                                 // try to split on blank spaces
-                                $wadj = ($cwa - $strlinelen + $this->GetStringWidth($nextstr[($numblks - 1)]));
+                                $wadj = ($cwa - $strlinelen + $this->stringWidth($nextstr[($numblks - 1)]));
                             }
                             else {
                                 // set the entire block on new line
-                                $wadj = $this->GetStringWidth($nextstr[0]);
+                                $wadj = $this->stringWidth($nextstr[0]);
                             }
                         }
                         // ****** write only until the end of the line and get the rest ******
@@ -2412,7 +2412,7 @@ trait WebTools
                 if ($this->rightMargin != $prevrMargin) {
                     $tw += ($prevrMargin - $this->rightMargin);
                 }
-                $one_space_width = $this->GetStringWidth(chr(32));
+                $one_space_width = $this->stringWidth(chr(32));
                 $no              = 0; // number of spaces on a line contained on a single block
                 // remove right space if exist
                 $pos1 = $this->lastStringPosition($pmid, ')]');
@@ -3001,7 +3001,7 @@ trait WebTools
                 }
                 $h = $this->cellHeight($this->fontSize);
                 if (isset($tag['attribute']['size']) and !empty($tag['attribute']['size'])) {
-                    $w = intval($tag['attribute']['size']) * $this->GetStringWidth(chr(32)) * 2;
+                    $w = intval($tag['attribute']['size']) * $this->stringWidth(chr(32)) * 2;
                 }
                 else {
                     $w = $h;
@@ -3070,7 +3070,7 @@ trait WebTools
                         if (!isset($value)) {
                             $value = 'submit';
                         }
-                        $w           = $this->GetStringWidth($value) * 1.5;
+                        $w           = $this->stringWidth($value) * 1.5;
                         $h           *= 1.6;
                         $prop        = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         $action      = [];
@@ -3090,7 +3090,7 @@ trait WebTools
                         if (!isset($value)) {
                             $value = 'reset';
                         }
-                        $w    = $this->GetStringWidth($value) * 1.5;
+                        $w    = $this->stringWidth($value) * 1.5;
                         $h    *= 1.6;
                         $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         $this->Button($name, $w, $h, $value, ['S' => 'ResetForm'], $prop, $opt, '', '', false);
@@ -3103,7 +3103,7 @@ trait WebTools
                         if (!isset($value)) {
                             $value = '*';
                         }
-                        $w        = $this->GetStringWidth($value) * 2;
+                        $w        = $this->stringWidth($value) * 2;
                         $h        *= 1.2;
                         $prop     = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         $jsaction = 'var f=this.getField(\'' . $name . '\'); f.browseForFileToSubmit();';
@@ -3143,7 +3143,7 @@ trait WebTools
                         if (!isset($value)) {
                             $value = ' ';
                         }
-                        $w    = $this->GetStringWidth($value) * 1.5;
+                        $w    = $this->stringWidth($value) * 1.5;
                         $h    *= 1.6;
                         $prop = ['lineWidth' => 1, 'borderStyle' => 'beveled', 'fillColor' => [196, 196, 196], 'strokeColor' => self::WHITE];
                         if (isset($tag['attribute']['onclick']) and !empty($tag['attribute']['onclick'])) {
@@ -3175,7 +3175,7 @@ trait WebTools
                     $opt['v'] = $tag['attribute']['value'];
                 }
                 if (isset($tag['attribute']['cols']) and !empty($tag['attribute']['cols'])) {
-                    $w = intval($tag['attribute']['cols']) * $this->GetStringWidth(chr(32)) * 2;
+                    $w = intval($tag['attribute']['cols']) * $this->stringWidth(chr(32)) * 2;
                 }
                 else {
                     $w = 40;
@@ -3212,11 +3212,11 @@ trait WebTools
                         if (strpos($val, '#!TaB!#') !== false) {
                             $opts     = explode('#!TaB!#', $val);
                             $values[] = $opts;
-                            $w        = max($w, $this->GetStringWidth($opts[1]));
+                            $w        = max($w, $this->stringWidth($opts[1]));
                         }
                         else {
                             $values[] = $val;
-                            $w        = max($w, $this->GetStringWidth($val));
+                            $w        = max($w, $this->stringWidth($val));
                         }
                     }
                 }
