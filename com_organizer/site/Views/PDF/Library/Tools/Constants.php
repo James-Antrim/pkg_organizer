@@ -33,6 +33,7 @@ trait Constants
         MIDDLE = 'M',
         NONE = 0,
         RIGHT = 'R',
+        STRETCH = 'S',
         TOP = 'T',
         VERTICAL = 'LR';
 
@@ -255,6 +256,27 @@ trait Constants
 #endregion
 #region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DESCRIPTIONS
 
+    public const BARCODE_STYLE_DESCRIPTIONS = [
+        'align (1D)'        => '(string) horizontal position on the containing rectangle [self::CENTER, self::LEFT, self::RIGHT]',
+        'bgColor'           => '(array|bool) color array for bars and text, false for transparent',
+        'border'            => '(bool) whether to print a border',
+        'fgColor'           => '(array) color array for bars and text',
+        'font (1D)'         => '(string) font for the label',
+        'fontsize (1D)'     => '(float) font size for the label',
+        'hAlign (1D)'       => '(string) horizontal position on the containing cell inside the containing rectangle [self::CENTER, self::LEFT, self::RIGHT](reduceWidth = true and empty(position))',
+        'hPadding'          => '(float|) horizontal padding in user units',
+        'label (1D)'        => '(string) override for the default label',
+        'moduleHeight (2D)' => '(float) height of a single module in points',
+        'moduleWidth (2D)'  => '(float) width of a single module in points',
+        'padding'           => '(float) uniform padding in user units',
+        'position (1D)'     => '(string) horizontal position of the containing cell on the page [self::CENTER, self::LEFT, self::RIGHT]',
+        'position (2D)'     => '(string) position on the page [self::CENTER, self::LEFT, self::RIGHT, self::STRETCH]',
+        'reduceWidth (1D)'  => '(bool) whether to reduce width to barcode & padding => disables stretch',
+        'stretch (1D)'      => '(bool) whether to stretch the barcode to the available width',
+        'stretchText (1D)'  => '(int) @see self::STRETCH_MODES',
+        'text (1D)'         => '(bool) whether to print text below the barcode',
+        'vPadding'          => '(float) vertical padding in user units',
+    ];
     public const LINE_CAP_DESCRIPTIONS = [
         'butt'   => 'flat line ending',
         'round'  => 'round',
@@ -591,6 +613,12 @@ trait Constants
     public const FILL_DRAW = 'FD', FILL_DRAW_CLOSE = 'fd', FILL_DRAW_CLOSE_EO = 'f*d', FILL_DRAW_EO = 'F*D'; // duplicates of draw & fill
     public const STROKE = 'S', STROKE_CLOSE = 's';
 
+    public const FILLING_STYLES = [
+        self::DRAW_FILL, self::DRAW_FILL_CLOSE, self::DRAW_FILL_CLOSE_EO, self::DRAW_FILL_EO,
+        self::FILL, self::FILL_EO,
+        self::FILL_DRAW, self::FILL_DRAW_CLOSE, self::FILL_DRAW_CLOSE_EO, self::FILL_DRAW_EO,
+    ];
+
     /**
      * self::CLIP_EO => clipping mode using the even-odd rule to determine which regions lie inside the clipping path
      * self::CLIP_NZ => clipping mode using the nonzero winding number rule to determine which regions lie inside the clipping path
@@ -615,11 +643,8 @@ trait Constants
         self::STROKE, self::STROKE_CLOSE,
     ];
 
-    public const FILLING_STYLES = [
-        self::DRAW_FILL, self::DRAW_FILL_CLOSE, self::DRAW_FILL_CLOSE_EO, self::DRAW_FILL_EO,
-        self::FILL, self::FILL_EO,
-        self::FILL_DRAW, self::FILL_DRAW_CLOSE, self::FILL_DRAW_CLOSE_EO, self::FILL_DRAW_EO,
-    ];
+    public const STRETCH_DISABLED = 0, H_SCALING_NEEDED = 1, H_SCALING_FORCED = 2, C_SPACING_NEEDED = 3, C_SPACING_FORCED = 4;
+    public const STRETCH_MODES = [self::C_SPACING_FORCED, self::C_SPACING_NEEDED, self::H_SCALING_FORCED, self::H_SCALING_NEEDED, self::STRETCH_DISABLED];
 
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNICODE

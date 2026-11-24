@@ -123,13 +123,13 @@ trait Cells
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by AddLink().
-     * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param int    $stretch
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   setCurrentFont(), drawColor(), fillColor(), textColor(), lineWidth(), AddLink(), Ln(), multiCell(), Write(), autoPageBreak()
+     * @see   setCurrentFont(), drawColor(), fillColor(), textColor(), lineWidth(), AddLink(), Ln(), multiCell(), Write(), autoPageBreak(), self::STRETCH_MODES
      */
-    public function cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
+    public function cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', int $stretch = self::STRETCH_DISABLED, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
         $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;
@@ -304,14 +304,14 @@ trait Cells
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by AddLink().
-     * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param int    $stretch
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>C : center</li><li>B : cell bottom</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>M : middle</li><li>B : bottom</li></ul>
      * @return string containing cell code
-     * @see   cell()
+     * @see   cell(), self::STRETCH_MODES
      */
-    protected function getCellCode($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
+    protected function getCellCode($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', int $stretch = self::STRETCH_DISABLED, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
         // replace 'NO-BREAK SPACE' (U+00A0) character with a simple space
         $txt              = is_null($txt) ? '' : $txt;
@@ -496,7 +496,7 @@ trait Cells
             $txwidth = $this->stringWidth($txt);
             $width   = $txwidth;
             // check for stretch mode
-            if ($stretch > 0) {
+            if ($stretch > self::STRETCH_DISABLED) {
                 // calculate ratio between cell width and text width
                 if ($width <= 0) {
                     $ratio = 1;
@@ -507,7 +507,7 @@ trait Cells
                 // check if stretching is required
                 if (($ratio < 1) or (($ratio > 1) and (($stretch % 2) == 0))) {
                     // the text will be stretched to fit cell width
-                    if ($stretch > 2) {
+                    if (in_array($stretch, [self::C_SPACING_FORCED, self::C_SPACING_NEEDED])) {
                         // set new character spacing
                         $this->fontSpacing += ($w - $this->cellPaddings['L'] - $this->cellPaddings['R'] - $width) / (max(($this->GetNumChars($txt) - 1), 1) * ($this->fontStretching / 100));
                     }
@@ -854,16 +854,16 @@ trait Cells
      * @param float|null $x           x position in user units
      * @param float|null $y           y position in user units
      * @param bool       $reseth      if true reset the last cell height (default true).
-     * @param int        $stretch     font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param int        $stretch
      * @param bool       $ishtml      INTERNAL USE ONLY -- set to true if $txt is HTML content (default = false). Never set this parameter to true, use instead writeHTMLCell() or writeHTML() methods.
      * @param bool       $autopadding if true, uses internal padding and automatically adjust it to account for line width.
      * @param float      $maxh        maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature. This feature works only when $ishtml=false.
      * @param string     $valign      Vertical alignment of text (requires $maxh = $h > 0). Possible values are:<ul><li>T: TOP</li><li>M: middle</li><li>B: bottom</li></ul>. This feature works only when $ishtml=false and the cell must fit in a single page.
      * @param bool       $fitcell     if true attempt to fit all the text within the cell by reducing the font size (do not work in HTML mode). $maxh must be greater than 0 and equal to $h.
      * @return int Return the number of cells or 1 for html mode.
-     * @see   setCurrentFont(), drawColor(), fillColor(), textColor(), lineWidth(), cell(), Write(), autoPageBreak()
+     * @see   setCurrentFont(), drawColor(), fillColor(), textColor(), lineWidth(), cell(), Write(), autoPageBreak(), self::STRETCH_MODES
      */
-    public function multiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = 0, $valign = 'T', $fitcell = false)
+    public function multiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $ln = 1, $x = null, $y = null, $reseth = true, int $stretch = self::STRETCH_DISABLED, $ishtml = false, $autopadding = true, $maxh = 0, $valign = 'T', $fitcell = false)
     {
         $previousMargins  = $this->cellMargins;
         $previousPaddings = $this->cellPaddings;

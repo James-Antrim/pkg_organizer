@@ -736,24 +736,9 @@ class PDF
      * @param float|null $w     width in user units (null = remaining page width)
      * @param float|null $h     height in user units (null = remaining page height)
      * @param float|null $xres  width of the smallest bar in user units (null = default value = 0.4mm)
-     * @param array      $style array of options:<ul>
-     *                          <li>bool $style['border'] if true prints a border</li>
-     *                          <li>int $style['padding'] padding to leave around the barcode in user units (set to 'auto' for automatic padding)</li>
-     *                          <li>int $style['hPadding'] horizontal padding in user units (set to 'auto' for automatic padding)</li>
-     *                          <li>int $style['vPadding'] vertical padding in user units (set to 'auto' for automatic padding)</li>
-     *                          <li>array $style['fgColor'] color array for bars and text</li>
-     *                          <li>mixed $style['bgColor'] color array for background (set to false for transparent)</li>
-     *                          <li>bool $style['text'] if true prints text below the barcode</li>
-     *                          <li>string $style['label'] override default label</li>
-     *                          <li>string $style['font'] font name for text</li><li>int $style['fontsize'] font size for text</li>
-     *                          <li>int $style['stretchText']: 0 = disabled; 1 = horizontal scaling only if necessary; 2 = forced horizontal scaling; 3 = character spacing only if necessary; 4 = forced character spacing.</li>
-     *                          <li>string $style['position'] horizontal position of the containing barcode cell on the page: L = left margin; C = center; R = right margin.</li>
-     *                          <li>string $style['align'] horizontal position of the barcode on the containing rectangle: L = left; C = center; R = right.</li>
-     *                          <li>string $style['stretch'] if true stretch the barcode to best fit the available width, otherwise uses $xres resolution for a single bar.</li>
-     *                          <li>string $style['reduceWidth'] if true reduce the width to fit the barcode width + padding. When this option is enabled the 'stretch' option is automatically disabled.</li>
-     *                          <li>string $style['hAlign'] this option works only when 'reduceWidth' is true and 'position' is unset or empty. Set the horizontal position of the containing barcode cell inside the specified rectangle: L = left; C = center; R = right.</li></ul>
+     * @param array      $style
      * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
-     * @author Nicola Asuni
+     * @see self::BARCODE_STYLE_DESCRIPTIONS
      */
     public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
     {
@@ -1819,13 +1804,13 @@ class PDF
      * @param string $align             Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool   $fill              Indicates if the cell background must be painted (true) or transparent (false).
      * @param mixed  $link              URL or identifier returned by AddLink().
-     * @param int    $stretch           font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param int    $stretch
      * @param bool   $ignore_min_height if true ignore automatic minimum height value.
      * @param string $calign            cell vertical alignment relative to the specified Y value. Possible values are:<ul><li>T : cell top</li><li>A : font top</li><li>L : font baseline</li><li>D : font bottom</li><li>B : cell bottom</li></ul>
      * @param string $valign            text vertical alignment inside the cell. Possible values are:<ul><li>T : top</li><li>C : center</li><li>B : bottom</li></ul>
-     * @see   cell(), write(), multiCell(), WriteHTML(), WriteHTMLCell()
+     * @see   cell(), write(), multiCell(), WriteHTML(), WriteHTMLCell(), self::STRETCH_MODES
      */
-    public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M')
+    public function Text($x, $y, $txt, $fstroke = 0, $fclip = false, $ffill = true, $border = 0, $ln = 0, $align = '', $fill = false, $link = '', int $stretch = self::STRETCH_DISABLED, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
         $textrendermode  = $this->textrendermode;
         $textstrokewidth = $this->textstrokewidth;
@@ -2026,15 +2011,16 @@ class PDF
      * @param bool       $fill       Indicates if the cell background must be painted (true) or transparent (false).
      * @param string     $align      Allows to center or align the text. Possible values are:<ul><li>L or empty string: left align (default value)</li><li>C: center</li><li>R: right align</li><li>J: justify</li></ul>
      * @param bool       $ln         if true set cursor at the bottom of the line, otherwise set cursor at the top of the line.
-     * @param int        $stretch    font stretch mode: <ul><li>0 = disabled</li><li>1 = horizontal scaling only if text is larger than cell width</li><li>2 = forced horizontal scaling to fit cell width</li><li>3 = character spacing only if text is larger than cell width</li><li>4 = forced character spacing to fit cell width</li></ul> General font stretching and scaling values will be preserved when possible.
+     * @param int        $stretch
      * @param bool       $firstline  if true prints only the first line and return the remaining string.
      * @param bool       $firstblock if true the string is the starting of a line.
      * @param float      $maxh       maximum height. It should be >= $h and less then remaining space to the bottom of the page, or 0 for disable this feature.
      * @param float      $wadj       first line width will be reduced by this amount (used in HTML mode).
      * @param array|null $margin     margin array of the parent container
      * @return mixed Return the number of cells or the remaining string if $firstline = true.
+     * @see self::STRETCH_MODES
      */
-    public function write($h, $txt, $link = '', $fill = false, $align = '', $ln = false, $stretch = 0, $firstline = false, $firstblock = false, $maxh = 0, $wadj = 0, $margin = null)
+    public function write($h, $txt, $link = '', $fill = false, $align = '', $ln = false, int $stretch = self::STRETCH_DISABLED, $firstline = false, $firstblock = false, $maxh = 0, $wadj = 0, $margin = null)
     {
         // check page for no-write regions and adapt page margins if necessary
         list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
@@ -5060,19 +5046,10 @@ class PDF
      * @param float|null $y       y position in user units
      * @param float|null $w       width in user units
      * @param float|null $h       height in user units
-     * @param array      $style   array of options:<ul>
-     *                            <li>bool $style['border'] if true prints a border around the barcode</li>
-     *                            <li>int $style['padding'] padding to leave around the barcode in barcode units (set to 'auto' for automatic padding)</li>
-     *                            <li>int $style['hPadding'] horizontal padding in barcode units (set to 'auto' for automatic padding)</li>
-     *                            <li>int $style['vPadding'] vertical padding in barcode units (set to 'auto' for automatic padding)</li>
-     *                            <li>int $style['module_width'] width of a single module in points</li>
-     *                            <li>int $style['module_height'] height of a single module in points</li>
-     *                            <li>array $style['fgColor'] color array for bars and text</li>
-     *                            <li>mixed $style['bgColor'] color array for background or false for transparent</li>
-     *                            <li>string $style['position'] barcode position on the page: L = left margin; C = center; R = right margin; S = stretch</li>
+     * @param array      $style
      * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param bool       $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
-     * @author Nicola Asuni
+     * @see self::BARCODE_STYLE_DESCRIPTIONS
      */
     public function write2DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $style = [], $align = '', $distort = false)
     {
@@ -5122,11 +5099,11 @@ class PDF
         $hpad = (2 * $style['hPadding']);
         $vpad = (2 * $style['vPadding']);
         // cell (module) dimension
-        if (!isset($style['module_width'])) {
-            $style['module_width'] = 1; // width of a single module in points
+        if (!isset($style['moduleWidth'])) {
+            $style['moduleWidth'] = 1; // width of a single module in points
         }
-        if (!isset($style['module_height'])) {
-            $style['module_height'] = 1; // height of a single module in points
+        if (!isset($style['moduleHeight'])) {
+            $style['moduleHeight'] = 1; // height of a single module in points
         }
         if (StaticMethods::empty_string($x)) {
             $x = $this->x;
@@ -5143,8 +5120,8 @@ class PDF
             $this->Error('Error in 2D barcode string');
         }
         // module width and height
-        $mw = $style['module_width'];
-        $mh = $style['module_height'];
+        $mw = $style['moduleWidth'];
+        $mh = $style['moduleHeight'];
         if (($mw <= 0) or ($mh <= 0)) {
             $this->Error('Error in 2D barcode string');
         }
