@@ -40,11 +40,11 @@ trait Footers
 
         if ($this->printFooter) {
             $this->graphicsSettings($this->graphicsSettings);
-            $this->currentColumn   = 0;
-            $this->columnCount     = 1;
-            $headerTemplate        = $this->headerTemplate;
-            $headerTemplateMargins = $this->headerTemplateMargins;
-            $lastHeight            = $this->lastPrintedCellHeight;
+            $this->currentColumn = 0;
+            $this->columnCount   = 1;
+            $thBuffer            = $this->tableHeader;
+            $thmBuffer           = $this->tableHeaderMargins;
+            $lastHeight          = $this->lastPrintedCellHeight;
             $this->appendSaveGraphicsState();
             $this->rightMargin = $this->originalRightMargin;
             $this->leftMargin  = $this->originalLeftMargin;
@@ -58,8 +58,8 @@ trait Footers
             $this->reposition($this->originalLeftMargin, $this->topMargin);
             $this->appendRestoreGraphicsState();
             $this->lastPrintedCellHeight = $lastHeight;
-            $this->headerTemplate        = $headerTemplate;
-            $this->headerTemplateMargins = $headerTemplateMargins;
+            $this->tableHeader           = $thBuffer;
+            $this->tableHeaderMargins    = $thmBuffer;
         }
 
         // Restore graphic settings

@@ -29,6 +29,7 @@ trait Pages
     protected float $formatWidthPT = 0;
     protected float $height = 0;
     protected float $heightPT = 0;
+    protected bool $inTableHeader = false;
     protected string $layoutMode = self::SINGLE_PAGE;
     protected float $leftMargin = 0;
     protected float $originalLeftMargin = 0;
@@ -60,6 +61,8 @@ trait Pages
     /** page number => open (true) / closed (false) */
     protected array $pageStatus = [];
     protected string $pageZoom = self::FULL_WIDTH;
+    protected string $tableHeader = '';
+    protected array $tableHeaderMargins = [];
     protected float $topMargin = 0;
     protected float $width = 0;
     protected float $widthPT = 0;
@@ -446,6 +449,62 @@ trait Pages
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /**
+     * This method is used to render the table header on new page (if any).
+     */
+    protected function setTableHeader()
+    {
+        if ($this->columnCount > 1) {
+            // multi column mode
+            return;
+        }
+        if (isset($this->tableHeaderMargins['top'])) {
+            // restore the original top-margin
+            $this->topMargin                         = $this->tableHeaderMargins['top'];
+            $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
+            $this->y                                 = $this->topMargin;
+        }
+        if ($this->tableHeader and (!$this->inTableHeader)) {
+            // set margins
+            $prev_lMargin       = $this->leftMargin;
+            $prev_rMargin       = $this->rightMargin;
+            $previousPaddings   = $this->cellPaddings;
+            $this->leftMargin   = $this->tableHeaderMargins['lmargin'] + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->tableHeaderMargins['page']]['olm']);
+            $this->rightMargin  = $this->tableHeaderMargins['rmargin'] + ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$this->tableHeaderMargins['page']]['orm']);
+            $this->cellPaddings = $this->tableHeaderMargins['cellPaddings'];
+            $this->x            = $this->leftMargin;
+            // account for special "cell" mode
+            if ($this->tableHeaderMargins['cell']) {
+                $this->x += $this->cellPaddings['L'];
+            }
+            $gvars = $this->graphicsSettings();
+            if (!empty($this->tableHeaderMargins['gvars'])) {
+                // set the correct graphic style
+                $this->graphicsSettings($this->tableHeaderMargins['gvars']);
+                $this->rightMargin = $gvars['rMargin'];
+                $this->leftMargin  = $gvars['lMargin'];
+            }
+            // print table header
+            $this->writeHTML($this->tableHeader, false, false, false, false, '');
+            $this->graphicsSettings($gvars);
+            // set new top margin to skip the table headers
+            if (!isset($this->tableHeaderMargins['top'])) {
+                $this->tableHeaderMargins['top'] = $this->topMargin;
+            }
+            // store end of header position
+            if (!isset($this->columns[0]['th'])) {
+                $this->columns[0]['th'] = [];
+            }
+            $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
+            $this->topMargin                                   = $this->y;
+            $this->pageDimensions[$this->page]['tm']           = $this->topMargin;
+            $this->lastPrintedCellHeight                       = 0;
+            $this->leftMargin                                  = $prev_lMargin;
+            $this->rightMargin                                 = $prev_rMargin;
+            $this->cellPaddings                                = $previousPaddings;
+        }
+    }
 
     /**
      * Add page if needed.

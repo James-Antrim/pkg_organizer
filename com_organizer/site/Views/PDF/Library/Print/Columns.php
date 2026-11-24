@@ -68,10 +68,10 @@ trait Columns
         // fix for HTML mode
         $this->newLine = true;
 
-        if ($this->headerTemplate and !$this->inHeaderTemplate) {
+        if ($this->tableHeader and !$this->inTableHeader) {
             if ($printHeader) {
                 // print table header
-                $this->writeHTML($this->headerTemplate, false, false, false, false, '');
+                $this->writeHTML($this->tableHeader, false, false, false, false, '');
                 $this->y += $xShift['s']['V'];
                 // store end of header position
                 if (!isset($this->columns[$column]['th'])) {

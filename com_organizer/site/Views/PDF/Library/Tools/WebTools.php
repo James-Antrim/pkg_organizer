@@ -1242,9 +1242,9 @@ trait WebTools
             // print THEAD block
             if (($dom[$key]['value'] == 'tr') and isset($dom[$key]['thead']) and $dom[$key]['thead']) {
                 if (isset($dom[$key]['parent']) and isset($dom[$dom[$key]['parent']]['thead']) and !StaticMethods::empty_string($dom[$dom[$key]['parent']]['thead'])) {
-                    $this->inHeaderTemplate = true;
+                    $this->inTableHeader = true;
                     // print table header (thead)
-                    $this->writeHTML($this->headerTemplate, false, false, false, false, '');
+                    $this->writeHTML($this->tableHeader, false, false, false, false, '');
                     // check if we are on a new page or on a new column
                     if (($this->y < $this->start_transaction_y) or ($this->checkPageBreak($this->lastPrintedCellHeight, '', false))) {
                         // we are on a new page or on a new column and the total object height is less than the available vertical space.
@@ -1255,8 +1255,8 @@ trait WebTools
                             $$vkey = $vval;
                         }
                         // disable table header
-                        $tmp_thead            = $this->headerTemplate;
-                        $this->headerTemplate = '';
+                        $tableHeaderBuffer = $this->tableHeader;
+                        $this->tableHeader = '';
                         // add a page (or trig AcceptPageBreak() for multicolumn mode)
                         $pre_y = $this->y;
                         if ((!$this->checkPageBreak($this->breakTrigger + 1)) and ($this->y < $pre_y)) {
@@ -1266,7 +1266,7 @@ trait WebTools
                         $this->start_transaction_page = $this->page;
                         $this->start_transaction_y    = $this->y;
                         // restore table header
-                        $this->headerTemplate = $tmp_thead;
+                        $this->tableHeader = $tableHeaderBuffer;
                         // fix table border properties
                         if (isset($dom[$dom[$key]['parent']]['attribute']['cellspacing'])) {
                             $tmp_cellspacing = $this->fontSizeToUnits($dom[$dom[$key]['parent']]['attribute']['cellspacing']);
@@ -1284,7 +1284,7 @@ trait WebTools
                         $dom[$dom[$key]['parent']]['borderposition']['x']      += $xoffset;
                         $dom[$dom[$key]['parent']]['borderposition']['xmax']   += $xoffset;
                         // print table header (thead)
-                        $this->writeHTML($this->headerTemplate, false, false, false, false, '');
+                        $this->writeHTML($this->tableHeader, false, false, false, false, '');
                     }
                 }
                 // move $key index forward to skip THEAD block
@@ -1920,7 +1920,7 @@ trait WebTools
                             $table_width = $wtmp;
                         }
                         $table_width -= (2 * $cellspacing['H']);
-                        if (!$this->inHeaderTemplate) {
+                        if (!$this->inTableHeader) {
                             $this->y += $cellspacing['V'];
                         }
                         $cellspacingx = $cellspacing['H'];
@@ -2337,7 +2337,7 @@ trait WebTools
                         $$vkey = $vval;
                     }
                     if (!empty($dom[$key]['thead'])) {
-                        $this->inHeaderTemplate = true;
+                        $this->inTableHeader = true;
                     }
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $pre_y = $this->y;
@@ -2577,15 +2577,15 @@ trait WebTools
                     // set table header
                     if (!empty($dom[$key]['thead'])) {
                         // set table header
-                        $this->headerTemplate = $dom[$key]['thead'];
-                        if (!isset($this->headerTemplateMargins) or (empty($this->headerTemplateMargins))) {
-                            $this->headerTemplateMargins                 = [];
-                            $this->headerTemplateMargins['cellPaddings'] = $this->cellPaddings;
-                            $this->headerTemplateMargins['lmargin']      = $this->leftMargin;
-                            $this->headerTemplateMargins['rmargin']      = $this->rightMargin;
-                            $this->headerTemplateMargins['page']         = $this->page;
-                            $this->headerTemplateMargins['cell']         = $cell;
-                            $this->headerTemplateMargins['gvars']        = $this->graphicsSettings();
+                        $this->tableHeader = $dom[$key]['thead'];
+                        if (!isset($this->tableHeaderMargins) or (empty($this->tableHeaderMargins))) {
+                            $this->tableHeaderMargins                 = [];
+                            $this->tableHeaderMargins['cellPaddings'] = $this->cellPaddings;
+                            $this->tableHeaderMargins['lmargin']      = $this->leftMargin;
+                            $this->tableHeaderMargins['rmargin']      = $this->rightMargin;
+                            $this->tableHeaderMargins['page']         = $this->page;
+                            $this->tableHeaderMargins['cell']         = $cell;
+                            $this->tableHeaderMargins['gvars']        = $this->graphicsSettings();
                         }
                     }
                 }
@@ -2606,7 +2606,7 @@ trait WebTools
                 }
                 $prev_y = $this->y;
                 if ($this->checkPageBreak(((2 * $cp) + (2 * $cs) + $this->lastPrintedCellHeight), '', false) or ($this->y < $prev_y)) {
-                    $this->inHeaderTemplate = true;
+                    $this->inTableHeader = true;
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $this->checkPageBreak($this->breakTrigger + 1);
                 }
@@ -3401,8 +3401,8 @@ trait WebTools
             }
             case 'tablehead':
                 // closing tag used for the thead part
-                $in_table_head          = true;
-                $this->inHeaderTemplate = false;
+                $in_table_head       = true;
+                $this->inTableHeader = false;
             case 'table':
             {
                 $table_el = $parent;
@@ -3678,14 +3678,14 @@ trait WebTools
                             $this->deletePage($this->pageCount);
                         }
                     }
-                    if (isset($this->headerTemplateMargins['top'])) {
+                    if (isset($this->tableHeaderMargins['top'])) {
                         // restore top margin
-                        $this->topMargin = $this->headerTemplateMargins['top'];
+                        $this->topMargin = $this->tableHeaderMargins['top'];
                     }
                     if (!isset($table_el['attribute']['nested']) or ($table_el['attribute']['nested'] != 'true')) {
                         // reset main table header
-                        $this->headerTemplate                    = '';
-                        $this->headerTemplateMargins             = [];
+                        $this->tableHeader                       = '';
+                        $this->tableHeaderMargins                = [];
                         $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
                     }
                 }
@@ -5146,7 +5146,7 @@ trait WebTools
         if (isset($tag['border']) and !empty($tag['border'])) {
             // get border style
             $border = $tag['border'];
-            if (!StaticMethods::empty_string($this->headerTemplate) and (!$this->inHeaderTemplate)) {
+            if (!StaticMethods::empty_string($this->tableHeader) and (!$this->inTableHeader)) {
                 // border for table header
                 $border = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
             }

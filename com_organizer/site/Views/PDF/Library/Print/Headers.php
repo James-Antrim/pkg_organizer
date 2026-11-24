@@ -20,8 +20,6 @@ trait Headers
     protected float $headerLogoWidth = 30;
     protected float $headerMargin = 5;
     protected string $headerSubtitle = '';
-    protected string $headerTemplate = '';
-    protected array $headerTemplateMargins = [];
     /** @var int[] RGB */
     protected array $headerTextColor = self::BLACK;
     protected string $headerTitle = '';
@@ -32,7 +30,6 @@ trait Headers
      */
     protected bool $headerXObjectAutoreset = false;
     protected bool $inHeader = false;
-    protected bool $inHeaderTemplate = false;
     protected bool $printHeader = true;
 
     /**
@@ -49,9 +46,9 @@ trait Headers
         $this->graphicsSettings($this->graphicsSettings);
 
         $lastHeight = $this->lastPrintedCellHeight;
-        $margins    = $this->headerTemplateMargins;
+        $margins    = $this->tableHeaderMargins;
         $newLine    = $this->newLine;
-        $template   = $this->headerTemplate;
+        //$template   = $this->tableHeader;
 
         $this->appendSaveGraphicsState();
 
@@ -68,9 +65,9 @@ trait Headers
         $this->reposition($this->originalLeftMargin, $this->topMargin);
         $this->appendRestoreGraphicsState();
         $this->lastPrintedCellHeight = $lastHeight;
-        $this->headerTemplate        = $template;
-        $this->headerTemplateMargins = $margins;
-        $this->newLine               = $newLine;
+        //$this->tableHeader           = $template;
+        $this->tableHeaderMargins = $margins;
+        $this->newLine            = $newLine;
         $this->inHeader              = false;
     }
 

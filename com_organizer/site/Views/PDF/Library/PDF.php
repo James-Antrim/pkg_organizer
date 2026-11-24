@@ -1220,61 +1220,6 @@ class PDF
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-    /**
-     * This method is used to render the table header on new page (if any).
-     */
-    protected function setTableHeader()
-    {
-        if ($this->columnCount > 1) {
-            // multi column mode
-            return;
-        }
-        if (isset($this->headerTemplateMargins['top'])) {
-            // restore the original top-margin
-            $this->topMargin                         = $this->headerTemplateMargins['top'];
-            $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
-            $this->y                                 = $this->topMargin;
-        }
-        if ($this->headerTemplate and (!$this->inHeaderTemplate)) {
-            // set margins
-            $prev_lMargin       = $this->leftMargin;
-            $prev_rMargin       = $this->rightMargin;
-            $previousPaddings   = $this->cellPaddings;
-            $this->leftMargin   = $this->headerTemplateMargins['lmargin'] + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['olm']);
-            $this->rightMargin  = $this->headerTemplateMargins['rmargin'] + ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$this->headerTemplateMargins['page']]['orm']);
-            $this->cellPaddings = $this->headerTemplateMargins['cellPaddings'];
-            $this->x            = $this->leftMargin;
-            // account for special "cell" mode
-            if ($this->headerTemplateMargins['cell']) {
-                $this->x += $this->cellPaddings['L'];
-            }
-            $gvars = $this->graphicsSettings();
-            if (!empty($this->headerTemplateMargins['gvars'])) {
-                // set the correct graphic style
-                $this->graphicsSettings($this->headerTemplateMargins['gvars']);
-                $this->rightMargin = $gvars['rMargin'];
-                $this->leftMargin  = $gvars['lMargin'];
-            }
-            // print table header
-            $this->writeHTML($this->headerTemplate, false, false, false, false, '');
-            $this->graphicsSettings($gvars);
-            // set new top margin to skip the table headers
-            if (!isset($this->headerTemplateMargins['top'])) {
-                $this->headerTemplateMargins['top'] = $this->topMargin;
-            }
-            // store end of header position
-            if (!isset($this->columns[0]['th'])) {
-                $this->columns[0]['th'] = [];
-            }
-            $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
-            $this->topMargin                                   = $this->y;
-            $this->pageDimensions[$this->page]['tm']           = $this->topMargin;
-            $this->lastPrintedCellHeight                       = 0;
-            $this->leftMargin                                  = $prev_lMargin;
-            $this->rightMargin                                 = $prev_rMargin;
-            $this->cellPaddings                                = $previousPaddings;
-        }
-    }
 
 
     /**
