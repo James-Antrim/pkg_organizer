@@ -185,6 +185,40 @@ class PDF
     }
 
     /**
+     * Adds some metadata information (Document Information Dictionary)
+     * (see Chapter 14.3.3 Document Information Dictionary of PDF32000_2008.pdf Reference)
+     * @return string
+     */
+    protected function appendMetadata(): string
+    {
+        $objectID = $this->appendObject();
+        $out      = '<<';
+
+        if ($this->title) {
+            $out .= ' /Title ' . $this->metadataTextString($this->title);
+        }
+        if ($this->author) {
+            $out .= ' /Author ' . $this->metadataTextString($this->author);
+        }
+        if ($this->subject) {
+            $out .= ' /Subject ' . $this->metadataTextString($this->subject);
+        }
+        if ($this->keywords) {
+            $out .= ' /Keywords ' . $this->metadataTextString($this->keywords);
+        }
+
+        $out .= ' /Creator ' . $this->metadataTextString($this->creator);
+        $out .= ' /Producer ' . $this->metadataTextString($this->producer());
+        $out .= ' /CreationDate ' . $this->metadataDateString($this->creationTimestamp);
+        $out .= ' /ModDate ' . $this->metadataDateString($this->modificationTimestamp);
+        $out .= ' /Trapped /False';
+        $out .= ' >>';
+        $out .= "\n" . 'endobj';
+        $this->append($out);
+        return $objectID;
+    }
+
+    /**
      * Append named Destinations.
      * @author Johannes G\FCntert, Nicola Asuni
      */
@@ -3301,49 +3335,6 @@ class PDF
     }
 
     /**
-     * Adds some Metadata information (Document Information Dictionary)
-     * (see Chapter 14.3.3 Document Information Dictionary of PDF32000_2008.pdf Reference)
-     * @return int object id
-     */
-    protected function _putinfo()
-    {
-        $oid = $this->appendObject();
-        $out = '<<';
-        if (!StaticMethods::empty_string($this->title)) {
-            // The document's title.
-            $out .= ' /Title ' . $this->metadataTextString($this->title);
-        }
-        if (!StaticMethods::empty_string($this->author)) {
-            // The name of the person who created the document.
-            $out .= ' /Author ' . $this->metadataTextString($this->author);
-        }
-        if (!StaticMethods::empty_string($this->subject)) {
-            // The subject of the document.
-            $out .= ' /Subject ' . $this->metadataTextString($this->subject);
-        }
-        if (!StaticMethods::empty_string($this->keywords)) {
-            // Keywords associated with the document.
-            $out .= ' /Keywords ' . $this->metadataTextString($this->keywords);
-        }
-        if (!StaticMethods::empty_string($this->creator)) {
-            // If the document was converted to PDF from another format, the name of the conforming product that created the original document from which it was converted.
-            $out .= ' /Creator ' . $this->metadataTextString($this->creator);
-        }
-        // default producer
-        $out .= ' /Producer ' . $this->metadataTextString($this->producer());
-        // The date and time the document was created, in human-readable form
-        $out .= ' /CreationDate ' . $this->metadataDateString($this->creationTimestamp);
-        // The date and time the document was most recently modified, in human-readable form
-        $out .= ' /ModDate ' . $this->metadataDateString($this->modificationTimestamp);
-        // A name object indicating whether the document has been modified to include trapping information
-        $out .= ' /Trapped /False';
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-        return $oid;
-    }
-
-    /**
      * Put XMP data object and return ID.
      * @return int The object ID.
      */
@@ -3616,7 +3607,7 @@ class PDF
         $this->_putpages();
         $this->_putresources();
         // Info
-        $objid_info = $this->_putinfo();
+        $objid_info = $this->appendMetadata();
         // Catalog
         $objid_catalog = $this->_putcatalog();
         // Cross-ref
