@@ -12,7 +12,7 @@
 
 namespace THM\Organizer\Views\PDF\Library\Barcodes;
 
-use THM\Organizer\Views\PDF\Library\Constants;
+use THM\Organizer\Views\PDF\Library\PDF;
 
 /**
  * Creates array representations for 2D barcodes.
@@ -26,14 +26,11 @@ use THM\Organizer\Views\PDF\Library\Constants;
 class Barcode2D
 {
     use Barcoded;
-    use Constants;
 
     /**
      * Creates a 2D barcode.
      * @param string $code           code to print
      * @param string $type           type of barcode:
-     *                               DATAMATRIX => Datamatrix (ISO/IEC 16022)
-     *                               PDF417 => PDF417 (ISO/IEC 15438:2006)
      *                               ~PDF417,a,e,t,s,f,o0,o1,o2,o3,o4,o5,o6
      *                               t, s and f are required for a macro control block, all other parameters are optional
      *                               To use a comma character ',' on text options, replace it with the character 255: "\xff".
@@ -167,7 +164,7 @@ class Barcode2D
      * @param int   $height Height of a single rectangle element in pixels.
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      */
-    public function PNG(int $width = 3, int $height = 3, array $color = self::BLACK): void
+    public function PNG(int $width = 3, int $height = 3, array $color = PDF::BLACK): void
     {
         $data = $this->PNGData($width, $height, $color);
         // send headers
@@ -187,7 +184,7 @@ class Barcode2D
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      * @return string|false image or false in case of error.
      */
-    public function PNGData(int $width = 3, int $height = 3, array $color = self::BLACK): string|false
+    public function PNGData(int $width = 3, int $height = 3, array $color = PDF::BLACK): string|false
     {
         $png     = imagecreate($this->barcode['columnCount'] * $width, $this->barcode['rowCount'] * $height);
         $bgColor = imagecolorallocate($png, 255, 255, 255);

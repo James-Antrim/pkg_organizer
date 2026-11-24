@@ -12,139 +12,141 @@
 
 namespace THM\Organizer\Views\PDF\Library\Barcodes;
 
-use THM\Organizer\Views\PDF\Library\Constants;
+use THM\Organizer\Views\PDF\Library\PDF;
 
-/** Creates array representations for common 1D barcodes. */
+/**
+ * Creates array representations for common 1D barcodes:
+ *  $code[
+ *       'barcode'   => [
+ *           $position => [ single bar or space in $position
+ *               'h' => bar height in units,
+ *               'p' => bar top position (0 = top, 1 = middle),
+ *               't' => bar type: true = bar, false = space,
+ *               'w' => bar width in units,
+ *           ]
+ *       ]
+ *      'code'      => code to be printed on text label,
+ *      'maxHeight' => max barcode height,
+ *      'maxWidth'  => max barcode width,
+ * ]
+ */
 class Barcode1D
 {
     use Barcoded;
-    use Constants;
+
+    public const CODE_11 = 'CODE11', CODE_128 = 'C128', CODE_128_A = 'C128A', CODE_128_B = 'C128B', CODE_128_C = 'C128C', CODE_39 = 'C39',
+        CODE_39_CS = 'C39+', CODE_39_EX = 'C39E', CODE_39_EX_CS = 'C39E+', CODE_93 = 'C93', CODABAR = 'CODABAR', EAN_2 = 'EAN2', EAN_5 = 'EAN5',
+        EAN_8 = 'EAN8', EAN_13 = 'EAN13', I25 = 'I25', I25_CS = 'I25+', IMB = 'IMB', IMB_PF = 'IMBPRE', KLANT_INDEX = 'KIX', MSI = 'MSI',
+        MSI_CS = 'MSI+', PHARMACODE = 'PHARMA', PHARMACODE_2T = 'PHARMA2T', POSTNET = 'POSTNET', PLANET = 'PLANET', RMS4CC = 'RMS4CC', S25 = 'S25',
+        S25_CS = 'S25+', UPC_A = 'UPCA', UPC_E = 'UPCE';
+    public const TYPES = [
+        self::CODE_11 . self::CODE_128, self::CODE_128_A, self::CODE_128_B, self::CODE_128_C, self::CODE_39, self::CODE_39_CS, self::CODE_39_EX,
+        self::CODE_39_EX_CS, self::CODE_93, self::CODABAR, self::EAN_2, self::EAN_5, self::EAN_8, self::EAN_13, self::I25, self::I25_CS, self::IMB,
+        self::KLANT_INDEX, self::MSI, self::MSI_CS, self::PHARMACODE, self::PHARMACODE_2T, self::POSTNET, self::PLANET, self::RMS4CC, self::S25,
+        self::S25_CS, self::UPC_A, self::UPC_E
+    ];
 
     /**
      * Creates a 1D Barcode.
-     * $barcode['code'] code to be printed on text label
-     * $barcode['maxHeight'] max barcode height
-     * $barcode['maxWidth'] max barcode width
-     * $barcode['barcode'][$position] single bar or space in $position
-     * $barcode['barcode'][$position]['t'] bar type: true = bar, false = space.
-     * $barcode['barcode'][$position]['w'] bar width in units.
-     * $barcode['barcode'][$position]['h'] bar height in units.
-     * $barcode['barcode'][$position]['p'] bar top position (0 = top, 1 = middle)
      * @param string $code code to print
-     * @param string $type type of barcode
-     *                     C128 => CODE 128, C128A => CODE 128 A, C128B => CODE 128 B, C128C => CODE 128 C,
-     *                     C39 => CODE 39 - ANSI MH10.8M-1983 - USD-3 - 3 of 9, C39+ => CODE 39 with checksum,
-     *                     C39E => CODE 39 EXTENDED, C39E+ => CODE 39 EXTENDED + CHECKSUM,
-     *                     C93 => CODE 93 - USS-93,
-     *                     CODABAR => CODABAR,
-     *                     CODE11 => CODE 11,
-     *                     EAN2 => 2-Digits UPC-Based Extension, EAN5 => 5-Digits UPC-Based Extension, EAN8 => EAN 8, EAN13 => EAN 13,
-     *                     IMB => Intelligent Mail Barcode - Onecode - USPS-B-3200,
-     *                     I25 => Interleaved 2 of 5, I25+ => Interleaved 2 of 5 + CHECKSUM,
-     *                     KIX => KIX (Klant index - Customer index),
-     *                     MSI => MSI (Variation of Plessey code), MSI+ => MSI + CHECKSUM (modulo 11),
-     *                     PHARMA => PHARMACODE, PHARMA2T => PHARMACODE TWO-TRACKS,
-     *                     POSTNET => POSTNET, PLANET  => PLANET,
-     *                     RMS4CC  => RMS4CC (Royal Mail 4-state Customer Code) - CBC (Customer Bar Code,
-     *                     S25 => Standard 2 of 5, S25+=> Standard 2 of 5 + CHECKSUM,
-     *                     UPCA => UPC-A, UPCE => UPC-E,
-     * @see self::UNITS
+     * @param string $type
+     * @see self::TYPES, PDF::UNITS
      */
     public function __construct(string $code, string $type)
     {
         switch (strtoupper($type)) {
-            case 'C39':
-                $this->Code39($code);
-                return;
-            case 'C39+':
-                $this->Code39($code, false, true);
-                return;
-            case 'C39E':
-                $this->Code39($code, true);
-                return;
-            case 'C39E+':
-                $this->Code39($code, true, true);
-                return;
-            case 'C93':
-                $this->Code93($code);
-                return;
-            case 'S25':
-                $this->S25($code);
-                return;
-            case 'S25+':
-                $this->S25($code, true);
-                return;
-            case 'I25':
-                $this->I25($code);
-                return;
-            case 'I25+':
-                $this->I25($code, true);
-                return;
-            case 'C128':
-                $this->C128($code);
-                return;
-            case 'C128A':
-                $this->C128($code, 'A');
-                return;
-            case 'C128B':
-                $this->C128($code, 'B');
-                return;
-            case 'C128C':
-                $this->C128($code, 'C');
-                return;
-            case 'EAN2':
-                $this->EANExtensions($code, 2);
-                return;
-            case 'EAN5':
-                $this->EANExtensions($code);
-                return;
-            case 'EAN8':
-                $this->EAN13_UPCA($code, 8);
-                return;
-            case 'EAN13':
-                $this->EAN13_UPCA($code);
-                return;
-            case 'UPCA':
-                $this->EAN13_UPCA($code, 12);
-                return;
-            case 'UPCE':
-                $this->EAN13_UPCA($code, 6);
-                return;
-            case 'MSI':
-                $this->MSI($code);
-                return;
-            case 'MSI+':
-                $this->MSI($code, true);
-                return;
-            case 'POSTNET':
-                $this->Postal($code);
-                return;
-            case 'PLANET':
-                $this->Postal($code, true);
-                return;
-            case 'RMS4CC':
-                $this->RMS4CC($code);
-                return;
-            case 'KIX':
-                $this->RMS4CC($code, true);
-                return;
-            case 'IMB':
-                $this->IMB($code);
-                return;
-            case 'IMBPRE':
-                $this->IMBPreformatted($code);
-                return;
-            case 'CODABAR':
-                $this->Codabar($code);
-                return;
-            case 'CODE11':
+            case self::CODE_11:
                 $this->Code11($code);
                 return;
-            case 'PHARMA':
+            case self::CODE_39:
+                $this->Code39($code);
+                return;
+            case self::CODE_39_CS:
+                $this->Code39($code, false, true);
+                return;
+            case self::CODE_39_EX:
+                $this->Code39($code, true);
+                return;
+            case self::CODE_39_EX_CS:
+                $this->Code39($code, true, true);
+                return;
+            case self::CODE_93:
+                $this->Code93($code);
+                return;
+            case self::I25:
+                $this->I25($code);
+                return;
+            case self::I25_CS:
+                $this->I25($code, true);
+                return;
+            case self::CODE_128:
+                $this->C128($code);
+                return;
+            case self::CODE_128_A:
+                $this->C128($code, 'A');
+                return;
+            case self::CODE_128_B:
+                $this->C128($code, 'B');
+                return;
+            case self::CODE_128_C:
+                $this->C128($code, 'C');
+                return;
+            case self::CODABAR:
+                $this->Codabar($code);
+                return;
+            case self::EAN_2:
+                $this->EANExtensions($code, 2);
+                return;
+            case self::EAN_5:
+                $this->EANExtensions($code);
+                return;
+            case self::EAN_8:
+                $this->EAN13_UPCA($code, 8);
+                return;
+            case self::EAN_13:
+                $this->EAN13_UPCA($code);
+                return;
+            case self::IMB:
+                $this->IMB($code);
+                return;
+            case self::IMB_PF:
+                $this->IMBPreformatted($code);
+                return;
+            case self::KLANT_INDEX:
+                $this->RMS4CC($code, true);
+                return;
+            case self::MSI:
+                $this->MSI($code);
+                return;
+            case self::MSI_CS:
+                $this->MSI($code, true);
+                return;
+            case self::PHARMACODE:
                 $this->PharmaCode($code);
                 return;
-            case 'PHARMA2T':
+            case self::PHARMACODE_2T:
                 $this->Pharmacode2Track($code);
+                return;
+            case self::POSTNET:
+                $this->Postal($code);
+                return;
+            case self::PLANET:
+                $this->Postal($code, true);
+                return;
+            case self::RMS4CC:
+                $this->RMS4CC($code);
+                return;
+            case self::S25:
+                $this->S25($code);
+                return;
+            case self::S25_CS:
+                $this->S25($code, true);
+                return;
+            case self::UPC_A:
+                $this->EAN13_UPCA($code, 12);
+                return;
+            case self::UPC_E:
+                $this->EAN13_UPCA($code, 6);
                 return;
             default:
             {
@@ -1793,7 +1795,7 @@ class Barcode1D
      * @param int   $height Height of a single bar element in pixels.
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      */
-    public function PNG(int $width = 2, int $height = 30, array $color = self::BLACK): void
+    public function PNG(int $width = 2, int $height = 30, array $color = PDF::BLACK): void
     {
         $data = $this->PNGData($width, $height, $color);
         header('Content-Type: image/png');
@@ -1885,7 +1887,7 @@ class Barcode1D
      * @param array $color  RGB (0-255) foreground color for bar elements (background is transparent).
      * @return string|false
      */
-    public function PNGData(int $width = 2, int $height = 30, array $color = self::BLACK): string|false
+    public function PNGData(int $width = 2, int $height = 30, array $color = PDF::BLACK): string|false
     {
         $png     = imagecreate(($this->barcode['maxWidth'] * $width), $height);
         $bgColor = imagecolorallocate($png, 255, 255, 255);

@@ -729,8 +729,8 @@ class PDF
 
     /**
      * Print a Linear Barcode.
-     * @param string     $code  code to print
-     * @param string     $type  type of barcode (see tcpdf_barcodes_1d.php for supported formats).
+     * @param string     $code
+     * @param string     $type
      * @param float|null $x     x position in user units (null = current x position)
      * @param float|null $y     y position in user units (null = current y position)
      * @param float|null $w     width in user units (null = remaining page width)
@@ -738,9 +738,9 @@ class PDF
      * @param float|null $xres  width of the smallest bar in user units (null = default value = 0.4mm)
      * @param array      $style
      * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
-     * @see self::BARCODE_STYLE_DESCRIPTIONS
+     * @see Barcode1D::TYPES, self::BARCODE_STYLE_DESCRIPTIONS
      */
-    public function write1DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
+    public function write1DBarcode(string $code, string $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
     {
         if (StaticMethods::empty_string(trim($code))) {
             return;
