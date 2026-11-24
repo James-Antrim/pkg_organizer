@@ -803,8 +803,8 @@ trait Images
         if (is_null($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($height, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         $externalURL = ''; // external streams
         $imsize      = false;
 
@@ -1442,7 +1442,7 @@ trait Images
      * @param float|null $x              Abscissa of the upper-left corner.
      * @param float|null $y              Ordinate of the upper-left corner.
      * @param float      $w              Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param float      $h              Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param float      $height         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param mixed      $link           URL or identifier returned by AddLink().
      * @param bool       $useBoundingBox specifies whether to position the bounding box (true) or the complete canvas (false) at location (x,y). Default value is true.
      * @param string     $align          Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
@@ -1452,14 +1452,14 @@ trait Images
      * @param bool       $fixoutvals     if true remove values outside the bounding box.
      * @author Valentin Schmidt, Nicola Asuni
      */
-    public function ImageEps($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $link = '', $useBoundingBox = true, $align = '', $palign = '', $border = 0, $fitonpage = false, $fixoutvals = false)
+    public function ImageEps($file, float|null $x = null, float|null $y = null, $w = 0, $height = 0, $link = '', $useBoundingBox = true, $align = '', $palign = '', $border = 0, $fitonpage = false, $fixoutvals = false)
     {
         if ($this->state !== self::READY) {
             return;
         }
-        if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
+        if ($this->rasterize_vector_images and ($w > 0) and ($height > 0)) {
             // convert EPS to raster image using GD or ImageMagick libraries
-            return $this->image($file, $x, $y, $w, $h, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
+            return $this->image($file, $x, $y, $w, $height, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
         }
         if (empty($x)) {
             $x = $this->x;
@@ -1467,8 +1467,8 @@ trait Images
         if (empty($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         $k = $this->factor;
         if ($file[0] === '@') { // image from string
             $data = substr($file, 1);
@@ -1521,27 +1521,27 @@ trait Images
             $data = substr($data, 0, $end);
         }
         // calculate image width and height on document
-        if (($w <= 0) and ($h <= 0)) {
-            $w = ($x2 - $x1) / $k;
-            $h = ($y2 - $y1) / $k;
+        if (($w <= 0) and ($height <= 0)) {
+            $w      = ($x2 - $x1) / $k;
+            $height = ($y2 - $y1) / $k;
         }
         elseif ($w <= 0) {
-            $w = ($x2 - $x1) / $k * ($h / (($y2 - $y1) / $k));
+            $w = ($x2 - $x1) / $k * ($height / (($y2 - $y1) / $k));
         }
-        elseif ($h <= 0) {
-            $h = ($y2 - $y1) / $k * ($w / (($x2 - $x1) / $k));
+        elseif ($height <= 0) {
+            $height = ($y2 - $y1) / $k * ($w / (($x2 - $x1) / $k));
         }
         // fit the image on available space
-        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
+        list($w, $height, $x, $y) = $this->fitBlock($w, $height, $x, $y, $fitonpage);
         if ($this->rasterize_vector_images) {
             // convert EPS to raster image using GD or ImageMagick libraries
-            return $this->image($file, $x, $y, $w, $h, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
+            return $this->image($file, $x, $y, $w, $height, 'EPS', $link, $align, true, 300, $palign, false, false, $border, false, false, $fitonpage);
         }
         // set scaling factors
         $scale_x = $w / (($x2 - $x1) / $k);
-        $scale_y = $h / (($y2 - $y1) / $k);
+        $scale_y = $height / (($y2 - $y1) / $k);
         // set alignment
-        $this->imageRBY = $y + $h;
+        $this->imageRBY = $y + $height;
         // set alignment
         if ($palign == 'L') {
             $ximg = $this->leftMargin;
@@ -1735,12 +1735,12 @@ trait Images
             $by      = $this->y;
             $this->x = $ximg;
             $this->y = $y;
-            $this->cell($w, $h, '', $border, 0, '', 0, '', 0, true);
+            $this->cell($w, $height, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
             $this->y = $by;
         }
         if ($link) {
-            $this->annotateLink($ximg, $y, $w, $h, $link, 0);
+            $this->annotateLink($ximg, $y, $w, $height, $link, 0);
         }
         // set pointer to align the next text/objects
         switch ($align) {
@@ -1752,7 +1752,7 @@ trait Images
             }
             case 'M':
             {
-                $this->y = $y + round($h / 2);
+                $this->y = $y + round($height / 2);
                 $this->x = $this->imageRBX;
                 break;
             }
@@ -1892,7 +1892,7 @@ trait Images
      * @param float|null $x         Abscissa of the upper-left corner.
      * @param float|null $y         Ordinate of the upper-left corner.
      * @param float      $w         Width of the image in the page. If not specified or equal to zero, it is automatically calculated.
-     * @param float      $h         Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
+     * @param float      $height    Height of the image in the page. If not specified or equal to zero, it is automatically calculated.
      * @param mixed      $link      URL or identifier returned by AddLink().
      * @param string     $align     Indicates the alignment of the pointer next to image insertion relative to image height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul> If the alignment is an empty string, then the pointer will be restored on the starting SVG position.
      * @param string     $palign    Allows to center or align the image on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
@@ -1900,7 +1900,7 @@ trait Images
      * @param bool       $fitonpage if true the image is resized to not exceed page dimensions.
      * @author Nicola Asuni
      */
-    public function imageSVG($file, float|null $x = null, float|null $y = null, $w = 0, $h = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
+    public function imageSVG($file, float|null $x = null, float|null $y = null, $w = 0, $height = 0, $link = '', $align = '', $palign = '', $border = 0, $fitonpage = false)
     {
         if ($this->state !== self::READY) {
             return;
@@ -1916,9 +1916,9 @@ trait Images
         $this->svgclipid     = 0;
         $this->svgtext       = '';
         $this->svgtextmode   = [];
-        if ($this->rasterize_vector_images and ($w > 0) and ($h > 0)) {
+        if ($this->rasterize_vector_images and ($w > 0) and ($height > 0)) {
             // convert SVG to raster image using GD or ImageMagick libraries
-            return $this->image($file, $x, $y, $w, $h, 'svg', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
+            return $this->image($file, $x, $y, $w, $height, 'svg', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
         }
         if ($file[0] === '@') { // image from string
             $this->svgdir = '';
@@ -1937,13 +1937,13 @@ trait Images
         if (empty($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         $k                  = $this->factor;
         $ox                 = 0;
         $oy                 = 0;
         $ow                 = $w;
-        $oh                 = $h;
+        $oh                 = $height;
         $aspect_ratio_align = 'xMidYMid';
         $aspect_ratio_ms    = 'meet';
         $regs               = [];
@@ -2011,25 +2011,25 @@ trait Images
             $oh = 1;
         }
         // calculate image width and height on document
-        if (($w <= 0) and ($h <= 0)) {
+        if (($w <= 0) and ($height <= 0)) {
             // convert image size to document unit
-            $w = $ow;
-            $h = $oh;
+            $w      = $ow;
+            $height = $oh;
         }
         elseif ($w <= 0) {
-            $w = $h * $ow / $oh;
+            $w = $height * $ow / $oh;
         }
-        elseif ($h <= 0) {
-            $h = $w * $oh / $ow;
+        elseif ($height <= 0) {
+            $height = $w * $oh / $ow;
         }
         // fit the image on available space
-        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
+        list($w, $height, $x, $y) = $this->fitBlock($w, $height, $x, $y, $fitonpage);
         if ($this->rasterize_vector_images) {
             // convert SVG to raster image using GD or ImageMagick libraries
-            return $this->image($file, $x, $y, $w, $h, 'svg', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
+            return $this->image($file, $x, $y, $w, $height, 'svg', $link, $align, true, 300, $palign, false, false, $border, false, false, false);
         }
         // set alignment
-        $this->imageRBY = $y + $h;
+        $this->imageRBY = $y + $height;
         // set alignment
         if ($palign == 'L') {
             $ximg = $this->leftMargin;
@@ -2058,11 +2058,11 @@ trait Images
                 $ow = $w;
             }
             if ($oh <= 0) {
-                $oh = $h;
+                $oh = $height;
             }
         }
         $svgscale_x = $w / $ow;
-        $svgscale_y = $h / $oh;
+        $svgscale_y = $height / $oh;
         // scaling and alignment
         if ($aspect_ratio_align != 'none') {
             // store current scaling values
@@ -2115,13 +2115,13 @@ trait Images
                 }
                 case 'Max':
                 {
-                    $svgoffset_y -= (($h * $this->factor) - ($oh * $this->factor * $svgscale_y));
+                    $svgoffset_y -= (($height * $this->factor) - ($oh * $this->factor * $svgscale_y));
                     break;
                 }
                 default:
                 case 'Mid':
                 {
-                    $svgoffset_y -= ((($h * $this->factor) - ($oh * $this->factor * $svgscale_y)) / 2);
+                    $svgoffset_y -= ((($height * $this->factor) - ($oh * $this->factor * $svgscale_y)) / 2);
                     break;
                 }
             }
@@ -2135,7 +2135,7 @@ trait Images
         // save the current graphic state
         $this->append('q' . $this->epsmarker);
         // set initial clipping mask
-        $this->rectangle($ximg, $y, $w, $h, 'CNZ', [], []);
+        $this->rectangle($ximg, $y, $w, $height, 'CNZ', [], []);
         // scale and translate
         $e = $ox * $this->factor * (1 - $svgscale_x);
         $f = ($this->height - $oy) * $this->factor * (1 - $svgscale_y);
@@ -2171,12 +2171,12 @@ trait Images
             $by      = $this->y;
             $this->x = $ximg;
             $this->y = $y;
-            $this->cell($w, $h, '', $border, 0, '', 0, '', 0, true);
+            $this->cell($w, $height, '', $border, 0, '', 0, '', 0, true);
             $this->x = $bx;
             $this->y = $by;
         }
         if ($link) {
-            $this->annotateLink($ximg, $y, $w, $h, $link, 0);
+            $this->annotateLink($ximg, $y, $w, $height, $link, 0);
         }
         // set pointer to align the next text/objects
         switch ($align) {
@@ -2188,7 +2188,7 @@ trait Images
             }
             case 'M':
             {
-                $this->y = $y + round($h / 2);
+                $this->y = $y + round($height / 2);
                 $this->x = $this->imageRBX;
                 break;
             }

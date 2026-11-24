@@ -297,7 +297,7 @@ trait Cells
      * Returns the PDF string code to print a cell (rectangular area) with optional borders, background color and character string. The upper-left corner of the cell corresponds to the current position. The text can be aligned or centered. After the call, the current position moves to the right or to the next line. It is possible to put a link on the text.<br />
      * If automatic page breaking is enabled and the cell goes beyond the limit, a page break is done before outputting.
      * @param float  $w                 Cell width. If 0, the cell extends up to the right margin.
-     * @param float  $h                 Cell height. Default value: 0.
+     * @param float  $height            Cell height. Default value: 0.
      * @param string $txt               String to print. Default value: empty string.
      * @param mixed  $border            Indicates if borders must be drawn around the cell. The value can be a number:<ul><li>0: no border (default)</li><li>1: frame</li></ul> or a string containing some or all of the following characters (in any order):<ul><li>L: left</li><li>T: top</li><li>R: right</li><li>B: bottom</li></ul> or an array of line styles for each border group - for example: array('LTRB' => ['width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => self::BLACK])
      * @param int    $ln                Indicates where the current position should go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to the beginning of the next line</li><li>2: below</li></ul>Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value: 0.
@@ -311,7 +311,7 @@ trait Cells
      * @return string containing cell code
      * @see   cell(), self::STRETCH_MODES
      */
-    protected function getCellCode($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', int $stretch = self::STRETCH_DISABLED, $ignore_min_height = false, $calign = 'T', $valign = 'M')
+    protected function getCellCode($w, $height = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', int $stretch = self::STRETCH_DISABLED, $ignore_min_height = false, $calign = 'T', $valign = 'M')
     {
         // replace 'NO-BREAK SPACE' (U+00A0) character with a simple space
         $txt              = is_null($txt) ? '' : $txt;
@@ -323,13 +323,13 @@ trait Cells
         $this->adjustCellPadding($border);
         if (!$ignore_min_height) {
             $min_cell_height = $this->cellHeight($this->fontSize);
-            if ($h < $min_cell_height) {
-                $h = $min_cell_height;
+            if ($height < $min_cell_height) {
+                $height = $min_cell_height;
             }
         }
         $k = $this->factor;
-        // check page for no-write regions and adapt page margins if necessary
-        list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
+
+        [$this->x, $this->y] = $this->repositionForRegions($this->x, $this->y, $height);
         $x                  = $this->x + $this->cellMargins['L'];
         $y                  = $this->y + $this->cellMargins['T'];
         $previousSpacing    = $this->fontSpacing;
@@ -349,7 +349,7 @@ trait Cells
                     case 'B':
                     {
                         // bottom
-                        $y -= ($h - $this->cellPaddings['B'] - $this->fontAscent - $this->fontDescent);
+                        $y -= ($height - $this->cellPaddings['B'] - $this->fontAscent - $this->fontDescent);
                         break;
                     }
                     default:
@@ -357,7 +357,7 @@ trait Cells
                     case 'M':
                     {
                         // center
-                        $y -= (($h - $this->fontAscent - $this->fontDescent) / 2);
+                        $y -= (($height - $this->fontAscent - $this->fontDescent) / 2);
                         break;
                     }
                 }
@@ -376,7 +376,7 @@ trait Cells
                     case 'B':
                     {
                         // bottom
-                        $y -= ($h - $this->cellPaddings['B'] - $this->fontDescent);
+                        $y -= ($height - $this->cellPaddings['B'] - $this->fontDescent);
                         break;
                     }
                     default:
@@ -384,7 +384,7 @@ trait Cells
                     case 'M':
                     {
                         // center
-                        $y -= (($h + $this->fontAscent - $this->fontDescent) / 2);
+                        $y -= (($height + $this->fontAscent - $this->fontDescent) / 2);
                         break;
                     }
                 }
@@ -403,7 +403,7 @@ trait Cells
                     case 'B':
                     {
                         // bottom
-                        $y -= ($h - $this->cellPaddings['B']);
+                        $y -= ($height - $this->cellPaddings['B']);
                         break;
                     }
                     default:
@@ -411,7 +411,7 @@ trait Cells
                     case 'M':
                     {
                         // center
-                        $y -= (($h + $this->fontAscent + $this->fontDescent) / 2);
+                        $y -= (($height + $this->fontAscent + $this->fontDescent) / 2);
                         break;
                     }
                 }
@@ -420,14 +420,14 @@ trait Cells
             case 'B':
             {
                 // cell bottom
-                $y -= $h;
+                $y -= $height;
                 break;
             }
             case 'C':
             case 'M':
             {
                 // cell center
-                $y -= ($h / 2);
+                $y -= ($height / 2);
                 break;
             }
             default:
@@ -448,7 +448,7 @@ trait Cells
             case 'B':
             {
                 // bottom
-                $yt = $y + $h - $this->cellPaddings['B'] - $this->fontAscent - $this->fontDescent;
+                $yt = $y + $height - $this->cellPaddings['B'] - $this->fontAscent - $this->fontDescent;
                 break;
             }
             default:
@@ -456,7 +456,7 @@ trait Cells
             case 'M':
             {
                 // center
-                $yt = $y + (($h - $this->fontAscent - $this->fontDescent) / 2);
+                $yt = $y + (($height - $this->fontAscent - $this->fontDescent) / 2);
                 break;
             }
         }
@@ -478,10 +478,10 @@ trait Cells
                 $op = 'S';
             }
             $xk = ($x * $k);
-            $s  .= sprintf('%F %F %F %F re %s ', $xk, (($this->height - $y) * $k), ($w * $k), (-$h * $k), $op);
+            $s  .= sprintf('%F %F %F %F re %s ', $xk, (($this->height - $y) * $k), ($w * $k), (-$height * $k), $op);
         }
         // draw borders
-        $s .= $this->getCellBorder($x, $y, $w, $h, $border);
+        $s .= $this->getCellBorder($x, $y, $w, $height, $border);
         if ($txt != '') {
             $txt2 = $txt;
             if (($this->currentFont['type'] == 'core') or ($this->currentFont['type'] == 'TrueType') or ($this->currentFont['type'] == 'Type1')) {
@@ -620,10 +620,10 @@ trait Cells
         // reset stretching and spacing
         $this->fontStretching        = $previousStretching;
         $this->fontSpacing           = $previousSpacing;
-        $this->lastPrintedCellHeight = $h;
+        $this->lastPrintedCellHeight = $height;
         if ($ln > 0) {
             //Go to the beginning of the next line
-            $this->y = $y + $h + $this->cellMargins['B'];
+            $this->y = $y + $height + $this->cellMargins['B'];
             if ($ln == 1) {
                 $this->x = $this->leftMargin;
             }
@@ -899,8 +899,8 @@ trait Cells
         else {
             $x = $this->x();
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions(0, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y);
         // apply margins
         $oy      = $y + $mc_margin['T'];
         $ox      = ($x + $mc_margin['L']);

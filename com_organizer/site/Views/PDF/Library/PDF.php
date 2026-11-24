@@ -848,8 +848,8 @@ class PDF
         $x                    = $x ?? $this->x;
         $y                    = $y ?? $this->y;
 
-        // check page for no-write regions and adapt page margins if necessary
-        [$x, $y] = $this->checkPageRegions($height, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         if (StaticMethods::empty_string($width) or ($width <= 0)) {
             $width = $this->width - $this->rightMargin - $x;
         }
@@ -1614,11 +1614,11 @@ class PDF
      * @param float $h      Height of the rectangle
      * @param mixed $link   URL or identifier returned by AddLink()
      * @param int   $spaces number of spaces on the text to link
-     * @see   link(), Annotation(), cell(), write(), image()
+     * @see   link(), annotation(), cell(), write(), image()
      */
     public function annotateLink($x, $y, $w, $h, $link, $spaces = 0)
     {
-        $this->Annotation($x, $y, $w, $h, $link, ['Subtype' => 'Link'], $spaces);
+        $this->annotation($x, $y, $w, $h, $link, ['Subtype' => 'Link'], $spaces);
     }
 
     /**
@@ -1627,16 +1627,16 @@ class PDF
      * @param float  $x      Abscissa of the upper-left corner of the rectangle
      * @param float  $y      Ordinate of the upper-left corner of the rectangle
      * @param float  $w      Width of the rectangle
-     * @param float  $h      Height of the rectangle
+     * @param float  $height Height of the rectangle
      * @param string $text   annotation text or alternate content
      * @param array  $opt    array of options (see section 8.4 of PDF reference 1.7).
      * @param int    $spaces number of spaces on the text to link
      */
-    public function Annotation($x, $y, $w, $h, $text, $opt = ['Subtype' => 'Text'], $spaces = 0)
+    public function annotation($x, $y, $w, $height, $text, $opt = ['Subtype' => 'Text'], $spaces = 0)
     {
         if ($this->inXObject) {
             // store parameters for later use on template
-            $this->xObjects[$this->xObjectID]['annotations'][] = ['x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'text' => $text, 'opt' => $opt, 'spaces' => $spaces];
+            $this->xObjects[$this->xObjectID]['annotations'][] = ['x' => $x, 'y' => $y, 'w' => $w, 'h' => $height, 'text' => $text, 'opt' => $opt, 'spaces' => $spaces];
             return;
         }
         if ($x === '') {
@@ -1645,8 +1645,8 @@ class PDF
         if ($y === '') {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         // recalculate coordinates to account for graphic transformations
         if (isset($this->matrix) and !empty($this->matrix)) {
             for ($i = $this->matrixKey; $i > 0; --$i) {
@@ -1654,10 +1654,10 @@ class PDF
                 for ($j = $maxid; $j >= 0; --$j) {
                     $ctm = $this->matrix[$i][$j];
                     if (isset($ctm['a'])) {
-                        $x = $x * $this->factor;
-                        $y = ($this->height - $y) * $this->factor;
-                        $w = $w * $this->factor;
-                        $h = $h * $this->factor;
+                        $x      = $x * $this->factor;
+                        $y      = ($this->height - $y) * $this->factor;
+                        $w      = $w * $this->factor;
+                        $height = $height * $this->factor;
                         // top left
                         $xt = $x;
                         $yt = $y;
@@ -1670,21 +1670,21 @@ class PDF
                         $y2 = ($ctm['b'] * $xt) + ($ctm['d'] * $yt) + $ctm['f'];
                         // bottom left
                         $xt = $x;
-                        $yt = $y - $h;
+                        $yt = $y - $height;
                         $x3 = ($ctm['a'] * $xt) + ($ctm['c'] * $yt) + $ctm['e'];
                         $y3 = ($ctm['b'] * $xt) + ($ctm['d'] * $yt) + $ctm['f'];
                         // bottom right
                         $xt = $x + $w;
-                        $yt = $y - $h;
+                        $yt = $y - $height;
                         $x4 = ($ctm['a'] * $xt) + ($ctm['c'] * $yt) + $ctm['e'];
                         $y4 = ($ctm['b'] * $xt) + ($ctm['d'] * $yt) + $ctm['f'];
                         // new coordinates (rectangle area)
-                        $x = min($x1, $x2, $x3, $x4);
-                        $y = max($y1, $y2, $y3, $y4);
-                        $w = (max($x1, $x2, $x3, $x4) - $x) / $this->factor;
-                        $h = ($y - min($y1, $y2, $y3, $y4)) / $this->factor;
-                        $x = $x / $this->factor;
-                        $y = $this->height - ($y / $this->factor);
+                        $x      = min($x1, $x2, $x3, $x4);
+                        $y      = max($y1, $y2, $y3, $y4);
+                        $w      = (max($x1, $x2, $x3, $x4) - $x) / $this->factor;
+                        $height = ($y - min($y1, $y2, $y3, $y4)) / $this->factor;
+                        $x      = $x / $this->factor;
+                        $y      = $this->height - ($y / $this->factor);
                     }
                 }
             }
@@ -1698,7 +1698,7 @@ class PDF
         if (!isset($this->pageAnnotations[$page])) {
             $this->pageAnnotations[$page] = [];
         }
-        $this->pageAnnotations[$page][] = ['n' => ++$this->objectNumber, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
+        $this->pageAnnotations[$page][] = ['n' => ++$this->objectNumber, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $height, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces];
         if ((($opt['Subtype'] == 'FileAttachment') or ($opt['Subtype'] == 'Sound')) and (!StaticMethods::empty_string($opt['FS']))
             and (@file_exists($opt['FS']) or $this->validURL($opt['FS']))
             and (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
@@ -1718,7 +1718,7 @@ class PDF
 
     /**
      * Embedd the attached files.
-     * @see   Annotation()
+     * @see   annotation()
      */
     protected function _putEmbeddedFiles()
     {
@@ -1932,7 +1932,7 @@ class PDF
 
     /**
      * This method prints text from the current position.<br />
-     * @param float      $h          Line height
+     * @param float      $height     Line height
      * @param string     $txt        String to print
      * @param mixed      $link       URL or identifier returned by AddLink()
      * @param bool       $fill       Indicates if the cell background must be painted (true) or transparent (false).
@@ -1947,10 +1947,9 @@ class PDF
      * @return mixed Return the number of cells or the remaining string if $firstline = true.
      * @see self::STRETCH_MODES
      */
-    public function write($h, $txt, $link = '', $fill = false, $align = '', $ln = false, int $stretch = self::STRETCH_DISABLED, $firstline = false, $firstblock = false, $maxh = 0, $wadj = 0, $margin = null)
+    public function write($height, $txt, $link = '', $fill = false, $align = '', $ln = false, int $stretch = self::STRETCH_DISABLED, $firstline = false, $firstblock = false, $maxh = 0, $wadj = 0, $margin = null)
     {
-        // check page for no-write regions and adapt page margins if necessary
-        list($this->x, $this->y) = $this->checkPageRegions($h, $this->x, $this->y);
+        [$this->x, $this->y] = $this->repositionForRegions($this->x, $this->y, $height);
         if (strlen($txt) == 0) {
             // fix empty text
             $txt = ' ';
@@ -1992,9 +1991,9 @@ class PDF
             return '';
         }
         // minimum row height
-        $row_height = max($h, $this->cellHeight($this->fontSize));
+        $row_height = max($height, $this->cellHeight($this->fontSize));
         // max Y
-        $maxy       = $this->y + $maxh - max($row_height, $h);
+        $maxy       = $this->y + $maxh - max($row_height, $height);
         $start_page = $this->page;
         $i          = 0; // character position
         $j          = 0; // current starting position
@@ -2036,7 +2035,7 @@ class PDF
                 }
                 // Skip newlines at the beginning of a page or column
                 if (!empty($tmpstr) or ($this->y < ($this->breakTrigger - $row_height))) {
-                    $this->cell($w, $h, $tmpstr, 0, 1, $talign, $fill, $link, $stretch);
+                    $this->cell($w, $height, $tmpstr, 0, 1, $talign, $fill, $link, $stretch);
                 }
                 unset($tmpstr);
                 if ($firstline) {
@@ -2108,7 +2107,7 @@ class PDF
                         // check if the line was already started
                         if ($this->x >= ($this->leftMargin + $this->cellPaddings['L'] + $margin['L'] + $chrwidth)) {
                             // print a void cell and go to next line
-                            $this->cell($w, $h, '', 0, 1);
+                            $this->cell($w, $height, '', 0, 1);
                             $linebreak = true;
                             if ($firstline) {
                                 return ($this->unicodeSliceToString($uchars, $j));
@@ -2129,7 +2128,7 @@ class PDF
                                     $this->cellPadding(0);
                                 }
                             }
-                            $this->cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
+                            $this->cell($w, $height, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
                                 $this->cellPaddings = $tmpcellpadding;
@@ -2160,7 +2159,7 @@ class PDF
                                     $this->cellPadding(0);
                                 }
                             }
-                            $this->cell($w, $h, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
+                            $this->cell($w, $height, $tmpstr, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
                                 $this->cellPaddings = $tmpcellpadding;
@@ -2196,7 +2195,7 @@ class PDF
                                 }
                             }
                             // print the line
-                            $this->cell($w, $h, $shy_char_left . $tmpstr . $shy_char_right, 0, 1, $align, $fill, $link, $stretch);
+                            $this->cell($w, $height, $shy_char_left . $tmpstr . $shy_char_right, 0, 1, $align, $fill, $link, $stretch);
                             unset($tmpstr);
                             if ($firstline) {
                                 if ($chars[$sep] == 45) {
@@ -2263,7 +2262,7 @@ class PDF
                     $this->cellPadding(0);
                 }
             }
-            $this->cell($w, $h, $tmpstr, 0, $ln, $align, $fill, $link, $stretch);
+            $this->cell($w, $height, $tmpstr, 0, $ln, $align, $fill, $link, $stretch);
             unset($tmpstr);
             if ($firstline) {
                 $this->cellPaddings = $tmpcellpadding;
@@ -2283,8 +2282,8 @@ class PDF
      */
     protected function getRemainingWidth()
     {
-        list($this->x, $this->y) = $this->checkPageRegions(0, $this->x, $this->y);
-        return ($this->width - $this->rightMargin - $this->x);
+        [$this->x, $this->y] = $this->repositionForRegions($this->x, $this->y);
+        return $this->width - $this->rightMargin - $this->x;
     }
 
     /**
@@ -4972,13 +4971,13 @@ class PDF
      * @param float|null $x       x position in user units
      * @param float|null $y       y position in user units
      * @param float|null $w       width in user units
-     * @param float|null $h       height in user units
+     * @param float|null $height  height in user units
      * @param array      $style
      * @param string     $align   Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param bool       $distort if true distort the barcode to fit width and height, otherwise preserve aspect ratio
      * @see self::BARCODE_STYLE_DESCRIPTIONS
      */
-    public function write2DBarcode($code, $type, $x = null, $y = null, $w = null, $h = null, $style = [], $align = '', $distort = false)
+    public function write2DBarcode($code, $type, $x = null, $y = null, $w = null, $height = null, $style = [], $align = '', $distort = false)
     {
         if (StaticMethods::empty_string(trim($code))) {
             return;
@@ -5038,8 +5037,8 @@ class PDF
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         // number of barcode columns and rows
         $rows = $arrcode['num_rows'];
         $cols = $arrcode['num_cols'];
@@ -5069,23 +5068,23 @@ class PDF
         if ($w > $maxw) {
             $w = $maxw;
         }
-        if ($h > $maxh) {
-            $h = $maxh;
+        if ($height > $maxh) {
+            $height = $maxh;
         }
         // set dimensions
-        if ((StaticMethods::empty_string($w) or ($w <= 0)) and (StaticMethods::empty_string($h) or ($h <= 0))) {
-            $w = ($cols + $hpad) * ($mw / $this->factor);
-            $h = ($rows + $vpad) * ($mh / $this->factor);
+        if ((StaticMethods::empty_string($w) or ($w <= 0)) and (StaticMethods::empty_string($height) or ($height <= 0))) {
+            $w      = ($cols + $hpad) * ($mw / $this->factor);
+            $height = ($rows + $vpad) * ($mh / $this->factor);
         }
         elseif (($w === '') or ($w <= 0)) {
-            $w = $h * $ratioWH;
+            $w = $height * $ratioWH;
         }
-        elseif (($h === '') or ($h <= 0)) {
-            $h = $w * $ratioHW;
+        elseif (($height === '') or ($height <= 0)) {
+            $height = $w * $ratioHW;
         }
         // barcode size (excluding padding)
         $bw = ($w * $cols) / ($cols + $hpad);
-        $bh = ($h * $rows) / ($rows + $vpad);
+        $bh = ($height * $rows) / ($rows + $vpad);
         // dimension of single barcode cell unit
         $cw = $bw / $cols;
         $ch = $bh / $rows;
@@ -5100,13 +5099,13 @@ class PDF
                 // correct vertical distortion
                 $ch                = $cw * $mh / $mw;
                 $bh                = $ch * $rows;
-                $style['vPadding'] = ($h - $bh) / (2 * $ch);
+                $style['vPadding'] = ($height - $bh) / (2 * $ch);
             }
         }
         // fit the barcode on available space
-        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, false);
+        list($w, $height, $x, $y) = $this->fitBlock($w, $height, $x, $y, false);
         // set alignment
-        $this->imageRBY = $y + $h;
+        $this->imageRBY = $y + $height;
         // set alignment
         if ($style['position'] == 'L') {
             $xpos = $this->leftMargin;
@@ -5125,10 +5124,10 @@ class PDF
         $ystart         = $y + ($style['vPadding'] * $ch);
         // print background color
         if ($style['bgColor']) {
-            $this->rectangle($xpos, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
+            $this->rectangle($xpos, $y, $w, $height, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
         }
         elseif ($style['border']) {
-            $this->rectangle($xpos, $y, $w, $h, 'D');
+            $this->rectangle($xpos, $y, $w, $height, 'D');
         }
         // set foreground color
         $this->drawColorArray($style['fgColor']);
@@ -5158,7 +5157,7 @@ class PDF
             }
             case 'M':
             {
-                $this->y = $y + round($h / 2);
+                $this->y = $y + round($height / 2);
                 $this->x = $this->imageRBX;
                 break;
             }
@@ -5810,14 +5809,14 @@ class PDF
      * @param float|null $x         X position in user units (empty string = current x position)
      * @param float|null $y         Y position in user units (empty string = current y position)
      * @param float      $w         Width in user units (zero = remaining page width)
-     * @param float      $h         Height in user units (zero = remaining page height)
+     * @param float      $height    Height in user units (zero = remaining page height)
      * @param string     $align     Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @param string     $palign    Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left</li></ul>
      * @param bool       $fitonpage If true the template is resized to not exceed page dimensions.
      * @author Nicola Asuni
      * @see    startTemplate(), endTemplate()
      */
-    public function printTemplate($id, $x = null, $y = null, $w = 0, $h = 0, $align = '', $palign = '', $fitonpage = false)
+    public function printTemplate($id, $x = null, $y = null, $w = 0, $height = 0, $align = '', $palign = '', $fitonpage = false)
     {
         if ($this->state !== self::READY) {
             return;
@@ -5842,8 +5841,8 @@ class PDF
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         $ow = $this->xObjects[$id]['w'];
         if ($ow <= 0) {
             $ow = 1;
@@ -5853,20 +5852,20 @@ class PDF
             $oh = 1;
         }
         // calculate template width and height on document
-        if (($w <= 0) and ($h <= 0)) {
-            $w = $ow;
-            $h = $oh;
+        if (($w <= 0) and ($height <= 0)) {
+            $w      = $ow;
+            $height = $oh;
         }
         elseif ($w <= 0) {
-            $w = $h * $ow / $oh;
+            $w = $height * $ow / $oh;
         }
-        elseif ($h <= 0) {
-            $h = $w * $oh / $ow;
+        elseif ($height <= 0) {
+            $height = $w * $oh / $ow;
         }
         // fit the template on available space
-        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, $fitonpage);
+        list($w, $height, $x, $y) = $this->fitBlock($w, $height, $x, $y, $fitonpage);
         // set page alignment
-        $rb_y = $y + $h;
+        $rb_y = $y + $height;
         // set alignment
         if ($palign == 'L') {
             $xt = $this->leftMargin;
@@ -5885,14 +5884,14 @@ class PDF
         $this->startTransformation();
         // translate and scale
         $sx    = ($w / $ow);
-        $sy    = ($h / $oh);
+        $sy    = ($height / $oh);
         $tm    = [];
         $tm[0] = $sx;
         $tm[1] = 0;
         $tm[2] = 0;
         $tm[3] = $sy;
         $tm[4] = $xt * $this->factor;
-        $tm[5] = ($this->height - $h - $y) * $this->factor;
+        $tm[5] = ($this->height - $height - $y) * $this->factor;
         $this->transform($tm);
         // set object
         $this->append('/' . $id . ' Do');
@@ -5903,11 +5902,11 @@ class PDF
                 // transform original coordinates
                 $coordlt = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, ($annot['x'] * $this->factor), (-$annot['y'] * $this->factor)));
                 $ax      = ($coordlt[4] / $this->factor);
-                $ay      = ($this->height - $h - ($coordlt[5] / $this->factor));
+                $ay      = ($this->height - $height - ($coordlt[5] / $this->factor));
                 $coordrb = $this->getTransformationMatrixProduct($tm, array(1, 0, 0, 1, (($annot['x'] + $annot['w']) * $this->factor), ((-$annot['y'] - $annot['h']) * $this->factor)));
                 $aw      = ($coordrb[4] / $this->factor) - $ax;
-                $ah      = ($this->height - $h - ($coordrb[5] / $this->factor)) - $ay;
-                $this->Annotation($ax, $ay, $aw, $ah, $annot['text'], $annot['opt'], $annot['spaces']);
+                $ah      = ($this->height - $height - ($coordrb[5] / $this->factor)) - $ay;
+                $this->annotation($ax, $ay, $aw, $ah, $annot['text'], $annot['opt'], $annot['spaces']);
             }
         }
         // set pointer to align the next text/objects
@@ -5920,7 +5919,7 @@ class PDF
             }
             case 'M':
             {
-                $this->y = $y + round($h / 2);
+                $this->y = $y + round($height / 2);
                 $this->x = $rb_x;
                 break;
             }

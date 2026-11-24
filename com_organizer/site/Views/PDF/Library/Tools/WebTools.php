@@ -5345,17 +5345,17 @@ trait WebTools
 
     /**
      * Creates a text field
-     * @param string     $name field name
-     * @param float      $w    Width of the rectangle
-     * @param float      $h    Height of the rectangle
-     * @param array      $prop javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
-     * @param array      $opt  annotation parameters. Possible values are described on official PDF32000_2008 reference.
-     * @param float|null $x    Abscissa of the upper-left corner of the rectangle
-     * @param float|null $y    Ordinate of the upper-left corner of the rectangle
-     * @param bool       $js   if true put the field using JavaScript (requires Acrobat Writer to be rendered).
+     * @param string     $name   field name
+     * @param float      $w      Width of the rectangle
+     * @param float      $height Height of the rectangle
+     * @param array      $prop   javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
+     * @param array      $opt    annotation parameters. Possible values are described on official PDF32000_2008 reference.
+     * @param float|null $x      Abscissa of the upper-left corner of the rectangle
+     * @param float|null $y      Ordinate of the upper-left corner of the rectangle
+     * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      * @author Nicola Asuni
      */
-    public function TextField($name, $w, $h, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    public function TextField($name, $w, $height, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (StaticMethods::empty_string($x)) {
             $x = $this->x;
@@ -5363,10 +5363,10 @@ trait WebTools
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         if ($js) {
-            $this->addJavascriptField('text', $name, $x, $y, $w, $h, $prop);
+            $this->addJavascriptField('text', $name, $x, $y, $w, $height, $prop);
             return;
         }
         // get default style
@@ -5387,7 +5387,7 @@ trait WebTools
         elseif (isset($opt['v']) and !empty($opt['v'])) {
             $text = $opt['v'];
         }
-        $tmpid = $this->startTemplate($w, $h, false);
+        $tmpid = $this->startTemplate($w, $height, false);
         $align = '';
         if (isset($popt['q'])) {
             switch ($popt['q']) {
@@ -5413,7 +5413,7 @@ trait WebTools
                 }
             }
         }
-        $this->multiCell($w, $h, $text, 0, $align, false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
+        $this->multiCell($w, $height, $text, 0, $align, false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
@@ -5448,14 +5448,14 @@ trait WebTools
         //$opt['a']
         //$opt['aa']
         //$opt['q']
-        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->annotation($x, $y, $w, $height, $name, $opt, 0);
         $this->x += $w;
     }
 
     /**
      * Creates a RadioButton field.
      * @param string     $name    Field name.
-     * @param int        $w       Width of the radio button.
+     * @param int        $width   Width of the radio button.
      * @param array      $prop    Javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @param array      $opt     Annotation parameters. Possible values are described on official PDF32000_2008 reference.
      * @param string     $onvalue Value to be returned if selected.
@@ -5465,7 +5465,7 @@ trait WebTools
      * @param bool       $js      If true put the field using JavaScript (requires Acrobat Writer to be rendered).
      * @author Nicola Asuni
      */
-    public function RadioButton($name, $w, $prop = [], $opt = [], $onvalue = 'On', $checked = false, $x = null, $y = null, $js = false)
+    public function RadioButton($name, $width, $prop = [], $opt = [], $onvalue = 'On', $checked = false, $x = null, $y = null, $js = false)
     {
         if (StaticMethods::empty_string($x)) {
             $x = $this->x;
@@ -5474,9 +5474,9 @@ trait WebTools
             $y = $this->y;
         }
         // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($w, $x, $y);
+        [$x, $y] = $this->repositionForRegions($x, $y, $width);
         if ($js) {
-            $this->addJavascriptField('radiobutton', $name, $x, $y, $w, $w, $prop);
+            $this->addJavascriptField('radiobutton', $name, $x, $y, $width, $width, $prop);
             return;
         }
         if (StaticMethods::empty_string($onvalue)) {
@@ -5519,8 +5519,8 @@ trait WebTools
         // build appearance stream
         $popt['ap']                = [];
         $popt['ap']['n']           = [];
-        $fx                        = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->factor);
-        $fy                        = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
+        $fx                        = ((($width - $this->getAbsFontMeasure($tmpfont['cw'][108])) / 2) * $this->factor);
+        $fy                        = (($width - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
         $popt['ap']['n'][$onvalue] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(108) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         $popt['ap']['n']['Off']    = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(109) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         if (!isset($popt['mk'])) {
@@ -5544,15 +5544,15 @@ trait WebTools
             $this->radiobutton_groups[$this->page][$name]['#readonly#'] = false;
         }
         $this->radiobutton_groups[$this->page][$name]['#readonly#'] |= ($opt['f'] & 64);
-        $this->Annotation($x, $y, $w, $w, $name, $opt, 0);
-        $this->x += $w;
+        $this->annotation($x, $y, $width, $width, $name, $opt, 0);
+        $this->x += $width;
     }
 
     /**
      * Creates a List-box field
      * @param string     $name   field name
      * @param int        $w      width
-     * @param int        $h      height
+     * @param int        $height height
      * @param array      $values array containing the list of values.
      * @param array      $prop   javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @param array      $opt    annotation parameters. Possible values are described on official PDF32000_2008 reference.
@@ -5561,7 +5561,7 @@ trait WebTools
      * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      * @author Nicola Asuni
      */
-    public function ListBox($name, $w, $h, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    public function ListBox($name, $w, $height, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (StaticMethods::empty_string($x)) {
             $x = $this->x;
@@ -5569,10 +5569,10 @@ trait WebTools
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         if ($js) {
-            $this->addJavascriptField('listbox', $name, $x, $y, $w, $h, $prop);
+            $this->addJavascriptField('listbox', $name, $x, $y, $w, $height, $prop);
             $s = '';
             foreach ($values as $value) {
                 if (is_array($value)) {
@@ -5605,8 +5605,8 @@ trait WebTools
                 $text .= $item . "\n";
             }
         }
-        $tmpid = $this->startTemplate($w, $h, false);
-        $this->multiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
+        $tmpid = $this->startTemplate($w, $height, false);
+        $this->multiCell($w, $height, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
@@ -5627,7 +5627,7 @@ trait WebTools
         unset($opt['mk']['ix']);
         unset($opt['mk']['if']);
         unset($opt['mk']['tp']);
-        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->annotation($x, $y, $w, $height, $name, $opt, 0);
         $this->x += $w;
     }
 
@@ -5635,7 +5635,7 @@ trait WebTools
      * Creates a Combo-box field
      * @param string     $name   field name
      * @param int        $w      width
-     * @param int        $h      height
+     * @param int        $height height
      * @param array      $values array containing the list of values.
      * @param array      $prop   javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @param array      $opt    annotation parameters. Possible values are described on official PDF32000_2008 reference.
@@ -5644,7 +5644,7 @@ trait WebTools
      * @param bool       $js     if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      * @author Nicola Asuni
      */
-    public function ComboBox($name, $w, $h, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    public function ComboBox($name, $w, $height, $values, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (StaticMethods::empty_string($x)) {
             $x = $this->x;
@@ -5652,10 +5652,10 @@ trait WebTools
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         if ($js) {
-            $this->addJavascriptField('combobox', $name, $x, $y, $w, $h, $prop);
+            $this->addJavascriptField('combobox', $name, $x, $y, $w, $height, $prop);
             $s = '';
             foreach ($values as $value) {
                 if (is_array($value)) {
@@ -5689,8 +5689,8 @@ trait WebTools
                 $text .= $item . "\n";
             }
         }
-        $tmpid = $this->startTemplate($w, $h, false);
-        $this->multiCell($w, $h, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
+        $tmpid = $this->startTemplate($w, $height, false);
+        $this->multiCell($w, $height, $text, 0, '', false, 0, 0, 0, true, 0, false, true, 0, 'T', false);
         $this->endTemplate();
         --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
@@ -5711,14 +5711,14 @@ trait WebTools
         unset($opt['mk']['ix']);
         unset($opt['mk']['if']);
         unset($opt['mk']['tp']);
-        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->annotation($x, $y, $w, $height, $name, $opt, 0);
         $this->x += $w;
     }
 
     /**
      * Creates a CheckBox field
      * @param string     $name    field name
-     * @param int        $w       width
+     * @param int        $width   width
      * @param bool       $checked define the initial state.
      * @param array      $prop    javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
      * @param array      $opt     annotation parameters. Possible values are described on official PDF32000_2008 reference.
@@ -5728,7 +5728,7 @@ trait WebTools
      * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      * @author Nicola Asuni
      */
-    public function CheckBox($name, $w, $checked = false, $prop = [], $opt = [], $onvalue = 'Yes', $x = null, $y = null, $js = false)
+    public function CheckBox($name, $width, $checked = false, $prop = [], $opt = [], $onvalue = 'Yes', $x = null, $y = null, $js = false)
     {
         if (StaticMethods::empty_string($x)) {
             $x = $this->x;
@@ -5736,10 +5736,10 @@ trait WebTools
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($w, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $width);
         if ($js) {
-            $this->addJavascriptField('checkbox', $name, $x, $y, $w, $w, $prop);
+            $this->addJavascriptField('checkbox', $name, $x, $y, $width, $width, $prop);
             return;
         }
         if (!isset($prop['value'])) {
@@ -5760,8 +5760,8 @@ trait WebTools
         // build appearance stream
         $popt['ap']             = [];
         $popt['ap']['n']        = [];
-        $fx                     = ((($w - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->factor);
-        $fy                     = (($w - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
+        $fx                     = ((($width - $this->getAbsFontMeasure($tmpfont['cw'][110])) / 2) * $this->factor);
+        $fy                     = (($width - ((($tmpfont['desc']['Ascent'] - $tmpfont['desc']['Descent']) * $this->fontSizePT / 1000) / $this->factor)) * $this->factor);
         $popt['ap']['n']['Yes'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(110) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         $popt['ap']['n']['Off'] = sprintf('q %s BT /F%d %F Tf %F %F Td (' . chr(111) . ') Tj ET Q', $this->textColor, $tmpfont['i'], $this->fontSizePT, $fx, $fy);
         // merge options
@@ -5782,15 +5782,15 @@ trait WebTools
             $opt['v']  = ['/Off'];
             $opt['as'] = 'Off';
         }
-        $this->Annotation($x, $y, $w, $w, $name, $opt, 0);
-        $this->x += $w;
+        $this->annotation($x, $y, $width, $width, $name, $opt, 0);
+        $this->x += $width;
     }
 
     /**
      * Creates a button field
      * @param string     $name    field name
      * @param int        $w       width
-     * @param int        $h       height
+     * @param int        $height  height
      * @param string     $caption caption.
      * @param mixed      $action  action triggered by pressing the button. Use a string to specify a javascript action. Use an array to specify a form action options as on section 12.7.5 of PDF32000_2008.
      * @param array      $prop    javascript field properties. Possible values are described on official Javascript for Acrobat API reference.
@@ -5800,7 +5800,7 @@ trait WebTools
      * @param bool       $js      if true put the field using JavaScript (requires Acrobat Writer to be rendered).
      * @author Nicola Asuni
      */
-    public function Button($name, $w, $h, $caption, $action, $prop = [], $opt = [], $x = null, $y = null, $js = false)
+    public function Button($name, $w, $height, $caption, $action, $prop = [], $opt = [], $x = null, $y = null, $js = false)
     {
         if (StaticMethods::empty_string($x)) {
             $x = $this->x;
@@ -5808,10 +5808,10 @@ trait WebTools
         if (StaticMethods::empty_string($y)) {
             $y = $this->y;
         }
-        // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
+
+        [$x, $y] = $this->repositionForRegions($x, $y, $height);
         if ($js) {
-            $this->addJavascriptField('button', $name, $this->x, $this->y, $w, $h, $prop);
+            $this->addJavascriptField('button', $name, $this->x, $this->y, $w, $height, $prop);
             $this->javascript .= 'f' . $name . ".buttonSetCaption('" . addslashes($caption) . "');\n";
             $this->javascript .= 'f' . $name . ".setAction('MouseUp','" . addslashes($action) . "');\n";
             $this->javascript .= 'f' . $name . ".highlight='push';\n";
@@ -5832,7 +5832,7 @@ trait WebTools
         // build appearance stream
         $popt['ap']      = [];
         $popt['ap']['n'] = '/Tx BMC q ' . $fontstyle . ' ';
-        $tmpid           = $this->startTemplate($w, $h, false);
+        $tmpid           = $this->startTemplate($w, $height, false);
         $bw              = (2 / $this->factor); // border width
         $border          = array(
             'L' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
@@ -5840,7 +5840,7 @@ trait WebTools
             'T' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [231]],
             'B' => ['width' => $bw, 'cap' => 'square', 'join' => 'miter', 'dash' => 0, 'color' => [51]]);
         $this->fillColor(204);
-        $this->cell($w, $h, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
+        $this->cell($w, $height, $caption, $border, 0, 'C', true, '', 1, false, 'T', 'M');
         $this->endTemplate();
         --$this->objectNumber;
         $popt['ap']['n'] .= $this->xObjects[$tmpid]['content'];
@@ -5970,7 +5970,7 @@ trait WebTools
                 $opt['aa'] = '/D ' . $js_obj_id . ' 0 R';
             }
         }
-        $this->Annotation($x, $y, $w, $h, $name, $opt, 0);
+        $this->annotation($x, $y, $w, $height, $name, $opt, 0);
         $this->x += $w;
     }
 

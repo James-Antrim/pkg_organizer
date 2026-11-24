@@ -483,77 +483,13 @@ trait Pages
     }
 
     /**
-     * Move pointer at the last document page and update page dimensions.
-     * @param bool $resetMargins whether to reset left, right, top margins and y position
-     */
-    public function turnToLastPage(bool $resetMargins = false): void
-    {
-        $this->turnToPage($this->pageCount, $resetMargins);
-    }
-
-    /**
-     * Move pointer at the specified document page and update page dimensions.
-     * @param int  $page
-     * @param bool $resetMargins whether to reset left, right, top margins and y position
-     */
-    public function turnToPage(int $page, bool $resetMargins = false): void
-    {
-        if ($page === $this->page and $this->state === self::READY) {
-            return;
-        }
-
-        if ($page < 0 or $page > $this->pageCount) {
-            Application::message("Requested page $page has not been initiated.", Application::ERROR);
-            return;
-        }
-
-        $this->state  = self::READY;
-        $previousPage = $this->page;
-        $this->page   = $page;
-
-        // Load stored graphic settings
-        $dimensions                = $this->pageDimensions[$this->page];
-        $this->widthPT             = $dimensions['w'];
-        $this->heightPT            = $dimensions['h'];
-        $this->width               = $dimensions['wk'];
-        $this->height              = $dimensions['hk'];
-        $this->topMargin           = $dimensions['topMargin'];
-        $this->bottomMargin        = $dimensions['bm'];
-        $this->originalLeftMargin  = $dimensions['originalLeftMargin'];
-        $this->originalRightMargin = $dimensions['originalRightMargin'];
-        $this->autoPageBreak       = $dimensions['pb'];
-        $this->currentOrientation  = $dimensions['or'];
-        $this->autoPageBreak($this->autoPageBreak, $this->bottomMargin);
-
-        // restore graphic settings
-        if ($resetMargins) {
-            $this->leftMargin  = $dimensions['originalLeftMargin'];
-            $this->rightMargin = $dimensions['originalRightMargin'];
-            $this->y($this->topMargin);
-        }
-        elseif ($dimensions['originalLeftMargin'] !== $this->pageDimensions[$previousPage]['originalLeftMargin']) {
-            $delta = $dimensions['originalLeftMargin'] - $dimensions['originalRightMargin'];
-
-            $this->leftMargin  += $delta;
-            $this->rightMargin -= $delta;
-        }
-    }
-
-#endregion
-#region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
-
-
-    /**
-     * Check page for no-write regions and adapt current coordinates and page margins if necessary.
-     * A no-write region is a portion of the page with a rectangular or trapezium shape that will not be covered when writing text or html code.
-     * A region is always aligned on the left or right side of the page ad is defined using a vertical segment.
-     * @param float $height height of the text/image/object to print in user units
+     * Check page for restricted regions and adapt current coordinates and page margins if necessary.
      * @param float $x      current X coordinate in user units
      * @param float $y      current Y coordinate in user units
+     * @param float $height height of the item to print in user units
      * @return float[] [$x, $y]
-     * @author Nicola Asuni
      */
-    protected function checkPageRegions(float $height, float $x, float $y)
+    protected function repositionForRegions(float $x, float $y, float $height = 0): array
     {
         if (!$this->checkRegions or empty($this->pageRegions)) {
             // no page regions defined
@@ -616,6 +552,67 @@ trait Pages
         }
         return [$x, $y];
     }
+
+    /**
+     * Move pointer at the last document page and update page dimensions.
+     * @param bool $resetMargins whether to reset left, right, top margins and y position
+     */
+    public function turnToLastPage(bool $resetMargins = false): void
+    {
+        $this->turnToPage($this->pageCount, $resetMargins);
+    }
+
+    /**
+     * Move pointer at the specified document page and update page dimensions.
+     * @param int  $page
+     * @param bool $resetMargins whether to reset left, right, top margins and y position
+     */
+    public function turnToPage(int $page, bool $resetMargins = false): void
+    {
+        if ($page === $this->page and $this->state === self::READY) {
+            return;
+        }
+
+        if ($page < 0 or $page > $this->pageCount) {
+            Application::message("Requested page $page has not been initiated.", Application::ERROR);
+            return;
+        }
+
+        $this->state  = self::READY;
+        $previousPage = $this->page;
+        $this->page   = $page;
+
+        // Load stored graphic settings
+        $dimensions                = $this->pageDimensions[$this->page];
+        $this->widthPT             = $dimensions['w'];
+        $this->heightPT            = $dimensions['h'];
+        $this->width               = $dimensions['wk'];
+        $this->height              = $dimensions['hk'];
+        $this->topMargin           = $dimensions['topMargin'];
+        $this->bottomMargin        = $dimensions['bm'];
+        $this->originalLeftMargin  = $dimensions['originalLeftMargin'];
+        $this->originalRightMargin = $dimensions['originalRightMargin'];
+        $this->autoPageBreak       = $dimensions['pb'];
+        $this->currentOrientation  = $dimensions['or'];
+        $this->autoPageBreak($this->autoPageBreak, $this->bottomMargin);
+
+        // restore graphic settings
+        if ($resetMargins) {
+            $this->leftMargin  = $dimensions['originalLeftMargin'];
+            $this->rightMargin = $dimensions['originalRightMargin'];
+            $this->y($this->topMargin);
+        }
+        elseif ($dimensions['originalLeftMargin'] !== $this->pageDimensions[$previousPage]['originalLeftMargin']) {
+            $delta = $dimensions['originalLeftMargin'] - $dimensions['originalRightMargin'];
+
+            $this->leftMargin  += $delta;
+            $this->rightMargin -= $delta;
+        }
+    }
+
+#endregion
+#region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
+
 
     /**
      * Adds a new page to the document. If a page is already present, the Footer() method is called first to output the footer (if enabled). Then the page is added, the current position set to the top-left corner according to the left and top margins, and Header() is called to display the header (if enabled).
