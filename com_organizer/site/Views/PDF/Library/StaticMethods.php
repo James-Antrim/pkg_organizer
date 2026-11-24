@@ -138,20 +138,6 @@ class StaticMethods
     }
 
     /**
-     * Returns timestamp in seconds from formatted date-time.
-     * @param string $date Formatted date-time.
-     * @return int seconds.
-     */
-    public static function getTimestamp($date)
-    {
-        if (($date[0] == 'D') and ($date[1] == ':')) {
-            // remove date prefix if present
-            $date = substr($date, 2);
-        }
-        return strtotime($date);
-    }
-
-    /**
      * Determine whether a string is empty.
      * @param string $str string to be checked
      * @return bool true if string is empty
