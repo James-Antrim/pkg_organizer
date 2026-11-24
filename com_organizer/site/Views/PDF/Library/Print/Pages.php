@@ -164,6 +164,34 @@ trait Pages
     }
 
     /**
+     * Determines whether a page break is necessary and add one if flag is set.
+     * @param float      $height  Cell height. Default value: 0.
+     * @param float|null $y       starting y position, leave empty for current position.
+     * @param bool       $addPage if true add a page, otherwise only return the true/false state
+     * @return bool true in case of page break, false otherwise.
+     */
+    protected function pageBreak(float $height = 0, float|null $y = null, bool $addPage = true): bool
+    {
+        $y = $y ?? $this->y;
+
+        $currentPage = $this->page;
+        if (($y + $height) > $this->breakTrigger and $this->inPageBody() and $this->acceptPageBreak()) {
+            if ($addPage) {
+                $this->addPage($this->currentOrientation);
+                $this->y = $this->topMargin;
+                $thisPD  = $this->pageDimensions[$this->page];
+                $oldPD   = $this->pageDimensions[$this->page - 1];
+                $this->x += $thisPD['originalLeftMargin'] - $oldPD['originalLeftMargin'];
+            }
+
+            return true;
+        }
+
+        // Account for columns mode is the original comment
+        return $currentPage !== $this->page;
+    }
+
+    /**
      * Getter / setter for the page buffer
      * @param int    $pageNumber
      * @param string $content
@@ -375,18 +403,83 @@ trait Pages
         $this->autoPageBreak($autoPagebreak, $bottomMargin);
 
         // store page dimensions
-        $page['bm']  = $bottomMargin;
-        $page['h']   = $this->heightPT;
-        $page['hk']  = $this->height;
-        $page['lm']  = $this->leftMargin;
-        $page['olm'] = $this->originalLeftMargin;
-        $page['or']  = $this->currentOrientation;
-        $page['orm'] = $this->originalRightMargin;
-        $page['pb']  = $autoPagebreak;
-        $page['rm']  = $this->rightMargin;
-        $page['tm']  = $this->topMargin;
-        $page['w']   = $this->widthPT;
-        $page['wk']  = $this->width;
+        $page['bm']                  = $bottomMargin;
+        $page['h']                   = $this->heightPT;
+        $page['hk']                  = $this->height;
+        $page['lm']                  = $this->leftMargin;
+        $page['originalLeftMargin']  = $this->originalLeftMargin;
+        $page['or']                  = $this->currentOrientation;
+        $page['originalRightMargin'] = $this->originalRightMargin;
+        $page['pb']                  = $autoPagebreak;
+        $page['rm']                  = $this->rightMargin;
+        $page['topMargin']           = $this->topMargin;
+        $page['w']                   = $this->widthPT;
+        $page['wk']                  = $this->width;
+    }
+
+    /** Renders the table header on new page. */
+    protected function renderTableHeader(): void
+    {
+        // Multi column mode
+        if ($this->columnCount > 1) {
+            return;
+        }
+
+        $pageDimensions =& $this->pageDimensions[$this->page];
+        if (isset($this->tableHeaderMargins['top'])) {
+            // Restore the original top-margin
+            $this->topMargin             = $this->tableHeaderMargins['top'];
+            $pageDimensions['topMargin'] = $this->topMargin;
+            $this->y                     = $this->topMargin;
+        }
+
+        if ($this->tableHeader and (!$this->inTableHeader)) {
+            $thPageDimensions = $this->pageDimensions[$this->tableHeaderMargins['page']];
+            // set margins
+            $leftMarginBuffer   = $this->leftMargin;
+            $rightMarginBuffer  = $this->rightMargin;
+            $previousPaddings   = $this->cellPaddings;
+            $this->leftMargin   = $this->tableHeaderMargins['leftMargin'] + $pageDimensions['originalLeftMargin'] - $thPageDimensions['originalLeftMargin'];
+            $this->rightMargin  = $this->tableHeaderMargins['rightMargin'] + $pageDimensions['originalRightMargin'] - $thPageDimensions['originalRightMargin'];
+            $this->cellPaddings = $this->tableHeaderMargins['cellPaddings'];
+            $this->x            = $this->leftMargin;
+
+            // Account for special "cell" mode
+            if ($this->tableHeaderMargins['cell']) {
+                $this->x += $this->cellPaddings['L'];
+            }
+
+            $settings = $this->graphicsSettings();
+            if (!empty($this->tableHeaderMargins['settings'])) {
+                // set the correct graphic style
+                $this->graphicsSettings($this->tableHeaderMargins['settings']);
+                $this->rightMargin = $settings['rightMargin'];
+                $this->leftMargin  = $settings['leftMargin'];
+            }
+
+            // Append table header
+            $this->writeHTML($this->tableHeader, false, false, false, false, '');
+            $this->graphicsSettings($settings);
+
+            // Set new top margin to skip the table headers
+            if (!isset($this->tableHeaderMargins['top'])) {
+                $this->tableHeaderMargins['top'] = $this->topMargin;
+            }
+
+            // Store end of header position
+            if (!isset($this->columns[0]['th'])) {
+                $this->columns[0]['th'] = [];
+            }
+
+            $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
+
+            $this->topMargin             = $this->y;
+            $pageDimensions['topMargin'] = $this->topMargin;
+            $this->lastPrintedCellHeight = 0;
+            $this->leftMargin            = $leftMarginBuffer;
+            $this->rightMargin           = $rightMarginBuffer;
+            $this->cellPaddings          = $previousPaddings;
+        }
     }
 
     /**
@@ -424,22 +517,22 @@ trait Pages
         $this->heightPT            = $dimensions['h'];
         $this->width               = $dimensions['wk'];
         $this->height              = $dimensions['hk'];
-        $this->topMargin           = $dimensions['tm'];
+        $this->topMargin           = $dimensions['topMargin'];
         $this->bottomMargin        = $dimensions['bm'];
-        $this->originalLeftMargin  = $dimensions['olm'];
-        $this->originalRightMargin = $dimensions['orm'];
+        $this->originalLeftMargin  = $dimensions['originalLeftMargin'];
+        $this->originalRightMargin = $dimensions['originalRightMargin'];
         $this->autoPageBreak       = $dimensions['pb'];
         $this->currentOrientation  = $dimensions['or'];
         $this->autoPageBreak($this->autoPageBreak, $this->bottomMargin);
 
         // restore graphic settings
         if ($resetMargins) {
-            $this->leftMargin  = $dimensions['olm'];
-            $this->rightMargin = $dimensions['orm'];
+            $this->leftMargin  = $dimensions['originalLeftMargin'];
+            $this->rightMargin = $dimensions['originalRightMargin'];
             $this->y($this->topMargin);
         }
-        elseif ($dimensions['olm'] !== $this->pageDimensions[$previousPage]['olm']) {
-            $delta = $dimensions['olm'] - $dimensions['orm'];
+        elseif ($dimensions['originalLeftMargin'] !== $this->pageDimensions[$previousPage]['originalLeftMargin']) {
+            $delta = $dimensions['originalLeftMargin'] - $dimensions['originalRightMargin'];
 
             $this->leftMargin  += $delta;
             $this->rightMargin -= $delta;
@@ -449,98 +542,6 @@ trait Pages
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-
-    /**
-     * This method is used to render the table header on new page (if any).
-     */
-    protected function setTableHeader()
-    {
-        if ($this->columnCount > 1) {
-            // multi column mode
-            return;
-        }
-        if (isset($this->tableHeaderMargins['top'])) {
-            // restore the original top-margin
-            $this->topMargin                         = $this->tableHeaderMargins['top'];
-            $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
-            $this->y                                 = $this->topMargin;
-        }
-        if ($this->tableHeader and (!$this->inTableHeader)) {
-            // set margins
-            $prev_lMargin       = $this->leftMargin;
-            $prev_rMargin       = $this->rightMargin;
-            $previousPaddings   = $this->cellPaddings;
-            $this->leftMargin   = $this->tableHeaderMargins['lmargin'] + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$this->tableHeaderMargins['page']]['olm']);
-            $this->rightMargin  = $this->tableHeaderMargins['rmargin'] + ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$this->tableHeaderMargins['page']]['orm']);
-            $this->cellPaddings = $this->tableHeaderMargins['cellPaddings'];
-            $this->x            = $this->leftMargin;
-            // account for special "cell" mode
-            if ($this->tableHeaderMargins['cell']) {
-                $this->x += $this->cellPaddings['L'];
-            }
-            $gvars = $this->graphicsSettings();
-            if (!empty($this->tableHeaderMargins['gvars'])) {
-                // set the correct graphic style
-                $this->graphicsSettings($this->tableHeaderMargins['gvars']);
-                $this->rightMargin = $gvars['rMargin'];
-                $this->leftMargin  = $gvars['lMargin'];
-            }
-            // print table header
-            $this->writeHTML($this->tableHeader, false, false, false, false, '');
-            $this->graphicsSettings($gvars);
-            // set new top margin to skip the table headers
-            if (!isset($this->tableHeaderMargins['top'])) {
-                $this->tableHeaderMargins['top'] = $this->topMargin;
-            }
-            // store end of header position
-            if (!isset($this->columns[0]['th'])) {
-                $this->columns[0]['th'] = [];
-            }
-            $this->columns[0]['th']['\'' . $this->page . '\''] = $this->y;
-            $this->topMargin                                   = $this->y;
-            $this->pageDimensions[$this->page]['tm']           = $this->topMargin;
-            $this->lastPrintedCellHeight                       = 0;
-            $this->leftMargin                                  = $prev_lMargin;
-            $this->rightMargin                                 = $prev_rMargin;
-            $this->cellPaddings                                = $previousPaddings;
-        }
-    }
-
-    /**
-     * Add page if needed.
-     * @param float      $h       Cell height. Default value: 0.
-     * @param float|null $y       starting y position, leave empty for current position.
-     * @param bool       $addpage if true add a page, otherwise only return the true/false state
-     * @return bool true in case of page break, false otherwise.
-     */
-    protected function checkPageBreak($h = 0, $y = null, $addpage = true)
-    {
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
-        }
-        $current_page = $this->page;
-        if ((($y + $h) > $this->breakTrigger) and ($this->inPageBody()) and ($this->acceptPageBreak())) {
-            if ($addpage) {
-                //Automatic page break
-                $x = $this->x;
-                $this->addPage($this->currentOrientation);
-                $this->y = $this->topMargin;
-                $oldpage = $this->page - 1;
-                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
-                    $this->x = $x + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$oldpage]['olm']);
-                }
-                else {
-                    $this->x = $x;
-                }
-            }
-            return true;
-        }
-        if ($current_page != $this->page) {
-            // account for columns mode
-            return true;
-        }
-        return false;
-    }
 
     /**
      * Check page for no-write regions and adapt current coordinates and page margins if necessary.
@@ -561,7 +562,7 @@ trait Pages
 
         $height = $height ?: $this->cellHeight($this->fontSize);
         // check for page break
-        if ($this->checkPageBreak($height, $y)) {
+        if ($this->pageBreak($height, $y)) {
             // the content will be printed on a new page
             $x = $this->x;
             $y = $this->y;
@@ -672,14 +673,14 @@ trait Pages
      * $this->pagedim[$this->page]['h'] = height in points
      * $this->pagedim[$this->page]['wk'] = page width in user units
      * $this->pagedim[$this->page]['hk'] = page height in user units
-     * $this->pagedim[$this->page]['tm'] = top margin
+     * $this->pagedim[$this->page]['topMargin'] = top margin
      * $this->pagedim[$this->page]['bm'] = bottom margin
      * $this->pagedim[$this->page]['lm'] = left margin
      * $this->pagedim[$this->page]['rm'] = right margin
      * $this->pagedim[$this->page]['pb'] = auto page break
      * $this->pagedim[$this->page]['or'] = page orientation
-     * $this->pagedim[$this->page]['olm'] = original left margin
-     * $this->pagedim[$this->page]['orm'] = original right margin
+     * $this->pagedim[$this->page]['originalLeftMargin'] = original left margin
+     * $this->pagedim[$this->page]['originalRightMargin'] = original right margin
      * $this->pagedim[$this->page]['Rotate'] = The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.
      * $this->pagedim[$this->page]['PZ'] = The page's preferred zoom (magnification) factor.
      * $this->pagedim[$this->page]['trans'] : the style and duration of the visual transition to use when moving from another page to the given page during a presentation<ul><li>$this->pagedim[$this->page]['trans']['Dur'] = The page's display duration (also called its advance timing): the maximum length of time, in seconds, that the page shall be displayed during presentations before the viewer application shall automatically advance to the next page.
@@ -1545,7 +1546,7 @@ trait Pages
         // mark this point
         $this->setPageMark();
         // print table header (if any)
-        $this->setTableHeader();
+        $this->renderTableHeader();
         // set mark for empty page check
         $this->emptypagemrk[$this->page] = $this->pageLengths[$this->page];
     }

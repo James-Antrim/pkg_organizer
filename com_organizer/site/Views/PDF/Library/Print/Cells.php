@@ -140,7 +140,7 @@ trait Cells
                 $h = $min_cell_height;
             }
         }
-        $this->checkPageBreak($h + $this->cellMargins['T'] + $this->cellMargins['B']);
+        $this->pageBreak($h + $this->cellMargins['T'] + $this->cellMargins['B']);
         // apply text shadow if enabled
         if ($this->txtshadow['enabled']) {
             // save data
@@ -1001,7 +1001,7 @@ trait Cells
             while ($tmpresth > 0) {
                 if ($skip <= 0) {
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                    $this->checkPageBreak($this->breakTrigger + 1);
+                    $this->pageBreak($this->breakTrigger + 1);
                 }
                 if ($this->columnCount > 1) {
                     $tmpresth -= ($this->height - $this->y - $this->bottomMargin);
@@ -1037,8 +1037,8 @@ trait Cells
             }
             // account for margin changes
             if ($page > $startpage) {
-                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
-                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
+                if ($this->pageDimensions[$page]['originalLeftMargin'] !== $this->pageDimensions[$startpage]['originalLeftMargin']) {
+                    $this->x += ($this->pageDimensions[$page]['originalLeftMargin'] - $this->pageDimensions[$startpage]['originalLeftMargin']);
                 }
             }
             if ($startpage == $endpage) {
@@ -1179,8 +1179,8 @@ trait Cells
             $this->rightMargin = $rMargin;
             if ($this->page > $startpage) {
                 // check for margin variations between pages (i.e. booklet mode)
-                $dl = ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$startpage]['olm']);
-                $dr = ($this->pageDimensions[$this->page]['orm'] - $this->pageDimensions[$startpage]['orm']);
+                $dl = ($this->pageDimensions[$this->page]['originalLeftMargin'] - $this->pageDimensions[$startpage]['originalLeftMargin']);
+                $dr = ($this->pageDimensions[$this->page]['originalRightMargin'] - $this->pageDimensions[$startpage]['originalRightMargin']);
                 if (($dl != 0) or ($dr != 0)) {
                     $this->leftMargin  += $dl;
                     $this->rightMargin += $dr;

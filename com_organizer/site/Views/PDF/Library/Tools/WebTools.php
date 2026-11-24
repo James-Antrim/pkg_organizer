@@ -562,7 +562,7 @@ trait WebTools
 
         // submitName: If nonempty, used during form submission instead of name. Only applicable if submitting in HTML format (that is, URL-encoded).
         if (isset($properties['submitName'])) {
-            $annotations['tm'] = $properties['submitName'];
+            $annotations['topMargin'] = $properties['submitName'];
         }
 
         // name: Fully qualified field name.
@@ -1013,7 +1013,7 @@ trait WebTools
             // Check whether we need a new page or new column
             $prev_y = $this->y;
             $h      = $this->cellHeight($this->fontSize);
-            if ($this->checkPageBreak($h) or ($this->y < $prev_y)) {
+            if ($this->pageBreak($h) or ($this->y < $prev_y)) {
                 $tmpx = $this->x;
             }
             // print ordered item
@@ -1179,12 +1179,12 @@ trait WebTools
                 // check for pagebreak
                 if (($dom[$key]['attribute']['pagebreak'] == 'true') or ($dom[$key]['attribute']['pagebreak'] == 'left') or ($dom[$key]['attribute']['pagebreak'] == 'right')) {
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                    $this->checkPageBreak($this->breakTrigger + 1);
+                    $this->pageBreak($this->breakTrigger + 1);
                     $this->htmlvspace = ($this->breakTrigger + 1);
                 }
                 if (($dom[$key]['attribute']['pagebreak'] === 'left' and $this->page % 2 === 0) or ($dom[$key]['attribute']['pagebreak'] === 'right' and $this->page % 2 !== 0)) {
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                    $this->checkPageBreak($this->breakTrigger + 1);
+                    $this->pageBreak($this->breakTrigger + 1);
                     $this->htmlvspace = ($this->breakTrigger + 1);
                 }
             }
@@ -1202,7 +1202,7 @@ trait WebTools
                     $this_method_vars['reseth']              = $reseth;
                     $this_method_vars['cell']                = $cell;
                     $this_method_vars['align']               = $align;
-                    $this_method_vars['gvars']               = $gvars;
+                    $this_method_vars['settings']            = $gvars;
                     $this_method_vars['prevPage']            = $prevPage;
                     $this_method_vars['previousMargins']     = $previousMargins;
                     $this_method_vars['previousPaddings']    = $previousPaddings;
@@ -1246,7 +1246,7 @@ trait WebTools
                     // print table header (thead)
                     $this->writeHTML($this->tableHeader, false, false, false, false, '');
                     // check if we are on a new page or on a new column
-                    if (($this->y < $this->start_transaction_y) or ($this->checkPageBreak($this->lastPrintedCellHeight, '', false))) {
+                    if (($this->y < $this->start_transaction_y) or ($this->pageBreak($this->lastPrintedCellHeight, '', false))) {
                         // we are on a new page or on a new column and the total object height is less than the available vertical space.
                         // restore previous object
                         $this->rollbackTransaction(true);
@@ -1259,7 +1259,7 @@ trait WebTools
                         $this->tableHeader = '';
                         // add a page (or trig AcceptPageBreak() for multicolumn mode)
                         $pre_y = $this->y;
-                        if ((!$this->checkPageBreak($this->breakTrigger + 1)) and ($this->y < $pre_y)) {
+                        if ((!$this->pageBreak($this->breakTrigger + 1)) and ($this->y < $pre_y)) {
                             // fix for multicolumn mode
                             $startliney = $this->y;
                         }
@@ -1319,7 +1319,7 @@ trait WebTools
                         if ($this->inPageBody()) {
                             $pre_y = $this->y;
                             // check for page break
-                            if ((!$this->checkPageBreak($imgh)) and ($this->y < $pre_y)) {
+                            if ((!$this->pageBreak($imgh)) and ($this->y < $pre_y)) {
                                 // fix for multicolumn mode
                                 $startliney = $this->y;
                             }
@@ -1834,7 +1834,7 @@ trait WebTools
                         $this->y -= $yshift;
                     }
                 }
-                $pbrk          = $this->checkPageBreak($this->lastPrintedCellHeight);
+                $pbrk          = $this->pageBreak($this->lastPrintedCellHeight);
                 $this->newLine = false;
                 $startlinex    = $this->x;
                 $startliney    = $this->y;
@@ -2026,8 +2026,8 @@ trait WebTools
                                 $rsendx   = $trwsp['endx'];
                                 // account for margin changes
                                 if ($trwsp['startpage'] < $this->page) {
-                                    if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$trwsp['startpage']]['olm']) {
-                                        $dl       = ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$trwsp['startpage']]['olm']);
+                                    if ($this->pageDimensions[$this->page]['originalLeftMargin'] != $this->pageDimensions[$trwsp['startpage']]['originalLeftMargin']) {
+                                        $dl       = ($this->pageDimensions[$this->page]['originalLeftMargin'] - $this->pageDimensions[$trwsp['startpage']]['originalLeftMargin']);
                                         $rsstartx += $dl;
                                         $rsendx   += $dl;
                                     }
@@ -2341,7 +2341,7 @@ trait WebTools
                     }
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
                     $pre_y = $this->y;
-                    if ((!$this->checkPageBreak($this->breakTrigger + 1)) and ($this->y < $pre_y)) {
+                    if ((!$this->pageBreak($this->breakTrigger + 1)) and ($this->y < $pre_y)) {
                         $startliney = $this->y;
                     }
                     $undo = true; // avoid infinite loop
@@ -2471,8 +2471,8 @@ trait WebTools
             $this->selectColumn();
         }
         elseif ($this->page > $prevPage) {
-            $this->leftMargin  = $this->pageDimensions[$this->page]['olm'];
-            $this->rightMargin = $this->pageDimensions[$this->page]['orm'];
+            $this->leftMargin  = $this->pageDimensions[$this->page]['originalLeftMargin'];
+            $this->rightMargin = $this->pageDimensions[$this->page]['originalRightMargin'];
         }
         // restore previous list state
         $this->cellHeightRatio = $previousHeightRatio;
@@ -2581,11 +2581,11 @@ trait WebTools
                         if (!isset($this->tableHeaderMargins) or (empty($this->tableHeaderMargins))) {
                             $this->tableHeaderMargins                 = [];
                             $this->tableHeaderMargins['cellPaddings'] = $this->cellPaddings;
-                            $this->tableHeaderMargins['lmargin']      = $this->leftMargin;
-                            $this->tableHeaderMargins['rmargin']      = $this->rightMargin;
+                            $this->tableHeaderMargins['leftMargin']   = $this->leftMargin;
+                            $this->tableHeaderMargins['rightMargin']  = $this->rightMargin;
                             $this->tableHeaderMargins['page']         = $this->page;
                             $this->tableHeaderMargins['cell']         = $cell;
-                            $this->tableHeaderMargins['gvars']        = $this->graphicsSettings();
+                            $this->tableHeaderMargins['settings']     = $this->graphicsSettings();
                         }
                     }
                 }
@@ -2605,10 +2605,10 @@ trait WebTools
                     $cs = $tag['border-spacing']['V'];
                 }
                 $prev_y = $this->y;
-                if ($this->checkPageBreak(((2 * $cp) + (2 * $cs) + $this->lastPrintedCellHeight), '', false) or ($this->y < $prev_y)) {
+                if ($this->pageBreak(((2 * $cp) + (2 * $cs) + $this->lastPrintedCellHeight), '', false) or ($this->y < $prev_y)) {
                     $this->inTableHeader = true;
                     // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                    $this->checkPageBreak($this->breakTrigger + 1);
+                    $this->pageBreak($this->breakTrigger + 1);
                 }
                 break;
             }
@@ -3249,11 +3249,11 @@ trait WebTools
             // check for pagebreak
             if (($pba == 'true') or ($pba == 'left') or ($pba == 'right')) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                $this->checkPageBreak($this->breakTrigger + 1);
+                $this->pageBreak($this->breakTrigger + 1);
             }
             if (($pba === 'left' and $this->page % 2 == 0) or ($pba === 'right' and $this->page % 2 !== 0)) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                $this->checkPageBreak($this->breakTrigger + 1);
+                $this->pageBreak($this->breakTrigger + 1);
             }
         }
         return $dom;
@@ -3393,8 +3393,8 @@ trait WebTools
                 }
                 // account for booklet mode
                 if ($this->page > $parent['startpage']) {
-                    if ($this->pageDimensions[$this->page]['olm'] !== $this->pageDimensions[$parent['startpage']]['olm']) {
-                        $this->x += ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$parent['startpage']]['olm']);
+                    if ($this->pageDimensions[$this->page]['originalLeftMargin'] !== $this->pageDimensions[$parent['startpage']]['originalLeftMargin']) {
+                        $this->x += ($this->pageDimensions[$this->page]['originalLeftMargin'] - $this->pageDimensions[$parent['startpage']]['originalLeftMargin']);
                     }
                 }
                 break;
@@ -3503,8 +3503,8 @@ trait WebTools
                             }
                             // account for margin changes
                             if ($page > $startpage) {
-                                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
-                                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
+                                if ($this->pageDimensions[$page]['originalLeftMargin'] !== $this->pageDimensions[$startpage]['originalLeftMargin']) {
+                                    $this->x += ($this->pageDimensions[$page]['originalLeftMargin'] - $this->pageDimensions[$startpage]['originalLeftMargin']);
                                 }
                             }
                             if ($startpage == $endpage) { // single page
@@ -3655,8 +3655,8 @@ trait WebTools
                     $this->lineBreak(0, $cell);
                     $this->x = $parent['startx'];
                     if ($endpage > $startpage) {
-                        if ($this->pageDimensions[$endpage]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
-                            $this->x += ($this->pageDimensions[$endpage]['olm'] - $this->pageDimensions[$startpage]['olm']);
+                        if ($this->pageDimensions[$endpage]['originalLeftMargin'] !== $this->pageDimensions[$startpage]['originalLeftMargin']) {
+                            $this->x += ($this->pageDimensions[$endpage]['originalLeftMargin'] - $this->pageDimensions[$startpage]['originalLeftMargin']);
                         }
                     }
                 }
@@ -3684,9 +3684,9 @@ trait WebTools
                     }
                     if (!isset($table_el['attribute']['nested']) or ($table_el['attribute']['nested'] != 'true')) {
                         // reset main table header
-                        $this->tableHeader                       = '';
-                        $this->tableHeaderMargins                = [];
-                        $this->pageDimensions[$this->page]['tm'] = $this->topMargin;
+                        $this->tableHeader                              = '';
+                        $this->tableHeaderMargins                       = [];
+                        $this->pageDimensions[$this->page]['topMargin'] = $this->topMargin;
                     }
                 }
                 $parent = $table_el;
@@ -3809,11 +3809,11 @@ trait WebTools
             // check for pagebreak
             if (($pba == 'true') or ($pba == 'left') or ($pba == 'right')) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                $this->checkPageBreak($this->breakTrigger + 1);
+                $this->pageBreak($this->breakTrigger + 1);
             }
             if (($pba === 'left' and $this->page % 2 === 0) or ($pba === 'right' and $this->page % 2 !== 0)) {
                 // add a page (or trig AcceptPageBreak() for multicolumn mode)
-                $this->checkPageBreak($this->breakTrigger + 1);
+                $this->pageBreak($this->breakTrigger + 1);
             }
         }
         return $dom;
@@ -5214,8 +5214,8 @@ trait WebTools
             }
             // account for margin changes
             if ($page > $startpage) {
-                if ($this->pageDimensions[$page]['olm'] !== $this->pageDimensions[$startpage]['olm']) {
-                    $this->x += ($this->pageDimensions[$page]['olm'] - $this->pageDimensions[$startpage]['olm']);
+                if ($this->pageDimensions[$page]['originalLeftMargin'] !== $this->pageDimensions[$startpage]['originalLeftMargin']) {
+                    $this->x += ($this->pageDimensions[$page]['originalLeftMargin'] - $this->pageDimensions[$startpage]['originalLeftMargin']);
                 }
             }
             if ($startpage == $endpage) {
@@ -5441,7 +5441,7 @@ trait WebTools
         //$opt['mk']['if']['fb'];
         unset($opt['mk']['tp']);
         //$opt['tu']
-        //$opt['tm']
+        //$opt['topMargin']
         //$opt['ff']
         //$opt['v']
         //$opt['dv']

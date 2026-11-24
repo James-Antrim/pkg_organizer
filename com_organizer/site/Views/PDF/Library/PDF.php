@@ -1110,7 +1110,7 @@ class PDF
             $this->fontStretching  = $parameters['fontStretching'];
             $this->fontStyle       = $parameters['fontStyle'];
             $this->htmlvspace      = $parameters['htmlvspace'];
-            $this->leftMargin      = $parameters['lMargin'];
+            $this->leftMargin      = $parameters['leftMargin'];
             $this->lineCapStyle    = $parameters['lineCapStyle'];
             $this->lineDashStyle   = $parameters['lineDashStyle'];
             $this->lineJoinStyle   = $parameters['lineJoinStyle'];
@@ -1122,7 +1122,7 @@ class PDF
             $this->listindentlevel = $parameters['listindentlevel'];
             $this->listnum         = $parameters['listnum'];
             $this->listordered     = $parameters['listordered'];
-            $this->rightMargin     = $parameters['rMargin'];
+            $this->rightMargin     = $parameters['rightMargin'];
             $this->textColor       = $parameters['TextColor'];
             $this->textrendermode  = $parameters['textrendermode'];
             $this->textstrokewidth = $parameters['textstrokewidth'];
@@ -1168,7 +1168,7 @@ class PDF
             'fontStretching'   => $this->fontStretching,
             'fontStyle'        => $this->fontStyle,
             'htmlvspace'       => $this->htmlvspace,
-            'lMargin'          => $this->leftMargin,
+            'leftMargin'       => $this->leftMargin,
             'lineCapStyle'     => $this->lineCapStyle,
             'lineDashStyle'    => $this->lineDashStyle,
             'lineJoinStyle'    => $this->lineJoinStyle,
@@ -1180,7 +1180,7 @@ class PDF
             'listindentlevel'  => $this->listindentlevel,
             'listnum'          => $this->listnum,
             'listordered'      => $this->listordered,
-            'rMargin'          => $this->rightMargin,
+            'rightMargin'      => $this->rightMargin,
             'TextColor'        => $this->textColor,
             'textrendermode'   => $this->textrendermode,
             'textstrokewidth'  => $this->textstrokewidth,
@@ -1219,7 +1219,6 @@ class PDF
 
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
 
 
     /**
@@ -2332,7 +2331,7 @@ class PDF
         // Check whether we need a new page or new column first as this does not fit
         $prev_x = $this->x;
         $prev_y = $this->y;
-        if ($this->checkPageBreak($h, $y) or ($this->y < $prev_y)) {
+        if ($this->pageBreak($h, $y) or ($this->y < $prev_y)) {
             $y             = $this->y;
             $x             += ($this->x - $prev_x);
             $this->newLine = true;
@@ -3203,8 +3202,8 @@ class PDF
                             if (isset($pl['opt']['tu']) and is_string($pl['opt']['tu'])) {
                                 $annots .= ' /TU ' . $this->metadataDataString($pl['opt']['tu']);
                             }
-                            if (isset($pl['opt']['tm']) and is_string($pl['opt']['tm'])) {
-                                $annots .= ' /TM ' . $this->metadataDataString($pl['opt']['tm']);
+                            if (isset($pl['opt']['topMargin']) and is_string($pl['opt']['topMargin'])) {
+                                $annots .= ' /TM ' . $this->metadataDataString($pl['opt']['topMargin']);
                             }
                             if (isset($pl['opt']['ff'])) {
                                 if (is_array($pl['opt']['ff'])) {
@@ -5739,7 +5738,7 @@ class PDF
         // object ID
         $this->xObjects[$this->xObjectID] = ['n' => $this->objectNumber];
         // store current graphic state
-        $this->xObjects[$this->xObjectID]['gvars'] = $this->graphicsSettings();
+        $this->xObjects[$this->xObjectID]['settings'] = $this->graphicsSettings();
         // initialize data
         $this->xObjects[$this->xObjectID]['intmrk']         = 0;
         $this->xObjects[$this->xObjectID]['transpositions'] = [];
@@ -5798,7 +5797,7 @@ class PDF
         }
         $this->inXObject = false;
         // restore previous graphic state
-        $this->graphicsSettings($this->xObjects[$this->xObjectID]['gvars'], true);
+        $this->graphicsSettings($this->xObjects[$this->xObjectID]['settings'], true);
         return $this->xObjectID;
     }
 

@@ -2538,7 +2538,7 @@ trait Images
         if (preg_match('/url\([\s]*\#([^\)]*)\)/si', $svgstyle['clip-path'], $regs)) {
             $clip_path = $this->svgclippaths[$regs[1]];
             foreach ($clip_path as $cp) {
-                $this->startSVGElementHandler('clip-path', $cp['name'], $cp['attribs'], $cp['tm']);
+                $this->startSVGElementHandler('clip-path', $cp['name'], $cp['attribs'], $cp['topMargin']);
             }
         }
         // opacity
@@ -2838,7 +2838,7 @@ trait Images
         $name = $this->removeTagNamespace($name);
         // check if we are in clip mode
         if ($this->svgclipmode) {
-            $this->svgclippaths[$this->svgclipid][] = ['name' => $name, 'attribs' => $attribs, 'tm' => $this->svgcliptm[$this->svgclipid]];
+            $this->svgclippaths[$this->svgclipid][] = ['name' => $name, 'attribs' => $attribs, 'topMargin' => $this->svgcliptm[$this->svgclipid]];
             return;
         }
         if ($this->svgdefsmode and !in_array($name, ['clipPath', 'linearGradient', 'radialGradient', 'stop'])) {
