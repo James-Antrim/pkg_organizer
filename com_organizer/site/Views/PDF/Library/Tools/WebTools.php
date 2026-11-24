@@ -1301,10 +1301,10 @@ trait WebTools
                 // vertically align image in line
                 if ((!$this->newLine) and ($dom[$key]['value'] == 'img') and (isset($dom[$key]['height'])) and ($dom[$key]['height'] > 0)) {
                     // get image height
-                    $imgh          = $this->fontSizeToUnits($dom[$key]['height'], ($dom[$key]['fontsize'] / $this->factor));
+                    $imgh          = $this->fontSizeToUnits($dom[$key]['height'], ($dom[$key]['fontSize'] / $this->factor));
                     $autolinebreak = false;
                     if (!empty($dom[$key]['width'])) {
-                        $imgw = $this->fontSizeToUnits($dom[$key]['width'], ($dom[$key]['fontsize'] / $this->factor));
+                        $imgw = $this->fontSizeToUnits($dom[$key]['width'], ($dom[$key]['fontSize'] / $this->factor));
                         if (($imgw <= ($this->width - $this->leftMargin - $this->rightMargin - $this->cellPaddings['L'] - $this->cellPaddings['R'])) and ($this->x + $imgw) > ($this->width - $this->rightMargin - $this->cellPaddings['R'])) {
                             // add automatic line break
                             $autolinebreak = true;
@@ -1374,14 +1374,14 @@ trait WebTools
                         $maxbottomliney = ($startliney + $this->cellHeight($curfontsize / $this->factor));
                     }
                 }
-                elseif (isset($dom[$key]['fontname']) or isset($dom[$key]['fontstyle']) or isset($dom[$key]['fontsize']) or isset($dom[$key]['line-height'])) {
+                elseif (isset($dom[$key]['fontname']) or isset($dom[$key]['fontstyle']) or isset($dom[$key]['fontSize']) or isset($dom[$key]['line-height'])) {
                     // account for different font size
                     $pfontname   = $curfontname;
                     $pfontstyle  = $curfontstyle;
                     $pfontsize   = $curfontsize;
                     $fontname    = (isset($dom[$key]['fontname']) ? $dom[$key]['fontname'] : $curfontname);
                     $fontstyle   = (isset($dom[$key]['fontstyle']) ? $dom[$key]['fontstyle'] : $curfontstyle);
-                    $fontsize    = (isset($dom[$key]['fontsize']) ? $dom[$key]['fontsize'] : $curfontsize);
+                    $fontsize    = (isset($dom[$key]['fontSize']) ? $dom[$key]['fontSize'] : $curfontsize);
                     $fontascent  = $this->getFontAscent($fontname, $fontstyle, $fontsize);
                     $fontdescent = $this->getFontDescent($fontname, $fontstyle, $fontsize);
                     if (($fontname != $curfontname) or ($fontstyle != $curfontstyle) or ($fontsize != $curfontsize)
@@ -2265,7 +2265,7 @@ trait WebTools
                                     }
                                     $tmp_fontname  = isset($dom[$nkey]['fontname']) ? $dom[$nkey]['fontname'] : $this->fontFamily;
                                     $tmp_fontstyle = isset($dom[$nkey]['fontstyle']) ? $dom[$nkey]['fontstyle'] : $this->fontStyle;
-                                    $tmp_fontsize  = isset($dom[$nkey]['fontsize']) ? $dom[$nkey]['fontsize'] : $this->fontSizePT;
+                                    $tmp_fontsize  = isset($dom[$nkey]['fontSize']) ? $dom[$nkey]['fontSize'] : $this->fontSizePT;
                                     $same_textdir  = ($dom[$nkey]['dir'] == $dom[$key]['dir']);
                                 }
                                 else {
@@ -2508,8 +2508,8 @@ trait WebTools
             if (isset($this->tagvspaces[$tag['value']][0]['h']) && !empty($this->tagvspaces[$tag['value']][0]['h']) && ($this->tagvspaces[$tag['value']][0]['h'] >= 0)) {
                 $cur_h = $this->tagvspaces[$tag['value']][0]['h'];
             }
-            elseif (isset($tag['fontsize'])) {
-                $cur_h = $this->cellHeight($tag['fontsize'] / $this->factor);
+            elseif (isset($tag['fontSize'])) {
+                $cur_h = $this->cellHeight($tag['fontSize'] / $this->factor);
             }
             else {
                 $cur_h = $this->cellHeight($this->fontSize);
@@ -2530,8 +2530,8 @@ trait WebTools
                 $hb = ($on * $cur_h);
             }
             if (($this->htmlvspace <= 0) and ($on > 0)) {
-                if (isset($parent['fontsize'])) {
-                    $hbz = (($parent['fontsize'] / $this->factor) * $this->cellHeightRatio);
+                if (isset($parent['fontSize'])) {
+                    $hbz = (($parent['fontSize'] / $this->factor) * $this->cellHeightRatio);
                 }
                 else {
                     $hbz = $this->cellHeight($this->fontSize);
@@ -2546,8 +2546,8 @@ trait WebTools
             if (isset($this->tagvspaces[$tag['value']][1]['h']) && !empty($this->tagvspaces[$tag['value']][1]['h']) && ($this->tagvspaces[$tag['value']][1]['h'] >= 0)) {
                 $pre_h = $this->tagvspaces[$tag['value']][1]['h'];
             }
-            elseif (isset($parent['fontsize'])) {
-                $pre_h = $this->cellHeight($parent['fontsize'] / $this->factor);
+            elseif (isset($parent['fontSize'])) {
+                $pre_h = $this->cellHeight($parent['fontSize'] / $this->factor);
             }
             else {
                 $pre_h = $this->cellHeight($this->fontSize);
@@ -2782,11 +2782,11 @@ trait WebTools
                 }
                 $iw = '';
                 if (isset($tag['width'])) {
-                    $iw = $this->fontSizeToUnits($tag['width'], ($tag['fontsize'] / $this->factor));
+                    $iw = $this->fontSizeToUnits($tag['width'], ($tag['fontSize'] / $this->factor));
                 }
                 $ih = '';
                 if (isset($tag['height'])) {
-                    $ih = $this->fontSizeToUnits($tag['height'], ($tag['fontsize'] / $this->factor));
+                    $ih = $this->fontSizeToUnits($tag['height'], ($tag['fontSize'] / $this->factor));
                 }
                 if (($type == 'eps') or ($type == 'ai')) {
                     $this->ImageEps($imgsrc, $xpos, $this->y, $iw, $ih, $imglink, true, $align, '', $border, true);
@@ -2805,12 +2805,12 @@ trait WebTools
                     }
                     case 'M':
                     {
-                        $this->y = (($this->imageRBY + $prevy - ($this->cellHeight($tag['fontsize'] / $this->factor))) / 2);
+                        $this->y = (($this->imageRBY + $prevy - ($this->cellHeight($tag['fontSize'] / $this->factor))) / 2);
                         break;
                     }
                     case 'B':
                     {
-                        $this->y = $this->imageRBY - ($this->cellHeight($tag['fontsize'] / $this->factor) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontsize']) * $this->cellHeightRatio));
+                        $this->y = $this->imageRBY - ($this->cellHeight($tag['fontSize'] / $this->factor) - ($this->getFontDescent($tag['fontname'], $tag['fontstyle'], $tag['fontSize']) * $this->cellHeightRatio));
                         break;
                     }
                 }
@@ -3282,8 +3282,8 @@ trait WebTools
             if (isset($this->tagvspaces[$tag['value']][1]['h']) && !empty($this->tagvspaces[$tag['value']][1]['h']) && ($this->tagvspaces[$tag['value']][1]['h'] >= 0)) {
                 $pre_h = $this->tagvspaces[$tag['value']][1]['h'];
             }
-            elseif (isset($parent['fontsize'])) {
-                $pre_h = $this->cellHeight($parent['fontsize'] / $this->factor);
+            elseif (isset($parent['fontSize'])) {
+                $pre_h = $this->cellHeight($parent['fontSize'] / $this->factor);
             }
             else {
                 $pre_h = $this->cellHeight($this->fontSize);
@@ -3699,12 +3699,12 @@ trait WebTools
             }
             case 'sup':
             {
-                $this->reposition($this->x(), $this->y() + ((0.7 * $parent['fontsize']) / $this->factor));
+                $this->reposition($this->x(), $this->y() + ((0.7 * $parent['fontSize']) / $this->factor));
                 break;
             }
             case 'sub':
             {
-                $this->reposition($this->x(), $this->y() - ((0.3 * $parent['fontsize']) / $this->factor));
+                $this->reposition($this->x(), $this->y() - ((0.3 * $parent['fontSize']) / $this->factor));
                 break;
             }
             case 'div':
@@ -3985,7 +3985,7 @@ trait WebTools
         $dom[$key]['fgColor']        = $this->fgColor;
         $dom[$key]['fill']           = (($this->textrendermode % 2) == 0);
         $dom[$key]['fontname']       = $this->fontFamily;
-        $dom[$key]['fontsize']       = $this->fontSizePT;
+        $dom[$key]['fontSize']       = $this->fontSizePT;
         $dom[$key]['font-stretch']   = $this->fontStretching;
         $dom[$key]['fontstyle']      = $this->fontStyle;
         $dom[$key]['hide']           = false;
@@ -4044,7 +4044,7 @@ trait WebTools
                     $dom[$key]['fgColor']        = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fgColor'];
                     $dom[$key]['fill']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fill'];
                     $dom[$key]['fontname']       = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontname'];
-                    $dom[$key]['fontsize']       = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontsize'];
+                    $dom[$key]['fontSize']       = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontSize'];
                     $dom[$key]['font-stretch']   = $dom[($dom[($dom[$key]['parent'])]['parent'])]['font-stretch'];
                     $dom[$key]['fontstyle']      = $dom[($dom[($dom[$key]['parent'])]['parent'])]['fontstyle'];
                     $dom[$key]['hide']           = $dom[($dom[($dom[$key]['parent'])]['parent'])]['hide'];
@@ -4116,7 +4116,7 @@ trait WebTools
                         $dom[$key]['hide']           = $dom[$parentkey]['hide'];
                         $dom[$key]['fontname']       = $dom[$parentkey]['fontname'];
                         $dom[$key]['fontstyle']      = $dom[$parentkey]['fontstyle'];
-                        $dom[$key]['fontsize']       = $dom[$parentkey]['fontsize'];
+                        $dom[$key]['fontSize']       = $dom[$parentkey]['fontSize'];
                         $dom[$key]['font-stretch']   = $dom[$parentkey]['font-stretch'];
                         $dom[$key]['letter-spacing'] = $dom[$parentkey]['letter-spacing'];
                         $dom[$key]['stroke']         = $dom[$parentkey]['stroke'];
@@ -4187,7 +4187,7 @@ trait WebTools
                         // font size
                         if (isset($dom[$key]['style']['font-size'])) {
                             $fsize                 = trim($dom[$key]['style']['font-size']);
-                            $dom[$key]['fontsize'] = $this->fontSizeToUnits($fsize, $dom[$parentkey]['fontsize'], self::POINT, true);
+                            $dom[$key]['fontSize'] = $this->fontSizeToUnits($fsize, $dom[$parentkey]['fontSize'], self::POINT, true);
                         }
                         // font-stretch
                         if (isset($dom[$key]['style']['font-stretch'])) {
@@ -4219,11 +4219,11 @@ trait WebTools
                                     }
                                     $dom[$key]['line-height'] = $this->fontSizeToUnits($lineheight, 1, self::PERCENT, true);
                                     if (substr($lineheight, -1) !== '%') {
-                                        if ($dom[$key]['fontsize'] <= 0) {
+                                        if ($dom[$key]['fontSize'] <= 0) {
                                             $dom[$key]['line-height'] = 1;
                                         }
                                         else {
-                                            $dom[$key]['line-height'] = (($dom[$key]['line-height'] - $this->cellPaddings['T'] - $this->cellPaddings['B']) / $dom[$key]['fontsize']);
+                                            $dom[$key]['line-height'] = (($dom[$key]['line-height'] - $this->cellPaddings['T'] - $this->cellPaddings['B']) / $dom[$key]['fontSize']);
                                         }
                                     }
                                 }
@@ -4459,17 +4459,17 @@ trait WebTools
                         if (isset($dom[$key]['attribute']['size'])) {
                             if ($key > 0) {
                                 if ($dom[$key]['attribute']['size'][0] == '+') {
-                                    $dom[$key]['fontsize'] = $dom[($dom[$key]['parent'])]['fontsize'] + intval(substr($dom[$key]['attribute']['size'], 1));
+                                    $dom[$key]['fontSize'] = $dom[($dom[$key]['parent'])]['fontSize'] + intval(substr($dom[$key]['attribute']['size'], 1));
                                 }
                                 elseif ($dom[$key]['attribute']['size'][0] == '-') {
-                                    $dom[$key]['fontsize'] = $dom[($dom[$key]['parent'])]['fontsize'] - intval(substr($dom[$key]['attribute']['size'], 1));
+                                    $dom[$key]['fontSize'] = $dom[($dom[$key]['parent'])]['fontSize'] - intval(substr($dom[$key]['attribute']['size'], 1));
                                 }
                                 else {
-                                    $dom[$key]['fontsize'] = intval($dom[$key]['attribute']['size']);
+                                    $dom[$key]['fontSize'] = intval($dom[$key]['attribute']['size']);
                                 }
                             }
                             else {
-                                $dom[$key]['fontsize'] = intval($dom[$key]['attribute']['size']);
+                                $dom[$key]['fontSize'] = intval($dom[$key]['attribute']['size']);
                             }
                         }
                     }
@@ -4480,7 +4480,7 @@ trait WebTools
                     }
                     if (($dom[$key]['value'] == 'small') or ($dom[$key]['value'] == 'sup') or ($dom[$key]['value'] == 'sub')) {
                         if (!isset($dom[$key]['attribute']['size']) and !isset($dom[$key]['style']['font-size'])) {
-                            $dom[$key]['fontsize'] = $dom[$key]['fontsize'] * self::SMALL_FONT_RATIO;
+                            $dom[$key]['fontSize'] = $dom[$key]['fontSize'] * self::SMALL_FONT_RATIO;
                         }
                     }
                     if (($dom[$key]['value'] == 'strong') or ($dom[$key]['value'] == 'b')) {
@@ -4505,7 +4505,7 @@ trait WebTools
                         // headings h1, h2, h3, h4, h5, h6
                         if (!isset($dom[$key]['attribute']['size']) and !isset($dom[$key]['style']['font-size'])) {
                             $headsize              = (4 - intval($dom[$key]['value'][1])) * 2;
-                            $dom[$key]['fontsize'] = $dom[0]['fontsize'] + $headsize;
+                            $dom[$key]['fontSize'] = $dom[0]['fontSize'] + $headsize;
                         }
                         if (!isset($dom[$key]['style']['font-weight'])) {
                             $dom[$key]['fontstyle'] .= 'B';
@@ -4584,7 +4584,7 @@ trait WebTools
                     // check for text rendering mode (the following attributes do not exist in HTML)
                     if (isset($dom[$key]['attribute']['stroke'])) {
                         // font stroke width
-                        $dom[$key]['stroke'] = $this->fontSizeToUnits($dom[$key]['attribute']['stroke'], $dom[$key]['fontsize'], self::POINT, true);
+                        $dom[$key]['stroke'] = $this->fontSizeToUnits($dom[$key]['attribute']['stroke'], $dom[$key]['fontSize'], self::POINT, true);
                     }
                     if (isset($dom[$key]['attribute']['fill'])) {
                         // font fill
@@ -5201,8 +5201,8 @@ trait WebTools
         $border_end    = StaticMethods::getBorderMode($border, $position = 'end', $this->opencell);
         $border_middle = StaticMethods::getBorderMode($border, $position = 'middle', $this->opencell);
         // temporary disable page regions
-        $temp_page_regions  = $this->page_regions;
-        $this->page_regions = [];
+        $temp_page_regions = $this->pageRegions;
+        $this->pageRegions = [];
         // design borders around HTML cells.
         for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
             $ccode = '';
@@ -5322,7 +5322,7 @@ trait WebTools
             }
         } // end for each page
         // restore page regions
-        $this->page_regions = $temp_page_regions;
+        $this->pageRegions = $temp_page_regions;
         if (isset($oldBGColor)) {
             // restore background color
             $this->fillColorArray($oldBGColor);

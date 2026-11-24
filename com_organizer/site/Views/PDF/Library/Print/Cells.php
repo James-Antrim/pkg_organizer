@@ -1020,8 +1020,8 @@ trait Cells
             $this->columnCount = 1;
         }
         // disable page regions check
-        $check_page_regions       = $this->check_page_regions;
-        $this->check_page_regions = false;
+        $check_page_regions = $this->checkRegions;
+        $this->checkRegions = false;
         // get border modes
         $border_start  = StaticMethods::getBorderMode($border, $position = 'start', $this->opencell);
         $border_end    = StaticMethods::getBorderMode($border, $position = 'end', $this->opencell);
@@ -1166,7 +1166,7 @@ trait Cells
             }
         } // end for each page
         // restore page regions check
-        $this->check_page_regions = $check_page_regions;
+        $this->checkRegions = $check_page_regions;
         // Get end-of-cell Y position
         $currentY = $this->y();
         // restore previous values

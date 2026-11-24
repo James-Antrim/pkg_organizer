@@ -22,6 +22,7 @@ trait Pages
     protected bool $autoPageBreak = true;
     protected float $bottomMargin = 0;
     protected float $breakTrigger = 0;
+    protected bool $checkRegions = true;
     protected string $currentOrientation = self::PORTRAIT;
     protected int $currentPageGroup = 0;
     protected float $formatHeightPT = 0;
@@ -43,6 +44,18 @@ trait Pages
     protected string $pageMode = self::USE_NONE;
     protected array $pageObjectIDs = [];
     protected array $pageObjects = [];
+    /**
+     * No-write regions:
+     * [
+     *     'page' => page number or empty for current page,
+     *     'side' => page side (self::LEFT / self::RIGHT)
+     *     'xb' => X bottom,
+     *     'xt' => X top,
+     *     'yb' => Y bottom,
+     *     'yt' => Y top,
+     * ]
+     */
+    protected array $pageRegions = [];
     protected array $pages = [];
     /** page number => open (true) / closed (false) */
     protected array $pageStatus = [];
@@ -55,7 +68,7 @@ trait Pages
      * Getter / setter for  automatic page breaking. When enabling, the second parameter is the minimum bottom margin on break.
      * @param bool  $auto   bool indicating if mode should be on or off.
      * @param float $margin Distance from the bottom of the page.
-     * @see   Cell(), MultiCell(), AcceptPageBreak()
+     * @see   Cell(), MultiCell(), acceptPageBreak()
      */
     public function autoPageBreak(bool|null $auto = null, float $margin = 0): bool
     {
@@ -80,6 +93,15 @@ trait Pages
         $this->pageZoom = in_array($zoom, self::PAGE_ZOOMS) ? $zoom : self::FULL_WIDTH;
         $this->layoutMode($layout);
         $this->pageMode($mode);
+    }
+
+    /**
+     * Check if we are on the page body (excluding page header and footer).
+     * @return bool
+     */
+    protected function inPageBody(): bool
+    {
+        return ($this->inHeader === false and $this->inFooter === false);
     }
 
     /**
@@ -535,20 +557,9 @@ trait Pages
 
 
     /**
-     * bool value true when page region check is active.
-     */
-    protected $check_page_regions = true;
-
-    /**
      * Array used to store page positions to track empty pages (keys are the page numbers).
      */
     protected $emptypagemrk = [];
-
-    /**
-     * Array of no-write regions.
-     * ('page' => page number or empy for current page, 'xt' => X top, 'yt' => Y top, 'xb' => X bottom, 'yb' => Y bottom, 'side' => page side 'L' = left or 'R' = right)
-     */
-    protected $page_regions = [];
 
     /**
      * Starting page number.
@@ -759,7 +770,7 @@ trait Pages
      * @return bool
      * @see   autoPageBreak()
      */
-    public function AcceptPageBreak()
+    protected function acceptPageBreak(): bool
     {
         if ($this->columnCount > 1) {
             // multi column mode
@@ -1073,15 +1084,6 @@ trait Pages
             return $this->width;
         }
         return $this->pageDimensions[$pagenum]['w'];
-    }
-
-    /**
-     * Check if we are on the page body (excluding page header and footer).
-     * @return bool true if we are not in page header nor in page footer, false otherwise.
-     */
-    protected function inPageBody()
-    {
-        return (($this->inHeader === false) and ($this->inFooter === false));
     }
 
     /**

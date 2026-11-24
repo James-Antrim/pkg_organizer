@@ -12,7 +12,7 @@
 
 namespace THM\Organizer\Views\PDF\Library;
 
-//use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\Application;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Views\PDF\Library\Barcodes\{Barcode1D, Barcode2D};
@@ -728,39 +728,163 @@ class PDF
 
 
     /**
+     * Add page if needed.
+     * @param float      $h       Cell height. Default value: 0.
+     * @param float|null $y       starting y position, leave empty for current position.
+     * @param bool       $addpage if true add a page, otherwise only return the true/false state
+     * @return bool true in case of page break, false otherwise.
+     */
+    protected function checkPageBreak($h = 0, $y = null, $addpage = true)
+    {
+        if (StaticMethods::empty_string($y)) {
+            $y = $this->y;
+        }
+        $current_page = $this->page;
+        if ((($y + $h) > $this->breakTrigger) and ($this->inPageBody()) and ($this->acceptPageBreak())) {
+            if ($addpage) {
+                //Automatic page break
+                $x = $this->x;
+                $this->addPage($this->currentOrientation);
+                $this->y = $this->topMargin;
+                $oldpage = $this->page - 1;
+                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
+                    $this->x = $x + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$oldpage]['olm']);
+                }
+                else {
+                    $this->x = $x;
+                }
+            }
+            return true;
+        }
+        if ($current_page != $this->page) {
+            // account for columns mode
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check page for no-write regions and adapt current coordinates and page margins if necessary.
+     * A no-write region is a portion of the page with a rectangular or trapezium shape that will not be covered when writing text or html code.
+     * A region is always aligned on the left or right side of the page ad is defined using a vertical segment.
+     * @param float $height height of the text/image/object to print in user units
+     * @param float $x      current X coordinate in user units
+     * @param float $y      current Y coordinate in user units
+     * @return float[] [$x, $y]
+     * @author Nicola Asuni
+     */
+    protected function checkPageRegions(float $height, float $x, float $y)
+    {
+        if (!$this->checkRegions or empty($this->pageRegions)) {
+            // no page regions defined
+            return [$x, $y];
+        }
+
+        $height = $height ?: $this->cellHeight($this->fontSize);
+        // check for page break
+        if ($this->checkPageBreak($height, $y)) {
+            // the content will be printed on a new page
+            $x = $this->x;
+            $y = $this->y;
+        }
+        if ($this->columnCount > 1) {
+            $this->rightMargin = ($this->width - $this->columns[$this->currentColumn]['x'] - $this->columns[$this->currentColumn]['w']);
+        }
+        else {
+            $this->rightMargin = max($this->cellRightMargin, $this->originalRightMargin);
+        }
+        // adjust coordinates and page margins
+        foreach ($this->pageRegions as $regid => $regdata) {
+            if ($regdata['page'] == $this->page) {
+                // check region boundaries
+                if (($y > ($regdata['yt'] - $height)) and ($y <= $regdata['yb'])) {
+                    // Y is inside the region
+                    $minv = ($regdata['xb'] - $regdata['xt']) / ($regdata['yb'] - $regdata['yt']); // inverse of angular coefficient
+                    $yt   = max($y, $regdata['yt']);
+                    $yb   = min(($yt + $height), $regdata['yb']);
+                    $xt   = (($yt - $regdata['yt']) * $minv) + $regdata['xt'];
+                    $xb   = (($yb - $regdata['yt']) * $minv) + $regdata['xt'];
+                    if ($regdata['side'] == 'L') { // left side
+                        $new_margin = max($xt, $xb);
+                        if ($this->leftMargin < $new_margin) {
+                            if ($x < $new_margin) {
+                                // adjust x position
+                                $x = $new_margin;
+                                if ($new_margin > ($this->width - $this->rightMargin)) {
+                                    // adjust y position
+                                    $y = $regdata['yb'] - $height;
+                                }
+                            }
+                        }
+                    }
+                    elseif ($regdata['side'] == 'R') { // right side
+                        $new_margin = min($xt, $xb);
+                        if (($this->width - $this->rightMargin) > $new_margin) {
+                            $this->rightMargin = max(0, ($this->width - $new_margin));
+                            if ($x > $new_margin) {
+                                // adjust x position
+                                $x = $new_margin;
+                                if ($new_margin > $this->leftMargin) {
+                                    // adjust y position
+                                    $y = $regdata['yb'] - $height;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return [$x, $y];
+    }
+
+    /**
      * Print a Linear Barcode.
      * @param string     $code
      * @param string     $type
-     * @param float|null $x     x position in user units (null = current x position)
-     * @param float|null $y     y position in user units (null = current y position)
-     * @param float|null $w     width in user units (null = remaining page width)
-     * @param float|null $h     height in user units (null = remaining page height)
-     * @param float|null $xres  width of the smallest bar in user units (null = default value = 0.4mm)
+     * @param float|null $x        x position in user units (null = current x position)
+     * @param float|null $y        y position in user units (null = current y position)
+     * @param float|null $width    width in user units (null = remaining page width)
+     * @param float|null $height   height in user units (null = remaining page height)
+     * @param float|null $minWidth width of the smallest bar in user units (null = default value = 0.4mm)
      * @param array      $style
-     * @param string     $align Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
+     * @param string     $align    Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right</li><li>M: middle-right</li><li>B: bottom-right</li><li>N: next line</li></ul>
      * @see Barcode1D::TYPES, self::BARCODE_STYLE_DESCRIPTIONS
      */
-    public function write1DBarcode(string $code, string $type, $x = null, $y = null, $w = null, $h = null, $xres = null, $style = [], $align = '')
+    public function write1DBarcode(
+        string     $code,
+        string     $type,
+        float|null $x = null,
+        float|null $y = null,
+        float|null $width = null,
+        float|null $height = null,
+        float|null $minWidth = null,
+        array      $style = [],
+        string     $align = ''
+    ): void
     {
-        if (StaticMethods::empty_string(trim($code))) {
+        if (!$code = trim($code)) {
             return;
         }
-        // save current graphic settings
-        $gvars = $this->graphicsSettings();
+
+        // Cache current graphic settings
+        $settings = $this->graphicsSettings();
+
         // create new barcode object
-        $barcodeobj = new Barcode1D($code, $type);
-        $arrcode    = $barcodeobj->barcode();
-        if (empty($arrcode) or ($arrcode['maxw'] <= 0)) {
-            $this->Error('Error in 1D barcode string');
+        $bcObject = new Barcode1D($code, $type);
+        if (!$bcArray = $bcObject->barcode() or $bcArray['maxWidth'] <= 0) {
+            Application::message('Barcode width invalid', Application::ERROR);
+            return;
         }
-        if ($arrcode['maxh'] <= 0) {
-            $arrcode['maxh'] = 1;
+
+        if ($bcArray['maxHeight'] <= 0) {
+            $bcArray['maxHeight'] = 1;
         }
+
         // set default values
-        if (!isset($style['position'])) {
+        if (empty($style['position'])) {
             $style['position'] = '';
         }
-        elseif ($style['position'] == 'S') {
+        elseif ($style['position'] == self::STRETCH) {
             // keep this for backward compatibility
             $style['position'] = '';
             $style['stretch']  = true;
@@ -778,52 +902,37 @@ class PDF
             $style['stretch'] = false;
         }
         if (!isset($style['stretch'])) {
-            if (($w === '') or ($w <= 0)) {
+            if (is_null($width) or ($width <= 0)) {
                 $style['stretch'] = false;
             }
             else {
                 $style['stretch'] = true;
             }
         }
-        if (!isset($style['fgColor'])) {
-            $style['fgColor'] = self::BLACK;
-        }
-        if (!isset($style['bgColor'])) {
-            $style['bgColor'] = false; // default transparent
-        }
-        if (!isset($style['border'])) {
-            $style['border'] = false;
-        }
-        $fontsize = 0;
-        if (!isset($style['text'])) {
-            $style['text'] = false;
-        }
+        $style['fgColor'] = $style['fgColor'] ?? self::BLACK;
+        $style['bgColor'] = $style['bgColor'] ?? false; // default transparent
+        $style['border']  = $style['border'] ?? false;
+        $fontSize         = 0;
+        $style['text']    = $style['text'] ?? false;
         if ($style['text'] and isset($style['font'])) {
-            if (isset($style['fontsize'])) {
-                $fontsize = $style['fontsize'];
-            }
-            $this->font($style['font'], '', $fontsize);
+            $fontSize = $style['fontSize'] ?? $fontSize;
+            $this->font($style['font'], '', $fontSize);
         }
-        if (!isset($style['stretchText'])) {
-            $style['stretchText'] = 4;
-        }
-        if (StaticMethods::empty_string($x)) {
-            $x = $this->x;
-        }
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
-        }
+        $style['stretchText'] = $style['stretchText'] ?? self::C_SPACING_FORCED;
+        $x                    = $x ?? $this->x;
+        $y                    = $y ?? $this->y;
+
         // check page for no-write regions and adapt page margins if necessary
-        list($x, $y) = $this->checkPageRegions($h, $x, $y);
-        if (StaticMethods::empty_string($w) or ($w <= 0)) {
-            $w = $this->width - $this->rightMargin - $x;
+        [$x, $y] = $this->checkPageRegions($height, $x, $y);
+        if (StaticMethods::empty_string($width) or ($width <= 0)) {
+            $width = $this->width - $this->rightMargin - $x;
         }
         // padding
         if (!isset($style['padding'])) {
             $padding = 0;
         }
         elseif ($style['padding'] === 'auto') {
-            $padding = 10 * ($w / ($arrcode['maxw'] + 20));
+            $padding = 10 * ($width / ($bcArray['maxWidth'] + 20));
         }
         else {
             $padding = floatval($style['padding']);
@@ -833,7 +942,7 @@ class PDF
             $hPadding = $padding;
         }
         elseif ($style['hPadding'] === 'auto') {
-            $hPadding = 10 * ($w / ($arrcode['maxw'] + 20));
+            $hPadding = 10 * ($width / ($bcArray['maxWidth'] + 20));
         }
         else {
             $hPadding = floatval($style['hPadding']);
@@ -849,39 +958,39 @@ class PDF
             $vPadding = floatval($style['vPadding']);
         }
         // calculate xres (single bar width)
-        $max_xres = ($w - (2 * $hPadding)) / $arrcode['maxw'];
+        $max_xres = ($width - (2 * $hPadding)) / $bcArray['maxWidth'];
         if ($style['stretch']) {
-            $xres = $max_xres;
+            $minWidth = $max_xres;
         }
         else {
-            if (StaticMethods::empty_string($xres)) {
-                $xres = (0.141 * $this->factor); // default bar width = 0.4 mm
+            if (StaticMethods::empty_string($minWidth)) {
+                $minWidth = (0.141 * $this->factor); // default bar width = 0.4 mm
             }
-            if ($xres > $max_xres) {
+            if ($minWidth > $max_xres) {
                 // correct xres to fit on $w
-                $xres = $max_xres;
+                $minWidth = $max_xres;
             }
             if ((isset($style['padding']) and ($style['padding'] === 'auto'))
                 or (isset($style['hPadding']) and ($style['hPadding'] === 'auto'))) {
-                $hPadding = 10 * $xres;
+                $hPadding = 10 * $minWidth;
                 if (isset($style['vPadding']) and ($style['vPadding'] === 'auto')) {
                     $vPadding = ($hPadding / 2);
                 }
             }
         }
         if ($style['reduceWidth']) {
-            $wold = $w;
-            $w    = (($arrcode['maxw'] * $xres) + (2 * $hPadding));
+            $wold  = $width;
+            $width = (($bcArray['maxWidth'] * $minWidth) + (2 * $hPadding));
             if (isset($style['hAlign'])) {
                 switch ($style['hAlign']) {
                     case 'R':
                     {
-                        $x += ($wold - $w);
+                        $x += ($wold - $width);
                         break;
                     }
                     case 'C':
                     {
-                        $x += (($wold - $w) / 2);
+                        $x += (($wold - $width) / 2);
                         break;
                     }
                     default :
@@ -891,43 +1000,43 @@ class PDF
                 }
             }
         }
-        $text_height = $this->cellHeight($fontsize / $this->factor);
+        $text_height = $this->cellHeight($fontSize / $this->factor);
         // height
-        if (StaticMethods::empty_string($h) or ($h <= 0)) {
+        if (StaticMethods::empty_string($height) or ($height <= 0)) {
             // set default height
-            $h = (($arrcode['maxw'] * $xres) / 3) + (2 * $vPadding) + $text_height;
+            $height = (($bcArray['maxWidth'] * $minWidth) / 3) + (2 * $vPadding) + $text_height;
         }
-        $barh = $h - $text_height - (2 * $vPadding);
+        $barh = $height - $text_height - (2 * $vPadding);
         if ($barh <= 0) {
             // try to reduce font or padding to fit barcode on available height
-            if ($text_height > $h) {
-                $fontsize    = (($h * $this->factor) / (4 * $this->cellHeightRatio));
-                $text_height = $this->cellHeight($fontsize / $this->factor);
-                $this->font($style['font'], '', $fontsize);
+            if ($text_height > $height) {
+                $fontSize    = (($height * $this->factor) / (4 * $this->cellHeightRatio));
+                $text_height = $this->cellHeight($fontSize / $this->factor);
+                $this->font($style['font'], '', $fontSize);
             }
             if ($vPadding > 0) {
-                $vPadding = (($h - $text_height) / 4);
+                $vPadding = (($height - $text_height) / 4);
             }
-            $barh = $h - $text_height - (2 * $vPadding);
+            $barh = $height - $text_height - (2 * $vPadding);
         }
         // fit the barcode on available space
-        list($w, $h, $x, $y) = $this->fitBlock($w, $h, $x, $y, false);
+        list($width, $height, $x, $y) = $this->fitBlock($width, $height, $x, $y, false);
         // set alignment
-        $this->imageRBY = $y + $h;
+        $this->imageRBY = $y + $height;
         // set alignment
         if ($style['position'] == 'L') {
             $xpos = $this->leftMargin;
         }
         elseif ($style['position'] == 'C') {
-            $xpos = ($this->width + $this->leftMargin - $this->rightMargin - $w) / 2;
+            $xpos = ($this->width + $this->leftMargin - $this->rightMargin - $width) / 2;
         }
         elseif ($style['position'] == 'R') {
-            $xpos = $this->width - $this->rightMargin - $w;
+            $xpos = $this->width - $this->rightMargin - $width;
         }
         else {
             $xpos = $x;
         }
-        $this->imageRBX = $xpos + $w;
+        $this->imageRBX = $xpos + $width;
         $xpos_rect      = $xpos;
         if (!isset($style['align'])) {
             $style['align'] = 'C';
@@ -940,34 +1049,34 @@ class PDF
             }
             case 'R':
             {
-                $xpos = $xpos_rect + ($w - ($arrcode['maxw'] * $xres)) - $hPadding;
+                $xpos = $xpos_rect + ($width - ($bcArray['maxWidth'] * $minWidth)) - $hPadding;
                 break;
             }
             case 'C':
             default :
             {
-                $xpos = $xpos_rect + (($w - ($arrcode['maxw'] * $xres)) / 2);
+                $xpos = $xpos_rect + (($width - ($bcArray['maxWidth'] * $minWidth)) / 2);
                 break;
             }
         }
         $xpos_text = $xpos;
         // print background color
         if ($style['bgColor']) {
-            $this->rectangle($xpos_rect, $y, $w, $h, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
+            $this->rectangle($xpos_rect, $y, $width, $height, $style['border'] ? 'DF' : 'F', '', $style['bgColor']);
         }
         elseif ($style['border']) {
-            $this->rectangle($xpos_rect, $y, $w, $h, 'D');
+            $this->rectangle($xpos_rect, $y, $width, $height, 'D');
         }
         // set foreground color
         $this->drawColorArray($style['fgColor']);
         $this->textColorArray($style['fgColor']);
         // print bars
-        foreach ($arrcode['bcode'] as $k => $v) {
-            $bw = ($v['w'] * $xres);
+        foreach ($bcArray['bcode'] as $k => $v) {
+            $bw = ($v['w'] * $minWidth);
             if ($v['t']) {
                 // draw a vertical bar
-                $ypos = $y + $vPadding + ($v['p'] * $barh / $arrcode['maxh']);
-                $this->rectangle($xpos, $ypos, $bw, ($v['h'] * $barh / $arrcode['maxh']), 'F', [], $style['fgColor']);
+                $ypos = $y + $vPadding + ($v['p'] * $barh / $bcArray['maxHeight']);
+                $this->rectangle($xpos, $ypos, $bw, ($v['h'] * $barh / $bcArray['maxHeight']), 'F', [], $style['fgColor']);
             }
             $xpos += $bw;
         }
@@ -979,7 +1088,7 @@ class PDF
             else {
                 $label = $code;
             }
-            $txtwidth = ($arrcode['maxw'] * $xres);
+            $txtwidth = ($bcArray['maxWidth'] * $minWidth);
             if ($this->stringWidth($label) > $txtwidth) {
                 $style['stretchText'] = 2;
             }
@@ -992,7 +1101,7 @@ class PDF
             $this->cellPaddings = $cellpadding;
         }
         // restore previous settings
-        $this->graphicsSettings($gvars);
+        $this->graphicsSettings($settings);
         // set pointer to align the next text/objects
         switch ($align) {
             case 'T':
@@ -1003,7 +1112,7 @@ class PDF
             }
             case 'M':
             {
-                $this->y = $y + round($h / 2);
+                $this->y = $y + round($height / 2);
                 $this->x = $this->imageRBX;
                 break;
             }
@@ -1823,42 +1932,6 @@ class PDF
     }
 
     /**
-     * Add page if needed.
-     * @param float      $h       Cell height. Default value: 0.
-     * @param float|null $y       starting y position, leave empty for current position.
-     * @param bool       $addpage if true add a page, otherwise only return the true/false state
-     * @return bool true in case of page break, false otherwise.
-     */
-    protected function checkPageBreak($h = 0, $y = null, $addpage = true)
-    {
-        if (StaticMethods::empty_string($y)) {
-            $y = $this->y;
-        }
-        $current_page = $this->page;
-        if ((($y + $h) > $this->breakTrigger) and ($this->inPageBody()) and ($this->AcceptPageBreak())) {
-            if ($addpage) {
-                //Automatic page break
-                $x = $this->x;
-                $this->addPage($this->currentOrientation);
-                $this->y = $this->topMargin;
-                $oldpage = $this->page - 1;
-                if ($this->pageDimensions[$this->page]['olm'] != $this->pageDimensions[$oldpage]['olm']) {
-                    $this->x = $x + ($this->pageDimensions[$this->page]['olm'] - $this->pageDimensions[$oldpage]['olm']);
-                }
-                else {
-                    $this->x = $x;
-                }
-            }
-            return true;
-        }
-        if ($current_page != $this->page) {
-            // account for columns mode
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * This method return the estimated number of lines for print a simple text string using Multicell() method.
      * @param string     $txt         String for calculating his height
      * @param float      $w           Width of cells. If 0, they extend up to the right margin of the page.
@@ -2124,7 +2197,7 @@ class PDF
                 $shy     = false;
                 // account for margin changes
                 if ((($this->y + $this->lastPrintedCellHeight) > $this->breakTrigger) and ($this->inPageBody())) {
-                    if ($this->AcceptPageBreak()) {
+                    if ($this->acceptPageBreak()) {
                         $this->x           += $margin['L'];
                         $this->leftMargin  += $margin['L'];
                         $this->rightMargin += $margin['R'];
@@ -2287,7 +2360,7 @@ class PDF
                     }
                     // account for margin changes
                     if ((($this->y + $this->lastPrintedCellHeight) > $this->breakTrigger) and ($this->inPageBody())) {
-                        if ($this->AcceptPageBreak()) {
+                        if ($this->acceptPageBreak()) {
                             $this->x           += $margin['L'];
                             $this->leftMargin  += $margin['L'];
                             $this->rightMargin += $margin['R'];
@@ -6134,7 +6207,7 @@ class PDF
      */
     public function getPageRegions()
     {
-        return $this->page_regions;
+        return $this->pageRegions;
     }
 
     /**
@@ -6149,7 +6222,7 @@ class PDF
     public function setPageRegions($regions = [])
     {
         // empty current regions array
-        $this->page_regions = [];
+        $this->pageRegions = [];
         // add regions
         foreach ($regions as $data) {
             $this->addPageRegion($data);
@@ -6173,7 +6246,7 @@ class PDF
         if (isset($region['xt']) and isset($region['xb']) and ($region['xt'] > 0) and ($region['xb'] > 0)
             and isset($region['yt']) and isset($region['yb']) and ($region['yt'] >= 0) and ($region['yt'] < $region['yb'])
             and isset($region['side']) and (($region['side'] == 'L') or ($region['side'] == 'R'))) {
-            $this->page_regions[] = $region;
+            $this->pageRegions[] = $region;
         }
     }
 
@@ -6187,91 +6260,9 @@ class PDF
      */
     public function removePageRegion($key)
     {
-        if (isset($this->page_regions[$key])) {
-            unset($this->page_regions[$key]);
+        if (isset($this->pageRegions[$key])) {
+            unset($this->pageRegions[$key]);
         }
-    }
-
-    /**
-     * Check page for no-write regions and adapt current coordinates and page margins if necessary.
-     * A no-write region is a portion of the page with a rectangular or trapezium shape that will not be covered when writing text or html code.
-     * A region is always aligned on the left or right side of the page ad is defined using a vertical segment.
-     * @param float $h height of the text/image/object to print in user units
-     * @param float $x current X coordinate in user units
-     * @param float $y current Y coordinate in user units
-     * @return float[] [$x, $y]
-     * @author Nicola Asuni
-     */
-    protected function checkPageRegions($h, $x, $y)
-    {
-        // set default values
-        if ($x === '') {
-            $x = $this->x;
-        }
-        if ($y === '') {
-            $y = $this->y;
-        }
-        if (!$this->check_page_regions or empty($this->page_regions)) {
-            // no page regions defined
-            return [$x, $y];
-        }
-        if (empty($h)) {
-            $h = $this->cellHeight($this->fontSize);
-        }
-        // check for page break
-        if ($this->checkPageBreak($h, $y)) {
-            // the content will be printed on a new page
-            $x = $this->x;
-            $y = $this->y;
-        }
-        if ($this->columnCount > 1) {
-            $this->rightMargin = ($this->width - $this->columns[$this->currentColumn]['x'] - $this->columns[$this->currentColumn]['w']);
-        }
-        else {
-            $this->rightMargin = max($this->cellRightMargin, $this->originalRightMargin);
-        }
-        // adjust coordinates and page margins
-        foreach ($this->page_regions as $regid => $regdata) {
-            if ($regdata['page'] == $this->page) {
-                // check region boundaries
-                if (($y > ($regdata['yt'] - $h)) and ($y <= $regdata['yb'])) {
-                    // Y is inside the region
-                    $minv = ($regdata['xb'] - $regdata['xt']) / ($regdata['yb'] - $regdata['yt']); // inverse of angular coefficient
-                    $yt   = max($y, $regdata['yt']);
-                    $yb   = min(($yt + $h), $regdata['yb']);
-                    $xt   = (($yt - $regdata['yt']) * $minv) + $regdata['xt'];
-                    $xb   = (($yb - $regdata['yt']) * $minv) + $regdata['xt'];
-                    if ($regdata['side'] == 'L') { // left side
-                        $new_margin = max($xt, $xb);
-                        if ($this->leftMargin < $new_margin) {
-                            if ($x < $new_margin) {
-                                // adjust x position
-                                $x = $new_margin;
-                                if ($new_margin > ($this->width - $this->rightMargin)) {
-                                    // adjust y position
-                                    $y = $regdata['yb'] - $h;
-                                }
-                            }
-                        }
-                    }
-                    elseif ($regdata['side'] == 'R') { // right side
-                        $new_margin = min($xt, $xb);
-                        if (($this->width - $this->rightMargin) > $new_margin) {
-                            $this->rightMargin = max(0, ($this->width - $new_margin));
-                            if ($x > $new_margin) {
-                                // adjust x position
-                                $x = $new_margin;
-                                if ($new_margin > $this->leftMargin) {
-                                    // adjust y position
-                                    $y = $regdata['yb'] - $h;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return [$x, $y];
     }
 
     /**
