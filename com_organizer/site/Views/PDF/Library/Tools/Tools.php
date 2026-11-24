@@ -19,7 +19,6 @@ trait Tools
     use Constants;
     use FileSystem;
     use Geometry;
-    use Images;
     use WebTools;
 
     /** Static cache used for speed up unicodeOrd performances */

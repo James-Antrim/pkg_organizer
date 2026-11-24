@@ -10,7 +10,7 @@
  * @see         FPDF (http://www.fpdf.org) => Olivier Plathey
  */
 
-namespace THM\Organizer\Views\PDF\Library\Tools;
+namespace THM\Organizer\Views\PDF\Library;
 
 /** Static image methods used by the TCPDF class. */
 trait Images
