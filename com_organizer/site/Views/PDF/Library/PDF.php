@@ -2487,46 +2487,6 @@ class PDF
     }
 
     /**
-     * Replace right shift page number aliases with spaces to correct right alignment.
-     * This works perfectly only when using monospaced fonts.
-     * @param string $page    Page content.
-     * @param array  $aliases Array of page aliases.
-     * @param int    $diff    initial difference to add.
-     * @return string replaced page content.
-     */
-    protected function replaceRightShiftPageNumAliases($page, $aliases, $diff)
-    {
-        foreach ($aliases as $type => $alias) {
-            foreach ($alias as $a) {
-                // find position of compensation factor
-                $startnum = (strpos($a, ':') + 1);
-                $a        = substr($a, 0, $startnum);
-                if (($pos = strpos($page, $a)) !== false) {
-                    // end of alias
-                    $endnum = strpos($page, '}', $pos);
-                    // string to be replaced
-                    $aa = substr($page, $pos, ($endnum - $pos + 1));
-                    // get compensation factor
-                    $ratio = substr($page, ($pos + $startnum), ($endnum - $pos - $startnum));
-                    $ratio = preg_replace('/[^0-9\.]/', '', $ratio);
-                    $ratio = floatval($ratio);
-                    if ($type == 'u') {
-                        $chrdiff = floor(($diff + 12) * $ratio);
-                        $shift   = str_repeat(' ', $chrdiff);
-                        $shift   = $this->utf8ToUTF16BE($shift);
-                    }
-                    else {
-                        $chrdiff = floor(($diff + 11) * $ratio);
-                        $shift   = str_repeat(' ', $chrdiff);
-                    }
-                    $page = str_replace($aa, $shift, $page);
-                }
-            }
-        }
-        return $page;
-    }
-
-    /**
      * Get references to page annotations.
      * @param int $n page number
      * @return string
