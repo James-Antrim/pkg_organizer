@@ -1565,7 +1565,7 @@ trait Images
             $dy = $y * $k;
         }
         // save the current graphic state
-        $this->append('q' . $this->epsmarker);
+        $this->append('q' . $this->epsMarker);
         // translate
         $this->append(sprintf('%F %F %F %F %F %F cm', 1, 0, 0, 1, $dx, $dy + ($this->heightPT - (2 * $y * $k) - ($y2 - $y1))));
         // scale
@@ -1729,7 +1729,7 @@ trait Images
             }
         }
         // restore previous graphic state
-        $this->append($this->epsmarker . 'Q');
+        $this->append($this->epsMarker . 'Q');
         if (!empty($border)) {
             $bx      = $this->x;
             $by      = $this->y;
@@ -2133,7 +2133,7 @@ trait Images
         $this->cellPadding(0);
         $this->autoPageBreak(false);
         // save the current graphic state
-        $this->append('q' . $this->epsmarker);
+        $this->append('q' . $this->epsMarker);
         // set initial clipping mask
         $this->rectangle($ximg, $y, $w, $height, 'CNZ', [], []);
         // scale and translate
@@ -2162,7 +2162,7 @@ trait Images
         unset($parser);
 
         // restore previous graphic state
-        $this->append($this->epsmarker . 'Q');
+        $this->append($this->epsMarker . 'Q');
         // restore graphic vars
         $this->graphicsSettings($gvars);
         $this->lastPrintedCellHeight = $gvars['lasth'];

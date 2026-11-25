@@ -95,6 +95,162 @@ trait Pages
     }
 
     /**
+     * Get references to page annotations.
+     * @param int $page
+     * @return string
+     */
+    protected function annotationReferences(int $page): string
+    {
+        if (empty($this->pageAnnotations[$page])) {
+            return '';
+        }
+
+        $out = ' /Annots [';
+
+        foreach ($this->pageAnnotations[$page] as $annotation) {
+            if (!in_array($annotation['n'], $this->radio_groups)) {
+                $out .= ' ' . $annotation['n'] . ' 0 R';
+            }
+        }
+
+        if (isset($this->radioButtonGroups[$page])) {
+            foreach ($this->radioButtonGroups[$page] as $group) {
+                if (isset($group['n'])) {
+                    $out .= ' ' . $group['n'] . ' 0 R';
+                }
+            }
+        }
+
+        $out .= ' ]';
+        return $out;
+    }
+
+    /**
+     * Append pages to the document and replace page number aliases.
+     */
+    protected function appendPages(): void
+    {
+        $filter       = '/Filter /FlateDecode ';
+        $gNumber      = 0;
+        $lastPN8      = $this->formatPageNumber(($this->startingPageNumber + $this->pageCount - 1));
+        $lastPN8Count = strlen($lastPN8);
+        $lastPN16     = $this->utf8ToUTF16BE($lastPN8);
+        $pgGN8        = 1;
+        $pgGN16       = 1;
+        $pgGN8Count   = 1;
+        $pgNumber     = 0;
+        $variants     = $this->collectedPNAVariants();
+
+        for ($page = 1; $page <= $this->pageCount; ++$page) {
+            $currentPN8      = $this->formatPageNumber(($this->startingPageNumber + $page - 1));
+            $currentPN8Count = strlen($currentPN8);
+            $currentPN16     = $this->utf8ToUTF16BE($currentPN8);
+            $dimensions      = $this->pageDimensions[$page];
+            $groupShift      = 0;
+            $pageBuffer      = $this->pageBuffer($page);
+            $pageShift       = 0;
+
+            if ($this->pageGroups) {
+                if (isset($this->pageGroupStarts[$page])) {
+                    $pgNumber = 0;
+                    ++$gNumber;
+                    $pgGN8      = $this->formatPageNumber($this->pageGroups[$gNumber]);
+                    $pgGN8Count = strlen($pgGN8);
+                    $pgGN16     = $this->utf8ToUTF16BE($pgGN8);
+                }
+                ++$pgNumber;
+
+                $currentGN8      = $this->formatPageNumber($pgNumber);
+                $currentGN8Count = strlen($currentGN8);
+                $currentGN16     = $this->utf8ToUTF16BE($currentGN8);
+
+                // Replace group page numbers
+                $replace   = [];
+                $replace[] = [$pgGN16, $pgGN8Count, 9, $variants[2]['u']];
+                $replace[] = [$pgGN8, $pgGN8Count, 7, $variants[2]['a']];
+                $replace[] = [$currentGN16, $currentGN8Count, 9, $variants[3]['u']];
+                $replace[] = [$currentGN8, $currentGN8Count, 7, $variants[3]['a']];
+                [$pageBuffer, $groupShift] = StaticMethods::replacePageNumAliases($pageBuffer, $replace, $groupShift);
+            }
+
+            // Replace page numbers
+            $replace   = [];
+            $replace[] = [$lastPN16, $lastPN8Count, 9, $variants[0]['u']];
+            $replace[] = [$lastPN8, $lastPN8Count, 7, $variants[0]['a']];
+            $replace[] = [$currentPN16, $currentPN8Count, 9, $variants[1]['u']];
+            $replace[] = [$currentPN8, $currentPN8Count, 7, $variants[1]['a']];
+            [$pageBuffer, $pageShift] = StaticMethods::replacePageNumAliases($pageBuffer, $replace, $pageShift);
+
+            $this->resolveRightShiftAlias($pageBuffer, $variants[4], max($pageShift, $groupShift));
+            $pageBuffer = str_replace($this->epsMarker, '', $pageBuffer);
+
+            //Page
+            $this->pageObjectIDs[$page] = $this->appendObject();
+
+            $out = '<< /Type /Page /Parent 1 0 R /LastModified ' . $this->metadataDateString($this->modificationTimestamp) . ' /Resources 2 0 R';
+
+            foreach ($this->pageBoxes as $box) {
+                $out .= ' /' . $box . " [{$dimensions[$box]['llx']} {$dimensions[$box]['lly']} {$dimensions[$box]['urx']} {$dimensions[$box]['ury']}]";
+            }
+
+            if (!empty($dimensions['boxSettings'])) {
+                $out .= ' /BoxColorInfo <<';
+                foreach ($this->pageBoxes as $box) {
+                    if (isset($dimensions['boxSettings'][$box])) {
+                        $out .= ' /' . $box . ' <<';
+                        if (isset($dimensions['boxSettings'][$box]['C'])) {
+                            $color = $dimensions['boxSettings'][$box]['C'];
+                            $out   .= ' /C [';
+                            $out   .= sprintf(' %F %F %F', $color[0] / 255, $color[1] / 255, $color[2] / 255);
+                            $out   .= ' ]';
+                        }
+                        if (isset($dimensions['boxSettings'][$box]['W'])) {
+                            $out .= ' /W ' . ($dimensions['boxSettings'][$box]['W'] * $this->factor);
+                        }
+                        if (isset($dimensions['boxSettings'][$box]['S'])) {
+                            $out .= ' /S /' . $dimensions['boxSettings'][$box]['S'];
+                        }
+                        if (isset($dimensions['boxSettings'][$box]['D'])) {
+                            $dashes = $dimensions['boxSettings'][$box]['D'];
+                            $out    .= ' /D [';
+                            foreach ($dashes as $dash) {
+                                $out .= ' ' . ($dash * $this->factor);
+                            }
+                            $out .= ' ]';
+                        }
+                        $out .= ' >>';
+                    }
+                }
+                $out .= ' >>';
+            }
+
+            $out .= ' /Contents ' . ($this->objectNumber + 1) . ' 0 R';
+            $out .= ' /Rotate ' . $dimensions['rotate'];
+            $out .= ' /Group << /Type /Group /S /Transparency /CS /DeviceRGB >>';
+            $out .= $this->annotationReferences($page);
+            $out .= ' /PZ ' . $dimensions['preferredZoom'];
+            $out .= ' >>';
+            $out .= "\n" . 'endobj';
+            $this->append($out);
+
+            //Page content
+            $p = gzcompress($pageBuffer);
+            $this->appendObject();
+            $this->append('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
+        }
+
+        //Pages root
+        $out = $this->objectCommand(1) . "\n";
+        $out .= '<< /Type /Pages /Kids [';
+        foreach ($this->pageObjectIDs as $page_obj) {
+            $out .= ' ' . $page_obj . ' 0 R';
+        }
+        $out .= ' ] /Count ' . $this->pageCount . ' >>';
+        $out .= "\n" . 'endobj';
+        $this->append($out);
+    }
+
+    /**
      * Getter / setter for  automatic page breaking. When enabling, the second parameter is the minimum bottom margin on break.
      * @param bool  $auto   bool indicating if mode should be on or off.
      * @param float $margin Distance from the bottom of the page.
@@ -426,8 +582,8 @@ trait Pages
 
             $page =& $this->pageDimensions[$this->page];
 
-            if (isset($format['BoxColorInfo'])) {
-                $page['BoxColorInfo'] = $format['BoxColorInfo'];
+            if (isset($format['boxSettings'])) {
+                $page['boxSettings'] = $format['boxSettings'];
             }
 
             if (isset($format['rotate']) and ($format['rotate'] % 90 === 0)) {
@@ -921,160 +1077,6 @@ trait Pages
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
-
-    /**
-     * Append pages to the document and replace page number aliases.
-     */
-    protected function appendPages(): void
-    {
-        $filter       = '/Filter /FlateDecode ';
-        $gNumber      = 0;
-        $lastPN8      = $this->formatPageNumber(($this->startingPageNumber + $this->pageCount - 1));
-        $lastPN8Count = strlen($lastPN8);
-        $lastPN16     = $this->utf8ToUTF16BE($lastPN8);
-        $pgGN8        = 1;
-        $pgGN16       = 1;
-        $pgGN8Count   = 1;
-        $pgNumber     = 0;
-        $variants     = $this->collectedPNAVariants();
-
-        for ($page = 1; $page <= $this->pageCount; ++$page) {
-            $currentPN8      = $this->formatPageNumber(($this->startingPageNumber + $page - 1));
-            $currentPN8Count = strlen($currentPN8);
-            $currentPN16     = $this->utf8ToUTF16BE($currentPN8);
-            $groupShift      = 0;
-            $pageBuffer      = $this->pageBuffer($page);
-            $pageShift       = 0;
-
-            if ($this->pageGroups) {
-                if (isset($this->pageGroupStarts[$page])) {
-                    $pgNumber = 0;
-                    ++$gNumber;
-                    $pgGN8      = $this->formatPageNumber($this->pageGroups[$gNumber]);
-                    $pgGN8Count = strlen($pgGN8);
-                    $pgGN16     = $this->utf8ToUTF16BE($pgGN8);
-                }
-                ++$pgNumber;
-
-                $currentGN8      = $this->formatPageNumber($pgNumber);
-                $currentGN8Count = strlen($currentGN8);
-                $currentGN16     = $this->utf8ToUTF16BE($currentGN8);
-
-                // Replace group page numbers
-                $replace   = [];
-                $replace[] = [$pgGN16, $pgGN8Count, 9, $variants[2]['u']];
-                $replace[] = [$pgGN8, $pgGN8Count, 7, $variants[2]['a']];
-                $replace[] = [$currentGN16, $currentGN8Count, 9, $variants[3]['u']];
-                $replace[] = [$currentGN8, $currentGN8Count, 7, $variants[3]['a']];
-                [$pageBuffer, $groupShift] = StaticMethods::replacePageNumAliases($pageBuffer, $replace, $groupShift);
-            }
-
-            // Replace page numbers
-            $replace   = [];
-            $replace[] = [$lastPN16, $lastPN8Count, 9, $variants[0]['u']];
-            $replace[] = [$lastPN8, $lastPN8Count, 7, $variants[0]['a']];
-            $replace[] = [$currentPN16, $currentPN8Count, 9, $variants[1]['u']];
-            $replace[] = [$currentPN8, $currentPN8Count, 7, $variants[1]['a']];
-            [$pageBuffer, $pageShift] = StaticMethods::replacePageNumAliases($pageBuffer, $replace, $pageShift);
-
-            // Replace right shift alias
-            $this->resolveRightShiftAlias($pageBuffer, $variants[4], max($pageShift, $groupShift));
-            // replace EPS marker
-            $pageBuffer = str_replace($this->epsmarker, '', $pageBuffer);
-            //Page
-            $this->pageObjectIDs[$page] = $this->appendObject();
-            $out                        = '<<';
-            $out                        .= ' /Type /Page';
-            $out                        .= ' /Parent 1 0 R';
-            $out                        .= ' /LastModified ' . $this->metadataDateString($this->modificationTimestamp);
-            $out                        .= ' /Resources 2 0 R';
-            foreach ($this->pageBoxes as $box) {
-                $out .= ' /' . $box;
-                $out .= sprintf(' [%F %F %F %F]', $this->pageDimensions[$page][$box]['llx'], $this->pageDimensions[$page][$box]['lly'], $this->pageDimensions[$page][$box]['urx'], $this->pageDimensions[$page][$box]['ury']);
-            }
-            if (isset($this->pageDimensions[$page]['BoxColorInfo']) and !empty($this->pageDimensions[$page]['BoxColorInfo'])) {
-                $out .= ' /BoxColorInfo <<';
-                foreach ($this->pageBoxes as $box) {
-                    if (isset($this->pageDimensions[$page]['BoxColorInfo'][$box])) {
-                        $out .= ' /' . $box . ' <<';
-                        if (isset($this->pageDimensions[$page]['BoxColorInfo'][$box]['C'])) {
-                            $color = $this->pageDimensions[$page]['BoxColorInfo'][$box]['C'];
-                            $out   .= ' /C [';
-                            $out   .= sprintf(' %F %F %F', ($color[0] / 255), ($color[1] / 255), ($color[2] / 255));
-                            $out   .= ' ]';
-                        }
-                        if (isset($this->pageDimensions[$page]['BoxColorInfo'][$box]['W'])) {
-                            $out .= ' /W ' . ($this->pageDimensions[$page]['BoxColorInfo'][$box]['W'] * $this->factor);
-                        }
-                        if (isset($this->pageDimensions[$page]['BoxColorInfo'][$box]['S'])) {
-                            $out .= ' /S /' . $this->pageDimensions[$page]['BoxColorInfo'][$box]['S'];
-                        }
-                        if (isset($this->pageDimensions[$page]['BoxColorInfo'][$box]['D'])) {
-                            $dashes = $this->pageDimensions[$page]['BoxColorInfo'][$box]['D'];
-                            $out    .= ' /D [';
-                            foreach ($dashes as $dash) {
-                                $out .= sprintf(' %F', ($dash * $this->factor));
-                            }
-                            $out .= ' ]';
-                        }
-                        $out .= ' >>';
-                    }
-                }
-                $out .= ' >>';
-            }
-            $out .= ' /Contents ' . ($this->objectNumber + 1) . ' 0 R';
-            $out .= ' /Rotate ' . $this->pageDimensions[$page]['rotate'];
-            $out .= ' /Group << /Type /Group /S /Transparency /CS /DeviceRGB >>';
-            if (isset($this->pageDimensions[$page]['trans']) and !empty($this->pageDimensions[$page]['trans'])) {
-                // page transitions
-                if (isset($this->pageDimensions[$page]['trans']['Dur'])) {
-                    $out .= ' /Dur ' . $this->pageDimensions[$page]['trans']['Dur'];
-                }
-                $out .= ' /Trans <<';
-                $out .= ' /Type /Trans';
-                if (isset($this->pageDimensions[$page]['trans']['S'])) {
-                    $out .= ' /S /' . $this->pageDimensions[$page]['trans']['S'];
-                }
-                if (isset($this->pageDimensions[$page]['trans']['D'])) {
-                    $out .= ' /D ' . $this->pageDimensions[$page]['trans']['D'];
-                }
-                if (isset($this->pageDimensions[$page]['trans']['Dm'])) {
-                    $out .= ' /Dm /' . $this->pageDimensions[$page]['trans']['Dm'];
-                }
-                if (isset($this->pageDimensions[$page]['trans']['M'])) {
-                    $out .= ' /M /' . $this->pageDimensions[$page]['trans']['M'];
-                }
-                if (isset($this->pageDimensions[$page]['trans']['Di'])) {
-                    $out .= ' /Di ' . $this->pageDimensions[$page]['trans']['Di'];
-                }
-                if (isset($this->pageDimensions[$page]['trans']['SS'])) {
-                    $out .= ' /SS ' . $this->pageDimensions[$page]['trans']['SS'];
-                }
-                if (isset($this->pageDimensions[$page]['trans']['B'])) {
-                    $out .= ' /B ' . $this->pageDimensions[$page]['trans']['B'];
-                }
-                $out .= ' >>';
-            }
-            $out .= $this->_getannotsrefs($page);
-            $out .= ' /PZ ' . $this->pageDimensions[$page]['preferredZoom'];
-            $out .= ' >>';
-            $out .= "\n" . 'endobj';
-            $this->append($out);
-            //Page content
-            $p = gzcompress($pageBuffer);
-            $this->appendObject();
-            $this->append('<<' . $filter . '/Length ' . strlen($p) . '>> stream' . "\n" . $p . "\n" . 'endstream' . "\n" . 'endobj');
-        }
-        //Pages root
-        $out = $this->objectCommand(1) . "\n";
-        $out .= '<< /Type /Pages /Kids [';
-        foreach ($this->pageObjectIDs as $page_obj) {
-            $out .= ' ' . $page_obj . ' 0 R';
-        }
-        $out .= ' ] /Count ' . $this->pageCount . ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-    }
 
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED

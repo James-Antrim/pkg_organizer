@@ -33,6 +33,8 @@ trait WebTools
     protected string $javascript = '';
     protected string $javascriptCounter = '';
     protected array $javascriptObjects = [];
+    /** List of radio buttons parent objects. */
+    protected array $radioButtonGroups = [];
 
     /**
      * Adds a javascript form field.
@@ -633,11 +635,6 @@ trait WebTools
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-
-    /**
-     * List of radio buttons parent objects.
-     */
-    protected $radiobutton_groups = [];
 
     /**
      * List of radio group objects IDs.
@@ -1648,12 +1645,12 @@ trait WebTools
                                     }
                                     $spacew    = ($spacewidth * $ns);
                                     $offset    = $strpiece[2][1] + strlen($strpiece[2][0]);
-                                    $epsposend = strpos($pmid, $this->epsmarker . 'Q', $offset);
+                                    $epsposend = strpos($pmid, $this->epsMarker . 'Q', $offset);
                                     if ($epsposend !== null) {
-                                        $epsposend += strlen($this->epsmarker . 'Q');
-                                        $epsposbeg = strpos($pmid, 'q' . $this->epsmarker, $offset);
+                                        $epsposend += strlen($this->epsMarker . 'Q');
+                                        $epsposbeg = strpos($pmid, 'q' . $this->epsMarker, $offset);
                                         if ($epsposbeg === null) {
-                                            $epsposbeg      = strpos($pmid, 'q' . $this->epsmarker, ($prev_epsposbeg - 6));
+                                            $epsposbeg      = strpos($pmid, 'q' . $this->epsMarker, ($prev_epsposbeg - 6));
                                             $prev_epsposbeg = $epsposbeg;
                                         }
                                         if (($epsposbeg > 0) and ($epsposend > 0) and ($offset > $epsposbeg) and ($offset < $epsposend)) {
@@ -5493,18 +5490,18 @@ trait WebTools
         $this->AddFont($font);
         $tmpfont = $this->fontBuffer($font);
         // set data for parent group
-        if (!isset($this->radiobutton_groups[$this->page])) {
-            $this->radiobutton_groups[$this->page] = [];
+        if (!isset($this->radioButtonGroups[$this->page])) {
+            $this->radioButtonGroups[$this->page] = [];
         }
-        if (!isset($this->radiobutton_groups[$this->page][$name])) {
-            $this->radiobutton_groups[$this->page][$name] = [];
+        if (!isset($this->radioButtonGroups[$this->page][$name])) {
+            $this->radioButtonGroups[$this->page][$name] = [];
             ++$this->objectNumber;
-            $this->radiobutton_groups[$this->page][$name]['n'] = $this->objectNumber;
-            $this->radio_groups[]                              = $this->objectNumber;
+            $this->radioButtonGroups[$this->page][$name]['n'] = $this->objectNumber;
+            $this->radio_groups[]                             = $this->objectNumber;
         }
         $kid = ($this->objectNumber + 1);
         // save object ID to be added on Kids entry on parent object
-        $this->radiobutton_groups[$this->page][$name][] = ['kid' => $kid, 'def' => $defval];
+        $this->radioButtonGroups[$this->page][$name][] = ['kid' => $kid, 'def' => $defval];
         // get default style
         $prop                  = array_merge($this->defaultFieldProperties(), $prop);
         $prop['NoToggleToOff'] = 'true';
@@ -5540,10 +5537,10 @@ trait WebTools
             $opt['as'] = 'Off';
         }
         // store readonly flag
-        if (!isset($this->radiobutton_groups[$this->page][$name]['#readonly#'])) {
-            $this->radiobutton_groups[$this->page][$name]['#readonly#'] = false;
+        if (!isset($this->radioButtonGroups[$this->page][$name]['#readonly#'])) {
+            $this->radioButtonGroups[$this->page][$name]['#readonly#'] = false;
         }
-        $this->radiobutton_groups[$this->page][$name]['#readonly#'] |= ($opt['f'] & 64);
+        $this->radioButtonGroups[$this->page][$name]['#readonly#'] |= ($opt['f'] & 64);
         $this->annotation($x, $y, $width, $width, $name, $opt, 0);
         $this->x += $width;
     }

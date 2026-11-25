@@ -326,7 +326,7 @@ trait Constants
     public const PAGE_FORMAT_CONFIGURATION_DESCRIPTION = [
         self::ART_BOX   => '(array) The extent of the meaningful content, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
         self::BLEED_BOX => '(array) The region to which the contents shall be clipped when output in a production environment, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
-        'BoxColorInfo'  => [
+        'boxSettings'   => [
             '!self::MEDIA_BOX' => [
                 'C' => 'int[] RGB (0-255)',
                 'W' => 'Guideline width in default user units',

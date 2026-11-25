@@ -39,6 +39,8 @@ class PDF
     protected array $contentMarks = [];
     protected int $creationTimestamp = 0;
     protected string $creator = 'THM Organizer';
+    /** String used to mark the beginning and end of EPS image blocks. */
+    protected string $epsMarker = 'x#!#EPS#!#x';
     protected array $graphicsSettings = [];
     protected array $embeddedFileNames = [];
     protected array $encodingDeltas = [];
@@ -1302,11 +1304,6 @@ class PDF
     protected $lisymbol = '';
 
     /**
-     * String used to mark the beginning and end of EPS image blocks.
-     */
-    protected $epsmarker = 'x#!#EPS#!#x';
-
-    /**
      * Booklet mode for double-sided pages.
      */
     protected $booklet = false;
@@ -2487,37 +2484,6 @@ class PDF
     }
 
     /**
-     * Get references to page annotations.
-     * @param int $n page number
-     * @return string
-     * @author Nicola Asuni
-     */
-    protected function _getannotsrefs($n)
-    {
-        if (!isset($this->pageAnnotations[$n])) {
-            return '';
-        }
-        $out = ' /Annots [';
-        if (isset($this->pageAnnotations[$n])) {
-            foreach ($this->pageAnnotations[$n] as $key => $val) {
-                if (!in_array($val['n'], $this->radio_groups)) {
-                    $out .= ' ' . $val['n'] . ' 0 R';
-                }
-            }
-            // add radiobutton groups
-            if (isset($this->radiobutton_groups[$n])) {
-                foreach ($this->radiobutton_groups[$n] as $key => $data) {
-                    if (isset($data['n'])) {
-                        $out .= ' ' . $data['n'] . ' 0 R';
-                    }
-                }
-            }
-        }
-        $out .= ' ]';
-        return $out;
-    }
-
-    /**
      * Output annotations objects for all pages.
      * !!! THIS METHOD IS NOT YET COMPLETED !!!
      * See section 12.5 of PDF 32000_2008 reference.
@@ -2532,13 +2498,13 @@ class PDF
                 foreach ($this->pageAnnotations[$n] as $key => $pl) {
                     $annot_obj_id = $this->pageAnnotations[$n][$key]['n'];
                     // create annotation object for grouping radiobuttons
-                    if (isset($this->radiobutton_groups[$n][$pl['txt']]) and is_array($this->radiobutton_groups[$n][$pl['txt']])) {
-                        $radio_button_obj_id = $this->radiobutton_groups[$n][$pl['txt']]['n'];
+                    if (isset($this->radioButtonGroups[$n][$pl['txt']]) and is_array($this->radioButtonGroups[$n][$pl['txt']])) {
+                        $radio_button_obj_id = $this->radioButtonGroups[$n][$pl['txt']]['n'];
                         $annots              = '<<';
                         $annots              .= ' /Type /Annot';
                         $annots              .= ' /Subtype /Widget';
                         $annots              .= ' /Rect [0 0 0 0]';
-                        if ($this->radiobutton_groups[$n][$pl['txt']]['#readonly#']) {
+                        if ($this->radioButtonGroups[$n][$pl['txt']]['#readonly#']) {
                             // read only
                             $annots .= ' /F 68';
                             $annots .= ' /Ff 49153';
@@ -2554,7 +2520,7 @@ class PDF
                         $annots .= ' /FT /Btn';
                         $annots .= ' /Kids [';
                         $defval = '';
-                        foreach ($this->radiobutton_groups[$n][$pl['txt']] as $key => $data) {
+                        foreach ($this->radioButtonGroups[$n][$pl['txt']] as $key => $data) {
                             if (isset($data['kid'])) {
                                 $annots .= ' ' . $data['kid'] . ' 0 R';
                                 if ($data['def'] !== 'Off') {
@@ -2570,7 +2536,7 @@ class PDF
                         $this->append($this->objectCommand($radio_button_obj_id) . "\n" . $annots . "\n" . 'endobj');
                         $this->annotationIDs[] = $radio_button_obj_id;
                         // store object id to be used on Parent entry of Kids
-                        $this->radiobutton_groups[$n][$pl['txt']] = $radio_button_obj_id;
+                        $this->radioButtonGroups[$n][$pl['txt']] = $radio_button_obj_id;
                     }
                     $formfield = false;
                     $pl['opt'] = array_change_key_case($pl['opt'], CASE_LOWER);
@@ -3073,9 +3039,9 @@ class PDF
                                 $annots .= '>>';
                             } // end MK
                             // --- Entries for field dictionaries ---
-                            if (isset($this->radiobutton_groups[$n][$pl['txt']])) {
+                            if (isset($this->radioButtonGroups[$n][$pl['txt']])) {
                                 // set parent
-                                $annots .= ' /Parent ' . $this->radiobutton_groups[$n][$pl['txt']] . ' 0 R';
+                                $annots .= ' /Parent ' . $this->radioButtonGroups[$n][$pl['txt']] . ' 0 R';
                             }
                             if (isset($pl['opt']['t']) and is_string($pl['opt']['t'])) {
                                 $annots .= ' /T ' . $this->metadataDataString($pl['opt']['t']);
@@ -3208,7 +3174,7 @@ class PDF
                     $annots .= '>>';
                     // create new annotation object
                     $this->append($this->objectCommand($annot_obj_id) . "\n" . $annots . "\n" . 'endobj');
-                    if ($formfield and !isset($this->radiobutton_groups[$n][$pl['txt']])) {
+                    if ($formfield and !isset($this->radioButtonGroups[$n][$pl['txt']])) {
                         // store reference of form object
                         $this->annotationIDs[] = $annot_obj_id;
                     }
@@ -3256,7 +3222,7 @@ class PDF
     {
         foreach ($this->xObjects as $key => $data) {
             if (isset($data['content'])) {
-                $stream = str_replace($this->epsmarker, '', trim($data['content']));
+                $stream = str_replace($this->epsMarker, '', trim($data['content']));
                 $out    = $this->objectCommand($data['n']) . "\n";
                 $out    .= '<<';
                 $out    .= ' /Type /XObject';
