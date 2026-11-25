@@ -62,7 +62,7 @@ trait PrintTools
     {
         // calculate aproximatively the ratio between widths of aliases and replacements.
         $ref  = '{' . self::RIGHT_SHIFT_ALIAS . '}{' . self::TOTAL_PAGES_ALIAS . '}{' . self::PAGE_NUMBER_ALIAS . '}';
-        $rep  = str_repeat(' ', $this->GetNumChars($ref));
+        $rep  = str_repeat(' ', strlen($ref));
         $wrep = $this->stringWidth($rep);
         if ($wrep > 0) {
             $wdiff = max(1, ($this->stringWidth($ref) / $wrep));

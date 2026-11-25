@@ -163,6 +163,16 @@ trait Pages
     }
 
     /**
+     * Format the page numbers.
+     * @param float $page
+     * @return string
+     */
+    public function formatPageNumber(float $page): string
+    {
+        return number_format($page, 0, '', '.');
+    }
+
+    /**
      * Initialize a new page.
      * @param string       $orientation
      * @param array|string $format
@@ -883,55 +893,54 @@ trait Pages
     {
         $filter = '/Filter /FlateDecode ';
         // get internal aliases for page numbers
-        $pnalias       = $this->collectedPNAVariants();
-        $num_pages     = $this->pageCount;
-        $ptpa          = StaticMethods::formatPageNumber(($this->startingPageNumber + $num_pages - 1));
-        $ptpu          = $this->utf8ToUTF16BE($ptpa);
-        $ptp_num_chars = $this->GetNumChars($ptpa);
+        $variants      = $this->collectedPNAVariants();
+        $fpn8          = $this->formatPageNumber(($this->startingPageNumber + $this->pageCount - 1));
+        $fpn16         = $this->utf8ToUTF16BE($fpn8);
+        $ptp_num_chars = strlen($fpn8);
         $pagegroupnum  = 0;
         $groupnum      = 0;
         $ptgu          = 1;
         $ptga          = 1;
         $ptg_num_chars = 1;
-        for ($n = 1; $n <= $num_pages; ++$n) {
+        for ($n = 1; $n <= $this->pageCount; ++$n) {
             // get current page
             $temppage = $this->pageBuffer($n);
             $pagelen  = strlen($temppage);
             // set replacements for total pages number
-            $pnpa          = StaticMethods::formatPageNumber(($this->startingPageNumber + $n - 1));
+            $pnpa          = $this->formatPageNumber(($this->startingPageNumber + $n - 1));
             $pnpu          = $this->utf8ToUTF16BE($pnpa);
-            $pnp_num_chars = $this->GetNumChars($pnpa);
+            $pnp_num_chars = strlen($pnpa);
             $pdiff         = 0; // difference used for right shift alignment of page numbers
             $gdiff         = 0; // difference used for right shift alignment of page group numbers
             if (!empty($this->pageGroups)) {
                 if (isset($this->pageGroupStarts[$n])) {
                     $pagegroupnum = 0;
                     ++$groupnum;
-                    $ptga          = StaticMethods::formatPageNumber($this->pageGroups[$groupnum]);
+                    $ptga          = $this->formatPageNumber($this->pageGroups[$groupnum]);
                     $ptgu          = $this->utf8ToUTF16BE($ptga);
-                    $ptg_num_chars = $this->GetNumChars($ptga);
+                    $ptg_num_chars = strlen($ptga);
                 }
                 ++$pagegroupnum;
-                $pnga          = StaticMethods::formatPageNumber($pagegroupnum);
+                $pnga          = $this->formatPageNumber($pagegroupnum);
                 $pngu          = $this->utf8ToUTF16BE($pnga);
-                $png_num_chars = $this->GetNumChars($pnga);
+                $png_num_chars = strlen($pnga);
                 // replace page numbers
                 $replace   = [];
-                $replace[] = [$ptgu, $ptg_num_chars, 9, $pnalias[2]['u']];
-                $replace[] = [$ptga, $ptg_num_chars, 7, $pnalias[2]['a']];
-                $replace[] = [$pngu, $png_num_chars, 9, $pnalias[3]['u']];
-                $replace[] = [$pnga, $png_num_chars, 7, $pnalias[3]['a']];
+                $replace[] = [$ptgu, $ptg_num_chars, 9, $variants[2]['u']];
+                $replace[] = [$ptga, $ptg_num_chars, 7, $variants[2]['a']];
+                $replace[] = [$pngu, $png_num_chars, 9, $variants[3]['u']];
+                $replace[] = [$pnga, $png_num_chars, 7, $variants[3]['a']];
                 list($temppage, $gdiff) = StaticMethods::replacePageNumAliases($temppage, $replace, $gdiff);
             }
             // replace page numbers
             $replace   = [];
-            $replace[] = [$ptpu, $ptp_num_chars, 9, $pnalias[0]['u']];
-            $replace[] = [$ptpa, $ptp_num_chars, 7, $pnalias[0]['a']];
-            $replace[] = [$pnpu, $pnp_num_chars, 9, $pnalias[1]['u']];
-            $replace[] = [$pnpa, $pnp_num_chars, 7, $pnalias[1]['a']];
+            $replace[] = [$fpn16, $ptp_num_chars, 9, $variants[0]['u']];
+            $replace[] = [$fpn8, $ptp_num_chars, 7, $variants[0]['a']];
+            $replace[] = [$pnpu, $pnp_num_chars, 9, $variants[1]['u']];
+            $replace[] = [$pnpa, $pnp_num_chars, 7, $variants[1]['a']];
             list($temppage, $pdiff) = StaticMethods::replacePageNumAliases($temppage, $replace, $pdiff);
             // replace right shift alias
-            $temppage = $this->replaceRightShiftPageNumAliases($temppage, $pnalias[4], max($pdiff, $gdiff));
+            $temppage = $this->replaceRightShiftPageNumAliases($temppage, $variants[4], max($pdiff, $gdiff));
             // replace EPS marker
             $temppage = str_replace($this->epsmarker, '', $temppage);
             //Page
@@ -1024,7 +1033,7 @@ trait Pages
         foreach ($this->pageObjectIDs as $page_obj) {
             $out .= ' ' . $page_obj . ' 0 R';
         }
-        $out .= ' ] /Count ' . $num_pages . ' >>';
+        $out .= ' ] /Count ' . $this->pageCount . ' >>';
         $out .= "\n" . 'endobj';
         $this->append($out);
     }

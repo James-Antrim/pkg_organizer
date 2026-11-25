@@ -241,17 +241,6 @@ class StaticMethods
     }
 
     /**
-     * Format the page numbers.
-     * This method can be overridden for custom formats.
-     * @param int $num page number
-     * @return string
-     */
-    public static function formatPageNumber($num)
-    {
-        return number_format((float) $num, 0, '', '.');
-    }
-
-    /**
      * Format the page numbers on the Table Of Content.
      * This method can be overridden for custom formats.
      * @param int $num page number

@@ -1562,16 +1562,6 @@ class PDF
     }
 
     /**
-     * Returns the numbero of characters in a string.
-     * @param string $s The input string.
-     * @return int number of characters
-     */
-    public function GetNumChars($s)
-    {
-        return strlen($s);
-    }
-
-    /**
      * Puts a link on a rectangular area of the page.
      * Text or image links are generally put via Cell(), Write() or Image(), but this method can be useful for instance to define a clickable area inside an image.
      * @param float $x      Abscissa of the upper-left corner of the rectangle
@@ -3914,7 +3904,7 @@ class PDF
     {
         // calculate aproximatively the ratio between widths of aliases and replacements.
         $ref  = '{' . self::RIGHT_SHIFT_ALIAS . '}{' . self::TOTAL_PAGES_ALIAS . '}{' . self::PAGE_NUMBER_ALIAS . '}';
-        $rep  = str_repeat(' ', $this->GetNumChars($ref));
+        $rep  = str_repeat(' ', strlen($ref));
         $wrep = $this->stringWidth($rep);
         if ($wrep > 0) {
             $wdiff = max(1, ($this->stringWidth($ref) / $wrep));

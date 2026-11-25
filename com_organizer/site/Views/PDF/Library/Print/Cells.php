@@ -509,7 +509,7 @@ trait Cells
                     // the text will be stretched to fit cell width
                     if (in_array($stretch, [self::C_SPACING_FORCED, self::C_SPACING_NEEDED])) {
                         // set new character spacing
-                        $this->fontSpacing += ($w - $this->cellPaddings['L'] - $this->cellPaddings['R'] - $width) / (max(($this->GetNumChars($txt) - 1), 1) * ($this->fontStretching / 100));
+                        $this->fontSpacing += ($w - $this->cellPaddings['L'] - $this->cellPaddings['R'] - $width) / (max(strlen($txt) - 1, 1) * ($this->fontStretching / 100));
                     }
                     else {
                         // set new horizontal stretching
