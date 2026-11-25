@@ -491,18 +491,18 @@ trait Pages
         $this->autoPageBreak($autoPagebreak, $bottomMargin);
 
         // store page dimensions
-        $page['bm']                  = $bottomMargin;
-        $page['h']                   = $this->heightPT;
+        $page['autoPagebreak']       = $autoPagebreak;
+        $page['bottomMargin']        = $bottomMargin;
+        $page['currentOrientation']  = $this->currentOrientation;
         $page['height']              = $this->height;
-        $page['lm']                  = $this->leftMargin;
+        $page['heightPT']            = $this->heightPT;
+        $page['leftMargin']          = $this->leftMargin;
         $page['originalLeftMargin']  = $this->originalLeftMargin;
-        $page['or']                  = $this->currentOrientation;
         $page['originalRightMargin'] = $this->originalRightMargin;
-        $page['pb']                  = $autoPagebreak;
-        $page['rm']                  = $this->rightMargin;
+        $page['rightMargin']         = $this->rightMargin;
         $page['topMargin']           = $this->topMargin;
-        $page['w']                   = $this->widthPT;
-        $page['wk']                  = $this->width;
+        $page['width']               = $this->width;
+        $page['widthPT']             = $this->widthPT;
     }
 
     /** Renders the table header on new page. */
@@ -762,16 +762,16 @@ trait Pages
 
         // Load stored graphic settings
         $dimensions                = $this->pageDimensions[$this->page];
-        $this->widthPT             = $dimensions['w'];
-        $this->heightPT            = $dimensions['h'];
-        $this->width               = $dimensions['wk'];
+        $this->autoPageBreak       = $dimensions['autoPageBreak'];
+        $this->bottomMargin        = $dimensions['bottomMargin'];
+        $this->currentOrientation  = $dimensions['currentOrientation'];
         $this->height              = $dimensions['height'];
+        $this->heightPT            = $dimensions['heightPT'];
         $this->topMargin           = $dimensions['topMargin'];
-        $this->bottomMargin        = $dimensions['bm'];
         $this->originalLeftMargin  = $dimensions['originalLeftMargin'];
         $this->originalRightMargin = $dimensions['originalRightMargin'];
-        $this->autoPageBreak       = $dimensions['pb'];
-        $this->currentOrientation  = $dimensions['or'];
+        $this->width               = $dimensions['width'];
+        $this->widthPT             = $dimensions['widthPT'];
         $this->autoPageBreak($this->autoPageBreak, $this->bottomMargin);
 
         // restore graphic settings
@@ -827,11 +827,11 @@ trait Pages
      * $this->pagedim[$this->page]['width'] = page width in user units
      * $this->pagedim[$this->page]['height'] = page height in user units
      * $this->pagedim[$this->page]['topMargin'] = top margin
-     * $this->pagedim[$this->page]['bm'] = bottom margin
-     * $this->pagedim[$this->page]['lm'] = left margin
-     * $this->pagedim[$this->page]['rm'] = right margin
-     * $this->pagedim[$this->page]['pb'] = auto page break
-     * $this->pagedim[$this->page]['or'] = page orientation
+     * $this->pagedim[$this->page]['bottomMargin'] = bottom margin
+     * $this->pagedim[$this->page]['leftMargin'] = left margin
+     * $this->pagedim[$this->page]['rightMargin'] = right margin
+     * $this->pagedim[$this->page]['autoPagebreak'] = auto page break
+     * $this->pagedim[$this->page]['currentOrientation'] = page orientation
      * $this->pagedim[$this->page]['originalLeftMargin'] = original left margin
      * $this->pagedim[$this->page]['originalRightMargin'] = original right margin
      * $this->pagedim[$this->page]['Rotate'] = The number of degrees by which the page shall be rotated clockwise when displayed or printed. The value shall be a multiple of 90.

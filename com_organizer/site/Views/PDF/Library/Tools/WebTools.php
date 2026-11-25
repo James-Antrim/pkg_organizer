@@ -2150,7 +2150,7 @@ trait WebTools
                                             $dom[$table_el]['rowspans'][$k]['endcolumn'] = $dom[$trid]['endcolumn'];
                                         }
                                         else {
-                                            $dom[$trid]['endy'] = $this->pageDimensions[$dom[$trid]['endpage']]['height'] - $this->pageDimensions[$dom[$trid]['endpage']]['bm'];
+                                            $dom[$trid]['endy'] = $this->pageDimensions[$dom[$trid]['endpage']]['height'] - $this->pageDimensions[$dom[$trid]['endpage']]['bottomMargin'];
                                         }
                                     }
                                 }
@@ -3429,7 +3429,7 @@ trait WebTools
                         }
                     }
                     if (isset($prevtrkey) and ($dom[$trkey]['startpage'] > $dom[$prevtrkey]['endpage'])) {
-                        $pgendy                  = $this->pageDimensions[$dom[$prevtrkey]['endpage']]['height'] - $this->pageDimensions[$dom[$prevtrkey]['endpage']]['bm'];
+                        $pgendy                  = $this->pageDimensions[$dom[$prevtrkey]['endpage']]['height'] - $this->pageDimensions[$dom[$prevtrkey]['endpage']]['bottomMargin'];
                         $dom[$prevtrkey]['endy'] = $pgendy;
                         // update row-spanned cells
                         if (isset($dom[($dom[$key]['parent'])]['rowspans'])) {

@@ -1415,7 +1415,7 @@ class PDF
         if (empty($pagenum)) {
             return $this->bottomMargin;
         }
-        return $this->pageDimensions[$pagenum]['bm'];
+        return $this->pageDimensions[$pagenum]['bottomMargin'];
     }
 
     /**
@@ -2659,7 +2659,7 @@ class PDF
                     $formfield = false;
                     $pl['opt'] = array_change_key_case($pl['opt'], CASE_LOWER);
                     $a         = $pl['x'] * $this->factor;
-                    $b         = $this->pageDimensions[$n]['h'] - (($pl['y'] + $pl['h']) * $this->factor);
+                    $b         = $this->pageDimensions[$n]['heightPT'] - (($pl['y'] + $pl['h']) * $this->factor);
                     $c         = $pl['w'] * $this->factor;
                     $d         = $pl['h'] * $this->factor;
                     $rect      = sprintf('%F %F %F %F', $a, $b, $a + $c, $b + $d);
