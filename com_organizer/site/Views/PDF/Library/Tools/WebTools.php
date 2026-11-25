@@ -786,7 +786,7 @@ trait WebTools
                     // update page numbers
                     $a = '{#' . $n . '}';
                     // get page number aliases
-                    $pnalias = $this->getInternalPageNumberAliases($a);
+                    $variants = $this->singlePNAVariants($a);
                     // calculate replacement number
                     if ($n >= $page) {
                         $np = $n + $numpages;
@@ -797,7 +797,7 @@ trait WebTools
                     $na = StaticMethods::formatTOCPageNumber(($this->startingPageNumber + $np - 1));
                     $nu = $this->utf8ToUTF16BE($na);
                     // replace aliases with numbers
-                    foreach ($pnalias['u'] as $u) {
+                    foreach ($variants['u'] as $u) {
                         if ($correct_align) {
                             $sfill = str_repeat($filler, (strlen($u) - strlen($nu . ' ')));
                             $nr    = $this->utf8ToUTF16BE($sfill . ' ') . $nu;
@@ -807,7 +807,7 @@ trait WebTools
                         }
                         $temppage = str_replace($u, $nr, $temppage);
                     }
-                    foreach ($pnalias['a'] as $a) {
+                    foreach ($variants['a'] as $a) {
                         if ($correct_align) {
                             $sfill = str_repeat($filler, (strlen($a) - strlen($na . ' ')));
                             $nr    = $sfill . ' ' . $na;

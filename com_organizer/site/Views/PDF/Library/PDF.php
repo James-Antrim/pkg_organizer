@@ -2497,40 +2497,6 @@ class PDF
     }
 
     /**
-     * Return an array containing variations for the basic page number alias.
-     * @param string $a Base alias.
-     * @return array of page number aliases
-     */
-    protected function getInternalPageNumberAliases($a = '')
-    {
-        $alias = [];
-        // build array of Unicode + ASCII variants (the order is important)
-        $alias        = ['u' => [], 'a' => []];
-        $u            = '{' . $a . '}';
-        $alias['u'][] = $this->escape($u);
-        $alias['u'][] = $this->escape($this->utf8ToLatin1($u));
-        $alias['u'][] = $this->escape($this->utf8ToUTF16BE($u));
-        $alias['a'][] = $this->escape($this->utf8ToLatin1($a));
-        $alias['a'][] = $this->escape($this->utf8ToUTF16BE($a));
-        $alias['a'][] = $this->escape($a);
-        return $alias;
-    }
-
-    /**
-     * Return an array containing all internal page aliases.
-     * @return array of page number aliases
-     */
-    protected function getAllInternalPageNumberAliases()
-    {
-        $basic_alias = [self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::PAGE_GROUP_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS];
-        $pnalias     = [];
-        foreach ($basic_alias as $k => $a) {
-            $pnalias[$k] = $this->getInternalPageNumberAliases($a);
-        }
-        return $pnalias;
-    }
-
-    /**
      * Replace right shift page number aliases with spaces to correct right alignment.
      * This works perfectly only when using monospaced fonts.
      * @param string $page    Page content.
@@ -3796,7 +3762,7 @@ class PDF
         $this->state = self::NEUTRAL;
         $this->append('%PDF-1.7');
         $this->append('%' . chr(0xe2) . chr(0xe3) . chr(0xcf) . chr(0xd3));
-        $this->_putpages();
+        $this->appendPages();
         $this->_putresources();
         // Info
         $objid_info = $this->appendMetadata();

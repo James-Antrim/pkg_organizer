@@ -175,7 +175,7 @@ trait TOCs
                     // update page numbers
                     $a = '{#' . $n . '}';
                     // get page number aliases
-                    $pnalias = $this->getInternalPageNumberAliases($a);
+                    $variants = $this->singlePNAVariants($a);
                     // calculate replacement number
                     if (($n >= $page) and ($n <= $this->pageCount)) {
                         $np = $n + $numpages;
@@ -186,12 +186,12 @@ trait TOCs
                     $na = StaticMethods::formatTOCPageNumber(($this->startingPageNumber + $np - 1));
                     $nu = $this->utf8ToUTF16BE($na);
                     // replace aliases with numbers
-                    foreach ($pnalias['u'] as $u) {
+                    foreach ($variants['u'] as $u) {
                         $sfill    = str_repeat($filler, max(0, (strlen($u) - strlen($nu . ' '))));
                         $nr       = $this->utf8ToUTF16BE($sfill . ' ') . $nu;
                         $temppage = str_replace($u, $nr, $temppage);
                     }
-                    foreach ($pnalias['a'] as $a) {
+                    foreach ($variants['a'] as $a) {
                         $sfill    = str_repeat($filler, max(0, (strlen($a) - strlen($na . ' '))));
                         $nr       = $sfill . ' ' . $na;
                         $temppage = str_replace($a, $nr, $temppage);

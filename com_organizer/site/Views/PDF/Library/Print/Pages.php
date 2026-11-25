@@ -134,6 +134,21 @@ trait Pages
     }
 
     /**
+     * Return an array containing all internal page aliases.
+     * @return array of page number aliases
+     */
+    protected function collectedPNAVariants(): array
+    {
+        $pnAliases = [self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::PAGE_GROUP_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS];
+        $variants  = [];
+
+        foreach ($pnAliases as $pna) {
+            $variants[] = $this->singlePNAVariants($pna);
+        }
+        return $variants;
+    }
+
+    /**
      * Defines the way the document is to be displayed by the viewer.
      * @param string $zoom
      * @param string $layout
@@ -677,6 +692,26 @@ trait Pages
     }
 
     /**
+     * Creates an array of Unicode + ASCII variants of a basic page number alias.
+     * @param string $alias Base alias.
+     * @return array of page number aliases
+     */
+    protected function singlePNAVariants(string $alias = ''): array
+    {
+        $bracketed = '{' . $alias . '}';
+        $variants  = ['u' => [], 'a' => []];
+
+        // The order is important
+        $variants['u'][] = $this->escape($bracketed);
+        $variants['u'][] = $this->escape($this->utf8ToLatin1($bracketed));
+        $variants['u'][] = $this->escape($this->utf8ToUTF16BE($bracketed));
+        $variants['a'][] = $this->escape($this->utf8ToLatin1($alias));
+        $variants['a'][] = $this->escape($this->utf8ToUTF16BE($alias));
+        $variants['a'][] = $this->escape($alias);
+        return $variants;
+    }
+
+    /**
      * Getter / setter for the starting page number.
      * @param int|null $page
      * @return int
@@ -841,18 +876,14 @@ trait Pages
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
 
-#endregion
-#region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
     /**
-     * Output pages (and replace page number aliases).
+     * Append pages to the document and replace page number aliases.
      */
-    protected function _putpages()
+    protected function appendPages(): void
     {
         $filter = '/Filter /FlateDecode ';
         // get internal aliases for page numbers
-        $pnalias       = $this->getAllInternalPageNumberAliases();
+        $pnalias       = $this->collectedPNAVariants();
         $num_pages     = $this->pageCount;
         $ptpa          = StaticMethods::formatPageNumber(($this->startingPageNumber + $num_pages - 1));
         $ptpu          = $this->utf8ToUTF16BE($ptpa);
@@ -997,6 +1028,10 @@ trait Pages
         $out .= "\n" . 'endobj';
         $this->append($out);
     }
+
+#endregion
+#region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
+
 
     /**
      * Whenever a page break condition is met, the method is called, and the break is issued or not depending on the returned value.
