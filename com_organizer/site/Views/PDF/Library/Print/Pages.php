@@ -72,6 +72,33 @@ trait Pages
     protected float $widthPT = 0;
 
     /**
+     * Returns whether it is safe and configured to break a page automatically. Multicolumn is always false.
+     * @return bool
+     * @see   autoPageBreak()
+     */
+    protected function acceptPageBreak(): bool
+    {
+        if ($this->columnCount > 1) {
+            // multi column mode
+            if ($this->currentColumn < ($this->columnCount - 1)) {
+                // go to next column
+                $this->selectColumn($this->currentColumn + 1);
+            }
+            elseif ($this->autoPageBreak) {
+                // add a new page
+                $this->addPage();
+                // set first column
+                $this->selectColumn(0);
+            }
+
+            // Avoid page breaking from checkPageBreak()
+            return false;
+        }
+
+        return $this->autoPageBreak;
+    }
+
+    /**
      * Adds a new page to the document.
      * @param string       $orientation
      * @param array|string $format
@@ -997,6 +1024,71 @@ trait Pages
 #endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNUSED
 
+    /**
+     * Clone the specified page to a new page.
+     * @param int $page number of page to copy (0 = current page)
+     * @return bool true in case of success, false in case of error.
+     */
+    public function copyPage(int $page = 0): bool
+    {
+        $page = $page ?: $this->page;
+
+        if ($page < 1 or $page > $this->pageCount) {
+            Application::message("Invalid page ($page) used in copyPage.", Application::ERROR);
+            return false;
+        }
+
+        $this->closePage();
+
+        // Copy page-related states
+        ++$this->pageCount;
+        $this->page = $this->pageCount;
+        $this->pageBuffer($this->page, $this->pageBuffer($page));
+        $this->pageDimensions[$this->page] = $this->pageDimensions[$page];
+        $this->pageLengths[$this->page]    = $this->pageLengths[$page];
+        $this->internalMarks[$this->page]  = $this->internalMarks[$page];
+        $this->borderMarks[$this->page]    = $this->borderMarks[$page];
+        $this->contentMarks[$this->page]   = $this->contentMarks[$page];
+        $this->pageObjects[$this->page]    = $this->pageObjects[$page];
+        $this->pageStatus[$this->page]     = false;
+
+        if (isset($this->footerPositions[$page])) {
+            $this->footerPositions[$this->page] = $this->footerPositions[$page];
+        }
+        if (isset($this->footerLengths[$page])) {
+            $this->footerLengths[$this->page] = $this->footerLengths[$page];
+        }
+        if (isset($this->transpositions[$page])) {
+            $this->transpositions[$this->page] = $this->transpositions[$page];
+        }
+        if (isset($this->pageAnnotations[$page])) {
+            $this->pageAnnotations[$this->page] = $this->pageAnnotations[$page];
+        }
+        if (isset($this->pageGroupStarts[$page])) {
+            // start a new group
+            $this->pageGroupStarts[$this->page]        = sizeof($this->pageGroupStarts) + 1;
+            $this->currentPageGroup                    = $this->pageGroupStarts[$this->page];
+            $this->pageGroups[$this->currentPageGroup] = 1;
+        }
+        elseif (isset($this->currentPageGroup) and ($this->currentPageGroup > 0)) {
+            ++$this->pageGroups[$this->currentPageGroup];
+        }
+
+        foreach ($this->outlines as $outline) {
+            if ($outline['p'] === $page) {
+                $this->outlines[] = ['t' => $outline['t'], 'l' => $outline['l'], 'x' => $outline['x'], 'y' => $outline['y'], 'p' => $this->page, 'f' => $outline['f'], 's' => $outline['s'], 'c' => $outline['c']];
+            }
+        }
+
+        foreach ($this->internalLinks as $key => $link) {
+            if ($link['p'] === $page) {
+                $this->internalLinks[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
+            }
+        }
+
+        $this->turnToLastPage(true);
+        return true;
+    }
 
     /**
      * Defines the way the document is to be displayed by the viewer.
@@ -1085,100 +1177,6 @@ trait Pages
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-
-    /**
-     * Whenever a page break condition is met, the method is called, and the break is issued or not depending on the returned value.
-     * The default implementation returns a value according to the mode selected by SetAutoPageBreak().<br />
-     * This method is called automatically and should not be called directly by the application.
-     * @return bool
-     * @see   autoPageBreak()
-     */
-    protected function acceptPageBreak(): bool
-    {
-        if ($this->columnCount > 1) {
-            // multi column mode
-            if ($this->currentColumn < ($this->columnCount - 1)) {
-                // go to next column
-                $this->selectColumn($this->currentColumn + 1);
-            }
-            elseif ($this->autoPageBreak) {
-                // add a new page
-                $this->addPage();
-                // set first column
-                $this->selectColumn(0);
-            }
-            // avoid page breaking from checkPageBreak()
-            return false;
-        }
-        return $this->autoPageBreak;
-    }
-
-    /**
-     * Clone the specified page to a new page.
-     * @param int $page number of page to copy (0 = current page)
-     * @return bool true in case of success, false in case of error.
-     */
-    public function copyPage($page = 0)
-    {
-        if ($page == 0) {
-            // default value
-            $page = $this->page;
-        }
-        if (($page < 1) or ($page > $this->pageCount)) {
-            return false;
-        }
-        // close the last page
-        $this->closePage();
-        // copy all page-related states
-        ++$this->pageCount;
-        $this->page = $this->pageCount;
-        $this->pageBuffer($this->page, $this->pageBuffer($page));
-        $this->pageDimensions[$this->page] = $this->pageDimensions[$page];
-        $this->pageLengths[$this->page]    = $this->pageLengths[$page];
-        $this->internalMarks[$this->page]  = $this->internalMarks[$page];
-        $this->borderMarks[$this->page]    = $this->borderMarks[$page];
-        $this->contentMarks[$this->page]   = $this->contentMarks[$page];
-        $this->pageObjects[$this->page]    = $this->pageObjects[$page];
-        $this->pageStatus[$this->page]     = false;
-        if (isset($this->footerPositions[$page])) {
-            $this->footerPositions[$this->page] = $this->footerPositions[$page];
-        }
-        if (isset($this->footerLengths[$page])) {
-            $this->footerLengths[$this->page] = $this->footerLengths[$page];
-        }
-        if (isset($this->transpositions[$page])) {
-            $this->transpositions[$this->page] = $this->transpositions[$page];
-        }
-        if (isset($this->pageAnnotations[$page])) {
-            $this->pageAnnotations[$this->page] = $this->pageAnnotations[$page];
-        }
-        if (isset($this->pageGroupStarts[$page])) {
-            // start a new group
-            $this->pageGroupStarts[$this->page]        = sizeof($this->pageGroupStarts) + 1;
-            $this->currentPageGroup                    = $this->pageGroupStarts[$this->page];
-            $this->pageGroups[$this->currentPageGroup] = 1;
-        }
-        elseif (isset($this->currentPageGroup) and ($this->currentPageGroup > 0)) {
-            ++$this->pageGroups[$this->currentPageGroup];
-        }
-        // copy outlines
-        $tmpoutlines = $this->outlines;
-        foreach ($tmpoutlines as $key => $outline) {
-            if ($outline['p'] == $page) {
-                $this->outlines[] = ['t' => $outline['t'], 'l' => $outline['l'], 'x' => $outline['x'], 'y' => $outline['y'], 'p' => $this->page, 'f' => $outline['f'], 's' => $outline['s'], 'c' => $outline['c']];
-            }
-        }
-        // copy links
-        $tmplinks = $this->internalLinks;
-        foreach ($tmplinks as $key => $link) {
-            if ($link['p'] == $page) {
-                $this->internalLinks[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
-            }
-        }
-        // return to last page
-        $this->turnToLastPage(true);
-        return true;
-    }
 
     /**
      * Remove the specified page.
