@@ -107,7 +107,6 @@ class PDF
 
         $this->cellPaddings($cellPadding, 0, $cellPadding, 0);
         $this->cellMargins(0, 0, 0, 0);
-        $this->displayMode();
         $this->pageFormat($format, $orientation);
         $this->populateFonts();
         $this->setMargins($margin, $margin);

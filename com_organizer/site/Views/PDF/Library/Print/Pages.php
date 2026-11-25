@@ -139,7 +139,14 @@ trait Pages
         $pgGN16       = 1;
         $pgGN8Count   = 1;
         $pgNumber     = 0;
-        $variants     = $this->collectedPNAVariants();
+
+        // Aliases referenced by key later => is relevant
+        $pnAliases = [self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::PAGE_GROUP_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS];
+        $variants  = [];
+
+        foreach ($pnAliases as $pna) {
+            $variants[] = $this->singlePNAVariants($pna);
+        }
 
         for ($page = 1; $page <= $this->pageCount; ++$page) {
             $currentPN8      = $this->formatPageNumber(($this->startingPageNumber + $page - 1));
@@ -290,36 +297,6 @@ trait Pages
     }
 
     /**
-     * Return an array containing all internal page aliases.
-     * @return array of page number aliases
-     */
-    protected function collectedPNAVariants(): array
-    {
-        // Aliases referenced by key later => is relevant
-        $pnAliases = [self::TOTAL_PAGES_ALIAS, self::PAGE_NUMBER_ALIAS, self::PAGES_IN_GROUP_ALIAS, self::PAGE_GROUP_NUMBER_ALIAS, self::RIGHT_SHIFT_ALIAS];
-        $variants  = [];
-
-        foreach ($pnAliases as $pna) {
-            $variants[] = $this->singlePNAVariants($pna);
-        }
-        return $variants;
-    }
-
-    /**
-     * Defines the way the document is to be displayed by the viewer.
-     * @param string $zoom
-     * @param string $layout
-     * @param string $mode
-     * @see self::PAGE_ZOOM_DESCRIPTIONS, self::PAGE_LAYOUT_DESCRIPTIONS, self::PAGE_MODE_DESCRIPTIONS
-     */
-    public function displayMode(string $zoom = self::FULL_WIDTH, string $layout = self::SINGLE_PAGE, string $mode = self::USE_NONE): void
-    {
-        $this->pageZoom = in_array($zoom, self::PAGE_ZOOMS) ? $zoom : self::FULL_WIDTH;
-        $this->layoutMode($layout);
-        $this->pageMode($mode);
-    }
-
-    /**
      * Format the page numbers.
      * @param float $page
      * @return string
@@ -384,23 +361,6 @@ trait Pages
     protected function inPageBody(): bool
     {
         return ($this->inHeader === false and $this->inFooter === false);
-    }
-
-    /**
-     * Set the canonical page layout mode.
-     * @param string $layout
-     * @see self::PAGE_LAYOUT_DESCRIPTIONS
-     */
-    public function layoutMode(string $layout = self::SINGLE_PAGE): void
-    {
-        $this->layoutMode = match ($layout) {
-            self::ONE_COLUMN => self::ONE_COLUMN,
-            self::TWO_COLUMN_LEFT => self::TWO_COLUMN_LEFT,
-            self::TWO_COLUMN_RIGHT => self::TWO_COLUMN_RIGHT,
-            self::TWO_PAGE_LEFT => self::TWO_PAGE_LEFT,
-            self::TWO_PAGE_RIGHT => self::TWO_PAGE_RIGHT,
-            default => self::SINGLE_PAGE,
-        };
     }
 
     /**
@@ -489,15 +449,6 @@ trait Pages
     }
 
     /**
-     * Get the total number of inserted pages.
-     * @return int
-     */
-    public function pageCount(): int
-    {
-        return $this->pageCount;
-    }
-
-    /**
      * Returns the configured dimensions for the given page, defaults to current.
      * @param int $page
      * @return array
@@ -525,7 +476,7 @@ trait Pages
      * @param string       $orientation
      * @see   self::PAGE_FORMAT_CONFIGURATION_DESCRIPTION, self::PAGE_FORMATS, self::ORIENTATIONS
      */
-    protected function pageFormat(array|string $format, string $orientation = self::PORTRAIT): void
+    protected function pageFormat(array|string $format, string $orientation = self::CURRENT): void
     {
         if (!empty($format) and isset($this->pageDimensions[$this->page])) {
             // remove inherited values
@@ -611,23 +562,6 @@ trait Pages
         $this->internalMarks[$this->page] = $position;
         $this->borderMarks[$this->page]   = $position;
         $this->contentMark();
-    }
-
-    /**
-     * Sets the canonical page layout mode, specifying how the document should be displayed when opened.
-     * @param string $mode
-     * @see self::PAGE_MODE_DESCRIPTIONS
-     */
-    public function pageMode(string $mode = self::USE_NONE): void
-    {
-        $this->pageMode = match ($mode) {
-            self::FULL_SCREEN => self::FULL_SCREEN,
-            '', self::USE_ATTACHMENTS => self::USE_ATTACHMENTS,
-            self::USE_OC => self::USE_OC,
-            self::USE_OUTLINES => self::USE_OUTLINES,
-            self::USE_THUMBS => self::USE_THUMBS,
-            default => self::USE_NONE,
-        };
     }
 
     /**
@@ -914,20 +848,6 @@ trait Pages
     }
 
     /**
-     * Getter / setter for the starting page number.
-     * @param int|null $page
-     * @return int
-     */
-    public function startingPageNumber(int|null $page = null): int
-    {
-        if (is_int($page)) {
-            $this->startingPageNumber = $page > 0 ? $page : 1;
-        }
-
-        return $this->startingPageNumber;
-    }
-
-    /**
      * Starts a new page to the document. The page must be closed using the endPage() function.
      * @param string       $orientation
      * @param array|string $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
@@ -1075,8 +995,92 @@ trait Pages
     }
 
 #endregion
-#region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
+#region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNUSED
 
+
+    /**
+     * Defines the way the document is to be displayed by the viewer.
+     * @param string $zoom
+     * @param string $layout
+     * @param string $mode
+     * @see self::PAGE_ZOOM_DESCRIPTIONS, self::PAGE_LAYOUT_DESCRIPTIONS, self::PAGE_MODE_DESCRIPTIONS
+     */
+    public function displayMode(string $zoom = self::FULL_WIDTH, string $layout = self::SINGLE_PAGE, string $mode = self::USE_NONE): void
+    {
+        $this->pageZoom = in_array($zoom, self::PAGE_ZOOMS) ? $zoom : self::FULL_WIDTH;
+        $this->layoutMode($layout);
+        $this->pageMode($mode);
+    }
+
+    /**
+     * Set the canonical page layout mode.
+     * @param string $layout
+     * @see self::PAGE_LAYOUT_DESCRIPTIONS
+     */
+    public function layoutMode(string $layout = self::SINGLE_PAGE): void
+    {
+        $this->layoutMode = match ($layout) {
+            self::ONE_COLUMN => self::ONE_COLUMN,
+            self::TWO_COLUMN_LEFT => self::TWO_COLUMN_LEFT,
+            self::TWO_COLUMN_RIGHT => self::TWO_COLUMN_RIGHT,
+            self::TWO_PAGE_LEFT => self::TWO_PAGE_LEFT,
+            self::TWO_PAGE_RIGHT => self::TWO_PAGE_RIGHT,
+            default => self::SINGLE_PAGE,
+        };
+    }
+
+    /**
+     * Get the total number of inserted pages.
+     * @return int
+     */
+    public function pageCount(): int
+    {
+        return $this->pageCount;
+    }
+
+    /**
+     * Sets the canonical page layout mode, specifying how the document should be displayed when opened.
+     * @param string $mode
+     * @see self::PAGE_MODE_DESCRIPTIONS
+     */
+    public function pageMode(string $mode = self::USE_NONE): void
+    {
+        $this->pageMode = match ($mode) {
+            self::FULL_SCREEN => self::FULL_SCREEN,
+            '', self::USE_ATTACHMENTS => self::USE_ATTACHMENTS,
+            self::USE_OC => self::USE_OC,
+            self::USE_OUTLINES => self::USE_OUTLINES,
+            self::USE_THUMBS => self::USE_THUMBS,
+            default => self::USE_NONE,
+        };
+    }
+
+    /**
+     * Getter / setter for the starting page number.
+     * @param int|null $page
+     * @return int
+     */
+    public function startingPageNumber(int|null $page = null): int
+    {
+        if (is_int($page)) {
+            $this->startingPageNumber = $page > 0 ? $page : 1;
+        }
+
+        return $this->startingPageNumber;
+    }
+
+    /**
+     * Create a new page group.
+     * NOTE: call this function before calling AddPage()
+     * @param int|null $page starting group page (leave empty for next page).
+     */
+    public function startPageGroup(int|null $page = null): void
+    {
+        if (empty($page)) {
+            $page = $this->page + 1;
+        }
+        $this->pageGroupStarts[$page] = sizeof($this->pageGroupStarts) + 1;
+    }
 
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
@@ -1602,22 +1606,6 @@ trait Pages
                 $this->pageBoxes[] = $box;
             }
         }
-    }
-
-
-    /**
-     * Create a new page group.
-     * NOTE: call this function before calling AddPage()
-     * @param int|null $page starting group page (leave empty for next page).
-     * @public
-     * @since 3.0.000 (2008-03-27)
-     */
-    public function startPageGroup($page = null)
-    {
-        if (empty($page)) {
-            $page = $this->page + 1;
-        }
-        $this->pageGroupStarts[$page] = sizeof($this->pageGroupStarts) + 1;
     }
 
 #endregion
