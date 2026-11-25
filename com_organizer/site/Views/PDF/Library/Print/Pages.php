@@ -324,6 +324,115 @@ trait Pages
     }
 
     /**
+     * Removes the specified page.
+     * @param int $page
+     */
+    public function deletePage(int $page): void
+    {
+        if ($page < 1 or $page > $this->pageCount) {
+            Application::message("Invalid page ($page) used in deletePage.", Application::ERROR);
+            return;
+        }
+
+        unset($this->borderMarks[$page], $this->contentMarks[$page], $this->footerLengths[$page], $this->footerPositions[$page]);
+        unset($this->internalMarks[$page], $this->pages[$page], $this->pageAnnotations[$page], $this->pageDimensions[$page]);
+        unset($this->pageLengths[$page], $this->pageStatus[$page], $this->transpositions[$page]);
+
+        foreach ($this->pageObjects[$page] as $objectID) {
+            if (isset($this->objectOffsets[$objectID])) {
+                unset($this->objectOffsets[$objectID]);
+            }
+        }
+
+        unset($this->pageObjects[$page]);
+
+        if (!empty($this->pageGroupStarts)) {
+            for ($i = $page; $i > 0; --$i) {
+                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $page)) {
+                    --$this->pageGroups[$this->pageGroupStarts[$i]];
+                    break;
+                }
+            }
+        }
+
+        $lastPage = $this->pageCount;
+        if ($page < $lastPage) {
+            // update remaining pages
+            for ($thisPage = $page; $thisPage < $lastPage; ++$thisPage) {
+                $nextPage = $thisPage + 1;
+                $this->shiftPage($thisPage, $nextPage);
+            }
+
+            // remove last page
+            unset($this->borderMarks[$lastPage], $this->contentMarks[$lastPage], $this->footerLengths[$lastPage], $this->footerPositions[$lastPage]);
+            unset($this->internalMarks[$lastPage], $this->pages[$lastPage], $this->pageAnnotations[$lastPage], $this->pageDimensions[$lastPage]);
+            unset($this->pageGroups[$lastPage], $this->pageGroupStarts[$lastPage], $this->pageLengths[$lastPage], $this->pageStatus[$lastPage]);
+            unset($this->transpositions[$lastPage]);
+
+            if ($this->currentPageGroup === $lastPage) {
+                $this->currentPageGroup = $lastPage - 1;
+            }
+
+            foreach ($this->pageObjects[$lastPage] as $objectID) {
+                if (isset($this->objectOffsets[$objectID])) {
+                    unset($this->objectOffsets[$objectID]);
+                }
+            }
+            unset($this->pageObjects[$lastPage]);
+        }
+
+        --$this->pageCount;
+        $this->page = $this->pageCount;
+
+        foreach ($this->outlines as $key => $outline) {
+            if (!$outline['f']) {
+                if ($outline['p'] > $page) {
+                    $this->outlines[$key]['p'] = $outline['p'] - 1;
+                }
+                elseif ($outline['p'] === $page) {
+                    unset($this->outlines[$key]);
+                }
+            }
+        }
+
+        foreach ($this->namedDestinationsMap as $key => $dest) {
+            if (!$dest['f']) {
+                if ($dest['p'] > $page) {
+                    $this->namedDestinationsMap[$key]['p'] = $dest['p'] - 1;
+                }
+                elseif ($dest['p'] === $page) {
+                    unset($this->namedDestinationsMap[$key]);
+                }
+            }
+        }
+
+        foreach ($this->internalLinks as $key => $link) {
+            if (!$link['f']) {
+                if ($link['p'] > $page) {
+                    $this->internalLinks[$key]['p'] = $link['p'] - 1;
+                }
+                elseif ($link['p'] === $page) {
+                    unset($this->internalLinks[$key]);
+                }
+            }
+        }
+
+        if (preg_match_all('/this\.addField\(\'([^\']*)\',\'([^\']*)\',([0-9]+)/', $this->javascript, $fields) > 0) {
+            foreach ($fields[0] as $pk => $field) {
+                $fieldPage = (int) $fields[3][$pk] + 1;
+                $newPage   = $fieldPage >= $page ? $fieldPage - 1 : $fieldPage;
+                --$newPage;
+                $this->javascript = str_replace($field, "this.addField(\'{$fields[1][$pk]}\',\'{$fields[2][$pk]}\',$newPage", $this->javascript);
+            }
+            unset($fields);
+        }
+
+        if ($this->pageCount > 0) {
+            $this->turnToLastPage(true);
+        }
+    }
+
+    /**
      * Format the page numbers.
      * @param float $page
      * @return string
@@ -855,6 +964,59 @@ trait Pages
     }
 
     /**
+     * Copies the contents and references from the source page to the target page.
+     * @param int $target
+     * @param int $source
+     */
+    private function shiftPage(int $target, int $source): void
+    {
+        $this->pageBuffer($target, $this->pageBuffer($source));
+        $this->pageDimensions[$target] = $this->pageDimensions[$source];
+        $this->pageLengths[$target]    = $this->pageLengths[$source];
+        $this->internalMarks[$target]  = $this->internalMarks[$source];
+        $this->borderMarks[$target]    = $this->borderMarks[$source];
+        $this->contentMarks[$target]   = $this->contentMarks[$source];
+        $this->pageObjects[$target]    = $this->pageObjects[$source];
+        if (isset($this->footerPositions[$source])) {
+            $this->footerPositions[$target] = $this->footerPositions[$source];
+        }
+        elseif (isset($this->footerPositions[$target])) {
+            unset($this->footerPositions[$target]);
+        }
+        if (isset($this->footerLengths[$source])) {
+            $this->footerLengths[$target] = $this->footerLengths[$source];
+        }
+        elseif (isset($this->footerLengths[$target])) {
+            unset($this->footerLengths[$target]);
+        }
+        if (isset($this->transpositions[$source])) {
+            $this->transpositions[$target] = $this->transpositions[$source];
+        }
+        elseif (isset($this->transpositions[$target])) {
+            unset($this->transpositions[$target]);
+        }
+        if (isset($this->pageAnnotations[$source])) {
+            $this->pageAnnotations[$target] = $this->pageAnnotations[$source];
+        }
+        elseif (isset($this->pageAnnotations[$target])) {
+            unset($this->pageAnnotations[$target]);
+        }
+        if (isset($this->pageGroupStarts[$source])) {
+            $this->pageGroupStarts[$target] = $this->pageGroupStarts[$source];
+            unset($this->pageGroupStarts[$source]);
+        }
+        if ($this->currentPageGroup == $source) {
+            $this->currentPageGroup = $target;
+        }
+        if (isset($this->pageStatus[$source])) {
+            $this->pageStatus[$target] = $this->pageStatus[$source];
+        }
+        elseif (isset($this->pageStatus[$target])) {
+            unset($this->pageStatus[$target]);
+        }
+    }
+
+    /**
      * Creates an array of Unicode + ASCII variants of a basic page number alias.
      * @param string $alias Base alias.
      * @return array of page number aliases
@@ -1179,205 +1341,6 @@ trait Pages
 
 
     /**
-     * Remove the specified page.
-     * @param int $page page to remove
-     * @return bool true in case of success, false in case of error.
-     */
-    public function deletePage($page)
-    {
-        if (($page < 1) or ($page > $this->pageCount)) {
-            return false;
-        }
-        // delete current page
-        unset($this->pages[$page]);
-        unset($this->pageDimensions[$page]);
-        unset($this->pageLengths[$page]);
-        unset($this->internalMarks[$page]);
-        unset($this->borderMarks[$page]);
-        unset($this->contentMarks[$page]);
-        foreach ($this->pageObjects[$page] as $oid) {
-            if (isset($this->objectOffsets[$oid])) {
-                unset($this->objectOffsets[$oid]);
-            }
-        }
-        unset($this->pageObjects[$page]);
-        if (isset($this->footerPositions[$page])) {
-            unset($this->footerPositions[$page]);
-        }
-        if (isset($this->footerLengths[$page])) {
-            unset($this->footerLengths[$page]);
-        }
-        if (isset($this->transpositions[$page])) {
-            unset($this->transpositions[$page]);
-        }
-        if (isset($this->pageAnnotations[$page])) {
-            unset($this->pageAnnotations[$page]);
-        }
-        if (isset($this->pageGroupStarts) and !empty($this->pageGroupStarts)) {
-            for ($i = $page; $i > 0; --$i) {
-                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $page)) {
-                    --$this->pageGroups[$this->pageGroupStarts[$i]];
-                    break;
-                }
-            }
-        }
-        if (isset($this->pageStatus[$page])) {
-            unset($this->pageStatus[$page]);
-        }
-        if ($page < $this->pageCount) {
-            // update remaining pages
-            for ($i = $page; $i < $this->pageCount; ++$i) {
-                $j = $i + 1;
-                // shift pages
-                $this->pageBuffer($i, $this->pageBuffer($j));
-                $this->pageDimensions[$i] = $this->pageDimensions[$j];
-                $this->pageLengths[$i]    = $this->pageLengths[$j];
-                $this->internalMarks[$i]  = $this->internalMarks[$j];
-                $this->borderMarks[$i]    = $this->borderMarks[$j];
-                $this->contentMarks[$i]   = $this->contentMarks[$j];
-                $this->pageObjects[$i]    = $this->pageObjects[$j];
-                if (isset($this->footerPositions[$j])) {
-                    $this->footerPositions[$i] = $this->footerPositions[$j];
-                }
-                elseif (isset($this->footerPositions[$i])) {
-                    unset($this->footerPositions[$i]);
-                }
-                if (isset($this->footerLengths[$j])) {
-                    $this->footerLengths[$i] = $this->footerLengths[$j];
-                }
-                elseif (isset($this->footerLengths[$i])) {
-                    unset($this->footerLengths[$i]);
-                }
-                if (isset($this->transpositions[$j])) {
-                    $this->transpositions[$i] = $this->transpositions[$j];
-                }
-                elseif (isset($this->transpositions[$i])) {
-                    unset($this->transpositions[$i]);
-                }
-                if (isset($this->pageAnnotations[$j])) {
-                    $this->pageAnnotations[$i] = $this->pageAnnotations[$j];
-                }
-                elseif (isset($this->pageAnnotations[$i])) {
-                    unset($this->pageAnnotations[$i]);
-                }
-                if (isset($this->pageGroupStarts[$j])) {
-                    $this->pageGroupStarts[$i] = $this->pageGroupStarts[$j];
-                    unset($this->pageGroupStarts[$j]);
-                }
-                if ($this->currentPageGroup == $j) {
-                    $this->currentPageGroup = $i;
-                }
-                if (isset($this->pageStatus[$j])) {
-                    $this->pageStatus[$i] = $this->pageStatus[$j];
-                }
-                elseif (isset($this->pageStatus[$i])) {
-                    unset($this->pageStatus[$i]);
-                }
-            }
-            // remove last page
-            unset($this->pages[$this->pageCount]);
-            unset($this->pageDimensions[$this->pageCount]);
-            unset($this->pageLengths[$this->pageCount]);
-            unset($this->internalMarks[$this->pageCount]);
-            unset($this->borderMarks[$this->pageCount]);
-            unset($this->contentMarks[$this->pageCount]);
-            foreach ($this->pageObjects[$this->pageCount] as $oid) {
-                if (isset($this->objectOffsets[$oid])) {
-                    unset($this->objectOffsets[$oid]);
-                }
-            }
-            unset($this->pageObjects[$this->pageCount]);
-            if (isset($this->footerPositions[$this->pageCount])) {
-                unset($this->footerPositions[$this->pageCount]);
-            }
-            if (isset($this->footerLengths[$this->pageCount])) {
-                unset($this->footerLengths[$this->pageCount]);
-            }
-            if (isset($this->transpositions[$this->pageCount])) {
-                unset($this->transpositions[$this->pageCount]);
-            }
-            if (isset($this->pageAnnotations[$this->pageCount])) {
-                unset($this->pageAnnotations[$this->pageCount]);
-            }
-            if (isset($this->pageGroupStarts[$this->pageCount])) {
-                unset($this->pageGroupStarts[$this->pageCount]);
-            }
-            if ($this->currentPageGroup == $this->pageCount) {
-                $this->currentPageGroup = ($this->pageCount - 1);
-            }
-            if (isset($this->pageGroups[$this->pageCount])) {
-                unset($this->pageGroups[$this->pageCount]);
-            }
-            if (isset($this->pageStatus[$this->pageCount])) {
-                unset($this->pageStatus[$this->pageCount]);
-            }
-        }
-        --$this->pageCount;
-        $this->page = $this->pageCount;
-        // adjust outlines
-        $tmpoutlines = $this->outlines;
-        foreach ($tmpoutlines as $key => $outline) {
-            if (!$outline['f']) {
-                if ($outline['p'] > $page) {
-                    $this->outlines[$key]['p'] = $outline['p'] - 1;
-                }
-                elseif ($outline['p'] == $page) {
-                    unset($this->outlines[$key]);
-                }
-            }
-        }
-        // adjust dests
-        $tmpdests = $this->namedDestinationsMap;
-        foreach ($tmpdests as $key => $dest) {
-            if (!$dest['f']) {
-                if ($dest['p'] > $page) {
-                    $this->namedDestinationsMap[$key]['p'] = $dest['p'] - 1;
-                }
-                elseif ($dest['p'] == $page) {
-                    unset($this->namedDestinationsMap[$key]);
-                }
-            }
-        }
-        // adjust links
-        $tmplinks = $this->internalLinks;
-        foreach ($tmplinks as $key => $link) {
-            if (!$link['f']) {
-                if ($link['p'] > $page) {
-                    $this->internalLinks[$key]['p'] = $link['p'] - 1;
-                }
-                elseif ($link['p'] == $page) {
-                    unset($this->internalLinks[$key]);
-                }
-            }
-        }
-        // adjust javascript
-        $jpage = $page;
-        if (preg_match_all('/this\.addField\(\'([^\']*)\',\'([^\']*)\',([0-9]+)/', $this->javascript, $pamatch) > 0) {
-            foreach ($pamatch[0] as $pk => $pmatch) {
-                $pagenum = intval($pamatch[3][$pk]) + 1;
-                if ($pagenum >= $jpage) {
-                    $newpage = ($pagenum - 1);
-                }
-                elseif ($pagenum == $jpage) {
-                    $newpage = 1;
-                }
-                else {
-                    $newpage = $pagenum;
-                }
-                --$newpage;
-                $newjs            = "this.addField(\'" . $pamatch[1][$pk] . "\',\'" . $pamatch[2][$pk] . "\'," . $newpage;
-                $this->javascript = str_replace($pmatch, $newjs, $this->javascript);
-            }
-            unset($pamatch);
-        }
-        // return to last page
-        if ($this->pageCount > 0) {
-            $this->turnToLastPage(true);
-        }
-        return true;
-    }
-
-    /**
      * Returns the page height in units.
      * @param int|null $pagenum page number (empty = current page)
      * @return int|float page height.
@@ -1408,136 +1371,104 @@ trait Pages
     }
 
     /**
-     * Move a page to a previous position.
-     * @param int $frompage number of the source page
-     * @param int $topage   number of the destination page (must be less than $frompage)
-     * @return bool true in case of success, false in case of error.
+     * Switch the contents and references of two pages.
+     * @param int $pageA
+     * @param int $pageB
      */
-    public function movePage($frompage, $topage)
+    public function switchPages(int $pageA, int $pageB): void
     {
-        if (($frompage > $this->pageCount) or ($frompage <= $topage)) {
-            return false;
+        $identity = $pageA === $pageB;
+        $invalidA = ($pageA < 1 or $pageA > $this->pageCount);
+        $invalidB = ($pageB < 1 or $pageB > $this->pageCount);
+        if ($identity or $invalidA or $invalidB) {
+            return;
         }
-        if ($frompage == $this->page) {
-            // close the page before moving it
+
+        // Close current if referenced
+        if ($pageA === $this->page or $pageB === $this->page) {
             $this->closePage();
         }
+
         // move all page-related states
-        $tmppage        = $this->pageBuffer($frompage);
-        $tmppagedim     = $this->pageDimensions[$frompage];
-        $tmppagelen     = $this->pageLengths[$frompage];
-        $tmpintmrk      = $this->internalMarks[$frompage];
-        $tmpbordermrk   = $this->borderMarks[$frompage];
-        $tmpcntmrk      = $this->contentMarks[$frompage];
-        $tmppageobjects = $this->pageObjects[$frompage];
-        if (isset($this->footerPositions[$frompage])) {
-            $tmpfooterpos = $this->footerPositions[$frompage];
+        $bmBuffer = $this->borderMarks[$pageA];
+        $cmBuffer = $this->contentMarks[$pageA];
+        $dBuffer  = $this->pageDimensions[$pageA];
+        if (isset($this->footerLengths[$pageA])) {
+            $flBuffer = $this->footerLengths[$pageA];
         }
-        if (isset($this->footerLengths[$frompage])) {
-            $tmpfooterlen = $this->footerLengths[$frompage];
+        if (isset($this->footerPositions[$pageA])) {
+            $fpBuffer = $this->footerPositions[$pageA];
         }
-        if (isset($this->transpositions[$frompage])) {
-            $transpositions = $this->transpositions[$frompage];
+        $imBuffer = $this->internalMarks[$pageA];
+        $pBuffer  = $this->pageBuffer($pageA);
+        if (isset($this->pageAnnotations[$pageA])) {
+            $paBuffer = $this->pageAnnotations[$pageA];
         }
-        if (isset($this->pageAnnotations[$frompage])) {
-            $tmpannots = $this->pageAnnotations[$frompage];
+        $plBuffer = $this->pageLengths[$pageA];
+        $poBuffer = $this->pageObjects[$pageA];
+        if (isset($this->transpositions[$pageA])) {
+            $tBuffer = $this->transpositions[$pageA];
         }
+
         if (isset($this->pageGroupStarts) and !empty($this->pageGroupStarts)) {
-            for ($i = $frompage; $i > $topage; --$i) {
-                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $frompage)) {
+            for ($i = $pageA; $i > $pageB; --$i) {
+                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $pageA)) {
                     --$this->pageGroups[$this->pageGroupStarts[$i]];
                     break;
                 }
             }
-            for ($i = $topage; $i > 0; --$i) {
-                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $topage)) {
+            for ($i = $pageB; $i > 0; --$i) {
+                if (isset($this->pageGroupStarts[$i]) and (($i + $this->pageGroups[$this->pageGroupStarts[$i]]) > $pageB)) {
                     ++$this->pageGroups[$this->pageGroupStarts[$i]];
                     break;
                 }
             }
         }
-        for ($i = $frompage; $i > $topage; --$i) {
+        for ($i = $pageA; $i > $pageB; --$i) {
             $j = $i - 1;
             // shift pages down
-            $this->pageBuffer($i, $this->pageBuffer($j));
-            $this->pageDimensions[$i] = $this->pageDimensions[$j];
-            $this->pageLengths[$i]    = $this->pageLengths[$j];
-            $this->internalMarks[$i]  = $this->internalMarks[$j];
-            $this->borderMarks[$i]    = $this->borderMarks[$j];
-            $this->contentMarks[$i]   = $this->contentMarks[$j];
-            $this->pageObjects[$i]    = $this->pageObjects[$j];
-            if (isset($this->footerPositions[$j])) {
-                $this->footerPositions[$i] = $this->footerPositions[$j];
-            }
-            elseif (isset($this->footerPositions[$i])) {
-                unset($this->footerPositions[$i]);
-            }
-            if (isset($this->footerLengths[$j])) {
-                $this->footerLengths[$i] = $this->footerLengths[$j];
-            }
-            elseif (isset($this->footerLengths[$i])) {
-                unset($this->footerLengths[$i]);
-            }
-            if (isset($this->transpositions[$j])) {
-                $this->transpositions[$i] = $this->transpositions[$j];
-            }
-            elseif (isset($this->transpositions[$i])) {
-                unset($this->transpositions[$i]);
-            }
-            if (isset($this->pageAnnotations[$j])) {
-                $this->pageAnnotations[$i] = $this->pageAnnotations[$j];
-            }
-            elseif (isset($this->pageAnnotations[$i])) {
-                unset($this->pageAnnotations[$i]);
-            }
-            if (isset($this->pageGroupStarts[$j])) {
-                $this->pageGroupStarts[$i] = $this->pageGroupStarts[$j];
-                unset($this->pageGroupStarts[$j]);
-            }
-            if ($this->currentPageGroup == $j) {
-                $this->currentPageGroup = $i;
-            }
+            $this->shiftPage($i, $j);
         }
-        $this->pageBuffer($topage, $tmppage);
-        $this->pageDimensions[$topage] = $tmppagedim;
-        $this->pageLengths[$topage]    = $tmppagelen;
-        $this->internalMarks[$topage]  = $tmpintmrk;
-        $this->borderMarks[$topage]    = $tmpbordermrk;
-        $this->contentMarks[$topage]   = $tmpcntmrk;
-        $this->pageObjects[$topage]    = $tmppageobjects;
-        if (isset($tmpfooterpos)) {
-            $this->footerPositions[$topage] = $tmpfooterpos;
+        $this->pageBuffer($pageB, $pBuffer);
+        $this->pageDimensions[$pageB] = $dBuffer;
+        $this->pageLengths[$pageB]    = $plBuffer;
+        $this->internalMarks[$pageB]  = $imBuffer;
+        $this->borderMarks[$pageB]    = $bmBuffer;
+        $this->contentMarks[$pageB]   = $cmBuffer;
+        $this->pageObjects[$pageB]    = $poBuffer;
+        if (isset($fpBuffer)) {
+            $this->footerPositions[$pageB] = $fpBuffer;
         }
-        elseif (isset($this->footerPositions[$topage])) {
-            unset($this->footerPositions[$topage]);
+        elseif (isset($this->footerPositions[$pageB])) {
+            unset($this->footerPositions[$pageB]);
         }
-        if (isset($tmpfooterlen)) {
-            $this->footerLengths[$topage] = $tmpfooterlen;
+        if (isset($flBuffer)) {
+            $this->footerLengths[$pageB] = $flBuffer;
         }
-        elseif (isset($this->footerLengths[$topage])) {
-            unset($this->footerLengths[$topage]);
+        elseif (isset($this->footerLengths[$pageB])) {
+            unset($this->footerLengths[$pageB]);
         }
-        if (isset($transpositions)) {
-            $this->transpositions[$topage] = $transpositions;
+        if (isset($tBuffer)) {
+            $this->transpositions[$pageB] = $tBuffer;
         }
-        elseif (isset($this->transpositions[$topage])) {
-            unset($this->transpositions[$topage]);
+        elseif (isset($this->transpositions[$pageB])) {
+            unset($this->transpositions[$pageB]);
         }
-        if (isset($tmpannots)) {
-            $this->pageAnnotations[$topage] = $tmpannots;
+        if (isset($paBuffer)) {
+            $this->pageAnnotations[$pageB] = $paBuffer;
         }
-        elseif (isset($this->pageAnnotations[$topage])) {
-            unset($this->pageAnnotations[$topage]);
+        elseif (isset($this->pageAnnotations[$pageB])) {
+            unset($this->pageAnnotations[$pageB]);
         }
         // adjust outlines
         $tmpoutlines = $this->outlines;
         foreach ($tmpoutlines as $key => $outline) {
             if (!$outline['f']) {
-                if (($outline['p'] >= $topage) and ($outline['p'] < $frompage)) {
+                if (($outline['p'] >= $pageB) and ($outline['p'] < $pageA)) {
                     $this->outlines[$key]['p'] = ($outline['p'] + 1);
                 }
-                elseif ($outline['p'] == $frompage) {
-                    $this->outlines[$key]['p'] = $topage;
+                elseif ($outline['p'] == $pageA) {
+                    $this->outlines[$key]['p'] = $pageB;
                 }
             }
         }
@@ -1545,11 +1476,11 @@ trait Pages
         $tmpdests = $this->namedDestinationsMap;
         foreach ($tmpdests as $key => $dest) {
             if (!$dest['f']) {
-                if (($dest['p'] >= $topage) and ($dest['p'] < $frompage)) {
+                if (($dest['p'] >= $pageB) and ($dest['p'] < $pageA)) {
                     $this->namedDestinationsMap[$key]['p'] = ($dest['p'] + 1);
                 }
-                elseif ($dest['p'] == $frompage) {
-                    $this->namedDestinationsMap[$key]['p'] = $topage;
+                elseif ($dest['p'] == $pageA) {
+                    $this->namedDestinationsMap[$key]['p'] = $pageB;
                 }
             }
         }
@@ -1557,17 +1488,17 @@ trait Pages
         $tmplinks = $this->internalLinks;
         foreach ($tmplinks as $key => $link) {
             if (!$link['f']) {
-                if (($link['p'] >= $topage) and ($link['p'] < $frompage)) {
+                if (($link['p'] >= $pageB) and ($link['p'] < $pageA)) {
                     $this->internalLinks[$key]['p'] = ($link['p'] + 1);
                 }
-                elseif ($link['p'] == $frompage) {
-                    $this->internalLinks[$key]['p'] = $topage;
+                elseif ($link['p'] == $pageA) {
+                    $this->internalLinks[$key]['p'] = $pageB;
                 }
             }
         }
         // adjust javascript
-        $jfrompage = $frompage;
-        $jtopage   = $topage;
+        $jfrompage = $pageA;
+        $jtopage   = $pageB;
         if (preg_match_all('/this\.addField\(\'([^\']*)\',\'([^\']*)\',([0-9]+)/', $this->javascript, $pamatch) > 0) {
             foreach ($pamatch[0] as $pk => $pmatch) {
                 $pagenum = intval($pamatch[3][$pk]) + 1;
@@ -1588,7 +1519,6 @@ trait Pages
         }
         // return to last page
         $this->turnToLastPage(true);
-        return true;
     }
 
     /**

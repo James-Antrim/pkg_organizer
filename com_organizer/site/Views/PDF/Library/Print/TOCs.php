@@ -203,10 +203,10 @@ trait TOCs
             // move pages
             $this->Bookmark($toc_name, 0, 0, $firstPage, $style, $color);
             if ($page_fill_start) {
-                $this->movePage($lastPage, $firstPage);
+                $this->switchPages($lastPage, $firstPage);
             }
             for ($i = 0; $i < $numpages; ++$i) {
-                $this->movePage($lastPage, $page);
+                $this->switchPages($lastPage, $page);
             }
         }
     }
