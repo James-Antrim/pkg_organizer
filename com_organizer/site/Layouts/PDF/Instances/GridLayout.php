@@ -746,7 +746,7 @@ abstract class GridLayout extends BaseLayout
     protected function pageBreak(float $rowHeight, string $monDate, string $saturDate): bool
     {
         $view       = $this->view;
-        $dimensions = $view->getPageDimensions();
+        $dimensions = $view->pageDimensions();
 
         $bottomMargin = $dimensions['bottomMargin'];
         $pageHeight   = $dimensions['height'];

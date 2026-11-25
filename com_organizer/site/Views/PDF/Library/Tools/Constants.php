@@ -301,13 +301,31 @@ trait Constants
         'width' => 'width of the line in user units (float)',
     ];
 
+    public const PAGE_DIMENSION_DESCRIPTION = [
+        self::ART_BOX         => '(array) The extent of the meaningful content, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        'autoPagebreak'       => '(bool) auto page break',
+        self::BLEED_BOX       => '(array) The region to which the contents shall be clipped when output in a production environment, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        'bottomMargin'        => '(float) bottom margin',
+        self::CROP_BOX        => '(array) The visible region of default user space, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        'currentOrientation'  => '(string) self::LANDSCAPE / self::PORTRAIT',
+        'height'              => '(float) height (user units)',
+        'heightPT'            => '(float) height (points)',
+        'leftMargin'          => '(float) left margin',
+        self::MEDIA_BOX       => '(array) The boundaries of the physical medium when displayed or printed, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        'originalLeftMargin'  => '(float) original left margin',
+        'originalRightMargin' => '(float) original right margin',
+        'preferredZoom'       => '(float) The preferred zoom (magnification) factor.',
+        'rightMargin'         => '(float) right margin',
+        'rotate'              => '(int) The number of degrees by which the page shall be rotated clockwise when displayed or printed. (Multiples of 90)',
+        'topMargin'           => '(float) top margin',
+        self::TRIM_BOX        => '(array) The intended dimensions after trimming, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        'width'               => '(float) width (user units)',
+        'widthPT'             => '(float) width (points)',
+    ];
 
     public const PAGE_FORMAT_CONFIGURATION_DESCRIPTION = [
-        self::ART_BOX   => 'The extent of the meaningful content, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
-        self::BLEED_BOX => 'The region to which the contents shall be clipped when output in a production environment, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
-        self::CROP_BOX  => 'The visible region of default user space, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
-        self::MEDIA_BOX => 'The boundaries of the physical medium when displayed or printed, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
-        self::TRIM_BOX  => 'The intended dimensions after trimming, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        self::ART_BOX   => '(array) The extent of the meaningful content, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        self::BLEED_BOX => '(array) The region to which the contents shall be clipped when output in a production environment, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
         'BoxColorInfo'  => [
             '!self::MEDIA_BOX' => [
                 'C' => 'int[] RGB (0-255)',
@@ -317,8 +335,11 @@ trait Constants
             ]
         ],
         'format'        => self::PAGE_FORMATS,
-        'PZ'            => 'The preferred zoom (magnification) factor.',
-        'Rotate'        => 'The number of degrees by which the page shall be rotated clockwise when displayed or printed. (Multiples of 90)',
+        self::CROP_BOX  => '(array) The visible region of default user space, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        self::MEDIA_BOX => '(array) The boundaries of the physical medium when displayed or printed, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
+        'preferredZoom' => '(float) The preferred zoom (magnification) factor.',
+        'rotate'        => '(int) The number of degrees by which the page shall be rotated clockwise when displayed or printed. (Multiples of 90)',
+        self::TRIM_BOX  => '(array) The intended dimensions after trimming, defined by its lower-left (llx, lly) and upper right (urx, ury) corners',
     ];
     public const PAGE_LAYOUT_DESCRIPTIONS = [
         self::ONE_COLUMN       => 'Display the pages in one column',

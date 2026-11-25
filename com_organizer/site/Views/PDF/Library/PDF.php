@@ -1408,7 +1408,7 @@ class PDF
      * @param int|null $pagenum page number (empty = current page)
      * @return int|float page break margin.
      * @author Nicola Asuni
-     * @see    getPageDimensions()
+     * @see    pageDimensions()
      */
     public function getBreakMargin($pagenum = null)
     {
