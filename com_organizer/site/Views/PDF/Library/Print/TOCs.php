@@ -183,7 +183,7 @@ trait TOCs
                     else {
                         $np = $n;
                     }
-                    $na = StaticMethods::formatTOCPageNumber(($this->starting_page_number + $np - 1));
+                    $na = StaticMethods::formatTOCPageNumber(($this->startingPageNumber + $np - 1));
                     $nu = $this->utf8ToUTF16BE($na);
                     // replace aliases with numbers
                     foreach ($pnalias['u'] as $u) {

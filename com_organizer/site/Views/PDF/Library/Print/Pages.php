@@ -64,6 +64,7 @@ trait Pages
     /** page number => open (true) / closed (false) */
     protected array $pageStatus = [];
     protected string $pageZoom = self::FULL_WIDTH;
+    protected int $startingPageNumber = 1;
     protected string $tableHeader = '';
     protected array $tableHeaderMargins = [];
     protected float $topMargin = 0;
@@ -676,6 +677,20 @@ trait Pages
     }
 
     /**
+     * Getter / setter for the starting page number.
+     * @param int|null $page
+     * @return int
+     */
+    public function startingPageNumber(int|null $page = null): int
+    {
+        if (is_int($page)) {
+            $this->startingPageNumber = $page > 0 ? $page : 1;
+        }
+
+        return $this->startingPageNumber;
+    }
+
+    /**
      * Starts a new page to the document. The page must be closed using the endPage() function.
      * @param string       $orientation
      * @param array|string $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
@@ -829,10 +844,6 @@ trait Pages
 #endregion
 #region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
 
-    /**
-     * Starting page number.
-     */
-    protected $starting_page_number = 1;
 
     /**
      * Output pages (and replace page number aliases).
@@ -843,7 +854,7 @@ trait Pages
         // get internal aliases for page numbers
         $pnalias       = $this->getAllInternalPageNumberAliases();
         $num_pages     = $this->pageCount;
-        $ptpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $num_pages - 1));
+        $ptpa          = StaticMethods::formatPageNumber(($this->startingPageNumber + $num_pages - 1));
         $ptpu          = $this->utf8ToUTF16BE($ptpa);
         $ptp_num_chars = $this->GetNumChars($ptpa);
         $pagegroupnum  = 0;
@@ -856,7 +867,7 @@ trait Pages
             $temppage = $this->pageBuffer($n);
             $pagelen  = strlen($temppage);
             // set replacements for total pages number
-            $pnpa          = StaticMethods::formatPageNumber(($this->starting_page_number + $n - 1));
+            $pnpa          = StaticMethods::formatPageNumber(($this->startingPageNumber + $n - 1));
             $pnpu          = $this->utf8ToUTF16BE($pnpa);
             $pnp_num_chars = $this->GetNumChars($pnpa);
             $pdiff         = 0; // difference used for right shift alignment of page numbers
@@ -1507,17 +1518,6 @@ trait Pages
                 $this->pageBoxes[] = $box;
             }
         }
-    }
-
-    /**
-     * Set the starting page number.
-     * @param int $num Starting page number.
-     * @since 5.9.093 (2011-06-16)
-     * @public
-     */
-    public function setStartingPageNumber($num = 1)
-    {
-        $this->starting_page_number = max(0, intval($num));
     }
 
 
