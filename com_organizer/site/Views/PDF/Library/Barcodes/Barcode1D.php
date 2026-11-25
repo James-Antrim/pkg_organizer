@@ -19,10 +19,10 @@ use THM\Organizer\Views\PDF\Library\PDF;
  *  $code[
  *       'barcode'   => [
  *           $position => [ single bar or space in $position
- *               'h' => bar height in units,
- *               'p' => bar top position (0 = top, 1 = middle),
- *               't' => bar type: true = bar, false = space,
- *               'w' => bar width in units,
+ *               'height' => bar height in units,
+ *               'position' => bar top position (0 = top, 1 = middle),
+ *               'stripe' => bar type: true = bar, false = space,
+ *               'width' => bar width in units,
  *           ]
  *       ]
  *      'code'      => code to be printed on text label,
@@ -34,14 +34,16 @@ class Barcode1D
 {
     use Barcoded;
 
+    private const MIDDLE = 1, SPACE = false, STRIPE = true, TOP = 0;
+
     public const CODE_11 = 'CODE11', CODE_128 = 'C128', CODE_128_A = 'C128A', CODE_128_B = 'C128B', CODE_128_C = 'C128C', CODE_39 = 'C39',
         CODE_39_CS = 'C39+', CODE_39_EX = 'C39E', CODE_39_EX_CS = 'C39E+', CODE_93 = 'C93', CODABAR = 'CODABAR', EAN_2 = 'EAN2', EAN_5 = 'EAN5',
-        EAN_8 = 'EAN8', EAN_13 = 'EAN13', I25 = 'I25', I25_CS = 'I25+', IMB = 'IMB', IMB_PF = 'IMBPRE', KLANT_INDEX = 'KIX', MSI = 'MSI',
-        MSI_CS = 'MSI+', PHARMACODE = 'PHARMA', PHARMACODE_2T = 'PHARMA2T', POSTNET = 'POSTNET', PLANET = 'PLANET', RMS4CC = 'RMS4CC', S25 = 'S25',
-        S25_CS = 'S25+', UPC_A = 'UPCA', UPC_E = 'UPCE';
+        EAN_8 = 'EAN8', EAN_13 = 'EAN13', I25 = 'I25', I25_CS = 'I25+', KLANT_INDEX = 'KIX', MSI = 'MSI', MSI_CS = 'MSI+', PHARMACODE = 'PHARMA',
+        PHARMACODE_2T = 'PHARMA2T', POSTNET = 'POSTNET', PLANET = 'PLANET', RMS4CC = 'RMS4CC', S25 = 'S25', S25_CS = 'S25+', UPC_A = 'UPCA',
+        UPC_E = 'UPCE';
     public const TYPES = [
         self::CODE_11 . self::CODE_128, self::CODE_128_A, self::CODE_128_B, self::CODE_128_C, self::CODE_39, self::CODE_39_CS, self::CODE_39_EX,
-        self::CODE_39_EX_CS, self::CODE_93, self::CODABAR, self::EAN_2, self::EAN_5, self::EAN_8, self::EAN_13, self::I25, self::I25_CS, self::IMB,
+        self::CODE_39_EX_CS, self::CODE_93, self::CODABAR, self::EAN_2, self::EAN_5, self::EAN_8, self::EAN_13, self::I25, self::I25_CS,
         self::KLANT_INDEX, self::MSI, self::MSI_CS, self::PHARMACODE, self::PHARMACODE_2T, self::POSTNET, self::PLANET, self::RMS4CC, self::S25,
         self::S25_CS, self::UPC_A, self::UPC_E
     ];
@@ -105,12 +107,6 @@ class Barcode1D
                 return;
             case self::EAN_13:
                 $this->EAN13_UPCA($code);
-                return;
-            case self::IMB:
-                $this->IMB($code);
-                return;
-            case self::IMB_PF:
-                $this->IMBPreformatted($code);
                 return;
             case self::KLANT_INDEX:
                 $this->RMS4CC($code, true);
@@ -216,7 +212,7 @@ class Barcode1D
         $stripe = ($index % 2) === 0;
         $width  = (float) $sequence[$index];
 
-        $bararray['barcode'][$key] = ['t' => $stripe, 'w' => $width, 'h' => 1, 'p' => 0];
+        $bararray['barcode'][$key] = ['height' => 1, 'position' => self::TOP, 'stripe' => $stripe, 'width' => $width];
         $bararray['maxWidth']      += $width;
     }
 
@@ -614,7 +610,7 @@ class Barcode1D
                 $stripe = ($index % 2) === 0;
                 $width  = (float) $seq[$index];
 
-                $bararray['barcode'][] = ['t' => $stripe, 'w' => $width, 'h' => 1, 'p' => 0];
+                $bararray['barcode'][] = ['height' => 1, 'position' => self::TOP, 'stripe' => $stripe, 'width' => $width];
                 $bararray['maxWidth']  += $width;
             }
         }
@@ -720,7 +716,7 @@ class Barcode1D
                 ++$position;
             }
             // intercharacter gap
-            $bararray['barcode'][$position] = ['t' => false, 'w' => 1, 'h' => 1, 'p' => 0];
+            $bararray['barcode'][$position] = ['height' => 1, 'position' => self::TOP, 'stripe' => self::SPACE, 'width' => 1];
             $bararray['maxWidth']           += 1;
             ++$position;
         }
@@ -815,7 +811,7 @@ class Barcode1D
         $stripe = $index % 2 === 0;
         $width  = $mapping[$character][$index];
 
-        $bararray['barcode'][$key] = ['t' => $stripe, 'w' => $width, 'h' => 1, 'p' => 0];
+        $bararray['barcode'][$key] = ['height' => 1, 'position' => self::TOP, 'stripe' => $stripe, 'width' => $width];
         $bararray['maxWidth']      += (int) $width;
     }
 
@@ -946,7 +942,7 @@ class Barcode1D
             }
         }
 
-        $bararray['barcode'][$position] = ['t' => true, 'w' => 1, 'h' => 1, 'p' => 0];
+        $bararray['barcode'][$position] = ['height' => 1, 'position' => self::TOP, 'stripe' => self::STRIPE, 'width' => 1];
         $bararray['maxWidth']           += 1;
 
         $this->barcode = $bararray;
@@ -1004,26 +1000,6 @@ class Barcode1D
 
         // restore special characters
         return strtr($checksum, '<=>?', chr(128) . chr(131) . chr(129) . chr(130));
-    }
-
-    /**
-     * Convert large integer number to hexadecimal representation.
-     * (requires PHP bcmath extension)
-     * @param string $number number to convert specified as a string
-     * @return string
-     */
-    public function decimal2Hex(string $number): string
-    {
-        $hex = [];
-        if ($number == 0) {
-            return '00';
-        }
-        while ($number > 0) {
-            $hex[]  = strtoupper(dechex(bcmod($number, '16')));
-            $number = bcdiv($number, '16');
-        }
-        $hex = array_reverse($hex);
-        return implode($hex);
     }
 
     /**
@@ -1214,7 +1190,7 @@ class Barcode1D
             if (($index == ($clen - 1)) or (($index < ($clen - 1)) and ($sequence[$index] != $sequence[$index + 1]))) {
                 $stripe = $sequence[$index] === '1';
 
-                $bararray['barcode'][$key] = ['t' => $stripe, 'w' => $width, 'h' => 1, 'p' => 0];
+                $bararray['barcode'][$key] = ['height' => 1, 'position' => self::TOP, 'stripe' => $stripe, 'width' => $width];
                 $bararray['maxWidth']      += $width;
                 ++$key;
                 $width = 0;
@@ -1306,24 +1282,6 @@ class Barcode1D
     }
 
     /**
-     * Convert large hexadecimal number to decimal representation (string).
-     * (requires PHP bcmath extension)
-     * @param string $hex hexadecimal number to convert specified as a string
-     * @return string
-     */
-    public function hex2Decimal(string $hex): string
-    {
-        $dec      = 0;
-        $bitValue = 1;
-        $len      = strlen($hex);
-        for ($pos = ($len - 1); $pos >= 0; --$pos) {
-            $dec      = bcadd($dec, bcmul(hexdec($hex[$pos]), $bitValue));
-            $bitValue = bcmul($bitValue, 16);
-        }
-        return $dec;
-    }
-
-    /**
      * Return an HTML representation of barcode.
      * @param int    $width  Width of a single bar element in pixels.
      * @param int    $height Height of a single bar element in pixels.
@@ -1336,10 +1294,10 @@ class Barcode1D
         // print bars
         $x = 0;
         foreach ($this->barcode['barcode'] as $stripe) {
-            $bw = round(($stripe['w'] * $width), 3);
-            $bh = round(($stripe['h'] * $height / $this->barcode['maxHeight']), 3);
-            if ($stripe['t']) {
-                $y = round(($stripe['p'] * $height / $this->barcode['maxHeight']), 3);
+            $bw = round(($stripe['width'] * $width), 3);
+            $bh = round(($stripe['height'] * $height / $this->barcode['maxHeight']), 3);
+            if ($stripe['stripe']) {
+                $y = round(($stripe['position'] * $height / $this->barcode['maxHeight']), 3);
                 // draw a vertical bar
                 $html .= '<div style="background-color:' . $color . ';width:' . $bw . 'px;height:' . $bh . 'px;position:absolute;left:' . $x . 'px;top:' . $y . 'px;">&nbsp;</div>' . "\n";
             }
@@ -1395,270 +1353,12 @@ class Barcode1D
                 $stripe = ($inner % 2) === 0;
                 $width  = (float) $sequence[$inner];
 
-                $bararray['barcode'][$position] = ['t' => $stripe, 'w' => $width, 'h' => 1, 'p' => 0];
+                $bararray['barcode'][$position] = ['height' => 1, 'position' => self::TOP, 'stripe' => $stripe, 'width' => $width];
                 $bararray['maxWidth']           += $width;
                 ++$position;
             }
         }
         $this->barcode = $bararray;
-    }
-
-    /**
-     * IMB - Intelligent Mail Barcode - Onecode - USPS-B-3200
-     * (requires PHP bcmath extension)
-     * Intelligent Mail barcode is a 65-bar code for use on mail in the United States.
-     * The fields are described as follows:<ul><li>The Barcode Identifier shall be assigned by USPS to encode the presort identification that is currently printed in human-readable form on the optional endorsement line (OEL) as well as for future USPS use. This shall be two digits, with the second digit in the range of 0–4. The allowable encoding ranges shall be 00–04, 10–14, 20–24, 30–34, 40–44, 50–54, 60–64, 70–74, 80–84, and 90–94.</li><li>The Service Type Identifier shall be assigned by USPS for any combination of services requested on the mailpiece. The allowable encoding range shall be 000http://it2.php.net/manual/en/function.dechex.php–999. Each 3-digit value shall correspond to a particular mail class with a particular combination of service(s). Each service program, such as OneCode Confirm and OneCode ACS, shall provide the list of Service Type Identifier values.</li><li>The Mailer or Customer Identifier shall be assigned by USPS as a unique, 6- or 9-digit number that identifies a business entity. The allowable encoding range for the 6 digit Mailer ID shall be 000000- 899999, while the allowable encoding range for the 9 digit Mailer ID shall be 900000000-999999999.</li><li>The Serial or Sequence Number shall be assigned by the mailer for uniquely identifying and tracking mailpieces. The allowable encoding range shall be 000000000–999999999 when used with a 6 digit Mailer ID and 000000-999999 when used with a 9 digit Mailer ID. e. The Delivery Point ZIP Code shall be assigned by the mailer for routing the mailpiece. This shall replace POSTNET for routing the mailpiece to its final delivery point. The length may be 0, 5, 9, or 11 digits. The allowable encoding ranges shall be no ZIP Code, 00000–99999,  000000000–999999999, and 00000000000–99999999999.</li></ul>
-     * @param string $code code to print, separate the ZIP (routing code) from the rest using a minus char '-' (BarcodeID_ServiceTypeID_MailerID_SerialNumber-RoutingCode)
-     * @return void
-     */
-    protected function IMB(string $code): void
-    {
-        $asc_chr         = [4, 0, 2, 6, 3, 5, 1, 9, 8, 7, 1, 2, 0, 6, 4, 8, 2, 9, 5, 3, 0, 1, 3, 7, 4, 6, 8, 9, 2, 0, 5, 1, 9, 4, 3, 8, 6, 7, 1, 2, 4, 3, 9, 5, 7, 8, 3, 0, 2, 1, 4, 0, 9, 1, 7, 0, 2, 4, 6, 3, 7, 1, 9, 5, 8];
-        $dsc_chr         = [7, 1, 9, 5, 8, 0, 2, 4, 6, 3, 5, 8, 9, 7, 3, 0, 6, 1, 7, 4, 6, 8, 9, 2, 5, 1, 7, 5, 4, 3, 8, 7, 6, 0, 2, 5, 4, 9, 3, 0, 1, 6, 8, 2, 0, 4, 5, 9, 6, 7, 5, 2, 6, 3, 8, 5, 1, 9, 8, 7, 4, 0, 2, 6, 3];
-        $asc_pos         = [3, 0, 8, 11, 1, 12, 8, 11, 10, 6, 4, 12, 2, 7, 9, 6, 7, 9, 2, 8, 4, 0, 12, 7, 10, 9, 0, 7, 10, 5, 7, 9, 6, 8, 2, 12, 1, 4, 2, 0, 1, 5, 4, 6, 12, 1, 0, 9, 4, 7, 5, 10, 2, 6, 9, 11, 2, 12, 6, 7, 5, 11, 0, 3, 2];
-        $dsc_pos         = [2, 10, 12, 5, 9, 1, 5, 4, 3, 9, 11, 5, 10, 1, 6, 3, 4, 1, 10, 0, 2, 11, 8, 6, 1, 12, 3, 8, 6, 4, 4, 11, 0, 6, 1, 9, 11, 5, 3, 7, 3, 10, 7, 11, 8, 2, 10, 3, 5, 8, 0, 3, 12, 11, 8, 4, 5, 1, 3, 0, 7, 12, 9, 8, 10];
-        $code_arr        = explode('-', $code);
-        $tracking_number = $code_arr[0];
-        $routing_code    = $code_arr[1] ?? '';
-        // Conversion of Routing Code
-        switch (strlen($routing_code)) {
-            case 0:
-                $binary_code = 0;
-                break;
-            case 5:
-                $binary_code = bcadd($routing_code, '1');
-                break;
-            case 9:
-                $binary_code = bcadd($routing_code, '100001');
-                break;
-            case 11:
-                $binary_code = bcadd($routing_code, '1000100001');
-                break;
-            default:
-                return;
-        }
-        $binary_code = bcmul($binary_code, 10);
-        $binary_code = bcadd($binary_code, $tracking_number[0]);
-        $binary_code = bcmul($binary_code, 5);
-        $binary_code = bcadd($binary_code, $tracking_number[1]);
-        $binary_code .= substr($tracking_number, 2, 18);
-        // convert to hexadecimal
-        $binary_code = $this->decimal2Hex($binary_code);
-        // pad to get 13 bytes
-        $binary_code = str_pad($binary_code, 26, '0', STR_PAD_LEFT);
-        // convert string to array of bytes
-        $binary_code_arr = chunk_split($binary_code, 2, "\r");
-        $binary_code_arr = substr($binary_code_arr, 0, -1);
-        $binary_code_arr = explode("\r", $binary_code_arr);
-        // calculate frame check sequence
-        $fcs = $this->IMBFrameCheckSequence($binary_code_arr);
-        // exclude first 2 bits from first byte
-        $first_byte         = sprintf('%2s', dechex((hexdec($binary_code_arr[0]) << 2) >> 2));
-        $binary_code_102bit = $first_byte . substr($binary_code, 2);
-        // convert binary data to codewords
-        $codewords    = [];
-        $data         = $this->hex2Decimal($binary_code_102bit);
-        $codewords[0] = bcmod($data, 636) * 2;
-        $data         = bcdiv($data, 636);
-        for ($index = 1; $index < 9; ++$index) {
-            $codewords[$index] = bcmod($data, 1365);
-            $data              = bcdiv($data, 1365);
-        }
-        $codewords[9] = $data;
-        if (($fcs >> 10) == 1) {
-            $codewords[9] += 659;
-        }
-        // generate lookup tables
-        $table2of13 = $this->IMBTables(2, 78);
-        $table5of13 = $this->IMBTables(5, 1287);
-        // convert codewords to characters
-        $characters = [];
-        $bitmask    = 512;
-        foreach ($codewords as $codeWord) {
-            if ($codeWord <= 1286) {
-                $characterCode = $table5of13[$codeWord];
-            }
-            else {
-                $characterCode = $table2of13[($codeWord - 1287)];
-            }
-            if (($fcs & $bitmask) > 0) {
-                // bitwise invert
-                $characterCode = ((~$characterCode) & 8191);
-            }
-            $characters[] = $characterCode;
-            $bitmask      /= 2;
-        }
-        $characters = array_reverse($characters);
-        // build bars
-        $position = 0;
-        $bararray = ['code' => $code, 'maxWidth' => 0, 'maxHeight' => 3, 'barcode' => []];
-        for ($index = 0; $index < 65; ++$index) {
-            $asc = (($characters[$asc_chr[$index]] & pow(2, $asc_pos[$index])) > 0);
-            $dsc = (($characters[$dsc_chr[$index]] & pow(2, $dsc_pos[$index])) > 0);
-            if ($asc and $dsc) {
-                // full bar (F)
-                $topPosition = 0;
-                $height      = 3;
-            }
-            elseif ($asc) {
-                // ascender (A)
-                $topPosition = 0;
-                $height      = 2;
-            }
-            elseif ($dsc) {
-                // descender (D)
-                $topPosition = 1;
-                $height      = 2;
-            }
-            else {
-                // tracker (T)
-                $topPosition = 1;
-                $height      = 1;
-            }
-            $bararray['barcode'][$position++] = ['t' => 1, 'w' => 1, 'h' => $height, 'p' => $topPosition];
-            $bararray['barcode'][$position++] = ['t' => 0, 'w' => 1, 'h' => 2, 'p' => 0];
-            $bararray['maxWidth']             += 2;
-        }
-        unset($bararray['barcode'][($position - 1)]);
-        --$bararray['maxWidth'];
-        $this->barcode = $bararray;
-    }
-
-    /**
-     * Intelligent Mail Barcode calculation of 11 bit Frame Check Sequence as integer (decimal base)
-     * @param array $code_arr array of hexadecimal values (13 bytes holding 102 bits right justified).
-     * @return int
-     */
-    protected function IMBFrameCheckSequence(array $code_arr): int
-    {
-        $generator = 0x0F35; // generator polynomial
-        $fcs       = 0x07FF; // Frame Check Sequence
-        // do most significant byte skipping the 2 most significant bits
-        $data = hexdec($code_arr[0]) << 5;
-        for ($bit = 2; $bit < 8; ++$bit) {
-            if (($fcs ^ $data) & 0x400) {
-                $fcs = ($fcs << 1) ^ $generator;
-            }
-            else {
-                $fcs = ($fcs << 1);
-            }
-            $fcs  &= 0x7FF;
-            $data <<= 1;
-        }
-        // do rest of bytes
-        for ($byte = 1; $byte < 13; ++$byte) {
-            $data = hexdec($code_arr[$byte]) << 3;
-            for ($bit = 0; $bit < 8; ++$bit) {
-                if (($fcs ^ $data) & 0x400) {
-                    $fcs = ($fcs << 1) ^ $generator;
-                }
-                else {
-                    $fcs = ($fcs << 1);
-                }
-                $fcs  &= 0x7FF;
-                $data <<= 1;
-            }
-        }
-        return $fcs;
-    }
-
-    /**
-     * IMB - Intelligent Mail Barcode - Onecode - USPS-B-3200
-     *
-     * @param string $code pre-formatted IMB barcode (65 chars "FADT")
-     * @return void
-     */
-    protected function IMBPreformatted(string $code): void
-    {
-        if (!preg_match('/^[fadtFADT]{65}$/', $code) == 1) {
-            return;
-        }
-        $characters = str_split(strtolower($code));
-        // build bars
-        $position = 0;
-        $bararray = ['code' => $code, 'maxWidth' => 0, 'maxHeight' => 3, 'barcode' => []];
-        for ($index = 0; $index < 65; ++$index) {
-            switch ($characters[$index]) {
-                case 'f':
-                    $topPosition = 0;
-                    $height      = 3;
-                    break;
-                case 'd':
-                    $topPosition = 1;
-                    $height      = 2;
-                    break;
-                case 't':
-                    $topPosition = 1;
-                    $height      = 1;
-                    break;
-                default:
-                    $topPosition = 0;
-                    $height      = 2;
-                    break;
-            }
-            $bararray['barcode'][$position++] = ['t' => 1, 'w' => 1, 'h' => $height, 'p' => $topPosition];
-            $bararray['barcode'][$position++] = ['t' => 0, 'w' => 1, 'h' => 2, 'p' => 0];
-            $bararray['maxWidth']             += 2;
-        }
-        unset($bararray['barcode'][($position - 1)]);
-        --$bararray['maxWidth'];
-        $this->barcode = $bararray;
-    }
-
-    /**
-     * Reverse unsigned short value
-     * @param int $number value to reverse
-     * @return int
-     */
-    protected function IMBReverseUnsigned(int $number): int
-    {
-        $rev = 0;
-        for ($index = 0; $index < 16; ++$index) {
-            $rev    <<= 1;
-            $rev    |= ($number & 1);
-            $number >>= 1;
-        }
-        return $rev;
-    }
-
-    /**
-     * Generate Nof13 tables used for Intelligent Mail Barcode
-     * @param int $type is the type of table: 2 for 2of13 table, 5 for 5of13table
-     * @param int $size size of table (78 for n=2 and 1287 for n=5)
-     * @return array
-     */
-    protected function IMBTables(int $type, int $size): array
-    {
-        $table = [];
-        $lli   = 0; // LUT lower index
-        $lui   = $size - 1; // LUT upper index
-        for ($count = 0; $count < 8192; ++$count) {
-            $bit_count = 0;
-            for ($bit_index = 0; $bit_index < 13; ++$bit_index) {
-                $bit_count += intval(($count & (1 << $bit_index)) != 0);
-            }
-            // if we don't have the right number of bits on, go on to the next value
-            if ($bit_count == $type) {
-                $reverse = ($this->IMBReverseUnsigned($count) >> 3);
-                // if the reverse is less than count, we have already visited this pair before
-                if ($reverse >= $count) {
-                    // If count is symmetric, place it at the first free slot from the end of the list.
-                    // Otherwise, place it at the first free slot from the beginning of the list AND place $reverse ath the next free slot from the beginning of the list
-                    if ($reverse == $count) {
-                        $table[$lui] = $count;
-                        --$lui;
-                    }
-                    else {
-                        $table[$lli] = $count;
-                        ++$lli;
-                        $table[$lli] = $reverse;
-                        ++$lli;
-                    }
-                }
-            }
-        }
-
-        return $table;
     }
 
     /**
@@ -1780,8 +1480,8 @@ class Barcode1D
                     $height   = 2;
                     break;
             }
-            $bararray['barcode'][$key++] = ['t' => 1, 'w' => 1, 'h' => $height, 'p' => $position];
-            $bararray['barcode'][$key++] = ['t' => 0, 'w' => 1, 'h' => 2, 'p' => 0];
+            $bararray['barcode'][$key++] = ['height' => $height, 'position' => $position, 'stripe' => self::STRIPE, 'width' => 1];
+            $bararray['barcode'][$key++] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::SPACE, 'width' => 1];
             $bararray['maxWidth']        += 2;
         }
         unset($bararray['barcode'][($key - 1)]);
@@ -1861,21 +1561,21 @@ class Barcode1D
         $code .= $checkDecimal;
         $len  = strlen($code);
         // start bar
-        $bararray['barcode'][$position++] = ['t' => 1, 'w' => 1, 'h' => 2, 'p' => 0];
-        $bararray['barcode'][$position++] = ['t' => 0, 'w' => 1, 'h' => 2, 'p' => 0];
+        $bararray['barcode'][$position++] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::STRIPE, 'width' => 1];
+        $bararray['barcode'][$position++] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::SPACE, 'width' => 1];
         $bararray['maxWidth']             += 2;
         for ($outer = 0; $outer < $len; ++$outer) {
             for ($inner = 0; $inner < 5; ++$inner) {
                 $height      = $barLength[$code[$outer]][$inner];
                 $topPosition = floor(1 / $height);
 
-                $bararray['barcode'][$position++] = ['t' => 1, 'w' => 1, 'h' => $height, 'p' => $topPosition];
-                $bararray['barcode'][$position++] = ['t' => 0, 'w' => 1, 'h' => 2, 'p' => 0];
+                $bararray['barcode'][$position++] = ['height' => $height, 'position' => $topPosition, 'stripe' => self::STRIPE, 'width' => 1];
+                $bararray['barcode'][$position++] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::SPACE, 'width' => 1];
                 $bararray['maxWidth']             += 2;
             }
         }
         // end bar
-        $bararray['barcode'][$position] = ['t' => 1, 'w' => 1, 'h' => 2, 'p' => 0];
+        $bararray['barcode'][$position] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::STRIPE, 'width' => 1];
         $bararray['maxWidth']           += 1;
         $this->barcode                  = $bararray;
     }
@@ -1896,10 +1596,10 @@ class Barcode1D
         // print bars
         $x = 0;
         foreach ($this->barcode['barcode'] as $stripe) {
-            $bw = round(($stripe['w'] * $width), 3);
-            $bh = round(($stripe['h'] * $height / $this->barcode['maxHeight']), 3);
-            if ($stripe['t']) {
-                $y = round(($stripe['p'] * $height / $this->barcode['maxHeight']), 3);
+            $bw = round(($stripe['width'] * $width), 3);
+            $bh = round(($stripe['height'] * $height / $this->barcode['maxHeight']), 3);
+            if ($stripe['stripe']) {
+                $y = round(($stripe['position'] * $height / $this->barcode['maxHeight']), 3);
                 // draw a vertical bar
                 imagefilledrectangle($png, $x, $y, ($x + $bw - 1), ($y + $bh - 1), $fgColor);
             }
@@ -1959,8 +1659,8 @@ class Barcode1D
         $position = 0;
         if ($notKIX) {
             // start bar
-            $bararray['barcode'][$position++] = ['t' => 1, 'w' => 1, 'h' => 2, 'p' => 0];
-            $bararray['barcode'][$position++] = ['t' => 0, 'w' => 1, 'h' => 2, 'p' => 0];
+            $bararray['barcode'][$position++] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::STRIPE, 'width' => 1];
+            $bararray['barcode'][$position++] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::SPACE, 'width' => 1];
             $bararray['maxWidth']             += 2;
         }
         for ($outer = 0; $outer < $codeLength; ++$outer) {
@@ -1982,15 +1682,15 @@ class Barcode1D
                         $topPosition = 0;
                         $height      = 2;
                 }
-                $bararray['barcode'][$position++] = ['t' => 1, 'w' => 1, 'h' => $height, 'p' => $topPosition];
-                $bararray['barcode'][$position++] = ['t' => 0, 'w' => 1, 'h' => 2, 'p' => 0];
+                $bararray['barcode'][$position++] = ['height' => $height, 'position' => $topPosition, 'stripe' => self::STRIPE, 'width' => 1];
+                $bararray['barcode'][$position++] = ['height' => 2, 'position' => self::TOP, 'stripe' => self::SPACE, 'width' => 1];
                 $bararray['maxWidth']             += 2;
             }
         }
 
         if ($notKIX) {
             // stop bar
-            $bararray['barcode'][$position] = ['t' => 1, 'w' => 1, 'h' => 3, 'p' => 0];
+            $bararray['barcode'][$position] = ['height' => 3, 'position' => self::TOP, 'stripe' => self::STRIPE, 'width' => 1];
             $bararray['maxWidth']           += 1;
         }
 
@@ -2077,7 +1777,7 @@ class Barcode1D
             if (($index == ($len - 1)) or (($index < ($len - 1)) and ($sequence[$index] != $sequence[($index + 1)]))) {
                 $stripe = $sequence[$index] === '1';
 
-                $barcode['barcode'][$key] = ['t' => $stripe, 'w' => $width, 'h' => 1, 'p' => 0];
+                $barcode['barcode'][$key] = ['height' => 1, 'position' => self::TOP, 'stripe' => $stripe, 'width' => $width];
                 $barcode['maxWidth']      += $width;
                 ++$key;
                 $width = 0;
@@ -2106,10 +1806,10 @@ class Barcode1D
         // print bars
         $x = 0;
         foreach ($this->barcode['barcode'] as $stripe) {
-            $bw = round(($stripe['w'] * $width), 3);
-            $bh = round(($stripe['h'] * $height / $this->barcode['maxHeight']), 3);
-            if ($stripe['t']) {
-                $y = round(($stripe['p'] * $height / $this->barcode['maxHeight']), 3);
+            $bw = round(($stripe['width'] * $width), 3);
+            $bh = round(($stripe['height'] * $height / $this->barcode['maxHeight']), 3);
+            if ($stripe['stripe']) {
+                $y = round(($stripe['position'] * $height / $this->barcode['maxHeight']), 3);
                 // draw a vertical bar
                 $svg .= "\t\t" . '<rect x="' . $x . '" y="' . $y . '" width="' . $bw . '" height="' . $bh . '" />' . "\n";
             }
