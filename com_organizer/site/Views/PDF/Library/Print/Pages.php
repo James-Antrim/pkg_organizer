@@ -493,7 +493,7 @@ trait Pages
         // store page dimensions
         $page['bm']                  = $bottomMargin;
         $page['h']                   = $this->heightPT;
-        $page['hk']                  = $this->height;
+        $page['height']              = $this->height;
         $page['lm']                  = $this->leftMargin;
         $page['originalLeftMargin']  = $this->originalLeftMargin;
         $page['or']                  = $this->currentOrientation;
@@ -765,7 +765,7 @@ trait Pages
         $this->widthPT             = $dimensions['w'];
         $this->heightPT            = $dimensions['h'];
         $this->width               = $dimensions['wk'];
-        $this->height              = $dimensions['hk'];
+        $this->height              = $dimensions['height'];
         $this->topMargin           = $dimensions['topMargin'];
         $this->bottomMargin        = $dimensions['bm'];
         $this->originalLeftMargin  = $dimensions['originalLeftMargin'];
@@ -822,10 +822,10 @@ trait Pages
 
     /**
      * Returns an array of page dimensions:
-     * $this->pagedim[$this->page]['w'] = page width in points
-     * $this->pagedim[$this->page]['h'] = height in points
-     * $this->pagedim[$this->page]['wk'] = page width in user units
-     * $this->pagedim[$this->page]['hk'] = page height in user units
+     * $this->pagedim[$this->page]['widthPT'] = page width in points
+     * $this->pagedim[$this->page]['heightPT'] = height in points
+     * $this->pagedim[$this->page]['width'] = page width in user units
+     * $this->pagedim[$this->page]['height'] = page height in user units
      * $this->pagedim[$this->page]['topMargin'] = top margin
      * $this->pagedim[$this->page]['bm'] = bottom margin
      * $this->pagedim[$this->page]['lm'] = left margin

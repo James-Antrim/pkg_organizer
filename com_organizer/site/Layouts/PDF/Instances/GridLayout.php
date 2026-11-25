@@ -749,7 +749,7 @@ abstract class GridLayout extends BaseLayout
         $dimensions = $view->getPageDimensions();
 
         $bottomMargin = $dimensions['bm'];
-        $pageHeight   = $dimensions['hk'];
+        $pageHeight   = $dimensions['height'];
         $yPos         = $view->y();
 
         if (($yPos + $rowHeight + $bottomMargin) > $pageHeight) {
