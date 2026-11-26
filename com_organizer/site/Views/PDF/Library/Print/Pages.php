@@ -17,8 +17,6 @@ use THM\Organizer\Views\PDF\Library\StaticMethods;
 
 trait Pages
 {
-#region //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DONE
-
     protected bool $autoPageBreak = true;
     protected float $bottomMargin = 0;
     protected float $breakTrigger = 0;
@@ -303,7 +301,7 @@ trait Pages
 
     /**
      * Close the current page.
-     * @param bool $toc if true set the tocpage state to false (end the page used to display Table Of Content).
+     * @param bool $toc whether the page displays ToC content
      * @see   addPage(), startPage(), addTOCPage(), endTOCPage()
      */
     public function closePage(bool $toc = false): void
@@ -833,7 +831,7 @@ trait Pages
             }
 
             // Append table header
-            $this->writeHTML($this->tableHeader, false, false, false, false, '');
+            $this->writeHTML($this->tableHeader, false);
             $this->graphicsSettings($settings);
 
             // Set new top margin to skip the table headers
@@ -867,17 +865,17 @@ trait Pages
     protected function repositionForRegions(float $x, float $y, float $height = 0): array
     {
         if (!$this->checkRegions or empty($this->pageRegions)) {
-            // no page regions defined
             return [$x, $y];
         }
 
         $height = $height ?: $this->cellHeight($this->fontSize);
-        // check for page break
+
+        // If content overflows start a new page and set coordinate values from the new page.
         if ($this->pageBreak($height, $y)) {
-            // the content will be printed on a new page
             $x = $this->x;
             $y = $this->y;
         }
+
         if ($this->columnCount > 1) {
             $this->rightMargin = ($this->width - $this->columns[$this->currentColumn]['x'] - $this->columns[$this->currentColumn]['w']);
         }
@@ -885,46 +883,53 @@ trait Pages
             $this->rightMargin = max($this->cellRightMargin, $this->originalRightMargin);
         }
         // adjust coordinates and page margins
-        foreach ($this->pageRegions as $regid => $regdata) {
-            if ($regdata['page'] == $this->page) {
-                // check region boundaries
-                if (($y > ($regdata['yt'] - $height)) and ($y <= $regdata['yb'])) {
-                    // Y is inside the region
-                    $minv = ($regdata['xb'] - $regdata['xt']) / ($regdata['yb'] - $regdata['yt']); // inverse of angular coefficient
-                    $yt   = max($y, $regdata['yt']);
-                    $yb   = min(($yt + $height), $regdata['yb']);
-                    $xt   = (($yt - $regdata['yt']) * $minv) + $regdata['xt'];
-                    $xb   = (($yb - $regdata['yt']) * $minv) + $regdata['xt'];
-                    if ($regdata['side'] == 'L') { // left side
-                        $new_margin = max($xt, $xb);
-                        if ($this->leftMargin < $new_margin) {
-                            if ($x < $new_margin) {
-                                // adjust x position
-                                $x = $new_margin;
-                                if ($new_margin > ($this->width - $this->rightMargin)) {
-                                    // adjust y position
-                                    $y = $regdata['yb'] - $height;
-                                }
-                            }
+        foreach ($this->pageRegions as $region) {
+            if ($region['page'] !== $this->page) {
+                continue;
+            }
+
+            // Y is outside the region boundaries
+            if ($y <= ($region['yt'] - $height) or $y > $region['yb']) {
+                continue;
+            }
+
+            // Inverse of angular coefficient
+            $inverse = ($region['xb'] - $region['xt']) / ($region['yb'] - $region['yt']);
+            $yTop    = max($y, $region['yt']);
+            $yBottom = min(($yTop + $height), $region['yb']);
+            $xTop    = (($yTop - $region['yt']) * $inverse) + $region['xt'];
+            $xBottom = (($yBottom - $region['yt']) * $inverse) + $region['xt'];
+            if ($region['side'] === self::LEFT) {
+                $newMargin = max($xTop, $xBottom);
+                // X position needs adjusted
+                if ($this->leftMargin < $newMargin) {
+                    if ($x < $newMargin) {
+                        $x = $newMargin;
+                        // Y position needs adjusted
+                        if ($newMargin > ($this->width - $this->rightMargin)) {
+                            $y = $region['yb'] - $height;
                         }
                     }
-                    elseif ($regdata['side'] == 'R') { // right side
-                        $new_margin = min($xt, $xb);
-                        if (($this->width - $this->rightMargin) > $new_margin) {
-                            $this->rightMargin = max(0, ($this->width - $new_margin));
-                            if ($x > $new_margin) {
-                                // adjust x position
-                                $x = $new_margin;
-                                if ($new_margin > $this->leftMargin) {
-                                    // adjust y position
-                                    $y = $regdata['yb'] - $height;
-                                }
-                            }
+                }
+                continue;
+            }
+
+            if ($region['side'] == self::RIGHT) {
+                $newMargin = min($xTop, $xBottom);
+                if (($this->width - $this->rightMargin) > $newMargin) {
+                    $this->rightMargin = max(0, ($this->width - $newMargin));
+                    // X position needs adjusted
+                    if ($x > $newMargin) {
+                        $x = $newMargin;
+                        // Y position needs adjusted
+                        if ($newMargin > $this->leftMargin) {
+                            $y = $region['yb'] - $height;
                         }
                     }
                 }
             }
         }
+
         return [$x, $y];
     }
 
@@ -1039,8 +1044,8 @@ trait Pages
     /**
      * Starts a new page to the document. The page must be closed using the endPage() function.
      * @param string       $orientation
-     * @param array|string $format The format used for pages. It can be either: one of the string values specified at getPageSizeFromFormat() or an array of parameters specified at setPageFormat().
-     * @param bool         $toc    if true the page is designated to contain the Table-Of-Content.
+     * @param array|string $format
+     * @param bool         $toc whether the page will display ToC content
      * @see   self::ORIENTATIONS, addPage(), closePage(), addTOCPage(), endTOCPage(), getPageSizeFromFormat(), pageFormat()
      */
     public function startPage(string $orientation = self::CURRENT, array|string $format = '', bool $toc = false): void
@@ -1050,13 +1055,13 @@ trait Pages
             $this->tocpage = true;
             // Move references to non-existent pages for page attachments
             // Adjust outlines
-            foreach ($this->outlines as $key => &$outline) {
+            foreach ($this->outlines as &$outline) {
                 if (!$outline['f'] and ($outline['p'] > $this->pageCount)) {
                     $outline['p'] += 1;
                 }
             }
             // Adjust named destinations
-            foreach ($this->namedDestinationsMap as $key => &$destination) {
+            foreach ($this->namedDestinationsMap as &$destination) {
                 if (!$destination['f'] and ($destination['p'] > $this->pageCount)) {
                     $destination['p'] += 1;
                 }
@@ -1183,7 +1188,6 @@ trait Pages
         }
     }
 
-#endregion
 #region ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNUSED
 
     /**
@@ -1242,7 +1246,7 @@ trait Pages
             }
         }
 
-        foreach ($this->internalLinks as $key => $link) {
+        foreach ($this->internalLinks as $link) {
             if ($link['p'] === $page) {
                 $this->internalLinks[] = ['p' => $this->page, 'y' => $link['y'], 'f' => $link['f']];
             }
@@ -1284,12 +1288,38 @@ trait Pages
     }
 
     /**
+     * Reconfigure the set page box types.
+     * @param array $boxes
+     * @see self::PAGE_BOXES
+     */
+    protected function pageBoxTypes(array $boxes): void
+    {
+        $this->pageBoxes = [];
+        foreach ($boxes as $box) {
+            if (in_array($box, self::PAGE_BOXES)) {
+                $this->pageBoxes[] = $box;
+            }
+        }
+    }
+
+    /**
      * Get the total number of inserted pages.
      * @return int
      */
     public function pageCount(): int
     {
         return $this->pageCount;
+    }
+
+    /**
+     * Returns the page height in points.
+     * @param int $page
+     * @return float
+     */
+    public function pageHeight(int $page = 0): float
+    {
+        $page = $page ?: $this->page;
+        return $this->pageDimensions[$page]['heightPT'] ?? $this->height;
     }
 
     /**
@@ -1307,6 +1337,17 @@ trait Pages
             self::USE_THUMBS => self::USE_THUMBS,
             default => self::USE_NONE,
         };
+    }
+
+    /**
+     * Returns the page width in points.
+     * @param int $page
+     * @return float
+     */
+    public function pageWidth(int $page = 0): float
+    {
+        $page = $page ?: $this->page;
+        return $this->pageDimensions[$page]['heightPT'] ?? $this->height;
     }
 
     /**
@@ -1336,51 +1377,17 @@ trait Pages
         $this->pageGroupStarts[$page] = sizeof($this->pageGroupStarts) + 1;
     }
 
-#endregion
-#region ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////UNPROCESSED
-
-
-    /**
-     * Returns the page height in units.
-     * @param int|null $pagenum page number (empty = current page)
-     * @return int|float page height.
-     * @author Nicola Asuni
-     * @see    pageDimensions()
-     */
-    public function getPageHeight($pagenum = null)
-    {
-        if (empty($pagenum)) {
-            return $this->height;
-        }
-        return $this->pageDimensions[$pagenum]['h'];
-    }
-
-    /**
-     * Returns the page width in units.
-     * @param int|null $pagenum page number (empty = current page)
-     * @return int|float page width.
-     * @author Nicola Asuni
-     * @see    pageDimensions()
-     */
-    public function getPageWidth($pagenum = null)
-    {
-        if (empty($pagenum)) {
-            return $this->width;
-        }
-        return $this->pageDimensions[$pagenum]['w'];
-    }
-
     /**
      * Switch the contents and references of two pages.
      * @param int $pageA
-     * @param int $pageB
+     * @param int $pageB (must be smaller than page a)
      */
     public function switchPages(int $pageA, int $pageB): void
     {
-        $identity = $pageA === $pageB;
-        $invalidA = ($pageA < 1 or $pageA > $this->pageCount);
-        $invalidB = ($pageB < 1 or $pageB > $this->pageCount);
-        if ($identity or $invalidA or $invalidB) {
+        $invalidA   = ($pageA < 1 or $pageA > $this->pageCount);
+        $invalidB   = ($pageB < 1 or $pageB > $this->pageCount);
+        $valueClash = $pageA >= $pageB;
+        if ($invalidA or $invalidB or $valueClash) {
             return;
         }
 
@@ -1424,116 +1431,96 @@ trait Pages
                 }
             }
         }
-        for ($i = $pageA; $i > $pageB; --$i) {
-            $j = $i - 1;
-            // shift pages down
-            $this->shiftPage($i, $j);
+
+        for ($target = $pageA; $target > $pageB; --$target) {
+            $source = $target - 1;
+            $this->shiftPage($target, $source);
         }
-        $this->pageBuffer($pageB, $pBuffer);
-        $this->pageDimensions[$pageB] = $dBuffer;
-        $this->pageLengths[$pageB]    = $plBuffer;
-        $this->internalMarks[$pageB]  = $imBuffer;
-        $this->borderMarks[$pageB]    = $bmBuffer;
-        $this->contentMarks[$pageB]   = $cmBuffer;
-        $this->pageObjects[$pageB]    = $poBuffer;
-        if (isset($fpBuffer)) {
-            $this->footerPositions[$pageB] = $fpBuffer;
-        }
-        elseif (isset($this->footerPositions[$pageB])) {
-            unset($this->footerPositions[$pageB]);
-        }
+
+        $this->borderMarks[$pageB]   = $bmBuffer;
+        $this->contentMarks[$pageB]  = $cmBuffer;
+        $this->internalMarks[$pageB] = $imBuffer;
         if (isset($flBuffer)) {
             $this->footerLengths[$pageB] = $flBuffer;
         }
         elseif (isset($this->footerLengths[$pageB])) {
             unset($this->footerLengths[$pageB]);
         }
-        if (isset($tBuffer)) {
-            $this->transpositions[$pageB] = $tBuffer;
+        if (isset($fpBuffer)) {
+            $this->footerPositions[$pageB] = $fpBuffer;
         }
-        elseif (isset($this->transpositions[$pageB])) {
-            unset($this->transpositions[$pageB]);
+        elseif (isset($this->footerPositions[$pageB])) {
+            unset($this->footerPositions[$pageB]);
         }
+        $this->pageBuffer($pageB, $pBuffer);
         if (isset($paBuffer)) {
             $this->pageAnnotations[$pageB] = $paBuffer;
         }
         elseif (isset($this->pageAnnotations[$pageB])) {
             unset($this->pageAnnotations[$pageB]);
         }
-        // adjust outlines
-        $tmpoutlines = $this->outlines;
-        foreach ($tmpoutlines as $key => $outline) {
+        $this->pageDimensions[$pageB] = $dBuffer;
+        $this->pageLengths[$pageB]    = $plBuffer;
+        $this->pageObjects[$pageB]    = $poBuffer;
+        if (isset($tBuffer)) {
+            $this->transpositions[$pageB] = $tBuffer;
+        }
+        elseif (isset($this->transpositions[$pageB])) {
+            unset($this->transpositions[$pageB]);
+        }
+
+        foreach ($this->outlines as $key => $outline) {
             if (!$outline['f']) {
                 if (($outline['p'] >= $pageB) and ($outline['p'] < $pageA)) {
                     $this->outlines[$key]['p'] = ($outline['p'] + 1);
                 }
-                elseif ($outline['p'] == $pageA) {
+                elseif ($outline['p'] === $pageA) {
                     $this->outlines[$key]['p'] = $pageB;
                 }
             }
         }
-        // adjust dests
-        $tmpdests = $this->namedDestinationsMap;
-        foreach ($tmpdests as $key => $dest) {
+
+        foreach ($this->namedDestinationsMap as $key => $dest) {
             if (!$dest['f']) {
                 if (($dest['p'] >= $pageB) and ($dest['p'] < $pageA)) {
                     $this->namedDestinationsMap[$key]['p'] = ($dest['p'] + 1);
                 }
-                elseif ($dest['p'] == $pageA) {
+                elseif ($dest['p'] === $pageA) {
                     $this->namedDestinationsMap[$key]['p'] = $pageB;
                 }
             }
         }
-        // adjust links
-        $tmplinks = $this->internalLinks;
-        foreach ($tmplinks as $key => $link) {
+
+        foreach ($this->internalLinks as $key => $link) {
             if (!$link['f']) {
                 if (($link['p'] >= $pageB) and ($link['p'] < $pageA)) {
                     $this->internalLinks[$key]['p'] = ($link['p'] + 1);
                 }
-                elseif ($link['p'] == $pageA) {
+                elseif ($link['p'] === $pageA) {
                     $this->internalLinks[$key]['p'] = $pageB;
                 }
             }
         }
-        // adjust javascript
-        $jfrompage = $pageA;
-        $jtopage   = $pageB;
-        if (preg_match_all('/this\.addField\(\'([^\']*)\',\'([^\']*)\',([0-9]+)/', $this->javascript, $pamatch) > 0) {
-            foreach ($pamatch[0] as $pk => $pmatch) {
-                $pagenum = intval($pamatch[3][$pk]) + 1;
-                if (($pagenum >= $jtopage) and ($pagenum < $jfrompage)) {
-                    $newpage = ($pagenum + 1);
+
+        if (preg_match_all('/this\.addField\(\'([^\']*)\',\'([^\']*)\',([0-9]+)/', $this->javascript, $fields) > 0) {
+            foreach ($fields[0] as $pk => $field) {
+                $fieldPage = (int) $fields[3][$pk] + 1;
+                if (($fieldPage >= $pageB) and ($fieldPage < $pageA)) {
+                    $newPage = ($fieldPage + 1);
                 }
-                elseif ($pagenum == $jfrompage) {
-                    $newpage = $jtopage;
+                elseif ($fieldPage === $pageA) {
+                    $newPage = $pageB;
                 }
                 else {
-                    $newpage = $pagenum;
+                    $newPage = $fieldPage;
                 }
-                --$newpage;
-                $newjs            = "this.addField(\'" . $pamatch[1][$pk] . "\',\'" . $pamatch[2][$pk] . "\'," . $newpage;
-                $this->javascript = str_replace($pmatch, $newjs, $this->javascript);
+                --$newPage;
+                $this->javascript = str_replace($field, "this.addField(\'{$fields[1][$pk]}\',\'{$fields[2][$pk]}\',$newPage", $this->javascript);
             }
-            unset($pamatch);
+            unset($fields);
         }
-        // return to last page
-        $this->turnToLastPage(true);
-    }
 
-    /**
-     * Set page boxes to be included on page descriptions.
-     * @param array $boxes Array of page boxes to set on document: ('MediaBox', 'CropBox', 'BleedBox', 'TrimBox', 'ArtBox').
-     * @protected
-     */
-    protected function setPageBoxTypes($boxes)
-    {
-        $this->pageBoxes = [];
-        foreach ($boxes as $box) {
-            if (in_array($box, self::PAGE_BOXES)) {
-                $this->pageBoxes[] = $box;
-            }
-        }
+        $this->turnToLastPage(true);
     }
 
 #endregion
