@@ -253,40 +253,6 @@ class StaticMethods
     }
 
     /**
-     * Returns an array of hyphenation patterns.
-     * @param string $file TEX file containing hypenation patterns. TEX patterns can be downloaded from http://www.ctan.org/tex-archive/language/hyph-utf8/tex/generic/hyph-utf8/patterns/
-     * @return array of hyphenation patterns
-     * @author Nicola Asuni
-     * @since  4.9.012 (2010-04-12)
-     * @public static
-     */
-    public static function getHyphenPatternsFromTEX($file)
-    {
-        // TEX patterns are available at:
-        // http://www.ctan.org/tex-archive/language/hyph-utf8/tex/generic/hyph-utf8/patterns/
-        $data     = file_get_contents($file);
-        $patterns = [];
-        // remove comments
-        $data = preg_replace('/\%[^\n]*/', '', $data);
-        // extract the patterns part
-        preg_match('/\\\\patterns\{([^\}]*)\}/i', $data, $matches);
-        $data = trim(substr($matches[0], 10, -1));
-        // extract each pattern
-        $patterns_array = preg_split('/[\s]+/', $data);
-        // create new language array of patterns
-        $patterns = [];
-        foreach ($patterns_array as $val) {
-            if (!TCPDF_STATIC::empty_string($val)) {
-                $val            = trim($val);
-                $val            = str_replace('\'', '\\\'', $val);
-                $key            = preg_replace('/[0-9]+/', '', $val);
-                $patterns[$key] = $val;
-            }
-        }
-        return $patterns;
-    }
-
-    /**
      * Returns true if the CSS selector is valid for the selected HTML tag
      * @param array  $dom      array of HTML tags and properties
      * @param int    $key      key of the current HTML tag
@@ -482,20 +448,6 @@ class StaticMethods
             }
         }
         return [$page, $diff];
-    }
-
-    /**
-     * Output data and compress it if possible.
-     * @param string $output
-     * @param int    $length (bytes)
-     */
-    public static function outputData(string $output, int $length): void
-    {
-        if (empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-            // the content length may vary if the server is using compression
-            header('Content-Length: ' . $length);
-        }
-        echo $output;
     }
 
     /**

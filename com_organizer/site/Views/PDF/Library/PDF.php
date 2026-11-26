@@ -275,6 +275,71 @@ class PDF
     }
 
     /**
+     * Append XMP data object and return ID.
+     * @return string.
+     */
+    protected function appendXMP(): string
+    {
+        $objectID = $this->appendObject();
+
+        // set XMP data
+        $xmp   = '<?xpacket begin="' . $this->unicodeCharacter(0xfeff) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n";
+        $xmp   .= '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.2.1-c043 52.372728, 2009/01/18-15:08:04">' . "\n";
+        $xmp   .= "\t" . '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">' . "\n";
+        $xmp   .= "\t\t" . '<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">' . "\n";
+        $xmp   .= "\t\t\t" . '<dc:format>application/pdf</dc:format>' . "\n";
+        $xmp   .= "\t\t\t" . '<dc:title>' . "\n";
+        $xmp   .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
+        $xmp   .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . $this->escapeXML($this->title) . '</rdf:li>' . "\n";
+        $xmp   .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
+        $xmp   .= "\t\t\t" . '</dc:title>' . "\n";
+        $xmp   .= "\t\t\t" . '<dc:creator>' . "\n";
+        $xmp   .= "\t\t\t\t" . '<rdf:Seq>' . "\n";
+        $xmp   .= "\t\t\t\t\t" . '<rdf:li>' . $this->escapeXML($this->author) . '</rdf:li>' . "\n";
+        $xmp   .= "\t\t\t\t" . '</rdf:Seq>' . "\n";
+        $xmp   .= "\t\t\t" . '</dc:creator>' . "\n";
+        $xmp   .= "\t\t\t" . '<dc:description>' . "\n";
+        $xmp   .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
+        $xmp   .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . $this->escapeXML($this->subject) . '</rdf:li>' . "\n";
+        $xmp   .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
+        $xmp   .= "\t\t\t" . '</dc:description>' . "\n";
+        $xmp   .= "\t\t\t" . '<dc:subject>' . "\n";
+        $xmp   .= "\t\t\t\t" . '<rdf:Bag>' . "\n";
+        $xmp   .= "\t\t\t\t\t" . '<rdf:li>' . $this->escapeXML($this->keywords) . '</rdf:li>' . "\n";
+        $xmp   .= "\t\t\t\t" . '</rdf:Bag>' . "\n";
+        $xmp   .= "\t\t\t" . '</dc:subject>' . "\n";
+        $xmp   .= "\t\t" . '</rdf:Description>' . "\n";
+        $cDate = date('Y-m-d', $this->creationTimestamp) . 'T' . date('H:i:s', $this->creationTimestamp) . date('P', $this->creationTimestamp);
+        $cDate = $this->escapeXML($cDate);
+        $mDate = date('Y-m-d', $this->modificationTimestamp) . 'T' . date('H:i:s', $this->modificationTimestamp) . date('P', $this->modificationTimestamp);
+        $mDate = $this->escapeXML($mDate);
+        $xmp   .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">' . "\n";
+        $xmp   .= "\t\t\t" . '<xmp:CreateDate>' . $cDate . '</xmp:CreateDate>' . "\n";
+        $xmp   .= "\t\t\t" . '<xmp:CreatorTool>' . $this->creator . '</xmp:CreatorTool>' . "\n";
+        $xmp   .= "\t\t\t" . '<xmp:ModifyDate>' . $mDate . '</xmp:ModifyDate>' . "\n";
+        $xmp   .= "\t\t\t" . '<xmp:MetadataDate>' . $cDate . '</xmp:MetadataDate>' . "\n";
+        $xmp   .= "\t\t" . '</rdf:Description>' . "\n";
+        $xmp   .= "\t\t" . '<rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">' . "\n";
+        $xmp   .= "\t\t\t" . '<pdf:Keywords>' . $this->escapeXML($this->keywords) . '</pdf:Keywords>' . "\n";
+        $xmp   .= "\t\t\t" . '<pdf:Producer>' . $this->escapeXML($this->producer()) . '</pdf:Producer>' . "\n";
+        $xmp   .= "\t\t" . '</rdf:Description>' . "\n";
+        $xmp   .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/">' . "\n";
+        $uuid  = 'uuid:' . substr($this->fileID, 0, 8) . '-' . substr($this->fileID, 8, 4) . '-' . substr($this->fileID, 12, 4) . '-' . substr($this->fileID, 16, 4) . '-' . substr($this->fileID, 20, 12);
+        $xmp   .= "\t\t\t" . '<xmpMM:DocumentID>' . $uuid . '</xmpMM:DocumentID>' . "\n";
+        $xmp   .= "\t\t\t" . '<xmpMM:InstanceID>' . $uuid . '</xmpMM:InstanceID>' . "\n";
+        $xmp   .= "\t\t" . '</rdf:Description>' . "\n";
+        // XMP extension schemas
+        $xmp .= $this->custom_xmp_rdf;
+        $xmp .= "\t" . '</rdf:RDF>' . "\n";
+        $xmp .= $this->custom_xmp;
+        $xmp .= '</x:xmpmeta>' . "\n";
+        $xmp .= '<?xpacket end="w"?>';
+        $out = '<< /Type /Metadata /Subtype /XML /Length ' . strlen($xmp) . ' >> stream' . "\n" . $xmp . "\n" . 'endstream' . "\n" . 'endobj';
+        $this->append($out);
+        return $objectID;
+    }
+
+    /**
      * Defines the author of the document.
      * @param string $author
      */
@@ -778,6 +843,121 @@ class PDF
 #endregion
 #region /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PROCESSED
 
+
+    /**
+     * Output Catalog.
+     * @return int object id
+     */
+    protected function appendCatalog(): string
+    {
+        $xmpObjectID = $this->appendXMP();
+
+        // start catalog
+        $oid = $this->appendObject();
+        $out = '<< /Type /Catalog /Version /1.7 /Pages 1 0 R /Names <<';
+
+        if ($this->javascriptCounter) {
+            $out .= ' /JavaScript ' . $this->javascriptCounter;
+        }
+
+        if ($this->embeddedFileNames) {
+            $out .= ' /EmbeddedFiles <</Names [';
+            foreach ($this->embeddedFileNames as $name => $reference) {
+                $out .= ' ' . $this->metadataDataString($name) . ' ' . $reference;
+            }
+            $out .= ' ]>>';
+        }
+
+        $out .= ' >>';
+
+        if ($this->namedDestinationsMap) {
+            $out .= ' /Dests ' . ($this->namedDestinationID) . ' 0 R';
+        }
+
+        $out .= $this->_putviewerpreferences();
+        if (isset($this->layoutMode) and (!StaticMethods::empty_string($this->layoutMode))) {
+            $out .= ' /PageLayout /' . $this->layoutMode;
+        }
+        if (isset($this->pageMode) and (!StaticMethods::empty_string($this->pageMode))) {
+            $out .= ' /PageMode /' . $this->pageMode;
+        }
+        if (count($this->outlines) > 0) {
+            $out .= ' /Outlines ' . $this->OutlineRoot . ' 0 R';
+            $out .= ' /PageMode /UseOutlines';
+        }
+        //$out .= ' /Threads []';
+        if ($this->pageZoom === self::FULL_PAGE) {
+            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /Fit]';
+        }
+        elseif ($this->pageZoom === self::FULL_WIDTH) {
+            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /FitH null]';
+        }
+        elseif ($this->pageZoom === self::REAL_SIZE) {
+            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /XYZ null null 1]';
+        }
+        $out .= ' /Metadata ' . $xmpObjectID . ' 0 R';
+        if (!empty($this->layers)) {
+            $lyrobjs      = '';
+            $lyrobjs_off  = '';
+            $lyrobjs_lock = '';
+            foreach ($this->layers as $layer) {
+                $layer_obj_ref = ' ' . $layer['objid'] . ' 0 R';
+                $lyrobjs       .= $layer_obj_ref;
+                if ($layer['view'] === false) {
+                    $lyrobjs_off .= $layer_obj_ref;
+                }
+                if ($layer['lock']) {
+                    $lyrobjs_lock .= $layer_obj_ref;
+                }
+            }
+            $out .= ' /OCProperties << /OCGs [' . $lyrobjs . ']';
+            $out .= ' /D <<';
+            $out .= ' /Name ' . $this->metadataTextString('Layers');
+            $out .= ' /Creator ' . $this->metadataTextString('TCPDF');
+            $out .= ' /BaseState /ON';
+            $out .= ' /OFF [' . $lyrobjs_off . ']';
+            $out .= ' /Locked [' . $lyrobjs_lock . ']';
+            $out .= ' /Intent /View';
+            $out .= ' /AS [';
+            $out .= ' << /Event /Print /OCGs [' . $lyrobjs . '] /Category [/Print] >>';
+            $out .= ' << /Event /View /OCGs [' . $lyrobjs . '] /Category [/View] >>';
+            $out .= ' ]';
+            $out .= ' /Order [' . $lyrobjs . ']';
+            $out .= ' /ListMode /AllPages';
+            //$out .= ' /RBGroups ['..']';
+            //$out .= ' /Locked ['..']';
+            $out .= ' >>';
+            $out .= ' >>';
+        }
+        // AcroForm
+        if (!empty($this->annotationIDs)) {
+            $out     .= ' /AcroForm <<';
+            $objrefs = '';
+            if (!empty($this->annotationIDs)) {
+                foreach ($this->annotationIDs as $objid) {
+                    $objrefs .= ' ' . $objid . ' 0 R';
+                }
+            }
+            $out .= ' /Fields [' . $objrefs . ']';
+            // It's better to turn off this value and set the appearance stream for each annotation (/AP) to avoid conflicts with signature fields.
+            $out .= ' /NeedAppearances false';
+            if (isset($this->annotationFonts) and !empty($this->annotationFonts)) {
+                $out .= ' /DR <<';
+                $out .= ' /Font <<';
+                foreach ($this->annotationFonts as $fontKey => $fontID) {
+                    $out .= ' /F' . $fontID . ' ' . $this->fontObjectIDs[$fontKey] . ' 0 R';
+                }
+                $out .= ' >> >>';
+            }
+            $font = $this->fontBuffer('helvetica');
+            $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g) /Q 0';
+            $out  .= ' >>';
+        }
+        $out .= ' >>';
+        $out .= "\n" . 'endobj';
+        $this->append($out);
+        return $oid;
+    }
 
     /**
      * Print a Linear Barcode.
@@ -3408,193 +3588,6 @@ class PDF
     }
 
     /**
-     * Put XMP data object and return ID.
-     * @return int The object ID.
-     */
-    protected function _putXMP()
-    {
-        $oid = $this->appendObject();
-        // set XMP data
-        $xmp = '<?xpacket begin="' . $this->unicodeCharacter(0xfeff) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n";
-        $xmp .= '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.2.1-c043 52.372728, 2009/01/18-15:08:04">' . "\n";
-        $xmp .= "\t" . '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">' . "\n";
-        $xmp .= "\t\t" . '<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">' . "\n";
-        $xmp .= "\t\t\t" . '<dc:format>application/pdf</dc:format>' . "\n";
-        $xmp .= "\t\t\t" . '<dc:title>' . "\n";
-        $xmp .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . $this->escapeXML($this->title) . '</rdf:li>' . "\n";
-        $xmp .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t" . '</dc:title>' . "\n";
-        $xmp .= "\t\t\t" . '<dc:creator>' . "\n";
-        $xmp .= "\t\t\t\t" . '<rdf:Seq>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . $this->escapeXML($this->author) . '</rdf:li>' . "\n";
-        $xmp .= "\t\t\t\t" . '</rdf:Seq>' . "\n";
-        $xmp .= "\t\t\t" . '</dc:creator>' . "\n";
-        $xmp .= "\t\t\t" . '<dc:description>' . "\n";
-        $xmp .= "\t\t\t\t" . '<rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li xml:lang="x-default">' . $this->escapeXML($this->subject) . '</rdf:li>' . "\n";
-        $xmp .= "\t\t\t\t" . '</rdf:Alt>' . "\n";
-        $xmp .= "\t\t\t" . '</dc:description>' . "\n";
-        $xmp .= "\t\t\t" . '<dc:subject>' . "\n";
-        $xmp .= "\t\t\t\t" . '<rdf:Bag>' . "\n";
-        $xmp .= "\t\t\t\t\t" . '<rdf:li>' . $this->escapeXML($this->keywords) . '</rdf:li>' . "\n";
-        $xmp .= "\t\t\t\t" . '</rdf:Bag>' . "\n";
-        $xmp .= "\t\t\t" . '</dc:subject>' . "\n";
-        $xmp .= "\t\t" . '</rdf:Description>' . "\n";
-        // convert doc creation date format
-        $dcdate          = $this->formattedDate($this->creationTimestamp);
-        $doccreationdate = substr($dcdate, 0, 4) . '-' . substr($dcdate, 4, 2) . '-' . substr($dcdate, 6, 2);
-        $doccreationdate .= 'T' . substr($dcdate, 8, 2) . ':' . substr($dcdate, 10, 2) . ':' . substr($dcdate, 12, 2);
-        $doccreationdate .= substr($dcdate, 14, 3) . ':' . substr($dcdate, 18, 2);
-        $doccreationdate = $this->escapeXML($doccreationdate);
-        // convert doc modification date format
-        $dmdate     = $this->formattedDate($this->modificationTimestamp);
-        $docmoddate = substr($dmdate, 0, 4) . '-' . substr($dmdate, 4, 2) . '-' . substr($dmdate, 6, 2);
-        $docmoddate .= 'T' . substr($dmdate, 8, 2) . ':' . substr($dmdate, 10, 2) . ':' . substr($dmdate, 12, 2);
-        $docmoddate .= substr($dmdate, 14, 3) . ':' . substr($dmdate, 18, 2);
-        $docmoddate = $this->escapeXML($docmoddate);
-        $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">' . "\n";
-        $xmp        .= "\t\t\t" . '<xmp:CreateDate>' . $doccreationdate . '</xmp:CreateDate>' . "\n";
-        $xmp        .= "\t\t\t" . '<xmp:CreatorTool>' . $this->creator . '</xmp:CreatorTool>' . "\n";
-        $xmp        .= "\t\t\t" . '<xmp:ModifyDate>' . $docmoddate . '</xmp:ModifyDate>' . "\n";
-        $xmp        .= "\t\t\t" . '<xmp:MetadataDate>' . $doccreationdate . '</xmp:MetadataDate>' . "\n";
-        $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
-        $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">' . "\n";
-        $xmp        .= "\t\t\t" . '<pdf:Keywords>' . $this->escapeXML($this->keywords) . '</pdf:Keywords>' . "\n";
-        $xmp        .= "\t\t\t" . '<pdf:Producer>' . $this->escapeXML($this->producer()) . '</pdf:Producer>' . "\n";
-        $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
-        $xmp        .= "\t\t" . '<rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/">' . "\n";
-        $uuid       = 'uuid:' . substr($this->fileID, 0, 8) . '-' . substr($this->fileID, 8, 4) . '-' . substr($this->fileID, 12, 4) . '-' . substr($this->fileID, 16, 4) . '-' . substr($this->fileID, 20, 12);
-        $xmp        .= "\t\t\t" . '<xmpMM:DocumentID>' . $uuid . '</xmpMM:DocumentID>' . "\n";
-        $xmp        .= "\t\t\t" . '<xmpMM:InstanceID>' . $uuid . '</xmpMM:InstanceID>' . "\n";
-        $xmp        .= "\t\t" . '</rdf:Description>' . "\n";
-        // XMP extension schemas
-        $xmp .= $this->custom_xmp_rdf;
-        $xmp .= "\t" . '</rdf:RDF>' . "\n";
-        $xmp .= $this->custom_xmp;
-        $xmp .= '</x:xmpmeta>' . "\n";
-        $xmp .= '<?xpacket end="w"?>';
-        $out = '<< /Type /Metadata /Subtype /XML /Length ' . strlen($xmp) . ' >> stream' . "\n" . $xmp . "\n" . 'endstream' . "\n" . 'endobj';
-        $this->append($out);
-        return $oid;
-    }
-
-    /**
-     * Output Catalog.
-     * @return int object id
-     */
-    protected function _putcatalog()
-    {
-        // put XMP
-        $xmpobj = $this->_putXMP();
-        // start catalog
-        $oid = $this->appendObject();
-        $out = '<< /Type /Catalog';
-        $out .= ' /Version /1.7';
-        //$out .= ' /Extensions <<>>';
-        $out .= ' /Pages 1 0 R';
-        //$out .= ' /PageLabels ' //...;
-        $out .= ' /Names <<';
-        if (!empty($this->javascriptCounter)) {
-            $out .= ' /JavaScript ' . $this->javascriptCounter;
-        }
-        if (!empty($this->embeddedFileNames)) {
-            $out .= ' /EmbeddedFiles <</Names [';
-            foreach ($this->embeddedFileNames as $fn => $fref) {
-                $out .= ' ' . $this->metadataDataString($fn) . ' ' . $fref;
-            }
-            $out .= ' ]>>';
-        }
-        $out .= ' >>';
-        if (!empty($this->namedDestinationsMap)) {
-            $out .= ' /Dests ' . ($this->namedDestinationID) . ' 0 R';
-        }
-        $out .= $this->_putviewerpreferences();
-        if (isset($this->layoutMode) and (!StaticMethods::empty_string($this->layoutMode))) {
-            $out .= ' /PageLayout /' . $this->layoutMode;
-        }
-        if (isset($this->pageMode) and (!StaticMethods::empty_string($this->pageMode))) {
-            $out .= ' /PageMode /' . $this->pageMode;
-        }
-        if (count($this->outlines) > 0) {
-            $out .= ' /Outlines ' . $this->OutlineRoot . ' 0 R';
-            $out .= ' /PageMode /UseOutlines';
-        }
-        //$out .= ' /Threads []';
-        if ($this->pageZoom === self::FULL_PAGE) {
-            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /Fit]';
-        }
-        elseif ($this->pageZoom === self::FULL_WIDTH) {
-            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /FitH null]';
-        }
-        elseif ($this->pageZoom === self::REAL_SIZE) {
-            $out .= ' /OpenAction [' . $this->pageObjectIDs[1] . ' 0 R /XYZ null null 1]';
-        }
-        $out .= ' /Metadata ' . $xmpobj . ' 0 R';
-        if (!empty($this->layers)) {
-            $lyrobjs      = '';
-            $lyrobjs_off  = '';
-            $lyrobjs_lock = '';
-            foreach ($this->layers as $layer) {
-                $layer_obj_ref = ' ' . $layer['objid'] . ' 0 R';
-                $lyrobjs       .= $layer_obj_ref;
-                if ($layer['view'] === false) {
-                    $lyrobjs_off .= $layer_obj_ref;
-                }
-                if ($layer['lock']) {
-                    $lyrobjs_lock .= $layer_obj_ref;
-                }
-            }
-            $out .= ' /OCProperties << /OCGs [' . $lyrobjs . ']';
-            $out .= ' /D <<';
-            $out .= ' /Name ' . $this->metadataTextString('Layers');
-            $out .= ' /Creator ' . $this->metadataTextString('TCPDF');
-            $out .= ' /BaseState /ON';
-            $out .= ' /OFF [' . $lyrobjs_off . ']';
-            $out .= ' /Locked [' . $lyrobjs_lock . ']';
-            $out .= ' /Intent /View';
-            $out .= ' /AS [';
-            $out .= ' << /Event /Print /OCGs [' . $lyrobjs . '] /Category [/Print] >>';
-            $out .= ' << /Event /View /OCGs [' . $lyrobjs . '] /Category [/View] >>';
-            $out .= ' ]';
-            $out .= ' /Order [' . $lyrobjs . ']';
-            $out .= ' /ListMode /AllPages';
-            //$out .= ' /RBGroups ['..']';
-            //$out .= ' /Locked ['..']';
-            $out .= ' >>';
-            $out .= ' >>';
-        }
-        // AcroForm
-        if (!empty($this->annotationIDs)) {
-            $out     .= ' /AcroForm <<';
-            $objrefs = '';
-            if (!empty($this->annotationIDs)) {
-                foreach ($this->annotationIDs as $objid) {
-                    $objrefs .= ' ' . $objid . ' 0 R';
-                }
-            }
-            $out .= ' /Fields [' . $objrefs . ']';
-            // It's better to turn off this value and set the appearance stream for each annotation (/AP) to avoid conflicts with signature fields.
-            $out .= ' /NeedAppearances false';
-            if (isset($this->annotationFonts) and !empty($this->annotationFonts)) {
-                $out .= ' /DR <<';
-                $out .= ' /Font <<';
-                foreach ($this->annotationFonts as $fontKey => $fontID) {
-                    $out .= ' /F' . $fontID . ' ' . $this->fontObjectIDs[$fontKey] . ' 0 R';
-                }
-                $out .= ' >> >>';
-            }
-            $font = $this->fontBuffer('helvetica');
-            $out  .= ' /DA (/F' . $font['i'] . ' 0 Tf 0 g) /Q 0';
-            $out  .= ' >>';
-        }
-        $out .= ' >>';
-        $out .= "\n" . 'endobj';
-        $this->append($out);
-        return $oid;
-    }
-
-    /**
      * Output viewer preferences.
      * @return string for viewer preferences
      * @author Nicola asuni
@@ -3682,7 +3675,7 @@ class PDF
         // Info
         $objid_info = $this->appendMetadata();
         // Catalog
-        $objid_catalog = $this->_putcatalog();
+        $objid_catalog = $this->appendCatalog();
         // Cross-ref
         $o = $this->bufferLength;
         // XREF section
